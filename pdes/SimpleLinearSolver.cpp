@@ -1,5 +1,7 @@
 #include "SimpleLinearSolver.hpp"
 #include "petscksp.h"
+#include "Exception.hpp"
+#include <sstream>
 
 Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
 {
@@ -16,5 +18,16 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     KSPSetOperators(simple_solver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
     KSPSetUp(simple_solver);   
     KSPSolve(simple_solver,rhsVector,lhs_vector);
+    
+    // Check that solver converged and throw if not
+    KSPConvergedReason reason;
+    KSPGetConvergedReason(simple_solver, &reason);
+    if (reason<0)
+    {
+    	std::stringstream reason_stream;
+    	reason_stream << reason;
+    	throw Exception("Linear Solver did not converge. Petsc reason code:"
+    	                +reason_stream.str()+" .");
+    }
     return lhs_vector;
 }
