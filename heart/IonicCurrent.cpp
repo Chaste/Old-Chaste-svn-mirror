@@ -20,7 +20,7 @@ IonicCurrent::IonicCurrent(void)
  */
 IonicCurrent::IonicCurrent(const double &rMagnitudeOfCurrent)
 {	
-	mMagnitudeOfCurrent = magnitude;
+	mMagnitudeOfCurrent = rMagnitudeOfCurrent;
 }
 
 /**
@@ -38,7 +38,7 @@ IonicCurrent::~IonicCurrent(void)
  */
 void IonicCurrent::SetMagnitudeOfCurrent(const double &rMagnitudeOfCurrent)
 {
-	mMagnitudeOfCurrent = magnitude;
+	mMagnitudeOfCurrent = rMagnitudeOfCurrent;
 }
 
 /**
