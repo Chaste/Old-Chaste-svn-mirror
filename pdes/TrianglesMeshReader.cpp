@@ -20,22 +20,6 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mppNodes = MakeDoubleDynamicArray(mNumNodes,3);
 	
 	nodeFile.close();
-	
-	std::string elementFileName=pathBaseName+".ele";
-	std::ifstream elementFile(elementFileName.c_str());
-	
-	
-	if (!elementFile.is_open())
-	{
-		throw Exception("Could not open element file "+elementFileName+" .");
-	}
-	
-	int numAttributes, maxBoundaryMarkers;
-	elementFile >> mNumElements >> mDimension >> numAttributes >> maxBoundaryMarkers;
-	
-	mppNodes = MakeDoubleDynamicArray(mNumNodes,3);
-	
-	nodeFile.close();
 }
 
 TrianglesMeshReader::~TrianglesMeshReader()
