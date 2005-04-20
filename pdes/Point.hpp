@@ -11,6 +11,24 @@ private:
 
 public:
 
+	/**
+	 * Create a Point object.
+	 * There are 3 optional arguments, which can be used to specify the values
+	 * of the first 3 dimensions, if present.
+	 */
+	Point(double v1=0, double v2=0, double v3=0)
+	{
+		mLocation[0] = v1;
+		if (DIM>1)
+		{
+			mLocation[1] = v2;
+		}
+		if (DIM>2)
+		{
+			mLocation[2] = v3;
+		}		
+	}
+
     double operator[] (unsigned i) const
     {
         assert(i<DIM); 
@@ -24,6 +42,7 @@ public:
     } 
     
 };
+
 
 
 #endif //_POINT_HPP_
