@@ -2,24 +2,22 @@
 #define _TESTTRIANGLESMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../AbstractMeshReader.hpp"
+#include "../TrianglesMeshReader.hpp"
 
 class TestTrianglesMeshReaders : public CxxTest::TestSuite
 {
 	public:
 	void testFilesOpen(void)
 	{
-		bool success;
 		
 		//TriangleMeshReader meshReader("disk_522_elements");
-		AbstractMeshReader *pmeshReader=new AbstractMeshReader("disk_522_elements");
+		AbstractMeshReader *pmeshReader;
 		
-		//success=meshReader.IsReaderSuccess();
-		//TS_ASSERT(success);
 		
-		success=pmeshReader->IsReaderSuccess();
+		TS_ASSERT_THROWS_NOTHING(
+		                  pmeshReader=new TrianglesMeshReader("pdes/tests/meshdata/disk_522_elements"));
 		
-		TS_ASSERT(success);
+	
 	}
 };
 
