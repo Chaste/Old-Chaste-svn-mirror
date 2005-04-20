@@ -14,10 +14,14 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.fullBuildTarget</key>
-					<value>clean all</value>
+					<value></value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.incrementalBuildTarget</key>
+					<value></value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.buildLocation</key>
 					<value></value>
 				</dictionary>
 				<dictionary>
@@ -25,12 +29,8 @@
 					<value>false</value>
 				</dictionary>
 				<dictionary>
-					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value></value>
-				</dictionary>
-				<dictionary>
 					<key>org.eclipse.cdt.make.core.enableFullBuild</key>
-					<value>false</value>
+					<value>true</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.enabledIncrementalBuild</key>
