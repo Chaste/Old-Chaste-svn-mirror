@@ -1,0 +1,25 @@
+import glob
+import os
+
+curdir = os.getcwd()
+
+os.chdir('../')
+files = glob.glob('*.cpp') 
+os.chdir(curdir)
+
+testfiles = glob.glob('../tests/Test*.hpp')
+
+base  = '-Icxxtest  -Idatawriters -I. '
+
+opt = Environment(CCFLAGS = base ,CXX='/usr/bin/g++')
+test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
+runtests = Builder(action = './$SOURCE | tee $TARGET')
+
+opt['BUILDERS']['Test'] = test
+opt['BUILDERS']['RunTests'] = runtests
+
+opt.Library('datawriter',files)
+opt.Test('runner.cpp',testfiles) 
+
+opt.Program('testrunner',['runner.cpp'], LIBS=['datawriter'],LIBPATH=['.'])
+opt.RunTests('build.log','testrunner')
