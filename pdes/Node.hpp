@@ -14,6 +14,8 @@ private:
     
 public:
 
+	Node() {}
+	
 	Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
 	{
 		mPoint = point;
