@@ -4,6 +4,7 @@
 #include "Point.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
+#include <cxxtest/TestSuite.h>
 
 #include <vector>
 

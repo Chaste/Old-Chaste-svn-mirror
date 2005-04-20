@@ -3,6 +3,7 @@
 
 #include "Point.hpp"
 #include "Node.hpp"
+#include <cxxtest/TestSuite.h>
 
 class TestNode : public CxxTest::TestSuite 
 {

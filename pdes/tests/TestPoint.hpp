@@ -2,6 +2,7 @@
 #define _TESTPOINT_HPP_
 
 #include "Point.hpp"
+#include <cxxtest/TestSuite.h>
 
 class TestPoint : public CxxTest::TestSuite 
 {
