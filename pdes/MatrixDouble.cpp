@@ -159,3 +159,19 @@ MatrixDouble MatrixDouble::Inverse( void )
 	}
 	return Inverse;
 }
+
+VectorDouble MatrixDouble::operator*(VectorDouble& rSomeVector)
+{
+	assert(mColumns==rSomeVector.Size());
+	VectorDouble result(mRows);
+	int index;
+	for( int i = 0; i < mRows; i++)
+	{
+		for(int j = 0; j < mColumns; j++)
+		{
+			index = j + mColumns*i;
+			result(i) += mElementArray[index]*rSomeVector(j);
+		}
+	}
+	return result;
+}

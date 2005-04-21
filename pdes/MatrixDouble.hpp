@@ -1,5 +1,6 @@
 #ifndef _MATRIXDOUBLE_HPP_
 #define _MATRIXDOUBLE_HPP_
+#include "VectorDouble.hpp"
 
 class MatrixDouble
 {
@@ -21,7 +22,7 @@ class MatrixDouble
 		double Determinant( void );
 		
 		MatrixDouble& operator*(double scalar);
-		
+		VectorDouble operator*(VectorDouble& rSomeVector);
 };
 
 #endif //_MATRIXDOUBLE_HPP_

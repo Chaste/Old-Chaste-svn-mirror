@@ -2,6 +2,7 @@
 #define _TESTMATRIXDOUBLE_HPP_
 
 #include "MatrixDouble.hpp"
+#include "VectorDouble.hpp"
 
 class TestMatrixDouble : public CxxTest::TestSuite
 {
@@ -178,6 +179,31 @@ class TestMatrixDouble : public CxxTest::TestSuite
 			}
 		}
 			
+	}
+	
+	void TestMatrixVectorMultiplication( void )
+	{
+		MatrixDouble A(3,2);
+		VectorDouble b(2);
+		VectorDouble c(3);
+		VectorDouble matlab_calc_c(3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		b(0) = 1;
+		b(1) = 2;
+		matlab_calc_c(0) = 12.4;
+		matlab_calc_c(1) = 17.0;
+		matlab_calc_c(2) = 22.0;
+		c = A * b;
+		for( int i = 0; i < 3; i++)
+		{
+			TS_ASSERT_DELTA( c(i), matlab_calc_c(i), 0.000001);
+		}
+		
 	}
 
 }; 
