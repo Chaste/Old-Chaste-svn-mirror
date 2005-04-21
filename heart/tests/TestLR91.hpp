@@ -7,11 +7,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "SodiumCurrent.hpp"
+#include "SodiumCurrentLR91.hpp"
 #include "BackgroundCurrentLR91.hpp"
 #include "PlateauPotassiumCurrentLR91.hpp"
 #include "CalciumConcentrationLR91.hpp"
 #include "SlowInwardCurrentLR91.hpp"
+#include "PotassiumTimeDependentCurrentLR91.hpp"
 #include "TransmembranePotentialLR91.hpp"
 //#include "TimeDependentPotassiumCurrent.hpp"
 //#include "LuoRudyModel.hpp" 
@@ -24,14 +25,14 @@ class TestLR91 : public CxxTest::TestSuite
     // Tests that currents INa and IK are calculated correctly
     void testCurrentsMagnitude( void )
     {
-        SodiumCurrent *pINa;
+        SodiumCurrentLR91 *pINa;
         //SodiumCurrent(double m, double h);
         double m = 0.5;
         double h = 0.01;
         double j = 0.1;
         double V = -10.0;
         
-        pINa = new SodiumCurrent();
+        pINa = new SodiumCurrentLR91();
         
         pINa->UpdateMagnitudeOfCurrent(V, m, h, j);
         double iNa = pINa->GetMagnitudeOfCurrent();
@@ -88,6 +89,8 @@ class TestLR91 : public CxxTest::TestSuite
         
         std::cout << "\n" << "Slow inward current is " <<  iSi << "\n";  
         TS_ASSERT_DELTA(  iSi , gSi * d *f * (V - eSi), 0.0001);    
+        
+         
         
         //test transmembrane potentail works;
         double iTotal = 10;
