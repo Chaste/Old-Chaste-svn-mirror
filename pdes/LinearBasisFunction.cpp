@@ -2,6 +2,11 @@
 #include "Point.hpp"
 #include <cassert>
 
+/**
+ * Linear basis functions are implemented entirely for 1D at present.
+ * 2D and 3D derivatives still need to be implemented.
+ */
+
 template <int ELEM_DIM>
 double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex)
 {
@@ -62,6 +67,8 @@ template <int ELEM_DIM>
 VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex)
 {
     VectorDouble gradN(ELEM_DIM);
+    
+    assert(ELEM_DIM == 1); // TODO
     
     if(basisIndex == 0)
     {
