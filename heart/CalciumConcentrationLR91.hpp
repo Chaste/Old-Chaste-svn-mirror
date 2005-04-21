@@ -18,7 +18,7 @@ class CalciumConcentrationLR91 : public IonicConcentrationLR91
         // Destructor
         ~CalciumConcentrationLR91();
         double GetCaI();
-        void UpdateMagnitudeOfIonicConcentration(double caI);
+        void SetMagnitudeOfIonicConcentration(double caI);
         double ComputeCalciumPrime(double voltage, double d, double f, double caI, double iSi);
 };
 

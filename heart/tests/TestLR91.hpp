@@ -72,7 +72,7 @@ class TestLR91 : public CxxTest::TestSuite
         double caI = 4; 
         CalciumConcentrationLR91 *pCaI;
         pCaI = new CalciumConcentrationLR91();
-        pCaI->UpdateMagnitudeOfIonicConcentration(caI);
+        pCaI->SetMagnitudeOfIonicConcentration(caI);
         double iCa = pCaI->GetMagnitudeOfIonicConcentration();
          
         std::cout << "\n" << "Intracellular calcium is " <<  iCa << "\n";      

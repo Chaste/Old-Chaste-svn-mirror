@@ -16,7 +16,7 @@
 //#include "PotassiumTimeDependentCurrentLR91.hpp"
  
 #include <iostream>
-
+#include <vector>
 //#include "petscvec.h"
 
 class LR91OdeFun //: public AbstractOdeSystem
@@ -41,7 +41,7 @@ class LR91OdeFun //: public AbstractOdeSystem
         
         // This mehtod will compute the RHS of the Luo--Rudy model
         // void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
-        //void ComputingRHS(tOfStimulus, std::vector<double> initCond); 
+        void ComputingRHS(double tOfStimulus, std::vector<double> pInitCond); 
 };
  
 #endif //_LR91ODEFUN_HPP_
