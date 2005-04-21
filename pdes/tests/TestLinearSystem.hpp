@@ -9,6 +9,11 @@
 class TestLinearSystem : public CxxTest::TestSuite 
 {
 public:
+    void setUp()
+    {
+        PetscInitialize(0,NULL,0,0);
+    }   
+    
     void testLinearSystem( void )
     {
         
