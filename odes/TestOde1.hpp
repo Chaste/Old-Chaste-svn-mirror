@@ -9,7 +9,7 @@ class TestOde1 : public AbstractOdeSystem
 	public :
 	TestOde1(double t, double * y);
 	
-	void EvaluateYPrime (double rTime, double * rY, double * rYPrime);
+	void EvaluateYDerivatives (double rTime, double * rY, double * rYDerivatives);
 
 };
 

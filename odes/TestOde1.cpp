@@ -7,8 +7,8 @@ TestOde1::TestOde1(double t, double * y) : AbstractOdeSystem(1, t, y)
 // Use AbstractOdeSystem constructors	
 }
 
-void TestOde1::EvaluateYPrime(double t, double *y, double * yPrime)
+void TestOde1::EvaluateYDerivatives(double t, double *y, double * yDerivatives)
 {
-	yPrime[0]=t;
+	yDerivatives[0]=t;
 }
 	

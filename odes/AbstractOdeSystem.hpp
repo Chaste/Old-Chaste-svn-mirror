@@ -15,7 +15,7 @@ class AbstractOdeSystem
 	AbstractOdeSystem(const int& rNumberOfEquations,const double& rTInit, double * rYInit);
 	~AbstractOdeSystem();
 	
-	virtual void EvaluateYPrime (double rTime, double * rY, double * rYPrime) = 0;
+	virtual void EvaluateYDerivatives (double rTime, double * rY, double * rYDerivatives) = 0;
 	
 	
 };
