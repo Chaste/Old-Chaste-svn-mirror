@@ -5,7 +5,6 @@
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
-//#include "petscvec.h"
 #include <vector>
 
 class EulerIvpOdeSolver : public AbstractIvpOdeSolver
@@ -14,10 +13,10 @@ class EulerIvpOdeSolver : public AbstractIvpOdeSolver
 	EulerIvpOdeSolver() {};
 	
 	virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				double startTime,
-				double endTime,
-				double timeStep,
-				std::vector<double> initialConditions);
+				              double startTime,
+				              double endTime,
+				              double timeStep,
+				              std::vector<double> initialConditions);
 	
 };
 
