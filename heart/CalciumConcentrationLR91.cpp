@@ -1,7 +1,7 @@
 /**
  * CalciumConcentrationLR91.cpp
  * 
- * Cai.
+ * [Ca_i], Intracellular Calcium concentration
  */
 #include "CalciumConcentrationLR91.hpp"
 #include "SlowInwardCurrentLR91.hpp"
@@ -9,10 +9,8 @@
 
 /**
  * Constructor
- * 
- * @param CaI    Initial value for intracellular calcium concentration
  */
-CalciumConcentrationLR91::CalciumConcentrationLR91()
+CalciumConcentrationLR91::CalciumConcentrationLR91(void)
 {   
     mMagnitudeOfIonicConcentration = 0.0; // Set to 0.0 initially, its a variable of IonicCurrent class
 }
@@ -25,34 +23,14 @@ CalciumConcentrationLR91::~CalciumConcentrationLR91()
     // Do nothing
 }
 
-
 /**
- * Get Kp.
- * 
- */
-
-double CalciumConcentrationLR91::GetCaI()
-{   
-    return mMagnitudeOfIonicConcentration;
-}
-
-
-/**
- * Update magnitude of intracellular Ca concentration, Cai.
+ * Compute Ca_i'.
  * 
  * @param voltage Current transmembrane voltage
+ * @param d       Current value of d gating variable
+ * @param f       Current value of f gating variable
  * @param caI     Intracellular calcium concentration
- */
-void CalciumConcentrationLR91::SetMagnitudeOfIonicConcentration(double caI)
-{    
-    mMagnitudeOfIonicConcentration = caI;
-} 
-
-/**
- * Compute CaiPrime.
- * 
- * @param voltage Current transmembrane voltage
- * @param caI     Intracellular calcium concentration
+ * @param iSi     Current value of slow inward current
  */
 double CalciumConcentrationLR91::ComputeCalciumPrime(double voltage, double d, double f, double caI, double iSi)
 {   

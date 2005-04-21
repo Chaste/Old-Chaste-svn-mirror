@@ -1,25 +1,20 @@
 #ifndef _CALCIUMCONCENTRATIONLR91_HPP_
 #define _CALCIUMCONCENTRATIONLR91_HPP_
 
-#include "IonicConcentrationLR91.hpp"
+#include "IonicConcentration.hpp"
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
-class CalciumConcentrationLR91 : public IonicConcentrationLR91
+class CalciumConcentrationLR91 : public IonicConcentration
 {
     private:
-        // intracellular calcium concentration 
-        double mCaI;
           
     public:
         // Constructor
-        CalciumConcentrationLR91();
+        CalciumConcentrationLR91(void);
         // Destructor
-        ~CalciumConcentrationLR91();
-        double GetCaI();
-        void SetMagnitudeOfIonicConcentration(double caI);
+        ~CalciumConcentrationLR91(void);
         double ComputeCalciumPrime(double voltage, double d, double f, double caI, double iSi);
 };
-
 
 #endif //_CALCIUMCONCENTRATIONLR91_HPP_
