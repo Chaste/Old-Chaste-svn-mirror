@@ -10,10 +10,10 @@ class AbstractIvpOdeSolver
 {
 	public:
 	virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				              double StartTime,
-				              double EndTime,
-				              double TimeStep,
-				              std::vector<double> InitialConditions) = 0;
+				              double startTime,
+				              double endTime,
+				              double timeStep,
+				              std::vector<double> initialConditions) = 0;
 };
 
 #endif //_ABSTRACTIVPODESOLVER_HPP_
