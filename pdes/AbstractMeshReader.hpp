@@ -22,7 +22,9 @@ class AbstractMeshReader
 		std::vector<std::string> mElementRawData;  //Contents of file with comments removed		
 		std::vector<std::string> mFaceRawData;  //Contents of file with comments removed		
 	
+		std::vector< std::vector<double> > mNodeData;
 		std::vector< std::vector<int> > mElementData;
+		std::vector< std::vector<int> > mFaceData;
 	
 		std::vector<std::string> GetRawDataFromFile(std::string fileName);
 		
