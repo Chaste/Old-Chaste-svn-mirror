@@ -13,10 +13,10 @@
 */
 
 OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				                     double startTime,
-				                     double endTime,
-				                     double timeStep,
-				                     std::vector<double> initialConditions)
+				double startTime,
+				double endTime,
+				double timeStep,
+				std::vector<double> initialConditions)
 {
 
     int num_equations = pAbstractOdeSystem->mNumberOfEquations;
@@ -25,14 +25,16 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     double last_timestep = endTime - ((double) num_timesteps)*timeStep;
     
 	OdeSolution solutions;
+	solutions.mNumberOfTimeSteps = num_timesteps;
+	// (num_timesteps)(num_equations)
 		
 	solutions.mSolutions.push_back(initialConditions);
 	solutions.mTime.push_back(startTime);
 	
-    std::vector<double> row(num_equations);	
-	row=initialConditions;
+	std::vector<double> row(num_equations);	
+	std::vector<double> dy(num_equations);
 	
-	std::vector<double> dy(num_equations);	
+	row=initialConditions;
 	
 	for(int timeindex=0;timeindex<num_timesteps;timeindex++)
 	{
@@ -45,9 +47,25 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 		}
 		
 		solutions.mSolutions.push_back(row);
+		
 		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
 	}
+	
+	// Extra step to get to exactly endTime
+	if(last_timestep>0.00001)
+	{	
+		solutions.mNumberOfTimeSteps=num_timesteps+1;
+		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps+1],row);
+		for(int i=0;i<num_equations; i++) 
+		{
+			row[i] = row[i] + last_timestep*dy[i];		
+		}
+		solutions.mSolutions.push_back(row);
 		
-	solutions.mNumberOfTimeSteps = num_timesteps;
+		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
+	
+	}
+	
+			
 	return solutions;
 }

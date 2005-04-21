@@ -40,6 +40,30 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	}
 	
 	
+	void testLastTimeStep()
+	{
+		TestOde1* pMyOdeSystem = new TestOde1();
+		
+		int SystemSize=1;
+		
+		std::vector<double> yInit(SystemSize);
+	
+	// Initialising the instance of our solver class	
+		EulerIvpOdeSolver* myEulerSolver = new EulerIvpOdeSolver;
+	// Initialising the instance of our solution class
+		OdeSolution solutions;
+		
+	// Solving the ode problem and writing to solution		
+	    solutions = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, 0.000037, yInit);
+		
+		int last = solutions.mNumberOfTimeSteps;
+	// Test to see if this worked		
+		double testvalue = solutions.mSolutions[last-1][0]	;
+		
+		TS_ASSERT_DELTA(testvalue,2.0,0.001);
+	}
+	
+	
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_
