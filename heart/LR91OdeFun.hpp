@@ -11,11 +11,11 @@
 
 class LR91OdeFun //: public AbstractOdeSystem
 {
-<<<<<<< .mine
-=======
+
+
     private:
         TransmembranePotentialLR91 *mpV;
-        SodiumCurrent  *mpINa;
+        SodiumCurrentLR91  *mpINa;
         //SodiumCurrentLR91  *mpINa;
         BackgroundCurrentLR91 *mpIB;
         CalciumConcentrationLR91 *mpCaI;
@@ -25,7 +25,7 @@ class LR91OdeFun //: public AbstractOdeSystem
         //PotassiumTimeDependentCurrentLR91 *mpIK;
        
           
->>>>>>> .r74
+
     public:
         // Constructor
         LR91OdeFun();
@@ -33,13 +33,13 @@ class LR91OdeFun //: public AbstractOdeSystem
         ~LR91OdeFun();
         
         // This mehtod will compute the RHS of the Luo--Rudy model
-<<<<<<< .mine
+
         void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
-=======
+
         // void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
         //void ComputingRHS(double tOfStimulus, std::vector<double> pInitCond); 
         std::vector<double> EvaluateYDerivatives(const double &rTime, std::vector<double> &rY);
->>>>>>> .r74
+
 };
  
 #endif //_LR91ODEFUN_HPP_
