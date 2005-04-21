@@ -7,6 +7,9 @@
 
 #include "Node.hpp"
 #include "Point.hpp"
+#include "MatrixDouble.hpp"
+#include "VectorDouble.hpp"
+#include "LinearBasisFunction.cpp"
 
 #include <vector>
 
@@ -18,8 +21,8 @@ private:
     const Element<ELEMENT_DIM-1,SPACE_DIM>* mLowerOrderElements[ELEMENT_DIM+1];
     bool mHasLowerOrderElements;
 
-    //MatrixDouble *mpJacobian;
-    //MatrixDouble *mpInverseJacobian;
+    MatrixDouble *mpJacobian;
+    MatrixDouble *mpInverseJacobian;
 
     double mJacobianDeterminant;
 
@@ -38,6 +41,7 @@ public:
 	 * @param createJacobian Whether to create the Jacobian matrix for mapping
 	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
 	 *     Currently only works for non-sub-elements with straight edges.
+	 *     Also only implemented in 1 element and space dimension.
 	 */
     Element(std::vector<Node<SPACE_DIM>*> nodes,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
@@ -58,8 +62,27 @@ public:
     	// Create Jacobian?
     	if (createJacobian)
     	{
-    		//TODO
-    	}
+    		if (ELEMENT_DIM == 1 && SPACE_DIM == 1)
+    		{
+    			// TODO: Jacobian for sub-elements    
+    			mpJacobian = new MatrixDouble(1,1);
+    			mpInverseJacobian = new MatrixDouble(1,1);
+    			
+		        for(int i=0; i<1; i++)
+		        {
+		            for(int j=0; j<1; j++)
+		            {    
+		                //loop over corner nodes
+		                for(int node=0; node<1+1; node++)
+		                {
+		                    (*mpJacobian)(i,j) = GetNodeLocation(1,0) - GetNodeLocation(0,0);
+		                }
+		            }            
+		        }
+		        *mpInverseJacobian   = mpJacobian->Inverse();
+		        mJacobianDeterminant = mpJacobian->Determinant();
+    		}
+	    }
     }
     
     /**
@@ -127,6 +150,19 @@ public:
 	{
 		mNodes.push_back(node);
 	}
+	
+	const MatrixDouble *GetJacobian(void) const
+	{
+		return mpJacobian;
+	}
+	const MatrixDouble *GetInverseJacobian(void) const
+	{
+		return mpInverseJacobian;
+	}
+	double GetJacobianDeterminant(void) const
+	{
+		return mJacobianDeterminant;
+	}
 
 };
 
@@ -138,8 +174,8 @@ class Element<0, SPACE_DIM>
 private:
     std::vector<Node<SPACE_DIM>*> mNodes;
 
-    //MatrixDouble *mpJacobian;
-    //MatrixDouble *mpInverseJacobian;
+    MatrixDouble *mpJacobian;
+    MatrixDouble *mpInverseJacobian;
 
     double mJacobianDeterminant;
 
@@ -169,10 +205,10 @@ public:
     	// Create Jacobian?
     	if (createJacobian)
     	{
-			//mpJacobian = new MatrixDouble(1,1);
-			//mpInverseJacobian = new MatrixDouble(1,1);
-			//mpJacobian(0,0) = 1.0;
-			//mpInverseJacobian(0,0) = 1.0;
+    		mpJacobian = new MatrixDouble(1,1);
+    		mpInverseJacobian = new MatrixDouble(1,1);
+			(*mpJacobian)(0,0) = 1.0;
+			(*mpInverseJacobian)(0,0) = 1.0;
 			mJacobianDeterminant = 1.0;
     	}
     }
@@ -200,6 +236,19 @@ public:
     {
     	return mNodes.size(); // Will be 1
     }
+    
+	const MatrixDouble *GetJacobian(void) const
+	{
+		return mpJacobian;
+	}
+	const MatrixDouble *GetInverseJacobian(void) const
+	{
+		return mpInverseJacobian;
+	}
+	double GetJacobianDeterminant(void) const
+	{
+		return mJacobianDeterminant;
+	}
     
 };
 

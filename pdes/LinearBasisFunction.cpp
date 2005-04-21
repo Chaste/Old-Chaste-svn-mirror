@@ -1,3 +1,7 @@
+#ifndef _LINEARBASISFUNCTION_CPP_
+#define _LINEARBASISFUNCTION_CPP_
+
+
 #include "LinearBasisFunction.hpp"
 #include "Point.hpp"
 #include <cassert>
@@ -162,3 +166,5 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
 
     return basisGradValues;    
 }
+
+#endif // _LINEARBASISFUNCTION_CPP_

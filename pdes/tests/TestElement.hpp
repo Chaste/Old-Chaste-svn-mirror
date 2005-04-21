@@ -31,7 +31,7 @@ public:
 		std::vector<Node<3>*> nodes;
 		for (int i=0; i<4; i++)
 		{
-			nodes.push_back(CreateZeroPointNode(i));
+			nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
 		}
 		Element<3,3> element(nodes, true);
 		
@@ -63,7 +63,15 @@ public:
 		TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(4), 10);
 	}
 	
-	//TestJacobian?
+	void testJacobian()
+	{
+		std::vector<Node<1>*> nodes;
+		nodes.push_back(new Node<1>(0, false, 2.0));
+		nodes.push_back(new Node<1>(1, false, 2.5));
+		Element<1,1> element(nodes);
+		const MatrixDouble *J = element.GetJacobian();
+		TS_ASSERT_DELTA((*J)(0,0), 0.5, 1e-12);
+	}
 	
 
 };

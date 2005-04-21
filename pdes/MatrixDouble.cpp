@@ -66,7 +66,7 @@ MatrixDouble& MatrixDouble::operator=(const MatrixDouble& rOtherMatrix)
 
 
 
-double& MatrixDouble::operator()(int Row, int Column)
+double& MatrixDouble::operator()(int Row, int Column) const
 {
 	assert(Row > -1);
 	assert(Row < mRows);
@@ -77,11 +77,11 @@ double& MatrixDouble::operator()(int Row, int Column)
 }
 
 
-int MatrixDouble::Rows( void )
+int MatrixDouble::Rows( void ) const
 {
 	return mRows;
 }
-int MatrixDouble::Columns( void )
+int MatrixDouble::Columns( void ) const
 {
 	return mColumns;
 }		
@@ -109,7 +109,7 @@ MatrixDouble MatrixDouble::Identity(int Size)
 	return Eye;
 }
 
-double MatrixDouble::Determinant()
+double MatrixDouble::Determinant() const
 {
 	assert( mRows == mColumns );
 	assert( mRows > 0 && mRows < 4);
@@ -128,7 +128,7 @@ double MatrixDouble::Determinant()
 	}
 }
 
-MatrixDouble MatrixDouble::Inverse( void )
+MatrixDouble MatrixDouble::Inverse( void ) const
 {
 	assert( mRows == mColumns );
 	assert( mRows > 0 && mRows < 4);
