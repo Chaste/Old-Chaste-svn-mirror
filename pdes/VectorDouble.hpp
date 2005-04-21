@@ -11,8 +11,8 @@ class VectorDouble
 		VectorDouble(const VectorDouble& rOtherVector);
 		~VectorDouble();
 		VectorDouble& operator=(const VectorDouble& rOtherVector);
-		double &VectorDouble::operator()(int Entry);
-		int Size( void );
+		double &VectorDouble::operator()(int Entry) const;
+		int Size( void ) const;
 		
 };
 

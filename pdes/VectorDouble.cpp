@@ -58,14 +58,14 @@ VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
 
 
 
-double& VectorDouble::operator()(int Entry)
+double& VectorDouble::operator()(int Entry) const
 {
 	assert(Entry > -1);
 	assert(Entry < mSize);
 	return mElementArray[Entry];
 }
 
-int VectorDouble::Size(void)
+int VectorDouble::Size(void) const
 {
 	return mSize;
 }
