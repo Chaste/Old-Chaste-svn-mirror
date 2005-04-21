@@ -21,7 +21,7 @@ public:
         }
         ls.AssembleFinalMatrix();
         
-        ls.SetRhsVectorElement(0, 14.00);
+        ls.SetRhsVectorElement(0, 14.0);
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
         
