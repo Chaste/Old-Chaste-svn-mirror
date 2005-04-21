@@ -1,0 +1,23 @@
+#ifndef _MATRIXDOUBLE_HPP_
+#define _MATRIXDOUBLE_HPP_
+
+class MatrixDouble
+{
+	private:
+		int mRows;
+		int mColumns;
+		int mNumberOfElements;
+		double *mElementArray;
+	public:
+		MatrixDouble(int Rows, int Columns);
+		MatrixDouble(const MatrixDouble& rOtherMatrix);
+		~MatrixDouble();
+		MatrixDouble& operator=(const MatrixDouble& rOtherMatrix);
+		double &MatrixDouble::operator()(int Row, int Column);
+		static MatrixDouble Identity(int Size);
+		int Rows( void );
+		int Columns( void );	
+		
+};
+
+#endif //_MATRIXDOUBLE_HPP_
