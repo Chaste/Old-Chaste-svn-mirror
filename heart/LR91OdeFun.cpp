@@ -85,20 +85,6 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     // Total Current
     double iTotal = iSi + iNa + iKp + iB + iK + iK1;
     
-//    // Introducing Stimulus -- need to modify
-//    double iStim = 0.0;
-//    if (rTime==1)
-//    {
-//        iStim = 20.0;
-//    }
-//    else 
-//    {
-//        iStim = 0.0;
-//    }
-//    
-
-    // if wanted could set stimulus to something by
-    //mStimulus->SetStimulusFunction(double stimulus);
     double iStim = mpStimulus->GetStimulus(rTime);
     
     // Calculating VPrime

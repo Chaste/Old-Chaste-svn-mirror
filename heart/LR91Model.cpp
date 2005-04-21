@@ -37,15 +37,15 @@ LR91Model::~LR91Model()
  */
 std::vector<double> LR91Model::Solve()//tange of time AbstractOdeSolver *pOdeSolver)
 {
-    std::vector<double> Y;
-    Y[0] = mV;
-    Y[1] = mM;
-    Y[2] = mH;
-    Y[3] = mJ;
-    Y[4] = mD;
-    Y[5] = mF;
-    Y[6] = mX;
-    Y[7] = mCaI;
+//    std::vector<double> Y();
+//    Y.push_back(mV);
+//    Y[1] = mM;
+//    Y[2] = mH;
+//    Y[3] = mJ;
+//    Y[4] = mD;
+//    Y[5] = mF;
+//    Y[6] = mX;
+//    Y[7] = mCaI;
     
    // EvaluateYDerivatives (const double &rTime, std::vector<double> &rY) 
 }
