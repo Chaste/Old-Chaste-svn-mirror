@@ -36,6 +36,43 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
 		TS_ASSERT_DELTA(derivatives[1](0), 1, 1e-12);
 	}
+	void testLinearBasisFunction2d()
+	{
+		Point<2> zero(0,0);
+		Point<2> onezero(1,0);
+		Point<2> zeroone(0,1);
+		
+		LinearBasisFunction<2> basis_func;
+		
+		// Single compute
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 1), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 2), 0.0, 1e-12);
+		
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezero, 0), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezero, 1), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezero, 2), 0.0, 1e-12);
+		
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroone, 0), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroone, 1), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroone, 2), 1.0, 1e-12);
+		
+		// Mass compute
+		std::vector<double> basis_function_vector;
+		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
+		TS_ASSERT_EQUALS(basis_function_vector.size(), 3);
+		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_function_vector[1], 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
+		std::cout << " Nick Trefethen is Distressed !!  \n";
+		// Derivatives
+		std::vector<VectorDouble> derivatives;
+		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezero);
+		TS_ASSERT_EQUALS(derivatives.size(), 3);
+		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
+		TS_ASSERT_DELTA(derivatives[1](0), 1, 1e-12);
+		TS_ASSERT_DELTA(derivatives[2](0), 0, 1e-12);
+	}
 	
 };
 
