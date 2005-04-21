@@ -42,6 +42,9 @@ public:
     Element(std::vector<Node<SPACE_DIM>*> nodes,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
     {
+    	// Sanity checking
+    	assert(ELEMENT_DIM <= SPACE_DIM);
+    	
     	// Store Node pointers
     	mNodes = nodes;
     	

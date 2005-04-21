@@ -1,0 +1,59 @@
+#ifndef _CONFORMINGTETRAHEDRALMESH_HPP_
+#define _CONFORMINGTETRAHEDRALMESH_HPP_
+
+#include <vector>
+#include "Element.hpp"
+#include "Node.hpp"
+
+/**
+ * This is a test version of the class. When a MeshReader is available, it
+ * will need revision. In particular, the AddElement and AddNode methods will
+ * be redundant, and should be removed (or possible made private).
+ * 
+ * Work still needs to be done with boundary nodes & elements.
+ */
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+class ConformingTetrahedralMesh 
+{
+public:
+    typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> >::const_iterator MeshIterator;
+private:
+
+    std::vector<Element<ELEMENT_DIM, SPACE_DIM> > mElements;    
+    std::vector<Node<SPACE_DIM> > mNodes;
+    
+    std::vector<Element<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
+    std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
+    
+    MeshIterator mpConstIter;
+    
+public:
+    
+	ConformingTetrahedralMesh();
+    ConformingTetrahedralMesh(long numElements);    
+    
+    void AddElement(Element<ELEMENT_DIM, SPACE_DIM>& rNewElement);
+    void AddNode(Node<SPACE_DIM>& rNewNode);
+    
+    //void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,std::vector<int> boundaryElementIndices);
+    //void AddNode(Node<SPACE_DIM> newNode ,bool isBoundaryNode);
+        
+    const Node<SPACE_DIM>& GetNodeAt(long index) const;
+
+    long GetNumNodes();
+    long GetNumElements();
+    
+    MeshIterator GetFirstElement()
+    {
+         mpConstIter = mElements.begin();
+         return mpConstIter;
+    }
+    MeshIterator GetLastElement()
+    {
+         mpConstIter = mElements.end();
+         return mpConstIter;
+    }
+};
+
+#endif //_CONFORMINGTETRAHEDRALMESH_HPP_
