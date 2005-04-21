@@ -1,5 +1,5 @@
-#ifndef _RK2IVPODESOLVER_HPP_
-#define _RK2IVPODESOLVER_HPP_
+#ifndef _RUNGEKUTTA2IVPODESOLVER_HPP_
+#define _RUNGEKUTTA2IVPODESOLVER_HPP_
 
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -7,10 +7,10 @@
 
 #include <vector>
 
-class RK2IvpOdeSolver : public AbstractIvpOdeSolver
+class RungeKutta2IvpOdeSolver : public AbstractIvpOdeSolver
 {
 	public:
-	RK2IvpOdeSolver() {};
+	RungeKutta2IvpOdeSolver() {};
 	
 	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
 				      double startTime,
@@ -20,4 +20,4 @@ class RK2IvpOdeSolver : public AbstractIvpOdeSolver
 	
 };
 
-#endif //_RK2IVPODESOLVER_HPP_
+#endif //_RUNGEKUTTA2IVPODESOLVER_HPP_

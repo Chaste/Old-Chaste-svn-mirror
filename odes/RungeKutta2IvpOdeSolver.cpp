@@ -1,4 +1,4 @@
-#include "RK2IvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
@@ -12,7 +12,7 @@
  * of the ODE system at those times
 */
 
-OdeSolution RK2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+OdeSolution RungeKutta2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
 				double startTime,
 				double endTime,
 				double timeStep,
@@ -38,7 +38,7 @@ OdeSolution RK2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 	
 	for(int timeindex=0;timeindex<num_timesteps;timeindex++)
 	{
-		// Apply RK2 method
+		// Apply Runge-Kutta 2nd Order method
         
         // Work out k1
         std::vector<double> k1(num_equations);
@@ -68,7 +68,7 @@ OdeSolution RK2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 		solutions.mNumberOfTimeSteps=num_timesteps+1;
 		
 		std::vector<double> k1(num_equations);
-        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps+1],row);
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
 		for(int i=0;i<num_equations; i++) 
 		{
 			k1[i] = last_timestep*dy[i];
@@ -76,7 +76,7 @@ OdeSolution RK2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 		}
 		// Work out k2				
 		std::vector<double> k2(num_equations);
-		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps+1]+last_timestep/2.0,k1);
+		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+last_timestep/2.0,k1);
 		for(int i=0;i<num_equations; i++) 
 		{
 			k2[i] = last_timestep*dy[i];

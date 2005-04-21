@@ -33,11 +33,11 @@ public:
  void runTest() { suite_TestAbstractIvpOdeSolver.testEulerSolver(); }
 } testDescription_TestAbstractIvpOdeSolver_testEulerSolver;
 
-static class TestDescription_TestAbstractIvpOdeSolver_testRK2Solver : public CxxTest::RealTestDescription {
+static class TestDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testRK2Solver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 43, "testRK2Solver" ) {}
- void runTest() { suite_TestAbstractIvpOdeSolver.testRK2Solver(); }
-} testDescription_TestAbstractIvpOdeSolver_testRK2Solver;
+ TestDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 43, "testRungeKutta2Solver" ) {}
+ void runTest() { suite_TestAbstractIvpOdeSolver.testRungeKutta2Solver(); }
+} testDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver;
 
 static class TestDescription_TestAbstractIvpOdeSolver_testLastTimeStep : public CxxTest::RealTestDescription {
 public:
