@@ -32,7 +32,7 @@ class TestLR91Currents : public CxxTest::TestSuite
 	// Test potassium time dependent current, IK
 	void TestPotassiumTimeDependentCurrentLR91(void)
 	{
-		std::cout << "Running TestPotassiumTimeDependentCurrentLR91..." << std::endl;
+		// std::cout << "Running TestPotassiumTimeDependentCurrentLR91..." << std::endl;
 		PotassiumTimeDependentCurrentLR91 *myPotassiumTimeDependentCurrent;
 		
 		myPotassiumTimeDependentCurrent = new PotassiumTimeDependentCurrentLR91();
@@ -66,7 +66,7 @@ class TestLR91Currents : public CxxTest::TestSuite
 	// Test background current, IB
 	void TestBackgroundCurrentLR91(void)
 	{
-		std::cout << "Running TestBackgroundCurrentLR91..." << std::endl;
+		// std::cout << "Running TestBackgroundCurrentLR91..." << std::endl;
 		BackgroundCurrentLR91 *myBackgroundCurrent;
 		
 		myBackgroundCurrent = new BackgroundCurrentLR91();
