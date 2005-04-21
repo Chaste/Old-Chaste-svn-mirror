@@ -54,7 +54,7 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 	if(last_timestep>0.00001)
 	{	
 		solutions.mNumberOfTimeSteps=num_timesteps+1;
-		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps+1],row);
+		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
 		for(int i=0;i<num_equations; i++) 
 		{
 			row[i] = row[i] + last_timestep*dy[i];		
