@@ -7,6 +7,20 @@
 #include <vector>
 
 /*
+ * Euler's Method Initial Value Problem Ordinary Differential Equation Solver
+ * 
+ * Solves a system of ODEs for a given time range and time step.
+ * To be used in the form:
+ * 
+ * EulerIvpOdeSolver mySolver
+ * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
+ * 
+ * where:
+ * pMyOdeSystem is a pointer to a specific instance of a subclass of AbstractOdeSystem
+ * (this defines the derivatives of the system)
+ * the times are all doubles
+ * yInit is a std::vector of doubles with initial values for all unknowns
+ * 
  * OdeSolution is an object containing an integer of the number of equations, 
  * a std::vector of times and a std::vector of std::vectors of the solution 
  * of the ODE system at those times
