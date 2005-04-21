@@ -14,7 +14,7 @@ public:
         PetscInitialize(0,NULL,0,0);
     }   
     
-    void testLinearSystem( void )
+    void testLinearSystem1( void )
     {
         
         LinearSystem ls(3);
@@ -32,7 +32,8 @@ public:
         ls.SetRhsVectorElement(2, 50.0);
         
         SimpleLinearSolver solver;
-        Vec solution_vector = ls.Solve(&solver);
+        Vec solution_vector;
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
         
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
@@ -41,6 +42,30 @@ public:
         TS_ASSERT_DELTA(solution_elements[2], 3.0, 0.000001);
         
     }
-};
 
+    void testLinearSystem2( void )
+    {
+        LinearSystem ls(2);
+        ls.SetMatrixRow(0, 1.0);
+        ls.SetMatrixRow(1, 3.0);
+        ls.AssembleIntermediateMatrix();
+        
+        ls.AddToMatrixElement(0, 1, 1.0);
+        ls.AddToMatrixElement(1, 1, 1.0);
+        ls.AssembleFinalMatrix();
+
+        ls.AddToRhsVectorElement(0, 3.0);
+        ls.AddToRhsVectorElement(1, 7.0);
+        
+        SimpleLinearSolver solver;
+        Vec solution_vector;
+        TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        
+        PetscScalar *solution_elements;
+        VecGetArray(solution_vector, &solution_elements);
+        TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
+        TS_ASSERT_DELTA(solution_elements[1], 1.0, 0.000001);
+        
+    }
+};
 #endif //_TESTLINEARSYSTEM_HPP_
