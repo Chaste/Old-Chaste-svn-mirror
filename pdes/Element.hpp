@@ -108,6 +108,11 @@ public:
     	return mNodes[localIndex];
     }
     
+    int GetNumNodes() const
+    {
+    	return mNodes.size();
+    }
+    
     const Element<ELEMENT_DIM-1,SPACE_DIM>* GetLowerOrderElement(int localIndex) const
     {
     	assert(mHasLowerOrderElements);
@@ -188,6 +193,11 @@ public:
     	return mNodes[localIndex];
     }
 
+    int GetNumNodes() const
+    {
+    	return mNodes.size(); // Will be 1
+    }
+    
 };
 
 

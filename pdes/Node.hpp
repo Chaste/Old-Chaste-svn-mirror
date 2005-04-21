@@ -35,27 +35,30 @@ public:
 		mPoint = point;
 	}
 	
+	/**
+	 * This method should only be called during mesh generation.
+	 */
 	void SetIndex(int index)
 	{
 		mIndex = index;
-	}
-		
-	Point<SPACE_DIM> GetPoint()
-	{
-		return mPoint;
-	}
-	
-	int GetIndex()
-	{
-		return mIndex;
 	}
 	
 	void SetAsBoundaryNode(bool value=true)
 	{
 		mIsBoundaryNode = value;
 	}
+			
+	Point<SPACE_DIM> GetPoint() const
+	{
+		return mPoint;
+	}
 	
-	bool IsBoundaryNode()
+	int GetIndex() const
+	{
+		return mIndex;
+	}
+
+	bool IsBoundaryNode() const
 	{
 		return mIsBoundaryNode;
 	}
