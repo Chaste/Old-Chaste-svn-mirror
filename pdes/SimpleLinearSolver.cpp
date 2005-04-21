@@ -2,6 +2,13 @@
 #include "petscksp.h"
 #include "Exception.hpp"
 #include <sstream>
+/**
+ *  TODO: Document class + exceptional behaviour
+ * 
+ * 
+ * 
+ */
+
 
 Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
 {
