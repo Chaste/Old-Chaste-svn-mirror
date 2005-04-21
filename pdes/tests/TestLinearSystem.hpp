@@ -4,6 +4,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include "LinearSystem.hpp"
+#include "SimpleLinearSolver.hpp"
           
 class MyTestSuite : public CxxTest::TestSuite 
 {
