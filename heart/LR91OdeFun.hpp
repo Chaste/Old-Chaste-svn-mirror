@@ -3,26 +3,28 @@
 
 #include "ConstantsLR91.hpp"
 //#include "AbstractOdeSystem.hpp"
+#include "TransmembranePotentialLR91.hpp"
 #include "SodiumCurrentLR91.hpp"
 #include "BackgroundCurrentLR91.hpp"
+#include "CalciumConcentrationLR91.hpp"
+#include "PlateauPotassiumCurrentLR91.hpp"
+#include "SlowInwardCurrentLR91.hpp"
+#include "PotassiumTimeIndependentCurrentLR91.hpp"
+#include "PotassiumTimeDependentCurrentLR91.hpp"
 #include <iostream>
-
-#include "petscvec.h"
+#include <vector>
 
 class LR91OdeFun //: public AbstractOdeSystem
 {
-
-
     private:
         TransmembranePotentialLR91 *mpV;
         SodiumCurrentLR91  *mpINa;
-        //SodiumCurrentLR91  *mpINa;
         BackgroundCurrentLR91 *mpIB;
         CalciumConcentrationLR91 *mpCaI;
         PlateauPotassiumCurrentLR91 *mpIKp;
         SlowInwardCurrentLR91 *mpISi;
-        //PotassiumTimeInpendententCurrentLR91 *mpIK1;
-        //PotassiumTimeDependentCurrentLR91 *mpIK;
+        PotassiumTimeIndependentCurrentLR91 *mpIK1;
+        PotassiumTimeDependentCurrentLR91 *mpIK;
        
           
 
@@ -34,7 +36,7 @@ class LR91OdeFun //: public AbstractOdeSystem
         
         // This mehtod will compute the RHS of the Luo--Rudy model
 
-        void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
+       // void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
 
         // void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
         //void ComputingRHS(double tOfStimulus, std::vector<double> pInitCond); 

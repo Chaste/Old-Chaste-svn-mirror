@@ -12,14 +12,13 @@
 LR91OdeFun::LR91OdeFun()
 {
     mpV = new TransmembranePotentialLR91();
-    mpINa = new SodiumCurrent();
-    //mpINa = new SodiumCurrentLR91();
+    mpINa = new SodiumCurrentLR91();
     mpIB = new BackgroundCurrentLR91();
     mpCaI = new CalciumConcentrationLR91();
     mpIKp = new PlateauPotassiumCurrentLR91();
     mpISi = new SlowInwardCurrentLR91();
-    //mIK1 = new PotassiumTimeInpendententCurrentLR91();;
-    //mIK =  new SPotassiumTimeDependentCurrentLR91();  
+    mpIK1 = new PotassiumTimeIndependentCurrentLR91();;
+    mpIK =  new PotassiumTimeDependentCurrentLR91();  
     
 }
 

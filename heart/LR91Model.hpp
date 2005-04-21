@@ -9,7 +9,7 @@
 class LR91Model
 {
     private:
-        LR91OdeFun myL91OdeSystem;
+        LR91OdeFun *mpLR91OdeSystem;
         double mV;
         double mM;
         double mH;

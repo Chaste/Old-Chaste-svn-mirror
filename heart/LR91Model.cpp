@@ -19,6 +19,7 @@ LR91Model::LR91Model(double voltage, double m, double h, double j, double d, dou
     mF = f;
     mX = x;
     mCaI = caI;
+    mpLR91OdeSystem = new LR91OdeFun();
 }
 
 /**
