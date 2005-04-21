@@ -7,6 +7,7 @@
 #include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "TestOde1.hpp"
 
@@ -56,14 +57,34 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	    solutions = myRK2Solver->Solve(pMyOdeSystem, 0.0, 2.0, 0.001, yInit);
 		
 		int last = solutions.mNumberOfTimeSteps;		
-	    // Test to see if this worked	
-	    double testsilly = solutions.mSolutions[last][0];	
+	    // Test to see if this worked		
 		double testvalue = solutions.mSolutions[last-1][0];
 		
 		TS_ASSERT_DELTA(testvalue,4.0,0.01);
 	}
 	
+	void testRungeKutta4Solver()
+	{
+		TestOde1* pMyOdeSystem = new TestOde1();
+		int SystemSize = 1;		
+		std::vector<double> yInit(SystemSize);
+		yInit[0]=2.0;
 	
+     	// Initialising the instance of our solver class	
+		RungeKutta4IvpOdeSolver* myRungeKutta4Solver = new RungeKutta4IvpOdeSolver;
+	    // Initialising the instance of our solution class
+		OdeSolution solutions;
+		
+	    // Solving the ode problem and writing to solution		
+	    solutions = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, 0.001, yInit);
+		
+		int last = solutions.mNumberOfTimeSteps;		
+	    // Test to see if this worked		
+		double testvalue = solutions.mSolutions[last-1][0];
+		
+		TS_ASSERT_DELTA(testvalue,4.0,0.01);
+		std::cout << "Runge Kutta4 test result = " << testvalue << std::endl;
+	}
 	void testLastTimeStep()
 	{
 		TestOde1* pMyOdeSystem = new TestOde1();
