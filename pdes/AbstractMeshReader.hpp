@@ -1,9 +1,11 @@
 #ifndef _ABSTRACTMESHREADER_HPP_
 #define _ABSTRACTMESHREADER_HPP_
 
+#include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "Exception.hpp"
 
@@ -16,38 +18,14 @@ class AbstractMeshReader
 		int mNumFaces;
 		int mDimension;
 		std::string mPathBaseName;
-		
-		double **mppNodes;
-		int **mppElements;
+		std::vector<std::string> mNodeRawData;  //Contents of file with comments removed		
+		std::vector<std::string> mElementRawData;  //Contents of file with comments removed		
+		std::vector<std::string> mFaceRawData;  //Contents of file with comments removed		
 	
-		int** MakeIntDynamicArray(int numRows, int numColumns)
-		{
-			int **ppDynamicArray = new int *[numRows];
-			for (int i = 0; i < numRows; i++)
-			{
-				ppDynamicArray[i] = new int [numColumns];
-				for (int j = 0; j < numColumns; j++)
-				{
-					ppDynamicArray[i][j] = 0;	
-				}
-			}
-			return ppDynamicArray;
-		}
-		
-		double** MakeDoubleDynamicArray(int numRows, int numColumns)
-		{
-			double **ppDynamicArray = new double *[numRows];
-			for (int i = 0; i < numRows; i++)
-			{
-				ppDynamicArray[i] = new double [numColumns];
-				for (int j = 0; j < numColumns; j++)
-				{
-					ppDynamicArray[i][j] = 0.0;	
-				}
-			}
-			return ppDynamicArray;
-		}
+		std::vector< std::vector<int> > mElementData;
 	
+		std::vector<std::string> GetRawDataFromFile(std::string fileName);
+		
 	public:
 		AbstractMeshReader()
 		{

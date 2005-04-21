@@ -1,7 +1,11 @@
 312  2  0  1
    1    1  0    1 #This line is the first point on the disk (one the right)
-#Next there is an empty line 
+#Next there is an empty line
+
+#Next there is an empty line with spaces
    
+#Next there is an empty line with tabs
+					 
    2    0.99802672839999995  0.062790519540000006    1
    3    0.99211470130000001  0.12533323360000001    1
    4    0.9822872507  0.18738131459999999    1
