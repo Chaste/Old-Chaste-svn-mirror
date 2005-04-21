@@ -13,8 +13,9 @@ class IonicConcentration
 		IonicConcentration(double transmembranePotential);
 		// Destructor
 		~IonicConcentration();
-		// Get methods
-		double GetConcentration(void);
+		// Get & Set methods
+		double GetMagnitudeOfIonicConcentration(void);
+		void SetMagnitudeOfIonicConcentration(const double &rIonicConcentration);
 };
 
 #endif //_IONICCONCENTRATION_HPP_
