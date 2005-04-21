@@ -40,7 +40,7 @@ public:
    	
     // Call solver
     Vec lhs_vector;
-    lhs_vector = solver.Solve(lhs_matrix, rhs_vector);
+    TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
     
     // Check result
     PetscScalar *lhs_elements;
@@ -117,7 +117,7 @@ public:
    	
     // Call solver
     Vec lhs_vector;
-    lhs_vector = solver.Solve(lhs_matrix, rhs_vector);
+    TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
     
     // Check result
     PetscScalar *lhs_elements;
