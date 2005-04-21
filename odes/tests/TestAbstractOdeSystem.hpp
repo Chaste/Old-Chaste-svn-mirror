@@ -4,9 +4,10 @@
 // TestAbstractOdeSystem.hpp
 
 #include <cmath>
-//#include "petscvec.h"
-//#include "petsc.h"
+#include "petscvec.h"
+#include "petsc.h"
 #include <iostream>
+#include <vector>
 #include "AbstractOdeSystem.hpp"
 #include "TestOde1.hpp"
 #include "TestOde2.hpp"
@@ -92,8 +93,8 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 	
 	void TestOdeOne(void)
 	{
-		//std::cout << "Start of third test\n";
-		double* yInit = new double[1];
+		std::cout << "Start of third test\n";
+		std::vector<double> yInit(1);
 		yInit[0]=0.0;
 		
 //		TestOde1 Ode1();
@@ -102,45 +103,45 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 //		std::cout << rYPrime[0];
 		
 		TestOde1 * pOde1 = new TestOde1();
-		double rYPrime2[1];
-		pOde1->EvaluateYDerivatives(1.0, yInit, rYPrime2);
-		//std::cout << rYPrime2[0];
+		std::vector<double> rYPrime2;
+		rYPrime2=pOde1->EvaluateYDerivatives(1.0, yInit);
+		std::cout << rYPrime2[0];
 		TS_ASSERT_DELTA(rYPrime2[0],1.0,tol);
-		//std::cout << "\n End of third set of tests\n";
+		std::cout << "\n End of third set of tests\n";
 	}
 	
 	
 	void TestOdeTwo(void)
 	{
-		//std::cout << "Start of fourth test\n";
-		double* yInit = new double[1];
+		std::cout << "Start of fourth test\n";
+		std::vector<double> yInit(1);
 		
 		yInit[0]=4.0;
 		
 		TestOde2 * pOde2 = new TestOde2();
-		double rYPrime2[1];
-		pOde2->EvaluateYDerivatives(2.0, yInit, rYPrime2);
-		//std::cout << rYPrime2[0];
+		std::vector<double> rYPrime2;
+		rYPrime2=pOde2->EvaluateYDerivatives(2.0, yInit);
+		std::cout << rYPrime2[0];
 		TS_ASSERT_DELTA(rYPrime2[0],8.0,tol);
-		//std::cout << "\n End of fourth set of tests\n";
+		std::cout << "\n End of fourth set of tests\n";
 	}
 	
 	void TestOdeThree(void)
 	{
-		//std::cout << "Start of fifth test\n";
-		double* yInit = new double[2];
+		std::cout << "Start of fifth test\n";
+		std::vector<double> yInit(2);
 		
 		yInit[0]=4.0;
 		yInit[1]=8.0;
 		
 		TestOde3 * pOde3 = new TestOde3();
-		double rYPrime2[2];
-		pOde3->EvaluateYDerivatives(2.0, yInit, rYPrime2);
-		//std::cout << rYPrime2[0] << std::endl;
-		//std::cout << rYPrime2[1] << std::endl;
-		TS_ASSERT_DELTA(rYPrime2[0],8.0,tol);
-		TS_ASSERT_DELTA(rYPrime2[1],16.0,tol);
-		//std::cout << "\n End of fifth set of tests\n";
+		std::vector<double> rYPrime3;
+		rYPrime3=pOde3->EvaluateYDerivatives(2.0, yInit);
+		std::cout << rYPrime3[0] << std::endl;
+		std::cout << rYPrime3[1] << std::endl;
+		TS_ASSERT_DELTA(rYPrime3[0],8.0,tol);
+		TS_ASSERT_DELTA(rYPrime3[1],16.0,tol);
+		std::cout << "\n End of fifth set of tests\n";
 		
 		
 	std::cout << "\n End of OdeSystem tests\n";

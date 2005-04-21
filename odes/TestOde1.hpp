@@ -9,7 +9,7 @@ class TestOde1 : public AbstractOdeSystem
 	public :
 	TestOde1();
 	
-	void EvaluateYDerivatives (double rTime, double * rY, double * rYDerivatives);
+	std::vector<double> TestOde1::EvaluateYDerivatives (double rTime, std::vector<double> &rY);
 
 };
 

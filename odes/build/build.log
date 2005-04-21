@@ -6,6 +6,17 @@ Running 6 tests
 2.5
 5
 2.5
-....
+..Start of third test
+1
+ End of third set of tests
+.Start of fourth test
+8
+ End of fourth set of tests
+.Start of fifth test
+8
+16
+
+ End of fifth set of tests
+
  End of OdeSystem tests
 .OK!

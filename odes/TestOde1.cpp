@@ -8,8 +8,11 @@ TestOde1::TestOde1() : AbstractOdeSystem(1)
 
 }
 
-void TestOde1::EvaluateYDerivatives(double t, double *y, double * yDerivatives)
+std::vector<double> TestOde1::EvaluateYDerivatives (double rTime, std::vector<double> &rY)
 {
-	yDerivatives[0]=t;
+	std::vector<double> rYDerivatives(mNumberOfEquations);
+	rYDerivatives[0]=rTime;
+	
+	return rYDerivatives;
 }
 	
