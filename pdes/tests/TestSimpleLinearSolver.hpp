@@ -9,10 +9,16 @@
 class TestSimpleLinearSolver : public CxxTest::TestSuite 
 {
 public:
+    void setUp()
+    {
+        PetscInitialize(0,NULL,0,0);
+    }   
+        
+
 	void testLinearSolverEasy( void )
     {
     // Solve Ax=b. 2x2 matrix
-	PetscInitialize(0,NULL,0,0);
+
 	SimpleLinearSolver solver;
 
 	// Set rhs vector
@@ -53,7 +59,6 @@ public:
 	void testLinearSolverThrowsIfDoesNotConverge( void )
     {
     // Solve Ax=b. 2x2 matrix
-	PetscInitialize(0,NULL,0,0);
 	SimpleLinearSolver solver;
 
 	// Set rhs vector
@@ -89,7 +94,6 @@ public:
 	void testLinearSolverHarder( void )
     {
     // Solve Ax=b. 2x2 matrix
-	PetscInitialize(0,NULL,0,0);
 	SimpleLinearSolver solver;
 
 	// Set rhs vector
