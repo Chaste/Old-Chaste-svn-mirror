@@ -4,7 +4,7 @@
 class IonicConcentration
 {
 	protected:
-		double mMagnitudeOfConcentration;
+		double mMagnitudeOfIonicConcentration;
 	
 	public:
 		// Constructor
