@@ -3,9 +3,11 @@
 #include <cxxtest/TestSuite.h>
 
 #include <vector>
+#include <iostream>
 
 #include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
+#include "AdamsBashforthIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -36,7 +38,29 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		int last = solutions.mNumberOfTimeSteps;		
 	    // Test to see if this worked		
-		double testvalue = solutions.mSolutions[last][0];
+		double testvalue = solutions.mSolutions[last-1][0];
+		
+		TS_ASSERT_DELTA(testvalue,2.0,0.01);
+	}
+	
+	void testAdamsBashforthSolver()
+	{
+		TestOde1* pMyOdeSystem = new TestOde1();
+		int SystemSize = 1;		
+		std::vector<double> yInit(SystemSize);
+		yInit[0] = 0.0;
+	
+     	// Initialising the instance of our solver class	
+		AdamsBashforthIvpOdeSolver* myABSolver = new AdamsBashforthIvpOdeSolver;
+	    // Initialising the instance of our solution class
+		OdeSolution solutions;
+		
+	    // Solving the ode problem and writing to solution		
+	    solutions = myABSolver->Solve(pMyOdeSystem, 0.0, 2.0, 0.01, yInit);
+		
+		int last = solutions.mNumberOfTimeSteps;		
+	    // Test to see if this worked		
+		double testvalue = solutions.mSolutions[last-1][0];
 		
 		TS_ASSERT_DELTA(testvalue,2.0,0.01);
 	}
@@ -84,6 +108,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		TS_ASSERT_DELTA(testvalue,4.0,0.000001);
 	}
+	
 	void testLastTimeStep()
 	{
 		TestOde1* pMyOdeSystem = new TestOde1();
@@ -91,6 +116,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		int SystemSize=1;
 		
 		std::vector<double> yInit(SystemSize);
+		yInit[0] = 0.0;
 	
 	// Initialising the instance of our solver class	
 		EulerIvpOdeSolver* myEulerSolver = new EulerIvpOdeSolver;
