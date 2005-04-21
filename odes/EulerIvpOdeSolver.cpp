@@ -27,10 +27,10 @@
 */
 
 OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				double startTime,
-				double endTime,
-				double timeStep,
-				std::vector<double> initialConditions)
+				                     double startTime,
+				                     double endTime,
+				                     double timeStep,
+				                     std::vector<double> initialConditions)
 {
 
     int num_equations = pAbstractOdeSystem->mNumberOfEquations;
