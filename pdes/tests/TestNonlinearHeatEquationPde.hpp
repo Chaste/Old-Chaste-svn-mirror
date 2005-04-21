@@ -2,6 +2,7 @@
 #define _TESTNONLINEARHEATEQUATIONPDE_HPP_
 
 #include "NonlinearHeatEquationPde.hpp"
+#include <cxxtest/TestSuite.h>
 
 class TestNonlinearHeatEquationPde : public CxxTest::TestSuite
 {
