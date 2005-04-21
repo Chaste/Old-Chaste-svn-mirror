@@ -1,6 +1,10 @@
 #ifndef _ELEMENT_HPP_
 #define _ELEMENT_HPP_
 
+/**
+ * This class defines an Element for use in FEM.
+ */
+
 #include "Node.hpp"
 #include "Point.hpp"
 
@@ -52,6 +56,21 @@ public:
     	if (createJacobian)
     	{
     		//TODO
+    	}
+    }
+    
+    /**
+     * Free memory potentially allocated in the constructor (or elsewhere) for
+     * holding lower order elements.
+     */
+    ~Element()
+    {
+    	if (mHasLowerOrderElements)
+    	{
+    		for (int i=0; i<ELEMENT_DIM+1; i++)
+    		{
+    			delete mLowerOrderElements[i];
+    		}
     	}
     }
     
