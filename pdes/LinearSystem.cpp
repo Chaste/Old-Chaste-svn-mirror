@@ -22,21 +22,21 @@ LinearSystem::LinearSystem(int lhsVectorSize)
     MatSetType(mLhsMatrix, MATSEQDENSE);
 }
 
-bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
-{
-    PetscTruth testValue;
-    MatEqual(mLhsMatrix,testMatrix,&testValue);
-    
-    return(testValue == PETSC_TRUE);       
-}
-
-bool LinearSystem::IsRhsVectorEqualTo(Vec testVector)
-{
-   PetscTruth testValue;
-   VecEqual(mRhsVector,testVector, &testValue);
-   
-   return(testValue == PETSC_TRUE);   
-}
+//bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
+//{
+//    PetscTruth testValue;
+//    MatEqual(mLhsMatrix,testMatrix,&testValue);
+//    
+//    return(testValue == PETSC_TRUE);       
+//}
+//
+//bool LinearSystem::IsRhsVectorEqualTo(Vec testVector)
+//{
+//   PetscTruth testValue;
+//   VecEqual(mRhsVector,testVector, &testValue);
+//   
+//   return(testValue == PETSC_TRUE);   
+//}
 void LinearSystem::SetMatrixElement(int row, int col, double value)
 {
     MatSetValue(mLhsMatrix, row, col, value, INSERT_VALUES);

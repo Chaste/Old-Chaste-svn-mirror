@@ -14,12 +14,12 @@ private:
 public:
 
     LinearSystem(int lhsVectorSize);
-    bool IsMatrixEqualTo(Mat testMatrix);
-    bool IsRhsVectorEqualTo(Vec testVector);
+//    bool IsMatrixEqualTo(Mat testMatrix);
+//    bool IsRhsVectorEqualTo(Vec testVector);
     void SetMatrixElement(int row, int col, double value);
     void AddToMatrixElement(int row, int col, double value);
-    void AssembleFinalMatrix();
-    void AssembleIntermediateMatrix();
+    void AssembleFinalMatrix();         // Call before solve
+    void AssembleIntermediateMatrix();  // Should be called before AddToMatrixElement
     void DisplayMatrix();
     void SetMatrixRow(int row, double value);
     
