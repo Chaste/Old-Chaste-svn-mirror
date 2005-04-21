@@ -1,7 +1,7 @@
 /**
  * BacgroundCurrentLR91.cpp
  * 
- * Ib.
+ * Ib, Background current.
  */
 #include "BackgroundCurrentLR91.hpp"
 #include <cmath>
@@ -9,7 +9,7 @@
 /**
  * Constructor
  */
- 
+
 BackgroundCurrentLR91::BackgroundCurrentLR91()
 {   
     mMagnitudeOfCurrent = 0.0; // Set to 0.0 initially, its a variable of IonicCurrent class

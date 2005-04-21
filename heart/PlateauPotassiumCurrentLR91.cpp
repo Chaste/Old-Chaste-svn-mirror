@@ -1,7 +1,7 @@
 /**
  * PlateauPotassiumCurrentLR91.cpp
  * 
- * IKp.
+ * IKp, Plateau potassium current.
  */
 #include "PlateauPotassiumCurrentLR91.hpp"
 #include <cmath>
@@ -25,29 +25,16 @@ PlateauPotassiumCurrentLR91::~PlateauPotassiumCurrentLR91()
     // Do nothing
 }
 
-
-/**
- * Get Kp.
- * 
- */
-
-double PlateauPotassiumCurrentLR91::GetKp()
-{   
-    return mKp;
-}
-
-
 /**
  * Update Kp
  * 
  * @param voltage Current transmembrane voltage
  */
 
-void PlateauPotassiumCurrentLR91::UpdateGatingVariables(double voltage)
+void PlateauPotassiumCurrentLR91::UpdateKP(double voltage)
 {  
     mKp = 1/ ( 1 + exp(7.488 - voltage)/5.98);
 }
-
 
 /**
  * Update magnitude of current, IKp.
@@ -56,7 +43,7 @@ void PlateauPotassiumCurrentLR91::UpdateGatingVariables(double voltage)
  */
 void PlateauPotassiumCurrentLR91::UpdateMagnitudeOfCurrent(double voltage)
 {   
-    UpdateGatingVariables(voltage);        
+    UpdateKP(voltage);        
     mMagnitudeOfCurrent = gKp* mKp * (voltage - eKp);
 } 
 

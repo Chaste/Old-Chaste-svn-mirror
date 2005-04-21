@@ -1,7 +1,6 @@
 #ifndef _CALCIUMCONCENTRATIONLR91_HPP_
 #define _CALCIUMCONCENTRATIONLR91_HPP_
 
-
 #include "IonicConcentrationLR91.hpp"
 #include "ConstantsLR91.hpp"
 #include <iostream>

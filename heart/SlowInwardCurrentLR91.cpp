@@ -8,17 +8,12 @@
 
 /**
  * Constructor
- * 
- * @param d Initial value for d gate
- * @param f Initial value for f gate
  */
 SlowInwardCurrentLR91::SlowInwardCurrentLR91()
 {   
     mD = 0.0;
     mF = 0.0;
-    
     mESi = 0.0;    
-    
     mAlphaD = 0.0;
     mAlphaF = 0.0;
     mBetaD = 0.0;
@@ -53,7 +48,7 @@ double SlowInwardCurrentLR91::GetF()
 
 
 /**
- * Update voltage--dependent rate constants, alpha and beta
+ * Update voltage-dependent rate constants, alpha and beta
  * 
  * @param voltage Current transmembrane voltage
  */
@@ -67,13 +62,22 @@ void SlowInwardCurrentLR91::UpdateAlphaAndBeta(double voltage)
 
 
 /**
- * Update gating variables 
+ * Set gating variables to given values
+ * 
+ * @param d New value for d gating variable
+ * @paran f New value for f gating variable
  */
-void SlowInwardCurrentLR91::UpdateGatingVariables(double d, double f)
+void SlowInwardCurrentLR91::SetGatingVariables(double d, double f)
 {  
     mD = d;
     mF = f;
 }
+
+/**
+ * Update ESi, slow inward current reversal potential
+ * 
+ * @param caI [Ca_i] concentration
+ */
 void SlowInwardCurrentLR91::UpdateESi(double caI)
 {
     mESi = 7.7 - 13.0287 * log(caI);    
@@ -86,26 +90,36 @@ void SlowInwardCurrentLR91::UpdateESi(double caI)
  */
 void SlowInwardCurrentLR91::UpdateMagnitudeOfCurrent(double voltage, double d, double f, double caI)
 {   
-    UpdateGatingVariables(d, f);
+    SetGatingVariables(d, f);
     UpdateAlphaAndBeta(voltage);
     UpdateESi(caI);    
     mMagnitudeOfCurrent = gSi * mD * mF * (voltage - mESi);
 } 
 
-
-
-
-// Compute Y' 
-double SlowInwardCurrentLR91:: ComputeDPrime(double voltage, double d, double f)
+/**
+ * Returns y'
+ * 
+ * @param voltage Current transmembrane potential
+ * @param d       Current value for d gating variable
+ * @param f       Current value for f gating variable
+ */
+double SlowInwardCurrentLR91::ComputeDPrime(double voltage, double d, double f)
 {    
-    UpdateGatingVariables(d, f);
+    SetGatingVariables(d, f);
     UpdateAlphaAndBeta(voltage);
-    return  (mAlphaD - (mAlphaD + mBetaD)*mD); 
+    return (mAlphaD - (mAlphaD + mBetaD)*mD); 
 }
 
+/**
+ * Returns f'
+ * 
+ * @param voltage Current transmembrane potential
+ * @param d       Current value for d gating variable
+ * @param f       Current value for f gating variable
+ */
 double SlowInwardCurrentLR91:: ComputeFPrime(double voltage, double d, double f)
 {    
-    UpdateGatingVariables(d, f);
+    SetGatingVariables(d, f);
     UpdateAlphaAndBeta(voltage);
     return  (mAlphaF - (mAlphaF + mBetaF)*mF);
 }

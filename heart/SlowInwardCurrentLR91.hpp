@@ -26,11 +26,9 @@ class SlowInwardCurrentLR91 : public IonicCurrent
         double GetF();
         void UpdateMagnitudeOfCurrent(double voltage, double d, double f, double caI);
         void UpdateAlphaAndBeta(double voltage);
-        void UpdateGatingVariables(double d, double f);
-        
+        void SetGatingVariables(double d, double f);
         // Update Nerst potential that depends on Cai
         void UpdateESi(double caI);
-        
         double ComputeDPrime(double voltage, double d, double f);
         double ComputeFPrime(double voltage, double d, double f);        
 };

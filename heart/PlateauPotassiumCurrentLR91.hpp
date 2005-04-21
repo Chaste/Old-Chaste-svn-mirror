@@ -8,7 +8,6 @@
 class PlateauPotassiumCurrentLR91 : public IonicCurrent
 {
     private:
-        // gating variable
         double mKp;
           
     public:
@@ -16,9 +15,8 @@ class PlateauPotassiumCurrentLR91 : public IonicCurrent
         PlateauPotassiumCurrentLR91();
         // Destructor
         ~PlateauPotassiumCurrentLR91();
-        double GetKp();
         void UpdateMagnitudeOfCurrent(double voltage);
-        void UpdateGatingVariables(double voltage);
+        void UpdateKP(double voltage);
 };
 
 #endif //_PLATEAUPOTASSIUMCURRENTLR91_HPP_
