@@ -1,12 +1,11 @@
-Running 4 tests.4
+Running 6 tests
+ Start of OdeSystem tests
+.4
 2.5	2.5	2.5	2.5	
 2.5
 2.5
 5
 2.5
-
- End of first set of tests
-.Start of second test
-
- End of second set of tests
-.1.OK!
+....
+ End of OdeSystem tests
+.OK!

@@ -9,6 +9,11 @@
 #include <iostream>
 #include "AbstractOdeSystem.hpp"
 #include "TestOde1.hpp"
+#include "TestOde2.hpp"
+#include "TestOde3.hpp"
+
+// Tolerance for tests
+double tol=0.01;
 
 class TestAbstractOdeSystem : public CxxTest::TestSuite
 {
@@ -25,6 +30,8 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 		
 	void testAddition(void)
 	{
+		std::cout << "\n Start of OdeSystem tests\n";
+		
 		TS_ASSERT(1+1 >1)
 	}
 	
@@ -55,12 +62,12 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 		// Reading(Viewing) in a PetScvector
 		VecView(yInit,PETSC_VIEWER_STDOUT_WORLD);
 		
-		std::cout << "\n End of first set of tests\n";
+		//std::cout << "\n End of first set of tests\n";
 	}
 	
 	void TestMyAbstractOdeSystem(void)
 	{
-		std::cout << "Start of second test\n";
+		//std::cout << "Start of second test\n";
 		int nEqus=1;
 		double * yInit = new double[nEqus];
 		double value = 1.0;
@@ -80,11 +87,12 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 			std::cout << yInit[k] << "\n";
 		}
 		// Finish the test
-*/		std::cout << "\n End of second set of tests\n";
+*/		//std::cout << "\n End of second set of tests\n";
 	}
 	
 	void TestOdeOne(void)
 	{
+		//std::cout << "Start of third test\n";
 		double* yInit = new double[1];
 		yInit[0]=0.0;
 		
@@ -96,8 +104,48 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 		TestOde1 * pOde1 = new TestOde1();
 		double rYPrime2[1];
 		pOde1->EvaluateYDerivatives(1.0, yInit, rYPrime2);
-		std::cout << rYPrime2[0];
+		//std::cout << rYPrime2[0];
+		TS_ASSERT_DELTA(rYPrime2[0],1.0,tol);
+		//std::cout << "\n End of third set of tests\n";
 	}
+	
+	
+	void TestOdeTwo(void)
+	{
+		//std::cout << "Start of fourth test\n";
+		double* yInit = new double[1];
+		
+		yInit[0]=4.0;
+		
+		TestOde2 * pOde2 = new TestOde2();
+		double rYPrime2[1];
+		pOde2->EvaluateYDerivatives(2.0, yInit, rYPrime2);
+		//std::cout << rYPrime2[0];
+		TS_ASSERT_DELTA(rYPrime2[0],8.0,tol);
+		//std::cout << "\n End of fourth set of tests\n";
+	}
+	
+	void TestOdeThree(void)
+	{
+		//std::cout << "Start of fifth test\n";
+		double* yInit = new double[2];
+		
+		yInit[0]=4.0;
+		yInit[1]=8.0;
+		
+		TestOde3 * pOde3 = new TestOde3();
+		double rYPrime2[2];
+		pOde3->EvaluateYDerivatives(2.0, yInit, rYPrime2);
+		//std::cout << rYPrime2[0] << std::endl;
+		//std::cout << rYPrime2[1] << std::endl;
+		TS_ASSERT_DELTA(rYPrime2[0],8.0,tol);
+		TS_ASSERT_DELTA(rYPrime2[1],16.0,tol);
+		//std::cout << "\n End of fifth set of tests\n";
+		
+		
+	std::cout << "\n End of OdeSystem tests\n";
+	}
+	
 };
 
 
