@@ -20,6 +20,8 @@ class MatrixDouble
 		MatrixDouble Inverse( void );
 		double Determinant( void );
 		
+		MatrixDouble& operator*(double scalar);
+		
 };
 
 #endif //_MATRIXDOUBLE_HPP_

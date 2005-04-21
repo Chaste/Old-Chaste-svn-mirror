@@ -88,6 +88,14 @@ int MatrixDouble::Columns( void )
 
 
 
+MatrixDouble& MatrixDouble::operator*(double scalar)
+{
+	for (int i=0; i<mNumberOfElements; i++)
+	{
+		mElementArray[i] *= scalar;
+	}
+	return *this;
+}
 
 
 

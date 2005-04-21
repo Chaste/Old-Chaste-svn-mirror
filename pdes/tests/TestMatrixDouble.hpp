@@ -40,8 +40,26 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		B = A;
 		TS_ASSERT_DELTA(A(0,1), value, 0.0000000001);
 		TS_ASSERT_DELTA(B(0,1), value, 0.0000000001);
+		// TODO: If you update B now, does A also change?
 	}
 	
+	
+	void testScalarMultiplication()
+	{
+		for (int i=2; i<4; i++)
+		{
+			for (int j=1; j<3; j++)
+			{
+				MatrixDouble A(i,j);
+				A(0,0) = 1.0;
+				A(1,0) = 2.0;
+				A = A * 3.0;
+				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
+				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
+				if (j>1) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
+			}
+		}
+	}
 	
 	
 	void testIdentity()
