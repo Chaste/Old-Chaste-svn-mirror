@@ -12,6 +12,7 @@
 #include "PlateauPotassiumCurrentLR91.hpp"
 #include "CalciumConcentrationLR91.hpp"
 #include "SlowInwardCurrentLR91.hpp"
+#include "TransmembranePotentialLR91.hpp"
 //#include "TimeDependentPotassiumCurrent.hpp"
 //#include "LuoRudyModel.hpp" 
 #include "ConstantsLR91.hpp"
@@ -87,6 +88,16 @@ class TestLR91 : public CxxTest::TestSuite
         
         std::cout << "\n" << "Slow inward current is " <<  iSi << "\n";  
         TS_ASSERT_DELTA(  iSi , gSi * d *f * (V - eSi), 0.0001);    
+        
+        //test transmembrane potentail works;
+        double iTotal = 10;
+        double iStim = 5;
+        TransmembranePotentialLR91 *pV;
+        pV = new TransmembranePotentialLR91();
+        double VPrime = pV->ComputeVPrime(iStim, iTotal);
+        
+        std::cout << "\n" << "Transmembrane potential is " <<  VPrime << "\n";  
+        
     }
     
 };

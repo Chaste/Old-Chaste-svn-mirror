@@ -19,11 +19,11 @@ int main() {
 static TestLR91 suite_TestLR91;
 
 static CxxTest::List Tests_TestLR91 = { 0, 0 };
-CxxTest::StaticSuiteDescription suiteDescription_TestLR91( "heart/tests/TestLR91.hpp", 19, "TestLR91", suite_TestLR91, Tests_TestLR91 );
+CxxTest::StaticSuiteDescription suiteDescription_TestLR91( "heart/tests/TestLR91.hpp", 20, "TestLR91", suite_TestLR91, Tests_TestLR91 );
 
 static class TestDescription_TestLR91_testCurrentsMagnitude : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestLR91_testCurrentsMagnitude() : CxxTest::RealTestDescription( Tests_TestLR91, suiteDescription_TestLR91, 24, "testCurrentsMagnitude" ) {}
+ TestDescription_TestLR91_testCurrentsMagnitude() : CxxTest::RealTestDescription( Tests_TestLR91, suiteDescription_TestLR91, 25, "testCurrentsMagnitude" ) {}
  void runTest() { suite_TestLR91.testCurrentsMagnitude(); }
 } testDescription_TestLR91_testCurrentsMagnitude;
 

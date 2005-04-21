@@ -54,12 +54,12 @@ void CalciumConcentrationLR91::UpdateMagnitudeOfIonicConcentration(double caI)
  * @param voltage Current transmembrane voltage
  * @param caI     Intracellular calcium concentration
  */
-double CalciumConcentrationLR91::ComputeCalciumPrime(double voltage, double d, double f, double caI)
+double CalciumConcentrationLR91::ComputeCalciumPrime(double voltage, double d, double f, double caI, double iSi)
 {   
-    SlowInwardCurrentLR91 *pISi;
-    pISi = new SlowInwardCurrentLR91();
-    pISi->UpdateMagnitudeOfCurrent(voltage,d,f,caI);
-    double iSi = pISi->GetMagnitudeOfCurrent();
+//    SlowInwardCurrentLR91 *pISi;
+//    pISi = new SlowInwardCurrentLR91();
+//    pISi->UpdateMagnitudeOfCurrent(voltage,d,f,caI);
+//    double iSi = pISi->GetMagnitudeOfCurrent();
         
     UpdateMagnitudeOfIonicConcentration(caI);
     return (-0.0001 * iSi + 0.007 * (0.0001 -  mMagnitudeOfIonicConcentration));   
