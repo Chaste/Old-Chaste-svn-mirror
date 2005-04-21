@@ -16,7 +16,9 @@ class MatrixDouble
 		double &MatrixDouble::operator()(int Row, int Column);
 		static MatrixDouble Identity(int Size);
 		int Rows( void );
-		int Columns( void );	
+		int Columns( void );
+		MatrixDouble Inverse( void );
+		double Determinant( void );
 		
 };
 
