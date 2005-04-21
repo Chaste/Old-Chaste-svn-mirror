@@ -16,16 +16,9 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
     void testAddition( void )
     {
         TS_ASSERT( 1 + 1 > 1 );
-    }
-    
-	// Test we can construct an ODESolver
-	void testconstructOdeSolver()
-	{
-		TS_ASSERT_THROWS_NOTHING(EulerIvpOdeSolver anOdeSolver);		
-	}
+    }	
 	
-	
-	void testIvpOdeSolver()
+	void testEulerSolver()
 	{
 		TestOde1* pMyOdeSystem = new TestOde1();
 		int SystemSize = 1;		

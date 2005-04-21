@@ -12,11 +12,11 @@ class EulerIvpOdeSolver : public AbstractIvpOdeSolver
 	public:
 	EulerIvpOdeSolver() {};
 	
-	virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				              double startTime,
-				              double endTime,
-				              double timeStep,
-				              std::vector<double> initialConditions);
+	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+				      double startTime,
+				      double endTime,
+				      double timeStep,
+				      std::vector<double> initialConditions);
 	
 };
 

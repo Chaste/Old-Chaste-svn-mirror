@@ -5,7 +5,6 @@
 #endif
 
 #define _CXXTEST_HAVE_STD
-#define _CXXTEST_HAVE_EH
 #include <cxxtest/TestListener.h>
 #include <cxxtest/TestTracker.h>
 #include <cxxtest/TestRunner.h>
@@ -20,25 +19,19 @@ int main() {
 static TestAbstractIvpOdeSolver suite_TestAbstractIvpOdeSolver;
 
 static CxxTest::List Tests_TestAbstractIvpOdeSolver = { 0, 0 };
-CxxTest::StaticSuiteDescription suiteDescription_TestAbstractIvpOdeSolver( "odes/tests/TestAbstractIvpOdeSolver.hpp", 13, "TestAbstractIvpOdeSolver", suite_TestAbstractIvpOdeSolver, Tests_TestAbstractIvpOdeSolver );
+CxxTest::StaticSuiteDescription suiteDescription_TestAbstractIvpOdeSolver( "odes/tests/TestAbstractIvpOdeSolver.hpp", 12, "TestAbstractIvpOdeSolver", suite_TestAbstractIvpOdeSolver, Tests_TestAbstractIvpOdeSolver );
 
 static class TestDescription_TestAbstractIvpOdeSolver_testAddition : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testAddition() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 17, "testAddition" ) {}
+ TestDescription_TestAbstractIvpOdeSolver_testAddition() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 16, "testAddition" ) {}
  void runTest() { suite_TestAbstractIvpOdeSolver.testAddition(); }
 } testDescription_TestAbstractIvpOdeSolver_testAddition;
 
-static class TestDescription_TestAbstractIvpOdeSolver_testconstructOdeSolver : public CxxTest::RealTestDescription {
+static class TestDescription_TestAbstractIvpOdeSolver_testEulerSolver : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testconstructOdeSolver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 27, "testconstructOdeSolver" ) {}
- void runTest() { suite_TestAbstractIvpOdeSolver.testconstructOdeSolver(); }
-} testDescription_TestAbstractIvpOdeSolver_testconstructOdeSolver;
-
-static class TestDescription_TestAbstractIvpOdeSolver_testIvpOdeSolver : public CxxTest::RealTestDescription {
-public:
- TestDescription_TestAbstractIvpOdeSolver_testIvpOdeSolver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 33, "testIvpOdeSolver" ) {}
- void runTest() { suite_TestAbstractIvpOdeSolver.testIvpOdeSolver(); }
-} testDescription_TestAbstractIvpOdeSolver_testIvpOdeSolver;
+ TestDescription_TestAbstractIvpOdeSolver_testEulerSolver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 21, "testEulerSolver" ) {}
+ void runTest() { suite_TestAbstractIvpOdeSolver.testEulerSolver(); }
+} testDescription_TestAbstractIvpOdeSolver_testEulerSolver;
 
 #include "odes/tests/TestAbstractOdeSystem.hpp"
 
@@ -53,22 +46,22 @@ public:
  void runTest() { suite_TestAbstractOdeSystem.testAddition(); }
 } testDescription_TestAbstractOdeSystem_testAddition;
 
-static class TestDescription_TestAbstractOdeSystem_TestOdeOne : public CxxTest::RealTestDescription {
+static class TestDescription_TestAbstractOdeSystem_TestOdeSystemOne : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractOdeSystem_TestOdeOne() : CxxTest::RealTestDescription( Tests_TestAbstractOdeSystem, suiteDescription_TestAbstractOdeSystem, 29, "TestOdeOne" ) {}
- void runTest() { suite_TestAbstractOdeSystem.TestOdeOne(); }
-} testDescription_TestAbstractOdeSystem_TestOdeOne;
+ TestDescription_TestAbstractOdeSystem_TestOdeSystemOne() : CxxTest::RealTestDescription( Tests_TestAbstractOdeSystem, suiteDescription_TestAbstractOdeSystem, 26, "TestOdeSystemOne" ) {}
+ void runTest() { suite_TestAbstractOdeSystem.TestOdeSystemOne(); }
+} testDescription_TestAbstractOdeSystem_TestOdeSystemOne;
 
-static class TestDescription_TestAbstractOdeSystem_TestOdeTwo : public CxxTest::RealTestDescription {
+static class TestDescription_TestAbstractOdeSystem_TestOdeSystemTwo : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractOdeSystem_TestOdeTwo() : CxxTest::RealTestDescription( Tests_TestAbstractOdeSystem, suiteDescription_TestAbstractOdeSystem, 45, "TestOdeTwo" ) {}
- void runTest() { suite_TestAbstractOdeSystem.TestOdeTwo(); }
-} testDescription_TestAbstractOdeSystem_TestOdeTwo;
+ TestDescription_TestAbstractOdeSystem_TestOdeSystemTwo() : CxxTest::RealTestDescription( Tests_TestAbstractOdeSystem, suiteDescription_TestAbstractOdeSystem, 40, "TestOdeSystemTwo" ) {}
+ void runTest() { suite_TestAbstractOdeSystem.TestOdeSystemTwo(); }
+} testDescription_TestAbstractOdeSystem_TestOdeSystemTwo;
 
-static class TestDescription_TestAbstractOdeSystem_TestOdeThree : public CxxTest::RealTestDescription {
+static class TestDescription_TestAbstractOdeSystem_TestOdeSystemThree : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractOdeSystem_TestOdeThree() : CxxTest::RealTestDescription( Tests_TestAbstractOdeSystem, suiteDescription_TestAbstractOdeSystem, 60, "TestOdeThree" ) {}
- void runTest() { suite_TestAbstractOdeSystem.TestOdeThree(); }
-} testDescription_TestAbstractOdeSystem_TestOdeThree;
+ TestDescription_TestAbstractOdeSystem_TestOdeSystemThree() : CxxTest::RealTestDescription( Tests_TestAbstractOdeSystem, suiteDescription_TestAbstractOdeSystem, 50, "TestOdeSystemThree" ) {}
+ void runTest() { suite_TestAbstractOdeSystem.TestOdeSystemThree(); }
+} testDescription_TestAbstractOdeSystem_TestOdeSystemThree;
 
 #include <cxxtest/Root.cpp>
