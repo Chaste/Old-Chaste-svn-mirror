@@ -34,6 +34,16 @@ class TestNode : public CxxTest::TestSuite
 		
 		node1.SetAsBoundaryNode(false);
 		TS_ASSERT(!node1.IsBoundaryNode());
+		
+		Node<2> node2(1, false, 1.0, 2.0);
+		TS_ASSERT_EQUALS(node2.GetIndex(), 1);
+		TS_ASSERT_DELTA(node2.GetPoint()[0], 1.0, 1e-12);
+		TS_ASSERT_DELTA(node2.GetPoint()[1], 2.0, 1e-12);
+		TS_ASSERT(!node2.IsBoundaryNode());
+		
+		// This shouldn't give an error, even though we specify too many
+		// coordinates: the 3rd coord should be ignored.
+		Node<2> node3(2, true, 1.0, 2.0, 3.0);
 	}
 };
 

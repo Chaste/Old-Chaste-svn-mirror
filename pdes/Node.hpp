@@ -22,6 +22,13 @@ public:
 		mIndex = index;
 		mIsBoundaryNode = isBoundaryNode;
 	}
+	
+	Node(int index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
+	{
+		mPoint = Point<SPACE_DIM>(v1, v2, v3);
+		mIndex = index;
+		mIsBoundaryNode = isBoundaryNode;
+	}
 
 	void SetPoint(Point<SPACE_DIM> point)
 	{
