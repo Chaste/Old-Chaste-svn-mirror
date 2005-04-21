@@ -65,13 +65,13 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	}
 	void testRows( void )
 	{
-		TinyMatrix A (33,3);
+		MatrixDouble A(33,3);
 		TS_ASSERT_EQUALS( A.Rows(), 33);
 		
 	}
 	void testColumns( void )
 	{
-		TinyMatrix A (3,7);
+		MatrixDouble A(3,7);
 		TS_ASSERT_EQUALS( A.Columns(), 7);
 		
 	}
