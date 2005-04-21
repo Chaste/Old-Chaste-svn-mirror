@@ -2,11 +2,11 @@
 
 // AbstractOdeSystem.cpp
 
-AbstractOdeSystem::AbstractOdeSystem(const int& rNumberOfEquations,const double& rTInit, double * rYInit)
+AbstractOdeSystem::AbstractOdeSystem(const int& rNumberOfEquations)
 {
 		mNumberOfEquations = rNumberOfEquations;
-		mTInit = rTInit;
-		mYInit = rYInit;
+		//mTInit = rTInit;
+		//mYInit = rYInit;
 }
 
 AbstractOdeSystem::~AbstractOdeSystem()

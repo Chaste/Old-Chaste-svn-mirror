@@ -9,10 +9,11 @@ class AbstractOdeSystem
 {
 	public:
 	int mNumberOfEquations;
-	double mTInit;
-	double * mYInit;
+	// Gary's dodgy update
+	//double mTInit;
+	//double * mYInit;
 	
-	AbstractOdeSystem(const int& rNumberOfEquations,const double& rTInit, double * rYInit);
+	AbstractOdeSystem(const int& rNumberOfEquations);
 	~AbstractOdeSystem();
 	
 	virtual void EvaluateYDerivatives (double rTime, double * rY, double * rYDerivatives) = 0;

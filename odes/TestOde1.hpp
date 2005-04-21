@@ -7,7 +7,7 @@
 class TestOde1 : public AbstractOdeSystem
 {
 	public :
-	TestOde1(double t, double * y);
+	TestOde1();
 	
 	void EvaluateYDerivatives (double rTime, double * rY, double * rYDerivatives);
 

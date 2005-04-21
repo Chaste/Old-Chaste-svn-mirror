@@ -2,9 +2,10 @@
 
 #include "TestOde1.hpp"
 
-TestOde1::TestOde1(double t, double * y) : AbstractOdeSystem(1, t, y)
+TestOde1::TestOde1() : AbstractOdeSystem(1)
 {
-// Use AbstractOdeSystem constructors	
+// Use AbstractOdeSystem constructors
+
 }
 
 void TestOde1::EvaluateYDerivatives(double t, double *y, double * yDerivatives)

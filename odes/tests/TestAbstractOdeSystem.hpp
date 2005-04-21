@@ -88,12 +88,12 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 		double* yInit = new double[1];
 		yInit[0]=0.0;
 		
-		TestOde1 Ode1(0.0, yInit);
-		double rYPrime[1];
-		Ode1.EvaluateYDerivatives(1.0, yInit, rYPrime);
-		std::cout << rYPrime[0];
+//		TestOde1 Ode1();
+//		double rYPrime[1];
+//		Ode1.EvaluateYDerivatives(1.0, yInit, rYPrime);
+//		std::cout << rYPrime[0];
 		
-		TestOde1 * pOde1 = new TestOde1(0.0, yInit);
+		TestOde1 * pOde1 = new TestOde1();
 		double rYPrime2[1];
 		pOde1->EvaluateYDerivatives(1.0, yInit, rYPrime2);
 		std::cout << rYPrime2[0];
