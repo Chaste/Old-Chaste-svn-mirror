@@ -24,7 +24,8 @@ class PotassiumTimeDependentCurrentLR91 : public IonicCurrent
         void SetGatingVariables(double x);
         void UpdateMagnitudeOfCurrent(double voltage, double x);
         double ComputeXPrime(double voltage, double x);
-        void UpdateXi(double voltage);     
+        void UpdateXi(double voltage);   
+        double GetXi(double voltage);  
 };
 
 #endif //_POTASSIUMTIMEDEPENDENTCURRRENTLR91_HPP_

@@ -19,6 +19,7 @@ class PotassiumTimeIndependentCurrentLR91 : public IonicCurrent
         void UpdateAlphaAndBeta(double voltage);
         void UpdateK1(double voltage);
         void UpdateMagnitudeOfCurrent(double voltage);
+        double GetK1(double voltage) ;
 };
 
 #endif //_POTASSIUMTIMEINDEPENDENTCURRENTLR91_HPP_

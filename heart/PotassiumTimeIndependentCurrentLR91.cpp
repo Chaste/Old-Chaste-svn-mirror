@@ -59,3 +59,9 @@ void PotassiumTimeIndependentCurrentLR91::UpdateK1(double voltage)
 	UpdateAlphaAndBeta(voltage);
 	mK1 = (mAlphaK1)/(mAlphaK1 + mBetaK1);
 }
+
+double PotassiumTimeIndependentCurrentLR91::GetK1(double voltage)
+{
+	UpdateAlphaAndBeta(voltage) ;
+	return mK1 ;
+}

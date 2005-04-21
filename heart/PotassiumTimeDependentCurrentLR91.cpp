@@ -34,6 +34,13 @@ double PotassiumTimeDependentCurrentLR91::GetX()
     return mX;
 }
 
+double PotassiumTimeDependentCurrentLR91::GetXi(double voltage)
+{
+	UpdateXi(voltage) ;
+	return mXi;	
+}
+
+
 /**
  * Update gating variables 
  * 

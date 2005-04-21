@@ -32,15 +32,19 @@ class TestLR91Currents : public CxxTest::TestSuite
 	// Test potassium time dependent current, IK
 	void TestPotassiumTimeDependentCurrentLR91(void)
 	{
-		// std::cout << "Running TestPotassiumTimeDependentCurrentLR91..." << std::endl;
+		 std::cout << "\n Running TestPotassiumTimeDependentCurrentLR91...\n \n" << std::endl;
 		PotassiumTimeDependentCurrentLR91 *myPotassiumTimeDependentCurrent;
-		
 		myPotassiumTimeDependentCurrent = new PotassiumTimeDependentCurrentLR91();
-		myPotassiumTimeDependentCurrent->SetGatingVariables(1.0);
-		myPotassiumTimeDependentCurrent->SetMagnitudeOfCurrent(50.0);
 		
+		myPotassiumTimeDependentCurrent->SetGatingVariables(1.0);
+		myPotassiumTimeDependentCurrent->SetMagnitudeOfCurrent(1.0);
+		double xtest=myPotassiumTimeDependentCurrent->GetX() ;
+		double xitest =myPotassiumTimeDependentCurrent->GetXi(1.0) ;
 		TS_ASSERT(myPotassiumTimeDependentCurrent->GetX() == 1.0);
-		TS_ASSERT(myPotassiumTimeDependentCurrent->GetMagnitudeOfCurrent() == 50.0);
+		//TS_ASSERT(myPotassiumTimeDependentCurrent->GetMagnitudeOfCurrent() == 1.0);
+		
+		//TS_ASSERT_DELTA(myPotassiumTimeDependentCurrent->GetMagnitudeOfCurrent() , gK*xtest*xitest*(1.0 +77.0),.02);
+		
 	}
 	
 	// Test potassium time independent current, IK1
@@ -50,7 +54,17 @@ class TestLR91Currents : public CxxTest::TestSuite
 		
 		myPotassiumTimeIndependentCurrent = new PotassiumTimeIndependentCurrentLR91();
 		
-		TS_ASSERT(true);
+		myPotassiumTimeIndependentCurrent->UpdateAlphaAndBeta(2.0) ;
+		myPotassiumTimeIndependentCurrent->UpdateMagnitudeOfCurrent(2.0) ;
+		double I = myPotassiumTimeIndependentCurrent->GetMagnitudeOfCurrent() ;
+		double v = 2.0 ;
+		double K1test = myPotassiumTimeIndependentCurrent->GetK1(2.0) ;
+		
+		std::cout<< " The value of K1test is............. \n"<<  K1test  << "\n \n \n " ;
+		TS_ASSERT_DELTA(myPotassiumTimeIndependentCurrent->GetMagnitudeOfCurrent(), .6047*K1test*(v- (-77)) , .001) ;
+		
+		
+		//TS_ASSERT(true);
 	}
 	
 	// Test plateau potassium current, IKp
