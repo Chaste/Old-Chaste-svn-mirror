@@ -10,14 +10,25 @@ class LR91Model
 {
     private:
         LR91OdeFun myL91OdeSystem;
-       // OdeSolver myOdeSolver;
+        double mV;
+        double mM;
+        double mH;
+        double mJ;
+        double mD;
+        double mF;
+        double mX;
+        double mCaI;
+    
         
     public:
         // Constructor
-        //LR91Model(double voltage, double m, double h, double j, double d, double f, double x, double caI);
+        // initializes the LR91Model with initial conditions!
+        LR91Model(double voltage, double m, double h, double j, double d, double f, double x, double caI);
         // Destructor
-        //~LR91Model();
+        ~LR91Model();
         
+        //Solve should solve LR91 system and return whatever type the solver returns
+        std::vector<double> Solve();//OdeSolver myOdeSolver);
         
        
 };
