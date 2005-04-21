@@ -34,3 +34,47 @@ std::vector<std::string> AbstractMeshReader::GetRawDataFromFile(std::string file
 	
 	return(RawDataFromFile);
 }
+
+int AbstractMeshReader::GetMaxNodeIndex()
+{
+	std::vector<std::vector<int> >::iterator the_iterator;
+	
+	int max_node_index = -1;
+	
+	for(the_iterator = mElementData.begin(); the_iterator < mElementData.end(); the_iterator++)
+	{
+		std::vector<int> indices = *the_iterator;
+		
+		for(int i = 0; i < mDimension+1; i++)
+		{
+			if(indices[i] > max_node_index)
+			{
+				max_node_index = indices[i];
+			}
+		}
+	}
+	
+	return max_node_index;
+}
+
+int AbstractMeshReader::GetMinNodeIndex()
+{
+	std::vector<std::vector<int> >::iterator the_iterator;
+	
+	int min_node_index = 1000000;
+	
+	for(the_iterator = mElementData.begin(); the_iterator < mElementData.end(); the_iterator++)
+	{
+		std::vector<int> indices = *the_iterator;
+		
+		for(int i = 0; i < mDimension+1; i++)
+		{
+			if(indices[i] < min_node_index)
+			{
+				min_node_index = indices[i];
+			}
+		}
+	}
+	
+	return min_node_index;
+}

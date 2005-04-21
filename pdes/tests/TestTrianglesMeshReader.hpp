@@ -15,7 +15,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/disk_522_elements_indexed_from_1"));
+		                  "pdes/tests/meshdata/disk_522_elements"));
 		
 	
 	}
@@ -63,6 +63,46 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/bad_faces_disk_522__elements_indexed_from_1"));		
+		
+	}
+	
+	void test3dDataRead(void)
+	{
+		
+			
+		TS_ASSERT_THROWS_NOTHING(
+		                  spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/slab_138_elements"));
+		
+		
+		TS_ASSERT (spMeshReader->GetNumElements() == 138);
+		
+	}
+	
+	void testIndexFromZero(void)
+	{
+		
+		TS_ASSERT_THROWS_NOTHING(
+		                  spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_522_elements"));
+		//spMeshReader=new TrianglesMeshReader("pdes/tests/meshdata/disk_522__elements");
+		
+		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
+		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
+		
+	}
+	
+	
+	void testIndexFromOne(void)
+	{
+		TS_ASSERT_THROWS_NOTHING(
+		                  spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_522_elements_indexed_from_1"));
+		
+		//spMeshReader=new TrianglesMeshReader("pdes/tests/meshdata/disk_522__elements_indexed_from_1");
+		
+		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
+		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
 		
 	}
 	

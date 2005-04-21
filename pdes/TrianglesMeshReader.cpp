@@ -2,129 +2,149 @@
 
 TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 {
+	bool indexed_from_zero = false;
+	bool already_checked_indexing = false;
+	
+	int num_attributes, max_marker;
 	
 	mPathBaseName=pathBaseName;
 
 	std::string nodeFileName=pathBaseName+".node";
 	mNodeRawData=GetRawDataFromFile(nodeFileName);
-
-	std::vector<std::string>::iterator theNodeIterator;
-   	for( theNodeIterator = mNodeRawData.begin(); theNodeIterator != mNodeRawData.end(); theNodeIterator++ )
-   	{
-     	std::string lineOfData=*theNodeIterator;
-     	std::stringstream lineStream(lineOfData);
-     	
-     	if (theNodeIterator==mNodeRawData.begin())
-     	{
-     		lineStream >> mNumNodes;     
-     	}
-     	else
-     	{
-     		std::vector<double> currentNodeCoords;
-     		int nodeNumber, nodeCoords[3]; 
-     		
-     		lineStream >> nodeNumber >> nodeCoords[0] >> nodeCoords[1] >> nodeCoords[2];
-     		
-     		for (int i = 0; i < 3; i++)
-     		{
-     			currentNodeCoords.push_back(nodeCoords[i]);
-     		}
-     		
-     		mNodeData.push_back(currentNodeCoords);
-     	}
-     	
-    }
-    
-    if (mNumNodes != mNodeData.size())
+	
+	std::stringstream node_header_stream(mNodeRawData[0]);
+	node_header_stream >> mNumNodes >> mDimension >> num_attributes >> max_marker;
+	
+	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
+	
+	if (mNumNodes != mNodeData.size())
 	{
 		throw Exception("Number of nodes does not match expected number declared in header");
 	}
-
-
-
-
-
+	
+	
 	std::string elementFileName=pathBaseName+".ele";
 	mElementRawData=GetRawDataFromFile(elementFileName);
 
- 	std::vector<std::string>::iterator theElementIterator;
-   	for( theElementIterator = mElementRawData.begin(); theElementIterator != mElementRawData.end(); theElementIterator++ )
-   	{
-     	std::string lineOfData=*theElementIterator;
-     	std::stringstream lineStream(lineOfData);
-     	
-     	if (theElementIterator==mElementRawData.begin())
-     	{
-     		lineStream >> mNumElements;     
-     	}
-     	else
-     	{
-     		std::vector<int> currentElementNodes;
-     		int elementNumber, elementNodes[3]; 
-     		
-     		lineStream >> elementNumber >> elementNodes[0] >> elementNodes[1] >> elementNodes[2];
-     		
-     		for (int i = 0; i < 3; i++)
-     		{
-     			currentElementNodes.push_back(elementNodes[i]);
-     		}
-     		
-     		mElementData.push_back(currentElementNodes);
-     	}
-     	
-    }
-    
-    if (mNumElements != mElementData.size())
+ 	std::stringstream element_header_stream(mElementRawData[0]);
+	element_header_stream >> mNumElements;
+	
+	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
+ 	
+ 	
+ 	
+ 	
+ 	if (mNumElements != mElementData.size())
 	{
 		throw Exception("Number of elements does not match expected number declared in header");
 	}
 
+	std::string faceFileName;
 
-
-	std::string faceFileName=pathBaseName+".edge";
+	if (mDimension == 2)
+	{
+		faceFileName=pathBaseName+".edge";
+	}
+	else if (mDimension == 3)
+	{
+		faceFileName=pathBaseName+".face";
+	}
+	
 	mFaceRawData=GetRawDataFromFile(faceFileName);
 	
-	std::vector<std::string>::iterator theFaceIterator;
-   	for( theFaceIterator = mFaceRawData.begin(); theFaceIterator != mFaceRawData.end(); theFaceIterator++ )
-   	{
-     	std::string lineOfData=*theFaceIterator;
-     	std::stringstream lineStream(lineOfData);
-     	
-     	if (theFaceIterator==mFaceRawData.begin())
-     	{
-     		lineStream >> mNumFaces;     
-     	}
-     	else
-     	{
-     		std::vector<int> currentFaceNodes;
-     		int faceNumber, faceNodes[2]; 
-     		
-     		lineStream >> faceNumber >> faceNodes[0] >> faceNodes[1];
-     		
-     		for (int i = 0; i < 2; i++)
-     		{
-     			currentFaceNodes.push_back(faceNodes[i]);
-     		}
-     		
-     		mFaceData.push_back(currentFaceNodes);
-     	}
-     	
-    }
-        
-    if (mNumFaces != mFaceData.size())
+	std::stringstream face_header_stream(mFaceRawData[0]);
+	face_header_stream >> mNumFaces;
+	
+	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
+	
+	
+	if (mNumFaces != mFaceData.size())
 	{
 		throw Exception("Number of faces does not match expected number declared in header");
 	}
-
-
-
-
-
-		
-	//int numAttributes, maxBoundaryMarkers;
-	//nodeFile >> mNumNodes >> mDimension >> numAttributes >> maxBoundaryMarkers;
+	
+	
 	
 }
+	
+std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
+												std::vector<std::string> rawData)
+{
+	std::vector<std::vector<double> > tokenized_data;
+	
+	std::vector<std::string>::iterator the_iterator;
+   	for( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
+   	{
+     	std::string line_of_data=*the_iterator;
+     	std::stringstream line_stream(line_of_data);
+     	
+     	if (the_iterator!=rawData.begin())
+     	{
+     		std::vector<double> current_coords;
+     		int item_number;
+     		     		
+     		line_stream >> item_number;
+     		
+     		if (item_number == 0)
+     		{
+     			mIndexFromZero = true;
+     		}
+     		
+     		for (int i = 0; i < mDimension; i++)
+     		{
+     			double item_coord; 
+     			line_stream >> item_coord;
+     			current_coords.push_back(item_coord);
+     		}
+     		
+     		tokenized_data.push_back(current_coords);
+     	}
+     	
+    }
+    
+    return tokenized_data;
+}
+
+
+std::vector<std::vector<int> > TrianglesMeshReader::TokenizeStringsToInts(
+												std::vector<std::string> rawData,
+												int dimensionOfObject)
+{
+	std::vector<std::vector<int> > tokenized_data;
+	
+	std::vector<std::string>::iterator the_iterator;
+   	for( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
+   	{
+     	std::string line_of_data=*the_iterator;
+     	std::stringstream line_stream(line_of_data);
+     	
+     	if (the_iterator!=rawData.begin())
+     	{
+     		std::vector<int> current_indices;
+     		int item_number;
+     		
+     		line_stream >> item_number;
+     		
+     		for (int i = 0; i < dimensionOfObject; i++)
+     		{
+     			int item_index; 
+     			line_stream >> item_index;
+     			if (mIndexFromZero == false)
+     			{
+     				item_index -= 1;
+     			}
+     			current_indices.push_back(item_index);
+     		}
+     		
+     		tokenized_data.push_back(current_indices);
+     	}
+     	
+    }
+    
+    return tokenized_data;
+}
+
+
 
 TrianglesMeshReader::~TrianglesMeshReader()
 {

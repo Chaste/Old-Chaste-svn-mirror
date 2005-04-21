@@ -26,6 +26,8 @@ class AbstractMeshReader
 		std::vector< std::vector<int> > mElementData;
 		std::vector< std::vector<int> > mFaceData;
 	
+		bool mIndexFromZero;
+	
 		std::vector<std::string> GetRawDataFromFile(std::string fileName);
 		
 	public:
@@ -36,11 +38,15 @@ class AbstractMeshReader
 			mNumFaces = 0;
 			mDimension = 0;
 			mPathBaseName = "";
+			mIndexFromZero = false;
 		}
 		int GetNumElements(){return mNumElements;}
 		int GetNumNodes(){return mNumNodes;}
 		int GetNumFaces(){return mNumFaces;}
 		int GetDimension(){return mDimension;}		
+		
+		int GetMaxNodeIndex();
+		int GetMinNodeIndex();
 
 };
 #endif //_ABSTRACTMESHREADER_HPP_
