@@ -75,6 +75,7 @@ OdeSolution RungeKutta2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
 		// Send out solution and time
 		solutions.mSolutions.push_back(row);
 		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
+		//std::cout<<solutions.mTime[timeindex]<<"\t"<<solutions.mSolutions[timeindex][0]<<std::endl;
 	}
 	
 	// Extra step to get to exactly endTime
@@ -101,7 +102,7 @@ OdeSolution RungeKutta2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
 		solutions.mSolutions.push_back(row);
 		
 		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
-	
+		//std::cout<<solutions.mTime[num_timesteps+1]<<"\t"<<solutions.mSolutions[num_timesteps+1][0]<<std::endl;
 	}
 	
 			

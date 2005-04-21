@@ -36,7 +36,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		int last = solutions.mNumberOfTimeSteps;		
 	    // Test to see if this worked		
-		double testvalue = solutions.mSolutions[last-1][0];
+		double testvalue = solutions.mSolutions[last][0];
 		
 		TS_ASSERT_DELTA(testvalue,2.0,0.01);
 	}
@@ -58,9 +58,9 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		int last = solutions.mNumberOfTimeSteps;		
 	    // Test to see if this worked		
-		double testvalue = solutions.mSolutions[last-1][0];
+		double testvalue = solutions.mSolutions[last][0];
 		
-		TS_ASSERT_DELTA(testvalue,4.0,0.01);
+		TS_ASSERT_DELTA(testvalue,4.0,0.0001);
 	}
 	
 	void testRungeKutta4Solver()
@@ -80,10 +80,9 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		int last = solutions.mNumberOfTimeSteps;		
 	    // Test to see if this worked		
-		double testvalue = solutions.mSolutions[last-1][0];
+		double testvalue = solutions.mSolutions[last][0];
 		
-		TS_ASSERT_DELTA(testvalue,4.0,0.01);
-		std::cout << "Runge Kutta4 test result = " << testvalue << std::endl;
+		TS_ASSERT_DELTA(testvalue,4.0,0.000001);
 	}
 	void testLastTimeStep()
 	{
