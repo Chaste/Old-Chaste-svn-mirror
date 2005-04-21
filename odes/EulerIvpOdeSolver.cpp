@@ -26,7 +26,6 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     
 	OdeSolution solutions;
 	solutions.mNumberOfTimeSteps = num_timesteps;
-	// (num_timesteps)(num_equations)
 		
 	solutions.mSolutions.push_back(initialConditions);
 	solutions.mTime.push_back(startTime);
