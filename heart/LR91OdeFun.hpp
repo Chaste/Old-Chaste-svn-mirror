@@ -2,25 +2,17 @@
 #define _LR91ODEFUN_HPP_
 
 #include "ConstantsLR91.hpp"
-
 //#include "AbstractOdeSystem.hpp"
-
-#include "TransmembranePotentialLR91.hpp"
-#include "SodiumCurrent.hpp"
-//#include "SodiumCurrentLR91.hpp"
+#include "SodiumCurrentLR91.hpp"
 #include "BackgroundCurrentLR91.hpp"
-#include "CalciumConcentrationLR91.hpp"
-#include "PlateauPotassiumCurrentLR91.hpp"
-#include "SlowInwardCurrentLR91.hpp"
-//#include "PotassiumTimeInpendententCurrentLR91.hpp"
-//#include "PotassiumTimeDependentCurrentLR91.hpp"
- 
 #include <iostream>
-#include <vector>
-//#include "petscvec.h"
+
+#include "petscvec.h"
 
 class LR91OdeFun //: public AbstractOdeSystem
 {
+<<<<<<< .mine
+=======
     private:
         TransmembranePotentialLR91 *mpV;
         SodiumCurrent  *mpINa;
@@ -33,6 +25,7 @@ class LR91OdeFun //: public AbstractOdeSystem
         //PotassiumTimeDependentCurrentLR91 *mpIK;
        
           
+>>>>>>> .r74
     public:
         // Constructor
         LR91OdeFun();
@@ -40,9 +33,13 @@ class LR91OdeFun //: public AbstractOdeSystem
         ~LR91OdeFun();
         
         // This mehtod will compute the RHS of the Luo--Rudy model
+<<<<<<< .mine
+        void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
+=======
         // void EvaluateYDiffs(double rTime, Vec rY, Vec rYNew);   
         //void ComputingRHS(double tOfStimulus, std::vector<double> pInitCond); 
         std::vector<double> EvaluateYDerivatives(const double &rTime, std::vector<double> &rY);
+>>>>>>> .r74
 };
  
 #endif //_LR91ODEFUN_HPP_

@@ -31,4 +31,4 @@ BackgroundCurrentLR91::~BackgroundCurrentLR91()
 void BackgroundCurrentLR91::UpdateMagnitudeOfCurrent(double voltage)
 {   
     mMagnitudeOfCurrent = gB * (voltage + eB); 
-} 
+}
