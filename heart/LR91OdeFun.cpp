@@ -9,7 +9,7 @@
  * Constructor
  * 
  */
-LR91OdeFun::LR91OdeFun()
+LR91OdeFun::LR91OdeFun(AbstractStimulusFunction *stimulus)
 {
     mpV = new TransmembranePotentialLR91();
     mpINa = new SodiumCurrentLR91();
@@ -17,9 +17,9 @@ LR91OdeFun::LR91OdeFun()
     mpCaI = new CalciumConcentrationLR91();
     mpIKp = new PlateauPotassiumCurrentLR91();
     mpISi = new SlowInwardCurrentLR91();
-    mpIK1 = new PotassiumTimeIndependentCurrentLR91();;
+    mpIK1 = new PotassiumTimeIndependentCurrentLR91();
     mpIK =  new PotassiumTimeDependentCurrentLR91();  
-    
+    mpStimulus = stimulus;
 }
 
 /**
@@ -30,45 +30,8 @@ LR91OdeFun::~LR91OdeFun()
     // Do nothing
 }
 
-/**
- * Method that evaluates the RHS of the Luo--Rudy model 
- *  ??! are rYNew updated within, i.e. what it points to is modified?! 
- * 
-// */
-//void LR91OdeFun::EvaluateYDiffs(double rTime, Vec rY, Vec rYNew)
-//{
-////    // need to extract V, m,h,...from Petski vector
-////   Vec mX = rY;
-////   
-////   PetscScalar *xElements;
-////
-////   VecGetArray(mX,xElements);
-////   
-////   xElements[0] = rY[0];
-////   double V = xElements[0];
-////   
-////   double m =xElements[1];
-////   
-////   
-////    
-//    
-//    // update all currents, gate variables, cocentrations 
-//    
-//    // compute RHS and put it into Petski vector form
-//       
-////}
-//
-//void LR91OdeFun::ComputingRHS(double tOfStimulus, std::vector<double> initCond)
 std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::vector<double> &rY) 
-{
-//    double v = initCond[0];
-//    double m = initCond[1];
-//    double h = initCond[2];
-//    double j = initCond[3];
-//    double d = initCond[4];
-//    double f = initCond[5];
-//    double x = initCond[6];
-//    double caI = initCond[7];   
+{  
     double v = rY[0];
     double m = rY[1];
     double h = rY[2];
@@ -77,9 +40,7 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     double f = rY[5];
     double x = rY[6];
     double caI = rY[7];
-    
-
-    
+     
     // Compute all the currents
     //sodium current
     mpINa->UpdateMagnitudeOfCurrent(v, m, h, j);
@@ -90,12 +51,12 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     double iSi = mpISi->GetMagnitudeOfCurrent();
     
     //potassium time dependent current
-    //mpIK->UpdateMagnitudeOfCurrent(v);
-    //double iK = mpIK->GetMagnitudeOfCurrent();
+    mpIK->UpdateMagnitudeOfCurrent(v, x);
+    double iK = mpIK->GetMagnitudeOfCurrent();
     
     //potassium time independent current
-    //mpIK1->UpdateMagnitudeOfCurrent(v);
-    //double iK1 = mpIK1->GetMagnitudeOfCurrent();
+    mpIK1->UpdateMagnitudeOfCurrent(v);
+    double iK1 = mpIK1->GetMagnitudeOfCurrent();
     
     //potassium plateau
     mpIKp->UpdateMagnitudeOfCurrent(v);
@@ -122,18 +83,23 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     double caIPrime = mpCaI->ComputeCalciumPrime(v, d,f, caI, iSi);
         
     // Total Current
-    double iTotal = iSi + iNa + iKp + iB; //+ iK + iK1;
+    double iTotal = iSi + iNa + iKp + iB + iK + iK1;
     
-    // Introducing Stimulus -- need to modify
-    double iStim = 0.0;
-    if (rTime==1)
-    {
-        iStim = 20.0;
-    }
-    else 
-    {
-        iStim = 0.0;
-    }
+//    // Introducing Stimulus -- need to modify
+//    double iStim = 0.0;
+//    if (rTime==1)
+//    {
+//        iStim = 20.0;
+//    }
+//    else 
+//    {
+//        iStim = 0.0;
+//    }
+//    
+
+    // if wanted could set stimulus to something by
+    //mStimulus->SetStimulusFunction(double stimulus);
+    double iStim = mpStimulus->GetStimulus(rTime);
     
     // Calculating VPrime
     double VPrime = mpV->ComputeVPrime(iStim, iTotal);

@@ -9,7 +9,8 @@
  * Constructor
  * 
  */
-LR91Model::LR91Model(double voltage, double m, double h, double j, double d, double f, double x, double caI)
+LR91Model::LR91Model(double voltage, double m, double h, double j, double d, 
+double f, double x, double caI, AbstractStimulusFunction *pStimulus)
 {   
     mV = voltage;
     mM = m;
@@ -19,7 +20,7 @@ LR91Model::LR91Model(double voltage, double m, double h, double j, double d, dou
     mF = f;
     mX = x;
     mCaI = caI;
-    mpLR91OdeSystem = new LR91OdeFun();
+    mpLR91OdeSystem = new LR91OdeFun(pStimulus);
 }
 
 /**
@@ -34,7 +35,18 @@ LR91Model::~LR91Model()
 /**
  * Solves the LR91 model using some ODe Solver
  */
-std::vector<double> LR91Model::Solve()//OdeSolver myOdeSolver)
+std::vector<double> LR91Model::Solve()//tange of time AbstractOdeSolver *pOdeSolver)
 {
+    std::vector<double> Y;
+    Y[0] = mV;
+    Y[1] = mM;
+    Y[2] = mH;
+    Y[3] = mJ;
+    Y[4] = mD;
+    Y[5] = mF;
+    Y[6] = mX;
+    Y[7] = mCaI;
+    
+   // EvaluateYDerivatives (const double &rTime, std::vector<double> &rY) 
 }
 

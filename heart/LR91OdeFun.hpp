@@ -11,6 +11,7 @@
 #include "SlowInwardCurrentLR91.hpp"
 #include "PotassiumTimeIndependentCurrentLR91.hpp"
 #include "PotassiumTimeDependentCurrentLR91.hpp"
+#include "AbstractStimulusFunction.hpp"
 #include <iostream>
 #include <vector>
 
@@ -25,12 +26,12 @@ class LR91OdeFun //: public AbstractOdeSystem
         SlowInwardCurrentLR91 *mpISi;
         PotassiumTimeIndependentCurrentLR91 *mpIK1;
         PotassiumTimeDependentCurrentLR91 *mpIK;
-       
+        AbstractStimulusFunction *mpStimulus;
           
 
     public:
         // Constructor
-        LR91OdeFun();
+        LR91OdeFun(AbstractStimulusFunction *stimulus);
         // Destructor
         ~LR91OdeFun();
         

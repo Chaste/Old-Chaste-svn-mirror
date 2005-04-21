@@ -2,9 +2,8 @@
 #define _LR91MODEL_HPP_
 
 #include "LR91OdeFun.hpp"
+#include "AbstractStimulusFunction.hpp"
 #include <iostream>
-
-#include "petscvec.h"
 
 class LR91Model
 {
@@ -23,7 +22,8 @@ class LR91Model
     public:
         // Constructor
         // initializes the LR91Model with initial conditions!
-        LR91Model(double voltage, double m, double h, double j, double d, double f, double x, double caI);
+        LR91Model(double voltage, double m, double h, double j, double d, 
+                  double f, double x, double caI, AbstractStimulusFunction *pStimulus);
         // Destructor
         ~LR91Model();
         

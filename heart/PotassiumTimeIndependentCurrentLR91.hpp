@@ -1,5 +1,5 @@
 #ifndef _POTASSIUMTIMEINDEPENDENTCURRENTLR91_HPP_
-#define _POTASSIUMIMEINDEPENDENTCURRENTLR91_HPP_
+#define _POTASSIUMTIMEINDEPENDENTCURRENTLR91_HPP_
 #include "IonicCurrent.hpp"
 #include "ConstantsLR91.hpp"
 #include <iostream>
