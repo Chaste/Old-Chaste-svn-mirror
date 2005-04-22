@@ -100,6 +100,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
                                intialConditions, pMySolver);
                                
+        Solution.SaveToFile("LRresult.dat");
+                               
 //        output to matlab file
         
         TS_TRACE("MOREOVER OdeSolver SOLVES!!!! :)) ");
