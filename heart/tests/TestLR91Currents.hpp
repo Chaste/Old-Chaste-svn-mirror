@@ -32,17 +32,18 @@ class TestLR91Currents : public CxxTest::TestSuite
 	// Test potassium time dependent current, IK
 	void TestPotassiumTimeDependentCurrentLR91(void)
 	{
-		 std::cout << "\n Running TestPotassiumTimeDependentCurrentLR91...\n \n" << std::endl;
+		 //std::cout << "\n Running TestPotassiumTimeDependentCurrentLR91...\n \n" << std::endl;
 		PotassiumTimeDependentCurrentLR91 *myPotassiumTimeDependentCurrent;
 		myPotassiumTimeDependentCurrent = new PotassiumTimeDependentCurrentLR91();
 		
 		myPotassiumTimeDependentCurrent->SetGatingVariables(1.0);
-		myPotassiumTimeDependentCurrent->SetMagnitudeOfCurrent(1.0);
+		myPotassiumTimeDependentCurrent->UpdateMagnitudeOfCurrent(1.0, 1.0);
 		double xtest=myPotassiumTimeDependentCurrent->GetX() ;
 		double xitest =myPotassiumTimeDependentCurrent->GetXi(1.0) ;
 		TS_ASSERT(myPotassiumTimeDependentCurrent->GetX() == 1.0);
 		//TS_ASSERT(myPotassiumTimeDependentCurrent->GetMagnitudeOfCurrent() == 1.0);
-		
+		std::cout<<"MAgnitude of current is :" << myPotassiumTimeDependentCurrent->GetMagnitudeOfCurrent() << "\n \n ...."  ;
+		std::cout<<gK << " \n " << xtest << " \n " <<xitest << " \n " ;
 		//TS_ASSERT_DELTA(myPotassiumTimeDependentCurrent->GetMagnitudeOfCurrent() , gK*xtest*xitest*(1.0 +77.0),.02);
 		
 	}
