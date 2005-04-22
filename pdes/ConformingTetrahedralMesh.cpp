@@ -1,3 +1,6 @@
+#ifndef _CONFORMINGTETRAHEDRALMESH_CPP_
+#define _CONFORMINGTETRAHEDRALMESH_CPP_
+
 #include "ConformingTetrahedralMesh.hpp"
 #include <vector>
 
@@ -67,3 +70,5 @@ long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
     return mElements.size();
 }
+
+#endif // _CONFORMINGTETRAHEDRALMESH_CPP_
