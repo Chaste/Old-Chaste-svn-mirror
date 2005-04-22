@@ -52,7 +52,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 		solutions.mSolutions.push_back(row);	
 		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
 		temp.push_back(dy);
-			}
+	}
         
 	// Apply Adams-Bashforth method
     for (int timeindex=3; timeindex<num_timesteps; timeindex++)
