@@ -60,6 +60,8 @@ OdeSolution RungeKutta4IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
 	solutions.mTime.push_back(startTime);
 	
 	std::vector<double> row(num_equations);	
+	std::vector<double> dy(num_equations);
+	
 	std::vector<double> k1(num_equations);
 	std::vector<double> k2(num_equations);
 	std::vector<double> k3(num_equations);
@@ -76,29 +78,33 @@ OdeSolution RungeKutta4IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
 		// Apply RungeKutta4's method
 		
 		
-        k1 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
         
         for(int i=0;i<num_equations; i++) 
 		{
+			k1[i]=timeStep*dy[i];
 			yk2[i] = row[i] + 0.5*k1[i];		
 		}
-        k2 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk2);
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk2);
 		
 		for(int i=0;i<num_equations; i++) 
 		{
+			k2[i]=timeStep*dy[i];
 			yk3[i] = row[i] + 0.5*k2[i];		
 		}
-        k3 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk3);        
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk3);        
 
 		for(int i=0;i<num_equations; i++) 
 		{
+			k3[i]=timeStep*dy[i];
 			yk4[i] = row[i] + k3[i];		
 		}
-        k4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep,yk4);                
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep,yk4);                
 		
 		for(int i=0;i<num_equations; i++) 
 		{
-			row[i] = row[i] + timeStep*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
+			k4[i]=timeStep*dy[i];
+			row[i] = row[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
 		}
 		
 		solutions.mSolutions.push_back(row);
@@ -112,29 +118,33 @@ OdeSolution RungeKutta4IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
 		solutions.mNumberOfTimeSteps=num_timesteps+1;
 		
 		
-		k1 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
+		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
         
         for(int i=0;i<num_equations; i++) 
 		{
+			k1[i]=last_timestep*dy[i];
 			yk2[i] = row[i] + 0.5*k1[i];		
 		}
-        k2 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+0.5*last_timestep,yk2);
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+0.5*last_timestep,yk2);
 		
 		for(int i=0;i<num_equations; i++) 
 		{
+			k2[i]=last_timestep*dy[i];
 			yk3[i] = row[i] + 0.5*k2[i];		
 		}
-        k3 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+0.5*last_timestep,yk3);        
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+0.5*last_timestep,yk3);        
 
 		for(int i=0;i<num_equations; i++) 
 		{
+			k3[i]=last_timestep*dy[i];
 			yk4[i] = row[i] + k3[i];		
 		}
-        k4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+last_timestep,yk4);                
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+last_timestep,yk4);                
 		
 		for(int i=0;i<num_equations; i++) 
 		{
-			row[i] = row[i] + last_timestep*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
+			k4[i]=last_timestep*dy[i];
+			row[i] = row[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
 		}
 		
 		
