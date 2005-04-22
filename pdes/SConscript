@@ -8,9 +8,13 @@ files = glob.glob('*.cpp')
 os.chdir(curdir)
 
 testfiles = glob.glob('../tests/Test*.hpp')
-testsource = glob.glob('../tests/*.cpp')
+os.chdir('../')
+testsource = glob.glob('tests/*.cpp')
+os.chdir(curdir)
 
-base  = '-Icxxtest -Idatawriters -Iheart -Iodes -Icancer -Iparameters -Ipdes -I. '
+
+
+base  = '-Icxxtest -Idatawriters -Iheart -Iodes -Icancer -Iparameters -Ipdes -I pdes/tests -I. '
 
 petsc_base = '../../petsc-2.2.1/'
 petsc_inc = '-I'+petsc_base+'include '
