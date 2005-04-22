@@ -19,7 +19,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	{
 		LinearHeatEquationPde<1> pde;
 		std::vector<Node<1>*> nodes;
-		nodes.push_back(new Node<1>(0, false, 1));
+		nodes.push_back(new Node<1>(0, false, 1.0));
 		nodes.push_back(new Node<1>(0, false, 3));
 		Element<1,1> element(nodes);
 		LinearBasisFunction<1> basis_function;
