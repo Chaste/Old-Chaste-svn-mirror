@@ -1,5 +1,6 @@
-// TestOde3.cpp
-
+/**
+ * Concrete TestOde3 class
+ */ 
 #include "TestOde3.hpp"
 
 TestOde3::TestOde3() : AbstractOdeSystem(2)

@@ -1,3 +1,6 @@
+/**
+ * Concrete TestOde2 class
+ */ 
 #ifndef _TESTODE2_HPP_
 #define _TESTODE2_HPP_
 // TestOde2.hpp
