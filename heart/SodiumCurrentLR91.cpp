@@ -25,7 +25,7 @@ SodiumCurrentLR91::SodiumCurrentLR91()
     mBetaM = 0.0;
     mBetaH = 0.0;
     mBetaJ = 0.0;
-    mMagnitudeOfCurrent = 0.0; // Set to 0.0 initially, its a variable of IonicCurrent class
+    mMagnitudeOfCurrent = 0.0; // Set to 0.0 initially, it's a variable of IonicCurrent class
 }
 
 /**

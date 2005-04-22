@@ -85,6 +85,49 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
 //        output to matlab file
     }
     
+    
+    
+   
+//	// Tests that Na gating variables within range 0 to 1 inclusive
+//	void testSodiumGatingVariables( void )
+//	{
+//		double m = 0.0017;
+//		double h = 0.9833;
+//		double j = 0.9895;
+//		double voltage = -75.0;
+//		
+//		SodiumCurrentLR91 *pINa = new SodiumCurrentLR91();
+//		pINa->UpdateMagnitudeOfCurrent(voltage,m,h,j);
+//		
+//		std::cout << "\n";
+//		std::cout << "INa m gate: " << pINa->GetM() << "\n";
+//		TS_ASSERT(pINa->GetM() >= 0);
+//		TS_ASSERT(pINa->GetM() <= 1);
+//		
+//		std::cout << "INa h gate: " << pINa->GetH() << "\n";
+//		TS_ASSERT(pINa->GetH() >= 0);
+//		TS_ASSERT(pINa->GetH() <= 1);		
+//	}
+//	
+//	// Tests that K gating variables within range 0 to 1 inclusive
+//	void testPotassiumGatingVariables( void )
+//	{
+//		double m = 0.0017;
+//		double h = 0.9833;
+//		double j = 0.9895;
+//		double voltage = -75.0;
+//		
+//		PotassiumCurrent *pIK = new PotassiumCurrent();
+//		pIK->UpdateMagnitudeOfCurrent(voltage,m,h,j);
+//			
+//		std::cout << "IK n gate: " << pIK->GetN() << "\n";
+//		TS_ASSERT(pIK->GetN() >= 0);
+//		TS_ASSERT(pIK->GetN() <= 1);		
+//	}
+	
+	
+	
+    
 };
 
 
