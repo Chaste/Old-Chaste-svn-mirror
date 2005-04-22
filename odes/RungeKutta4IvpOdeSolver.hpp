@@ -1,3 +1,6 @@
+/**
+ * Concrete RungeKutta2IvpOdeSolver class. 
+*/
 #ifndef _RUNGEKUTTA4IVPODESOLVER_HPP_
 #define _RUNGEKUTTA4IVPODESOLVER_HPP_
 

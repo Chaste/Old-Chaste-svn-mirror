@@ -1,3 +1,6 @@
+/**
+ * Concrete AdamsBashforthIvpOdeSolver class. 
+*/
 #ifndef _ADAMSBASHFORTHIVPODESOLVER_HPP_
 #define _ADAMSBASHFORTHIVPODESOLVER_HPP_
 

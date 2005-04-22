@@ -1,3 +1,6 @@
+/**
+ * Concrete RungeKutta2IvpOdeSolver class. 
+*/
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
