@@ -261,32 +261,29 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		exactSolution[0] = sin(2);
 		exactSolution[1] = cos(2);
 				
-		double GlobalErrorEuler[2];
-		GlobalErrorEuler[0] = 0.5*1*(exp(2)-1)*hValue;
-		GlobalErrorEuler[1] = 0.5*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler[0]);
-		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler[1]);
+		double GlobalErrorEuler;
+		GlobalErrorEuler = 0.5*1*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler);
+		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler);
 		
-		double GlobalErrorRungeKutta2[2];
-		GlobalErrorRungeKutta2[0] = (1.0/6.0)*hValue*1*(exp(2)-1)*hValue;
-		GlobalErrorRungeKutta2[1] = (1.0/6.0)*hValue*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2[0]);
-		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2[1]);
+		double GlobalErrorRungeKutta2;
+		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*1*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2);
+		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2);
 		
-		double GlobalErrorRungeKutta4[2];
-		GlobalErrorRungeKutta4[0] = (1.0/24.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
-		GlobalErrorRungeKutta4[1] = (1.0/24.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4[0]);
-		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4[1]);
+		double GlobalErrorRungeKutta4;
+		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4);
+		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4);
 		
-		double GlobalErrorAdamsBashforth[2];
-		GlobalErrorAdamsBashforth[0] = (1.0/6.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
-		GlobalErrorAdamsBashforth[1] = (1.0/6.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth[0]);	
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth[1]);	
+		double GlobalErrorAdamsBashforth;
+		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);	
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);	
 		
 		
 	}
+	
 	void testGlobalErrorSystemOf3()
 	{
 		TestOdeOrderSystemOf3* pMyOdeSystem = new TestOdeOrderSystemOf3();
@@ -357,39 +354,31 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		exactSolution[1] = sin(2)+cos(2);
 		exactSolution[2] = 2*sin(2);
 				
-		double GlobalErrorEuler[3];
-		GlobalErrorEuler[0] = 0.5*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorEuler[1] = 0.5*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorEuler[2] = 0.5*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler[0]);
-		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler[1]);
-		TS_ASSERT_DELTA(testvalueEuler[2],exactSolution[2],GlobalErrorEuler[2]);
+		double GlobalErrorEuler;
+		GlobalErrorEuler = 0.5*2*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler);
+		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler);
+		TS_ASSERT_DELTA(testvalueEuler[2],exactSolution[2],GlobalErrorEuler);
 		
-		double GlobalErrorRungeKutta2[3];
-		GlobalErrorRungeKutta2[0] = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorRungeKutta2[1] = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorRungeKutta2[2] = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2[0]);
-		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2[1]);
-		TS_ASSERT_DELTA(testvalueRungeKutta2[2],exactSolution[2],GlobalErrorRungeKutta2[2]);
+		double GlobalErrorRungeKutta2;
+		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*2*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2);
+		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2);
+		TS_ASSERT_DELTA(testvalueRungeKutta2[2],exactSolution[2],GlobalErrorRungeKutta2);
 		
-		double GlobalErrorRungeKutta4[3];
-		GlobalErrorRungeKutta4[0] = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorRungeKutta4[1] = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorRungeKutta4[2] = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4[0]);
-		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4[1]);
-		TS_ASSERT_DELTA(testvalueRungeKutta4[2],exactSolution[2],GlobalErrorRungeKutta4[2]);
+		double GlobalErrorRungeKutta4;
+		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*2*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4);
+		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4);
+		TS_ASSERT_DELTA(testvalueRungeKutta4[2],exactSolution[2],GlobalErrorRungeKutta4);
 		
-		double GlobalErrorAdamsBashforth[3];
-		GlobalErrorAdamsBashforth[0] = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorAdamsBashforth[1] = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		GlobalErrorAdamsBashforth[2] = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth[0]);	
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth[1]);	
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[2],exactSolution[2],GlobalErrorAdamsBashforth[2]);
+		double GlobalErrorAdamsBashforth;
+		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*2*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);	
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);	
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[2],exactSolution[2],GlobalErrorAdamsBashforth);
 		
-	}	
+	}
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

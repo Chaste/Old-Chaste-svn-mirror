@@ -71,7 +71,7 @@ public:
 
 static class TestDescription_TestAbstractIvpOdeSolver_testGlobalErrorSystemOf3 : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testGlobalErrorSystemOf3() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 290, "testGlobalErrorSystemOf3" ) {}
+ TestDescription_TestAbstractIvpOdeSolver_testGlobalErrorSystemOf3() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 287, "testGlobalErrorSystemOf3" ) {}
  void runTest() { suite_TestAbstractIvpOdeSolver.testGlobalErrorSystemOf3(); }
 } testDescription_TestAbstractIvpOdeSolver_testGlobalErrorSystemOf3;
 
