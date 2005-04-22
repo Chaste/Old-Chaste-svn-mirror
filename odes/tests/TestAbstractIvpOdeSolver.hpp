@@ -65,6 +65,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		TS_ASSERT_DELTA(testvalue,2.0,0.01);
 	}
 	
+	
 	void testRungeKutta2Solver()
 	{
 		TestOde1* pMyOdeSystem = new TestOde1();

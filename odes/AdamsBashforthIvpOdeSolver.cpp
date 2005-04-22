@@ -5,8 +5,23 @@
 
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 /*
+ * Adams-Bashforth Method Initial Value Problem Ordinary Differential Equation Solver
+ * 
+ * Solves a system of ODEs for a given time range and time step.
+ * To be used in the form:
+ * 
+ * AdamsBashforthIvpOdeSolver mySolver
+ * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
+ * 
+ * where:
+ * pMyOdeSystem is a pointer to a specific instance of a subclass of AbstractOdeSystem
+ * (this defines the derivatives of the system)
+ * the times are all doubles
+ * yInit is a std::vector of doubles with initial values for all unknowns
+ * 
  * OdeSolution is an object containing an integer of the number of equations, 
  * a std::vector of times and a std::vector of std::vectors of the solution 
  * of the ODE system at those times
@@ -20,8 +35,20 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 {
 
     int num_equations = pAbstractOdeSystem->mNumberOfEquations;
-    int num_timesteps = ((int) ((endTime - startTime)/timeStep));
     
+    // Assert that the size of Initial Conditions vector = number of equations.
+    assert(initialConditions.size()==num_equations);	
+    
+    // Assert that the timestep does not exceed the time interval.
+    assert(timeStep <= endTime - startTime);
+    
+    // Assert that we actually have a time interval > 0 .
+    assert(endTime > startTime);
+    
+    // Assert that we  have a timestep > 0 .
+    assert(timeStep > 0.0);
+    
+    int num_timesteps = ((int) ((endTime - startTime)/timeStep));   
     double last_timestep = endTime - ((double) num_timesteps)*timeStep;
     
 	OdeSolution solutions;

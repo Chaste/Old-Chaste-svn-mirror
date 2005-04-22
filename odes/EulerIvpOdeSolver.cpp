@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 /*
  * Euler's Method Initial Value Problem Ordinary Differential Equation Solver
@@ -34,6 +35,19 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 {
 
     int num_equations = pAbstractOdeSystem->mNumberOfEquations;
+    
+    // Assert that the size of Initial Conditions vector = number of equations.
+    assert(initialConditions.size()==num_equations);	
+    
+    // Assert that the timestep does not exceed the time interval.
+    assert(timeStep <= endTime - startTime);
+    
+    // Assert that we actually have a time interval > 0 .
+    assert(endTime > startTime);
+    
+    // Assert that we  have a timestep > 0 .
+    assert(timeStep > 0.0);
+    
     int num_timesteps = ((int) ((endTime - startTime)/timeStep));
     
     double last_timestep = endTime - ((double) num_timesteps)*timeStep;
