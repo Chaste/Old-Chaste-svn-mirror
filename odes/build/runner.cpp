@@ -41,25 +41,25 @@ public:
 
 static class TestDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 69, "testRungeKutta2Solver" ) {}
+ TestDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 70, "testRungeKutta2Solver" ) {}
  void runTest() { suite_TestAbstractIvpOdeSolver.testRungeKutta2Solver(); }
 } testDescription_TestAbstractIvpOdeSolver_testRungeKutta2Solver;
 
 static class TestDescription_TestAbstractIvpOdeSolver_testRungeKutta4Solver : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testRungeKutta4Solver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 91, "testRungeKutta4Solver" ) {}
+ TestDescription_TestAbstractIvpOdeSolver_testRungeKutta4Solver() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 92, "testRungeKutta4Solver" ) {}
  void runTest() { suite_TestAbstractIvpOdeSolver.testRungeKutta4Solver(); }
 } testDescription_TestAbstractIvpOdeSolver_testRungeKutta4Solver;
 
 static class TestDescription_TestAbstractIvpOdeSolver_testLastTimeStep : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testLastTimeStep() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 113, "testLastTimeStep" ) {}
+ TestDescription_TestAbstractIvpOdeSolver_testLastTimeStep() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 114, "testLastTimeStep" ) {}
  void runTest() { suite_TestAbstractIvpOdeSolver.testLastTimeStep(); }
 } testDescription_TestAbstractIvpOdeSolver_testLastTimeStep;
 
 static class TestDescription_TestAbstractIvpOdeSolver_testGlobalError : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestAbstractIvpOdeSolver_testGlobalError() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 137, "testGlobalError" ) {}
+ TestDescription_TestAbstractIvpOdeSolver_testGlobalError() : CxxTest::RealTestDescription( Tests_TestAbstractIvpOdeSolver, suiteDescription_TestAbstractIvpOdeSolver, 138, "testGlobalError" ) {}
  void runTest() { suite_TestAbstractIvpOdeSolver.testGlobalError(); }
 } testDescription_TestAbstractIvpOdeSolver_testGlobalError;
 

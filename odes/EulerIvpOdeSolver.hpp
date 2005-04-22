@@ -1,3 +1,6 @@
+/**
+ * Concrete EulerIvpOdeSolver class. 
+*/
 #ifndef _EULERIVPODESOLVER_HPP_
 #define _EULERIVPODESOLVER_HPP_
 

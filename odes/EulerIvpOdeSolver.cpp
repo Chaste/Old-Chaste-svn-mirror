@@ -11,7 +11,7 @@
 #include <cassert>
 
 /**
- * Solves a system of ODEs using the Euler method
+ * Solves a system of ODEs using the Forward Euler method
  * 
  * @param pAbstractOdeSystem points to the concrete ODE system to be solved
  * @param startTime the time at which the initial conditions are specified
@@ -43,7 +43,7 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 
     int num_equations = pAbstractOdeSystem->mNumberOfEquations;
     
-    // Assert that the size of Initial Conditions vector = number of equations.
+    // Assert that the size of initialConditions vector = number of equations.
     assert(initialConditions.size()==num_equations);	
     
     // Assert that the timestep does not exceed the time interval.

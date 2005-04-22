@@ -151,7 +151,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
 		int last = solutionsEuler.mNumberOfTimeSteps;
-		double testvalueEuler = solutionsEuler.mSolutions[last][0]	;
+		double testvalueEuler = solutionsEuler.mSolutions[last][0];
 		
 		//Runge Kutta 2 solver solution worked out	
 		RungeKutta2IvpOdeSolver* myRungeKutta2Solver = new RungeKutta2IvpOdeSolver;
@@ -159,7 +159,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
 		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
-		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0]	;
+		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0];
 		
 		//Runge Kutta 4 solver solution worked out	
 		RungeKutta4IvpOdeSolver* myRungeKutta4Solver = new RungeKutta4IvpOdeSolver;
@@ -167,25 +167,36 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
 		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
-		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last2][0]	;
+		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last3][0];
+		
+		//Adams-Bashforth solver solution worked out	
+		AdamsBashforthIvpOdeSolver* myAdamsBashforthSolver = new AdamsBashforthIvpOdeSolver;
+		OdeSolution solutionsAdamsBashforth;
+		
+		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		double testvalueAdamsBashforth = solutionsAdamsBashforth.mSolutions[last4][0];
 		
 		// The tests
-		double GlobalErrorEuler, workedOutSolnEuler=exp(2);
-		GlobalErrorEuler=.5*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler,workedOutSolnEuler,GlobalErrorEuler);
+		double exactSolution=exp(2);
+				
+		double GlobalErrorEuler;
+		GlobalErrorEuler = 0.5*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueEuler,exactSolution,GlobalErrorEuler);
 		
-		double GlobalErrorRungeKutta2, workedOutSolnRungeKutta2=exp(2);
-		GlobalErrorRungeKutta2=(1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2,workedOutSolnRungeKutta2,GlobalErrorRungeKutta2);
+		double GlobalErrorRungeKutta2;
+		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta2,exactSolution,GlobalErrorRungeKutta2);
 		
-		double GlobalErrorRungeKutta4, workedOutSolnRungeKutta4=exp(2);
-		GlobalErrorRungeKutta4=(1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4,workedOutSolnRungeKutta4,GlobalErrorRungeKutta4);
+		double GlobalErrorRungeKutta4;
+		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorRungeKutta4);
+		
+		double GlobalErrorAdamsBashforth;
+		GlobalErrorAdamsBashforth = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorAdamsBashforth);		
 	}
-	
-	
-	
-	
+		
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_
