@@ -1,3 +1,7 @@
+/**
+ *Abstract OdeSystem class. Sets up variables and functions for a general ODE system.
+*/
+
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
 
@@ -6,11 +10,11 @@
 class AbstractOdeSystem
 {
 	public:
-	int mNumberOfEquations;
+	int mNumberOfEquations; /**< Number of equations in the ODE system */
 	
-	AbstractOdeSystem(const int& rNumberOfEquations): mNumberOfEquations(rNumberOfEquations) {};
+	AbstractOdeSystem(const int& rNumberOfEquations): mNumberOfEquations(rNumberOfEquations) {}; /**< Constructor*/
 	
-	~AbstractOdeSystem() {};
+	~AbstractOdeSystem() {}; /**<  Destructor */  
 	
 	virtual std::vector<double> EvaluateYDerivatives (double rTime, std::vector<double> &rY) = 0;
 	
