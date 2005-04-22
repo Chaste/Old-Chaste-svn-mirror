@@ -134,7 +134,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 	
 	// Extra step to get to exactly endTime
 	int timeindex = num_timesteps;
-	if(last_timestep > 0.00001)
+	if(last_timestep > (0.000001 * timeStep))
 	{	
 		solutions.mNumberOfTimeSteps=num_timesteps+1;
 		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);

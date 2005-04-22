@@ -87,7 +87,7 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 	}
 	
 	// Extra step to get to exactly endTime
-	if(last_timestep>0.000001*timeStep)
+	if(last_timestep > (0.000001 * timeStep))
 	{	
 		solutions.mNumberOfTimeSteps=num_timesteps+1;
 		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
