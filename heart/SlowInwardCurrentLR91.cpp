@@ -55,9 +55,9 @@ double SlowInwardCurrentLR91::GetF()
 void SlowInwardCurrentLR91::UpdateAlphaAndBeta(double voltage)
 {
     mAlphaD = 0.095 * exp(-0.01*(voltage - 5.0)) / (1 + exp(-0.072*(voltage - 5.0)));
-    mBetaD =   0.07 * exp(-0.017*(voltage + 44.0)) / (1 + exp(-0.05*(voltage + 44.0)));
-    mAlphaF = 0.012 * exp(-0.008*(voltage + 28.0)) / (1 + exp(-0.15*(voltage + 28.0)));
-    mBetaF = 0.0065 * exp(0.02 * (voltage + 30.0)) /  (1 + exp(-0.2*(voltage + 30.0)));
+    mBetaD =   0.07 * exp(-0.017*(voltage + 44.0)) / (1 + exp(0.05*(voltage + 44.0)));
+    mAlphaF = 0.012 * exp(-0.008*(voltage + 28.0)) / (1 + exp(0.15*(voltage + 28.0)));
+    mBetaF = 0.0065 * exp(-0.02 * (voltage + 30.0)) /  (1 + exp(-0.2*(voltage + 30.0)));
 }
 
 
