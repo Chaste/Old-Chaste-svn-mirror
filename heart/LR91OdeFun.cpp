@@ -4,7 +4,7 @@
  */
 #include "LR91OdeFun.hpp"
 #include <cmath>
-
+#include <cassert>
 /**
  * Constructor
  * 
@@ -30,8 +30,15 @@ LR91OdeFun::~LR91OdeFun()
     // Do nothing
 }
 
-std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::vector<double> &rY) 
+std::vector<double> LR91OdeFun::EvaluateYDerivatives (double rTime, std::vector<double> &rY) 
 {  
+     /*
+     * Throw an exception if the initial vector is larger than size 8
+     * 
+     */
+    
+     assert(rY.size() == 8);
+    
     double v = rY[0];
     double m = rY[1];
     double h = rY[2];
@@ -40,19 +47,21 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     double f = rY[5];
     double x = rY[6];
     double caI = rY[7];
-     
+    
+        
     // Compute all the currents
     //sodium current
     mpINa->UpdateMagnitudeOfCurrent(v, m, h, j);
     double iNa = mpINa->GetMagnitudeOfCurrent();
-    
+   
     //slow inward current
     mpISi->UpdateMagnitudeOfCurrent(v,d,f,caI);
     double iSi = mpISi->GetMagnitudeOfCurrent();
-    
+     
     //potassium time dependent current
     mpIK->UpdateMagnitudeOfCurrent(v, x);
     double iK = mpIK->GetMagnitudeOfCurrent();
+    
     
     //potassium time independent current
     mpIK1->UpdateMagnitudeOfCurrent(v);
@@ -69,7 +78,7 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     //Update Ca 
     mpCaI->SetMagnitudeOfIonicConcentration(caI);
     double iCa = mpCaI->GetMagnitudeOfIonicConcentration();
-        
+       
     
     // Compute All the RHSs
     
@@ -91,14 +100,14 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (const double &rTime, std::
     double VPrime = mpV->ComputeVPrime(iStim, iTotal);
     
     std::vector<double> returnRHS;
-    returnRHS[0] = VPrime;
-    returnRHS[1] = mPrime;
-    returnRHS[2] = hPrime;
-    returnRHS[3] = jPrime;
-    returnRHS[4] = dPrime;
-    returnRHS[5] = fPrime;
-    returnRHS[6] = xPrime;
-    returnRHS[7] = caIPrime;
+    returnRHS.push_back(VPrime);
+    returnRHS.push_back(mPrime);
+    returnRHS.push_back(hPrime);
+    returnRHS.push_back(jPrime);
+    returnRHS.push_back(dPrime);
+    returnRHS.push_back(fPrime);
+    returnRHS.push_back(xPrime);
+    returnRHS.push_back(caIPrime);
     
     return returnRHS;
 }

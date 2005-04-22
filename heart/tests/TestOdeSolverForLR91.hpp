@@ -20,16 +20,16 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
     void testOdeSolverForLR91(void)
     {
     //Tests that setting and getting stimulus works -test passed
-//        double time = 0.8;
-//        double magnitudeOfStimulus = 80.0;        
-//        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
-//        double stimulusValue = pStimulus->GetStimulus(time);
-//        std::cout<<"Stimulus value is "<< stimulusValue<< std::endl;
-//        
-//        // test 1
-        double time = 0.2;
+        double time = 0.8;
         double magnitudeOfStimulus = 80.0;        
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
+        double stimulusValue = pStimulus->GetStimulus(time);
+        std::cout<<"Stimulus value is "<< stimulusValue<< std::endl;
+        
+//        // test 1
+       // double time = 0.2;
+        //double magnitudeOfStimulus = 80.0;        
+      //  AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
         LR91OdeFun lr91OdeFun(pStimulus);
         double voltage = -40.0;
         double m = 0.1;
@@ -39,16 +39,31 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double f = 0.5;
         double x = 0.1;
         double caI = 0.001;
-          std::vector<double> Y(8);
-          Y[0] = voltage;
-          Y[1] = m;
-          Y[2] = h;
-          Y[3] = j;
-          Y[4] = d;
-          Y[5] = f;
-          Y[6] = x;
-          Y[7] = caI;
-        //std::vector<double> Result = lr91OdeFun.EvaluateYDerivatives(time, Y);
+          
+        std::vector<double> Y;
+        Y.push_back(voltage);
+        Y.push_back(m);
+        Y.push_back(h);
+        Y.push_back(j);
+        Y.push_back(d);
+        Y.push_back(f);
+        Y.push_back(x);
+        Y.push_back(caI);
+        std::vector<double> Result = lr91OdeFun.EvaluateYDerivatives(time, Y);
+        
+//        double iStim = stimulusValue;
+//        
+//          
+//        TS_ASSERT_DELTA(Result(1), (-iStim -iTotal) /cMembrane , 0.0001);
+//        TS_ASSERT_DELTA(Result(2),   , 0.0001);
+//        TS_ASSERT_DELTA(Result(3),  , 0.0001);
+//        TS_ASSERT_DELTA(Result(4),  , 0.0001);
+//        TS_ASSERT_DELTA(Result(5),  , 0.0001);
+//        TS_ASSERT_DELTA(Result(6),  , 0.0001);
+//        TS_ASSERT_DELTA(Result(7),  , 0.0001);
+//        TS_ASSERT_DELTA(Result(8),  , 0.0001);
+//          
+        TS_TRACE("IT WORKS!!!! :)) ");
         
 //        
 //       //test 2 

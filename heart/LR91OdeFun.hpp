@@ -36,7 +36,7 @@ class LR91OdeFun //: public AbstractOdeSystem
         ~LR91OdeFun();
         
         // This mehtod will compute the RHS of the Luo--Rudy model
-        std::vector<double> EvaluateYDerivatives(const double &rTime, std::vector<double> &rY);
+        std::vector<double> EvaluateYDerivatives(double rTime, std::vector<double> &rY);
 
 };
  
