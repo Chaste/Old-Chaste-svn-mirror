@@ -114,7 +114,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_function_vector[3], 0.0, 1e-12);
 		
-		std::cout << " Nick Trefethen is Distressed !!  \n";
+		//std::cout << " Nick Trefethen is Distressed !!  \n";
 		// Derivatives
 		std::vector<VectorDouble> derivatives;
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezerozero);
