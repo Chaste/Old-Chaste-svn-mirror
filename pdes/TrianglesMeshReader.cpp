@@ -16,6 +16,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	node_header_stream >> mNumNodes >> mDimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
 	
 	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
+	mpNodeIterator = mNodeData.begin();
 	
 	if (mNumNodes != mNodeData.size())
 	{
@@ -35,7 +36,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	}
 	
 	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
- 	
+ 	mpElementIterator = mElementData.begin();
  	
  	
  	
@@ -61,7 +62,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	face_header_stream >> mNumFaces >> mMaxFaceBdyMarker;
 	
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
-	
+	mpFaceIterator = mFaceData.begin();
 	
 	if (mNumFaces != mFaceData.size())
 	{

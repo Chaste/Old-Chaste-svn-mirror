@@ -31,6 +31,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		//std::cout<<"Long test finished\n";
 	
+	//ls
 	//}
 	
 	void testNodesDataRead(void)
@@ -137,7 +138,80 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
+	void testGetFirstNode(void)
+	{
+		spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_984_elements");
+		
+		std::vector<double> FirstNode;
+		                  
+		FirstNode = spMeshReader->GetNextNode();
+		
+		TS_ASSERT_DELTA( FirstNode[0] ,  0.9980267283 , 1e-6 );
+		TS_ASSERT_DELTA( FirstNode[1] , -0.0627905195 , 1e-6 )
+		
+		
+	}
 	
+	void testGetNextNode(void)
+	{
+		std::vector<double> NextNode;
+		                  
+		NextNode = spMeshReader->GetNextNode();
+		
+		TS_ASSERT_DELTA( NextNode[0] , 1.0 , 1e-6 );
+		TS_ASSERT_DELTA( NextNode[1] , 0.0 , 1e-6 )
+		
+		
+	}
+	
+	void testGetTooManyNodesFails(void)
+	{
+		std::vector<double> NextNode;
+		    		
+		for (int i = 0; i < 541; i++)
+		{
+			TS_ASSERT_THROWS_NOTHING(NextNode = spMeshReader->GetNextNode());
+		}
+		
+		TS_ASSERT_THROWS_ANYTHING(NextNode = spMeshReader->GetNextNode());
+		
+	}
+	
+	void testGetNextElement(void)
+	{
+		spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_984_elements");
+		
+		std::vector<int> NextElement;
+		    		
+		for (int i = 0; i < spMeshReader->GetNumElements(); i++)
+		{
+			TS_ASSERT_THROWS_NOTHING(NextElement = spMeshReader->GetNextElement());
+		}
+		
+		TS_ASSERT_THROWS_ANYTHING(NextElement = spMeshReader->GetNextElement());
+		
+	}
+	
+	void testGetNextEdge(void)
+	{
+		spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_984_elements");
+		
+		std::vector<int> NextEdge;
+
+		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextFace());
+		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextFace());
+		    		
+		for (int i = 2; i < spMeshReader->GetNumEdges(); i++)
+		{
+			TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextEdge());
+		}
+		
+		TS_ASSERT_THROWS_ANYTHING(NextEdge = spMeshReader->GetNextEdge());
+		
+	}
 	
 	
 };

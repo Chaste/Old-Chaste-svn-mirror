@@ -79,4 +79,49 @@ int AbstractMeshReader::GetMinNodeIndex()
 	return min_node_index;
 }
 
+std::vector<double> AbstractMeshReader::GetNextNode()
+{
+	if (mpNodeIterator == mNodeData.end())
+	{
+		throw Exception("All nodes already got");
+	}
 
+	std::vector<double> next_node = *mpNodeIterator;
+	
+	mpNodeIterator++;
+		
+	return next_node;
+}
+
+std::vector<int> AbstractMeshReader::GetNextElement()
+{
+	if (mpElementIterator == mElementData.end())
+	{
+		throw Exception("All elements already got");
+	}
+
+	std::vector<int> next_element = *mpElementIterator;
+	
+	mpElementIterator++;
+		
+	return next_element;
+}
+
+std::vector<int> AbstractMeshReader::GetNextFace()
+{
+	if (mpFaceIterator == mFaceData.end())
+	{
+		throw Exception("All faces (or edges) already got");
+	}
+
+	std::vector<int> next_face = *mpFaceIterator;
+	
+	mpFaceIterator++;
+		
+	return next_face;
+}
+
+std::vector<int> AbstractMeshReader::GetNextEdge()
+{
+	return GetNextFace();
+}
