@@ -107,6 +107,5 @@ double PotassiumTimeDependentCurrentLR91::ComputeXPrime(double voltage, double x
 {    
     SetGatingVariables(x);
     UpdateAlphaAndBeta(voltage);
-    UpdateXi(voltage);
     return  (mAlphaX - (mAlphaX + mBetaX)*mX); 
 }
