@@ -7,24 +7,28 @@
 #include <vector>
 #include <cassert>
 
-/*
- * Adams-Bashforth Method Initial Value Problem Ordinary Differential Equation Solver
+/**
+ * Solves a system of ODEs using the Adams-Bashforth Method Initial Value Problem Ordinary Differential Equation Solver
  * 
- * Solves a system of ODEs for a given time range and time step.
+ * @param pAbstractOdeSystem points to the concrete ODE system to be solved
+ * @param startTime the time at which the initial conditions are specified
+ * @param endTime the time to which the system should be solved and the solution 
+ * returned
+ * @param timeStep the time interval to be used by the solver
+ * @param initialConditions a standard vector specifying the intial condition 
+ * of each solution variable in the system 
+ * 
+ * 
+ * @return OdeSolution is an object containing an integer of the number of 
+ * equations, a std::vector of times and a std::vector of std::vectors where 
+ * each of those vectors contains the solution for one variable of the ODE 
+ * system at those times
+ * 
  * To be used in the form:
  * 
  * AdamsBashforthIvpOdeSolver mySolver
  * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
- * 
- * where:
- * pMyOdeSystem is a pointer to a specific instance of a subclass of AbstractOdeSystem
- * (this defines the derivatives of the system)
- * the times are all doubles
- * yInit is a std::vector of doubles with initial values for all unknowns
- * 
- * OdeSolution is an object containing an integer of the number of equations, 
- * a std::vector of times and a std::vector of std::vectors of the solution 
- * of the ODE system at those times
+ *  
 */
 
 OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 

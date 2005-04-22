@@ -29,7 +29,7 @@
  * 
  * To be used in the form:
  * 
- * EulerIvpOdeSolver mySolver
+ * EulerIvpOdeSolver mySolver;
  * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
  *  
 */
@@ -80,13 +80,14 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 			row[i] = row[i] + timeStep*dy[i];		
 		}
 		
-		solutions.mSolutions.push_back(row);
 		
+		solutions.mSolutions.push_back(row);
+		// Push back new time into the time solution vector
 		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
 	}
 	
 	// Extra step to get to exactly endTime
-	if(last_timestep>0.00001)
+	if(last_timestep>0.000001*timeStep)
 	{	
 		solutions.mNumberOfTimeSteps=num_timesteps+1;
 		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
@@ -99,7 +100,6 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
 	
 	}
-	
-			
+				
 	return solutions;
 }

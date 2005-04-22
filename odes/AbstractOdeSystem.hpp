@@ -1,5 +1,5 @@
 /**
- *Abstract OdeSystem class. Sets up variables and functions for a general ODE system.
+ * Abstract OdeSystem class. Sets up variables and functions for a general ODE system.
 */
 
 #ifndef _ABSTRACTODESYSTEM_HPP_
