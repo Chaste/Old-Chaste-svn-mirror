@@ -137,8 +137,14 @@ public:
 		return mNumQuadPoints;
 	}
 	
-	// We assume ELEM_DIM=SPACE_DIM
-	// TODO: Integrate when ELEM_DIM<SPACE_DIM 
+	// 
+	
+	/**
+	 * This method is only used by TestGaussianQuadratureRule at the moment.
+	 * 
+	 * We assume ELEM_DIM=SPACE_DIM
+	 * TODO: Integrate when ELEM_DIM<SPACE_DIM ?
+	 */
 	double Integrate(Element<ELEM_DIM,ELEM_DIM> &rElement,
 						AbstractIntegrand<ELEM_DIM> &rFunction,
 						AbstractIntegrand<ELEM_DIM> &rCanonicalFunction) const
