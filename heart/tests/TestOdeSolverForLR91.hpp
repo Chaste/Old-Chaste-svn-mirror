@@ -95,7 +95,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double f = 1;
         double x = 0.0056;
         double caI = 0.0002;
-        double magnitudeOfStimulus = 1e-5;   
+        double magnitudeOfStimulus = -5.1;   
           
         std::vector<double> intialConditions;
         intialConditions.push_back(voltage);
@@ -109,8 +109,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
 		             
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus); 
         
-        LR91Model *pLR91Model;
-        pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
+        LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
         
         // TS_TRACE("LupRudy is initiated !!!! :)) ");
         
@@ -125,12 +124,13 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                                intialConditions, pMySolver);
                             
                                
-       for (int i=0; i < Solution.mSolutions.size(); i++)
-       {
-       	    std::cout << Solution.mSolutions[i][0] << std::endl; 
-       }                     
+//       for (int i=0; i < Solution.mSolutions.size(); i++)
+//       {
+//       	    std::cout << Solution.mSolutions[i][0] << std::endl; 
+//       	  //  sleep(1);
+//       }                     
                                
-       // Solution.SaveToFile("LRresult.dat");
+        //Solution.SaveToFile("LRresult.dat");
                                
 //        output to matlab file
         

@@ -98,15 +98,15 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double rTime, std::vector<
     
     double iStim = mpStimulus->GetStimulus(rTime);
     
-    std::cout << iStim << "\t" << iTotal << std::endl;
-    sleep(0.2);
+//    std::cout << iStim << "\t" << iTotal << std::endl;
+//    sleep(0.2);
     
     // Calculating VPrime
     double VPrime = mpV->ComputeVPrime(iStim, iTotal); 
     
     
-    std::cout << VPrime << std::endl;
-    sleep(0.2);
+//    std::cout << VPrime << std::endl;
+//    sleep(0.2);
     
     std::vector<double> returnRHS;
     returnRHS.push_back(VPrime);
