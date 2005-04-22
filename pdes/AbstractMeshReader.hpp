@@ -17,6 +17,13 @@ class AbstractMeshReader
 		int mNumNodes;
 		int mNumFaces;
 		int mDimension;
+		
+		int mNumNodeAttributes;
+		int mMaxNodeBdyMarker;
+		int mNumElementNodes;
+		int mNumElementAttributes;
+		int mMaxFaceBdyMarker;
+		
 		std::string mPathBaseName;
 		std::vector<std::string> mNodeRawData;  //Contents of file with comments removed		
 		std::vector<std::string> mElementRawData;  //Contents of file with comments removed		
@@ -37,6 +44,13 @@ class AbstractMeshReader
 			mNumNodes = 0;
 			mNumFaces = 0;
 			mDimension = 0;
+			
+			mNumNodeAttributes = 0;
+			mMaxNodeBdyMarker = 0;
+			mNumElementNodes = 0;
+			mNumElementAttributes = 0;
+			mMaxFaceBdyMarker = 0;
+			
 			mPathBaseName = "";
 			mIndexFromZero = false;
 		}

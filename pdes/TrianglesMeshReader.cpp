@@ -13,7 +13,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mNodeRawData=GetRawDataFromFile(nodeFileName);
 	
 	std::stringstream node_header_stream(mNodeRawData[0]);
-	node_header_stream >> mNumNodes >> mDimension >> num_attributes >> max_marker;
+	node_header_stream >> mNumNodes >> mDimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
 	
 	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
 	
@@ -27,7 +27,12 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mElementRawData=GetRawDataFromFile(elementFileName);
 
  	std::stringstream element_header_stream(mElementRawData[0]);
-	element_header_stream >> mNumElements;
+	element_header_stream >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
+	
+	if (mNumElementNodes != mDimension+1)
+	{
+		throw Exception("Number of nodes per element is not supported");
+	}
 	
 	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
  	
@@ -53,7 +58,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mFaceRawData=GetRawDataFromFile(faceFileName);
 	
 	std::stringstream face_header_stream(mFaceRawData[0]);
-	face_header_stream >> mNumFaces;
+	face_header_stream >> mNumFaces >> mMaxFaceBdyMarker;
 	
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
 	
@@ -88,6 +93,25 @@ std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
      		if (item_number == 0)
      		{
      			mIndexFromZero = true;
+     		}
+     		
+     		if (mIndexFromZero == true)
+     		{
+     			if (item_number != tokenized_data.size())
+     			{
+     				std::stringstream item_number_as_string;
+					item_number_as_string << item_number;
+     				throw Exception("Node number " + item_number_as_string.str() + " is out of order in input file.");
+     			}
+     		}
+     		else
+     		{
+     			if (item_number-1 != tokenized_data.size())
+     			{
+     				std::stringstream item_number_as_string;
+					item_number_as_string << item_number;
+     				throw Exception("Node number " + item_number_as_string.str() + " is out of order in input file.");
+     			}
      		}
      		
      		for (int i = 0; i < mDimension; i++)

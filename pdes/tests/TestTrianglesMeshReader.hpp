@@ -11,12 +11,25 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	void testFilesOpen(void)
 	{
 		
-		
+
 		
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements"));
 		
+	
+	}
+	
+	void testTulaneFilesOpen(void)
+	{
+		
+		std::cout<<"\nDoing a long test\n";
+		
+		TS_ASSERT_THROWS_NOTHING(
+		                  spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/tulane_data_about_400k_elements"));
+		
+		std::cout<<"Long test finished\n";
 	
 	}
 	
@@ -103,6 +116,24 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
 		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
+		
+	}
+	
+	void testPermutedNodesFail(void)
+	{
+		
+		TS_ASSERT_THROWS_ANYTHING(
+		                  spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/permuted_nodes_disk_522_elements"));	
+		
+	}
+	
+	void testOrder2ElementsFail(void)
+	{
+		
+		TS_ASSERT_THROWS_ANYTHING(
+		                  spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_522_order_2_elements"));	
 		
 	}
 	
