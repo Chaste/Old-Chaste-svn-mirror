@@ -2,13 +2,16 @@
 #define _CONFORMINGTETRAHEDRALMESH_HPP_
 
 #include <vector>
+#include "AbstractMeshReader.hpp"
 #include "Element.hpp"
 #include "Node.hpp"
 
 /**
- * This is a test version of the class. When a MeshReader is available, it
- * will need revision. In particular, the AddElement and AddNode methods will
- * be redundant, and should be removed (or possible made private).
+ * This is a test version of the class using an AbstractMeshReader to construct
+ * the mesh.
+ * 
+ * The AddElement and AddNode methods are now redundant, but still used for
+ * tests, so I've left them in (for now).
  * 
  * Work still needs to be done with boundary nodes & elements.
  */
@@ -31,7 +34,9 @@ private:
 public:
     
 	ConformingTetrahedralMesh();
-    ConformingTetrahedralMesh(long numElements);    
+    ConformingTetrahedralMesh(long numElements);
+    
+    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
     
     void AddElement(Element<ELEMENT_DIM, SPACE_DIM>& rNewElement);
     void AddNode(Node<SPACE_DIM>& rNewNode);

@@ -3,7 +3,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
-
+#include "TrianglesMeshReader.hpp"
 
 #include "Element.hpp"
 #include "Node.hpp"
@@ -62,6 +62,35 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		{
 			TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 0);
 		}
+	}
+	
+	void testMeshConstructionFromMeshReader(void)
+	{
+		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_984_elements");
+		                  
+		//const int DIM = pMeshReader->GetDimension();
+		#define DIM 2
+		ConformingTetrahedralMesh<DIM,DIM> mesh;
+		
+		mesh.ConstructFromMeshReader(*pMeshReader);
+		
+		// Check we have the right number of nodes & elements
+		TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543);
+		TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
+		
+		// Check some node co-ordinates
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0).GetPoint()[0],  0.9980267283, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0).GetPoint()[1], -0.0627905195, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(1).GetPoint()[0], 1.0, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(1).GetPoint()[1], 0.0, 1e-6);
+		
+		// Check first element has the right nodes
+		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetFirstElement();
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 309);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 144);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 310);
+		TS_ASSERT_EQUALS(it->GetNode(1), &(mesh.GetNodeAt(144)));
 	}
 	
 };
