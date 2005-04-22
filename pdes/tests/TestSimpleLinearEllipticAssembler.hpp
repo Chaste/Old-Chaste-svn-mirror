@@ -18,22 +18,24 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	void TestAssembleOnElement( void )
 	{
 		LinearHeatEquationPde<1> pde;
-		double x0=1;
-		double x1=2;
+		std::vector<Node<1>*> nodes;
+		nodes.push_back(new Node<1>(0, false, 1));
+		nodes.push_back(new Node<1>(0, false, 3));
+		Element<1,1> element(nodes);
 		LinearBasisFunction<1> basis_function;
 		MatrixDouble ael(2,2);
 		VectorDouble bel(2);
 		SimpleLinearEllipticAssembler<1,1> assembler;
 		
-		assembler.AssembleOnElement(x0, x1, ael, bel, &pde, basis_function);
+		assembler.AssembleOnElement(element, ael, bel, &pde, basis_function);
 		
-		TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
-		TS_ASSERT_DELTA(ael(0,1),-1.0, 1e-12);
-		TS_ASSERT_DELTA(ael(1,0),-1.0, 1e-12);
-		TS_ASSERT_DELTA(ael(1,1),1.0, 1e-12);
+		TS_ASSERT_DELTA(ael(0,0),0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
 		
-		TS_ASSERT_DELTA(bel(0),0.5, 1e-12);
-		TS_ASSERT_DELTA(bel(1),0.5, 1e-12);
+		TS_ASSERT_DELTA(bel(0),1, 1e-12);
+		TS_ASSERT_DELTA(bel(1),1, 1e-12);
 		
 	}
 	

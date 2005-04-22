@@ -23,8 +23,7 @@ private:
     LinearSystem *mpAssembledLinearSystem;
 
 public:
-	void AssembleOnElement(double X0,
-							double X1,
+	void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							MatrixDouble &rAel,
 							VectorDouble &rBel,
 							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
@@ -32,6 +31,16 @@ public:
 	{
 		const int NUM_GAUSS_POINTS=2;
 		static GaussianQuadratureRule<SPACE_DIM> quad_rule(NUM_GAUSS_POINTS);
+		
+		const MatrixDouble *inverse_jacobian = rElement.GetInverseJacobian();
+		double jacobian_determinant = rElement.GetJacobianDeterminant();
+		
+        // This assumes linear basis functions in 1d
+        int node1 = rElement.GetNodeGlobalIndex(0);
+        int node2 = rElement.GetNodeGlobalIndex(1);
+        
+        double x1 = rElement.GetNodeLocation(0,0);
+        double x2 = rElement.GetNodeLocation(1,0);
 		
 		for (int col=0; col<2; col++)
 		{
@@ -41,12 +50,18 @@ public:
 				for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 				{
 					Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
+					// TODO: extend above 1d
+					Point<SPACE_DIM> transformed_quad_point =
+						Point<SPACE_DIM>((1-quad_point[0])*x1 + quad_point[0]*x2);
 					double integrand_value=
-								pPde->ComputeDiffusionTerm(quad_point)(0,0)
+								pPde->ComputeDiffusionTerm(transformed_quad_point)(0,0)
 								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,row)(0)
-								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,col)(0);
+								 * (*inverse_jacobian)(0,0)
+								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,col)(0)
+								 * (*inverse_jacobian)(0,0);
 								
-					rAel(row,col)+= integrand_value*quad_rule.GetWeight(quad_index);
+					rAel(row,col)+= integrand_value*jacobian_determinant
+									*quad_rule.GetWeight(quad_index);
 				}
 				
 			}
@@ -54,11 +69,15 @@ public:
 			for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 			{
 				Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
+				// TODO: extend above 1d
+				Point<SPACE_DIM> transformed_quad_point =
+					Point<SPACE_DIM>((1-quad_point[0])*x1 + quad_point[0]*x2);
 				double integrand_value=
-							pPde->ComputeLinearSourceTerm(quad_point)
+							pPde->ComputeLinearSourceTerm(transformed_quad_point)
 							* rBasisFunction.ComputeBasisFunction(quad_point,col);
 							
-				rBel(col)+= integrand_value*quad_rule.GetWeight(quad_index);
+				rBel(col)+= integrand_value*jacobian_determinant
+							*quad_rule.GetWeight(quad_index);
 			}
 		}
 	}							
@@ -72,6 +91,10 @@ public:
 		// Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem	= new LinearSystem(rMesh.GetNumNodes());
         
+        MatrixDouble ael(2,2);
+        VectorDouble bel(2);
+        LinearBasisFunction<ELEMENT_DIM> basis_function;
+        
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = rMesh.GetFirstElement();
         while (iter != rMesh.GetLastElement())
@@ -83,20 +106,19 @@ public:
             
             double x1 = element.GetNodeLocation(0,0);
             double x2 = element.GetNodeLocation(1,0);
-            double h = x2-x1;
-            double one_over_h_squared = 1.0/h/h;
-            double integral_of_d = h; // Will depend on pPde->ComputeDiffusionTerm
             
-            mpAssembledLinearSystem->AddToMatrixElement(node1,node1, one_over_h_squared*integral_of_d);
-            mpAssembledLinearSystem->AddToMatrixElement(node1,node2,-one_over_h_squared*integral_of_d);
-            mpAssembledLinearSystem->AddToMatrixElement(node2,node1,-one_over_h_squared*integral_of_d);
-            mpAssembledLinearSystem->AddToMatrixElement(node2,node2, one_over_h_squared*integral_of_d);
+            AssembleOnElement(element, ael, bel, pPde, basis_function);
+            
+            mpAssembledLinearSystem->AddToMatrixElement(node1,node1,ael(0,0));
+            mpAssembledLinearSystem->AddToMatrixElement(node1,node2,ael(0,1));
+            mpAssembledLinearSystem->AddToMatrixElement(node2,node1,ael(1,0));
+            mpAssembledLinearSystem->AddToMatrixElement(node2,node2,ael(1,1));
             
             mpAssembledLinearSystem->AssembleIntermediateMatrix();  
             
             // Will depend on pPde->Compute(Linear|Nonlinear)SourceTerm
-            mpAssembledLinearSystem->AddToRhsVectorElement(node1,0.5*h);
-            mpAssembledLinearSystem->AddToRhsVectorElement(node2,0.5*h);      
+            mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(0));
+            mpAssembledLinearSystem->AddToRhsVectorElement(node2,bel(1));      
          
             iter++;
         }
