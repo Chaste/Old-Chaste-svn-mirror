@@ -10,6 +10,7 @@
 #include <vector>
 #include "petscvec.h"
 #include "AbstractLinearSolver.hpp"
+#include "GaussianQuadratureRule.hpp"
 
 #include <iostream>
 
@@ -22,6 +23,47 @@ private:
     LinearSystem *mpAssembledLinearSystem;
 
 public:
+	void AssembleOnElement(double X0,
+							double X1,
+							MatrixDouble &rAel,
+							VectorDouble &rBel,
+							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
+							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction)
+	{
+		const int NUM_GAUSS_POINTS=2;
+		static GaussianQuadratureRule<SPACE_DIM> quad_rule(NUM_GAUSS_POINTS);
+		
+		for (int col=0; col<2; col++)
+		{
+			for (int row=0; row<2; row++)
+			{
+				rAel(row,col)=0.0;
+				for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+				{
+					Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
+					double integrand_value=
+								pPde->ComputeDiffusionTerm(quad_point)(0,0)
+								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,row)(0)
+								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,col)(0);
+								
+					rAel(row,col)+= integrand_value*quad_rule.GetWeight(quad_index);
+				}
+				
+			}
+			rBel(col)=0.0;
+			for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+			{
+				Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
+				double integrand_value=
+							pPde->ComputeLinearSourceTerm(quad_point)
+							* rBasisFunction.ComputeBasisFunction(quad_point,col);
+							
+				rBel(col)+= integrand_value*quad_rule.GetWeight(quad_index);
+			}
+		}
+	}							
+
+
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
 //                       BoundaryConditionsContainer &rBoundaryConditions,

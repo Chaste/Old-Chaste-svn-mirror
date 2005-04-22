@@ -15,6 +15,29 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 {
 	public:
 	
+	void TestAssembleOnElement( void )
+	{
+		LinearHeatEquationPde<1> pde;
+		double x0=1;
+		double x1=2;
+		LinearBasisFunction<1> basis_function;
+		MatrixDouble ael(2,2);
+		VectorDouble bel(2);
+		SimpleLinearEllipticAssembler<1,1> assembler;
+		
+		assembler.AssembleOnElement(x0, x1, ael, bel, &pde, basis_function);
+		
+		TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
+		TS_ASSERT_DELTA(ael(0,1),-1.0, 1e-12);
+		TS_ASSERT_DELTA(ael(1,0),-1.0, 1e-12);
+		TS_ASSERT_DELTA(ael(1,1),1.0, 1e-12);
+		
+		TS_ASSERT_DELTA(bel(0),0.5, 1e-12);
+		TS_ASSERT_DELTA(bel(1),0.5, 1e-12);
+		
+	}
+	
+	
 	void TestWithHeatEquation()
 	{
 		PetscInitialize(0, NULL, 0, 0);
