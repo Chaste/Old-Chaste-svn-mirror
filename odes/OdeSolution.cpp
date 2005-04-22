@@ -3,9 +3,19 @@
  */
 #include "OdeSolution.hpp"
 
-void OdeSolution::SaveToFile(char * outputfile)
+/**
+ * Solves a system of ODEs using the Forward Euler method
+ * 
+ * @param outputfile points to the output file* 
+ *  
+ * To be used in the form:
+ * 
+ *  solution.SaveToFile("Name_of_file");
+*/
+
+void OdeSolution::SaveToFile(char * pOutputfile)
 {
-	std::ofstream file(outputfile);
+	std::ofstream file(pOutputfile);
 	int numtimesteps = mTime.capacity();
 	int numvariables= mSolutions[0].capacity();
 	for(int i=0; i<numtimesteps; i++)
