@@ -36,5 +36,3 @@ double InitialStimulus::GetStimulus(double time)
             return 0.0;
         }
 }
-    
- 
