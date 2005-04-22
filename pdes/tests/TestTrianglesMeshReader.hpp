@@ -20,18 +20,18 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	}
 	
-	void testTulaneFilesOpen(void)
-	{
+	//void testTulaneFilesOpen(void)
+	//{
 		
-		std::cout<<"\nDoing a long test\n";
+		//std::cout<<"\nDoing a long test\n";
 		
-		TS_ASSERT_THROWS_NOTHING(
-		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/tulane_data_about_400k_elements"));
+		//TS_ASSERT_THROWS_NOTHING(
+		//                  spMeshReader=new TrianglesMeshReader(
+		 //                 "pdes/tests/meshdata/tulane_data_about_400k_elements"));
 		
-		std::cout<<"Long test finished\n";
+		//std::cout<<"Long test finished\n";
 	
-	}
+	//}
 	
 	void testNodesDataRead(void)
 	{
@@ -136,6 +136,8 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		                  "pdes/tests/meshdata/disk_522_order_2_elements"));	
 		
 	}
+	
+	
 	
 	
 };

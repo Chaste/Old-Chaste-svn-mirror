@@ -32,6 +32,8 @@ class AbstractMeshReader
 		std::vector< std::vector<double> > mNodeData;
 		std::vector< std::vector<int> > mElementData;
 		std::vector< std::vector<int> > mFaceData;
+		
+		std::vector< std::vector<double> >::iterator mNodeIterator;
 	
 		bool mIndexFromZero;
 	
@@ -53,6 +55,8 @@ class AbstractMeshReader
 			
 			mPathBaseName = "";
 			mIndexFromZero = false;
+			
+			mNodeIterator = mNodeData.begin();
 		}
 		int GetNumElements(){return mNumElements;}
 		int GetNumNodes(){return mNumNodes;}
@@ -61,6 +65,11 @@ class AbstractMeshReader
 		
 		int GetMaxNodeIndex();
 		int GetMinNodeIndex();
+		
+		//std::vector<double> GetNextNode();
+		//std::vector<int> GetNextElement();
+		//std::vector<int> GetNextEdge();
+		//std::vector<int> GetNextFace()
 
 };
 #endif //_ABSTRACTMESHREADER_HPP_
