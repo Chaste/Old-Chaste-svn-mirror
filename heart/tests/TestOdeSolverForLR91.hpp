@@ -10,6 +10,8 @@
 #include "LR91Model.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "OdeSolution.hpp"
 
 
 class TestOdeSolverForLR91 : public CxxTest::TestSuite
@@ -40,49 +42,57 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double x = 0.1;
         double caI = 0.001;
           
-        std::vector<double> Y;
-        Y.push_back(voltage);
-        Y.push_back(m);
-        Y.push_back(h);
-        Y.push_back(j);
-        Y.push_back(d);
-        Y.push_back(f);
-        Y.push_back(x);
-        Y.push_back(caI);
-        std::vector<double> Result = lr91OdeFun.EvaluateYDerivatives(time, Y);
+        std::vector<double> intialConditions;
+        intialConditions.push_back(voltage);
+        intialConditions.push_back(m);
+        intialConditions.push_back(h);
+        intialConditions.push_back(j);
+        intialConditions.push_back(d);
+        intialConditions.push_back(f);
+        intialConditions.push_back(x);
+        intialConditions.push_back(caI);
+        std::vector<double> Result = lr91OdeFun.EvaluateYDerivatives(time, intialConditions);
         
+        
+//        DO REGRESSION TEST here....
 //        double iStim = stimulusValue;
 //        
 //          
-//        TS_ASSERT_DELTA(Result(1), (-iStim -iTotal) /cMembrane , 0.0001);
-//        TS_ASSERT_DELTA(Result(2),   , 0.0001);
-//        TS_ASSERT_DELTA(Result(3),  , 0.0001);
-//        TS_ASSERT_DELTA(Result(4),  , 0.0001);
-//        TS_ASSERT_DELTA(Result(5),  , 0.0001);
-//        TS_ASSERT_DELTA(Result(6),  , 0.0001);
-//        TS_ASSERT_DELTA(Result(7),  , 0.0001);
-//        TS_ASSERT_DELTA(Result(8),  , 0.0001);
+//        TS_ASSERT_DELTA(Result[0], (-iStim -iTotal) /cMembrane , 0.0001);
+//        TS_ASSERT_DELTA(Result[1],   , 0.0001);
+//        TS_ASSERT_DELTA(Result[2],  , 0.0001);
+//        TS_ASSERT_DELTA(Result[3],  , 0.0001);
+//        TS_ASSERT_DELTA(Result[4],  , 0.0001);
+//        TS_ASSERT_DELTA(Result[5],  , 0.0001);
+//        TS_ASSERT_DELTA(Result[6],  , 0.0001);
+//        TS_ASSERT_DELTA(Result[7],  , 0.0001);
 //          
-        TS_TRACE("IT WORKS!!!! :)) ");
+        TS_TRACE("LupRudy WORKS!!!! :)) ");
         
 //        
 //       //test 2 
-//        voltage = -40.0;
-//        m = 0.1;
-//        h = 0.03;
-//        j = 0.7;
-//        d = 0.05;
-//        f = 0.5;
-//        x = 0.1;
-//        caI = 0.001;
+//
 //        double magnitudeOfStimulus = 80.0;        
 //        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
 //        
-//        LR91Model *pLR91Model;
-//        pLR91Model = new LR91Model(v, m, double h, double j, double d, 
-//                                    double f, double x, double caI, AbstractStimulusFunction stimulus stimulus);
-//        std::vector<double> Result = pLR91Model->Solve();
+        LR91Model *pLR91Model;
+        pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
+        
+        TS_TRACE("LupRudy is initiated !!!! :)) ");
+        
+        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        
+        double startTime = 0.0;
+        double endTime = 10.0;
+        double timeStep = 0.01;             
+        
+        OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
+                               intialConditions, pMySolver);
+                               
 //        output to matlab file
+        
+        TS_TRACE("MOREOVER OdeSolver SOLVES!!!! :)) ");
+
     }
     
     

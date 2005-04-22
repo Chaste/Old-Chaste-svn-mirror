@@ -3,6 +3,8 @@
 
 #include "LR91OdeFun.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractIvpOdeSolver.hpp"
+#include "OdeSolution.hpp"
 #include <iostream>
 
 class LR91Model
@@ -28,9 +30,9 @@ class LR91Model
         ~LR91Model();
         
         //Solve should solve LR91 system and return whatever type the solver returns
-        std::vector<double> Solve();//OdeSolver myOdeSolver);
-        
-       
+        OdeSolution SolveModel(double startTime, double endTime, double timeStep,
+                              std::vector<double> initialConditions,
+                              AbstractIvpOdeSolver *pAbstractOdeSolver);            
 };
  
 

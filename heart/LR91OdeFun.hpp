@@ -2,7 +2,7 @@
 #define _LR91ODEFUN_HPP_
 
 #include "ConstantsLR91.hpp"
-//#include "AbstractOdeSystem.hpp"
+#include "AbstractOdeSystem.hpp"
 #include "TransmembranePotentialLR91.hpp"
 #include "SodiumCurrentLR91.hpp"
 #include "BackgroundCurrentLR91.hpp"
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 
-class LR91OdeFun //: public AbstractOdeSystem
+class LR91OdeFun : public AbstractOdeSystem
 {
     private:
         TransmembranePotentialLR91 *mpV;
@@ -27,7 +27,6 @@ class LR91OdeFun //: public AbstractOdeSystem
         PotassiumTimeIndependentCurrentLR91 *mpIK1;
         PotassiumTimeDependentCurrentLR91 *mpIK;
         AbstractStimulusFunction *mpStimulus;
-          
 
     public:
         // Constructor

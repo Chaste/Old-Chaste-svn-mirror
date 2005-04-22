@@ -10,9 +10,9 @@
  */
 CardiacCellModel::CardiacCellModel()
 {	
-	double mTransmembranePotential = 0.0;
-	double mStimulusCurrent = 0.0;
-	double mTotalIonicCurrent = 0.0;
+	mTransmembranePotential = 0.0;
+	mStimulusCurrent = 0.0;
+	mTotalIonicCurrent = 0.0;
 }
 
 /**
@@ -22,9 +22,9 @@ CardiacCellModel::CardiacCellModel()
  */
 CardiacCellModel::CardiacCellModel(double transmembranePotential)
 {	
-	double mTransmembranePotential = transmembranePotential;
-	double mStimulusCurrent = 0.0;
-	double mTotalIonicCurrent = 0.0;
+	mTransmembranePotential = transmembranePotential;
+	mStimulusCurrent = 0.0;
+	mTotalIonicCurrent = 0.0;
 }
 
 /**

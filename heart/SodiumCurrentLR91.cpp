@@ -68,22 +68,22 @@ double SodiumCurrentLR91::GetJ()
 void SodiumCurrentLR91::UpdateAlphaAndBeta(double voltage)
 {
     //updating alpha and beta voltage--dependent rate constants
-    double mAlphaM = 0.32 * (voltage + 47.13)/(1 - exp(-0.1*(voltage + 47.13)));
-    double mBetaM = 0.08 * exp(-voltage/11.0);
+    mAlphaM = 0.32 * (voltage + 47.13)/(1 - exp(-0.1*(voltage + 47.13)));
+    mBetaM = 0.08 * exp(-voltage/11.0);
     
     if(voltage >= -40.0)
     {
-        double mAlphaH = 0.0;
-        double mBetaH = 1/(0.13*(exp((voltage+10.66)/(-11.1))+1));
-        double mAlphaJ = 0.0;
-        double mBetaJ = 0.3*exp(-2.535*0.0000001*voltage)/(1 + exp(-0.1*(voltage+32.0)));
+        mAlphaH = 0.0;
+        mBetaH = 1/(0.13*(exp((voltage+10.66)/(-11.1))+1));
+        mAlphaJ = 0.0;
+        mBetaJ = 0.3*exp(-2.535*0.0000001*voltage)/(1 + exp(-0.1*(voltage+32.0)));
     }
     else
     {
-        double mAlphaH = 0.135*exp((80+voltage)/(-6.8));
-        double mBetaH = 3.56*exp(0.079*voltage) + 3.1*0.00001*exp(0.35*voltage);
-        double mAlphaJ = (-1.2714*0.00001*exp(0.2444*voltage) - 3.474*0.00001*exp(-0.04391*voltage))*(voltage+37.78)/(1+exp(0.311*(voltage+79.23)));
-        double mBetaJ = 0.1212*exp(-0.0105*voltage)/(1+exp(-0.1378*(voltage+40.14)));
+        mAlphaH = 0.135*exp((80+voltage)/(-6.8));
+        mBetaH = 3.56*exp(0.079*voltage) + 3.1*0.00001*exp(0.35*voltage);
+        mAlphaJ = (-1.2714*0.00001*exp(0.2444*voltage) - 3.474*0.00001*exp(-0.04391*voltage))*(voltage+37.78)/(1+exp(0.311*(voltage+79.23)));
+        mBetaJ = 0.1212*exp(-0.0105*voltage)/(1+exp(-0.1378*(voltage+40.14)));
     }
 }
 
@@ -105,7 +105,7 @@ void SodiumCurrentLR91::UpdateMagnitudeOfCurrent(double voltage, double m, doubl
     UpdateAlphaAndBeta(voltage);
     
     // checking how beta is updated
-    std::cout << "\n"<< "mBetaM is equal to " <<mBetaM<<std::endl;
+    //std::cout << "\n"<< "mBetaM is equal to " <<mBetaM<<std::endl;
     
     mMagnitudeOfCurrent = gNa * pow(mM, 3) * mH * mJ * (voltage - eNa);
 } 

@@ -10,7 +10,7 @@ os.chdir(curdir)
 testfiles = glob.glob('../tests/Test*.hpp')
 
 
-base  = '-Icxxtest -Idatawriters -Iheart -I. '
+base  = '-Icxxtest -Idatawriters -Iheart -I. -Iodes '
 
 petsc_base = '../../petsc-2.2.1/'
 petsc_inc = '-I'+petsc_base+'include '

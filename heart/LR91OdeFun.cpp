@@ -9,7 +9,7 @@
  * Constructor
  * 
  */
-LR91OdeFun::LR91OdeFun(AbstractStimulusFunction *stimulus)
+LR91OdeFun::LR91OdeFun(AbstractStimulusFunction *stimulus): AbstractOdeSystem(8)
 {
     mpV = new TransmembranePotentialLR91();
     mpINa = new SodiumCurrentLR91();

@@ -34,19 +34,15 @@ LR91Model::~LR91Model()
 
 /**
  * Solves the LR91 model using some ODe Solver
- */
-std::vector<double> LR91Model::Solve()//tange of time AbstractOdeSolver *pOdeSolver)
+ */     
+OdeSolution LR91Model::SolveModel(double startTime, double endTime, double timeStep,
+                       std::vector<double> initialConditions, AbstractIvpOdeSolver *pAbstractOdeSolver)
 {
-//    std::vector<double> Y();
-//    Y.push_back(mV);
-//    Y[1] = mM;
-//    Y[2] = mH;
-//    Y[3] = mJ;
-//    Y[4] = mD;
-//    Y[5] = mF;
-//    Y[6] = mX;
-//    Y[7] = mCaI;
+     
+    OdeSolution  solution = pAbstractOdeSolver->Solve(mpLR91OdeSystem, 
+                              startTime, endTime, timeStep, initialConditions);
+    return solution;
     
-   // EvaluateYDerivatives (const double &rTime, std::vector<double> &rY) 
 }
+                                
 
