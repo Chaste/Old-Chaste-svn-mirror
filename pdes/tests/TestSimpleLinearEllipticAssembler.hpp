@@ -7,6 +7,8 @@
 #include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.cpp"
+#include "Mesh.cpp"
+#include "TrianglesMeshReader.hpp"
 #include <vector>
 #include "Node.hpp"
 #include "Element.hpp"
@@ -86,8 +88,51 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 			TS_ASSERT_DELTA(res[i], u, 0.001);
 		}
 		VecRestoreArray(result, &res);
-//		PetscFinalize();
 	}
+
+	/**
+	 * This is the future.
+	 * 
+	 * TODO: Unfortunately, SimpleLinearEllipticAssembler still requires a
+	 * ConformingTetrahedralMesh rather than a Mesh. We ought to decide which
+	 * of these names to use, and whether to have a class heirarchy of meshes.
+	 */
+//	void TODO_TestWithHeatEquationWithMeshFile()
+//	{
+//		PetscInitialize(0, NULL, 0, 0);
+//		
+//		// Create mesh
+//		TrianglesMeshReader mesh_reader =
+//			TrianglesMeshReader("pdes/tests/meshdata/trivial_1d_mesh");
+//		Mesh<1,1> mesh;
+//		mesh.ConstructFromMeshReader(mesh_reader);
+//		
+//		// Instantiate PDE object
+//		LinearHeatEquationPde<1> pde;
+//		
+//		// Boundary conditions
+//		
+//		// Linear solver
+//		SimpleLinearSolver solver;
+//		
+//		// Assembler
+//		SimpleLinearEllipticAssembler<1,1> assembler;
+//		
+//		Vec result = assembler.AssembleSystem(mesh, &pde, /*bcs,*/ &solver);
+//		
+//		// Check result
+//		double *res;
+//		int ierr = VecGetArray(result, &res);
+//		// Solution should be u = 0.5*x*(3-x)
+//		for (int i=0; i < mesh.GetNumNodes(); i++)
+//		{
+//			double x = 0.0 + 0.15*i;
+//			double u = 0.5*x*(3-x);
+//			TS_ASSERT_DELTA(res[i], u, 0.001);
+//		}
+//		VecRestoreArray(result, &res);
+//	}
+
 };
-                      
+
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
