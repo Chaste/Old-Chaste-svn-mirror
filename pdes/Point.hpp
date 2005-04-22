@@ -2,6 +2,7 @@
 #define _POINT_HPP_
 
 #include <cassert>
+#include <vector>
 
 template<int DIM> 
 class Point
@@ -27,6 +28,19 @@ public:
 		{
 			mLocation[2] = v3;
 		}		
+	}
+	
+	/**
+	 * Create a Point object.
+	 * This constructor takes a vector giving the coordinates of the point.
+	 * The length of the vector must be at least the dimension of the point.
+	 */
+	Point(std::vector<double> coords)
+	{
+		for (int i=0; i<DIM; i++)
+		{
+			mLocation[i] = coords.at(i);
+		}
 	}
 
     double operator[] (unsigned i) const

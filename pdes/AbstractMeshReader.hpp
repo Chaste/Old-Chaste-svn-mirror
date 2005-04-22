@@ -58,11 +58,11 @@ class AbstractMeshReader
 			mPathBaseName = "";
 			mIndexFromZero = false;
 		}
-		int GetNumElements(){return mNumElements;}
-		int GetNumNodes(){return mNumNodes;}
-		int GetNumFaces(){return mNumFaces;}
-		int GetNumEdges(){return mNumFaces;}		
-		int GetDimension(){return mDimension;}		
+		int GetNumElements() const {return mNumElements;}
+		int GetNumNodes() const {return mNumNodes;}
+		int GetNumFaces() const {return mNumFaces;}
+		int GetNumEdges() const {return mNumFaces;}		
+		int GetDimension() const {return mDimension;}		
 		
 		int GetMaxNodeIndex();
 		int GetMinNodeIndex();

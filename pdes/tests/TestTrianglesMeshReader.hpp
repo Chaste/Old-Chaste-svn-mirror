@@ -138,7 +138,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
-	void testGetFirstNode(void)
+	void testGetNextNode(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
@@ -150,25 +150,13 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT_DELTA( FirstNode[0] ,  0.9980267283 , 1e-6 );
 		TS_ASSERT_DELTA( FirstNode[1] , -0.0627905195 , 1e-6 )
 		
-		
-	}
-	
-	void testGetNextNode(void)
-	{
 		std::vector<double> NextNode;
 		                  
 		NextNode = spMeshReader->GetNextNode();
 		
 		TS_ASSERT_DELTA( NextNode[0] , 1.0 , 1e-6 );
 		TS_ASSERT_DELTA( NextNode[1] , 0.0 , 1e-6 )
-		
-		
-	}
-	
-	void testGetTooManyNodesFails(void)
-	{
-		std::vector<double> NextNode;
-		    		
+			    		
 		for (int i = 0; i < 541; i++)
 		{
 			TS_ASSERT_THROWS_NOTHING(NextNode = spMeshReader->GetNextNode());
@@ -177,6 +165,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_ANYTHING(NextNode = spMeshReader->GetNextNode());
 		
 	}
+	
 	
 	void testGetNextElement(void)
 	{
