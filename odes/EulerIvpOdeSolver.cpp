@@ -21,22 +21,17 @@
  * @param initialConditions a standard vector specifying the intial condition 
  * of each solution variable in the system 
  * 
- * To be used in the form:
- * 
- * EulerIvpOdeSolver mySolver
- * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
- * 
- * where:
- * pMyOdeSystem is a pointer to a specific instance of a subclass of AbstractOdeSystem
- * (this defines the derivatives of the system)
- * the times are all doubles
- * yInit is a std::vector of doubles with initial values for all unknowns
- * 
  * 
  * @return OdeSolution is an object containing an integer of the number of 
  * equations, a std::vector of times and a std::vector of std::vectors where 
  * each of those vectors contains the solution for one variable of the ODE 
  * system at those times
+ * 
+ * To be used in the form:
+ * 
+ * EulerIvpOdeSolver mySolver
+ * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
+ *  
 */
 
 OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
