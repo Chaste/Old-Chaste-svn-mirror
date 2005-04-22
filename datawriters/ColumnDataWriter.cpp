@@ -1,4 +1,4 @@
-/*
+/**
 * Implementation file for ColumnDataWriter class.
 *
 */
