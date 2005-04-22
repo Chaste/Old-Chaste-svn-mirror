@@ -71,6 +71,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 	
 	std::vector<std::vector<double> > temp;
 	
+	std::vector<double> dyRK4(num_equations);
 	std::vector<double> k1(num_equations);
 	std::vector<double> k2(num_equations);
 	std::vector<double> k3(num_equations);
@@ -85,29 +86,34 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 		// Apply RungeKutta4's method first three timesteps, in order to 
 		// maintain fourth order accuracy of Adams-Bashforth method
 		
-        k1 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
+        dy = dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
         
         for(int i=0;i<num_equations; i++) 
 		{
+			k1[i] = timeStep*dyRK4[i];
 			yk2[i] = row[i] + 0.5*k1[i];		
 		}
-        k2 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk2);
+        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk2);
 		
 		for(int i=0;i<num_equations; i++) 
 		{
+			k2[i] = timeStep*dyRK4[i];
 			yk3[i] = row[i] + 0.5*k2[i];		
 		}
-        k3 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk3);        
+        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk3);        
 
 		for(int i=0;i<num_equations; i++) 
 		{
+			k3[i] = timeStep*dyRK4[i];
 			yk4[i] = row[i] + k3[i];		
 		}
-        k4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep,yk4);                
+        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep,yk4);                
 		
 		for(int i=0;i<num_equations; i++) 
 		{
-			row[i] = row[i] + timeStep*(k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
+			k4[i] = timeStep*dyRK4[i];
+			row[i] = row[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
+			
 		}
 		
 		solutions.mSolutions.push_back(row);	

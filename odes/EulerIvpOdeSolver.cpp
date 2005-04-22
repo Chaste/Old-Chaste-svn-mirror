@@ -33,7 +33,6 @@
  * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
  *  
 */
-
 OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
 				double startTime,
 				double endTime,
