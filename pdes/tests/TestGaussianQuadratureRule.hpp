@@ -41,8 +41,8 @@ public :
 			for (int poly_degree=0; poly_degree<1; poly_degree++)
 			{
 
-				poly_function function(poly_degree);
-				poly_function unit_function(0);
+				PolyFunction function(poly_degree);
+				PolyFunction unit_function(0);
 				
 				std::vector<Node<1>*> nodes;
 				nodes.push_back(new Node<1>(0, false, 0.0));

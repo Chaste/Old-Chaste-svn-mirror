@@ -3,12 +3,12 @@
 
 #include "AbstractIntegrand.hpp"
 
-class poly_function : public AbstractIntegrand<1> {
+class PolyFunction : public AbstractIntegrand<1> {
 	private:
 	int mDegree;
 	
 	public:
-	poly_function(int degree);
+	PolyFunction(int degree);
 	
 	double Evaluate(Point<1> evaluation_point);
 };
