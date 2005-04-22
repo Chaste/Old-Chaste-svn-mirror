@@ -1,5 +1,5 @@
 /**
- * Concrete RungeKutta2IvpOdeSolver class. 
+ * Concrete RungeKutta4IvpOdeSolver class. 
 */
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
