@@ -14,6 +14,7 @@
 #include "TestOde1.hpp"
 #include "TestOdeOrder.hpp"
 #include "TestOdeOrderSystem.hpp"
+#include "TestOdeOrderSystemOf3.hpp"
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -242,6 +243,8 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		testvalueRungeKutta4[0] = solutionsRungeKutta4.mSolutions[last3][0];
 		testvalueRungeKutta4[1] = solutionsRungeKutta4.mSolutions[last3][1];
 		
+		solutionsRungeKutta4.SaveToFile("result.dat");
+		
 		//Adams-Bashforth solver solution worked out	
 		AdamsBashforthIvpOdeSolver* myAdamsBashforthSolver = new AdamsBashforthIvpOdeSolver;
 		OdeSolution solutionsAdamsBashforth;
@@ -282,6 +285,109 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth[0]);	
 		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth[1]);	
 		
+		
+	}
+	void testGlobalErrorSystemOf3()
+	{
+		TestOdeOrderSystemOf3* pMyOdeSystem = new TestOdeOrderSystemOf3();
+		
+		int SystemSize=3;
+		
+		std::vector<double> yInit(SystemSize);
+		yInit[0] = 0.0;
+		yInit[1] = 1.0;
+		yInit[2] = 0.0;
+		
+		double hValue=0.01;
+	
+		//Euler solver solution worked out	
+		EulerIvpOdeSolver* myEulerSolver = new EulerIvpOdeSolver;
+		OdeSolution solutionsEuler;
+		
+		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last = solutionsEuler.mNumberOfTimeSteps;
+		
+		double testvalueEuler[3];
+		testvalueEuler[0] = solutionsEuler.mSolutions[last][0];
+		testvalueEuler[1] = solutionsEuler.mSolutions[last][1];
+		testvalueEuler[2] = solutionsEuler.mSolutions[last][2];
+		
+		//Runge Kutta 2 solver solution worked out	
+		RungeKutta2IvpOdeSolver* myRungeKutta2Solver = new RungeKutta2IvpOdeSolver;
+		OdeSolution solutionsRungeKutta2;
+		
+		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
+		
+		double testvalueRungeKutta2[3];
+		testvalueRungeKutta2[0] = solutionsRungeKutta2.mSolutions[last2][0];
+		testvalueRungeKutta2[1] = solutionsRungeKutta2.mSolutions[last2][1];
+		testvalueRungeKutta2[2] = solutionsRungeKutta2.mSolutions[last2][2];
+		
+		//Runge Kutta 4 solver solution worked out	
+		RungeKutta4IvpOdeSolver* myRungeKutta4Solver = new RungeKutta4IvpOdeSolver;
+		OdeSolution solutionsRungeKutta4;
+		
+		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
+		
+		double testvalueRungeKutta4[3];
+		testvalueRungeKutta4[0] = solutionsRungeKutta4.mSolutions[last3][0];
+		testvalueRungeKutta4[1] = solutionsRungeKutta4.mSolutions[last3][1];
+		testvalueRungeKutta4[2] = solutionsRungeKutta4.mSolutions[last3][2];
+		
+		solutionsRungeKutta4.SaveToFile("result.dat");
+		
+		//Adams-Bashforth solver solution worked out	
+		AdamsBashforthIvpOdeSolver* myAdamsBashforthSolver = new AdamsBashforthIvpOdeSolver;
+		OdeSolution solutionsAdamsBashforth;
+		
+		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		
+		double testvalueAdamsBashforth[3];
+		testvalueAdamsBashforth[0] = solutionsAdamsBashforth.mSolutions[last4][0];
+		testvalueAdamsBashforth[1] = solutionsAdamsBashforth.mSolutions[last4][1];
+		testvalueAdamsBashforth[2] = solutionsAdamsBashforth.mSolutions[last4][2];
+		
+		// The tests
+		double exactSolution[3];
+		
+		exactSolution[0] = -sin(2);
+		exactSolution[1] = sin(2)+cos(2);
+		exactSolution[2] = 2*sin(2);
+				
+		double GlobalErrorEuler[3];
+		GlobalErrorEuler[0] = 0.5*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorEuler[1] = 0.5*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorEuler[2] = 0.5*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler[0]);
+		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler[1]);
+		TS_ASSERT_DELTA(testvalueEuler[2],exactSolution[2],GlobalErrorEuler[2]);
+		
+		double GlobalErrorRungeKutta2[3];
+		GlobalErrorRungeKutta2[0] = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorRungeKutta2[1] = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorRungeKutta2[2] = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2[0]);
+		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2[1]);
+		TS_ASSERT_DELTA(testvalueRungeKutta2[2],exactSolution[2],GlobalErrorRungeKutta2[2]);
+		
+		double GlobalErrorRungeKutta4[3];
+		GlobalErrorRungeKutta4[0] = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorRungeKutta4[1] = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorRungeKutta4[2] = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4[0]);
+		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4[1]);
+		TS_ASSERT_DELTA(testvalueRungeKutta4[2],exactSolution[2],GlobalErrorRungeKutta4[2]);
+		
+		double GlobalErrorAdamsBashforth[3];
+		GlobalErrorAdamsBashforth[0] = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorAdamsBashforth[1] = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		GlobalErrorAdamsBashforth[2] = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth[0]);	
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth[1]);	
+		TS_ASSERT_DELTA(testvalueAdamsBashforth[2],exactSolution[2],GlobalErrorAdamsBashforth[2]);
 		
 	}	
 };
