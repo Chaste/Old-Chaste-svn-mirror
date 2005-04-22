@@ -74,16 +74,16 @@ void SodiumCurrentLR91::UpdateAlphaAndBeta(double voltage)
     if(voltage >= -40.0)
     {
         mAlphaH = 0.0;
-        mBetaH = 1/(0.13*(exp((voltage+10.66)/(-11.1))+1));
+        mBetaH = 1/(0.13*(1.0+exp((voltage+10.66)/(-11.1))));
         mAlphaJ = 0.0;
-        mBetaJ = 0.3*exp(-2.535*0.0000001*voltage)/(1 + exp(-0.1*(voltage+32.0)));
+        mBetaJ = 0.3*exp(-2.535e-7*voltage)/(1.0 + exp(-0.1*(voltage+32.0)));
     }
     else
     {
         mAlphaH = 0.135*exp((80+voltage)/(-6.8));
-        mBetaH = 3.56*exp(0.079*voltage) + 3.1*0.00001*exp(0.35*voltage);
-        mAlphaJ = (-1.2714*0.00001*exp(0.2444*voltage) - 3.474*0.00001*exp(-0.04391*voltage))*(voltage+37.78)/(1+exp(0.311*(voltage+79.23)));
-        mBetaJ = 0.1212*exp(-0.0105*voltage)/(1+exp(-0.1378*(voltage+40.14)));
+        mBetaH = 3.56*exp(0.079*voltage) + 3.1e5*exp(0.35*voltage);
+        mAlphaJ = (-1.2714e5*exp(0.2444*voltage) - 3.474e-5*exp(-0.04391*voltage))*(voltage+37.78)/(1+exp(0.311*(voltage+79.23)));
+        mBetaJ = 0.1212*exp(-0.01052*voltage)/(1+exp(-0.1378*(voltage+40.14)));
     }
 }
 

@@ -27,7 +27,7 @@ InitialStimulus::~InitialStimulus()
  */
 double InitialStimulus::GetStimulus(double time)
 {
-    if (time <=0.5) 
+    if (time <= 0.5) 
         {
             return mMagnitudeOfStimulus;
         } 

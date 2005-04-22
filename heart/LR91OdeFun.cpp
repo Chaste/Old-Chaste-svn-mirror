@@ -88,16 +88,25 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double rTime, std::vector<
     double jPrime = mpINa->ComputeJPrime(v, m, h, j);
     double dPrime = mpISi->ComputeDPrime(v, d, f);
     double fPrime = mpISi->ComputeFPrime(v, d, f);
-    double xPrime = 0.0;//pIK->ComputeFPrime(v);
+    double xPrime = mpIK->ComputeXPrime(v, x); 
     double caIPrime = mpCaI->ComputeCalciumPrime(v, d,f, caI, iSi);
         
     // Total Current
+    //std::cout << mPrime << "\t" << iSi << "\t" << iNa << "\t" << iKp << "\t" << iB<< "\t" << iK << "\t" << iK1 << "\t" << std::endl;
+    //sleep(0.2);
     double iTotal = iSi + iNa + iKp + iB + iK + iK1;
     
     double iStim = mpStimulus->GetStimulus(rTime);
     
+    std::cout << iStim << "\t" << iTotal << std::endl;
+    sleep(0.2);
+    
     // Calculating VPrime
-    double VPrime = mpV->ComputeVPrime(iStim, iTotal);
+    double VPrime = mpV->ComputeVPrime(iStim, iTotal); 
+    
+    
+    std::cout << VPrime << std::endl;
+    sleep(0.2);
     
     std::vector<double> returnRHS;
     returnRHS.push_back(VPrime);

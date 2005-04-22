@@ -18,7 +18,7 @@ const double eKp = eKp;
 
 // Background Currents
 const double gB = 0.03921;      // mS/cm^2
-const double eB = -59.87;       // millivolts
+const double eB = 59.87;       // millivolts
 
 // Other Constants
 const double membraneCapacitance = 0.01; // microFarads/ mm^-2
