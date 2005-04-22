@@ -1,3 +1,6 @@
+/**
+ * OdeSolution.  Sets us the function that prints the output data to a file.
+ */
 #include "OdeSolution.hpp"
 
 void OdeSolution::SaveToFile(char * outputfile)

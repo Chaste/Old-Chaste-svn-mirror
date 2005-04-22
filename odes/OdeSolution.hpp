@@ -1,3 +1,7 @@
+/**
+ * OdeSolution.  Sets us the class of ODE solutions, including a function that 
+ * allows us to save the output data to file.
+ */
 #ifndef _ODESOLUTION_HPP_
 #define _ODESOLUTION_HPP_
 
@@ -7,9 +11,9 @@
 class OdeSolution
 {
 	public:
-	int mNumberOfTimeSteps;
-	std::vector<double> mTime;
-	std::vector<std::vector<double> > mSolutions;
+	int mNumberOfTimeSteps;	/** Variable for the number of timesteps */
+	std::vector<double> mTime; /** Sets up a vector of time. */
+	std::vector<std::vector<double> > mSolutions;  /** Sets up the solutions. */
 	void SaveToFile(char * outputfile);
 };
 
