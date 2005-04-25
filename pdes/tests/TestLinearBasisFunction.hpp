@@ -19,8 +19,8 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		// Single compute
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(one, 0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(one, 1), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(one,  0), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(one,  1), 1.0, 1e-12);
 		
 		// Mass compute
 		std::vector<double> basis_function_vector;
@@ -34,7 +34,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(one);
 		TS_ASSERT_EQUALS(derivatives.size(), 2);
 		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[1](0), 1, 1e-12);
+		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
 	}
 	
 	void testLinearBasisFunction2d()
@@ -70,8 +70,8 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezero);
 		TS_ASSERT_EQUALS(derivatives.size(), 3);
 		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[1](0), 1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[2](0), 0, 1e-12);
+		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
+		TS_ASSERT_DELTA(derivatives[2](0),  0, 1e-12);
 	}
 
 
@@ -114,15 +114,14 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_function_vector[3], 0.0, 1e-12);
 		
-		//std::cout << " Nick Trefethen is Distressed !!  \n";
 		// Derivatives
 		std::vector<VectorDouble> derivatives;
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezerozero);
 		TS_ASSERT_EQUALS(derivatives.size(), 4);
 		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[1](0), 1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[2](0), 0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[3](0), 0, 1e-12);
+		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
+		TS_ASSERT_DELTA(derivatives[2](0),  0, 1e-12);
+		TS_ASSERT_DELTA(derivatives[3](0),  0, 1e-12);
 	}
 	
 };

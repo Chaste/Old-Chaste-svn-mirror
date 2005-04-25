@@ -11,6 +11,9 @@ private:
     Point<SPACE_DIM> mPoint;
     
     bool mIsBoundaryNode;
+
+	//TODO:
+	//bool mIsDirichletNode;
     
 public:
 

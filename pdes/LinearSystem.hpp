@@ -11,8 +11,8 @@ private:
 	Mat mLhsMatrix;
 	Vec mRhsVector;
 	Vec mLhsVector;
+	int mSize;
 public:
-
     LinearSystem(int lhsVectorSize);
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
@@ -22,11 +22,12 @@ public:
     void AssembleIntermediateMatrix();  // Should be called before AddToMatrixElement
     void DisplayMatrix();
     void SetMatrixRow(int row, double value);
-    
+    double GetMatrixElement(int row, int col);
+    double GetRhsVectorElement(int index);
     Vec Solve(AbstractLinearSolver *pSolver);
     void SetRhsVectorElement(int row, double value); 
     void AddToRhsVectorElement(int row, double value);
-
+	int GetSize();
 };
 
 #endif //_LINEARSYSTEM_HPP_

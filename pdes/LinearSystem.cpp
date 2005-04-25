@@ -20,6 +20,7 @@ LinearSystem::LinearSystem(int lhsVectorSize)
 
     MatCreate(PETSC_COMM_WORLD,lhsVectorSize,lhsVectorSize,PETSC_DETERMINE,PETSC_DETERMINE,&mLhsMatrix);
     MatSetType(mLhsMatrix, MATSEQDENSE);
+    mSize = lhsVectorSize;
 }
 
 //bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
@@ -90,3 +91,23 @@ Vec LinearSystem::Solve(AbstractLinearSolver *solver)
 {
     return solver->Solve(mLhsMatrix,mRhsVector);
 }
+
+int LinearSystem::GetSize()
+{
+	return mSize;
+}
+
+
+// this function has been grandfathered because it deadset wrong
+/*double LinearSystem::GetMatrixElement(int row, int col)
+{
+	int row_as_array[1]; row_as_array[0] = row;
+	int col_as_array[1]; col_as_array[0] = col;
+
+	double ret_array[0];
+	
+	MatGetValues(mLhsMatrix, 1, row_as_array, 1, col_as_array, ret_array);
+
+	return ret_array[0];
+}
+*/
