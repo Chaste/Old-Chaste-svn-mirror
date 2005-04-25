@@ -12,7 +12,7 @@ class AbstractOdeSystem
 	public:
 	int mNumberOfEquations; /**< Number of equations in the ODE system */
 	
-	AbstractOdeSystem(int rNumberOfEquations): mNumberOfEquations(rNumberOfEquations) {}; /**< Constructor*/
+	AbstractOdeSystem(int numberOfEquations): mNumberOfEquations(numberOfEquations) {}; /**< Constructor*/
 	
 	~AbstractOdeSystem() {}; /**<  Destructor */  
 	
