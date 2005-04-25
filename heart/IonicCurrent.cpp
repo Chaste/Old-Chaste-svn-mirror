@@ -38,6 +38,8 @@ void IonicCurrent::SetMagnitudeOfCurrent(const double &rMagnitudeOfCurrent)
 
 /**
  * Get magnitude of current
+ * 
+ * @return double Magnitude of current
  */
 double IonicCurrent::GetMagnitudeOfCurrent(void)
 {
