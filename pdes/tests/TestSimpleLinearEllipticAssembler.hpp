@@ -118,7 +118,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         mesh.AddNode(*left_hand_node);
         element_nodes.push_back(left_hand_node);
         element_nodes.push_back(right_hand_node);
-        Element<1,1> element(element_nodes);
+        Element<1,1> element(element_nodes, true);
         mesh.AddElement(element);
         
         // Instantiate PDE object
@@ -131,7 +131,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         bcc.AddDirichletBoundaryCondition(&(mesh.GetNodeAt(0)), pBoundaryCondition);
         
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-        // bcc.AddNeumannBoundaryCondition(&(mesh.GetNodeAt(num_elements)), pNeumannBoundaryCondition);
+        // element is still the last element in the mesh
+        bcc.AddNeumannBoundaryCondition(element.GetLowerOrderElement(0),
+                                        pNeumannBoundaryCondition);
         
         // Linear solver
         SimpleLinearSolver solver;
