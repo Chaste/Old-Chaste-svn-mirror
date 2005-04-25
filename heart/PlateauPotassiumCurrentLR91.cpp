@@ -33,7 +33,7 @@ PlateauPotassiumCurrentLR91::~PlateauPotassiumCurrentLR91()
 
 void PlateauPotassiumCurrentLR91::UpdateKP(double voltage)
 {  
-    mKp = 1.0/ ( 1.0 + exp((7.488 - voltage)/5.98));
+    mKp = 1.0/ ( 1.0 + exp((7.488 - voltage)/5.98) );
 }
 
 /**

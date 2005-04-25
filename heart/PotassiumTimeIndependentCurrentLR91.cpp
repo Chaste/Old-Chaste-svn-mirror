@@ -33,8 +33,8 @@ PotassiumTimeIndependentCurrentLR91::~PotassiumTimeIndependentCurrentLR91()
 void PotassiumTimeIndependentCurrentLR91::UpdateAlphaAndBeta(double voltage)
 {
     //updating alpha and beta voltage-dependent rate constants
-    mAlphaK1 = 1.02/ ( 1.0 + exp(0.2385*(voltage - eK1 - 59.215 ) ) ) ;
-    mBetaK1 =  (0.49124*exp(.08032*(voltage-eK1 + 5.476)) + exp(0.06175*(voltage - eK1 - 594.31)))/ (1+exp(-0.5143*(voltage-eK1+4.753))) ;   
+    mAlphaK1 = 1.02 / ( 1.0 + exp(0.2385*(voltage - eK1 - 59.215 )) ) ;
+    mBetaK1 =  (0.49124*exp(0.08032*(voltage-eK1 + 5.476)) + exp(0.06175*(voltage - eK1 - 594.31)))/ (1+exp(-0.5143*(voltage-eK1+4.753))) ;   
 }
 
 /**

@@ -37,7 +37,7 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
      * 
      */
     
-     assert(rY.size() == 8);
+    assert(rY.size() == 8);
     
     double v = rY[0];
     double m = rY[1];
@@ -62,7 +62,6 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     mpIK->UpdateMagnitudeOfCurrent(v, x);
     double iK = mpIK->GetMagnitudeOfCurrent();
     
-    
     //potassium time independent current
     mpIK1->UpdateMagnitudeOfCurrent(v);
     double iK1 = mpIK1->GetMagnitudeOfCurrent();
@@ -74,11 +73,6 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     //bacground current
     mpIB->UpdateMagnitudeOfCurrent(v);
     double iB = mpIB->GetMagnitudeOfCurrent();
-    
-    //Update Ca 
-    mpCaI->SetMagnitudeOfIonicConcentration(caI);
-    double iCa = mpCaI->GetMagnitudeOfIonicConcentration();
-       
     
     // Compute All the RHSs
     
@@ -92,21 +86,12 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     double caIPrime = mpCaI->ComputeCalciumPrime(v, d,f, caI, iSi);
         
     // Total Current
-    //std::cout << mPrime << "\t" << iSi << "\t" << iNa << "\t" << iKp << "\t" << iB<< "\t" << iK << "\t" << iK1 << "\t" << std::endl;
-    //sleep(0.2);
     double iTotal = iSi + iNa + iKp + iB + iK + iK1;
     
     double iStim = mpStimulus->GetStimulus(time);
     
-//    std::cout << iStim << "\t" << iTotal << std::endl;
-//    sleep(0.2);
-    
     // Calculating VPrime
     double VPrime = mpV->ComputeVPrime(iStim, iTotal); 
-    
-    
-//    std::cout << VPrime << std::endl;
-//    sleep(0.2);
     
     std::vector<double> returnRHS;
     returnRHS.push_back(VPrime);
@@ -117,6 +102,8 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     returnRHS.push_back(fPrime);
     returnRHS.push_back(xPrime);
     returnRHS.push_back(caIPrime);
+    
+
     
     return returnRHS;
 }

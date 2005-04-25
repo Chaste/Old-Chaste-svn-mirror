@@ -39,5 +39,5 @@ TransmembranePotentialLR91::~TransmembranePotentialLR91()
 double TransmembranePotentialLR91::ComputeVPrime(double iStim, double iTotal)
 {   
           
-    return ((-iStim-iTotal)/membraneCapacitance);
+    return (-(iStim + iTotal)/membraneCapacitance);
 } 

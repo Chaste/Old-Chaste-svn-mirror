@@ -50,7 +50,7 @@ void PotassiumTimeDependentCurrentLR91::UpdateAlphaAndBeta(double voltage)
 {
     //updating alpha and beta voltage--dependent rate constants
     mAlphaX= 0.0005*exp(0.083*(voltage + 50.0))/ (1 + exp(0.057*(voltage + 50.0))) ;
-    mBetaX =  0.0013*exp(-0.06*(voltage +20.0))/(1 +exp(-0.04*(voltage + 20.0)) ) ;
+    mBetaX =  0.0013*exp(-0.06*(voltage + 20.0))/(1 +exp(-0.04*(voltage + 20.0)) ) ;
 }
 
 /**
@@ -64,11 +64,11 @@ void PotassiumTimeDependentCurrentLR91::UpdateXi(double voltage)
     
     if (voltage <= -100.0)
     {
-    	mXi= 1.0  ;
+    	mXi= 1.0;
     }
     else
     {
-      mXi = 2.837*(exp(0.04*(voltage+77.0)) -1) / ( (voltage +77.0)*exp(0.04*(voltage+35.0)) ) ;	
+      mXi = 2.837*(exp(0.04*(voltage+77.0)) - 1) / ( (voltage +77.0)*exp(0.04*(voltage+35.0)) ) ;	
     } 
 }
 

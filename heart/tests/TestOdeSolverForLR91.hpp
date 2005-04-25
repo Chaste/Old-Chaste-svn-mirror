@@ -1,7 +1,6 @@
 #ifndef _TESTODESOLVERFORLR91_HPP_
 #define _TESTODESOLVERFORLR91_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include <cmath>
 #include <iostream>
@@ -24,79 +23,24 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
     // Test Ode Solver for LR91
     void testOdeSolverForLR91(void)
     {
-    //Tests that setting and getting stimulus works -test passed
-//        double time = 0.8;
-//        double magnitudeOfStimulus = 80.0;        
-//        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
-//        double stimulusValue = pStimulus->GetStimulus(time);
-//        std::cout<<"Stimulus value is "<< stimulusValue<< std::endl;
-//        
-//        // test 1
-       // double time = 0.2;
-        //double magnitudeOfStimulus = 80.0;        
-      //  AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
-       // LR91OdeFun lr91OdeFun(pStimulus);
-//        double voltage = -75.0;
-//        double m = 0.9833;
-//        double h = 0.0017;
-//        double j = 0.9895;
-//        double d = 0.003;
-//        double f = 1;
-//        double x = 0.0056;
-//        double caI = 0.0002;
-//          
-//        std::vector<double> intialConditions;
-//        intialConditions.push_back(voltage);
-//        intialConditions.push_back(m);
-//        intialConditions.push_back(h);
-//        intialConditions.push_back(j);
-//        intialConditions.push_back(d);
-//        intialConditions.push_back(f);
-//        intialConditions.push_back(x);
-//        intialConditions.push_back(caI);
-        // double t = 0.2;
-        //std::vector<double> Result = lr91OdeFun.EvaluateYDerivatives(t, intialConditions);
-        
-        
-//        DO REGRESSION TEST here....
-//        double iStim = stimulusValue;
-//        
-//          
-//        TS_ASSERT_DELTA(Result[0], (-iStim -iTotal) /cMembrane , 0.0001);
-//        TS_ASSERT_DELTA(Result[1],   , 0.0001);
-//        TS_ASSERT_DELTA(Result[2],  , 0.0001);
-//        TS_ASSERT_DELTA(Result[3],  , 0.0001);
-//        TS_ASSERT_DELTA(Result[4],  , 0.0001);
-//        TS_ASSERT_DELTA(Result[5],  , 0.0001);
-//        TS_ASSERT_DELTA(Result[6],  , 0.0001);
-//        TS_ASSERT_DELTA(Result[7],  , 0.0001);
-//          
-//        TS_TRACE("IT WORKS!!!! :)) ");
-        // TS_TRACE("LupRudy WORKS!!!! :)) ");
-        
-//        
-//       //test 2 
-//        voltage = -40.0;
-//        m = 0.1;
-//        h = 0.03;
-//        j = 0.7;
-//        d = 0.05;
-//        f = 0.5;
-//        x = 0.1;
-//        caI = 0.001;
-//        double magnitudeOfStimulus = 80.0;        
-//        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus);
-//       
+        /*
+         * Set initial conditions and magnitude of stimulus
+         * 
+         */
 		double voltage = -75.0;
-        double m = 0.9833;
-        double h = 0.0017;
+        double m = 0.0017;
+        double h = 0.9833;
         double j = 0.9895;
         double d = 0.003;
         double f = 1;
         double x = 0.0056;
         double caI = 0.0002;
-        double magnitudeOfStimulus = -5.1;   
-          
+        double magnitudeOfStimulus = -80.0;   
+        
+        /*
+         * Collect initial data in a vector
+         * 
+         */  
         std::vector<double> intialConditions;
         intialConditions.push_back(voltage);
         intialConditions.push_back(m);
@@ -107,40 +51,38 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         intialConditions.push_back(x);
         intialConditions.push_back(caI);
 		             
+        /*
+         * Choose function for stimulus
+         */             
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus); 
         
+        /*
+         * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
+         */
         LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
         
-        // TS_TRACE("LupRudy is initiated !!!! :)) ");
-        
-        
+        /*
+         * Choose an ode solver
+         */      
         AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
         
+        /*
+         * Solve 
+         */
         double startTime = 0.0;
-        double endTime = 10.0;
-        double timeStep = 0.001;             
+        double endTime = 600.0;
+        double timeStep = 0.01;             
         
         OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
                                intialConditions, pMySolver);
                             
+        /*
+         * Write data to a file LRresult.dat
+         */                                                           
+        Solution.SaveToFile("LRresult.dat");
                                
-//       for (int i=0; i < Solution.mSolutions.size(); i++)
-//       {
-//       	    std::cout << Solution.mSolutions[i][0] << std::endl; 
-//       	  //  sleep(1);
-//       }                     
-                               
-        //Solution.SaveToFile("LRresult.dat");
-                               
-//        output to matlab file
-        
-        // TS_TRACE("MOREOVER OdeSolver SOLVES!!!! :)) ");
-
     }
-    
-    
-    
-   
+
 	// Tests that Na gating variables within range 0 to 1 inclusive
 	void testSodiumGatingVariables( void )
 	{

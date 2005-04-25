@@ -14,14 +14,14 @@ const double gK = 0.282;        // mS/cm^2
 const double eK1 = eK;
 const double gK1 = 0.6047;       // mS/cm^2
 const double gKp = 0.0183;      // mS/cm^2
-const double eKp = eKp;
+const double eKp = eK;
 
 // Background Currents
 const double gB = 0.03921;      // mS/cm^2
 const double eB = 59.87;       // millivolts
 
 // Other Constants
-const double membraneCapacitance = 0.01; // microFarads/ mm^-2
+const double membraneCapacitance = 1.0; // microFarads/ mm^-2
 
  
   

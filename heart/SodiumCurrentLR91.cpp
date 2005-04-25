@@ -74,7 +74,7 @@ void SodiumCurrentLR91::UpdateAlphaAndBeta(double voltage)
     if(voltage >= -40.0)
     {
         mAlphaH = 0.0;
-        mBetaH = 1/(0.13*(1.0+exp((voltage+10.66)/(-11.1))));
+        mBetaH = 1 / (0.13*(1.0+exp((voltage+10.66)/(-11.1))));
         mAlphaJ = 0.0;
         mBetaJ = 0.3*exp(-2.535e-7*voltage)/(1.0 + exp(-0.1*(voltage+32.0)));
     }
@@ -102,7 +102,6 @@ void SodiumCurrentLR91::SetGatingVariables(double m, double h, double j)
 void SodiumCurrentLR91::UpdateMagnitudeOfCurrent(double voltage, double m, double h, double j)
 {   
     SetGatingVariables(m, h, j);
-    UpdateAlphaAndBeta(voltage);
     
     // checking how beta is updated
     //std::cout << "\n"<< "mBetaM is equal to " <<mBetaM<<std::endl;

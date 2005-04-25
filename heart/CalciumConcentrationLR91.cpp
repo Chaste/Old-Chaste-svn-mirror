@@ -40,5 +40,5 @@ double CalciumConcentrationLR91::ComputeCalciumPrime(double voltage, double d, d
 //    double iSi = pISi->GetMagnitudeOfCurrent();
         
     SetMagnitudeOfIonicConcentration(caI);
-    return (-0.0001 * iSi + 0.007 * (0.0001 -  mMagnitudeOfIonicConcentration));   
+    return (-1e-4 * iSi + 0.07 * (1e-4 -  mMagnitudeOfIonicConcentration));   
 }
