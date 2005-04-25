@@ -130,6 +130,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(&(mesh.GetNodeAt(0)), pBoundaryCondition);
         
+        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+        // bcc.AddNeumannBoundaryCondition(&(mesh.GetNodeAt(num_elements)), pNeumannBoundaryCondition);
         
         // Linear solver
         SimpleLinearSolver solver;

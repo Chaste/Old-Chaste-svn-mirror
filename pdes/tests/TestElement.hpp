@@ -179,6 +179,22 @@ public:
 		
 	}
 	
+    void testNodeToElementConversion(void)
+    {
+        Point<1> point1(1.0);
+        Point<2> point2(2.0,-1.0);
+        
+        Node<1> node1(0, point1);
+        Node<2> node2(0, point2);
+        
+        Element<0,1> element1(&node1);
+        Element<0,2> element2(&node2);
+        
+        TS_ASSERT_EQUALS(element1.GetNode(0)->GetPoint()[0], point1[0]);
+        
+        TS_ASSERT_EQUALS(element2.GetNode(0)->GetPoint()[0], point2[0]);
+        TS_ASSERT_EQUALS(element2.GetNode(0)->GetPoint()[1], point2[1]);
+    }
 
 };
 

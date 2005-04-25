@@ -271,6 +271,31 @@ public:
 			mJacobianDeterminant = 1.0;
     	}
     }
+    
+    /**
+     * Create a new element from a Node
+     * The element has ELEMENT_DIM=0 and
+     * SPACE_DIM identical to that of the node from which it is constructed
+     * 
+     */
+    Element(Node<SPACE_DIM> *node,
+            bool createLowerOrderElements=false, bool createJacobian=true)
+    {
+        // Store Node pointer
+        mNodes.push_back(node);
+        
+        // Create Jacobian?
+        mpJacobian = NULL;
+        mpInverseJacobian = NULL;
+        if (createJacobian)
+        {
+            mpJacobian = new MatrixDouble(1,1);
+            mpInverseJacobian = new MatrixDouble(1,1);
+            (*mpJacobian)(0,0) = 1.0;
+            (*mpInverseJacobian)(0,0) = 1.0;
+            mJacobianDeterminant = 1.0;
+        }
+    }
    
    /**
      * Copy constructor. This is needed so that copies of an element don't
