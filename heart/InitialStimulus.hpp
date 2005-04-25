@@ -12,7 +12,7 @@ class InitialStimulus : public AbstractStimulusFunction
      private:
         double mMagnitudeOfStimulus;
         // Duration of initial stimulus
-        double mDuration ;
+        double mDuration;
         
      public: 
          InitialStimulus(double magnitudeOfStimulus, double duration);

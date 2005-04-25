@@ -50,14 +50,9 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     
     /*
      * Assert that gating variables are within [0,1] range
-     *  and 
-     * voltage is within [eK, eNa] range
      */
     assert(m <= 1 && m >= 0 && h <= 1 &&  h >= 0 && j <= 1 &&  j >= 0 && d <= 1 &&  d >= 0 && f <= 1 &&  f >= 0);
-    assert( v <= eNa && v >= eK );
-    
-    
-        
+ 
     // Compute all the currents
     //sodium current
     mpINa->UpdateMagnitudeOfCurrent(v, m, h, j);
