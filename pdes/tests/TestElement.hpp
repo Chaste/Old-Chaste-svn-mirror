@@ -56,9 +56,14 @@ public:
             for(int j=0; j < 3; j++)
             {
                TS_ASSERT_EQUALS(element.GetLowerOrderElement(i)->GetNodeGlobalIndex(j),(i+j+1) % 4);
-               TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 0.5, 0.5);//added by us
-               	
-               		
+               if((i==0 && j==0) || (i==2 && j==2)|| (i==3 && j==1))
+               {
+               		TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 1.0, 1e-12);
+               }
+               else
+               {
+               		TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 0.0, 1e-12);
+               }
             }
         }
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(0),2);
@@ -78,12 +83,17 @@ public:
 	void testJacobian()
 	{
 		// 1d
-		std::vector<Node<1>*> nodes;
-		nodes.push_back(new Node<1>(0, false, 2.0));
-		nodes.push_back(new Node<1>(1, false, 2.5));
-		Element<1,1> element(nodes);
-		const MatrixDouble *J = element.GetJacobian();
-		TS_ASSERT_DELTA((*J)(0,0), 0.5, 1e-12);
+		std::vector<Node<1>*> nodes1d;
+		nodes1d.push_back(new Node<1>(0, false, 2.0));
+		nodes1d.push_back(new Node<1>(1, false, 2.5));
+		Element<1,1> element1d(nodes1d);
+		const MatrixDouble *J1d = element1d.GetJacobian();
+		TS_ASSERT_DELTA((*J1d)(0,0), 0.5, 1e-12);
+		
+		double Det1d = element1d.GetJacobianDeterminant();
+		TS_ASSERT_DELTA(Det1d, 0.5, 1e-12);
+		const MatrixDouble *J1dinv = element1d.GetInverseJacobian();
+		TS_ASSERT_DELTA((*J1dinv)(0,0), 2.0, 1e-12);
 		
 		// 2d easy
 		
