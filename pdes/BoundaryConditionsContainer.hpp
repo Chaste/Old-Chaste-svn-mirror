@@ -4,6 +4,7 @@
 #include <map>
 #include <algorithm>
 #include "AbstractBoundaryCondition.hpp"
+#include "ConstDirichletBoundaryCondition.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
 #include "ConformingTetrahedralMesh.hpp"
