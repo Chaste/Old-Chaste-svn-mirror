@@ -169,19 +169,19 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          /*
          * Write data to a file LRresult.dat
          */          
-        AbstractDataWriter *pResultWriter = new ColumnDataWriter(".", "LRResult2");
-        pResultWriter->DefineUnlimitedDimension("Time", "ms");
-        int time_id = pResultWriter->DefineVariable("Time", "ms");
-        int voltage_id = pResultWriter->DefineVariable("Voltage", "mV");
-	    pResultWriter->EndDefineMode();
-	    
-	    for(int i=0;i<solution.mTime.size() ; i++)
-	    {
-	    	pResultWriter->PutVariable(time_id,solution.mTime[i]);
-	    	pResultWriter->PutVariable(voltage_id,solution.mSolutions[i][0]);
-			pResultWriter->AdvanceAlongUnlimitedDimension();
-	    }
-        pResultWriter->Close();             
+//        AbstractDataWriter *pResultWriter = new ColumnDataWriter(".", "LRResult2");
+//        pResultWriter->DefineUnlimitedDimension("Time", "ms");
+//        int time_id = pResultWriter->DefineVariable("Time", "ms");
+//        int voltage_id = pResultWriter->DefineVariable("Voltage", "mV");
+//	    pResultWriter->EndDefineMode();
+//	    
+//	    for(int i=0;i<solution.mTime.size() ; i++)
+//	    {
+//	    	pResultWriter->PutVariable(time_id,solution.mTime[i]);
+//	    	pResultWriter->PutVariable(voltage_id,solution.mSolutions[i][0]);
+//			pResultWriter->AdvanceAlongUnlimitedDimension();
+//	    }
+//        pResultWriter->Close();             
                                
     }
 //    // Test Ode Solver for LR91
@@ -307,27 +307,27 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          */
         double startTime = 0.0;
         double endTime = 1500.0;
-        double timeStep = 0.001;             
+        double timeStep = 0.01;             
         
-        OdeSolution solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
-                               intialConditions, pMySolver);
+//        OdeSolution solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
+//                               intialConditions, pMySolver);
                             
         /*
          * Write data to a file LRresult3.dat
          */                                         
-        AbstractDataWriter *pResultWriter = new ColumnDataWriter(".", "LRResult3");
-        pResultWriter->DefineUnlimitedDimension("Time", "ms");
-        int time_id = pResultWriter->DefineVariable("Time", "ms");
-        int voltage_id = pResultWriter->DefineVariable("Voltage", "mV");
-	    pResultWriter->EndDefineMode();
-	    
-	    for(int i=0;i<solution.mTime.size() ; i++)
-	    {
-	    	pResultWriter->PutVariable(time_id,solution.mTime[i]);
-	    	pResultWriter->PutVariable(voltage_id,solution.mSolutions[i][0]);
-			pResultWriter->AdvanceAlongUnlimitedDimension();
-	    }
-        pResultWriter->Close();             
+//        AbstractDataWriter *pResultWriter = new ColumnDataWriter(".", "LRResult3");
+//        pResultWriter->DefineUnlimitedDimension("Time", "ms");
+//        int time_id = pResultWriter->DefineVariable("Time", "ms");
+//        int voltage_id = pResultWriter->DefineVariable("Voltage", "mV");
+//	    pResultWriter->EndDefineMode();
+//	    
+//	    for(int i=0;i<solution.mTime.size() ; i++)
+//	    {
+//	    	pResultWriter->PutVariable(time_id,solution.mTime[i]);
+//	    	pResultWriter->PutVariable(voltage_id,solution.mSolutions[i][0]);
+//			pResultWriter->AdvanceAlongUnlimitedDimension();
+//	    }
+//        pResultWriter->Close();             
                                
     }
            
