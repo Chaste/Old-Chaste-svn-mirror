@@ -1,6 +1,14 @@
 #ifndef _ABSTRACTLINEARELLIPTICPDE_HPP_
 #define _ABSTRACTLINEARELLIPTICPDE_HPP_
 
+/**
+ * AbstractLinearEllipticPde class.
+ * 
+ * A general PDE of the form:
+ * du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
+ * 
+ */
+
 
 #include "MatrixDouble.hpp"
 #include "Point.hpp"

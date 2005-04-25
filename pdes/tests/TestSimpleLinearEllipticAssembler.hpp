@@ -7,7 +7,6 @@
 #include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.hpp"
 #include <vector>
 #include "Node.hpp"
 #include "Element.hpp"
@@ -88,47 +87,68 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		}
 		VecRestoreArray(result, &res);
 	}
-
-	/**
-	 * This is the future, and should serve as a good example of how users
-	 * should lay things out.
-	 */
-	void TODO_TestWithHeatEquationWithMeshFile()
-	{
-		PetscInitialize(0, NULL, 0, 0);
-		
-		// Create mesh
-		TrianglesMeshReader mesh_reader =
-			TrianglesMeshReader("pdes/tests/meshdata/trivial_1d_mesh");
-		ConformingTetrahedralMesh<1,1> mesh;
-		mesh.ConstructFromMeshReader(mesh_reader);
-		
-		// Instantiate PDE object
-		LinearHeatEquationPde<1> pde;
-		
-		// Boundary conditions
-		
-		// Linear solver
-		SimpleLinearSolver solver;
-		
-		// Assembler
-		SimpleLinearEllipticAssembler<1,1> assembler;
-		
-		Vec result = assembler.AssembleSystem(mesh, &pde, /*bcs,*/ &solver);
-		
-		// Check result
-		double *res;
-		int ierr = VecGetArray(result, &res);
-		// Solution should be u = 0.5*x*(3-x)
-		for (int i=0; i < mesh.GetNumNodes(); i++)
-		{
-			double x = 0.0 + 0.15*i;
-			double u = 0.5*x*(3-x);
-			TS_ASSERT_DELTA(res[i], u, 0.001);
-		}
-		VecRestoreArray(result, &res);
-	}
-
+    
+    void TestWithHeatEquation2()
+    {
+        PetscInitialize(0, NULL, 0, 0);
+        
+        // Create mesh (by hand!)
+        const int num_elements = 5;
+        ConformingTetrahedralMesh<1,1> mesh(num_elements);
+        
+        Node<1> *right_hand_node = new Node<1>(0, true, -1.0);
+        mesh.AddNode(*right_hand_node);
+        
+        
+        for (int i=1; i<num_elements; i++)
+        {
+            std::vector<Node<1>*> element_nodes;
+            Node<1> *left_hand_node = new Node<1>(i, false, -1.0-(2.0*i/num_elements));
+            mesh.AddNode(*left_hand_node);
+            element_nodes.push_back(left_hand_node);
+            element_nodes.push_back(right_hand_node);
+            Element<1,1> element(element_nodes);
+            mesh.AddElement(element);
+            right_hand_node = left_hand_node;
+            std::cout << "Node value " << -1.0-(2.0*i/num_elements) << "\n";
+        }
+        std::vector<Node<1>*> element_nodes;
+        Node<1> *left_hand_node = new Node<1>(num_elements, true, -3.0);
+        mesh.AddNode(*left_hand_node);
+        element_nodes.push_back(left_hand_node);
+        element_nodes.push_back(right_hand_node);
+        Element<1,1> element(element_nodes);
+        mesh.AddElement(element);
+        
+        // Instantiate PDE object
+        LinearHeatEquationPde<1> pde;
+        
+        // Boundary conditions c
+        
+        
+        // Linear solver
+        SimpleLinearSolver solver;
+        
+        // Assembler
+        SimpleLinearEllipticAssembler<1,1> assembler;
+        
+        Vec result = assembler.AssembleSystem(mesh, &pde, /*bcs,*/ &solver);
+        
+        
+        double *res;
+        int ierr = VecGetArray(result, &res);
+        for (int i=0; i<=num_elements; i++)//result.Size()
+        {
+            double x = mesh.GetNodeAt(i).GetPoint()[0];
+            // std::cout << x << "," << res[i] << "\n";
+        }
+        for (int i=0; i < num_elements+1; i++)
+        {
+            double x = -1.0- 0.4*i;
+            double u = -0.5*(x+1)*(5+x);
+            TS_ASSERT_DELTA(res[i], u, 0.001);
+        }
+    }
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

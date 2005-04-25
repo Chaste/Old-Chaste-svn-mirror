@@ -3,7 +3,6 @@
 
 #include "AbstractLinearEllipticPde.hpp"
 
-
 template <int SPACE_DIM>
 class LinearHeatEquationPde:public AbstractLinearEllipticPde<SPACE_DIM>
 {

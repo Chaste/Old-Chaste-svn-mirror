@@ -41,7 +41,7 @@ public:
         
         double x1 = rElement.GetNodeLocation(0,0);
         double x2 = rElement.GetNodeLocation(1,0);
-		
+		// std::cout << "X1= " << x1 << " X2= " << x2 << "\n";
 		for (int col=0; col<2; col++)
 		{
 			for (int row=0; row<2; row++)
@@ -127,6 +127,7 @@ public:
 //        {
 //            rBoundaryConditions[i]->ApplyLinearBoundaryConditions(*mpAssembledLinearSystem);   
 //        }
+
 		mpAssembledLinearSystem->SetMatrixElement(0, 0, 1.0);
     	mpAssembledLinearSystem->SetMatrixElement(0, 1, 0.0);
     	mpAssembledLinearSystem->SetRhsVectorElement(0, 0.0);
