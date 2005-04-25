@@ -9,7 +9,7 @@ class TestOdeOrderSystem : public AbstractOdeSystem
 	public :
 	TestOdeOrderSystem();
 	
-	std::vector<double> TestOdeOrderSystem::EvaluateYDerivatives (double rTime, std::vector<double> &rY);
+	std::vector<double> TestOdeOrderSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY);
 
 };
 

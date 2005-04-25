@@ -12,7 +12,7 @@ class TestOdeOrderSystemOf3 : public AbstractOdeSystem
 	public :
 	TestOdeOrderSystemOf3();
 	
-	std::vector<double> TestOdeOrderSystemOf3::EvaluateYDerivatives (double rTime, std::vector<double> &rY);
+	std::vector<double> TestOdeOrderSystemOf3::EvaluateYDerivatives (double time, const std::vector<double> &rY);
 
 };
 

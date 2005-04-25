@@ -10,7 +10,7 @@ TestOdeOrderSystemOf3::TestOdeOrderSystemOf3() : AbstractOdeSystem(3)
 
 }
 
-std::vector<double> TestOdeOrderSystemOf3::EvaluateYDerivatives (double rTime, std::vector<double> &rY)
+std::vector<double> TestOdeOrderSystemOf3::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
 	std::vector<double> yDerivatives(mNumberOfEquations);
 	yDerivatives[0]=rY[0]-rY[1]+rY[2];

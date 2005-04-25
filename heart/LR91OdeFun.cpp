@@ -30,7 +30,7 @@ LR91OdeFun::~LR91OdeFun()
     // Do nothing
 }
 
-std::vector<double> LR91OdeFun::EvaluateYDerivatives (double rTime, std::vector<double> &rY) 
+std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::vector<double> &rY) 
 {  
      /*
      * Throw an exception if the initial vector is larger than size 8
@@ -96,7 +96,7 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double rTime, std::vector<
     //sleep(0.2);
     double iTotal = iSi + iNa + iKp + iB + iK + iK1;
     
-    double iStim = mpStimulus->GetStimulus(rTime);
+    double iStim = mpStimulus->GetStimulus(time);
     
 //    std::cout << iStim << "\t" << iTotal << std::endl;
 //    sleep(0.2);
