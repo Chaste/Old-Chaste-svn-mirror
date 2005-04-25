@@ -3,6 +3,9 @@
 
 /**
  * This class defines an Element for use in FEM.
+ * 
+ * Note that there are two definitions, one for general ELEMENT_DIM and one
+ * for ELEMENT_DIM == 0, to avoid infinite loops in the compiler.
  */
 
 #include "Node.hpp"
@@ -11,7 +14,10 @@
 #include "VectorDouble.hpp"
 #include "LinearBasisFunction.cpp"
 
+#include "Exception.hpp"
+
 #include <vector>
+#include <iostream>
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 class Element
@@ -60,6 +66,8 @@ public:
     	}
     	
     	// Create Jacobian?
+    	mpJacobian = NULL;
+    	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
     		if (ELEMENT_DIM == 1 && SPACE_DIM == 1)
@@ -86,8 +94,43 @@ public:
     }
     
     /**
+     * Copy constructor. This is needed so that copies of an element don't
+     * share pointers to the same matrices, which causes problems when copies
+     * get destroyed.
+     */
+    Element(const Element &element)
+    {
+		mNodes = element.mNodes;
+		
+		mHasLowerOrderElements = element.mHasLowerOrderElements;
+    	if (mHasLowerOrderElements)
+    	{
+    		// Copy lower order elements, rather than pointers
+    		for (int i=0; i<ELEMENT_DIM+1; i++)
+    		{
+    			mLowerOrderElements[i] =
+    				new Element<ELEMENT_DIM-1, SPACE_DIM>(*(element.mLowerOrderElements[i]));
+    		}
+    	}
+
+		mJacobianDeterminant = element.mJacobianDeterminant;
+		mpJacobian = NULL;
+		if (element.mpJacobian != NULL)
+		{
+			mpJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			*mpJacobian = *(element.mpJacobian);
+		}
+		mpInverseJacobian = NULL;
+		if (element.mpInverseJacobian != NULL)
+		{
+			mpInverseJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			*mpInverseJacobian = *(element.mpInverseJacobian);
+		}
+    }
+    
+    /**
      * Free memory potentially allocated in the constructor (or elsewhere) for
-     * holding lower order elements.
+     * holding lower order elements and the Jacobian and its inverse.
      */
     ~Element()
     {
@@ -98,7 +141,16 @@ public:
     			delete mLowerOrderElements[i];
     		}
     	}
-    	// TODO: Jacobian?
+    
+    	
+    	if (mpJacobian != NULL)
+    	{
+    		delete mpJacobian;
+    	}
+    	if (mpInverseJacobian != NULL)
+    	{
+    		delete mpInverseJacobian;
+    	}
     }
     
     void CreateLowerOrderElements()
@@ -204,6 +256,8 @@ public:
     	mNodes = nodes;
     	
     	// Create Jacobian?
+    	mpJacobian = NULL;
+    	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
     		mpJacobian = new MatrixDouble(1,1);
@@ -213,7 +267,47 @@ public:
 			mJacobianDeterminant = 1.0;
     	}
     }
+   
+   /**
+     * Copy constructor. This is needed so that copies of an element don't
+     * share pointers to the same matrices, which causes problems when copies
+     * get destroyed.
+     */
+    Element(const Element &element)
+    {
+		mNodes = element.mNodes;
+		
+		mJacobianDeterminant = element.mJacobianDeterminant;
+		mpJacobian = NULL;
+		if (element.mpJacobian != NULL)
+		{
+			mpJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			*mpJacobian = *(element.mpJacobian);
+		}
+		mpInverseJacobian = NULL;
+		if (element.mpInverseJacobian != NULL)
+		{
+			mpInverseJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			*mpInverseJacobian = *(element.mpInverseJacobian);
+		}
+    }
     
+    /**
+     * Free memory potentially allocated in the constructor for
+     * holding the Jacobian and its inverse.
+     */
+    ~Element()
+    {
+    	if (mpJacobian != NULL)
+    	{
+    		delete mpJacobian;
+    	}
+    	if (mpInverseJacobian != NULL)
+    	{
+    		delete mpInverseJacobian;
+    	}
+    }
+
     double GetNodeLocation(int localIndex, int dimension) const
     {
     	assert(dimension < SPACE_DIM);

@@ -5,6 +5,7 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include <cxxtest/TestSuite.h>
+#include <iostream>
 
 #include <vector>
 
@@ -35,11 +36,13 @@ public:
 		}
 		Element<3,3> element(nodes, true);
 		
+		
 		// Check nodes on the new element have the right indices
 		for (int i=0; i<4; i++)
 		{
 			TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
 		}
+		
 		
 		// Check lower order elements are created with the expected nodes.
 		// Not sure if we really want to specify this, but it ensures nothing
@@ -57,11 +60,14 @@ public:
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(1)->GetNodeGlobalIndex(1),1);
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(0),3);
 
+
 		// Test AddNode method
 		Node<3>* node2 = CreateZeroPointNode(10);
 		element.AddNode(node2);
+	
 		TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(4), 10);
 	}
+
 	
 	void testJacobian()
 	{

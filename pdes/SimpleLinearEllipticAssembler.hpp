@@ -23,7 +23,7 @@ private:
     LinearSystem *mpAssembledLinearSystem;
 
 public:
-	void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+	void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							MatrixDouble &rAel,
 							VectorDouble &rBel,
 							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
@@ -99,7 +99,7 @@ public:
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = rMesh.GetFirstElement();
         while (iter != rMesh.GetLastElement())
         {
-            Element<ELEMENT_DIM, SPACE_DIM> element = *iter;
+            const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
             // This assumes linear basis functions in 1d
             int node1 = element.GetNodeGlobalIndex(0);
             int node2 = element.GetNodeGlobalIndex(1);
