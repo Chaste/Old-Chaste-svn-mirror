@@ -5,6 +5,9 @@
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
+/**
+ * Luo-Rudy 91 background current, Ib.
+ */
 class BackgroundCurrentLR91 : public IonicCurrent
 {        
     public:

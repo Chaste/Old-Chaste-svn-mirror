@@ -5,10 +5,11 @@
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
+/**
+ * Luo-Rudy 91 intracellular calcium concentration, [Ca_i].
+ */
 class CalciumConcentrationLR91 : public IonicConcentration
 {
-    private:
-          
     public:
         // Constructor
         CalciumConcentrationLR91(void);

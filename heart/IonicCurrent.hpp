@@ -1,6 +1,9 @@
 #ifndef _IONICCURRENT_HPP_
 #define _IONICCURRENT_HPP_
 
+/**
+ * A Base class for Ionic Currents.
+ */
 class IonicCurrent
 {
 	protected:

@@ -1,8 +1,3 @@
-/**
- * IonicCurrent.cpp
- * 
- * An ionic current
- */
 #include "IonicCurrent.hpp"
 
 /**
@@ -44,7 +39,7 @@ void IonicCurrent::SetMagnitudeOfCurrent(const double &rMagnitudeOfCurrent)
 /**
  * Get magnitude of current
  */
-double IonicCurrent::GetMagnitudeOfCurrent()
+double IonicCurrent::GetMagnitudeOfCurrent(void)
 {
 	return mMagnitudeOfCurrent;
 }

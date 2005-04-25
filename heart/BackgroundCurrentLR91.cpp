@@ -1,8 +1,3 @@
-/**
- * BacgroundCurrentLR91.cpp
- * 
- * Ib, Background current.
- */
 #include "BackgroundCurrentLR91.hpp"
 #include <cmath>
 
@@ -30,5 +25,7 @@ BackgroundCurrentLR91::~BackgroundCurrentLR91()
  */
 void BackgroundCurrentLR91::UpdateMagnitudeOfCurrent(double voltage)
 {   
+	// mMagnitudeOfCurrent = gB * (voltage - eB) in original paper, sign of eB changed
+	// in ConstantsLR91.hpp, so actually similar
     mMagnitudeOfCurrent = gB * (voltage + eB); 
 }

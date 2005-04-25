@@ -1,11 +1,18 @@
 #ifndef _CARDIACCELLMODEL_HPP_
 #define _CARDIACCELLMODEL_HPP_
 
+/**
+ * A basic cardiac cell model.
+ * 
+ * *** Don't think this class is being used! ***
+ */
 class CardiacCellModel
 {
 	protected:
 		double mTransmembranePotential;
 		double mStimulusCurrent;
+		// The total current crossing the membrane, Ii in:
+		// dV/dt=-(1/C)(Ii+Istim)
 		double mTotalIonicCurrent;
 	
 	public:

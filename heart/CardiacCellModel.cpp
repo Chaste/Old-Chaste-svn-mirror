@@ -1,8 +1,3 @@
-/**
- * CardiacCellModel.cpp
- * 
- * An  cardiac cell model.
- */
 #include "CardiacCellModel.hpp"
 
 /**
@@ -36,7 +31,9 @@ CardiacCellModel::~CardiacCellModel()
 }
 
 /**
- * Returns transmembrane potential
+ * Get transmembrane potential
+ * 
+ * @return double Current transmembrane potential
  */
 double CardiacCellModel::GetTransmembranePotential(void)
 {
@@ -44,7 +41,9 @@ double CardiacCellModel::GetTransmembranePotential(void)
 }
 
 /**
- * Returns stimulus current
+ * Get stimulus current
+ * 
+ * @return double Stimulus current
  */
 double CardiacCellModel::GetStimulusCurrent(void)
 {
@@ -52,7 +51,9 @@ double CardiacCellModel::GetStimulusCurrent(void)
 }
 
 /**
- * Returns total ionic current
+ * Get total ionic current
+ * 
+ * @return double Total ionic current crossing the membrane
  */
 double CardiacCellModel::GetTotalIonicCurrent(void)
 {

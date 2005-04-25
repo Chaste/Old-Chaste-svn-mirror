@@ -35,7 +35,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double f = 1;
         double x = 0.0056;
         double caI = 0.0002;
-        double magnitudeOfStimulus = -80.0;   
+        double magnitudeOfStimulus = -80.0;  
+        double durationOfStimulus  = 0.5 ;  // ms
         
         /*
          * Collect initial data in a vector
@@ -54,7 +55,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus); 
+        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function

@@ -1,8 +1,3 @@
-/**
- * IonicConcentration.cpp
- * 
- * An ionic concentration
- */
 #include "IonicConcentration.hpp"
 
 /**
@@ -33,8 +28,10 @@ void IonicConcentration::SetMagnitudeOfIonicConcentration(const double &rIonicCo
 
 /**
  * Get magnitude of ionic concentration 
+ * 
+ * @return double Magnitude of Ionic Concentration
  */
-double IonicConcentration::GetMagnitudeOfIonicConcentration()
+double IonicConcentration::GetMagnitudeOfIonicConcentration(void)
 {
     return mMagnitudeOfIonicConcentration;
 }
