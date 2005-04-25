@@ -21,68 +21,81 @@ class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELE
     
 private:
     LinearSystem *mpAssembledLinearSystem;
+    
+    static const int NUM_GAUSS_POINTS_PER_DIMENSION=2; // May want to define elsewhere
 
-public:
+	friend class TestSimpleLinearEllipticAssembler;
+
 	void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							MatrixDouble &rAel,
 							VectorDouble &rBel,
 							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
 							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction)
 	{
-		const int NUM_GAUSS_POINTS=2;
-		static GaussianQuadratureRule<SPACE_DIM> quad_rule(NUM_GAUSS_POINTS);
+		static GaussianQuadratureRule<SPACE_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		
-		const MatrixDouble *inverse_jacobian = rElement.GetInverseJacobian();
+		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 		double jacobian_determinant = rElement.GetJacobianDeterminant();
 		
-        // This assumes linear basis functions in 1d
-        int node1 = rElement.GetNodeGlobalIndex(0);
-        int node2 = rElement.GetNodeGlobalIndex(1);
-        
-        double x1 = rElement.GetNodeLocation(0,0);
-        double x2 = rElement.GetNodeLocation(1,0);
-		// std::cout << "X1= " << x1 << " X2= " << x2 << "\n";
-		for (int col=0; col<2; col++)
+		// Initialise element contributions to zero
+		const int num_nodes = rElement.GetNumNodes();
+		for (int row=0; row < num_nodes; row++)
 		{
-			for (int row=0; row<2; row++)
+			for (int col=0; col < num_nodes; col++)
 			{
-				rAel(row,col)=0.0;
-				for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+				rAel(row,col) = 0.0;
+			}
+			rBel(row) = 0.0;
+		}
+		
+		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+		{
+			Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
+
+			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+			                                    (quad_point, *inverseJacobian);
+
+			Point<SPACE_DIM> x(0,0,0);
+			for(int i=0; i<rElement.GetNumNodes(); i++)
+			{
+				for(int j=0; j<SPACE_DIM; j++)
 				{
-					Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
-					// TODO: extend above 1d
-					Point<SPACE_DIM> transformed_quad_point =
-						Point<SPACE_DIM>((1-quad_point[0])*x1 + quad_point[0]*x2);
-					double integrand_value=
-								pPde->ComputeDiffusionTerm(transformed_quad_point)(0,0)
-								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,row)(0)
-								 * (*inverse_jacobian)(0,0)
-								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,col)(0)
-								 * (*inverse_jacobian)(0,0);
+					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
+				}
+			}
+					
+			for (int row=0; row < num_nodes; row++)
+			{
+				for (int col=0; col < num_nodes; col++)
+				{
+
+				
+//					double integrand_value=
+//								pPde->ComputeDiffusionTerm(x)(0,0)
+//								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,row)(0)
+//								 * (*inverseJacobian)(0,0)
+//								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,col)(0)
+//								 * (*inverseJacobian)(0,0);
+					double integrand_value =
+						gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);
 								
 					rAel(row,col)+= integrand_value*jacobian_determinant
 									*quad_rule.GetWeight(quad_index);
 				}
-				
-			}
-			rBel(col)=0.0;
-			for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
-			{
-				Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
-				// TODO: extend above 1d
-				Point<SPACE_DIM> transformed_quad_point =
-					Point<SPACE_DIM>((1-quad_point[0])*x1 + quad_point[0]*x2);
-				double integrand_value=
-							pPde->ComputeLinearSourceTerm(transformed_quad_point)
-							* rBasisFunction.ComputeBasisFunction(quad_point,col);
+
+				// RHS
+				double integrand_value =
+							pPde->ComputeLinearSourceTerm(x) * phi[row];
 							
-				rBel(col)+= integrand_value*jacobian_determinant
-							*quad_rule.GetWeight(quad_index);
+				rBel(row) += integrand_value*jacobian_determinant
+							 *quad_rule.GetWeight(quad_index);
 			}
 		}
 	}							
 
 
+ public:
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
 //                       BoundaryConditionsContainer &rBoundaryConditions,
@@ -91,12 +104,17 @@ public:
 		// Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem	= new LinearSystem(rMesh.GetNumNodes());
         
-        MatrixDouble ael(2,2);
-        VectorDouble bel(2);
+        
         LinearBasisFunction<ELEMENT_DIM> basis_function;
         
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = rMesh.GetFirstElement();
+ 
+ 		// Assume all elements have the same number of nodes...
+ 		const int num_nodes = iter->GetNumNodes();
+ 		MatrixDouble ael(num_nodes,num_nodes);
+        VectorDouble bel(num_nodes);
+ 
         while (iter != rMesh.GetLastElement())
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
@@ -104,29 +122,38 @@ public:
             int node1 = element.GetNodeGlobalIndex(0);
             int node2 = element.GetNodeGlobalIndex(1);
             
-            double x1 = element.GetNodeLocation(0,0);
-            double x2 = element.GetNodeLocation(1,0);
             
             AssembleOnElement(element, ael, bel, pPde, basis_function);
             
-            mpAssembledLinearSystem->AddToMatrixElement(node1,node1,ael(0,0));
-            mpAssembledLinearSystem->AddToMatrixElement(node1,node2,ael(0,1));
-            mpAssembledLinearSystem->AddToMatrixElement(node2,node1,ael(1,0));
-            mpAssembledLinearSystem->AddToMatrixElement(node2,node2,ael(1,1));
+            for (int i=0; i<num_nodes; i++)
+            {
+            	int node1 = element.GetNodeGlobalIndex(i);
+            	for (int j=0; j<num_nodes; j++)
+            	{
+            		int node2 = element.GetNodeGlobalIndex(j);
+            		mpAssembledLinearSystem->AddToMatrixElement(node1,node2,ael(i,j));
+            	}
+            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(i));
+            }
+//            mpAssembledLinearSystem->AddToMatrixElement(node1,node2,ael(0,1));
+//            mpAssembledLinearSystem->AddToMatrixElement(node2,node1,ael(1,0));
+//            mpAssembledLinearSystem->AddToMatrixElement(node2,node2,ael(1,1));
             
-            mpAssembledLinearSystem->AssembleIntermediateMatrix();  
             
-            // Will depend on pPde->Compute(Linear|Nonlinear)SourceTerm
-            mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(0));
-            mpAssembledLinearSystem->AddToRhsVectorElement(node2,bel(1));      
+//            // Will depend on pPde->Compute(Linear|Nonlinear)SourceTerm
+//            mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(0));
+//            mpAssembledLinearSystem->AddToRhsVectorElement(node2,bel(1));      
          
             iter++;
         }
         
+
 //        for(int i=0; i<rBoundaryConditions.size(); i++)
 //        {
 //            rBoundaryConditions[i]->ApplyLinearBoundaryConditions(*mpAssembledLinearSystem);   
 //        }
+
+		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
 
 		mpAssembledLinearSystem->SetMatrixElement(0, 0, 1.0);
     	mpAssembledLinearSystem->SetMatrixElement(0, 1, 0.0);
