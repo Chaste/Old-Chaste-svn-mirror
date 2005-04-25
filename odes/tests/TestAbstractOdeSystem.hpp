@@ -18,11 +18,6 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 {
 	public:
 		
-	void testAddition(void)
-	{
-		TS_ASSERT( 1 + 1 > 1 );
-	}
-		
 	void TestOdeSystemOne(void)
 	{
 		std::vector<double> yInit(1);

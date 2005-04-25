@@ -15,15 +15,11 @@
 #include "TestOdeOrder.hpp"
 #include "TestOdeOrderSystem.hpp"
 #include "TestOdeOrderSystemOf3.hpp"
+#include "TestOde4.hpp"
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
     public:
-    
-    void testAddition( void )
-    {
-        TS_ASSERT( 1 + 1 > 1 );
-    }	
 	
 	void testEulerSolver()
 	{
@@ -377,6 +373,76 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);	
 		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);	
 		TS_ASSERT_DELTA(testvalueAdamsBashforth[2],exactSolution[2],GlobalErrorAdamsBashforth);
+		
+	}
+	
+	void testGlobalError2()
+	{
+		TestOde4* pMyOdeSystem = new TestOde4();
+		
+		int SystemSize=1;
+		
+		std::vector<double> yInit(SystemSize);
+		yInit[0] = 0.5;
+		double hValue=0.001;
+	
+		//Euler solver solution worked out	
+		EulerIvpOdeSolver* myEulerSolver = new EulerIvpOdeSolver;
+		OdeSolution solutionsEuler;
+		
+		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last = solutionsEuler.mNumberOfTimeSteps;
+		double testvalueEuler = solutionsEuler.mSolutions[last][0];
+		
+		//Runge Kutta 2 solver solution worked out	
+		RungeKutta2IvpOdeSolver* myRungeKutta2Solver = new RungeKutta2IvpOdeSolver;
+		OdeSolution solutionsRungeKutta2;
+		
+		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
+		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0];
+		
+		//Runge Kutta 4 solver solution worked out	
+		RungeKutta4IvpOdeSolver* myRungeKutta4Solver = new RungeKutta4IvpOdeSolver;
+		OdeSolution solutionsRungeKutta4;
+		
+		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
+		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last3][0];
+		
+		//Adams-Bashforth solver solution worked out	
+		AdamsBashforthIvpOdeSolver* myAdamsBashforthSolver = new AdamsBashforthIvpOdeSolver;
+		OdeSolution solutionsAdamsBashforth;
+		
+		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
+		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		double testvalueAdamsBashforth = solutionsAdamsBashforth.mSolutions[last4][0];
+		
+		// The tests
+		double alpha = 100;
+		double exactSolution=1/(1+exp(-alpha*2));
+				
+		double GlobalErrorEuler;
+		GlobalErrorEuler = 0.5*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueEuler,exactSolution,GlobalErrorEuler);
+		
+		double GlobalErrorRungeKutta2;
+		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta2,exactSolution,GlobalErrorRungeKutta2);
+		
+		double GlobalErrorRungeKutta4;
+		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorRungeKutta4);
+		
+		double GlobalErrorAdamsBashforth;
+		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+		TS_ASSERT_DELTA(testvalueAdamsBashforth,exactSolution,GlobalErrorAdamsBashforth);
+		
+		std::cout << "The exact solution at 2 is " << exactSolution <<"\n";
+		std::cout << "The Euler solution at 2 is " << testvalueEuler << "\n";
+		std::cout << "The RK2 solution at 2 is " << testvalueRungeKutta2 << "\n";
+		std::cout << "The RK4 solution at 2 is " << testvalueRungeKutta4 << "\n";
+		std::cout << "The Ad Bash solution at 2 is " << testvalueAdamsBashforth << "\n";
 		
 	}
 };
