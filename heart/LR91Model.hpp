@@ -7,25 +7,29 @@
 #include "OdeSolution.hpp"
 #include <iostream>
 
+/**
+ * LR91 Model 
+ */
 class LR91Model
 {
     private:
         LR91OdeFun *mpLR91OdeSystem;
-        double mV;
-        double mM;
-        double mH;
-        double mJ;
-        double mD;
-        double mF;
-        double mX;
-        double mCaI;
+//        double mV;
+//        double mM;
+//        double mH;
+//        double mJ;
+//        double mD;
+//        double mF;
+//        double mX;
+//        double mCaI;
     
         
     public:
         // Constructor
         // initializes the LR91Model with initial conditions!
-        LR91Model(double voltage, double m, double h, double j, double d, 
-                  double f, double x, double caI, AbstractStimulusFunction *pStimulus);
+//        LR91Model(double voltage, double m, double h, double j, double d, 
+//                  double f, double x, double caI, AbstractStimulusFunction *pStimulus);
+        LR91Model(AbstractStimulusFunction *pStimulus);
         // Destructor
         ~LR91Model();
         
@@ -34,6 +38,5 @@ class LR91Model
                               std::vector<double> initialConditions,
                               AbstractIvpOdeSolver *pAbstractOdeSolver);            
 };
- 
 
 #endif //_LR91MODEL_HPP_

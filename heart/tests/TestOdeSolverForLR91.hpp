@@ -65,7 +65,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */
-        LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
+        LR91Model *pLR91Model = new LR91Model(pStimulus);
         
         /*
          * Choose an ode solver
@@ -95,7 +95,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Write data to a file LRresult.dat
          */                                                           
-
+		
 
 
                                
@@ -144,7 +144,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
 //        /*
 //         * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
 //         */
-//        LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
+//        LR91Model *pLR91Model = new LR91Model(pStimulus);
 //        
 //        /*
 //         * Choose an ode solver
@@ -211,7 +211,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
 //        /*
 //         * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
 //         */
-//        LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
+//        LR91Model *pLR91Model = new LR91Model(pStimulus);
 //        
 //        /*
 //         * Choose an ode solver

@@ -1,8 +1,3 @@
-/**
- * SodiumCurrentLR91.cpp
- * 
- * INa, Fast sodium current.
- */
 #include "SodiumCurrentLR91.hpp"
 #include <cmath>
 
@@ -25,7 +20,7 @@ SodiumCurrentLR91::SodiumCurrentLR91()
     mBetaM = 0.0;
     mBetaH = 0.0;
     mBetaJ = 0.0;
-    mMagnitudeOfCurrent = 0.0; // Set to 0.0 initially, it's a variable of IonicCurrent class
+    mMagnitudeOfCurrent = 0.0; 
 }
 
 /**
@@ -38,6 +33,8 @@ SodiumCurrentLR91::~SodiumCurrentLR91()
 
 /**
  * Return value of m activation gate
+ * 
+ * @return double value of m gating variable
  */
 double SodiumCurrentLR91::GetM()
 {   
@@ -46,6 +43,8 @@ double SodiumCurrentLR91::GetM()
 
 /**
  * Return value of h inactivation gate
+ * 
+ * @return double value of h gating variable
  */
 double SodiumCurrentLR91::GetH()
 {   
@@ -54,6 +53,8 @@ double SodiumCurrentLR91::GetH()
 
 /**
  * Return value of j inactivation gate
+ * 
+ * @return  double value of j gating variable
  */
 double SodiumCurrentLR91::GetJ()
 {   
@@ -61,13 +62,12 @@ double SodiumCurrentLR91::GetJ()
 }
 
 /**
- * Update gating variables 
+ * Update alpha and beta voltage-dependent rate variables 
  * 
  * @param voltage Current transmembrane voltage
  */
 void SodiumCurrentLR91::UpdateAlphaAndBeta(double voltage)
 {
-    //updating alpha and beta voltage--dependent rate constants
     mAlphaM = 0.32 * (voltage + 47.13)/(1 - exp(-0.1*(voltage + 47.13)));
     mBetaM = 0.08 * exp(-voltage/11.0);
     
@@ -87,6 +87,14 @@ void SodiumCurrentLR91::UpdateAlphaAndBeta(double voltage)
     }
 }
 
+/**
+ * Set Gating variables
+ * 
+ * @param m  gating variable m 
+ * @param h  gating variable h
+ * @param j  gating variable j 
+ */
+
 void SodiumCurrentLR91::SetGatingVariables(double m, double h, double j)
 {  
     mM = m;
@@ -98,14 +106,13 @@ void SodiumCurrentLR91::SetGatingVariables(double m, double h, double j)
  * Update magnitude of current, INa.
  * 
  * @param voltage Current transmembrane voltage
+ * @param m  gating variable m 
+ * @param h  gating variable h
+ * @param j  gating variable j
  */
 void SodiumCurrentLR91::UpdateMagnitudeOfCurrent(double voltage, double m, double h, double j)
 {   
-    SetGatingVariables(m, h, j);
-    
-    // checking how beta is updated
-    //std::cout << "\n"<< "mBetaM is equal to " <<mBetaM<<std::endl;
-    
+    SetGatingVariables(m, h, j);         
     mMagnitudeOfCurrent = gNa * pow(mM, 3) * mH * mJ * (voltage - eNa);
 } 
 
@@ -116,6 +123,8 @@ void SodiumCurrentLR91::UpdateMagnitudeOfCurrent(double voltage, double m, doubl
  * @param m       Current value for m gating variable
  * @param h       Current value for h gating variable
  * @param j       Current value for j gating variable
+ * 
+ * @return double  rhs of m' ODE 
  */ 
 double SodiumCurrentLR91::ComputeMPrime(double voltage, double m, double h, double j)
 {    
@@ -131,6 +140,8 @@ double SodiumCurrentLR91::ComputeMPrime(double voltage, double m, double h, doub
  * @param m       Current value for m gating variable
  * @param h       Current value for h gating variable
  * @param j       Current value for j gating variable
+ * 
+ * @return double rhs of h' ODE
  */ 
 double SodiumCurrentLR91::ComputeHPrime(double voltage, double m, double h, double j)
 {    
@@ -146,6 +157,8 @@ double SodiumCurrentLR91::ComputeHPrime(double voltage, double m, double h, doub
  * @param m       Current value for m gating variable
  * @param h       Current value for h gating variable
  * @param j       Current value for j gating variable
+ * 
+ * @return double rhs of j' ODE
  */ 
 double SodiumCurrentLR91::ComputeJPrime(double voltage, double m, double h, double j)
 {       

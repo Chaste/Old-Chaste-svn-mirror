@@ -5,9 +5,13 @@
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
+/**
+ * LR91 Plateau potassium current, IKp.
+ */
 class PlateauPotassiumCurrentLR91 : public IonicCurrent
 {
     private:
+    	// Kp is a voltage dependent term in the equation for IKp.
         double mKp;
           
     public:

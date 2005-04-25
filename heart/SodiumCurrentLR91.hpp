@@ -5,6 +5,11 @@
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
+/**
+ * LR91 Fast Sodium Current INa
+ * 
+ */
+
 class SodiumCurrentLR91 : public IonicCurrent
 {
     private:

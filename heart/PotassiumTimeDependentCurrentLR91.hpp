@@ -5,6 +5,9 @@
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
+/**
+ * LR91 Time dependent potassium current, Ik.
+ */
 class PotassiumTimeDependentCurrentLR91 : public IonicCurrent
 {
     private:
@@ -12,6 +15,7 @@ class PotassiumTimeDependentCurrentLR91 : public IonicCurrent
         double mX;
         double mAlphaX;
         double mBetaX;
+        // Xi is a voltage dependent term
         double mXi;
           
     public:

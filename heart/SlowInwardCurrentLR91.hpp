@@ -4,13 +4,16 @@
 #include "IonicCurrent.hpp"
 #include "ConstantsLR91.hpp"
 #include <iostream>
-
+/**
+ *LR91 Slow Inward Current ISi.
+ */
 class SlowInwardCurrentLR91 : public IonicCurrent
 {
     private:
-        // gating variable
+        // gating variables
         double mD;
         double mF;
+        // Nernst Potential for Calcium 
         double mESi;
         double mAlphaD;
         double mAlphaF;
@@ -27,7 +30,7 @@ class SlowInwardCurrentLR91 : public IonicCurrent
         void UpdateMagnitudeOfCurrent(double voltage, double d, double f, double caI);
         void UpdateAlphaAndBeta(double voltage);
         void SetGatingVariables(double d, double f);
-        // Update Nerst potential that depends on Cai
+        //Update Nerst potential 
         void UpdateESi(double caI);
         double ComputeDPrime(double voltage, double d, double f);
         double ComputeFPrime(double voltage, double d, double f);        

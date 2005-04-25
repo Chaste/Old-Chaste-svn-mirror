@@ -15,9 +15,13 @@
 #include <iostream>
 #include <vector>
 
+/**
+ * This class sets up the Lou-Rudy 91 system of equations.
+ */
 class LR91OdeFun : public AbstractOdeSystem
 {
     private:
+    	// Current and voltage components (objects) of the LR91 model
         TransmembranePotentialLR91 *mpV;
         SodiumCurrentLR91  *mpINa;
         BackgroundCurrentLR91 *mpIB;
@@ -32,11 +36,10 @@ class LR91OdeFun : public AbstractOdeSystem
         // Constructor
         LR91OdeFun(AbstractStimulusFunction *stimulus);
         // Destructor
-        ~LR91OdeFun();
+        ~LR91OdeFun(void);
         
-        // This mehtod will compute the RHS of the Luo--Rudy model
+        // This method will compute the RHS of the Luo-Rudy 91 model
         std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
-
 };
  
 #endif //_LR91ODEFUN_HPP_

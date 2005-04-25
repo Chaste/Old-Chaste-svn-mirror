@@ -1,8 +1,3 @@
-/**
- * SlowInwardCurrentLR91.cpp
- * 
- * ISi.
- */
 #include "SlowInwardCurrentLR91.hpp"
 #include <cmath>
 
@@ -18,7 +13,7 @@ SlowInwardCurrentLR91::SlowInwardCurrentLR91()
     mAlphaF = 0.0;
     mBetaD = 0.0;
     mBetaF = 0.0;
-    mMagnitudeOfCurrent = 0.0; // Set to 0.0 initially, its a variable of IonicCurrent class
+    mMagnitudeOfCurrent = 0.0; 
 }
 
 /**
@@ -30,7 +25,9 @@ SlowInwardCurrentLR91::~SlowInwardCurrentLR91()
 }
 
 /**
- * Return value of d gate
+ * Get value of d gating variable
+ * 
+ * @return double value of d gate
  */
 double SlowInwardCurrentLR91::GetD()
 {   
@@ -38,7 +35,9 @@ double SlowInwardCurrentLR91::GetD()
 }
 
 /**
- * Return value of f gate
+ * Get value of f gating variable
+ * 
+ * @return  double value of f gate
  */
 double SlowInwardCurrentLR91::GetF()
 {   
@@ -48,7 +47,7 @@ double SlowInwardCurrentLR91::GetF()
 
 
 /**
- * Update voltage-dependent rate constants, alpha and beta
+ * Update voltage-dependent rate  variables, alpha and beta
  * 
  * @param voltage Current transmembrane voltage
  */
@@ -102,6 +101,8 @@ void SlowInwardCurrentLR91::UpdateMagnitudeOfCurrent(double voltage, double d, d
  * @param voltage Current transmembrane potential
  * @param d       Current value for d gating variable
  * @param f       Current value for f gating variable
+ * 
+ * @return double rhs of Y'
  */
 double SlowInwardCurrentLR91::ComputeDPrime(double voltage, double d, double f)
 {    
@@ -116,6 +117,8 @@ double SlowInwardCurrentLR91::ComputeDPrime(double voltage, double d, double f)
  * @param voltage Current transmembrane potential
  * @param d       Current value for d gating variable
  * @param f       Current value for f gating variable
+ * 
+ * @return double rhs of f'
  */
 double SlowInwardCurrentLR91:: ComputeFPrime(double voltage, double d, double f)
 {    

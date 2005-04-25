@@ -4,10 +4,14 @@
 #include "ConstantsLR91.hpp"
 #include <iostream>
 
+/**
+ * LR91 Time independent potassium current, IK1.
+ */
 class PotassiumTimeIndependentCurrentLR91 : public IonicCurrent
 {
     private:
-        double mK1; // K1 inactivation gate, do not have to solve K1'!
+	    // K1 inactivation gate, do not have to solve K1'!
+        double mK1; 
         double mAlphaK1;
         double mBetaK1;
           

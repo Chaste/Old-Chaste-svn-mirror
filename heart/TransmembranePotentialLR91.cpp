@@ -1,8 +1,3 @@
-/**
- * TransmembranePotentialLR91.cpp
- * 
- * Voltage
- */
 #include "TransmembranePotentialLR91.hpp"
 #include <cmath>
 
@@ -12,7 +7,7 @@
  */
 TransmembranePotentialLR91::TransmembranePotentialLR91()
 {   
-  //  mV = 0.0;
+  //Do nothing
 }
 
 /**
@@ -23,18 +18,15 @@ TransmembranePotentialLR91::~TransmembranePotentialLR91()
     // Do nothing
 }
 
-//
-//
-//void TransmembranePotentialLR91::SetTransmembranePotential(double voltage)
-//{
-//    mV = voltage;
-//}
+
 
 /**
- * Compute VPrime
+ * Compute V'
  * 
- * @param voltage Current transmembrane voltage
- * @param ITotal  total ionic current
+ * @param iStim   Stimulus Current
+ * @param iTotal  total ionic current
+ * 
+ * @return double RHS of V'
  */
 double TransmembranePotentialLR91::ComputeVPrime(double iStim, double iTotal)
 {   
