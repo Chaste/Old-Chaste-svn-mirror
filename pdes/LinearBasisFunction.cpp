@@ -4,6 +4,7 @@
 
 #include "LinearBasisFunction.hpp"
 #include "Point.hpp"
+#include "MatrixDouble.hpp"
 #include <cassert>
 
 
@@ -74,7 +75,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
 
 
 /**
- * Compute the derivative of a basis function at a point within an element.
+ * Compute the derivative of a basis function at a point within an canonical element.
  * 
  * @param point The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
@@ -196,5 +197,23 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
 
     return basisGradValues;    
 }
+
+
+template <int ELEM_DIM>
+std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> psi, MatrixDouble inverseJacobian)
+{
+    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(inverseJacobian.Rows()==inverseJacobian.Columns());
+    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(psi);
+  	std::vector<VectorDouble> transformedGradValues;
+    
+    for(int i=0;i<ELEM_DIM+1;i++)
+    {
+        transformedGradValues.push_back( inverseJacobian*basisGradValues[i] );
+    }
+
+    return transformedGradValues;    	
+}
+
 
 #endif // _LINEARBASISFUNCTION_CPP_

@@ -3,7 +3,6 @@
 
 #include "AbstractBasisFunction.hpp"
 #include "Point.hpp"
-
 template <int ELEM_DIM>
 class LinearBasisFunction : public AbstractBasisFunction<ELEM_DIM>
 {
@@ -16,6 +15,8 @@ public:
     std::vector<double>       ComputeBasisFunctions(Point<ELEM_DIM> psi);
     std::vector<VectorDouble> ComputeBasisFunctionDerivatives(Point<ELEM_DIM> psi);
  
+ 	std::vector<VectorDouble> ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> psi, 
+ 	                                                                     MatrixDouble inverseJacobian);
     
 };
 

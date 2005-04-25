@@ -124,6 +124,53 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[3](0),  0, 1e-12);
 	}
 	
+	
+	void testComputeTransformedBasisFunctionDerivatives( void )
+	{
+		// 1D
+		LinearBasisFunction<1> basis_func;
+		Point<1> one(1);
+		
+		MatrixDouble invJ(1,1);
+		invJ(0,0)=0.5;
+
+		std::vector<VectorDouble> transDeriv = basis_func.ComputeTransformedBasisFunctionDerivatives(one,invJ);
+
+		TS_ASSERT_EQUALS(transDeriv.size(), 2);
+		TS_ASSERT_DELTA(transDeriv[0](0), -0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv[1](0),  0.5, 1e-12);
+		
+		LinearBasisFunction<2> basis_func2;
+		Point<2> oneone(1,1);
+		
+		MatrixDouble invJ2(2,2);
+		invJ2(0,0)=0.5;
+		invJ2(1,1)=0.5;
+
+		std::vector<VectorDouble> transDeriv2 = basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone,invJ2);
+		
+		TS_ASSERT_EQUALS(transDeriv2.size(), 3);
+		TS_ASSERT_DELTA(transDeriv2[0](0), -0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv2[1](0),  0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv2[2](0),    0, 1e-12);
+
+		LinearBasisFunction<3> basis_func3;
+		Point<3> oneoneone(1,1,1);
+		
+		MatrixDouble invJ3(3,3);
+		invJ3(0,0)=0.5;
+		invJ3(1,1)=0.5;
+		invJ3(2,2)=0.5;
+		
+		std::vector<VectorDouble> transDeriv3 = basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,invJ3);
+
+		TS_ASSERT_EQUALS(transDeriv3.size(), 4);
+		TS_ASSERT_DELTA(transDeriv3[0](0), -0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3[1](0),  0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3[2](0),    0, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3[3](0),    0, 1e-12);
+				
+	}
 };
 
 #endif //_TESTLINEARBASISFUNCTION_HPP_
