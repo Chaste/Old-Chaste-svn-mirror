@@ -110,7 +110,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             Element<1,1> element(element_nodes);
             mesh.AddElement(element);
             right_hand_node = left_hand_node;
-            std::cout << "Node value " << -1.0-(2.0*i/num_elements) << "\n";
         }
         std::vector<Node<1>*> element_nodes;
         Node<1> *left_hand_node = new Node<1>(num_elements, true, -3.0);
