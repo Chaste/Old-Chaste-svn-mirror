@@ -2,6 +2,7 @@
 #define _NODE_HPP_
 
 #include "Point.hpp"
+#include <iostream>
 
 template<int SPACE_DIM>
 class Node

@@ -47,7 +47,6 @@ public:
 	 * @param createJacobian Whether to create the Jacobian matrix for mapping
 	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
 	 *     Currently only works for non-sub-elements with straight edges.
-	 *     Also only implemented in 1 element and space dimension.
 	 */
     Element(std::vector<Node<SPACE_DIM>*> nodes,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
@@ -70,23 +69,20 @@ public:
     	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
-    		if (ELEMENT_DIM == 1 && SPACE_DIM == 1)
+    		if (ELEMENT_DIM ==  SPACE_DIM)
     		{
     			// TODO: Jacobian for sub-elements    
-    			mpJacobian = new MatrixDouble(1,1);
-    			mpInverseJacobian = new MatrixDouble(1,1);
+    			mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
+    			mpInverseJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
     			
-		        for(int i=0; i<1; i++)
+		        for(int i=0; i<SPACE_DIM; i++)
 		        {
-		            for(int j=0; j<1; j++)
-		            {    
-		                //loop over corner nodes
-		                for(int node=0; node<1+1; node++)
-		                {
-		                    (*mpJacobian)(i,j) = GetNodeLocation(1,0) - GetNodeLocation(0,0);
-		                }
-		            }            
+		            for(int j=0; j<SPACE_DIM; j++)
+		            {		                
+	                    (*mpJacobian)(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
+		            }
 		        }
+		       
 		        *mpInverseJacobian   = mpJacobian->Inverse();
 		        mJacobianDeterminant = mpJacobian->Determinant();
     		}
@@ -260,10 +256,18 @@ public:
     	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
-    		mpJacobian = new MatrixDouble(1,1);
-    		mpInverseJacobian = new MatrixDouble(1,1);
-			(*mpJacobian)(0,0) = 1.0;
-			(*mpInverseJacobian)(0,0) = 1.0;
+    		mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
+    		mpInverseJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
+    		for (int i=0; i<SPACE_DIM; i++)
+    		{
+    			for (int j=0; j<SPACE_DIM; j++)
+    			{
+					(*mpJacobian)(i,j) = 0.0;
+					(*mpInverseJacobian)(i,j) = 0.0;
+    			}
+    			(*mpJacobian)(i,i) = 1.0;
+				(*mpInverseJacobian)(i,i) = 1.0;
+    		}
 			mJacobianDeterminant = 1.0;
     	}
     }
