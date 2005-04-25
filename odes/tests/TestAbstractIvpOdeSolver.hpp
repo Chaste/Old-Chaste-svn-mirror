@@ -437,13 +437,6 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		double GlobalErrorAdamsBashforth;
 		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
 		TS_ASSERT_DELTA(testvalueAdamsBashforth,exactSolution,GlobalErrorAdamsBashforth);
-		
-		std::cout << "The exact solution at 2 is " << exactSolution <<"\n";
-		std::cout << "The Euler solution at 2 is " << testvalueEuler << "\n";
-		std::cout << "The RK2 solution at 2 is " << testvalueRungeKutta2 << "\n";
-		std::cout << "The RK4 solution at 2 is " << testvalueRungeKutta4 << "\n";
-		std::cout << "The Ad Bash solution at 2 is " << testvalueAdamsBashforth << "\n";
-		
 	}
 };
 
