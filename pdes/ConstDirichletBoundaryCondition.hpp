@@ -12,7 +12,7 @@ private :
 public :
 	ConstDirichletBoundaryCondition(double value) : mValue(value) {};
 	
-	double GetValue(Point<SPACE_DIM> x)
+	double GetValue( const Point<SPACE_DIM> x) const
     {
    		return mValue;
     }

@@ -48,8 +48,9 @@ private:
 public:
 	void setUp()
     {
-        PetscInitialize(0,NULL,0,0);
+       PetscInitialize(0,NULL,0,0);
     }	
+    
 	void testSetGet()
 	{
 		//////////////////////////////////////////////////////////////
@@ -161,6 +162,7 @@ public:
 	
 	void TestApplyToLinearSystem( void )
 	{
+		PetscInitialize(0,NULL,0,0);
 		LinearSystem some_system(10);
 		for(int i = 0; i < 10; i++)
 		{
@@ -199,42 +201,29 @@ public:
 		}
         TS_ASSERT_DELTA(solution_elements[9], 11.0, 0.000001);				
 	}
-	
-	/*
-	void DONOTTestDefineZeroDirichletOnMeshBoundary()
-	{
-		ConformingTetrahedralMesh<3,3>* pMesh = new ConformingTetrahedralMesh<3,3>;
 
-		Node<3>* nodes[20];
+	void TestDefineZeroDirichletOnMeshBoundary()
+	{ 
+		ConformingTetrahedralMesh<3,3>* pMesh = new ConformingTetrahedralMesh<3,3>;
 		
 		// add 10 boundary nodes
 		for(int i=0; i<10; i++)
 		{
-			nodes[i] = new Node<3>(i,true,i,i,i);
-			pMesh->AddNode(*nodes[i]);
-		}	
-		
-		// add 10 non-boundary nodes
-		for(int i=10; i<20; i++)
-		{
-			nodes[i] = new Node<3>(i,false,i,i,i);
-			pMesh->AddNode(*nodes[i]);
+			pMesh->AddNode(Node<3>(i,true,i,i,i));
 		}
 		
-		for(int i=0;i<20;i++)
-		{
-			std::cout << i  << "  " << pMesh->GetNodeAt(i).GetIndex() << " " << pMesh->GetNodeAt(i).IsBoundaryNode() << "\n";
-		}
-	
+		//TS_ASSERT_EQUALS(&(pMesh->GetNodeAt(0)), nodes[0]); // Fails :(
+
 		BoundaryConditionsContainer<3,3> bcc;
 		bcc.DefineZeroDirichletOnMeshBoundary(pMesh);
+		
 		for(int i=0; i<10; i++)
 		{
-			double value = bcc.GetDirichletBCValue(nodes[i]);
+			double value = bcc.GetDirichletBCValue(&(pMesh->GetNodeAt(i)));
 			TS_ASSERT_DELTA(value,0,1e-12);
 		}				
-	}
-	*/
+	}	
 };
+
 
 #endif //_TESTBOUNDARYCONDITIONCONTAINER_HPP_

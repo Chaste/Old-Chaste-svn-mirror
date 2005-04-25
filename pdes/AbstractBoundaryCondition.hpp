@@ -7,8 +7,8 @@ template<int SPACE_DIM>
 class AbstractBoundaryCondition
 {
 public:
-    virtual double GetValue(Point<SPACE_DIM> x) = 0;
+//TODO:?	virtual ~AbstractBoundaryCondition() {}
+	virtual double GetValue(const Point<SPACE_DIM> x) const = 0;
 };
-
 
 #endif //_ABSTRACTDIRICHLETBOUNDARYCONDITION_HPP_

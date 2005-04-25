@@ -23,6 +23,8 @@ public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> >::const_iterator MeshIterator;
 private:
 
+	// Note that since these are vectors of objects, not pointers, push_back
+	// will copy the objects.
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> > mElements;    
     std::vector<Node<SPACE_DIM> > mNodes;
     
@@ -38,8 +40,8 @@ public:
     
     void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
     
-    void AddElement(Element<ELEMENT_DIM, SPACE_DIM>& rNewElement);
-    void AddNode(Node<SPACE_DIM>& rNewNode);
+    void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement);
+    void AddNode(Node<SPACE_DIM> newNode);
     
     //void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,std::vector<int> boundaryElementIndices);
     //void AddNode(Node<SPACE_DIM> newNode ,bool isBoundaryNode);

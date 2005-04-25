@@ -57,16 +57,16 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 //}
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(Element<ELEMENT_DIM, SPACE_DIM>& rNewElement)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement)
 {
-    mElements.push_back(rNewElement);
+    mElements.push_back(newElement);
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM>& rNewNode)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> newNode)
 {
-	rNewNode.SetIndex(mNodes.size());
-    mNodes.push_back(rNewNode);
+	newNode.SetIndex(mNodes.size());
+    mNodes.push_back(newNode);
 }
 //template<int ELEMENT_DIM, int SPACE_DIM>
 //void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,
