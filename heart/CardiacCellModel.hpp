@@ -4,7 +4,7 @@
 /**
  * A basic cardiac cell model.
  * 
- * *** Don't think this class is being used! ***
+ * *** This class is currently redundant, but may be used in the future  ***
  */
 class CardiacCellModel
 {
