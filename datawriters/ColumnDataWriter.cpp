@@ -161,7 +161,8 @@ void ColumnDataWriter::EndDefineMode()
     {
         if(mIsFixedDimensionSet)
         {
-            mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + 1) -1; 
+            mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + SPACING); 
+            mAncillaryRowWidth = FIELD_WIDTH + SPACING; 
             //write out the headers for the first position along the unlimited dimension
             std::stringstream suffix;
             suffix << mUnlimitedDimensionPosition;
@@ -183,11 +184,12 @@ void ColumnDataWriter::EndDefineMode()
                 }
                 (*mpCurrentAncillaryFile) << std::endl;
             }
+            mAncillaryRowStartPosition = mpCurrentAncillaryFile->tellp();
             this->CreateFixedDimensionFile(filepath);
         }
         else
         {
-            mRowWidth = (mVariables.size() + unlimited_dimension_variable)  * (FIELD_WIDTH + 1) -1; 
+            mRowWidth = (mVariables.size() + unlimited_dimension_variable)  * (FIELD_WIDTH + SPACING); 
             //write out the column headers
             std::string filepath = mDirectory + "/" + mBaseName + ".dat";
             mpCurrentOutputFile = new std::ofstream(filepath.c_str(), std::ios::out);
@@ -220,7 +222,7 @@ void ColumnDataWriter::EndDefineMode()
     else //The fixed dimension must be set at this point or we wouldn't be here
     {
         assert(mIsFixedDimensionSet);
-        mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + 1) -1; 
+        mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + SPACING); 
         std::string filepath = mDirectory + "/" + mBaseName + ".dat";
         this->CreateFixedDimensionFile(filepath);
     }
@@ -347,7 +349,16 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
         {
             //go to the correct position in the file
             if(variableID == UNLIMITED_DIMENSION_VAR_ID)
-            {
+            {            	
+
+                if(variableValue >= 0)
+                {
+                     (*mpCurrentAncillaryFile) << "  ";
+                }
+                else //negative variable value has extra minus sign
+                {
+                     (*mpCurrentAncillaryFile) << " ";
+                }
                 mpCurrentAncillaryFile->width(FIELD_WIDTH);
                 (*mpCurrentAncillaryFile) << variableValue << std::endl;
             }
@@ -356,16 +367,24 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
                 int position;
                 if(variableID == FIXED_DIMENSION_VAR_ID)
                 {
-                    position = mRowStartPosition + (mRowWidth+1) * dimensionPosition;
+                    position = mRowStartPosition + (mRowWidth+1) * dimensionPosition + SPACING;
                 }
                 else
                 {
                     position = mRowStartPosition + (mRowWidth+1) * dimensionPosition + 
-                        ((variableID + (mpFixedDimensionVariable != NULL))* (FIELD_WIDTH + 1));
+                        ((variableID + (mpFixedDimensionVariable != NULL))* (FIELD_WIDTH + SPACING)) + SPACING;
                 }
             
-                mpCurrentOutputFile->seekp(position);
-                mpCurrentOutputFile->width(FIELD_WIDTH);
+	            if(variableValue >= 0)
+	            {
+	                mpCurrentOutputFile->seekp(position);               
+	                mpCurrentOutputFile->width(FIELD_WIDTH);
+	            }
+	            else //negative variable value has extra minus sign
+	            {
+	                mpCurrentOutputFile->seekp(position-1);               
+	                mpCurrentOutputFile->width(FIELD_WIDTH);
+	            }
                 (*mpCurrentOutputFile) << variableValue;
             }
         }
@@ -374,15 +393,24 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
             //go to the correct position in the file
             int position;
             if(variableID == UNLIMITED_DIMENSION_VAR_ID)
-            {
-                position = mRowStartPosition;
+            {            	
+                position = mRowStartPosition + SPACING;
             }
             else
             {
-                position = (variableID + (mpUnlimitedDimensionVariable != NULL)) * (FIELD_WIDTH + 1) + mRowStartPosition;
+                position = (variableID + (mpUnlimitedDimensionVariable != NULL)) * (FIELD_WIDTH + SPACING) + mRowStartPosition + SPACING;
             }
-            mpCurrentOutputFile->seekp(position);
-            mpCurrentOutputFile->width(FIELD_WIDTH);
+            
+            if(variableValue >= 0)
+            {
+                mpCurrentOutputFile->seekp(position);               
+                mpCurrentOutputFile->width(FIELD_WIDTH);
+            }
+            else //negative variable value has extra minus sign
+            {
+                mpCurrentOutputFile->seekp(position-1);               
+                mpCurrentOutputFile->width(FIELD_WIDTH);
+            }
             (*mpCurrentOutputFile) << variableValue;
         }
     }
@@ -392,14 +420,24 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
         int position;
         if(variableID == FIXED_DIMENSION_VAR_ID)
         {
-            position = mRowStartPosition + (mRowWidth+1) * dimensionPosition;
+            position = mRowStartPosition + (mRowWidth+1) * dimensionPosition + SPACING;
         }
         else
         {
-            position = mRowStartPosition + (mRowWidth+1) * dimensionPosition + ((variableID + (mpFixedDimensionVariable != NULL))* (FIELD_WIDTH + 1));
+            position = mRowStartPosition + (mRowWidth+1) * dimensionPosition + 
+            		   ((variableID + (mpFixedDimensionVariable != NULL))* (FIELD_WIDTH + SPACING)) + SPACING;
         }
-        mpCurrentOutputFile->seekp(position);
-        mpCurrentOutputFile->width(FIELD_WIDTH);
+        if(variableValue >= 0)
+        {
+            mpCurrentOutputFile->seekp(position);               
+            mpCurrentOutputFile->width(FIELD_WIDTH);
+        }
+        else //negative variable value has extra minus sign
+        {
+            mpCurrentOutputFile->seekp(position-1);               
+            mpCurrentOutputFile->width(FIELD_WIDTH);
+        }
+
         (*mpCurrentOutputFile) << variableValue;
 
     }

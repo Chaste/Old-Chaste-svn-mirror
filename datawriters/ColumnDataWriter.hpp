@@ -38,6 +38,7 @@ private:
     std::ofstream *mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) */
 
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
+    static const int SPACING = 2; /**< Space between columns (includes minus sign) */
     static const int FIXED_DIMENSION_VAR_ID = -1; /**< id of fixed dimension variable */
     static const int UNLIMITED_DIMENSION_VAR_ID = -2;/**< id of unlimited dimension variable */
 
@@ -46,7 +47,11 @@ private:
     int mRowStartPosition; /**< The position of the file pointer when its at the beginning of the current row*/
     int mRowWidth; /**< The width in characters of a row in the file */
 
+    int mAncillaryRowStartPosition; /**< The position of the ancillary file pointer when it's at the beginning of the current row*/
+    int mAncillaryRowWidth; /**< The width in characters of a row in the ancillary file */
+
     void CreateFixedDimensionFile(std::string filepath);
+    
 public:
 
     ColumnDataWriter(std::string directory, std::string baseName);

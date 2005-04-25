@@ -110,6 +110,34 @@ public:
         //TODO: compare output with testcompare.dat
         
     }
+    
+    
+    // Note to Dan: Gary wrote this one, it might not work.
+    void testPutVariableInUnlimitedNegativeFile( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testunlimitednegative"));
+        int time_var_id = 0;
+        int ina_var_id = 0;
+        int ik_var_id = 0;
+        int ica_var_id = 0;
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
+        //TS_TRACE("Here");
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        int i = 12;
+
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) -i));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
+        mpTestWriter->AdvanceAlongUnlimitedDimension();
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
+        mpTestWriter->Close();
+        
+    }
 
     void testPutVariableInFixedFile( void )
     {
@@ -135,6 +163,34 @@ public:
         mpTestWriter->PutVariable(ica_var_id, 63.124,2);
         mpTestWriter->PutVariable(node_var_id, 1,0);
         mpTestWriter->PutVariable(node_var_id, 4,3);
+        mpTestWriter->Close();
+    }
+    
+    
+    void testPutNegativeVariableInFixedFile( void )
+    {
+
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testfixed_negatives"));
+        int node_var_id = 0;
+        int ina_var_id = 0;
+        int ik_var_id = 0;
+        int ica_var_id = 0;
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
+        TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+        int i = 12;
+
+        mpTestWriter->PutVariable(ina_var_id, (double) i,0);
+        mpTestWriter->PutVariable(ina_var_id, (double) -i,1);
+        mpTestWriter->PutVariable(ica_var_id, -33.124,3);
+        mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
+        mpTestWriter->PutVariable(ica_var_id, -63.124,2);
+        mpTestWriter->PutVariable(node_var_id, 1,0);
+        mpTestWriter->PutVariable(node_var_id, -4,3);
         mpTestWriter->Close();
     }
     
@@ -188,9 +244,9 @@ public:
         ifstream goodfile("data/testfixed_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
-        while(getline(testfile, teststring))
+        while(getline(goodfile, goodstring))
         {
-              getline(goodfile,goodstring);
+              getline(testfile,teststring);
               TS_ASSERT_EQUALS(teststring,goodstring);
         }
         testfile.close();
@@ -203,9 +259,9 @@ public:
         ifstream goodfile("data/testfixedandunlimitedTime_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
-        while(getline(testfile, teststring))
+        while(getline(goodfile, goodstring))
         {
-              getline(goodfile,goodstring);
+              getline(testfile,teststring);
               TS_ASSERT_EQUALS(teststring,goodstring);
         }
         testfile.close();
@@ -218,9 +274,9 @@ public:
         ifstream goodfile("data/testfixedandunlimited_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
-        while(getline(testfile, teststring))
+        while(getline(goodfile, goodstring))
         {
-              getline(goodfile,goodstring);
+              getline(testfile,teststring);
               TS_ASSERT_EQUALS(teststring,goodstring);
         }
         testfile.close();
@@ -233,14 +289,45 @@ public:
         ifstream goodfile("data/testunlimited_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
-        while(getline(testfile, teststring))
+        while(getline(goodfile, goodstring))
         {
-              getline(goodfile,goodstring);
+              getline(testfile,teststring);
               TS_ASSERT_EQUALS(teststring,goodstring);
         }
         testfile.close();
         goodfile.close();
         
     }
+    
+    //Gary wrote these two
+    void testUnlimitedNegativeFilesMatch( void )
+    {
+        ifstream testfile("data/testunlimitednegative.dat",ios::in);
+        ifstream goodfile("data/testunlimitednegative_good.dat",ios::in);
+        std::string teststring;
+        std::string goodstring;
+        while(getline(goodfile, goodstring))
+        {
+              getline(testfile,teststring);
+              TS_ASSERT_EQUALS(teststring,goodstring);
+        }
+        testfile.close();
+        goodfile.close();
+	}
+	
+	void testFixedNegativeFilesMatch( void )
+    {
+        ifstream testfile("data/testfixed_negatives.dat",ios::in);
+        ifstream goodfile("data/testfixed_negatives_good.dat",ios::in);
+        std::string teststring;
+        std::string goodstring;
+        while(getline(goodfile, goodstring))
+        {
+              getline(testfile,teststring);
+              TS_ASSERT_EQUALS(teststring,goodstring);
+        }
+        testfile.close();
+        goodfile.close();
+	}
     
 };

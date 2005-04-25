@@ -20,7 +20,7 @@ public:
     virtual int  DefineVariable(std::string variableName, std::string variableUnits) = 0;     
     virtual void EndDefineMode() = 0;
     virtual void AdvanceAlongUnlimitedDimension() = 0;
-    virtual void PutVariable(int variableID, double variableValue, long dimensionPosition) = 0;
+    virtual void PutVariable(int variableID, double variableValue, long dimensionPosition=-1) = 0;
     virtual void Close() = 0;
 
 };
