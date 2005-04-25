@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "BoundaryConditionsContainer.hpp"
-#include "ConstDirichletBoundaryCondition.hpp"
+#include "ConstBoundaryCondition.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
 #include "ConformingTetrahedralMesh.hpp"
@@ -63,7 +63,7 @@ public:
 		for(int i=0; i<numNodes; i++)
 		{
 			nodes[i] = new Node<1>(i,true,0);
-			ConstDirichletBoundaryCondition<1>* pBoundaryCondition = new ConstDirichletBoundaryCondition<1>((double)i);
+			ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>((double)i);
 			bcc1.AddDirichletBoundaryCondition(nodes[i], pBoundaryCondition);						
 		}
 
@@ -78,7 +78,7 @@ public:
 		for(int i=0; i<numElem; i++)
 		{
 			elements[i] = Create0DElement(i);
-			ConstDirichletBoundaryCondition<1>* pBoundaryCondition = new ConstDirichletBoundaryCondition<1>((double)i);
+			ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>((double)i);
 			bcc1.AddNeumannBoundaryCondition(elements[i], pBoundaryCondition);						
 		}
 		
@@ -98,7 +98,7 @@ public:
 		for(int i=0; i<numNodes; i++)
 		{
 			nodes2[i] = new Node<2>(i,true,0,0);
-			ConstDirichletBoundaryCondition<2>* pBoundaryCondition = new ConstDirichletBoundaryCondition<2>((double)i);
+			ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>((double)i);
 			bcc2.AddDirichletBoundaryCondition(nodes2[i], pBoundaryCondition);						
 		}
 
@@ -113,7 +113,7 @@ public:
 		for(int i=0; i<numElem; i++)
 		{
 			elements2[i] = Create1DElement(i);
-			ConstDirichletBoundaryCondition<2>* pBoundaryCondition = new ConstDirichletBoundaryCondition<2>((double)i);
+			ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>((double)i);
 			bcc2.AddNeumannBoundaryCondition(elements2[i], pBoundaryCondition);						
 		}
 		
@@ -133,7 +133,7 @@ public:
 		for(int i=0; i<numNodes; i++)
 		{
 			nodes3[i] = new Node<3>(i,true,0,0);
-			ConstDirichletBoundaryCondition<3>* pBoundaryCondition = new ConstDirichletBoundaryCondition<3>((double)i);
+			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>((double)i);
 			bcc3.AddDirichletBoundaryCondition(nodes3[i], pBoundaryCondition);						
 		}
 
@@ -148,7 +148,7 @@ public:
 		for(int i=0; i<numElem; i++)
 		{
 			elements3[i] = Create2DElement(i);
-			ConstDirichletBoundaryCondition<3>* pBoundaryCondition = new ConstDirichletBoundaryCondition<3>((double)i);
+			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>((double)i);
 			bcc3.AddNeumannBoundaryCondition(elements3[i], pBoundaryCondition);						
 		}
 		
@@ -181,7 +181,7 @@ public:
 		for(int i = 0; i < 9; i++)
 		{
 			p3dNode[i] = new Node<3>(i,true);
-			ConstDirichletBoundaryCondition<3>* pBoundaryCondition = new ConstDirichletBoundaryCondition<3>(-1);
+			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
 			bcc3.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
 		}
 		

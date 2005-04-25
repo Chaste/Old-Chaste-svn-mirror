@@ -4,7 +4,7 @@
 #include <map>
 #include <algorithm>
 #include "AbstractBoundaryCondition.hpp"
-#include "ConstDirichletBoundaryCondition.hpp"
+#include "ConstBoundaryCondition.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
 #include "ConformingTetrahedralMesh.hpp"
@@ -107,7 +107,7 @@ public:
 			const Node<SPACE_DIM>& rNode = pMesh->GetNodeAt(i);
 			if(rNode.IsBoundaryNode())
 			{	
-				ConstDirichletBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition = new ConstDirichletBoundaryCondition<SPACE_DIM>(0);
+				ConstBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0);
 				AddDirichletBoundaryCondition( &rNode , pZeroBoundaryCondition );
 			}
 		}		

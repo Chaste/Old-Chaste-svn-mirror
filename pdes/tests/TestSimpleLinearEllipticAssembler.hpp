@@ -10,6 +10,7 @@
 #include <vector>
 #include "Node.hpp"
 #include "Element.hpp"
+#include "BoundaryConditionsContainer.hpp"
 
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 {
@@ -66,7 +67,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		LinearHeatEquationPde<1> pde;
 		
 		// Boundary conditions
-		
+        
+        
 		// Linear solver
 		SimpleLinearSolver solver;
 		
@@ -122,7 +124,11 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Instantiate PDE object
         LinearHeatEquationPde<1> pde;
         
-        // Boundary conditions c
+        // Boundary conditions
+        // u(-1)=1 u'(-3)=1
+        BoundaryConditionsContainer<1,1> bcc;
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+        bcc.AddDirichletBoundaryCondition(&(mesh.GetNodeAt(0)), pBoundaryCondition);
         
         
         // Linear solver
