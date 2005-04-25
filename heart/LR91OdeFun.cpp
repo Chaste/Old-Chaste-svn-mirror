@@ -38,7 +38,7 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
      */
     
     assert(rY.size() == 8);
-    
+  
     double v = rY[0];
     double m = rY[1];
     double h = rY[2];
@@ -47,6 +47,15 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     double f = rY[5];
     double x = rY[6];
     double caI = rY[7];
+    
+    /*
+     * Assert that gating variables are within [0,1] range
+     *  and 
+     * voltage is within [eK, eNa] range
+     */
+    assert(m <= 1 && m >= 0 && h <= 1 &&  h >= 0 && j <= 1 &&  j >= 0 && d <= 1 &&  d >= 0 && f <= 1 &&  f >= 0);
+    assert( v <= eNa && v >= eK );
+    
     
         
     // Compute all the currents
@@ -92,6 +101,8 @@ std::vector<double> LR91OdeFun::EvaluateYDerivatives (double time, const std::ve
     
     // Calculating VPrime
     double VPrime = mpV->ComputeVPrime(iStim, iTotal); 
+    
+  
     
     std::vector<double> returnRHS;
     returnRHS.push_back(VPrime);
