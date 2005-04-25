@@ -48,6 +48,18 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_EQUALS( A.Size(), 12);
 		
 	}
+	
+	void testDotProduct( void )
+	{
+		VectorDouble A(5), B(5);
+		for (int i=0; i<5; i++)
+		{
+			A(i) = i;
+			B(i) = i;
+		}
+		TS_ASSERT_DELTA(A.dot(B), 30.0, 1e-12);
+	}
+	
 }; 
 
 #endif //_TESTVECTORDOUBLE_HPP_

@@ -55,7 +55,16 @@ VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
 }
 
 
-
+double VectorDouble::dot(const VectorDouble &rOtherVector) const
+{
+	assert(mSize == rOtherVector.Size());
+	double product = 0.0;
+	for (int i=0; i<mSize; i++)
+	{
+		product += mElementArray[i] * rOtherVector(i);
+	}
+	return product;
+}
 
 
 double& VectorDouble::operator()(int Entry) const
