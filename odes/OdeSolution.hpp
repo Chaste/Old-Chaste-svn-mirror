@@ -14,7 +14,7 @@ class OdeSolution
 	int mNumberOfTimeSteps;	/** Variable for the number of timesteps */
 	std::vector<double> mTime; /** Sets up a vector of time. */
 	std::vector<std::vector<double> > mSolutions;  /** Sets up the solutions. */
-	void SaveToFile(char * outputfile);
+	
 };
 
 #endif //_ODESOLUTION_HPP_

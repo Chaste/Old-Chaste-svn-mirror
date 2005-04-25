@@ -239,7 +239,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		testvalueRungeKutta4[0] = solutionsRungeKutta4.mSolutions[last3][0];
 		testvalueRungeKutta4[1] = solutionsRungeKutta4.mSolutions[last3][1];
 		
-		solutionsRungeKutta4.SaveToFile("result.dat");
+		//solutionsRungeKutta4.SaveToFile("result.dat");
 		
 		//Adams-Bashforth solver solution worked out	
 		AdamsBashforthIvpOdeSolver* myAdamsBashforthSolver = new AdamsBashforthIvpOdeSolver;
@@ -329,7 +329,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		testvalueRungeKutta4[1] = solutionsRungeKutta4.mSolutions[last3][1];
 		testvalueRungeKutta4[2] = solutionsRungeKutta4.mSolutions[last3][2];
 		
-		solutionsRungeKutta4.SaveToFile("result.dat");
+		//solutionsRungeKutta4.SaveToFile("result.dat");
 		
 		//Adams-Bashforth solver solution worked out	
 		AdamsBashforthIvpOdeSolver* myAdamsBashforthSolver = new AdamsBashforthIvpOdeSolver;
