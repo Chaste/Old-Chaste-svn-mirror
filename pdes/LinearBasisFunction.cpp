@@ -6,11 +6,16 @@
 #include "Point.hpp"
 #include <cassert>
 
-/**
- * Linear basis functions are implemented entirely for 1D at present.
- * 2D and 3D derivatives still need to be implemented.
- */
 
+/**
+ * Compute a basis function at a point within an element.
+ * 
+ * @param point The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ */
 template <int ELEM_DIM>
 double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex)
 {
@@ -68,6 +73,16 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
 }
 
 
+/**
+ * Compute the derivative of a basis function at a point within an element.
+ * 
+ * @param point The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The derivative of the basis function. This is a vector (VectorDouble
+ *     instance) giving the derivative along each axis.
+ */
 template <int ELEM_DIM>
 VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex)
 {
@@ -139,7 +154,13 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
 }
 
 
-
+/**
+ * Compute all basis functions at a point within an element.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @return The values of the basis functions, in local index order.
+ */
 template <int ELEM_DIM>
 std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> psi)
 {
@@ -154,6 +175,15 @@ std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<E
 
 
 
+/**
+ * Compute the derivatives of all basis functions at a point within an element.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @return The derivatives of the basis functions, in local index order. Each
+ *     entry is a vector (VectorDouble instance) giving the derivative along
+ *     each axis.
+ */
 template <int ELEM_DIM>
 std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> psi)
 {
