@@ -1,3 +1,10 @@
+// TestTrianglesMeshReader.hpp
+
+/**
+ * Test suite for the TrianglesMeshReader class.
+ * 
+ */
+
 #ifndef _TESTTRIANGLESMESHREADER_HPP_
 #define _TESTTRIANGLESMESHREADER_HPP_
 
@@ -8,35 +15,46 @@ static		AbstractMeshReader *spMeshReader;
 class TestTrianglesMeshReaders : public CxxTest::TestSuite
 {
 	public:
+	
+	/**
+	 * Check that input files are opened correctly.
+	 * 
+	 */
+	
 	void testFilesOpen(void)
 	{
-		
-
-		
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements"));
 		
-	
 	}
+	
+	
+	
+	/**
+	 * Check that large data files can be opened without problems. This
+	 * currently causes the whole system to slow down.
+	 * 
+	 */
 	
 	//void testTulaneFilesOpen(void)
 	//{
-		
-		//std::cout<<"\nDoing a long test\n";
-		
 		//TS_ASSERT_THROWS_NOTHING(
 		//                  spMeshReader=new TrianglesMeshReader(
-		 //                 "pdes/tests/meshdata/tulane_data_about_400k_elements"));
+		//                 "pdes/tests/meshdata/tulane_data_about_400k_elements"));
 		
-		//std::cout<<"Long test finished\n";
-	
-	//ls
 	//}
+	
+	
+	/**
+	 * Check that the nodes are read correctly. Checks that the output vector
+	 * for a given input file is the correct length and that if the input file
+	 * is corrupted (missing nodes) then an exception is thrown.
+	 * 
+	 */
 	
 	void testNodesDataRead(void)
 	{
-		
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
 		
@@ -49,9 +67,17 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
+	
+	
+	/**
+	 * Check that the elements are read correctly. Checks that the output vector
+	 * for a given input file is the correct length and that if the input file
+	 * is corrupted (missing elements) then an exception is thrown.
+	 * 
+	 */
+	
 	void testElementsDataRead(void)
 	{
-		
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
 		
@@ -65,9 +91,17 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	}
 	
+	
+	
+	/**
+	 * Check that the faces are read correctly. Checks that the output vector
+	 * for a given input file is the correct length and that if the input file
+	 * is corrupted (missing faces) then an exception is thrown.
+	 * 
+	 */
+	
 	void testFacesDataRead(void)
 	{
-		
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
 		
@@ -80,32 +114,53 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
+	
+	
+	/**
+	 * Checks that the reader can deal with (3-d) TetGen input files as well
+	 * as the previously considered (2-d) Triangles files. Checks that the
+	 * element output vector for a given input file is the correct length.
+	 * 
+	 */
+	
 	void test3dDataRead(void)
-	{
-		
-			
+	{			
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/slab_138_elements"));
-		
-		
+			
 		TS_ASSERT (spMeshReader->GetNumElements() == 138);
 		
 	}
 	
+	
+	/**
+	 * Checks that nodes are indexed from zero. Takes input file that is
+	 * indexed from zero and checks that the output file also is. Uses methods
+	 * GetMaxNodeIndex() and GetMinNodeIndex().
+	 * 
+	 */
+	
 	void testIndexFromZero(void)
-	{
-		
+	{		
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements"));
-		//spMeshReader=new TrianglesMeshReader("pdes/tests/meshdata/disk_522__elements");
 		
 		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
+		
 		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
 		
 	}
 	
+	
+	
+	/**
+	 * Checks that nodes are indexed from zero. Takes input file that is
+	 * indexed from one and checks that the output file also is. Uses methods
+	 * GetMaxNodeIndex() and GetMinNodeIndex().
+	 * 
+	 */
 	
 	void testIndexFromOne(void)
 	{
@@ -113,30 +168,54 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements_indexed_from_1"));
 		
-		//spMeshReader=new TrianglesMeshReader("pdes/tests/meshdata/disk_522__elements_indexed_from_1");
-		
 		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
+		
 		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
 		
 	}
 	
+	
+	
+	/**
+	 * Checks that nodes in the input data file are numbered sequentially.
+	 * (In the input file nodes must appear in increasing order since the node
+	 * number is only stored as the index of the vector in which the coordinates
+	 * are stored.)
+	 * 
+	 */
+	
 	void testPermutedNodesFail(void)
 	{
-		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/permuted_nodes_disk_522_elements"));	
 		
 	}
 	
+	
+	/**
+	 * Checks that elements have the correct number of nodes (i.e. one more
+	 * node than the dimension of the mesh). If quadratic basis functions are
+	 * required this should be dealt with elsewhere. 
+	 * 
+	 */
+	
 	void testOrder2ElementsFail(void)
 	{
-		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_order_2_elements"));	
 		
 	}
+	
+	
+	/**
+	 * Check that GetNextNode() returns the coordinates of the correct node.
+	 * Compares the coordinates of the first two nodes with their known
+	 * values, checks that no errors are thrown for the remaining nodes and
+	 * that an error is thrown if we try to call the function too many times.
+	 * 
+	 */
 	
 	void testGetNextNode(void)
 	{
@@ -167,6 +246,14 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	}
 	
 	
+	
+	/**
+	 * Check that GetNextElement() works. Checks that no errors are thrown for 
+	 * all of the elements and that an error is thrown if we try to call the 
+	 * function too many times.
+	 * 
+	 */	
+	
 	void testGetNextElement(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
@@ -182,6 +269,14 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_ANYTHING(NextElement = spMeshReader->GetNextElement());
 		
 	}
+	
+	
+	/**
+	 * Check that GetNextEdge() works. Checks that no errors are thrown for 
+	 * all of the edges and that an error is thrown if we try to call the 
+	 * function too many times.
+	 * 
+	 */	
 	
 	void testGetNextEdge(void)
 	{
