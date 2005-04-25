@@ -229,11 +229,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                                   
         Solution.SaveToFile("LRresult3.dat");                               
     }
-    
-	
-	
-	
-    
+           
 };
 
 
