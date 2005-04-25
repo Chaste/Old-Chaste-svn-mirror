@@ -14,7 +14,7 @@ os.chdir(curdir)
 
 
 
-base  = '-Icxxtest -Idatawriters -Iheart -Iodes -Icancer -Iparameters -Ipdes -I pdes/tests -I. '
+base  = '-Icxxtest -Idatawriters -Iheart -Iodes -Icancer -Iparameters -Ipdes -Ipdes/tests -I. '
 
 petsc_base = '../../petsc-2.2.1/'
 petsc_inc = '-I'+petsc_base+'include '
