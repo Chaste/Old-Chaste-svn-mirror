@@ -12,7 +12,7 @@ class TestOde2 : public AbstractOdeSystem
 	public :
 	TestOde2();
 	
-	std::vector<double> TestOde2::EvaluateYDerivatives (double rTime, std::vector<double> &rY);
+	std::vector<double> TestOde2::EvaluateYDerivatives (double time, const std::vector<double> &rY);
 
 };
 

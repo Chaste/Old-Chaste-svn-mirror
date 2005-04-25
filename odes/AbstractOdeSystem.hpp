@@ -12,11 +12,11 @@ class AbstractOdeSystem
 	public:
 	int mNumberOfEquations; /**< Number of equations in the ODE system */
 	
-	AbstractOdeSystem(const int& rNumberOfEquations): mNumberOfEquations(rNumberOfEquations) {}; /**< Constructor*/
+	AbstractOdeSystem(int rNumberOfEquations): mNumberOfEquations(rNumberOfEquations) {}; /**< Constructor*/
 	
 	~AbstractOdeSystem() {}; /**<  Destructor */  
 	
-	virtual std::vector<double> EvaluateYDerivatives (double rTime, std::vector<double> &rY) = 0;
+	virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
 	
 };
 

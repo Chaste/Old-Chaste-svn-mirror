@@ -9,10 +9,10 @@ TestOde2::TestOde2() : AbstractOdeSystem(1)
 
 }
 
-std::vector<double> TestOde2::EvaluateYDerivatives (double rTime, std::vector<double> &rY)
+std::vector<double> TestOde2::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
 	std::vector<double> yDerivatives(mNumberOfEquations);
-	yDerivatives[0]=rY[0]*rTime;
+	yDerivatives[0]=rY[0]*time;
 	return yDerivatives;
 }
 	
