@@ -106,7 +106,7 @@ public:
 			const Node<SPACE_DIM>& rNode = pMesh->GetNodeAt(i);
 			if(rNode.IsBoundaryNode())
 			{	
-				const ConstDirichletBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition = new ConstDirichletBoundaryCondition<SPACE_DIM>(0);
+				ConstDirichletBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition = new ConstDirichletBoundaryCondition<SPACE_DIM>(0);
 				AddDirichletBoundaryCondition( &rNode , pZeroBoundaryCondition );
 			}
 		}		
