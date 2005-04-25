@@ -96,9 +96,16 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	std::stringstream face_header_stream(mFaceRawData[0]);
 	face_header_stream >> mNumFaces >> mMaxFaceBdyMarker;
 
+	//mNumBoundaryFaces = mNumFaces; //temporary
+
 	// Read the rest of the face/edge data using TokenizeStringsToInts method
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
 	mpFaceIterator = mFaceData.begin();
+	
+//	std::stringstream boundary_face_header_stream(mFaceRawData[0]);
+//	boundary_face_header_stream >> mNumBoundaryFaces;
+	mBoundaryFaceData = CullInternalFaces();
+	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
 	
 	//Check that the size of the data matches the information in the header
 	if (mNumFaces != mFaceData.size())

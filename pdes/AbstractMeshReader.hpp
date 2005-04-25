@@ -29,6 +29,7 @@ class AbstractMeshReader
 		int mNumElements; /**< Is the number of elements in the mesh*/
 		int mNumNodes; /**< Is the number of nodes in the mesh*/
 		int mNumFaces; /**< Is the number of faces (edges in 2-d) in the mesh*/
+		int mNumBoundaryFaces; /**< Is the number of boundary faces (edges in 2-d) in the mesh*/
 		int mDimension; /**< Is the dimension the mesh*/
 		
 		int mNumNodeAttributes; /**< Is the number of attributes stored at each node */
@@ -45,14 +46,17 @@ class AbstractMeshReader
 		std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
 		std::vector< std::vector<int> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
 		std::vector< std::vector<int> > mFaceData; /**< Is an array of the nodes in each face ((i,j)th entry is the jth node of face i) */
+		std::vector< std::vector<int> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */		
 		
 		std::vector< std::vector<double> >::iterator mpNodeIterator; /**< Is an iterator for the node data */
 		std::vector< std::vector<int> >::iterator mpElementIterator; /**< Is an iterator for the element data */
 		std::vector< std::vector<int> >::iterator mpFaceIterator; /**< Is an iterator for the face data */
+		std::vector< std::vector<int> >::iterator mpBoundaryFaceIterator; /**< Is an iterator for the boundary face data */		
 	
 		bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 	
 		std::vector<std::string> GetRawDataFromFile(std::string fileName); /**< Reads an input file fileName, removes comments (indicated by a #) and blank lines */
+		std::vector< std::vector<int> > CullInternalFaces(); /**< Remove internal faces and store the result in mBoundaryFaceData */
 		
 	public:
 		AbstractMeshReader() /**< Constructor */
@@ -60,6 +64,7 @@ class AbstractMeshReader
 			mNumElements = 0;
 			mNumNodes = 0;
 			mNumFaces = 0;
+			mNumBoundaryFaces = 0;			
 			mDimension = 0;
 			
 			mNumNodeAttributes = 0;
@@ -76,7 +81,9 @@ class AbstractMeshReader
 		int GetNumElements() const {return mNumElements;} /**< Returns the number of elements in the mesh */
 		int GetNumNodes() const {return mNumNodes;} /**< Returns the number of nodes in the mesh */
 		int GetNumFaces() const {return mNumFaces;} /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
+		int GetNumBoundaryFaces() const {return mNumBoundaryFaces;} /**< Returns the number of boundary faces in the mesh (synonym of GetNumBoundaryEdges()) */
 		int GetNumEdges() const {return mNumFaces;}	/**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
+		int GetNumBoundaryEdges() const {return mNumBoundaryFaces;}	/**< Returns the number of boundary edges in the mesh (synonym of GetNumBoundaryFaces()) */		
 		int GetDimension() const {return mDimension;} /**< Returns the dimension of the system */
 		
 		int GetMaxNodeIndex(); /**< Returns the maximum node index */
@@ -85,7 +92,9 @@ class AbstractMeshReader
 		std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
 		std::vector<int> GetNextElement(); /**< Returns a vector of the nodes of each element in turn */
 		std::vector<int> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
+		std::vector<int> GetNextBoundaryEdge(); /**< Returns a vector of the nodes of each boundary edge in turn (synonym of GetNextBoundaryFace()) */		
 		std::vector<int> GetNextFace(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
+		std::vector<int> GetNextBoundaryFace(); /**< Returns a vector of the nodes of each boundary face in turn (synonym of GetNextBoundaryEdge()) */		
 
 };
 #endif //_ABSTRACTMESHREADER_HPP_

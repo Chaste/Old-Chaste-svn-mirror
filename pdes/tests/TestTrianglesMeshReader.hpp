@@ -297,7 +297,26 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
-	
+	void testGetNextBoundaryEdge(void)
+	{
+		spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/square_2_elements");
+		
+		std::vector<int> NextEdge;
+		
+		TS_ASSERT(spMeshReader->GetNumBoundaryEdges() == 4);
+		
+		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryFace());
+		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryFace());
+		    		
+		for (int i = 2; i < spMeshReader->GetNumBoundaryEdges(); i++)
+		{
+			TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryEdge());
+		}
+		
+		TS_ASSERT_THROWS_ANYTHING(NextEdge = spMeshReader->GetNextBoundaryEdge());
+		
+	}	
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_

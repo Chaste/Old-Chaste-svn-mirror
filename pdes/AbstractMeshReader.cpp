@@ -219,6 +219,27 @@ std::vector<int> AbstractMeshReader::GetNextFace()
 	return next_face;
 }
 
+std::vector<int> AbstractMeshReader::GetNextBoundaryFace()
+{
+	/**
+	 * Checks that there are still some faces left to read. If not throws an
+	 * exception that must be caught by the user.
+	 * 
+	 */
+	
+	if (mpBoundaryFaceIterator == mBoundaryFaceData.end())
+	{
+		throw Exception("All faces (or edges) already got");
+	}
+
+	std::vector<int> next_face = *mpBoundaryFaceIterator;
+	
+	mpBoundaryFaceIterator++;
+		
+	return next_face;
+}
+
+
 
 /**
  * Returns a vector of the nodes of each edge in turn, starting with edge 0 the 
@@ -233,4 +254,54 @@ std::vector<int> AbstractMeshReader::GetNextEdge()
 {
 	// Call GetNextFace()
 	return GetNextFace();
+}
+
+std::vector<int> AbstractMeshReader::GetNextBoundaryEdge()
+{
+	// Call GetNextFace()
+	return GetNextBoundaryFace();
+}
+
+std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
+{
+	std::vector< std::vector<int> > boundary_faces; 	
+	std::vector<int> current_element;
+	std::vector<int> current_face;
+
+	for (int j=0; j<mNumFaces; j++)
+	{
+		current_face = mFaceData[j];
+		int num_of_elements = 0;
+		std::vector< std::vector<int> >::iterator p_ele_iterator;
+		p_ele_iterator = mElementData.begin();
+		
+		while (num_of_elements < 2 && p_ele_iterator < mElementData.end() )
+		{
+			int num_of_matches = 0;
+			current_element = *p_ele_iterator;
+			for (int count = 0; count<=mDimension && num_of_matches >= count-1; count++)
+			{
+				for (int i=0; i<mDimension; i++)
+				{
+					if (current_face[i] == current_element[count])
+					{
+						num_of_matches++;
+						break;
+					}
+				}						
+			}	
+			if (num_of_matches == mDimension)
+			{
+				num_of_elements++;
+			}		
+			p_ele_iterator++;
+		}
+		if ( num_of_elements < 2 )
+		{
+			boundary_faces.push_back(current_face);
+			mNumBoundaryFaces++;
+		}		
+	}	
+	
+	return boundary_faces;
 }
