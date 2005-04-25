@@ -81,7 +81,13 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
                                intialConditions, pMySolver);
-                            
+                               
+        // Test that voltage is within [eK, eNa] range, given Istim = -80
+//        for (i = 0; i < Solution.mSolutions.size(); i++)                   
+//        {
+//            TS_ASSERT(eK < Solution.mSolutions[i][1]);
+//            TS_ASSERT(eNa > Solution.mSolutions[i][1]);
+//        }
         /*
          * Write data to a file LRresult.dat
          */                                                           
@@ -89,73 +95,73 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                                
     }
 
-    // Test Ode Solver for LR91
-    void testOdeSolverForLR91WithRegularStimulus(void)
-    {
-        /*
-         * Set initial conditions and magnitude of stimulus
-         * 
-         */
-        double voltage = -75.0;
-        double m = 0.0017;
-        double h = 0.9833;
-        double j = 0.9895;
-        double d = 0.003;
-        double f = 1;
-        double x = 0.0056;
-        double caI = 0.0002;
-        double magnitudeOfStimulus = -80.0;  
-        double durationOfStimulus  = 0.5 ;  // ms
-        double frequencyOfStimulus = 1.0/300.0;
-        double startTimeOfStimulus = 50.0;
-        
-        /*
-         * Collect initiastl data in a vector
-         * 
-         */  
-        std::vector<double> intialConditions;
-        intialConditions.push_back(voltage);
-        intialConditions.push_back(m);
-        intialConditions.push_back(h);
-        intialConditions.push_back(j);
-        intialConditions.push_back(d);
-        intialConditions.push_back(f);
-        intialConditions.push_back(x);
-        intialConditions.push_back(caI);
-                     
-        /*
-         * Choose function for stimulus
-         */             
-        AbstractStimulusFunction *pStimulus = new RegularStimulus(magnitudeOfStimulus, durationOfStimulus,
-                                                                 frequencyOfStimulus, startTimeOfStimulus); 
-        
-        /*
-         * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
-         */
-        LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
-        
-        /*
-         * Choose an ode solver
-         */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-        
-        /*
-         * Solve 
-         */
-        double startTime = 0.0;
-        double endTime = 1500.0;
-        double timeStep = 0.001;             
-        
-        OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
-                               intialConditions, pMySolver);
-                            
-        /*
-         * Write data to a file LRresult2.dat
-         */                                  
-                                  
-        Solution.SaveToFile("LRresult2.dat");
-                               
-    }
+//    // Test Ode Solver for LR91
+//    void donttestOdeSolverForLR91WithRegularStimulus(void)
+//    {
+//        /*
+//         * Set initial conditions and magnitude of stimulus
+//         * 
+//         */
+//        double voltage = -75.0;
+//        double m = 0.0017;
+//        double h = 0.9833;
+//        double j = 0.9895;
+//        double d = 0.003;
+//        double f = 1;
+//        double x = 0.0056;
+//        double caI = 0.0002;
+//        double magnitudeOfStimulus = -80.0;  
+//        double durationOfStimulus  = 0.5 ;  // ms
+//        double frequencyOfStimulus = 1.0/300.0;
+//        double startTimeOfStimulus = 50.0;
+//        
+//        /*
+//         * Collect initiastl data in a vector
+//         * 
+//         */  
+//        std::vector<double> intialConditions;
+//        intialConditions.push_back(voltage);
+//        intialConditions.push_back(m);
+//        intialConditions.push_back(h);
+//        intialConditions.push_back(j);
+//        intialConditions.push_back(d);
+//        intialConditions.push_back(f);
+//        intialConditions.push_back(x);
+//        intialConditions.push_back(caI);
+//                     
+//        /*
+//         * Choose function for stimulus
+//         */             
+//        AbstractStimulusFunction *pStimulus = new RegularStimulus(magnitudeOfStimulus, durationOfStimulus,
+//                                                                 frequencyOfStimulus, startTimeOfStimulus); 
+//        
+//        /*
+//         * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
+//         */
+//        LR91Model *pLR91Model = new LR91Model(voltage, m, h, j, d, f, x, caI, pStimulus);
+//        
+//        /*
+//         * Choose an ode solver
+//         */      
+//        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+//        
+//        /*
+//         * Solve 
+//         */
+//        double startTime = 0.0;
+//        double endTime = 600.0;
+//        double timeStep = 0.01;             
+//        
+//        OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
+//                               intialConditions, pMySolver);
+//                            
+//        /*
+//         * Write data to a file LRresult2.dat
+//         */                                  
+//                                  
+//      //  Solution.SaveToFile("LRresult2.dat");
+//                               
+//    }
 	
      // Test Ode Solver for LR91
     void testOdeSolverForLR91WithRegularStimulusAndRungeKutta(void)
@@ -211,8 +217,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          * Solve 
          */
         double startTime = 0.0;
-        double endTime = 1500.0;
-        double timeStep = 0.001;             
+        double endTime = 600.0;
+        double timeStep = 0.01;             
         
         OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
                                intialConditions, pMySolver);
@@ -221,8 +227,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          * Write data to a file LRresult3.dat
          */                                  
                                   
-        Solution.SaveToFile("LRresult3.dat");
-                               
+        Solution.SaveToFile("LRresult3.dat");                               
     }
     
 	
