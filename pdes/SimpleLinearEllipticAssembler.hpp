@@ -124,7 +124,7 @@ private:
 
 			for (int row=0; row < num_nodes; row++)
 			{
-				double integrand_value = phi[row] * Dgradu_dot_n;
+				double integrand_value = -phi[row] * Dgradu_dot_n;
 				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
@@ -154,8 +154,7 @@ private:
         while (iter != rMesh.GetLastElement())
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
-            
-            
+                        
             AssembleOnElement(element, a_elem, b_elem, pPde, basis_function);
             
             for (int i=0; i<num_nodes; i++)
@@ -177,7 +176,7 @@ private:
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
 		
 		if (surf_iter != rMesh.GetLastBoundaryElement())
-		{
+		{					
 			const int num_surf_nodes = (*surf_iter)->GetNumNodes();
 			VectorDouble b_surf_elem(num_surf_nodes);
 	
@@ -188,9 +187,9 @@ private:
 				// !!!!!!!!
 				// TODO:
 				// need to check surf_element is in the Neumann surface here.
-				
+
 				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
-				       
+
 				for (int i=0; i<num_surf_nodes; i++)
 	            {
 	            	int node1 = surf_element.GetNodeGlobalIndex(i);
@@ -199,12 +198,10 @@ private:
 				surf_iter++;
 			}
 		}
- 
 	
 		// apply dirichlet boundary conditions
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);   
-
 
         mpAssembledLinearSystem->AssembleFinalMatrix();
         

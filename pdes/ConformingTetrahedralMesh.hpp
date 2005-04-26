@@ -68,7 +68,7 @@ public:
     }
     
     BoundaryElementIterator GetFirstBoundaryElement()
-    {
+    {	
     	mpBoundaryElementIter = mBoundaryElements.begin();
     	return mpBoundaryElementIter;
     }
