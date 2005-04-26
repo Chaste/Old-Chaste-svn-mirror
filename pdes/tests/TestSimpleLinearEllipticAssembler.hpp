@@ -93,6 +93,47 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		VecRestoreArray(result, &res);
 	}
     
+    /**
+     * MeshReaders currently can't cope with 1d meshes, so this test isn't run at present.
+     */
+	void noTestWithHeatEquationAndMeshReader()   
+	{ 
+		PetscInitialize(0, NULL, 0, 0);
+		
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		LinearHeatEquationPde<1> pde;  
+		
+		// Boundary conditions
+        BoundaryConditionsContainer<1,1> bcc;
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+        
+		// Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		SimpleLinearEllipticAssembler<1,1> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		// Solution should be u = 0.5*x*(3-x)
+		for (int i=0; i < mesh.GetNumElements()+1; i++)
+		{
+			double x = 0.0 + 0.15*i;
+			double u = 0.5*x*(3-x);
+			TS_ASSERT_DELTA(res[i], u, 0.001);
+		}
+		VecRestoreArray(result, &res);
+	}
+
     void TestWithHeatEquation2()
     {
         PetscInitialize(0, NULL, 0, 0);
