@@ -111,3 +111,8 @@ VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector)
 	}
 	return result;
 }
+
+double VectorDouble::L2Norm( void )
+{
+	return sqrt((*this).dot(*this));
+}

@@ -84,7 +84,7 @@ MatrixDouble& MatrixDouble::operator*(double scalar)
 }
 
 
-MatrixDouble& operator*(double scalar, const MatrixDouble &rMatrix)
+MatrixDouble operator*(double scalar, const MatrixDouble &rMatrix)
 {
 	MatrixDouble result(rMatrix.Rows(), rMatrix.Columns());
 	for (int i=0; i<rMatrix.mNumberOfElements; i++)
@@ -210,5 +210,10 @@ void MatrixDouble::ResetToZero( void )
 	{
 		mElementArray[i]=0;
 	}
+}
+
+bool MatrixDouble::IsSquare( void )
+{
+	return (mRows==mColumns);
 }
 

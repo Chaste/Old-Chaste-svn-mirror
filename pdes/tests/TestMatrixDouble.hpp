@@ -47,37 +47,52 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void testScalarMultiplication()
 	{
-		for (int i=2; i<4; i++)
+		MatrixDouble A(2,3);
+		A(0,0) = 1.0;
+		A(1,0) = 2.0;
+		A = A * 3.0;
+		for (int i=0; i<2; i++)
 		{
-			for (int j=1; j<3; j++)
+			for (int j=0; j<3; j++)
 			{
-				MatrixDouble A(i,j);
-				A(0,0) = 1.0;
-				A(1,0) = 2.0;
-				A = A * 3.0;
+
 				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
 				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
-				if (j>1) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
+				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
 			}
 		}
 	}
 	
-		void testOtherScalarMultiplication()
+	void testScalarMultiplication2()
 	{
-		for (int i=2; i<4; i++)
+		MatrixDouble A(2,3);
+		A(0,0) = 1.0;
+		A(1,0) = 2.0;
+		A =  3.0 * A;
+		for (int i=0; i<2; i++)
 		{
-			for (int j=1; j<3; j++)
+			for (int j=0; j<3; j++)
 			{
-				MatrixDouble A(i,j);
-				A(0,0) = 1.0;
-				A(1,0) = 2.0;
-				A = 3.0 * A;
-				TS_ASSERT_DELTA(A(0,0), 3.0, 0.000001);
-				TS_ASSERT_DELTA(A(1,0), 6.0, 0.000001);
-				if (j>1) TS_ASSERT_DELTA(A(1,1), 0.0, 0.000001);
+
+				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
+				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
+				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
 			}
 		}
+	}	
+	
+	void testIsSquare( void )
+	{
+		MatrixDouble A(3,3);
+		A(1,1)=1;
+		MatrixDouble B(3,2);
+		B(1,1)=1;
+		
+		TS_ASSERT(A.IsSquare());
+		
+		TS_ASSERT(!(B.IsSquare()));
 	}
+	
 	void testIdentity()
 	{
 		MatrixDouble A=MatrixDouble::Identity(3);

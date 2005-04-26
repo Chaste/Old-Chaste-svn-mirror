@@ -104,6 +104,13 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(A(1), 18.0, 0.0000000001);
 		TS_ASSERT_DELTA(A(2), 27.0, 0.0000000001);
 	}
+	
+	void testL2Norm()
+	{
+		VectorDouble A(2);
+		A(0)=3; A(1)=4;
+		TS_ASSERT_DELTA(A.L2Norm(), 5, 0.000001);
+	}
 }; 
 
 #endif //_TESTVECTORDOUBLE_HPP_

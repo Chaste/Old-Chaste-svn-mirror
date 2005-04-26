@@ -20,6 +20,7 @@ class VectorDouble
 		void ResetToZero( void );
 		VectorDouble VectorProduct(const VectorDouble& rOtherVector);
 		friend VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector);
+		double L2Norm( void );
 };
 
 
