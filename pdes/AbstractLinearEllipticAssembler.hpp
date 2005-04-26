@@ -10,7 +10,7 @@
 #include <vector>
 #include "AbstractLinearEllipticPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
-//#include "AbstractBoundaryConditions.hpp"
+#include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
@@ -23,7 +23,7 @@ class AbstractLinearEllipticAssembler
 public:
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                                AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
-//                               BoundaryConditionsContainer &rBoundaryConditions,
+                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
                                AbstractLinearSolver *solver)=0;
     
 };

@@ -51,7 +51,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		std::vector<Node<1>*> nodes;
 		for (int i=0; i<num_elements+1; i++)
 		{
-			nodes.push_back(new Node<1>(i, false, 0.0 + 0.15*i));
+			nodes.push_back(new Node<1>(i, true, 0.0 + 0.15*i));
 			mesh.AddNode(*nodes[i]);
 		}
 		for (int i=0; i<num_elements; i++)
@@ -67,7 +67,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		LinearHeatEquationPde<1> pde;
 		
 		// Boundary conditions
-        
+        BoundaryConditionsContainer<1,1> bcc;
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+        bcc.AddDirichletBoundaryCondition(&(mesh.GetNodeAt(0)), pBoundaryCondition);
         
 		// Linear solver
 		SimpleLinearSolver solver;
@@ -75,7 +77,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		// Assembler
 		SimpleLinearEllipticAssembler<1,1> assembler;
 		
-		Vec result = assembler.AssembleSystem(mesh, &pde, /*bcs,*/ &solver);
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
 		
 		// Check result
 		double *res;
@@ -141,7 +143,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler;
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, /*bcs,*/ &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
         
         
         double *res;
@@ -154,7 +156,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         for (int i=0; i < num_elements+1; i++)
         {
             double x = -1.0- 0.4*i;
-            double u = -0.5*(x+1)*(5+x);
+            double u = 1 - 0.5*(x+1)*(5+x);
             TS_ASSERT_DELTA(res[i], u, 0.001);
         }
     }

@@ -6,7 +6,7 @@
 #include "AbstractLinearEllipticPde.hpp"
 #include "AbstractLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
-//#include "AbstractBoundaryConditions.hpp"
+#include "BoundaryConditionsContainer.hpp"
 #include <vector>
 #include "petscvec.h"
 #include "AbstractLinearSolver.hpp"
@@ -69,14 +69,6 @@ private:
 			{
 				for (int col=0; col < num_nodes; col++)
 				{
-
-				
-//					double integrand_value=
-//								pPde->ComputeDiffusionTerm(x)(0,0)
-//								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,row)(0)
-//								 * (*inverseJacobian)(0,0)
-//								* rBasisFunction.ComputeBasisFunctionDerivative(quad_point,col)(0)
-//								 * (*inverseJacobian)(0,0);
 					double integrand_value =
 						gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);
 								
@@ -98,7 +90,7 @@ private:
  public:
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
-//                       BoundaryConditionsContainer &rBoundaryConditions,
+                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
                        AbstractLinearSolver *solver)
 	{
 		// Linear system in n unknowns, where n=#nodes
@@ -118,10 +110,6 @@ private:
         while (iter != rMesh.GetLastElement())
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
-            // This assumes linear basis functions in 1d
-            int node1 = element.GetNodeGlobalIndex(0);
-            int node2 = element.GetNodeGlobalIndex(1);
-            
             
             AssembleOnElement(element, ael, bel, pPde, basis_function);
             
@@ -135,37 +123,24 @@ private:
             	}
             	mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(i));
             }
-//            mpAssembledLinearSystem->AddToMatrixElement(node1,node2,ael(0,1));
-//            mpAssembledLinearSystem->AddToMatrixElement(node2,node1,ael(1,0));
-//            mpAssembledLinearSystem->AddToMatrixElement(node2,node2,ael(1,1));
-            
-            
-//            // Will depend on pPde->Compute(Linear|Nonlinear)SourceTerm
-//            mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(0));
-//            mpAssembledLinearSystem->AddToRhsVectorElement(node2,bel(1));      
-         
             iter++;
         }
         
 
-//        for(int i=0; i<rBoundaryConditions.size(); i++)
-//        {
-//            rBoundaryConditions[i]->ApplyLinearBoundaryConditions(*mpAssembledLinearSystem);   
-//        }
-
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
 
-		mpAssembledLinearSystem->SetMatrixElement(0, 0, 1.0);
-    	mpAssembledLinearSystem->SetMatrixElement(0, 1, 0.0);
-    	mpAssembledLinearSystem->SetRhsVectorElement(0, 0.0);
-    
+        rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);   
+
+//		mpAssembledLinearSystem->SetMatrixElement(0, 0, 1.0);
+//    	mpAssembledLinearSystem->SetMatrixElement(0, 1, 0.0);
+//    	mpAssembledLinearSystem->SetRhsVectorElement(0, 0.0);
+
         mpAssembledLinearSystem->AssembleFinalMatrix();
         
         Vec sol = mpAssembledLinearSystem->Solve(solver);       
         return sol;
 	}
 };
-
 
 
 #endif //_SIMPLELINEARELLIPTICASSEMBLER_HPP_
