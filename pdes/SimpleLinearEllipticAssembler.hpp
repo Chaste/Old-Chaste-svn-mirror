@@ -27,12 +27,12 @@ private:
 	friend class TestSimpleLinearEllipticAssembler;
 
 	void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-							MatrixDouble &rAel,
-							VectorDouble &rBel,
+							MatrixDouble &rAElem,
+							VectorDouble &rBElem,
 							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
 							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction)
 	{
-		static GaussianQuadratureRule<SPACE_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		
 		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 		double jacobian_determinant = rElement.GetJacobianDeterminant();
@@ -43,14 +43,14 @@ private:
 		{
 			for (int col=0; col < num_nodes; col++)
 			{
-				rAel(row,col) = 0.0;
+				rAElem(row,col) = 0.0;
 			}
-			rBel(row) = 0.0;
+			rBElem(row) = 0.0;
 		}
 		
 		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 		{
-			Point<SPACE_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
+			Point<ELEMENT_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
 
 			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
 			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
@@ -72,7 +72,7 @@ private:
 					double integrand_value =
 						gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);
 								
-					rAel(row,col)+= integrand_value*jacobian_determinant
+					rAElem(row,col)+= integrand_value*jacobian_determinant
 									*quad_rule.GetWeight(quad_index);
 				}
 
@@ -80,11 +80,55 @@ private:
 				double integrand_value =
 							pPde->ComputeLinearSourceTerm(x) * phi[row];
 							
-				rBel(row) += integrand_value*jacobian_determinant
-							 *quad_rule.GetWeight(quad_index);
+				rBElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}
-	}							
+	}		
+	
+	
+	void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+								 VectorDouble &rBsubElem,
+								 AbstractLinearEllipticPde<SPACE_DIM> *pPde,
+								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
+								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
+	{		
+		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		double jacobian_determinant = 1; assert(0); rSurfaceElement.GetJacobianDeterminant();
+		
+		// Initialise element contributions to zero
+		const int num_nodes = rSurfaceElement.GetNumNodes();
+
+		for (int row=0; row < num_nodes; row++)
+		{
+			rBsubElem(row) = 0.0;
+		}
+		
+		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+		{
+			Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
+
+			std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+
+			Point<SPACE_DIM> x(0,0,0);
+			for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
+			{
+				for(int j=0; j<SPACE_DIM; j++)
+				{
+					x.SetCoordinate(j, x[j] + phi[i]*rSurfaceElement.GetNodeLocation(i,j));
+				}
+			}
+					
+			// TODO: horrendously inefficient!!!
+			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(rSurfaceElement, x);
+
+			for (int row=0; row < num_nodes; row++)
+			{
+				double integrand_value = phi[row] * Dgradu_dot_n;
+				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
+			}
+		}		
+	}
+	
 
 
  public:
@@ -104,14 +148,15 @@ private:
  
  		// Assume all elements have the same number of nodes...
  		const int num_nodes = iter->GetNumNodes();
- 		MatrixDouble ael(num_nodes,num_nodes);
-        VectorDouble bel(num_nodes);
+ 		MatrixDouble a_elem(num_nodes,num_nodes);
+        VectorDouble b_elem(num_nodes);
  
         while (iter != rMesh.GetLastElement())
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
             
-            AssembleOnElement(element, ael, bel, pPde, basis_function);
+            
+            AssembleOnElement(element, a_elem, b_elem, pPde, basis_function);
             
             for (int i=0; i<num_nodes; i++)
             {
@@ -119,21 +164,22 @@ private:
             	for (int j=0; j<num_nodes; j++)
             	{
             		int node2 = element.GetNodeGlobalIndex(j);
-            		mpAssembledLinearSystem->AddToMatrixElement(node1,node2,ael(i,j));
+            		mpAssembledLinearSystem->AddToMatrixElement(node1,node2,a_elem(i,j));
             	}
-            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,bel(i));
+            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_elem(i));
             }
             iter++;
         }
         
 
+		// for surfelem = 1..numSurfElem
+		// 	 get surfelem
+		//   AssembleOnSurfElem
+		//   add		
+	
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
-
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);   
 
-//		mpAssembledLinearSystem->SetMatrixElement(0, 0, 1.0);
-//    	mpAssembledLinearSystem->SetMatrixElement(0, 1, 0.0);
-//    	mpAssembledLinearSystem->SetRhsVectorElement(0, 0.0);
 
         mpAssembledLinearSystem->AssembleFinalMatrix();
         

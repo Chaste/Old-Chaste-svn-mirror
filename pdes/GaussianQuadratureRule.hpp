@@ -43,6 +43,14 @@ public:
 
 		switch(ELEM_DIM)
 		{
+			case 0 :
+			{
+				// mNumQuadPoints should have been set to be one as
+				// it is numPointsInEachDim^{0}
+				mWeights.push_back(1);
+				mPoints.push_back(Point<ELEM_DIM>()); 
+			}
+			break;
 			case 1 :
 			{
 				switch(numPointsInEachDimension)

@@ -8,7 +8,7 @@ template<int DIM>
 class Point
 {
 private:
-    double mLocation[DIM];
+    double mLocation[DIM?DIM:1]; // Bodge to allow zero dimensional points
 
 public:
 

@@ -14,7 +14,10 @@ class TestPoint : public CxxTest::TestSuite
 	 */
 	void testSetAndGetCoordinate(void)
 	{
+		// check doesnt crash if a 0-dimensional point.
+		Point<0> point0;
 		Point<1> point1;
+		
 		double value = 12.0;
 		int index = 0;
 		point1.SetCoordinate(index, value);

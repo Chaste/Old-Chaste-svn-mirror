@@ -3,12 +3,34 @@
 
 #include <cxxtest/TestSuite.h>
 #include "LinearBasisFunction.cpp"
+#include "GaussianQuadratureRule.hpp"
 #include "VectorDouble.hpp"
 #include <vector>
 
 class TestLinearBasisFunction : public CxxTest::TestSuite 
 {
 	public:
+	
+	void testLinearBasisFunction0d() 
+	{
+		Point<0> zero;
+		LinearBasisFunction<0> basis_func;
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
+
+		std::vector<double> basis_function_vector;
+		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
+		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
+		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
+		
+		// check link with 0d quad rule works ok 
+		GaussianQuadratureRule<0>  quad_rule(1);
+		Point<0>   quad_point = quad_rule.GetQuadPoint(0);
+
+		std::vector<double> basis_function_vector2;
+		basis_function_vector2 = basis_func.ComputeBasisFunctions(quad_point);
+		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
+		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);	
+	}
 	
 	void testLinearBasisFunction1d()
 	{

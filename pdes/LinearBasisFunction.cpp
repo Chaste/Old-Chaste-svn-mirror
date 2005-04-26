@@ -20,9 +20,14 @@
 template <int ELEM_DIM>
 double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex)
 {
-	assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+	assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
 	switch(ELEM_DIM)
 	{
+	case 0:
+		assert(basisIndex == 0);
+		return 1.0;
+		break;			
+
 	case 1:
 		assert(basisIndex == 0 || basisIndex == 1);
     	if(basisIndex == 0)
@@ -166,7 +171,7 @@ template <int ELEM_DIM>
 std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> psi)
 {
     std::vector<double> basisValues(ELEM_DIM+1);
-    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
     for(int i=0;i<ELEM_DIM+1;i++)
     {
         basisValues[i] = ComputeBasisFunction(psi,i);

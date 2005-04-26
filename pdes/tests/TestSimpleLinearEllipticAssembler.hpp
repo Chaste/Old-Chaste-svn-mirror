@@ -41,7 +41,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	}
 	
 	
-	void TestWithHeatEquation()
+	void TestWithHeatEquation()   
 	{
 		PetscInitialize(0, NULL, 0, 0);
 		
