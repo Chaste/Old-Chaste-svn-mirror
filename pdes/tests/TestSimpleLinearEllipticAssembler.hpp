@@ -93,9 +93,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		VecRestoreArray(result, &res);
 	}
     
-    /**
-     * \todo Don't try to apply a Neumann condition if there isn't one
-     */
 	void TestWithHeatEquationAndMeshReader()   
 	{ 
 		PetscInitialize(0, NULL, 0, 0);
@@ -276,6 +273,55 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         }
         //TS_TRACE("here simp lin");
     }
+
+	/**
+	 * \todo
+	 * Skeleton 2d test. Need to check real solution.
+	 */
+	void todoTest2dHeatEquation()
+	{ 
+		PetscInitialize(0, NULL, 0, 0);
+		
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		LinearHeatEquationPde<2> pde;
+		
+		// Boundary conditions
+        BoundaryConditionsContainer<2,2> bcc;
+        ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+        pBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), pBoundaryCondition);
+        pBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(2), pBoundaryCondition);
+        pBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), pBoundaryCondition);
+        
+		// Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		SimpleLinearEllipticAssembler<2,2> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		// Solution should be u = 0.5*x*(3-x)
+		for (int i=0; i < mesh.GetNumElements()+1; i++)
+		{
+			double x = 0.0 + 0.15*i;
+			double u = 0.5*x*(3-x);
+			TS_ASSERT_DELTA(res[i], u, 0.001);
+		}
+		VecRestoreArray(result, &res);
+	}
+
     
 };
  
