@@ -19,8 +19,6 @@ MatrixDouble::MatrixDouble(int Rows, int Columns)
 }
 
 
-
-
 MatrixDouble::MatrixDouble(const MatrixDouble& rOtherMatrix)
 {
 	mRows = rOtherMatrix.mRows;
@@ -35,20 +33,10 @@ MatrixDouble::MatrixDouble(const MatrixDouble& rOtherMatrix)
 }
 
 
-
-
-
-
-
 MatrixDouble::~MatrixDouble()
 {
 	delete mElementArray;
 }
-
-
-
-
-
 
 
 MatrixDouble& MatrixDouble::operator=(const MatrixDouble& rOtherMatrix)
@@ -61,9 +49,6 @@ MatrixDouble& MatrixDouble::operator=(const MatrixDouble& rOtherMatrix)
 	}
 	return *this;
 }
-
-
-
 
 
 double& MatrixDouble::operator()(int Row, int Column) const
@@ -81,11 +66,12 @@ int MatrixDouble::Rows( void ) const
 {
 	return mRows;
 }
+
+
 int MatrixDouble::Columns( void ) const
 {
 	return mColumns;
 }		
-
 
 
 MatrixDouble& MatrixDouble::operator*(double scalar)
@@ -98,6 +84,16 @@ MatrixDouble& MatrixDouble::operator*(double scalar)
 }
 
 
+MatrixDouble& operator*(double scalar, const MatrixDouble &rMatrix)
+{
+	MatrixDouble result(rMatrix.Rows(), rMatrix.Columns());
+	for (int i=0; i<rMatrix.mNumberOfElements; i++)
+	{
+		result.mElementArray[i] = rMatrix.mElementArray[i] * scalar;
+	}
+	return result;
+}
+
 
 MatrixDouble MatrixDouble::Identity(int Size)
 {
@@ -108,6 +104,7 @@ MatrixDouble MatrixDouble::Identity(int Size)
 	}
 	return Eye;
 }
+
 
 double MatrixDouble::Determinant() const
 {
@@ -127,6 +124,7 @@ double MatrixDouble::Determinant() const
              + mElementArray[6]*(mElementArray[1]*mElementArray[5] - mElementArray[2]*mElementArray[4]);
 	}
 }
+
 
 MatrixDouble MatrixDouble::Inverse( void ) const
 {
@@ -160,6 +158,7 @@ MatrixDouble MatrixDouble::Inverse( void ) const
 	return Inverse;
 }
 
+
 VectorDouble MatrixDouble::operator*(VectorDouble& rSomeVector)
 {
 	assert(mColumns==rSomeVector.Size());
@@ -175,3 +174,41 @@ VectorDouble MatrixDouble::operator*(VectorDouble& rSomeVector)
 	}
 	return result;
 }
+	
+VectorDouble operator* (const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix)
+{
+	assert(rSomeVector.Size()==rSomeMatrix.Rows());
+	VectorDouble result(rSomeMatrix.Columns());
+	int index;
+	for( int i = 0; i < rSomeMatrix.Columns(); i++)
+	{
+		for(int j = 0; j < rSomeMatrix.Rows(); j++)
+		{
+			result(i) += rSomeMatrix(j,i)*rSomeVector(j);
+		}
+	}
+	return result;
+}
+
+	
+MatrixDouble MatrixDouble::Transpose()
+{
+	MatrixDouble result(mColumns, mRows);
+	for( int i = 0; i < mRows; i++)
+	{
+		for(int j = 0; j < mColumns; j++)
+		{
+			result(j,i) = (*this)(i,j);
+		}
+	}
+	return result;
+}
+
+void MatrixDouble::ResetToZero( void )
+{
+	for (int i=0; i<mNumberOfElements; i++)
+	{
+		mElementArray[i]=0;
+	}
+}
+

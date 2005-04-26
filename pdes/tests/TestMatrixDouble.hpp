@@ -62,7 +62,22 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		}
 	}
 	
-	
+		void testOtherScalarMultiplication()
+	{
+		for (int i=2; i<4; i++)
+		{
+			for (int j=1; j<3; j++)
+			{
+				MatrixDouble A(i,j);
+				A(0,0) = 1.0;
+				A(1,0) = 2.0;
+				A = 3.0 * A;
+				TS_ASSERT_DELTA(A(0,0), 3.0, 0.000001);
+				TS_ASSERT_DELTA(A(1,0), 6.0, 0.000001);
+				if (j>1) TS_ASSERT_DELTA(A(1,1), 0.0, 0.000001);
+			}
+		}
+	}
 	void testIdentity()
 	{
 		MatrixDouble A=MatrixDouble::Identity(3);
@@ -204,6 +219,71 @@ class TestMatrixDouble : public CxxTest::TestSuite
 			TS_ASSERT_DELTA( c(i), matlab_calc_c(i), 0.000001);
 		}
 		
+	}
+	
+	
+	
+	void testTranspose()
+	{
+		MatrixDouble A(3,2), B(2,3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		B=A.Transpose();
+		for (int i=0; i<3; i++)
+		{
+			for (int j=0; j<2; j++)
+			{
+				TS_ASSERT_DELTA(A(i,j), B(j,i), 0.00000001);
+			}
+		}
+	}
+
+	void TestVectorMatrixMultiplication( void )
+	{
+		MatrixDouble A(3,2);
+		VectorDouble b(2);
+		VectorDouble c(3);
+		VectorDouble matlab_calc_b(3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		c(0) = 1;
+		c(1) = 2;
+		c(2) = 3;
+		matlab_calc_b(0) = 30.4;
+		matlab_calc_b(1) = 41.0;
+		b = c * A;
+		for( int i = 0; i < 2; i++)
+		{
+			TS_ASSERT_DELTA( b(i), matlab_calc_b(i), 0.000001);
+		}
+		
+	}
+	
+void TestResetToZero( void )
+	{
+		MatrixDouble A(3,2);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		A.ResetToZero();
+		for( int i = 0; i < 3; i++)
+		{
+			for( int j = 0; j<2; j++)
+			{
+				TS_ASSERT_DELTA( A(i,j), 0.0, 0.000001);
+			}
+		}
 	}
 
 }; 

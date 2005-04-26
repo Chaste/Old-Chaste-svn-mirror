@@ -20,9 +20,14 @@ class MatrixDouble
 		int Columns( void ) const;
 		MatrixDouble Inverse( void ) const;
 		double Determinant( void ) const;
+		void ResetToZero( void );
 		
 		MatrixDouble& operator*(double scalar);
+		friend MatrixDouble& operator*(double scalar, const MatrixDouble& rMatrix);
+		friend VectorDouble operator*(const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix);
 		VectorDouble operator*(VectorDouble& rSomeVector);
+		MatrixDouble Transpose();
 };
+
 
 #endif //_MATRIXDOUBLE_HPP_
