@@ -262,25 +262,38 @@ std::vector<int> AbstractMeshReader::GetNextBoundaryEdge()
 	return GetNextBoundaryFace();
 }
 
+/**
+ * Some file formats have a list of all faces and others only have a
+ * list of the boundary faces. In order for consistency among the 
+ * concrete classes, we here provide the functionality to remove the 
+ * internal faces.
+ * The original face data is actually preserved. We simply copy the 
+ * boundary face data to another place.
+ */
+
 std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
 {
 	std::vector< std::vector<int> > boundary_faces; 	
-	std::vector<int> current_element;
-	std::vector<int> current_face;
 
-	for (int j=0; j<mNumFaces; j++)
+	
+	// Iterate over all faces
+	for (int faceIndex=0; faceIndex<mNumFaces; faceIndex++)
 	{
-		current_face = mFaceData[j];
+		std::vector<int> current_face = mFaceData[faceIndex];
+		// Initialise count of how many elements this face belongs to
 		int num_of_elements = 0;
-		std::vector< std::vector<int> >::iterator p_ele_iterator;
-		p_ele_iterator = mElementData.begin();
-		
-		while (num_of_elements < 2 && p_ele_iterator < mElementData.end() )
+
+		// Iterate over all elements		
+		for (int elementIndex = 0; elementIndex < mNumElements && num_of_elements < 2; 
+															elementIndex++ )
 		{
 			int num_of_matches = 0;
-			current_element = *p_ele_iterator;
+			std::vector<int> current_element = mElementData[elementIndex];
+			
+			//Iterate over indices of the element
 			for (int count = 0; count<=mDimension && num_of_matches >= count-1; count++)
 			{
+				//Iterate over indices of the face
 				for (int i=0; i<mDimension; i++)
 				{
 					if (current_face[i] == current_element[count])
@@ -290,17 +303,23 @@ std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
 					}
 				}						
 			}	
+			//The current face is a member of the current element
 			if (num_of_matches == mDimension)
 			{
 				num_of_elements++;
 			}		
-			p_ele_iterator++;
+
 		}
-		if ( num_of_elements < 2 )
+		// A face belonging to exactly one element is a boundary face
+		if ( num_of_elements == 1 )
 		{
 			boundary_faces.push_back(current_face);
 			mNumBoundaryFaces++;
 		}		
+		else if (num_of_elements != 2 )
+		{
+			throw Exception("All faces should belong to either one or two elements. ");
+		}
 	}	
 	
 	return boundary_faces;
