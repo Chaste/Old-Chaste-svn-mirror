@@ -96,7 +96,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     /**
      * \todo Don't try to apply a Neumann condition if there isn't one
      */
-	void noTestWithHeatEquationAndMeshReader()   
+	void TestWithHeatEquationAndMeshReader()   
 	{ 
 		PetscInitialize(0, NULL, 0, 0);
 		

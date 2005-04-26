@@ -188,16 +188,19 @@ private:
 				
 				/**
 				 * \todo
-				 * Need to check surf_element is in the Neumann surface here.
+				 * Check surf_element is in the Neumann surface in an efficient manner.
 				 */
-				b_surf_elem.ResetToZero();
-				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
-
-				for (int i=0; i<num_surf_nodes; i++)
-	            {
-	            	int node1 = surf_element.GetNodeGlobalIndex(i);
-	            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
-	            }     
+				if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
+				{
+					b_surf_elem.ResetToZero();
+					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+	
+					for (int i=0; i<num_surf_nodes; i++)
+		            {
+		            	int node1 = surf_element.GetNodeGlobalIndex(i);
+		            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+		            }
+				}
 				surf_iter++;
 			}
 		}

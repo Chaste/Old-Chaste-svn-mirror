@@ -71,7 +71,10 @@ public:
     	{
     		if (ELEMENT_DIM ==  SPACE_DIM)
     		{
-    			// TODO: Jacobian for sub-elements    
+    			/**
+    			 * \todo
+				 * Jacobian for sub-elements    
+    			 */
     			mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
     			mpInverseJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
     			

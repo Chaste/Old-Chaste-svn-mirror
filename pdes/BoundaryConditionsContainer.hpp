@@ -102,7 +102,10 @@ public:
 	 */
 	void DefineZeroDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 	{
-		//TODO: make this a loop over boundary nodes only
+		/**
+		 * \todo
+		 *  make this a loop over boundary nodes only
+		 */
 		for(int i=0;i<pMesh->GetNumNodes();i++)
 		{
 			const Node<SPACE_DIM>* rNode = pMesh->GetNodeAt(i);
@@ -136,6 +139,7 @@ public:
 	}
 	
 	/**
+	 * \todo
 	 *  Alter the residual vector for a nonlinear system to satisfy dirichlet boundary conditions
 	 */
 	// TODO:
@@ -174,6 +178,18 @@ public:
 		assert(neumannIterator!=mpNeumannMap->end());
 
 		return neumannIterator->second->GetValue(x);	
+	}
+	
+	/**
+	 * Test if there is a Neumann boundary condition defined on the given element.
+	 * 
+	 * \todo
+	 * This is a horrendously inefficient fix.
+	 */
+	bool HasNeumannBoundaryCondition(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement) {
+		neumannIterator = mpNeumannMap->find(pSurfaceElement);
+
+		return (neumannIterator != mpNeumannMap->end());
 	}
 	
 };
