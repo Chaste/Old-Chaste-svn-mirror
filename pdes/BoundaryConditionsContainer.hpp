@@ -8,6 +8,7 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include "ConformingTetrahedralMesh.hpp"
+#include "LinearSystem.hpp"
 
 /**
  * Boundary Conditions Container

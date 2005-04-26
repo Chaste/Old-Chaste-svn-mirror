@@ -1,9 +1,7 @@
 #ifndef _TESTTIMEDEPENDENTDIFFUSIONEQUATIONPDE_HPP_
 #define _TESTTIMEDEPENDENTDIFFUSIONEQUATIONPDE_HPP_
 
-
 #include <cxxtest/TestSuite.h>
-
 #include "TimeDependentDiffusionEquationPde.hpp"
 
 class TestTimeDependentDiffusionEquationPde : public CxxTest::TestSuite

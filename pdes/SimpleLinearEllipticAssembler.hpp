@@ -39,15 +39,15 @@ private:
 		
 		// Initialise element contributions to zero
 		const int num_nodes = rElement.GetNumNodes();
-		for (int row=0; row < num_nodes; row++)
-		{
-			for (int col=0; col < num_nodes; col++)
-			{
-				rAElem(row,col) = 0.0;
-			}
-			rBElem(row) = 0.0;
-		}
-		
+//		for (int row=0; row < num_nodes; row++)
+//		{
+//			for (int col=0; col < num_nodes; col++)
+//			{
+//				rAElem(row,col) = 0.0;
+//			}
+//			rBElem(row) = 0.0;
+//		}
+//		
 		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 		{
 			Point<ELEMENT_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
@@ -155,6 +155,8 @@ private:
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
                         
+            a_elem.ResetToZero();
+            b_elem.ResetToZero();
             AssembleOnElement(element, a_elem, b_elem, pPde, basis_function);
             
             for (int i=0; i<num_nodes; i++)
@@ -188,7 +190,7 @@ private:
 				 * \todo
 				 * Need to check surf_element is in the Neumann surface here.
 				 */
-
+				b_surf_elem.ResetToZero();
 				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
 
 				for (int i=0; i<num_surf_nodes; i++)
