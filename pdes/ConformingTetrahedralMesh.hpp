@@ -46,7 +46,7 @@ public:
     //void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,std::vector<int> boundaryElementIndices);
     //void AddNode(Node<SPACE_DIM> newNode ,bool isBoundaryNode);
         
-    const Node<SPACE_DIM>& GetNodeAt(long index) const;
+    const Node<SPACE_DIM> *GetNodeAt(long index) const;
 
     long GetNumNodes();
     long GetNumElements();

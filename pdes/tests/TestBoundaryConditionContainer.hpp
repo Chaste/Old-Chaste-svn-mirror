@@ -156,7 +156,8 @@ public:
 		{
 			double value = bcc3.GetNeumannBCValue(elements3[i], elements3[i]->GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value, i, 1e-12 );
-		}				
+		}	
+        //TS_TRACE("here bound1\n");			
 	}
 
 	
@@ -199,30 +200,35 @@ public:
 		{
 	        TS_ASSERT_DELTA(solution_elements[i], -1.0, 0.000001);
 		}
-        TS_ASSERT_DELTA(solution_elements[9], 11.0, 0.000001);				
+        TS_ASSERT_DELTA(solution_elements[9], 11.0, 0.000001);		
+//         //TS_TRACE("here bound2\n");		
 	}
 
 	void TestDefineZeroDirichletOnMeshBoundary()
 	{ 
 		ConformingTetrahedralMesh<3,3>* pMesh = new ConformingTetrahedralMesh<3,3>;
-		
+//		//TS_TRACE("here bound3a\n");
 		// add 10 boundary nodes
 		for(int i=0; i<10; i++)
 		{
 			pMesh->AddNode(Node<3>(i,true,i,i,i));
 		}
-		
+//		//TS_TRACE("here bound3b\n");
 		//TS_ASSERT_EQUALS(&(pMesh->GetNodeAt(0)), nodes[0]); // Fails :(
 
-		BoundaryConditionsContainer<3,3> bcc;
-		bcc.DefineZeroDirichletOnMeshBoundary(pMesh);
-		
+		BoundaryConditionsContainer<3,3>* pbcc=new BoundaryConditionsContainer<3,3>;
+        
+//        //TS_TRACE("here bound3c\n");
+		pbcc->DefineZeroDirichletOnMeshBoundary(pMesh);
+//		////TS_TRACE("here bound3d\n");
 		for(int i=0; i<10; i++)
 		{
-			double value = bcc.GetDirichletBCValue(&(pMesh->GetNodeAt(i)));
+			double value = pbcc->GetDirichletBCValue(pMesh->GetNodeAt(i));
 			TS_ASSERT_DELTA(value,0,1e-12);
-		}				
+		}
+//        	 //TS_TRACE("here bound3\n");			
 	}	
+    
 };
 
 

@@ -150,7 +150,7 @@ public :
 				}
 			}
 		}
-			
+			//TS_TRACE("here gauss quad\n");
 	}
 		
 };

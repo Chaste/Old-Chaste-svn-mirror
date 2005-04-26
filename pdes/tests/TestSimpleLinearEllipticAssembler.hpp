@@ -8,6 +8,7 @@
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include <vector>
+#include <iostream>
 #include "Node.hpp"
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -69,7 +70,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		// Boundary conditions
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(&(mesh.GetNodeAt(0)), pBoundaryCondition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
 		// Linear solver
 		SimpleLinearSolver solver;
@@ -130,7 +131,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // u(-1)=1 u'(-3)=1
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-        bcc.AddDirichletBoundaryCondition(&(mesh.GetNodeAt(0)), pBoundaryCondition);
+        //std::cout << *mesh.GetNodeAt(0)<< "\n";
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         // element is still the last element in the mesh
@@ -150,7 +152,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int ierr = VecGetArray(result, &res);
         for (int i=0; i<=num_elements; i++)//result.Size()
         {
-            double x = mesh.GetNodeAt(i).GetPoint()[0];
+            double x = mesh.GetNodeAt(i)->GetPoint()[0];
             // std::cout << x << "," << res[i] << "\n";
         }
         for (int i=0; i < num_elements+1; i++)
@@ -159,6 +161,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             double u = 1 - 0.5*(x+1)*(5+x);
             TS_ASSERT_DELTA(res[i], u, 0.001);
         }
+        //TS_TRACE("here simp lin");
     }
 };
 

@@ -191,7 +191,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(transDeriv3[1](0),  0.5, 1e-12);
 		TS_ASSERT_DELTA(transDeriv3[2](0),    0, 1e-12);
 		TS_ASSERT_DELTA(transDeriv3[3](0),    0, 1e-12);
-				
+			//TS_TRACE("here lin basis\n");	
 	}
 };
 

@@ -55,7 +55,7 @@ class TestPoint : public CxxTest::TestSuite
 
 		Point<1> point7;
 		TS_ASSERT_DELTA(point7[0], 0, 1e-12);
-
+        //TS_TRACE("here point\n");
 	}
 };
 

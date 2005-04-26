@@ -104,11 +104,11 @@ public:
 		//TODO: make this a loop over boundary nodes only
 		for(int i=0;i<pMesh->GetNumNodes();i++)
 		{
-			const Node<SPACE_DIM>& rNode = pMesh->GetNodeAt(i);
-			if(rNode.IsBoundaryNode())
+			const Node<SPACE_DIM>* rNode = pMesh->GetNodeAt(i);
+			if(rNode->IsBoundaryNode())
 			{	
 				ConstBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0);
-				AddDirichletBoundaryCondition( &rNode , pZeroBoundaryCondition );
+				AddDirichletBoundaryCondition( rNode , pZeroBoundaryCondition );
 			}
 		}		
 	}

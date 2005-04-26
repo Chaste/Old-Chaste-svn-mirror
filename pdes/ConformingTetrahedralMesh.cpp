@@ -92,10 +92,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> 
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-const Node<SPACE_DIM>& ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index) const
+const Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index) const
 {
 	assert(index < mNodes.size());
-    return mNodes[index];
+    return &(mNodes[index]);
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
