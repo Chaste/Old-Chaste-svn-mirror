@@ -1,5 +1,6 @@
 #include "VectorDouble.hpp"
 #include <cassert>
+#include <iostream>
 
 VectorDouble::VectorDouble(int Size)
 {
@@ -13,9 +14,6 @@ VectorDouble::VectorDouble(int Size)
 	}
 }
 
-
-
-
 VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
 {
 	mSize = rOtherVector.mSize;
@@ -27,22 +25,10 @@ VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
 	}
 }
 
-
-
-
-
-
-
 VectorDouble::~VectorDouble()
 {
 	delete mElementArray;
 }
-
-
-
-
-
-
 
 VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
 {
@@ -65,7 +51,6 @@ double VectorDouble::dot(const VectorDouble &rOtherVector) const
 	return product;
 }
 
-
 double& VectorDouble::operator()(int Entry) const
 {
 	assert(Entry > -1);
@@ -86,7 +71,7 @@ void VectorDouble::ResetToZero( void )
 	}
 }
 
-VectorDouble& VectorDouble::VectorProduct( VectorDouble& rSomeVector )
+VectorDouble VectorDouble::VectorProduct(const VectorDouble& rSomeVector )
 {
 	assert(mSize==3);
 	assert(rSomeVector.Size()==3);

@@ -17,7 +17,7 @@ class VectorDouble
 		int Size( void ) const;
 		double dot(const VectorDouble& rOtherVector) const;
 		void ResetToZero( void );
-		VectorDouble& VectorProduct(VectorDouble& rOtherVector);
+		VectorDouble VectorProduct(const VectorDouble& rOtherVector);
 };
 
 #endif //_VECTORDOUBLE_HPP_
