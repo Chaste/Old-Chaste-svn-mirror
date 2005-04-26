@@ -115,6 +115,27 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         //TS_TRACE("here con tetra\n");
 	}
 	
+	void testMeshWithBoundaryElements(void)
+	{
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Check for the right number of boundary edges
+		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100);
+		
+		// Check all boundary elements have nodes on the boundary
+		ConformingTetrahedralMesh<DIM,DIM>::BoundaryElementIterator it = mesh.GetFirstBoundaryElement();
+		while (it != mesh.GetLastBoundaryElement())
+		{
+			for (int i=0; i<(*it)->GetNumNodes(); i++)
+			{
+				TS_ASSERT((*it)->GetNode(i)->IsBoundaryNode());
+			}
+			it++;
+		}
+	}
+	
 };
 
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

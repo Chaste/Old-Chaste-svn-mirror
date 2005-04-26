@@ -48,6 +48,25 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		}
 		mElements.push_back(Element<ELEMENT_DIM,SPACE_DIM>(nodes));
 	}
+	
+	// Add boundary elements & nodes
+	for (int i=0; i<rMeshReader.GetNumBoundaryFaces(); i++)
+	{
+		node_indices = rMeshReader.GetNextBoundaryFace();
+		std::vector<Node<SPACE_DIM>*> nodes;
+		for (int j=0; j<node_indices.size(); j++)
+		{
+			// Add Node pointer to list for creating an element
+			nodes.push_back(&mNodes[node_indices[j]]);
+			// If Node hasn't been marked as a boundary node, do so
+			if (!mNodes[node_indices[j]].IsBoundaryNode())
+			{
+				mNodes[node_indices[j]].SetAsBoundaryNode();
+				mBoundaryNodes.push_back(&mNodes[node_indices[j]]);
+			}
+		}
+		mBoundaryElements.push_back(new Element<ELEMENT_DIM-1,SPACE_DIM>(nodes));
+	}
 }
 
 //template<int ELEMENT_DIM, int SPACE_DIM>
@@ -115,6 +134,18 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
     return mElements.size();
+}
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
+{
+    return mBoundaryNodes.size();
+}
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
+{
+    return mBoundaryElements.size();
 }
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

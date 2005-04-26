@@ -22,6 +22,7 @@ class ConformingTetrahedralMesh
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> >::const_iterator MeshIterator;
     typedef typename std::vector<const Element<ELEMENT_DIM-1, SPACE_DIM>*>::const_iterator BoundaryElementIterator;
+    typedef typename std::vector<const Node<SPACE_DIM>*>::const_iterator BoundaryNodeIterator;
 private:
 
 	// Note that since these are vectors of objects, not pointers, push_back
@@ -30,10 +31,11 @@ private:
     std::vector<Node<SPACE_DIM> > mNodes;
     
     std::vector<const Element<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
-    std::vector<Node<SPACE_DIM> *> mBoundaryNodes;
+    std::vector<const Node<SPACE_DIM> *> mBoundaryNodes;
     
     MeshIterator mpConstIter;
     BoundaryElementIterator mpBoundaryElementIter;
+    BoundaryNodeIterator mpBoundaryNodeIter;
     
 public:
     
@@ -55,6 +57,8 @@ public:
 
     long GetNumNodes();
     long GetNumElements();
+    long GetNumBoundaryNodes();
+    long GetNumBoundaryElements();
     
     MeshIterator GetFirstElement()
     {
@@ -76,6 +80,17 @@ public:
     {
     	mpBoundaryElementIter = mBoundaryElements.end();
     	return mpBoundaryElementIter;
+    }
+
+    BoundaryNodeIterator GetFirstBoundaryNode()
+    {
+    	mpBoundaryNodeIter = mBoundaryNodes.begin();
+    	return mpBoundaryNodeIter;
+    }
+    BoundaryNodeIterator GetLastBoundaryNode()
+    {
+    	mpBoundaryNodeIter = mBoundaryNodes.end();
+    	return mpBoundaryNodeIter;
     }
     
 };
