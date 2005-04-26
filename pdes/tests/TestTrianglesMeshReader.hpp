@@ -300,11 +300,11 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	void testGetNextBoundaryEdge(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/square_2_elements");
+		                  "pdes/tests/meshdata/disk_522_elements");
 		
 		std::vector<int> NextEdge;
 		
-		TS_ASSERT(spMeshReader->GetNumBoundaryEdges() == 4);
+		TS_ASSERT(spMeshReader->GetNumBoundaryEdges() == 100);
 		
 		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryFace());
 		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryFace());
