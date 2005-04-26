@@ -8,9 +8,11 @@ files = glob.glob('*.cpp')
 os.chdir(curdir)
 
 testfiles = glob.glob('../tests/Test*.hpp')
+os.chdir('../')
+testsource = glob.glob('tests/*.cpp')
+os.chdir(curdir)
 
-
-base  = '-Icxxtest -Idatawriters -Icancer -I. '
+base  = '-Icxxtest -Idatawriters -Icancer -Iodes -Ipdes -Icancer/tests -I. '
 
 petsc_base = '../../petsc-2.2.1/'
 petsc_inc = '-I'+petsc_base+'include '
@@ -22,7 +24,7 @@ petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'
 
 
 all_libs= ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
-'petscmat', 'petscvec', 'petsc', 'datawriter','cancer']
+'petscmat', 'petscvec', 'petsc', 'datawriter','cancer','testcancer','pde','ode']
 
 
 opt = Environment(CCFLAGS = base+petsc_incs,BOPT='g_c++',CXX='/usr/bin/g++')
@@ -34,6 +36,7 @@ opt['BUILDERS']['RunTests'] = runtests
 opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 
 opt.Library('cancer',files)
+opt.Library('testcancer',testsource)
 opt.Test('runner.cpp',testfiles) 
 opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '.', petsc_libpath])
 opt.RunTests('build.log','testrunner')

@@ -8,8 +8,11 @@ files = glob.glob('*.cpp')
 os.chdir(curdir)
 
 testfiles = glob.glob('../tests/Test*.hpp')
+os.chdir('../')
+testsource = glob.glob('tests/*.cpp')
+os.chdir(curdir)
 
-base  = '-Icxxtest  -Idatawriters -I. '
+base  = '-Icxxtest  -Idatawriters -I. -Idatawriters/tests '
 
 opt = Environment(CCFLAGS = base ,CXX='/usr/bin/g++')
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
@@ -18,8 +21,9 @@ runtests = Builder(action = './$SOURCE | tee $TARGET')
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
 
+opt.Library('testdatawriter',testsource)
 opt.Library('datawriter',files)
 opt.Test('runner.cpp',testfiles) 
 
-opt.Program('testrunner',['runner.cpp'], LIBS=['datawriter'],LIBPATH=['.'])
+opt.Program('testrunner',['runner.cpp'], LIBS=['datawriter','testdatawriter'],LIBPATH=['.'])
 opt.RunTests('build.log','testrunner')
