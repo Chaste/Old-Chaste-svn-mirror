@@ -86,7 +86,23 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	{
 		faceFileName=pathBaseName+".face";
 	}
-	
+	else if (mDimension == 1)
+	{
+		//There is no file
+		//Set the mFaceData as all the nodes.
+		mNumFaces = mNumNodes;
+		for (int i=0; i<mNumFaces; i++)
+		{
+			std::vector<int> current_item;
+			current_item.push_back(i);
+			mFaceData.push_back(current_item);
+		}
+		mpFaceIterator = mFaceData.begin();
+		//Find out boundary nodes.
+		mBoundaryFaceData = CullInternalFaces();
+		mpBoundaryFaceIterator = mBoundaryFaceData.begin();		
+		return;
+	}
 	mFaceRawData=GetRawDataFromFile(faceFileName);
 	
 	/* Read single line header as at:

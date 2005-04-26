@@ -317,6 +317,28 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_ANYTHING(NextEdge = spMeshReader->GetNextBoundaryEdge());
 		
 	}	
+
+	/**
+	 * Check that the 1D data are read correctly. Check that the output vector
+	 * for a given input file is the correct length. Check that the number of 
+	 * boundary faces is 2.
+	 */
+	
+	void test1DMeshRead(void)
+	{
+		spMeshReader=new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/trivial_1d_mesh");
+		
+		TS_ASSERT( spMeshReader->GetNumNodes() == 11); 
+		
+		TS_ASSERT( spMeshReader->GetNumElements() == 10); 
+		
+		TS_ASSERT( spMeshReader->GetNumFaces() == 11); 		
+		
+		TS_ASSERT( spMeshReader->GetNumBoundaryFaces() == 2); 		
+	
+	}
+
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_
