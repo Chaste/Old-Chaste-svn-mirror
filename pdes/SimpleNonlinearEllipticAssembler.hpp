@@ -22,7 +22,7 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "AbstractNonlinearEllipticAssembler.hpp"
-
+#include "GaussianQuadratureRule.hpp"
 #include "petscsnes.h"
 #include "petscvec.h"
 
@@ -41,16 +41,8 @@ public:
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
                        AbstractNonlinearSolver *solver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
-                               
-    PetscErrorCode ComputeResidual(SNES snes, Vec solutionGuess, Vec residual, void *pContext);
-    
-    PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec input, Mat *pJacobian, 
-    										   MatStructure *pMatStructure, void *pContext); 
-    												   
-    PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
-    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
-    										  void *pContext);                             
+                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule);
+                                
     
 };
 
@@ -68,18 +60,19 @@ SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::~SimpleNonlinearEllipt
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractNonLinearEllipticPde<SPACE_DIM> *pPde, 
+                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractNonLinearSolver *solver,
+                       AbstractNonlinearSolver *solver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule)
 {
-//	mMesh = rMesh;
-//	mpPde = pPde;
-//	mResidual = ComputeResidual();
-//	mJacobian = ComputeJacobian();
+//	PetscErrorCode mMesh = rMesh;
+//	PetscErrorCode mpPde = pPde;
+//	PetscErrorCode mResidual = ComputeResidual(....);
+//	PetscErrorCode mJacobian = ComputeJacobian(...);
 //	
 //	return solver->Solve(&mResidual,&mJacobian,this)
+    return NULL;
 }
 
 

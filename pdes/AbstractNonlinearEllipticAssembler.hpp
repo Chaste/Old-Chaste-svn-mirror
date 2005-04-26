@@ -25,29 +25,17 @@
      * 5. all methods are members of the abstract class
      *  
     */	
-
 template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractNonlinearEllipticAssembler
 {
  // need to put private members
 public:
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                               AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                               AbstractNonlinearSolver *solver, 
-                               AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-                               GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
-                               
-    virtual PetscErrorCode ComputeResidual(SNES snes, Vec solutionGuess, Vec residual, void *pContext) = 0;
-    
-    virtual PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec input, Mat *pJacobian, 
-    												   MatStructure *pMatStructure, void *pContext) = 0; 
-    												   
-    virtual PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
-    												   Mat *pPreconditioner, MatStructure *pMatStructure, 
-    												   void *pContext) = 0;      
-    												   
-    												                          
-    
+                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
+                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+                       AbstractNonlinearSolver *solver,
+                       AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
+                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
+                              
 };
 #endif //_ABSTRACTNONLINEARELLIPTICASSEMBLER_HPP_
