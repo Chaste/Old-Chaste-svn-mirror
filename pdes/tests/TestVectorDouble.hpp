@@ -87,6 +87,23 @@ class TestVectorDouble : public CxxTest::TestSuite
 		
 	}
 	
+	void testScalarVectorAndVectorScalarMultiply()
+	{
+		VectorDouble A(3);
+		VectorDouble B(3);
+		A(0)=1; A(1)=2; A(2)=3;
+		B = 3.0 * A;
+		
+		TS_ASSERT_DELTA(B(0), 3.0, 0.0000000001);
+		TS_ASSERT_DELTA(B(1), 6.0, 0.0000000001);
+		TS_ASSERT_DELTA(B(2), 9.0, 0.0000000001);
+		
+		A = B * 3.0;
+		
+		TS_ASSERT_DELTA(A(0), 9.0, 0.0000000001);
+		TS_ASSERT_DELTA(A(1), 18.0, 0.0000000001);
+		TS_ASSERT_DELTA(A(2), 27.0, 0.0000000001);
+	}
 }; 
 
 #endif //_TESTVECTORDOUBLE_HPP_

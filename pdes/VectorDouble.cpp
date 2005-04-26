@@ -91,3 +91,23 @@ VectorDouble VectorDouble::VectorProduct(const VectorDouble& rSomeVector )
 	
 	return result;
 }
+
+VectorDouble VectorDouble::operator*(double Scalar)
+{
+	VectorDouble result(mSize);
+	for (int i=0; i<mSize; i++)
+	{
+		result(i)=Scalar*(*this)(i);
+	}
+	return result;
+}
+
+VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector)
+{
+	VectorDouble result(rSomeVector.Size());
+	for (int i=0; i<rSomeVector.Size(); i++)
+	{
+		result(i)=Scalar*rSomeVector(i);
+	}
+	return result;
+}
