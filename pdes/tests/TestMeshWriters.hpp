@@ -46,7 +46,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		
 		spMeshWriter->WriteFiles();
 		
-		TS_ASSERT_THROWS_ANYTHING(spNewMeshReader = 
+		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
 								new TrianglesMeshReader("/tmp/MeshFromMemfem"));
 	
 	}
@@ -77,7 +77,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		spMeshWriter->WriteFiles();
 
 
-		TS_ASSERT_THROWS_ANYTHING(spNewMeshReader = 
+		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
 							new TrianglesMeshReader("/tmp/MeshFromFemlab"));
 	}
 	
