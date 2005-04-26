@@ -86,6 +86,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> 
 //    
 //}
 
+/**
+ * Get a node reference from the mesh.
+ * 
+ * Note that this may become invalid if nodes are subsequently added to the mesh.
+ */
 template<int ELEMENT_DIM, int SPACE_DIM>
 const Node<SPACE_DIM>& ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index) const
 {
