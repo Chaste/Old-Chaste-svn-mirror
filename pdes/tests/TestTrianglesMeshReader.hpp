@@ -234,7 +234,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		NextNode = spMeshReader->GetNextNode();
 		
 		TS_ASSERT_DELTA( NextNode[0] , 1.0 , 1e-6 );
-		TS_ASSERT_DELTA( NextNode[1] , 0.0 , 1e-6 )
+		TS_ASSERT_DELTA( NextNode[1] , 0.0 , 1e-6 );
 			    		
 		for (int i = 0; i < 541; i++)
 		{
