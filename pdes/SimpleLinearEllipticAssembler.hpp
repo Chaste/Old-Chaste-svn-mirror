@@ -184,9 +184,10 @@ private:
 			{
 				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 				
-				// !!!!!!!!
-				// TODO:
-				// need to check surf_element is in the Neumann surface here.
+				/**
+				 * \todo
+				 * Need to check surf_element is in the Neumann surface here.
+				 */
 
 				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
 

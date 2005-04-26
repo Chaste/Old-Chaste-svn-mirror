@@ -94,7 +94,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	}
     
     /**
-     * MeshReaders currently can't cope with 1d meshes, so this test isn't run at present.
+     * \todo Don't try to apply a Neumann condition if there isn't one
      */
 	void noTestWithHeatEquationAndMeshReader()   
 	{ 
