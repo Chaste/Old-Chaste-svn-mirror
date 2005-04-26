@@ -6,7 +6,7 @@
  * data necessary to either read or write a mesh.
  */
  
- #ifndef _ABSTRACTMESHREADWRITE_HPP_
+#ifndef _ABSTRACTMESHREADWRITE_HPP_
 #define _ABSTRACTMESHREADWRITE_HPP_
 
 #include <vector>
