@@ -7,10 +7,10 @@
  */ 
   
 #include <vector>
-#include "AbstractNonLinearEllipticPde.hpp"
+#include "AbstractNonlinearEllipticPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "AbstractNonLinearSolver.hpp"
+#include "AbstractNonlinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 #include "petscsnes.h"
@@ -27,14 +27,14 @@
     */	
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractNonLinearEllipticAssembler
+class AbstractNonlinearEllipticAssembler
 {
- 
+ // need to put private members
 public:
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                               AbstractNonLinearEllipticPde<SPACE_DIM> *pPde, 
+                               AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                               AbstractNonLinearSolver *solver, 
+                               AbstractNonlinearSolver *solver, 
                                AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                                GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
                                

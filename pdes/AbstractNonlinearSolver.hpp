@@ -1,0 +1,11 @@
+#ifndef _ABSTRACTNONLINEARSOLVER_HPP_
+#define _ABSTRACTNONLINEARSOLVER_HPP_
+
+class AbstractNonlinearSolver
+{
+	
+	
+};
+
+
+#endif //_ABSTRACTNONLINEARSOLVER_HPP_

@@ -17,24 +17,29 @@
  */ 
   
 #include <vector>
-#include "AbstractNonLinearEllipticPde.hpp"
+#include "AbstractNonlinearEllipticPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "AbstractNonLinearSolver.hpp"
-#include "AbstractNonLinearEllipticAssembler.hpp"
+#include "AbstractNonlinearSolver.hpp"
+#include "AbstractNonlinearEllipticAssembler.hpp"
 
 #include "petscsnes.h"
 #include "petscvec.h"
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractNonLinearEllipticAssembler
+class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>
 {
  
 public:
+	//Constructor
+	SimpleNonlinearEllipticAssembler();
+	//Destructor
+	~SimpleNonlinearEllipticAssembler();
+	
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractNonLinearEllipticPde<SPACE_DIM> *pPde, 
+                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractNonLinearSolver *solver,
+                       AbstractNonlinearSolver *solver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
                                
@@ -48,4 +53,34 @@ public:
     										  void *pContext);                             
     
 };
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::SimpleNonlinearEllipticAssembler()
+{
+//	
+}
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::~SimpleNonlinearEllipticAssembler()
+{
+	//do nothing
+}
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+                       AbstractNonLinearEllipticPde<SPACE_DIM> *pPde, 
+                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+                       AbstractNonLinearSolver *solver,
+                       AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
+                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule)
+{
+//	mMesh = rMesh;
+//	mpPde = pPde;
+//	mResidual = ComputeResidual();
+//	mJacobian = ComputeJacobian();
+//	
+//	return solver->Solve(&mResidual,&mJacobian,this)
+}
+
+
 #endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
