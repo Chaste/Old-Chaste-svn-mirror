@@ -1,7 +1,7 @@
 // TestFemlabMeshReader.hpp
 
 /**
- * Test suite for the FEMLABMESHReader class.
+ * Test suite for the FemlabMeshReader class.
  * 
  */
 
@@ -32,6 +32,13 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
+	/**
+	 * Check that the nodes are read correctly. Checks that the output vector
+	 * for a given input file is the correct length and that if the input file
+	 * is corrupted (missing nodes) then an exception is thrown.
+	 * 
+	 */	 
+	 
 	void testNodesDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
@@ -56,6 +63,13 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT( spFemlabMeshReader->GetDimension() == 2); 
 	}
 	
+	/**
+	 * Check that the elements are read correctly. Checks that the output vector
+	 * for a given input file is the correct length and that if the input file
+	 * is corrupted (missing elements) then an exception is thrown.
+	 * 
+	 */
+	 
 	void testElementsDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
@@ -69,6 +83,13 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 				
 	}	
 
+	/**
+	 * Check that the faces are read correctly. Checks that the output vector
+	 * for a given input file is the correct length and that if the input file
+	 * is corrupted (missing faces) then an exception is thrown.
+	 * 
+	 */
+	 
 	void testFacesDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
@@ -82,6 +103,14 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 				
 	}		
 	
+	/**
+	 * Check that GetNextNode() returns the coordinates of the correct node.
+	 * Compares the coordinates of the first two nodes with their known
+	 * values, checks that no errors are thrown for the remaining nodes and
+	 * that an error is thrown if we try to call the function too many times.
+	 * 
+	 */
+	 
 	void testGetNextNode(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
@@ -113,6 +142,13 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
+	/**
+	 * Check that GetNextElement() works. Checks that no errors are thrown for 
+	 * all of the elements and that an error is thrown if we try to call the 
+	 * function too many times.
+	 * 
+	 */
+	 
 	void testGetNextElement(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
@@ -146,6 +182,13 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
+	/**
+	 * Check that GetNextBoundaryFace() works. Checks that no errors are thrown for 
+	 * all of the elements and that an error is thrown if we try to call the 
+	 * function too many times.
+	 * 
+	 */
+	 
 	void testGetNextBoundaryFace(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(

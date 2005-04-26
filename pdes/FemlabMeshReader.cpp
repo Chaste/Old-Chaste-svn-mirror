@@ -32,34 +32,17 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 	mNumNodes = mNodeData.size(); 
 	//Initialise iterator for public GetNextNode method
 	mpNodeIterator = mNodeData.begin();
-	
-	/*//Check that the size of the data matches the information in the header
-	if (mNumNodes != mNodeData.size())
-	{
-		throw Exception("Number of nodes does not match expected number declared in header");
-	}*/
+
 	
 	//Open element file and store the lines as a vector of strings (minus the comments) 	
 	elementFileName=pathBaseName+elementFileName;
 	mElementRawData=GetRawDataFromFile(elementFileName);
-
- 	/*//Only order-1 triangles or tetrahedra are currently supported
-	if (mNumElementNodes != mDimension+1)
-	{
-		throw Exception("Number of nodes per element is not supported");
-	}*/
 	
 	// Read the rest of the element data using TokenizeStringsToInts method
 	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
 	mNumElements = mElementData.size();
  	mpElementIterator = mElementData.begin();
  	
- 	
- 	/*//Check that the size of the data matches the information in the header
- 	if (mNumElements != mElementData.size())
-	{
-		throw Exception("Number of elements does not match expected number declared in header");
-	}*/
 
 	/*Open face file and store the lines as a vector of strings (minus the comments) 	
 	 * Note that the Triangles equivalent of a face file is an edge file.
@@ -79,24 +62,12 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 	mNumBoundaryFaces = mBoundaryFaceData.size();
 	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
 	
-	/*//Check that the size of the data matches the information in the header
-	if (mNumFaces != mFaceData.size())
-	{
-		throw Exception("Number of faces does not match expected number declared in header");
-	}*/
-	
-	
-	
 }
 
 /** 
  * TokenizeStringsToDoubles is specific to reading node data which came from 
- * a Triangles or Tetgen file.
- * http://tetgen.berlios.de/fformats.node.html
- * http://www-2.cs.cmu.edu/~quake/triangle.node.html
- *  Each string is expected to be an index number, 2 or 3 doubles (representing x,y,z)
- *  an optional list of attributes and an optional boundary marker
- * 	NB: Attributes and boundary markers are currently ignored.
+ * a Femlab or Matlab PDE toolbox file. * 
+ *  Each string is expected to be a series of doubles.
  * Return value is a vector where each item is a vector of double which represents 
  * position.  Indices are implicit in the vector.
  */
@@ -152,19 +123,12 @@ std::vector<std::vector<double> > FemlabMeshReader::TokenizeStringsToDoubles(
 
 /** 
  * TokenizeStringsToInts is for reading element, face or edge data which came from 
- * a Triangles or Tetgen file.
- * http://tetgen.berlios.de/fformats.ele.html
- * http://www-2.cs.cmu.edu/~quake/triangle.ele.html
- * http://tetgen.berlios.de/fformats.face.html
- * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
- *  Each string is expected to be:
- *  an index number, 
- *  2, 3 or 4 node indices
+ * a Femlab or Matlab PDE toolbox file.
+ *  Each string is expected to be a series of int which represent:
+ *  The first several lines denote the indices of nodes
+ *  The rest contains extra information which are ignored currently.
  *  ( In 2-D: 2 indices for an edge, 3 for a triangle)
  *  ( In 3-D: 3 indices for a face, 4 for a tetrahedron)
- *  an optional list of attributes (if it's an element)
- *  and an optional boundary marker (if it's an edge or face)
- * 	NB: Attributes and boundary markers are currently ignored.
  * Return value is a vector where each item is a vector of ints which represents 
  * indices of nodes.  
  */
@@ -182,7 +146,7 @@ std::vector<std::vector<int> > FemlabMeshReader::TokenizeStringsToInts(
      	
      	if (i == 0)
    		{
-   			//Form the vector which represents the position of this item     	     		   		
+   			//First iteration, build the tokenized_data vector and push in x coordinates
 			while (!line_stream.eof())	   		
      		{
      			double item_index;
@@ -197,7 +161,7 @@ std::vector<std::vector<int> > FemlabMeshReader::TokenizeStringsToInts(
    		{
      		int current_node = 0;
      		
-     		//Form the vector which represents the position of this item     	     		   		
+     		//Other iterations, push in coordinates other than x.
 			while (!line_stream.eof())
      		{
 				double item_index;
