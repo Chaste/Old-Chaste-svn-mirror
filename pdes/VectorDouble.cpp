@@ -1,7 +1,6 @@
 #include "VectorDouble.hpp"
 #include <cassert>
 #include <iostream>
-
 #include <math.h>
 
 VectorDouble::VectorDouble(int Size)
