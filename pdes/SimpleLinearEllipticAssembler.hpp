@@ -72,15 +72,16 @@ private:
 					double integrand_value =
 						gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);
 								
-					rAElem(row,col)+= integrand_value*jacobian_determinant
-									*quad_rule.GetWeight(quad_index);
+					rAElem(row,col)+= integrand_value * jacobian_determinant 
+					                  * quad_rule.GetWeight(quad_index);
 				}
 
 				// RHS
 				double integrand_value =
 							pPde->ComputeLinearSourceTerm(x) * phi[row];
 							
-				rBElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
+				rBElem(row) += integrand_value * jacobian_determinant 
+				               * quad_rule.GetWeight(quad_index);
 			}
 		}
 	}		
@@ -93,7 +94,7 @@ private:
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
 	{		
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
-		double jacobian_determinant = 1; assert(0); rSurfaceElement.GetJacobianDeterminant();
+		double jacobian_determinant = 1; //assert(0); rSurfaceElement.GetJacobianDeterminant();
 		
 		// Initialise element contributions to zero
 		const int num_nodes = rSurfaceElement.GetNumNodes();
@@ -119,7 +120,7 @@ private:
 			}
 					
 			// TODO: horrendously inefficient!!!
-			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(rSurfaceElement, x);
+			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 
 			for (int row=0; row < num_nodes; row++)
 			{
@@ -139,7 +140,6 @@ private:
 	{
 		// Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem	= new LinearSystem(rMesh.GetNumNodes());
-        
         
         LinearBasisFunction<ELEMENT_DIM> basis_function;
         
@@ -171,12 +171,37 @@ private:
             iter++;
         }
         
-
-		// for surfelem = 1..numSurfElem
-		// 	 get surfelem
-		//   AssembleOnSurfElem
-		//   add		
+        
+		// add the integrals associated with Neumann boundary conditions to the linear system
+		LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
+		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
+		
+		if (surf_iter != rMesh.GetLastBoundaryElement())
+		{
+			const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+			VectorDouble b_surf_elem(num_surf_nodes);
 	
+			while (surf_iter != rMesh.GetLastBoundaryElement())
+			{
+				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+				
+				// !!!!!!!!
+				// TODO:
+				// need to check surf_element is in the Neumann surface here.
+				
+				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+				       
+				for (int i=0; i<num_surf_nodes; i++)
+	            {
+	            	int node1 = surf_element.GetNodeGlobalIndex(i);
+	            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+	            }     
+				surf_iter++;
+			}
+		}
+ 
+	
+		// apply dirichlet boundary conditions
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);   
 

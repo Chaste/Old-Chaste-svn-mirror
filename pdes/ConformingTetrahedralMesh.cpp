@@ -68,6 +68,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> 
 	newNode.SetIndex(mNodes.size());
     mNodes.push_back(newNode);
 }
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddSurfaceElement(const Element<ELEMENT_DIM-1, SPACE_DIM> *pNewElement)
+{
+	mBoundaryElements.push_back(pNewElement);
+}
+
 //template<int ELEMENT_DIM, int SPACE_DIM>
 //void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,
 //                                                                   std::vector<int> boundaryIndices)

@@ -134,15 +134,16 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         //std::cout << *mesh.GetNodeAt(0)<< "\n";
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
         // element is still the last element in the mesh
+        mesh.AddSurfaceElement(element.GetLowerOrderElement(0));
         bcc.AddNeumannBoundaryCondition(element.GetLowerOrderElement(0),
                                         pNeumannBoundaryCondition);
         
         // Linear solver
         SimpleLinearSolver solver;
         
-        // Assembler
+        // Assembler 
         SimpleLinearEllipticAssembler<1,1> assembler;
         
         Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
@@ -164,5 +165,5 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         //TS_TRACE("here simp lin");
     }
 };
-
+ 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
