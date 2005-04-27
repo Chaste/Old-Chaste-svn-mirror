@@ -9,9 +9,11 @@
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include <vector>
+#include <iostream>
 #include "Node.hpp" 
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
+#include "VaryingDiffusionAndSourceTermPde.hpp"
 
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {
@@ -284,7 +286,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(res[4], 1.0/12.0, 0.001);
 	}
 	
-    void TestHeatEquationWithNeumannOnUnitDisc( void )
+	void TestHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
@@ -329,6 +331,62 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         }
     }
     
+	void dontTestVaryingPdeAndMeshReader1D()   
+	{ 
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+		std::cout << "Initializing those pesky kids again...\n";
+		std::cout.flush();
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
+		
+		// Create mesh from mesh reader \TODO set to correct mesh file
+		std::cout << "Reading mesh...\n";
+		std::cout.flush();
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		VaryingDiffusionAndSourceTermPde<1> pde;  
+		
+		// Boundary conditions
+		// u(1)=4
+		std::cout << "Setting Boundary conditions...\n";
+		std::cout.flush();
+        BoundaryConditionsContainer<1,1> bcc;
+        ConstBoundaryCondition<1>* pBoundaryDirichletCondition = new ConstBoundaryCondition<1>(4.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryDirichletCondition);
+        // u'(1)=7
+        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(7.0);
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
+        iter--;
+        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+        
+		// Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		std::cout << "Starting assemble...\n";
+		std::cout.flush();
+		SimpleLinearEllipticAssembler<1,1> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		// Solution should be u = 0.5*x*(3-x)
+		for (int i=0; i < mesh.GetNumElements()+1; i++)
+		{
+			const Node<1>* p_current_node = mesh.GetNodeAt(i);
+			double x = (p_current_node->GetPoint())[0] ;
+			double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
+			TS_ASSERT_DELTA(res[i], u, 0.001);
+		}
+		VecRestoreArray(result, &res);
+	}
+	
 
 };
  
