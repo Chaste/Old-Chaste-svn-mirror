@@ -327,7 +327,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             double u = -0.25 * r.L2Norm() * r.L2Norm() + 2.25;
             TS_ASSERT_DELTA(res[i], u, 0.01);
         }
-        TS_TRACE("Test finished");
     }
     
 
