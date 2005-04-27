@@ -301,9 +301,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pBoundaryCondition;
+        pBoundaryCondition = new ConstBoundaryCondition<2>(-0.5);
         while (iter != mesh.GetLastBoundaryElement())
         {
-            pBoundaryCondition = new ConstBoundaryCondition<2>(-0.5);
             bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
             iter++;
         }

@@ -2,6 +2,7 @@
 #define _BOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include <map>
+#include <set>
 #include <algorithm>
 #include "AbstractBoundaryCondition.hpp"
 #include "ConstBoundaryCondition.hpp"
@@ -53,17 +54,28 @@ public:
 	 */
 	~BoundaryConditionsContainer()
 	{
+		// Keep track of what boundary condition objects we've deleted
+		std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
+		
 		dirichIterator = mpDirichletMap->begin();
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
-			delete dirichIterator->second;
+			if (deleted_conditions.count(dirichIterator->second) == 0)
+			{
+				deleted_conditions.insert(dirichIterator->second);
+				delete dirichIterator->second;
+			}
 			dirichIterator++;
 		}
 
 		neumannIterator = mpNeumannMap->begin();
 		while(neumannIterator != mpNeumannMap->end() )			
 		{
-			delete neumannIterator->second;
+			if (deleted_conditions.count(neumannIterator->second) == 0)
+			{
+				deleted_conditions.insert(neumannIterator->second);
+				delete neumannIterator->second;
+			}
 			neumannIterator++;
 		}
 		
@@ -85,8 +97,9 @@ public:
                                         const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
     {
         assert( pBoundaryNode->IsBoundaryNode() );
-		std::pair<  const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryNode, pBoundaryCondition);     
-		mpDirichletMap->insert(entry);   
+		//std::pair<  const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryNode, pBoundaryCondition);     
+		//mpDirichletMap->insert(entry);   
+		(*mpDirichletMap)[pBoundaryNode] = pBoundaryCondition;
     }
 
 
@@ -109,8 +122,9 @@ public:
     {
     	//assert(boundaryElement->IsBoundaryElement());
    		    	
-       	std::pair<  const Element<ELEM_DIM-1,SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryElement, pBoundaryCondition);     
-		mpNeumannMap->insert(entry);
+       	//std::pair<  const Element<ELEM_DIM-1,SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryElement, pBoundaryCondition);     
+		//mpNeumannMap->insert(entry);
+		(*mpNeumannMap)[pBoundaryElement] = pBoundaryCondition;
     }
 
 
