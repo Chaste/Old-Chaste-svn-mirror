@@ -27,15 +27,15 @@
 #include "petscvec.h"
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>
+class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
 {
- 
+
 public:
-	//Constructor
+	//Constructor - does nothing
 	SimpleNonlinearEllipticAssembler();
-	//Destructor
+	//Destructor - does nothing
 	~SimpleNonlinearEllipticAssembler();
-	
+		
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,

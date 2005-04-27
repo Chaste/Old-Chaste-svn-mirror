@@ -10,13 +10,12 @@ class TestSimpleNonlinearEllipticAssembler : public CxxTest::TestSuite
 {
 	
 public:
-    void donttestSimpleNonlinearEllipticAssembler( void )
+    void testASimpleNonlinearEllipticAssembler( void )
     {
         //create a new SimpleNonlinearEllipticAssembler
         SimpleNonlinearEllipticAssembler<1,1> assembler;
     }
-    
-    
-}
+        
+};
 
 #endif //_TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_

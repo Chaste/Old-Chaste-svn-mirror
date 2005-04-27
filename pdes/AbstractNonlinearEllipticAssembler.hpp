@@ -29,7 +29,15 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractNonlinearEllipticAssembler
 {
  // need to put private members
+private:
+
+    ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh; 
+    AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *mpBoundaryConditions;
+    AbstractBasisFunction<SPACE_DIM> *mpBasisFunction;
+
 public:
+    
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
