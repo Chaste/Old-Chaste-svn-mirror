@@ -17,11 +17,24 @@ template <int SPACE_DIM>
 class AbstractLinearEllipticPde
 {
 public:
+/**
+ * Compute Linear Source Term.
+ * @param x The point in space at which the Linear Source Term is computed.
+ */
     virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
-    
+
+/**
+ * Compute Nonlinear Source Term.
+ * @param x The point in space at which the Nonlinear Source Term is computed.
+ */
+ 
     virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
                                               double u)=0;
-
+/**
+ * Compute Diffusion Term.
+ * @param x The point in space at which the Diffusion Term is computed.
+ * @return A matrix. 
+ */
     virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
 };
 
