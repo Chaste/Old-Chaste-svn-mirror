@@ -67,10 +67,10 @@ public:
      	VecSetSizes(currentSolution_vector,PETSC_DECIDE,rMesh.GetNumNodes());
      	VecSetType(currentSolution_vector, VECSEQ);
      	
- 		for (int i = 0; i<rMesh.GetNumNodes(); i++)
- 		{
-     		VecSetValue(currentSolution_vector, i, (PetscReal) i+1, INSERT_VALUES);
- 		}
+// 		for (int i = 0; i<rMesh.GetNumNodes(); i++)
+// 		{
+//     		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
+// 		}
      	
      	
         
@@ -88,6 +88,26 @@ public:
                        rBoundaryConditions,                       
                        currentSolution_vector/*,
                        pGaussianQuadratureRule*/));
+       
+       // Test that if we pass in a vector of ones, then in each element 
+       // residual should return -h (i.e. -0.15)
+        for (int i = 0; i<rMesh.GetNumNodes(); i++)
+ 		{
+     		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
+ 		}
+       Vec Result = ComputeResidual(rMesh, rBoundaryConditions, currentSolution_vector);
+        
+                   
+        PetscScalar *answerElements;
+        VecGetArray(Result, &answerElements);
+        double value1 = answerElements[1];
+        double value2 = answerElements[2];     
+		VecRestoreArray(Result,&answerElements);   
+//		std::cout<< "Residual: 1st entry is "  << value1 << std::endl;       
+//		std::cout<< "Residual: 2nd entry is "  << value2 << std::endl;    
+        TS_ASSERT(fabs(value1 + 0.15) < 0.001);
+        TS_ASSERT(fabs(value2 + 0.15) < 0.001);
+        
                        
        
      }

@@ -199,7 +199,6 @@ Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
             for (int i=0; i<num_nodes; i++)
             {
             	int node = element.GetNodeGlobalIndex(i);
-            	//Ui(i) = CurrentSolution(node); /// >?!??! current solution is Petski vector!!!!
 				VecGetArray(CurrentSolution, &answerElements);
 				double value = answerElements[node];
 				VecRestoreArray(CurrentSolution,&answerElements);
