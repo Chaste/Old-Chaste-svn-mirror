@@ -49,7 +49,11 @@ private:
 public:
 	void setUp()
     {
-		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+    	
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }	
     
 	void testSetGet()

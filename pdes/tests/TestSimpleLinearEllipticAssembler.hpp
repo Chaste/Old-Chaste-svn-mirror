@@ -13,13 +13,10 @@
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 
-static int sFakeArgc;
-static char *sFakeArgv0="testrunner";
-static char **sFakeArgv=&sFakeArgv0;
-
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {
 	public:
+
 	
 	void TestAssembleOnElement( void )
 	{
@@ -116,7 +113,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 
 	void TestWithHeatEquationAndMeshReader()   
 	{ 
-		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
 		
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
@@ -154,7 +154,11 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 
     void TestWithHeatEquation2()
     {
-   		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
+    	int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+    	
+   		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
@@ -201,7 +205,11 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
-		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
+   		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+    	
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
 
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
@@ -250,7 +258,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	 */
 	void Test2dHeatEquation()
 	{
-		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
 		
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
