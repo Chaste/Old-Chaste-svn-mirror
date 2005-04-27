@@ -1,13 +1,71 @@
-#ifndef _TESTSIMPLENONLINEARSOLVER_HPP_
-#define _TESTSIMPLENONLINEARSOLVER_HPP_
+#ifndef _TESTPRACTICALONE_HPP_
+#define _TESTPRACTICALONE_HPP_
 
-#include "SimpleNonLinearSolver.hpp"
+#include "SimpleLinearSolver.hpp"
+#include "petscmat.h"
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
-#include "petscmat.h"
+#include "SimpleNonlinearSolver.hpp"
+#include "ConformingTetrahedralMesh.cpp"
+#include <vector>
+#include <iostream>
+#include "Node.hpp" 
+#include "Element.hpp"
+#include "BoundaryConditionsContainer.hpp"
+
+#include "Practical1Question1Pde.hpp"
   
-class TestSimpleNonlinearSolver : public CxxTest::TestSuite 
+class TestPracticalOne : public CxxTest::TestSuite 
 {
+public:
+	
+	void testQuestion1(void)
+	{
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
+		
+		// Create mesh from mesh reader
+		
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		// Instantiate PDE object
+		Practical1Question1Pde<1> pde;  
+		
+		// Boundary conditions
+		// u'(0)=0, u(1)=1
+        BoundaryConditionsContainer<1,1> bcc;
+        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
+        
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+        bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
+        
+        ConstBoundaryCondition<1>* pBoundaryCondition2 = new ConstBoundaryCondition<1>(1.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pBoundaryCondition2);
+        
+		// Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		SimpleLinearEllipticAssembler<1,1> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		// Solution should be u = 0.5*x*(3-x)
+		for (int i=0; i < mesh.GetNumElements()+1; i++)
+		{
+			double x = 0.0 + 0.01*i;
+			double u = 0.5*(x*x+1);
+			TS_ASSERT_DELTA(res[i], u, 0.001);
+		}
+		VecRestoreArray(result, &res);
+	}
+
 //public:
 //    void setUp()
 //    {
@@ -145,4 +203,4 @@ class TestSimpleNonlinearSolver : public CxxTest::TestSuite
     
 };
 
-#endif //_TESTSIMPLENONLINEARSOLVER_HPP_
+#endif //_TESTPRACTICALONE_HPP_
