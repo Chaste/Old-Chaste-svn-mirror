@@ -34,20 +34,19 @@ private:
 	{
 		static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		
+		// This assumes that the Jacobian is constant on an element
+		// This is true for linear basis functions, but not for any other type of
+		// basis function
 		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 		double jacobian_determinant = rElement.GetJacobianDeterminant();
 		
-		// Initialise element contributions to zero
+		
 		const int num_nodes = rElement.GetNumNodes();
-//		for (int row=0; row < num_nodes; row++)
-//		{
-//			for (int col=0; col < num_nodes; col++)
-//			{
-//				rAElem(row,col) = 0.0;
-//			}
-//			rBElem(row) = 0.0;
-//		}
-//		
+
+		// Initialise element contributions to zero
+		rAElem.ResetToZero();
+        rBElem.ResetToZero();
+
 		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 		{
 			Point<ELEMENT_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
@@ -56,6 +55,8 @@ private:
 			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 			                                    (quad_point, *inverseJacobian);
 
+
+			// location of the gauss point in the original element will be stored in x
 			Point<SPACE_DIM> x(0,0,0);
 			for(int i=0; i<rElement.GetNumNodes(); i++)
 			{
@@ -84,7 +85,8 @@ private:
 				               * quad_rule.GetWeight(quad_index);
 			}
 		}
-	}		
+		
+	}
 	
 	
 	void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
@@ -164,9 +166,8 @@ private:
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
                         
-            a_elem.ResetToZero();
-            b_elem.ResetToZero();
             AssembleOnElement(element, a_elem, b_elem, pPde, basis_function);
+            
             
             for (int i=0; i<num_nodes; i++)
             {

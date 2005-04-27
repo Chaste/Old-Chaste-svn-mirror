@@ -162,6 +162,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(transDeriv[0](0), -0.5, 1e-12);
 		TS_ASSERT_DELTA(transDeriv[1](0),  0.5, 1e-12);
 		
+		// 2D
 		LinearBasisFunction<2> basis_func2;
 		Point<2> oneone(1,1);
 		
@@ -176,6 +177,8 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(transDeriv2[1](0),  0.5, 1e-12);
 		TS_ASSERT_DELTA(transDeriv2[2](0),    0, 1e-12);
 
+		
+		//3D
 		LinearBasisFunction<3> basis_func3;
 		Point<3> oneoneone(1,1,1);
 		
@@ -192,6 +195,32 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(transDeriv3[2](0),    0, 1e-12);
 		TS_ASSERT_DELTA(transDeriv3[3](0),    0, 1e-12);
 			//TS_TRACE("here lin basis\n");	
+	}
+	
+	void testComputeTransformedBasisFunction2( void )		
+	{		
+		// 2D - with better test data
+		
+		std::vector<Node<2>*> nodes;
+		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
+		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
+		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
+		Element<2,2> element(nodes);
+		LinearBasisFunction<2> basis_function;
+		
+		const MatrixDouble *inverseJacobian = element.GetInverseJacobian();
+		Point<2> evaluation_point(1,1); 
+		std::vector<VectorDouble> trans_deriv =
+			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
+																		*inverseJacobian);
+		
+		TS_ASSERT_DELTA(trans_deriv[0](0),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[0](1),-0.6, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](0),0.4, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](1),0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](0),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](1),0.4, 1e-12);
+		
 	}
 };
 

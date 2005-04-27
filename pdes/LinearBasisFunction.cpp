@@ -227,7 +227,7 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasi
     
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        transformedGradValues.push_back( inverseJacobian*basisGradValues[i] );
+        transformedGradValues.push_back( basisGradValues[i]*inverseJacobian );
     }
 
     return transformedGradValues;    	

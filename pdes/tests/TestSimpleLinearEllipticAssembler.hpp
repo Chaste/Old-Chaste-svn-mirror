@@ -41,6 +41,73 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		
 	}
 	
+	void TestAssembleOnElement2DCanonical ( void )
+	{
+		LinearHeatEquationPde<2> pde;
+		std::vector<Node<2>*> nodes;
+		nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+		nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+		nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
+		Element<2,2> element(nodes);
+		LinearBasisFunction<2> basis_function;
+		MatrixDouble ael(3,3);
+		VectorDouble bel(3);
+		
+		SimpleLinearEllipticAssembler<2,2> assembler;
+		assembler.AssembleOnElement(element, ael, bel, &pde, basis_function);
+		
+		TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
+		TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(0,2),-0.5, 1e-12);
+		
+		TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
+		
+		
+		TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
+		TS_ASSERT_DELTA(ael(2,2),0.5, 1e-12);
+		
+		TS_ASSERT_DELTA(bel(0),1.0/6.0, 1e-12);
+		TS_ASSERT_DELTA(bel(1),1.0/6.0, 1e-12);
+		TS_ASSERT_DELTA(bel(2),1.0/6.0, 1e-12);
+		
+	}
+    
+	void TestAssembleOnElement2DGeneral ( void )
+	{
+		LinearHeatEquationPde<2> pde;
+		std::vector<Node<2>*> nodes;
+		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
+		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
+		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
+		Element<2,2> element(nodes);
+		LinearBasisFunction<2> basis_function;
+		MatrixDouble ael(3,3);
+		VectorDouble bel(3);
+		
+		SimpleLinearEllipticAssembler<2,2> assembler;
+		assembler.AssembleOnElement(element, ael, bel, &pde, basis_function);
+		
+		TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
+		TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(0,2),-0.5, 1e-12);
+		
+		TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
+		
+		
+		TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
+		TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
+		TS_ASSERT_DELTA(ael(2,2),0.5, 1e-12);
+		
+		TS_ASSERT_DELTA(bel(0),5.0/6.0, 1e-12);
+		TS_ASSERT_DELTA(bel(1),5.0/6.0, 1e-12);
+		TS_ASSERT_DELTA(bel(2),5.0/6.0, 1e-12);
+		
+	}
 	
 	void TestWithHeatEquation()   
 	{ 
@@ -279,8 +346,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	 * \todo
 	 * Skeleton 2d test. Need to check real solution.
 	 */
-	void todoTest2dHeatEquation()
-	{ 
+	void Test2dHeatEquation()
+	{
 		PetscInitialize(0, NULL, 0, 0);
 		
 		// Create mesh from mesh reader
@@ -313,17 +380,11 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		// Check result
 		double *res;
 		int ierr = VecGetArray(result, &res);
-		// Solution should be u = 0.5*x*(3-x)
-		for (int i=0; i < mesh.GetNumElements()+1; i++)
-		{
-			double x = 0.0 + 0.15*i;
-			double u = 0.5*x*(3-x);
-			TS_ASSERT_DELTA(res[i], u, 0.001);
-		}
-		VecRestoreArray(result, &res);
+		// Solution at 4th node should be 0.08
+		TS_ASSERT_DELTA(res[4], 1.0/12.0, 0.001);
 	}
+	
 
-    
 };
  
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
