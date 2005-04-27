@@ -259,7 +259,106 @@ Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
         return res_vector;
 }
 
+/**
+ * Computes the Jacobian numerically i.e. an approximation, using partial derivatives.
+ * 
+ * @param snes A PETSc nonlinear solver object
+ * @param input Indepedent variable, u in f(u), for example
+ * @param *pJacobian A pointer to the Jacobian matrix
+ * @param *pPreconditioner A pointer to a preconditioner matrix
+ * @param *pMatStructure A pointer to the PETSc matrix type e.g. AIJ
+ * @param *pContext A pointer to anything else that needs to be passed
+ * 
+ * @return PetscErrorCode Petsc Error Code
+ */
+template <int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
+    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
+    										  void *pContext)
+{
+	int ierr;
+    Vec residual;
+    Vec perturbedResidual;
+    Vec result;
+    
+    SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *integrator =
+	    ((SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*)pContext);    
+    
+    int num_nodes = integrator->mpMesh->GetNumNodes();
+
+    VecCreate(PETSC_COMM_WORLD, &residual);    
+    VecCreate(PETSC_COMM_WORLD, &result);    
+    VecCreate(PETSC_COMM_WORLD, &perturbedResidual);    
+    
+    VecSetSizes(residual,PETSC_DECIDE,num_nodes);
+    VecSetSizes(result,PETSC_DECIDE,num_nodes);
+    VecSetSizes(perturbedResidual,PETSC_DECIDE,num_nodes);
+    
+    VecSetType(residual, VECSEQ);
+    VecSetType(result, VECSEQ);
+    VecSetType(perturbedResidual, VECSEQ);
+    
+    Vec inputcopy;
+
+    ierr = VecDuplicate(input,&inputcopy); CHKERRQ(ierr);
+    ierr = VecCopy(input, inputcopy);CHKERRQ(ierr);
+    
+    // Hard coding residual and perturbedResidual to test since ComputeResidual() function
+    // not complete!
+    //ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes,input,residual,pContext);
+    //***************************************************
+    for (int row=0;row<num_nodes;row++)
+    {
+    	PetscScalar value = 1;
+    	VecSetValue(residual, row, value, INSERT_VALUES);
+    }
+    //***************************************************
+    
+    double h = 0.00001;    
+    PetscScalar subtract = -1;
+    PetscScalar oneOverH = 1/h;
+    
+    
+    for(int j = 0; j < num_nodes; j++)
+    {
+		PetscScalar *resultElements;
+        ierr = VecSetValue(inputcopy,j,h, ADD_VALUES);CHKERRQ(ierr);
+        
+        //ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes, inputcopy, perturbedResidual,pContext);
+        //*************************************************************
+        for (int row=0;row<num_nodes;row++)
+	   	{
+    		int temp = 1;
+    		if (row==j) temp += 1;
+    		PetscScalar value2 = temp;
+    		VecSetValue(perturbedResidual, row, value2, INSERT_VALUES);
+    	}
+        //*************************************************************
+        
+        
+        ierr = VecWAXPY(&subtract,residual,perturbedResidual,result);CHKERRQ(ierr);
+        ierr = VecScale(&oneOverH, result);CHKERRQ(ierr);
+        
+        ierr = VecGetArray(result,&resultElements);CHKERRQ(ierr);
+
+        for (int i=0; i < num_nodes; i++)
+        {
+            ierr = MatSetValue(*pJacobian,i,j,resultElements[i],INSERT_VALUES);CHKERRQ(ierr);
+        }
+        ierr = VecRestoreArray(result,&resultElements); CHKERRQ(ierr);
+        
+        ierr = VecSetValue(inputcopy,j,-h, ADD_VALUES); CHKERRQ(ierr);
+    }
+    
+    VecDestroy(residual);
+    VecDestroy(perturbedResidual);
+    VecDestroy(result);
+    VecDestroy(inputcopy);
  
+    MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
+    return 0;
+}
  
  
 #endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
