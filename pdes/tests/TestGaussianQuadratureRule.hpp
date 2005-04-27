@@ -4,7 +4,6 @@
 
 #include <cxxtest/TestSuite.h>
 #include "GaussianQuadratureRule.hpp"
-#include "PolyFunction.hpp"
 
 
 
@@ -77,25 +76,32 @@ public :
 
 			for (int poly_degree=0; poly_degree<2*num_quad_points; poly_degree++)
 			{
-
-				PolyFunction function(poly_degree);
-				PolyFunction unit_function(0);
-				
-				std::vector<Node<1>*> nodes;
-				nodes.push_back(new Node<1>(0, false, 0.0));
-				nodes.push_back(new Node<1>(1, false, 1.0));
-				Element<1,1> element(nodes);				
-				
-				TS_ASSERT_DELTA(quad_rule.Integrate(element, function, unit_function),
-								1.0/(poly_degree+1.0),
-								1e-7);
 				
 				std::vector<Node<1>*> nodes2;
 				nodes2.push_back(new Node<1>(0, false, 1.0));
 				nodes2.push_back(new Node<1>(1, false, 3.0));
-				Element<1,1> element2(nodes2);
+				Element<1,1> element(nodes2);
 				
-				TS_ASSERT_DELTA(quad_rule.Integrate(element2, function, unit_function),
+				double integral=0;
+				double jacobian_determinant = element.GetJacobianDeterminant();
+				
+		        // This assumes linear basis functions in 1d
+		        double x1 = element.GetNodeLocation(0,0);
+		        double x2 = element.GetNodeLocation(1,0);
+		        
+				for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+				{
+					Point<1> quad_point=quad_rule.GetQuadPoint(quad_index);
+					Point<1> transformed_quad_point =
+							Point<1>((1-quad_point[0])*x1 + quad_point[0]*x2);
+							
+					double integrand_value = pow(transformed_quad_point[0],poly_degree);
+					
+					integral+= integrand_value*jacobian_determinant
+											*quad_rule.GetWeight(quad_index);
+				}
+
+				TS_ASSERT_DELTA(integral,
 								1.0/(poly_degree+1.0)*(pow(3,poly_degree+1)-1),
 								1e-7);
 				
