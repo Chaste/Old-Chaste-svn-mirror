@@ -32,7 +32,7 @@ all_libs= ['petscts', 'petscsnes', 'petscksp', 'petscdm',
 opt= Environment(ENV = {'PATH' : os.environ['PATH']})
 opt.Append(CCFLAGS = base+petsc_incs)
 opt.Append(BOPT='g_c++')
-opt.Replace(CXX='/users/ibacct/mpi/bin/mpicxx')
+opt.Replace(CXX='../../mpi/bin/mpicxx')
 
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = './$SOURCE | tee $TARGET')
