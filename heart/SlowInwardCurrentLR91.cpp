@@ -64,7 +64,7 @@ void SlowInwardCurrentLR91::UpdateAlphaAndBeta(double voltage)
  * Set gating variables to given values
  * 
  * @param d New value for d gating variable
- * @paran f New value for f gating variable
+ * @param f New value for f gating variable
  */
 void SlowInwardCurrentLR91::SetGatingVariables(double d, double f)
 {  

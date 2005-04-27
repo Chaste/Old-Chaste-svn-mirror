@@ -17,24 +17,30 @@
  * boundary conditions, and a list of surface elements on the neumann boundary and associated
  * neumann boundary conditions.
  * 
+ * \todo
+ * Various operations are currently very inefficient - there is certainly cope for
+ * optimisation here!
  */
 template<int ELEM_DIM, int SPACE_DIM>
 class BoundaryConditionsContainer
 {
 private:
     std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* > 
-        *mpDirichletMap;
+        *mpDirichletMap; /**< List (map) of Dirichlet boundary conditions */
 
     std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>*> 
-        *mpNeumannMap;
+        *mpNeumannMap; /**< List (map) of Neumann boundary conditions */
     
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>::const_iterator 
-        dirichIterator;
+        dirichIterator; /**< Internal iterator over dirichlet boundary conditions */
 
     typename std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>*>::const_iterator
-        neumannIterator;
+        neumannIterator; /**< Internal iterator over neumann boundary conditions */
     
 public:
+	/**
+	 * Constructor allocates memory for the boundary conditions lists.
+	 */
 	BoundaryConditionsContainer()
 	{		
 	   	mpDirichletMap =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >;
@@ -66,10 +72,14 @@ public:
 	}
 	
     /**
-     * Add a dirichlet boundary condition specifying two parameters, a pointer to a node, and a pointer to
-     * a boundary condition object associated with that node.
+     * Add a dirichlet boundary condition specifying two parameters, a pointer to a node,
+     * and a pointer to a boundary condition object associated with that node.
      * 
-     * The destructor for the BoundaryConditionsContainer will destroy the boundary conditions objects
+     * The destructor for the BoundaryConditionsContainer will destroy the boundary
+     * conditions objects.
+     * 
+     * @param pBoundaryNode Pointer to a node on the boundary.
+     * @param pBoundaryCondition Pointer to the dirichlet boundary condition at that node.
      */
     void AddDirichletBoundaryCondition( const Node<SPACE_DIM> *                      pBoundaryNode, 
                                         const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
@@ -81,11 +91,15 @@ public:
 
 
     /**
-     * Add a neumann boundary condition specifying two parameters, a pointer to a surface element, and 
-     * a pointer to a boundary condition object associated with that element.
+     * Add a neumann boundary condition specifying two parameters, a pointer to a
+     * surface element, and a pointer to a boundary condition object associated with
+     * that element.
      * 
-     * The destructor for the BoundaryConditionsContainer will destroy the boundary conditions objects
+     * The destructor for the BoundaryConditionsContainer will destroy the boundary
+     * conditions objects.
      * 
+     * @param pBoundaryElement Pointer to an element on the boundary.
+     * @param pBoundaryCondition Pointer to the neumann boundary condition on that element.
      */
     void AddNeumannBoundaryCondition( const Element<ELEM_DIM-1, SPACE_DIM> *       pBoundaryElement, 
                                       const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
@@ -98,7 +112,10 @@ public:
 
 
 	/**
-	 * This function defines zero dirichlet boundary conditions on every boundary node of the mesh
+	 * This function defines zero dirichlet boundary conditions on every boundary node
+	 * of the mesh.
+	 * 
+	 * @param pMesh Pointer to a mesh object, from which we extract the boundary.
 	 */
 	void DefineZeroDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 	{
@@ -106,15 +123,15 @@ public:
 		 * \todo
 		 *  make this a loop over boundary nodes only
 		 */
-		for(int i=0;i<pMesh->GetNumNodes();i++)
+		typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
+		iter = pMesh->GetFirstBoundaryNode();
+		while (iter != pMesh->GetLastBoundaryNode()) 
 		{
-			const Node<SPACE_DIM>* rNode = pMesh->GetNodeAt(i);
-			if(rNode->IsBoundaryNode())
-			{	
-				ConstBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0);
-				AddDirichletBoundaryCondition( rNode , pZeroBoundaryCondition );
-			}
-		}		
+			ConstBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition =
+				new ConstBoundaryCondition<SPACE_DIM>(0);
+			AddDirichletBoundaryCondition(*iter, pZeroBoundaryCondition);
+			iter++;
+		}
 	}
 	
 	/**

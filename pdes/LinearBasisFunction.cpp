@@ -168,13 +168,13 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
  * @return The values of the basis functions, in local index order.
  */
 template <int ELEM_DIM>
-std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> psi)
+std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> point)
 {
     std::vector<double> basisValues(ELEM_DIM+1);
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        basisValues[i] = ComputeBasisFunction(psi,i);
+        basisValues[i] = ComputeBasisFunction(point,i);
     }
     return basisValues;
 }
@@ -191,13 +191,13 @@ std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<E
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> psi)
+std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point)
 {
     std::vector<VectorDouble> basisGradValues;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        basisGradValues.push_back(ComputeBasisFunctionDerivative(psi,i));
+        basisGradValues.push_back(ComputeBasisFunctionDerivative(point,i));
     }
 
     return basisGradValues;    

@@ -205,7 +205,7 @@ public:
 	}
 
 	void TestDefineZeroDirichletOnMeshBoundary()
-	{ 
+	{
 		ConformingTetrahedralMesh<3,3>* pMesh = new ConformingTetrahedralMesh<3,3>;
 //		//TS_TRACE("here bound3a\n");
 		// add 10 boundary nodes
@@ -213,6 +213,7 @@ public:
 		{
 			pMesh->AddNode(Node<3>(i,true,i,i,i));
 		}
+		pMesh->GenerateBoundaryNodeList();
 //		//TS_TRACE("here bound3b\n");
 		//TS_ASSERT_EQUALS(&(pMesh->GetNodeAt(0)), nodes[0]); // Fails :(
 

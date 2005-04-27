@@ -6,7 +6,6 @@
 
 #include <vector>
 
-
 template<int ELEMENT_DIM, int SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
 {

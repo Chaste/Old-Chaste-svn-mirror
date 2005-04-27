@@ -13,7 +13,8 @@
  * The AddElement and AddNode methods are now redundant, but still used for
  * tests, so I've left them in (for now).
  * 
- * Work still needs to be done with boundary nodes & elements.
+ * \todo
+ * Work still needs to be done with boundary nodes & elements?
  */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
@@ -47,8 +48,26 @@ public:
     void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement);
     void AddNode(Node<SPACE_DIM> newNode);
     
-    // Until we have a more permanent solution...
+    /**
+     * \todo
+     *  Tests should all be changed to use MeshReaders.
+     */
     void AddSurfaceElement(const Element<ELEMENT_DIM-1, SPACE_DIM> *pNewElement);
+    /**
+     * \todo
+     * Create our list of boundary nodes from the node list.
+     * This should be removed, and tests updated to use MeshReader.
+     */
+    void GenerateBoundaryNodeList(void)
+    {
+    	for (int i=0; i<mNodes.size(); i++)
+    	{
+			if (mNodes[i].IsBoundaryNode())
+		    {
+		    	mBoundaryNodes.push_back(&mNodes[i]);
+		    }
+    	}
+    }
     
     //void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,std::vector<int> boundaryElementIndices);
     //void AddNode(Node<SPACE_DIM> newNode ,bool isBoundaryNode);
