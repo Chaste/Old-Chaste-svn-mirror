@@ -75,13 +75,18 @@ TrianglesMeshWriter::WriteFiles()
 	
 	//Write boundary face file
 	std::string face_file_name=mPathBaseName;
-	if (mDimension == 3)
+	if (mDimension == 1)
 	{
-		face_file_name=face_file_name+".face";
+		/** In 1-D there is no boundary file.  It's trivial to calculate*/
+		return;
+	}
+	else if (mDimension == 2)
+	{
+		face_file_name=face_file_name+".edge";
 	}
 	else
 	{
-		face_file_name=face_file_name+".edge";
+		face_file_name=face_file_name+".face";
 	}
 	
 	std::ofstream face_file(face_file_name.c_str());

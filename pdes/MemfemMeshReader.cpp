@@ -15,16 +15,14 @@
 MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 {
 	
-	//Copy path and base name of files to private data
-	mPathBaseName=pathBaseName;
-
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string nodeFileName=pathBaseName+".pts";
 	mNodeRawData=GetRawDataFromFile(nodeFileName);
 	
 	/* Read single line header which is the number of nodes */
 	std::stringstream node_header_stream(mNodeRawData[0]);
-	node_header_stream >> mNumNodes;
+	int num_nodes;
+	node_header_stream >> num_nodes;
 	
 	/* All Memfem data is in 3-d. */
 	mDimension = 3; 
@@ -36,7 +34,7 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 	
 	//Check that the size of the data matches the information in the header
 	
-	if (mNumNodes != mNodeData.size())
+	if (num_nodes != mNodeData.size())
 	{
 		throw Exception("Number of nodes does not match expected number declared in header");
 	}
@@ -46,8 +44,9 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 	mElementRawData=GetRawDataFromFile(elementFileName);
 
  	/* Read single line header which is the number of elements	 */
-	 std::stringstream element_header_stream(mElementRawData[0]);
-	element_header_stream >> mNumElements;
+	std::stringstream element_header_stream(mElementRawData[0]);
+	int num_elements;
+	element_header_stream >> num_elements;
 	
 
 	// Read the rest of the element data using TokenizeStringsToInts method
@@ -56,7 +55,7 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
  	
  	
  	//Check that the size of the data matches the information in the header
-  	if (mNumElements != mElementData.size())
+  	if (num_elements != mElementData.size())
 	{
 		throw Exception("Number of elements does not match expected number declared in header");
 	}
@@ -71,7 +70,6 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 	// Read the face/edge data using TokenizeStringsToInts method
 	mBoundaryFaceData = TokenizeStringsToInts(mFaceRawData,mDimension,false);
 	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
-	mNumBoundaryFaces = mBoundaryFaceData.size();
 	
 	
 	

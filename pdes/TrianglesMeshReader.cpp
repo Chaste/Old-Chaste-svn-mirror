@@ -17,9 +17,6 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	
 	int num_attributes, max_marker;
 	
-	//Copy path and base name of files to private data
-	mPathBaseName=pathBaseName;
-
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string nodeFileName=pathBaseName+".node";
 	mNodeRawData=GetRawDataFromFile(nodeFileName);
@@ -29,7 +26,8 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	 * http://www-2.cs.cmu.edu/~quake/triangle.node.html
 	 */
 	std::stringstream node_header_stream(mNodeRawData[0]);
-	node_header_stream >> mNumNodes >> mDimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
+	int num_nodes;
+	node_header_stream >> num_nodes >> mDimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
 	
 	// Read the rest of the node data using TokenizeStringsToDoubles method
 	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
@@ -37,7 +35,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mpNodeIterator = mNodeData.begin();
 	
 	//Check that the size of the data matches the information in the header
-	if (mNumNodes != mNodeData.size())
+	if (num_nodes != mNodeData.size())
 	{
 		throw Exception("Number of nodes does not match expected number declared in header");
 	}
@@ -50,8 +48,9 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	 * http://tetgen.berlios.de/fformats.ele.html
 	 * http://www-2.cs.cmu.edu/~quake/triangle.ele.html
 	 */
-	 std::stringstream element_header_stream(mElementRawData[0]);
-	element_header_stream >> mNumElements >> mNumElementNodes >> mNumElementAttributes;
+	std::stringstream element_header_stream(mElementRawData[0]);
+	int num_elements;
+	element_header_stream >> num_elements >> mNumElementNodes >> mNumElementAttributes;
 	
 	//Only order-1 triangles or tetrahedra are currently supported
 	if (mNumElementNodes != mDimension+1)
@@ -65,7 +64,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
  	
  	
  	//Check that the size of the data matches the information in the header
- 	if (mNumElements != mElementData.size())
+ 	if (num_elements != mElementData.size())
 	{
 		throw Exception("Number of elements does not match expected number declared in header");
 	}
@@ -90,8 +89,8 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	{
 		//There is no file
 		//Set the mFaceData as all the nodes.
-		mNumFaces = mNumNodes;
-		for (int i=0; i<mNumFaces; i++)
+		int num_faces = GetNumNodes();
+		for (int i=0; i<num_faces; i++)
 		{
 			std::vector<int> current_item;
 			current_item.push_back(i);
@@ -110,7 +109,8 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	 * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
 	 */
 	std::stringstream face_header_stream(mFaceRawData[0]);
-	face_header_stream >> mNumFaces >> mMaxFaceBdyMarker;
+	int num_faces;
+	face_header_stream >> num_faces >> mMaxFaceBdyMarker;
 
 	//mNumBoundaryFaces = mNumFaces; //temporary
 
@@ -124,7 +124,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
 	
 	//Check that the size of the data matches the information in the header
-	if (mNumFaces != mFaceData.size())
+	if (num_faces != mFaceData.size())
 	{
 		throw Exception("Number of faces does not match expected number declared in header");
 	}

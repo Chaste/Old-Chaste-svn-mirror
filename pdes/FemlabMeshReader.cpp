@@ -20,16 +20,13 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 	
 	int num_attributes, max_marker;
 	
-	//Copy path and base name of files to private data
-	mPathBaseName=pathBaseName;
-
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	nodeFileName=pathBaseName+nodeFileName;
 	mNodeRawData=GetRawDataFromFile(nodeFileName);
 	
 	// Read the node data using TokenizeStringsToDoubles method
 	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
-	mNumNodes = mNodeData.size(); 
+	
 	//Initialise iterator for public GetNextNode method
 	mpNodeIterator = mNodeData.begin();
 
@@ -40,13 +37,11 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 	
 	// Read the rest of the element data using TokenizeStringsToInts method
 	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
-	mNumElements = mElementData.size();
  	mpElementIterator = mElementData.begin();
  	
 
-	/*Open face file and store the lines as a vector of strings (minus the comments) 	
-	 * Note that the Triangles equivalent of a face file is an edge file.
-	 * The two file formats are similar.  We store edges as "faces" but the superclass
+	/*Open edge file and store the lines as a vector of strings (minus the comments) 	
+	 * We store edges as "faces" but the superclass
 	 * provides a GetNextEdge method which queries this data.
 	 */
 
@@ -55,11 +50,9 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 	
 	// Read the rest of the face/edge data using TokenizeStringsToInts method
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
-	mNumFaces = mFaceData.size();	
 	mpFaceIterator = mFaceData.begin();
-	
+
 	mBoundaryFaceData = mFaceData; // Femlab returns only the boundary faces
-	mNumBoundaryFaces = mBoundaryFaceData.size();
 	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
 	
 }

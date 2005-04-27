@@ -277,14 +277,16 @@ std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
 
 	
 	// Iterate over all faces
-	for (int faceIndex=0; faceIndex<mNumFaces; faceIndex++)
+	int num_faces=GetNumFaces();
+	for (int faceIndex=0; faceIndex<num_faces; faceIndex++)
 	{
 		std::vector<int> current_face = mFaceData[faceIndex];
 		// Initialise count of how many elements this face belongs to
-		int num_of_elements = 0;
+		int num_of_owning_elements = 0;
 
-		// Iterate over all elements		
-		for (int elementIndex = 0; elementIndex < mNumElements && num_of_elements < 2; 
+		// Iterate over all elements
+		int num_elements=GetNumElements();		
+		for (int elementIndex = 0; elementIndex < num_elements && num_of_owning_elements < 2; 
 															elementIndex++ )
 		{
 			int num_of_matches = 0;
@@ -306,17 +308,17 @@ std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
 			//The current face is a member of the current element
 			if (num_of_matches == mDimension)
 			{
-				num_of_elements++;
+				num_of_owning_elements++;
 			}		
 
 		}
 		// A face belonging to exactly one element is a boundary face
-		if ( num_of_elements == 1 )
+		if ( num_of_owning_elements == 1 )
 		{
 			boundary_faces.push_back(current_face);
-			mNumBoundaryFaces++;
+			//mNumBoundaryFaces++;
 		}		
-		else if (num_of_elements != 2 )
+		else if (num_of_owning_elements != 2 )
 		{
 			throw Exception("All faces should belong to either one or two elements. ");
 		}

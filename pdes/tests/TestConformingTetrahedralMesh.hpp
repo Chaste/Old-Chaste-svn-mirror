@@ -20,7 +20,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		#define space_dim 3
 		typedef ConformingTetrahedralMesh<element_dim, space_dim>::MeshIterator MeshIterator;
 		// Create a mesh
-		int n_elements = 5;
+		int n_elements = 5; 
 		ConformingTetrahedralMesh<element_dim, space_dim> mesh1(n_elements);
 		ConformingTetrahedralMesh<element_dim, space_dim> mesh2;
 
