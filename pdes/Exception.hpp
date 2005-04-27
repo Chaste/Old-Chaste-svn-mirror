@@ -11,11 +11,11 @@ class Exception
 {
 private:
     std::string mMessage; /**< Exception message */
-
+ 
 public:
     /** Construct an exception with a message string */
     Exception(std::string message):mMessage(message)
-    {
+    {   
       //nothing to do here
     }
     /** Get the message associated with the exception 
