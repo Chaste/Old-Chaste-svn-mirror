@@ -63,7 +63,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/bad_nodes_disk_522__elements_indexed_from_1"));		
+		                  "pdes/tests/meshdata/baddata/bad_nodes_disk_522__elements_indexed_from_1"));		
 		
 	}
 	
@@ -86,7 +86,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/bad_elements_disk_522_elements_indexed_from_1"));
+		                  "pdes/tests/meshdata/baddata/bad_elements_disk_522_elements_indexed_from_1"));
 	
 	
 	}
@@ -110,7 +110,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/bad_faces_disk_522__elements_indexed_from_1"));		
+		                  "pdes/tests/meshdata/baddata/bad_faces_disk_522__elements_indexed_from_1"));		
 		
 	}
 	
@@ -188,7 +188,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/permuted_nodes_disk_522_elements"));	
+		                  "pdes/tests/meshdata/baddata/permuted_nodes_disk_522_elements"));	
 		
 	}
 	
@@ -204,7 +204,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/disk_522_order_2_elements"));	
+		                  "pdes/tests/meshdata/baddata/disk_522_order_2_elements"));	
 		
 	}
 	
