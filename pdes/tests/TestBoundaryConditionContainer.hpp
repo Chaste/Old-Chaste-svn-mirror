@@ -8,6 +8,7 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include "ConformingTetrahedralMesh.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "SimpleLinearSolver.hpp"
 
 
@@ -208,7 +209,7 @@ public:
 //         //TS_TRACE("here bound2\n");		
 	}
 
-	void TestDefineZeroDirichletOnMeshBoundary()
+	void oldTestDefineZeroDirichletOnMeshBoundary()
 	{
 		ConformingTetrahedralMesh<3,3>* pMesh = new ConformingTetrahedralMesh<3,3>;
 //		//TS_TRACE("here bound3a\n");
@@ -231,8 +232,31 @@ public:
 			double value = pbcc->GetDirichletBCValue(pMesh->GetNodeAt(i));
 			TS_ASSERT_DELTA(value,0,1e-12);
 		}
+		delete pMesh;
+		delete pbcc;
 //        	 //TS_TRACE("here bound3\n");			
-	}	
+	}
+	
+	void TestDefineZeroDirichletOnMeshBoundary()
+	{
+		// Load a 2D square mesh with 1 central non-boundary node
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		BoundaryConditionsContainer<2,2> bcc;
+		
+		bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
+		
+		// Check boundary nodes have the right condition
+		for (int i=0; i<4; i++)
+		{
+			double value = bcc.GetDirichletBCValue(mesh.GetNodeAt(i));
+			TS_ASSERT_DELTA(value, 0.0, 1e-12);
+		}
+		// Check non-boundary node has no condition
+		TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNodeAt(4)));
+	}
     
 };
 

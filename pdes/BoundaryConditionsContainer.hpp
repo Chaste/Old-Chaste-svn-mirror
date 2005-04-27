@@ -152,8 +152,8 @@ public:
 	}
 	
 	/**
-	 * \todo
-	 *  Alter the residual vector for a nonlinear system to satisfy dirichlet boundary conditions
+	 * \todo  Alter the residual vector for a nonlinear system to satisfy
+	 * dirichlet boundary conditions
 	 */
 	//void ApplyDirichletToNonlinearProblem(peskyvec)
 
@@ -180,6 +180,18 @@ public:
 		assert(dirichIterator!=mpDirichletMap->end());
 
 		return dirichIterator->second->GetValue(pBoundaryNode->GetPoint());	
+	}
+
+	/**
+	 * Test if there is a Dirichlet boundary condition defined on the given node.
+	 * 
+	 * \todo
+	 * This is a horrendously inefficient fix.
+	 */
+	bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode) {
+		dirichIterator = mpDirichletMap->find(pNode);
+
+		return (dirichIterator != mpDirichletMap->end());
 	}
 
 	/** 
