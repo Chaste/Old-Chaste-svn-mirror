@@ -184,9 +184,6 @@ public:
 
 	/**
 	 * Test if there is a Dirichlet boundary condition defined on the given node.
-	 * 
-	 * \todo
-	 * This is a horrendously inefficient fix.
 	 */
 	bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode) {
 		dirichIterator = mpDirichletMap->find(pNode);
@@ -209,6 +206,7 @@ public:
 	
 	/**
 	 * Test if there is a Neumann boundary condition defined on the given element.
+	 * Used by SimpleLinearEllipticAssembler.
 	 * 
 	 * \todo
 	 * This is a horrendously inefficient fix.
