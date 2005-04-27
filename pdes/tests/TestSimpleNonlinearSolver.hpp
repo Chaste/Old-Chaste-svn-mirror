@@ -25,16 +25,6 @@ public:
     	
     	// Set up solution guess for residuals
     	int length=2;
-				
-//		// Set up input for Jacobian
-//    	Vec residual;
-//    	VecCreate(PETSC_COMM_WORLD, &residual);
-//    	VecSetSizes(residual, PETSC_DECIDE,length);
-//    	VecSetType(residual, VECSEQ);
-//    	VecSetValue(residual, 0, 0.1 ,INSERT_VALUES);
-//		VecSetValue(residual, 1, 0.1 ,INSERT_VALUES);
-//		VecAssemblyBegin(residual);
-//		VecAssemblyEnd(residual);
 		    	
     	// Set up initial Guess
     	Vec initialGuess;

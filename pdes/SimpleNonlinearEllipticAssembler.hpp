@@ -59,7 +59,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(Con
 //                              GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule....);
 //	PetscErrorCode mJacobian = ComputeJacobian(...);
 //	
-//	return solver->Solve(&mResidual,&mJacobian,this)
+//	return solver->Solve(&mResidual,&mJacobian, residual, initialGuess, this)
     return NULL;
 }
 
