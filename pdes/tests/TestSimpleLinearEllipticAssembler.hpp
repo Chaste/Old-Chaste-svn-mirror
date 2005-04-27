@@ -154,8 +154,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             mesh.AddElement(element);
             right_hand_node = left_hand_node;
         }
-        std::vector<Node<1>*> element_nodes;
-        Node<1> *left_hand_node = new Node<1>(num_elements, true, -3.0);
+        
+		std::vector<Node<1>*> element_nodes;
+		Node<1> *left_hand_node = new Node<1>(num_elements, true, -3.0);
         mesh.AddNode(*left_hand_node);
         element_nodes.push_back(left_hand_node);
         element_nodes.push_back(right_hand_node);
