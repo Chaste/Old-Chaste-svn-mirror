@@ -21,6 +21,15 @@ class AbstractLinearEllipticAssembler
 {
  
 public:
+	/**
+	 * Assemble the linear system for a linear elliptic PDE and solve it.
+	 * 
+	 * @param rMesh The mesh to solve on.
+	 * @param pPde A pointer to a PDE object specifying the equation to solve.
+	 * @param rBoundaryConditions A collection of boundary conditions for this problem.
+	 * @param solver A pointer to the linear solver to use to solve the system.
+	 * @return A PETSc vector giving the solution at each node in the mesh.
+	 */
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                                AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,

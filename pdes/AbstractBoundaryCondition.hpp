@@ -3,11 +3,24 @@
 
 #include "Point.hpp"
 
+/**
+ * Abstract base class for boundary conditions.
+ */
 template<int SPACE_DIM>
 class AbstractBoundaryCondition
 {
 public:
-//TODO:?	virtual ~AbstractBoundaryCondition() {}
+	/**
+	 * \todo
+	 * Add a virtual destructor for use by subclasses?
+	 */
+//	virtual ~AbstractBoundaryCondition() {}
+
+	/**
+	 * Get the value of the boundary condition at a given point.
+	 * 
+	 * @param x The point at which to evaluate the boundary condition.
+	 */
 	virtual double GetValue(const Point<SPACE_DIM> x) const = 0;
 };
 

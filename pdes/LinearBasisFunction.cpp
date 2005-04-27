@@ -204,12 +204,25 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
 }
 
 
+/**
+ * Compute the derivatives of all basis functions at a point within an element.
+ * This method will transform the results, for use within gaussian quadrature
+ * for example.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
+ *     element into the canonical element.
+ * @return The derivatives of the basis functions, in local index order. Each
+ *     entry is a vector (VectorDouble instance) giving the derivative along
+ *     each axis.
+ */
 template <int ELEM_DIM>
-std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> psi, MatrixDouble inverseJacobian)
+std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     assert(inverseJacobian.Rows()==inverseJacobian.Columns());
-    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(psi);
+    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(point);
   	std::vector<VectorDouble> transformedGradValues;
     
     for(int i=0;i<ELEM_DIM+1;i++)

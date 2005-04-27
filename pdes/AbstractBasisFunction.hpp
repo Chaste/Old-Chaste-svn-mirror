@@ -6,7 +6,15 @@
 #include "VectorDouble.hpp"
 #include "MatrixDouble.hpp"
 
-
+/**
+ * Abstract base class for basis functions. There are methods to compute
+ * the value and derivative of a particular basis function, or all basis
+ * functions on an element together.
+ * 
+ * The methods are documented more fully in the LinearBasisFunction class.
+ * 
+ * @see LinearBasisFunction
+ */
 template <int ELEM_DIM>
 class AbstractBasisFunction
 {
