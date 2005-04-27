@@ -35,13 +35,15 @@ private:
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *mpBoundaryConditions;
     AbstractBasisFunction<SPACE_DIM> *mpBasisFunction;
+    GaussianQuadratureRule<ELEMENT_DIM> *mpGaussianQuadratureRule;
+    AbstractNonlinearSolver *mpSolver;
 
 public:
     
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractNonlinearSolver *solver,
+                       AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
                               

@@ -32,43 +32,31 @@ class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssemble
 
 public:
 	//Constructor - does nothing
-	SimpleNonlinearEllipticAssembler();
+	SimpleNonlinearEllipticAssembler() {};
 	//Destructor - does nothing
-	~SimpleNonlinearEllipticAssembler();
+	~SimpleNonlinearEllipticAssembler() {};
 		
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractNonlinearSolver *solver,
+                       AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule);
-                                
-    
+                                    
 };
-
-template <int ELEMENT_DIM, int SPACE_DIM>
-SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::SimpleNonlinearEllipticAssembler()
-{
-//	
-}
-
-template <int ELEMENT_DIM, int SPACE_DIM>
-SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::~SimpleNonlinearEllipticAssembler()
-{
-	//do nothing
-}
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractNonlinearSolver *solver,
+                       AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule)
 {
 //	PetscErrorCode mMesh = rMesh;
 //	PetscErrorCode mpPde = pPde;
-//	PetscErrorCode mResidual = ComputeResidual(....);
+//	PetscErrorCode mResidual = ComputeResidual(AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
+//                              GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule....);
 //	PetscErrorCode mJacobian = ComputeJacobian(...);
 //	
 //	return solver->Solve(&mResidual,&mJacobian,this)
@@ -76,4 +64,13 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(Con
 }
 
 
+
+/*
+ * ComputeResidual, ComputeJacobianAnalytically and ComputeJacobianNumerically need
+ * to be placed beneath, but separate from, this class.
+ * 
+ */
+ 
+ 
+ 
 #endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
