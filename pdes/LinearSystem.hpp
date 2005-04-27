@@ -5,6 +5,14 @@
 #include "petscmat.h"
 #include "AbstractLinearSolver.hpp"
 
+/**
+ * Linear System class. Stores and solves a linear equation of the form Ax=b,
+ * where A is a square matrix and x and b are column vectors.
+ * The class uses PETSc.
+ * 
+ * 
+ */
+
 class LinearSystem
 {
 private:
