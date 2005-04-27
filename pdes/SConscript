@@ -14,9 +14,9 @@ os.chdir(curdir)
 
 
 
-base  = '-Icxxtest -Idatawriters -Iheart -Iodes -Icancer -Iparameters -Ipdes -Ipdes/tests -I. '
+base  = '-Icxxtest -Idatawriters -Iheart -Iodes -Icancer -Iparameters -Ipdes -I pdes/tests -I. '
 
-petsc_base = '../../petsc-2.2.1/'
+petsc_base = '../../petsc-2.2.1-with-mpi/'
 petsc_inc = '-I'+petsc_base+'include '
 petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
 petsc_mpi = '-I'+petsc_base+'include/mpiuni '
@@ -29,14 +29,17 @@ all_libs= ['petscts', 'petscsnes', 'petscksp', 'petscdm',
 'petscmat', 'petscvec', 'petsc', 'datawriter','pde','testpde']
 
 
-opt = Environment(CCFLAGS = base+petsc_incs,BOPT='g_c++',CXX='/usr/bin/g++')
+opt= Environment(ENV = {'PATH' : os.environ['PATH']})
+opt.Append(CCFLAGS = base+petsc_incs)
+opt.Append(BOPT='g_c++')
+opt.Replace(CXX='/users/ibacct/mpi/bin/mpicxx')
+
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = './$SOURCE | tee $TARGET')
 
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
 opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
-
 opt.Library('pde',files)
 opt.Library('testpde',testsource)
 
