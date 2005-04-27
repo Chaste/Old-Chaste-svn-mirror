@@ -40,13 +40,16 @@ public:
 	 * 
 	 * @param nodes A vector of pointers to Node objects, of length at least
 	 *     ELEMENT_DIM+1, specifying the nodes associated with this element.
-	 *     The corner nodes must come first.
+	 *     The corner nodes must come first, and must be listed in anticlockwise
+     *     order.
 	 * @param createLowerOrderElements Whether to create elements for e.g.
 	 *     the faces of a tetrahedral element.
 	 *     These only inherit corner nodes.
 	 * @param createJacobian Whether to create the Jacobian matrix for mapping
 	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
-	 *     Currently only works for non-sub-elements with straight edges.
+	 *     The full matrix is only calculated for non-sub-elements with straight edges.
+     *     For surface (boundary) elements we only calculate the determinant,
+     *     but this is all that is needed.
 	 */
     Element(std::vector<Node<SPACE_DIM>*> nodes,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
@@ -69,12 +72,12 @@ public:
     	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
-    		if (ELEMENT_DIM ==  SPACE_DIM)
+            /**
+             * \todo
+             * Check element nodes are defined in the right order?
+             */
+    		if (ELEMENT_DIM == SPACE_DIM)
     		{
-    			/**
-    			 * \todo
-				 * Jacobian for sub-elements    
-    			 */
     			mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
     			mpInverseJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
     			
@@ -88,7 +91,42 @@ public:
 		       
 		        *mpInverseJacobian   = mpJacobian->Inverse();
 		        mJacobianDeterminant = mpJacobian->Determinant();
+                // If determinant < 0 then element nodes are listed clockwise.
+                // We want them anticlockwise.
+                assert(mJacobianDeterminant > 0.0);
     		}
+            else if (ELEMENT_DIM == SPACE_DIM-1)
+            {
+                // For boundary elements we only need to know the determinant
+                VectorDouble twod_r1_minus_r0(2);
+                VectorDouble r1_minus_r0(3);
+                VectorDouble r2_minus_r0(3);
+                switch (ELEMENT_DIM)
+                {
+                    case 0:
+                        // End point of a line
+                        mJacobianDeterminant = 1;
+                        break;
+                    case 1:
+                        // Linear edge in a plane
+                        twod_r1_minus_r0(0) = GetNodeLocation(1,0) - GetNodeLocation(0,0); // x1-x0
+                        twod_r1_minus_r0(1) = GetNodeLocation(1,1) - GetNodeLocation(0,1); // y1-y0
+                        mJacobianDeterminant = twod_r1_minus_r0.L2Norm();
+                        break;
+                    case 2:
+                        // Surface triangle in a 3d mesh
+                        r1_minus_r0(0) = GetNodeLocation(1,0) - GetNodeLocation(0,0); // x1-x0
+                        r1_minus_r0(1) = GetNodeLocation(1,1) - GetNodeLocation(0,1); // y1-y0
+                        r1_minus_r0(2) = GetNodeLocation(1,2) - GetNodeLocation(0,2); // z1-z0
+                        r2_minus_r0(0) = GetNodeLocation(2,0) - GetNodeLocation(0,0); // x2-x0
+                        r2_minus_r0(1) = GetNodeLocation(2,1) - GetNodeLocation(0,1); // y2-y0
+                        r2_minus_r0(2) = GetNodeLocation(2,2) - GetNodeLocation(0,2); // z2-z0
+                        mJacobianDeterminant = (r1_minus_r0.VectorProduct(r2_minus_r0)).L2Norm();
+                        break;
+                    default:
+                        assert(0); // TODO? Might want to change this
+                }
+            }
 	    }
     }
     

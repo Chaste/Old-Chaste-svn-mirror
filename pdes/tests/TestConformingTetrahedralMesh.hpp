@@ -29,7 +29,10 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		// create & add the nodes
 		for (int i=0; i < element_dim+1; i++)
 		{
-			nodes.push_back(new Node<space_dim>(i, false, 0.1+i*i,0.1+i,0.1+i*i*i));
+            // Bodge to get positive determinant
+            int j=i;
+            if (i>1) j=5-i;
+			nodes.push_back(new Node<space_dim>(i, false, 0.1+j*j,0.1+j,0.1+j*j*j));
 			// Note that the mesh may change the index in general, but
 			// shouldn't here since we add in index order.
 			mesh1.AddNode(*nodes[i]);

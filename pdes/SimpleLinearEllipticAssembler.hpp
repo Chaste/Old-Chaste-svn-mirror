@@ -96,7 +96,7 @@ private:
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
 	{		
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
-		double jacobian_determinant = 1; //assert(0); rSurfaceElement.GetJacobianDeterminant();
+		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 		
 		// Initialise element contributions to zero
 		const int num_nodes = rSurfaceElement.GetNumNodes();
