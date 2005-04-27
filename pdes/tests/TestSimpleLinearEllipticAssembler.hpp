@@ -41,7 +41,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(bel(1),1, 1e-12);
 		
 	}
-	
+
 	void TestAssembleOnElement2DCanonical ( void )
 	{
 		LinearHeatEquationPde<2> pde;
