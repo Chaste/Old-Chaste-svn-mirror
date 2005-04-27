@@ -72,10 +72,6 @@ public:
     	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
-            /**
-             * \todo
-             * Check element nodes are defined in the right order?
-             */
     		if (ELEMENT_DIM == SPACE_DIM)
     		{
     			mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);

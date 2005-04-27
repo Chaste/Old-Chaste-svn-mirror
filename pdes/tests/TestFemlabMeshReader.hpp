@@ -23,13 +23,14 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	
 	void testFilesOpen(void)
 	{
+        TS_TRACE("In testFilesOpen()");
 		TS_ASSERT_THROWS_NOTHING(
 		                  spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat"));
-		
+		TS_TRACE("Done");
 	}
 	
 	/**

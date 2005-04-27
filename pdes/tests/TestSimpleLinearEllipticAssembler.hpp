@@ -4,11 +4,11 @@
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include "LinearHeatEquationPde.hpp"
+#include "LinearPdeWithZeroSource.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include <vector>
-#include <iostream>
 #include "Node.hpp" 
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -17,6 +17,15 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 {
 	public:
 
+
+    void setUp( void )
+    {
+        int FakeArgc=0;
+        char *FakeArgv0="testrunner";
+        char **FakeArgv=&FakeArgv0;
+        PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
+        
+    }
 	
 	void TestAssembleOnElement( void )
 	{
@@ -112,12 +121,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	
 
 	void TestWithHeatEquationAndMeshReader()   
-	{ 
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-		
+	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
 		ConformingTetrahedralMesh<1,1> mesh;
@@ -154,12 +158,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 
     void TestWithHeatEquation2()
     {
-    	int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-    	
-   		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
@@ -172,7 +170,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // u(-1)=1 u'(-3)=0
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-        //std::cout << *mesh.GetNodeAt(0)<< "\n";
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
@@ -205,12 +202,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
-   		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-    	
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
@@ -226,7 +217,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], -1, 1e-12);
         
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+        // Note we pass -1 not 1; see comment for AddNeumannBoundaryCondition
+        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(-1.0);
         
         // Add Neumann condition to the left hand end
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
@@ -258,11 +250,6 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	 */
 	void Test2dHeatEquation()
 	{
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-		
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
@@ -297,6 +284,52 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(res[4], 1.0/12.0, 0.001);
 	}
 	
+    void TestHeatEquationWithNeumannOnUnitDisc( void )
+    {
+        // Create mesh from mesh reader
+        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        LinearHeatEquationPde<2> pde;
+        
+        // Boundary conditions
+        BoundaryConditionsContainer<2,2> bcc;
+        // du/dn = -0.5 on r=1
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+        ConstBoundaryCondition<2>* pBoundaryCondition;
+        while (iter != mesh.GetLastBoundaryElement())
+        {
+            pBoundaryCondition = new ConstBoundaryCondition<2>(-0.5);
+            bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+            iter++;
+        }
+        // u = 2 at some point on the boundary, say node 1
+        pBoundaryCondition = new ConstBoundaryCondition<2>(2.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), pBoundaryCondition);
+        
+        // Linear solver
+        SimpleLinearSolver solver;
+        
+        // Assembler 
+        SimpleLinearEllipticAssembler<2,2> assembler;
+        
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);       
+        
+        double *res;
+        int ierr = VecGetArray(result, &res);
+        for (int i=0; i < mesh.GetNumNodes(); i++)
+        {
+            VectorDouble r(2);
+            r(0) = mesh.GetNodeAt(i)->GetPoint()[0];
+            r(1) = mesh.GetNodeAt(i)->GetPoint()[1];
+            double u = -0.25 * r.L2Norm() * r.L2Norm() + 2.25;
+            TS_ASSERT_DELTA(res[i], u, 0.01);
+        }
+        TS_TRACE("Test finished");
+    }
+    
 
 };
  

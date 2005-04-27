@@ -98,6 +98,9 @@ public:
      * The destructor for the BoundaryConditionsContainer will destroy the boundary
      * conditions objects.
      * 
+     * Take care if using non-zero neumann boundary conditions in 1d. If applied at
+     * the left hand end you need to multiply the value by -1 to get the right answer.
+     * 
      * @param pBoundaryElement Pointer to an element on the boundary.
      * @param pBoundaryCondition Pointer to the neumann boundary condition on that element.
      */
@@ -107,7 +110,7 @@ public:
     	//assert(boundaryElement->IsBoundaryElement());
    		    	
        	std::pair<  const Element<ELEM_DIM-1,SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryElement, pBoundaryCondition);     
-		mpNeumannMap->insert(entry);            	
+		mpNeumannMap->insert(entry);
     }
 
 

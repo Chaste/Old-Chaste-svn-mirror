@@ -98,13 +98,7 @@ private:
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 		
-		// Initialise element contributions to zero
 		const int num_nodes = rSurfaceElement.GetNumNodes();
-
-		for (int row=0; row < num_nodes; row++)
-		{
-			rBsubElem(row) = 0.0;
-		}
 		
 		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 		{
@@ -112,6 +106,7 @@ private:
 
 			std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 
+            // location of the gauss point in the original element will be stored in x
 			Point<SPACE_DIM> x(0,0,0);
 			for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
 			{
@@ -126,7 +121,7 @@ private:
 
 			for (int row=0; row < num_nodes; row++)
 			{
-				double integrand_value = -phi[row] * Dgradu_dot_n;
+				double integrand_value = phi[row] * Dgradu_dot_n;
 				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
