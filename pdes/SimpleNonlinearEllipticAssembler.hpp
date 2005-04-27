@@ -62,11 +62,15 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(Con
 {
 //	PetscErrorCode mMesh = rMesh;
 //	PetscErrorCode mpPde = pPde;
-//	PetscErrorCode mResidual = ComputeResidual(AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
+//	Vec mResidual = ComputeResidual(AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
 //                              GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule....);
-//	PetscErrorCode mJacobian = ComputeJacobian(...);
-//	
+
+//	PetscErrorCode mJacobian = ComputeJacobianAnalytically(...);
+//	PetscErrorCode mJacobian = ComputeJacobianNumerically(...);
+//	return solver->Solve(&mResidual,&mJacobian,this)
+
 //	return solver->Solve(&mResidual,&mJacobian, residual, initialGuess, this)
+
     return NULL;
 }
 
