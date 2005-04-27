@@ -13,6 +13,10 @@
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 
+static int sFakeArgc;
+static char *sFakeArgv0="testrunner";
+static char **sFakeArgv=&sFakeArgv0;
+
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {
 	public:
@@ -112,7 +116,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 
 	void TestWithHeatEquationAndMeshReader()   
 	{ 
-		PetscInitialize(0, NULL, 0, 0);
+		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
 		
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
@@ -150,7 +154,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 
     void TestWithHeatEquation2()
     {
-        PetscInitialize(0, NULL, 0, 0);
+   		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
     
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
@@ -197,7 +201,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
-        PetscInitialize(0, NULL, 0, 0);
+		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
 
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
@@ -246,7 +250,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	 */
 	void Test2dHeatEquation()
 	{
-		PetscInitialize(0, NULL, 0, 0);
+		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
 		
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");

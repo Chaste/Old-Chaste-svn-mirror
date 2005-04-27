@@ -10,6 +10,7 @@
 #include "ConformingTetrahedralMesh.hpp"
 #include "SimpleLinearSolver.hpp"
 
+
 class TestBoundaryConditionContainer : public CxxTest::TestSuite 
 {
 private:
@@ -48,7 +49,7 @@ private:
 public:
 	void setUp()
     {
-       PetscInitialize(0,NULL,0,0);
+		PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
     }	
     
 	void testSetGet()
@@ -163,7 +164,6 @@ public:
 	
 	void TestApplyToLinearSystem( void )
 	{
-		PetscInitialize(0,NULL,0,0);
 		LinearSystem some_system(10);
 		for(int i = 0; i < 10; i++)
 		{

@@ -11,7 +11,7 @@ class TestSimpleNonlinearSolver : public CxxTest::TestSuite
 //public:
 //    void setUp()
 //    {
-//        PetscInitialize(0,NULL,0,0);
+//       	PetscInitialize(&sFakeArgc, &sFakeArgv, PETSC_NULL, 0);
 //    }   
 //        
 //    /* What We need to do:
