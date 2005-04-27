@@ -68,15 +68,20 @@ namespace CxxTest
             _reported = false;
         }
 
-        void enterTest( const TestDescription & )
+        void enterTest( const TestDescription &td )
         {
-            _reported = false;
+           (*_o) << "Entering " << td.testName() << endl;
+            _reported = true;
         }
 
-        void leaveTest( const TestDescription & )
+        void leaveTest( const TestDescription &td )
         {
+
             if ( !tracker().testFailed() ) {
-                ((*_o) << ".").flush();
+                ((*_o) << "Passed" << endl).flush();
+                _dotting = true;
+            }else{
+                ((*_o) << "Failed" << endl).flush();
                 _dotting = true;
             }
         }
