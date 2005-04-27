@@ -119,10 +119,6 @@ public:
 	 */
 	void DefineZeroDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 	{
-		/**
-		 * \todo
-		 *  make this a loop over boundary nodes only
-		 */
 		typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
 		iter = pMesh->GetFirstBoundaryNode();
 		while (iter != pMesh->GetLastBoundaryNode()) 
@@ -159,11 +155,13 @@ public:
 	 * \todo
 	 *  Alter the residual vector for a nonlinear system to satisfy dirichlet boundary conditions
 	 */
-	// TODO:
 	//void ApplyDirichletToNonlinearProblem(peskyvec)
 
 	
-	// TODO: check have boundary conditions defined everywhere on mesh boundary
+	/**
+	 * \todo
+	 * Check have boundary conditions defined everywhere on mesh boundary
+	 */
 	//void Validate( pMesh )
 	
 
@@ -171,7 +169,7 @@ public:
 	 * Obtain value of dirichlet boundary condition at specified node
 	 * 
 	 * This is unlikely to be needed by the user, the methods ApplyDirichletToLinearProblem or
-	 * ApplyDirichletToNonlinearProblem can be called instead to apply all dirchlet boundary conditions 
+	 * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions 
 	 * at the same time 
 	 */
 	double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode)
