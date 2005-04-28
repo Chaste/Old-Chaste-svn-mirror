@@ -31,4 +31,4 @@ class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractOdeSystem
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
 };
 
-#endif //
+#endif //_HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
