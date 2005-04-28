@@ -3,6 +3,10 @@
 
 #include "AbstractLinearEllipticPde.hpp"
 
+/**
+ * Steady state linear heat equation. Has unit source term and identity
+ * diffusion term.
+ */
 template <int SPACE_DIM>
 class LinearHeatEquationPde:public AbstractLinearEllipticPde<SPACE_DIM>
 {

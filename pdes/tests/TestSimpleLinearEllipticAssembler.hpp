@@ -10,6 +10,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include <vector>
 #include <iostream>
+#include <cmath>
 #include "Node.hpp" 
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -334,8 +335,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	void TestVaryingPdeAndMeshReader1D()   
 	{
 		/// Create mesh from mesh reader \TODO set to correct mesh file
-		std::cout << "Reading mesh...\n";
-		std::cout.flush();
+		//std::cout << "Reading mesh...\n";
+		//std::cout.flush();
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_1_to_3");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
@@ -345,8 +346,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		
 		// Boundary conditions
 		// u(1)=4
-		std::cout << "Setting Boundary conditions...\n";
-		std::cout.flush();
+		//std::cout << "Setting Boundary conditions...\n";
+		//std::cout.flush();
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryDirichletCondition = new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryDirichletCondition);
@@ -361,28 +362,109 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		SimpleLinearSolver solver;
 		
 		// Assembler
-		std::cout << "Starting assemble...\n";
-		std::cout.flush();
+		//std::cout << "Starting assemble...\n";
+		//std::cout.flush();
 		SimpleLinearEllipticAssembler<1,1> assembler;
 		
 		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
-		std::cout << "Done\n" << std::flush;
+		//std::cout << "Done\n" << std::flush;
 		
 		// Check result
 		double *res;
 		int ierr = VecGetArray(result, &res);
 		for (int i=0; i < mesh.GetNumNodes(); i++)
 		{
-			std::cout << "Loop " << i << std::endl << std::flush;
+			//std::cout << "Loop " << i << std::endl << std::flush;
 			const Node<1>* p_current_node = mesh.GetNodeAt(i);
 			double x = (p_current_node->GetPoint())[0] ;
 			double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
-			std::cout << "x " << x << " u " << u << " res[" << i << "] " << res[i] << std::endl << std::flush;
+			//std::cout << "x " << x << " u " << u << " res[" << i << "] " << res[i] << std::endl << std::flush;
 			TS_ASSERT_DELTA(res[i], u, 0.2);
 		}
 		VecRestoreArray(result, &res);
 	}
 	
+	/**
+	 * Test a simple PDE with nasty boundary conditions - du/dn has a discontinuity.
+	 * This test takes a little while to run, so is currently disabled.
+	 */
+	void longTestKathrynHarrimanPage67EqFourPointOne()
+	{
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4096_elements");
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		LinearPdeWithZeroSource<2> pde;
+		
+		// Boundary conditions
+        BoundaryConditionsContainer<2,2> bcc;
+		// u = 0 on r<=1, z=0
+        ConstBoundaryCondition<2>* pBoundaryDirichletCondition = new ConstBoundaryCondition<2>(0.0);
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 = mesh.GetFirstBoundaryNode();
+        while (iter1 != mesh.GetLastBoundaryNode())
+        {
+        	if ((*iter1)->GetPoint()[0] <= 1.0 && fabs((*iter1)->GetPoint()[1]) < 0.0001)
+        	{
+        		bcc.AddDirichletBoundaryCondition(*iter1, pBoundaryDirichletCondition);
+        	}
+        	iter1++;
+        }
+		// du/dn = 0 on r>1, z=0 and on r=0, z>=0
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter2 = mesh.GetFirstBoundaryElement();
+		while (iter2 != mesh.GetLastBoundaryElement())
+		{
+			// Condition is zero, so we don't actually have to do anything.
+			iter2++;
+		}
+		// u=1 as r,z->infinity. We replace this by the exact solution on r=2 and on z=2
+		iter1 = mesh.GetFirstBoundaryNode();
+        while (iter1 != mesh.GetLastBoundaryNode())
+        {
+        	double r = (*iter1)->GetPoint()[0];
+        	double z = (*iter1)->GetPoint()[1];
+        	if (fabs(r - 2.0) <= 0.0001 || fabs(z - 2.0) < 0.0001)
+        	{
+        		double u = 1 - 2.0/M_PI*asin(2.0 / (sqrt(z*z + (1+r)*(1+r))
+        											 + sqrt(z*z + (1-r)*(1-r))));
+        		pBoundaryDirichletCondition = new ConstBoundaryCondition<2>(u);
+        		bcc.AddDirichletBoundaryCondition(*iter1, pBoundaryDirichletCondition);
+        	}
+        	iter1++;
+        }
+        
+        // Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		SimpleLinearEllipticAssembler<2,2> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double r = mesh.GetNodeAt(i)->GetPoint()[0];
+			double z = mesh.GetNodeAt(i)->GetPoint()[1];
+			double u;
+			if (z > 1e-12)
+			{
+				u = 1 - 2.0/M_PI*asin(2.0 / (sqrt(z*z + (1+r)*(1+r))
+        										+ sqrt(z*z + (1-r)*(1-r))));
+			}
+			else if (r > 1.0)
+			{
+				u = 1 - 2.0/M_PI * asin(1.0/r);
+			}
+			else
+			{
+				u = 0;
+			}
+			TS_ASSERT_DELTA(res[i], u, 0.08);
+		}
+		VecRestoreArray(result, &res);
+	}
 
 };
  
