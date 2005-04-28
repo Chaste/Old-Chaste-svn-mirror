@@ -6,19 +6,16 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "LR91Model.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
 #include "RegularStimulus.hpp"
-#include "SodiumCurrentLR91.hpp"
-#include "PotassiumTimeDependentCurrentLR91.hpp"
-#include "PotassiumTimeIndependentCurrentLR91.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AdamsBashforthIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 #include "ColumnDataWriter.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 
 class TestOdeSolverForLR91 : public CxxTest::TestSuite
@@ -33,7 +30,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          * Set initial conditions and magnitude of stimulus
          * 
          */
-		double voltage = -75.0;
+		double voltage = -84.5;
         double m = 0.0017;
         double h = 0.9833;
         double j = 0.9895;
@@ -42,22 +39,22 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double x = 0.0056;
         double caI = 0.0002;
         double magnitudeOfStimulus = -80.0;  
-        double durationOfStimulus  = 0.5 ;  // ms
+        double durationOfStimulus  = 0.5 ;  // ms                     
         
         /*
          * Collect initial data in a vector
          * 
          */  
-        std::vector<double> intialConditions;
-        intialConditions.push_back(voltage);
-        intialConditions.push_back(m);
-        intialConditions.push_back(h);
-        intialConditions.push_back(j);
-        intialConditions.push_back(d);
-        intialConditions.push_back(f);
-        intialConditions.push_back(x);
-        intialConditions.push_back(caI);
-		             
+        std::vector<double> initialConditions;
+        initialConditions.push_back(h);
+        initialConditions.push_back(j);
+        initialConditions.push_back(m);
+        initialConditions.push_back(caI);
+        initialConditions.push_back(voltage);
+        initialConditions.push_back(d);
+        initialConditions.push_back(f);
+        initialConditions.push_back(x);
+        
         /*
          * Choose function for stimulus
          */             
@@ -65,8 +62,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
-         */
-        LR91Model *pLR91Model = new LR91Model(pStimulus);
+         */        
+        AbstractOdeSystem *pLr91OdeSystem = new LuoRudyIModel1991OdeSystem(pStimulus);
         
         /*
          * Choose an ode solver
@@ -77,64 +74,68 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          * Solve 
          */
         double startTime = 0.0;
-        double endTime = 600.0;
+        double endTime = 1.0;
         double timeStep = 0.01;             
+                
+        OdeSolution SolutionNew = pMySolver->Solve(pLr91OdeSystem, startTime, endTime, timeStep, initialConditions);  
         
-        OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
-                               intialConditions, pMySolver);
-        
-        // std::cout << "solved the system" << std::endl;
-                               
-        // Test that voltage is within [eK, eNa] range, given Istim = -80
-        for (int i = 0; i < Solution.mSolutions.size(); i++)                   
+              
+        /*
+         * Write data to a file NewLR91.dat using ColumnDataWriter
+         */                                                           
+		        
+        ColumnDataWriter *mpNewTestWriter;
+        mpNewTestWriter = new ColumnDataWriter("data","NewLR91");
+        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        int new_v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
+        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
+        int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
+        int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
+        int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
+        int new_d_var_id = mpNewTestWriter->DefineVariable("d"," ");
+        int new_f_var_id = mpNewTestWriter->DefineVariable("f"," ");
+        int new_x_var_id = mpNewTestWriter->DefineVariable("x"," ");
+        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
+        mpNewTestWriter->EndDefineMode();
+				
+        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
         {
-            TS_ASSERT(eK < Solution.mSolutions[i][0]);
-            TS_ASSERT(eNa > Solution.mSolutions[i][0]);
+            mpNewTestWriter->PutVariable(new_time_var_id, SolutionNew.mTime[i], i);
+            mpNewTestWriter->PutVariable(new_v_var_id, SolutionNew.mSolutions[i][4], i);
+            mpNewTestWriter->PutVariable(new_m_var_id, SolutionNew.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(new_h_var_id, SolutionNew.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(new_j_var_id, SolutionNew.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(new_f_var_id, SolutionNew.mSolutions[i][6], i);
+            mpNewTestWriter->PutVariable(new_d_var_id, SolutionNew.mSolutions[i][5], i);
+            mpNewTestWriter->PutVariable(new_x_var_id, SolutionNew.mSolutions[i][7], i);
+            mpNewTestWriter->PutVariable(new_caI_var_id, SolutionNew.mSolutions[i][3], i);            
         }
-     
-     
-//        /*
-//         * Write data to a file testLR91.dat using ColumnDataWriter
-//         */                                                           
-//		
-//		ColumnDataWriter *mpTestWriter;
-//		mpTestWriter = new ColumnDataWriter("data","testLR91");
-//		mpTestWriter->DefineFixedDimension("Time","ms", Solution.mSolutions.size());
-//		int v_var_id = mpTestWriter->DefineVariable("V","milliamperes");
-//		int m_var_id = mpTestWriter->DefineVariable("m"," ");
-//		int h_var_id = mpTestWriter->DefineVariable("h"," ");
-//		int j_var_id = mpTestWriter->DefineVariable("j"," ");
-//		int d_var_id = mpTestWriter->DefineVariable("d"," ");
-//		int f_var_id = mpTestWriter->DefineVariable("f"," ");
-//		int x_var_id = mpTestWriter->DefineVariable("x"," ");
-//		int caI_var_id = mpTestWriter->DefineVariable("CaI","mMol ");
-//		mpTestWriter->EndDefineMode();
-//		
-//		
-//		for (int i = 0; i < Solution.mSolutions.size(); i++) 
-//		{
-//		  	mpTestWriter->PutVariable(v_var_id, Solution.mSolutions[i][0], i);
-//		  	mpTestWriter->PutVariable(m_var_id, Solution.mSolutions[i][1], i);
-//		  	mpTestWriter->PutVariable(h_var_id, Solution.mSolutions[i][2], i);
-//		  	mpTestWriter->PutVariable(j_var_id, Solution.mSolutions[i][3], i);
-//		  	mpTestWriter->PutVariable(f_var_id, Solution.mSolutions[i][4], i);
-//		  	mpTestWriter->PutVariable(d_var_id, Solution.mSolutions[i][5], i);
-//		  	mpTestWriter->PutVariable(x_var_id, Solution.mSolutions[i][6], i);
-//		  	mpTestWriter->PutVariable(caI_var_id, Solution.mSolutions[i][7], i);        	
-//		}
-//		mpTestWriter->Close();
-		
+        mpNewTestWriter->Close();
+        
+        
+        //read in good data file and compare line by line
+        std::ifstream testfile("data/NewLR91.dat",std::ios::in);
+        std::ifstream goodfile("data/Lr91Good.dat",std::ios::in);
+        std::string teststring;
+        std::string goodstring;
+        while(getline(testfile, teststring))
+        {
+              getline(goodfile,goodstring);
+              TS_ASSERT_EQUALS(teststring,goodstring);
+        }
+        testfile.close();
+        goodfile.close();
                                
-    }
-	
-     // Test Ode Solver for LR91
-    void donottestOdeSolverForLR91WithRegularStimulusAndRungeKutta(void)
+    }	
+
+// Test Ode Solver for LR91
+    void testOdeSolverForLR91NoStimulus(void)
     {
         /*
          * Set initial conditions and magnitude of stimulus
          * 
          */
-        double voltage = -75.0;
+        double voltage = -84.5;
         double m = 0.0017;
         double h = 0.9833;
         double j = 0.9895;
@@ -142,67 +143,95 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double f = 1;
         double x = 0.0056;
         double caI = 0.0002;
-        double magnitudeOfStimulus = -80.0;  
-        double durationOfStimulus  = 0.5 ;  // ms
-        double frequencyOfStimulus = 1.0/300.0;
-        double startTimeOfStimulus = 50.0;
+        double magnitudeOfStimulus = 0.0;  
+        double durationOfStimulus  = 0.5 ;  // ms                     
         
         /*
-         * Collect initiastl data in a vector
+         * Collect initial data in a vector
          * 
          */  
-        std::vector<double> intialConditions;
-        intialConditions.push_back(voltage);
-        intialConditions.push_back(m);
-        intialConditions.push_back(h);
-        intialConditions.push_back(j);
-        intialConditions.push_back(d);
-        intialConditions.push_back(f);
-        intialConditions.push_back(x);
-        intialConditions.push_back(caI);
-                     
+        std::vector<double> initialConditions;
+        initialConditions.push_back(h);
+        initialConditions.push_back(j);
+        initialConditions.push_back(m);
+        initialConditions.push_back(caI);
+        initialConditions.push_back(voltage);
+        initialConditions.push_back(d);
+        initialConditions.push_back(f);
+        initialConditions.push_back(x);
+        
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new RegularStimulus(magnitudeOfStimulus, durationOfStimulus,
-                                                                 frequencyOfStimulus, startTimeOfStimulus); 
+        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
-         */
-        LR91Model *pLR91Model = new LR91Model(pStimulus);
+         */        
+        AbstractOdeSystem *pLr91OdeSystem = new LuoRudyIModel1991OdeSystem(pStimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new RungeKutta4IvpOdeSolver();
+        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
         
         /*
          * Solve 
          */
         double startTime = 0.0;
-        double endTime = 600.0;
+        double endTime = 1.0;
         double timeStep = 0.01;             
+                
+        OdeSolution SolutionNew = pMySolver->Solve(pLr91OdeSystem, startTime, endTime, timeStep, initialConditions);  
         
-        OdeSolution Solution = pLR91Model->SolveModel(startTime, endTime, timeStep,
-                               intialConditions, pMySolver);
-                            
+              
         /*
-         * Write data to a file LRresult3.dat
-         */                                  
-                                  
-        ColumnDataWriter *myDataWriter=new ColumnDataWriter("data","LRresult3");
-		myDataWriter->DefineFixedDimension("Time","mS",Solution.mSolutions.size());
-		int timeVariable = myDataWriter->DefineVariable("Time","msecs");
-		int voltageVariable = myDataWriter->DefineVariable("Voltage","V");
-		myDataWriter->EndDefineMode();
-		for (int i=0; i<Solution.mSolutions.size(); i++)
-		{
-			myDataWriter->PutVariable(timeVariable,Solution.mTime[i],i);	
-			myDataWriter->PutVariable(voltageVariable,Solution.mSolutions[i][0],i);
-		}
-		myDataWriter->Close();                           
-    }
+         * Write data to a file NewLR91.dat using ColumnDataWriter
+         */                                                           
+                
+        ColumnDataWriter *mpNewTestWriter;
+        mpNewTestWriter = new ColumnDataWriter("data","NewNoStimLR91");
+        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        int new_v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
+        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
+        int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
+        int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
+        int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
+        int new_d_var_id = mpNewTestWriter->DefineVariable("d"," ");
+        int new_f_var_id = mpNewTestWriter->DefineVariable("f"," ");
+        int new_x_var_id = mpNewTestWriter->DefineVariable("x"," ");
+        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
+        mpNewTestWriter->EndDefineMode();
+                
+        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
+        {
+            mpNewTestWriter->PutVariable(new_time_var_id, SolutionNew.mTime[i], i);
+            mpNewTestWriter->PutVariable(new_v_var_id, SolutionNew.mSolutions[i][4], i);
+            mpNewTestWriter->PutVariable(new_m_var_id, SolutionNew.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(new_h_var_id, SolutionNew.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(new_j_var_id, SolutionNew.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(new_f_var_id, SolutionNew.mSolutions[i][6], i);
+            mpNewTestWriter->PutVariable(new_d_var_id, SolutionNew.mSolutions[i][5], i);
+            mpNewTestWriter->PutVariable(new_x_var_id, SolutionNew.mSolutions[i][7], i);
+            mpNewTestWriter->PutVariable(new_caI_var_id, SolutionNew.mSolutions[i][3], i);            
+        }
+        mpNewTestWriter->Close();
+        
+        
+        //read in good data file and compare line by line
+        std::ifstream testfile("data/NewNoStimLR91.dat",std::ios::in);
+        std::ifstream goodfile("data/Lr91NoStimGood.dat",std::ios::in);
+        std::string teststring;
+        std::string goodstring;
+        while(getline(testfile, teststring))
+        {
+              getline(goodfile,goodstring);
+              TS_ASSERT_EQUALS(teststring,goodstring);
+        }
+        testfile.close();
+        goodfile.close();
+                               
+    }   
            
 };
 
