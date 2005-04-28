@@ -181,7 +181,7 @@ public:
 		
 		some_system.AssembleIntermediateMatrix();
 		
-		Node<3>* p3dNode[5];
+		Node<3>* p3dNode[10];
 		BoundaryConditionsContainer<3,3> bcc3;
 				
 		for(int i = 0; i < 9; i++)
@@ -206,8 +206,72 @@ public:
 	        TS_ASSERT_DELTA(solution_elements[i], -1.0, 0.000001);
 		}
         TS_ASSERT_DELTA(solution_elements[9], 11.0, 0.000001);		
-//         //TS_TRACE("here bound2\n");		
 	}
+	
+	
+	
+	void TestApplyToNoninearSystem( void )
+	{	
+		Vec currentSolution;
+
+		VecCreate(PETSC_COMM_WORLD, &currentSolution);
+    	VecSetSizes(currentSolution, PETSC_DECIDE, 10);
+    	VecSetType(currentSolution, VECSEQ);
+
+		Vec residual;
+
+		VecCreate(PETSC_COMM_WORLD, &residual);
+    	VecSetSizes(residual, PETSC_DECIDE, 10);
+    	VecSetType(residual, VECSEQ);
+
+		double *currentSolutionArray;
+		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+			
+		double *residualArray;
+		ierr = VecGetArray(residual, &residualArray);
+	
+		for(int i=0;i<10;i++)
+		{
+			currentSolutionArray[i] = i;
+			residualArray[i] = 10+i;
+		}
+
+		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);
+		ierr = VecRestoreArray(residual, &residualArray);
+
+		Node<3>* p3dNode[10];
+		BoundaryConditionsContainer<3,3> bcc3;
+				
+		for(int i = 0; i < 9; i++)
+		{
+			p3dNode[i] = new Node<3>(i,true);
+			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
+			bcc3.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
+		}
+		
+		bcc3.ApplyDirichletToNonlinearProblem(currentSolution, residual);
+
+		double *currentSolutionArrayPostMod;
+		ierr = VecGetArray(currentSolution, &currentSolutionArrayPostMod);
+			
+		double *residualArrayPostMod;
+		ierr = VecGetArray(residual, &residualArrayPostMod);
+	
+		for(int i=0;i<9;i++)
+		{
+			TS_ASSERT_DELTA(currentSolutionArrayPostMod[i], i,   1e-12);
+			TS_ASSERT_DELTA(       residualArrayPostMod[i], i+1, 1e-12);
+		}
+		 
+		TS_ASSERT_DELTA(currentSolutionArrayPostMod[9], 9,   1e-12);
+		TS_ASSERT_DELTA(       residualArrayPostMod[9], 19,  1e-12);
+		
+		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
+		ierr = VecRestoreArray(residual, &residualArrayPostMod);
+	}
+	
+	
+	
 
 	void oldTestDefineZeroDirichletOnMeshBoundary()
 	{

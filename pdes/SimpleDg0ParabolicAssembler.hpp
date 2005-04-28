@@ -1,53 +1,56 @@
-#ifndef _SIMPLELINEARELLIPTICASSEMBLER_HPP_
-#define _SIMPLELINEARELLIPTICASSEMBLER_HPP_
-
+#ifndef _SIMPLEDG0PARABOLICASSEMBLER_HPP_
+#define _SIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 #include "LinearSystem.hpp"
-#include "AbstractLinearEllipticPde.hpp"
-#include "AbstractLinearEllipticAssembler.hpp"
+#include "AbstractLinearParabolicPde.hpp"
+#include "AbstractLinearParabolicAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include <vector>
+#include  <vector>
 #include "petscvec.h"
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 #include <iostream>
 
-
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
+class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
-    
+   
 private:
+	double mTstart;
+	double mTend;
+	double mDt;
+	
+	bool   mTimesSet;
+	bool   mInitialConditionSet;
+	
+	Vec    mInitialCondition;
+	
     LinearSystem *mpAssembledLinearSystem;
     
     static const int NUM_GAUSS_POINTS_PER_DIMENSION=2; // May want to define elsewhere
 
-	friend class TestSimpleLinearEllipticAssembler;
-
 	void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-							MatrixDouble &rAElem,
-							VectorDouble &rBElem,
-							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
-							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction)
+						   MatrixDouble &rAElem,
+						   VectorDouble &rBElem,
+						   AbstractLinearParabolicPde<SPACE_DIM> *pPde,
+						   AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
+						   Vec currentSolution)
 	{
+		
+		double *currentSolutionArray;
+		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+		
 		static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		
-		// This assumes that the Jacobian is constant on an element
-		// This is true for linear basis functions, but not for any other type of
-		// basis function
 		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 		double jacobian_determinant = rElement.GetJacobianDeterminant();
 		
-		
-		const int num_nodes = rElement.GetNumNodes();
-
 		// Initialise element contributions to zero
-		rAElem.ResetToZero();
-        rBElem.ResetToZero();
-
-		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+		const int num_nodes = rElement.GetNumNodes();
+				
+		for(int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
 		{
 			Point<ELEMENT_DIM> quad_point=quad_rule.GetQuadPoint(quad_index);
 
@@ -55,58 +58,62 @@ private:
 			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 			                                    (quad_point, *inverseJacobian);
 
-
-			// location of the gauss point in the original element will be stored in x
 			Point<SPACE_DIM> x(0,0,0);
-			for(int i=0; i<rElement.GetNumNodes(); i++)
+			double u=0;
+			for(int i=0; i<num_nodes; i++)
 			{
 				for(int j=0; j<SPACE_DIM; j++)
 				{
 					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				}
+				
+				u += phi[i]*currentSolutionArray[ rElement.GetNodeGlobalIndex(i) ];
 			}
-					
+								
+			double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);		
 			for (int row=0; row < num_nodes; row++)
 			{
 				for (int col=0; col < num_nodes; col++)
 				{
-					double integrand_value =
-						gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);
-								
-					rAElem(row,col)+= integrand_value * jacobian_determinant 
-					                  * quad_rule.GetWeight(quad_index);
+					double integrand_val1 = (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(x) * phi[row] * phi[col];
+					rAElem(row,col) += integrand_val1 * wJ;	
+
+					double integrand_val2 = gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);								
+					rAElem(row,col) += integrand_val2 * wJ;
 				}
 
 				// RHS
-				double integrand_value =
-							pPde->ComputeLinearSourceTerm(x) * phi[row];
-							
-				rBElem(row) += integrand_value * jacobian_determinant 
-				               * quad_rule.GetWeight(quad_index);
+				double vec_integrand_val1 = (pPde->ComputeLinearSourceTerm(x) + pPde->ComputeNonlinearSourceTerm(x,u)) * phi[row];
+				rBElem(row) += vec_integrand_val1 * wJ;
+
+				double vec_integrand_val2 = (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(x) * u * phi[row];
+				rBElem(row) += vec_integrand_val2 * wJ;				
 			}
 		}
 		
-	}
+		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);	
+	}		
 	
 	
 	void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 								 VectorDouble &rBsubElem,
-								 AbstractLinearEllipticPde<SPACE_DIM> *pPde,
+								 AbstractLinearParabolicPde<SPACE_DIM> *pPde,
 								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
-								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
+								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
+								 Vec currentSolution)
 	{		
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
-		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
+		double jacobian_determinant = 1; //assert(0); rSurfaceElement.GetJacobianDeterminant();
 		
+		// Initialise element contributions to zero
 		const int num_nodes = rSurfaceElement.GetNumNodes();
-
+		
 		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 		{
-			Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
+			Point<ELEMENT_DIM-1> quad_point = quad_rule.GetQuadPoint(quad_index);
 
 			std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 
-            // location of the gauss point in the original element will be stored in x
 			Point<SPACE_DIM> x(0,0,0);
 			for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
 			{
@@ -121,7 +128,7 @@ private:
 
 			for (int row=0; row < num_nodes; row++)
 			{
-				double integrand_value = phi[row] * Dgradu_dot_n;
+				double integrand_value = -phi[row] * Dgradu_dot_n;
 				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
@@ -129,20 +136,11 @@ private:
 	
 
 
- public:
- 	/**
-	 * Assemble the linear system for a linear elliptic PDE and solve it.
-	 * 
-	 * @param rMesh The mesh to solve on.
-	 * @param pPde A pointer to a PDE object specifying the equation to solve.
-	 * @param rBoundaryConditions A collection of boundary conditions for this problem.
-	 * @param solver A pointer to the linear solver to use to solve the system.
-	 * @return A PETSc vector giving the solution at each node in the mesh.
-	 */
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
+                       AbstractLinearParabolicPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractLinearSolver *solver)
+                       AbstractLinearSolver *solver,
+                       Vec currentSolution)
 	{
 		// Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem	= new LinearSystem(rMesh.GetNumNodes());
@@ -160,9 +158,10 @@ private:
         while (iter != rMesh.GetLastElement())
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
-                        
-            AssembleOnElement(element, a_elem, b_elem, pPde, basis_function);
-            
+
+			a_elem.ResetToZero();
+			b_elem.ResetToZero();                        
+            AssembleOnElement(element, a_elem, b_elem, pPde, basis_function, currentSolution);
             
             for (int i=0; i<num_nodes; i++)
             {
@@ -190,7 +189,7 @@ private:
 			while (surf_iter != rMesh.GetLastBoundaryElement())
 			{
 				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
-				
+		
 				/**
 				 * \todo
 				 * Check surf_element is in the Neumann surface in an efficient manner.
@@ -198,17 +197,18 @@ private:
 				if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
 				{
 					b_surf_elem.ResetToZero();
-					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions, currentSolution);
 	
 					for (int i=0; i<num_surf_nodes; i++)
-		            {
-		            	int node1 = surf_element.GetNodeGlobalIndex(i);
-		            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
-		            }
-				}
+	    	        {
+	        	    	int node1 = surf_element.GetNodeGlobalIndex(i);
+	            		mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+	           		}
+				}     
 				surf_iter++;
 			}
 		}
+		
 	
 		// apply dirichlet boundary conditions
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
@@ -219,7 +219,53 @@ private:
         Vec sol = mpAssembledLinearSystem->Solve(solver);       
         return sol;
 	}
+	
+public:
+	SimpleDg0ParabolicAssembler()
+	{
+		mTimesSet = false;
+		mInitialConditionSet = false;
+	}
+		
+	void SetTimes(double Tstart, double Tend, double dT)
+	{
+		mTstart = Tstart;
+		mTend   = Tend;
+		mDt     = dT;
+		
+		assert(mTstart < mTend);
+		assert(mDt > 0);
+		assert(mDt > mTstart - mTend);
+	
+		mTimesSet = true;
+	}
+	
+	void SetInitialCondition(Vec initCondition)
+	{
+		mInitialCondition = initCondition;
+		mInitialConditionSet = true;
+	}
+	
+
+	Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+              AbstractLinearParabolicPde<SPACE_DIM> *pPde, 
+              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+              AbstractLinearSolver *solver)
+	{
+		assert(mTimesSet);
+		assert(mInitialConditionSet);
+		
+		double t = mTstart;
+		Vec currentSolution = mInitialCondition;
+		while( t < mTend )
+		{
+			//std::cout << "t = " << t << "...\n";
+			currentSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, solver, currentSolution);
+			t += mDt;
+		}	
+		return currentSolution;
+	}	
 };
 
 
-#endif //_SIMPLELINEARELLIPTICASSEMBLER_HPP_
+#endif //_SIMPLEDG0PARABOLICASSEMBLER_HPP_

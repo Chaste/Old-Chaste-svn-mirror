@@ -213,7 +213,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         LinearHeatEquationPde<1> pde;
         
         // Boundary conditions
-        // u(-1)=1 u'(-3)=1
+        // u(-1)=1 u'(-3)=1 
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);

@@ -172,9 +172,31 @@ public:
 	 * \todo  Alter the residual vector for a nonlinear system to satisfy
 	 * dirichlet boundary conditions
 	 */
-	//void ApplyDirichletToNonlinearProblem(peskyvec)
+	void ApplyDirichletToNonlinearProblem(const Vec currentSolution, Vec residual)
+	{
+		
+		dirichIterator = mpDirichletMap->begin();
 
+		double *currentSolutionArray;
+		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+			
+		double *residualArray;
+		ierr = VecGetArray(residual, &residualArray);
+		
+		while(dirichIterator != mpDirichletMap->end() )			
+		{
+			long index = dirichIterator->first->GetIndex();
+			double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+			
+			residualArray[index] = currentSolutionArray[index] - value;
+			dirichIterator++;
+		}
+		
+		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);	
+		ierr = VecRestoreArray(residual, &residualArray);	
+	}
 	
+
 	/**
 	 * \todo
 	 * Check have boundary conditions defined everywhere on mesh boundary

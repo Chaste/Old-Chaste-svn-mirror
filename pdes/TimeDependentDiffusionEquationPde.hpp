@@ -13,7 +13,7 @@ class TimeDependentDiffusionEquationPde : public AbstractLinearParabolicPde<SPAC
 public:
 	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
 	{
-		return 1.0;
+		return 0.0;
 	}
     
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
