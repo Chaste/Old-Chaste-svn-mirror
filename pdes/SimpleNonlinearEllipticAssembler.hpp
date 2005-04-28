@@ -76,16 +76,78 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(Con
 
 
 
-/*
+/**
  * ComputeResidual, ComputeJacobianAnalytically and ComputeJacobianNumerically need
  * to be placed beneath, but separate from, this class.
  * 
  */
  
- /**
+/**
 * Implementation of Nonlinear system
 *
 */
+
+
+/**
+ * Compute Residual on Surface Elements
+ * 
+ */
+ template<int ELEMENT_DIM, int SPACE_DIM>
+ void ComputeResidualOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+								 VectorDouble &rBsubElem,
+								 AbstractLinearEllipticPde<SPACE_DIM> *pPde,
+								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
+								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
+								 VectorDouble Ui)
+{		
+	    static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
+		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
+		
+		const int num_nodes = rSurfaceElement.GetNumNodes();
+
+		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+		{
+			Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
+
+			std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+
+            // location of the gauss point in the original element will be stored in x
+			Point<SPACE_DIM> x(0,0,0);
+			
+			double U = 0;  
+			
+			for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
+			{
+				U+= phi[i]*Ui(i);
+							
+				for(int j=0; j<SPACE_DIM; j++)
+				{
+					x.SetCoordinate(j, x[j] + phi[i]*rSurfaceElement.GetNodeLocation(i,j));
+				}
+			}
+				
+				
+			 // In the nonlinear case of Practical 1: when solving d/dx u(du/dx) = -1
+			 // f(U) = U whereas in general case need to calculate fofU
+			double FOfU = U;
+					
+			// TODO: horrendously inefficient!!!
+			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+
+			for (int row=0; row < num_nodes; row++)
+			{
+				double integrand_value =  FOfU * phi[row] * Dgradu_dot_n;
+				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
+			}
+		}		
+}
+ 
+
+/**
+ * Compute Residual on Element
+ * 
+ */
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							VectorDouble &rBElem,
@@ -159,11 +221,14 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 	
 template<int ELEMENT_DIM, int SPACE_DIM>
 Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       /*AbstractLinearEllipticPde<SPACE_DIM> *pPde, */
+                       /*AbstractLinearEllipticPde<SPACE_DIM> *pPde,*/ 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
                        Vec CurrentSolution
                        /*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
 {
+		//NEED A pde OBJECT!!!
+		LinearHeatEquationPde<1> *pPde; 
+		
 		//Create residual vector Res to be returned
 		Vec res_vector;
      	VecCreate(PETSC_COMM_WORLD, &res_vector);
@@ -221,9 +286,13 @@ Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
             iter++;
         }
         
-        
-		// add the integrals associated with Neumann boundary conditions to the linear system
-		/*LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
+        /*
+         * 
+         * BOUNDARY CONDITIONS
+         * 
+         */
+        // add the integrals associated with Neumann boundary conditions to the linear system
+		LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
 		
 		if (surf_iter != rMesh.GetLastBoundaryElement())
@@ -235,27 +304,49 @@ Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
 			{
 				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 				
-				*
+				//get relevant entries for the nodes from CurrentSolution and put into Ui
+				VectorDouble UiSurf(num_surf_nodes);
+				PetscScalar *answerElements;
+				for (int i=0; i<num_surf_nodes; i++)
+	            {
+	            	int node = surf_element.GetNodeGlobalIndex(i);
+					VecGetArray(CurrentSolution, &answerElements);
+					double value = answerElements[node];
+					VecRestoreArray(CurrentSolution,&answerElements);
+	            	UiSurf(i) = value;
+	            }
+            
+				/**
 				 * \todo
 				 * Check surf_element is in the Neumann surface in an efficient manner.
-				 
+				 */
 				if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
 				{
 					b_surf_elem.ResetToZero();
-					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+					ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions, UiSurf);
 	
-					for (int i=0; i<num_surf_nodes; i++)
-		            {
-		            	int node1 = surf_element.GetNodeGlobalIndex(i);
-		            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
-		            }
+				    for (int i=0; i<num_surf_nodes; i++)
+			            {
+			            	int node1 = surf_element.GetNodeGlobalIndex(i);
+			            	
+			            	PetscScalar value1 = b_surf_elem(i);
+			            	VecSetValue(res_vector,node1,value1,ADD_VALUES); 	
+			            }
+	
+//					for (int i=0; i<num_surf_nodes; i++)
+//		            {
+//		            	int node1 = surf_element.GetNodeGlobalIndex(i);
+//		            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+//		            }
 				}
 				surf_iter++;
 			}
-		}*/
+		}
 	
-		// apply dirichlet boundary conditions 
-        //rBoundaryConditions.ApplyDirichletToNonlinearProblem(res_vector);   
+        
+		// Apply Dirichlet boundary conditions for nonlinear problem
+        rBoundaryConditions.ApplyDirichletToNonlinearProblem( CurrentSolution, res_vector);   
+        
         return res_vector;
 }
 

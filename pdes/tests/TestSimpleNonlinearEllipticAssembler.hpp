@@ -62,17 +62,18 @@ void setUp()
 		ConformingTetrahedralMesh<1,1> rMesh;
 		rMesh.ConstructFromMeshReader(mesh_reader);
 		std::vector<Node<1>*> nodes;
-				
-        /*AbstractLinearEllipticPde<SPACE_DIM> *pPde; */
-        // Instantiate PDE object
-		//LinearHeatEquationPde<1> pPde;  
+		
+		// Define PDE 
+       // AbstractLinearEllipticPde<1> *pPde; 
+       //	LinearHeatEquationPde<1> *pPde;  
 		
 		
 		// Boundary conditions
+		double DirichletBCValue = 5.0;
         BoundaryConditionsContainer<1,1> rBoundaryConditions;
-        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
         rBoundaryConditions.AddDirichletBoundaryCondition(rMesh.GetNodeAt(0), pBoundaryCondition);
-        
+        // need to test non-zero Dirichlet BC and then vonNeumann BCs
                        
         // initialize currentSolution_vector
         Vec currentSolution_vector;
@@ -96,8 +97,8 @@ void setUp()
 //                       Vec CurrentSolution/*,
 //                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
      	 	     	
-     	TS_ASSERT_THROWS_NOTHING(Vec Result = ComputeResidual(rMesh,
-                       /*pPde, */
+     	TS_ASSERT_THROWS_NOTHING(Vec Result1 = ComputeResidual(rMesh,
+                       /*pPde,*/ 
                        rBoundaryConditions,                       
                        currentSolution_vector/*,
                        pGaussianQuadratureRule*/));
@@ -108,17 +109,18 @@ void setUp()
  		{
      		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
  		}
-       Vec Result = ComputeResidual(rMesh, rBoundaryConditions, currentSolution_vector);
+ 	   double InitialGuess = 1.0;
+       Vec Result = ComputeResidual(rMesh, /*pPde,*/ rBoundaryConditions, currentSolution_vector);
         
                    
         PetscScalar *answerElements;
         VecGetArray(Result, &answerElements);
-        double value1 = answerElements[1];
-        double value2 = answerElements[2];     
+        double value1 = answerElements[0];
+        double value2 = answerElements[1];     
 		VecRestoreArray(Result,&answerElements);   
 //		std::cout<< "Residual: 1st entry is "  << value1 << std::endl;       
 //		std::cout<< "Residual: 2nd entry is "  << value2 << std::endl;    
-        TS_ASSERT(fabs(value1 + 0.15) < 0.001);
+        TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
         TS_ASSERT(fabs(value2 + 0.15) < 0.001);
         
                        
