@@ -17,18 +17,18 @@ class VaryingDiffusionAndSourceTermPde:public AbstractLinearEllipticPde<SPACE_DI
 		{
 			sum += x[i]*x[i];
 		}
-	return sqrt(sum);
+		return sqrt(sum);
 	}
 	
 	public:
 	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
 	{
-		return 0.0;
+		return pow(DistanceFromOrigin(x),3);
 	}
     
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
-    	return -pow(DistanceFromOrigin(x),3);
+    	return 0.0;
     }
 
     MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)

@@ -331,19 +331,12 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         }
     }
     
-	void dontTestVaryingPdeAndMeshReader1D()   
-	{ 
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-		std::cout << "Initializing those pesky kids again...\n";
-		std::cout.flush();
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-		
-		// Create mesh from mesh reader \TODO set to correct mesh file
+	void TestVaryingPdeAndMeshReader1D()   
+	{
+		/// Create mesh from mesh reader \TODO set to correct mesh file
 		std::cout << "Reading mesh...\n";
 		std::cout.flush();
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_1_to_3");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -357,8 +350,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryDirichletCondition = new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryDirichletCondition);
-        // u'(1)=7
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(7.0);
+		
+		// Note we need to specify D * du/dx for the Neumann boundary condition
+        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(7.0*9.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
@@ -372,17 +366,19 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		SimpleLinearEllipticAssembler<1,1> assembler;
 		
 		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		std::cout << "Done\n" << std::flush;
 		
 		// Check result
 		double *res;
 		int ierr = VecGetArray(result, &res);
-		// Solution should be u = 0.5*x*(3-x)
-		for (int i=0; i < mesh.GetNumElements()+1; i++)
+		for (int i=0; i < mesh.GetNumNodes(); i++)
 		{
+			std::cout << "Loop " << i << std::endl << std::flush;
 			const Node<1>* p_current_node = mesh.GetNodeAt(i);
 			double x = (p_current_node->GetPoint())[0] ;
 			double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
-			TS_ASSERT_DELTA(res[i], u, 0.001);
+			std::cout << "x " << x << " u " << u << " res[" << i << "] " << res[i] << std::endl << std::flush;
+			TS_ASSERT_DELTA(res[i], u, 0.2);
 		}
 		VecRestoreArray(result, &res);
 	}

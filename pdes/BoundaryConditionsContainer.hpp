@@ -111,6 +111,9 @@ public:
      * The destructor for the BoundaryConditionsContainer will destroy the boundary
      * conditions objects.
      * 
+     * Note that the value of a Neumann boundary condition should specify
+     * D * grad(u).n, not just grad(u).n.
+     * 
      * Take care if using non-zero neumann boundary conditions in 1d. If applied at
      * the left hand end you need to multiply the value by -1 to get the right answer.
      * 
