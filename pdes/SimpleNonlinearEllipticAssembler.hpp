@@ -236,7 +236,8 @@ Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
      	PetscScalar zero = 0.0;
      	VecGetSize(CurrentSolution,&sizeValue);
      	VecSetSizes(res_vector,PETSC_DECIDE,sizeValue);
-     	VecSetType(res_vector, VECSEQ);
+     	//VecSetType(res_vector, VECSEQ);
+     	VecSetFromOptions(res_vector);
 		//...
 		//Set Res to zero
  		VecSet(&zero,res_vector);
@@ -385,9 +386,12 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     VecSetSizes(result,PETSC_DECIDE,num_nodes);
     VecSetSizes(perturbedResidual,PETSC_DECIDE,num_nodes);
     
-    VecSetType(residual, VECSEQ);
-    VecSetType(result, VECSEQ);
-    VecSetType(perturbedResidual, VECSEQ);
+    //VecSetType(residual, VECSEQ);
+    //VecSetType(result, VECSEQ);
+    //VecSetType(perturbedResidual, VECSEQ);
+    VecSetFromOptions(residual);
+    VecSetFromOptions(result);
+    VecSetFromOptions(perturbedResidual);
     
     Vec inputcopy;
 

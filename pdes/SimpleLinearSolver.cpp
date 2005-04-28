@@ -9,7 +9,7 @@
  * 
  */
 
-
+#include <iostream>
 Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
 {
     Vec lhs_vector;
@@ -18,13 +18,19 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
 
     VecGetSize(rhsVector, &rhs_size);
     VecSetSizes(lhs_vector,PETSC_DECIDE,rhs_size);
-    VecSetType(lhs_vector, VECSEQ);
+    //VecSetType(lhs_vector, VECSEQ);
+	//VecSetType(lhs_vector, VECMPI);
+	VecSetFromOptions(lhs_vector);
+    
 
     KSP simple_solver; 
     KSPCreate(PETSC_COMM_WORLD, &simple_solver);
     KSPSetOperators(simple_solver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
     KSPSetUp(simple_solver);   
+    
+    
     KSPSolve(simple_solver,rhsVector,lhs_vector);
+    
     
     // Check that solver converged and throw if not
     KSPConvergedReason reason;

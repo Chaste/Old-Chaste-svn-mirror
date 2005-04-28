@@ -28,14 +28,17 @@ public:
 	Vec rhs_vector;
 	VecCreate(PETSC_COMM_WORLD, &rhs_vector);
 	VecSetSizes(rhs_vector,PETSC_DECIDE,2);
-	VecSetType(rhs_vector, VECSEQ);
+	//VecSetType(rhs_vector, VECSEQ);
+   	VecSetFromOptions(rhs_vector);
+   	
    	VecSetValue(rhs_vector, 0, (PetscReal) 1, INSERT_VALUES);
    	VecSetValue(rhs_vector, 1, (PetscReal) 1, INSERT_VALUES);
    	
    	//Set Matrix
    	Mat lhs_matrix;
-   	MatCreate(PETSC_COMM_WORLD, 2, 2, PETSC_DETERMINE, PETSC_DETERMINE, &lhs_matrix);
-   	MatSetType(lhs_matrix, MATSEQDENSE);
+   	MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+   	//MatSetType(lhs_matrix, MATSEQDENSE);
+   	MatSetType(lhs_matrix, MATMPIDENSE);
    	
    	// Set Matrix to Identity matrix
    	MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 1, INSERT_VALUES);
@@ -68,14 +71,16 @@ public:
 	Vec rhs_vector;
 	VecCreate(PETSC_COMM_WORLD, &rhs_vector);
 	VecSetSizes(rhs_vector,PETSC_DECIDE,2);
-	VecSetType(rhs_vector, VECSEQ);
+	//VecSetType(rhs_vector, VECSEQ);
+   	VecSetFromOptions(rhs_vector);
    	VecSetValue(rhs_vector, 0, (PetscReal) 1, INSERT_VALUES);
    	VecSetValue(rhs_vector, 1, (PetscReal) 1, INSERT_VALUES);
    	
    	//Set Matrix
    	Mat lhs_matrix;
-   	MatCreate(PETSC_COMM_WORLD, 2, 2, PETSC_DETERMINE, PETSC_DETERMINE, &lhs_matrix);
-   	MatSetType(lhs_matrix, MATSEQDENSE);
+   	MatCreate(PETSC_COMM_WORLD,  PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+   	//MatSetType(lhs_matrix, MATSEQDENSE);
+   	MatSetType(lhs_matrix, MATMPIDENSE);
    	
    	// Set Matrix to Zero matrix
    	MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 0, INSERT_VALUES);
@@ -103,14 +108,17 @@ public:
 	Vec rhs_vector;
 	VecCreate(PETSC_COMM_WORLD, &rhs_vector);
 	VecSetSizes(rhs_vector,PETSC_DECIDE,2);
-	VecSetType(rhs_vector, VECSEQ);
+	//VecSetType(rhs_vector, VECSEQ);
+	VecSetFromOptions(rhs_vector);
+	
    	VecSetValue(rhs_vector, 0, (PetscReal) 17, INSERT_VALUES);
    	VecSetValue(rhs_vector, 1, (PetscReal) 39, INSERT_VALUES);
    	
    	//Set Matrix
    	Mat lhs_matrix;
-   	MatCreate(PETSC_COMM_WORLD, 2, 2, PETSC_DETERMINE, PETSC_DETERMINE, &lhs_matrix);
-   	MatSetType(lhs_matrix, MATSEQDENSE);
+   	MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+   	//MatSetType(lhs_matrix, MATSEQDENSE);
+   	MatSetType(lhs_matrix, MATMPIDENSE);
    	
    	// Set Matrix to Zero matrix
    	MatSetValue(lhs_matrix, (PetscInt) 0, (PetscInt) 0, (PetscReal) 1, INSERT_VALUES);

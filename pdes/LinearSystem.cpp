@@ -12,14 +12,20 @@ LinearSystem::LinearSystem(int lhsVectorSize)
 {
     VecCreate(PETSC_COMM_WORLD, &mLhsVector);
     VecSetSizes(mLhsVector, PETSC_DECIDE, lhsVectorSize);
-    VecSetType(mLhsVector, VECSEQ);
+    //VecSetType(mLhsVector, VECSEQ);
+    //VecSetType(mLhsVector, VECMPI);
+    VecSetFromOptions(mLhsVector);
     
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
-    VecSetType(mRhsVector, VECSEQ);
-
-    MatCreate(PETSC_COMM_WORLD,lhsVectorSize,lhsVectorSize,PETSC_DETERMINE,PETSC_DETERMINE,&mLhsMatrix);
-    MatSetType(mLhsMatrix, MATSEQDENSE);
+    //VecSetType(mRhsVector, VECSEQ);
+	//VecSetType(mRhsVector, VECMPI);
+	VecSetFromOptions(mRhsVector);
+    
+    MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
+    //MatSetType(mLhsMatrix, MATSEQDENSE);
+    MatSetType(mLhsMatrix, MATMPIDENSE);
+	MatSetFromOptions(mLhsMatrix);
     mSize = lhsVectorSize;
 }
 
@@ -52,24 +58,28 @@ void LinearSystem::AssembleFinalMatrix()
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    VecAssemblyBegin(mRhsVector);
+    VecAssemblyEnd(mRhsVector);
 }
 
 void LinearSystem::AssembleIntermediateMatrix()
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    VecAssemblyBegin(mRhsVector);
+    VecAssemblyEnd(mRhsVector);
 }
 
 
 
 void LinearSystem::SetRhsVectorElement(int row, double value)
 {
-    VecSetValue(mRhsVector, row, value, INSERT_VALUES);
+    VecSetValues(mRhsVector, 1, &row, &value, INSERT_VALUES);
 }
 
 void LinearSystem::AddToRhsVectorElement(int row, double value)
 {
-    VecSetValue(mRhsVector, row, value, ADD_VALUES);
+    VecSetValues(mRhsVector, 1, &row, &value, ADD_VALUES);
 }
 
 void LinearSystem::DisplayMatrix()

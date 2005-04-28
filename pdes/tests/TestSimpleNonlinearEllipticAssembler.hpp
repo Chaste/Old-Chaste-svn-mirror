@@ -91,8 +91,8 @@ void setUp()
         Vec currentSolution_vector;
      	VecCreate(PETSC_COMM_WORLD, &currentSolution_vector);
      	VecSetSizes(currentSolution_vector,PETSC_DECIDE,rMesh.GetNumNodes());
-     	VecSetType(currentSolution_vector, VECSEQ);
-     	
+     	//VecSetType(currentSolution_vector, VECSEQ);
+     	VecSetFromOptions(currentSolution_vector);
      	 	     	
      	TS_ASSERT_THROWS_NOTHING(Vec Result1 = ComputeResidual(rMesh,
                        /*pPde,*/ 
@@ -141,14 +141,16 @@ void setUp()
     	Vec input;
     	VecCreate(PETSC_COMM_WORLD, &input);
 		VecSetSizes(input,PETSC_DECIDE,2);
-		VecSetType(input, VECSEQ);
+		//VecSetType(input, VECSEQ);
+	   	VecSetFromOptions(input);
 	   	VecSetValue(input, 0, (PetscReal) 0, INSERT_VALUES);
 	   	VecSetValue(input, 1, (PetscReal) 0, INSERT_VALUES);
 	   	
 	   	// Set up Jacobian matrix - results written into this Mat object
    		Mat pJacobian;
-   		MatCreate(PETSC_COMM_WORLD, 2, 2, PETSC_DETERMINE, PETSC_DETERMINE, &pJacobian);
-   		MatSetType(pJacobian, MATSEQDENSE);
+   		MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &pJacobian);
+   		//MatSetType(pJacobian, MATSEQDENSE);
+    	MatSetType(pJacobian, MATMPIDENSE);
     	
         int errcode = ComputeJacobianNumerically(snes, input, &pJacobian, NULL, NULL, NULL);
         
@@ -191,10 +193,13 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     VecSetSizes(result,PETSC_DECIDE,num_nodes);
     VecSetSizes(perturbedResidual,PETSC_DECIDE,num_nodes);
     
-    VecSetType(residual, VECSEQ);
-    VecSetType(result, VECSEQ);
-    VecSetType(perturbedResidual, VECSEQ);
-    
+    //VecSetType(residual, VECSEQ);
+    //VecSetType(result, VECSEQ);
+    //VecSetType(perturbedResidual, VECSEQ);
+    VecSetFromOptions(residual);
+    VecSetFromOptions(result);
+    VecSetFromOptions(perturbedResidual);
+
     Vec inputcopy;
 
     ierr = VecDuplicate(input,&inputcopy); CHKERRQ(ierr);

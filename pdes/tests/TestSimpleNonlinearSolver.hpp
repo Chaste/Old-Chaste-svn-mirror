@@ -37,7 +37,8 @@ public:
     	Vec initialGuess;
     	VecCreate(PETSC_COMM_WORLD, &initialGuess);
     	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
+    	//VecSetType(initialGuess, VECSEQ);
+    	VecSetFromOptions(initialGuess);
     	VecSetValue(initialGuess, 0, 1.0 ,INSERT_VALUES);
 		VecSetValue(initialGuess, 1, 1.0 ,INSERT_VALUES);
     	VecAssemblyBegin(initialGuess);
@@ -72,7 +73,8 @@ public:
     	Vec initialGuess;
     	VecCreate(PETSC_COMM_WORLD, &initialGuess);
     	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
+    	//VecSetType(initialGuess, VECSEQ);
+    	VecSetFromOptions(initialGuess);
     	VecSetValue(initialGuess, 0, 1.0 ,INSERT_VALUES);
 		VecSetValue(initialGuess, 1, 1.0 ,INSERT_VALUES);
 		VecSetValue(initialGuess, 2, 1.0 ,INSERT_VALUES);
