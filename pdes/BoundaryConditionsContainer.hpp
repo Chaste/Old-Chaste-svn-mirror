@@ -172,8 +172,8 @@ public:
 	}
 	
 	/**
-	 * \todo  Alter the residual vector for a nonlinear system to satisfy
-	 * dirichlet boundary conditions
+	 * Alter the residual vector for a nonlinear system to satisfy
+	 * dirichlet boundary conditions. 
 	 */
 	void ApplyDirichletToNonlinearProblem(const Vec currentSolution, Vec residual)
 	{

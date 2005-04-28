@@ -101,19 +101,19 @@ private:
 								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 								 Vec currentSolution)
-	{		
+	{				
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
-		double jacobian_determinant = 1; //assert(0); rSurfaceElement.GetJacobianDeterminant();
+		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 		
-		// Initialise element contributions to zero
 		const int num_nodes = rSurfaceElement.GetNumNodes();
 		
 		for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 		{
 			Point<ELEMENT_DIM-1> quad_point = quad_rule.GetQuadPoint(quad_index);
-
 			std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 
+					
+       	    // location of the gauss point in the original element will be stored in x
 			Point<SPACE_DIM> x(0,0,0);
 			for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
 			{
@@ -128,12 +128,11 @@ private:
 
 			for (int row=0; row < num_nodes; row++)
 			{
-				double integrand_value = -phi[row] * Dgradu_dot_n;
+				double integrand_value = phi[row] * Dgradu_dot_n;
 				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
 	}
-	
 
 
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
@@ -176,7 +175,6 @@ private:
             iter++;
         }
         
-        
 		// add the integrals associated with Neumann boundary conditions to the linear system
 		LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
@@ -207,8 +205,7 @@ private:
 				}     
 				surf_iter++;
 			}
-		}
-		
+		}		
 	
 		// apply dirichlet boundary conditions
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
