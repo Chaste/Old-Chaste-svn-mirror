@@ -58,7 +58,11 @@ void setUp()
      	      
         // Create mesh (by hand!) (from TestSimpleLinearEllipticAssembler.hpp)
 		// Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
+		//TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh"); 
+        //double h = 0.15;
+        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh"); 
+        double h = 0.01;
+        
 		ConformingTetrahedralMesh<1,1> rMesh;
 		rMesh.ConstructFromMeshReader(mesh_reader);
 		std::vector<Node<1>*> nodes;
@@ -69,11 +73,19 @@ void setUp()
 		
 		
 		// Boundary conditions
+        
+        //Adding Dirichlet BC at node 0
 		double DirichletBCValue = 5.0;
         BoundaryConditionsContainer<1,1> rBoundaryConditions;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
         rBoundaryConditions.AddDirichletBoundaryCondition(rMesh.GetNodeAt(0), pBoundaryCondition);
-        // need to test non-zero Dirichlet BC and then vonNeumann BCs
+        
+        // adding von Neumann BC at the last node
+        double VonNeumannBCValue = 9.0;
+        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);        
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = rMesh.GetLastBoundaryElement();
+        iter--; // to be consistent with c++ :))), GetLastBoundaryElement points to one element passed it
+        rBoundaryConditions.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
                        
         // initialize currentSolution_vector
         Vec currentSolution_vector;
@@ -81,21 +93,6 @@ void setUp()
      	VecSetSizes(currentSolution_vector,PETSC_DECIDE,rMesh.GetNumNodes());
      	VecSetType(currentSolution_vector, VECSEQ);
      	
-// 		for (int i = 0; i<rMesh.GetNumNodes(); i++)
-// 		{
-//     		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
-// 		}
-     	
-     	
-        
-        /* GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule;*/
-     	
-     	
-//     	// Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-//                       /*AbstractLinearEllipticPde<SPACE_DIM> *pPde, */
-//                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-//                       Vec CurrentSolution/*,
-//                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
      	 	     	
      	TS_ASSERT_THROWS_NOTHING(Vec Result1 = ComputeResidual(rMesh,
                        /*pPde,*/ 
@@ -105,6 +102,7 @@ void setUp()
        
        // Test that if we pass in a vector of ones, then in each element 
        // residual should return -h (i.e. -0.15)
+       
         for (int i = 0; i<rMesh.GetNumNodes(); i++)
  		{
      		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
@@ -116,12 +114,14 @@ void setUp()
         PetscScalar *answerElements;
         VecGetArray(Result, &answerElements);
         double value1 = answerElements[0];
-        double value2 = answerElements[1];     
+        double value2 = answerElements[1];
+        double valueLast = answerElements[rMesh.GetNumNodes()-1];
 		VecRestoreArray(Result,&answerElements);   
 //		std::cout<< "Residual: 1st entry is "  << value1 << std::endl;       
-//		std::cout<< "Residual: 2nd entry is "  << value2 << std::endl;    
+//		std::cout<< "Residual: last entry is "  << valueLast << std::endl;    
         TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
-        TS_ASSERT(fabs(value2 + 0.15) < 0.001);
+        TS_ASSERT(fabs(value2 + h) < 0.001);
+        TS_ASSERT(fabs(valueLast - VonNeumannBCValue + h/2) < 0.001);
         
                        
        
