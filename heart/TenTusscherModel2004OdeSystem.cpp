@@ -127,8 +127,8 @@ std::vector<double> TenTusscherModel2004OdeSystem::EvaluateYDerivatives (double 
 
    double reversal_potentials_E_Ca = model_parameters_R*model_parameters_T/(2.0*model_parameters_F)*log10(model_parameters_Ca_o/calcium_dynamics_Ca_i);
    double calcium_background_current_i_bCa = calcium_background_current_g_bCa*(membrane_V-reversal_potentials_E_Ca);
-   double calcium_dynamics_i_rel = (calcium_dynamics_a_rel*sqr(calcium_dynamics_Ca_SR)/(sqr(calcium_dynamics_b_rel)+sqr(calcium_dynamics_Ca_SR))+calcium_dynamics_c_rel)*L_type_calcium_current_d_gate_d*calcium_dynamics_g;
-   double calcium_dynamics_i_up = calcium_dynamics_Vmax_up/(1.0+sqr(calcium_dynamics_K_up)/sqr(calcium_dynamics_Ca_i));
+   double calcium_dynamics_i_rel = (calcium_dynamics_a_rel*sqrt(calcium_dynamics_Ca_SR)/(sqrt(calcium_dynamics_b_rel)+sqrt(calcium_dynamics_Ca_SR))+calcium_dynamics_c_rel)*L_type_calcium_current_d_gate_d*calcium_dynamics_g;
+   double calcium_dynamics_i_up = calcium_dynamics_Vmax_up/(1.0+sqrt(calcium_dynamics_K_up)/sqrt(calcium_dynamics_Ca_i));
    double calcium_dynamics_i_leak = calcium_dynamics_V_leak*(calcium_dynamics_Ca_SR-calcium_dynamics_Ca_i);
 
    double calcium_dynamics_g_infinity;
@@ -156,14 +156,14 @@ std::vector<double> TenTusscherModel2004OdeSystem::EvaluateYDerivatives (double 
    double calcium_dynamics_g_prime = calcium_dynamics_k*(calcium_dynamics_g_infinity-calcium_dynamics_g)/calcium_dynamics_tau_g;
    double calcium_dynamics_Ca_i_bufc = calcium_dynamics_Ca_i*calcium_dynamics_Bufc/(calcium_dynamics_Ca_i+calcium_dynamics_Kbufc);
    double calcium_dynamics_Ca_SR_bufsr = calcium_dynamics_Ca_SR*calcium_dynamics_Bufsr/(calcium_dynamics_Ca_SR+calcium_dynamics_Kbufsr);
-   double L_type_calcium_current_i_CaL = L_type_calcium_current_g_CaL*L_type_calcium_current_d_gate_d*L_type_calcium_current_f_gate_f*L_type_calcium_current_f_Ca_gate_f_Ca*4.0*membrane_V*sqr(model_parameters_F)/(model_parameters_R*model_parameters_T)*(calcium_dynamics_Ca_i*exp(2.0*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))-0.341*model_parameters_Ca_o)/(exp(2.0*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))-1.0);
+   double L_type_calcium_current_i_CaL = L_type_calcium_current_g_CaL*L_type_calcium_current_d_gate_d*L_type_calcium_current_f_gate_f*L_type_calcium_current_f_Ca_gate_f_Ca*4.0*membrane_V*sqrt(model_parameters_F)/(model_parameters_R*model_parameters_T)*(calcium_dynamics_Ca_i*exp(2.0*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))-0.341*model_parameters_Ca_o)/(exp(2.0*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))-1.0);
    double calcium_pump_current_i_pCa = calcium_pump_current_g_pCa*calcium_dynamics_Ca_i/(calcium_pump_current_K_pCa+calcium_dynamics_Ca_i);
    double Na_Ca_exchanger_current_i_NaCa = Na_Ca_exchanger_current_K_NaCa*(exp(Na_Ca_exchanger_current_gamma*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))*pow(sodium_dynamics_Na_i, 3.0)*model_parameters_Ca_o-exp((Na_Ca_exchanger_current_gamma-1.0)*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))*pow(model_parameters_Na_o, 3.0)*calcium_dynamics_Ca_i*Na_Ca_exchanger_current_alpha)/((pow(Na_Ca_exchanger_current_K_mNa_i, 3.0)+pow(model_parameters_Na_o, 3.0))*(Na_Ca_exchanger_current_K_mCa+model_parameters_Ca_o)*(1.0+Na_Ca_exchanger_current_K_sat*exp((Na_Ca_exchanger_current_gamma-1.0)*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))));
    double calcium_dynamics_Ca_i_prime = calcium_dynamics_i_leak+calcium_dynamics_i_rel-((L_type_calcium_current_i_CaL+calcium_background_current_i_bCa+calcium_pump_current_i_pCa-2.0*Na_Ca_exchanger_current_i_NaCa)/(2.0*model_parameters_Vc*model_parameters_F)*membrane_Cm+calcium_dynamics_i_up);
    double calcium_dynamics_Ca_SR_prime = model_parameters_Vc/calcium_dynamics_Vsr*(calcium_dynamics_i_up-(calcium_dynamics_i_rel+calcium_dynamics_i_leak));
    double reversal_potentials_E_Na = model_parameters_R*model_parameters_T/model_parameters_F*log10(model_parameters_Na_o/sodium_dynamics_Na_i);
    double fast_sodium_current_i_Na = fast_sodium_current_g_Na*pow(fast_sodium_current_m_gate_m, 3.0)*fast_sodium_current_h_gate_h*fast_sodium_current_j_gate_j*(membrane_V-reversal_potentials_E_Na);
-   double fast_sodium_current_h_gate_h_infinity = 1.0/sqr(1.0+exp((71.55+membrane_V)/7.43));
+   double fast_sodium_current_h_gate_h_infinity = 1.0/sqrt(1.0+exp((71.55+membrane_V)/7.43));
 
    double fast_sodium_current_h_gate_alpha_h;
 
@@ -189,7 +189,7 @@ std::vector<double> TenTusscherModel2004OdeSystem::EvaluateYDerivatives (double 
 
    double fast_sodium_current_h_gate_tau_h = 1.0/(fast_sodium_current_h_gate_alpha_h+fast_sodium_current_h_gate_beta_h);
    double fast_sodium_current_h_gate_h_prime = fast_sodium_current_h_gate_alpha_h*(1.0-fast_sodium_current_h_gate_h)-fast_sodium_current_h_gate_beta_h*fast_sodium_current_h_gate_h;
-   double fast_sodium_current_j_gate_j_infinity = 1.0/sqr(1.0+exp((71.55+membrane_V)/7.43));
+   double fast_sodium_current_j_gate_j_infinity = 1.0/sqrt(1.0+exp((71.55+membrane_V)/7.43));
 
    double fast_sodium_current_j_gate_alpha_j;
 
@@ -215,7 +215,7 @@ std::vector<double> TenTusscherModel2004OdeSystem::EvaluateYDerivatives (double 
 
    double fast_sodium_current_j_gate_tau_j = 1.0/(fast_sodium_current_j_gate_alpha_j+fast_sodium_current_j_gate_beta_j);
    double fast_sodium_current_j_gate_j_prime = fast_sodium_current_j_gate_alpha_j*(1.0-fast_sodium_current_j_gate_j)-fast_sodium_current_j_gate_beta_j*fast_sodium_current_j_gate_j;
-   double fast_sodium_current_m_gate_m_infinity = 1.0/sqr(1.0+exp((-56.86-membrane_V)/9.03));
+   double fast_sodium_current_m_gate_m_infinity = 1.0/sqrt(1.0+exp((-56.86-membrane_V)/9.03));
    double fast_sodium_current_m_gate_alpha_m = 1.0/(1.0+exp((-60.0-membrane_V)/5.0));
    double fast_sodium_current_m_gate_beta_m = 0.1/(1.0+exp((35.0+membrane_V)/5.0))+0.1/(1.0+exp((membrane_V-50.0)/200.0));
    double fast_sodium_current_m_gate_tau_m = fast_sodium_current_m_gate_alpha_m*fast_sodium_current_m_gate_beta_m;
@@ -249,24 +249,15 @@ std::vector<double> TenTusscherModel2004OdeSystem::EvaluateYDerivatives (double 
 
    double L_type_calcium_current_f_Ca_gate_f_Ca_prime = L_type_calcium_current_f_Ca_gate_k*(L_type_calcium_current_f_Ca_gate_f_Ca_infinity-L_type_calcium_current_f_Ca_gate_f_Ca)/L_type_calcium_current_f_Ca_gate_tau_f_Ca;
    double L_type_calcium_current_f_gate_f_infinity = 1.0/(1.0+exp((20.0+membrane_V)/7.0));
-   double L_type_calcium_current_f_gate_tau_f = 1125.0*exp(-sqr(membrane_V+27.0)/240.0)+165.0/(1.0+exp((25.0-membrane_V)/10.0))+80.0;
+   double L_type_calcium_current_f_gate_tau_f = 1125.0*exp(-sqrt(membrane_V+27.0)/240.0)+165.0/(1.0+exp((25.0-membrane_V)/10.0))+80.0;
    double L_type_calcium_current_f_gate_f_prime = (L_type_calcium_current_f_gate_f_infinity-L_type_calcium_current_f_gate_f)/L_type_calcium_current_f_gate_tau_f;
 
-   double membrane_i_stim;
-
-   if ((time >= 10.0) && (time <= 11.0))
-   {
-      membrane_i_stim = -52.0;
-   }
-   else
-   {
-      membrane_i_stim = 0.0;
-   }
+   double membrane_i_stim = mpStimulus->GetStimulus(time);
 
    double transient_outward_current_i_to = transient_outward_current_g_to*transient_outward_current_r_gate_r*transient_outward_current_s_gate_s*(membrane_V-reversal_potentials_E_K);
    double rapid_delayed_rectifier_current_i_Kr = rapid_delayed_rectifier_current_g_Kr*sqrt(model_parameters_K_o/5.4)*rapid_delayed_rectifier_current_X_r1_gate_X_r1*rapid_delayed_rectifier_current_X_r2_gate_X_r2*(membrane_V-reversal_potentials_E_K);
    double reversal_potentials_E_Ks = model_parameters_R*model_parameters_T/model_parameters_F*log10((model_parameters_K_o+reversal_potentials_p_KNa*model_parameters_Na_o)/(potassium_dynamics_K_i+reversal_potentials_p_KNa*sodium_dynamics_Na_i));
-   double slow_delayed_rectifier_current_i_Ks = slow_delayed_rectifier_current_g_Ks*sqr(slow_delayed_rectifier_current_X_s_gate_X_s)*(membrane_V-reversal_potentials_E_Ks);
+   double slow_delayed_rectifier_current_i_Ks = slow_delayed_rectifier_current_g_Ks*sqrt(slow_delayed_rectifier_current_X_s_gate_X_s)*(membrane_V-reversal_potentials_E_Ks);
    double sodium_potassium_pump_current_i_NaK = sodium_potassium_pump_current_P_NaK*model_parameters_K_o*sodium_dynamics_Na_i/((model_parameters_K_o+sodium_potassium_pump_current_K_mK)*(sodium_dynamics_Na_i+sodium_potassium_pump_current_K_mNa)*(1.0+0.1245*exp(-0.1*membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))+0.0353*exp(-membrane_V*model_parameters_F/(model_parameters_R*model_parameters_T))));
    double sodium_background_current_i_bNa = sodium_background_current_g_bNa*(membrane_V-reversal_potentials_E_Na);
    double potassium_pump_current_i_pK = potassium_pump_current_g_pK*(membrane_V-reversal_potentials_E_K)/(1.0+exp((25.0-membrane_V)/5.98));
@@ -289,10 +280,10 @@ std::vector<double> TenTusscherModel2004OdeSystem::EvaluateYDerivatives (double 
    double slow_delayed_rectifier_current_X_s_gate_tau_X_s = slow_delayed_rectifier_current_X_s_gate_alpha_X_s*slow_delayed_rectifier_current_X_s_gate_beta_X_s;
    double sodium_dynamics_Na_i_prime = -(fast_sodium_current_i_Na+sodium_background_current_i_bNa+3.0*sodium_potassium_pump_current_i_NaK+3.0*Na_Ca_exchanger_current_i_NaCa)/(model_parameters_Vc*model_parameters_F)*membrane_Cm;
    double transient_outward_current_r_gate_r_infinity = 1.0/(1.0+exp((20.0-membrane_V)/6.0));
-   double transient_outward_current_r_gate_tau_r = 9.5*exp(-sqr(membrane_V+40.0)/1800.0)+0.8;
+   double transient_outward_current_r_gate_tau_r = 9.5*exp(-sqrt(membrane_V+40.0)/1800.0)+0.8;
    double transient_outward_current_r_gate_r_prime = (transient_outward_current_r_gate_r_infinity-transient_outward_current_r_gate_r)/transient_outward_current_r_gate_tau_r;
    double transient_outward_current_s_gate_s_infinity = 1.0/(1.0+exp((20.0+membrane_V)/5.0));
-   double transient_outward_current_s_gate_tau_s = 85.0*exp(-sqr(membrane_V+45.0)/320.0)+5.0/(1.0+exp((membrane_V-20.0)/5.0))+3.0;
+   double transient_outward_current_s_gate_tau_s = 85.0*exp(-sqrt(membrane_V+45.0)/320.0)+5.0/(1.0+exp((membrane_V-20.0)/5.0))+3.0;
    double transient_outward_current_s_gate_s_prime = (transient_outward_current_s_gate_s_infinity-transient_outward_current_s_gate_s)/transient_outward_current_s_gate_tau_s;
 
    std::vector<double> returnRHS;
