@@ -270,37 +270,6 @@ public:
 		ierr = VecRestoreArray(residual, &residualArrayPostMod);
 	}
 	
-	
-	
-
-	void oldTestDefineZeroDirichletOnMeshBoundary()
-	{
-		ConformingTetrahedralMesh<3,3>* pMesh = new ConformingTetrahedralMesh<3,3>;
-//		//TS_TRACE("here bound3a\n");
-		// add 10 boundary nodes
-		for(int i=0; i<10; i++)
-		{
-			pMesh->AddNode(Node<3>(i,true,i,i,i));
-		}
-		pMesh->GenerateBoundaryNodeList();
-//		//TS_TRACE("here bound3b\n");
-		//TS_ASSERT_EQUALS(&(pMesh->GetNodeAt(0)), nodes[0]); // Fails :(
-
-		BoundaryConditionsContainer<3,3>* pbcc=new BoundaryConditionsContainer<3,3>;
-        
-//        //TS_TRACE("here bound3c\n");
-		pbcc->DefineZeroDirichletOnMeshBoundary(pMesh);
-//		////TS_TRACE("here bound3d\n");
-		for(int i=0; i<10; i++)
-		{
-			double value = pbcc->GetDirichletBCValue(pMesh->GetNodeAt(i));
-			TS_ASSERT_DELTA(value,0,1e-12);
-		}
-		delete pMesh;
-		delete pbcc;
-//        	 //TS_TRACE("here bound3\n");			
-	}
-	
 	void TestDefineZeroDirichletOnMeshBoundary()
 	{
 		// Load a 2D square mesh with 1 central non-boundary node

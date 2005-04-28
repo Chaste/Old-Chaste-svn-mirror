@@ -37,17 +37,10 @@ private:
     MeshIterator mpConstIter;
     BoundaryElementIterator mpBoundaryElementIter;
     BoundaryNodeIterator mpBoundaryNodeIter;
-    
-public:
-    
-	ConformingTetrahedralMesh();
-    ConformingTetrahedralMesh(long numElements);
-    
-    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
-    
+
+	// Methods used for testing before we had MeshReader.
     void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement);
     void AddNode(Node<SPACE_DIM> newNode);
-    
     /**
      * \todo
      *  Tests should all be changed to use MeshReaders.
@@ -68,10 +61,15 @@ public:
 		    }
     	}
     }
+    friend class TestConformingTetrahedralMesh;
     
-    //void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement,std::vector<int> boundaryElementIndices);
-    //void AddNode(Node<SPACE_DIM> newNode ,bool isBoundaryNode);
-        
+public:
+    
+	ConformingTetrahedralMesh();
+    ConformingTetrahedralMesh(long numElements);
+    
+    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
+            
     const Node<SPACE_DIM> *GetNodeAt(long index) const;
 
     long GetNumNodes();

@@ -14,6 +14,10 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 {	
 	public:
 	
+	/**
+	 * \todo This test is obsolete now we use MeshReader. Maybe move some of the
+	 * checks into a new test?
+	 */
 	void TestMeshBuilding(void)
 	{
 		#define element_dim 3
@@ -67,6 +71,10 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		}
 	}
 	
+	/**
+	 * \todo This test is obsolete now we use MeshReader. Maybe move some of the
+	 * checks into a new test?
+	 */
 	void testNodeMemoryAllocation( void )
     {
         #define DIMENSION 3

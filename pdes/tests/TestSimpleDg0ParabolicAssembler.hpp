@@ -31,23 +31,10 @@ public:
     
 	void testSimpleDg0ParabolicAssembler1DZeroDirich( void )
 	{		
-		// Create mesh (by hand!)
-		const int num_elements = 10;
-		ConformingTetrahedralMesh<1,1> mesh(num_elements);
-		std::vector<Node<1>*> nodes;
-		for (int i=0; i<num_elements+1; i++)
-		{
-			nodes.push_back( new Node<1>(i, true, (1.0/num_elements)*i) );
-			mesh.AddNode(*nodes[i]);
-		}
-		for (int i=0; i<num_elements; i++)
-		{
-			std::vector<Node<1>*> element_nodes;
-			element_nodes.push_back(nodes[i]);
-			element_nodes.push_back(nodes[i+1]);
-			Element<1,1> element(element_nodes);
-			mesh.AddElement(element);
-		}
+		// Create mesh
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
 		
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationPde<1> pde;  		
@@ -95,9 +82,9 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-t*pi*pi} sin(x*pi), t=1
-		for (int i=0; i < num_elements+1; i++)
+		for (int i=0; i < mesh.GetNumNodes(); i++)
 		{
-			double x = (1.0/num_elements)*i;
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = exp(-1.0*PI*PI)*sin(x*PI); //std::cout << i << " " << res[i] << " " << u << "\n";
 			TS_ASSERT_DELTA(res[i], u, 0.001);
 		}
