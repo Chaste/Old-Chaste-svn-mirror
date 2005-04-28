@@ -19,10 +19,10 @@ class ExampleNonlinearPde:public AbstractNonlinearEllipticPde<1>
     	return 0.0;
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<1> Point<SPACE_DIM> x,
-                                              double u)
+    MatrixDouble ComputeDiffusionTerm(Point<1> x, double u)
     {
-    	return u*MatrixDouble::Identity(1);
+    	MatrixDouble I = MatrixDouble::Identity(1);
+    	return u*I;
     }
 };
 
