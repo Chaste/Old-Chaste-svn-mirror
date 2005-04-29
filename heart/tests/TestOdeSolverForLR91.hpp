@@ -87,7 +87,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("data","NewLR91");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
+        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
@@ -192,7 +192,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("data","NewNoStimLR91");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
+        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
@@ -309,7 +309,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("data","RegStimLR91");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
+        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
