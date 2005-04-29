@@ -43,6 +43,8 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
     										  void *pContext);
 
+
+
 /**
  * Concrete simple class that assembles and solves the nonlinear system
  * for a nonlinear elliptic PDE.
@@ -106,10 +108,10 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
     Vec residual;
  	VecDuplicate(initialGuess, &residual);
 
-//	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
-//			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
-	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,		
-		&ComputeJacobianNumerically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
+			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+//	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,		
+//		&ComputeJacobianNumerically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
 }
 
 
@@ -510,6 +512,9 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
 {
 	//std::cout << "In ComputeJacobianAnalytically()" << std::endl << std::flush;
 
+	// Set all entries of jacobian to 0
+	MatZeroEntries(*pGlobal_jacobian);
+
 	// Extract an assembler from the void*
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
     ((SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*)pContext);
@@ -620,7 +625,7 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
     MatAssemblyBegin(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
 	MatAssemblyEnd(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
 	
-	MatView(*pGlobal_jacobian, 0);
+	//MatView(*pGlobal_jacobian, 0);
 	
     return 0;
 }
@@ -729,5 +734,90 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     return 0;
 }
  
- 
+
+void TestStuff(void)
+{
+	Mat numerical_jacobian;
+	MatCreate(PETSC_COMM_WORLD, 11, 11, PETSC_DETERMINE, PETSC_DETERMINE, &numerical_jacobian);
+	MatSetType(numerical_jacobian, MATSEQDENSE);
+
+	Mat analytic_jacobian;
+	MatCreate(PETSC_COMM_WORLD, 11, 11, PETSC_DETERMINE, PETSC_DETERMINE, &analytic_jacobian);
+	MatSetType(analytic_jacobian, MATSEQDENSE);
+
+	// Create mesh from mesh reader
+	TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+	ConformingTetrahedralMesh<1,1> mesh;
+	mesh.ConstructFromMeshReader(mesh_reader);
+	// Instantiate PDE object
+	NonlinearHeatEquationPde<1> pde;  
+	
+	// Boundary conditions
+    BoundaryConditionsContainer<1,1> bcc;
+    ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+    bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+    //pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+    bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+        
+	SimpleNonlinearEllipticAssembler<1,1> assembler;
+    	
+    	// Set up initial solution guess for residuals
+    	int length=mesh.GetNumNodes();
+    	Vec initial_guess;
+    	VecCreate(PETSC_COMM_WORLD, &initial_guess);
+    	VecSetSizes(initial_guess, PETSC_DECIDE,length);
+    	VecSetType(initial_guess, VECSEQ);
+    	for(int i=0; i<length ; i++)
+    	{
+    		//VecSetValue(initial_guess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
+    		//VecSetValue(initial_guess, i, 0.25, INSERT_VALUES);
+    		VecSetValue(initial_guess, i, (-0.01*i*i), INSERT_VALUES);
+    	}
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
+		
+		//
+		GaussianQuadratureRule<1> quadRule(2);
+		LinearBasisFunction<1> basis_func;
+		
+    	// Store data structures as public members
+		assembler.mpMesh = &mesh;
+		assembler.mpPde = &pde;
+		assembler.mpBoundaryConditions = &bcc;
+		assembler.mpBasisFunction = &basis_func;
+		assembler.mpGaussianQuadratureRule = &quadRule;
+    	
+    	SNES snes;
+
+        int errcode = ComputeJacobianNumerically<1,1>(snes, initial_guess, &numerical_jacobian,
+        						NULL, NULL, (void*)(&assembler));
+        						
+		errcode = ComputeJacobianAnalytically<1,1>(snes, initial_guess, &analytic_jacobian,
+        						NULL, NULL, (void*)(&assembler));
+
+		MatAssemblyBegin(numerical_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyEnd(numerical_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyBegin(analytic_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyEnd(analytic_jacobian,MAT_FINAL_ASSEMBLY);
+
+//		TS_TRACE("Numerical:");
+//		MatView(numerical_jacobian, 0);
+//		TS_TRACE("Analytical:");
+//		MatView(analytic_jacobian, 0);
+		
+		PetscScalar numerical[11*11], analytic[11*11];
+		PetscInt idx[11], idy[11], n=11, m=11;
+		for (int i=0; i<n; i++) {
+			idx[i] = i; idy[i] = i;
+		}
+		
+		MatGetValues(numerical_jacobian,m,idx,n,idy,numerical);
+		MatGetValues(analytic_jacobian,m,idx,n,idy,analytic);
+		for (int i=0; i<m; i++) {
+			for (int j=0; j<n; j++) {
+				TS_ASSERT_DELTA(numerical[i*m+j], analytic[i*m+j], 0.001);
+			}
+		}
+}
+
 #endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_

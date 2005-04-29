@@ -167,7 +167,7 @@ public:
         //std::cout << "Our J matrix: " << std::endl;
         //MatView(pJacobian,0);
         
-        TS_ASSERT(true);    
+        TS_ASSERT(true); 
     }   
     
     
@@ -236,6 +236,11 @@ public:
 			TS_ASSERT_DELTA(ans[i], u, 0.001); 
 		} 
 		VecRestoreArray(answer, &ans);
+	}
+	
+	void TestNumericalAgainstAnalyticJacobian()
+	{
+		TestStuff();
 	}
 
     void noTestWithHeatEquation1DAndNeumannBCs()
