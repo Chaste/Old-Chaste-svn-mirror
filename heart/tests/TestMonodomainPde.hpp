@@ -3,6 +3,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include <cmath>
+#include "AbstractStimulusFunction.hpp"
 
 // Declare a subfunction to compute the ionic current
 double GetIIonic(	double membrane_V,
