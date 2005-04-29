@@ -102,7 +102,8 @@ public:
      	SimpleNonlinearEllipticAssembler<1,1> assembler;
      		     	
      	assembler.mpMesh = &mesh;
-		//assembler.mpPde = pPde;
+     	NonlinearHeatEquationPde<1> pde;
+		assembler.mpPde = &pde;
 		assembler.mpBoundaryConditions = &boundary_conditions;
 		//assembler.mpBasisFunction=pBasisFunction;
 		//assembler.mpGaussianQuadratureRule=pGaussianQuadratureRule;

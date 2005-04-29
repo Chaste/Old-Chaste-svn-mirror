@@ -135,7 +135,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
  template<int ELEMENT_DIM, int SPACE_DIM>
  void ComputeResidualOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 								 VectorDouble &rBsubElem,
-								 AbstractLinearEllipticPde<SPACE_DIM> *pPde,
+								 AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 								 VectorDouble Ui)
@@ -167,21 +167,17 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 				}
 			}
 				
-				
-			 /**
-			  * \todo
-			  *  In the nonlinear case of Practical 1: when solving d/dx u(du/dx) = -1
-			  * f(U) = U whereas in general case need to calculate fofU
-			  */
-			double FOfU = U;
-					
+
 			// TODO: horrendously inefficient!!!
+			/**
+			 * \todo Neumann BC value depends on u?
+			 */
 			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 
-			for (int row=0; row < num_nodes; row++)
+			for (int i=0; i < num_nodes; i++)
 			{
-				double integrand_value =  FOfU * phi[row] * Dgradu_dot_n;
-				rBsubElem(row) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
+				double integrand_value =  phi[i] * Dgradu_dot_n;
+				rBsubElem(i) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
 }
@@ -194,6 +190,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							VectorDouble &rBElem,
+							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
 							VectorDouble Ui
                        		/*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
@@ -241,16 +238,16 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 			//std::cout << "u'" << ": gradU(" << 1 << ")=" << gradU(0) << std::endl;
 			//std::cout << "U=" << U << std::endl;
 					
-			double integrand_value3=0;
+			//double integrand_value3=0;
 			for (int i=0; i < num_nodes; i++)
 			{
 				// RHS  need to change for Practical 1
-				double integrand_value1 = U*(gradU.dot(gradPhi[i]));
+				//double integrand_value1 = U*(gradU.dot(gradPhi[i]));
 				//std::cout << "i_v1 at " << i << " is " << integrand_value1 << std::endl;																		
-				double integrand_value2 = phi[i];
+				//double integrand_value2 = phi[i];
 							
-				integrand_value3 += gradU(0)* jacobian_determinant 
-				               * pGaussianQuadratureRule.GetWeight(quad_index);
+				//integrand_value3 += gradU(0)* jacobian_determinant 
+				//               * pGaussianQuadratureRule.GetWeight(quad_index);
 				               
                	
 				// For solving NonlinearEllipticEquation 
@@ -258,12 +255,12 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 				// d/dx [f(U,x) du/dx ] = -g
 				// where g(x,U) is the forcing term
 				// !! to be modified
-				// MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U); 
-				// double  integrand_value1 = FOfU*(gradU.dot(gradPhi[i]));	
-				// make RHS general: consists of linear and nonlinear source terms
-				// double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
-				// ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
-				//double integrand_value2 = ForcingTerm * phi[i];
+				MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
+				double  integrand_value1 = ((FOfU*gradU).dot(gradPhi[i]));
+				//make RHS general: consists of linear and nonlinear source terms
+				double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
+				ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
+				double integrand_value2 = ForcingTerm * phi[i];
 				
 				
 				rBElem(i) += integrand_value1 * jacobian_determinant 
@@ -288,7 +285,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 	VecSet(&zero, res_vector);
 
 	//NEED A pde OBJECT!!!
-	LinearHeatEquationPde<1> *pPde; 
+	AbstractNonlinearEllipticPde<SPACE_DIM> *pPde = pAssembler->mpPde;
 
     LinearBasisFunction<ELEMENT_DIM> basis_function;
     
@@ -320,7 +317,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
         VecRestoreArray(CurrentSolution,&answerElements);
         
         //GaussianQuadratureRule(2);//(int numPointsInEachDimension)
-        ComputeResidualOnElement(element, b_elem, /*pPde,*/ 
+        ComputeResidualOnElement(element, b_elem, pPde,
         							basis_function, Ui/*, pGaussianQuadratureRule*/);
         
         for (int i=0; i<num_nodes; i++)
@@ -461,7 +458,7 @@ void ComputeJacobianOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 			Point<SPACE_DIM> x(0,0,0);
 			double U = 0;
 			VectorDouble gradU(SPACE_DIM);
-			gradU.ResetToZero();
+			//gradU.ResetToZero(); // Vector is initialised to zero at creation.
 			
 			for(int i=0; i<num_nodes; i++)
 			{
