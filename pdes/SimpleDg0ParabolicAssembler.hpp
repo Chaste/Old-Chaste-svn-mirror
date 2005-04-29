@@ -212,7 +212,9 @@ private:
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);   
 
         mpAssembledLinearSystem->AssembleFinalMatrix();
-        
+        //mpAssembledLinearSystem->DisplayMatrix() ;
+        //std::cout<< " Looking at Rhs Vector \n " ;
+        //mpAssembledLinearSystem->DisplayRhs() ;
         Vec sol = mpAssembledLinearSystem->Solve(solver);       
         return sol;
 	}

@@ -51,7 +51,13 @@ void LinearSystem::SetMatrixElement(int row, int col, double value)
 
 void LinearSystem::AddToMatrixElement(int row, int col, double value)
 {
+    int lo ;
+    int hi ;
+    MatGetOwnershipRange(mLhsMatrix,&lo,&hi) ;
+    if(row >= lo && row < hi)
+    {    
     MatSetValue(mLhsMatrix, row, col, value, ADD_VALUES);
+    }
 }
 
 void LinearSystem::AssembleFinalMatrix()
@@ -79,12 +85,23 @@ void LinearSystem::SetRhsVectorElement(int row, double value)
 
 void LinearSystem::AddToRhsVectorElement(int row, double value)
 {
+    int lo ;
+    int hi ;
+    VecGetOwnershipRange(mRhsVector,&lo,&hi) ;
+    if(row >= lo && row < hi)
+    {    
     VecSetValues(mRhsVector, 1, &row, &value, ADD_VALUES);
+    }
 }
 
 void LinearSystem::DisplayMatrix()
 {
-     MatView(mLhsMatrix,PETSC_VIEWER_STDOUT_SELF);
+     MatView(mLhsMatrix,PETSC_VIEWER_STDOUT_WORLD);
+}
+
+void LinearSystem::DisplayRhs()
+{
+     VecView(mRhsVector,PETSC_VIEWER_STDOUT_WORLD);
 }
 
 void LinearSystem::SetMatrixRow(int row, double value)

@@ -87,8 +87,8 @@ public:
 		Vec initialCondition;
 		VecCreate(PETSC_COMM_WORLD, &initialCondition);
     	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
-  
+//	    VecSetType(initialCondition, VECSEQ);
+		VecSetFromOptions(initialCondition);
   		double* initialConditionArray;
  		int ierr = VecGetArray(initialCondition, &initialConditionArray);
 		
@@ -99,7 +99,8 @@ public:
 			initialConditionArray[i] = sin(x*PI);
 		}
 		VecRestoreArray(initialCondition, &initialConditionArray);
-		
+		VecAssemblyBegin(initialCondition);
+    	VecAssemblyEnd(initialCondition);
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
 		fullSolver.SetInitialCondition(initialCondition);
@@ -149,7 +150,8 @@ public:
 		Vec initialCondition;
 		VecCreate(PETSC_COMM_WORLD, &initialCondition);
     	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
+//    	VecSetType(initialCondition, VECSEQ);
+		VecSetFromOptions(initialCondition);
   
   		double* initialConditionArray;
  		int ierr = VecGetArray(initialCondition, &initialConditionArray);
@@ -213,7 +215,8 @@ public:
 		Vec initialCondition;
 		VecCreate(PETSC_COMM_WORLD, &initialCondition);
     	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
+	    //VecSetType(initialCondition, VECSEQ);
+  		VecSetFromOptions(initialCondition);
   
   		double* initialConditionArray;
  		int ierr = VecGetArray(initialCondition, &initialConditionArray);
@@ -269,7 +272,8 @@ public:
 		Vec initialCondition;
 		VecCreate(PETSC_COMM_WORLD, &initialCondition);
     	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
+	    //VecSetType(initialCondition, VECSEQ);
+  		VecSetFromOptions(initialCondition);
   
   		double* initialConditionArray;
  		int ierr = VecGetArray(initialCondition, &initialConditionArray);
@@ -340,7 +344,8 @@ public:
 		Vec initialCondition;
 		VecCreate(PETSC_COMM_WORLD, &initialCondition);
     	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
+	    //VecSetType(initialCondition, VECSEQ);
+  		VecSetFromOptions(initialCondition);
   
   		double* initialConditionArray;
  		int ierr = VecGetArray(initialCondition, &initialConditionArray);

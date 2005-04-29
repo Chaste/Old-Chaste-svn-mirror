@@ -21,11 +21,14 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     //VecSetType(lhs_vector, VECSEQ);
 	//VecSetType(lhs_vector, VECMPI);
 	VecSetFromOptions(lhs_vector);
-    
+    //std::cout<< "KSP about to be called \n " ;
 
     KSP simple_solver; 
     KSPCreate(PETSC_COMM_WORLD, &simple_solver);
+    
     KSPSetOperators(simple_solver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
+    //std::cout<<" Setup \n" ;
+    KSPSetFromOptions(simple_solver) ;
     KSPSetUp(simple_solver);   
     
     
@@ -42,5 +45,7 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     	throw Exception("Linear Solver did not converge. Petsc reason code:"
     	                +reason_stream.str()+" .");
     }
+    KSPDestroy(simple_solver) ;
     return lhs_vector;
+    
 }

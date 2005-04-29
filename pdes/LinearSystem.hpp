@@ -29,6 +29,7 @@ public:
     void AssembleFinalMatrix();         // Call before solve
     void AssembleIntermediateMatrix();  // Should be called before AddToMatrixElement
     void DisplayMatrix();
+    void DisplayRhs() ;
     void SetMatrixRow(int row, double value);
     double GetMatrixElement(int row, int col);
     double GetRhsVectorElement(int index);
