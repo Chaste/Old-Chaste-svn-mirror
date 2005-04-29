@@ -400,13 +400,13 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     
     // Hard coding residual and perturbedResidual to test since ComputeResidual() function
     // not complete!
-    //ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes,input,residual,pContext);
+    ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes,input,residual,pContext);
     //***************************************************
-    for (int row=0;row<num_nodes;row++)
-    {
-    	PetscScalar value = 1;
-    	VecSetValue(residual, row, value, INSERT_VALUES);
-    }
+//    for (int row=0;row<num_nodes;row++)
+//    {
+//    	PetscScalar value = 1;
+//    	VecSetValue(residual, row, value, INSERT_VALUES);
+//    }
     //***************************************************
     
     double h = 0.00001;    
@@ -419,15 +419,15 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
 		PetscScalar *resultElements;
         ierr = VecSetValue(inputcopy,j,h, ADD_VALUES);CHKERRQ(ierr);
         
-        //ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes, inputcopy, perturbedResidual,pContext);
+        ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes, inputcopy, perturbedResidual,pContext);
         //*************************************************************
-        for (int row=0;row<num_nodes;row++)
-	   	{
-    		int temp = 1;
-    		if (row==j) temp += 1;
-    		PetscScalar value2 = temp;
-    		VecSetValue(perturbedResidual, row, value2, INSERT_VALUES);
-    	}
+//        for (int row=0;row<num_nodes;row++)
+//	   	{
+//    		int temp = 1;
+//    		if (row==j) temp += 1;
+//    		PetscScalar value2 = temp;
+//    		VecSetValue(perturbedResidual, row, value2, INSERT_VALUES);
+//    	}
         //*************************************************************
         
         
