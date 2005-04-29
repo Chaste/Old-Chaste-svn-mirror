@@ -12,7 +12,7 @@ os.chdir('../')
 testsource = glob.glob('tests/*.cpp')
 os.chdir(curdir)
 
-base  = '-Icxxtest -Idatawriters -Iheart -I. -Iodes -Iheart/tests '
+base  = '-Icxxtest -Idatawriters -Iheart -I. -Iodes -Iheart/tests -Ipdes '
 
 petsc_base = '../../petsc-2.2.1/'
 petsc_inc = '-I'+petsc_base+'include '
@@ -24,7 +24,7 @@ petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'
 
 
 all_libs= ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
-'petscmat', 'petscvec', 'petsc', 'datawriter','heart','ode','testheart']
+'petscmat', 'petscvec', 'petsc', 'datawriter','heart','ode','testheart', 'pde']
 
 
 opt = Environment(CCFLAGS = base+petsc_incs,BOPT='g_c++',CXX='/usr/bin/g++')
@@ -38,6 +38,6 @@ opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 opt.Library('testheart',testsource)
 opt.Library('heart',files)
 opt.Test('runner.cpp',testfiles) 
-opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '../../odes/build', '.', petsc_libpath])
+opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '../../odes/build', '../../pdes/build', '.', petsc_libpath])
 opt.RunTests('build.log','testrunner')
 

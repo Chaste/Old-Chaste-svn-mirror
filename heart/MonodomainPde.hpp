@@ -5,6 +5,7 @@
 #include <iostream>
 //#include <fstream>
 #include <vector>
+#include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
 #include "RegularStimulus.hpp"
@@ -19,7 +20,7 @@
 //#include "ColumnDataWriter.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
-#include  "AbstractLinearParabolicPde.hpp"
+#include "AbstractLinearParabolicPde.hpp"
 
 
 /**
