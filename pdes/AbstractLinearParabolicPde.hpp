@@ -32,5 +32,10 @@ public:
     {
         return ComputeNonlinearSourceTerm(node.GetPoint(), u);
     }
+    
+    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
+    {
+        return ComputeLinearSourceTerm(node.GetPoint());
+    }
 };
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_
