@@ -40,12 +40,14 @@ private:
 
 public:
     
-    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
                        AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule) = 0;
-                              
+                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
+                       Vec initialGuess) = 0;
+                       
+  
 };
 #endif //_ABSTRACTNONLINEARELLIPTICASSEMBLER_HPP_

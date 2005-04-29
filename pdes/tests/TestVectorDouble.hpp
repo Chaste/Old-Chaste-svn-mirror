@@ -41,6 +41,37 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(A(1), value, 0.0000000001);
 		TS_ASSERT_DELTA(B(1), value, 0.0000000001);
 	}
+	void testAddition( void )
+	{
+		VectorDouble A(5), B(5), C(5);
+		for (int i=0; i<5; i++)
+		{
+			A(i) = (double)(i);
+			B(i) = 2.0*(double)(i);
+		}
+		C=A+B;
+		for (int i=0; i<5; i++)
+		{
+			TS_ASSERT_DELTA(C(i), 3.0*(double)(i), 1e-12);
+		}
+		
+	}
+	
+	void testSubtraction( void )
+	{
+		VectorDouble A(5), B(5), C(5);
+		for (int i=0; i<5; i++)
+		{
+			A(i) = (double)(i);
+			B(i) = 2.0*(double)(i);
+		}
+		C=A-B;
+		for (int i=0; i<5; i++)
+		{
+			TS_ASSERT_DELTA(C(i), -1.0*(double)(i), 1e-12);
+		}
+		
+	}
 	
 	void testSize( void )
 	{

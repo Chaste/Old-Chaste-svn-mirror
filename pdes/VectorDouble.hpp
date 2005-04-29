@@ -13,6 +13,8 @@ class VectorDouble
 		VectorDouble(const VectorDouble& rOtherVector);
 		~VectorDouble();
 		VectorDouble& operator=(const VectorDouble& rOtherVector);
+		VectorDouble operator+(const VectorDouble& rSomeVector1);
+		VectorDouble operator-(const VectorDouble& rSomeVector1);
 		VectorDouble operator*(double Scalar);
 		double &VectorDouble::operator()(int Entry) const;
 		int Size( void ) const;

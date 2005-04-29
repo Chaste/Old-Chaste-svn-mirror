@@ -177,7 +177,6 @@ public:
 	 */
 	void ApplyDirichletToNonlinearProblem(const Vec currentSolution, Vec residual)
 	{
-		
 		dirichIterator = mpDirichletMap->begin();
 
 		double *currentSolutionArray;

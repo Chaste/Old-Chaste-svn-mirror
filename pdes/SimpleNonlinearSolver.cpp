@@ -61,7 +61,8 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     Vec x;
     VecDuplicate(initialGuess, &x);
     VecCopy(initialGuess, x);
-        
+    
+    std::cout << "Just about to call SNESSOlve" << std::endl << std::flush;
     SNESSolve(snes, x);
 
     return x;

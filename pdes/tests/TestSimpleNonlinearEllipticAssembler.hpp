@@ -2,25 +2,35 @@
 #define _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 
 #include "SimpleNonlinearEllipticAssembler.hpp"
+#include "SimpleNonlinearSolver.hpp"
+#include "LinearHeatEquationPde.hpp"
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include "petscmat.h"
+#include "ConformingTetrahedralMesh.cpp"
+#include <vector>
+#include <cmath>
+#include <iostream>
+#include "Node.hpp" 
+#include "Element.hpp"
+#include "BoundaryConditionsContainer.hpp"
 
 PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
     								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
     										  void *pContext);
+
   
 class TestSimpleNonlinearEllipticAssembler : public CxxTest::TestSuite 
 {
 	
 public:
-void setUp()
+	void setUp()
     {
-	int FakeArgc=0;
-	char *FakeArgv0="testrunner";
-	char **FakeArgv=&FakeArgv0;
-    	
-	PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
+	    	
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }
 
     void testASimpleNonlinearEllipticAssembler( void )
@@ -54,79 +64,75 @@ void setUp()
         
      void testComputeResidual( void )
      {
-     	
-     	      
-        // Create mesh (by hand!) (from TestSimpleLinearEllipticAssembler.hpp)
 		// Create mesh from mesh reader
 		//TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh"); 
         //double h = 0.15;
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh"); 
         double h = 0.01;
         
-		ConformingTetrahedralMesh<1,1> rMesh;
-		rMesh.ConstructFromMeshReader(mesh_reader);
-		std::vector<Node<1>*> nodes;
-		
-		// Define PDE 
-       // AbstractLinearEllipticPde<1> *pPde; 
-       //	LinearHeatEquationPde<1> *pPde;  
-		
-		
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+				
 		// Boundary conditions
-        
+        BoundaryConditionsContainer<1,1> boundary_conditions;
         //Adding Dirichlet BC at node 0
 		double DirichletBCValue = 5.0;
-        BoundaryConditionsContainer<1,1> rBoundaryConditions;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
-        rBoundaryConditions.AddDirichletBoundaryCondition(rMesh.GetNodeAt(0), pBoundaryCondition);
-        
+        boundary_conditions.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+
         // adding von Neumann BC at the last node
         double VonNeumannBCValue = 9.0;
-        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);        
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = rMesh.GetLastBoundaryElement();
+        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
         iter--; // to be consistent with c++ :))), GetLastBoundaryElement points to one element passed it
-        rBoundaryConditions.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
-                       
+        boundary_conditions.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
+
         // initialize currentSolution_vector
         Vec currentSolution_vector;
      	VecCreate(PETSC_COMM_WORLD, &currentSolution_vector);
-     	VecSetSizes(currentSolution_vector,PETSC_DECIDE,rMesh.GetNumNodes());
-     	//VecSetType(currentSolution_vector, VECSEQ);
-     	VecSetFromOptions(currentSolution_vector);
-     	 	     	
-     	TS_ASSERT_THROWS_NOTHING(Vec Result1 = ComputeResidual(rMesh,
-                       /*pPde,*/ 
-                       rBoundaryConditions,                       
-                       currentSolution_vector/*,
-                       pGaussianQuadratureRule*/));
-       
-       // Test that if we pass in a vector of ones, then in each element 
-       // residual should return -h (i.e. -0.15)
-       
-        for (int i = 0; i<rMesh.GetNumNodes(); i++)
+     	VecSetSizes(currentSolution_vector,PETSC_DECIDE,mesh.GetNumNodes());
+     	VecSetType(currentSolution_vector, VECSEQ);
+     	
+     	Vec res_vector;
+    	VecDuplicate(currentSolution_vector,&res_vector);
+        
+        /* GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule;*/
+     	
+     	SNES snes;
+     	SimpleNonlinearEllipticAssembler<1,1> assembler;
+     		     	
+     	assembler.mpMesh = &mesh;
+		//assembler.mpPde = pPde;
+		assembler.mpBoundaryConditions = &boundary_conditions;
+		//assembler.mpBasisFunction=pBasisFunction;
+		//assembler.mpGaussianQuadratureRule=pGaussianQuadratureRule;
+
+     	//TS_ASSERT_THROWS_NOTHING(
+     	ComputeResidual<1, 1>(snes, currentSolution_vector, res_vector, &assembler);
+
+
+		// Set current solution to 1 and compute residual
+        for (int i = 0; i<mesh.GetNumNodes(); i++)
  		{
      		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
  		}
- 	   double InitialGuess = 1.0;
-       Vec Result = ComputeResidual(rMesh, /*pPde,*/ rBoundaryConditions, currentSolution_vector);
+		double InitialGuess = 1.0;
+ 		Vec Result;
+ 		VecDuplicate(currentSolution_vector, &Result);
+        ComputeResidual<1,1>(snes, currentSolution_vector, Result, &assembler);
         
-                   
         PetscScalar *answerElements;
         VecGetArray(Result, &answerElements);
         double value1 = answerElements[0];
         double value2 = answerElements[1];
-        double valueLast = answerElements[rMesh.GetNumNodes()-1];
+        double valueLast = answerElements[mesh.GetNumNodes()-1];
 		VecRestoreArray(Result,&answerElements);   
-//		std::cout<< "Residual: 1st entry is "  << value1 << std::endl;       
-//		std::cout<< "Residual: last entry is "  << valueLast << std::endl;    
+
         TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
         TS_ASSERT(fabs(value2 + h) < 0.001);
         TS_ASSERT(fabs(valueLast - VonNeumannBCValue + h/2) < 0.001);
-        
-                       
-       
-     }
-        
+	}
+
      /**
      * Function ComputeJacobianNumerically() is modified and appended towards bottom
      * of this file. Function modified and doesn't actually call ComputeResidual()
@@ -147,20 +153,94 @@ void setUp()
 	   	VecSetValue(input, 1, (PetscReal) 0, INSERT_VALUES);
 	   	
 	   	// Set up Jacobian matrix - results written into this Mat object
-   		Mat pJacobian;
-   		MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &pJacobian);
-   		//MatSetType(pJacobian, MATSEQDENSE);
-    	MatSetType(pJacobian, MATMPIDENSE);
+   		Mat jacobian;
+   		MatCreate(PETSC_COMM_WORLD, 2, 2, PETSC_DETERMINE, PETSC_DETERMINE, &jacobian);
+   		MatSetType(jacobian, MATSEQDENSE);
+   		//MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &jacobian);
+    	//MatSetType(jacobian, MATMPIDENSE);
+
     	
-        int errcode = ComputeJacobianNumerically(snes, input, &pJacobian, NULL, NULL, NULL);
-        
+        int errcode = ComputeJacobianNumerically(snes, input, &jacobian, NULL, NULL, NULL);
+
         //std::cout << "Our J matrix: " << std::endl;
         //MatView(pJacobian,0);
         
         TS_ASSERT(true);    
     }   
+    
+    
+    void testWithHeatEquationAndMeshReader()   
+	{
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		NonlinearHeatEquationPde<1> pde;  
+		
+		// Boundary conditions
+        BoundaryConditionsContainer<1,1> bcc;
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+        //pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
         
+		SimpleNonlinearEllipticAssembler<1,1> *pAssembler=new SimpleNonlinearEllipticAssembler<1,1>();
+    	SimpleNonlinearSolver solver;
+    	
+    	// Set up solution guess for residuals
+    	int length=mesh.GetNumNodes();
+		    	
+    	// Set up initial Guess
+    	Vec initialGuess;
+    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
+    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
+    	VecSetType(initialGuess, VECSEQ);
+    	for(int i=0; i<length ; i++)
+    	{
+    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
+    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
+    		VecSetValue(initialGuess, i, (-0.01*i*i), INSERT_VALUES);
+    	}
+    	VecAssemblyBegin(initialGuess);
+		VecAssemblyEnd(initialGuess); 
+		
+		//
+		GaussianQuadratureRule<1> quadRule(2);
+		LinearBasisFunction<1> basis_func;
+		
+    	Vec answer;
+    	Vec residual;
+    	VecDuplicate(initialGuess,&residual);
+    	VecDuplicate(initialGuess,&answer);
+    	
+    	//TS_TRACE("Calling AssembleSystem");
+ 		answer=pAssembler->AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+    	//TS_TRACE("System solved");
+    	    	
+//    	Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
+//                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
+//                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
+//                       AbstractNonlinearSolver *pSolver,
+//                       AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
+//                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
+//                       Vec initialGuess);
+		// Check result
+		double *ans;
+		int ierr = VecGetArray(answer, &ans);
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double u = sqrt(x*(1-x));
+			//std::cout << x << "\t" << u << std::endl;
+			TS_ASSERT_DELTA(ans[i], u, 0.001); 
+		}
+		VecRestoreArray(answer, &ans);
+	}
+
 };
+
 
 /**
  * Modified version of ComputeJacobianNumerically() for testing.
@@ -262,7 +342,6 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
     return 0;
-    TS_ASSERT( 1 < 2 ) ;
 }
 
 #endif //_TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_

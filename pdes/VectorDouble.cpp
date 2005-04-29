@@ -113,6 +113,28 @@ VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector)
 	return result;
 }
 
+VectorDouble VectorDouble::operator+(const VectorDouble& rSomeVector1)
+{
+	assert(this->Size()==rSomeVector1.Size());
+	VectorDouble result(this->Size());
+	for (int i=0; i<this->Size(); i++)
+	{
+		result(i)=mElementArray[i]+rSomeVector1(i);
+	}
+	return result;
+}
+
+VectorDouble VectorDouble::operator-(const VectorDouble& rSomeVector1)
+{
+	assert(this->Size()==rSomeVector1.Size());
+	VectorDouble result(this->Size());
+	for (int i=0; i<this->Size(); i++)
+	{
+		result(i)=mElementArray[i]-rSomeVector1(i);
+	}
+	return result;
+}
+
 double VectorDouble::L2Norm( void )
 {
 	return sqrt((*this).dot(*this));

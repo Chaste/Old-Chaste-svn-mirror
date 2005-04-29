@@ -12,10 +12,6 @@
      *  
     */	
 
-/**
- * Concrete simple class that assembles and solves the nonlinear system
- * for a nonlinear elliptic PDE.
- */ 
   
 #include <vector>
 #include "AbstractNonlinearEllipticPde.hpp"
@@ -26,65 +22,109 @@
 #include "GaussianQuadratureRule.hpp"
 #include "petscsnes.h"
 #include "petscvec.h"
+#include "petscmat.h"  
 #include "NonlinearEllipticEquation.hpp"
 
-//_________________________________________
-// files for computeResidual method
-//#include "DenseVectorMatrix.hpp"
-//__________________________________________
+/*
+ * Since we need to pass function pointers to the PETSc SNES routines, we can't
+ * make these functions below methods. This is a pain, since it also means we
+ * need to pass round a pointer to our assembler object as the void *pContext,
+ * and cast it within the function to access data members.
+ */
+template<int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode ComputeResidual(SNES snes, Vec CurrentSolution, Vec res_vector,
+								void *pContext);
+template<int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
+								Mat *pGlobal_jacobian, Mat *pPreconditioner,
+								MatStructure *pMatStructure, void *pContext);
+template<int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
+    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
+    										  void *pContext);
 
+/**
+ * Concrete simple class that assembles and solves the nonlinear system
+ * for a nonlinear elliptic PDE.
+ */ 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
 {
-
 public:
+	ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
+  	AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
+   	BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *mpBoundaryConditions;
+   	AbstractNonlinearSolver *mpSolver;
+   	AbstractBasisFunction<SPACE_DIM> *mpBasisFunction;
+   	GaussianQuadratureRule<ELEMENT_DIM> *mpGaussianQuadratureRule;
+   	
+
 	//Constructor - does nothing
 	SimpleNonlinearEllipticAssembler() {};
 	//Destructor - does nothing
 	~SimpleNonlinearEllipticAssembler() {};
 		
-    Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+    Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
+                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
+                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
                        AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule);
-                                    
+                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
+                       Vec initialGuess);
+
 };
 
+/**
+ * Assemble and solve the system for a nonlinear elliptic PDE.
+ * 
+ * @param pMesh Pointer to the mesh to solve on
+ * @param pPde Pointer to the object specifying the equation to solve
+ * @param pBoundaryConditions Pointer to the container object for our boundary conditions
+ * @param pSolver Pointer to the nonlinear solver object
+ * @param pBasisFunction Pointer to object for computing basis functions
+ * @param pGaussianQuadratureRule Pointer to database object for Gaussian quadrature
+ * @param initialGuess An initial guess for the iterative solver
+ * @return A PETSc vector giving the solution at each mesh node.
+ */
 template <int ELEMENT_DIM, int SPACE_DIM>
-Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractNonlinearSolver *pSolver,
-                       AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule)
+Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
+						ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
+						AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
+						BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
+						AbstractNonlinearSolver *pSolver,
+						AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
+						GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
+						Vec initialGuess)
 {
-//	PetscErrorCode mMesh = rMesh;
-//	PetscErrorCode mpPde = pPde;
-//	Vec mResidual = ComputeResidual(AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-//                              GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule....);
+	// Store data structures as public members
+	mpMesh = pMesh;
+	mpPde = pPde;
+	mpBoundaryConditions=pBoundaryConditions;
+	mpBasisFunction=pBasisFunction;
+	mpGaussianQuadratureRule=pGaussianQuadratureRule;
+	
+    Vec residual;
+ 	VecDuplicate(initialGuess, &residual);
 
-//	PetscErrorCode mJacobian = ComputeJacobianAnalytically(...);
-//	PetscErrorCode mJacobian = ComputeJacobianNumerically(...);
-//	return solver->Solve(&mResidual,&mJacobian,this)
-
-//	return solver->Solve(&mResidual,&mJacobian, residual, initialGuess, this)
-
-    return NULL;
+//	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
+//			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,		
+		&ComputeJacobianNumerically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
 }
 
 
 
-/**
+/*
  * ComputeResidual, ComputeJacobianAnalytically and ComputeJacobianNumerically need
  * to be placed beneath, but separate from, this class.
  * 
  */
  
 /**
+/**
 * Implementation of Nonlinear system
-*
+*===============================================================================
+* ------------------------------------------------------------------------------
 */
 
 
@@ -99,7 +139,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(Con
 								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 								 VectorDouble Ui)
-{		
+{
 	    static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
@@ -128,8 +168,11 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(Con
 			}
 				
 				
-			 // In the nonlinear case of Practical 1: when solving d/dx u(du/dx) = -1
-			 // f(U) = U whereas in general case need to calculate fofU
+			 /**
+			  * \todo
+			  *  In the nonlinear case of Practical 1: when solving d/dx u(du/dx) = -1
+			  * f(U) = U whereas in general case need to calculate fofU
+			  */
 			double FOfU = U;
 					
 			// TODO: horrendously inefficient!!!
@@ -175,29 +218,41 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 			Point<SPACE_DIM> x(0,0,0);
 			double U = 0;
 			VectorDouble gradU(SPACE_DIM);
+			gradU.ResetToZero();
 			
 			for(int i=0; i<num_nodes; i++)
 			{
 				//Need to compute add U as double and gradU as vector double
 				// get U =sum(Ui phi_i)
-				U+= phi[i]*Ui(i);
+				U += phi[i]*Ui(i);
 				
 				for(int j=0; j<SPACE_DIM; j++)
 				{
 					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 					
-					gradU(j)+= gradPhi[i](j)*Ui(j);//might have to do as line above
+					gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
+					
 				}
 				
-				
+				//std::cout << "phi[" << i << "]=" << phi[i] << std::endl;
 			}
+			
+			
+			//std::cout << "u'" << ": gradU(" << 1 << ")=" << gradU(0) << std::endl;
+			//std::cout << "U=" << U << std::endl;
 					
+			double integrand_value3=0;
 			for (int i=0; i < num_nodes; i++)
 			{
 				// RHS  need to change for Practical 1
-				double integrand_value1 = U*(gradU.dot(gradPhi[i]));																		
+				double integrand_value1 = U*(gradU.dot(gradPhi[i]));
+				//std::cout << "i_v1 at " << i << " is " << integrand_value1 << std::endl;																		
 				double integrand_value2 = phi[i];
 							
+				integrand_value3 += gradU(0)* jacobian_determinant 
+				               * pGaussianQuadratureRule.GetWeight(quad_index);
+				               
+               	
 				// For solving NonlinearEllipticEquation 
 				// which should be defined in/by NonlinearEllipticEquation.hpp:
 				// d/dx [f(U,x) du/dx ] = -g
@@ -216,139 +271,358 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 				               - integrand_value2 * jacobian_determinant 
 				               * pGaussianQuadratureRule.GetWeight(quad_index);
 			}
+			//std::cout << "i_v3 is " << integrand_value3 << std::endl;
 		}
 }
-	
+//------------------------------------------------------------------------------
 template<int ELEMENT_DIM, int SPACE_DIM>
-Vec ComputeResidual(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       /*AbstractLinearEllipticPde<SPACE_DIM> *pPde,*/ 
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       Vec CurrentSolution
-                       /*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
+PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void *pContext)
 {
-		//NEED A pde OBJECT!!!
-		LinearHeatEquationPde<1> *pPde; 
-		
-		//Create residual vector Res to be returned
-		Vec res_vector;
-     	VecCreate(PETSC_COMM_WORLD, &res_vector);
-     	PetscInt sizeValue;
-     	PetscScalar zero = 0.0;
-     	VecGetSize(CurrentSolution,&sizeValue);
-     	VecSetSizes(res_vector,PETSC_DECIDE,sizeValue);
-     	//VecSetType(res_vector, VECSEQ);
-     	VecSetFromOptions(res_vector);
-		//...
-		//Set Res to zero
- 		VecSet(&zero,res_vector);
-				
-        
-        LinearBasisFunction<ELEMENT_DIM> basis_function;
-        
-        // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = rMesh.GetFirstElement();
+	//std::cout << "In ComputeResidual()" << std::endl << std::flush;
+	
+	SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
+    ((SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*)pContext);
+    
+	//Set residual vector to zero
+	PetscScalar zero = 0.0;
+	VecSet(&zero, res_vector);
+
+	//NEED A pde OBJECT!!!
+	LinearHeatEquationPde<1> *pPde; 
+
+    LinearBasisFunction<ELEMENT_DIM> basis_function;
+    
+    // Get an iterator over the elements of the mesh
+    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = pAssembler->mpMesh->GetFirstElement();
  
+	// Assume all elements have the same number of nodes...
+ 	const int num_nodes = iter->GetNumNodes();
+    VectorDouble b_elem(num_nodes);
  
- 		// Assume all elements have the same number of nodes...
- 		const int num_nodes = iter->GetNumNodes();
-        VectorDouble b_elem(num_nodes);
- 
-        while (iter != rMesh.GetLastElement())
-        {
-            const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
-                        
-            b_elem.ResetToZero();            
+    while (iter !=  pAssembler->mpMesh->GetLastElement())
+    {
+        const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
+                    
+        b_elem.ResetToZero();            
                       
-            //get relevant entries for the nodes from CurrentSolution and put into Ui
-            VectorDouble Ui(num_nodes);
-            PetscScalar *answerElements;
-            for (int i=0; i<num_nodes; i++)
+        //get relevant entries for the nodes from CurrentSolution and put into Ui
+        VectorDouble Ui(num_nodes);
+        double *answerElements;
+        VecGetArray(CurrentSolution, &answerElements);
+        for (int i=0; i<num_nodes; i++)
+        {
+        	int node = element.GetNodeGlobalIndex(i);
+
+			double value = answerElements[node];
+			
+        	Ui(i) = value;
+        }
+        VecRestoreArray(CurrentSolution,&answerElements);
+        
+        //GaussianQuadratureRule(2);//(int numPointsInEachDimension)
+        ComputeResidualOnElement(element, b_elem, /*pPde,*/ 
+        							basis_function, Ui/*, pGaussianQuadratureRule*/);
+        
+        for (int i=0; i<num_nodes; i++)
+        {
+        	int node = element.GetNodeGlobalIndex(i);
+        	
+        	PetscScalar value = b_elem(i);
+        	VecSetValue(res_vector,node,value,ADD_VALUES); /* update residual vector*/
+        	
+        }
+        iter++;
+    }
+    
+    /*
+     * 
+     * BOUNDARY CONDITIONS
+     * 
+     */
+    // add the integrals associated with Neumann boundary conditions to the linear system
+	LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
+	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = pAssembler->mpMesh->GetFirstBoundaryElement();
+	
+	if (surf_iter != pAssembler->mpMesh->GetLastBoundaryElement())
+	{					
+		const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+		VectorDouble b_surf_elem(num_surf_nodes);
+
+		while (surf_iter != pAssembler->mpMesh->GetLastBoundaryElement())
+		{
+			const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+			
+			//get relevant entries for the nodes from CurrentSolution and put into Ui
+			VectorDouble UiSurf(num_surf_nodes);
+			PetscScalar *answerElements;
+			for (int i=0; i<num_surf_nodes; i++)
             {
-            	int node = element.GetNodeGlobalIndex(i);
+            	int node = surf_element.GetNodeGlobalIndex(i);
 				VecGetArray(CurrentSolution, &answerElements);
 				double value = answerElements[node];
 				VecRestoreArray(CurrentSolution,&answerElements);
-            	
-            	Ui(i) = value;
+            	UiSurf(i) = value;
             }
-            
-            //GaussianQuadratureRule(2);//(int numPointsInEachDimension)
-            ComputeResidualOnElement(element, b_elem, /*pPde,*/ 
-            							basis_function, Ui/*, pGaussianQuadratureRule*/);
-            
-            for (int i=0; i<num_nodes; i++)
-            {
-            	int node = element.GetNodeGlobalIndex(i);
-            	
-            	PetscScalar value = b_elem(i);
-            	VecSetValue(res_vector,node,value,ADD_VALUES); /* update residual vector*/
-            	
-            }
-            iter++;
-        }
         
-        /*
-         * 
-         * BOUNDARY CONDITIONS
-         * 
-         */
-        // add the integrals associated with Neumann boundary conditions to the linear system
-		LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
-		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
-		
-		if (surf_iter != rMesh.GetLastBoundaryElement())
-		{					
-			const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-			VectorDouble b_surf_elem(num_surf_nodes);
-	
-			while (surf_iter != rMesh.GetLastBoundaryElement())
+			/**
+			 * \todo
+			 * Check surf_element is in the Neumann surface in an efficient manner.
+			 */
+			if (pAssembler->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
 			{
-				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
-				
-				//get relevant entries for the nodes from CurrentSolution and put into Ui
-				VectorDouble UiSurf(num_surf_nodes);
-				PetscScalar *answerElements;
-				for (int i=0; i<num_surf_nodes; i++)
-	            {
-	            	int node = surf_element.GetNodeGlobalIndex(i);
-					VecGetArray(CurrentSolution, &answerElements);
-					double value = answerElements[node];
-					VecRestoreArray(CurrentSolution,&answerElements);
-	            	UiSurf(i) = value;
-	            }
-            
-				/**
-				 * \todo
-				 * Check surf_element is in the Neumann surface in an efficient manner.
-				 */
-				if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
-				{
-					b_surf_elem.ResetToZero();
-					ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions, UiSurf);
-	
-				    for (int i=0; i<num_surf_nodes; i++)
-			            {
-			            	int node1 = surf_element.GetNodeGlobalIndex(i);
-			            	
-			            	PetscScalar value1 = b_surf_elem(i);
-			            	VecSetValue(res_vector,node1,value1,ADD_VALUES); 	
-			            }
-	
+				b_surf_elem.ResetToZero();
+				ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, *(pAssembler->mpBoundaryConditions), UiSurf);
+
+			    for (int i=0; i<num_surf_nodes; i++)
+		            {
+		            	int node1 = surf_element.GetNodeGlobalIndex(i);
+		            	
+		            	PetscScalar value1 = b_surf_elem(i);
+		            	VecSetValue(res_vector,node1,value1,ADD_VALUES); 	
+		            }
+
 //					for (int i=0; i<num_surf_nodes; i++)
 //		            {
 //		            	int node1 = surf_element.GetNodeGlobalIndex(i);
 //		            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
 //		            }
+			}
+			surf_iter++;
+		}
+	}
+
+	// Apply Dirichlet boundary conditions for nonlinear problem
+    pAssembler->mpBoundaryConditions->ApplyDirichletToNonlinearProblem(CurrentSolution, res_vector);
+    
+    //std::cout << "Residual:" << std::endl;
+    //VecView(res_vector, 0); std::cout << std::endl;
+    //std::cout << "Current solution:" << std::endl;
+    //VecView(CurrentSolution, 0);
+    
+    return 0;
+}
+
+
+
+/*
+ * Compute Jacobian Analytically 
+ *
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * ======================================================================
+ * 
+ * ______________________________________________________________________
+ * 
+ * 
+ *  */
+
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+
+void ComputeJacobianOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+							MatrixDouble &rAElem,
+							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
+							VectorDouble Ui
+                       		/*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
+{
+		static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
+		static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		
+		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
+		double jacobian_determinant = rElement.GetJacobianDeterminant();
+		
+		// Initialise element contributions to zero
+		const int num_nodes = rElement.GetNumNodes();
+		
+		for(int quad_index=0; quad_index<pGaussianQuadratureRule.GetNumQuadPoints(); quad_index++)
+		{
+			Point<ELEMENT_DIM> quad_point=pGaussianQuadratureRule.GetQuadPoint(quad_index);
+
+			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+			                                    (quad_point, *inverseJacobian);
+
+			Point<SPACE_DIM> x(0,0,0);
+			double U = 0;
+			VectorDouble gradU(SPACE_DIM);
+			gradU.ResetToZero();
+			
+			for(int i=0; i<num_nodes; i++)
+			{
+				//Need to compute add U as double and gradU as vector double
+				// get U =sum(Ui phi_i)
+				U+= phi[i]*Ui(i);
+				
+				for(int j=0; j<SPACE_DIM; j++)
+				{
+					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
+					
+					gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
 				}
-				surf_iter++;
+				
+				
+			}
+			
+					
+			for (int i=0; i < num_nodes; i++)
+			{
+				for (int j=0; j< num_nodes; j++)
+				{
+					// RHS  need to change for Practical 1
+					double integrand_value1 = (gradPhi[j]*U+phi[j]*gradU).dot(gradPhi[i]);																		
+					
+					// For solving NonlinearEllipticEquation 
+					// which should be defined in/by NonlinearEllipticEquation.hpp:
+					// d/dx [f(U,x) du/dx ] = -g
+					// where g(x,U) is the forcing term
+					// !! to be modified
+					// MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U); 
+					// double  integrand_value1 = FOfU*(gradU.dot(gradPhi[i]));	
+					// make RHS general: consists of linear and nonlinear source terms
+					// double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
+					// ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
+					//double integrand_value2 = ForcingTerm * phi[i];
+					
+					
+					rAElem(i,j) += integrand_value1 * jacobian_determinant 
+					               * pGaussianQuadratureRule.GetWeight(quad_index);
+				}
 			}
 		}
+}
+
+//------------------------------------------------------------------------------
+template<int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
+								Mat *pGlobal_jacobian, Mat *pPreconditioner,
+								MatStructure *pMatStructure, void *pContext)
+{
+	//std::cout << "In ComputeJacobianAnalytically()" << std::endl << std::flush;
+
+	// Extract an assembler from the void*
+    SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
+    ((SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*)pContext);
+    
+    LinearBasisFunction<ELEMENT_DIM> basis_function;
+    
+    // Get an iterator over the elements of the mesh
+    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = pAssembler->mpMesh->GetFirstElement();
+
+	// Assume all elements have the same number of nodes...
+	const int num_nodes = iter->GetNumNodes();
+	MatrixDouble a_elem(num_nodes,num_nodes);
+
+	while (iter != pAssembler->mpMesh->GetLastElement())
+	{
+		//std::cout << "Beginning iteration" << std::endl << std::flush;
+		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
+
+		a_elem.ResetToZero();
+
+		//get relevant entries for the nodes from CurrentSolution and put into Ui
+		//std::cout << "Building Ui" << std::endl << std::flush;
+        VectorDouble Ui(num_nodes);
+        double *answerElements;
+        VecGetArray(CurrentSolution, &answerElements);
+        for (int i=0; i<num_nodes; i++)
+        {
+        	int node = element.GetNodeGlobalIndex(i);
+        	//Ui(i) = CurrentSolution(node); /// >?!??! current solution is Petski vector!!!!
+			
+			double value = answerElements[node];
+        	
+        	Ui(i) = value;
+        }
+        VecRestoreArray(CurrentSolution,&answerElements);
+        
+        //GaussianQuadratureRule(2);//(int numPointsInEachDimension)
+		//std::cout << "ComputeJacobianOnElement" << std::endl << std::flush;
+        ComputeJacobianOnElement(element, a_elem, /*pPde,*/ 
+        							basis_function, Ui/*, pGaussianQuadratureRule*/);
+        
+ 		//std::cout << "Putting values in global jacobian" << std::endl << std::flush;
+ 		
+ 		// Possibly inefficient?
+        std::vector<int> nodes_vec(num_nodes);
+    	for (int i=0; i<num_nodes; i++)
+    	{
+    		nodes_vec[i] = element.GetNodeGlobalIndex(i);
+    	}
+        
+        for (int i=0; i<num_nodes; i++)
+        {
+        	PetscInt nodes_i=nodes_vec[i];
+        	for (int j=0; j<num_nodes; j++)
+        	{
+        		PetscInt nodes_j=nodes_vec[j];
+        		PetscScalar value = a_elem(i,j);
+				//std::cout << "(" << nodes_i << "," << nodes_j << ")=" << value << std::endl;
+        		MatSetValue(*pGlobal_jacobian,nodes_i,nodes_j,value,ADD_VALUES); /* update global jacobian matrix*/
+        	}
+        }
+        
+        iter++;
+    }
+
+	MatAssemblyBegin(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
+	MatAssemblyEnd(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
 	
-        
-		// Apply Dirichlet boundary conditions for nonlinear problem
-        rBoundaryConditions.ApplyDirichletToNonlinearProblem( CurrentSolution, res_vector);   
-        
-        return res_vector;
+	//MatView(*pGlobal_jacobian, 0);
+    
+    /**
+     * \todo Do we need to do anything with boundary conditions here?
+     */
+    // add the integrals associated with Neumann boundary conditions to the linear system
+	/*LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
+	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
+	
+	if (surf_iter != rMesh.GetLastBoundaryElement())
+	{					
+		const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+		VectorDouble b_surf_elem(num_surf_nodes);
+
+		while (surf_iter != rMesh.GetLastBoundaryElement())
+		{
+			const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+			
+			*
+			 * \todo
+			 * Check surf_element is in the Neumann surface in an efficient manner.
+			 
+			if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
+			{
+				b_surf_elem.ResetToZero();
+				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+
+				for (int i=0; i<num_surf_nodes; i++)
+	            {
+	            	int node1 = surf_element.GetNodeGlobalIndex(i);
+	            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+	            }
+			}
+			surf_iter++;
+		}
+	}*/
+
+	// apply dirichlet boundary conditions 
+    //rBoundaryConditions.ApplyDirichletToNonlinearProblem(res_vector);   
+    return 0;
 }
 
 /**
@@ -411,7 +685,7 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
     
     double h = 0.00001;    
     PetscScalar subtract = -1;
-    PetscScalar oneOverH = 1/h;
+    PetscScalar oneOverH = 1.0/h;
     
     
     for(int j = 0; j < num_nodes; j++)
