@@ -26,14 +26,14 @@ class TestMonodomainPde : public CxxTest::TestSuite
 {
     public:
     
-    void NOtestMonodomainPdeConstructor( void )
+    void testMonodomainPdeConstructor( void )
     {
         int num_nodes=2;
         
         Node<1> node0(0,true,0);
         Node<1> node1(1,true,0);
         
-        double big_time_step=0.01;
+        double big_time_step=1;
         double small_time_step=0.01;
         AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
         MonodomainPde monodomain_pde(num_nodes, big_time_step, pMySolver, small_time_step);
@@ -62,8 +62,8 @@ class TestMonodomainPde : public CxxTest::TestSuite
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        int node_index = 0;     
-        monodomain_pde.SetStimulusFunctionAtNode(node_index, pStimulus);
+        //int node_index = 0;     
+        monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
         
         voltage = -84.5;
    
@@ -77,24 +77,24 @@ class TestMonodomainPde : public CxxTest::TestSuite
         /*
          * If want values for t=1 ms solving odes with stimulus, use data below
          */
-        //double v = 4.2094e+01;
-//        //m = 9.9982e-01;
-//        h = 9.4396e-02; 
-//        j = 8.7622e-01; 
-//        d = 2.1953e-02;
-//        f = 9.9889e-01;
-//        x = 6.8886e-03;
-//        caI = 1.9979e-04;
+        double v = 4.2094e+01;
+        m = 9.9982e-01;
+        h = 9.4396e-02; 
+        j = 8.7622e-01; 
+        d = 2.1953e-02;
+        f = 9.9889e-01;
+        x = 6.8886e-03;
+        caI = 1.9979e-04;
 //        
         // these are values after 0.01 ms
-        double v = -8.3700e+01;
-        m = 1.6645e-03;
-        h =  9.8330e-01 ; 
-        j =9.8950e-01 ;
-        d = 3.0000e-03;
-        f =  1.0000e-00;
-        x = 5.6000e-03 ;
-        caI = 1.9998e-04;
+//        double v = -8.3700e+01;
+//       m = 1.6645e-03;
+//        h =  9.8330e-01 ; 
+//        j =9.8950e-01 ;
+//        d = 3.0000e-03;
+//        f =  1.0000e-00;
+//        x = 5.6000e-03 ;
+//        caI = 1.9998e-04;
         
         std::vector<double> solutionSet;
         solutionSet.push_back(h);
@@ -106,16 +106,16 @@ class TestMonodomainPde : public CxxTest::TestSuite
         solutionSet.push_back(f);
         solutionSet.push_back(x);
         
-        magnitudeOfStimulus = -80.0;  
+        magnitudeOfStimulus = 0; //at time t=1, stimulus is zero
         i_stim = magnitudeOfStimulus;
         
         i_ionic = monodomain_pde.GetIIonic(solutionSet, voltage);
         i_total = i_stim + i_ionic;
         
-        TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage),i_total,0.0001);
+        TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage),i_total,0.001);
 
         // Check that we get the same result because NextStep was not called.
-        TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage),i_total,0.0001);
+        TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage),i_total,0.001);
         
          /*
          * If want values for t=1 ms with NO stimulus, use data below
@@ -129,8 +129,6 @@ class TestMonodomainPde : public CxxTest::TestSuite
          f = 1.0000e-00;
          x = 5.6003e-03;
          caI = 1.9854e-04;
-         
-         //1.0000e-02 -8.4500e+01  1.6645e-03  9.8330e-01  9.8950e-01  3.0000e-03  1.0000e-00  5.6000e-03  1.9998e-04
                               
          std::vector<double> solutionSet2;
          solutionSet2.push_back(h);
@@ -142,13 +140,20 @@ class TestMonodomainPde : public CxxTest::TestSuite
          solutionSet2.push_back(f);
          solutionSet2.push_back(x);
                                
-         i_ionic = monodomain_pde.GetIIonic(solutionSet,voltage);
+         i_ionic = monodomain_pde.GetIIonic(solutionSet2,voltage);
          i_total = i_stim + i_ionic;
         
-         TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage),i_total,0.000001);
-         
-         TS_ASSERT(0);
-    }
+         TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage),i_total,0.001);
+     }
+     
+     
+     //void testReset
+     
+     //-> in new test file TestDg0MonodomainAssembler
+     //   test setup
+     //   test update g first
+     //   test update v first
+     //   test with init stim and with reg stim with >1 node
 };
 
 
