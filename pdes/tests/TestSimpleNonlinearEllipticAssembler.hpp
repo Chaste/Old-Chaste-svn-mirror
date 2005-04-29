@@ -243,7 +243,7 @@ public:
 		TestStuff();
 	}
 
-    void noTestWithHeatEquation1DAndNeumannBCs()
+    void brokenTestWithHeatEquation1DAndNeumannBCs()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -260,12 +260,12 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
 		// u(1) = 0
         //bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
-        // u'(1) = 0
+        // u*u'(1) = 0
 //        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
 //        iter--;
 //        bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+		// u*u'(1) = 1
 		pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-		// u'(1) = 0
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
@@ -284,8 +284,8 @@ public:
     	for(int i=0; i<length ; i++)
     	{
     		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-    		VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, (-0.01*i*i), INSERT_VALUES);
+    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
+    		VecSetValue(initialGuess, i, (-0.01*i*i), INSERT_VALUES);
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
@@ -312,9 +312,9 @@ public:
 		for (int i=0; i < mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double u = sqrt(x*(4+sqrt(8)-x));
+			double u = sqrt(x*(4-x));
 			//std::cout << x << "\t" << u << std::endl;
-			TS_ASSERT_DELTA(ans[i], u, 0.001); 
+			TS_ASSERT_DELTA(ans[i], u, 0.001);
 		}
 		VecRestoreArray(answer, &ans);
 	}

@@ -48,6 +48,10 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
 /**
  * Concrete simple class that assembles and solves the nonlinear system
  * for a nonlinear elliptic PDE.
+ * 
+ * \todo This class could do with some tidying. More tests are also needed.
+ * Neumann boundary conditions may not be correctly implemented.
+ * It probably needs re-writing to take advantage of parallel machines.
  */ 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
@@ -178,7 +182,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 
 			for (int i=0; i < num_nodes; i++)
 			{
-				double integrand_value =  phi[i] * Dgradu_dot_n;
+				double integrand_value = phi[i] * Dgradu_dot_n;
 				rBsubElem(i) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
@@ -350,15 +354,17 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 			
 			//get relevant entries for the nodes from CurrentSolution and put into Ui
 			VectorDouble UiSurf(num_surf_nodes);
-			PetscScalar *answerElements;
+			double *answerElements;
+			VecGetArray(CurrentSolution, &answerElements);
 			for (int i=0; i<num_surf_nodes; i++)
             {
             	int node = surf_element.GetNodeGlobalIndex(i);
-				VecGetArray(CurrentSolution, &answerElements);
+				
 				double value = answerElements[node];
-				VecRestoreArray(CurrentSolution,&answerElements);
+				
             	UiSurf(i) = value;
             }
+            VecRestoreArray(CurrentSolution,&answerElements);
         
 			/**
 			 * \todo
@@ -369,19 +375,13 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 				b_surf_elem.ResetToZero();
 				ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, *(pAssembler->mpBoundaryConditions), UiSurf);
 
-			    for (int i=0; i<num_surf_nodes; i++)
-		            {
-		            	int node1 = surf_element.GetNodeGlobalIndex(i);
-		            	
-		            	PetscScalar value1 = b_surf_elem(i);
-		            	VecSetValue(res_vector,node1,value1,ADD_VALUES); 	
-		            }
+				for (int i=0; i<num_surf_nodes; i++)
+				{
+					int node = surf_element.GetNodeGlobalIndex(i);
 
-//					for (int i=0; i<num_surf_nodes; i++)
-//		            {
-//		            	int node1 = surf_element.GetNodeGlobalIndex(i);
-//		            	mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
-//		            }
+					PetscScalar value = b_surf_elem(i);
+					VecSetValue(res_vector, node, value, ADD_VALUES); 	
+				}
 			}
 			surf_iter++;
 		}
@@ -394,6 +394,9 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
     //VecView(res_vector, 0); std::cout << std::endl;
     //std::cout << "Current solution:" << std::endl;
     //VecView(CurrentSolution, 0);
+    
+	VecAssemblyBegin(res_vector);
+	VecAssemblyEnd(res_vector);
     
     return 0;
 }
