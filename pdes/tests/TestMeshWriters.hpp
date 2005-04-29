@@ -13,10 +13,12 @@
 #include "../FemlabMeshReader.hpp"
 #include "../TrianglesMeshReader.hpp"
 #include "../TrianglesMeshWriter.hpp"
+#include "../MeshalyzerMeshWriter.hpp"
+#include <math.h>
 
 static AbstractMeshReader *spImportMeshReader;
 static AbstractMeshReader *spNewMeshReader;
-static TrianglesMeshWriter *spMeshWriter;
+static AbstractMeshWriter *spMeshWriter;
 
 class TestMeshWriters : public CxxTest::TestSuite
 {
@@ -79,6 +81,90 @@ class TestMeshWriters : public CxxTest::TestSuite
 
 		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
 							new TrianglesMeshReader("/tmp/MeshFromFemlab"));
+	}
+	
+	void testTrianglesToMeshalyzer(void)
+	{	
+		spImportMeshReader=new TrianglesMeshReader(
+							"pdes/tests/meshdata/slab_138_elements");
+		spMeshWriter=new MeshalyzerMeshWriter(
+							"/tmp/MeshFromTetgen");
+	
+		int i;
+		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
+		{
+			spMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+		}
+		for (i=0; i<spImportMeshReader->GetNumElements();i++)
+		{
+			spMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+		}
+		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
+		{
+			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+		}
+		
+		
+		
+		TS_ASSERT_THROWS_NOTHING(spMeshWriter->WriteFiles());
+		
+		int num_tsteps=500;
+		int num_nodes = spImportMeshReader->GetNumNodes();
+		char fake_data_name[40];
+		sprintf(fake_data_name, "/tmp/MeshFromTetgen.tdat");
+		std::ofstream fake_data(fake_data_name) ;
+		for(int t= 0; t<num_tsteps ;t++)
+		{
+			for(int n=0 ; n<num_nodes ; n++)
+			{
+				fake_data<<sin((t*M_PI)/num_tsteps) <<"\n";
+			}
+		} 
+		fake_data.close() ;
+		
+	}
+
+	void testTrianglesToCoolGraphics(void)
+	{	
+		spImportMeshReader=new TrianglesMeshReader(
+							"pdes/tests/meshdata/slab_138_elements");
+		MeshalyzerMeshWriter *spCGMeshWriter=new MeshalyzerMeshWriter(
+							"/tmp/CGFromTetgen");
+	
+		int i;
+		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
+		{
+			spCGMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+		}
+		for (i=0; i<spImportMeshReader->GetNumElements();i++)
+		{
+			spCGMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+		}
+		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
+		{
+			spCGMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+		}
+		
+		
+		spCGMeshWriter->SetCoolGraphicsFormat();
+		
+		TS_ASSERT_THROWS_NOTHING(spCGMeshWriter->WriteFiles());
+		
+		int num_tsteps=500;
+		int num_nodes = spImportMeshReader->GetNumNodes();
+		for(int t= 0; t<num_tsteps ;t++)
+		{
+			char fake_data_name[40];
+			sprintf(fake_data_name, "/tmp/CGFromTetgen.t%i", t);
+			std::ofstream fake_data(fake_data_name) ;
+			fake_data << "t = "<<t<<"\n";
+			for(int n=0 ; n<num_nodes ; n++)
+			{
+				fake_data<<0.0<<"\t"<<0.0<<"\t"<<sin((t*M_PI)/num_tsteps) <<"\n";
+			}
+		 
+			fake_data.close() ;
+		}
 	}
 	
 };

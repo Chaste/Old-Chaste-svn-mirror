@@ -25,6 +25,7 @@ class AbstractMeshWriter
 		std::vector< std::vector<int> >::iterator mpBoundaryFaceIterator; /**< Is an iterator for the boundary face data */		
 	
 		bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
+		bool mWriteMetaFile; 
 	public:	
 		AbstractMeshWriter() /**< Constructor */
 		{
@@ -37,7 +38,7 @@ class AbstractMeshWriter
 	void SetNextElement(std::vector<int> nextElement);
 	void SetNextBoundaryFace(std::vector<int> nextFace);
 	void SetNextBoundaryEdge(std::vector<int> nextEdge);
-	
+	virtual void WriteFiles(){};
 	int GetNumNodes(){return mNodeData.size();}
 	int GetNumElements(){return mElementData.size();}
 	int GetNumBoundaryFaces(){return mBoundaryFaceData.size();}
