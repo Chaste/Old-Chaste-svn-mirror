@@ -577,7 +577,7 @@ public:
 		fullSolver.SetInitialCondition(initialCondition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
-		// Check result 
+		// Check result
 		double *res;
 	    ierr = VecGetArray(result, &res);
 
