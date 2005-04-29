@@ -72,7 +72,7 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 	for(int timeindex=0;timeindex<num_timesteps;timeindex++)
 	{
 		// Apply Euler's method
-        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
+                dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
         
 		for(int i=0;i<num_equations; i++) 
 		{
