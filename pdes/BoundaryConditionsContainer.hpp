@@ -198,6 +198,33 @@ public:
 		ierr = VecRestoreArray(residual, &residualArray);	
 	}
 	
+	/**
+	 * Alter the jacobian matrix vector for a nonlinear system to satisfy
+	 * dirichlet boundary conditions.
+	 * 
+	 * \todo Figure out what we're supposed to be doing about this!
+	 */
+	void ApplyDirichletToNonlinearJacobian(Mat jacobian)
+	{
+		dirichIterator = mpDirichletMap->begin();
+		int rows, cols;
+		double value;
+	    MatGetSize(jacobian, &rows, &cols);
+		
+		while(dirichIterator != mpDirichletMap->end() )			
+		{
+			long index = dirichIterator->first->GetIndex();
+			
+			for (int col=0; col<cols; col++)
+			{
+				value = (col == index) ? 1.0 : 0.0;
+				MatSetValue(jacobian, index, col, value, INSERT_VALUES);
+			}
+			
+			dirichIterator++;
+		}
+	}
+	
 
 	/**
 	 * \todo

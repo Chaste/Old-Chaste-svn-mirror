@@ -4,6 +4,8 @@
 
 #include "SimpleNonlinearSolver.hpp"
 #include <iostream>
+#include "Exception.hpp"
+#include <sstream>
 
 
 /**
@@ -64,6 +66,15 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     
     //std::cout << "Just about to call SNESSOlve" << std::endl << std::flush;
     SNESSolve(snes, x);
+    SNESConvergedReason reason;
+    SNESGetConvergedReason(snes,&reason);
+    if (reason<0)
+    {
+    	std::stringstream reason_stream;
+    	reason_stream << reason;
+    	throw Exception("Nonlinear Solver did not converge. Petsc reason code:"
+    	                +reason_stream.str()+" .");
+    }
 
     return x;
 

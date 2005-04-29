@@ -284,10 +284,8 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 	PetscScalar zero = 0.0;
 	VecSet(&zero, res_vector);
 
-	//NEED A pde OBJECT!!!
 	AbstractNonlinearEllipticPde<SPACE_DIM> *pPde = pAssembler->mpPde;
-
-    LinearBasisFunction<ELEMENT_DIM> basis_function;
+    AbstractBasisFunction<ELEMENT_DIM> &basis_function = *(pAssembler->mpBasisFunction);
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = pAssembler->mpMesh->GetFirstElement();
@@ -316,7 +314,6 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
         }
         VecRestoreArray(CurrentSolution,&answerElements);
         
-        //GaussianQuadratureRule(2);//(int numPointsInEachDimension)
         ComputeResidualOnElement(element, b_elem, pPde,
         							basis_function, Ui/*, pGaussianQuadratureRule*/);
         
@@ -434,74 +431,75 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 
 void ComputeJacobianOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							MatrixDouble &rAElem,
+							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
 							VectorDouble Ui
                        		/*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
 {
-		static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
-		static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
+	static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
+	static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
+	
+	const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
+	double jacobian_determinant = rElement.GetJacobianDeterminant();
+	
+	// Initialise element contributions to zero
+	const int num_nodes = rElement.GetNumNodes();
+	
+	for(int quad_index=0; quad_index<pGaussianQuadratureRule.GetNumQuadPoints(); quad_index++)
+	{
+		Point<ELEMENT_DIM> quad_point=pGaussianQuadratureRule.GetQuadPoint(quad_index);
+
+		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+		std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		                                    (quad_point, *inverseJacobian);
+
+		Point<SPACE_DIM> x(0,0,0);
+		double U = 0;
+		VectorDouble gradU(SPACE_DIM);
+		//gradU.ResetToZero(); // Vector is initialised to zero at creation.
 		
-		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
-		double jacobian_determinant = rElement.GetJacobianDeterminant();
-		
-		// Initialise element contributions to zero
-		const int num_nodes = rElement.GetNumNodes();
-		
-		for(int quad_index=0; quad_index<pGaussianQuadratureRule.GetNumQuadPoints(); quad_index++)
+		for(int i=0; i<num_nodes; i++)
 		{
-			Point<ELEMENT_DIM> quad_point=pGaussianQuadratureRule.GetQuadPoint(quad_index);
-
-			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-			                                    (quad_point, *inverseJacobian);
-
-			Point<SPACE_DIM> x(0,0,0);
-			double U = 0;
-			VectorDouble gradU(SPACE_DIM);
-			//gradU.ResetToZero(); // Vector is initialised to zero at creation.
+			//Need to compute add U as double and gradU as vector double
+			// get U =sum(Ui phi_i)
+			U+= phi[i]*Ui(i);
 			
-			for(int i=0; i<num_nodes; i++)
+			for(int j=0; j<SPACE_DIM; j++)
 			{
-				//Need to compute add U as double and gradU as vector double
-				// get U =sum(Ui phi_i)
-				U+= phi[i]*Ui(i);
+				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				for(int j=0; j<SPACE_DIM; j++)
-				{
-					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
-					
-					gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
-				}
-				
-				
+				gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
 			}
 			
-					
-			for (int i=0; i < num_nodes; i++)
+			
+		}
+		
+				
+		for (int i=0; i < num_nodes; i++)
+		{
+			for (int j=0; j< num_nodes; j++)
 			{
-				for (int j=0; j< num_nodes; j++)
-				{
-					// RHS  need to change for Practical 1
-					double integrand_value1 = (gradPhi[j]*U+phi[j]*gradU).dot(gradPhi[i]);																		
-					
-					// For solving NonlinearEllipticEquation 
-					// which should be defined in/by NonlinearEllipticEquation.hpp:
-					// d/dx [f(U,x) du/dx ] = -g
-					// where g(x,U) is the forcing term
-					// !! to be modified
-					// MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U); 
-					// double  integrand_value1 = FOfU*(gradU.dot(gradPhi[i]));	
-					// make RHS general: consists of linear and nonlinear source terms
-					// double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
-					// ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
-					//double integrand_value2 = ForcingTerm * phi[i];
-					
-					
-					rAElem(i,j) += integrand_value1 * jacobian_determinant 
-					               * pGaussianQuadratureRule.GetWeight(quad_index);
-				}
+				// RHS  need to change for Practical 1
+				double integrand_value1 = (gradPhi[j]*U + phi[j]*gradU).dot(gradPhi[i]);
+				
+				// For solving NonlinearEllipticEquation 
+				// which should be defined in/by NonlinearEllipticEquation.hpp:
+				// d/dx [f(U,x) du/dx ] = -g
+				// where g(x,U) is the forcing term
+				// !! to be modified
+//					MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U); 
+//					double  integrand_value1 = (FOfU*gradU).dot(gradPhi[i]);
+//					// make RHS general: consists of linear and nonlinear source terms
+//					double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
+//					ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
+//					double integrand_value2 = ForcingTerm * phi[i];
+				
+				
+				rAElem(i,j) += integrand_value1 * jacobian_determinant 
+				               * pGaussianQuadratureRule.GetWeight(quad_index);
 			}
 		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -516,7 +514,8 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
     ((SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*)pContext);
     
-    LinearBasisFunction<ELEMENT_DIM> basis_function;
+	AbstractNonlinearEllipticPde<SPACE_DIM> *pPde = pAssembler->mpPde;
+    AbstractBasisFunction<ELEMENT_DIM> &basis_function = *(pAssembler->mpBasisFunction);
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = pAssembler->mpMesh->GetFirstElement();
@@ -550,7 +549,7 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
         
         //GaussianQuadratureRule(2);//(int numPointsInEachDimension)
 		//std::cout << "ComputeJacobianOnElement" << std::endl << std::flush;
-        ComputeJacobianOnElement(element, a_elem, /*pPde,*/ 
+        ComputeJacobianOnElement(element, a_elem, pPde,
         							basis_function, Ui/*, pGaussianQuadratureRule*/);
         
  		//std::cout << "Putting values in global jacobian" << std::endl << std::flush;
@@ -577,10 +576,8 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
         iter++;
     }
 
-	MatAssemblyBegin(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
-	MatAssemblyEnd(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
-	
-	//MatView(*pGlobal_jacobian, 0);
+	MatAssemblyBegin(*pGlobal_jacobian,MAT_FLUSH_ASSEMBLY);
+	MatAssemblyEnd(*pGlobal_jacobian,MAT_FLUSH_ASSEMBLY);
     
     /**
      * \todo Do we need to do anything with boundary conditions here?
@@ -602,10 +599,10 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
 			 * \todo
 			 * Check surf_element is in the Neumann surface in an efficient manner.
 			 
-			if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
+			if (pAssembler->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
 			{
 				b_surf_elem.ResetToZero();
-				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+				AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, *(pAssembler->mpBoundaryConditions));
 
 				for (int i=0; i<num_surf_nodes; i++)
 	            {
@@ -617,8 +614,14 @@ PetscErrorCode ComputeJacobianAnalytically(SNES snes, Vec CurrentSolution,
 		}
 	}*/
 
-	// apply dirichlet boundary conditions 
-    //rBoundaryConditions.ApplyDirichletToNonlinearProblem(res_vector);   
+	// Apply dirichlet boundary conditions 
+    pAssembler->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pGlobal_jacobian);
+    
+    MatAssemblyBegin(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
+	MatAssemblyEnd(*pGlobal_jacobian,MAT_FINAL_ASSEMBLY);
+	
+	MatView(*pGlobal_jacobian, 0);
+	
     return 0;
 }
 
