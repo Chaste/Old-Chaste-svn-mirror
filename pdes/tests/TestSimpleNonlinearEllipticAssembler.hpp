@@ -653,8 +653,8 @@ public:
 		}
 		VecRestoreArray(answer, &ans);
 	}
-    
-    void nonworkingTest2dOnUnitSquare()
+
+    void notworkingTest2dOnUnitSquare()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
@@ -692,18 +692,22 @@ public:
 		{
 			double x = (*elt_iter)->GetNodeLocation(0,0);
 			double y = (*elt_iter)->GetNodeLocation(0,1);
+			pBC = NULL;
         	// On x=1, Dgradu_dot_n = 2(2+y^2)
-	        if (fabs(x) < 1e-12)
+	        if (fabs(x-1.0) < 1e-12)
 	        {
         		pBC = new FunctionalBoundaryCondition<2>(&bc_x1_func);
 	        }
 	        // On y=1, Dgradu_dot_n = 2(2+x^2)
-        	if (fabs(y) < 1e-12)
+        	if (fabs(y-1.0) < 1e-12)
 	        {
         		pBC = new FunctionalBoundaryCondition<2>(&bc_y1_func);
 	        }
-        	bcc.AddNeumannBoundaryCondition(*elt_iter, pBC);
-        	
+	        if (pBC)
+	        {
+        		bcc.AddNeumannBoundaryCondition(*elt_iter, pBC);
+	        }
+        
         	elt_iter++;
 		}
 

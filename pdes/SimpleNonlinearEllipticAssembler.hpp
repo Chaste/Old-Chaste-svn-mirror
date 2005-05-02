@@ -192,6 +192,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 			 * \todo Neumann BC value depends on u?
 			 */
 			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+			//std::cout << "Dgradu.n = " << Dgradu_dot_n << std::endl << std::flush;
 
 			for (int i=0; i < num_nodes; i++)
 			{
@@ -388,6 +389,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 			 * \todo
 			 * Check surf_element is in the Neumann surface in an efficient manner.
 			 */
+			//std::cout << "Checking for Neumann" << std::endl << std::flush;
 			if (pAssembler->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
 			{
 				b_surf_elem.ResetToZero();
