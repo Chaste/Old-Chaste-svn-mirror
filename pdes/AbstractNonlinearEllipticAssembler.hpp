@@ -46,7 +46,8 @@ public:
                        AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
-                       Vec initialGuess) = 0;
+                       Vec initialGuess,
+					   bool UseAnalyticalJacobian = false) = 0;
                        
   
 };

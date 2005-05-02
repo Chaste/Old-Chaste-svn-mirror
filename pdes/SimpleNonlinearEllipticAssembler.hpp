@@ -76,7 +76,8 @@ public:
                        AbstractNonlinearSolver *pSolver,
                        AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
                        GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
-                       Vec initialGuess);
+                       Vec initialGuess,
+					   bool UseAnalyticalJacobian = false);
 
 };
 
@@ -90,6 +91,8 @@ public:
  * @param pBasisFunction Pointer to object for computing basis functions
  * @param pGaussianQuadratureRule Pointer to database object for Gaussian quadrature
  * @param initialGuess An initial guess for the iterative solver
+ * @param UseAnalyticalJacobian Set to true to use an analytically calculated
+ *     jacobian matrix rather than a numerically approximated one.
  * @return A PETSc vector giving the solution at each mesh node.
  */
 template <int ELEMENT_DIM, int SPACE_DIM>
@@ -100,7 +103,8 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 						AbstractNonlinearSolver *pSolver,
 						AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
 						GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
-						Vec initialGuess)
+						Vec initialGuess,
+						bool UseAnalyticalJacobian)
 {
 	// Store data structures as public members
 	mpMesh = pMesh;
@@ -112,10 +116,16 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
     Vec residual;
  	VecDuplicate(initialGuess, &residual);
 
-//	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
-//			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+	if (UseAnalyticalJacobian)
+	{
+	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
+			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+	}
+	else
+	{
 	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,		
 		&ComputeJacobianNumerically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+	}
 }
 
 
@@ -146,6 +156,9 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 								 VectorDouble Ui)
 {
+	/**
+	 * \todo Don't hard code no. of gauss points.
+	 */
 	    static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
 		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
 		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
@@ -202,81 +215,84 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							VectorDouble Ui
                        		/*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
 {
-		static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
-		static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
+	/**
+	 * \todo Don't hard code no. of gauss points.
+	 */
+	static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
+	static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
+	
+	const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
+	double jacobian_determinant = rElement.GetJacobianDeterminant();
+	
+	// Initialise element contributions to zero
+	const int num_nodes = rElement.GetNumNodes();
+	
+	for(int quad_index=0; quad_index<pGaussianQuadratureRule.GetNumQuadPoints(); quad_index++)
+	{
+		Point<ELEMENT_DIM> quad_point=pGaussianQuadratureRule.GetQuadPoint(quad_index);
+
+		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+		std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		                                    (quad_point, *inverseJacobian);
+
+		Point<SPACE_DIM> x(0,0,0);
+		double U = 0;
+		VectorDouble gradU(SPACE_DIM);
+		gradU.ResetToZero();
 		
-		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
-		double jacobian_determinant = rElement.GetJacobianDeterminant();
-		
-		// Initialise element contributions to zero
-		const int num_nodes = rElement.GetNumNodes();
-		
-		for(int quad_index=0; quad_index<pGaussianQuadratureRule.GetNumQuadPoints(); quad_index++)
+		for(int i=0; i<num_nodes; i++)
 		{
-			Point<ELEMENT_DIM> quad_point=pGaussianQuadratureRule.GetQuadPoint(quad_index);
-
-			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-			std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-			                                    (quad_point, *inverseJacobian);
-
-			Point<SPACE_DIM> x(0,0,0);
-			double U = 0;
-			VectorDouble gradU(SPACE_DIM);
-			gradU.ResetToZero();
+			//Need to compute add U as double and gradU as vector double
+			// get U =sum(Ui phi_i)
+			U += phi[i]*Ui(i);
 			
-			for(int i=0; i<num_nodes; i++)
+			for(int j=0; j<SPACE_DIM; j++)
 			{
-				//Need to compute add U as double and gradU as vector double
-				// get U =sum(Ui phi_i)
-				U += phi[i]*Ui(i);
+				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				for(int j=0; j<SPACE_DIM; j++)
-				{
-					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
-					
-					gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
-					
-				}
+				gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
 				
-				//std::cout << "phi[" << i << "]=" << phi[i] << std::endl;
 			}
 			
-			
-			//std::cout << "u'" << ": gradU(" << 1 << ")=" << gradU(0) << std::endl;
-			//std::cout << "U=" << U << std::endl;
-					
-			//double integrand_value3=0;
-			for (int i=0; i < num_nodes; i++)
-			{
-				// RHS  need to change for Practical 1
-				//double integrand_value1 = U*(gradU.dot(gradPhi[i]));
-				//std::cout << "i_v1 at " << i << " is " << integrand_value1 << std::endl;																		
-				//double integrand_value2 = phi[i];
-							
-				//integrand_value3 += gradU(0)* jacobian_determinant 
-				//               * pGaussianQuadratureRule.GetWeight(quad_index);
-				               
-               	
-				// For solving NonlinearEllipticEquation 
-				// which should be defined in/by NonlinearEllipticEquation.hpp:
-				// d/dx [f(U,x) du/dx ] = -g
-				// where g(x,U) is the forcing term
-				// !! to be modified
-				MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
-				double  integrand_value1 = ((FOfU*gradU).dot(gradPhi[i]));
-				//make RHS general: consists of linear and nonlinear source terms
-				double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
-				ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
-				double integrand_value2 = ForcingTerm * phi[i];
-				
-				
-				rBElem(i) += integrand_value1 * jacobian_determinant 
-				               * pGaussianQuadratureRule.GetWeight(quad_index)
-				               - integrand_value2 * jacobian_determinant 
-				               * pGaussianQuadratureRule.GetWeight(quad_index);
-			}
-			//std::cout << "i_v3 is " << integrand_value3 << std::endl;
+			//std::cout << "phi[" << i << "]=" << phi[i] << std::endl;
 		}
+		
+		
+		//std::cout << "u'" << ": gradU(" << 1 << ")=" << gradU(0) << std::endl;
+		//std::cout << "U=" << U << std::endl;
+				
+		//double integrand_value3=0;
+		for (int i=0; i < num_nodes; i++)
+		{
+			// RHS  need to change for Practical 1
+			//double integrand_value1 = U*(gradU.dot(gradPhi[i]));
+			//std::cout << "i_v1 at " << i << " is " << integrand_value1 << std::endl;																		
+			//double integrand_value2 = phi[i];
+						
+			//integrand_value3 += gradU(0)* jacobian_determinant 
+			//               * pGaussianQuadratureRule.GetWeight(quad_index);
+			               
+           	
+			// For solving NonlinearEllipticEquation 
+			// which should be defined in/by NonlinearEllipticEquation.hpp:
+			// d/dx [f(U,x) du/dx ] = -g
+			// where g(x,U) is the forcing term
+			// !! to be modified
+			MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
+			double  integrand_value1 = ((FOfU*gradU).dot(gradPhi[i]));
+			//make RHS general: consists of linear and nonlinear source terms
+			double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
+			ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
+			double integrand_value2 = ForcingTerm * phi[i];
+			
+			
+			rBElem(i) += integrand_value1 * jacobian_determinant 
+			               * pGaussianQuadratureRule.GetWeight(quad_index)
+			               - integrand_value2 * jacobian_determinant 
+			               * pGaussianQuadratureRule.GetWeight(quad_index);
+		}
+		//std::cout << "i_v3 is " << integrand_value3 << std::endl;
+	}
 }
 //------------------------------------------------------------------------------
 template<int ELEMENT_DIM, int SPACE_DIM>
@@ -449,6 +465,9 @@ void ComputeJacobianOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							VectorDouble Ui
                        		/*GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule*/)
 {
+	/**
+	 * \todo Don't hard code no. of gauss points.
+	 */
 	static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
 	static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
 	
