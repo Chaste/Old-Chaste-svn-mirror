@@ -24,6 +24,16 @@ class ExampleNonlinearPde:public AbstractNonlinearEllipticPde<1>
     	MatrixDouble I = MatrixDouble::Identity(1);
     	return u*I;
     }
+    
+    MatrixDouble ComputeDiffusionTermPrime(Point<1> x, double u)
+    {
+		return MatrixDouble::Identity(1) * 0.0;
+    }
+    
+    double ComputeNonlinearSourceTermPrime(Point<1> x, double u)
+    {
+    	return 0.0;
+    }
 };
 
 #endif //_EXAMPLENONLINEARPDE_HPP_

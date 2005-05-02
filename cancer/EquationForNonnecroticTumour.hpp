@@ -30,6 +30,19 @@ public:
     {        
         return MatrixDouble::Identity(SPACE_DIM) * 1.0;
     }
+    
+    MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> x, double u)
+    {
+		return MatrixDouble::Identity(SPACE_DIM) * 0.0;
+    }
+    
+    double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x, double u)
+    {
+    	const double sigma_0 = 1.0;
+        const double sigma_1 = 1.0;
+        
+    	return ((sigma_0*(1+sigma_1*u))-(sigma_1*sigma_0*u))/pow(1+sigma_1*u,2);
+    }
 
 };
 #endif //_EQUATIONFORNONNECROTICTUMOUR_HPP_

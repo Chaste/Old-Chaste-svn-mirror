@@ -28,6 +28,16 @@ public:
     {
 		return MatrixDouble::Identity(SPACE_DIM) * u;
     }
+    
+    MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> x, double u)
+    {
+		return MatrixDouble::Identity(SPACE_DIM) * 1.0;
+    }
+    
+    double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x, double u)
+    {
+    	return 0.0;
+    }
 
 };
 

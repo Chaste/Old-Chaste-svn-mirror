@@ -1,12 +1,11 @@
-#ifndef _NONLINEARHEATEQUATIONPDE_HPP_
-#define _NONLINEARHEATEQUATIONPDE_HPP_
-
+#ifndef _NONLINEARHEATEQUATION2PDE_HPP_
+#define _NONLINEARHEATEQUATION2PDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
 
 template <int SPACE_DIM>
-class NonlinearHeatEquationPde : public AbstractNonlinearEllipticPde<SPACE_DIM>
+class NonlinearHeatEquation2Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>
 {
 public:
 
@@ -22,21 +21,18 @@ public:
 
     MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x, double u)
     {
-		return MatrixDouble::Identity(SPACE_DIM) * u;
+		return MatrixDouble::Identity(SPACE_DIM) * (1.0/u);
     }
     
     MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> x, double u)
     {
-		return MatrixDouble::Identity(SPACE_DIM) * 1.0;
+		return MatrixDouble::Identity(SPACE_DIM) * (-1.0/pow(u,2));
     }
     
     double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x, double u)
     {
     	return 0.0;
     }
-    
-
 };
 
-
-#endif //_NONLINEARHEATEQUATIONPDE_HPP_
+#endif //_NONLINEARHEATEQUATION2PDE_HPP_

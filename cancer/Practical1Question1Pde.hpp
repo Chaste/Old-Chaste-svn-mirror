@@ -21,6 +21,16 @@ class Practical1Question1Pde:public AbstractLinearEllipticPde<SPACE_DIM>
     {
     	return MatrixDouble::Identity(SPACE_DIM);
     }
+    
+    MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> x, double u)
+    {
+		return MatrixDouble::Identity(SPACE_DIM) * 0.0;
+    }
+    
+    double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x, double u)
+    {
+    	return 0.0;
+    }
 };
 
 

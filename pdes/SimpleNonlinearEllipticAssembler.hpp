@@ -286,10 +286,11 @@ void ComputeResidualOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 			double integrand_value2 = ForcingTerm * phi[i];
 			
 			
-			rBElem(i) += integrand_value1 * jacobian_determinant 
-			               * pGaussianQuadratureRule.GetWeight(quad_index)
-			               - integrand_value2 * jacobian_determinant 
-			               * pGaussianQuadratureRule.GetWeight(quad_index);
+				rBElem(i) += integrand_value1 * jacobian_determinant 
+				               * pGaussianQuadratureRule.GetWeight(quad_index)
+				               - integrand_value2 * jacobian_determinant 
+				               * pGaussianQuadratureRule.GetWeight(quad_index);
+	
 		}
 		//std::cout << "i_v3 is " << integrand_value3 << std::endl;
 	}
@@ -512,8 +513,6 @@ void ComputeJacobianOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 			for (int j=0; j< num_nodes; j++)
 			{
 				// RHS  need to change for Practical 1
-				double integrand_value1 = (gradPhi[j]*U + phi[j]*gradU).dot(gradPhi[i]);
-				
 				// For solving NonlinearEllipticEquation 
 				// which should be defined in/by NonlinearEllipticEquation.hpp:
 				// d/dx [f(U,x) du/dx ] = -g
@@ -526,9 +525,25 @@ void ComputeJacobianOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 //					ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
 //					double integrand_value2 = ForcingTerm * phi[i];
 				
+				MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
+				MatrixDouble FOfU_prime = pPde->ComputeDiffusionTermPrime(x,U);
+				//LinearSourceTerm(x)	not needed as it is a constant wrt U_i
+				//
+				double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
+				
+				double integrand_value1 = (((FOfU_prime *gradU )* phi[j]).dot(gradPhi[i]));
+				double integrand_value2 = (FOfU * gradPhi[j] ).dot(gradPhi[i]);
+				double integrand_value3 = ForcingTermPrime * phi[i];
+				
+				double integrand_value4 = integrand_value1 + integrand_value2 + integrand_value3;
 				
 				rAElem(i,j) += integrand_value1 * jacobian_determinant 
+				               * pGaussianQuadratureRule.GetWeight(quad_index)
+				               + integrand_value2 * jacobian_determinant 
+				               * pGaussianQuadratureRule.GetWeight(quad_index)
+				               - integrand_value3 * jacobian_determinant 
 				               * pGaussianQuadratureRule.GetWeight(quad_index);
+
 			}
 		}
 	}

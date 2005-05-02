@@ -1,9 +1,11 @@
 #ifndef _TESTNONNECROTICTUMOURNONLINEARELLIPTICEQUATION_HPP_
 #define _TESTNONNECROTICTUMOURNONLINEARELLIPTICEQUATION_HPP_
 
-#include "EquationForNonnecroticTumour.hpp"
 #include <cxxtest/TestSuite.h>
 #include "TrianglesMeshReader.hpp"
+#include "Point.hpp"
+#include "MatrixDouble.hpp"
+#include "EquationForNonnecroticTumour.hpp"
 
 /**
  *  Test for the non-necrotic Tumour equation which is a linear elliptic equation.
@@ -46,8 +48,7 @@ public:
         TS_ASSERT_DELTA(diff3(2,2),1,1e-12);
         TS_ASSERT_DELTA(diff3(0,1),0,1e-12);
         TS_ASSERT_DELTA(diff3(0,2),0,1e-12);
-        TS_ASSERT_DELTA(diff3(1,2),0,1e-12);            
-
+        TS_ASSERT_DELTA(diff3(1,2),0,1e-12);
     }
 };
 
