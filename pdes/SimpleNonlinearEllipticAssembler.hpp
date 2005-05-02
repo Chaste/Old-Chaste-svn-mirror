@@ -112,10 +112,10 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
     Vec residual;
  	VecDuplicate(initialGuess, &residual);
 
-	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
-			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
-//	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,		
-//		&ComputeJacobianNumerically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+//	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,
+//			&ComputeJacobianAnalytically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+	return pSolver->Solve(&ComputeResidual<ELEMENT_DIM, SPACE_DIM>,		
+		&ComputeJacobianNumerically<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
 }
 
 
@@ -375,6 +375,13 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 				b_surf_elem.ResetToZero();
 				ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, *(pAssembler->mpBoundaryConditions), UiSurf);
 
+//				double *res_array;
+//				VecGetArray(res_vector, &res_array);
+//				std::cout << "Current residual value: " << res_array[surf_element.GetNodeGlobalIndex(0)] <<
+//					" at " << surf_element.GetNodeGlobalIndex(0) << std::endl;
+//				VecRestoreArray(res_vector, &res_array);
+//				std::cout << "Neumann condition: " << b_surf_elem(0) << std::endl;
+
 				for (int i=0; i<num_surf_nodes; i++)
 				{
 					int node = surf_element.GetNodeGlobalIndex(i);
@@ -390,8 +397,8 @@ PetscErrorCode ComputeResidual(SNES snes,Vec CurrentSolution,Vec res_vector,void
 	// Apply Dirichlet boundary conditions for nonlinear problem
     pAssembler->mpBoundaryConditions->ApplyDirichletToNonlinearProblem(CurrentSolution, res_vector);
     
-    //std::cout << "Residual:" << std::endl;
-    //VecView(res_vector, 0); std::cout << std::endl;
+//    std::cout << "Residual:" << std::endl;
+//    VecView(res_vector, 0); std::cout << std::endl;
     //std::cout << "Current solution:" << std::endl;
     //VecView(CurrentSolution, 0);
     
@@ -734,6 +741,7 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
  
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
+    //MatView(*pJacobian, 0);
     return 0;
 }
  
