@@ -224,7 +224,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -299,7 +299,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -367,7 +367,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -442,7 +442,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -515,7 +515,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
