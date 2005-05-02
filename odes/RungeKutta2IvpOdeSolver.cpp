@@ -57,7 +57,8 @@ OdeSolution RungeKutta2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
     
     int num_timesteps = ((int) ((endTime - startTime)/timeStep));
     
-    double last_timestep = endTime - ((double) num_timesteps)*timeStep;
+    double last_timestep = endTime - ((double) num_timesteps)*timeStep - startTime;
+    assert(last_timestep<=timeStep);
     
 	OdeSolution solutions;
 	solutions.mNumberOfTimeSteps = num_timesteps;
