@@ -40,7 +40,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 	for (int i=0; i<rMeshReader.GetNumElements(); i++)
 	{
 		node_indices = rMeshReader.GetNextElement();
-		std::vector<Node<SPACE_DIM>*> nodes;
+		std::vector<const Node<SPACE_DIM>*> nodes;
 		for (int j=0; j<node_indices.size(); j++)
 		{
 			nodes.push_back(&mNodes[node_indices[j]]);
@@ -52,7 +52,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 	for (int i=0; i<rMeshReader.GetNumBoundaryFaces(); i++)
 	{
 		node_indices = rMeshReader.GetNextBoundaryFace();
-		std::vector<Node<SPACE_DIM>*> nodes;
+		std::vector<const Node<SPACE_DIM>*> nodes;
 		for (int j=0; j<node_indices.size(); j++)
 		{
 			// Add Node pointer to list for creating an element

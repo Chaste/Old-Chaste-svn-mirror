@@ -29,7 +29,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		ConformingTetrahedralMesh<element_dim, space_dim> mesh2;
 
 		std::vector<Element<element_dim, space_dim> > elements;
-		std::vector<Node<space_dim>*> nodes;
+		std::vector<const Node<space_dim>*> nodes;
 		// create & add the nodes
 		for (int i=0; i < element_dim+1; i++)
 		{

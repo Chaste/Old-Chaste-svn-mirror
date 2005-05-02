@@ -17,8 +17,8 @@ class TestBoundaryConditionContainer : public CxxTest::TestSuite
 private:
 	Element<0,1>* Create0DElement(int i)
 	{
-		std::vector<Node<1>* > nodes;
-		Node<1>* node = new Node<1>(i,true,0);
+		std::vector<const Node<1>* > nodes;
+		const Node<1>* node = new Node<1>(i,true,0);
 		nodes.push_back(node);
 		
 		Element<0,1>* ret = new Element<0,1>(nodes);
@@ -26,9 +26,9 @@ private:
 	}
 	Element<1,2>* Create1DElement(int i)
 	{
-		std::vector<Node<2>* > nodes;
-		Node<2>* node0 = new Node<2>(i,true,0,0);
-		Node<2>* node1 = new Node<2>(i,true,0,0);
+		std::vector<const Node<2>* > nodes;
+		const Node<2>* node0 = new Node<2>(i,true,0,0);
+		const Node<2>* node1 = new Node<2>(i,true,0,0);
 		nodes.push_back(node0);
 		nodes.push_back(node1);
 		Element<1,2>* ret = new Element<1,2>(nodes);
@@ -36,10 +36,10 @@ private:
 	}
 	Element<2,3>* Create2DElement(int i)
 	{
-		std::vector<Node<3>* > nodes;
-		Node<3>* node0 = new Node<3>(i,true,0,0,0);
-		Node<3>* node1 = new Node<3>(i,true,0,0,0);
-		Node<3>* node2 = new Node<3>(i,true,0,0,0);
+		std::vector<const Node<3>* > nodes;
+		const Node<3>* node0 = new Node<3>(i,true,0,0,0);
+		const Node<3>* node1 = new Node<3>(i,true,0,0,0);
+		const Node<3>* node2 = new Node<3>(i,true,0,0,0);
 		nodes.push_back(node0);
 		nodes.push_back(node1);
 		nodes.push_back(node2);

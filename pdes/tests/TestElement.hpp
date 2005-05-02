@@ -26,20 +26,77 @@ class TestElement : public CxxTest::TestSuite
 	}
 
 public:
-	void TestConstruction()
+	void dontTestConstructionForQuadraticBasisFunctions()
 	{
-		std::vector<Node<3>*> nodes;
+		std::vector<const Node<3>*> cornerNodes;
 //		for (int i=0; i<4; i++)
 //		{
 //			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
 //		}
-		nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-		nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-		nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-		nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-		Element<3,3> element(nodes, true);
+		cornerNodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+		cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+		cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+		cornerNodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+		Element<3,3> element(cornerNodes, 2,true);
+		
+		element.AddInternalNode(new Node<3>(4, false, 0.5, 0.0, 0.0));
+		element.AddInternalNode(new Node<3>(5, false, 0.5, 0.5, 0.0));
+		element.AddInternalNode(new Node<3>(6, false, 0.0, 0.5, 0.0));
+		element.AddInternalNode(new Node<3>(7, false, 0.0, 0.0, 0.5));
+		element.AddInternalNode(new Node<3>(8, false, 0.5, 0.0, 0.5));
+		element.AddInternalNode(new Node<3>(9, false, 0.0, 0.5, 0.5));
+		
+		// Check nodes on the new element have the right indices
+		for (int i=0; i<10; i++)
+		{
+			TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
+		}
 		
 		
+		// Check lower order elements are created with the expected nodes.
+		// Not sure if we really want to specify this, but it ensures nothing
+		// has changed from the earlier code, just in case.
+		for (int i=0; i < 10; i++)
+        {
+            for(int j=0; j < 6; j++)
+            {
+               TS_ASSERT_EQUALS(element.GetLowerOrderElement(i)->GetNodeGlobalIndex(j),(i+j+1) % 4);
+               if((i==0 && j==0) || (i==2 && j==2)|| (i==3 && j==1))
+               {
+               		TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 1.0, 1e-12);
+               }
+               else
+               {
+               		TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 0.0, 1e-12);
+               }
+            }
+        }
+        TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(0),2);
+        TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(1),3);
+        TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(1)->GetNodeGlobalIndex(1),1);
+        TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(0),3);
+
+
+		// Test AddNode method
+		//Node<3>* node2 = CreateZeroPointNode(10);
+		//element.AddNode(node2);
+	
+		//TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(4), 10);
+	}
+	
+	void TestConstructionForLinearBasisFunctions()
+	{
+		std::vector<const Node<3>*> cornerNodes;
+//		for (int i=0; i<4; i++)
+//		{
+//			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
+//		}
+		cornerNodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+		cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+		cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+		cornerNodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+		Element<3,3> element(cornerNodes, 1, true);
+				
 		// Check nodes on the new element have the right indices
 		for (int i=0; i<4; i++)
 		{
@@ -55,7 +112,7 @@ public:
             for(int j=0; j < 3; j++)
             {
                TS_ASSERT_EQUALS(element.GetLowerOrderElement(i)->GetNodeGlobalIndex(j),(i+j+1) % 4);
-               if((i==0 && j==0) || (i==2 && j==2)|| (i==3 && j==1))
+               if((i==0 && j==0) || (i==2 && j==2) || (i==3 && j==1))
                {
                		TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 1.0, 1e-12);
                }
@@ -82,7 +139,7 @@ public:
 	void testJacobian()
 	{
 		// 1d
-		std::vector<Node<1>*> nodes1d;
+		std::vector<const Node<1>*> nodes1d;
 		nodes1d.push_back(new Node<1>(0, false, 2.0));
 		nodes1d.push_back(new Node<1>(1, false, 2.5));
 		Element<1,1> element1d(nodes1d);
@@ -96,7 +153,7 @@ public:
 		
 		// 2d easy
 		
-		std::vector<Node<2>*> nodes2d;
+		std::vector<const Node<2>*> nodes2d;
 		nodes2d.push_back(new Node<2>(0, false, 0.0, 0.0));
 		nodes2d.push_back(new Node<2>(1, false, 1.0, 0.0));
 		nodes2d.push_back(new Node<2>(2, false, 0.0, 1.0));
@@ -108,7 +165,7 @@ public:
 		TS_ASSERT_DELTA((*J2d)(1,1), 1.0, 1e-12);
 		
 		//2d general
-		std::vector<Node<2>*> nodes2d2;
+		std::vector<const Node<2>*> nodes2d2;
 		nodes2d2.push_back(new Node<2>(0, false, 1.0, -2.0));
 		nodes2d2.push_back(new Node<2>(1, false, 4.0, -3.0));
 		nodes2d2.push_back(new Node<2>(2, false, 2.0, -1.0));
@@ -128,7 +185,7 @@ public:
 		TS_ASSERT_DELTA((*J2d2inv)(1,1), 0.75, 1e-12);
 		
 		// 3d easy
-		std::vector<Node<3>*> nodes3d;
+		std::vector<const Node<3>*> nodes3d;
 		nodes3d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
 		nodes3d.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
 		nodes3d.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
@@ -146,7 +203,7 @@ public:
 		TS_ASSERT_DELTA((*J3d)(2,2), 1.0, 1e-12);
 		
 		// 3d general
-		std::vector<Node<3>*> nodes3d2;
+		std::vector<const Node<3>*> nodes3d2;
 		nodes3d2.push_back(new Node<3>(0, false, 1.0, 2.0, 3.0));
 		nodes3d2.push_back(new Node<3>(1, false, 2.0, 1.0, 3.0));
 		nodes3d2.push_back(new Node<3>(2, false, 5.0, 5.0, 5.0));

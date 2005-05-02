@@ -23,7 +23,8 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 class Element
 {
 private:
-    std::vector<Node<SPACE_DIM>*> mNodes;
+    std::vector<const Node<SPACE_DIM>*> mNodes;
+    int mOrderOfBasisFunctions;
     const Element<ELEMENT_DIM-1,SPACE_DIM>* mLowerOrderElements[ELEMENT_DIM+1];
     bool mHasLowerOrderElements;
 
@@ -51,14 +52,18 @@ public:
      *     For surface (boundary) elements we only calculate the determinant,
      *     but this is all that is needed.
 	 */
-    Element(std::vector<Node<SPACE_DIM>*> nodes,
+    Element(std::vector<const Node<SPACE_DIM>*> cornerNodes,
+    		int orderOfBasisFunctions=1,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
     {
     	// Sanity checking
     	assert(ELEMENT_DIM <= SPACE_DIM);
     	
     	// Store Node pointers
-    	mNodes = nodes;
+    	mNodes = cornerNodes;
+    	
+    	// Specify order of basis functions
+    	mOrderOfBasisFunctions = orderOfBasisFunctions;
     	
     	// Create lower order elements?
     	mHasLowerOrderElements = false;
@@ -186,17 +191,25 @@ public:
     	}
     }
     
+    void AddInternalNode(const Node<SPACE_DIM>* internalNodeToAdd)
+    {
+    	assert(mOrderOfBasisFunctions > 1);
+    	assert(mNodes.size() - NUM_CORNER_NODES < 0.5*SPACE_DIM*(SPACE_DIM+1));
+    	
+    	mNodes.push_back(internalNodeToAdd);
+    }
+    
     void CreateLowerOrderElements()
     {
     	for (int i = 0; i < ELEMENT_DIM + 1; i++)
         {
-	        std::vector<Node<SPACE_DIM>*> somenodes;
+	        std::vector<const Node<SPACE_DIM>*> somenodes;
 			for (int j = 0; j < ELEMENT_DIM; j++)
            	{
                	int nodeIndex = ((i + j + 1) % (ELEMENT_DIM + 1));
                	somenodes.push_back(mNodes[nodeIndex]);
            	}
-           	mLowerOrderElements[i] = new Element<ELEMENT_DIM-1, SPACE_DIM>(somenodes,true,false);   
+           	mLowerOrderElements[i] = new Element<ELEMENT_DIM-1, SPACE_DIM>(somenodes,mOrderOfBasisFunctions,true,false);   
         }
         mHasLowerOrderElements = true;
     }
@@ -214,7 +227,7 @@ public:
     	return mNodes[localIndex]->GetIndex();
     }
     
-    Node<SPACE_DIM>* GetNode(int localIndex) const
+    const Node<SPACE_DIM>* GetNode(int localIndex) const
     {
     	assert(localIndex < mNodes.size());
     	return mNodes[localIndex];
@@ -258,7 +271,7 @@ template <int SPACE_DIM>
 class Element<0, SPACE_DIM>
 {
 private:
-    std::vector<Node<SPACE_DIM>*> mNodes;
+    std::vector<const Node<SPACE_DIM>*> mNodes;
 
     MatrixDouble *mpJacobian;
     MatrixDouble *mpInverseJacobian;
@@ -281,7 +294,8 @@ public:
 	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
 	 *     Currently only works for non-sub-elements with straight edges.
 	 */
-    Element(std::vector<Node<SPACE_DIM>*> nodes,
+    Element(std::vector<const Node<SPACE_DIM>*> nodes,
+    		int notUsed=1,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
     {
     	// Store Node pointers
@@ -315,7 +329,7 @@ public:
      * SPACE_DIM identical to that of the node from which it is constructed
      * 
      */
-    Element(Node<SPACE_DIM> *node,
+    Element(const Node<SPACE_DIM> *node,
             bool createLowerOrderElements=false, bool createJacobian=true)
     {
         // Store Node pointer
@@ -387,7 +401,7 @@ public:
     	return mNodes[localIndex]->GetIndex();
     }
     
-    Node<SPACE_DIM>* GetNode(int localIndex) const
+    const Node<SPACE_DIM>* GetNode(int localIndex) const
     {
     	assert(localIndex < mNodes.size());
     	return mNodes[localIndex];

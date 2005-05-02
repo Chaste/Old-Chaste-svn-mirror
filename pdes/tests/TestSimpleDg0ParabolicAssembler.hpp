@@ -479,12 +479,121 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) + x; 
+			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) +x; 
 			TS_ASSERT_DELTA(res[i], u, u*0.15);
 		}
 		VecRestoreArray(result, &res);	
 	}
 	
+
+//	// test 2D problem with different conditions
+//	void testSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh2( void )
+//	{		
+//        // Create mesh from mesh reader
+//		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+//
+//		ConformingTetrahedralMesh<2,2> mesh;
+//		mesh.ConstructFromMeshReader(mesh_reader);
+//		
+//		// Instantiate PDE object
+//		TimeDependentDiffusionEquationPde<2> pde;  		
+//	
+//		// Boundary conditions - zero dirichlet on boundary;
+//	    BoundaryConditionsContainer<2,2> bcc;
+//	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+//        
+//        while(iter < mesh.GetLastBoundaryNode())
+//		{
+//			double x = (*iter)->GetPoint()[0];
+//			double y = (*iter)->GetPoint()[1];
+//			
+//			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(0);
+//			
+//			if (fabs(y) < 0.01)
+//			{
+//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+//			}
+//			
+//			if (fabs(y - 1.0) < 0.01)
+//			{
+//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+//			}
+//			
+//			if (fabs(x) < 0.01)
+//			{
+//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+//			}
+//			
+//			iter++;
+//		}
+//	    
+//	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+//        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+//        
+//        while(surf_iter < mesh.GetLastBoundaryElement())
+//		{
+//			int node = (*surf_iter)->GetNodeGlobalIndex(0);
+//			double x = mesh.GetNodeAt(node)->GetPoint()[0];
+//			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
+//						
+//			if (fabs(x - 1.0) < 0.01)
+//			{
+//				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+//			}
+//			
+//			surf_iter++;
+//		}
+//	           
+//   		// Linear solver
+//		SimpleLinearSolver linearSolver;
+//	
+//		// Assembler
+//		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+//		
+//		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)
+//		Vec initialCondition;
+//		VecCreate(PETSC_COMM_WORLD, &initialCondition);
+//    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
+//	    VecSetType(initialCondition, VECSEQ);
+//  
+//  		double* initialConditionArray;
+// 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+//		
+//		const double PI = 3.1415926535;
+//		for(int i=0; i<mesh.GetNumNodes(); i++)
+//		{
+//			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+//			
+//			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+//			
+//			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y);
+//		}
+//		VecRestoreArray(initialCondition, &initialConditionArray);
+//		
+//		double t_end = 0.1;	
+//		fullSolver.SetTimes(0, 0.1, 0.01);
+//		fullSolver.SetInitialCondition(initialCondition);
+//		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+//		
+//		// Check result 
+//		double *res;
+//	    ierr = VecGetArray(result, &res);
+//
+//		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y), t=0.1
+//		for (int i=0; i < mesh.GetNumNodes() ; i++)
+//		{
+//			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+//			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+//			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) ; 
+//			TS_ASSERT_DELTA(res[i], u, 0.1);
+//		}
+//		VecRestoreArray(result, &res);	
+//	}
+//	
+
+
+
+
 	// test 2D problem
 	void testSimpleDg0ParabolicAssembler2DNeumann( void )
 	{		
@@ -591,6 +700,10 @@ public:
 		}
 		VecRestoreArray(result, &res);	
 	}
+
+
+
+
 	
 //	// test 2D problem - gives out of Memory message and breaks
 //	void testSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
@@ -698,7 +811,248 @@ public:
 //		}
 //		VecRestoreArray(result, &res);	
 //	}
+
+	// 3D test
+	void donttestSimpleDg0ParabolicAssembler3DZeroDirich( void )
+	{	
+		// read mesh on [0,1]x[0,1]x[0,1]
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		ConformingTetrahedralMesh<3,3> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		TimeDependentDiffusionEquationPde<3> pde;  		
+
+		// Boundary conditions - zero dirichlet everywhere on boundary
+        BoundaryConditionsContainer<3,3> bcc;
+        bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
+
+   		// Linear solver
+		SimpleLinearSolver linearSolver;
+		
+		// Assembler
+		SimpleDg0ParabolicAssembler<3,3> fullSolver;
+		
+		// initial condition;
+		Vec initialCondition;
+		VecCreate(PETSC_COMM_WORLD, &initialCondition);
+    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
+	    //VecSetType(initialCondition, VECSEQ);
+  		VecSetFromOptions(initialCondition);
+  
+  		double* initialConditionArray;
+ 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		
+		// choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an 
+		//eigenfunction of the heat equation.
+		const double PI = 3.1415926535;
+		for(int i=0; i<mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
+			initialConditionArray[i] = sin(x*PI)*sin(y*PI)*sin(z*PI);
+		}
+
+		VecRestoreArray(initialCondition, &initialConditionArray);
+		
+		double t_end = 0.1;
+		fullSolver.SetTimes(0, t_end, 0.001);
+		fullSolver.SetInitialCondition(initialCondition);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		
+		// Check result 
+		double *res;
+	    ierr = VecGetArray(result, &res);
+
+		// Solution should be u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
+			double u = exp(-3*t_end*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI);
+			TS_ASSERT_DELTA(res[i], u, 0.1);
+		}
+		VecRestoreArray(result, &res);	
+	}	
+
+	// test 3D problem
+	void donttestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
+	{		
+        // Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		ConformingTetrahedralMesh<3,3> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		TimeDependentDiffusionEquationWithSourceTermPde<3> pde;  		
 	
+		// Boundary conditions - zero dirichlet on boundary;
+	    BoundaryConditionsContainer<3,3> bcc;
+	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        
+	    while(iter < mesh.GetLastBoundaryNode())
+		{
+			double x = (*iter)->GetPoint()[0];
+			double y = (*iter)->GetPoint()[1];
+			double z = (*iter)->GetPoint()[2];			
+			ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
+			bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			iter++;
+		}
+	               
+   		// Linear solver
+		SimpleLinearSolver linearSolver;
+	
+		// Assembler
+		SimpleDg0ParabolicAssembler<3,3> fullSolver;
+		
+		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
+		Vec initialCondition;
+		VecCreate(PETSC_COMM_WORLD, &initialCondition);
+    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
+	    //VecSetType(initialCondition, VECSEQ);
+  		VecSetFromOptions(initialCondition);
+  
+  		double* initialConditionArray;
+ 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		
+		const double PI = 3.1415926535;
+		for(int i=0; i<mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
+			initialConditionArray[i] = sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z);
+		}
+		VecRestoreArray(initialCondition, &initialConditionArray);
+		
+		double t_end = 0.1;	
+		fullSolver.SetTimes(0, 0.1, 0.01);
+		fullSolver.SetInitialCondition(initialCondition);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		
+		// Check result 
+		double *res;
+	    ierr = VecGetArray(result, &res);
+
+		// Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) sin(z*pi) - 1/6(x^2+y^2+z^2), t=0.1
+		for (int i=0; i < mesh.GetNumNodes() ; i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
+			double u = exp(-t_end*3*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z); //std::cout << i << " " << res[i] << " " << u << "\n";
+			TS_ASSERT_DELTA(res[i], u, 0.1);
+		}
+		VecRestoreArray(result, &res);	
+	}	
+	
+//	// test 3D problem
+//	void NOtestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )
+//	{		
+//        // Create mesh from mesh reader
+//		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+//
+//		ConformingTetrahedralMesh<3,3> mesh;
+//		mesh.ConstructFromMeshReader(mesh_reader);
+//		
+//		// Instantiate PDE object
+//		TimeDependentDiffusionEquationPde<3> pde;  		
+//	
+//		// Boundary conditions - zero dirichlet on boundary;
+//	    BoundaryConditionsContainer<3,3> bcc;
+//	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+//        
+//        while(iter < mesh.GetLastBoundaryNode())
+//		{
+//			double x = (*iter)->GetPoint()[0];
+//			double y = (*iter)->GetPoint()[1];
+//			double z = (*iter)->GetPoint()[2];			
+//			
+//			ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(x);
+//			
+//			if (fabs(y) < 0.01)
+//			{
+//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+//			}
+//			
+//			if (fabs(y - 1.0) < 0.01)
+//			{
+//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+//			}
+//			
+//			if (fabs(x) < 0.01)
+//			{
+//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+//			}
+//			
+//			iter++;
+//		}
+//	    
+//	    ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+//        ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(1.0);
+//        
+//        while(surf_iter < mesh.GetLastBoundaryElement())
+//		{
+//			int node = (*surf_iter)->GetNodeGlobalIndex(0);
+//			double x = mesh.GetNodeAt(node)->GetPoint()[0];
+//			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
+//						
+//			if (fabs(x - 1.0) < 0.01)
+//			{
+//				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+//			}
+//			
+//			surf_iter++;
+//		}
+//	           
+//   		// Linear solver
+//		SimpleLinearSolver linearSolver;
+//	
+//		// Assembler
+//		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+//		
+//		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
+//		Vec initialCondition;
+//		VecCreate(PETSC_COMM_WORLD, &initialCondition);
+//    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
+//	    VecSetType(initialCondition, VECSEQ);
+//  
+//  		double* initialConditionArray;
+// 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+//		
+//		const double PI = 3.1415926535;
+//		for(int i=0; i<mesh.GetNumNodes(); i++)
+//		{
+//			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+//			
+//			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+//			
+//			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+//		}
+//		VecRestoreArray(initialCondition, &initialConditionArray);
+//		
+//		double t_end = 0.1;	
+//		fullSolver.SetTimes(0, 0.1, 0.01);
+//		fullSolver.SetInitialCondition(initialCondition);
+//	//	Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+//		
+//		// Check result 
+//		double *res;
+//	  //  ierr = VecGetArray(result, &res);
+//
+//		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
+//		for (int i=0; i < mesh.GetNumNodes() ; i++)
+//		{
+//			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+//			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+//			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) + x; 
+//			TS_ASSERT_DELTA(res[i], u, u*0.15);
+//		}
+//	//	VecRestoreArray(result, &res);	
+//	}
 };
 
 #endif //_TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_

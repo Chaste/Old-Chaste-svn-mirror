@@ -23,6 +23,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void testFilesOpen(void)
 	{
+
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements"));
