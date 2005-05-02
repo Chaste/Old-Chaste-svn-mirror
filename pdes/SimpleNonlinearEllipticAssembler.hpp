@@ -182,7 +182,8 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 
 			for (int i=0; i < num_nodes; i++)
 			{
-				double integrand_value = phi[i] * Dgradu_dot_n;
+				// I'm not sure why we want -phi, but it seems to work:)
+				double integrand_value = -phi[i] * Dgradu_dot_n;
 				rBsubElem(i) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 			}
 		}		
