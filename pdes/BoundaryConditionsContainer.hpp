@@ -201,8 +201,6 @@ public:
 	/**
 	 * Alter the jacobian matrix vector for a nonlinear system to satisfy
 	 * dirichlet boundary conditions.
-	 * 
-	 * \todo Figure out what we're supposed to be doing about this!
 	 */
 	void ApplyDirichletToNonlinearJacobian(Mat jacobian)
 	{
@@ -228,7 +226,9 @@ public:
 
 	/**
 	 * \todo
-	 * Check have boundary conditions defined everywhere on mesh boundary
+	 * Check have boundary conditions defined everywhere on mesh boundary.
+	 * Perhaps do by iterating over surface elements; if has Neumann condition
+	 * then ok, else check each node for Dirichlet condition.
 	 */
 	//void Validate( pMesh )
 	
@@ -252,6 +252,8 @@ public:
 
 	/**
 	 * Test if there is a Dirichlet boundary condition defined on the given node.
+	 * 
+	 * \todo Perhaps have flag in node object for efficiency?
 	 */
 	bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode) {
 		dirichIterator = mpDirichletMap->find(pNode);
@@ -277,7 +279,7 @@ public:
 	 * Used by SimpleLinearEllipticAssembler.
 	 * 
 	 * \todo
-	 * This is a horrendously inefficient fix.
+	 * This is a horrendously inefficient fix. Perhaps have flag in element object?
 	 */
 	bool HasNeumannBoundaryCondition(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement) {
 		neumannIterator = mpNeumannMap->find(pSurfaceElement);
