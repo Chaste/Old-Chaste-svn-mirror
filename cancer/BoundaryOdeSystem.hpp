@@ -15,7 +15,7 @@ class BoundaryOdeSystem : public AbstractOdeSystem
     
     std::vector<double> BoundaryOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY);
 
-    double mVelocityCellAtBoundary;
+    double mCellVelocityAtBoundary;
 
 };
 

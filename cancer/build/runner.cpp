@@ -49,13 +49,13 @@ public:
 
 static class TestDescription_TestPracticalOne_testQuestion2 : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestPracticalOne_testQuestion2() : CxxTest::RealTestDescription( Tests_TestPracticalOne, suiteDescription_TestPracticalOne, 183, "testQuestion2" ) {}
+ TestDescription_TestPracticalOne_testQuestion2() : CxxTest::RealTestDescription( Tests_TestPracticalOne, suiteDescription_TestPracticalOne, 173, "testQuestion2" ) {}
  void runTest() { suite_TestPracticalOne.testQuestion2(); }
 } testDescription_TestPracticalOne_testQuestion2;
 
 static class TestDescription_TestPracticalOne_testQuestions3to5 : public CxxTest::RealTestDescription {
 public:
- TestDescription_TestPracticalOne_testQuestions3to5() : CxxTest::RealTestDescription( Tests_TestPracticalOne, suiteDescription_TestPracticalOne, 274, "testQuestions3to5" ) {}
+ TestDescription_TestPracticalOne_testQuestions3to5() : CxxTest::RealTestDescription( Tests_TestPracticalOne, suiteDescription_TestPracticalOne, 264, "testQuestions3to5" ) {}
  void runTest() { suite_TestPracticalOne.testQuestions3to5(); }
 } testDescription_TestPracticalOne_testQuestions3to5;
 

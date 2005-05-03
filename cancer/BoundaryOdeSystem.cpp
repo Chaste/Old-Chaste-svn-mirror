@@ -12,7 +12,7 @@ BoundaryOdeSystem::BoundaryOdeSystem() : AbstractOdeSystem(1)
 std::vector<double> BoundaryOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
 	std::vector<double> yDerivatives(mNumberOfEquations);
-	yDerivatives[0] = mVelocityCellAtBoundary;
+	yDerivatives[0] = mCellVelocityAtBoundary;
 	
 	return yDerivatives;
 }
