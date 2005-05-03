@@ -10,16 +10,14 @@ class PetSCSetup : public CxxTest::GlobalFixture
 public:
   
  	bool setUpWorld(){ 
-  		/*
-  		 * 
   		int FakeArgc=0;
 		char *FakeArgv0="testrunner";
 		char **FakeArgv=&FakeArgv0;
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    	*
-    	*/
     	
-    	PetscInitializeNoArguments();
+    	
+    	
+    	//PetscInitializeNoArguments();
         
     	return true; 
  	}
