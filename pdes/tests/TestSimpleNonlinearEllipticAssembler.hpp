@@ -4,9 +4,6 @@
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "SimpleNonlinearSolver.hpp"
 
-#include "NonlinearHeatEquationPde.hpp"
-#include "NonlinearLinearHeatEquationPde.hpp"
-
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include "petscmat.h"
@@ -17,11 +14,15 @@
 #include "Node.hpp" 
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
+#include "FunctionalBoundaryCondition.hpp"
+
 #include "NonlinearHeatEquationPde.hpp"
 #include "NonlinearHeatEquation2Pde.hpp"
 #include "NonlinearHeatEquation3Pde.hpp"
-#include "FunctionalBoundaryCondition.hpp"
 #include "Example2DNonlinearEllipticPde.hpp"
+#include "NonlinearLinearHeatEquationPde.hpp"
+#include "ExampleNasty2dNonlinearEllipticPde.hpp"
+
 
 PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
     								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
@@ -41,6 +42,22 @@ double bc_y1_func(Point<2> p)
 {
 	return 2*(2+p[0]*p[0]);
 }
+
+/**
+ * For use in TestSimpleNonlinearEllipticAssembler::TestNasty2dEquationOnUnitSquare.
+ */
+double bc_x1_func2(Point<2> p)
+{
+	return sin(2)*(sin(1)*sin(1)+1+p[1]*p[1]);
+}
+/**
+ * For use in TestSimpleNonlinearEllipticAssembler::TestNasty2dEquationOnUnitSquare.
+ */
+double bc_y1_func2(Point<2> p)
+{
+	return 2*(2+sin(p[0])*sin(p[0]));
+}
+
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::TestWithHeatEquation2DAndNeumannBCs
  */
@@ -723,11 +740,6 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 
-
-	/**
-	 * Ideas: Try all Dirichlet BCs (is it a Neumann problem?).
-	 * Look at residual when initial guess=solution.
-	 */
     void Test2dOnUnitSquare()
 	{
 		// Create mesh from mesh reader
@@ -854,6 +866,136 @@ public:
 		}
 		VecRestoreArray(answer, &ans);
 	}
+
+	
+	void TestNasty2dEquationOnUnitSquare()
+	{
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+
+		// Instantiate PDE object
+		ExampleNasty2dNonlinearEllipticPde pde;
+
+		// Boundary conditions
+        BoundaryConditionsContainer<2,2> bcc;
+        ConstBoundaryCondition<2>* pBoundaryCondition;
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetFirstBoundaryNode();
+        while (node_iter != mesh.GetLastBoundaryNode())
+        {
+        	double x = (*node_iter)->GetPoint()[0];
+        	double y = (*node_iter)->GetPoint()[1];
+        	pBoundaryCondition = NULL;
+	        // On x=0, u=1+y^2
+	        if (fabs(x) < 1e-12)
+	        {
+        		pBoundaryCondition = new ConstBoundaryCondition<2>(1 + y*y);
+	        }
+        	// On y=0, u=1+sin^2(x)
+        	if (fabs(y) < 1e-12)
+	        {
+        		pBoundaryCondition = new ConstBoundaryCondition<2>(1 + sin(x)*sin(x));
+	        }
+	        if (pBoundaryCondition)
+	        {
+	        	bcc.AddDirichletBoundaryCondition(*node_iter, pBoundaryCondition);
+	        }
+	        
+	        node_iter++;
+        }
+        FunctionalBoundaryCondition<2>* pBC;
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetFirstBoundaryElement();
+		while (elt_iter != mesh.GetLastBoundaryElement())
+		{
+			double x = (*elt_iter)->GetNodeLocation(0,0);
+			double y = (*elt_iter)->GetNodeLocation(0,1);
+			pBC = NULL;
+        	// On x=1, Dgradu_dot_n = sin(2)(sin^2(1)+1+y^2)
+	        if (fabs(x-1.0) < 1e-12)
+	        {
+        		pBC = new FunctionalBoundaryCondition<2>(&bc_x1_func2);
+	        }
+	        // On y=1, Dgradu_dot_n = 2(2+sin^2(x))
+        	if (fabs(y-1.0) < 1e-12)
+	        {
+        		pBC = new FunctionalBoundaryCondition<2>(&bc_y1_func2);
+	        }
+	        if (pBC)
+	        {
+        		bcc.AddNeumannBoundaryCondition(*elt_iter, pBC);
+	        }
+        
+        	elt_iter++;
+		}
+
+		SimpleNonlinearEllipticAssembler<2,2> assembler;
+    	SimpleNonlinearSolver solver;
+    	
+    	// Set up solution guess for residuals
+    	int length=mesh.GetNumNodes();
+		    	
+    	// Set up initial Guess
+    	Vec initialGuess;
+    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
+    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
+    	VecSetType(initialGuess, VECSEQ);
+    	for(int i=0; i<length ; i++)
+    	{
+    		VecSetValue(initialGuess, i, 4.0, INSERT_VALUES);
+    	}
+    	VecAssemblyBegin(initialGuess);
+		VecAssemblyEnd(initialGuess); 
+		
+		GaussianQuadratureRule<2> quadRule(2);
+		LinearBasisFunction<2> basis_func;
+		
+    	Vec answer;
+    	Vec residual;
+    	VecDuplicate(initialGuess,&residual);
+    	VecDuplicate(initialGuess,&answer);
+    	
+    	// Numerical Jacobian
+    	try {
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 		} catch (Exception e) {
+ 			TS_TRACE(e.getMessage());
+ 		}
+    	
+		// Check result
+		double *ans;
+		int ierr = VecGetArray(answer, &ans);
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double u = 1 + sin(x)*sin(x) + y*y;
+			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
+			TS_ASSERT_DELTA(ans[i], u, 0.01);
+		}
+		VecRestoreArray(answer, &ans);
+		
+		// Analytical Jacobian
+    	try {
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 		} catch (Exception e) {
+ 			TS_TRACE(e.getMessage());
+ 		}
+    	
+		// Check result
+		ierr = VecGetArray(answer, &ans);
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double u = 1 + sin(x)*sin(x) + y*y;
+			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
+			TS_ASSERT_DELTA(ans[i], u, 0.01);
+		}
+		VecRestoreArray(answer, &ans);
+	}
+	
+	
 };
 
 
