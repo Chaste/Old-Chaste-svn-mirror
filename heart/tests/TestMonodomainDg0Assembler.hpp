@@ -139,7 +139,7 @@ public:
            
         double tCurrent = tStart;        
         while( tCurrent < tFinal )
-        {
+        { 
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);

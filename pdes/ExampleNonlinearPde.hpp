@@ -2,7 +2,7 @@
 #define _EXAMPLENONLINEARPDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
-
+#include "MatrixDouble.hpp"
 /**
  * An example 1D PDE: d/dx (u*du/dx) = -1
  */

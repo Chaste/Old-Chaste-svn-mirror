@@ -4,6 +4,7 @@
 #include "EquationForNonnecroticTumour.hpp"
 #include <cxxtest/TestSuite.h>
 #include "TrianglesMeshReader.hpp"
+#include "MatrixDouble.hpp"
 
 /**
  *  Test for the non-necrotic Tumour equation which is a linear elliptic equation.

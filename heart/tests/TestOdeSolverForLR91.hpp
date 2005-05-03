@@ -24,7 +24,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
     
     
     // Test Ode Solver for LR91
-    void testOdeSolverForLR91WithInitialStimulus(void)
+    void DONOT________testOdeSolverForLR91WithInitialStimulus(void)
     {
         /*
          * Set initial conditions and magnitude of stimulus
