@@ -45,8 +45,13 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     // Assert that the size of initialConditions vector = number of equations.
     assert(initialConditions.size()==num_equations);	
     
+//    std::cout << "Start Time = " << startTime << "\n";
+//    std::cout << "End Time = " << endTime << "\n";
+//    std::cout << "Time Step = " << timeStep << "\n";
+  
+    
     // Assert that the timestep does not exceed the time interval.
-    assert(timeStep <= endTime - startTime);
+    assert(timeStep <= endTime - startTime + 0.000001);
     
     // Assert that we actually have a time interval > 0 .
     assert(endTime > startTime);
@@ -55,8 +60,10 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     assert(timeStep > 0.0);
     
     int num_timesteps = ((int) ((endTime - startTime)/timeStep));
+//    std::cout << "Num steps = " << num_timesteps<< "\n";
     
-    double last_timestep = endTime - ((double) num_timesteps)*timeStep;
+    double last_timestep = endTime - ((double) num_timesteps)*timeStep - startTime;
+    assert(last_timestep<=timeStep);
     
 	OdeSolution solutions;
 	solutions.mNumberOfTimeSteps = num_timesteps;
@@ -97,7 +104,7 @@ OdeSolution EulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 		solutions.mSolutions.push_back(row);
 		
 		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
-	
+	   // std::cout << "Did a last time step\n";
 	}
 				
 	return solutions;

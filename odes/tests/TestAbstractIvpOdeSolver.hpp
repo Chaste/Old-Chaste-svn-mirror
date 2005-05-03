@@ -26,7 +26,8 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		TestOde1* pMyOdeSystem = new TestOde1();
 		int SystemSize = 1;		
 		std::vector<double> yInit(SystemSize);
-	
+	    yInit[0] = 0.0;
+        
      	// Initialising the instance of our solver class	
 		EulerIvpOdeSolver* myEulerSolver = new EulerIvpOdeSolver;
 	    // Initialising the instance of our solution class

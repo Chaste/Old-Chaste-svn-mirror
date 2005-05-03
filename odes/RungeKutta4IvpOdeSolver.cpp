@@ -47,7 +47,7 @@ OdeSolution RungeKutta4IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem
     assert(initialConditions.size()==num_equations);	
     
     // Assert that the timestep does not exceed the time interval.
-    assert(timeStep <= endTime - startTime);
+    assert(timeStep <= endTime - startTime + 0.000001);
     
     // Assert that we actually have a time interval > 0 .
     assert(endTime > startTime);
