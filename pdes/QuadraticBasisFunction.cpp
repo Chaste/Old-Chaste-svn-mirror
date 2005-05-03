@@ -393,17 +393,17 @@ std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
 template <int ELEM_DIM>
 std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian)
 {
-//    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-//    assert(inverseJacobian.Rows()==inverseJacobian.Columns());
-//    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(point);
-//  	std::vector<VectorDouble> transformedGradValues;
-//    
-//    for(int i=0;i<ELEM_DIM+1;i++)
-//    {
-//        transformedGradValues.push_back( basisGradValues[i]*inverseJacobian );
-//    }
-//
-//    return transformedGradValues;    	
+    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(inverseJacobian.Rows()==inverseJacobian.Columns());
+    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(point);
+  	std::vector<VectorDouble> transformedGradValues;
+    
+    for(int i=0;i<(ELEM_DIM+1)*(ELEM_DIM+2)/2;i++)
+    {
+        transformedGradValues.push_back( basisGradValues[i]*inverseJacobian );
+    }
+
+    return transformedGradValues;    	
 }
 
 #endif // _QUADRATICBASISFUNCTION_CPP_

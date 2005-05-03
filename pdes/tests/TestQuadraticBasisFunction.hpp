@@ -16,20 +16,6 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		Point<0> zero;
 		QuadraticBasisFunction<0> basis_func;
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
-
-//		std::vector<double> basis_function_vector;
-//		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
-//		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
-//		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
-//		
-//		// check link with 0d quad rule works ok 
-//		GaussianQuadratureRule<0>  quad_rule(1);
-//		Point<0>   quad_point = quad_rule.GetQuadPoint(0);
-//
-//		std::vector<double> basis_function_vector2;
-//		basis_function_vector2 = basis_func.ComputeBasisFunctions(quad_point);
-//		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
-//		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);	
 	}
 	
 	void testQuadraticBasisFunction1d()
@@ -347,6 +333,105 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[1](0),  3, 1e-12);
 		TS_ASSERT_DELTA(derivatives[2](0),  0, 1e-12);
 		TS_ASSERT_DELTA(derivatives[3](0),  0, 1e-12);
+	}
+	
+	void testComputeTransformedQuadraticBasisFunctionDerivatives1d( void )
+	{
+		std::vector<const Node<1>*> nodes;
+		nodes.push_back(new Node<1>(0, false, 3.0));
+		nodes.push_back(new Node<1>(1, false, 5.0));
+		Element<1,1> element(nodes,2);
+		QuadraticBasisFunction<1> basis_function;
+		
+		const MatrixDouble *inverseJacobian = element.GetInverseJacobian();
+		Point<1> evaluation_point(0.2); 
+		std::vector<VectorDouble> trans_deriv =
+			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
+																		*inverseJacobian);
+																		
+		TS_ASSERT_DELTA(trans_deriv[0](0),-1.1, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](0),-0.1, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](0),1.2, 1e-12);
+	}
+	
+	void testComputeTransformedQuadraticBasisFunction2d( void )		
+	{		
+		std::vector<const Node<2>*> nodes;
+		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
+		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
+		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
+		nodes.push_back(new Node<2>(3, false, 5.0, 3.5));
+		nodes.push_back(new Node<2>(4, false, 4.5, 4.5));
+		nodes.push_back(new Node<2>(5, false, 3.5, 4.0));
+		Element<2,2> element(nodes,2);
+		QuadraticBasisFunction<2> basis_function;
+		
+		const MatrixDouble *inverseJacobian = element.GetInverseJacobian();
+		Point<2> evaluation_point(0.3, 0.6); 
+		std::vector<VectorDouble> trans_deriv =
+			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
+																		*inverseJacobian);
+		
+		TS_ASSERT_DELTA(trans_deriv[0](0),0.12, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[0](1),0.36, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](0),0.08, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](1),0.04, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](0),-0.28, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](1),0.56, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[3](0),-0.08, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[3](1),-0.64, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](0),0.72, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](1),0.96, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](0),-0.56, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](1),-1.28, 1e-12);
+	}
+	
+	void testComputeTransformedQuadraticBasisFunction3d( void )		
+	{		
+		std::vector<const Node<3>*> nodes;
+		nodes.push_back(new Node<3>(0, false, 4.0, 3.0, 0.0));
+		nodes.push_back(new Node<3>(1, false, 6.0, 4.0, 1.0));
+		nodes.push_back(new Node<3>(2, false, 3.0, 5.0, 2.0));
+		nodes.push_back(new Node<3>(3, false, 5.0, 4.0, 3.0));
+		Element<3,3> element(nodes,2);
+		QuadraticBasisFunction<3> basis_function;
+		
+		const MatrixDouble *inverseJacobian = element.GetInverseJacobian();
+		Point<3> evaluation_point(0.3, 0.1, 0.2); 
+		std::vector<VectorDouble> trans_deriv =
+			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
+																		*inverseJacobian);
+		
+		TS_ASSERT_DELTA(trans_deriv[0](0),-0.12, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[0](1),-0.3, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[0](2),-0.06, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](0),0.08, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](1),0.1, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[1](2),-0.06, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](0),0.12, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](1),-0.3, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[2](2),0.06, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[3](0),0.0, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[3](1),0.1, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[3](2),-0.1, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](0),0.4, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](1),0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](2),-0.6, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](0),-0.08, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](1),0.8, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](2),-0.24, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[6](0),-0.4, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[6](1),0.6, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[6](2),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[7](0),-0.16, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[7](1),-1.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[7](2),0.72, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[8](0),0.32, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[8](1),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[8](2),0.36, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[9](0),-0.16, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[9](1),0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[9](2),0.12, 1e-12);
 	}
 };
 
