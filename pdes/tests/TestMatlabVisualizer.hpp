@@ -30,7 +30,7 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 		                  spViewer=new MatlabVisualizer<1>(
 		                  "pdes/tests/meshdata/trivial_1d_mesh"));
 		spViewer->CreateNodesFileForVisualization();		                  
-		
+		delete spViewer;
 	}
 	
 	void test2DVisualizationFileBuild(void)
@@ -39,6 +39,7 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 		                  sp2DViewer=new MatlabVisualizer<2>(
 		                  "pdes/tests/meshdata/disk_522_elements"));
 		sp2DViewer->CreateNodesFileForVisualization();
+		delete sp2DViewer;
 	}
 	
 	/**
@@ -55,6 +56,8 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 		                  sp2DViewer=new MatlabVisualizer<2>(
 		                  "pdes/tests/meshdata/disk_522_elements"));
 		sp2DViewer->CreateOutputFileForVisualization();			         
+		delete spViewer;
+		delete sp2DViewer;
 	}
 	
 };

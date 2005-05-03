@@ -11,7 +11,6 @@ template<int SPACE_DIM>
 MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)//, int dimension)
 {
 	mPathBaseName = PathBaseName;
-//	mDimension = dimension;
 	mHasTimeFile = false;
 	
 	std::string time_file_name=mPathBaseName+".time";

@@ -40,9 +40,7 @@
 template<int SPACE_DIM>
 class AbstractVisualizer 
 {
-public:
-	//virtual AbstractVisualizer();
-	//virtual ~AbstractVisualizer();	
+public:	
 	virtual void CreateNodesFileForVisualization()=0;/**<create .coord file */	     
 	virtual void CreateOutputFileForVisualization()=0;/**<create .val file which contains the output */
 };
