@@ -225,12 +225,42 @@ public:
 	
 
 	/**
-	 * \todo
-	 * Check have boundary conditions defined everywhere on mesh boundary.
-	 * Perhaps do by iterating over surface elements; if has Neumann condition
-	 * then ok, else check each node for Dirichlet condition.
+	 * Check that we have boundary conditions defined everywhere on mesh boundary.
+	 * 
+	 * We iterate over all surface elements, and check either that they have an
+	 * associated Neumann condition, or that each node in the element has an
+	 * associated Dirichlet condition.
+	 * 
+	 * \todo Might we want to throw an exception specifying which node failed?
+	 * What about checking for multiple conditions at a point (might be intentional)?
+	 * 
+	 * @param pMesh Pointer to the mesh to check for validity.
+	 * @return true iff all boundaries have boundary conditions defined.
 	 */
-	//void Validate( pMesh )
+	bool Validate(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM> *pMesh)
+	{
+		bool valid = true;
+		
+		// Iterate over surface elements
+		typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
+			= pMesh->GetFirstBoundaryElement();
+		while (valid && elt_iter != pMesh->GetLastBoundaryElement())
+		{
+			if (!HasNeumannBoundaryCondition(*elt_iter))
+			{
+				// Check for Dirichlet conditions on this element's nodes
+				for (int i=0; i<(*elt_iter)->GetNumNodes(); i++)
+				{
+					if (!HasDirichletBoundaryCondition((*elt_iter)->GetNode(i)))
+					{
+						valid = false;
+					}
+				}
+			}
+			elt_iter++;
+		}
+		return valid;
+	}
 	
 
 	/** 

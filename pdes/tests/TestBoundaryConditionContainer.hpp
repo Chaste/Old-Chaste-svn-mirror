@@ -290,6 +290,33 @@ public:
 		// Check non-boundary node has no condition
 		TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNodeAt(4)));
 	}
+	
+	void TestValidate()
+	{
+		// Load a 2D square mesh with 1 central non-boundary node
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		BoundaryConditionsContainer<2,2> bcc;
+		
+		// No BCs yet, so shouldn't validate
+		TS_ASSERT(!bcc.Validate(&mesh));
+		
+		// Add some BCs
+		ConstBoundaryCondition<2> *bc = new ConstBoundaryCondition<2>(0.0);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), bc);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), bc);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), bc);
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
+			= mesh.GetLastBoundaryElement();
+		iter--;
+		bcc.AddNeumannBoundaryCondition(*iter, bc); // 2 to 3
+		iter--;
+		bcc.AddNeumannBoundaryCondition(*iter, bc); // 1 to 2
+		
+		TS_ASSERT(bcc.Validate(&mesh));
+	}
     
 };
 
