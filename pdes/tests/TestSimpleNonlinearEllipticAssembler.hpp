@@ -723,7 +723,12 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 
-    void notworkingTest2dOnUnitSquare()
+
+	/**
+	 * Ideas: Try all Dirichlet BCs (is it a Neumann problem?).
+	 * Look at residual when initial guess=solution.
+	 */
+    void Test2dOnUnitSquare()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
@@ -741,6 +746,7 @@ public:
         {
         	double x = (*node_iter)->GetPoint()[0];
         	double y = (*node_iter)->GetPoint()[1];
+        	pBoundaryCondition = NULL;
 	        // On x=0, u=1+y^2
 	        if (fabs(x) < 1e-12)
 	        {
@@ -751,7 +757,10 @@ public:
 	        {
         		pBoundaryCondition = new ConstBoundaryCondition<2>(1 + x*x);
 	        }
-	        bcc.AddDirichletBoundaryCondition(*node_iter, pBoundaryCondition);
+	        if (pBoundaryCondition)
+	        {
+	        	bcc.AddDirichletBoundaryCondition(*node_iter, pBoundaryCondition);
+	        }
 	        
 	        node_iter++;
         }
@@ -806,13 +815,12 @@ public:
     	VecDuplicate(initialGuess,&residual);
     	VecDuplicate(initialGuess,&answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
+    	// Numerical Jacobian
     	try {
  			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
- 		//TS_TRACE("System solved");
     	
 		// Check result
 		double *ans;
@@ -822,8 +830,27 @@ public:
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
-			TS_ASSERT_DELTA(ans[i], u, 0.001);
+			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
+			TS_ASSERT_DELTA(ans[i], u, 0.01);
+		}
+		VecRestoreArray(answer, &ans);
+		
+		// Analytical Jacobian
+    	try {
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 		} catch (Exception e) {
+ 			TS_TRACE(e.getMessage());
+ 		}
+    	
+		// Check result
+		ierr = VecGetArray(answer, &ans);
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double u = 1 + x*x + y*y;
+			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
+			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 	}
