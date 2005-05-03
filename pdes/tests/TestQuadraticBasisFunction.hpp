@@ -120,15 +120,15 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 1), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 2), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 3), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 4), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 5), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 4), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalf, 5), 0.0, 1e-12);
 		
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 0), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 1), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 2), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 3), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 4), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 5), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 4), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalf, 5), 1.0, 1e-12);
 		
 		// Mass compute
 		std::vector<double> basis_function_vector;
@@ -155,8 +155,8 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[1](1), 0, 1e-12);
 		TS_ASSERT_DELTA(derivatives[2](1), -1, 1e-12);
 		TS_ASSERT_DELTA(derivatives[3](1), -4, 1e-12);
-		TS_ASSERT_DELTA(derivatives[4](1), 4, 1e-12);
-		TS_ASSERT_DELTA(derivatives[5](1), 0, 1e-12);
+		TS_ASSERT_DELTA(derivatives[4](1), 0, 1e-12);
+		TS_ASSERT_DELTA(derivatives[5](1), 4, 1e-12);
 		
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(zero);
 		TS_ASSERT_EQUALS(derivatives.size(), 6);
@@ -170,8 +170,8 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[1](1), 0, 1e-12);
 		TS_ASSERT_DELTA(derivatives[2](1), -1, 1e-12);
 		TS_ASSERT_DELTA(derivatives[3](1), 0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[4](1), 0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[5](1), 4, 1e-12);
+		TS_ASSERT_DELTA(derivatives[4](1), 4, 1e-12);
+		TS_ASSERT_DELTA(derivatives[5](1), 0, 1e-12);
 		
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(zeroone);
 		TS_ASSERT_EQUALS(derivatives.size(), 6);
@@ -179,14 +179,14 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[1](0), -1, 1e-12);
 		TS_ASSERT_DELTA(derivatives[2](0), 0, 1e-12);
 		TS_ASSERT_DELTA(derivatives[3](0), 0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[4](0), 4, 1e-12);
-		TS_ASSERT_DELTA(derivatives[5](0), -4, 1e-12);
+		TS_ASSERT_DELTA(derivatives[4](0), -4, 1e-12);
+		TS_ASSERT_DELTA(derivatives[5](0), 4, 1e-12);
 		TS_ASSERT_DELTA(derivatives[0](1), 1, 1e-12);
 		TS_ASSERT_DELTA(derivatives[1](1), 0, 1e-12);
 		TS_ASSERT_DELTA(derivatives[2](1), 3, 1e-12);
 		TS_ASSERT_DELTA(derivatives[3](1), 0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[4](1), 0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[5](1), -4, 1e-12);
+		TS_ASSERT_DELTA(derivatives[4](1), -4, 1e-12);
+		TS_ASSERT_DELTA(derivatives[5](1), 0, 1e-12);
 	}
 
 
@@ -255,9 +255,9 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 2), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 3), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 4), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 5), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 5), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 6), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 7), 0.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 7), 1.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 8), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(halfhalfzero, 9), 0.0, 1e-12);
 		
@@ -299,8 +299,8 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 2), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 3), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 4), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 5), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 6), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 5), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 6), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 7), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 8), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerohalfzero, 9), 0.0, 1e-12);
@@ -311,8 +311,8 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 3), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 4), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 5), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 6), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 7), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 6), 1.0, 1e-12);
+		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 7), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 8), 0.0, 1e-12);
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozerohalf, 9), 0.0, 1e-12);		
 		
@@ -360,9 +360,6 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
 		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
 		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
-		nodes.push_back(new Node<2>(3, false, 5.0, 3.5));
-		nodes.push_back(new Node<2>(4, false, 4.5, 4.5));
-		nodes.push_back(new Node<2>(5, false, 3.5, 4.0));
 		Element<2,2> element(nodes,2);
 		QuadraticBasisFunction<2> basis_function;
 		
@@ -380,10 +377,10 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(trans_deriv[2](1),0.56, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[3](0),-0.08, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[3](1),-0.64, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[4](0),0.72, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[4](1),0.96, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[5](0),-0.56, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[5](1),-1.28, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](0),-0.56, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[4](1),-1.28, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](0),0.72, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](1),0.96, 1e-12);
 	}
 	
 	void testComputeTransformedQuadraticBasisFunction3d( void )		
@@ -417,15 +414,15 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(trans_deriv[4](0),0.4, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[4](1),0.2, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[4](2),-0.6, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[5](0),-0.08, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[5](1),0.8, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[5](2),-0.24, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[6](0),-0.4, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[6](1),0.6, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[6](2),-0.2, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[7](0),-0.16, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[7](1),-1.2, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[7](2),0.72, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](0),-0.4, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](1),0.6, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[5](2),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[6](0),-0.16, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[6](1),-1.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[6](2),0.72, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[7](0),-0.08, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[7](1),0.8, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv[7](2),-0.24, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[8](0),0.32, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[8](1),-0.2, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[8](2),0.36, 1e-12);

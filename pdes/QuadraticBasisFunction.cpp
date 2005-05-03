@@ -20,6 +20,7 @@ template <int ELEM_DIM>
 double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex)
 {
 	assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
+	double x, y, z;
 	switch(ELEM_DIM)
 	{
 	case 0:
@@ -29,124 +30,90 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> po
 
 	case 1:
 		assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2);
-    	if(basisIndex == 0)
-    	{	
-    		double x = point[0];
-        	return 2.0*(x-1.0)*(x-0.5);
-    	}
-    	else if(basisIndex == 1)
-    	{
-    		double x = point[0];
-        	return 2.0*x*(x-0.5);
-    	}
-    	else
-    	{
-        	double x = point[0];
-        	return 4.0*x*(1.0-x);
-    	}
+		x = point[0];
+		switch (basisIndex)
+		{
+			case 0:
+        		return 2.0*(x-1.0)*(x-0.5);
+        		break;
+    		case 1:
+        		return 2.0*x*(x-0.5);
+        		break;
+    		case 2:
+        		return 4.0*x*(1.0-x);
+        		break;
+    		default:
+    			assert(false);
+		}
     	break;
     	
     case 2:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3 || basisIndex == 4 || basisIndex == 5);
-    	if(basisIndex == 0)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-        	return 2.0 * (1.0 - x - y) * (0.5 - x - y);
-    	}
-    	else if(basisIndex == 1)
-    	{	
-        	double x = point[0];
-        	return 2.0*x*(x-0.5);
-    	}
-    	else if(basisIndex == 2)
+    	x = point[0];
+    	y = point[1];
+    	switch (basisIndex)
     	{
-    		double y = point[1];
-        	return 2.0*y*(y-0.5);
-    	}
-    	else if(basisIndex == 3)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-        	return 4.0 * (1.0 - x - y) * x;
-    	}
-    	else if(basisIndex == 4)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-        	return 4.0 * y * x;
-    	}
-    	else
-    	{
-    		double x = point[0];
-    		double y = point[1];
-        	return 4.0 * (1.0 - x - y) * y;
+    		case 0:
+         		return 2.0 * (1.0 - x - y) * (0.5 - x - y);
+         		break;
+    	  	case 1:
+        		return 2.0*x*(x-0.5);
+        		break;
+    		case 2:
+        		return 2.0*y*(y-0.5);
+        		break;
+    		case 3:
+        		return 4.0 * (1.0 - x - y) * x;
+        		break;
+    		case 4:
+        		return 4.0 * (1.0 - x - y) * y;
+        		break;
+    		case 5:
+        		return 4.0 * y * x;
+        		break;
+    		default:
+    			assert(false);
     	}
     	break;
     	
     case 3:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3 || basisIndex == 4 || basisIndex == 5 || basisIndex == 6 || basisIndex == 7 || basisIndex == 8 || basisIndex == 9);
-    	if(basisIndex == 0)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	return 2.0 * (1.0 - x - y - z) * (0.5 - x - y - z);
-    	}
-    	else if(basisIndex == 1)
-    	{	
-    		double x = point[0];
-        	return 2.0*x*(x-0.5);
-    	}
-    	else if(basisIndex == 2)
-    	{	
-        	double y = point[1];
-        	return 2.0*y*(y-0.5);
-    	}
-    	else if(basisIndex == 3)
-    	{
-        	double z = point[2];
-        	return 2.0*z*(z-0.5);
-    	}
-    	else if(basisIndex == 4)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	return 4.0 * (1.0 - x - y - z) * x;
-    	}
-    	else if(basisIndex == 5)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-        	return 4.0 * y * x;
-    	}
-    	else if(basisIndex == 6)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	return 4.0 * (1.0 - x - y - z) * y;
-    	}
-    	else if(basisIndex == 7)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	return 4.0 * (1.0 - x - y - z) * z;
-    	}
-    	else if(basisIndex == 8)
-    	{	
-    		double x = point[0];
-    		double z = point[2];
-        	return 4.0 * x * z;
-    	}
-    	else
-    	{	
-    		double y = point[1];
-    		double z = point[2];
-        	return 4.0 * y * z;
-    	}
+    	x = point[0];
+    	y = point[1];
+    	z = point[2];
+        switch (basisIndex)
+        {
+        	case 0:
+    			return 2.0 * (1.0 - x - y - z) * (0.5 - x - y - z);
+    			break;
+    		case 1:
+        		return 2.0*x*(x-0.5);
+        		break;
+    		case 2:
+        		return 2.0*y*(y-0.5);
+        		break;
+    		case 3:
+        		return 2.0*z*(z-0.5);
+        		break;
+    		case 4:
+    			return 4.0 * (1.0 - x - y - z) * x;
+    			break;
+    		case 5:
+        		return 4.0 * (1.0 - x - y - z) * y;
+        		break;
+    		case 6:
+        		return 4.0 * (1.0 - x - y - z) * z;
+        		break;
+        	case 7:
+        		return 4.0 * y * x;
+        		break;
+    		case 8:
+        		return 4.0 * x * z;
+        		break;
+    		case 9:
+    			return 4.0 * y * z;
+    			break;
+    		default:
+    			assert(false);
+        }
     	break;
 	}
 }
@@ -168,178 +135,134 @@ VectorDouble QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Po
     VectorDouble gradN(ELEM_DIM);
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     
+    double x, y, z;
 	switch(ELEM_DIM)
 	{
 	case 1:
-		assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2);
-    	if(basisIndex == 0)
-    	{	double x = point[0];
-        	gradN(0) =  4.0*x-3.0;
-    	}
-    	else if(basisIndex == 1)
-    	{
-    		double x = point[0];
-        	gradN(0) = 4.0*x-1.0;   
-    	}
-    	else
-    	{
-    		double x = point[0];
-    		gradN(0) = 4.0-8.0*x;
-    	}
+		x=point[0];
+		switch (basisIndex)
+		{
+			case 0:
+        		gradN(0) =  4.0*x-3.0;
+        		break;
+    		case 1:
+    			gradN(0) = 4.0*x-1.0;
+    			break;
+    		case 2:
+    			gradN(0) = 4.0-8.0*x;
+    			break;
+    		default:
+    			assert(false);
+		}
     	break;
     	
     case 2:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3 || basisIndex == 4 || basisIndex == 5);
-    	if(basisIndex == 0)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-        	gradN(0) = -3.0 + 4.0*x + 4.0*y;
-        	gradN(1) = -3.0 + 4.0*x + 4.0*y;
-    	}
-    	else if(basisIndex == 1)
-    	{	
-    		double x = point[0];
-        	gradN(0) = 4.0*x - 1.0;
-        	gradN(1) = 0.0;
-    	}
-    	else if(basisIndex == 2)
-    	{
-    		double y = point[1];
-        	gradN(0) = 0.0;
-        	gradN(1) = 4.0*y - 1.0;
-    	}
-    	else if(basisIndex == 3)
-    	{
-   			double x = point[0];
-    		double y = point[1];
-        	gradN(0) = 4.0-8.0*x-4.0*y;
-        	gradN(1) = -4.0*x;
-    	}
-    	else if(basisIndex == 4)
-    	{
-   			double x = point[0];
-    		double y = point[1];
-        	gradN(0) = 4.0*y;
-        	gradN(1) = 4.0*x;
-    	}
-    	else
-    	{
-   			double x = point[0];
-    		double y = point[1];
-        	gradN(0) = -4.0*y;
-        	gradN(1) = 4.0-4.0*x-8.0*y;
+    	x = point[0];
+    	y = point[1];
+        switch (basisIndex)
+        {
+        	case 0:
+    			gradN(0) = -3.0 + 4.0*x + 4.0*y;
+        		gradN(1) = -3.0 + 4.0*x + 4.0*y;
+        		break;
+        	case 1:
+        		gradN(0) = 4.0*x - 1.0;
+        		gradN(1) = 0.0;
+        		break;
+        	case 2:
+        		gradN(0) = 0.0;
+        		gradN(1) = 4.0*y - 1.0;
+        		break;
+        	case 3:
+        		gradN(0) = 4.0-8.0*x-4.0*y;
+        		gradN(1) = -4.0*x;
+        		break;
+        	case 4:
+    			gradN(0) = -4.0*y;
+        		gradN(1) = 4.0-4.0*x-8.0*y;
+        		break;
+        	case 5:
+    			gradN(0) = 4.0*y;
+        		gradN(1) = 4.0*x;
+        		break;
+        	default:
+        		assert (false);
     	}
     	break;
     	
     case 3:
     	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3 || basisIndex == 4 || basisIndex == 5 || basisIndex == 6 || basisIndex == 7 || basisIndex == 8 || basisIndex == 9);
-    	if(basisIndex == 0)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) = -3.0 + 4.0*(x+y+z);
-        	gradN(1) = -3.0 + 4.0*(x+y+z);
-        	gradN(2) = -3.0 + 4.0*(x+y+z);
-    	}
-    	else if(basisIndex == 1)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  4.0*x-1.0;
-        	gradN(1) =  0;
-        	gradN(2) =  0;
-    	}
-    	else if(basisIndex == 2)
-    	{	
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  0;
-        	gradN(1) =  4.0*y-1.0;
-        	gradN(2) =  0;
-    	}
-    	else if(basisIndex == 3)
+    	x = point[0];
+    	y = point[1];
+    	z = point[2];
+    	switch (basisIndex)
     	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  0;
-        	gradN(1) =  0;
-        	gradN(2) =  4.0*z-1.0;   
+    		case 0:
+    		   	gradN(0) = -3.0 + 4.0*(x+y+z);
+        		gradN(1) = -3.0 + 4.0*(x+y+z);
+        		gradN(2) = -3.0 + 4.0*(x+y+z);
+        		break;
+        	case 1:
+        		gradN(0) =  4.0*x-1.0;
+        		gradN(1) =  0;
+        		gradN(2) =  0;
+        		break;
+        	case 2:
+        		gradN(0) =  0;
+        		gradN(1) =  4.0*y-1.0;
+        		gradN(2) =  0;
+        		break;
+        	case 3:
+        		gradN(0) =  0;
+        		gradN(1) =  0;
+        		gradN(2) =  4.0*z-1.0;
+        		break;
+        	case 4:
+        		gradN(0) =  4.0-8.0*x-4.0*y-4.0*z;
+        		gradN(1) =  -4.0*x;
+        		gradN(2) =  -4.0*x;
+        		break;
+        	case 5:
+        		gradN(0) =  -4.0*y;
+        		gradN(1) =  4.0-4.0*x-8.0*y-4.0*z;
+        		gradN(2) =  -4.0*y; 
+        		break;
+        	case 6: 
+        		gradN(0) =  -4.0*z;
+        		gradN(1) =  -4.0*z;
+        		gradN(2) =  4.0-4.0*x-4.0*y-8.0*z;
+        		break;
+        	case 7:
+        		gradN(0) =  4.0*y;
+        		gradN(1) =  4.0*x;
+        		gradN(2) =  0.0;
+        		break;
+        	case 8:   
+    			gradN(0) =  4.0*z;
+        		gradN(1) =  0;
+        		gradN(2) =  4.0*x;
+        		break;
+        	case 9:
+        		gradN(0) =  0;
+        		gradN(1) =  4.0*z;
+        		gradN(2) =  4.0*y;
+        		break;
+        	default:
+        		assert(false);   
     	}
-    	else if(basisIndex == 4)
-    	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  4.0-8.0*x-4.0*y-4.0*z;
-        	gradN(1) =  -4.0*x;
-        	gradN(2) =  -4.0*x;   
-    	}
-    	else if(basisIndex == 5)
-    	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  4.0*y;
-        	gradN(1) =  4.0*x;
-        	gradN(2) =  0.0;   
-    	}
-    	else if(basisIndex == 6)
-    	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  -4.0*y;
-        	gradN(1) =  4.0-4.0*x-8.0*y-4.0*z;
-        	gradN(2) =  -4.0*y;   
-    	}
-    	else if(basisIndex == 7)
-    	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  -4.0*z;
-        	gradN(1) =  -4.0*z;
-        	gradN(2) =  4.0-4.0*x-4.0*y-8.0*z;   
-    	}
-    	else if(basisIndex == 8)
-    	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  4.0*z;
-        	gradN(1) =  0;
-        	gradN(2) =  4.0*x;   
-    	}
-    	else
-    	{
-    		double x = point[0];
-    		double y = point[1];
-    		double z = point[2];
-        	gradN(0) =  0;
-        	gradN(1) =  4.0*z;
-        	gradN(2) =  4.0*y;   
-    	}
-    	
-    	
-    	
     	break;
 	}    
     return gradN;
 }
-//
-//
-///**
-// * Compute all basis functions at a point within an element.
-// * 
-// * @param point The point at which to compute the basis functions. The results
-// *     are undefined if this is not within the canonical element.
-// * @return The values of the basis functions, in local index order.
-// */
+
+
+/**
+ * Compute all basis functions at a point within an element.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @return The values of the basis functions, in local index order.
+ */
 template <int ELEM_DIM>
 std::vector<double> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> point)
 {
@@ -351,18 +274,18 @@ std::vector<double> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Poin
     }
     return basisValues;
 }
-//
-//
-//
-///**
-// * Compute the derivatives of all basis functions at a point within an element.
-// * 
-// * @param point The point at which to compute the basis functions. The results
-// *     are undefined if this is not within the canonical element.
-// * @return The derivatives of the basis functions, in local index order. Each
-// *     entry is a vector (VectorDouble instance) giving the derivative along
-// *     each axis.
-// */
+
+
+
+/**
+ * Compute the derivatives of all basis functions at a point within an element.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @return The derivatives of the basis functions, in local index order. Each
+ *     entry is a vector (VectorDouble instance) giving the derivative along
+ *     each axis.
+ */
 template <int ELEM_DIM>
 std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point)
 {
@@ -375,21 +298,21 @@ std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
 
     return basisGradValues;    
 }
-//
-//
-///**
-// * Compute the derivatives of all basis functions at a point within an element.
-// * This method will transform the results, for use within gaussian quadrature
-// * for example.
-// * 
-// * @param point The point at which to compute the basis functions. The results
-// *     are undefined if this is not within the canonical element.
-// * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
-// *     element into the canonical element.
-// * @return The derivatives of the basis functions, in local index order. Each
-// *     entry is a vector (VectorDouble instance) giving the derivative along
-// *     each axis.
-// */
+
+
+/**
+ * Compute the derivatives of all basis functions at a point within an element.
+ * This method will transform the results, for use within gaussian quadrature
+ * for example.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
+ *     element into the canonical element.
+ * @return The derivatives of the basis functions, in local index order. Each
+ *     entry is a vector (VectorDouble instance) giving the derivative along
+ *     each axis.
+ */
 template <int ELEM_DIM>
 std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian)
 {
