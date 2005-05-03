@@ -8,15 +8,7 @@
           
 class TestParallelLinearSystem : public CxxTest::TestSuite 
 {
-public:
-    void setUp()
-    {
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }   
-    
+public:    
     void testLinearSystem1( void )
     {
         
@@ -84,7 +76,6 @@ public:
 	        	TS_ASSERT_DELTA(solution_elements[i-lo], real_solution[i], 0.000001);
     		}
     	} 
-      	PetscFinalize();	
          
     }
 };
