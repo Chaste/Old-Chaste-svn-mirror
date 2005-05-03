@@ -4,9 +4,11 @@
 #include "MatlabVisualizer.hpp"
 #include <iostream>
 #include <fstream>
+#include <stringstream>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "Exception.hpp"
 /**
  * The constructor of MatlabVisualizer.
  * Read in the time step file which has an extension .time
