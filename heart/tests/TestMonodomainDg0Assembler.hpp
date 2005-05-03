@@ -32,8 +32,11 @@ public:
 
     void testMonodomainDg01D()
     {  
+        
         double tStart = 0; 
-        double tFinal = 0.5;
+        double tFinal = 0.1;
+        
+        // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
         double tBigStep = 0.01; 
         double tSmallStep  = 0.01;
         
@@ -68,17 +71,16 @@ public:
         initialConditions.push_back(d);
         initialConditions.push_back(f);
         initialConditions.push_back(x);
-        
+
+        // set this as the initial condition of the gating vars at each node in the mesh        
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
-        // add initial stim to node 0
+        // add initial stim to node 0 only
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
+                
         
-         
-        
-        // Boundary conditions
-        // v'(0)=0 v'(1)=1 
+        // Boundary conditions: zero neumann on entire boundary
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
@@ -105,6 +107,7 @@ public:
         double* currentVoltageArray;
         int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
+        // initial voltage condition of a constant everywhere on the mesh
         for(int i=0; i<mesh.GetNumNodes(); i++)
         {
             currentVoltageArray[i] = -84.5;
@@ -115,10 +118,9 @@ public:
 
               
         /*
-         * Write data to a file NewMonodomainLR91.dat using ColumnDataWriter
-         * note: ColumnDataWriter works only with vectourdoubles
-         */                                                           
-                
+         * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
+         *  using ColumnDataWriter 
+         */                                                                            
         ColumnDataWriter *mpTestWriter;
         mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_1d");
        
@@ -135,7 +137,7 @@ public:
         double tCurrent = tStart;        
         while( tCurrent < tFinal )
         {
-         //   std::cout << "t = " << tCurrent << "\n" << std::flush;
+            // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             monodomainAssembler.SetInitialCondition( currentVoltage );
@@ -149,11 +151,13 @@ public:
             mpTestWriter->PutVariable(time_var_id, tCurrent);
             for(int j=0; j<mesh.GetNumNodes(); j++)
             {
-                mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+               // uncomment the line below to write data (and the line further below)
+               // mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
             }
   
             VecRestoreArray(currentVoltage, &currentVoltageArray); 
-            mpTestWriter->AdvanceAlongUnlimitedDimension();
+            // uncomment the line below to write data
+            // mpTestWriter->AdvanceAlongUnlimitedDimension();
      
             monodomain_pde.ResetAsUnsolvedOdeSystem();
             tCurrent += tBigStep;
@@ -161,6 +165,35 @@ public:
 
         // close the file that stores voltage values
         mpTestWriter->Close();
+        
+
+        // test whether voltages and gating variables are in correct ranges
+        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        
+        for(int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            double Istim = -80.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }
+            }
+        }
+        VecRestoreArray(currentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(currentVoltage);
+        VecAssemblyEnd(currentVoltage);
     }
     
  
@@ -168,7 +201,9 @@ public:
     void testMonodomainDg02D( void )
     {   
         double tStart = 0; 
-        double tFinal = 0.5;
+        double tFinal = 0.1;
+        
+        // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
         double tBigStep = 0.01; 
         double tSmallStep  = 0.01;
         
@@ -176,7 +211,6 @@ public:
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
         
         // Instantiate PDE object
         AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
@@ -205,16 +239,15 @@ public:
         initialConditions.push_back(d);
         initialConditions.push_back(f);
         initialConditions.push_back(x);
-        
+
+        // set this as the initial condition of the gating vars at each node in the mesh        
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
      
-        
-        // add initial stim to node 0
+        // add initial stim to node 0 only
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
-        
-                 
-        // Boundary conditions, zero neumann 
+                         
+        // Boundary conditions: zero neumann on boundary
         BoundaryConditionsContainer<2,2> bcc;
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
@@ -224,6 +257,7 @@ public:
             bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
             surf_iter++;
         }
+        
         
         // Linear solver
         SimpleLinearSolver linearSolver;
@@ -241,6 +275,7 @@ public:
         double* currentVoltageArray;
         int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
+        // initial voltage condition of a constant everywhere on the mesh
         for(int i=0; i<mesh.GetNumNodes(); i++)
         {
             currentVoltageArray[i] = -84.5;
@@ -252,10 +287,58 @@ public:
 
               
         /*
-         * Write data to a file NewMonodomainLR91.dat using ColumnDataWriter
-         * note: ColumnDataWriter works only with vectourdoubles
-         */                                                           
-                
+        * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
+        *  using ColumnDataWriter 
+        */                                                           
+                 
+        ColumnDataWriter *mpTestWriter;
+        mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_2d");
+       
+        int time_var_id = 0;
+        int voltage_var_id = 0;
+
+        mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+        mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+
+        time_var_id = mpTestWriter->DefineVariable("Time","msecs");
+        voltage_var_id = mpTestWriter->DefineVariable("V","mV");
+        mpTestWriter->EndDefineMode();
+           
+        double tCurrent = tStart;        
+        while( tCurrent < tFinal )
+        {
+            // std::cout << "t = " << tCurrent << "\n" << std::flush;
+
+            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
+            monodomainAssembler.SetInitialCondition( currentVoltage );
+            
+            currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
+            
+            // Writing data out to the file NewMonodomainLR91_2d.dat
+         
+            int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+              
+            mpTestWriter->PutVariable(time_var_id, tCurrent);
+            for(int j=0; j<mesh.GetNumNodes(); j++)
+            {
+               // uncomment the line below to write data (and the line further below)
+               // mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+            }
+  
+            VecRestoreArray(currentVoltage, &currentVoltageArray); 
+            // uncomment the line below to write data
+            // mpTestWriter->AdvanceAlongUnlimitedDimension();
+     
+            monodomain_pde.ResetAsUnsolvedOdeSystem();
+            tCurrent += tBigStep;
+        }
+
+        // close the file that stores voltage values
+        mpTestWriter->Close();
+    
+            
+        // this saves to one file all voltages at one chosen node, rather than creating a series of files      
+        /*         
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_2d");
         mpNewTestWriter->DefineUnlimitedDimension("Time","msecs");
@@ -288,18 +371,54 @@ public:
         }
         
         mpNewTestWriter->Close();
+        */
+
+
+
+        // test whether voltages and gating variables are in correct ranges
+        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        
+        for(int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            double Istim = -80.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }
+            }
+        }
+        VecRestoreArray(currentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(currentVoltage);
+        VecAssemblyEnd(currentVoltage);
+ 
+
+
     }   
 
 
-    void DONOT__________________________________testMonodomainDg03D( void )
+    void testMonodomainDg03D( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
+         
+        
         double tBigStep = 0.01; 
         double tSmallStep  = 0.01;
         
-        // read mesh on [0,1]x[0,1]
-//        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cylinder_with_hole_840_elements");
+        // read 3d mesh
+        // TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cylinder_with_hole_840_elements");
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/slab_138_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -333,15 +452,15 @@ public:
         initialConditions.push_back(f);
         initialConditions.push_back(x);
         
+        // set this as the initial condition of the gating vars at each node in the mesh        
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
-     
-        
-        // add initial stimulus to node 0
+             
+        // add initial stimulus to node 0 only
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
  
                  
-        // Boundary conditions, zero neumann 
+        // Boundary conditions, zero neumann everywhere
         BoundaryConditionsContainer<3,3> bcc;
         ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(0.0);
@@ -368,6 +487,7 @@ public:
         double* currentVoltageArray;
         int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
+        // initial voltage condition of a constant everywhere on the mesh
         for(int i=0; i<mesh.GetNumNodes(); i++)
         {
             currentVoltageArray[i] = -84.5;
@@ -378,45 +498,84 @@ public:
 
               
         /*
-         * Write data to a file NewMonodomainLR91.dat using ColumnDataWriter
-         * note: ColumnDataWriter works only with vectourdoubles
+         *  Write data to a file NewMonodomainLR91_3d_xx.dat, 'xx' refers to nth time step
+         *  using ColumnDataWriter 
          */                                                           
-                
-        ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_3d");
-        mpNewTestWriter->DefineUnlimitedDimension("Time","msecs");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","msecs");
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");   
-        mpNewTestWriter->EndDefineMode();
+                 
+        ColumnDataWriter *mpTestWriter;
+        mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_3d");
+       
+        int time_var_id = 0;
+        int voltage_var_id = 0;
+
+        mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+        mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+
+        time_var_id = mpTestWriter->DefineVariable("Time","msecs");
+        voltage_var_id = mpTestWriter->DefineVariable("V","mV");
+        mpTestWriter->EndDefineMode();
            
         double tCurrent = tStart;        
         while( tCurrent < tFinal )
         {
-            std::cout << "t = " << tCurrent << "\n" << std::flush;
+            // std::cout << "t = " << tCurrent << "\n" << std::flush;
+
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             monodomainAssembler.SetInitialCondition( currentVoltage );
             
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
             
-            // Writing data out to the file NewMonodomainLR91.dat
+            // Writing data out to the file NewMonodomainLR91_2d.dat
          
-            // get voltage value at node, say 0, from Vec currentVoltage
             int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
               
-            // output to file
-            mpNewTestWriter->PutVariable(new_time_var_id, tCurrent);
-            mpNewTestWriter->PutVariable(new_v_var_id, currentVoltageArray[0]);
+            mpTestWriter->PutVariable(time_var_id, tCurrent); 
+            for(int j=0; j<mesh.GetNumNodes(); j++) 
+            {
+               // uncomment the line below to write data (and the line further below)
+               // mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+            }
+  
             VecRestoreArray(currentVoltage, &currentVoltageArray); 
-
-
-            mpNewTestWriter->AdvanceAlongUnlimitedDimension();
-             
+            // uncomment the line below to write data
+            // mpTestWriter->AdvanceAlongUnlimitedDimension();
+     
             monodomain_pde.ResetAsUnsolvedOdeSystem();
             tCurrent += tBigStep;
         }
+
+        // close the file that stores voltage values
+        mpTestWriter->Close();
         
-        // close the file that stores voltage values at node 0
-        mpNewTestWriter->Close();
+        
+        // test whether voltages and gating variables are in correct ranges
+        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        
+        for(int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            double Istim = -80.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }
+            }
+        }
+        VecRestoreArray(currentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(currentVoltage);
+        VecAssemblyEnd(currentVoltage);
+           
     }   
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

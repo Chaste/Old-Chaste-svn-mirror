@@ -153,9 +153,8 @@ private:
                        AbstractLinearSolver *solver,
                        Vec currentSolution)
     {
-        // Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());
-        
+                
         LinearBasisFunction<ELEMENT_DIM> basis_function;
         
         // Get an iterator over the elements of the mesh
@@ -228,6 +227,9 @@ private:
         //std::cout<< " Looking at Rhs Vector \n " ;
         //mpAssembledLinearSystem->DisplayRhs() ;
         Vec sol = mpAssembledLinearSystem->Solve(solver);       
+        
+        delete mpAssembledLinearSystem;
+        
         return sol;
     }
     

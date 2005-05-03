@@ -24,7 +24,7 @@ const double RADIUS = 0.00011;                          // radius of cell, cm
 const double LENGTH = 0.01;                             // length of cell, cm
 const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
 const double rA = rMyo + rG / LENGTH;//* BETA;
-const double DIFFUSION_CONST = 0.5*RADIUS/2*rA;
+const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
 
 
 /**
@@ -231,7 +231,12 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         }        
     }
     
-        
+    
+    odeVariablesType GetOdeVarsAtNode( int index )
+    {
+        return mOdeVarsAtNode[index];
+    }        
+
 
 
     /** Calculate the ionic current, using the value of the gating variables at time t+dt, but using

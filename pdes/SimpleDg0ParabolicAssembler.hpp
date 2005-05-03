@@ -142,7 +142,7 @@ private:
                        Vec currentSolution)
 	{
 		// Linear system in n unknowns, where n=#nodes
-        mpAssembledLinearSystem	= new LinearSystem(rMesh.GetNumNodes());
+        mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());
         
         LinearBasisFunction<ELEMENT_DIM> basis_function;
         
@@ -216,6 +216,9 @@ private:
         //std::cout<< " Looking at Rhs Vector \n " ;
         //mpAssembledLinearSystem->DisplayRhs() ;
         Vec sol = mpAssembledLinearSystem->Solve(solver);       
+        
+        
+        delete mpAssembledLinearSystem;
         return sol;
 	}
 	
@@ -256,7 +259,7 @@ public:
 		
 		double t = mTstart;
 		Vec currentSolution = mInitialCondition;
-		while( t < mTend )
+		while( t < mTend - 1e-10 )
 		{
 			//std::cout << "t = " << t << "...\n";
 			currentSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, solver, currentSolution);

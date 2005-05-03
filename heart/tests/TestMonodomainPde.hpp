@@ -36,7 +36,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         // with no stimulus applied to node 1 and init stimulus applied to node 0. 
         // BigTimeStep = 1, SmallTimeStep = 0.01       
         // We really are solving extra ode (the one for voltage as its results are never used)
-        int num_nodes=2;
+        int num_nodes=2; 
           
         Node<1> node0(0,true,0);
         Node<1> node1(1,true,0);
