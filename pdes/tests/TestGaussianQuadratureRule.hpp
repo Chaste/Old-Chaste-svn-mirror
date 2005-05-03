@@ -158,7 +158,101 @@ public :
 		}
 			//TS_TRACE("here gauss quad\n");
 	}
-		
+	
+	/**
+	 * Test by integrating polynomials up to degree 2p-2, where p is the no. of
+	 * points in each dimension. This is the 3d case.
+	 * 
+	 * We integrate things like x, y, z, x^2, y^2, z^2, xy, xz, yz... 
+	 */
+	void testGaussianQuadratureRuleIntegralThreeD( void )
+	{
+		// Expected answers [degree_x][degree_y][degree_z]
+		double expected[5][5][5] 
+		= 
+		{ 
+			{
+				 {1.0/6,      1.0/24,      1.0/60,      1.0/120,      1.0/210},
+			     {1.0/24,     1.0/120,     1.0/360,     1.0/840,     1.0/1680},
+			     {1.0/60,     1.0/360,     1.0/1260,    1.0/3360,     1.0/7560},
+			     {1.0/120,    1.0/840,     1.0/3360,    1.0/10080,    1.0/25200},
+			     {1.0/210,    1.0/1680,    1.0/7560,    1.0/25200,    1.0/69300}				
+			},
+			{
+				 {1.0/24,    1.0/120,    1.0/360,    1.0/840,   1.0/1680},
+     			 {1.0/120,   1.0/720,   1.0/2520,   1.0/6720,  1.0/15120},
+			     {1.0/360,  1.0/2520,  1.0/10080,  1.0/30240,  1.0/75600},
+			     {1.0/840,  1.0/6720,  1.0/30240, 1.0/100800, 1.0/277200},
+			     {1.0/1680, 1.0/15120, 1.0/75600, 1.0/277200, 1.0/831600}
+			},
+			{
+				 {1.0/60.0 , 1.0/360.0 , 1.0/1260.0 , 1.0/3360.0 , 1.0/7560.0},
+				 {1.0/360.0 , 1.0/2520.0 , 1.0/10080.0 , 1.0/30240.0 , 1.0/75600.0},
+				 {1.0/1260.0 , 1.0/10080.0 , 1.0/45360.0 , 1.0/151200.0 , 1.0/415800.0},
+				 {1.0/3360.0 , 1.0/30240.0 , 1.0/151200.0 , 1.0/554400.0 , 1.0/1663200.0},
+				 {1.0/7560.0 , 1.0/75600.0 , 1.0/415800.0 , 1.0/1663200.0 , 1.0/5405400.0}
+			},
+			{
+				 {1.0/120.0 , 1.0/840.0 , 1.0/3360.0 , 1.0/10080.0 , 1.0/25200.0},
+				 {1.0/840.0 , 1.0/6720.0 , 1.0/30240.0 , 1.0/100800.0 , 1.0/277200.0},
+				 {1.0/3360.0 , 1.0/30240.0 , 1.0/151200.0 , 1.0/554400.0 , 1.0/1663200.0},
+				 {1.0/10080.0 , 1.0/100800.0 , 1.0/554400.0 , 1.0/2217600.0 , 1.0/7207200.0},
+				 {1.0/25200.0 , 1.0/277200.0 , 1.0/1663200.0 , 1.0/7207200.0 , 1.0/25225200.0}
+			},
+			{
+				 {1.0/210.0 , 1.0/1680.0 , 1.0/7560.0 , 1.0/2520.0 , 1.0/69300.0},
+				 {1.0/1680.0 , 1.0/15120.0 , 1.0/75600.0 , 1.0/277200.0 , 1.0/831600.0},
+				 {1.0/7560.0 , 1.0/75600.0 , 1.0/415800.0 , 1.0/1663200.0 , 1.0/5405400.0},
+				 {1.0/25200.0 , 1.0/277200.0 , 1.0/1663200.0 ,1.0/7207200.0 ,1.0/25225200.0},
+				 {1.0/69300.0 ,1.0/831600.0 ,1.0/5405400.0 ,1.0/25225200.0 ,1.0/94594500.0}
+			}
+		};
+
+		// Test 2 and 3 quadrature points per dimension in 3D
+		for (int num_quad_points=2; num_quad_points<4; num_quad_points++)
+		{
+			GaussianQuadratureRule<3> quad_rule(num_quad_points);
+
+			for (int poly_degree_x=0; poly_degree_x<2*num_quad_points-1;
+				 poly_degree_x++)
+			{
+
+				for (int poly_degree_y=0;
+					 poly_degree_y<2*num_quad_points-1/*-poly_degree_x*/;
+					 poly_degree_y++)
+				{			
+						
+					for (int poly_degree_z=0;
+					 	 poly_degree_z<2*num_quad_points-1/*-poly_degree_y*/;
+					 	 poly_degree_z++)
+					{	
+						double integral = 0.0;
+					
+						for (int quad_index=0;
+							 quad_index<quad_rule.GetNumQuadPoints();
+							 quad_index++)
+						{
+							Point<3> quad_point=quad_rule.GetQuadPoint(quad_index);
+							
+							integral += pow(quad_point[0], poly_degree_x)
+										*pow(quad_point[1], poly_degree_y)
+										*pow(quad_point[2], poly_degree_z)
+										*quad_rule.GetWeight(quad_index);
+						}
+						
+//						std::cout << "number of quadrature points "<<num_quad_points<<"\n";
+//						std::cout << "int_x^"<<poly_degree_x<<"y^"<<poly_degree_y<<"z^"<<poly_degree_z<<" = "<<integral << "\n";
+//						std::cout << "expected = " << expected[poly_degree_x][poly_degree_y][poly_degree_z] << "\n";
+//						
+						TS_ASSERT_DELTA(integral,
+										expected[poly_degree_x][poly_degree_y][poly_degree_z],
+										0.01);
+					}
+				}
+			}
+		}
+			//TS_TRACE("here gauss quad\n");
+	}	
 };
 
 #endif //_TESTGAUSSIANQUADRATURERULE_HPP_
