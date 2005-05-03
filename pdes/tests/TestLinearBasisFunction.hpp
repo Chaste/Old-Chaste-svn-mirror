@@ -38,18 +38,12 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		Point<1> one(1);
 		LinearBasisFunction<1> basis_func;
 		
-		// Single compute
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(one,  0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(one,  1), 1.0, 1e-12);
+		std::vector<Point<1>*> evaluation_points;
+		evaluation_points.push_back(&zero);
+		evaluation_points.push_back(&one);
 		
-		// Mass compute
-		std::vector<double> basis_function_vector;
-		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
-		TS_ASSERT_EQUALS(basis_function_vector.size(), 2);
-		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[1], 0.0, 1e-12);
+		BasisFunctionsCheckers<1> checker;
+		checker.checkBasisFunctions(&basis_func, evaluation_points);
 		
 		// Derivatives
 		std::vector<VectorDouble> derivatives;
@@ -67,26 +61,14 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		
 		LinearBasisFunction<2> basis_func;
 		
-		// Single compute
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 2), 0.0, 1e-12);
+		std::vector<Point<2>*> evaluation_points;
+		evaluation_points.push_back(&zero);
+		evaluation_points.push_back(&onezero);
+		evaluation_points.push_back(&zeroone);
 		
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezero, 0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezero, 1), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezero, 2), 0.0, 1e-12);
+		BasisFunctionsCheckers<2> checker;
+		checker.checkBasisFunctions(&basis_func, evaluation_points);
 		
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroone, 0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroone, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroone, 2), 1.0, 1e-12);
-		
-		// Mass compute
-		std::vector<double> basis_function_vector;
-		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
-		TS_ASSERT_EQUALS(basis_function_vector.size(), 3);
-		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[1], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
 		// Derivatives
 		std::vector<VectorDouble> derivatives;
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezero);
@@ -106,35 +88,14 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		
 		LinearBasisFunction<3> basis_func;
 		
-		// Single compute
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 2), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 3), 0.0, 1e-12);
+		std::vector<Point<3>*> evaluation_points;
+		evaluation_points.push_back(&zero);
+		evaluation_points.push_back(&onezerozero);
+		evaluation_points.push_back(&zeroonezero);
+		evaluation_points.push_back(&zerozeroone);
 		
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezerozero, 0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezerozero, 1), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezerozero, 2), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezerozero, 3), 0.0, 1e-12);
-		
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroonezero, 0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroonezero, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zeroonezero, 2), 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(onezerozero, 3), 0.0, 1e-12);
-
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozeroone, 0), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozeroone, 1), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozeroone, 2), 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zerozeroone, 3), 1.0, 1e-12);
-		
-		// Mass compute
-		std::vector<double> basis_function_vector;
-		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
-		TS_ASSERT_EQUALS(basis_function_vector.size(), 4);
-		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[1], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[3], 0.0, 1e-12);
+		BasisFunctionsCheckers<3> checker;
+		checker.checkBasisFunctions(&basis_func, evaluation_points);
 		
 		// Derivatives
 		std::vector<VectorDouble> derivatives;
