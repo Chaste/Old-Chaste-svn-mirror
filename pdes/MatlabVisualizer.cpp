@@ -154,9 +154,9 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 	sprintf(outfilename, "%s.val", mPathBaseName.c_str());
 	if ( (fw = fopen(outfilename,"w"))==NULL)
 	{	
-		std::cout<<"out fileopen error, file name is "<<outfilename<<"\n";
-//		assert(0);
+		throw Exception("The file for writing cannot be created successfully");
 	}
+	
 	int num_files = mTimeSeries.size();
 	int i=0;
 	do
@@ -169,9 +169,8 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 			sprintf(infilename, "%s_%d.dat",mPathBaseName.c_str(), i);
 		}
 		if ( (fr=fopen(infilename,"r"))==NULL)
-		{	
-			std::cout<<"fileopen error, file name is "<<infilename<<"\n";
-			//assert(0);
+		{		
+			throw Exception("The file for reading cannot be created successfully");
 		}
 		char buffer[1024];
 		fgets(buffer, 1024, fr);	//header
