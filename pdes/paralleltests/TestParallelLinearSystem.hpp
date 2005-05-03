@@ -32,6 +32,7 @@ public:
         
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
+        //VecView(solution_vector, PETSC_VIEWER_STDOUT_WORLD);
         
         int lo, hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
@@ -68,6 +69,7 @@ public:
 
         int lo, hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
+        //VecView(solution_vector, PETSC_VIEWER_STDOUT_WORLD);
         
         double real_solution[2]={1.0,1.0};
         
