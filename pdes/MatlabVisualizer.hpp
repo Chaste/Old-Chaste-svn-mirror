@@ -9,6 +9,7 @@
 #define _MATLABVISUALIZER_HPP_
 
 #include "AbstractVisualizer.hpp"
+#include "AbstractVisualizer.cpp"
 
 template<int SPACE_DIM>
 class MatlabVisualizer: public AbstractVisualizer<SPACE_DIM>
