@@ -19,6 +19,7 @@
 #include "NonlinearHeatEquationPde.hpp"
 #include "NonlinearHeatEquation2Pde.hpp"
 #include "NonlinearHeatEquation3Pde.hpp"
+#include "NonlinearHeatEquation4Pde.hpp"
 #include "Example2DNonlinearEllipticPde.hpp"
 #include "NonlinearLinearHeatEquationPde.hpp"
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
@@ -476,6 +477,91 @@ public:
 			double u = sqrt(2.0*(exp(-x)-x*exp(-1.0)));
 			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.001); 
+		} 
+		VecRestoreArray(answer, &ans);
+	}
+	
+	void testWithHeatEquation1D4()
+	{
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		NonlinearHeatEquation4Pde<1> pde;  
+		
+//		// Boundary conditions
+//        BoundaryConditionsContainer<1,1> bcc;
+//        double VonNeumannBCValue = 0.0;
+//        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
+//        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+//        bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
+//        ConstBoundaryCondition<1>* pBoundaryCondition2 = new ConstBoundaryCondition<1>(exp(1.0)); 
+//        pBoundaryCondition2 = new ConstBoundaryCondition<1>(exp(1.0));
+//        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition2);
+//        
+        // Boundary conditions
+        BoundaryConditionsContainer<1,1> bcc;
+        // u(1) = exp(1.0)
+        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(exp(-1.0));
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+		// u(0)^2*u'(0) = 0.0
+		// Note that we specify -2 as the value, since figuring out which direction
+		// the normal is in is hard in 1D.
+		pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+        bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+        
+
+		SimpleNonlinearEllipticAssembler<1,1> assembler;
+    	SimpleNonlinearSolver solver;
+    	 
+    	// Set up solution guess for residuals
+    	int length=mesh.GetNumNodes();
+		    	
+    	// Set up initial Guess
+    	Vec initialGuess;
+    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
+    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
+    	VecSetType(initialGuess, VECSEQ);
+    	double x1;
+    	for(int i=0; i<length ; i++)
+    	{
+    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
+    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
+    		x1=0.1*(double)(i);
+    		VecSetValue(initialGuess, i, 0.35*(1-x1*x1), INSERT_VALUES);
+    	}
+    	VecAssemblyBegin(initialGuess);
+		VecAssemblyEnd(initialGuess); 
+		
+		//
+		GaussianQuadratureRule<1> quadRule(2);
+		LinearBasisFunction<1> basis_func;
+		
+    	Vec answer;
+    	Vec residual;
+    	VecDuplicate(initialGuess,&residual);
+    	VecDuplicate(initialGuess,&answer);
+    	
+    	//TS_TRACE("Calling AssembleSystem");
+ 		try {
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 		} catch (Exception e) {
+ 			TS_TRACE(e.getMessage());
+ 		}
+    	//TS_TRACE("System solved");
+    	    	
+		// Check result
+		double *ans;
+		int ierr = VecGetArray(answer, &ans);
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double u = x*exp(-x);
+			//std::cout << x << "\t" << u << std::endl;
+			TS_ASSERT_DELTA(ans[i], u, 0.01); 
 		} 
 		VecRestoreArray(answer, &ans);
 	}
