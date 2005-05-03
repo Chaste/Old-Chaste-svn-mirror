@@ -14,7 +14,7 @@ MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)
 	mHasTimeFile = false;
 	
 	std::stringstream time_file_name_stream;
-	time_file_name_stream<<mPathBaseName<<"_"<<SPACE_DIM<<"dTime.dat";
+	time_file_name_stream<<mPathBaseName<<"Time.dat";
 	std::string time_file_name=time_file_name_stream.str();
 	
 	std::ifstream data_file(time_file_name.c_str());
@@ -26,6 +26,7 @@ MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)
 			// Read each line in turn
 	
 		std::string RawLineFromFile;
+		getline(data_file, RawLineFromFile);
 		getline(data_file, RawLineFromFile);
 		
 		while(data_file)
@@ -56,7 +57,7 @@ MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)
 			getline(data_file, RawLineFromFile);
 		}	
 		data_file.close();	
-	}
+	}	
 }
 
 template<int SPACE_DIM> 
@@ -97,43 +98,127 @@ void MatlabVisualizer<SPACE_DIM>::CreateNodesFileForVisualization()
 /**
  * Create a .val file containing a matrix(time*coord) of output value.
  */
+//template<int SPACE_DIM>
+//void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
+//{
+//	std::vector< std::string > in_file_names;
+//	//Write output file for Matlab - without any comments
+//	std::string output_value_file_name=mPathBaseName+".val";
+//	std::ofstream output_value_file(output_value_file_name.c_str());
+//	int num_files = mTimeSeries.size();
+//	if (num_files == 0 )
+//	{
+//		//only one output file, no time series
+//		in_file_names.push_back(mPathBaseName + ".dat");
+//	}else
+//	{		
+//		for (int i=0; i< num_files; i++)
+//		{
+//			std::stringstream one_file_name_stream;
+//			one_file_name_stream<<mPathBaseName<<"_"<<i<<".dat";
+//			in_file_names.push_back(one_file_name_stream.str());
+//		}
+//	}
+//	int i=0;
+//	std::cout<<"num_files="<<num_files<<"\n";
+//	do
+//	{		
+//		//Open node file and store the lines as a vector of strings (minus the comments) 	
+//		std::vector<std::string> output_data=GetRawDataFromFile(in_file_names[i]);
+//		std::cout<<"output_data.size="<<output_data.size()<<"\n";
+//		for (int j=1 ; j<output_data.size(); j++)
+//		{
+//			std::stringstream line_stream(output_data[j]);
+//			double value;
+//			line_stream>>value;
+//			output_value_file << value<<" ";			
+//		}
+//		output_value_file <<"\n";
+//		std::cout<<"num_files, stops at i="<<i<<"\n";
+//	}while(i++<num_files);
+//
+//	output_value_file.close();	
+//}
+
 template<int SPACE_DIM>
 void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 {
-	std::vector< std::string > in_file_names;
-	//Write output file for Matlab - without any comments
-	std::string output_value_file_name=mPathBaseName+".val";
-	std::ofstream output_value_file(output_value_file_name.c_str());
-	int num_files = mTimeSeries.size();
-	if (num_files == 0 )
-	{
-		//only one output file, no time series
-		in_file_names.push_back(mPathBaseName + ".out");
-	}else
-	{
-		for (int i=0; i< num_files; i++)
-		{
-			std::stringstream one_file_name_stream;
-			one_file_name_stream<<mPathBaseName<<"_"<<SPACE_DIM<<"d_"<<i<<".dat";
-			in_file_names.push_back(one_file_name_stream.str());
-		}
+	FILE *fw, *fr;
+	char outfilename[1024], infilename[1024];
+	sprintf(outfilename, "%s.val", mPathBaseName.c_str());
+	if ( (fw = fopen(outfilename,"w"))==NULL)
+	{	
+		std::cout<<"out fileopen error, file name is "<<outfilename<<"\n";
+//		assert(0);
 	}
+	int num_files = mTimeSeries.size();
 	int i=0;
 	do
-	{		
-		//Open node file and store the lines as a vector of strings (minus the comments) 	
-		std::vector<std::string> output_data=GetRawDataFromFile(in_file_names[i]);
-
-		for (int j=0 ; j<output_data.size(); j++)
+	{
+		if (num_files==0)	//time independent
 		{
-			std::stringstream line_stream(output_data[j]);
-			double value;
-			line_stream>>value;
-			output_value_file << value<<" ";			
+			sprintf(infilename,"%s.dat", mPathBaseName.c_str());
+		}else
+		{
+			sprintf(infilename, "%s_%d.dat",mPathBaseName.c_str(), i);
 		}
-		output_value_file <<"\n";
-	}while(i++<num_files);
-	output_value_file.close();	
+		if ( (fr=fopen(infilename,"r"))==NULL)
+		{	
+			std::cout<<"fileopen error, file name is "<<infilename<<"\n";
+			//assert(0);
+		}
+		char buffer[1024];
+		fgets(buffer, 1024, fr);	//header
+
+		while(!feof( fr ))
+		{
+			double value;
+			fscanf(fr, "%lf", &value);
+			fprintf(fw, "%lf ", value);
+		}
+		fprintf(fw, "\n");
+	
+	}while(i++<num_files-1);
+	fclose(fr);
+	fclose(fw);
+	
+//	std::vector< std::string > in_file_names;
+//	Write output file for Matlab - without any comments
+//	std::string output_value_file_name=mPathBaseName+".val";
+//	std::ofstream output_value_file(output_value_file_name.c_str());
+//	int num_files = mTimeSeries.size();
+//	if (num_files == 0 )
+//	{
+//		only one output file, no time series
+//		in_file_names.push_back(mPathBaseName + ".dat");
+//	}else
+//	{		
+//		for (int i=0; i< num_files; i++)
+//		{
+//			std::stringstream one_file_name_stream;
+//			one_file_name_stream<<mPathBaseName<<"_"<<i<<".dat";
+//			in_file_names.push_back(one_file_name_stream.str());
+//		}
+//	}
+//	int i=0;
+//	std::cout<<"num_files="<<num_files<<"\n";
+//	do
+//	{		
+//		Open node file and store the lines as a vector of strings (minus the comments) 	
+//		std::vector<std::string> output_data=GetRawDataFromFile(in_file_names[i]);
+//		std::cout<<"output_data.size="<<output_data.size()<<"\n";
+//		for (int j=1 ; j<output_data.size(); j++)
+//		{
+//			std::stringstream line_stream(output_data[j]);
+//			double value;
+//			line_stream>>value;
+//			output_value_file << value<<" ";			
+//		}
+//		output_value_file <<"\n";
+//		std::cout<<"num_files, stops at i="<<i<<"\n";
+//	}while(i++<num_files);
+//
+//	output_value_file.close();	
 }
 
 /**

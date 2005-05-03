@@ -953,7 +953,7 @@ public:
 		
 		// Check result 
 		double *res;
-	    ierr = VecGetArray(result, &res);
+	    ierr = VecGetArray(result, &res); 
 
 		// Solution should be u = e^{-5/2*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x, t=0.1
 		for (int i=0; i < mesh.GetNumNodes() ; i++)
