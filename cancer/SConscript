@@ -38,6 +38,6 @@ opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 opt.Library('cancer',files)
 opt.Library('testcancer',testsource)
 opt.Test('runner.cpp',testfiles) 
-opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '.', petsc_libpath])
+opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build','../../pdes/build', '../../odes/build', '.', petsc_libpath])
 opt.RunTests('build.log','testrunner')
 
