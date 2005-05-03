@@ -14,6 +14,7 @@
 #include "OdeSolution.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
+#include "MatrixDouble.hpp"
 
 
 
