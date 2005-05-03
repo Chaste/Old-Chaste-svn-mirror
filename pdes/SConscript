@@ -8,6 +8,8 @@ files = glob.glob('*.cpp')
 os.chdir(curdir)
 
 testfiles = glob.glob('../tests/Test*.hpp')
+paralleltestfiles = glob.glob('../paralleltests/Test*.hpp')
+
 os.chdir('../')
 testsource = glob.glob('tests/*.cpp')
 os.chdir(curdir)
@@ -36,16 +38,20 @@ opt.Replace(CXX='../../mpi/bin/mpicxx')
 
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = './$SOURCE | tee $TARGET')
-#runtests = Builder(action = '../../mpi/bin/mpirun -np 2 ./$SOURCE | tee $TARGET')
+runparalleltests = Builder(action = '../../mpi/bin/mpirun -np 1 ./$SOURCE | tee $TARGET')
 
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
+opt['BUILDERS']['RunParallelTests'] = runparalleltests
 
 opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 opt.Library('pde',files)
 opt.Library('testpde',testsource)
 
 opt.Test('runner.cpp',testfiles) 
-opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '.', petsc_libpath])
-opt.RunTests('build.log','testrunner')
+opt.Test('parallelrunner.cpp',paralleltestfiles)
 
+opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '.', petsc_libpath])
+opt.Program('paralleltestrunner',['parallelrunner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '.', petsc_libpath])
+opt.RunTests('build.log','testrunner')
+opt.RunParallelTests('parbuild.log','paralleltestrunner')
