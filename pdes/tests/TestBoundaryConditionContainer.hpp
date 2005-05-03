@@ -224,14 +224,13 @@ public:
 	        delete p3d_nodes[i];
 		}
         TS_ASSERT_DELTA(solution_elements[SIZE-1], 11.0, 0.000001);
-        delete p3d_nodes[SIZE-1];
         
         VecRestoreArray(solution_vector, &solution_elements);
 	}
 	
 	
 	
-	void TestApplyToNoninearSystem( void )
+	void TestApplyToNonlinearSystem( void )
 	{
 		const int SIZE = 10;
 		Vec currentSolution;
@@ -288,7 +287,6 @@ public:
 		 
 		TS_ASSERT_DELTA(currentSolutionArrayPostMod[SIZE-1], 9,   1e-12);
 		TS_ASSERT_DELTA(       residualArrayPostMod[SIZE-1], 19,  1e-12);
-		delete p3dNode[SIZE-1];
 		
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
 		ierr = VecRestoreArray(residual, &residualArrayPostMod);

@@ -1,7 +1,7 @@
 #ifndef _ABSTRACTLINEARELLIPTICPDE_HPP_
 #define _ABSTRACTLINEARELLIPTICPDE_HPP_
 
-class MatrixDouble;
+#include "MatrixDouble.hpp"
 #include "Point.hpp"
 
 /**

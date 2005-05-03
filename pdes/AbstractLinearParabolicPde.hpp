@@ -1,7 +1,7 @@
 #ifndef _ABSTRACTLINEARPARABOLICPDE_HPP_
 #define _ABSTRACTLINEARPARABOLICPDE_HPP_
 
-class MatrixDouble;
+#include "MatrixDouble.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
 
