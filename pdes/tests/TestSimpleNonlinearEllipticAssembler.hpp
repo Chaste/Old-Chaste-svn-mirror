@@ -859,7 +859,7 @@ public:
 		mesh.ConstructFromMeshReader(mesh_reader);
 
 		// Instantiate PDE object
-		ExampleNasty2dNonlinearEllipticPde pde;
+		ExampleNasty2dNonlinearEllipticPde pde; 
 
 		// Boundary conditions
         BoundaryConditionsContainer<2,2> bcc;

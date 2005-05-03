@@ -50,7 +50,6 @@ PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian,
  * for a nonlinear elliptic PDE.
  * 
  * \todo This class could do with some tidying. More tests are also needed.
- * Neumann boundary conditions may not be correctly implemented.
  * It probably needs re-writing to take advantage of parallel machines.
  */ 
 template<int ELEMENT_DIM, int SPACE_DIM>
