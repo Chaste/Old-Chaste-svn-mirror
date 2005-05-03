@@ -83,7 +83,9 @@ public:
     		if (lo<=i && i<hi){
 	        	TS_ASSERT_DELTA(solution_elements[i-lo], real_solution[i], 0.000001);
     		}
-    	}        
+    	} 
+      	PetscFinalize();	
+         
     }
 };
 #endif //_TESTLINEARSYSTEM_HPP_
