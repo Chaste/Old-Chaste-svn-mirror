@@ -3,6 +3,8 @@
 
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/GlobalFixture.h>
+#include <petscvec.h>
+#include <petscmat.h>
 
 
 class PetSCSetup : public CxxTest::GlobalFixture
