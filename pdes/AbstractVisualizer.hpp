@@ -48,10 +48,10 @@ protected:
 	
 	
 public:
-	AbstractVisualizer();
-	virtual ~AbstractVisualizer();	
-	virtual void CreateNodesFileForVisualization();/**<create .coord file */	     
-	virtual void CreateOutputFileForVisualization();/**<create .val file which contains the output */
+	//virtual AbstractVisualizer();
+	//virtual ~AbstractVisualizer();	
+	virtual void CreateNodesFileForVisualization()=0;/**<create .coord file */	     
+	virtual void CreateOutputFileForVisualization()=0;/**<create .val file which contains the output */
 };
 
 #endif //_ABSTRACTVISUALIZER_HPP_

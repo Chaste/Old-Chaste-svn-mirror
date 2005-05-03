@@ -8,14 +8,14 @@
 #ifndef _MATLABVISUALIZER_HPP_
 #define _MATLABVISUALIZER_HPP_
 
-#include "AbstractVisualizer.cpp"
+#include "AbstractVisualizer.hpp"
 
 template<int SPACE_DIM>
 class MatlabVisualizer: public AbstractVisualizer<SPACE_DIM>
 {		
 public:
 	MatlabVisualizer(std::string pathBaseName);//, int dimension);
-	virtual ~MatlabVisualizer();
+	~MatlabVisualizer();
 	
 	void CreateNodesFileForVisualization();	     
 	void CreateOutputFileForVisualization();
