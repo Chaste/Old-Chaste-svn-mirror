@@ -8,12 +8,14 @@
  * as mPathBaseName, "xx" is the time (converted from double to string).
  */
 template<int SPACE_DIM> 
-MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)//, int dimension)
+MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)
 {
 	mPathBaseName = PathBaseName;
 	mHasTimeFile = false;
 	
-	std::string time_file_name=mPathBaseName+".time";
+	std::stringstream time_file_name_stream;
+	time_file_name_stream<<mPathBaseName<<"_"<<SPACE_DIM<<"dTime.dat";
+	std::string time_file_name=time_file_name_stream.str();
 	
 	std::ifstream data_file(time_file_name.c_str());
 
@@ -99,12 +101,11 @@ template<int SPACE_DIM>
 void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 {
 	std::vector< std::string > in_file_names;
-
 	//Write output file for Matlab - without any comments
 	std::string output_value_file_name=mPathBaseName+".val";
 	std::ofstream output_value_file(output_value_file_name.c_str());
 	int num_files = mTimeSeries.size();
-	if (num_files == 0)
+	if (num_files == 0 )
 	{
 		//only one output file, no time series
 		in_file_names.push_back(mPathBaseName + ".out");
@@ -113,11 +114,12 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 		for (int i=0; i< num_files; i++)
 		{
 			std::stringstream one_file_name_stream;
-			one_file_name_stream<<mPathBaseName<<"."<<mTimeSeries[i]<<".out";
+			one_file_name_stream<<mPathBaseName<<"_"<<SPACE_DIM<<"d_"<<i<<".dat";
 			in_file_names.push_back(one_file_name_stream.str());
 		}
 	}
-	for(int i=0; i<num_files; i++)
+	int i=0;
+	do
 	{		
 		//Open node file and store the lines as a vector of strings (minus the comments) 	
 		std::vector<std::string> output_data=GetRawDataFromFile(in_file_names[i]);
@@ -130,7 +132,7 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 			output_value_file << value<<" ";			
 		}
 		output_value_file <<"\n";
-	}
+	}while(i++<num_files);
 	output_value_file.close();	
 }
 
@@ -153,9 +155,10 @@ std::vector<std::string> MatlabVisualizer<SPACE_DIM>::GetRawDataFromFile(std::st
 	 * exception that should be caught by the user.
 	 * 
 	 */
-
-	if (!dataFile.is_open())
+	std::cout<<fileName<<"\n";
+	if (!dataFile.is_open())	
 	{
+		std::cout<<"in the throw body\n";
 		throw Exception("Could not open data file "+fileName+" .");
 	}
 	

@@ -38,7 +38,8 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_NOTHING(
 		                  sp2DViewer=new MatlabVisualizer<2>(
 		                  "pdes/tests/meshdata/disk_522_elements"));
-		sp2DViewer->CreateNodesFileForVisualization();
+		TS_ASSERT_THROWS_NOTHING(
+					sp2DViewer->CreateNodesFileForVisualization());
 		delete sp2DViewer;
 	}
 	
@@ -50,12 +51,14 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_NOTHING(
 		                  spViewer=new MatlabVisualizer<1>(
 		                  "pdes/tests/meshdata/trivial_1d_mesh"));
-		spViewer->CreateOutputFileForVisualization();	
+		TS_ASSERT_THROWS_ANYTHING(
+					spViewer->CreateOutputFileForVisualization());	
 		
 		TS_ASSERT_THROWS_NOTHING(
 		                  sp2DViewer=new MatlabVisualizer<2>(
 		                  "pdes/tests/meshdata/disk_522_elements"));
-		sp2DViewer->CreateOutputFileForVisualization();			         
+		TS_ASSERT_THROWS_ANYTHING(
+						sp2DViewer->CreateOutputFileForVisualization());	   
 		delete spViewer;
 		delete sp2DViewer;
 	}
