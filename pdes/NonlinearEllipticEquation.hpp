@@ -1,12 +1,10 @@
 #ifndef _NONLINEARELLIPTICEQUATION_HPP_
 #define _NONLINEARELLIPTICEQUATION_HPP_
 
-
 #include "AbstractNonlinearEllipticPde.hpp"
-/*
- * this function is written for testing Practical 1 
- * 
- * 
+
+/**
+ *  A simple nonlinear elliptic PDE used by tests; Grad.(u Grad u) + 1 = 0
  */
 
 template <int SPACE_DIM>
@@ -40,6 +38,5 @@ public:
     }
 
 };
-
 
 #endif //_NONLINEARELLIPTICEQUATION_HPP_

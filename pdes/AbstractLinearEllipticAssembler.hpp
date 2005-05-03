@@ -11,7 +11,7 @@
 #include "AbstractLinearEllipticPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "AbstractLinearSolver.hpp"
+class AbstractLinearSolver;
 #include "AbstractLinearEllipticPde.hpp"
 
 #include "petscvec.h"

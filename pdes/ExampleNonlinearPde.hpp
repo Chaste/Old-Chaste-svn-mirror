@@ -2,13 +2,14 @@
 #define _EXAMPLENONLINEARPDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
-//#include <cmath>
 
-// template <int SPACE_DIM>
+/**
+ * An example 1D PDE: d/dx (u*du/dx) = -1
+ */
 class ExampleNonlinearPde:public AbstractNonlinearEllipticPde<1>
 {
-	
-	public:
+
+public:
 	double ComputeLinearSourceTerm(Point<1> x)
 	{
 		return 1.0;

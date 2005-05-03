@@ -7,25 +7,25 @@
 class TestNonlinearHeatEquationPde : public CxxTest::TestSuite
 {
 public:
-	void testNonlinearHeatEquationPde()
+	void TestNonlinearHeatEquationPdeMethod()
 	{
 		Point<1> zero1(0);
 		Point<2> zero2(0,0);
 		Point<3> zero3(0,0,0);
 		double u = 2.0;
 		
-		NonlinearHeatEquationPde<1> heatEquation1;
-		NonlinearHeatEquationPde<2> heatEquation2;
-		NonlinearHeatEquationPde<3> heatEquation3;
+		NonlinearHeatEquationPde<1> heat_equation1;
+		NonlinearHeatEquationPde<2> heat_equation2;
+		NonlinearHeatEquationPde<3> heat_equation3;
 			
-		TS_ASSERT_DELTA(heatEquation1.ComputeNonlinearSourceTerm(zero1,u),0.0,1e-12);
-		TS_ASSERT_DELTA(heatEquation2.ComputeNonlinearSourceTerm(zero2,u),0.0,1e-12);
-		TS_ASSERT_DELTA(heatEquation3.ComputeNonlinearSourceTerm(zero3,u),0.0,1e-12);
+		TS_ASSERT_DELTA(heat_equation1.ComputeNonlinearSourceTerm(zero1,u),0.0,1e-12);
+		TS_ASSERT_DELTA(heat_equation2.ComputeNonlinearSourceTerm(zero2,u),0.0,1e-12);
+		TS_ASSERT_DELTA(heat_equation3.ComputeNonlinearSourceTerm(zero3,u),0.0,1e-12);
 
 		// diffusion matrices should be equal to identity * u;	
-		MatrixDouble diff1 = heatEquation1.ComputeDiffusionTerm(zero1,u);
-		MatrixDouble diff2 = heatEquation2.ComputeDiffusionTerm(zero2,u);
-		MatrixDouble diff3 = heatEquation3.ComputeDiffusionTerm(zero3,u);
+		MatrixDouble diff1 = heat_equation1.ComputeDiffusionTerm(zero1,u);
+		MatrixDouble diff2 = heat_equation2.ComputeDiffusionTerm(zero2,u);
+		MatrixDouble diff3 = heat_equation3.ComputeDiffusionTerm(zero3,u);
 
 		TS_ASSERT_DELTA(diff1(0,0),u,1e-12);
 

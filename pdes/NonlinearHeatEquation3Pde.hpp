@@ -3,7 +3,10 @@
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
-
+/**
+ *  A simple nonlinear elliptic PDE used by tests; Grad.(u Grad u) - exp(-x) = 0
+ */
+ 
 template <int SPACE_DIM>
 class NonlinearHeatEquation3Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>
 {

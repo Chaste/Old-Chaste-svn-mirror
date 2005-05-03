@@ -1,8 +1,11 @@
-#ifndef ABSTRACTNONLINEARSOLVER_HPP
-#define ABSTRACTNONLINEARSOLVER_HPP
+#ifndef _ABSTRACTNONLINEARSOLVER_HPP_
+#define _ABSTRACTNONLINEARSOLVER_HPP_
+
 /**
- * Abstract Nonlinear PDE system solver, dictates that each solver must have a Solve function. 
+ * Abstract Nonlinear PDE system solver, dictates that each solver must have a
+ * Solve function.
  */
+
 #include "petscsnes.h"
 
 class AbstractNonlinearSolver
@@ -14,4 +17,5 @@ public:
                       Vec residual, Vec initialGuess,
                       void *context)=0;
 };
-#endif
+
+#endif // _ABSTRACTNONLINEARSOLVER_HPP_

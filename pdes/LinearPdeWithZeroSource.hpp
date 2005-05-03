@@ -3,6 +3,10 @@
 
 #include "AbstractLinearEllipticPde.hpp"
 
+
+/**
+ * Linear PDE with zero source term and identity diffusion term.
+ */
 template <int SPACE_DIM>
 class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM>
 {

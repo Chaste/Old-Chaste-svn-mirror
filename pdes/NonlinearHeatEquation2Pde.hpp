@@ -3,6 +3,9 @@
 
 #include "AbstractNonlinearEllipticPde.hpp"
 
+/**
+ *  A simple nonlinear elliptic PDE used by tests; Grad.(1/u Grad u) + 1 = 0
+ */
 
 template <int SPACE_DIM>
 class NonlinearHeatEquation2Pde : public AbstractNonlinearEllipticPde<SPACE_DIM>

@@ -3,8 +3,8 @@
 
 #include "Point.hpp"
 #include <vector>
-#include "VectorDouble.hpp"
-#include "MatrixDouble.hpp"
+class VectorDouble;
+class MatrixDouble;
 
 /**
  * Abstract base class for basis functions. There are methods to compute
@@ -20,11 +20,11 @@ class AbstractBasisFunction
 {
 
 public:
-   virtual double ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex)=0;
-   virtual VectorDouble ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex)=0;
-   virtual std::vector<double>       ComputeBasisFunctions(Point<ELEM_DIM> point)=0;
-   virtual std::vector<VectorDouble> ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point)=0;
-   virtual std::vector<VectorDouble> ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian)=0;    
+   virtual double ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex) const =0;
+   virtual VectorDouble ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex) const =0;
+   virtual std::vector<double>       ComputeBasisFunctions(Point<ELEM_DIM> point) const =0;
+   virtual std::vector<VectorDouble> ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point) const =0;
+   virtual std::vector<VectorDouble> ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian) const =0;
 };
 
 

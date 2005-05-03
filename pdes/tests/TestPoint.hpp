@@ -6,13 +6,13 @@
 
 class TestPoint : public CxxTest::TestSuite 
 {
-	public:
+public:
 	/**
 	 * Test that values set at a coordinate are the same when accessed.
 	 * Also check constructors.
 	 * We only test dimensions from 1 to 3 inclusive.
 	 */
-	void testSetAndGetCoordinate(void)
+	void TestSetAndGetCoordinate(void)
 	{
 		// check doesnt crash if a 0-dimensional point.
 		Point<0> point0;
@@ -55,9 +55,7 @@ class TestPoint : public CxxTest::TestSuite
 
 		Point<1> point7;
 		TS_ASSERT_DELTA(point7[0], 0, 1e-12);
-        //TS_TRACE("here point\n");
 	}
 };
-
 
 #endif //_TESTPOINT_HPP_

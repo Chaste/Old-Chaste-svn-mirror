@@ -8,7 +8,7 @@ class TestTimeDependentDiffusionEquationPde : public CxxTest::TestSuite
 {
 public:
 
-	void testTimeDependentDiffusionEquationPde()
+	void TestTimeDependentDiffusionEquationPdeMethod()
 	{
 		Point<1> zero1(0);
 		Point<2> zero2(0,0);

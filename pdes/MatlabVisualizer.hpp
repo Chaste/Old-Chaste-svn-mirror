@@ -1,3 +1,6 @@
+#ifndef _MATLABVISUALIZER_HPP_
+#define _MATLABVISUALIZER_HPP_
+
 /** 
  * Concrete version of the AbstractVisual class.
  * A MatlabVisualizer takes the base name and modify a little of 
@@ -5,11 +8,9 @@
  * Matlab style.
  */
 
-#ifndef _MATLABVISUALIZER_HPP_
-#define _MATLABVISUALIZER_HPP_
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <string>
+#include <vector>
 
 #include "AbstractVisualizer.hpp"
 

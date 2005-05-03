@@ -57,6 +57,4 @@ public:
     
 };
 
-
-
 #endif //_POINT_HPP_

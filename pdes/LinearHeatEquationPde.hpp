@@ -27,5 +27,4 @@ class LinearHeatEquationPde:public AbstractLinearEllipticPde<SPACE_DIM>
     }
 };
 
-
 #endif //_HEATEQUATIONPDE_HPP_

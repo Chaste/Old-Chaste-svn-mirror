@@ -1,7 +1,7 @@
 #ifndef _ABSTRACTNONLINEARELLIPTICPDE_HPP_
 #define _ABSTRACTNONLINEARELLIPTICPDE_HPP_
 
-#include "MatrixDouble.hpp"
+class MatrixDouble;
 #include "Point.hpp"
 
 template <int SPACE_DIM>

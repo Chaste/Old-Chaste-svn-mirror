@@ -1,6 +1,8 @@
 /** Implementation file for the FemlabMeshReader class.*/
 
 #include "FemlabMeshReader.hpp"
+#include "Exception.hpp"
+
 /**
  * The constructor takes the path to and names of a set of Femlab mesh files 
  * (ie. the node, elements and face files (in that order) and allows the data to
@@ -59,8 +61,9 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 
 /** 
  * TokenizeStringsToDoubles is specific to reading node data which came from 
- * a Femlab or Matlab PDE toolbox file. * 
- *  Each string is expected to be a series of doubles.
+ * a Femlab or Matlab PDE toolbox file.
+ * 
+ * Each string is expected to be a series of doubles.
  * Return value is a vector where each item is a vector of double which represents 
  * position.  Indices are implicit in the vector.
  */

@@ -15,6 +15,13 @@ private :
     double (*mFunction)(const Point<SPACE_DIM> x);
     
 public :
+	/**
+	 * Typical use:
+	 *  pBoundaryCondition = new FunctionalBoundaryCondition(&function_name);
+	 * 
+	 * @param func Pointer to a function to be used for evaluating this boundary
+	 *     condition.
+	 */
     FunctionalBoundaryCondition(double (*func)(const Point<SPACE_DIM> x)) : mFunction(func) {};
     
     double GetValue( const Point<SPACE_DIM> x) const

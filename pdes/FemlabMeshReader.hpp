@@ -9,7 +9,6 @@
 #define _FEMLABMESHREADER_H_
 
 #include "AbstractMeshReader.hpp"
-#include "Exception.hpp"
 
 class FemlabMeshReader : public AbstractMeshReader
 {
@@ -19,7 +18,7 @@ private:
 											
 	std::vector<std::vector<int> > TokenizeStringsToInts(
 											std::vector<std::string> rawData,
-											int dimensionOfObject);											
+											int dimensionOfObject);										
 public:
 	FemlabMeshReader(std::string pathBaseName, std::string nodeFileName, std::string elementFileName, std::string edgeFileName);
 	virtual ~FemlabMeshReader();

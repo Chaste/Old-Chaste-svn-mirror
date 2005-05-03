@@ -4,11 +4,14 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 #include <cmath>
 
-// template <int SPACE_DIM>
+/**
+ * A relatively simple PDE for testing the nonlinear elliptic assembler in 2D.
+ */
+
 class Example2DNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 {
-	
-	public:
+
+public:
 	double ComputeLinearSourceTerm(Point<2> p)
 	{
 		double x = p[0], y = p[1];

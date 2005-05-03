@@ -1,6 +1,8 @@
 #ifndef _MATLABVISUALIZER_CPP_
 #define _MATLABVISUALIZER_CPP_
+
 #include "MatlabVisualizer.hpp"
+
 /**
  * The constructor of MatlabVisualizer.
  * Read in the time step file which has an extension .time

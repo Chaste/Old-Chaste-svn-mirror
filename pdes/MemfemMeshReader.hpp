@@ -1,3 +1,6 @@
+#ifndef _MEMFEMMESHREADER_HPP_
+#define _MEMFEMMESHREADER_HPP_
+
 /** 
  * Concrete version of the AbstractMeshReader class.
  * A MemfemMeshReader takes the base name of a set of Memfem 
@@ -6,9 +9,6 @@
  * (std::vector<double> GetNextNode(); etc) can be called to interrogate the
  * data
  */
-
-#ifndef _MEMFEMMESHREADER_HPP_
-#define _MEMFEMMESHREADER_HPP_
 
 #include "AbstractMeshReader.hpp"
 #include "Exception.hpp"

@@ -15,26 +15,29 @@
 class TestBoundaryConditionContainer : public CxxTest::TestSuite 
 {
 private:
-	Element<0,1>* Create0DElement(int i)
+	/**
+	 * \todo Note that we currently leak the memory allocated for these nodes
+	 */
+	Element<0,1> Create0DElement(int i)
 	{
 		std::vector<const Node<1>* > nodes;
 		const Node<1>* node = new Node<1>(i,true,0);
 		nodes.push_back(node);
 		
-		Element<0,1>* ret = new Element<0,1>(nodes);
+		Element<0,1> ret(nodes);
 		return  ret;		
 	}
-	Element<1,2>* Create1DElement(int i)
+	Element<1,2> Create1DElement(int i)
 	{
 		std::vector<const Node<2>* > nodes;
 		const Node<2>* node0 = new Node<2>(i,true,0,0);
 		const Node<2>* node1 = new Node<2>(i,true,0,0);
 		nodes.push_back(node0);
 		nodes.push_back(node1);
-		Element<1,2>* ret = new Element<1,2>(nodes);
+		Element<1,2> ret(nodes);
 		return  ret;		
 	}
-	Element<2,3>* Create2DElement(int i)
+	Element<2,3> Create2DElement(int i)
 	{
 		std::vector<const Node<3>* > nodes;
 		const Node<3>* node0 = new Node<3>(i,true,0,0,0);
@@ -43,7 +46,7 @@ private:
 		nodes.push_back(node0);
 		nodes.push_back(node1);
 		nodes.push_back(node2);
-		Element<2,3>* ret = new Element<2,3>(nodes);
+		Element<2,3> ret(nodes);
 		return  ret;		
 	}
 			
@@ -57,7 +60,7 @@ public:
 		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }	
     
-	void testSetGet()
+	void TestSetGet()
 	{
 		//////////////////////////////////////////////////////////////
 		// test in 1d
@@ -77,20 +80,24 @@ public:
 		{
 			double value = bcc1.GetDirichletBCValue(nodes[i]);
 			TS_ASSERT_DELTA( value, i, 1e-12 );
+			delete nodes[i];
 		}
 
 		int numElem = 10;
-		Element<0,1>* elements[numElem];
+		std::vector<Element<0,1> > elements;
 		for(int i=0; i<numElem; i++)
 		{
-			elements[i] = Create0DElement(i);
+			elements.push_back(Create0DElement(i));
+		}
+		for(int i=0; i<numElem; i++)
+		{
 			ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>((double)i);
-			bcc1.AddNeumannBoundaryCondition(elements[i], pBoundaryCondition);						
+			bcc1.AddNeumannBoundaryCondition(&elements[i], pBoundaryCondition);						
 		}
 		
 		for(int i=0; i<numElem; i++)
 		{
-			double value = bcc1.GetNeumannBCValue(elements[i], elements[i]->GetNode(0)->GetIndex() );
+			double value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value, i, 1e-12 );
 		}		
 
@@ -112,20 +119,24 @@ public:
 		{
 			double value = bcc2.GetDirichletBCValue(nodes2[i]);
 			TS_ASSERT_DELTA( value, i, 1e-12 );
+			delete nodes2[i];
 		}
 
 		numElem = 10;
-		Element<1,2>* elements2[numElem];
+		std::vector<Element<1,2> > elements2;
 		for(int i=0; i<numElem; i++)
 		{
-			elements2[i] = Create1DElement(i);
+			elements2.push_back(Create1DElement(i));
+		}
+		for(int i=0; i<numElem; i++)
+		{
 			ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>((double)i);
-			bcc2.AddNeumannBoundaryCondition(elements2[i], pBoundaryCondition);						
+			bcc2.AddNeumannBoundaryCondition(&elements2[i], pBoundaryCondition);						
 		}
 		
 		for(int i=0; i<numElem; i++)
 		{
-			double value = bcc2.GetNeumannBCValue(elements2[i], elements2[i]->GetNode(0)->GetIndex() );
+			double value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value, i, 1e-12 );
 		}		
 		
@@ -147,50 +158,56 @@ public:
 		{
 			double value = bcc3.GetDirichletBCValue(nodes3[i]);
 			TS_ASSERT_DELTA( value, i, 1e-12 );
+			delete nodes3[i];
 		}
 
 		numElem = 10;
-		Element<2,3>* elements3[numElem];
+		std::vector<Element<2,3> > elements3;
 		for(int i=0; i<numElem; i++)
 		{
-			elements3[i] = Create2DElement(i);
+			elements3.push_back(Create2DElement(i));
+		}
+		for(int i=0; i<numElem; i++)
+		{
 			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>((double)i);
-			bcc3.AddNeumannBoundaryCondition(elements3[i], pBoundaryCondition);						
+			bcc3.AddNeumannBoundaryCondition(&elements3[i], pBoundaryCondition);						
 		}
 		
 		for(int i=0; i<numElem; i++)
 		{
-			double value = bcc3.GetNeumannBCValue(elements3[i], elements3[i]->GetNode(0)->GetIndex() );
+			double value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value, i, 1e-12 );
-		}	
-        //TS_TRACE("here bound1\n");			
+		}		
 	}
 
 	
 	void TestApplyToLinearSystem( void )
 	{
-		LinearSystem some_system(10);
-		for(int i = 0; i < 10; i++)
+		const int SIZE = 10;
+		LinearSystem some_system(SIZE);
+		for(int i = 0; i < SIZE; i++)
 		{
-			for(int j = 0; j < 10; j++)
+			for(int j = 0; j < SIZE; j++)
 			{
+				// LHS matrix is all 1s
 				some_system.SetMatrixElement(i,j,1);
 			}
+			// RHS vector is all 2s
 			some_system.SetRhsVectorElement(i,2);			
 		}
 		
 		some_system.AssembleIntermediateMatrix();
 		
-		Node<3>* p3dNode[10];
+		Node<3>* p3d_nodes[SIZE];
 		BoundaryConditionsContainer<3,3> bcc3;
-				
-		for(int i = 0; i < 9; i++)
-		{
-			p3dNode[i] = new Node<3>(i,true);
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
-			bcc3.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
-		}
 		
+		// Apply dirichlet boundary conditions to all but last node
+		for(int i = 0; i < SIZE-1; i++)
+		{
+			p3d_nodes[i] = new Node<3>(i,true);
+			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
+			bcc3.AddDirichletBoundaryCondition(p3d_nodes[i], pBoundaryCondition);
+		}
 		bcc3.ApplyDirichletToLinearProblem(some_system);
 		
 		some_system.AssembleFinalMatrix();
@@ -201,27 +218,32 @@ public:
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
 
-		for( int i = 0; i < 9; i++)
+		for( int i = 0; i < SIZE-1; i++)
 		{
 	        TS_ASSERT_DELTA(solution_elements[i], -1.0, 0.000001);
+	        delete p3d_nodes[i];
 		}
-        TS_ASSERT_DELTA(solution_elements[9], 11.0, 0.000001);		
+        TS_ASSERT_DELTA(solution_elements[SIZE-1], 11.0, 0.000001);
+        delete p3d_nodes[SIZE-1];
+        
+        VecRestoreArray(solution_vector, &solution_elements);
 	}
 	
 	
 	
 	void TestApplyToNoninearSystem( void )
-	{	
+	{
+		const int SIZE = 10;
 		Vec currentSolution;
 
 		VecCreate(PETSC_COMM_WORLD, &currentSolution);
-    	VecSetSizes(currentSolution, PETSC_DECIDE, 10);
+    	VecSetSizes(currentSolution, PETSC_DECIDE, SIZE);
     	VecSetType(currentSolution, VECSEQ);
 
 		Vec residual;
 
 		VecCreate(PETSC_COMM_WORLD, &residual);
-    	VecSetSizes(residual, PETSC_DECIDE, 10);
+    	VecSetSizes(residual, PETSC_DECIDE, SIZE);
     	VecSetType(residual, VECSEQ);
 
 		double *currentSolutionArray;
@@ -230,19 +252,19 @@ public:
 		double *residualArray;
 		ierr = VecGetArray(residual, &residualArray);
 	
-		for(int i=0;i<10;i++)
+		for(int i=0;i<SIZE;i++)
 		{
 			currentSolutionArray[i] = i;
-			residualArray[i] = 10+i;
+			residualArray[i] = SIZE+i;
 		}
 
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);
 		ierr = VecRestoreArray(residual, &residualArray);
 
-		Node<3>* p3dNode[10];
+		Node<3>* p3dNode[SIZE];
 		BoundaryConditionsContainer<3,3> bcc3;
 				
-		for(int i = 0; i < 9; i++)
+		for(int i = 0; i < SIZE-1; i++)
 		{
 			p3dNode[i] = new Node<3>(i,true);
 			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
@@ -257,14 +279,16 @@ public:
 		double *residualArrayPostMod;
 		ierr = VecGetArray(residual, &residualArrayPostMod);
 	
-		for(int i=0;i<9;i++)
+		for(int i=0;i<SIZE-1;i++)
 		{
 			TS_ASSERT_DELTA(currentSolutionArrayPostMod[i], i,   1e-12);
 			TS_ASSERT_DELTA(       residualArrayPostMod[i], i+1, 1e-12);
+			delete p3dNode[i];
 		}
 		 
-		TS_ASSERT_DELTA(currentSolutionArrayPostMod[9], 9,   1e-12);
-		TS_ASSERT_DELTA(       residualArrayPostMod[9], 19,  1e-12);
+		TS_ASSERT_DELTA(currentSolutionArrayPostMod[SIZE-1], 9,   1e-12);
+		TS_ASSERT_DELTA(       residualArrayPostMod[SIZE-1], 19,  1e-12);
+		delete p3dNode[SIZE-1];
 		
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
 		ierr = VecRestoreArray(residual, &residualArrayPostMod);

@@ -5,7 +5,9 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "Point.hpp"
 
-
+/**
+ * A simple parabolic PDE used in tests.
+ */
 
 template <int SPACE_DIM>
 class TimeDependentDiffusionEquationWithSourceTermPde : public AbstractLinearParabolicPde<SPACE_DIM>

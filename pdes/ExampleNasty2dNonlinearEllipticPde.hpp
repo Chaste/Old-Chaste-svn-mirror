@@ -4,7 +4,10 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 #include <cmath>
 
-// template <int SPACE_DIM>
+/**
+ * A fairly nasty PDE for testing the nonlinear elliptic assembler in 2D.
+ */
+
 class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 {
 	

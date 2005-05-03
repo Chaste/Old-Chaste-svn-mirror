@@ -3,7 +3,7 @@
 
 #include "petscvec.h"
 #include "petscmat.h"
-#include "AbstractLinearSolver.hpp"
+class AbstractLinearSolver;
 
 /**
  * Linear System class. Stores and solves a linear equation of the form Ax=b,

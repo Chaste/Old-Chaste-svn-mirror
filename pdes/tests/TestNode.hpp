@@ -14,7 +14,7 @@ class TestNode : public CxxTest::TestSuite
 	 * We only test 1 dimensional nodes. Nothing much changes in higher
 	 * dimensions.
 	 */
-	void testNode(void)
+	void TestNodeMethod(void)
 	{
 		Point<1> point1(1.0);
 		Point<1> point2(2.0);

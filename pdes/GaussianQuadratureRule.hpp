@@ -2,15 +2,15 @@
 #define _GAUSSIANQUADRATURERULE_HPP_
 
 #include <vector>
-#include "Point.hpp"
-#include <iostream>
 #include <cmath>
+#include "Point.hpp"
+#include "Exception.hpp"
 
 /**
  * This class encapsulates tables of gaussian quadrature points and the
  * associated weights.
  * 
- * Data is available for 1d and 2d quadrature over (canonical) triangles,
+ * Data is available for 1d, 2d and 3d quadrature over (canonical) triangles,
  * with between 1 and 3 (inclusive) gauss points in each dimension.
  */
 
@@ -27,12 +27,12 @@ public:
 	 * The constructor builds the appropriate table for the dimension (given
 	 * by the template argument) and number of points in each dimension (given
 	 * as a constructor argument).
+	 * 
+	 * An exception is thrown if data is not available for the requested
+	 * parameters.
 	 */
 	GaussianQuadratureRule(int numPointsInEachDimension)
 	{
-		assert(numPointsInEachDimension >  0);
-		assert(numPointsInEachDimension <= 4);
-		
 		mNumQuadPoints = (int) pow((double) numPointsInEachDimension,(ELEM_DIM));	
 
 		mWeights.reserve(mNumQuadPoints);
@@ -74,6 +74,9 @@ public:
 					mPoints.push_back(Point<ELEM_DIM>(0.5));
 					mPoints.push_back(Point<ELEM_DIM>(0.8872983346));
 					break;
+					
+					default:
+					throw Exception("Number of gauss points per dimension not supported.");
 				}
 			}
 			break;
@@ -119,6 +122,9 @@ public:
 					mPoints.push_back(Point<ELEM_DIM>(0.05635083270000,0.88729833460000));
 					mPoints.push_back(Point<ELEM_DIM>(0.10000000001607,0.88729833460000));
 					break;
+					
+					default:
+					throw Exception("Number of gauss points per dimension not supported.");
 				}
 				
 			}
@@ -341,13 +347,15 @@ public:
 					mPoints.push_back(Point<ELEM_DIM>(0.04651867752509,   0.93056815580000,   0.02132226325621));
 					mPoints.push_back(Point<ELEM_DIM>(0.06461106321099,   0.93056815580000,   0.00448606527446));
 					break;
+					
+					default:
+					throw Exception("Number of gauss points per dimension not supported.");
 				}
 			}
 			break;
 			
 			default:
-			// TODO: something more sensible
-			assert(0);
+				throw Exception("Gauss points not available for this dimension.");
 		}
 
 	}
@@ -382,11 +390,6 @@ public:
 		return mNumQuadPoints;
 	}
 	
-	
 };
-
-
-
-
 
 #endif //_GAUSSIANQUADRATURERULE_HPP_

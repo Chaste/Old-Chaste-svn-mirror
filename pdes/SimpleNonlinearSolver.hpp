@@ -1,9 +1,9 @@
+#ifndef _SIMPLENONLINEARSOLVER_HPP_
+#define _SIMPLENONLINEARSOLVER_HPP_
+
 /**
  * Concrete Simple Nonlinear PDE system solver.
  */
-
-#ifndef SIMPLENONLINEARSOLVER_HPP
-#define SIMPLENONLINEARSOLVER_HPP
 
 #include "petscsnes.h"
 #include "AbstractNonlinearSolver.hpp"
@@ -16,4 +16,5 @@ class SimpleNonlinearSolver : public AbstractNonlinearSolver
               Vec residual, Vec initialGuess, void *context);
 
 };
-#endif
+
+#endif // _SIMPLENONLINEARSOLVER_HPP_

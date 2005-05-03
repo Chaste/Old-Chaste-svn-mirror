@@ -7,7 +7,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "Exception.hpp"
 
 class AbstractMeshWriter 
 {

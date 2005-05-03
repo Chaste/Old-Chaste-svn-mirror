@@ -2,7 +2,6 @@
 #define ABSTRACTLINEARSOLVER_H
 
 #include "petscvec.h"
-#include "AbstractLinearSolver.hpp"
 #include "petscmat.h"
 
 /**
@@ -21,7 +20,6 @@ public:
 	 * @return The solution x.
 	 */
     virtual Vec Solve(Mat lhsMatrix, Vec rhsVector) = 0;
-
 
 };
 

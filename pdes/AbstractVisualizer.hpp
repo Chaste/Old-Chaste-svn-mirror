@@ -1,3 +1,6 @@
+#ifndef _ABSTRACTVISUALIZER_HPP_
+#define _ABSTRACTVISUALIZER_HPP_
+
 /**
  * AbstractVisualizer class. It writes data into correct file format.
  * i.e. For visualization with Matlab we need to modify the .node file
@@ -26,16 +29,6 @@
  * need to be invoked in order to generate necessary files for Matlab visualization.
  * 
  */
-#ifndef _ABSTRACTVISUALIZER_HPP_
-#define _ABSTRACTVISUALIZER_HPP_
-
-#include <vector>
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
-#include "Exception.hpp"
 
 template<int SPACE_DIM>
 class AbstractVisualizer 

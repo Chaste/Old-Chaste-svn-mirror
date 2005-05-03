@@ -1,6 +1,9 @@
 #ifndef _ABSTRACTLINEARPARABOLICPDE_HPP_
 #define _ABSTRACTLINEARPARABOLICPDE_HPP_
 
+class MatrixDouble;
+#include "Point.hpp"
+#include "Node.hpp"
 
 /**
  * AbstractLinearParabolicPde class.
@@ -9,12 +12,6 @@
  * c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
  * 
  */
-
-
-#include "MatrixDouble.hpp"
-#include "Point.hpp"
-#include "Node.hpp"
-
 template <int SPACE_DIM>
 class AbstractLinearParabolicPde
 {
@@ -38,4 +35,5 @@ public:
         return ComputeLinearSourceTerm(node.GetPoint());
     }
 };
+
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_

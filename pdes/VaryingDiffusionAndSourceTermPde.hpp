@@ -6,10 +6,15 @@
 #include "Point.hpp"
 #include <cmath>
 
+/**
+ * A more complex linear elliptic PDE used in tests. The source and diffusion terms
+ * depend on x.
+ */
+
 template <int SPACE_DIM>
-class VaryingDiffusionAndSourceTermPde:public AbstractLinearEllipticPde<SPACE_DIM>
+class VaryingDiffusionAndSourceTermPde : public AbstractLinearEllipticPde<SPACE_DIM>
 {
-	private:
+private:
 	double DistanceFromOrigin(Point<SPACE_DIM> x)
 	{
 		double sum=0;
@@ -20,7 +25,7 @@ class VaryingDiffusionAndSourceTermPde:public AbstractLinearEllipticPde<SPACE_DI
 		return sqrt(sum);
 	}
 	
-	public:
+public:
 	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
 	{
 		return pow(DistanceFromOrigin(x),3);
@@ -36,6 +41,5 @@ class VaryingDiffusionAndSourceTermPde:public AbstractLinearEllipticPde<SPACE_DI
     	return pow(DistanceFromOrigin(x),2)*MatrixDouble::Identity(SPACE_DIM);
     }
 };
-
 
 #endif //_VARYINGDIFFUSIONANDSOURCETERMPDE_

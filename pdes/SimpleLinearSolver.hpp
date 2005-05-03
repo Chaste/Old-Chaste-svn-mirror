@@ -1,5 +1,6 @@
-#ifndef SIMPLELINEARSOLVER_H
-#define SIMPLELINEARSOLVER_H
+#ifndef _SIMPLELINEARSOLVER_H_
+#define _SIMPLELINEARSOLVER_H_
+
 #include "AbstractLinearSolver.hpp"
 #include "petscvec.h"
 #include "petscmat.h"
@@ -11,7 +12,6 @@ public:
 
     Vec Solve(Mat lhsMatrix, Vec rhsVector);
 
-
 };
 
-#endif
+#endif // _SIMPLELINEARSOLVER_H_

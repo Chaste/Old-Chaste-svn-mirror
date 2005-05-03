@@ -17,7 +17,7 @@
  * @return The value of the basis function.
  */
 template <int ELEM_DIM>
-double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex)
+double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex) const
 {
 	assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
 	double x, y, z;
@@ -129,7 +129,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> po
  *     instance) giving the derivative along each axis.
  */
 template <int ELEM_DIM>
-VectorDouble QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex)
+VectorDouble QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex) const
 {
     VectorDouble gradN(ELEM_DIM);
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -262,7 +262,7 @@ VectorDouble QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Po
  * @return The values of the basis functions, in local index order.
  */
 template <int ELEM_DIM>
-std::vector<double> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> point)
+std::vector<double> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> point) const
 {
     std::vector<double> basisValues((ELEM_DIM+1)*(ELEM_DIM+2)/2);
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
@@ -285,7 +285,7 @@ std::vector<double> QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Poin
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point)
+std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point) const
 {
     std::vector<VectorDouble> basisGradValues;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -312,7 +312,7 @@ std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctio
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian)
+std::vector<VectorDouble>  QuadraticBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     assert(inverseJacobian.Rows()==inverseJacobian.Columns());

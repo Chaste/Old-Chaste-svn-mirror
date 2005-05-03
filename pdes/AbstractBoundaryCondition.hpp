@@ -11,12 +11,6 @@ class AbstractBoundaryCondition
 {
 public:
 	/**
-	 * \todo
-	 * Add a virtual destructor for use by subclasses?
-	 */
-//	virtual ~AbstractBoundaryCondition() {}
-
-	/**
 	 * Get the value of the boundary condition at a given point.
 	 * 
 	 * @param x The point at which to evaluate the boundary condition.
