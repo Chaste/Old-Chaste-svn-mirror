@@ -80,36 +80,16 @@ public:
 		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }
 
-    void testASimpleNonlinearEllipticAssembler( void )
+	/**
+	 * This test is a bit pointless. Remove?
+	 */
+    void TestASimpleNonlinearEllipticAssembler( void )
     {
         //create a new SimpleNonlinearEllipticAssembler
         SimpleNonlinearEllipticAssembler<1,1> assembler;
     }
         
-    void DONOTtestSimpleNonlinearEllipticAssembler( void )
-    {
-        //create a new SimpleNonlinearEllipticAssembler
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-//     
-//        Element<1,1> element(nodes);
-//        
-//        AbstractBasisFunction<SPACE_DIM> *pBasisFunction;
-//        pBasisFunction = new LinearBasisFunction<1>():
-//
-//		
-//		
-//		ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-//                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
-//                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-//                       AbstractNonlinearSolver *pSolver,
-//                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule);
-//                       
-//                       
-//		assembler = AssembleSystem(rMesh, pPde, rBoundaryConditions, pSolver, pBasisFunction, pGaussianQuadratureRule);
-    }
-        
-        
-     void testComputeResidual( void )
+     void TestComputeResidual( void )
      {
 		// Create mesh from mesh reader
 		//TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh"); 
@@ -143,7 +123,7 @@ public:
      	Vec res_vector;
     	VecDuplicate(currentSolution_vector,&res_vector);
         
-        /* GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule;*/
+        GaussianQuadratureRule<1> quad_rule(2);
      	
      	SNES snes;
      	SimpleNonlinearEllipticAssembler<1,1> assembler;
@@ -154,11 +134,9 @@ public:
 		assembler.mpBoundaryConditions = &boundary_conditions;
 		LinearBasisFunction<1> basis_function;
 		assembler.mpBasisFunction = &basis_function;
-		//assembler.mpGaussianQuadratureRule=pGaussianQuadratureRule;
+		assembler.mpGaussianQuadratureRule = &quad_rule;
 
-     	//TS_ASSERT_THROWS_NOTHING(
      	ComputeResidual<1, 1>(snes, currentSolution_vector, res_vector, &assembler);
-
 
 		// Set current solution to 1 and compute residual
         for (int i = 0; i<mesh.GetNumNodes(); i++)
@@ -187,8 +165,11 @@ public:
      * of this file. Function modified and doesn't actually call ComputeResidual()
      * but 'residual' and 'perturbedResidual' are hardcoded.
      * 'num_nodes' hardcoded to 2.
+     * 
+     * This test should probably either be modified to use the real function, or
+     * removed.
      */
-    void testComputeJacobianNumerically(void)
+    void oldTestComputeJacobianNumerically(void)
     {    
     	SNES snes;
     	
@@ -287,6 +268,8 @@ public:
 	
 	void TestNumericalAgainstAnalyticJacobian()
 	{
+		// This uses a function defined in SimpleNonlinearEllipticAssembler.
+		// Should probably be changed...
 		TestStuff();
 	}
 
