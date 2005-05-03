@@ -2,6 +2,10 @@
 #define _MATLABVISUALIZER_CPP_
 
 #include "MatlabVisualizer.hpp"
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * The constructor of MatlabVisualizer.
