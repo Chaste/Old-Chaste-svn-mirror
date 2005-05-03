@@ -24,7 +24,7 @@ AbstractOdeSystem(17)
    calcium_dynamics_K_up = 0.00025;
    calcium_dynamics_Kbufc = 0.001;
    calcium_dynamics_Kbufsr = 0.3;
-   calcium_dynamics_tau_g = 2.0;    // Couldn't find in paper
+   calcium_dynamics_tau_g = 2.0;    //  In equations in't paper
    calcium_dynamics_V_leak = 8E-5;
    calcium_dynamics_Vmax_up = 0.000425;
    calcium_dynamics_Vsr = 1094.0;
@@ -32,9 +32,9 @@ AbstractOdeSystem(17)
    calcium_pump_current_K_pCa = 0.0005;
    fast_sodium_current_g_Na = 14.838;
    inward_rectifier_potassium_current_g_K1 = 5.405;
-   L_type_calcium_current_f_Ca_gate_tau_f_Ca = 2.0; // Couldn't find in paper
+   L_type_calcium_current_f_Ca_gate_tau_f_Ca = 2.0; // In equations in't paper
    L_type_calcium_current_g_CaL = 1.75E-4;
-   membrane_Cm = 2.0;
+   membrane_Cm = 2.0; 
    model_parameters_Ca_o = 2.0;
    model_parameters_F = 96.4867; //coulombs per mill. Mol.
    model_parameters_K_o = 5.4;

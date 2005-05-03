@@ -22,7 +22,6 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
 {
     public:
     
-    
     // Test Ode Solver for TT04
     void testOdeSolverForTT04WithNoStimulus(void)
     {

@@ -1,4 +1,4 @@
-Running 5 testsEntering testNonnecroticTumourC
+Running 6 testsEntering testNonnecroticTumourC
 Passed
 Entering testQuestion1
 Passed
@@ -7,5 +7,7 @@ Passed
 Entering testQuestion2
 Passed
 Entering testQuestions3to5
+Passed
+Entering testQuestion6
 Passed
 OK!

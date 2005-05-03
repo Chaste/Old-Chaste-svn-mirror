@@ -24,6 +24,7 @@
 #include "petscvec.h"
 #include "petscmat.h"  
 #include "NonlinearEllipticEquation.hpp"
+#include "NonlinearHeatEquationPde.hpp"
 
 /*
  * Since we need to pass function pointers to the PETSc SNES routines, we can't

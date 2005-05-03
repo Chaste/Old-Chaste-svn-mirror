@@ -59,4 +59,10 @@ public:
  void runTest() { suite_TestPracticalOne.testQuestions3to5(); }
 } testDescription_TestPracticalOne_testQuestions3to5;
 
+static class TestDescription_TestPracticalOne_testQuestion6 : public CxxTest::RealTestDescription {
+public:
+ TestDescription_TestPracticalOne_testQuestion6() : CxxTest::RealTestDescription( Tests_TestPracticalOne, suiteDescription_TestPracticalOne, 512, "testQuestion6" ) {}
+ void runTest() { suite_TestPracticalOne.testQuestion6(); }
+} testDescription_TestPracticalOne_testQuestion6;
+
 #include <cxxtest/Root.cpp>
