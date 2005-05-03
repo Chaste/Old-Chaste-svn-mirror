@@ -243,22 +243,16 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
        double fast_sodium_current_j_gate_j              = odeVars[1];
        double fast_sodium_current_m_gate_m              = odeVars[2];
        double intracellular_calcium_concentration_Cai   = odeVars[3];
-       // ignore the voltage returned by the ode system solver 
-       double membrane_V                                = odeVars[4]; voltage;
+
+       // \todo ignore the voltage returned by the ode system solver ??
+       double membrane_V                                = odeVars[4]; // or use voltage;
+
        double slow_inward_current_d_gate_d              = odeVars[5];
        double slow_inward_current_f_gate_f              = odeVars[6];
        double time_dependent_potassium_current_X_gate_X = odeVars[7];
-    
-//    double membrane_V,
-//                    double fast_sodium_current_m_gate_m,
-//                    double fast_sodium_current_h_gate_h,
-//                    double fast_sodium_current_j_gate_j,
-//                    double slow_inward_current_d_gate_d,
-//                    double slow_inward_current_f_gate_f,
-//                    double time_dependent_potassium_current_X_gate_X,
-//                    double intracellular_calcium_concentration_Cai
+  
    
-    // Define some constants
+       // Define some constants
                     
        double membrane_F = 96485.0;
        double membrane_R = 8314;

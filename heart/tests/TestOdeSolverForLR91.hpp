@@ -54,7 +54,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         initialConditions.push_back(d);
         initialConditions.push_back(f);
         initialConditions.push_back(x);
-        
+         
         /*
          * Choose function for stimulus
          */             
@@ -149,7 +149,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Collect initial data in a vector
          * 
-         */  
+         */   
         std::vector<double> initialConditions;
         initialConditions.push_back(h);
         initialConditions.push_back(j);
@@ -159,7 +159,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         initialConditions.push_back(d);
         initialConditions.push_back(f);
         initialConditions.push_back(x);
-        
+         
         /*
          * Choose function for stimulus
          */             
