@@ -128,27 +128,28 @@ class TestMeshWriters : public CxxTest::TestSuite
 	{	
 		spImportMeshReader=new TrianglesMeshReader(
 							"pdes/tests/meshdata/slab_138_elements");
-		MeshalyzerMeshWriter *spCGMeshWriter=new MeshalyzerMeshWriter(
-							"/tmp/CGFromTetgen");
+		bool set_CG_format=true;
+		spMeshWriter=new MeshalyzerMeshWriter(
+							"/tmp/CGFromTetgen", set_CG_format);
 	
 		int i;
 		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
 		{
-			spCGMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+			spMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
 		}
 		for (i=0; i<spImportMeshReader->GetNumElements();i++)
 		{
-			spCGMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+			spMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
 		}
 		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
 		{
-			spCGMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
 		}
 		
 		
-		spCGMeshWriter->SetCoolGraphicsFormat();
 		
-		TS_ASSERT_THROWS_NOTHING(spCGMeshWriter->WriteFiles());
+		TS_ASSERT_THROWS_NOTHING(spMeshWriter->WriteFiles());
+		
 		
 		int num_tsteps=500;
 		int num_nodes = spImportMeshReader->GetNumNodes();

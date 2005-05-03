@@ -7,9 +7,8 @@
 class MeshalyzerMeshWriter : public AbstractMeshWriter
 {
 public:
-	MeshalyzerMeshWriter(std::string pathBaseName);
+	MeshalyzerMeshWriter(std::string pathBaseName, bool setCoolGraphics=false);
 	void WriteFiles();
-	void SetCoolGraphicsFormat();
 	virtual ~MeshalyzerMeshWriter();
 
 };

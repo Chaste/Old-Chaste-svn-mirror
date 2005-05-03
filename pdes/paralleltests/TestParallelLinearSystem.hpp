@@ -40,10 +40,17 @@ public:
         
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-        TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
-        TS_ASSERT_DELTA(solution_elements[1], 2.0, 0.000001);
-        TS_ASSERT_DELTA(solution_elements[2], 3.0, 0.000001);
         
+        int lo, hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        
+        double real_solution[3]={1.0,2.0,3.0};
+        
+    	for (int i=0;i<3;i++){
+    		if (lo<=i && i<hi){
+	        	TS_ASSERT_DELTA(solution_elements[i-lo], real_solution[i], 0.000001);
+    		}
+    	}
     }
 
     void testLinearSystem2( void )
@@ -66,9 +73,17 @@ public:
         
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-        TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
-        TS_ASSERT_DELTA(solution_elements[1], 1.0, 0.000001);
+
+        int lo, hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
         
+        double real_solution[2]={1.0,1.0};
+        
+    	for (int i=0;i<3;i++){
+    		if (lo<=i && i<hi){
+	        	TS_ASSERT_DELTA(solution_elements[i-lo], real_solution[i], 0.000001);
+    		}
+    	}        
     }
 };
 #endif //_TESTLINEARSYSTEM_HPP_

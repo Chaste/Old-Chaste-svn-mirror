@@ -38,7 +38,7 @@ opt.Replace(CXX='../../mpi/bin/mpicxx')
 
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = './$SOURCE | tee $TARGET')
-runparalleltests = Builder(action = '../../mpi/bin/mpirun -np 1 ./$SOURCE | tee $TARGET')
+runparalleltests = Builder(action = '../../mpi/bin/mpirun -np 2 ./$SOURCE | tee $TARGET')
 
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests

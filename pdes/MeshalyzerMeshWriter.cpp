@@ -1,21 +1,21 @@
 #include "MeshalyzerMeshWriter.hpp"
 
-MeshalyzerMeshWriter::MeshalyzerMeshWriter(std::string pathBaseName)
+MeshalyzerMeshWriter::MeshalyzerMeshWriter(std::string pathBaseName, bool setCoolGraphics)
 {
 	
 	//Copy path and base name of files to private data
 	mPathBaseName=pathBaseName;
 	mDimension=3;
-	mIndexFromZero=true;
-	mWriteMetaFile=false;
+	
+	if (setCoolGraphics) {
+		mIndexFromZero=false;
+		mWriteMetaFile=true;
+	} else {
+		mIndexFromZero=true;
+		mWriteMetaFile=false;
+	}
 }
 
-void
-MeshalyzerMeshWriter::SetCoolGraphicsFormat()
-{
-	mIndexFromZero=false;
-	mWriteMetaFile=true;
-}
 
 void
 MeshalyzerMeshWriter::WriteFiles()
