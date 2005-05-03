@@ -63,7 +63,7 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 //		delete sp2DViewer;
 //	}
 	
-	void testVisualizationMonodomainLR91DataRead(void)
+	void NotestVisualizationMonodomainLR91DataRead(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
 		                  spViewer=new MatlabVisualizer<1>(
