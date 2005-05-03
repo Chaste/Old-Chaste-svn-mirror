@@ -171,10 +171,14 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 		fgets(buffer, 1024, fr);	//header
 
 		while(!feof( fr ))
-		{
+		{			
 			double value;
-			fscanf(fr, "%lf", &value);
-			fprintf(fw, "%lf ", value);
+			int num_of_fields = fscanf(fr, "%lf", &value);
+
+			if (num_of_fields>0)
+			{
+				fprintf(fw, "%lf ", value);
+			}
 		}
 		fprintf(fw, "\n");
 	
