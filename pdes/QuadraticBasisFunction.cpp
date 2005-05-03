@@ -29,7 +29,6 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> po
 		break;			
 
 	case 1:
-		assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2);
 		x = point[0];
 		switch (basisIndex)
 		{
@@ -191,7 +190,6 @@ VectorDouble QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Po
     	break;
     	
     case 3:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3 || basisIndex == 4 || basisIndex == 5 || basisIndex == 6 || basisIndex == 7 || basisIndex == 8 || basisIndex == 9);
     	x = point[0];
     	y = point[1];
     	z = point[2];
