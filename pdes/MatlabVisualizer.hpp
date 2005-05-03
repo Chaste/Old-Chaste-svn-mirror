@@ -8,7 +8,6 @@
 #ifndef _MATLABVISUALIZER_HPP_
 #define _MATLABVISUALIZER_HPP_
 
-#include "AbstractVisualizer.hpp"
 #include "AbstractVisualizer.cpp"
 
 template<int SPACE_DIM>
