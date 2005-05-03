@@ -9,10 +9,12 @@
 #define _TESTMATLABVISUALIZER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../AbstractVisualizer.hpp"
-#include "../MatlabVisualizer.hpp"
+#include "../AbstractVisualizer.cpp"
+#include "../MatlabVisualizer.cpp"
 
-static AbstractVisualizer *spViewer;
+static AbstractVisualizer<1> *spViewer;
+static AbstractVisualizer<2> *sp2DViewer;
+
 class TestMatlabVisualizer : public CxxTest::TestSuite
 {
 	public:
@@ -25,8 +27,8 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 	void test1DVisualizationFileBuild(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
-		                  spViewer=new MatlabVisualizer(
-		                  "pdes/tests/meshdata/trivial_1d_mesh",1));
+		                  spViewer=new MatlabVisualizer<1>(
+		                  "pdes/tests/meshdata/trivial_1d_mesh"));
 		spViewer->CreateNodesFileForVisualization();		                  
 		
 	}
@@ -34,9 +36,9 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 	void test2DVisualizationFileBuild(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
-		                  spViewer=new MatlabVisualizer(
-		                  "pdes/tests/meshdata/disk_522_elements",2));
-		spViewer->CreateNodesFileForVisualization();
+		                  sp2DViewer=new MatlabVisualizer<2>(
+		                  "pdes/tests/meshdata/disk_522_elements"));
+		sp2DViewer->CreateNodesFileForVisualization();
 	}
 	
 	/**
@@ -45,14 +47,14 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 	void testVisualizationTimeFileRead(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
-		                  spViewer=new MatlabVisualizer(
-		                  "pdes/tests/meshdata/trivial_1d_mesh",1));
+		                  spViewer=new MatlabVisualizer<1>(
+		                  "pdes/tests/meshdata/trivial_1d_mesh"));
 		spViewer->CreateOutputFileForVisualization();	
 		
 		TS_ASSERT_THROWS_NOTHING(
-		                  spViewer=new MatlabVisualizer(
-		                  "pdes/tests/meshdata/disk_522_elements",2));
-		spViewer->CreateOutputFileForVisualization();			         
+		                  sp2DViewer=new MatlabVisualizer<2>(
+		                  "pdes/tests/meshdata/disk_522_elements"));
+		sp2DViewer->CreateOutputFileForVisualization();			         
 	}
 	
 };

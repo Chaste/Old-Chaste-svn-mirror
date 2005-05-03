@@ -1,3 +1,5 @@
+#ifndef _MATLABVISUALIZER_CPP_
+#define _MATLABVISUALIZER_CPP_
 #include "MatlabVisualizer.hpp"
 /**
  * The constructor of MatlabVisualizer.
@@ -5,10 +7,11 @@
  * There should be "<pathBaseName>.xx.out" files. <pathBaseName> is the same
  * as mPathBaseName, "xx" is the time (converted from double to string).
  */
-MatlabVisualizer::MatlabVisualizer(std::string PathBaseName, int dimension)
+template<int SPACE_DIM> 
+MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)//, int dimension)
 {
 	mPathBaseName = PathBaseName;
-	mDimension = dimension;
+//	mDimension = dimension;
 	mHasTimeFile = false;
 	
 	std::string time_file_name=mPathBaseName+".time";
@@ -55,14 +58,16 @@ MatlabVisualizer::MatlabVisualizer(std::string PathBaseName, int dimension)
 	}
 }
 
-MatlabVisualizer::~MatlabVisualizer()
+template<int SPACE_DIM> 
+MatlabVisualizer<SPACE_DIM>::~MatlabVisualizer()
 {
 }
 
 /**
  * Create coordinates files with 1, 2 or 3 columns.
  */
-void MatlabVisualizer::CreateNodesFileForVisualization()
+template<int SPACE_DIM> 
+void MatlabVisualizer<SPACE_DIM>::CreateNodesFileForVisualization()
 {
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string node_file_name=mPathBaseName+".node";
@@ -77,7 +82,7 @@ void MatlabVisualizer::CreateNodesFileForVisualization()
 		std::stringstream line_stream(node_data[i]);
 		double value;
 		line_stream>>value;
-		for (int dim=0; dim<mDimension; dim++)
+		for (int dim=0; dim<SPACE_DIM; dim++)
 		{
 			line_stream>>value;
 			output_node_file << value<<" ";			
@@ -91,7 +96,8 @@ void MatlabVisualizer::CreateNodesFileForVisualization()
 /**
  * Create a .val file containing a matrix(time*coord) of output value.
  */
-void MatlabVisualizer::CreateOutputFileForVisualization()
+template<int SPACE_DIM>
+void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 {
 	std::vector< std::string > in_file_names;
 
@@ -133,7 +139,8 @@ void MatlabVisualizer::CreateOutputFileForVisualization()
  * Read the file indicated by fileName and return a vector of strings. 
  * It removes all comments and white lines.
  */
-std::vector<std::string> MatlabVisualizer::GetRawDataFromFile(std::string fileName)
+ template<int SPACE_DIM>
+std::vector<std::string> MatlabVisualizer<SPACE_DIM>::GetRawDataFromFile(std::string fileName)
 {
 	// Open raw data file
 	
@@ -191,4 +198,4 @@ std::vector<std::string> MatlabVisualizer::GetRawDataFromFile(std::string fileNa
 	return(RawDataFromFile);
 }
 
-
+#endif //_MATLABVISUALIZER_CPP_

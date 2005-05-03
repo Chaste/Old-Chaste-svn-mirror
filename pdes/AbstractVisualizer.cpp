@@ -1,17 +1,26 @@
+#ifndef _ABSTRACTVISUALIZER_CPP_
+#define _ABSTRACTVISUALIZER_CPP_
+
 #include "AbstractVisualizer.hpp"
 
-AbstractVisualizer::AbstractVisualizer()
+template<int SPACE_DIM> 
+AbstractVisualizer<SPACE_DIM>::AbstractVisualizer()
 {
 }
 
-AbstractVisualizer::~AbstractVisualizer()
+template<int SPACE_DIM>
+AbstractVisualizer<SPACE_DIM>::~AbstractVisualizer()
 {
 }
 
-void AbstractVisualizer::CreateNodesFileForVisualization()
+template<int SPACE_DIM>
+void AbstractVisualizer<SPACE_DIM>::CreateNodesFileForVisualization()
 {
 }
 
-void AbstractVisualizer::CreateOutputFileForVisualization()
+template<int SPACE_DIM>
+void AbstractVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 {
 }
+
+#endif

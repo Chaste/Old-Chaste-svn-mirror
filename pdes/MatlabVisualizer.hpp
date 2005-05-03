@@ -10,10 +10,11 @@
 
 #include "AbstractVisualizer.hpp"
 
-class MatlabVisualizer: public AbstractVisualizer
+template<int SPACE_DIM>
+class MatlabVisualizer: public AbstractVisualizer<SPACE_DIM>
 {		
 public:
-	MatlabVisualizer(std::string pathBaseName, int dimension);
+	MatlabVisualizer(std::string pathBaseName);//, int dimension);
 	virtual ~MatlabVisualizer();
 	
 	void CreateNodesFileForVisualization();	     
