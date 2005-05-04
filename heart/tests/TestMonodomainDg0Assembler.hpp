@@ -75,6 +75,9 @@ public:
         // set this as the initial condition of the gating vars at each node in the mesh        
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
+       // monodomain_pde.SetInitialConditions(mesh, 
+        //need to write mesh.GetInitialConditionsNodes
+        
         // add initial stim to node 0 only
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
@@ -244,7 +247,7 @@ public:
 
         // set this as the initial condition of the gating vars at each node in the mesh        
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
-     
+                
         // add initial stim to node 0 only
         AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
