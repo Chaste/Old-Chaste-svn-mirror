@@ -16,7 +16,6 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
-   
 protected:
 	double mTstart;
 	double mTend;
