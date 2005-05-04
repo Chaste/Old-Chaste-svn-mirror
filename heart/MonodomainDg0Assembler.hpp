@@ -89,7 +89,7 @@ protected:
                 double vec_integrand_val1 = sourceTerm * phi[row];
                 rBElem(row) += vec_integrand_val1 * wJ;
 
-                double vec_integrand_val2 = (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(x) * u * phi[row];
+                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pPde->ComputeDuDtCoefficientFunction(x) * u * phi[row];
                 rBElem(row) += vec_integrand_val2 * wJ;             
             }
         }
