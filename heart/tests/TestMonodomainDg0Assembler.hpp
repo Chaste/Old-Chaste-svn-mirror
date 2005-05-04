@@ -21,109 +21,109 @@
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 public:
-    void setUp()
-    {
-        int FakeArgc=0;
-        char *FakeArgv0="testrunner";
-        char **FakeArgv=&FakeArgv0;
+	void setUp()
+	{
+		int FakeArgc=0;
+		char *FakeArgv0="testrunner";
+		char **FakeArgv=&FakeArgv0;
         
-        PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }   
+		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
+	}   
 
-    void testMonodomainDg01D()
-    {  
+	void testMonodomainDg01D()
+	{  
         
-        double tStart = 0; 
-        double tFinal = 0.1;
+		double tStart = 0; 
+		double tFinal = 0.1;
         
-        // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
-        double tBigStep = 0.01; 
-        double tSmallStep  = 0.01;
+		// use big time step (the pde timestep) is the same as the small time step (the ode timestep)
+		double tBigStep = 0.01; 
+		double tSmallStep  = 0.01;
         
-        // Create mesh from mesh reader 
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+		// Create mesh from mesh reader 
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
         
-        // Instantiate PDE object
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-        MonodomainPde<1> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+		// Instantiate PDE object
+		AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+		MonodomainPde<1> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
         
-        // sets Luo Rudy system with initial conditions passed on
-        double voltage = -9999; // This voltage will be ignored
-        double m = 0.0017;
-        double h = 0.9833;
-        double j = 0.9895;  
-        double d = 0.003;
-        double f = 1;
-        double x = 0.0056;
-        double caI = 0.0002;
-        double magnitudeOfStimulus = -80.0;  
-        double durationOfStimulus  = 0.5 ;
-                  
-        // bad 
-        std::vector<double> initialConditions;
-        initialConditions.push_back(h);
-        initialConditions.push_back(j);
-        initialConditions.push_back(m);
-        initialConditions.push_back(caI);
-        initialConditions.push_back(voltage);
-        initialConditions.push_back(d);
-        initialConditions.push_back(f);
-        initialConditions.push_back(x);
+		// sets Luo Rudy system with initial conditions passed on
+		double voltage = -9999; // This voltage will be ignored
+		double m = 0.0017;
+		double h = 0.9833;
+		double j = 0.9895;  
+		double d = 0.003;
+		double f = 1;
+		double x = 0.0056;
+		double caI = 0.0002;
+		double magnitudeOfStimulus = -80.0;  
+		double durationOfStimulus  = 0.5 ;
+		          
+		// bad 
+		std::vector<double> initialConditions;
+		initialConditions.push_back(h);
+		initialConditions.push_back(j);
+		initialConditions.push_back(m);
+		initialConditions.push_back(caI);
+		initialConditions.push_back(voltage);
+		initialConditions.push_back(d);
+		initialConditions.push_back(f);
+		initialConditions.push_back(x);
 
-        // set this as the initial condition of the gating vars at each node in the mesh        
-        monodomain_pde.SetUniversalInitialConditions(initialConditions);
+		// set this as the initial condition of the gating vars at each node in the mesh        
+		monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
-       // monodomain_pde.SetInitialConditions(mesh, 
-        //need to write mesh.GetInitialConditionsNodes
+		//monodomain_pde.SetInitialConditions(mesh, 
+		//need to write mesh.GetInitialConditionsNodes
         
-        // add initial stim to node 0 only
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
+		// add initial stim to node 0 only
+		AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+		monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
                 
         
-        // Boundary conditions: zero neumann on entire boundary
-        BoundaryConditionsContainer<1,1> bcc;
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition1);
+		// Boundary conditions: zero neumann on entire boundary
+		BoundaryConditionsContainer<1,1> bcc;
+		ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition1);
 
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition2 = new ConstBoundaryCondition<1>(0.0);
-        iter = mesh.GetLastBoundaryElement();
-        iter--;
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition2);
+		ConstBoundaryCondition<1>* pNeumannBoundaryCondition2 = new ConstBoundaryCondition<1>(0.0);
+		iter = mesh.GetLastBoundaryElement();
+		iter--;
+		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition2);
         
-        // Linear solver
-        SimpleLinearSolver linearSolver;
+		// Linear solver
+		SimpleLinearSolver linearSolver;
     
-        // Assembler
-        MonodomainDg0Assembler<1,1> monodomainAssembler;
+		// Assembler
+		MonodomainDg0Assembler<1,1> monodomainAssembler;
         
-        // initial condition;   
-        Vec currentVoltage;
-        VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-        VecSetSizes(currentVoltage, PETSC_DECIDE, mesh.GetNumNodes() );
-        //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(currentVoltage);
+		// initial condition;   
+		Vec currentVoltage;
+		VecCreate(PETSC_COMM_WORLD, &currentVoltage);
+		VecSetSizes(currentVoltage, PETSC_DECIDE, mesh.GetNumNodes() );
+		//VecSetType(initialCondition, VECSEQ);
+		VecSetFromOptions(currentVoltage);
   
-        double* currentVoltageArray;
-        int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+		double* currentVoltageArray;
+		int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        // initial voltage condition of a constant everywhere on the mesh
-        for(int i=0; i<mesh.GetNumNodes(); i++)
-        {
-            currentVoltageArray[i] = -84.5;
-        }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
+		// initial voltage condition of a constant everywhere on the mesh
+		for(int i=0; i<mesh.GetNumNodes(); i++)
+		{
+			currentVoltageArray[i] = -84.5;
+		}
+		VecRestoreArray(currentVoltage, &currentVoltageArray);      
+		VecAssemblyBegin(currentVoltage);
+		VecAssemblyEnd(currentVoltage);
 
               
-        /*
-         * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
-         *  using ColumnDataWriter 
-         */                                                                            
+		/*
+		 * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
+		 *  using ColumnDataWriter 
+		 */                                                                            
            
         
         // uncomment all column writer related lines to write data (and the line further below)         
@@ -140,8 +140,8 @@ public:
      //   voltage_var_id = mpTestWriter->DefineVariable("V","mV");
      //   mpTestWriter->EndDefineMode();
            
-        double tCurrent = tStart;        
-        while( tCurrent < tFinal )
+		double tCurrent = tStart;        
+		while( tCurrent < tFinal )
         { 
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 

@@ -17,7 +17,7 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
    
-private:
+protected:
 	double mTstart;
 	double mTend;
 	double mDt;
@@ -31,14 +31,13 @@ private:
     
     static const int NUM_GAUSS_POINTS_PER_DIMENSION=2; // May want to define elsewhere
 
-	void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+	virtual void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 						   MatrixDouble &rAElem,
 						   VectorDouble &rBElem,
 						   AbstractLinearParabolicPde<SPACE_DIM> *pPde,
 						   AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
 						   Vec currentSolution)
 	{
-		
 		double *currentSolutionArray;
 		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
 		
@@ -237,7 +236,7 @@ public:
 		
 		assert(mTstart < mTend);
 		assert(mDt > 0);
-		assert(mDt < mTend - mTstart);
+		assert(mDt <= mTend - mTstart + 1e-12);
 	
 		mTimesSet = true;
 	}
