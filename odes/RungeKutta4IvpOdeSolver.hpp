@@ -4,23 +4,22 @@
 #ifndef _RUNGEKUTTA4IVPODESOLVER_HPP_
 #define _RUNGEKUTTA4IVPODESOLVER_HPP_
 
-#include "AbstractIvpOdeSolver.hpp"
+#include "AbstractOneStepIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
 #include <vector>
 
-class RungeKutta4IvpOdeSolver : public AbstractIvpOdeSolver
+class RungeKutta4IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 	public:
 	RungeKutta4IvpOdeSolver() {};
 	
-	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				      double startTime,
-				      double endTime,
-				      double timeStep,
-				      std::vector<double> initialConditions);
-	
+    std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                                            double timeStep,
+                                            double time,
+                                            std::vector<double> currentYValue);
+    
 };
 
 #endif //_RUNGEKUTTA4IVPODESOLVER_HPP_

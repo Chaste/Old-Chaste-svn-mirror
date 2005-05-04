@@ -34,98 +34,35 @@
  *  
 */
 
-OdeSolution RungeKutta2IvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				double startTime,
-				double endTime,
-				double timeStep,
-				std::vector<double> initialConditions)
+std::vector<double> RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                                        double timeStep,
+                                        double time,
+                                        std::vector<double> currentYValue)
 {
 
     int num_equations = pAbstractOdeSystem->mNumberOfEquations;
     
-    // Assert that the size of Initial Conditions vector = number of equations.
-    assert(initialConditions.size()==num_equations);	
     
-    // Assert that the timestep does not exceed the time interval.
-    assert(timeStep <= endTime - startTime + 0.000001);
-    
-    // Assert that we actually have a time interval > 0 .
-    assert(endTime > startTime);
-    
-    // Assert that we  have a timestep > 0 .
-    assert(timeStep > 0.0);
-    
-    int num_timesteps = ((int) ((endTime - startTime)/timeStep));
-    
-    double last_timestep = endTime - ((double) num_timesteps)*timeStep - startTime;
-    assert(last_timestep<=timeStep);
-    
-	OdeSolution solutions;
-	solutions.mNumberOfTimeSteps = num_timesteps;
-	// (num_timesteps)(num_equations)
-		
-	solutions.mSolutions.push_back(initialConditions);
-	solutions.mTime.push_back(startTime);
-	
-	std::vector<double> row(num_equations);	
-	std::vector<double> dy(num_equations);
-	
-	row=initialConditions;
-	
-	for(int timeindex=0;timeindex<num_timesteps;timeindex++)
-	{
 		// Apply Runge-Kutta 2nd Order method
         
         // Work out k1
         std::vector<double> k1(num_equations);
-        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
+        std::vector<double> dy(num_equations);
+        std::vector<double> next_y_value(num_equations);
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(time,currentYValue);
 		for(int i=0;i<num_equations; i++) 
 		{
 			k1[i] = timeStep*dy[i];
-			k1[i] = k1[i]/2.0+row[i];
+			k1[i] = k1[i]/2.0+currentYValue[i];
 		}
 		// Work out k2				
 		std::vector<double> k2(num_equations);
-		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep/2.0,k1);
+		dy = pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep/2.0,k1);
 		for(int i=0;i<num_equations; i++) 
 		{
 			k2[i] = timeStep*dy[i];
-			row[i]=row[i]+k2[i];
+			next_y_value[i]=currentYValue[i]+k2[i];
 		}
 		
-		// Send out solution and time
-		solutions.mSolutions.push_back(row);
-		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
-		//std::cout<<solutions.mTime[timeindex]<<"\t"<<solutions.mSolutions[timeindex][0]<<std::endl;
-	}
-	
-	// Extra step to get to exactly endTime
-    if(last_timestep > (0.000001 * timeStep))
-	{	
-		solutions.mNumberOfTimeSteps=num_timesteps+1;
-		
-		std::vector<double> k1(num_equations);
-        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
-		for(int i=0;i<num_equations; i++) 
-		{
-			k1[i] = last_timestep*dy[i];
-			k1[i] = k1[i]/2.0+row[i];
-		}
-		// Work out k2				
-		std::vector<double> k2(num_equations);
-		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps]+last_timestep/2.0,k1);
-		for(int i=0;i<num_equations; i++) 
-		{
-			k2[i] = last_timestep*dy[i];
-			row[i]=row[i]+k2[i];
-		}
-		
-		solutions.mSolutions.push_back(row);
-		
-		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
-		//std::cout<<solutions.mTime[num_timesteps+1]<<"\t"<<solutions.mSolutions[num_timesteps+1][0]<<std::endl;
-	}
-	
-			
-	return solutions;
+		return next_y_value;
 }
