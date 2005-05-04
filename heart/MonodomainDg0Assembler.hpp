@@ -34,7 +34,7 @@ protected:
         double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
         
-        static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+        static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::NUM_GAUSS_POINTS_PER_DIMENSION);
         
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();
@@ -73,7 +73,7 @@ protected:
             {
                 for (int col=0; col < num_nodes; col++)
                 {
-                    double integrand_val1 = (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(x) * phi[row] * phi[col];
+                    double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pPde->ComputeDuDtCoefficientFunction(x) * phi[row] * phi[col];
                     rAElem(row,col) += integrand_val1 * wJ; 
 
                     double integrand_val2 = gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);                             
