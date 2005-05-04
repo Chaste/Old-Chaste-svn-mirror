@@ -1,5 +1,5 @@
-This is pdfTeX, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2004.3.25)  4 MAY 2005 13:26
-**parallelcode.tex
+This is pdfTeX, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2004.3.25)  4 MAY 2005 14:04
+**parallelcode
 (./parallelcode.tex{/usr/share/texmf/pdftex/config/pdftex.cfg}
 LaTeX2e <2001/06/01>
 Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, n
@@ -20,8 +20,7 @@ File: size10.clo 2001/04/21 v1.4e Standard LaTeX file (size option)
 \abovecaptionskip=\skip41
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
-)
-No file parallelcode.aux.
+) (./parallelcode.aux)
 \openout1 = `parallelcode.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 6.
@@ -70,13 +69,13 @@ Overfull \hbox (38.24666pt too wide) in paragraph at lines 94--94
 
 [2] [3] (./parallelcode.aux) ) 
 Here is how much of TeX's memory you used:
- 248 strings out of 95437
- 2696 string characters out of 1188125
+ 250 strings out of 95437
+ 2730 string characters out of 1188125
  48420 words of memory out of 1000001
  3318 multiletter control sequences out of 10000+50000
  7755 words of font info for 28 fonts, out of 500000 for 1000
  14 hyphenation exceptions out of 1000
- 23i,6n,19p,155b,287s stack positions out of 1500i,500n,5000p,200000b,5000s
+ 23i,6n,19p,151b,287s stack positions out of 1500i,500n,5000p,200000b,5000s
  28 PDF objects out of 300000
  0 named destinations out of 131072
  0 words of extra memory for PDF output out of 65536
@@ -86,4 +85,4 @@ bbfac.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmtt10.pfb>{/usr/share/texmf
 /dvips/tetex/f7b6d320.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmr10.pfb></
 usr/share/texmf/fonts/type1/bluesky/cm/cmbx12.pfb></usr/share/texmf/fonts/type1
 /bluesky/cm/cmr12.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmr17.pfb>
-Output written on parallelcode.pdf (3 pages, 54679 bytes).
+Output written on parallelcode.pdf (3 pages, 54712 bytes).
