@@ -1,14 +1,16 @@
 #ifndef _MONODOMAINDG0ASSEMBLER_HPP_
 #define _MONODOMAINDG0ASSEMBLER_HPP_
 
-#include "LinearSystem.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"
-#include "ConformingTetrahedralMesh.hpp"
-#include "BoundaryConditionsContainer.hpp"
 #include  <vector>
 #include "petscvec.h"
-#include "AbstractLinearSolver.hpp"
+
+#include "MatrixDouble.hpp"
+#include "VectorDouble.hpp"
+#include "Point.hpp"
+#include "Element.hpp"
+#include "SimpleDg0ParabolicAssembler.hpp"
+#include "AbstractLinearParabolicPde.hpp"
+#include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 #include <iostream>
