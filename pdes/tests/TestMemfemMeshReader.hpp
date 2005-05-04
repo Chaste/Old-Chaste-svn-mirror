@@ -9,9 +9,8 @@
 #define _TESTMEMFEMMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../MemfemMeshReader.hpp"
+#include "MemfemMeshReader.hpp"
 
-static		AbstractMeshReader *spAbMeshReader;
 class TestMemfemMeshReaders : public CxxTest::TestSuite
 {
 	public:
@@ -20,30 +19,32 @@ class TestMemfemMeshReaders : public CxxTest::TestSuite
 	 * Check that input files are opened correctly.
 	 * 
 	 */
-	
 	void TestFilesOpen(void)
 	{
+		MemfemMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
-		                  spAbMeshReader=new MemfemMeshReader(
+		                  pMeshReader = new MemfemMeshReader(
 		                  "pdes/tests/meshdata/Memfem_slab"));		                  
 		             
-		TS_ASSERT(spAbMeshReader->GetNumNodes() == 381);
-		TS_ASSERT(spAbMeshReader->GetNumElements() == 1030);
-		TS_ASSERT(spAbMeshReader->GetNumBoundaryFaces() == 758);
+		TS_ASSERT(pMeshReader->GetNumNodes() == 381);
+		TS_ASSERT(pMeshReader->GetNumElements() == 1030);
+		TS_ASSERT(pMeshReader->GetNumBoundaryFaces() == 758);
 		
 		std::vector<int> NextBoundaryFace;
 		                  
-		NextBoundaryFace = spAbMeshReader->GetNextBoundaryFace();
+		NextBoundaryFace = pMeshReader->GetNextBoundaryFace();
 		
 		TS_ASSERT( NextBoundaryFace[0] == 338  );
 		TS_ASSERT( NextBoundaryFace[1] == 23 );
 		TS_ASSERT( NextBoundaryFace[2] == 374 );
 		
-		TS_ASSERT(spAbMeshReader->GetMaxNodeIndex() == spAbMeshReader->GetNumNodes() - 1);
+		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
 		
-		TS_ASSERT(spAbMeshReader->GetMinNodeIndex() == 0);			    		
+		TS_ASSERT(pMeshReader->GetMinNodeIndex() == 0);			    		
+		
+		delete pMeshReader;
 	}
-		
+
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_
