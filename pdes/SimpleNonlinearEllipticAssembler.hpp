@@ -26,16 +26,12 @@
  * All the functions are defined as stubs which call methods on *pContext.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeResidualPetsc(SNES snes, Vec CurrentSolution, Vec res_vector,
+PetscErrorCode ComputeResidualPetsc(SNES snes, Vec currentSolution, Vec residualVector,
 									void *pContext);
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianAnalyticallyPetsc(SNES snes, Vec CurrentSolution,
-								Mat *pGlobal_jacobian, Mat *pPreconditioner,
+PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
+								Mat *pGlobalJacobian, Mat *pPreconditioner,
 								MatStructure *pMatStructure, void *pContext);
-template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianNumericallyPetsc(SNES snes, Vec input, Mat *pJacobian, 
-    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
-    										  void *pContext);
 
 
 
@@ -68,6 +64,7 @@ public:
 	PetscErrorCode ComputeResidual(const Vec currentSolution, Vec residualVector);
 	PetscErrorCode ComputeJacobianAnalytically(const Vec currentSolution, Mat *pGlobalJacobian);
 	PetscErrorCode ComputeJacobianNumerically(const Vec input, Mat *pJacobian);
+	PetscErrorCode ComputeJacobian(const Vec input, Mat *pJacobian);
 
 private:
 	void ComputeResidualOnElement(
@@ -146,16 +143,9 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
     Vec residual;
  	VecDuplicate(initialGuess, &residual);
 
-	if (UseAnalyticalJacobian)
-	{
-		return pSolver->Solve(&ComputeResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
-			&ComputeJacobianAnalyticallyPetsc<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
-	}
-	else
-	{
-		return pSolver->Solve(&ComputeResidualPetsc<ELEMENT_DIM, SPACE_DIM>,		
-			&ComputeJacobianNumericallyPetsc<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
-	}
+	return pSolver->Solve(&ComputeResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
+		&ComputeJacobianPetsc<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
+
 }
 
 
@@ -522,6 +512,56 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  * 
  */
 
+/**
+ * Function called by PETSc to compute the jacobian matrix given the current solution guess.
+ * Calls a method on a SimpleNonlinearEllipticAssembler object to do the calculation.
+ * 
+ * @param snes This is not used by us, but required by PETSc.
+ * @param currentSolution The solution guess for the current iteration.
+ * @param pGlobalJacobian Pointer to object to fill with the jacobian matrix.
+ * @param pPreconditioner This is not used by us, but required by PETSc.
+ * @param pMatStructure This is not used by us, but required by PETSc.
+ * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
+ * @return An error code if any PETSc routines fail.
+ */
+template<int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
+							Mat *pGlobalJacobian, Mat *pPreconditioner,
+							MatStructure *pMatStructure, void *pContext)
+{
+	// Extract an assembler from the void*
+	SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
+		(SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
+	
+	return pAssembler->ComputeJacobian(currentSolution, pGlobalJacobian);
+}
+
+/**
+ * Compute the Jacobian matrix given a current guess at the solution.
+ * Choose whether to use a numerical or analytical method based on a flag
+ * provided by the user.
+ * 
+ * @param currentSolution The solution guess for the current iteration.
+ * @param pGlobalJacobian Pointer to object to fill with the jacobian matrix.
+ * @return An error code if any PETSc routines fail.
+ */
+template<int ELEMENT_DIM, int SPACE_DIM>
+PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobian(
+							const Vec currentSolution, Mat *pGlobalJacobian)
+{
+	if (mUseAnalyticalJacobian)
+	{
+		return ComputeJacobianAnalytically(currentSolution, pGlobalJacobian);
+	}
+	else
+	{
+		return ComputeJacobianNumerically(currentSolution, pGlobalJacobian);
+	}
+}
+
+
+
+
 template<int ELEMENT_DIM, int SPACE_DIM>
 void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOnElement(
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
@@ -615,29 +655,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 }
 
 
-/**
- * Function called by PETSc to compute the jacobian matrix given the current solution guess.
- * Calls a method on a SimpleNonlinearEllipticAssembler object to do the calculation.
- * 
- * @param snes This is not used by us, but required by PETSc.
- * @param currentSolution The solution guess for the current iteration.
- * @param pGlobalJacobian Pointer to object to fill with the jacobian matrix.
- * @param pPreconditioner This is not used by us, but required by PETSc.
- * @param pMatStructure This is not used by us, but required by PETSc.
- * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
- * @return An error code if any PETSc routines fail.
- */
-template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianAnalyticallyPetsc(SNES snes, Vec currentSolution,
-							Mat *pGlobalJacobian, Mat *pPreconditioner,
-							MatStructure *pMatStructure, void *pContext)
-{
-	// Extract an assembler from the void*
-	SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
-		(SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
-	
-	return pAssembler->ComputeJacobianAnalytically(currentSolution, pGlobalJacobian);
-}
+
 
 /**
  * Compute the jacobian matrix given the current solution guess.
@@ -711,29 +729,6 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 }
 
 
-/**
- * Computes the Jacobian numerically i.e. an approximation, using partial derivatives.
- * Calls a method on a SimpleNonlinearEllipticAssembler object to do the calculation.
- * 
- * @param snes A PETSc nonlinear solver object
- * @param input Indepedent variable, u in f(u), for example
- * @param *pJacobian A pointer to the Jacobian matrix
- * @param *pPreconditioner A pointer to a preconditioner matrix
- * @param *pMatStructure A pointer to the PETSc matrix type e.g. AIJ
- * @param *pContext A pointer to anything else that needs to be passed
- * 
- * @return PetscErrorCode Petsc Error Code
- */
-template <int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianNumericallyPetsc(SNES snes, Vec input, Mat *pJacobian, 
-    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
-    										  void *pContext)
-{
-	SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
-		(SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
-
-	pAssembler->ComputeJacobianNumerically(input, pJacobian);
-}
 
 /**
  * Computes the Jacobian numerically i.e. an approximation, using partial derivatives.
