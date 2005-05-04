@@ -217,3 +217,63 @@ bool MatrixDouble::IsSquare( void )
 	return (mRows==mColumns);
 }
 
+
+double MatrixDouble::GetTrace()
+{
+	assert(mRows==mColumns);
+	double sum=0;
+	for(int i=0; i<mRows; i++)
+	{
+		int index = i + mColumns*i;
+		sum += mElementArray[index];
+	}
+	return sum;
+}
+
+
+double MatrixDouble::GetFirstInvariant()
+{
+	assert(mRows==mColumns);
+	assert(mRows<=3);
+	
+	return GetTrace();
+}
+
+double MatrixDouble::GetSecondInvariant()
+{
+	assert(mRows==mColumns);
+	assert(mRows<=3);
+	assert(mRows>1);
+	
+	double ret;
+	if(mRows==2)
+	{
+		// second invariant in 2d is the determinant
+		ret = Determinant();
+	}
+	else if(mRows==3)
+	{
+		// second invariant in 3d is 0.5*(tr(C^2)-tr(C)^2;
+		// ie C[0][1]*C[1][0] + C[1][2]*C[2][1] + C[2][0]*C[0][2] - C[0][0]*C[1][1] - C[1][1]*C[2][2] - C[2][2]*C[0][0];
+		
+		ret =   mElementArray[1]*mElementArray[3] + mElementArray[2]*mElementArray[6] 
+		      + mElementArray[5]*mElementArray[7] - mElementArray[0]*mElementArray[4]
+		      - mElementArray[4]*mElementArray[8] - mElementArray[8]*mElementArray[0];
+	}
+	else
+	{
+		// shouldn't be possible to get here
+		assert(0);
+	}
+	
+	return ret;
+}
+	
+double MatrixDouble::GetThirdInvariant()
+{
+	assert(mRows==mColumns);
+	assert(mRows==3);
+
+	return Determinant();
+}	
+

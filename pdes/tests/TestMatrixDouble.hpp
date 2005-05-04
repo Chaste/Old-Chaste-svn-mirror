@@ -282,7 +282,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		
 	}
 	
-void TestResetToZero( void )
+	void TestResetToZero( void )
 	{
 		MatrixDouble A(3,2);
 		A(0,0) = 2.4;
@@ -301,8 +301,43 @@ void TestResetToZero( void )
 		}
 	}
 
+	void TestTraceAndInvariants()
+	{
+		MatrixDouble A(1,1);
+		A(0,0) = 10;
+		TS_ASSERT_DELTA( A.GetTrace(), 10, 1e-12);
+		TS_ASSERT_DELTA( A.GetFirstInvariant(), 10, 1e-12);
+
+		MatrixDouble B(2,2);
+		B(0,0) = 1;
+		B(0,1) = 2;
+		B(1,0) = 3;
+		B(1,1) = 4;
+
+		TS_ASSERT_DELTA( B.GetTrace(), 5, 1e-12);
+		TS_ASSERT_DELTA( B.GetFirstInvariant(),   5, 1e-12);
+		TS_ASSERT_DELTA( B.GetSecondInvariant(), -2, 1e-12);
+		
+		MatrixDouble C(3,3);
+		C(0,0) = 1;
+		C(0,1) = 2;
+		C(0,2) = 3;
+		C(1,0) = 4;
+		C(1,1) = 5;
+		C(1,2) = 6;
+		C(2,0) = 7;
+		C(2,1) = 8;
+		C(2,2) = 9;
+
+		TS_ASSERT_DELTA( C.GetTrace(),           15, 1e-12);
+		TS_ASSERT_DELTA( C.GetFirstInvariant(),  15, 1e-12);
+		TS_ASSERT_DELTA( C.GetSecondInvariant(), 18, 1e-12);
+		TS_ASSERT_DELTA( C.GetThirdInvariant(),   0, 1e-12);
+	}
 }; 
 
+
+	
 
 
 #endif //_TESTMATRIXDOUBLE_HPP_

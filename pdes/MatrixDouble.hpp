@@ -28,6 +28,14 @@ class MatrixDouble
 		VectorDouble operator*(VectorDouble& rSomeVector);
 		MatrixDouble Transpose();
 		bool IsSquare( void );
+		double GetTrace();
+		double GetFirstInvariant();
+		double GetSecondInvariant();
+		double GetThirdInvariant();
+
+
+
+
 };
 
 
