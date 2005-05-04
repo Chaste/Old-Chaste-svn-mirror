@@ -1,13 +1,13 @@
 \documentclass{article}
 
 \author{Joe Pitt-Francis}
-\title{Parallelization of Heart Practical 6}
+\title{Parallelisation of Heart Practical 6}
 
 \begin{document}
 \maketitle
 \section{Introduction}
 
-This document concerns the parallization of heart practical 6.  As of
+This document concerns the parallelisation of heart practical 6.  As of
 this date the code which runs the practical is contained in {\tt
 Chaste/heart/tests/TestMonodomainDg0Assembler.hpp} and consists of tests
 of the form {\tt testMonodomainDg0?D} (where ?\ is replaced by the
@@ -36,7 +36,7 @@ A {\tt SimpleLinearSolver} (which is a wrapper to a KSP) is
 constructed.
 \item A {\tt MonoDomainDg0Assemble} object is constructed.
 \item A vector of voltages (-84.5  for each node) is built.
-\item A data writer is initialized.
+\item A data writer is initialised.
 \item In a loop over time
 \begin{itemize}
 \item The voltages are used to set the initial condition of the
@@ -49,7 +49,7 @@ which is used in the next iteration.
 \item The final solution may be tested against some known solution.
 \end{enumerate}
 
-\section{What can by parallelized?}
+\section{What can be parallelised?}
 
 \subsection{Linear algebra}
 
@@ -90,14 +90,71 @@ for (int i=0;i<3;i++){
   if (lo<=i && i<hi){
     TS_ASSERT_DELTA(solution_elements[i-lo], real_solution[i], 0.000001);
   }
-}R
+}
 \end{verbatim}
 
 \subsection{Linear system assembly}
 
-Three solutions...
+Since the matrix and right-hand side of the linear algebra system are
+already distributed, there are 3 immediate solutions to the problem of
+assembling the linear system in parallel.
 
-\subsection{ODE solvers}
+The cleanest solution is to produce a {\bf master assembly}.  That
+is, one process read the mesh files and constructs the finite-element
+mesh.  It then assembles the entire linear system while the other
+processes spin.  All the data is pushed out to the remote processes
+using the normal PETSc synchronisation techniques.   The disadvantages
+of this method are that it require lots of communication, the
+processes need call MPI in order to know their rank and there is a
+memory in-balance between the master process and the slaves.
+
+A compromise solution is to do a {\bf fully distributed assembly}.  In
+this method each process loops through a subset of the elements and a
+subset of the boundary conditions.  Care would need to be taken to
+ensure that the nodes owned by the subset of elements matched the
+nodes owned by the processor in the global solution.  It may be
+possible for the processes to work on a reduced mesh in order to save
+memory, but this would be a lot of careful re-programming.  This is
+the most efficient method, but it still suffers from a communication
+overhead (since processes will need to set values owned by remote
+processes).
+
+The least efficient way to code the assembly is to do {\bf full local
+assembly}.  Here every process reads the entire mesh and attempts to
+construct the entire system.  We need to guard against the same value
+in a matrix being set multiple times (since this is inefficient) or
+being added to multiple times (since this would be incorrect).
+If the guard makes sure that only locally owned values are inserted or
+added to, then we can cut the communication down to a negligible
+amount.  Since coding this amounts to a small re-factoring of the {\tt
+LinearSystem} class, we opt for this approach. 
+
+\subsection{PDE to ODE coupling}
+Currently, the {\tt MonodomainPde} class contains the input and output
+variables for the solution of the system of ODEs at each node
+position. The ODE solver solves a system of ODEs at each node
+independently and therefore its work may be trivially parallelised. It
+is our opinion that the PDE class ought to be distributed in the same
+manner that PETSc vectors are distributed. When a PDE class is
+constructed, each processor ought to reserve the amount of space
+for ODE inputs and outputs that corresponds to the number of nodes
+which it owns in the global solution. Simple guards can be implemented
+such that all operations on the PDE object are only actioned
+locally. For example, the method {\tt SetStimulusFunctionAtNode(0,
+\ldots)} should only be actioned on process 0 and ignored by all other
+processes (because it is likely that process 0 will own node 0).
+
+The advantage of distributing the PDE object in the same manner as the
+PETSc vector is that all exchange of data between the PDE solver and
+the ODE solver stays local to the process.
+
+\subsection{Data writers}
+
+The data which needs to be output from a parallel simulation is
+distributed across all the processes. We need to rewrite the data
+writers in order to ensure that data from all processes is collated
+into a single file in a consistent manner.  This problem is similar to
+that in Parallel Programming Exercise 7.
 
 \section{Fine-grained tasks}
 
@@ -125,3 +182,7 @@ Copy and fix the three Heart Practical 6 tests.
 \item[42] (Total estimate in pair hours.  32 remaining)
 \end{itemize}
 \end{document}
+
+% LocalWords:  testMonodomainDg EulerIvpOdeSolver MonodomainPde KSP PDE PETSc
+% LocalWords:  SetUniversalInitialConditions SimpleLinearSolver MonoDomainDg
+% LocalWords:  MPI LinearSystem MonodomainPDE ODEs SetStimulusFunctionAtNode
