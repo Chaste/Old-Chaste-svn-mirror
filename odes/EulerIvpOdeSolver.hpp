@@ -4,22 +4,21 @@
 #ifndef _EULERIVPODESOLVER_HPP_
 #define _EULERIVPODESOLVER_HPP_
 
-#include "AbstractIvpOdeSolver.hpp"
+#include "AbstractOneStepIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
 #include <vector>
 
-class EulerIvpOdeSolver : public AbstractIvpOdeSolver
+class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 	public:
-	EulerIvpOdeSolver() {};
-	
-	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				      double startTime,
-				      double endTime,
-				      double timeStep,
-				      std::vector<double> initialConditions);
+	EulerIvpOdeSolver() {}; //do nothing
+				      
+	std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+											double timeStep,
+											double time,
+											std::vector<double> currentYValue);
 	
 };
 
