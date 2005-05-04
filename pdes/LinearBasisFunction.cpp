@@ -29,50 +29,53 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
 		break;			
 
 	case 1:
-		assert(basisIndex == 0 || basisIndex == 1);
-    	if(basisIndex == 0)
-    	{	
-        	return 1.0 - point[0];
-    	}
-    	else
-    	{
-        	return point[0];   
+		switch (basisIndex)
+		{
+			case 0:
+				return 1.0 - point[0];
+				break;
+    		case 1:
+        		return point[0];
+        		break;
+        	default:
+        		assert(false);   
     	}
     	break;
     	
     case 2:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2);
-    	if(basisIndex == 0)
-    	{	
-        	return 1.0 - point[0] - point[1];
-    	}
-    	else if(basisIndex == 1)
-    	{	
-        	return point[0];
-    	}
-    	else
+    	switch (basisIndex)
     	{
-        	return point[1];   
+    		case 0:
+    			return 1.0 - point[0] - point[1];
+    			break;
+    		case 1:
+    			return point[0];
+    			break;
+    		case 2:
+    			return point[1];
+    			break;
+    		default:
+    			assert(false);   
     	}
     	break;
     	
     case 3:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3);
-    	if(basisIndex == 0)
-    	{	
-        	return 1.0 - point[0] - point[1] - point[2];
-    	}
-    	else if(basisIndex == 1)
-    	{	
-        	return point[0];
-    	}
-    	else if(basisIndex == 2)
-    	{	
-        	return point[1];
-    	}
-    	else
+    	switch (basisIndex)
     	{
-        	return point[2];   
+    		case 0:	
+        		return 1.0 - point[0] - point[1] - point[2];
+        		break;
+    		case 1:
+    			return point[0];
+    			break;
+			case 2:
+				return point[1];
+				break;
+			case 3:
+				return point[2]; 
+				break;
+			default:
+				assert(false);  
     	}
     	break;
 	}
@@ -98,61 +101,64 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
 	switch(ELEM_DIM)
 	{
 	case 1:
-		assert(basisIndex == 0 || basisIndex == 1);
-    	if(basisIndex == 0)
-    	{	
-        	gradN(0) =  - 1;
-    	}
-    	else
+    	switch (basisIndex)
     	{
-        	gradN(0) = 1;   
+    		case 0:
+    			gradN(0) =  - 1;
+    			break;
+			case 1:
+				gradN(0) = 1; 
+				break;
+			default:
+				assert(false);
     	}
     	break;
     	
     case 2:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2);
-    	if(basisIndex == 0)
-    	{	
-        	gradN(0) =  - 1;
-        	gradN(1) = - 1;
-    	}
-    	else if(basisIndex == 1)
-    	{	
-        	gradN(0) = 1;
-        	gradN(1) = 0;
-    	}
-    	else
+    	switch (basisIndex)
     	{
-        	gradN(0) = 0;
-        	gradN(1) = 1;   
+    		case 0:
+        		gradN(0) =  - 1;
+        		gradN(1) = - 1;
+        		break;
+    		case 1:
+        		gradN(0) = 1;
+        		gradN(1) = 0;
+        		break;
+    		case 2:
+    			gradN(0) = 0;
+        		gradN(1) = 1;   
+        		break;
+    		default:
+    			assert(false);
     	}
     	break;
     	
     case 3:
-    	assert(basisIndex == 0 || basisIndex == 1 || basisIndex == 2 || basisIndex == 3);
-    	if(basisIndex == 0)
-    	{	
-        	gradN(0) =  - 1;
-        	gradN(1) = - 1;
-        	gradN(2) = - 1;
-    	}
-    	else if(basisIndex == 1)
-    	{	
-        	gradN(0) =  1;
-        	gradN(1) =  0;
-        	gradN(2) =  0;
-    	}
-    	else if(basisIndex == 2)
-    	{	
-        	gradN(0) =  0;
-        	gradN(1) =  1;
-        	gradN(2) =  0;
-    	}
-    	else
+    	switch (basisIndex)
     	{
-        	gradN(0) =  0;
-        	gradN(1) =  0;
-        	gradN(2) =  1;   
+    		case 0:
+        		gradN(0) =  - 1;
+        		gradN(1) = - 1;
+        		gradN(2) = - 1;
+        		break;
+    		case 1:
+    			gradN(0) =  1;
+	        	gradN(1) =  0;
+    	    	gradN(2) =  0;
+	    		break;
+    		case 2:
+    			gradN(0) =  0;
+	        	gradN(1) =  1;
+    	    	gradN(2) =  0;
+    			break;
+			case 3:
+				gradN(0) =  0;
+        		gradN(1) =  0;
+        		gradN(2) =  1;
+        		break;
+    		default:
+    			assert(false);   
     	}
     	break;
 	}    
