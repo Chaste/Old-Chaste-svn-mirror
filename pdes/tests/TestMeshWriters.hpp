@@ -25,7 +25,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 	public:
 	
 	
-	void testMemfemtoTetgen(void)
+	void TestMemfemtoTetgen(void)
 	{	
 		spImportMeshReader=new MemfemMeshReader(
 							"pdes/tests/meshdata/Memfem_slab");
@@ -53,7 +53,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 	
 	}
 
-	void testFemlabtoTriangles(void)
+	void TestFemlabtoTriangles(void)
 	{	
 		spImportMeshReader=new FemlabMeshReader(
 							"pdes/tests/meshdata/",
@@ -83,7 +83,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 							new TrianglesMeshReader("/tmp/MeshFromFemlab"));
 	}
 	
-	void testTrianglesToMeshalyzer(void)
+	void TestTrianglesToMeshalyzer(void)
 	{	
 		spImportMeshReader=new TrianglesMeshReader(
 							"pdes/tests/meshdata/slab_138_elements");
@@ -124,7 +124,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		
 	}
 
-	void testTrianglesToCoolGraphics(void)
+	void TestTrianglesToCoolGraphics(void)
 	{	
 		spImportMeshReader=new TrianglesMeshReader(
 							"pdes/tests/meshdata/slab_138_elements");

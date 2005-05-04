@@ -13,7 +13,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 {
 	public:
 	
-	void testQuadraticBasisFunction0d() 
+	void TestQuadraticBasisFunction0d() 
 	{
 		Point<0> zero;
 		QuadraticBasisFunction<0> basis_func;
@@ -23,7 +23,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 	
 		
 	
-	void testQuadraticBasisFunction1d()
+	void TestQuadraticBasisFunction1d()
 	{
 		std::vector<Point<1>*> evaluation_points;
 		Point<1> zero(0);
@@ -37,26 +37,6 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		
 		BasisFunctionsCheckers<1> checker;
 		checker.checkBasisFunctions(&basis_func, evaluation_points);
-		
-		
-		// Mass compute
-		std::vector<double> basis_function_vector;
-		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
-		TS_ASSERT_EQUALS(basis_function_vector.size(), 3);
-		
-		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[1], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
-		
-		basis_function_vector = basis_func.ComputeBasisFunctions(one);
-		TS_ASSERT_DELTA(basis_function_vector[0], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[1], 1.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[2], 0.0, 1e-12);
-		
-		basis_function_vector = basis_func.ComputeBasisFunctions(half);
-		TS_ASSERT_DELTA(basis_function_vector[0], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[1], 0.0, 1e-12);
-		TS_ASSERT_DELTA(basis_function_vector[2], 1.0, 1e-12);
 		
 		// Derivatives
 		std::vector<VectorDouble> derivatives;
@@ -79,7 +59,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[2](0),  0.0, 1e-12);
 	}
 	
-	void testQuadraticBasisFunction2d()
+	void TestQuadraticBasisFunction2d()
 	{
 		Point<2> zero(0,0);
 		Point<2> onezero(1,0);
@@ -149,7 +129,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[5](1), 0, 1e-12);
 	}
 
-	void testQuadraticBasisFunction3d()
+	void TestQuadraticBasisFunction3d()
 	{
 		Point<3> zero(0,0,0);
 		Point<3> zerozeroone(0,0,1);
@@ -189,7 +169,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[3](0),  0, 1e-12);
 	}
 	
-	void testComputeTransformedQuadraticBasisFunctionDerivatives1d( void )
+	void TestComputeTransformedQuadraticBasisFunctionDerivatives1d( void )
 	{
 		std::vector<const Node<1>*> nodes;
 		nodes.push_back(new Node<1>(0, false, 3.0));
@@ -208,7 +188,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(trans_deriv[2](0),1.2, 1e-12);
 	}
 	
-	void testComputeTransformedQuadraticBasisFunction2d( void )		
+	void TestComputeTransformedQuadraticBasisFunction2d( void )		
 	{		
 		std::vector<const Node<2>*> nodes;
 		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
@@ -237,7 +217,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(trans_deriv[5](1),0.96, 1e-12);
 	}
 	
-	void testComputeTransformedQuadraticBasisFunction3d( void )		
+	void TestComputeTransformedQuadraticBasisFunction3d( void )		
 	{		
 		std::vector<const Node<3>*> nodes;
 		nodes.push_back(new Node<3>(0, false, 4.0, 3.0, 0.0));

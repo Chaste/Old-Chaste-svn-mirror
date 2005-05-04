@@ -75,7 +75,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 	 * \todo This test is obsolete now we use MeshReader. Maybe move some of the
 	 * checks into a new test?
 	 */
-	void testNodeMemoryAllocation( void )
+	void TestNodeMemoryAllocation( void )
     {
         #define DIMENSION 3
         ConformingTetrahedralMesh<DIMENSION,DIMENSION> mesh;
@@ -95,7 +95,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
     }
     
-    void testMeshConstructionFromMeshReader(void)
+    void TestMeshConstructionFromMeshReader(void)
 	{
 		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
@@ -126,7 +126,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         //TS_TRACE("here con tetra\n");
 	}
 	
-	void testMeshWithBoundaryElements(void)
+	void TestMeshWithBoundaryElements(void)
 	{
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
 		ConformingTetrahedralMesh<2,2> mesh;

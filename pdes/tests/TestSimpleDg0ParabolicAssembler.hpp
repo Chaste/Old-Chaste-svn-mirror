@@ -42,7 +42,7 @@ public:
     
     
     /// test 1D problem
-	void testSimpleDg0ParabolicAssembler1DZeroDirich( void )
+	void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
 	{		
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -105,7 +105,7 @@ public:
 	
 	
 	    // test 1D problem
-	void testSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
+	void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -167,7 +167,7 @@ public:
 	}	
 	
 	
-	void testSimpleDg0ParabolicAssemblerNonzeroNeumannCondition()
+	void TestSimpleDg0ParabolicAssemblerNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -231,7 +231,7 @@ public:
     }
 	
 	
-	void testSimpleDg0ParabolicAssembler2DZeroDirich( void )
+	void TestSimpleDg0ParabolicAssembler2DZeroDirich( void )
 	{	
 		// read mesh on [0,1]x[0,1]
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
@@ -295,7 +295,7 @@ public:
 	
 	
 	// test 2D problem
-	void testSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm( void )
+	void TestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
@@ -365,7 +365,7 @@ public:
 	}	
 	
 	// test 2D problem
-	void testSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
+	void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
 	{		
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
@@ -470,7 +470,7 @@ public:
 	
 
 	// test 2D problem
-	void testSimpleDg0ParabolicAssembler2DNeumann( void )
+	void TestSimpleDg0ParabolicAssembler2DNeumann( void )
 	{		
         // Create mesh from mesh reader
 		FemlabMeshReader mesh_reader("pdes/tests/meshdata/",
@@ -694,7 +694,7 @@ public:
 	 * condition u(0,x,y,z)=sin( \pi x)sin( \pi y)sin( \pi z) 
 	 * 
 	 */
-	void testSimpleDg0ParabolicAssembler3DZeroDirich( void )
+	void TestSimpleDg0ParabolicAssembler3DZeroDirich( void )
 	{	
 		// read mesh on [0,1]x[0,1]x[0,1]
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
@@ -767,7 +767,7 @@ public:
 	 * u(0,x,y,z)=sin( \pi x)sin( \pi y)sin( \pi z) - (1/6)(x^2+y^2+z^2)
 	 * 
 	 */
-	void testSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
+	void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
@@ -849,7 +849,7 @@ public:
 	 * u(0,x,y,z)=sin( \pi x)sin( \pi y)sin( \pi z) + x
 	 * 
 	 */
-	void testSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )
+	void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )
 	{		
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");

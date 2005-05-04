@@ -1,11 +1,8 @@
 #ifndef _TESTGAUSSIANQUADRATURERULE_HPP_
 #define _TESTGAUSSIANQUADRATURERULE_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include "GaussianQuadratureRule.hpp"
-
-
 
 class TestGaussianQuadratureRule : public CxxTest::TestSuite 
 {
@@ -15,7 +12,8 @@ public :
 	/**
 	 * Check points and weights are in the right ranges
 	 */
-	void testGaussianQuadratureRule()
+	 
+	 void TestTheGaussianQuadratureRule()
 	{
 		// 0d
 		GaussianQuadratureRule<0> quadRule01(1);
@@ -68,7 +66,7 @@ public :
 	 * 
 	 * 1d case.
 	 */
-	void testGaussianQuadratureRuleIntegralOneD( void )
+	void TestGaussianQuadratureRuleIntegralOneD( void )
 	{
 		for (int num_quad_points=1; num_quad_points<4; num_quad_points++)
 		{
@@ -116,7 +114,7 @@ public :
 	 * 
 	 * We integrate things like x, y, x^2, xy, y^2, ...
 	 */
-	void testGaussianQuadratureRuleIntegralTwoD( void )
+	void TestGaussianQuadratureRuleIntegralTwoD( void )
 	{
 		// Expected answers [degree_x][degree_y]
 		double expected[5][5] = { {1.0/2,  1.0/6,  1.0/12, 1.0/20, 1.0/30},
@@ -165,7 +163,7 @@ public :
 	 * 
 	 * We integrate things like x, y, z, x^2, y^2, z^2, xy, xz, yz... 
 	 */
-	void testGaussianQuadratureRuleIntegralThreeD( void )
+	void TestGaussianQuadratureRuleIntegralThreeD( void )
 	{
 		// Expected answers [degree_x][degree_y][degree_z]
 		double expected[5][5][5] 

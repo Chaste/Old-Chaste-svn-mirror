@@ -21,12 +21,11 @@ class TestMemfemMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testFilesOpen(void)
+	void TestFilesOpen(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
 		                  spAbMeshReader=new MemfemMeshReader(
-		                  "pdes/tests/meshdata/Memfem_slab"));
-		                  
+		                  "pdes/tests/meshdata/Memfem_slab"));		                  
 		             
 		TS_ASSERT(spAbMeshReader->GetNumNodes() == 381);
 		TS_ASSERT(spAbMeshReader->GetNumElements() == 1030);
@@ -42,12 +41,9 @@ class TestMemfemMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT(spAbMeshReader->GetMaxNodeIndex() == spAbMeshReader->GetNumNodes() - 1);
 		
-		TS_ASSERT(spAbMeshReader->GetMinNodeIndex() == 0);
-		
-			    		
+		TS_ASSERT(spAbMeshReader->GetMinNodeIndex() == 0);			    		
 	}
-	
-	
-	};
+		
+};
 
 #endif //_TESTMEMFEMMESHREADER_HPP_

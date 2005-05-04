@@ -21,7 +21,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testFilesOpen(void)
+	void TestFilesOpen(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
 		                  spFemlabMeshReader=new FemlabMeshReader(
@@ -38,7 +38,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */	 
 	 
-	void testNodesDataRead(void)
+	void TestNodesDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
@@ -51,7 +51,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 				
 	}
 	
-	void testDimension(void)
+	void TestDimension(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
@@ -69,7 +69,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	 
-	void testElementsDataRead(void)
+	void TestElementsDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
@@ -89,7 +89,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	 
-	void testFacesDataRead(void)
+	void TestFacesDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
@@ -110,7 +110,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	 
-	void testGetNextNode(void)
+	void TestGetNextNode(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
@@ -148,7 +148,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	 
-	void testGetNextElement(void)
+	void TestGetNextElement(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",
@@ -188,7 +188,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	 
-	void testGetNextBoundaryFace(void)
+	void TestGetNextBoundaryFace(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
 		                  "pdes/tests/meshdata/",

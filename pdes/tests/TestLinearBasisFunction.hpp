@@ -11,14 +11,14 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 {
 	public:
 	
-	void testLinearBasisFunction0d() 
+	void TestLinearBasisFunction0d() 
 	{
 		Point<0> zero;
-		LinearBasisFunction<0> basis_func;
-		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
+		LinearBasisFunction<0> basis_function;
+		TS_ASSERT_DELTA(basis_function.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
 
 		std::vector<double> basis_function_vector;
-		basis_function_vector = basis_func.ComputeBasisFunctions(zero);
+		basis_function_vector = basis_function.ComputeBasisFunctions(zero);
 		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
 		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
 		
@@ -27,12 +27,12 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		Point<0>   quad_point = quad_rule.GetQuadPoint(0);
 
 		std::vector<double> basis_function_vector2;
-		basis_function_vector2 = basis_func.ComputeBasisFunctions(quad_point);
+		basis_function_vector2 = basis_function.ComputeBasisFunctions(quad_point);
 		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
 		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);	
 	}
 	
-	void testLinearBasisFunction1d()
+	void TestLinearBasisFunction1d()
 	{
 		Point<1> zero(0);
 		Point<1> one(1);
@@ -53,7 +53,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
 	}
 	
-	void testLinearBasisFunction2d()
+	void TestLinearBasisFunction2d()
 	{
 		Point<2> zero(0,0);
 		Point<2> onezero(1,0);
@@ -79,7 +79,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 	}
 
 
-	void testLinearBasisFunction3d()
+	void TestLinearBasisFunction3d()
 	{
 		Point<3> zero(0,0,0);
 		Point<3> zerozeroone(0,0,1);
@@ -108,7 +108,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 	}
 	
 	
-	void testComputeTransformedBasisFunctionDerivatives( void )
+	void TestComputeTransformedBasisFunctionDerivatives( void )
 	{
 		// 1D
 		LinearBasisFunction<1> basis_func;
@@ -158,7 +158,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 			//TS_TRACE("here lin basis\n");	
 	}
 	
-	void testComputeTransformedBasisFunction2( void )		
+	void TestComputeTransformedBasisFunction2( void )		
 	{		
 		// 2D - with better test data
 		

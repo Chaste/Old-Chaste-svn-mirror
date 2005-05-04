@@ -54,7 +54,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testNodesDataRead(void)
+	void TestNodesDataRead(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
@@ -77,7 +77,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testElementsDataRead(void)
+	void TestElementsDataRead(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
@@ -101,7 +101,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testFacesDataRead(void)
+	void TestFacesDataRead(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
@@ -124,7 +124,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void test3dDataRead(void)
+	void Test3dDataRead(void)
 	{			
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
@@ -142,7 +142,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testIndexFromZero(void)
+	void TestIndexFromZero(void)
 	{		
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
@@ -163,7 +163,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testIndexFromOne(void)
+	void TestIndexFromOne(void)
 	{
 		TS_ASSERT_THROWS_NOTHING(
 		                  spMeshReader=new TrianglesMeshReader(
@@ -185,7 +185,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testPermutedNodesFail(void)
+	void TestPermutedNodesFail(void)
 	{
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
@@ -201,7 +201,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testOrder2ElementsFail(void)
+	void TestOrder2ElementsFail(void)
 	{
 		TS_ASSERT_THROWS_ANYTHING(
 		                  spMeshReader=new TrianglesMeshReader(
@@ -218,7 +218,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */
 	
-	void testGetNextNode(void)
+	void TestGetNextNode(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
@@ -255,7 +255,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */	
 	
-	void testGetNextElement(void)
+	void TestGetNextElement(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
@@ -279,7 +279,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * 
 	 */	
 	
-	void testGetNextEdge(void)
+	void TestGetNextEdge(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
@@ -298,7 +298,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 	}
 	
-	void testGetNextBoundaryEdge(void)
+	void TestGetNextBoundaryEdge(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements");
@@ -325,7 +325,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	 * boundary faces is 2.
 	 */
 	
-	void test1DMeshRead(void)
+	void Test1DMeshRead(void)
 	{
 		spMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/trivial_1d_mesh");

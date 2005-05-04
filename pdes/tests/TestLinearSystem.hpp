@@ -17,7 +17,7 @@ public:
 		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }   
     
-    void testLinearSystem1( void )
+    void TestLinearSystem1( void )
     {
         
         LinearSystem ls(3);
@@ -46,7 +46,7 @@ public:
         
     }
 
-    void testLinearSystem2( void )
+    void TestLinearSystem2( void )
     {
         LinearSystem ls(2);
         ls.SetMatrixRow(0, 1.0);

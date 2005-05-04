@@ -26,7 +26,7 @@ public:
     }   
         
     
-    void testOn2dNonlinearProblem(void)
+    void TestOn2dNonlinearProblem(void)
     {
     	SimpleNonlinearSolver *solver=new SimpleNonlinearSolver();
     	
@@ -62,7 +62,7 @@ public:
     	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
     }
     
-    void testOn3dNonlinearProblem(void)
+    void TestOn3dNonlinearProblem(void)
     {
     	SimpleNonlinearSolver *solver=new SimpleNonlinearSolver();
     	

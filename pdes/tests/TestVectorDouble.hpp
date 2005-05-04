@@ -7,7 +7,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 {
 	public:
 	
-	void testConstructor()
+	void TestConstructor()
 	{
 		VectorDouble A(3);
 		TS_ASSERT_DELTA(A(1), 0.0, 0.0000000001);
@@ -15,7 +15,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 	
 	
 	
-	void testCopyConstructor()
+	void TestCopyConstructor()
 	{
 		VectorDouble A(3);
 		double value = 5.0;
@@ -31,7 +31,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 	
 	
 	
-	void testOverloadedEqualsOperator()
+	void TestOverloadedEqualsOperator()
 	{
 		VectorDouble A(2);
 		double value = 5.0;
@@ -41,7 +41,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(A(1), value, 0.0000000001);
 		TS_ASSERT_DELTA(B(1), value, 0.0000000001);
 	}
-	void testAddition( void )
+	void TestAddition( void )
 	{
 		VectorDouble A(5), B(5), C(5);
 		for (int i=0; i<5; i++)
@@ -57,7 +57,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 		
 	}
 	
-	void testSubtraction( void )
+	void TestSubtraction( void )
 	{
 		VectorDouble A(5), B(5), C(5);
 		for (int i=0; i<5; i++)
@@ -73,14 +73,14 @@ class TestVectorDouble : public CxxTest::TestSuite
 		
 	}
 	
-	void testSize( void )
+	void TestSize( void )
 	{
 		VectorDouble A(12);
 		TS_ASSERT_EQUALS( A.Size(), 12);
 		
 	}
 	
-	void testDotProduct( void )
+	void TestDotProduct( void )
 	{
 		VectorDouble A(5), B(5);
 		for (int i=0; i<5; i++)
@@ -91,7 +91,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(A.dot(B), 30.0, 1e-12);
 	}
 	
-	void testResetToZero()
+	void TestResetToZero()
 	{
 		VectorDouble A(3);
 		A(0)=10; A(1)=10; A(2)=10;
@@ -101,7 +101,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(A(2), 0.0, 0.0000000001);
 	}
 	
-	void testVectorProduct( void )
+	void TestVectorProduct( void )
 	{
 		VectorDouble A(3);
 		VectorDouble B(3);
@@ -118,7 +118,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 		
 	}
 	
-	void testScalarVectorAndVectorScalarMultiply()
+	void TestScalarVectorAndVectorScalarMultiply()
 	{
 		VectorDouble A(3);
 		VectorDouble B(3);
@@ -136,7 +136,7 @@ class TestVectorDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(A(2), 27.0, 0.0000000001);
 	}
 	
-	void testL2Norm()
+	void TestL2Norm()
 	{
 		VectorDouble A(2);
 		A(0)=3; A(1)=4;

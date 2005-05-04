@@ -136,7 +136,7 @@ public:
 	}
 
 	
-	void testJacobian()
+	void TestJacobian()
 	{
 		// 1d
 		std::vector<const Node<1>*> nodes1d;
@@ -235,7 +235,7 @@ public:
 		
 	}
 	
-    void testNodeToElementConversion(void)
+    void TestNodeToElementConversion(void)
     {
         Point<1> point1(1.0);
         Point<2> point2(2.0,-1.0);

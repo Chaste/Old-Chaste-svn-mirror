@@ -8,7 +8,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 {
 	public:
 	
-	void testConstructor()
+	void TestConstructor()
 	{
 		MatrixDouble A(3,2);
 		TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
@@ -16,7 +16,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	
 	
-	void testCopyConstructor()
+	void TestCopyConstructor()
 	{
 		MatrixDouble A(3,4);
 		double value = 5.0;
@@ -32,7 +32,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	
 	
-	void testOverloadedEqualsOperator()
+	void TestOverloadedEqualsOperator()
 	{
 		MatrixDouble A(2,2);
 		double value = 5.0;
@@ -45,7 +45,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	}
 	
 	
-	void testScalarMultiplication()
+	void TestScalarMultiplication()
 	{
 		MatrixDouble A(2,3);
 		A(0,0) = 1.0;
@@ -63,7 +63,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		}
 	}
 	
-	void testScalarMultiplication2()
+	void TestScalarMultiplication2()
 	{
 		MatrixDouble A(2,3);
 		A(0,0) = 1.0;
@@ -81,7 +81,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		}
 	}	
 	
-	void testIsSquare( void )
+	void TestIsSquare( void )
 	{
 		MatrixDouble A(3,3);
 		A(1,1)=1;
@@ -93,7 +93,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		TS_ASSERT(!(B.IsSquare()));
 	}
 	
-	void testIdentity()
+	void TestIdentity()
 	{
 		MatrixDouble A=MatrixDouble::Identity(3);
 		
@@ -112,20 +112,20 @@ class TestMatrixDouble : public CxxTest::TestSuite
 			}
 		}
 	}
-	void testRows( void )
+	void TestRows( void )
 	{
 		MatrixDouble A(33,3);
 		TS_ASSERT_EQUALS( A.Rows(), 33);
 		
 	}
-	void testColumns( void )
+	void TestColumns( void )
 	{
 		MatrixDouble A(3,7);
 		TS_ASSERT_EQUALS( A.Columns(), 7);
 		
 	}
 	
-	void testDeterminant()
+	void TestDeterminant()
 	{
 		MatrixDouble C(1,1);
 		double OneOneDeterminant;
@@ -153,7 +153,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
 	}
 	
-	void testInverse( void )
+	void TestInverse( void )
 	{
 		MatrixDouble C(1,1);
 		C(0,0) = 8;
@@ -238,7 +238,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	
 	
-	void testTranspose()
+	void TestTranspose()
 	{
 		MatrixDouble A(3,2), B(2,3);
 		A(0,0) = 2.4;

@@ -201,7 +201,7 @@ public:
     }   
     
     
-    void testWithHeatEquation1D()
+    void TestWithHeatEquation1D()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -345,7 +345,7 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 
-	void testWithHeatEquation1D2()
+	void TestWithHeatEquation1D2()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -413,7 +413,7 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 	
-	void testWithHeatEquation1D3()
+	void TestWithHeatEquation1D3()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -482,7 +482,7 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 	
-	void testWithHeatEquation1D4()
+	void TestWithHeatEquation1D4()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
