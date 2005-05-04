@@ -174,6 +174,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		std::vector<const Node<1>*> nodes;
 		nodes.push_back(new Node<1>(0, false, 3.0));
 		nodes.push_back(new Node<1>(1, false, 5.0));
+		nodes.push_back(new Node<1>(2, false, 4.0));
 		Element<1,1> element(nodes,2);
 		QuadraticBasisFunction<1> basis_function;
 		
