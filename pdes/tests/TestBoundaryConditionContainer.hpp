@@ -270,7 +270,7 @@ public:
 			bcc3.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
 		}
 		
-		bcc3.ApplyDirichletToNonlinearProblem(currentSolution, residual);
+		bcc3.ApplyDirichletToNonlinearResidual(currentSolution, residual);
 
 		double *currentSolutionArrayPostMod;
 		ierr = VecGetArray(currentSolution, &currentSolutionArrayPostMod);

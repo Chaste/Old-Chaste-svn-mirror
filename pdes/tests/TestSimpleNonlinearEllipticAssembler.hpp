@@ -1,20 +1,23 @@
 #ifndef _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 #define _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 
-#include "SimpleNonlinearEllipticAssembler.hpp"
-#include "SimpleNonlinearSolver.hpp"
-
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include "petscmat.h"
-#include "ConformingTetrahedralMesh.cpp"
 #include <vector>
 #include <cmath>
 #include <iostream>
+
+#include "SimpleNonlinearEllipticAssembler.hpp"
+#include "SimpleNonlinearSolver.hpp"
+
 #include "Node.hpp" 
 #include "Element.hpp"
+#include "ConformingTetrahedralMesh.cpp"
+
 #include "BoundaryConditionsContainer.hpp"
 #include "FunctionalBoundaryCondition.hpp"
+#include "ConstBoundaryCondition.hpp"
 
 #include "NonlinearHeatEquationPde.hpp"
 #include "NonlinearHeatEquation2Pde.hpp"
@@ -26,6 +29,7 @@
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
 
 
+// Old copy of real version; defined below
 PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
     								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
     										  void *pContext);
@@ -94,11 +98,7 @@ public:
      void TestComputeResidual( void )
      {
 		// Create mesh from mesh reader
-		//TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh"); 
-        //double h = 0.15;
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh"); 
-        double h = 0.01;
-        
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 				
@@ -130,7 +130,7 @@ public:
      	SNES snes;
      	SimpleNonlinearEllipticAssembler<1,1> assembler;
      		     	
-     	assembler.mpMesh = &mesh;
+		assembler.mpMesh = &mesh;
      	NonlinearHeatEquationPde<1> pde;
 		assembler.mpPde = &pde;
 		assembler.mpBoundaryConditions = &boundary_conditions;
@@ -138,9 +138,10 @@ public:
 		assembler.mpBasisFunction = &basis_function;
 		assembler.mpGaussianQuadratureRule = &quad_rule;
 
-     	ComputeResidual<1, 1>(snes, currentSolution_vector, res_vector, &assembler);
+     	ComputeResidualPetsc<1,1>(snes, currentSolution_vector, res_vector, &assembler);
 
 		// Set current solution to 1 and compute residual
+        double h = 0.01;
         for (int i = 0; i<mesh.GetNumNodes(); i++)
  		{
      		VecSetValue(currentSolution_vector, i, (PetscReal) 1, INSERT_VALUES);
@@ -148,7 +149,7 @@ public:
 		double InitialGuess = 1.0;
  		Vec Result;
  		VecDuplicate(currentSolution_vector, &Result);
-        ComputeResidual<1,1>(snes, currentSolution_vector, Result, &assembler);
+        ComputeResidualPetsc<1,1>(snes, currentSolution_vector, Result, &assembler);
         
         PetscScalar *answerElements;
         VecGetArray(Result, &answerElements);
@@ -270,9 +271,86 @@ public:
 	
 	void TestNumericalAgainstAnalyticJacobian()
 	{
-		// This uses a function defined in SimpleNonlinearEllipticAssembler.
-		// Should probably be changed...
-		TestStuff();
+		Mat numerical_jacobian;
+		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, 11, 11, &numerical_jacobian);
+		MatSetType(numerical_jacobian, MATSEQDENSE);
+	
+		Mat analytic_jacobian;
+		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, 11, 11, &analytic_jacobian);
+		MatSetType(analytic_jacobian, MATSEQDENSE);
+	
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		// Instantiate PDE object
+		NonlinearHeatEquationPde<1> pde;  
+		
+		// Boundary conditions
+	    BoundaryConditionsContainer<1,1> bcc;
+	    ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+	    bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+	    //pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+	    bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+	        
+		SimpleNonlinearEllipticAssembler<1,1> assembler;
+	    	
+		// Set up initial solution guess for residuals
+		int length=mesh.GetNumNodes();
+		Vec initial_guess;
+		VecCreate(PETSC_COMM_WORLD, &initial_guess);
+		VecSetSizes(initial_guess, PETSC_DECIDE, length);
+		VecSetType(initial_guess, VECSEQ);
+		for(int i=0; i<length ; i++)
+		{
+			//VecSetValue(initial_guess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
+			//VecSetValue(initial_guess, i, 0.25, INSERT_VALUES);
+			VecSetValue(initial_guess, i, (-0.01*i*i), INSERT_VALUES);
+		}
+		VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
+	
+		GaussianQuadratureRule<1> quadRule(2);
+		LinearBasisFunction<1> basis_func;
+			
+		// Store data structures as public members
+		assembler.mpMesh = &mesh;
+		assembler.mpPde = &pde;
+		assembler.mpBoundaryConditions = &bcc;
+		assembler.mpBasisFunction = &basis_func;
+		assembler.mpGaussianQuadratureRule = &quadRule;
+	    	
+	   	SNES snes;
+	
+	    int errcode = ComputeJacobianNumericallyPetsc<1,1>(snes, initial_guess, &numerical_jacobian,
+	       						NULL, NULL, (void*)(&assembler));
+	        						
+		errcode = ComputeJacobianAnalyticallyPetsc<1,1>(snes, initial_guess, &analytic_jacobian,
+	       						NULL, NULL, (void*)(&assembler));
+	
+		MatAssemblyBegin(numerical_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyEnd(numerical_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyBegin(analytic_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyEnd(analytic_jacobian,MAT_FINAL_ASSEMBLY);
+	
+//		TS_TRACE("Numerical:");
+//		MatView(numerical_jacobian, 0);
+//		TS_TRACE("Analytical:");
+//		MatView(analytic_jacobian, 0);
+			
+		PetscScalar numerical[11*11], analytic[11*11];
+		PetscInt idx[11], idy[11], n=11, m=11;
+		for (int i=0; i<n; i++) {
+			idx[i] = i; idy[i] = i;
+		}
+		
+		MatGetValues(numerical_jacobian,m,idx,n,idy,numerical);
+		MatGetValues(analytic_jacobian,m,idx,n,idy,analytic);
+		for (int i=0; i<m; i++) {
+			for (int j=0; j<n; j++) {
+				TS_ASSERT_DELTA(numerical[i*m+j], analytic[i*m+j], 0.001);
+			}
+		}
 	}
 
     void TestWithHeatEquation1DAndNeumannBCs()
@@ -1140,7 +1218,6 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 	
-	
 };
 
 
@@ -1149,6 +1226,9 @@ public:
  * 
  * 'residual' and 'perturbedResidual' are hardcoded (do not actually call ComputeResidual()).
  * 'num_nodes' hardcoded to 2.
+ * 
+ * \todo Write a test for the real method? This should probably be removed in any
+ * case.
  */
 //template <int ELEMENT_DIM, int SPACE_DIM>
 PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 

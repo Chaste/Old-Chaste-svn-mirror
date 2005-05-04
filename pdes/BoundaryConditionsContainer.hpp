@@ -175,7 +175,7 @@ public:
 	 * Alter the residual vector for a nonlinear system to satisfy
 	 * dirichlet boundary conditions. 
 	 */
-	void ApplyDirichletToNonlinearProblem(const Vec currentSolution, Vec residual)
+	void ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual)
 	{
 		dirichIterator = mpDirichletMap->begin();
 
