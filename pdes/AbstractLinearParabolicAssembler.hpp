@@ -11,7 +11,7 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-class AbstractLinearSolver;
+#include "AbstractLinearSolver.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 
 #include "petscvec.h"
