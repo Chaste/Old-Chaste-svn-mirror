@@ -6,6 +6,7 @@
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "petscvec.h"
+#include "petscksp.h"
 #include <iostream>
 
 LinearSystem::LinearSystem(int lhsVectorSize)
@@ -27,6 +28,8 @@ LinearSystem::LinearSystem(int lhsVectorSize)
     MatSetType(mLhsMatrix, MATMPIDENSE);
 	MatSetFromOptions(mLhsMatrix);
     mSize = lhsVectorSize;
+    
+    VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 }
 
 //bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
@@ -46,17 +49,17 @@ LinearSystem::LinearSystem(int lhsVectorSize)
 //}
 void LinearSystem::SetMatrixElement(int row, int col, double value)
 {
-    MatSetValue(mLhsMatrix, row, col, value, INSERT_VALUES);
+    if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
+    {    
+ 		MatSetValue(mLhsMatrix, row, col, value, INSERT_VALUES);
+    }
 }
 
 void LinearSystem::AddToMatrixElement(int row, int col, double value)
 {
-    int lo ;
-    int hi ;
-    MatGetOwnershipRange(mLhsMatrix,&lo,&hi) ;
-    if(row >= lo && row < hi)
+    if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {    
-    MatSetValue(mLhsMatrix, row, col, value, ADD_VALUES);
+ 	   MatSetValue(mLhsMatrix, row, col, value, ADD_VALUES);
     }
 }
 
@@ -80,17 +83,17 @@ void LinearSystem::AssembleIntermediateMatrix()
 
 void LinearSystem::SetRhsVectorElement(int row, double value)
 {
-    VecSetValues(mRhsVector, 1, &row, &value, INSERT_VALUES);
+	if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
+    {    
+ 	    VecSetValues(mRhsVector, 1, &row, &value, INSERT_VALUES);
+    }
 }
 
 void LinearSystem::AddToRhsVectorElement(int row, double value)
 {
-    int lo ;
-    int hi ;
-    VecGetOwnershipRange(mRhsVector,&lo,&hi) ;
-    if(row >= lo && row < hi)
-    {    
-    VecSetValues(mRhsVector, 1, &row, &value, ADD_VALUES);
+    if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)    
+ 	{    
+ 	   VecSetValues(mRhsVector, 1, &row, &value, ADD_VALUES);
     }
 }
 
@@ -106,11 +109,14 @@ void LinearSystem::DisplayRhs()
 
 void LinearSystem::SetMatrixRow(int row, double value)
 {
-    int rows, cols;
-    MatGetSize(mLhsMatrix, &rows, &cols);
-    for (int i=0; i<cols; i++)
-    {
-        this->SetMatrixElement(row, i, value);
+    if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
+    {    
+ 		int rows, cols;
+    	MatGetSize(mLhsMatrix, &rows, &cols);
+    	for (int i=0; i<cols; i++)
+    	{
+        	this->SetMatrixElement(row, i, value);
+    	}
     }
 }
 

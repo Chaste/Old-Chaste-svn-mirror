@@ -20,6 +20,9 @@ private:
 	Vec mRhsVector;
 	Vec mLhsVector;
 	int mSize;
+	PetscInt mOwnershipRangeLo; /*< For parallel code.  Stores lowest index of vectors and lowest row of matrix*/ 
+	PetscInt mOwnershipRangeHi; /*< Stores <b>one more than</b> the highest index stored locally*/  
+	
 public:
     LinearSystem(int lhsVectorSize);
 //    bool IsMatrixEqualTo(Mat testMatrix);
