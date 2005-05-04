@@ -334,6 +334,72 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA( C.GetSecondInvariant(), 18, 1e-12);
 		TS_ASSERT_DELTA( C.GetThirdInvariant(),   0, 1e-12);
 	}
+	
+	void testMatrixMatrixMultiplication()
+	{
+		MatrixDouble A(3,4);
+		MatrixDouble B(4,2);
+	
+		for(int i=0; i<3; i++)
+		{	
+			for(int j=0; j<4; j++)
+			{
+				A(i,j) = i+j;
+			}
+		}
+
+		for(int i=0; i<4; i++)
+		{	
+			for(int j=0; j<2; j++)
+			{
+				B(i,j) = (i+1)*(j+1);
+			}
+		}
+
+		MatrixDouble C = A*B;
+
+		
+		TS_ASSERT_EQUALS(C.Rows(), 3);
+		TS_ASSERT_EQUALS(C.Columns(), 2);
+		
+		TS_ASSERT_DELTA( C(0,0), 20, 1e-12);
+		TS_ASSERT_DELTA( C(0,1), 40, 1e-12);
+		TS_ASSERT_DELTA( C(1,0), 30, 1e-12);
+		TS_ASSERT_DELTA( C(1,1), 60, 1e-12);
+		TS_ASSERT_DELTA( C(2,0), 40, 1e-12);
+		TS_ASSERT_DELTA( C(2,1), 80, 1e-12);
+	}
+	
+	void testMatrixAdditionAndSubtraction()
+	{
+		int m=3;
+		int n=4;
+		
+		MatrixDouble A(3,4);
+		MatrixDouble B(3,4);
+		
+		for(int i=0; i<3; i++)
+		{
+			for(int j=0; j<4; j++)
+			{
+				A(i,j) = i*j + i+j + i*(10-j) + i/(j+1);
+				B(i,j) = 23 + (i+4)*j + 12*j;
+			}
+		}
+
+		MatrixDouble C = A+B;
+		MatrixDouble D = A-B;
+
+
+		for(int i=0; i<3; i++)
+		{
+			for(int j=0; j<4; j++)
+			{
+				TS_ASSERT_DELTA( C(i,j), i*j + i+j + i*(10-j) + i/(j+1) +  23 + (i+4)*j + 12*j, 1e-12);
+				TS_ASSERT_DELTA( D(i,j), i*j + i+j + i*(10-j) + i/(j+1) - (23 + (i+4)*j + 12*j), 1e-12);
+			}
+		}
+	}
 }; 
 
 

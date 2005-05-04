@@ -24,6 +24,10 @@ class MatrixDouble
 		
 		MatrixDouble& operator*(double scalar);
 		friend MatrixDouble operator*(double scalar, const MatrixDouble& rMatrix);
+		friend MatrixDouble operator*(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
+		friend MatrixDouble operator+(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
+		friend MatrixDouble operator-(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
+		
 		friend VectorDouble operator*(const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix);
 		VectorDouble operator*(VectorDouble& rSomeVector);
 		MatrixDouble Transpose();

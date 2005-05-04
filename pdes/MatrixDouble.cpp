@@ -3,6 +3,8 @@
 #define TINY 0.00000001
 #include <cmath>
 
+#include <iostream>
+
 MatrixDouble::MatrixDouble(int Rows, int Columns)
 {
 	assert(Rows > 0);
@@ -94,7 +96,6 @@ MatrixDouble operator*(double scalar, const MatrixDouble &rMatrix)
 	return result;
 }
 
-
 MatrixDouble MatrixDouble::Identity(int Size)
 {
 	MatrixDouble Eye(Size, Size);
@@ -174,6 +175,67 @@ VectorDouble MatrixDouble::operator*(VectorDouble& rSomeVector)
 	}
 	return result;
 }
+
+
+//\todo: make this more efficient?
+MatrixDouble operator*(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix)
+{
+	assert(rLeftMatrix.Columns()==rRightMatrix.Rows());
+
+	MatrixDouble result(rLeftMatrix.Rows(), rRightMatrix.Columns());
+	
+	for(int i=0; i<rLeftMatrix.Rows(); i++)
+	{
+		for(int j=0; j<rRightMatrix.Columns(); j++)
+		{
+			for(int k=0; k<rLeftMatrix.Columns(); k++)
+			{
+				result(i,j) += rLeftMatrix(i,k)*rRightMatrix(k,j);
+			}
+		}
+	}
+	return result;
+}
+
+
+
+//\todo: make this more efficient?
+MatrixDouble operator+(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix)
+{
+	assert(rLeftMatrix.Rows()==rRightMatrix.Rows());
+	assert(rLeftMatrix.Columns()==rRightMatrix.Columns());
+
+	MatrixDouble result(rLeftMatrix.Rows(), rLeftMatrix.Columns());
+	
+	for(int i=0; i<rLeftMatrix.Rows(); i++)
+	{
+		for(int j=0; j<rLeftMatrix.Columns(); j++)
+		{
+			result(i,j) += rLeftMatrix(i,j) + rRightMatrix(i,j);
+		}
+	}
+	return result;
+}
+
+
+//\todo: make this more efficient?
+MatrixDouble operator-(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix)
+{
+	assert(rLeftMatrix.Rows()==rRightMatrix.Rows());
+	assert(rLeftMatrix.Columns()==rRightMatrix.Columns());
+
+	MatrixDouble result(rLeftMatrix.Rows(), rLeftMatrix.Columns());
+	
+	for(int i=0; i<rLeftMatrix.Rows(); i++)
+	{
+		for(int j=0; j<rLeftMatrix.Columns(); j++)
+		{
+			result(i,j) += rLeftMatrix(i,j) - rRightMatrix(i,j);
+		}
+	}
+	return result;
+}
+
 	
 VectorDouble operator* (const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix)
 {
