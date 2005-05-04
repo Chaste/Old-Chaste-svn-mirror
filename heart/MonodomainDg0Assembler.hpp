@@ -248,7 +248,7 @@ public:
         
         assert(mTstart < mTend);
         assert(mDt > 0);
-        assert(mDt > mTstart - mTend);
+        assert(mDt < mTend - mTstart);
     
         mTimesSet = true;
     }

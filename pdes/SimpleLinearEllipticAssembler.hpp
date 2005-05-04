@@ -40,7 +40,6 @@ private:
 		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 		double jacobian_determinant = rElement.GetJacobianDeterminant();
 		
-		
 		const int num_nodes = rElement.GetNumNodes();
 
 		// Initialise element contributions to zero
@@ -210,13 +209,14 @@ private:
 			}
 		}
 	
-		// apply dirichlet boundary conditions
-		mpAssembledLinearSystem->AssembleIntermediateMatrix();  
-        rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);   
+		// Apply dirichlet boundary conditions
+		mpAssembledLinearSystem->AssembleIntermediateMatrix();
+        rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);
 
         mpAssembledLinearSystem->AssembleFinalMatrix();
         
-        Vec sol = mpAssembledLinearSystem->Solve(solver);       
+        Vec sol = mpAssembledLinearSystem->Solve(solver);
+        delete mpAssembledLinearSystem;
         return sol;
 	}
 };

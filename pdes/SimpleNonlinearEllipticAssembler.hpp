@@ -257,13 +257,12 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 	/**
 	 * \todo Don't hard code no. of gauss points.
 	 */
-	static int NUM_GAUSS_POINTS_PER_DIMENSION=2;
+	static const int NUM_GAUSS_POINTS_PER_DIMENSION=2;
 	static GaussianQuadratureRule<ELEMENT_DIM> pGaussianQuadratureRule(NUM_GAUSS_POINTS_PER_DIMENSION);
 	
 	const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 	double jacobian_determinant = rElement.GetJacobianDeterminant();
 	
-	// Initialise element contributions to zero
 	const int num_nodes = rElement.GetNumNodes();
 	
 	for(int quad_index=0; quad_index<pGaussianQuadratureRule.GetNumQuadPoints(); quad_index++)
@@ -289,11 +288,8 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 			{
 				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
-				
+				gradU(j)+= gradPhi[i](j)*Ui(i);
 			}
-			
-			//std::cout << "phi[" << i << "]=" << phi[i] << std::endl;
 		}
 		
 		
@@ -606,10 +602,8 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 			{
 				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				gradU(j)+= gradPhi[i](j)*Ui(i);//might have to do as line above
+				gradU(j)+= gradPhi[i](j)*Ui(i);
 			}
-			
-			
 		}
 		
 				
@@ -640,7 +634,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 				double integrand_value2 = (FOfU * gradPhi[j] ).dot(gradPhi[i]);
 				double integrand_value3 = ForcingTermPrime * phi[i];
 				
-				double integrand_value4 = integrand_value1 + integrand_value2 + integrand_value3;
+				//double integrand_value4 = integrand_value1 + integrand_value2 + integrand_value3;
 				
 				rAElem(i,j) += integrand_value1 * jacobian_determinant 
 				               * pGaussianQuadratureRule.GetWeight(quad_index)
