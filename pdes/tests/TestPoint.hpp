@@ -56,6 +56,18 @@ public:
 		Point<1> point7;
 		TS_ASSERT_DELTA(point7[0], 0, 1e-12);
 	}
+	
+	void TestMidPoint(void)
+	{
+		Point<3> point1(1.0,2.0,3.0);
+		Point<3> point2(0.0,0.0,0.0);
+		Point<3> point3;
+		point3 = point1.MidPoint(point2);
+		
+		TS_ASSERT_DELTA(point3[0], 0.5, 1e-12);
+		TS_ASSERT_DELTA(point3[1], 1.0, 1e-12);
+		TS_ASSERT_DELTA(point3[2], 1.5, 1e-12);
+	}
 };
 
 #endif //_TESTPOINT_HPP_

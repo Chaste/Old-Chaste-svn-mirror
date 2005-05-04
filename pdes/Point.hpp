@@ -53,6 +53,16 @@ public:
     {
          assert(i<DIM);
          mLocation[i] = value;   
+    }
+    
+    Point<DIM> MidPoint(Point<DIM> otherPoint)
+    {
+    	Point<DIM> new_point;
+    	for (int i=0; i<DIM; i++)
+    	{
+    		new_point.SetCoordinate(i, 0.5*(this->mLocation[i] + otherPoint.mLocation[i]));
+    	}
+    	return new_point;
     } 
     
 };
