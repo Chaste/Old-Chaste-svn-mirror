@@ -195,6 +195,9 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
 		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
 		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
+		nodes.push_back(new Node<2>(3, false, 5.0, 3.5));
+		nodes.push_back(new Node<2>(4, false, 3.5, 4.0));
+		nodes.push_back(new Node<2>(5, false, 4.5, 4.5));
 		Element<2,2> element(nodes,2);
 		QuadraticBasisFunction<2> basis_function;
 		
@@ -225,6 +228,12 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		nodes.push_back(new Node<3>(1, false, 6.0, 4.0, 1.0));
 		nodes.push_back(new Node<3>(2, false, 3.0, 5.0, 2.0));
 		nodes.push_back(new Node<3>(3, false, 5.0, 4.0, 3.0));
+		nodes.push_back(new Node<3>(4, false, 5.0, 3.5, 0.5));
+		nodes.push_back(new Node<3>(5, false, 3.5, 4.0, 1.0));
+		nodes.push_back(new Node<3>(6, false, 4.5, 3.5, 1.5));
+		nodes.push_back(new Node<3>(7, false, 4.5, 4.5, 1.5));
+		nodes.push_back(new Node<3>(8, false, 5.5, 4.0, 2.0));
+		nodes.push_back(new Node<3>(9, false, 4.0, 4.5, 2.5));
 		Element<3,3> element(nodes,2);
 		QuadraticBasisFunction<3> basis_function;
 		
