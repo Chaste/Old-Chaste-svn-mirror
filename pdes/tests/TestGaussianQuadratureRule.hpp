@@ -25,9 +25,9 @@ public :
 		TS_ASSERT_DELTA(quadRule01.GetWeight(0),1,1e-12);
 		
 		// 1d
-		for (int nPoints=1; nPoints<4; nPoints++)
+		for (int numberOfPoints=1; numberOfPoints<4; numberOfPoints++)
 		{
-			GaussianQuadratureRule<1> quadRule(nPoints);
+			GaussianQuadratureRule<1> quadRule(numberOfPoints);
 			
 			for(int i=0; i<quadRule.GetNumQuadPoints(); i++)
 			{
@@ -40,9 +40,9 @@ public :
 		}		
 		
 		// 2d
-		for (int nPoints=1; nPoints<4; nPoints++)
+		for (int numberOfPoints=1; numberOfPoints<4; numberOfPoints++)
 		{
-			GaussianQuadratureRule<2> quadRule(nPoints);
+			GaussianQuadratureRule<2> quadRule(numberOfPoints);
 			
 			for(int i=0; i<quadRule.GetNumQuadPoints(); i++)
 			{
@@ -56,9 +56,24 @@ public :
 			}
 		}
 
-		//TODO: 3d
+		for (int numberOfPoints=1; numberOfPoints<4; numberOfPoints++)
+		{
+			GaussianQuadratureRule<3> quadRule(numberOfPoints);
+			
+			for(int i=0; i<quadRule.GetNumQuadPoints(); i++)
+			{
+				TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
+				TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
+
+				TS_ASSERT_LESS_THAN(-(1-quadRule.GetQuadPoint(i)[0]
+									   -quadRule.GetQuadPoint(i)[1]
+									   -quadRule.GetQuadPoint(i)[2]),0); // 1-x-y-z>0
+				TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[0],0);  // x>0
+				TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[1],0);  // y>0
+				TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[2],0);  // z>0
+			}
+		}
 		
-		//TODO: test through integration
 	}
 	
 	/**
@@ -99,9 +114,7 @@ public :
 											*quad_rule.GetWeight(quad_index);
 				}
 
-				TS_ASSERT_DELTA(integral,
-								1.0/(poly_degree+1.0)*(pow(3,poly_degree+1)-1),
-								1e-7);
+				TS_ASSERT_DELTA(integral, 1.0/(poly_degree+1.0)*(pow(3,poly_degree+1)-1), 1e-7);
 				
 			}
 		}
@@ -154,7 +167,6 @@ public :
 				}
 			}
 		}
-			//TS_TRACE("here gauss quad\n");
 	}
 	
 	/**
@@ -237,19 +249,13 @@ public :
 										*pow(quad_point[2], poly_degree_z)
 										*quad_rule.GetWeight(quad_index);
 						}
-						
-//						std::cout << "number of quadrature points "<<num_quad_points<<"\n";
-//						std::cout << "int_x^"<<poly_degree_x<<"y^"<<poly_degree_y<<"z^"<<poly_degree_z<<" = "<<integral << "\n";
-//						std::cout << "expected = " << expected[poly_degree_x][poly_degree_y][poly_degree_z] << "\n";
-//						
-						TS_ASSERT_DELTA(integral,
-										expected[poly_degree_x][poly_degree_y][poly_degree_z],
+									
+						TS_ASSERT_DELTA(integral, expected[poly_degree_x][poly_degree_y][poly_degree_z],
 										0.01);
 					}
 				}
 			}
 		}
-			//TS_TRACE("here gauss quad\n");
 	}	
 };
 
