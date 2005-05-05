@@ -270,7 +270,7 @@ public:
 //                TS_ASSERT_DELTA(cellPressureAns[i], 0.4, 0.70001); 
 //            }
 
-            std::cout << "Cell Velocity at X = " << cellVelocity[numberOfElements] << "\n";                         
+            //std::cout << "Cell Velocity at X = " << cellVelocity[numberOfElements] << "\n";                         
             pBoundarySystem->mCellVelocityAtBoundary = cellVelocity[numberOfElements];
             boundaryInit[0] = X_new; 
             solutions = myEulerSolver->Solve(pBoundarySystem, time, time+timestep, timestep, boundaryInit);  
@@ -307,7 +307,7 @@ public:
             // Get X_new, rescale with X_old
             
             X_new = solutions.mSolutions[1][0];
-            std::cout << "X_new = "<< X_new << std::endl;
+            //std::cout << "X_new = "<< X_new << std::endl;
             scaleFactor = X_new / solutions.mSolutions[0][0];
             //std::cout << "Scale Factor = " << scaleFactor << std::endl;
             //std::cout << "Scale Factor = " << scaleFactor << std::endl;

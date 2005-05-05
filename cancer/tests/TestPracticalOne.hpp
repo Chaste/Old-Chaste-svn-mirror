@@ -649,7 +649,7 @@ public:
                                  + (alpha - concentrationAns[i-1])*(mesh.GetNodeAt(i)->GetPoint()[0]-mesh.GetNodeAt(i-1)->GetPoint()[0])/(concentrationAns[i] - concentrationAns[i-1]);
             }
              cellPressurePde.mXalpha = x_alpha;
-            std::cout<<"x_alpha = " << x_alpha << std::endl;
+            //std::cout<<"x_alpha = " << x_alpha << std::endl;
             // Solve the linear pde for cell Pressure                
             Vec cellPressureAnswer = cellPressureAssembler.AssembleSystem(mesh, &cellPressurePde, cellPressureBcc, &cellPressureSolver);
             
@@ -726,7 +726,7 @@ public:
 //                TS_ASSERT_DELTA(cellPressureAns[i], 0.4, 0.70001); 
 //            }
 
-            std::cout << "Cell Velocity at boundary = " <<cellVelocity[mesh.GetNumElements()]<< "\n";                         
+            //std::cout << "Cell Velocity at boundary = " <<cellVelocity[mesh.GetNumElements()]<< "\n";                         
             pBoundarySystem->mCellVelocityAtBoundary = cellVelocity[mesh.GetNumElements()];
             boundaryInit[0] = X_new;
             solutions = myEulerSolver->Solve(pBoundarySystem, time, time+timestep, timestep, boundaryInit);  
@@ -734,7 +734,7 @@ public:
             // Rescale Mesh
             // Get X_new, rescale with X_old
             X_new = solutions.mSolutions[1][0];
-            std::cout << "X_new = "<< X_new << std::endl;
+            //std::cout << "X_new = "<< X_new << std::endl;
             scaleFactor = solutions.mSolutions[1][0] / solutions.mSolutions[0][0];
             //std::cout << "Scale Factor = " << scaleFactor << std::endl;
             Point<1> newBoundaryLocation(X_new);
