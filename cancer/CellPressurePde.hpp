@@ -8,8 +8,7 @@ class CellPressurePde:public AbstractLinearEllipticPde<SPACE_DIM>
 {
 	public:
     double mXalpha;
-    double mXnecrotic;  /**< The boundary of the Necrotic Core */
-    double mPressureAtBoundary;  /**< The pressure at the boundary of the necrotic and non-necrotic region */
+    
     
     
 	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
@@ -31,12 +30,8 @@ class CellPressurePde:public AbstractLinearEllipticPde<SPACE_DIM>
     
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
-        double temp = 0.0;
-        if(x[0] < mXnecrotic)
-        {
-            temp = u - mPressureAtBoundary/2.0;
-        }
-        return temp;
+        
+        return 0.0;
     }
 
     MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)

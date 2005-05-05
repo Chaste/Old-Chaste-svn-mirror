@@ -511,8 +511,8 @@ public:
         
         const int SPACE_DIM = 1;
         const int ELEMENT_DIM = 1;
-        double alpha = 0.8;
-        int endTimeIndex = 20;
+        double alpha = 0.5;
+        int endTimeIndex = 100;
         double time = 0.0;
         double timestep = 0.01;
         double temp;
@@ -530,28 +530,7 @@ public:
         // Instantiate PDE object for cell Pressure
         CellPressurePde<SPACE_DIM> cellPressurePde;  
         
-        // Boundary conditions for oxygen concentration
-        // C'(0)=0, C(1)=1
-        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> concentrationBcc;
-        ConstBoundaryCondition<SPACE_DIM>* pConcentrationBoundaryCondition1 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-        
-        ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator concentrationIter = mesh.GetFirstBoundaryElement();
-        concentrationBcc.AddNeumannBoundaryCondition(*concentrationIter,pConcentrationBoundaryCondition1);
-        
-        ConstBoundaryCondition<SPACE_DIM>* pConcentrationBoundaryCondition2 = new ConstBoundaryCondition<SPACE_DIM>(1.0);
-        concentrationBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pConcentrationBoundaryCondition2);
-        
-        // Boundary conditions for cell pressure
-        // Pc'(0)=0, Pc(1)=0
-        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> cellPressureBcc;
-        ConstBoundaryCondition<SPACE_DIM>* pCellPressureBoundaryCondition1 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-        
-        ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator cellPressureIter = mesh.GetFirstBoundaryElement();
-        cellPressureBcc.AddNeumannBoundaryCondition(*cellPressureIter,pCellPressureBoundaryCondition1);
-        
-        ConstBoundaryCondition<SPACE_DIM>* pCellPressureBoundaryCondition2 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-        cellPressureBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pCellPressureBoundaryCondition2);
-        
+      
         //Instantiate ODE system for external tumour boundary
         BoundaryOdeSystem* pBoundarySystem = new BoundaryOdeSystem();
         EulerIvpOdeSolver* myEulerSolver = new EulerIvpOdeSolver;
@@ -579,7 +558,6 @@ public:
         
         
         
-        
         // Set up solution guess for residuals
         int length=mesh.GetNumNodes();
                 
@@ -600,10 +578,41 @@ public:
         VecDuplicate(initialGuess,&concentrationResidual);
         VecDuplicate(initialGuess,&concentrationAnswer);
         
+        ColumnDataWriter *mpTimeWriter;
+        mpTimeWriter = new ColumnDataWriter("data","CancerQ6Time");
+        mpTimeWriter->DefineUnlimitedDimension("Time","s");
+        int time_id = mpTimeWriter->DefineVariable("Time","dim.");
+        int xt_var_id = mpTimeWriter->DefineVariable("X(t)","dim.");
+        mpTimeWriter->EndDefineMode();
+        
         double scaleFactor = 0.0;
+        
         // Start of grand time loop
         for(int timeIndex = 0 ; timeIndex < endTimeIndex ; timeIndex++)
         {
+            
+              // Boundary conditions for oxygen concentration
+        // C'(0)=0, C(1)=1
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> concentrationBcc;
+        ConstBoundaryCondition<SPACE_DIM>* pConcentrationBoundaryCondition1 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+        
+        ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator concentrationIter = mesh.GetFirstBoundaryElement();
+        concentrationBcc.AddNeumannBoundaryCondition(*concentrationIter,pConcentrationBoundaryCondition1);
+        
+        ConstBoundaryCondition<SPACE_DIM>* pConcentrationBoundaryCondition2 = new ConstBoundaryCondition<SPACE_DIM>(1.0);
+        concentrationBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pConcentrationBoundaryCondition2);
+        
+        // Boundary conditions for cell pressure
+        // Pc'(0)=0, Pc(1)=0
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> cellPressureBcc;
+        ConstBoundaryCondition<SPACE_DIM>* pCellPressureBoundaryCondition1 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+        
+        ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator cellPressureIter = mesh.GetFirstBoundaryElement();
+        cellPressureBcc.AddNeumannBoundaryCondition(*cellPressureIter,pCellPressureBoundaryCondition1);
+        
+        ConstBoundaryCondition<SPACE_DIM>* pCellPressureBoundaryCondition2 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+        cellPressureBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pCellPressureBoundaryCondition2);
+        
             
             try {
                 concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, initialGuess, true);
@@ -640,7 +649,7 @@ public:
                                  + (alpha - concentrationAns[i-1])*(mesh.GetNodeAt(i)->GetPoint()[0]-mesh.GetNodeAt(i-1)->GetPoint()[0])/(concentrationAns[i] - concentrationAns[i-1]);
             }
              cellPressurePde.mXalpha = x_alpha;
-            
+            std::cout<<"x_alpha = " << x_alpha << std::endl;
             // Solve the linear pde for cell Pressure                
             Vec cellPressureAnswer = cellPressureAssembler.AssembleSystem(mesh, &cellPressurePde, cellPressureBcc, &cellPressureSolver);
             
@@ -655,7 +664,7 @@ public:
 //            }
             VecRestoreArray(cellPressureAnswer, &cellPressureAns);
             
-            
+            //std::cout<< " cell Pressure " << cellPressureAns[99] << "  \n"  ;
             // Solve for extracellular fluid pressure
             
             double fluidPressureAns[mesh.GetNumElements()+1];
@@ -682,17 +691,17 @@ public:
                 if (i == 0)
                 {
                     // Use forward difference
-                    cellVelocity[i] = - (cellPressureAns[i+1] - cellPressureAns[i])*mesh.GetNumElements();
+                    cellVelocity[i] = - (cellPressureAns[i+1] - cellPressureAns[i])*mesh.GetNumElements()/X_new;
                 }
                 else if(i == mesh.GetNumElements())
                 {
                     // Use backward difference
-                    cellVelocity[i] = - (cellPressureAns[i] - cellPressureAns[i-1])*mesh.GetNumElements();
+                    cellVelocity[i] = - (cellPressureAns[i] - cellPressureAns[i-1])*mesh.GetNumElements()/X_new;
                 }
                 else
                 {
                     // Use central difference
-                    cellVelocity[i] = - (cellPressureAns[i+1] - cellPressureAns[i-1])*mesh.GetNumElements()/2.0;
+                    cellVelocity[i] = - (cellPressureAns[i+1] - cellPressureAns[i-1])*mesh.GetNumElements()/(2.0*X_new);
                 }
                 
             }
@@ -717,66 +726,56 @@ public:
 //                TS_ASSERT_DELTA(cellPressureAns[i], 0.4, 0.70001); 
 //            }
 
-            //std::cout << "Cell Velocity = " <<cellVelocity[mesh.GetNumElements()]<< "\n";                         
+            std::cout << "Cell Velocity at boundary = " <<cellVelocity[mesh.GetNumElements()]<< "\n";                         
             pBoundarySystem->mCellVelocityAtBoundary = cellVelocity[mesh.GetNumElements()];
-            
+            boundaryInit[0] = X_new;
             solutions = myEulerSolver->Solve(pBoundarySystem, time, time+timestep, timestep, boundaryInit);  
             
             // Rescale Mesh
             // Get X_new, rescale with X_old
             X_new = solutions.mSolutions[1][0];
-            //std::cout << "X_new = "<< X_new << std::endl;
+            std::cout << "X_new = "<< X_new << std::endl;
             scaleFactor = solutions.mSolutions[1][0] / solutions.mSolutions[0][0];
             //std::cout << "Scale Factor = " << scaleFactor << std::endl;
+            Point<1> newBoundaryLocation(X_new);
             
-            for(int i=0; i<mesh.GetNumNodes(); i++)
-            {
-                for(int j=0; j<SPACE_DIM ; j++)
-                {
-                    temp = scaleFactor*mesh.GetNodeAt(i)->GetPoint()[j];
-                    //std::cout << "new location = " << temp << std::endl;
-                    mesh.GetNodeAt(i)->GetPoint().SetCoordinate(j,temp);
-                }
-            }
+            mesh.RescaleMeshFromBoundaryNode(newBoundaryLocation, mesh.GetNumElements());
+            
             //std::cout << "New RHS node location = " << mesh.GetNodeAt(mesh.GetNumNodes()-1)->GetPoint()[0] << std::endl;           
             time = time + timestep;
         // End of grand time loop
-        }    
-        
-//        // set up file output
-//        ColumnDataWriter *mpNewTestWriter;
-//        mpNewTestWriter = new ColumnDataWriter("data","CancerQ5");
-//        mpNewTestWriter->DefineFixedDimension("Space","dimensionless", mesh.GetNumElements()+1);
-//        int new_c_var_id = mpNewTestWriter->DefineVariable("Concentration","mM");
-//        int new_space_var_id = mpNewTestWriter->DefineVariable("Space","dimensionless");
-//        int new_x_var_id = mpNewTestWriter->DefineVariable("X","dimensionless");
-//        int new_p_var_id = mpNewTestWriter->DefineVariable("Pressure","Pa");
-//        mpNewTestWriter->EndDefineMode();
-//        
-//        
-//        for (int i = 0; i < mesh.GetNumElements()+1; i++) 
-//        {
-//                 
-//            mpNewTestWriter->PutVariable(new_space_var_id, mesh.GetNodeAt(i)->GetPoint()[0], i);
-//            mpNewTestWriter->PutVariable(new_p_var_id, cellPressureAns[i], i);
-//            mpNewTestWriter->PutVariable(new_x_var_id, mesh.GetNodeAt(100)->GetPoint()[0], i);
-//            mpNewTestWriter->PutVariable(new_c_var_id, concentrationAns[i], i); 
-//        }
-//        mpNewTestWriter->Close();
-//   
-//        //read in good data file and compare line by line
-//        std::ifstream testfile("data/CancerQ5.dat",std::ios::in);
-//        std::ifstream goodfile("data/CancerQ5Good.dat",std::ios::in);
-//        std::string teststring;
-//        std::string goodstring;
-//        while(getline(testfile, teststring))
-//        {
-//              getline(goodfile,goodstring);
-//              TS_ASSERT_EQUALS(teststring,goodstring);
-//        }
-//        testfile.close();
-//        goodfile.close();
-        
+            if(timeIndex==19)
+            {
+                    // set up file output
+                ColumnDataWriter *mpNewTestWriter;
+                mpNewTestWriter = new ColumnDataWriter("data","CancerQ5");
+                mpNewTestWriter->DefineFixedDimension("Space","dimensionless", mesh.GetNumElements()+1);
+                int new_c_var_id = mpNewTestWriter->DefineVariable("Concentration","mM");
+                int new_space_var_id = mpNewTestWriter->DefineVariable("Space","dimensionless");
+                int new_x_var_id = mpNewTestWriter->DefineVariable("X","dimensionless");
+                int new_p_var_id = mpNewTestWriter->DefineVariable("Pressure","Pa");
+                int uc_var_id = mpNewTestWriter->DefineVariable("Cell Velocity"," ");
+                mpNewTestWriter->EndDefineMode();
+                
+                for (int i = 0; i < mesh.GetNumElements()+1; i++) 
+                {
+                         
+                    mpNewTestWriter->PutVariable(new_space_var_id, mesh.GetNodeAt(i)->GetPoint()[0], i);
+                    mpNewTestWriter->PutVariable(new_p_var_id, cellPressureAns[i], i);
+                    mpNewTestWriter->PutVariable(new_x_var_id, mesh.GetNodeAt(100)->GetPoint()[0], i);
+                    mpNewTestWriter->PutVariable(new_c_var_id, concentrationAns[i], i); 
+                    mpNewTestWriter->PutVariable(uc_var_id, cellVelocity[i], i); 
+                }
+                mpNewTestWriter->Close();
+           
+            }
+            mpTimeWriter->PutVariable(time_id, time);
+            mpTimeWriter->PutVariable(xt_var_id, X_new);
+            mpTimeWriter->AdvanceAlongUnlimitedDimension();     
+                
+        }
+
+        mpTimeWriter->Close();
     }
 //
 //

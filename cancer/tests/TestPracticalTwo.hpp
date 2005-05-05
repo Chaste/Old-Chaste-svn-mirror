@@ -30,7 +30,7 @@ class TestPracticalTwo : public CxxTest::TestSuite
 public:
 
 
-    void testPrac2Question1(void)
+    void donttestPrac2Question1(void)
     {
         int FakeArgc=0;
         char *FakeArgv0="testrunner";
@@ -41,7 +41,7 @@ public:
         const int ELEMENT_DIM = 1;
         double alpha = 0.5;
         double rho = 1.0;
-        int endTimeIndex = 1;
+        int endTimeIndex = 20;
         double time = 0.0;
         double timestep = 0.01;
         double temp;
@@ -93,8 +93,7 @@ public:
         // Boundary Conditions for ODE on boundary
         std::vector<double> boundaryInit(1);
 
-        boundaryInit[0] = 1.0;
-        
+        boundaryInit[0] = 1.0;     
         
         // Nonlinear solver for oxygen concentration
         SimpleNonlinearSolver concentrationSolver;
@@ -234,20 +233,20 @@ public:
                        
             for (int j=0; j < numberOfNodes; j++)
             {
-                if (j == 0)
+                if (i == 0)
                 {
                     // Use forward difference
-                    cellVelocity[j] = - (cellPressureAns[j+1] - cellPressureAns[j])*numberOfElements;
+                    cellVelocity[i] = - (cellPressureAns[i+1] - cellPressureAns[i])*mesh.GetNumElements()/X_new;
                 }
-                else if(j == numberOfElements)
+                else if(i == mesh.GetNumElements())
                 {
                     // Use backward difference
-                    cellVelocity[j] = - (cellPressureAns[j] - cellPressureAns[j-1])*numberOfElements;
+                    cellVelocity[i] = - (cellPressureAns[i] - cellPressureAns[i-1])*mesh.GetNumElements()/X_new;
                 }
                 else
                 {
                     // Use central difference
-                    cellVelocity[j] = - (cellPressureAns[j+1] - cellPressureAns[j-1])*numberOfElements/2.0;
+                    cellVelocity[i] = - (cellPressureAns[i+1] - cellPressureAns[i-1])*mesh.GetNumElements()/(2.0*X_new);
                 }
                 
             }
@@ -273,7 +272,7 @@ public:
 
             std::cout << "Cell Velocity at X = " << cellVelocity[numberOfElements] << "\n";                         
             pBoundarySystem->mCellVelocityAtBoundary = cellVelocity[numberOfElements];
-            
+            boundaryInit[0] = X_new; 
             solutions = myEulerSolver->Solve(pBoundarySystem, time, time+timestep, timestep, boundaryInit);  
             // Update xNecrotic for next time step
             
@@ -309,18 +308,13 @@ public:
             
             X_new = solutions.mSolutions[1][0];
             std::cout << "X_new = "<< X_new << std::endl;
-            scaleFactor = solutions.mSolutions[1][0] / solutions.mSolutions[0][0];
+            scaleFactor = X_new / solutions.mSolutions[0][0];
             //std::cout << "Scale Factor = " << scaleFactor << std::endl;
+            //std::cout << "Scale Factor = " << scaleFactor << std::endl;
+            Point<1> newBoundaryLocation(X_new);
             
-            for(int k=0; k<numberOfNodes; k++)
-            {
-                for(int j=0; j<SPACE_DIM ; j++)
-                {
-                    temp = scaleFactor*mesh.GetNodeAt(k)->GetPoint()[j];
-                    //std::cout << "new location = " << temp << std::endl;
-                    mesh.GetNodeAt(k)->GetPoint().SetCoordinate(j,temp);
-                }
-            }
+            mesh.RescaleMeshFromBoundaryNode(newBoundaryLocation, mesh.GetNumElements());
+            
             //std::cout << "New RHS node location = " << mesh.GetNodeAt(numberOfNodes-1)->GetPoint()[0] << std::endl;           
             time = time + timestep;
         // End of grand time loop
