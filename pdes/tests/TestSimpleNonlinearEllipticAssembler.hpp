@@ -293,33 +293,23 @@ public:
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		
-    	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
+    	// Set up initial guess
+    	Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
+    	for (int i=0; i<mesh.GetNumNodes(); i++)
     	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		VecSetValue(initialGuess, i, (-0.01*i*i), INSERT_VALUES);
+    		VecSetValue(initial_guess, i, (-0.01*i*i), INSERT_VALUES);
     	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
-				
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
+
     	Vec answer;
-    	VecDuplicate(initialGuess,&answer);
-    	
-    	//TS_TRACE("Calling AssembleSystem");
+    	VecDuplicate(initial_guess,&answer);
+
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
-    	//TS_TRACE("System solved");
     	 	
 		// Check result
 		double *ans;
@@ -328,10 +318,9 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = sqrt(x*(1-x));
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.001); 
 		} 
-		VecRestoreArray(answer, &ans);
+		ierr = VecRestoreArray(answer, &ans);
 	}
 
     void TestWithHeatEquation1DAndNeumannBCs()
@@ -409,36 +398,24 @@ public:
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
+    	Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
+    	for (int i=0; i<mesh.GetNumNodes(); i++)
     	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		VecSetValue(initialGuess, i, (1.0+0.01*i*i), INSERT_VALUES);
+    		VecSetValue(initial_guess, i, (1.0+0.01*i*i), INSERT_VALUES);
     	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
 				
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
-    	//TS_TRACE("System solved");
-    	    	
+
 		// Check result
 		double *ans;
 		int ierr = VecGetArray(answer, &ans);
@@ -474,35 +451,23 @@ public:
 		SimpleNonlinearEllipticAssembler<1,1> assembler(3);
     	SimpleNonlinearSolver solver;
     	 
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
+    	Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
+    	for (int i=0; i<mesh.GetNumNodes(); i++)
     	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		VecSetValue(initialGuess, i, (1.5-0.15*i), INSERT_VALUES);
+    		VecSetValue(initial_guess, i, (1.5-0.15*i), INSERT_VALUES);
     	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
-				
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
+
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
-    	//TS_TRACE("System solved");
     	    	
 		// Check result
 		double *ans;
@@ -511,10 +476,9 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = sqrt(2.0*(exp(-x)-x*exp(-1.0)));
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.001); 
 		} 
-		VecRestoreArray(answer, &ans);
+		ierr = VecRestoreArray(answer, &ans);
 	}
 	
 	void TestWithHeatEquation1D4()
@@ -527,63 +491,38 @@ public:
 		// Instantiate PDE object
 		NonlinearHeatEquation4Pde<1> pde;  
 		
-//		// Boundary conditions
-//        BoundaryConditionsContainer<1,1> bcc;
-//        double VonNeumannBCValue = 0.0;
-//        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
-//        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-//        bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
-//        ConstBoundaryCondition<1>* pBoundaryCondition2 = new ConstBoundaryCondition<1>(exp(1.0)); 
-//        pBoundaryCondition2 = new ConstBoundaryCondition<1>(exp(1.0));
-//        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition2);
-//        
         // Boundary conditions
         BoundaryConditionsContainer<1,1> bcc;
         // u(1) = exp(1.0)
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(exp(-1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
 		// u(0)^2*u'(0) = 0.0
-		// Note that we specify -2 as the value, since figuring out which direction
-		// the normal is in is hard in 1D.
 		pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
         bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
-        
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
     	SimpleNonlinearSolver solver;
     	 
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
+    	Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
     	double x1;
-    	for(int i=0; i<length ; i++)
+    	for (int i=0; i<mesh.GetNumNodes(); i++)
     	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
     		x1=0.1*(double)(i);
-    		VecSetValue(initialGuess, i, 0.35*(1-x1*x1), INSERT_VALUES);
+    		VecSetValue(initial_guess, i, 0.35*(1-x1*x1), INSERT_VALUES);
     	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
-				
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
+
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
-    	//TS_TRACE("System solved");
     	    	
 		// Check result
 		double *ans;
@@ -592,11 +531,11 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = x*exp(-x);
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.01); 
 		} 
 		VecRestoreArray(answer, &ans);
 	}
+
 	void testWithHeatEquation1D5()
 	{
 		// Create mesh from mesh reader
@@ -606,7 +545,6 @@ public:
 		
 		// Instantiate PDE object
 		NonlinearHeatEquation5Pde<1> pde;  
-		
 
         // Boundary conditions
         BoundaryConditionsContainer<1,1> bcc;
@@ -619,42 +557,29 @@ public:
 		pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
         bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
-        
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
     	SimpleNonlinearSolver solver;
     	 
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
+    	Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
     	double x1;
-    	for(int i=0; i<length ; i++)
+    	for(int i=0; i<mesh.GetNumNodes(); i++)
     	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
     		x1=0.1*(double)(i);
-    		VecSetValue(initialGuess, i, 0.35*(1-x1*x1), INSERT_VALUES);
+    		VecSetValue(initial_guess, i, 0.35*(1-x1*x1), INSERT_VALUES);
     	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
-				
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess); 
+
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
-    	//TS_TRACE("System solved");
     	    	
 		// Check result
 		double *ans;
@@ -663,11 +588,11 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = exp(-x);
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.01); 
 		} 
 		VecRestoreArray(answer, &ans);
 	}
+
 	void TestWithHeatEquation1DAndNeumannBCs2()
 	{
 		// Create mesh from mesh reader
@@ -693,39 +618,19 @@ public:
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
-    	{
-    		// This problem seems unusally sensitive to the initial guess.
-    		// The commented out choices (except for the right answer) failed to converge
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(4-0.1*i)), INSERT_VALUES);
-    		VecSetValue(initialGuess, i, 1.0, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, (+0.01*i*i), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.1*i, INSERT_VALUES);
-    	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
+    	Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 1.0);
+		// This problem seems unusally sensitive to the initial guess. Various other
+		// choices failed to converge.
 		
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
- 		//TS_TRACE("System solved");
     	    	
 		// Check result
 		double *ans;
@@ -734,7 +639,6 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = sqrt(x*(4-x));
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.001);
 		}
 		VecRestoreArray(answer, &ans);
@@ -769,33 +673,16 @@ public:
     	SimpleNonlinearSolver solver;
     	
     	// Set up initial Guess
-    	int length=mesh.GetNumNodes();
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
-    	{
-    		VecSetValue(initialGuess, i, 1.0, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, (+0.01*i*i), INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, 0.1*i, INSERT_VALUES);
-    	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
+    	Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 1.0);
 		
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
- 		//TS_TRACE("System solved");
         
         double *res;
         int ierr = VecGetArray(answer, &res);
@@ -860,35 +747,17 @@ public:
 		SimpleNonlinearEllipticAssembler<2,2> assembler;
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
-    	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(4-0.1*i)), INSERT_VALUES);
-    		VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, (-0.01*i*i), INSERT_VALUES);
-    	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
+    	Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 0.25);
 		
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
-    	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
- 		//TS_TRACE("System solved");
     	    	
 		// Check result
 		double *ans;
@@ -897,7 +766,6 @@ public:
 		{
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double u = sqrt(y*(4-y));
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.15);
 		}
 		VecRestoreArray(answer, &ans);
@@ -967,29 +835,15 @@ public:
 		SimpleNonlinearEllipticAssembler<2,2> assembler;
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
-    	{
-    		VecSetValue(initialGuess, i, 4.0, INSERT_VALUES);
-    	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
+    	Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 4.0);
 		
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
     	// Numerical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1002,14 +856,13 @@ public:
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 		
 		// Analytical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1021,13 +874,11 @@ public:
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 	}
 
-	
 	void TestNasty2dEquationOnUnitSquare()
 	{
 		// Create mesh from mesh reader
@@ -1092,29 +943,15 @@ public:
 		SimpleNonlinearEllipticAssembler<2,2> assembler;
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
-    	{
-    		VecSetValue(initialGuess, i, 4.0, INSERT_VALUES);
-    	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
+    	Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 4.0);
 		
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initial_guess, &answer);
     	
     	// Numerical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1127,14 +964,13 @@ public:
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double u = 1 + sin(x)*sin(x) + y*y;
-			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 		
 		// Analytical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1146,14 +982,11 @@ public:
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double u = 1 + sin(x)*sin(x) + y*y;
-			//std::cout << "u(" << x << "," << y << ")=" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 	}
 	
 };
-
 	
 #endif //_TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
-
