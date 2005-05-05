@@ -5,6 +5,7 @@
 #include "AbstractMeshReader.hpp"
 #include "Element.hpp"
 #include "Node.hpp"
+#include "AbstractMaterial.hpp"
 
 /**
  * This is a test version of the class using an AbstractMeshReader to construct
@@ -115,6 +116,15 @@ public:
     	return mpBoundaryNodeIter;
     }
     
+    void SetMaterialToElement(int index, AbstractMaterial<SPACE_DIM>* pMaterial)
+    {
+    	mElements[index].SetMaterial(pMaterial);
+    }
+    
+    Element<ELEMENT_DIM, SPACE_DIM>& GetElement(int index)
+    {
+    	return mElements[index];
+    }
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

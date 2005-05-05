@@ -13,6 +13,7 @@
 #include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
 #include "LinearBasisFunction.cpp"
+#include "AbstractMaterial.hpp"
 
 #include "Exception.hpp"
 
@@ -33,7 +34,9 @@ private:
     MatrixDouble *mpInverseJacobian;
 
     double mJacobianDeterminant;
-
+	
+	AbstractMaterial<SPACE_DIM>* mpMaterial;
+	
 public:
     static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
 
@@ -268,7 +271,26 @@ public:
 	{
 		return mJacobianDeterminant;
 	}
+	
+	/** Set the material details for this element
+	 */
+	void SetMaterial(AbstractMaterial<SPACE_DIM>* pMaterial)
+	{
+		mpMaterial = pMaterial;
+	}
 
+	/** Get the material details for this element
+	 */
+	AbstractMaterial<SPACE_DIM>* GetMaterial() const
+	{
+
+		if(!mpMaterial)
+		{
+			assert(0);
+		}
+		
+		return mpMaterial;
+	}
 };
 
 
