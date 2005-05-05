@@ -7,6 +7,7 @@
 #include "petscvec.h"
 #include "SimpleNonlinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
+#include "TrianglesMeshReader.hpp"
 #include <vector>
 #include <iostream>
 #include "Node.hpp" 
