@@ -166,6 +166,7 @@ void ColumnDataWriter::EndDefineMode()
             //write out the headers for the first position along the unlimited dimension
             std::stringstream suffix;
             suffix << mUnlimitedDimensionPosition;
+            // filepath is the name for the output file.
             std::string filepath = mDirectory + "/" + mBaseName + "_" + suffix.str() + ".dat";
             if(mpUnlimitedDimensionVariable != NULL)
             {
@@ -204,6 +205,9 @@ void ColumnDataWriter::EndDefineMode()
                 (*mpCurrentOutputFile) << mpUnlimitedDimensionVariable->mVariableName 
                                        << "(" << mpUnlimitedDimensionVariable->mVariableUnits << ") ";
             }
+            //Write out header(which may contain several variabls) for output file.
+            //In this scope the method "CreateFixedDimensionFile" has not been invoked,
+            //because there is no mFixedDimensionSize available.
             for(int i = 0; i < mVariables.size(); i++)
             {
                 (*mpCurrentOutputFile) << mVariables[i].mVariableName << "(" << mVariables[i].mVariableUnits << ")";
@@ -229,6 +233,10 @@ void ColumnDataWriter::EndDefineMode()
     mIsInDefineMode = false;
 }
 
+/**
+ * CreateFixedDimensionFile created the file for output and write out 
+ * the header for it.
+ */
 void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
 {
     //create new data file
@@ -313,7 +321,12 @@ void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
 
 
 //dimensionPosition is required if there is a fixed dimension, and will be the position along that dimension
-void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition){
+/**
+ * Each time we have to input the variable value to the output file or ancillary file
+ * \param dimensionPosition the position in column
+ */
+void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
+{
     //check that we are not in define mode
     if(mIsInDefineMode)
     {
@@ -371,6 +384,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
                 }
                 else
                 {
+                    //ordinary variables
                     position = mRowStartPosition + (mRowWidth+1) * dimensionPosition + 
                         ((variableID + (mpFixedDimensionVariable != NULL))* (FIELD_WIDTH + SPACING)) + SPACING;
                 }

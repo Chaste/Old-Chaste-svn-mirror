@@ -35,7 +35,7 @@ private:
     long mUnlimitedDimensionPosition; /**< The position along the unlimited dimension that writing of variables will take place*/
 
     std::ofstream *mpCurrentOutputFile; /**< Filestream currently being addressed */
-    std::ofstream *mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) */
+    std::ofstream *mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
 
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
