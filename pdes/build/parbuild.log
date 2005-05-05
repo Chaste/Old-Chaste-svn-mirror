@@ -5,12 +5,12 @@ Entering testHeatEquationWithNeumannOnUnitDisc
 Passed
 Entering testHeatEquationWithNeumannOnUnitDisc
 Passed
-Entering testLinearSystem1
 Passed
 Entering testLinearSystem1
+Entering testLinearSystem1
+Passed
 Passed
 Entering testLinearSystem2
-Passed
 Entering testLinearSystem2
 Passed
 Entering testPetscIsThere

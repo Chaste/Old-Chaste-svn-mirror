@@ -10,7 +10,7 @@ template<int SPACE_DIM>
 class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {   
 private:
-    double mValue;
+    VectorDouble *mpValue;
     
 public:
 	/**
@@ -19,15 +19,28 @@ public:
 	 * @param value The value of this boundary condition at all points where it
 	 *    is applied.
 	 */
-    ConstBoundaryCondition(double value) : mValue(value) {};
+    ConstBoundaryCondition(double value)
+    {
+    	mpValue = new VectorDouble(1);
+    	(*mpValue)(0) = value;
+    }
+
+    ConstBoundaryCondition(VectorDouble value)
+    {
+    	mpValue = new VectorDouble( value.Size() );
+    	for( int i = 0; i < value.Size(); i++ )
+    	{
+    		(*mpValue)(i) = value(i);
+    	}
+    }
     
     /**
      * @param x The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.
      */
-    double GetValue( const Point<SPACE_DIM> x) const
+    VectorDouble GetValue( const Point<SPACE_DIM> x) const
     {
-        return mValue;
+        return *mpValue;
     }
 };
 

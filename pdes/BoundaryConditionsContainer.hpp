@@ -38,12 +38,17 @@ private:
     typename std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>*>::const_iterator
         neumannIterator; /**< Internal iterator over neumann boundary conditions */
     
+    int mSizeDependentVariable; /**< Number of components in the dependent variable */
+    int mNumNodes; /**< Number of nodes in the mesh */
 public:
 	/**
 	 * Constructor allocates memory for the boundary conditions lists.
 	 */
-	BoundaryConditionsContainer()
+	BoundaryConditionsContainer(int size, int numNodes)
 	{		
+		assert( size > 0 );
+		mSizeDependentVariable = size;
+		mNumNodes = numNodes;
 	   	mpDirichletMap =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >;
     	mpNeumannMap   =  new std::map< const Element<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>; 
 	}
@@ -143,8 +148,10 @@ public:
 		iter = pMesh->GetFirstBoundaryNode();
 		while (iter != pMesh->GetLastBoundaryNode()) 
 		{
+			VectorDouble zero(mSizeDependentVariable);
+			
 			ConstBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition =
-				new ConstBoundaryCondition<SPACE_DIM>(0);
+				new ConstBoundaryCondition<SPACE_DIM>( zero );
 			AddDirichletBoundaryCondition(*iter, pZeroBoundaryCondition);
 			iter++;
 		}
@@ -160,15 +167,16 @@ public:
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
 			long index = dirichIterator->first->GetIndex();
-			double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
-			rSomeLinearSystem.SetMatrixRow(index,0);
-			rSomeLinearSystem.SetMatrixElement(index,index,1);
-			rSomeLinearSystem.SetRhsVectorElement(index,value);	
-			dirichIterator++;
-			
+			VectorDouble value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+
+			for(int i=0; i<mSizeDependentVariable; i++)
+			{
+				rSomeLinearSystem.SetMatrixRow(index + i*mNumNodes,0);
+				rSomeLinearSystem.SetMatrixElement(index + i*mNumNodes, index + i*mNumNodes, 1);
+				rSomeLinearSystem.SetRhsVectorElement(index + i*mNumNodes, value(i) );	
+			}
+			dirichIterator++;			
 		}
-
-
 	}
 	
 	/**
@@ -188,9 +196,12 @@ public:
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
 			long index = dirichIterator->first->GetIndex();
-			double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
-			
-			residualArray[index] = currentSolutionArray[index] - value;
+			VectorDouble value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+		
+			for(int i=0; i<mSizeDependentVariable; i++)
+			{			
+				residualArray[index + i*mNumNodes] = currentSolutionArray[index+ i*mNumNodes] - value(i);
+			}
 			dirichIterator++;
 		}
 		
@@ -215,10 +226,12 @@ public:
 			
 			for (int col=0; col<cols; col++)
 			{
-				value = (col == index) ? 1.0 : 0.0;
-				MatSetValue(jacobian, index, col, value, INSERT_VALUES);
+				for(int i=0; i<mSizeDependentVariable; i++)
+				{			
+					value = (col == (index+i*mNumNodes)) ? 1.0 : 0.0;
+					MatSetValue(jacobian, index, col, value, INSERT_VALUES);
+				}
 			}
-			
 			dirichIterator++;
 		}
 	}
@@ -270,7 +283,7 @@ public:
 	 * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions 
 	 * at the same time 
 	 */
-	double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode)
+	VectorDouble GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode)
 	{		
 		//assert(pBoundaryNode->IsBoundaryNode());
 				
@@ -296,7 +309,7 @@ public:
 	 * 
 	 * It is up to the user to ensure that the point x is contained in the surface element.
 	 */
-	double GetNeumannBCValue(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement, Point<SPACE_DIM> x)
+	VectorDouble GetNeumannBCValue(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement, Point<SPACE_DIM> x)
 	{		
 		neumannIterator = mpNeumannMap->find(pSurfaceElement);
 		assert(neumannIterator!=mpNeumannMap->end());

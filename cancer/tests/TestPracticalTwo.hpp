@@ -67,7 +67,7 @@ public:
         
         // Boundary conditions for oxygen concentration
         // C'(0)=0, C(1)=1
-        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> concentrationBcc;
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> concentrationBcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<SPACE_DIM>* pConcentrationBoundaryCondition1 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         
         ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator concentrationIter = mesh.GetFirstBoundaryElement();
@@ -78,7 +78,7 @@ public:
         
         // Boundary conditions for cell pressure
         // Pc'(0)=0, Pc(1)=0
-        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> cellPressureBcc;
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> cellPressureBcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<SPACE_DIM>* pCellPressureBoundaryCondition1 = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         
         ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::BoundaryElementIterator cellPressureIter = mesh.GetFirstBoundaryElement();

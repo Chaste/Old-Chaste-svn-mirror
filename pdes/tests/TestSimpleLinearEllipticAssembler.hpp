@@ -134,7 +134,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		LinearHeatEquationPde<1> pde;  
 		
 		// Boundary conditions
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
@@ -171,7 +171,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         // Boundary conditions
         // u(-1)=1 u'(-3)=0
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
@@ -215,7 +215,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         // Boundary conditions
         // u(-1)=1 u'(-3)=1 
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], -1, 1e-12);
@@ -262,7 +262,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		LinearHeatEquationPde<2> pde;
 		
 		// Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         pBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
@@ -298,7 +298,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         LinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pBoundaryCondition;
@@ -348,7 +348,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		// u(1)=4
 		//std::cout << "Setting Boundary conditions...\n";
 		//std::cout.flush();
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryDirichletCondition = new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryDirichletCondition);
 		
@@ -397,7 +397,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		LinearPdeWithZeroSource<2> pde;
 		
 		// Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		// u = 0 on r<=1, z=0
         ConstBoundaryCondition<2>* pBoundaryDirichletCondition = new ConstBoundaryCondition<2>(0.0);
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 = mesh.GetFirstBoundaryNode();

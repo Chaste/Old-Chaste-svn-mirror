@@ -122,7 +122,7 @@ public:
     	mElements[index].SetMaterial(pMaterial);
     }
     
-    Element<ELEMENT_DIM, SPACE_DIM>& GetElement(int index)
+    const Element<ELEMENT_DIM, SPACE_DIM>& GetElement(int index) const
     {
     	return mElements[index];
     }

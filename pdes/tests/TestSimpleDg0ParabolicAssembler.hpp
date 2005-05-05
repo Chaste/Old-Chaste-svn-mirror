@@ -54,7 +54,7 @@ public:
 		TimeDependentDiffusionEquationPde<1> pde;  		
 	
 		// Boundary conditions - zero dirichlet at first and last node;
-	    BoundaryConditionsContainer<1,1> bcc;
+	    BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition1);
 
@@ -117,7 +117,7 @@ public:
 		TimeDependentDiffusionEquationWithSourceTermPde<1> pde;  		
 	
 		// Boundary conditions - zero dirichlet at first and last node;
-	    BoundaryConditionsContainer<1,1> bcc;
+	    BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition1);
 
@@ -180,7 +180,7 @@ public:
 	    
         // Boundary conditions
         // u(0)=0 u'(1)=1 
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);  
 
@@ -243,7 +243,7 @@ public:
 		TimeDependentDiffusionEquationPde<2> pde;  		
 
 		// Boundary conditions - zero dirichlet everywhere on boundary
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
 
    		// Linear solver
@@ -307,7 +307,7 @@ public:
 		TimeDependentDiffusionEquationWithSourceTermPde<2> pde;  		
 	
 		// Boundary conditions - zero dirichlet on boundary;
-	    BoundaryConditionsContainer<2,2> bcc;
+	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
 	    while(iter < mesh.GetLastBoundaryNode())
@@ -378,7 +378,7 @@ public:
 		TimeDependentDiffusionEquationPde<2> pde;  		
 	
 		// Boundary conditions - zero dirichlet on boundary;
-	    BoundaryConditionsContainer<2,2> bcc;
+	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
         while(iter < mesh.GetLastBoundaryNode())
@@ -486,7 +486,7 @@ public:
 		TimeDependentDiffusionEquationPde<2> pde;  		
 	
 		// Boundary conditions - zero dirichlet on boundary;
-	    BoundaryConditionsContainer<2,2> bcc;
+	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
         while(iter < mesh.GetLastBoundaryNode())
@@ -597,7 +597,7 @@ public:
 		TimeDependentDiffusionEquationPde<2> pde;  		
 	
 		// Boundary conditions - zero dirichlet on boundary;
-	    BoundaryConditionsContainer<2,2> bcc;
+	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
         while(iter != mesh.GetLastBoundaryNode())
@@ -706,7 +706,7 @@ public:
 		TimeDependentDiffusionEquationPde<3> pde;  		
 
 		// Boundary conditions - zero dirichlet everywhere on boundary
-        BoundaryConditionsContainer<3,3> bcc;
+        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
 
    		// Linear solver
@@ -779,7 +779,7 @@ public:
 		TimeDependentDiffusionEquationWithSourceTermPde<3> pde;  		
 	
 		// Boundary conditions - zero dirichlet on boundary;
-	    BoundaryConditionsContainer<3,3> bcc;
+	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
 	    while(iter < mesh.GetLastBoundaryNode())
@@ -862,7 +862,7 @@ public:
 		TimeDependentDiffusionEquationPde<3> pde;  		
 	
 		// Boundary conditions - zero dirichlet on boundary;
-	    BoundaryConditionsContainer<3,3> bcc;
+	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
         while(iter < mesh.GetLastBoundaryNode())

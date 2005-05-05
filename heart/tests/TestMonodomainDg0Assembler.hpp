@@ -83,7 +83,7 @@ public:
                 
         
 		// Boundary conditions: zero neumann on entire boundary
-		BoundaryConditionsContainer<1,1> bcc;
+		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
 		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
 		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition1);
@@ -252,7 +252,7 @@ public:
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
                          
         // Boundary conditions: zero neumann on boundary
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
         
@@ -468,7 +468,7 @@ public:
  
                  
         // Boundary conditions, zero neumann everywhere
-        BoundaryConditionsContainer<3,3> bcc;
+        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(0.0);
         

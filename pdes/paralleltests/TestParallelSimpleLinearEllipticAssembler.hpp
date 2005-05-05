@@ -36,7 +36,7 @@ class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		LinearHeatEquationPde<1> pde;  
 		
 		// Boundary conditions
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
@@ -78,7 +78,7 @@ class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         LinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pBoundaryCondition;

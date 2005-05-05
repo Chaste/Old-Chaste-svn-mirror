@@ -224,13 +224,13 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 		/**
 		 * \todo Neumann BC value depends on u?
 		 */
-		double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+		VectorDouble Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 		//std::cout << "Dgradu.n = " << Dgradu_dot_n << std::endl << std::flush;
 
 		for (int i=0; i < num_nodes; i++)
 		{
 			// I'm not sure why we want -phi, but it seems to work:)
-			double integrand_value = -phi[i] * Dgradu_dot_n;
+			double integrand_value = -phi[i] * Dgradu_dot_n(0);
 			rBsubElem(i) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
 		}
 	}

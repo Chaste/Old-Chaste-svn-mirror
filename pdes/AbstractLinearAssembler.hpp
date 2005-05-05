@@ -191,11 +191,11 @@ protected:
 			/**
 			 * \todo Improve efficiency of Neumann BC implementation.
 			 */
-			double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+			VectorDouble Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 
 			for (int row=0; row < num_nodes; row++)
 			{
-				double integrand_value = phi[row] * Dgradu_dot_n;
+				double integrand_value = phi[row] * Dgradu_dot_n(0);
 				rBsubElem(row) += integrand_value * jW;
 			}
 		}		
