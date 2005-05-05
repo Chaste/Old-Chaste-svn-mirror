@@ -146,13 +146,13 @@ private:
 		FourthOrderTensor dTdE;
 		
 		dTdE.resize(SPACE_DIM);		
-		for(M=0; M<SPACE_DIM; M++)
+		for(int M=0; M<SPACE_DIM; M++)
 		{
 			dTdE[M].resize(SPACE_DIM);
-			for(N=0; N<SPACE_DIM; N++)
+			for(int N=0; N<SPACE_DIM; N++)
 			{	
 				dTdE[M][N].resize(SPACE_DIM);
-				for(P=0; P<SPACE_DIM; P++)
+				for(int P=0; P<SPACE_DIM; P++)
 				{
 					dTdE[M][N][P].resize(SPACE_DIM);
 				}
@@ -160,13 +160,13 @@ private:
 		}				
 
 
-		for(M=0; M<SPACE_DIM; M++)
+		for(int M=0; M<SPACE_DIM; M++)
 		{
-			for(N=0; N<SPACE_DIM; N++)
+			for(int N=0; N<SPACE_DIM; N++)
 			{	
-				for(P=0; P<SPACE_DIM; P++)
+				for(int P=0; P<SPACE_DIM; P++)
 				{
-					for(Q=0; Q<SPACE_DIM; Q++)
+					for(int Q=0; Q<SPACE_DIM; Q++)
 					{
 						dTdE[M][N][P][Q] = 0;
 					}
@@ -184,13 +184,13 @@ private:
 				double  dW_by_dI1  = GetdW_by_dI1(I1);	
 				double  d2W_by_dI1 = Getd2W_by_dI1(I1);
 				
-				for(M=0; M<SPACE_DIM; M++)
+				for(int M=0; M<SPACE_DIM; M++)
 				{
-					for(N=0; N<SPACE_DIM; N++)
+					for(int N=0; N<SPACE_DIM; N++)
 					{	
-						for(P=0; P<SPACE_DIM; P++)
+						for(int P=0; P<SPACE_DIM; P++)
 						{
-							for(Q=0; Q<SPACE_DIM; Q++)
+							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
 								dTdE[M][N][P][Q] = 4*d2W_by_dI1*(M==N)*(P==Q);
 							}
