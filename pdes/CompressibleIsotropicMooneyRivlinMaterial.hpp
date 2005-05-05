@@ -7,8 +7,8 @@ class CompressibleIsotropicMooneyRivlinMaterial : public AbstractMaterial<SPACE_
 public:
 	CompressibleIsotropicMooneyRivlinMaterial(double c1, double c2=0)
 	{
-		mDensitySet = false;
-		mIsIsotropicLaw = true;
+		AbstractMaterial<SPACE_DIM>::mDensitySet = false;
+		AbstractMaterial<SPACE_DIM>::mIsIsotropicLaw = true;
 
 		mC1 = c1;	
 		
