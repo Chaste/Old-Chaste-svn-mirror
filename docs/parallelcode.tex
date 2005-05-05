@@ -2,13 +2,14 @@
 
 \author{Joe Pitt-Francis}
 \title{Parallelisation of Heart Practical 6}
-
+\date{ May 4th, 2005\\{\tiny This revision May 5th, 2005}}
 \begin{document}
 \maketitle
 \section{Introduction}
 
 This document concerns the parallelisation of heart practical 6.  As of
-this date the code which runs the practical is contained in {\tt
+this date the code which runs the practical is contained in \\
+{\tt
 Chaste/heart/tests/TestMonodomainDg0Assembler.hpp} and consists of tests
 of the form {\tt testMonodomainDg0?D} (where ?\ is replaced by the
 dimension of the problem).  All these tests have the same basic
@@ -42,7 +43,12 @@ constructed.
 \item The voltages are used to set the initial condition of the
 assembler.
 \item The assembler is used to solve the PDE (by repeatedly assembling
-and solving a linear system). This returns a new vector of voltages
+and solving a linear system). 
+Note that the {\tt MonodomainDg0Assembler} has over-ridden the {\tt AssembleOnElement} method of its superclass.
+This method calls the {\tt ComputeNonlinearSourceTermAtNode} method of the {\tt  MonodomainPde} class (which is 
+itself an over-riding class).  The upshot of this is that {\tt ComputeNonlinearSourceTermAtNode} now computes the 
+solution to the ODE  system at each individual node.
+This returns a new vector of voltages
 which is used in the next iteration.
 \item The data writers write some data.
 \end{itemize}
@@ -186,3 +192,4 @@ Copy and fix the three Heart Practical 6 tests.
 % LocalWords:  testMonodomainDg EulerIvpOdeSolver MonodomainPde KSP PDE PETSc
 % LocalWords:  SetUniversalInitialConditions SimpleLinearSolver MonoDomainDg
 % LocalWords:  MPI LinearSystem MonodomainPDE ODEs SetStimulusFunctionAtNode
+% LocalWords:  MonodomainDg AssembleOnElement ComputeNonlinearSourceTermAtNode

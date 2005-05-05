@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINDG0ASSEMBLER_HPP_
-#define _TESTMONODOMAINDG0ASSEMBLER_HPP_
+#ifndef _TESTPARALLELMONODOMAINDG0ASSEMBLER_HPP_
+#define _TESTPARALLELMONODOMAINDG0ASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
@@ -12,8 +12,8 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "TrianglesMeshReader.hpp"
-#include "MonodomainPde.hpp"
-#include "MonodomainDg0Assembler.hpp"
+#include "ParallelMonodomainPde.hpp"
+#include "ParallelMonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
 #include "math.h"
 
@@ -21,9 +21,13 @@
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 public:
-	void __testMonodomainDg01D()
+	void testMonodomainDg01D()
 	{  
         
+		
+		
+		
+		
 		double tStart = 0; 
 		double tFinal = 0.1;
         
@@ -89,7 +93,7 @@ public:
 		SimpleLinearSolver linearSolver;
     
 		// Assembler
-		MonodomainDg0Assembler<1,1> monodomainAssembler;
+		ParallelMonodomainDg0Assembler<1,1> monodomainAssembler;
         
 		// initial condition;   
 		Vec currentVoltage;
@@ -210,7 +214,7 @@ public:
         
         // Instantiate PDE object
         AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-        MonodomainPde<2> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+        ParallelMonodomainPde<2> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
                 
         
         // sets Luo Rudy system with initial conditions passed on
@@ -259,7 +263,7 @@ public:
         SimpleLinearSolver linearSolver;
     
         // Assembler
-        MonodomainDg0Assembler<2,2> monodomainAssembler;
+        ParallelMonodomainDg0Assembler<2,2> monodomainAssembler;
         
         // initial condition;   
         Vec currentVoltage;
@@ -425,7 +429,7 @@ public:
         
         // Instantiate PDE object
         AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-        MonodomainPde<3> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+        ParallelMonodomainPde<3> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
                 
         
         // sets Luo Rudy system with initial conditions passed on
@@ -474,7 +478,7 @@ public:
         SimpleLinearSolver linearSolver;
     
         // Assembler
-        MonodomainDg0Assembler<3,3> monodomainAssembler;
+        ParallelMonodomainDg0Assembler<3,3> monodomainAssembler;
         
         // initial condition;   
         Vec currentVoltage;
@@ -579,4 +583,4 @@ public:
            
     }   
 };
-#endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_
+#endif //_TESTPARALLELMONODOMAINDG0ASSEMBLER_HPP_

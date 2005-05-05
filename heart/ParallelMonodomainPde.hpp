@@ -15,9 +15,7 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "MatrixDouble.hpp"
-
-
-
+#include <mpi.h>
 
 const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
 const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
@@ -68,8 +66,9 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         int mOwnershipRangeLo;
         
         /// One more than the local highest index
-        int mOnwershipRangeHi;
+        int mOwnershipRangeHi;
         
+
         AbstractStimulusFunction*                mpZeroStimulus;
 
         /** mOdeVarsAtNode[i] is a vector of the current values of the
@@ -87,7 +86,7 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
          *  yet
          */
         std::vector<bool>                        mOdeSolvedAtNode;      
-
+		std::vector<double>	mCurrentCache;
         double mTime;                  
 
     public:
@@ -105,18 +104,33 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
      
         mTime = tStart;
         
-        mOdeVarsAtNode.resize(mNumNodes);
+        // Resize vectors to the appropriate size for each process
+        // Create a PETSc vector and use the ownership range of the PETSc vector to size our C++ vectors
+        Vec tempVec;
+        VecCreate(PETSC_COMM_WORLD, &tempVec);
+        VecSetSizes(tempVec, PETSC_DECIDE, numNodes);
+        VecSetFromOptions(tempVec);
+        VecGetOwnershipRange(tempVec,&mOwnershipRangeLo,&mOwnershipRangeHi);
+        VecDestroy(tempVec); // no longer needed
+                
+        mOdeVarsAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
         mOdeSolvedAtNode.resize(mNumNodes);
-        mStimulusAtNode.resize(mNumNodes);
+        mCurrentCache.resize(mNumNodes);
+        mStimulusAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
         
         /// initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
                         
-        for(int i=0; i<numNodes; i++)
+        for(int i=0; i<mOwnershipRangeHi-mOwnershipRangeLo; i++)
         {   
-            mOdeSolvedAtNode[i] = false;
             mStimulusAtNode[i] = mpZeroStimulus;
-        }        
+        }
+      
+        for(int i=0; i<mNumNodes; i++)
+        {
+            mOdeSolvedAtNode[i] = false;  	
+        }
+        
         
     }
     
@@ -139,7 +153,46 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     {
         return  DIFFUSION_CONST * MatrixDouble::Identity(SPACE_DIM);
     }
+
+    ///Whether the ODE solution is known at any node.
+    bool IsOdeSolvedAtAnyNode()
+        {
+			for (int i=0; i<mNumNodes; i++)
+			{
+				if (mOdeSolvedAtNode[i])
+				{
+					return true;
+				}
+			}
+			return false;
+        }
     
+    void ComputeAllNonlinearSourceTerms(Vec currentSolution){
+    	double *currentSolutionArray;
+        VecGetArray(currentSolution, &currentSolutionArray);
+        
+        double all_local_currents[mNumNodes];
+        for (int i=0; i<mNumNodes; i++){
+        	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi){ 
+	        	double current=ReallyComputeNonlinearSourceTermAtNode(i, currentSolutionArray[i-mOwnershipRangeLo]); 
+ 			    all_local_currents[i] =current;
+        	} else {
+        		mOdeSolvedAtNode[ i] = true;
+ 			    all_local_currents[i] =0.0;
+        	}
+        	
+        }
+    	double all_currents[mNumNodes];
+ 
+ 		MPI_Allreduce(all_local_currents, all_currents, mNumNodes, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD); 
+    	
+    	
+    	for (int i=0; i<mNumNodes; i++)
+    	{
+    		mCurrentCache[i]=all_currents[i];
+    	}
+    	
+    }
     /** Main function is this class:
      *  computeNonlinearSourceTerm first checks to see if the ode set of equations have been
      *  solved for in this timestep. If not, it integrates the odes over the timestep, and uses
@@ -148,51 +201,35 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
      */
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
-        int index = node.GetIndex();
-        if( !mOdeSolvedAtNode[ index ] )
+    	int index = node.GetIndex();
+     	return (mCurrentCache[index]);
+    }
+    
+    
+    double ReallyComputeNonlinearSourceTermAtNode(int index, double voltage)
+    {
+	    if( !mOdeSolvedAtNode[ index ] )
         {
             //\todo move this object and OdeSolution creation outside loop
-            LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
+            LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index - mOwnershipRangeLo ] );
             
             // overwrite the voltage with the input value
-            mOdeVarsAtNode[index][4] = voltage; 
+            mOdeVarsAtNode[index- mOwnershipRangeLo ][4] = voltage; 
             
-            if (0) // fabs(mTime+mBigTimeStep - 0.5) < 1e-4 )
-            {
-                std::cout << "\n\n--------before-------\n\n";
-                std::cout << "t = " << mTime+mBigTimeStep << "\n";
-                std::cout << "index = " << index << "\n";
-                std::cout << "stim = " << mStimulusAtNode[index]->GetStimulus(mTime) << "\n";
-                for(int j = 0;j<8; j++)
-                {
-                    std::cout << mOdeVarsAtNode[index][j] << "\n";
-                }
-            }
             
             // solve            
-            OdeSolution solution = mpOdeSolver->Solve(pLr91OdeSystem, mTime, mTime+mBigTimeStep, mSmallTimeStep, mOdeVarsAtNode[ index ]);
+            OdeSolution solution = mpOdeSolver->Solve(pLr91OdeSystem, mTime, mTime+mBigTimeStep, mSmallTimeStep, mOdeVarsAtNode[ index - mOwnershipRangeLo  ]);
 
-            if (0) // fabs(mTime+mBigTimeStep - 0.5) < 1e-4 )
-            {
-                std::cout << "\n\n--------after-------\n";
-                std::cout << " t = " << mTime+mBigTimeStep << "\n";
-                std::cout << " index = " << index << "\n";
-                std::cout << " stim = " << mStimulusAtNode[index]->GetStimulus(mTime) << "\n";
-                for(int j=0;j<8; j++)
-                {
-//                     std::cout << solution.mSolutions[j][0] << "\n";
-                    std::cout << " " << solution.mSolutions[ solution.mSolutions.size()-1 ][j] << "\n";
-                }
-            }
                     
             // extract solution at end time and save in the store 
-            mOdeVarsAtNode[ index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
+            mOdeVarsAtNode[ index - mOwnershipRangeLo  ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
             mOdeSolvedAtNode[ index ] = true;
            
             delete pLr91OdeSystem;
         }
         
-        double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) + GetIIonic( mOdeVarsAtNode[ index ], voltage );
+       double Itotal = mStimulusAtNode[index - mOwnershipRangeLo  ]->GetStimulus(mTime+mBigTimeStep) + GetIIonic( mOdeVarsAtNode[ index  - mOwnershipRangeLo  ], voltage );
+   
         
         return -Itotal;
     }
@@ -215,7 +252,7 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
      */
     void SetUniversalInitialConditions(odeVariablesType initialConditions)
     {
-        for(int i=0; i<mNumNodes; i++)
+        for(int i=0; i<mOwnershipRangeHi-mOwnershipRangeLo; i++)
         {
             mOdeVarsAtNode[i] = initialConditions;
         }
@@ -226,7 +263,10 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
      */
     void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
     {
-        mStimulusAtNode[ nodeIndex ] = pStimulus;        
+        if (mOwnershipRangeLo<=nodeIndex && nodeIndex<mOwnershipRangeHi)
+    	{
+        	mStimulusAtNode[ nodeIndex - mOwnershipRangeLo] = pStimulus;    
+    	}    
     }
     
 
@@ -246,7 +286,10 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     
     odeVariablesType GetOdeVarsAtNode( int index )
     {
-        return mOdeVarsAtNode[index];
+        if (mOwnershipRangeLo<=index && index<mOwnershipRangeHi)
+    	{
+        	return mOdeVarsAtNode[index - mOwnershipRangeLo];
+    	}
     }        
 
 

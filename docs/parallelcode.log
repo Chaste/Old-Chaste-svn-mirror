@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2004.3.25)  4 MAY 2005 15:05
+This is pdfTeX, Version 3.14159-1.10b (Web2C 7.4.5) (format=pdflatex 2004.3.25)  5 MAY 2005 09:40
 **parallelcode.tex
 (./parallelcode.tex{/usr/share/texmf/pdftex/config/pdftex.cfg}
 LaTeX2e <2001/06/01>
@@ -42,27 +42,27 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 7.
 
-Overfull \hbox (118.8036pt too wide) in paragraph at lines 10--16
-/cmr10/the code which runs the prac-ti-cal is con-tained in /cmtt10/Chaste/hear
-t/tests/TestMonodomainDg0Assembler.hpp
- []
-
-
-Overfull \hbox (1.02736pt too wide) in paragraph at lines 32--35
+Overfull \hbox (1.02736pt too wide) in paragraph at lines 33--36
 []/cmr10/A bound-ary con-di-tion con-tainer is con-structed to con-tain Neu-man
 n bound-
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 42.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 43.
 (/usr/share/texmf/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 42.
- [1
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 43.
+
+Overfull \hbox (2.60123pt too wide) in paragraph at lines 45--53
+/cmr10/and solv-ing a lin-ear sys-tem). Note that the /cmtt10/MonodomainDg0Asse
+mbler
+ []
+
+[1
 
 {/usr/share/texmf/dvips/config/pdftex.map}]
-Overfull \hbox (38.24666pt too wide) in paragraph at lines 94--94
+Overfull \hbox (38.24666pt too wide) in paragraph at lines 100--100
 []    /cmtt10/TS_ASSERT_DELTA(solution_elements[i-lo], real_solution[i], 0.0000
 01);[] 
  []
@@ -75,8 +75,8 @@ Here is how much of TeX's memory you used:
  3320 multiletter control sequences out of 10000+50000
  8063 words of font info for 29 fonts, out of 500000 for 1000
  14 hyphenation exceptions out of 1000
- 23i,6n,19p,155b,287s stack positions out of 1500i,500n,5000p,200000b,5000s
- 34 PDF objects out of 300000
+ 23i,6n,19p,155b,343s stack positions out of 1500i,500n,5000p,200000b,5000s
+ 37 PDF objects out of 300000
  0 named destinations out of 131072
  0 words of extra memory for PDF output out of 65536
 {/usr/share/texmf/dvips/tetex/f7b6d320.enc}</
@@ -84,6 +84,7 @@ usr/share/texmf/fonts/type1/bluesky/cm/cmbx10.pfb>{/usr/share/texmf/dvips/tetex
 /bbad153f.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb>{/usr/share/t
 exmf/dvips/tetex/09fbbfac.enc}</usr/share/texmf/fonts/type1/bluesky/cm/cmtt10.p
 fb></usr/share/texmf/fonts/type1/bluesky/cm/cmr10.pfb></usr/share/texmf/fonts/t
-ype1/bluesky/cm/cmbx12.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmr12.pfb><
-/usr/share/texmf/fonts/type1/bluesky/cm/cmr17.pfb>
-Output written on parallelcode.pdf (4 pages, 64344 bytes).
+ype1/bluesky/cm/cmbx12.pfb>{/usr/share/texmf/dvips/tetex/0ef0afca.enc}</usr/sha
+re/texmf/fonts/type1/bluesky/cm/cmr5.pfb></usr/share/texmf/fonts/type1/bluesky/
+cm/cmr12.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmr17.pfb>
+Output written on parallelcode.pdf (4 pages, 71145 bytes).
