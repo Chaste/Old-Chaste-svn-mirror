@@ -13,7 +13,7 @@
 class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 	public:
-	EulerIvpOdeSolver() {}; //do nothing
+	EulerIvpOdeSolver() {}; //Constructor-does nothing
 				      
 	std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
 											double timeStep,

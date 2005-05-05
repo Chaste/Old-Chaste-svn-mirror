@@ -11,7 +11,7 @@ TestOdeOrderSystem::TestOdeOrderSystem() : AbstractOdeSystem(2)
 
 std::vector<double> TestOdeOrderSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> yDerivatives(mNumberOfEquations);
+	std::vector<double> yDerivatives(GetNumberOfEquations());
 	yDerivatives[0]=rY[1];
 	yDerivatives[1]=-rY[0];
 	return yDerivatives;

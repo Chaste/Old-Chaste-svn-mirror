@@ -1,5 +1,5 @@
 /**
- * Concrete AdamsBashforthIvpOdeSolver class. 
+ * Concrete AdamsBashforthIvpOdeSolver class. Sub-class of AbstractIvpOdeSolver.hpp
 */
 #include "AdamsBashforthIvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
@@ -41,7 +41,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 				std::vector<double> initialConditions)
 {
 
-    int num_equations = pAbstractOdeSystem->mNumberOfEquations;
+    int num_equations = pAbstractOdeSystem->GetNumberOfEquations();
     
     // Assert that the size of Initial Conditions vector = number of equations.
     assert(initialConditions.size()==num_equations);	
@@ -60,7 +60,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     assert(last_timestep<=timeStep);
     
 	OdeSolution solutions;
-	solutions.mNumberOfTimeSteps = num_timesteps;
+	solutions.SetNumberOfTimeSteps(num_timesteps);
 		
 	solutions.mSolutions.push_back(initialConditions);
 	solutions.mTime.push_back(startTime);
@@ -143,7 +143,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 	int timeindex = num_timesteps;
 	if(last_timestep > (0.000001 * timeStep))
 	{	
-		solutions.mNumberOfTimeSteps=num_timesteps+1;
+		solutions.SetNumberOfTimeSteps(num_timesteps+1);
 		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
 		for(int i=0;i<num_equations; i++) 
 		{				

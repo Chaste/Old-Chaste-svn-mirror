@@ -13,7 +13,7 @@
 class RungeKutta2IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 	public:
-	RungeKutta2IvpOdeSolver() {};
+	RungeKutta2IvpOdeSolver() {};	//Constructor-does nothing
 	
     std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                             double timeStep,

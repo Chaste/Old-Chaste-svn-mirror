@@ -1,3 +1,7 @@
+/**
+ * Abstract One Step Ode Solver class. Sets up variables and functions for all the ODE solvers
+ * that only have one timestep.
+*/
 #ifndef _ABSTRACTONESTEPIVPODESOLVER_HPP_
 #define _ABSTRACTONESTEPIVPODESOLVER_HPP_
 

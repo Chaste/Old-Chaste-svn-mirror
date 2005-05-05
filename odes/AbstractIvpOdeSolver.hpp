@@ -1,6 +1,6 @@
 /**
  * Abstract IvpOdeSolver class. Sets up variables and functions for a numerical solution 
- * technique for an intial value ODE problem. 
+ * technique for an initial value ODE problem. 
 */
 #ifndef _ABSTRACTIVPODESOLVER_HPP_
 #define _ABSTRACTIVPODESOLVER_HPP_

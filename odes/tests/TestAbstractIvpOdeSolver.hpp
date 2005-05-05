@@ -36,7 +36,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	    // Solving the ode problem and writing to solution		
 	    solutions = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, 0.001, yInit);
 		
-		int last = solutions.mNumberOfTimeSteps;		
+		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
 		double testvalue = solutions.mSolutions[last][0];
 		
@@ -58,7 +58,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	    // Solving the ode problem and writing to solution		
 	    solutions = myABSolver->Solve(pMyOdeSystem, 0.0, 2.0, 0.01, yInit);
 		
-		int last = solutions.mNumberOfTimeSteps;		
+		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
 		double testvalue = solutions.mSolutions[last][0];
 		
@@ -81,7 +81,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	    // Solving the ode problem and writing to solution		
 	    solutions = myRK2Solver->Solve(pMyOdeSystem, 0.0, 2.0, 0.001, yInit);
 		
-		int last = solutions.mNumberOfTimeSteps;		
+		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
 		double testvalue = solutions.mSolutions[last][0];
 		
@@ -103,7 +103,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	    // Solving the ode problem and writing to solution		
 	    solutions = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, 0.001, yInit);
 		
-		int last = solutions.mNumberOfTimeSteps;		
+		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
 		double testvalue = solutions.mSolutions[last][0];
 		
@@ -127,7 +127,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	// Solving the ode problem and writing to solution		
 	    solutions = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, 0.000037, yInit);
 		
-		int last = solutions.mNumberOfTimeSteps;
+		int last = solutions.GetNumberOfTimeSteps();
 	// Test to see if this worked		
 		double testvalue = solutions.mSolutions[last-1][0]	;
 		
@@ -149,7 +149,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsEuler;
 		
 		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last = solutionsEuler.mNumberOfTimeSteps;
+		int last = solutionsEuler.GetNumberOfTimeSteps();
 		double testvalueEuler = solutionsEuler.mSolutions[last][0];
 		
 		//Runge Kutta 2 solver solution worked out	
@@ -157,7 +157,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta2;
 		
 		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
+		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0];
 		
 		//Runge Kutta 4 solver solution worked out	
@@ -165,7 +165,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta4;
 		
 		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
+		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last3][0];
 		
 		//Adams-Bashforth solver solution worked out	
@@ -173,7 +173,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsAdamsBashforth;
 		
 		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		double testvalueAdamsBashforth = solutionsAdamsBashforth.mSolutions[last4][0];
 		
 		// The tests
@@ -213,7 +213,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsEuler;
 		
 		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last = solutionsEuler.mNumberOfTimeSteps;
+		int last = solutionsEuler.GetNumberOfTimeSteps();
 		
 		double testvalueEuler[2];
 		testvalueEuler[0] = solutionsEuler.mSolutions[last][0];
@@ -224,7 +224,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta2;
 		
 		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
+		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		
 		double testvalueRungeKutta2[2];
 		testvalueRungeKutta2[0] = solutionsRungeKutta2.mSolutions[last2][0];
@@ -235,7 +235,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta4;
 		
 		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
+		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		double testvalueRungeKutta4[2];
 		testvalueRungeKutta4[0] = solutionsRungeKutta4.mSolutions[last3][0];
 		testvalueRungeKutta4[1] = solutionsRungeKutta4.mSolutions[last3][1];
@@ -247,7 +247,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsAdamsBashforth;
 		
 		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		double testvalueAdamsBashforth[2];
 		testvalueAdamsBashforth[0] = solutionsAdamsBashforth.mSolutions[last4][0];
 		testvalueAdamsBashforth[1] = solutionsAdamsBashforth.mSolutions[last4][1];
@@ -299,7 +299,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsEuler;
 		
 		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last = solutionsEuler.mNumberOfTimeSteps;
+		int last = solutionsEuler.GetNumberOfTimeSteps();
 		
 		double testvalueEuler[3];
 		testvalueEuler[0] = solutionsEuler.mSolutions[last][0];
@@ -311,7 +311,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta2;
 		
 		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
+		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		
 		double testvalueRungeKutta2[3];
 		testvalueRungeKutta2[0] = solutionsRungeKutta2.mSolutions[last2][0];
@@ -323,7 +323,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta4;
 		
 		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
+		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		
 		double testvalueRungeKutta4[3];
 		testvalueRungeKutta4[0] = solutionsRungeKutta4.mSolutions[last3][0];
@@ -337,7 +337,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsAdamsBashforth;
 		
 		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		
 		double testvalueAdamsBashforth[3];
 		testvalueAdamsBashforth[0] = solutionsAdamsBashforth.mSolutions[last4][0];
@@ -392,7 +392,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsEuler;
 		
 		solutionsEuler = myEulerSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last = solutionsEuler.mNumberOfTimeSteps;
+		int last = solutionsEuler.GetNumberOfTimeSteps();
 		double testvalueEuler = solutionsEuler.mSolutions[last][0];
 		
 		//Runge Kutta 2 solver solution worked out	
@@ -400,7 +400,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta2;
 		
 		solutionsRungeKutta2 = myRungeKutta2Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last2 = solutionsRungeKutta2.mNumberOfTimeSteps;
+		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0];
 		
 		//Runge Kutta 4 solver solution worked out	
@@ -408,7 +408,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsRungeKutta4;
 		
 		solutionsRungeKutta4 = myRungeKutta4Solver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last3 = solutionsRungeKutta4.mNumberOfTimeSteps;
+		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last3][0];
 		
 		//Adams-Bashforth solver solution worked out	
@@ -416,7 +416,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutionsAdamsBashforth;
 		
 		solutionsAdamsBashforth = myAdamsBashforthSolver->Solve(pMyOdeSystem, 0.0, 2.0, hValue, yInit);
-		int last4 = solutionsAdamsBashforth.mNumberOfTimeSteps;
+		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		double testvalueAdamsBashforth = solutionsAdamsBashforth.mSolutions[last4][0];
 		
 		// The tests

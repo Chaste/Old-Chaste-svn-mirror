@@ -1,6 +1,24 @@
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include <cassert>
 
+/*
+ * Solves a system of ODEs using a specified one-step ODE solver
+ * 
+ * @param pAbstractOdeSystem points to the concrete ODE system to be solved
+ * @param startTime the time at which the initial conditions are specified
+ * @param endTime the time to which the system should be solved and the solution 
+ * returned
+ * @param timeStep the time interval to be used by the solver
+ * @param initialConditions a standard vector specifying the intial condition 
+ * of each solution variable in the system 
+ * 
+ * 
+ * @return OdeSolution is an object containing an integer of the number of 
+ * equations, a std::vector of times and a std::vector of std::vectors where 
+ * each of those vectors contains the solution for one variable of the ODE 
+ * system at those times.
+ */
+ 
 OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
 				              double startTime,
 				              double endTime,
@@ -8,7 +26,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 				              std::vector<double> initialConditions)
 
 {	
-    int num_equations = pAbstractOdeSystem->mNumberOfEquations;
+    int num_equations = pAbstractOdeSystem->GetNumberOfEquations();
     
     // Assert that the size of initialConditions vector = number of equations.
     assert(initialConditions.size()==num_equations);	
@@ -28,19 +46,19 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     assert(last_timestep < timeStep + 1e-10); 
     
 	OdeSolution solutions;
-	solutions.mNumberOfTimeSteps = num_timesteps;
+	solutions.SetNumberOfTimeSteps(num_timesteps);
 		
 	solutions.mSolutions.push_back(initialConditions);
 	solutions.mTime.push_back(startTime);
 	
-	std::vector<double> row(num_equations);	
-	std::vector<double> dy(num_equations);
+	std::vector<double> row(num_equations);	/** Sets up a vector of current Y values. */
+	std::vector<double> dy(num_equations);	 /** Sets up a vector of differential of Y. */
 	
 	row=initialConditions;
 	
 	for(int timeindex=0;timeindex<num_timesteps;timeindex++)
 	{
-		
+		// Function that calls the appropriate one-step solver
 		row = CalculateNextYValue(pAbstractOdeSystem,
 									timeStep,
 									solutions.mTime[timeindex],
@@ -54,7 +72,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 	// Extra step to get to exactly endTime
 	if(last_timestep > (0.000001 * timeStep))
 	{	
-		solutions.mNumberOfTimeSteps=num_timesteps+1;
+		solutions.SetNumberOfTimeSteps(num_timesteps+1);
   		
   		row = CalculateNextYValue(pAbstractOdeSystem,
   									last_timestep, 

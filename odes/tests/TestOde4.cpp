@@ -11,7 +11,7 @@ TestOde4::TestOde4() : AbstractOdeSystem(1)
 
 std::vector<double> TestOde4::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> yDerivatives(mNumberOfEquations);
+	std::vector<double> yDerivatives(GetNumberOfEquations());
 	double alpha = 100;
 	yDerivatives[0]=alpha*rY[0]*(1-rY[0])*time;
 	return yDerivatives;

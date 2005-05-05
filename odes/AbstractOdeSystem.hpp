@@ -9,8 +9,13 @@
 
 class AbstractOdeSystem
 {
-	public:
+	private:
+	
 	int mNumberOfEquations; /**< Number of equations in the ODE system */
+	
+	public:
+	
+	int GetNumberOfEquations(void ) {return mNumberOfEquations;}
 	
 	AbstractOdeSystem(int numberOfEquations): mNumberOfEquations(numberOfEquations) {}; /**< Constructor*/
 	
