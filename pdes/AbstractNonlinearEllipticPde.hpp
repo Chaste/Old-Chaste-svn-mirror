@@ -21,7 +21,7 @@ public:
                                               double u)=0;
                                               
     virtual double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x,
-                                              double u)=0;                                          
+                                              double u)=0;
 
 };
 

@@ -3,6 +3,7 @@
 
 #include "MatrixDouble.hpp"
 #include "Point.hpp"
+#include "AbstractLinearPde.hpp"
 
 /**
  * AbstractLinearEllipticPde class.
@@ -13,28 +14,23 @@
  */
 
 template <int SPACE_DIM>
-class AbstractLinearEllipticPde
+class AbstractLinearEllipticPde : public AbstractLinearPde<SPACE_DIM>
 {
 public:
-	/**
-	 * Compute Linear Source Term.
-	 * @param x The point in space at which the Linear Source Term is computed.
-	 */
-    virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+
+	// The methods below are as for the base class, so commented out.
+	//virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+	//virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
+	//                                          double u)=0;
+	//virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
 
 	/**
-	 * Compute Nonlinear Source Term.
-	 * @param x The point in space at which the Nonlinear Source Term is computed.
+	 * An elliptic PDE has no time dependence, so the coefficient of du/dt is zero.
 	 */
- 
-    virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
-                                              double u)=0;
-	/**
-	 * Compute Diffusion Term.
-	 * @param x The point in space at which the Diffusion Term is computed.
-	 * @return A matrix. 
-	 */
-    virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
+	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
+	{
+		return 0.0;
+	}
 };
 
 #endif //_ABSTRACTLINEARELLIPTICPDE_HPP_

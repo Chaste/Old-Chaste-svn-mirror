@@ -1,6 +1,7 @@
 #ifndef _ABSTRACTLINEARPARABOLICPDE_HPP_
 #define _ABSTRACTLINEARPARABOLICPDE_HPP_
 
+#include "AbstractLinearPde.hpp"
 #include "MatrixDouble.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
@@ -13,19 +14,18 @@
  * 
  */
 template <int SPACE_DIM>
-class AbstractLinearParabolicPde
+class AbstractLinearParabolicPde : public AbstractLinearPde<SPACE_DIM>
 {
 public:
-    virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
-    
-    virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
-                                              double u)=0;
 
-    virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
-    
-    virtual double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)=0;
-    
-    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
+	// The methods below are as for the base class, so commented out.
+	//virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+	//virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
+	//                                          double u)=0;
+	//virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
+	//virtual double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)=0;
+
+	virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
     {
         return ComputeNonlinearSourceTerm(node.GetPoint(), u);
     }
@@ -34,6 +34,7 @@ public:
     {
         return ComputeLinearSourceTerm(node.GetPoint());
     }
+
 };
 
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_

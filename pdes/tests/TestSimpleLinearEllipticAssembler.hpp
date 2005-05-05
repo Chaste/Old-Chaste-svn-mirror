@@ -158,7 +158,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		}
 		VecRestoreArray(result, &res);
 	}
-
+	
     void TestWithHeatEquation2()
     {
         // Create mesh from mesh reader

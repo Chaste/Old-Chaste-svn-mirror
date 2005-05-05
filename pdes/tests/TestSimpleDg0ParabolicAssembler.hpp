@@ -1,3 +1,6 @@
+#ifndef _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
+#define _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
+
 /**
  * TestSimpleDg0ParabolicAssembler.hpp
  * 
@@ -8,16 +11,16 @@
  * 
  * 
  */
-#ifndef _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
-#define _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
+#include <vector>
+#include <iostream>
+#include <cmath>
+
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include <vector>
-#include <iostream>
 #include "Node.hpp"
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -25,20 +28,18 @@
 #include "TrianglesMeshReader.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
 
-#include "math.h"
-
 class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite 
 {	
 public:
 	/// Standard setup method for PETSc
 	void setUp()
-    {
+	{
 		int FakeArgc=0;
 		char *FakeArgv0="testrunner";
 		char **FakeArgv=&FakeArgv0;
-    	
+
 		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }	
+	}	
     
     
     /// test 1D problem
