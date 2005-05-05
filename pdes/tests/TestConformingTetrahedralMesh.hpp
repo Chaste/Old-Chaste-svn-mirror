@@ -241,6 +241,21 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 			it++;
 		}
 	}
+    
+    void TestRescaleMeshFromBoundaryNode(void)
+    {
+        // Create mesh from mesh reader
+        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        Point<1> updatedPoint(1.5);
+        mesh.RescaleMeshFromBoundaryNode(updatedPoint,10);
+        for(int i=0; i < 11; i++)
+        {
+            TS_ASSERT_DELTA(mesh.GetNodeAt(i)->GetPoint()[0], 1.5*(i/10.0) , 0.001);
+        }
+    }
 	
 };
 

@@ -1,0 +1,22 @@
+Running 5 testsEntering testWithHeatEquationAndMeshReader
+Entering testWithHeatEquationAndMeshReader
+Passed
+Entering testHeatEquationWithNeumannOnUnitDisc
+Passed
+Entering testHeatEquationWithNeumannOnUnitDisc
+Passed
+Entering testLinearSystem1
+Passed
+Entering testLinearSystem1
+Passed
+Entering testLinearSystem2
+Passed
+Entering testLinearSystem2
+Passed
+Entering testPetscIsThere
+Passed
+Passed
+Entering testPetscIsThere
+Passed
+OK!
+OK!

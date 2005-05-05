@@ -245,4 +245,20 @@ long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
     return mNodes.size();
 }
 
+template<int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex)
+{
+    
+    double scaleFactor = updatedPoint[0] / GetNodeAt(boundaryNodeIndex)->GetPoint()[0];
+    double temp;
+    for(int i=0; i < boundaryNodeIndex+1; i++)
+    {
+        temp = scaleFactor * mNodes[i].GetPoint()[0];
+        Point<1> newPoint(temp);
+        mNodes[i].SetPoint(newPoint);
+    }
+    
+}
+
+
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

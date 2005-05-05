@@ -71,8 +71,9 @@ public:
 	ConformingTetrahedralMesh();
     ConformingTetrahedralMesh(long numElements);
     
-//    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
     void ConstructFromMeshReader(AbstractMeshReader &rMeshReader, int orderOfBasisFunctions=1);
+    
+    void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex);
             
     const Node<SPACE_DIM> *GetNodeAt(long index) const;
 
