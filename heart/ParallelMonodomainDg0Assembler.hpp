@@ -27,23 +27,25 @@ protected:
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
-                           AbstractLinearParabolicPde<SPACE_DIM> *pAbstractPde,
-                           AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
+                           AbstractLinearPde<SPACE_DIM> *pAbstractPde,
                            Vec currentSolution)
     {
+		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+			
         double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
         
        
-        
         ParallelMonodomainPde<SPACE_DIM> *pPde= (ParallelMonodomainPde<SPACE_DIM> *) pAbstractPde;
         
         if (pPde->IsOdeSolvedAtAnyNode() == false)
         {
         	pPde->ComputeAllNonlinearSourceTerms(currentSolution);
         }
-        static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::NUM_GAUSS_POINTS_PER_DIMENSION);
-        
+
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
@@ -106,8 +108,19 @@ protected:
     }       
 
 
+
 public:
-	ParallelMonodomainDg0Assembler() : SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>()
+	/**
+	 * Constructors just call the base class versions.
+	 */
+	ParallelMonodomainDg0Assembler(int numPoints = 2) :
+		SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+	}
+	ParallelMonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+							AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+							int numPoints = 2) :
+		SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
 	{
 	}
 };

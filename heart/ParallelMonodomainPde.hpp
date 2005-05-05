@@ -199,6 +199,7 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
      *  the new results for the gating variables, together with the OLD voltage, to calculate and
      *  return the ionic current.
      */
+  
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
     	int index = node.GetIndex();
