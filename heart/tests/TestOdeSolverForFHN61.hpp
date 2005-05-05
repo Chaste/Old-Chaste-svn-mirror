@@ -30,8 +30,8 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
          * Set initial conditions and magnitude of stimulus
          */
 		double voltage = 0.0; // initial resting potential
-        double w = 0.0; // initial gating variable
-        double magnitudeOfStimulus = -50.0;  
+        double w = 0.0; // initial value for gating variable
+        double magnitudeOfStimulus = -80.0;  
         double durationOfStimulus  = 0.5;  // ms                   
         
         /*
@@ -61,7 +61,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
          * Solve 
          */
         double startTime = 0.0;
-        double endTime = 500.0; // ms?
+        double endTime = 500.0; // ms
         double timeStep = 0.01;             
                 
         OdeSolution solution = pMySolver->Solve(pFhn61OdeSystem, startTime, endTime, timeStep, initialConditions);  
@@ -85,24 +85,9 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
             mpNewTestWriter->PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
             mpNewTestWriter->PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
         }
-        mpNewTestWriter->Close();
-        
-        
-//        //read in good data file and compare line by line
-//        std::ifstream testfile("data/NewLR91.dat",std::ios::in);
-//        std::ifstream goodfile("data/Lr91Good.dat",std::ios::in);
-//        std::string teststring;
-//        std::string goodstring;
-//        while(getline(testfile, teststring))
-//        {
-//              getline(goodfile,goodstring);
-//              TS_ASSERT_EQUALS(teststring,goodstring);
-//        }
-//        testfile.close();
-//        goodfile.close();                              
+        mpNewTestWriter->Close();                            
     }
     
-    // Test Ode Solver for FHN61
 //    void testOdeSolverForFHN61WithRegularStimulus(void)
 //    {
 //        /*
@@ -150,11 +135,11 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
 //        
 //              
 //        /*
-//         * Write data to a file FHN61.dat using ColumnDataWriter
+//         * Write data to a file FHN61a.dat using ColumnDataWriter
 //         */                                                           
 //		        
 //        ColumnDataWriter *mpNewTestWriter;
-//        mpNewTestWriter = new ColumnDataWriter("data","FHN61");
+//        mpNewTestWriter = new ColumnDataWriter("data","FHN61a");
 //        mpNewTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
 //        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
 //        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
@@ -167,21 +152,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
 //            mpNewTestWriter->PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
 //            mpNewTestWriter->PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
 //        }
-//        mpNewTestWriter->Close();
-//        
-//        
-////        //read in good data file and compare line by line
-////        std::ifstream testfile("data/NewLR91.dat",std::ios::in);
-////        std::ifstream goodfile("data/Lr91Good.dat",std::ios::in);
-////        std::string teststring;
-////        std::string goodstring;
-////        while(getline(testfile, teststring))
-////        {
-////              getline(goodfile,goodstring);
-////              TS_ASSERT_EQUALS(teststring,goodstring);
-////        }
-////        testfile.close();
-////        goodfile.close();                              
+//        mpNewTestWriter->Close();                             
 //    }	      
 };
 
