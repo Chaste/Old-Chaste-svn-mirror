@@ -11,9 +11,11 @@
 #include <cxxtest/TestSuite.h>
 #include "../TrianglesMeshReader.hpp"
 
-static		AbstractMeshReader *spMeshReader;
+
 class TestTrianglesMeshReaders : public CxxTest::TestSuite
 {
+    private:
+          AbstractMeshReader *spMeshReader;
 	public:
 	
 	/**
@@ -23,10 +25,11 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void testFilesOpen(void)
 	{
-
+        AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements"));
+        delete pMeshReader;                          
 		
 	}
 	
@@ -40,9 +43,11 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	//void testTulaneFilesOpen(void)
 	//{
+        //AbstractMeshReader *pMeshReader;
 		//TS_ASSERT_THROWS_NOTHING(
-		//                  spMeshReader=new TrianglesMeshReader(
+		//                  pMeshReader=new TrianglesMeshReader(
 		//                 "pdes/tests/meshdata/tulane_data_about_400k_elements"));
+        //delete pMeshReader;
 		
 	//}
 	
@@ -56,16 +61,16 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestNodesDataRead(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
 		
-		TS_ASSERT( spMeshReader->GetNumNodes() == 543); 
-		
+		TS_ASSERT( pMeshReader->GetNumNodes() == 543); 
+        delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/baddata/bad_nodes_disk_522__elements_indexed_from_1"));		
-		
 	}
 	
 	
@@ -79,17 +84,17 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestElementsDataRead(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
 		
-		TS_ASSERT( spMeshReader->GetNumElements() == 984); 
-		
+		TS_ASSERT( pMeshReader->GetNumElements() == 984); 
+        delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/baddata/bad_elements_disk_522_elements_indexed_from_1"));
-	
-	
+
 	}
 	
 	
@@ -103,16 +108,16 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestFacesDataRead(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements_indexed_from_1");
 		
-		TS_ASSERT( spMeshReader->GetNumFaces() == 1526); 
-		
+		TS_ASSERT( pMeshReader->GetNumFaces() == 1526); 
+		delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/baddata/bad_faces_disk_522__elements_indexed_from_1"));		
-		
 	}
 	
 	
@@ -126,12 +131,13 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void Test3dDataRead(void)
 	{			
+        AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/slab_138_elements"));
 			
-		TS_ASSERT (spMeshReader->GetNumElements() == 138);
-		
+		TS_ASSERT (pMeshReader->GetNumElements() == 138);
+		delete pMeshReader;
 	}
 	
 	
@@ -144,14 +150,15 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestIndexFromZero(void)
 	{		
+        AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements"));
 		
-		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
+		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
 		
-		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
-		
+		TS_ASSERT(pMeshReader->GetMinNodeIndex() == 0);
+		delete pMeshReader;
 	}
 	
 	
@@ -165,14 +172,15 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestIndexFromOne(void)
 	{
+        AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements_indexed_from_1"));
 		
-		TS_ASSERT(spMeshReader->GetMaxNodeIndex() == spMeshReader->GetNumNodes() - 1);
+		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
 		
-		TS_ASSERT(spMeshReader->GetMinNodeIndex() == 0);
-		
+		TS_ASSERT(pMeshReader->GetMinNodeIndex() == 0);
+		delete pMeshReader;
 	}
 	
 	
@@ -187,10 +195,11 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestPermutedNodesFail(void)
 	{
+        AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_ANYTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/baddata/permuted_nodes_disk_522_elements"));	
-		
+
 	}
 	
 	
@@ -203,10 +212,10 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestOrder2ElementsFail(void)
 	{
+        AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_ANYTHING(
-		                  spMeshReader=new TrianglesMeshReader(
+		                  pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/baddata/disk_522_order_2_elements"));	
-		
 	}
 	
 	
@@ -220,30 +229,31 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestGetNextNode(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
 		
 		std::vector<double> FirstNode;
 		                  
-		FirstNode = spMeshReader->GetNextNode();
+		FirstNode = pMeshReader->GetNextNode();
 		
 		TS_ASSERT_DELTA( FirstNode[0] ,  0.9980267283 , 1e-6 );
 		TS_ASSERT_DELTA( FirstNode[1] , -0.0627905195 , 1e-6 )
 		
 		std::vector<double> NextNode;
 		                  
-		NextNode = spMeshReader->GetNextNode();
+		NextNode = pMeshReader->GetNextNode();
 		
 		TS_ASSERT_DELTA( NextNode[0] , 1.0 , 1e-6 );
 		TS_ASSERT_DELTA( NextNode[1] , 0.0 , 1e-6 );
 			    		
 		for (int i = 0; i < 541; i++)
 		{
-			TS_ASSERT_THROWS_NOTHING(NextNode = spMeshReader->GetNextNode());
+			TS_ASSERT_THROWS_NOTHING(NextNode = pMeshReader->GetNextNode());
 		}
 		
-		TS_ASSERT_THROWS_ANYTHING(NextNode = spMeshReader->GetNextNode());
-		
+		TS_ASSERT_THROWS_ANYTHING(NextNode = pMeshReader->GetNextNode());
+		delete pMeshReader;
 	}
 	
 	
@@ -257,18 +267,19 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestGetNextElement(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
 		
 		std::vector<int> NextElement;
 		    		
-		for (int i = 0; i < spMeshReader->GetNumElements(); i++)
+		for (int i = 0; i < pMeshReader->GetNumElements(); i++)
 		{
-			TS_ASSERT_THROWS_NOTHING(NextElement = spMeshReader->GetNextElement());
+			TS_ASSERT_THROWS_NOTHING(NextElement = pMeshReader->GetNextElement());
 		}
 		
-		TS_ASSERT_THROWS_ANYTHING(NextElement = spMeshReader->GetNextElement());
-		
+		TS_ASSERT_THROWS_ANYTHING(NextElement = pMeshReader->GetNextElement());
+		delete pMeshReader;
 	}
 	
 	
@@ -281,42 +292,44 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void TestGetNextEdge(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
 		
 		std::vector<int> NextEdge;
 
-		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextFace());
-		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextFace());
+		TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextFace());
+		TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextFace());
 		    		
-		for (int i = 2; i < spMeshReader->GetNumEdges(); i++)
+		for (int i = 2; i < pMeshReader->GetNumEdges(); i++)
 		{
-			TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextEdge());
+			TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextEdge());
 		}
 		
-		TS_ASSERT_THROWS_ANYTHING(NextEdge = spMeshReader->GetNextEdge());
-		
+		TS_ASSERT_THROWS_ANYTHING(NextEdge = pMeshReader->GetNextEdge());
+		delete pMeshReader;
 	}
 	
 	void TestGetNextBoundaryEdge(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_522_elements");
 		
 		std::vector<int> NextEdge;
 		
-		TS_ASSERT(spMeshReader->GetNumBoundaryEdges() == 100);
+		TS_ASSERT(pMeshReader->GetNumBoundaryEdges() == 100);
 		
-		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryFace());
-		TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryFace());
+		TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextBoundaryFace());
+		TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextBoundaryFace());
 		    		
-		for (int i = 2; i < spMeshReader->GetNumBoundaryEdges(); i++)
+		for (int i = 2; i < pMeshReader->GetNumBoundaryEdges(); i++)
 		{
-			TS_ASSERT_THROWS_NOTHING(NextEdge = spMeshReader->GetNextBoundaryEdge());
+			TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextBoundaryEdge());
 		}
 		
-		TS_ASSERT_THROWS_ANYTHING(NextEdge = spMeshReader->GetNextBoundaryEdge());
-		
+		TS_ASSERT_THROWS_ANYTHING(NextEdge = pMeshReader->GetNextBoundaryEdge());
+		delete pMeshReader;
 	}	
 
 	/**
@@ -327,17 +340,20 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	void Test1DMeshRead(void)
 	{
-		spMeshReader=new TrianglesMeshReader(
+        AbstractMeshReader *pMeshReader;
+		pMeshReader=new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/trivial_1d_mesh");
 		
-		TS_ASSERT( spMeshReader->GetNumNodes() == 11); 
+		TS_ASSERT( pMeshReader->GetNumNodes() == 11); 
 		
-		TS_ASSERT( spMeshReader->GetNumElements() == 10); 
+		TS_ASSERT( pMeshReader->GetNumElements() == 10); 
 		
-		TS_ASSERT( spMeshReader->GetNumFaces() == 11); 		
+		TS_ASSERT( pMeshReader->GetNumFaces() == 11); 		
 		
-		TS_ASSERT( spMeshReader->GetNumBoundaryFaces() == 2); 		
-	
+		TS_ASSERT( pMeshReader->GetNumBoundaryFaces() == 2); 		
+	    
+        delete pMeshReader;
+       
 	}
 
 };
