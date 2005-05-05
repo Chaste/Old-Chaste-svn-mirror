@@ -75,7 +75,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 	 * \todo This test is obsolete now we use MeshReader. Maybe move some of the
 	 * checks into a new test?
 	 */
-	void TestNodeMemoryAllocation( void )
+	void testNodeMemoryAllocation( void )
     {
         #define DIMENSION 3
         ConformingTetrahedralMesh<DIMENSION,DIMENSION> mesh;
@@ -95,7 +95,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
     }
     
-    void TestMeshConstructionFromMeshReader(void)
+    void testMeshConstructionFromMeshReader(void)
 	{
 		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
 		                  "pdes/tests/meshdata/disk_984_elements");
@@ -104,10 +104,10 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		#define DIM 2
 		ConformingTetrahedralMesh<DIM,DIM> mesh;
 		
-		mesh.ConstructFromMeshReader(*pMeshReader);
+		mesh.ConstructFromMeshReader(*pMeshReader,1);
 		
 		// Check we have the right number of nodes & elements
-		TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543);
+		TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543);
 		TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
 		
 		// Check some node co-ordinates
@@ -126,7 +126,52 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         //TS_TRACE("here con tetra\n");
 	}
 	
-	void TestMeshWithBoundaryElements(void)
+	void testQuadraticMeshConstructionFromMeshReader(void)
+	{
+		
+		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/disk_984_elements");
+		                  
+		//const int DIM = pMeshReader->GetDimension();
+		#define DIM 2
+		ConformingTetrahedralMesh<DIM,DIM> mesh;
+
+		try
+		{
+      		mesh.ConstructFromMeshReader(*pMeshReader,2);
+		}
+		catch(Exception &e)
+		{
+			std::cout << e.getMessage() << std::endl;
+		}
+		
+		// Check we have the right number of nodes & elements
+		TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543);
+		//TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
+		TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
+
+		// Check some node co-ordinates
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0],  0.9980267283, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], -0.0627905195, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[0], 1.0, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[1], 0.0, 1e-6);
+		
+		// Check first element has the right nodes
+		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetFirstElement();
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 309);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 144);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 310);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(3), 543);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(4), 544);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(5), 545);
+		TS_ASSERT_EQUALS(it->GetNode(1), mesh.GetNodeAt(144));
+        it++;
+        TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(3), 546);
+   		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(4), 547);
+        //TS_TRACE("here con tetra\n");
+	}
+	
+	void testMeshWithBoundaryElements(void)
 	{
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
 		ConformingTetrahedralMesh<2,2> mesh;

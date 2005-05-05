@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 class Element
@@ -52,15 +53,19 @@ public:
      *     For surface (boundary) elements we only calculate the determinant,
      *     but this is all that is needed.
 	 */
-    Element(std::vector<const Node<SPACE_DIM>*> cornerNodes,
+    Element(std::vector<const Node<SPACE_DIM>*> nodes,
     		int orderOfBasisFunctions=1,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
     {
     	// Sanity checking
     	assert(ELEMENT_DIM <= SPACE_DIM);
+    	//added extra 0.5 to ensure in correct interval for floor() function
+    	int total_nodes = (int)floor((ELEMENT_DIM+1)*(1 + 0.5*ELEMENT_DIM*(orderOfBasisFunctions - 1)) + 0.5);
+
+    	assert(nodes.size() == total_nodes);
     	
     	// Store Node pointers
-    	mNodes = cornerNodes;
+    	mNodes = nodes;
     	
     	// Specify order of basis functions
     	mOrderOfBasisFunctions = orderOfBasisFunctions;
@@ -209,7 +214,8 @@ public:
                	int nodeIndex = ((i + j + 1) % (ELEMENT_DIM + 1));
                	somenodes.push_back(mNodes[nodeIndex]);
            	}
-           	mLowerOrderElements[i] = new Element<ELEMENT_DIM-1, SPACE_DIM>(somenodes,mOrderOfBasisFunctions,true,false);   
+           	//WARNING: Lower Order Elements are not constructed with internal nodes at present
+           	mLowerOrderElements[i] = new Element<ELEMENT_DIM-1, SPACE_DIM>(somenodes,1,true,false);   
         }
         mHasLowerOrderElements = true;
     }

@@ -189,6 +189,17 @@ std::vector<int> AbstractMeshReader::GetNextElement()
 	return next_element;
 }
 
+/**
+ * 
+ */
+
+void AbstractMeshReader::Reset()
+{	
+	mpElementIterator = mElementData.begin();
+    mpFaceIterator = mFaceData.begin();
+    mpBoundaryFaceIterator = mBoundaryFaceData.begin();
+    mpNodeIterator = mNodeData.begin();
+}
 
 
 /**

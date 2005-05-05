@@ -26,26 +26,24 @@ class TestElement : public CxxTest::TestSuite
 	}
 
 public:
-	void dontTestConstructionForQuadraticBasisFunctions()
+	void TestConstructionForQuadraticBasisFunctions()
 	{
-		std::vector<const Node<3>*> cornerNodes;
+		std::vector<const Node<3>*> nodes;
 //		for (int i=0; i<4; i++)
 //		{
 //			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
 //		}
-		cornerNodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-		cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-		cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-		cornerNodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-		Element<3,3> element(cornerNodes, 2,true);
-		
-		element.AddInternalNode(new Node<3>(4, false, 0.5, 0.0, 0.0));
-		element.AddInternalNode(new Node<3>(5, false, 0.5, 0.5, 0.0));
-		element.AddInternalNode(new Node<3>(6, false, 0.0, 0.5, 0.0));
-		element.AddInternalNode(new Node<3>(7, false, 0.0, 0.0, 0.5));
-		element.AddInternalNode(new Node<3>(8, false, 0.5, 0.0, 0.5));
-		element.AddInternalNode(new Node<3>(9, false, 0.0, 0.5, 0.5));
-		
+		nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+		nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+		nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+		nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+		nodes.push_back(new Node<3>(4, false, 0.5, 0.0, 0.0));
+		nodes.push_back(new Node<3>(5, false, 0.5, 0.5, 0.0));
+		nodes.push_back(new Node<3>(6, false, 0.0, 0.5, 0.0));
+		nodes.push_back(new Node<3>(7, false, 0.0, 0.0, 0.5));
+		nodes.push_back(new Node<3>(8, false, 0.5, 0.0, 0.5));
+		nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
+		Element<3,3> element(nodes, 2,true);
 		// Check nodes on the new element have the right indices
 		for (int i=0; i<10; i++)
 		{
@@ -56,9 +54,9 @@ public:
 		// Check lower order elements are created with the expected nodes.
 		// Not sure if we really want to specify this, but it ensures nothing
 		// has changed from the earlier code, just in case.
-		for (int i=0; i < 10; i++)
+		for (int i=0; i < 4; i++)
         {
-            for(int j=0; j < 6; j++)
+            for(int j=0; j < 3; j++)
             {
                TS_ASSERT_EQUALS(element.GetLowerOrderElement(i)->GetNodeGlobalIndex(j),(i+j+1) % 4);
                if((i==0 && j==0) || (i==2 && j==2)|| (i==3 && j==1))

@@ -13,8 +13,6 @@
  * 
  * A derived class FemlabMeshReader reads 2D data from Femlab or Matlab PDEToolbox
  * 
- * The superclass "AbstractMeshReadWrite" contains <strong>all</strong>
- * data necessary to either read or write a mesh.
  */
 
 
@@ -85,6 +83,7 @@ class AbstractMeshReader
 		int GetMinNodeIndex(); /**< Returns the minimum node index */
 		
 		std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
+		void Reset(); /**< Resets pointers to beginning*/
 		std::vector<int> GetNextElement(); /**< Returns a vector of the nodes of each element in turn */
 		std::vector<int> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
 		std::vector<int> GetNextBoundaryEdge(); /**< Returns a vector of the nodes of each boundary edge in turn (synonym of GetNextBoundaryFace()) */		

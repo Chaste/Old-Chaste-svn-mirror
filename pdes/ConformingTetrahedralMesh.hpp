@@ -25,7 +25,9 @@ public:
     typedef typename std::vector<const Element<ELEMENT_DIM-1, SPACE_DIM>*>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<const Node<SPACE_DIM>*>::const_iterator BoundaryNodeIterator;
 private:
-
+	
+	int mNumCornerNodes;
+	
 	// Note that since these are vectors of objects, not pointers, push_back
 	// will copy the objects.
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> > mElements;    
@@ -68,7 +70,8 @@ public:
 	ConformingTetrahedralMesh();
     ConformingTetrahedralMesh(long numElements);
     
-    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
+//    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader);
+    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader, int orderOfBasisFunctions=1);
             
     const Node<SPACE_DIM> *GetNodeAt(long index) const;
 
@@ -76,6 +79,8 @@ public:
     long GetNumElements();
     long GetNumBoundaryNodes();
     long GetNumBoundaryElements();
+    long GetNumCornerNodes();
+    long GetNumAllNodes();
     
     MeshIterator GetFirstElement()
     {
