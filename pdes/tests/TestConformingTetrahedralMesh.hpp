@@ -133,7 +133,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		                  "pdes/tests/meshdata/disk_984_elements");
 		                  
 		//const int DIM = pMeshReader->GetDimension();
-		#define DIM 2
+		//#define DIM 2
 		ConformingTetrahedralMesh<DIM,DIM> mesh;
 
 		try
@@ -168,6 +168,56 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         it++;
         TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(3), 546);
    		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(4), 547);
+        //TS_TRACE("here con tetra\n");
+	}
+	
+	void test3dQuadraticMeshConstructionFromMeshReader(void)
+	{
+		
+		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
+		                  "pdes/tests/meshdata/cube_136_elements");
+		                  
+		//const int DIM = pMeshReader->GetDimension();
+		ConformingTetrahedralMesh<DIMENSION,DIMENSION> mesh;
+
+		try
+		{
+      		mesh.ConstructFromMeshReader(*pMeshReader,2);
+		}
+		catch(Exception &e)
+		{
+			std::cout << e.getMessage() << std::endl;
+		}
+		
+		// Check we have the right number of nodes & elements
+		TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51);
+		//TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
+		TS_ASSERT_EQUALS(mesh.GetNumElements(), 136);
+
+		// Check some node co-ordinates
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], 0.0, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], 0.0, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[2], 0.0, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[0], 0.75, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[1], 0.25, 1e-6);
+		TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[2], 0.0, 1e-6);
+		
+		// Check first element has the right nodes
+		ConformingTetrahedralMesh<DIMENSION,DIMENSION>::MeshIterator it = mesh.GetFirstElement();
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 17);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 10);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 16);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(3), 18);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(4), 51);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(5), 52);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(6), 53);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(7), 54);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(8), 55);
+		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(9), 56);
+		TS_ASSERT_EQUALS(it->GetNode(5), mesh.GetNodeAt(52));
+        it++;
+        TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(5), 58);
+   		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(6), 59);
         //TS_TRACE("here con tetra\n");
 	}
 	
