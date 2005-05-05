@@ -605,42 +605,43 @@ public:
         for(int timeIndex = 0 ; timeIndex < endTimeIndex ; timeIndex++)
         {
             
-        // Boundary conditions for oxygen concentration
-        // C'(0)=0, C(1)=1
-        BoundaryConditionsContainer<element_dim,space_dim> concentrationBcc;
-        ConstBoundaryCondition<space_dim>* pConcentrationBoundaryCondition1 = new ConstBoundaryCondition<space_dim>(0.0);
-        
-        ConformingTetrahedralMesh<element_dim,space_dim>::BoundaryElementIterator concentrationIter = mesh.GetFirstBoundaryElement();
-        concentrationBcc.AddNeumannBoundaryCondition(*concentrationIter,pConcentrationBoundaryCondition1);
-        
-        ConstBoundaryCondition<space_dim>* pConcentrationBoundaryCondition2 = new ConstBoundaryCondition<space_dim>(1.0);
-        concentrationBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pConcentrationBoundaryCondition2);
-        
-        // Boundary conditions for cell pressure
-        // Pc'(0)=0, Pc(1)=0
-        BoundaryConditionsContainer<element_dim,space_dim> cellPressureBcc;
-        ConstBoundaryCondition<space_dim>* pCellPressureBoundaryCondition1 = new ConstBoundaryCondition<space_dim>(0.0);
-        
-        ConformingTetrahedralMesh<element_dim,space_dim>::BoundaryElementIterator cellPressureIter = mesh.GetFirstBoundaryElement();
-        cellPressureBcc.AddNeumannBoundaryCondition(*cellPressureIter,pCellPressureBoundaryCondition1);
-        
-        ConstBoundaryCondition<space_dim>* pCellPressureBoundaryCondition2 = new ConstBoundaryCondition<space_dim>(0.0);
-        cellPressureBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pCellPressureBoundaryCondition2);
-        
+            // Boundary conditions for oxygen concentration
+            // C'(0)=0, C(1)=1
+            BoundaryConditionsContainer<element_dim,space_dim> concentrationBcc;
+            ConstBoundaryCondition<space_dim>* pConcentrationBoundaryCondition1 = new ConstBoundaryCondition<space_dim>(0.0);
             
+            ConformingTetrahedralMesh<element_dim,space_dim>::BoundaryElementIterator concentrationIter = mesh.GetFirstBoundaryElement();
+            concentrationBcc.AddNeumannBoundaryCondition(*concentrationIter,pConcentrationBoundaryCondition1);
+            
+            ConstBoundaryCondition<space_dim>* pConcentrationBoundaryCondition2 = new ConstBoundaryCondition<space_dim>(1.0);
+            concentrationBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pConcentrationBoundaryCondition2);
+            
+            // Boundary conditions for cell pressure
+            // Pc'(0)=0, Pc(1)=0
+            BoundaryConditionsContainer<element_dim,space_dim> cellPressureBcc;
+            ConstBoundaryCondition<space_dim>* pCellPressureBoundaryCondition1 = new ConstBoundaryCondition<space_dim>(0.0);
+            
+            ConformingTetrahedralMesh<element_dim,space_dim>::BoundaryElementIterator cellPressureIter = mesh.GetFirstBoundaryElement();
+            cellPressureBcc.AddNeumannBoundaryCondition(*cellPressureIter,pCellPressureBoundaryCondition1);
+            
+            ConstBoundaryCondition<space_dim>* pCellPressureBoundaryCondition2 = new ConstBoundaryCondition<space_dim>(0.0);
+            cellPressureBcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(100), pCellPressureBoundaryCondition2);
+            
+                
             try {
                 concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, initialGuess, true);
             } catch (Exception e) {
                 TS_TRACE(e.getMessage());
             }
-                               
+                                   
             // Check result
             double *concentrationAns;
             int concentrationIerr = VecGetArray(concentrationAnswer, &concentrationAns);
             
             // The Solver fails if the initial guess is updated!!
             
-            // Calculate the value of x at which C = alpha , this boundary determines where the cells begin to die of oxygen deprivation
+            // Calculate the value of x at which C = alpha;
+            // this boundary determines where the cells begin to die of oxygen deprivation
             
             int i = 0;
             
@@ -655,25 +656,21 @@ public:
                                  + (mesh.GetNodeAt(100)->GetPoint()[0]-mesh.GetNodeAt(0)->GetPoint()[0])*(i-1)/( (double) length )
                                  + (alpha - concentrationAns[i-1])*(mesh.GetNodeAt(i)->GetPoint()[0]-mesh.GetNodeAt(i-1)->GetPoint()[0])/(concentrationAns[i] - concentrationAns[i-1]);
             }
-             cellPressurePde.mXalpha = x_alpha;
+            cellPressurePde.mXalpha = x_alpha;
             //std::cout<<"x_alpha = " << x_alpha << std::endl;
+            
+            
             // Solve the linear pde for cell Pressure                
             Vec cellPressureAnswer = cellPressureAssembler.AssembleSystem(mesh, &cellPressurePde, cellPressureBcc, &cellPressureSolver);
             
-//            // Test to see if result lies within bounds calculated from Matlab
-            
             int cellPressureIerr = VecGetArray(cellPressureAnswer, &cellPressureAns);
-//            // Solution should lie between 0.06 and -0.07
-//            for (int i=0; i < mesh.GetNumElements()+1; i++)
-//            {
-//                TS_ASSERT_DELTA(cellPressureAns[i], 0.07, 0.14);
-//                TS_ASSERT_DELTA(cellPressureAns[i], -0.07, 0.14); 
-//            }
+
             VecRestoreArray(cellPressureAnswer, &cellPressureAns);
             
-            //std::cout<< " cell Pressure " << cellPressureAns[99] << "  \n"  ;
-            // Solve for extracellular fluid pressure
+            //std::cout<< " cell Pressure " << cellPressureAns[99] << "  \n";
             
+           
+            // Solve for extracellular fluid pressure
             double fluidPressureAns[mesh.GetNumElements()+1];
             for (int i=0; i < mesh.GetNumElements()+1; i++)
             {
