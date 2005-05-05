@@ -43,6 +43,17 @@ public:
      */
 	virtual double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)=0;
 
+
+	virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
+    {
+        return ComputeNonlinearSourceTerm(node.GetPoint(), u);
+    }
+    
+    virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
+    {
+        return ComputeLinearSourceTerm(node.GetPoint());
+    }
+
 };
 
 

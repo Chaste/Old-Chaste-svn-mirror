@@ -10,13 +10,13 @@
 /**
  * Simple Nonlinear PDE system solver, uses the PETSc SNES Solver, which uses Newton's method.
  * 
- * @param (*pComputeResidual)(SNES,Vec,Vec,void*) points to the function which 
+ * @param pComputeResidual points to the function which 
  * computes the residual, it must take arguments SNES (a PETSc nonlinear solver 
  * object), Vec (current guess - a vector of the correct size), Vec (a Vec of the 
  * correct size in which the residual is returned), void* (a pointer to 
  * anything you may need to refer to when calculating the residual)
  * 
- * @param (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*) points to 
+ * @param pComputeJacobian points to 
  * the function which computes the Jacobian, it must take arguments SNES (a PETSc 
  * nonlinear solver * object), Mat* (a pointer to the Jacobian matrix) ,Mat* (a pointer 
  * to a preconditioner matrix), MatStructure* (points to the PETSc matrix type e.g. AIJ), void* (a pointer to 

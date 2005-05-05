@@ -334,7 +334,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     
 	void TestVaryingPdeAndMeshReader1D()   
 	{
-		/// Create mesh from mesh reader \TODO set to correct mesh file
+		/// Create mesh from mesh reader \todo set to correct mesh file
 		//std::cout << "Reading mesh...\n";
 		//std::cout.flush();
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_1_to_3");

@@ -12,7 +12,7 @@
 #include "Element.hpp"
 #include "AbstractAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
-#include "AbstractLinearParabolicPde.hpp"
+#include "AbstractLinearPde.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 
@@ -29,7 +29,7 @@ protected:
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
-                           AbstractLinearParabolicPde<SPACE_DIM> *pPde,
+                           AbstractLinearPde<SPACE_DIM> *pPde,
                            Vec currentSolution)
     {
 		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
@@ -103,7 +103,17 @@ protected:
 
 
 public:
-	MonodomainDg0Assembler() : SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>()
+	/**
+	 * Constructors just call the base class versions.
+	 */
+	MonodomainDg0Assembler(int numPoints = 2) :
+		SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+	}
+	MonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+							AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+							int numPoints = 2) :
+		SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
 	{
 	}
 };

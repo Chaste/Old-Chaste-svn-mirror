@@ -146,7 +146,7 @@ protected:
 	 * Calculate the contribution of a single surface element with Neumann
 	 * boundary condition to the linear system.
 	 * 
-	 * @param rElement The element to assemble on.
+	 * @param rSurfaceElement The element to assemble on.
 	 * @param rBsubElem The element's contribution to the RHS vector is returned in this
 	 *     vector of length n, the no. of nodes in this element. There is no
 	 *     need to zero this vector before calling.

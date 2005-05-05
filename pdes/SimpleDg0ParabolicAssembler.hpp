@@ -61,7 +61,20 @@ protected:
 	
 	
 public:
-	SimpleDg0ParabolicAssembler()
+	/**
+	 * Constructors call the base class versions, and note we're not fully ready
+	 * for work.
+	 */
+	SimpleDg0ParabolicAssembler(int numPoints = 2) :
+		AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+		mTimesSet = false;
+		mInitialConditionSet = false;
+	}
+	SimpleDg0ParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+								AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+								int numPoints = 2) :
+		AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
 	{
 		mTimesSet = false;
 		mInitialConditionSet = false;

@@ -692,7 +692,7 @@ public:
 	 * Simple Parabolic PDE u' = del squared u
 	 * 
 	 * With u = 0 on the boundaries of the unit cube. Subject to the initial 
-	 * condition u(0,x,y,z)=sin( \pi x)sin( \pi y)sin( \pi z) 
+	 * condition u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) 
 	 * 
 	 */
 	void TestSimpleDg0ParabolicAssembler3DZeroDirich( void )
@@ -765,7 +765,7 @@ public:
 	 * With u = -(1/6)(x^2+y^2+z^2) on the boundaries of the unit cube. 
 	 * 
 	 * Subject to the initial condition
-	 * u(0,x,y,z)=sin( \pi x)sin( \pi y)sin( \pi z) - (1/6)(x^2+y^2+z^2)
+	 * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) - (1/6)(x^2+y^2+z^2)
 	 * 
 	 */
 	void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
@@ -847,7 +847,7 @@ public:
 	 * u_n = 1 on the x face of the cube.  
 	 * 
 	 * Subject to the initial condition
-	 * u(0,x,y,z)=sin( \pi x)sin( \pi y)sin( \pi z) + x
+	 * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) + x
 	 * 
 	 */
 	void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )

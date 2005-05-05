@@ -29,10 +29,6 @@
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
 
 
-// Old copy of real version; defined below
-PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
-    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
-    										  void *pContext);
 
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
@@ -75,7 +71,29 @@ double one_bc(Point<2> p)
   
 class TestSimpleNonlinearEllipticAssembler : public CxxTest::TestSuite 
 {
-	
+
+private:
+
+	/**
+	 * Refactor code to set up a PTESc vector holding the initial guess.
+	 */
+	Vec CreateInitialGuessVec(int size)
+	{
+    	Vec initial_guess;
+    	VecCreate(PETSC_COMM_WORLD, &initial_guess);
+    	VecSetSizes(initial_guess, PETSC_DECIDE, size);
+    	VecSetType(initial_guess, VECSEQ);
+    	return initial_guess;
+	}
+	Vec CreateConstantInitialGuessVec(int size, double value)
+	{
+		Vec initial_guess = CreateInitialGuessVec(size);
+   		VecSet(&value, initial_guess);
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess);
+		return initial_guess;
+	}
+
 public:
 	void setUp()
     {
@@ -149,11 +167,6 @@ public:
 	}
 
      /**
-     * Function ComputeJacobianNumerically() is modified and appended towards bottom
-     * of this file. Function modified and doesn't actually call ComputeResidual()
-     * but 'residual' and 'perturbedResidual' are hardcoded.
-     * 'num_nodes' hardcoded to 2.
-     * 
      * \todo This should be made into a proper test that the jacobian calculation
      * is correct, for some test cases.
      */
@@ -174,7 +187,7 @@ public:
    		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, 2, 2, &jacobian);
    		MatSetFromOptions(jacobian);
 
-        int errcode = ComputeJacobianNumerically(snes, input, &jacobian, NULL, NULL, NULL);
+        //int errcode = ComputeJacobianPetsc(snes, input, &jacobian, NULL, NULL, NULL);
 
         //std::cout << "Our J matrix: " << std::endl;
         //MatView(jacobian,0);
@@ -275,7 +288,6 @@ public:
         BoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
-        //pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
         
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
@@ -299,8 +311,6 @@ public:
 		VecAssemblyEnd(initialGuess); 
 				
     	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
     	VecDuplicate(initialGuess,&answer);
     	
     	//TS_TRACE("Calling AssembleSystem");
@@ -345,41 +355,26 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
 
-		SimpleNonlinearEllipticAssembler<1,1> assembler;
+		// Nonlinear solver to use
     	SimpleNonlinearSolver solver;
     	
-    	// Set up solution guess for residuals
-    	int length=mesh.GetNumNodes();
-		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	VecSetType(initialGuess, VECSEQ);
-    	for(int i=0; i<length ; i++)
-    	{
-    		//VecSetValue(initialGuess, i, sqrt(0.1*i*(4-0.1*i)), INSERT_VALUES);
-    		VecSetValue(initialGuess, i, 0.25, INSERT_VALUES);
-    		//VecSetValue(initialGuess, i, (-0.01*i*i), INSERT_VALUES);
-    	}
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess); 
-				
-    	Vec answer;
-    	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
-    	
+    	Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 0.25);
+		
+		// Nonlinear assembler to use
+		SimpleNonlinearEllipticAssembler<1,1> assembler;
+		
     	// Set no. of gauss points to use
     	assembler.SetNumberOfQuadraturePointsPerDimension(3);
-    	
-    	//TS_TRACE("Calling AssembleSystem");
+
+		// Solve the PDE
+    	Vec answer;
+    	VecDuplicate(initial_guess, &answer);    	
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
- 		//TS_TRACE("System solved");
     	    	
 		// Check result
 		double *ans;
@@ -388,7 +383,6 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = sqrt(x*(4-x));
-			//std::cout << x << "\t" << u << std::endl;
 			TS_ASSERT_DELTA(ans[i], u, 0.001);
 		}
 		VecRestoreArray(answer, &ans);
@@ -1159,112 +1153,6 @@ public:
 	}
 	
 };
-
-
-/**
- * Modified version of ComputeJacobianNumerically() for testing.
- * 
- * 'residual' and 'perturbedResidual' are hardcoded (do not actually call ComputeResidual()).
- * 'num_nodes' hardcoded to 2.
- * 
- * \todo Write a test for the real method? This should probably be removed in any
- * case.
- */
-//template <int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianNumerically(SNES snes, Vec input, Mat *pJacobian, 
-    								     	  Mat *pPreconditioner, MatStructure *pMatStructure, 
-    										  void *pContext)
-{
-	int ierr;
-    Vec residual;
-    Vec perturbedResidual;
-    Vec result;
-    
-    // Commented out for testing!!
-    //SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *integrator =
-	//    ((SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*)pContext);    
-    
-    //int num_nodes = integrator->mpMesh->GetNumNodes();
-    int num_nodes = 2;
-
-    VecCreate(PETSC_COMM_WORLD, &residual);    
-    VecCreate(PETSC_COMM_WORLD, &result);    
-    VecCreate(PETSC_COMM_WORLD, &perturbedResidual);    
-    
-    VecSetSizes(residual,PETSC_DECIDE,num_nodes);
-    VecSetSizes(result,PETSC_DECIDE,num_nodes);
-    VecSetSizes(perturbedResidual,PETSC_DECIDE,num_nodes);
-    
-    //VecSetType(residual, VECSEQ);
-    //VecSetType(result, VECSEQ);
-    //VecSetType(perturbedResidual, VECSEQ);
-    VecSetFromOptions(residual);
-    VecSetFromOptions(result);
-    VecSetFromOptions(perturbedResidual);
-
-    Vec inputcopy;
-
-    ierr = VecDuplicate(input,&inputcopy); CHKERRQ(ierr);
-    ierr = VecCopy(input, inputcopy);CHKERRQ(ierr);
-    
-    // Hard coding residual and perturbedResidual to test since ComputeResidual() function
-    // not complete!
-    
-	//ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes,input,residual,pContext);
-
-	//***************************************************
-    for (int row=0;row<num_nodes;row++)
-    {
-    	PetscScalar value = 1;
-    	VecSetValue(residual, row, value, INSERT_VALUES);
-    }
-    //***************************************************
-    
-    double h = 0.00001;    
-    PetscScalar subtract = -1;
-    PetscScalar oneOverH = 1/h;
-    
-    
-    for(int j = 0; j < num_nodes; j++)
-    {
-		PetscScalar *resultElements;
-        ierr = VecSetValue(inputcopy,j,h, ADD_VALUES);CHKERRQ(ierr);
-        
-        //ComputeResidual<ELEMENT_DIM, SPACE_DIM>(snes, inputcopy, perturbedResidual,pContext);
-        
-        //*************************************************************
-        for (int row=0;row<num_nodes;row++)
-	   	{
-    		int temp = 1;
-    		if (row==j) temp += 1;
-    		PetscScalar value2 = temp;
-    		VecSetValue(perturbedResidual, row, value2, INSERT_VALUES);
-    	}
-        //*************************************************************
-                
-        ierr = VecWAXPY(&subtract,residual,perturbedResidual,result);CHKERRQ(ierr);
-        ierr = VecScale(&oneOverH, result);CHKERRQ(ierr);
-        
-        ierr = VecGetArray(result,&resultElements);CHKERRQ(ierr);
-
-        for (int i=0; i < num_nodes; i++)
-        {
-            ierr = MatSetValue(*pJacobian,i,j,resultElements[i],INSERT_VALUES);CHKERRQ(ierr);
-        }
-        ierr = VecRestoreArray(result,&resultElements); CHKERRQ(ierr);
-        
-        ierr = VecSetValue(inputcopy,j,-h, ADD_VALUES); CHKERRQ(ierr);
-    }
-    
-    VecDestroy(residual);
-    VecDestroy(perturbedResidual);
-    VecDestroy(result);
-    VecDestroy(inputcopy);
- 
-    MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
-    return 0;
-}
 
 	
 #endif //_TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_

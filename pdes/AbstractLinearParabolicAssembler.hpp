@@ -41,36 +41,37 @@ public:
 	virtual void SetTimes(double tStart, double tEnd, double dT)=0;
 	virtual void SetInitialCondition(Vec initialCondition)=0;
 
-	/**
-	 * Assemble the linear system for a linear parabolic PDE and solve it.
-	 * 
-	 * @param rMesh The mesh to solve on.
-	 * @param pPde A pointer to a PDE object specifying the equation to solve.
-	 * @param rBoundaryConditions A collection of boundary conditions for this problem.
-	 * @param pSolver A pointer to the linear solver to use to solve the system.
-	 * @return A PETSc vector giving the solution at each node in the mesh.
-	 */
-    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                               AbstractLinearParabolicPde<SPACE_DIM> *pPde, 
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                               AbstractLinearSolver *pSolver,
-							   Vec currentSolution = NULL)
-	{
-		return AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
-			rMesh, pPde, rBoundaryConditions, pSolver, currentSolution);
-	}
-	
-	/**
-	 * Force the use of AbstractLinearParabolicPde subclasses with this assembler.
-	 */
-	Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractLinearPde<SPACE_DIM> *pPde, 
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractLinearSolver *pSolver,
-					   Vec currentSolution = NULL)
-	{
-		assert(false);
-	}
+//	/**
+//	 * Assemble the linear system for a linear parabolic PDE and solve it.
+//	 * 
+//	 * @param rMesh The mesh to solve on.
+//	 * @param pPde A pointer to a PDE object specifying the equation to solve.
+//	 * @param rBoundaryConditions A collection of boundary conditions for this problem.
+//	 * @param pSolver A pointer to the linear solver to use to solve the system.
+//	 * @param currentSolution For the parabolic case, the solution at the current timestep.
+//	 * @return A PETSc vector giving the solution at each node in the mesh.
+//	 */
+//    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+//                               AbstractLinearParabolicPde<SPACE_DIM> *pPde, 
+//                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+//                               AbstractLinearSolver *pSolver,
+//							   Vec currentSolution = NULL)
+//	{
+//		return AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
+//			rMesh, pPde, rBoundaryConditions, pSolver, currentSolution);
+//	}
+//	
+//	/**
+//	 * Force the use of AbstractLinearParabolicPde subclasses with this assembler.
+//	 */
+//	Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+//                       AbstractLinearPde<SPACE_DIM> *pPde, 
+//                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+//                       AbstractLinearSolver *pSolver,
+//					   Vec currentSolution = NULL)
+//	{
+//		assert(false);
+//	}
 
 	/**
 	 * Solve a linear parabolic PDE over the time period specified with a call to

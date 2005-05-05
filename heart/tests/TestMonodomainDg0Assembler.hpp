@@ -29,10 +29,9 @@ public:
         
 		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
 	}   
-
+	
 	void testMonodomainDg01D()
-	{  
-        
+	{
 		double tStart = 0; 
 		double tFinal = 0.1;
         
@@ -126,19 +125,19 @@ public:
 		 */                                                                            
            
         
-        // uncomment all column writer related lines to write data (and the line further below)         
-        //ColumnDataWriter *mpTestWriter;
-        //mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_1d");
-       
-      //  int time_var_id = 0;
-       // int voltage_var_id = 0;
+		// uncomment all column writer related lines to write data (and the line further below)         
+		//ColumnDataWriter *mpTestWriter;
+		//mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_1d");
 
-       // mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-       // mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+		//int time_var_id = 0;
+		//int voltage_var_id = 0;
 
-      //  time_var_id = mpTestWriter->DefineVariable("Time","msecs");
-     //   voltage_var_id = mpTestWriter->DefineVariable("V","mV");
-     //   mpTestWriter->EndDefineMode();
+		//mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+		//mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+
+		//time_var_id = mpTestWriter->DefineVariable("Time","msecs");
+		//voltage_var_id = mpTestWriter->DefineVariable("V","mV");
+		//mpTestWriter->EndDefineMode();
            
 		double tCurrent = tStart;        
 		while( tCurrent < tFinal )
