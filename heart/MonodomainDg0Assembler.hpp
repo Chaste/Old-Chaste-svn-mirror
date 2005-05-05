@@ -1,6 +1,8 @@
 #ifndef _MONODOMAINDG0ASSEMBLER_HPP_
 #define _MONODOMAINDG0ASSEMBLER_HPP_
 
+
+#include <iostream>
 #include  <vector>
 #include "petscvec.h"
 
@@ -8,12 +10,12 @@
 #include "VectorDouble.hpp"
 #include "Point.hpp"
 #include "Element.hpp"
+#include "AbstractAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 
-#include <iostream>
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
@@ -28,14 +30,16 @@ protected:
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
                            AbstractLinearParabolicPde<SPACE_DIM> *pPde,
-                           AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
                            Vec currentSolution)
     {
+		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+
         double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
-        
-        static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::NUM_GAUSS_POINTS_PER_DIMENSION);
-        
+                
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         

@@ -6,46 +6,47 @@
  * for a nonlinear elliptic PDE.
  */ 
   
+#include "petscsnes.h"
+#include "petscvec.h"
 #include <vector>
+
+#include "AbstractAssembler.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
-#include "petscsnes.h"
-#include "petscvec.h"
 
-/* What we need to do:
-     * 
-     * 1. declare members of class - mPDE, mMesh, mBC, residual and jacobian
-     * 2. method - assembleandsolve(pSolver,PDE,Mesh,BC,basis function, quad)
-     * 3. in the method - set up pesky vectors and call solver->solve(PDE,jacobian,*this)
-     * 4. other methods - compute residual, compute jacobiananalytically, compute jacobiannumapprox
-     * 5. all methods are members of the abstract class
-     *  
-    */	
 template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractNonlinearEllipticAssembler
+class AbstractNonlinearEllipticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM>
 {
- // need to put private members
 private:
-
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh; 
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *mpBoundaryConditions;
-    AbstractBasisFunction<SPACE_DIM> *mpBasisFunction;
-    GaussianQuadratureRule<ELEMENT_DIM> *mpGaussianQuadratureRule;
     AbstractNonlinearSolver *mpSolver;
 
 public:
     
+    /**
+	 * Constructors just call the base class versions.
+	 */
+	AbstractNonlinearEllipticAssembler(int numPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+	}
+	AbstractNonlinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+										AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+										int numPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+	{
+	}
+	
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
                        AbstractNonlinearSolver *pSolver,
-                       AbstractBasisFunction<SPACE_DIM> *pBasisFunction,
-                       GaussianQuadratureRule<ELEMENT_DIM> *pGaussianQuadratureRule,
                        Vec initialGuess,
 					   bool UseAnalyticalJacobian = false) = 0;
                        

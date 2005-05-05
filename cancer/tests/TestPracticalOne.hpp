@@ -125,17 +125,14 @@ public:
         }
         VecAssemblyBegin(initialGuess);
         VecAssemblyEnd(initialGuess); 
-        
-        GaussianQuadratureRule<1> quadRule(2);
-        LinearBasisFunction<1> basis_func;
-        
+                
         Vec answer;
         Vec residual;
         VecDuplicate(initialGuess,&residual);
         VecDuplicate(initialGuess,&answer);
 
         try {
-            answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, false);
+            answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, false);
         } catch (Exception e) {
             TS_TRACE(e.getMessage());
         }
@@ -218,16 +215,13 @@ public:
         VecAssemblyBegin(initialGuess);
         VecAssemblyEnd(initialGuess); 
         
-        GaussianQuadratureRule<1> quadRule(2);
-        LinearBasisFunction<1> basis_func;
-        
         Vec answer;
         Vec residual;
         VecDuplicate(initialGuess,&residual);
         VecDuplicate(initialGuess,&answer);
         
         try {
-            answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+            answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
         } catch (Exception e) {
             TS_TRACE(e.getMessage());
         }
@@ -349,16 +343,13 @@ public:
         VecAssemblyBegin(initialGuess);
         VecAssemblyEnd(initialGuess); 
         
-        GaussianQuadratureRule<1> quadRule(2);
-        LinearBasisFunction<1> basis_func;
-        
         Vec concentrationAnswer;
         Vec concentrationResidual;
         VecDuplicate(initialGuess,&concentrationResidual);
         VecDuplicate(initialGuess,&concentrationAnswer);
         
         try {
-            concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, &basis_func, &quadRule, initialGuess, false);
+            concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, initialGuess, false);
         } catch (Exception e) {
             TS_TRACE(e.getMessage());
         }
@@ -603,9 +594,6 @@ public:
         VecAssemblyBegin(initialGuess);
         VecAssemblyEnd(initialGuess); 
         
-        GaussianQuadratureRule<ELEMENT_DIM> quadRule(2);
-        LinearBasisFunction<ELEMENT_DIM> basis_func;
-        
         Vec concentrationAnswer;
         Vec concentrationResidual;
         VecDuplicate(initialGuess,&concentrationResidual);
@@ -617,7 +605,7 @@ public:
         {
             
             try {
-                concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, &basis_func, &quadRule, initialGuess, true);
+                concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, initialGuess, true);
             } catch (Exception e) {
                 TS_TRACE(e.getMessage());
             }

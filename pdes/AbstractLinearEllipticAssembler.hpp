@@ -8,6 +8,8 @@
  
 
 #include <vector>
+#include "AbstractAssembler.hpp"
+#include "AbstractBasisFunction.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -17,10 +19,25 @@
 #include "petscvec.h"
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractLinearEllipticAssembler
+class AbstractLinearEllipticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM>
 {
  
 public:
+
+	/**
+	 * Constructors just call the base class versions.
+	 */
+	AbstractLinearEllipticAssembler(int numPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+	}
+	AbstractLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+									int numPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+	{
+	}
+	
 	/**
 	 * Assemble the linear system for a linear elliptic PDE and solve it.
 	 * 

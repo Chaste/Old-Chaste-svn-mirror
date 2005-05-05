@@ -2,15 +2,17 @@
 #define _SIMPLELINEARELLIPTICASSEMBLER_HPP_
 
 
+#include <vector>
+#include "petscvec.h"
+
 #include "LinearSystem.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "AbstractLinearEllipticAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include <vector>
-#include "petscvec.h"
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
+#include "AbstractBasisFunction.hpp"
 
 #include <iostream>
 
@@ -20,19 +22,19 @@ class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELE
 {
     
 private:
-    LinearSystem *mpAssembledLinearSystem;
-    
-    static const int NUM_GAUSS_POINTS_PER_DIMENSION=2; // May want to define elsewhere
+	LinearSystem *mpAssembledLinearSystem;
 
 	friend class TestSimpleLinearEllipticAssembler;
 
 	void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							MatrixDouble &rAElem,
 							VectorDouble &rBElem,
-							AbstractLinearEllipticPde<SPACE_DIM> *pPde,
-							AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction)
+							AbstractLinearEllipticPde<SPACE_DIM> *pPde)
 	{
-		static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
 		
 		// This assumes that the Jacobian is constant on an element
 		// This is true for linear basis functions, but not for any other type of
@@ -91,10 +93,13 @@ private:
 	void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 								 VectorDouble &rBsubElem,
 								 AbstractLinearEllipticPde<SPACE_DIM> *pPde,
-								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
 	{		
-		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceQuadRule);
+		AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceBasisFunction);
+
 		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 		
 		const int num_nodes = rSurfaceElement.GetNumNodes();
@@ -130,6 +135,20 @@ private:
 
  public:
  	/**
+	 * Constructors just call the base class versions.
+	 */
+	SimpleLinearEllipticAssembler(int numPoints = 2) :
+		AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+	}
+	SimpleLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+									int numPoints = 2) :
+		AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+	{
+	}
+	
+ 	/**
 	 * Assemble the linear system for a linear elliptic PDE and solve it.
 	 * 
 	 * @param rMesh The mesh to solve on.
@@ -145,9 +164,7 @@ private:
 	{
 		// Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem	= new LinearSystem(rMesh.GetNumNodes());
-        
-        LinearBasisFunction<ELEMENT_DIM> basis_function;
-        
+                
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = rMesh.GetFirstElement();
  
@@ -160,7 +177,7 @@ private:
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
                         
-            AssembleOnElement(element, a_elem, b_elem, pPde, basis_function);
+            AssembleOnElement(element, a_elem, b_elem, pPde);
             
             
             for (int i=0; i<num_nodes; i++)
@@ -178,7 +195,6 @@ private:
         
         
 		// add the integrals associated with Neumann boundary conditions to the linear system
-		LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
 		
 		if (surf_iter != rMesh.GetLastBoundaryElement())
@@ -197,7 +213,7 @@ private:
 				if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
 				{
 					b_surf_elem.ResetToZero();
-					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions);
+					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, rBoundaryConditions);
 	
 					for (int i=0; i<num_surf_nodes; i++)
 		            {

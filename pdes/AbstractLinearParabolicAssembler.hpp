@@ -8,19 +8,36 @@
  
 
 #include <vector>
+#include "petscvec.h"
+
+#include "AbstractAssembler.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 
-#include "petscvec.h"
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractLinearParabolicAssembler
+class AbstractLinearParabolicAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM>
 {
  
 public:
+
+	/**
+	 * Constructors just call the base class versions.
+	 */
+	AbstractLinearParabolicAssembler(int numPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	{
+	}
+	AbstractLinearParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+										AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+										int numPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+	{
+	}
+	
 	virtual void SetTimes(double tStart, double tEnd, double dT)=0;
 	virtual void SetInitialCondition(Vec initialCondition)=0;
 
@@ -30,6 +47,5 @@ public:
                       AbstractLinearSolver * solver)=0;   
                       
 };
-
 
 #endif //_ABSTRACTLINEARPARABOLICASSEMBLER_HPP_

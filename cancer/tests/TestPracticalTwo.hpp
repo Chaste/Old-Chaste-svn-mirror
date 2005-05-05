@@ -124,9 +124,6 @@ public:
         VecAssemblyBegin(initialGuess);
         VecAssemblyEnd(initialGuess); 
         
-        GaussianQuadratureRule<ELEMENT_DIM> quadRule(2);
-        LinearBasisFunction<ELEMENT_DIM> basis_func;
-        
         Vec concentrationAnswer;
         Vec concentrationResidual;
         VecDuplicate(initialGuess,&concentrationResidual);
@@ -164,7 +161,7 @@ public:
             concentrationPde.mXnecrotic = xNecrotic;
             concentrationPde.mX = X_new;
             try {
-                concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, &basis_func, &quadRule, initialGuess, true);
+                concentrationAnswer=concentrationAssembler.AssembleSystem(&mesh, &concentrationPde, &concentrationBcc, &concentrationSolver, initialGuess, true);
             } catch (Exception e) {
                 TS_TRACE(e.getMessage());
             }

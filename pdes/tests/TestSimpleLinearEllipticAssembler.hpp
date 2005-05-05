@@ -42,7 +42,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		VectorDouble bel(2);
 		SimpleLinearEllipticAssembler<1,1> assembler;
 		
-		assembler.AssembleOnElement(element, ael, bel, &pde, basis_function);
+		assembler.AssembleOnElement(element, ael, bel, &pde);
 		
 		TS_ASSERT_DELTA(ael(0,0),0.5, 1e-12);
 		TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
@@ -67,7 +67,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		VectorDouble bel(3);
 		
 		SimpleLinearEllipticAssembler<2,2> assembler;
-		assembler.AssembleOnElement(element, ael, bel, &pde, basis_function);
+		assembler.AssembleOnElement(element, ael, bel, &pde);
 		
 		TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
 		TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
@@ -101,7 +101,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		VectorDouble bel(3);
 		
 		SimpleLinearEllipticAssembler<2,2> assembler;
-		assembler.AssembleOnElement(element, ael, bel, &pde, basis_function);
+		assembler.AssembleOnElement(element, ael, bel, &pde);
 		
 		TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
 		TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);

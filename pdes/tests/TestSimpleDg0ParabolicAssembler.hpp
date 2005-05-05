@@ -580,112 +580,112 @@ public:
 
 
 	
-//	// test 2D problem - gives out of Memory message and breaks
-//	void testSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
-//	{		
-//        // Create mesh from mesh reader
-//		FemlabMeshReader mesh_reader("pdes/tests/meshdata/",
-//		                  "femlab_fine_square_nodes.dat",
-//		                  "femlab_fine_square_elements.dat",
-//		                  "femlab_fine_square_edges.dat");
-//
-//		ConformingTetrahedralMesh<2,2> mesh;
-//		mesh.ConstructFromMeshReader(mesh_reader);
-//		
-//		// Instantiate PDE object
-//		TimeDependentDiffusionEquationPde<2> pde;  		
-//	
-//		// Boundary conditions - zero dirichlet on boundary;
-//	    BoundaryConditionsContainer<2,2> bcc;
-//	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
-//        
-//        while(iter < mesh.GetLastBoundaryNode())
-//		{
-//			double x = (*iter)->GetPoint()[0];
-//			double y = (*iter)->GetPoint()[1];
-//			
-//			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
-//			
-//			if (fabs(y) < 0.01)
-//			{
-//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-//			}
-//			
-//			if (fabs(y - 1.0) < 0.01)
-//			{
-//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-//			}
-//			
-//			if (fabs(x) < 0.01)
-//			{
-//				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-//			}
-//			
-//			iter++;
-//		}
-//	    
-//	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
-//        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
-//        
-//        while(surf_iter < mesh.GetLastBoundaryElement())
-//		{
-//			int node = (*surf_iter)->GetNodeGlobalIndex(0);
-//			double x = mesh.GetNodeAt(node)->GetPoint()[0];
-//			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
-//						
-//			if (fabs(x - 1.0) < 0.01)
-//			{
-//				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
-//			}
-//			
-//			surf_iter++;
-//		}
-//	           
-//   		// Linear solver
-//		SimpleLinearSolver linearSolver;
-//	
-//		// Assembler
-//		SimpleDg0ParabolicAssembler<2,2> fullSolver;
-//		
-//		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
-//		Vec initialCondition;
-//		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-//    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-//	    VecSetType(initialCondition, VECSEQ);
-//  
-//  		double* initialConditionArray;
-// 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
-//		
-//		const double PI = 3.1415926535;
-//		for(int i=0; i<mesh.GetNumNodes(); i++)
-//		{
-//			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-//			
-//			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-//			
-//			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)+x;
-//		}
-//		VecRestoreArray(initialCondition, &initialConditionArray);
-//		
-//		double t_end = 0.1;	
-//		fullSolver.SetTimes(0, 0.1, 0.001);
-//		fullSolver.SetInitialCondition(initialCondition);
-//		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
-//		
-//		// Check result 
-//		double *res;
-//	    ierr = VecGetArray(result, &res);
-//
-//		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
-//		for (int i=0; i < mesh.GetNumNodes() ; i++)
-//		{
-//			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-//			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-//			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) + x; 
-//			TS_ASSERT_DELTA(res[i], u, 0.01);
-//		}
-//		VecRestoreArray(result, &res);	
-//	}
+	// test 2D problem - gives out of Memory message and breaks
+	void dontTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
+	{		
+        // Create mesh from mesh reader
+		FemlabMeshReader mesh_reader("pdes/tests/meshdata/",
+		                  "femlab_fine_square_nodes.dat",
+		                  "femlab_fine_square_elements.dat",
+		                  "femlab_fine_square_edges.dat");
+
+		ConformingTetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		TimeDependentDiffusionEquationPde<2> pde;  		
+	
+		// Boundary conditions - zero dirichlet on boundary;
+	    BoundaryConditionsContainer<2,2> bcc;
+	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        
+        while(iter != mesh.GetLastBoundaryNode())
+		{
+			double x = (*iter)->GetPoint()[0];
+			double y = (*iter)->GetPoint()[1];
+			
+			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
+			
+			if (fabs(y) < 0.01)
+			{
+				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			}
+			
+			if (fabs(y - 1.0) < 0.01)
+			{
+				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			}
+			
+			if (fabs(x) < 0.01)
+			{
+				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			}
+			
+			iter++;
+		}
+	    
+	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
+        
+        while(surf_iter != mesh.GetLastBoundaryElement())
+		{
+			int node = (*surf_iter)->GetNodeGlobalIndex(0);
+			double x = mesh.GetNodeAt(node)->GetPoint()[0];
+			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
+						
+			if (fabs(x - 1.0) < 0.01)
+			{
+				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+			}
+			
+			surf_iter++;
+		}
+	           
+   		// Linear solver
+		SimpleLinearSolver linearSolver;
+	
+		// Assembler
+		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+		
+		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
+		Vec initialCondition;
+		VecCreate(PETSC_COMM_WORLD, &initialCondition);
+    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
+	    VecSetType(initialCondition, VECSEQ);
+  
+  		double* initialConditionArray;
+ 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		
+		const double PI = 3.1415926535;
+		for(int i=0; i<mesh.GetNumNodes(); i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			
+			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+		}
+		VecRestoreArray(initialCondition, &initialConditionArray);
+		
+		double t_end = 0.1;	
+		fullSolver.SetTimes(0, 0.1, 0.001);
+		fullSolver.SetInitialCondition(initialCondition);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		
+		// Check result 
+		double *res;
+	    ierr = VecGetArray(result, &res);
+
+		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
+		for (int i=0; i < mesh.GetNumNodes() ; i++)
+		{
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) + x; 
+			TS_ASSERT_DELTA(res[i], u, 0.01);
+		}
+		VecRestoreArray(result, &res);	
+	}
 
 	/**
 	 * Simple Parabolic PDE u' = del squared u

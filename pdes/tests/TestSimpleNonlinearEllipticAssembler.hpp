@@ -116,17 +116,12 @@ public:
      	Vec res_vector;
     	VecDuplicate(currentSolution_vector,&res_vector);
         
-        GaussianQuadratureRule<1> quad_rule(2);
-     	
      	SimpleNonlinearEllipticAssembler<1,1> assembler;
      		     	
 		assembler.mpMesh = &mesh;
      	NonlinearHeatEquationPde<1> pde;
 		assembler.mpPde = &pde;
 		assembler.mpBoundaryConditions = &boundary_conditions;
-		LinearBasisFunction<1> basis_function;
-		assembler.mpBasisFunction = &basis_function;
-		assembler.mpGaussianQuadratureRule = &quad_rule;
 
      	assembler.ComputeResidual(currentSolution_vector, res_vector);
 
@@ -225,16 +220,11 @@ public:
 		}
 		VecAssemblyBegin(initial_guess);
 		VecAssemblyEnd(initial_guess); 
-	
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
 			
 		// Store data structures as object members
 		assembler.mpMesh = &mesh;
 		assembler.mpPde = &pde;
 		assembler.mpBoundaryConditions = &bcc;
-		assembler.mpBasisFunction = &basis_func;
-		assembler.mpGaussianQuadratureRule = &quadRule;
 		
 	    int errcode = assembler.ComputeJacobianNumerically(initial_guess, &numerical_jacobian);
 	    TS_ASSERT_EQUALS(errcode, 0);
@@ -254,15 +244,18 @@ public:
 			
 		PetscScalar numerical[11*11], analytic[11*11];
 		PetscInt ids[11], n=11;
-		for (int i=0; i<n; i++) {
+		for (int i=0; i<n; i++)
+		{
 			ids[i] = i;
 		}
 		
 		// Check matrices are the same, to within numerical error tolerance
 		MatGetValues(numerical_jacobian,n,ids,n,ids,numerical);
 		MatGetValues(analytic_jacobian,n,ids,n,ids,analytic);
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
+		for (int i=0; i<n; i++)
+		{
+			for (int j=0; j<n; j++)
+			{
 				TS_ASSERT_DELTA(numerical[i*n+j], analytic[i*n+j], 0.001);
 			}
 		}
@@ -304,11 +297,7 @@ public:
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
-		
-		//
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-		
+				
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -316,7 +305,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -375,18 +364,18 @@ public:
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
-		
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-		
+				
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
     	VecDuplicate(initialGuess,&answer);
     	
+    	// Set no. of gauss points to use
+    	assembler.SetNumberOfQuadraturePointsPerDimension(3);
+    	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -442,11 +431,7 @@ public:
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
-		
-		//
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-		
+				
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -454,7 +439,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -492,7 +477,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition1);
         
 
-		SimpleNonlinearEllipticAssembler<1,1> assembler;
+		SimpleNonlinearEllipticAssembler<1,1> assembler(3);
     	SimpleNonlinearSolver solver;
     	 
     	// Set up solution guess for residuals
@@ -511,11 +496,7 @@ public:
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
-		
-		//
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-		
+				
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -523,7 +504,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -596,11 +577,7 @@ public:
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
-		
-		//
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-		
+				
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -608,7 +585,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -671,11 +648,7 @@ public:
     	}
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
-		
-		//
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-		
+				
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -683,7 +656,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
  		try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -747,9 +720,6 @@ public:
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
 		
-		GaussianQuadratureRule<1> quadRule(2);
-		LinearBasisFunction<1> basis_func;
-
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -757,7 +727,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -820,9 +790,6 @@ public:
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
 		
-		GaussianQuadratureRule<2> quadRule(2);
-		LinearBasisFunction<2> basis_func;
-
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -830,7 +797,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -901,7 +868,7 @@ public:
     	
     	// Set up solution guess for residuals
     	int length=mesh.GetNumNodes();
-		    	
+
     	// Set up initial Guess
     	Vec initialGuess;
     	VecCreate(PETSC_COMM_WORLD, &initialGuess);
@@ -916,9 +883,6 @@ public:
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
 		
-		GaussianQuadratureRule<2> quadRule(2);
-		LinearBasisFunction<2> basis_func;
-		
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -926,7 +890,7 @@ public:
     	
     	//TS_TRACE("Calling AssembleSystem");
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1024,9 +988,6 @@ public:
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
 		
-		GaussianQuadratureRule<2> quadRule(2);
-		LinearBasisFunction<2> basis_func;
-		
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -1034,7 +995,7 @@ public:
     	
     	// Numerical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1054,7 +1015,7 @@ public:
 		
 		// Analytical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1152,9 +1113,6 @@ public:
     	VecAssemblyBegin(initialGuess);
 		VecAssemblyEnd(initialGuess); 
 		
-		GaussianQuadratureRule<2> quadRule(2);
-		LinearBasisFunction<2> basis_func;
-		
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
@@ -1162,7 +1120,7 @@ public:
     	
     	// Numerical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}
@@ -1182,7 +1140,7 @@ public:
 		
 		// Analytical Jacobian
     	try {
- 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, &basis_func, &quadRule, initialGuess, true);
+ 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initialGuess, true);
  		} catch (Exception e) {
  			TS_TRACE(e.getMessage());
  		}

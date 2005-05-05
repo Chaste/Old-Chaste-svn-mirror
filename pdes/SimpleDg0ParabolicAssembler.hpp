@@ -1,17 +1,18 @@
 #ifndef _SIMPLEDG0PARABOLICASSEMBLER_HPP_
 #define _SIMPLEDG0PARABOLICASSEMBLER_HPP_
 
+#include <vector>
+#include <iostream>
+#include "petscvec.h"
+
 #include "LinearSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractLinearParabolicAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include  <vector>
-#include "petscvec.h"
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
-#include <iostream>
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
@@ -28,20 +29,20 @@ protected:
 	
     LinearSystem *mpAssembledLinearSystem;
     
-    static const int NUM_GAUSS_POINTS_PER_DIMENSION=2; // May want to define elsewhere
-
 	virtual void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 						   MatrixDouble &rAElem,
 						   VectorDouble &rBElem,
 						   AbstractLinearParabolicPde<SPACE_DIM> *pPde,
-						   AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction,
 						   Vec currentSolution)
 	{
+		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+
 		double *currentSolutionArray;
 		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
-		
-		static GaussianQuadratureRule<ELEMENT_DIM> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
-		
+				
 		const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
 		double jacobian_determinant = rElement.GetJacobianDeterminant();
 		
@@ -96,11 +97,14 @@ protected:
 	void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 								 VectorDouble &rBsubElem,
 								 AbstractLinearParabolicPde<SPACE_DIM> *pPde,
-								 AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 								 Vec currentSolution)
 	{				
-		static GaussianQuadratureRule<ELEMENT_DIM-1> quad_rule(NUM_GAUSS_POINTS_PER_DIMENSION);
+		GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceQuadRule);
+		AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
+			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceBasisFunction);
+
 		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 		
 		const int num_nodes = rSurfaceElement.GetNumNodes();
@@ -142,8 +146,6 @@ protected:
 		// Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());
         
-        LinearBasisFunction<ELEMENT_DIM> basis_function;
-        
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter = rMesh.GetFirstElement();
  
@@ -158,7 +160,7 @@ protected:
 
 			a_elem.ResetToZero();
 			b_elem.ResetToZero();                        
-            AssembleOnElement(element, a_elem, b_elem, pPde, basis_function, currentSolution);
+            AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
             
             for (int i=0; i<num_nodes; i++)
             {
@@ -174,7 +176,6 @@ protected:
         }
         
 		// add the integrals associated with Neumann boundary conditions to the linear system
-		LinearBasisFunction<ELEMENT_DIM-1> surf_basis_function;
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
 		
 		if (surf_iter != rMesh.GetLastBoundaryElement())
@@ -193,7 +194,7 @@ protected:
 				if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
 				{
 					b_surf_elem.ResetToZero();
-					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, surf_basis_function, rBoundaryConditions, currentSolution);
+					AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, rBoundaryConditions, currentSolution);
 	
 					for (int i=0; i<num_surf_nodes; i++)
 	    	        {
