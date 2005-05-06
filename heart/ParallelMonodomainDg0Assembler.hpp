@@ -23,7 +23,7 @@ protected:
 	 * We override this method in order to compute the source term by interpolating
 	 * the values of the source term at the nodes on this element, rather than
 	 * computing the source term directly at a point.
-	 */
+	 */ 
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
@@ -35,15 +35,18 @@ protected:
 		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
 			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
 			
-        double *currentSolutionArray;
-        int ierr = VecGetArray(currentSolution, &currentSolutionArray);
-        
+        //double *currentSolutionArray;
+        //int ierr = VecGetArray(currentSolution, &currentSolutionArray);
        
         ParallelMonodomainPde<SPACE_DIM> *pPde= (ParallelMonodomainPde<SPACE_DIM> *) pAbstractPde;
         
         if (pPde->IsOdeSolvedAtAnyNode() == false)
         {
         	pPde->ComputeAllNonlinearSourceTerms(currentSolution);
+			/*int rank;MPI_Comm_rank(PETSC_COMM_WORLD,&rank);
+            for (int i=0;i<11;i++){
+            		std::cout<<rank<<" "<<i <<" "<<pPde->solutionCache[ i ]<<" second\n";
+            }*/
         }
 
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
@@ -59,7 +62,6 @@ protected:
             std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
             std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
                                                 (quad_point, *inverseJacobian);
-
             Point<SPACE_DIM> x(0,0,0);
             double u=0;
             double sourceTerm = 0;
@@ -70,10 +72,10 @@ protected:
                     x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
                 }
                 
-                u  += phi[i]*currentSolutionArray[ rElement.GetNodeGlobalIndex(i) ];
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] );
+                u  += phi[i]*pPde->solutionCache[ rElement.GetNodeGlobalIndex(i) ];
+                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), pPde->solutionCache[rElement.GetNodeGlobalIndex(i)] );
                 
-                //std::cout << pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] ) << "\n";
+                //std::cout << rank<<" Node "<< rElement.GetNodeGlobalIndex(i)<<" "<<pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] ) << "\n";
             }
 
             //std::cout << "\n\n" << "source = " << sourceTerm << std::flush;
@@ -88,6 +90,9 @@ protected:
 
                     double integrand_val2 = gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);                             
                     rAElem(row,col) += integrand_val2 * wJ;
+                    
+                    //int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+                    //std::cout<<rank<<" "<<row<<" "<<col<<" "<<rAElem(row,col)<<"\n";
                 }
 
                 // RHS
@@ -98,13 +103,12 @@ protected:
                 
                 double vec_integrand_val1 = sourceTerm * phi[row];
                 rBElem(row) += vec_integrand_val1 * wJ;
-
+				
                 double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pPde->ComputeDuDtCoefficientFunction(x) * u * phi[row];
                 rBElem(row) += vec_integrand_val2 * wJ;             
-            }
+			}
         }
         
-        ierr = VecRestoreArray(currentSolution, &currentSolutionArray); 
     }       
 
 

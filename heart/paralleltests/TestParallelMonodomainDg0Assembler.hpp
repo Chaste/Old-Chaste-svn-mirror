@@ -27,7 +27,6 @@ public:
 		
 		
 		
-		
 		double tStart = 0; 
 		double tFinal = 0.1;
         
@@ -106,7 +105,9 @@ public:
 		int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
 		// initial voltage condition of a constant everywhere on the mesh
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+		int lo, hi;
+		VecGetOwnershipRange(currentVoltage,&lo,&hi);
+		for(int i=0; i<hi-lo; i++)
 		{
 			currentVoltageArray[i] = -84.5;
 		}
@@ -114,7 +115,7 @@ public:
 		VecAssemblyBegin(currentVoltage);
 		VecAssemblyEnd(currentVoltage);
 
-              
+	          
 		/*
 		 * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
 		 *  using ColumnDataWriter 
@@ -139,12 +140,15 @@ public:
 		while( tCurrent < tFinal )
         { 
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
-
+	
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             monodomainAssembler.SetInitialCondition( currentVoltage );
             
+    //int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+	//if (rank==0) std::cout<<"!!!!!!!!!!!!!!!!!! Call 1\n";
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-            
+    //if (rank==0) 	std::cout<<"!!!!!!!!!!!!!!!!!! Call 2\n";
+	        
             // Writing data out to the file NewMonodomainLR91_1d.dat
          
         //    int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
@@ -169,10 +173,12 @@ public:
 
         // test whether voltages and gating variables are in correct ranges
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-        
-        for(int i=0; i<mesh.GetNumNodes(); i++)
+        //int lo,hi;
+        //VecGetOwnershipRange(currentVoltage,&lo,&hi);
+        for(int i=lo; i<hi; i++)
         {
-            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+           
+            	// assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
@@ -190,6 +196,7 @@ public:
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
                 }
             }
+           
         }
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(currentVoltage);

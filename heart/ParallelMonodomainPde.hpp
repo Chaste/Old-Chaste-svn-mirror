@@ -87,10 +87,11 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
          */
         std::vector<bool>                        mOdeSolvedAtNode;      
 		std::vector<double>	mCurrentCache;
-        double mTime;                  
+    	double mTime;                  
 
     public:
-    
+    std::vector<double>	solutionCache;
+        
     //Constructor
     ParallelMonodomainPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
     {
@@ -116,6 +117,7 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         mOdeVarsAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
         mOdeSolvedAtNode.resize(mNumNodes);
         mCurrentCache.resize(mNumNodes);
+        solutionCache.resize(mNumNodes);
         mStimulusAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
         
         /// initialise as zero stimulus everywhere.
@@ -170,27 +172,42 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     void ComputeAllNonlinearSourceTerms(Vec currentSolution){
     	double *currentSolutionArray;
         VecGetArray(currentSolution, &currentSolutionArray);
-        
+ 			  
+ 			   // int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+ 			    //std::cout<<" rank "<<rank<<"\n";
+        //MPI_Barrier(PETSC_COMM_WORLD);sleep(2);
         double all_local_currents[mNumNodes];
+        double all_local_solutions[mNumNodes];
         for (int i=0; i<mNumNodes; i++){
         	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi){ 
 	        	double current=ReallyComputeNonlinearSourceTermAtNode(i, currentSolutionArray[i-mOwnershipRangeLo]); 
  			    all_local_currents[i] =current;
+ 			    all_local_solutions[i]=currentSolutionArray[i-mOwnershipRangeLo]; 
+ 			    //std::cout<<current<<" is written to "<< i<<"on rank "<<rank<<"\n";
         	} else {
         		mOdeSolvedAtNode[ i] = true;
  			    all_local_currents[i] =0.0;
+        	    all_local_solutions[i] =0.0;
         	}
         	
         }
     	double all_currents[mNumNodes];
+    	double all_solutions[mNumNodes];
  
  		MPI_Allreduce(all_local_currents, all_currents, mNumNodes, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD); 
+    	MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD); 
     	
-    	
+    		    
     	for (int i=0; i<mNumNodes; i++)
     	{
+    		 //int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+    		 //std::cout<<all_solutions[i]<<" is read to "<< i<<"on rank "<<rank<<"\n";
+    	
+    	
     		mCurrentCache[i]=all_currents[i];
+    		solutionCache[i]=all_solutions[i];
     	}
+    
     	
     }
     /** Main function is this class:

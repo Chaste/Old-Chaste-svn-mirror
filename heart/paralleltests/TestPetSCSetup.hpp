@@ -13,21 +13,39 @@ public:
   
  	bool setUpWorld(){ 
   		/*
-  		 * 
-  		int FakeArgc=0;
+  		 */
+  		int FakeArgc=1;
+		char *FakeArgs[3];
 		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
+		FakeArgs[0]=FakeArgv0;
+		char *FakeArgv1="-trmalloc_log";
+		FakeArgs[1]=FakeArgv1;
+		char *FakeArgv2="-trdebug";
+		FakeArgs[2]=FakeArgv2;
+		
+        
+        char **FakeArgv=(char **)FakeArgs;
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    	*
+    	/*
     	*/
     	
     	
-    	PetscInitializeNoArguments();
-        
+    	//PetscInitializeNoArguments();
+ 			/*
+ 			 * 
+ 			PetscLogAllBegin();
+         	PetscTrLog();
+        *
+        */
     	return true; 
  	}
     bool tearDownWorld() 
     { 
+/*    FILE *p;
+    p=fopen("temp","w");
+    	PetscTrLogDump(p);
+    	*
+    	*/
     	PetscFinalize(); 
     	return true;
     }
