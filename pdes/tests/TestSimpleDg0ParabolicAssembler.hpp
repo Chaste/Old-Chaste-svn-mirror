@@ -28,8 +28,34 @@
 #include "TrianglesMeshReader.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
 
+#define PI M_PI
+
+
+
 class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite 
 {	
+private:
+
+	/**
+	 * Refactor code to set up a PETSc vector holding the initial condition.
+	 */
+	Vec CreateInitialConditionVec(int size)
+	{
+    	Vec initial_condition;
+    	VecCreate(PETSC_COMM_WORLD, &initial_condition);
+    	VecSetSizes(initial_condition, PETSC_DECIDE, size);
+    	VecSetFromOptions(initial_condition);
+    	return initial_condition;
+	}
+	Vec CreateConstantConditionVec(int size, double value)
+	{
+		Vec initial_condition = CreateInitialConditionVec(size);
+   		VecSet(&value, initial_condition);
+    	VecAssemblyBegin(initial_condition);
+		VecAssemblyEnd(initial_condition);
+		return initial_condition;
+	}
+
 public:
 	/// Standard setup method for PETSc
 	void setUp()
@@ -67,27 +93,23 @@ public:
 		// Assembler
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
 		
-		// initial condition, u(0,x) = sin(x*pi);
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-//	    VecSetType(initialCondition, VECSEQ);
-		VecSetFromOptions(initialCondition);
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
-		
-		const double PI = 3.1415926535;
+		// Initial condition, u(0,x) = sin(x*pi);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+  		double *initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			initialConditionArray[i] = sin(x*PI);
+			initial_condition_array[i] = sin(x*PI);
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
-		VecAssemblyBegin(initialCondition);
-    	VecAssemblyEnd(initialCondition);
+		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecAssemblyBegin(initial_condition);
+    	VecAssemblyEnd(initial_condition);
+
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetTimes(0, t_end, 0.01);
+		fullSolver.SetInitialCondition(initial_condition);
+		
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -98,14 +120,13 @@ public:
 		for (int i=0; i < mesh.GetNumNodes() ; i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double u = exp(-0.1*PI*PI)*sin(x*PI); //std::cout << i << " " << res[i] << " " << u << "\n";
+			double u = exp(-0.1*PI*PI)*sin(x*PI);
 			TS_ASSERT_DELTA(res[i], u, 0.1);
 		}
-		VecRestoreArray(result, &res);	
-	}	
+		VecRestoreArray(result, &res);
+	}
 	
 	
-	    // test 1D problem
 	void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
@@ -131,26 +152,21 @@ public:
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
 		
 		// initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-//    	VecSetType(initialCondition, VECSEQ);
-		VecSetFromOptions(initialCondition);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			initialConditionArray[i] = sin(x*PI)-0.5*x*x;
+			initial_condition_array[i] = sin(x*PI)-0.5*x*x;
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetTimes(0, t_end, 0.01);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -161,7 +177,7 @@ public:
 		for (int i=0; i < mesh.GetNumNodes() ; i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double u = exp(-0.1*PI*PI)*sin(x*PI)-0.5*x*x; //std::cout << i << " " << res[i] << " " << u << "\n";
+			double u = exp(-0.1*PI*PI)*sin(x*PI)-0.5*x*x;
 			TS_ASSERT_DELTA(res[i], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
@@ -196,25 +212,21 @@ public:
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
 		
 		// initial condition;   
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    //VecSetType(initialCondition, VECSEQ);
-  		VecSetFromOptions(initialCondition);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI_over_2 = 3.1415926535/2.0;
+		const double PI_over_2 = PI/2.0;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			initialConditionArray[i] = x + sin(PI_over_2 * x);
+			initial_condition_array[i] = x + sin(PI_over_2 * x);
 		}
-		
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
+
 		fullSolver.SetTimes(0, 0.5, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -225,7 +237,6 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double u = x + exp(-0.5*PI_over_2*PI_over_2)*sin(x*PI_over_2); 
-			//std::cout << i << " " << x << " " << res[i] << " " << u << "\n";
 			TS_ASSERT_DELTA(res[i], u, 0.01);
 		} 
 		VecRestoreArray(result, &res);	
@@ -253,30 +264,26 @@ public:
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
 		
 		// initial condition;
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    //VecSetType(initialCondition, VECSEQ);
-  		VecSetFromOptions(initialCondition);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
 		// choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
 		// the heat equation.
-		const double PI = 3.1415926535;
+
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			initialConditionArray[i] = sin(x*PI)*sin(y*PI);
+			initial_condition_array[i] = sin(x*PI)*sin(y*PI);
 		}
-
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;
 		fullSolver.SetTimes(0, t_end, 0.001);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
+
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -326,28 +333,23 @@ public:
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
 		
 		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    //VecSetType(initialCondition, VECSEQ);
-  		VecSetFromOptions(initialCondition);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			initialConditionArray[i] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
+			initial_condition_array[i] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetTimes(0, t_end, 0.01);
+		fullSolver.SetInitialCondition(initial_condition);
+
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -359,7 +361,7 @@ public:
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y); //std::cout << i << " " << res[i] << " " << u << "\n";
+			double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
 			TS_ASSERT_DELTA(res[i], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
@@ -413,7 +415,6 @@ public:
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
-			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
@@ -430,28 +431,23 @@ public:
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			
-			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetTimes(0, t_end, 0.01);
+		fullSolver.SetInitialCondition(initial_condition);
+
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -538,28 +534,24 @@ public:
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
-  
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+	  
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			
-			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result
@@ -576,9 +568,7 @@ public:
 		}
 		VecRestoreArray(result, &res);	
 	}
-
-
-
+	
 
 	
 	// test 2D problem - gives out of Memory message and breaks
@@ -649,28 +639,24 @@ public:
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
-  
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+	  
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			
-			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.001);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -716,31 +702,27 @@ public:
 		SimpleDg0ParabolicAssembler<3,3> fullSolver;
 		
 		// initial condition;
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    //VecSetType(initialCondition, VECSEQ);
-  		VecSetFromOptions(initialCondition);
-  
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+	  
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
 		// choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an 
 		//eigenfunction of the heat equation.
-		const double PI = 3.1415926535;
+
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
-			initialConditionArray[i] = sin(x*PI)*sin(y*PI)*sin(z*PI);
+			initial_condition_array[i] = sin(x*PI)*sin(y*PI)*sin(z*PI);
 		}
 
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;
 		fullSolver.SetTimes(0, t_end, 0.001);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -799,28 +781,23 @@ public:
 		SimpleDg0ParabolicAssembler<3,3> fullSolver;
 		
 		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    //VecSetType(initialCondition, VECSEQ);
-  		VecSetFromOptions(initialCondition);
-  
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+	  
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
-			initialConditionArray[i] = sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z);
+			initial_condition_array[i] = sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z);
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
@@ -927,29 +904,24 @@ public:
 		SimpleDg0ParabolicAssembler<3,3> fullSolver;
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
-		Vec initialCondition;
-		VecCreate(PETSC_COMM_WORLD, &initialCondition);
-    	VecSetSizes(initialCondition, PETSC_DECIDE, mesh.GetNumNodes() );
-	    VecSetType(initialCondition, VECSEQ);
-  
-  		double* initialConditionArray;
- 		int ierr = VecGetArray(initialCondition, &initialConditionArray);
+		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+	  
+  		double* initial_condition_array;
+ 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		const double PI = 3.1415926535;
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double z = mesh.GetNodeAt(i)->GetPoint()[2];
 			
-			
-			initialConditionArray[i] = sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x;
+			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x;
 		}
-		VecRestoreArray(initialCondition, &initialConditionArray);
+		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initialCondition);
+		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
 		
 		// Check result 
