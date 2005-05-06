@@ -43,6 +43,8 @@ private:
 public:
 	/**
 	 * Constructor allocates memory for the boundary conditions lists.
+	 * @param size is the number of dependent variables, ie. the number of the unknown (or dimension of the	unknown)
+	 * @param numNodes is the number of nodes in the mesh
 	 */
 	BoundaryConditionsContainer(int size, int numNodes)
 	{		
@@ -102,6 +104,12 @@ public:
                                         const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
     {
         assert( pBoundaryNode->IsBoundaryNode() );
+        
+        // check the size of the vector the BC returns is consistent with the number of dependent variables
+        VectorDouble bc = pBoundaryCondition->GetValue(pBoundaryNode->GetPoint());
+        assert(bc.Size() == mSizeDependentVariable);
+        
+        
 		//std::pair<  const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryNode, pBoundaryCondition);     
 		//mpDirichletMap->insert(entry);   
 		(*mpDirichletMap)[pBoundaryNode] = pBoundaryCondition;
@@ -128,6 +136,10 @@ public:
     void AddNeumannBoundaryCondition( const Element<ELEM_DIM-1, SPACE_DIM> *       pBoundaryElement, 
                                       const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
     {
+    	// check the size of the vector the BC returns is consistent with the number of dependent variables
+    	VectorDouble bc = pBoundaryCondition->GetValue(pBoundaryElement->GetNode(0)->GetPoint());
+        assert(bc.Size() == mSizeDependentVariable);
+   
     	//assert(boundaryElement->IsBoundaryElement());
    		    	
        	//std::pair<  const Element<ELEM_DIM-1,SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryElement, pBoundaryCondition);     
@@ -159,6 +171,10 @@ public:
 	
 	/**
 	 *  Alter the given linear system to satisfy dirichlet boundary conditions
+	 *  
+	 *  If the number of unknowns is greater than one, it is assumed the solution vector is
+	 *  of the form (in the case of two unknowns u and v, and N nodes):
+	 *  solnvec = (U_1, U_2, ..., U_N, V_1, V_2, ..., V_N)
 	 */
 	void ApplyDirichletToLinearProblem(LinearSystem& rSomeLinearSystem )
 	{
@@ -182,6 +198,11 @@ public:
 	/**
 	 * Alter the residual vector for a nonlinear system to satisfy
 	 * dirichlet boundary conditions. 
+	 * 	
+	 * If the number of unknowns is greater than one, it is assumed the solution vector is
+	 * of the form (in the case of two unknowns u and v, and N nodes):
+	 * solnvec = (U_1, U_2, ..., U_N, V_1, V_2, ..., V_N)
+	 * 
 	 */
 	void ApplyDirichletToNonlinearResidual(const Vec currentSolution, Vec residual)
 	{
@@ -212,6 +233,11 @@ public:
 	/**
 	 * Alter the jacobian matrix vector for a nonlinear system to satisfy
 	 * dirichlet boundary conditions.
+	 * 
+	 * If the number of unknowns is greater than one, it is assumed the solution vector is
+	 * of the form (in the case of two unknowns u and v, and N nodes):
+	 * solnvec = (U_1, U_2, ..., U_N, V_1, V_2, ..., V_N)
+	 * 
 	 */
 	void ApplyDirichletToNonlinearJacobian(Mat jacobian)
 	{

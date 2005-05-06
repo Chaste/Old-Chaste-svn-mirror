@@ -1,6 +1,25 @@
 #ifndef _COMPRESSIBLEISOTROPICMOONEYRIVLINMATERIAL_HPP_
 #define _COMPRESSIBLEISOTROPICMOONEYRIVLINMATERIAL_HPP_
 
+/** CompressibleIsotropicMooneyRivlinMaterial
+ *  
+ *  Implementation of an compressible Mooney-Rivlin type material
+ *  
+ *  In 2D:
+ *  This is strain energy W(I1,I2) = c1(I1-2) + c2(I2-1)
+ *  The stress at zero strain must be zero, so the user can only specify the first 
+ *  parameter c1 (in the constructor), and the second parameter is computed 
+ *  accordingly
+ *  
+ *  This is W(I1,I2) = c1(I1-3) + c2(I2-3) + c3*(I3-1)
+ *  The stress at zero strain must be zero, so the user can only specify the first 
+ *  and second parameters c1 and c2 (in the constructor), and the third parameter is 
+ *  computed accordingly. 
+ * 
+ *  The 1D equivalent of this cannot satisfy zero stress at zero strain, so this
+ *  isn't a valid strain energy and the user is not allowed to instantiated a 1D 
+ *  version of this class
+ */
 template <int SPACE_DIM>
 class CompressibleIsotropicMooneyRivlinMaterial : public AbstractMaterial<SPACE_DIM>
 {
@@ -8,10 +27,19 @@ public:
 	CompressibleIsotropicMooneyRivlinMaterial(double c1, double c2=0)
 	{
 		AbstractMaterial<SPACE_DIM>::mDensitySet = false;
+
+		/** Set as isotropic law
+		 */
 		AbstractMaterial<SPACE_DIM>::mIsIsotropicLaw = true;
 
 		mC1 = c1;	
 		
+		/** This isn't a valid strain energy in 1D
+		 */
+		if(SPACE_DIM==1)
+		{
+			assert(0);
+		}
 		/** set up last parameter so that the stress is zero when strain is zero
 		 */
 		if(SPACE_DIM==2)
@@ -81,12 +109,6 @@ private:
     	assert(SPACE_DIM>2);
 		return 0;
 	}	
-	
-	double GetdW_by_dE(MatrixDouble E, int index1, int index2)
-	{
-		// this is an isotropic law so this function is not implemented
-		assert(0);
-	}
 	
 };
 

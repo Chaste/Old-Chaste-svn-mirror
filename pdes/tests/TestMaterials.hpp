@@ -11,18 +11,18 @@ class TestMaterials : public CxxTest::TestSuite
 public:
 	void TestCompressibleIsotropicMooneyRivlinMaterial()
 	{
-		CompressibleIsotropicMooneyRivlinMaterial<1> material1(2);
-		material1.SetDensity(1.4);
-		TS_ASSERT_DELTA( material1.GetDensity(), 1.4, 1e-12);
+		//CompressibleIsotropicMooneyRivlinMaterial<1> material1(2);
+		//material1.SetDensity(1.4);
+		//TS_ASSERT_DELTA( material1.GetDensity(), 1.4, 1e-12);
 		
-		MatrixDouble G(1,1);
-		G(0,0) = 2;
+		//MatrixDouble G(1,1);
+		//G(0,0) = 2;
 
-		MatrixDouble T1 = material1.ComputeStress(G);
+		//MatrixDouble T1 = material1.ComputeStress(G);
 		
-		TS_ASSERT_EQUALS( T1.Rows(), 1);
-		TS_ASSERT_EQUALS( T1.Columns(), 1);
-		TS_ASSERT_DELTA(  T1(0,0), 4, 1e-4); 
+		//TS_ASSERT_EQUALS( T1.Rows(), 1);
+		//TS_ASSERT_EQUALS( T1.Columns(), 1);
+		//TS_ASSERT_DELTA(  T1(0,0), 4, 1e-4); 
 		
 		CompressibleIsotropicMooneyRivlinMaterial<2> material2(2);
 		material2.SetDensity(1.5);

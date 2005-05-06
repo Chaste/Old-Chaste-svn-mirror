@@ -5,6 +5,7 @@
 #include "Element.hpp"
 #include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
+#include "FourthOrderTensor.hpp"
 
 template <int ELEM_DIM, int SPACE_DIM>
 class NonlinearElasticityPde
@@ -30,7 +31,7 @@ public:
 		return rElement.GetMaterial()->ComputeStress(F);
 	}
 
-	FourthOrderTensor Compute_dTdE(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
+	FourthOrderTensor<SPACE_DIM> Compute_dTdE(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
 	{
 		return rElement.GetMaterial().Compute_dTdE(F);
 	}	

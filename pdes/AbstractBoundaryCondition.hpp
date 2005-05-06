@@ -9,7 +9,7 @@
  */
 template<int SPACE_DIM>
 class AbstractBoundaryCondition
-{
+{	
 public:
 	/**
 	 * Get the value of the boundary condition at a given point.

@@ -4,14 +4,32 @@
 #include "MatrixDouble.hpp"
 #include <vector>
 
-typedef std::vector< std::vector < std::vector< std::vector<double> > > > FourthOrderTensor;
+//typedef std::vector< std::vector < std::vector< std::vector<double> > > > FourthOrderTensor;
+#include "FourthOrderTensor.hpp"
 
+/** AbstractMaterial
+ * 
+ *  The user should write a derived class which specfies an isotropic strain energy by specifying
+ *  the derivatives and second derivatives of W.
+ *  
+ *  NOTE: make sure the boolean mIsIsotropicLaw is set appropiately in the constructor of any 
+ *  derived class
+ * 
+ * 	This abstract class can compute the stress T and stress derivative dTdE, and Get/Set densities
+ * 
+ *  \todo Implement the non-isotropic versions of this
+ *  \todo Move ComputeStress and Compute_dTdE etc into a new 'helper' class
+ *  \todo MakeFourthOrderTensor a class with overloaded multiplication operator
+ */
+ 
 template <int SPACE_DIM>
 class AbstractMaterial 
 {
 
 // functions which need to be implemented by derived classes	
 private:
+
+	// if isotropic overload these
     virtual double GetdW_by_dI1   (double I1,double I2=0,double I3=0)=0;
     virtual double GetdW_by_dI2   (double I1,double I2=0,double I3=0)=0;
     virtual double GetdW_by_dI3   (double I1,double I2=0,double I3=0)=0;
@@ -23,10 +41,13 @@ private:
     virtual double Getd2W_by_dI2I3(double I1,double I2=0,double I3=0)=0;
     virtual double Getd2W_by_dI1I3(double I1,double I2=0,double I3=0)=0;
 
-    virtual double GetdW_by_dE(MatrixDouble E, int index1, int index2)=0;
+	// if anisotropic overload this 
+    //virtual double GetdW_by_dE(MatrixDouble E, int index1, int index2)=0;
     
     
 public:
+	/** Get the density of this material
+	 */
     double GetDensity()
     {
 		if(!mDensitySet)
@@ -37,6 +58,8 @@ public:
 		return mDensity;
     }
     
+	/** Set the density of this material
+	 */
     void SetDensity(double density)
 	{
 		mDensity = density;
@@ -44,6 +67,9 @@ public:
 	}
     
     
+    /** Compute this stress in this material at a given value of deformation gradient
+     * 	NOTE: The input parameter is deformation gradient F, not strain E
+     */
     MatrixDouble ComputeStress(MatrixDouble F)
     {
     	if(mIsIsotropicLaw)
@@ -56,8 +82,12 @@ public:
 		}
 	}
 	
-	
-	FourthOrderTensor Compute_dTdE (MatrixDouble F)
+
+    /** Compute this stress derivative in this material at a given value of deformation gradient
+     *  The stress derivative is the fourth order tensor dT^{MN}/dE_{PQ} = dW/(dE^{MN}dE^{PQ})
+     * 	NOTE: The input parameter is deformation gradient F, not strain E
+     */
+  	FourthOrderTensor<SPACE_DIM> Compute_dTdE (MatrixDouble F)
     {
     	if(mIsIsotropicLaw)
 		{
@@ -93,6 +123,7 @@ private:
 				MatrixDouble identity = MatrixDouble::Identity(1);		
 				MatrixDouble T(1,1);		
 					
+				// using dI1/dE = 2*identity 
 				T = 2*dW_by_dI1*identity;
 				return T;	
 			}	
@@ -109,6 +140,7 @@ private:
 				MatrixDouble identity = MatrixDouble::Identity(2);		
 				MatrixDouble T(2,2);		
 					
+				// using dI1/dE = 2*identity and dI2/dE = 2*I2*inv(C)
 				T = (2 * dW_by_dI1 * identity)   +   (2 * dW_by_dI2 * I2 * C.Inverse());
 				return T;
 			}
@@ -127,6 +159,7 @@ private:
 				MatrixDouble identity = MatrixDouble::Identity(3);		
 				MatrixDouble T(3,3);		
 					
+				// using dI1/dE = 2*identity and dI2/dE = 2*(I1*Idenity - C) and dI3/dE = 2*I3*inv(C)
 				T = (2*dW_by_dI1*identity)  +  (2*dW_by_dI2*(I1*identity - C))  +  (2*dW_by_dI3 * I3 * C.Inverse());
 				return T;
 			}	
@@ -139,41 +172,16 @@ private:
 		}
 	}
 	
-	FourthOrderTensor ComputeIsotropic_dTdE(MatrixDouble F)
+	FourthOrderTensor<SPACE_DIM> ComputeIsotropic_dTdE(MatrixDouble F)
 	{
 		assert(F.Rows()==SPACE_DIM);
 
-		FourthOrderTensor dTdE;
+		FourthOrderTensor<SPACE_DIM> dTdE;
+
+		FourthOrderTensor<SPACE_DIM> IdentityCrossIdentity;
+		IdendityCrossIdentiy.SetAsTensorProductOfIdentities();		
 		
-		dTdE.resize(SPACE_DIM);		
-		for(int M=0; M<SPACE_DIM; M++)
-		{
-			dTdE[M].resize(SPACE_DIM);
-			for(int N=0; N<SPACE_DIM; N++)
-			{	
-				dTdE[M][N].resize(SPACE_DIM);
-				for(int P=0; P<SPACE_DIM; P++)
-				{
-					dTdE[M][N][P].resize(SPACE_DIM);
-				}
-			}
-		}				
-
-
-		for(int M=0; M<SPACE_DIM; M++)
-		{
-			for(int N=0; N<SPACE_DIM; N++)
-			{	
-				for(int P=0; P<SPACE_DIM; P++)
-				{
-					for(int Q=0; Q<SPACE_DIM; Q++)
-					{
-						dTdE[M][N][P][Q] = 0;
-					}
-				}
-			}
-		}				
-
+		
 		MatrixDouble C = (F.Transpose())*F;
 
 		switch(SPACE_DIM)
@@ -192,7 +200,7 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dTdE[M][N][P][Q] = 4*d2W_by_dI1*(M==N)*(P==Q);
+								dTdE[M][N][P][Q] = 4*d2W_by_dI1*IdentityCrossIdentity[M][N][P][Q];
 							}
 						}
 					}
@@ -211,6 +219,32 @@ private:
 				double  d2W_by_dI1   =   Getd2W_by_dI1(I1,I2);
 				double  d2W_by_dI2   =   Getd2W_by_dI2(I1,I2);
 				double  d2W_by_dI1I2 = Getd2W_by_dI1I2(I1,I2);
+				
+				MatrixDouble dI1_dE = 2*MatrixDouble::Identity(2);
+				MatrixDouble dI2_dE = 2 * I2 * C.Inverse();
+				
+				// note: could have FourthOrderTensor dI1_dEdE, this is equal to zero
+				FourthOrderTensor<SPACE_DIM> dI2_dEdE;
+				
+				
+				for(int M=0; M<SPACE_DIM; M++)
+				{
+					for(int N=0; N<SPACE_DIM; N++)
+					{	
+						for(int P=0; P<SPACE_DIM; P++)
+						{
+							for(int Q=0; Q<SPACE_DIM; Q++)
+							{
+								dTdE[M][N][P][Q] =   d2W_by_dI1    * dI1_dE[M][N] * dI1_dE[P][Q]
+								                   + d2W_by_dI1dI2 * dI1_dE[M][N] * dI2_dE[P][Q]
+								                   + 0 // dW_by_dI1 * dI1_dEdE
+								                   + d2W_by_dI2    * dI2_dE[M][N] * dI2_dE[P][Q]
+								                   + d2W_by_dI1dI2 * dI2_dE[M][N] * dI1_dE[P][Q]
+								                   + dW_by_dI2 * 1;
+							}
+						}
+					}
+				}	
 				
 				// fill in
 				assert(0);				
