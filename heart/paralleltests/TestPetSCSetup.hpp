@@ -23,6 +23,7 @@ public:
 		char *FakeArgv2="-trdebug";
 		FakeArgs[2]=FakeArgv2;
 		
+		
         
         char **FakeArgv=(char **)FakeArgs;
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
