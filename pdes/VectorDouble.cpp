@@ -28,7 +28,7 @@ VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
 
 VectorDouble::~VectorDouble()
 {
-	delete mElementArray;
+	delete[] mElementArray;
 }
 
 VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)

@@ -37,7 +37,7 @@ MatrixDouble::MatrixDouble(const MatrixDouble& rOtherMatrix)
 
 MatrixDouble::~MatrixDouble()
 {
-	delete mElementArray;
+	delete[] mElementArray;
 }
 
 
