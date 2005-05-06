@@ -174,6 +174,7 @@ private:
 	
 	FourthOrderTensor<SPACE_DIM> ComputeIsotropic_dTdE(MatrixDouble F)
 	{
+		#if 0
 		assert(F.Rows()==SPACE_DIM);
 
 		FourthOrderTensor<SPACE_DIM> dTdE;
@@ -279,6 +280,7 @@ private:
 				assert(0);
 			}	
 		}
+		#endif
 	}	
 };
 
