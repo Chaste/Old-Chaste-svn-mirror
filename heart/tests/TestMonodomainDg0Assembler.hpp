@@ -3,20 +3,21 @@
 
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
-#include "SimpleLinearSolver.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include <vector>
 #include <iostream>
+#include <cmath>
+#include "SimpleLinearSolver.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 #include "Node.hpp"
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
-#include "TrianglesMeshReader.hpp"
-#include "MonodomainPde.hpp"
 #include "MonodomainDg0Assembler.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "ColumnDataWriter.hpp"
-#include "math.h"
 
+#include "MonodomainPde.hpp"
+#include "FischerPde.hpp"
  
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
@@ -30,6 +31,98 @@ public:
 		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
 	}   
 	
+	/**
+	 * Refactor code to set up a PETSc vector holding the initial condition.
+	 */
+	Vec CreateInitialConditionVec(int size)
+	{
+    	Vec initial_condition;
+    	VecCreate(PETSC_COMM_WORLD, &initial_condition);
+    	VecSetSizes(initial_condition, PETSC_DECIDE, size);
+    	VecSetFromOptions(initial_condition);
+    	return initial_condition;
+	}
+	
+	void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
+	{
+		double tStart = 0;
+		double tFinal = 1;
+		double tBigStep = 0.01;
+		// Create mesh from mesh reader 
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/heart_FHN_mesh");
+		ConformingTetrahedralMesh<1,1> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+        
+		// Instantiate PDE object
+		FischerPde<1> pde;
+        
+        // Boundary conditions: zero neumann on entire boundary (2 elements)
+		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+		ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+		iter++;
+		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+
+		// Linear solver
+		SimpleLinearSolver linearSolver;
+
+		// Assembler
+		MonodomainDg0Assembler<1,1> monodomain_assembler;
+		SimpleDg0ParabolicAssembler<1,1> simple_assembler;
+        
+		// initial condition;   
+		Vec current_solution_1, initial_condition_1, current_solution_2, initial_condition_2;
+		current_solution_1 = CreateInitialConditionVec(mesh.GetNumNodes());
+		VecDuplicate(current_solution_1,  &initial_condition_1);
+		VecDuplicate(current_solution_1,  &initial_condition_2);
+		VecDuplicate(current_solution_1,  &current_solution_2);
+  
+		double* init_array;
+		int ierr = VecGetArray(current_solution_1, &init_array); 
+		for (int i=0; i<mesh.GetNumNodes(); i++)
+		{
+			double x=mesh.GetNodeAt(i)->GetPoint()[0];
+			init_array[i] = exp(-(x*x)/100);
+		}
+		VecRestoreArray(current_solution_1, &init_array);      
+		VecAssemblyBegin(current_solution_1);
+		VecAssemblyEnd(current_solution_1);
+		VecCopy(current_solution_1, current_solution_2);
+           
+		double tCurrent = tStart;
+		while( tCurrent < tFinal )
+        {
+			monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
+			simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
+			
+			VecCopy(current_solution_1, initial_condition_1);
+			monodomain_assembler.SetInitialCondition( initial_condition_1 );
+			VecCopy(current_solution_2, initial_condition_2);
+			simple_assembler.SetInitialCondition( initial_condition_2 );
+
+			current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc, &linearSolver);
+			current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc, &linearSolver);
+     
+			tCurrent += tBigStep;
+        }
+		
+		// Compare the results
+		double *res1, *res2;
+		VecGetArray(current_solution_1, &res1);
+		VecGetArray(current_solution_2, &res2);
+		for (int i=0; i<mesh.GetNumNodes(); i++)
+		{
+			TS_ASSERT_DELTA(res1[i], res2[i], 1e-3);
+		}
+		VecRestoreArray(current_solution_1, &res1);
+		VecRestoreArray(current_solution_2, &res2);
+		VecDestroy(current_solution_1);
+		VecDestroy(current_solution_2);
+		VecDestroy(initial_condition_1);
+		VecDestroy(initial_condition_2);
+    }
+    
 	void testMonodomainDg01D()
 	{
 		double tStart = 0; 
