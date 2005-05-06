@@ -6,7 +6,7 @@
 /**
  * \todo Document class + exceptional behaviour
  * 
- * 
+ * \todo Use VecDuplicate to create lhs_vector.
  * 
  */
 

@@ -108,6 +108,11 @@ public:
 		assert(mTimesSet);
 		assert(mInitialConditionSet);
 		
+		/**
+		 * \todo Vec objects are just pointers, and need to be destroyed when finished
+		 * with. We don't do this yet, which could well be our memory leak problem.
+		 */
+		
 		double t = mTstart;
 		Vec currentSolution = mInitialCondition;
 		while( t < mTend - 1e-10 )
