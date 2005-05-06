@@ -31,7 +31,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
          */
 		double voltage = 0.0; // initial resting potential
         double w = 0.0; // initial value for gating variable
-        double magnitudeOfStimulus = -80.0;  
+        double magnitudeOfStimulus = 1.0;  
         double durationOfStimulus  = 0.5;  // ms                   
         
         /*
@@ -96,7 +96,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
 //		double voltage = 0.0; // initial resting potential
 //        double w = 0.0; // initial gating variable
 //        
-//        double magnitudeOfStimulus = -50.0;  
+//        double magnitudeOfStimulus = 1.0;  
 //        double durationOfStimulus  = 0.5 ;  // ms                     
 //        double frequency = 1.0/500.0;
 //        double startStimulus = 40.0;                 
