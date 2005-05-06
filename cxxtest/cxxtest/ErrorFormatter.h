@@ -63,9 +63,10 @@ namespace CxxTest
             o << wd.strTotalTests( s ) << (wd.numTotalTests() == 1 ? " test" : " tests");
         }
 
-        void enterSuite( const SuiteDescription & )
+        void enterSuite( const SuiteDescription &sd )
         {
-            _reported = false;
+            _reported = true;
+            (*_o) << "\n\n ***** " << sd.suiteName() << ".hpp *****\n\n" << endl;
         }
 
         void enterTest( const TestDescription &td )
