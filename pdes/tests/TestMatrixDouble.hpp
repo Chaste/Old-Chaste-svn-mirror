@@ -335,7 +335,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA( C.GetThirdInvariant(),   0, 1e-12);
 	}
 	
-	void testMatrixMatrixMultiplication()
+	void TestMatrixMatrixMultiplication()
 	{
 		MatrixDouble A(3,4);
 		MatrixDouble B(4,2);
@@ -370,7 +370,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		TS_ASSERT_DELTA( C(2,1), 80, 1e-12);
 	}
 	
-	void testMatrixAdditionAndSubtraction()
+	void TestMatrixAdditionAndSubtraction()
 	{
 		int m=3;
 		int n=4;
@@ -401,9 +401,5 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		}
 	}
 }; 
-
-
-	
-
 
 #endif //_TESTMATRIXDOUBLE_HPP_

@@ -25,7 +25,7 @@ public:
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);        
     }
     
-	void testNonlinearElasticityPde1D()
+	void TestNonlinearElasticityPde1D()
 	{
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
@@ -40,12 +40,10 @@ public:
 		gravity(0) = 10;
 		NonlinearElasticityPde<1,1> pde(gravity);
 
-
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			mesh.SetMaterialToElement(i, pMaterial);		
 		}
-
 	
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
@@ -64,9 +62,7 @@ public:
 	}
 
 
-
-
-	void testNonlinearElasticityPde2D()
+	void TestNonlinearElasticityPde2D()
 	{
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
@@ -82,12 +78,10 @@ public:
 		gravity(1) = 2;
 		NonlinearElasticityPde<2,2> pde(gravity);
 
-
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			mesh.SetMaterialToElement(i, pMaterial);		
 		}
-
 	
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
@@ -110,7 +104,7 @@ public:
 	}
 
 
-	void testNonlinearElasticityPde3D()
+	void TestNonlinearElasticityPde3D()
 	{
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
@@ -128,12 +122,10 @@ public:
 		gravity(2) = 3;
 		NonlinearElasticityPde<3,3> pde(gravity);
 
-
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			mesh.SetMaterialToElement(i, pMaterial);		
 		}
-
 	
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
@@ -160,13 +152,6 @@ public:
 			TS_ASSERT_DELTA( rhoG(2), 4.5, 1e-12);							
 		}
 	}
-
-
-
-
-
-
-	
 };
 
 #endif //_TESTNONLINEARELASTICPDE_HPP_

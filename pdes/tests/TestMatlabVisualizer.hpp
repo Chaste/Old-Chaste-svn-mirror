@@ -24,7 +24,7 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 	 * 
 	 */
 
-//	void test1DVisualizationFileBuild(void)
+//	void Test1DVisualizationFileBuild(void)
 //	{
 //		TS_ASSERT_THROWS_NOTHING(
 //		                  spViewer=new MatlabVisualizer<1>(
@@ -33,7 +33,7 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 //		delete spViewer;
 //	}
 //	
-//	void test2DVisualizationFileBuild(void)
+//	void Test2DVisualizationFileBuild(void)
 //	{
 //		TS_ASSERT_THROWS_NOTHING(
 //		                  sp2DViewer=new MatlabVisualizer<2>(
@@ -46,7 +46,7 @@ class TestMatlabVisualizer : public CxxTest::TestSuite
 //	/**
 //	 * Check whether it can read time file correctly.	 * 
 //	 */	
-//	void testVisualizationTimeFileRead(void)
+//	void TestVisualizationTimeFileRead(void)
 //	{
 //		TS_ASSERT_THROWS_NOTHING(
 //		                  spViewer=new MatlabVisualizer<1>(

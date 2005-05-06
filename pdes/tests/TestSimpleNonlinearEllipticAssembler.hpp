@@ -75,14 +75,14 @@ class TestSimpleNonlinearEllipticAssembler : public CxxTest::TestSuite
 private:
 
 	/**
-	 * Refactor code to set up a PTESc vector holding the initial guess.
+	 * Refactor code to set up a PETSc vector holding the initial guess.
 	 */
 	Vec CreateInitialGuessVec(int size)
 	{
     	Vec initial_guess;
     	VecCreate(PETSC_COMM_WORLD, &initial_guess);
     	VecSetSizes(initial_guess, PETSC_DECIDE, size);
-    	VecSetType(initial_guess, VECSEQ);
+    	VecSetFromOptions(initial_guess);
     	return initial_guess;
 	}
 	Vec CreateConstantInitialGuessVec(int size, double value)
@@ -536,7 +536,7 @@ public:
 		VecRestoreArray(answer, &ans);
 	}
 
-	void testWithHeatEquation1D5()
+	void TestWithHeatEquation1D5()
 	{
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");

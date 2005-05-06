@@ -45,8 +45,6 @@ class TestNode : public CxxTest::TestSuite
 		// coordinates: the 3rd coord should be ignored.
 		Node<2> node3(2, true, 1.0, 2.0, 3.0);
 	}
-    
-
 };
 
 #endif //_TESTNODE_HPP_

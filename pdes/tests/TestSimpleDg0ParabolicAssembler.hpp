@@ -8,8 +8,7 @@
  * 
  * Tests the class for the solution of parabolic pdes in 1D, 2D and 3D with and 
  * without source terms with neumann and dirichlet booundary conditions.
- * 
- * 
+ *   
  */
 
 #include <cxxtest/TestSuite.h>
@@ -29,7 +28,6 @@
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
 
 #define PI M_PI
-
 
 
 class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite 
@@ -194,8 +192,7 @@ public:
     	// Instantiate PDE object
 		TimeDependentDiffusionEquationPde<1> pde;  
 	    
-        // Boundary conditions
-        // u(0)=0 u'(1)=1 
+        // Boundary conditions  u(0)=0, u'(1)=1 
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);  
@@ -517,7 +514,6 @@ public:
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
-			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
@@ -541,10 +537,8 @@ public:
 		
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];			
 			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
@@ -622,7 +616,6 @@ public:
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
-			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
@@ -646,10 +639,8 @@ public:
 		
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			
+			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
+			double y = mesh.GetNodeAt(i)->GetPoint()[1];			
 			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
@@ -810,7 +801,7 @@ public:
 			double x = mesh.GetNodeAt(i)->GetPoint()[0];
 			double y = mesh.GetNodeAt(i)->GetPoint()[1];
 			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
-			double u = exp(-t_end*3*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z); //std::cout << i << " " << res[i] << " " << u << "\n";
+			double u = exp(-t_end*3*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z); 
 			TS_ASSERT_DELTA(res[i], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
@@ -869,14 +860,12 @@ public:
 			{
 				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
 			}
-			
-			
+						
 			if (fabs(z - 1.0) < 0.01)
 			{
 				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
 			}
-			
-			
+						
 			iter++;
 		}
 	    
@@ -887,7 +876,6 @@ public:
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
-			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
 						
 			if (fabs(x - 1.0) < 0.01)
 			{

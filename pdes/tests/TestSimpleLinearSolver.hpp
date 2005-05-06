@@ -137,8 +137,7 @@ public:
 	    VecGetArray(lhs_vector, &lhs_elements);
 	    TS_ASSERT_DELTA(lhs_elements[0], 5.0, 0.000001);
 	    TS_ASSERT_DELTA(lhs_elements[1], 6.0, 0.000001);
-    }
-    
+    }    
 };
 
 #endif //_TESTSIMPLELINEARSOLVER_HPP_

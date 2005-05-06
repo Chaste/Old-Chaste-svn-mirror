@@ -23,8 +23,7 @@ static AbstractMeshWriter *spMeshWriter;
 class TestMeshWriters : public CxxTest::TestSuite
 {
 	public:
-	
-	
+		
 	void TestMemfemtoTetgen(void)
 	{	
 		spImportMeshReader=new MemfemMeshReader(
@@ -78,7 +77,6 @@ class TestMeshWriters : public CxxTest::TestSuite
 		
 		spMeshWriter->WriteFiles();
 
-
 		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
 							new TrianglesMeshReader("/tmp/MeshFromFemlab"));
 	}
@@ -103,9 +101,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		{
 			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
 		}
-		
-		
-		
+				
 		TS_ASSERT_THROWS_NOTHING(spMeshWriter->WriteFiles());
 		
 		int num_tsteps=500;
@@ -120,8 +116,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 				fake_data<<sin((t*M_PI)/num_tsteps) <<"\n";
 			}
 		} 
-		fake_data.close() ;
-		
+		fake_data.close() ;		
 	}
 
 	void TestTrianglesToCoolGraphics(void)
@@ -144,13 +139,10 @@ class TestMeshWriters : public CxxTest::TestSuite
 		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
 		{
 			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
-		}
-		
-		
+		}				
 		
 		TS_ASSERT_THROWS_NOTHING(spMeshWriter->WriteFiles());
-		
-		
+				
 		int num_tsteps=500;
 		int num_nodes = spImportMeshReader->GetNumNodes();
 		for(int t= 0; t<num_tsteps ;t++)
@@ -166,8 +158,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		 
 			fake_data.close() ;
 		}
-	}
-	
+	}	
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_

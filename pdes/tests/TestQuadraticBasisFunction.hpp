@@ -19,10 +19,7 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		QuadraticBasisFunction<0> basis_func;
 		TS_ASSERT_DELTA(basis_func.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
 	}
-	
-	
 		
-	
 	void TestQuadraticBasisFunction1d()
 	{
 		std::vector<Point<1>*> evaluation_points;

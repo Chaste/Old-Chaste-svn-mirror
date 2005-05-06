@@ -518,17 +518,7 @@ public:
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
 		ierr = VecRestoreArray(residual, &residualArrayPostMod);
 	}
-
-
-
-
-
-
-
-
-
     
 };
-
 
 #endif //_TESTBOUNDARYCONDITIONCONTAINER_HPP_

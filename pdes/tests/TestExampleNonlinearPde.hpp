@@ -18,8 +18,7 @@ public:
 		// Diffusion matrix should be equal to 2
 		MatrixDouble diff = example_equation.ComputeDiffusionTerm(zero,u);
 
-		TS_ASSERT_DELTA(diff(0,0), 2, 1e-12);
- 
+		TS_ASSERT_DELTA(diff(0,0), 2, 1e-12); 
 	}
 };
 

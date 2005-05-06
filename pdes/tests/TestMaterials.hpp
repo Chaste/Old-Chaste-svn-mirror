@@ -9,7 +9,7 @@
 class TestMaterials : public CxxTest::TestSuite 
 {
 public:
-	void testCompressibleIsotropicMooneyRivlinMaterial()
+	void TestCompressibleIsotropicMooneyRivlinMaterial()
 	{
 		CompressibleIsotropicMooneyRivlinMaterial<1> material1(2);
 		material1.SetDensity(1.4);
