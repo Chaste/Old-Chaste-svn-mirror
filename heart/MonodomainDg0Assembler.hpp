@@ -44,6 +44,9 @@ protected:
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
+		rAElem.ResetToZero();
+        rBElem.ResetToZero();
+        
         const int num_nodes = rElement.GetNumNodes();
                 
         for(int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
@@ -70,7 +73,7 @@ protected:
                 //std::cout << pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] ) << "\n";
             }
 
-            //std::cout << "\n\n" << "source = " << sourceTerm << std::flush;
+            //std::cout << "source = " << sourceTerm << std::endl << std::flush;
 
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);  
             for (int row=0; row < num_nodes; row++)
