@@ -439,6 +439,129 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 		}
 		VecRestoreArray(result, &res);
 	}
+
+	
+	//Test 3d data
+	void Test3dEllipticEquationDirichletCondition()
+	{
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		ConformingTetrahedralMesh<3,3> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		LinearHeatEquationPde<3> pde;
+		
+		// Boundary conditions
+	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        
+        while(iter < mesh.GetLastBoundaryNode())
+		{
+			double x = (*iter)->GetPoint()[0];
+			double y = (*iter)->GetPoint()[1];
+			double z = (*iter)->GetPoint()[2];			
+			
+			ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
+			bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			iter++;
+		}
+        
+		// Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		SimpleLinearEllipticAssembler<3,3> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		
+		//Solution should be -1/6*(x^2 + y^2 +z^2)
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint()[1];
+            double z = mesh.GetNodeAt(i)->GetPoint()[2];            
+            double u = -1.0/6 * (x*x+y*y+z*z);
+            TS_ASSERT_DELTA(res[i], u, 0.01);
+        }
+	}
+	
+	//Test 3d data
+	void Test3dEllipticEquationNeumannCondition()
+	{
+		// Create mesh from mesh reader
+		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		ConformingTetrahedralMesh<3,3> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+		
+		// Instantiate PDE object
+		LinearHeatEquationPde<3> pde;
+		
+		// Boundary conditions
+	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        
+        while(iter < mesh.GetLastBoundaryNode())
+		{
+			double x = (*iter)->GetPoint()[0];
+			double y = (*iter)->GetPoint()[1];
+			double z = (*iter)->GetPoint()[2];	
+			
+			if (fabs(1-x)<0.01)
+			{
+				
+			}else
+			{
+				//Dirichlet boundary condition
+				ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));			
+				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			}
+			iter++;
+		}
+		
+		ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+		ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(-1.0/3);								
+		while(surf_iter < mesh.GetLastBoundaryElement())
+		{
+			int node = (*surf_iter)->GetNodeGlobalIndex(0);
+			double x = mesh.GetNodeAt(node)->GetPoint()[0];
+			// double y = mesh.GetNodeAt(node)->GetPoint()[1];
+ 	    
+			if (fabs(x - 1.0) < 0.01)
+			{
+				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+			}
+			
+			surf_iter++;
+		}
+        
+		// Linear solver
+		SimpleLinearSolver solver;
+		
+		// Assembler
+		SimpleLinearEllipticAssembler<3,3> assembler;
+		
+		Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+		
+		// Check result
+		double *res;
+		int ierr = VecGetArray(result, &res);
+		
+		//Solution should be -1/6*(x^2 + y^2 +z^2)
+		for (int i=0; i < mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint()[1];
+            double z = mesh.GetNodeAt(i)->GetPoint()[2];            
+            double u = -1.0/6 * (x*x+y*y+z*z);
+            TS_ASSERT_DELTA(res[i], u, 0.1);
+        }
+	}
+
 };
  
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

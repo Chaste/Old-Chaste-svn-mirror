@@ -132,8 +132,6 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         {
             mOdeSolvedAtNode[i] = false;  	
         }
-        
-        
     }
     
     /** This should not be called, use ComputeLinearSourceTermAtNode instead

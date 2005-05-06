@@ -25,7 +25,7 @@ const double RADIUS = 0.00011;                          // radius of cell, cm
 const double LENGTH = 0.01;                             // length of cell, cm
 const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
 const double rA = rMyo + rG / LENGTH;//* BETA;
-const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
+const double  DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
 
 
 /**

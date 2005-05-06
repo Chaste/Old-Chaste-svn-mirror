@@ -39,14 +39,15 @@ protected:
 
         double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
-                
+        
+        
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
-        // Initialise element contributions to zero
+		// Initialise element contributions to zero
 		rAElem.ResetToZero();
         rBElem.ResetToZero();
-        
+
         const int num_nodes = rElement.GetNumNodes();
                 
         for(int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
