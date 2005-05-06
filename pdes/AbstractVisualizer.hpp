@@ -23,9 +23,9 @@
  * 2.path_base_name.val (containing the result of the calculation. eg. the voltage at each node.) 
  * 			The .val file contains a matrix with each row representing the value at each time step.
  * 
- * Both 
- * 		CreateNodesFileForVisualization() and 
- * 		CreateOutputFileForVisualization()
+ *  
+ * 		CreateFilesForVisualization() 
+ * 
  * need to be invoked in order to generate necessary files for Matlab visualization.
  * 
  */
