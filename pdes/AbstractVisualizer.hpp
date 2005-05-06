@@ -34,8 +34,9 @@ template<int SPACE_DIM>
 class AbstractVisualizer 
 {
 public:	
-	virtual void CreateNodesFileForVisualization()=0;/**<create .coord file */	     
-	virtual void CreateOutputFileForVisualization()=0;/**<create .val file which contains the output */
+	virtual void CreateFilesForVisualization()=0;/**<create all necessary files for visualization */
+//	virtual void CreateNodesFileForVisualization()=0;/**<create .coord file */	     
+//	virtual void CreateOutputFileForVisualization()=0;/**<create .val file which contains the output */
 };
 
 #endif //_ABSTRACTVISUALIZER_HPP_

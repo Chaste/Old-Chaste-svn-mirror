@@ -74,6 +74,13 @@ MatlabVisualizer<SPACE_DIM>::~MatlabVisualizer()
 {
 }
 
+template<int SPACE_DIM> 
+void MatlabVisualizer<SPACE_DIM>::CreateFilesForVisualization()
+{
+	CreateNodesFileForVisualization();
+	CreateOutputFileForVisualization();
+}
+
 /**
  * Create coordinates files with 1, 2 or 3 columns.
  */

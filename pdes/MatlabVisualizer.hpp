@@ -22,14 +22,15 @@ private:
 	std::string mPathBaseName; /**<path base name of the files */
 	std::vector<double> mTimeSeries; /**< a vector to store the time steps which may be used as part of the file names. */
 	bool mHasTimeFile; /**< a flag to indicate whether there is .time file, true if there is. */
-
+	void CreateNodesFileForVisualization();	     
+	void CreateOutputFileForVisualization();
+	std::vector<std::string> GetRawDataFromFile(std::string fileName);
+	
 public:
 	MatlabVisualizer(std::string pathBaseName);//, int dimension);
 	~MatlabVisualizer();
 	
-	void CreateNodesFileForVisualization();	     
-	void CreateOutputFileForVisualization();
-	std::vector<std::string> GetRawDataFromFile(std::string fileName);
+	void CreateFilesForVisualization();
 };
 
 #endif //_MATLABVISUALIZER_HPP_
