@@ -20,6 +20,7 @@
  *  \todo Implement the non-isotropic versions of this
  *  \todo Move ComputeStress and Compute_dTdE etc into a new 'helper' class
  *  \todo MakeFourthOrderTensor a class with overloaded multiplication operator
+ *  \todo Test the results of Compute_dTdE properly!
  */
  
 template <int SPACE_DIM>
@@ -30,16 +31,16 @@ class AbstractMaterial
 private:
 
 	// if isotropic overload these
-    virtual double GetdW_by_dI1   (double I1,double I2=0,double I3=0)=0;
-    virtual double GetdW_by_dI2   (double I1,double I2=0,double I3=0)=0;
-    virtual double GetdW_by_dI3   (double I1,double I2=0,double I3=0)=0;
+    virtual double GetdW_by_dI1    (double I1,double I2=0,double I3=0)=0;
+    virtual double GetdW_by_dI2    (double I1,double I2=0,double I3=0)=0;
+    virtual double GetdW_by_dI3    (double I1,double I2=0,double I3=0)=0;
 
-    virtual double Getd2W_by_dI1  (double I1,double I2=0,double I3=0)=0;
-    virtual double Getd2W_by_dI2  (double I1,double I2=0,double I3=0)=0;
-    virtual double Getd2W_by_dI3  (double I1,double I2=0,double I3=0)=0;
-    virtual double Getd2W_by_dI1I2(double I1,double I2=0,double I3=0)=0;
-    virtual double Getd2W_by_dI2I3(double I1,double I2=0,double I3=0)=0;
-    virtual double Getd2W_by_dI1I3(double I1,double I2=0,double I3=0)=0;
+    virtual double Getd2W_by_dI1   (double I1,double I2=0,double I3=0)=0;
+    virtual double Getd2W_by_dI2   (double I1,double I2=0,double I3=0)=0;
+    virtual double Getd2W_by_dI3   (double I1,double I2=0,double I3=0)=0;
+    virtual double Getd2W_by_dI1dI2(double I1,double I2=0,double I3=0)=0;
+    virtual double Getd2W_by_dI2dI3(double I1,double I2=0,double I3=0)=0;
+    virtual double Getd2W_by_dI1dI3(double I1,double I2=0,double I3=0)=0;
 
 	// if anisotropic overload this 
     //virtual double GetdW_by_dE(MatrixDouble E, int index1, int index2)=0;
@@ -174,16 +175,17 @@ private:
 	
 	FourthOrderTensor<SPACE_DIM> ComputeIsotropic_dTdE(MatrixDouble F)
 	{
-		#if 0
 		assert(F.Rows()==SPACE_DIM);
 
 		FourthOrderTensor<SPACE_DIM> dTdE;
+		
 
 		FourthOrderTensor<SPACE_DIM> IdentityCrossIdentity;
-		IdendityCrossIdentiy.SetAsTensorProductOfIdentities();		
+		IdentityCrossIdentity.SetAsTensorProductOfIdentities();		
 		
 		
-		MatrixDouble C = (F.Transpose())*F;
+		MatrixDouble    C = (F.Transpose())*F;
+		MatrixDouble invC = C.Inverse();
 
 		switch(SPACE_DIM)
 		{
@@ -201,7 +203,7 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dTdE[M][N][P][Q] = 4*d2W_by_dI1*IdentityCrossIdentity[M][N][P][Q];
+								dTdE.mVal[M][N][P][Q] = 4*d2W_by_dI1*IdentityCrossIdentity.mVal[M][N][P][Q];
 							}
 						}
 					}
@@ -219,13 +221,27 @@ private:
 				double   dW_by_dI2   =    GetdW_by_dI2(I1,I2);
 				double  d2W_by_dI1   =   Getd2W_by_dI1(I1,I2);
 				double  d2W_by_dI2   =   Getd2W_by_dI2(I1,I2);
-				double  d2W_by_dI1I2 = Getd2W_by_dI1I2(I1,I2);
+				double  d2W_by_dI1dI2 = Getd2W_by_dI1dI2(I1,I2);
 				
 				MatrixDouble dI1_dE = 2*MatrixDouble::Identity(2);
 				MatrixDouble dI2_dE = 2 * I2 * C.Inverse();
 				
 				// note: could have FourthOrderTensor dI1_dEdE, this is equal to zero
 				FourthOrderTensor<SPACE_DIM> dI2_dEdE;
+				
+				for(int M=0; M<SPACE_DIM; M++)
+				{
+					for(int N=0; N<SPACE_DIM; N++)
+					{	
+						for(int P=0; P<SPACE_DIM; P++)
+						{
+							for(int Q=0; Q<SPACE_DIM; Q++)
+							{
+								dI2_dEdE.mVal[M][N][P][Q] = -4*I2*invC(M,P)*invC(Q,N) + 2*invC(M,N)*dI2_dE(P,Q);
+							}
+						}
+					}
+				}
 				
 				
 				for(int M=0; M<SPACE_DIM; M++)
@@ -236,19 +252,18 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dTdE[M][N][P][Q] =   d2W_by_dI1    * dI1_dE[M][N] * dI1_dE[P][Q]
-								                   + d2W_by_dI1dI2 * dI1_dE[M][N] * dI2_dE[P][Q]
-								                   + 0 // dW_by_dI1 * dI1_dEdE
-								                   + d2W_by_dI2    * dI2_dE[M][N] * dI2_dE[P][Q]
-								                   + d2W_by_dI1dI2 * dI2_dE[M][N] * dI1_dE[P][Q]
-								                   + dW_by_dI2 * 1;
+								dTdE.mVal[M][N][P][Q] =   d2W_by_dI1    * dI1_dE(M,N) * dI1_dE(P,Q)
+								                        + d2W_by_dI1dI2 * dI1_dE(M,N) * dI2_dE(P,Q)
+								                        + 0 // dW_by_dI1 * dI1_dEdE
+								                        
+								                        + d2W_by_dI2    * dI2_dE(M,N) * dI2_dE(P,Q)
+								                        + d2W_by_dI1dI2 * dI2_dE(M,N) * dI1_dE(P,Q)
+								                        + dW_by_dI2     * dI2_dEdE.mVal[M][N][P][Q];
 							}
 						}
 					}
 				}	
-				
-				// fill in
-				assert(0);				
+		
 			}
 			break;
 
@@ -266,12 +281,61 @@ private:
 				double  d2W_by_dI2   =   Getd2W_by_dI2(I1,I2,I3);
 				double  d2W_by_dI3   =   Getd2W_by_dI3(I1,I2,I3);
 
-				double  d2W_by_dI1I2 = Getd2W_by_dI1I2(I1,I2,I3);
-				double  d2W_by_dI1I3 = Getd2W_by_dI2I3(I1,I2,I3);
-				double  d2W_by_dI2I3 = Getd2W_by_dI2I3(I1,I2,I3);
+				double  d2W_by_dI1dI2 = Getd2W_by_dI1dI2(I1,I2,I3);
+				double  d2W_by_dI1dI3 = Getd2W_by_dI2dI3(I1,I2,I3);
+				double  d2W_by_dI2dI3 = Getd2W_by_dI2dI3(I1,I2,I3);
 
-				// fill in
-				assert(0);						
+				MatrixDouble dI1_dE = 2 * (MatrixDouble::Identity(3));	
+				MatrixDouble dI2_dE = 2 * (I1 * MatrixDouble::Identity(3) - C);
+				MatrixDouble dI3_dE = 2 * I3 * invC;
+
+				// note: could have FourthOrderTensor dI1_dEdE, this is equal to zero
+				FourthOrderTensor<SPACE_DIM> dI2_dEdE;
+				FourthOrderTensor<SPACE_DIM> dI3_dEdE;
+
+				for(int M=0; M<SPACE_DIM; M++)
+				{
+					for(int N=0; N<SPACE_DIM; N++)
+					{	
+						for(int P=0; P<SPACE_DIM; P++)
+						{
+							for(int Q=0; Q<SPACE_DIM; Q++)
+							{
+								dI2_dEdE.mVal[M][N][P][Q] =  4*(M==N)*(P==Q) - 4*(M==P)*(N==Q);
+								dI3_dEdE.mVal[M][N][P][Q] = -4*I3*invC(M,P)*invC(Q,N) + 2*invC(M,N)*dI3_dE(P,Q);
+							}
+						}
+					}
+				}
+
+
+				for(int M=0; M<SPACE_DIM; M++)
+				{
+					for(int N=0; N<SPACE_DIM; N++)
+					{	
+						for(int P=0; P<SPACE_DIM; P++)
+						{
+							for(int Q=0; Q<SPACE_DIM; Q++)
+							{
+								dTdE.mVal[M][N][P][Q] =   d2W_by_dI1    * dI1_dE(M,N) * dI1_dE(P,Q)
+								                        + d2W_by_dI1dI2 * dI1_dE(M,N) * dI2_dE(P,Q)
+								                        + d2W_by_dI1dI3 * dI1_dE(M,N) * dI3_dE(P,Q)
+								                        + 0 // dW_by_dI1 * dI1_dEdE
+								                        
+								                        + d2W_by_dI2    * dI2_dE(M,N) * dI2_dE(P,Q)
+								                        + d2W_by_dI1dI2 * dI2_dE(M,N) * dI1_dE(P,Q)
+								                        + d2W_by_dI2dI3 * dI2_dE(M,N) * dI3_dE(P,Q)
+								                        + dW_by_dI2     * dI2_dEdE.mVal[M][N][P][Q];
+
+								                        + d2W_by_dI3    * dI3_dE(M,N) * dI3_dE(P,Q)
+								                        + d2W_by_dI1dI3 * dI3_dE(M,N) * dI1_dE(P,Q)
+								                        + d2W_by_dI2dI3 * dI3_dE(M,N) * dI2_dE(P,Q)
+								                        + dW_by_dI3     * dI3_dEdE.mVal[M][N][P][Q];
+							}
+						}
+					}
+				}
+				
 			}	
 			break;
 		
@@ -280,7 +344,8 @@ private:
 				assert(0);
 			}	
 		}
-		#endif
+		
+		return dTdE;
 	}	
 };
 

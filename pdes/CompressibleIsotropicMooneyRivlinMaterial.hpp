@@ -92,19 +92,19 @@ private:
 		return 0;
 	}
 
-    double Getd2W_by_dI1I2(double I1,double I2=0,double I3=0)
+    double Getd2W_by_dI1dI2(double I1,double I2=0,double I3=0)
 	{
     	assert(SPACE_DIM>1);
 		return 0;
 	}
 
-    double Getd2W_by_dI2I3(double I1,double I2=0,double I3=0)
+    double Getd2W_by_dI2dI3(double I1,double I2=0,double I3=0)
 	{
     	assert(SPACE_DIM>2);
 		return 0;
 	}
 
-    double Getd2W_by_dI1I3(double I1,double I2=0,double I3=0)
+    double Getd2W_by_dI1dI3(double I1,double I2=0,double I3=0)
 	{
     	assert(SPACE_DIM>2);
 		return 0;

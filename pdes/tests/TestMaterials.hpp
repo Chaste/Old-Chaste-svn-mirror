@@ -5,6 +5,7 @@
 
 #include "AbstractMaterial.hpp"
 #include "CompressibleIsotropicMooneyRivlinMaterial.hpp"
+#include "FourthOrderTensor.hpp"
  
 class TestMaterials : public CxxTest::TestSuite 
 {
@@ -39,10 +40,34 @@ public:
 		TS_ASSERT_EQUALS( T2.Rows(), 2);
 		TS_ASSERT_EQUALS( T2.Columns(), 2);
 
-		TS_ASSERT_DELTA( T2(0,0), -76, 1e-4); 
+		TS_ASSERT_DELTA( T2(0,0), -76, 1e-4);  
 		TS_ASSERT_DELTA( T2(0,1),  56, 1e-4); 
 		TS_ASSERT_DELTA( T2(1,0),  56, 1e-4); 
 		TS_ASSERT_DELTA( T2(1,1), -36, 1e-4);  
+		
+		
+		FourthOrderTensor<2> dTdE = material2.Compute_dTdE(H);
+		int dim = 2;
+		TS_ASSERT_EQUALS( dTdE.mVal.size(), dim );		
+		for(int M=0; M<dim; M++)
+		{
+			TS_ASSERT_EQUALS( dTdE.mVal[M].size(), dim );		
+			for(int N=0; N<dim; N++)
+			{	
+				TS_ASSERT_EQUALS( dTdE.mVal[M][N].size(), dim );		
+				for(int P=0; P<dim; P++)
+				{
+					TS_ASSERT_EQUALS( dTdE.mVal[M][N][P].size(), dim );		
+					for(int Q=0; Q<dim; Q++)
+					{
+						 //\todo: test values of dTdE
+						//TS_ASSERT_DELTA( dTdE.mVal[M][N][P][Q], ??, 1e-12 );		
+					}
+				}
+			}
+		}	
+		
+		
 		
 				
 		CompressibleIsotropicMooneyRivlinMaterial<3> material3(2,1);
@@ -89,6 +114,27 @@ public:
 		TS_ASSERT_DELTA( T(2,1),  0, 1e-4); 
 		TS_ASSERT_DELTA( T(2,2),  0, 1e-4); 
 		
+		
+		FourthOrderTensor<3> dTdE3 = material3.Compute_dTdE(F);
+		dim = 3;
+		TS_ASSERT_EQUALS( dTdE3.mVal.size(), dim );		
+		for(int M=0; M<dim; M++)
+		{
+			TS_ASSERT_EQUALS( dTdE3.mVal[M].size(), dim );		
+			for(int N=0; N<dim; N++)
+			{	
+				TS_ASSERT_EQUALS( dTdE3.mVal[M][N].size(), dim );		
+				for(int P=0; P<dim; P++)
+				{
+					TS_ASSERT_EQUALS( dTdE3.mVal[M][N][P].size(), dim );		
+					for(int Q=0; Q<dim; Q++)
+					{
+						// \todo: test values of dTdE
+						//TS_ASSERT_DELTA( dTdE3.mVal[M][N][P][Q], ??, 1e-12 );		
+					}
+				}
+			}
+		}	
 	}
 };
 
