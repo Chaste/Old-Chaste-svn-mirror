@@ -205,7 +205,7 @@ public:
     
  
     
-    void __testMonodomainDg02D( void )
+    void testMonodomainDg02D( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
@@ -418,7 +418,7 @@ public:
     }   
 
 
-    void __testMonodomainDg03D( void )
+    void testMonodomainDg03D( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
