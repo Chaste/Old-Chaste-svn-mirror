@@ -7,7 +7,10 @@ trunk/
 
 	doc/
 
-	data/
+	common/
+		eg Exception.hpp
+
+	io/	(Else confusion with 2 meanings of data)
 		build/
 		common/
 		mesh/
