@@ -39,6 +39,10 @@ for appfile in appfiles[:]:
 
 Import("*")
 
+# Hmm. Why do we do this?
+petsc_mpi = ' '
+petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
+
 
 all_libs= ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
            'petscmat', 'petscvec', 'petsc',
