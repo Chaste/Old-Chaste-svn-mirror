@@ -14,30 +14,49 @@ os.chdir('../')
 testsource = glob.glob('tests/*.cpp')
 os.chdir(curdir)
 
-base  = '-Icxxtest -Idatawriters -Iheart -I. -Iodes -Iheart/tests -Ipdes '
+# Check if a .cpp file has a main function
+def has_main(filename):
+  yes = 0
+  try:
+    fp = file(filename)
+    for line in fp:
+      if line.find("int main(int argc, char *argv[])") > -1:
+        yes = 1
+        break
+    fp.close()
+  except:
+    pass
+  return yes
 
-petsc_base = '../../petsc-2.2.1-with-mpi/'
-petsc_inc = '-I'+petsc_base+'include '
-petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
-# petsc_mpi = '-I'+petsc_base+'include/mpiuni '
-petsc_mpi = ' '
-petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
+# Files to produce standalone executables
+appfiles = glob.glob('../apps/*.cpp')
+for appfile in appfiles[:]:
+  if not has_main(appfile):
+    appfiles.remove(appfile)
+  
 
-petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'
+
+
+Import("*")
 
 
 all_libs= ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
-'petscmat', 'petscvec', 'petsc', 'datawriter','heart','ode','testheart', 'pde']
+           'petscmat', 'petscvec', 'petsc',
+           'datawriter','heart','ode','testheart', 'pde']
 
 
 opt= Environment(ENV = {'PATH' : os.environ['PATH']})
-opt.Append(CCFLAGS = base+petsc_incs)
-opt.Append(BOPT='g_c++')
-opt.Replace(CXX='../../mpi/bin/mpicxx')
+opt.Append(CCFLAGS = petsc_incs+extra_flags)
+opt.Append(LINKFLAGS = link_flags)
+opt.Append(BOPT = 'g_c++')
+opt.Replace(CXX = mpicxx)
+opt.Replace(AR = ar)
+
+opt.Replace(CPPPATH = Split('#/cxxtest #/datawriters #/heart #/. #/odes #/heart/tests #/pdes'))
 
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = './$SOURCE | tee $TARGET')
-#runparalleltests = Builder(action = '../../mpi/bin/mpirun -np 2 ./$SOURCE | tee $TARGET')
+#runparalleltests = Builder(action = mpirun + ' -np 2 ./$SOURCE | tee $TARGET')
 runparalleltests = Builder(action = './$SOURCE | tee $TARGET')
 
 opt['BUILDERS']['Test'] = test
@@ -45,13 +64,32 @@ opt['BUILDERS']['RunTests'] = runtests
 opt['BUILDERS']['RunParallelTests'] = runparalleltests
 
 opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
-opt.Library('testheart',testsource)
-opt.Library('heart',files)
+opt.Library('testheart', testsource)
+opt.Library('heart', files)
 
-opt.Test('runner.cpp',testfiles) 
-opt.Test('parallelrunner.cpp',paralleltestfiles)
 
-opt.Program('testrunner',['runner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '../../odes/build', '../../pdes/build', '.', petsc_libpath])
-opt.Program('paralleltestrunner',['parallelrunner.cpp'], LIBS=all_libs,LIBPATH=['../../datawriters/build', '../../odes/build', '../../pdes/build', '.', petsc_libpath])
-opt.RunTests('build.log','testrunner')
-opt.RunParallelTests('parbuild.log','paralleltestrunner')
+# Normal tests
+opt.Test('runner.cpp', testfiles) 
+opt.Program('testrunner', ['runner.cpp'],
+            LIBS=all_libs,
+            LIBPATH=['../../datawriters/build', '../../odes/build',
+                     '../../pdes/build', '.', petsc_libpath])
+opt.RunTests('build.log', 'testrunner')
+
+
+# Parallel tests
+if not ARGUMENTS.get('no_parallel', 0):
+  opt.Test('parallelrunner.cpp', paralleltestfiles)
+  opt.Program('paralleltestrunner', ['parallelrunner.cpp'],
+              LIBS=all_libs,
+              LIBPATH=['../../datawriters/build', '../../odes/build',
+                       '../../pdes/build', '.', petsc_libpath])
+  opt.RunParallelTests('parbuild.log', 'paralleltestrunner')
+
+
+# Standalone executables
+for appfile in appfiles:
+  opt.Program(os.path.splitext(os.path.basename(appfile))[0], [appfile],
+              LIBS=all_libs[:-1],
+              LIBPATH=['../../datawriters/build', '../../odes/build', '../../pdes/build',
+                       '.', petsc_libpath])

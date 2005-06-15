@@ -46,13 +46,20 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     assert(last_timestep < timeStep + 1e-10); 
     
 	OdeSolution solutions;
-	solutions.SetNumberOfTimeSteps(num_timesteps);
+	if (last_timestep > (0.000001 * timeStep))
+	{
+	    // We'll use an extra time step
+	    solutions.SetNumberOfTimeSteps(num_timesteps+1);
+	}
+	else
+	{
+	    solutions.SetNumberOfTimeSteps(num_timesteps);
+	}
 		
 	solutions.mSolutions.push_back(initialConditions);
 	solutions.mTime.push_back(startTime);
 	
-	std::vector<double> row(num_equations);	/** Sets up a vector of current Y values. */
-	std::vector<double> dy(num_equations);	 /** Sets up a vector of differential of Y. */
+	std::vector<double> row; // A vector of current Y values.
 	
 	row=initialConditions;
 	
@@ -72,7 +79,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 	// Extra step to get to exactly endTime
 	if(last_timestep > (0.000001 * timeStep))
 	{	
-		solutions.SetNumberOfTimeSteps(num_timesteps+1);
+	    //solutions.SetNumberOfTimeSteps(num_timesteps+1);
   		
   		row = CalculateNextYValue(pAbstractOdeSystem,
   									last_timestep, 

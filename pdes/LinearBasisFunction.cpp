@@ -79,6 +79,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
     	}
     	break;
 	}
+	return 0.0; // Avoid compiler warning
 }
 
 

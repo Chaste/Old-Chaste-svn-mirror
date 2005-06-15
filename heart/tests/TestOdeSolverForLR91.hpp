@@ -17,6 +17,11 @@
 #include "ColumnDataWriter.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
+/**
+ * \todo Looking at the output files in Matlab, it seems to me that this model
+ * is incorrect. Someone who knows more about it ought to take a look.
+ *  - Jonathan C.
+ */
 
 class TestOdeSolverForLR91 : public CxxTest::TestSuite
 {

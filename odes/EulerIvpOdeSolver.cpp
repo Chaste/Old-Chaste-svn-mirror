@@ -32,8 +32,9 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
 	int num_equations = pAbstractOdeSystem->GetNumberOfEquations();
 	std::vector<double> dy(num_equations);
 	std::vector<double> next_y_value(num_equations);
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValue);
+	dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValue);
     
+	#pragma ivdep
 	for(int i=0;i<num_equations; i++) 
 	{
 		next_y_value[i] = currentYValue[i] + timeStep*dy[i];		

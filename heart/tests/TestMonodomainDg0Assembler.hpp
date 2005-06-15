@@ -56,7 +56,7 @@ public:
 		// Instantiate PDE object
 		FischerPde<1> pde;
         
-        // Boundary conditions: zero neumann on entire boundary (2 elements)
+		// Boundary conditions: zero neumann on entire boundary (2 elements)
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
 		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
@@ -74,8 +74,6 @@ public:
 		// initial condition;   
 		Vec current_solution_1, initial_condition_1, current_solution_2, initial_condition_2;
 		current_solution_1 = CreateInitialConditionVec(mesh.GetNumNodes());
-		VecDuplicate(current_solution_1,  &initial_condition_1);
-		VecDuplicate(current_solution_1,  &initial_condition_2);
 		VecDuplicate(current_solution_1,  &current_solution_2);
   
 		double* init_array;
@@ -92,20 +90,18 @@ public:
            
 		double tCurrent = tStart;
 		while( tCurrent < tFinal )
-        {
+		{
 			monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
 			simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
 			
-			VecCopy(current_solution_1, initial_condition_1);
-			monodomain_assembler.SetInitialCondition( initial_condition_1 );
-			VecCopy(current_solution_2, initial_condition_2);
-			simple_assembler.SetInitialCondition( initial_condition_2 );
+			monodomain_assembler.SetInitialCondition( current_solution_1 );
+			simple_assembler.SetInitialCondition( current_solution_2 );
 
 			current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc, &linearSolver);
 			current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc, &linearSolver);
      
 			tCurrent += tBigStep;
-        }
+		}
 		
 		// Compare the results
 		double *res1, *res2;
@@ -119,11 +115,9 @@ public:
 		VecRestoreArray(current_solution_2, &res2);
 		VecDestroy(current_solution_1);
 		VecDestroy(current_solution_2);
-		VecDestroy(initial_condition_1);
-		VecDestroy(initial_condition_2);
-    }
+	}
     
-	void testMonodomainDg01D()
+	void TestMonodomainDg01D()
 	{
 		double tStart = 0; 
 		double tFinal = 0.1;
@@ -234,7 +228,7 @@ public:
            
 		double tCurrent = tStart;        
 		while( tCurrent < tFinal )
-        { 
+		{ 
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);

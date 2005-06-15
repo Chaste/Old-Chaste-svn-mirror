@@ -33,19 +33,19 @@ public:
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }
     
-  /** \todo Not yet fully working...
-   */
-    void noTestVisualFHN1D()
+    /** \todo Not yet fully working...
+     */
+    void TestVisualFHN1D()
     {  
         
         double tStart = 0.0; 
-        double tFinal = 0.01;//400;//0.1;
+        double tFinal = 10;//400;//0.1;
         
         // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
         double tBigStep = 0.01; 
         double tSmallStep  = 0.01;
         
-        // Create mesh from mesh reader 
+        // Create mesh from mesh reader
         //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/heart_FHN_mesh");
         //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
@@ -124,8 +124,8 @@ public:
          *  using ColumnDataWriter 
          */                                                                            
         
-         //uncomment all column writer related lines to write data (and the line further below)         
-         ColumnDataWriter *mpTestWriter;
+		// Uncomment all column writer related lines to write data
+		ColumnDataWriter *mpTestWriter;
         mpTestWriter = new ColumnDataWriter("data","NewMonodomainFHN_1d");
        
         int time_var_id = 0;
@@ -151,34 +151,33 @@ public:
             } catch (Exception e) {
             	TS_TRACE(e.getMessage());
             }
-            // Writing data out to the file NewMonodomainLR91_1d.dat
-     		
-     		if (counter % 20 == 0)    
-            {
-            int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-            mpTestWriter->PutVariable(time_var_id, tCurrent); 
-           // TS_TRACE("Put out voltage");
-            for(int j=0; j<mesh.GetNumNodes(); j++) 
-            {
-                //uncomment the line below to write data (and the line further below)
-                mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
-                std::cout << currentVoltageArray[j] << "\n" ;
-            }
-  
-            VecRestoreArray(currentVoltage, &currentVoltageArray); 
-             //uncomment the line below to write data
-             mpTestWriter->AdvanceAlongUnlimitedDimension();
-        	} //end if currentTime
-        	
-        	
-	        monodomain_pde.ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
-           counter++;
-        }
 
+            // Writing data out to the file NewMonodomainLR91_1d.dat
+			if (counter % 20 == 0)    
+			{
+				int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+				mpTestWriter->PutVariable(time_var_id, tCurrent); 
+				// TS_TRACE("Put out voltage");
+				for(int j=0; j<mesh.GetNumNodes(); j++) 
+				{
+					mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+					//std::cout << currentVoltageArray[j] << "\n" ;
+				}
+				
+				VecRestoreArray(currentVoltage, &currentVoltageArray); 
+				mpTestWriter->AdvanceAlongUnlimitedDimension();
+			} //end if currentTime
+			
+			
+			monodomain_pde.ResetAsUnsolvedOdeSystem();
+            tCurrent += tBigStep;
+			counter++;
+        }
+		
         // close the file that stores voltage values
         mpTestWriter->Close();
-
+		delete mpTestWriter;
+		
 //        // test whether voltages and gating variables are in correct ranges
 //        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
 //        
@@ -210,28 +209,27 @@ public:
 //            }
 //        }
 //        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
+
+	VecDestroy(currentVoltage);
+
+	
+
+	// Generate output files for visualising in Matlab
+	AbstractVisualizer<1> *pViewer;
+	TS_ASSERT_THROWS_NOTHING(
+				 pViewer=new MatlabVisualizer<1>(
+		                  "data/NewMonodomainFHN_1d"));
+	//TS_ASSERT_THROWS_NOTHING(pViewer->CreateFilesForVisualization());	
+	try {
+	    pViewer->CreateFilesForVisualization();
+	} catch (Exception e) {
+	    TS_TRACE(e.getMessage());
+	}
+	delete pViewer;
+
     }
     
-//    //uncommen these lines to visualize data using Matlab.     
- 	void testVisualization1DNewMonodomainVisualFHN(void)
-	{
-		AbstractVisualizer<1> *pViewer;
-		TS_ASSERT_THROWS_NOTHING(
-		                  pViewer=new MatlabVisualizer<1>(
-		                  "data/NewMonodomainFHN_1d"));
-// CHANGED THE NAME to CREATEFILESFOR VISUALIZATION
-//and COMMENT OUT CreateNodesFileForVisualization();
-		TS_ASSERT_THROWS_NOTHING(pViewer->CreateFilesForVisualization());	
-//		try {
-//			pViewer->CreateNodesFileForVisualization();
-//		} catch (Exception e) {
-//			TS_TRACE(e.getMessage());
-//		}
-		delete pViewer;
 
-	}
 }; // _TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_
 
 #endif

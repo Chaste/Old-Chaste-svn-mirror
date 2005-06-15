@@ -15,7 +15,7 @@
 #include "MonodomainPde.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
-#include "math.h"
+#include <cmath>
 #include "MatlabVisualizer.cpp"
 
  
@@ -31,7 +31,7 @@ public:
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }   
 
-    void notestMonodomainDg01DVisual()
+    void TestMonodomainDg01DVisual()
     {  
         
         double tStart = 0; 
@@ -39,10 +39,10 @@ public:
         
         // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
         double tBigStep = 0.01; 
-        double tSmallStep  = 0.01;
+        double tSmallStep = 0.01;
         
         // Create mesh from mesh reader 
-       // TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
+		// TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
         
         TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -75,7 +75,7 @@ public:
         initialConditions.push_back(f);
         initialConditions.push_back(x);
 
-        // set this as the initial condition of the gating vars at each node in the mesh        
+        // set this as the initial condition of the gating vars at each node in the mesh
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
         // add initial stim to node 0 only
@@ -84,7 +84,7 @@ public:
                 
         
         // Boundary conditions: zero neumann on entire boundary
-        BoundaryConditionsContainer<1,1> bcc;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition1);
@@ -126,7 +126,7 @@ public:
          */                                                                            
            
         
-         //uncomment all column writer related lines to write data (and the line further below)         
+		//uncomment all column writer related lines to write data
         ColumnDataWriter *mpTestWriter;
         mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_1d");
        
@@ -153,28 +153,29 @@ public:
             //std::cout << "Current time =  "<< tCurrent << "\n"; 
             // Writing data out to the file NewMonodomainLR91_1d.dat
      		
-     		if (counter % 20 == 0.0)    
+			if (counter % 20 == 0)    
             {
-            int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-      
-            mpTestWriter->PutVariable(time_var_id, tCurrent); 
-            for(int j=0; j<mesh.GetNumNodes(); j++) 
-            {
-                //uncomment the line below to write data (and the line further below)
-                mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
-            }
-  
-            VecRestoreArray(currentVoltage, &currentVoltageArray); 
-             //uncomment the line below to write data
-             mpTestWriter->AdvanceAlongUnlimitedDimension();
-        	} //end if currentTime
+				int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+				
+				mpTestWriter->PutVariable(time_var_id, tCurrent); 
+				for(int j=0; j<mesh.GetNumNodes(); j++) 
+				{
+					//uncomment the line below to write data (and the line further below)
+					mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+				}
+				
+				VecRestoreArray(currentVoltage, &currentVoltageArray); 
+				//uncomment the line below to write data
+				mpTestWriter->AdvanceAlongUnlimitedDimension();
+			} //end if currentTime
 	        monodomain_pde.ResetAsUnsolvedOdeSystem();
             tCurrent += tBigStep;
-           counter++;
+			counter++;
         }
-
+		
         // close the file that stores voltage values
         mpTestWriter->Close();
+		delete mpTestWriter;
 
         // test whether voltages and gating variables are in correct ranges
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
@@ -196,7 +197,7 @@ public:
                 if((j!=4) && (j!=3))
                 {
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
-                   //std::cout<< "gating variable is "<< odeVars[j] << sdt::endl;                   
+					//std::cout<< "gating variable is "<< odeVars[j] << sdt::endl;
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
                 }
                 //test that Ca concentration is always great than 
@@ -207,24 +208,23 @@ public:
             }
         }
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
-    }
-    
-//    //uncommen these lines to visualize data using Matlab.     
- 	void notestVisualization1DNewMonodomainLR91Visual(void)
-	{
+		VecDestroy(currentVoltage);
+		
+		// Visualise using Matlab
 		AbstractVisualizer<1> *pViewer;
 		TS_ASSERT_THROWS_NOTHING(
-		                  pViewer=new MatlabVisualizer<1>(
-		                  "data/NewMonodomainLR91_1d"));
-		TS_ASSERT_THROWS_NOTHING(
-					pViewer->CreateOutputFileForVisualization());	
-		TS_ASSERT_THROWS_NOTHING(
-					pViewer->CreateNodesFileForVisualization()
-					);
+								 pViewer=new MatlabVisualizer<1>(
+										"data/NewMonodomainLR91_1d"));
+		try {
+			pViewer->CreateFilesForVisualization();
+		} catch (Exception e) {
+			TS_TRACE(e.getMessage());
+		}
 		delete pViewer;
-
+		
+		// Tidy up
+		delete pMySolver;
+		delete pStimulus;
 	}
     
     void NotestMonodomainDg02DVISUAL( void )
@@ -277,7 +277,7 @@ public:
         monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
                          
         // Boundary conditions: zero neumann on boundary
-        BoundaryConditionsContainer<2,2> bcc;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
         
@@ -451,10 +451,7 @@ public:
 		                  pViewer=new MatlabVisualizer<2>(
 		                  "data/NewMonodomainLR91_2d"));
 		TS_ASSERT_THROWS_NOTHING(
-					pViewer->CreateOutputFileForVisualization());	
-		TS_ASSERT_THROWS_NOTHING(
-					pViewer->CreateNodesFileForVisualization()
-					);
+					pViewer->CreateFilesForVisualization());
 		delete pViewer;
 
 	}
@@ -512,7 +509,7 @@ public:
  
                  
         // Boundary conditions, zero neumann everywhere
-        BoundaryConditionsContainer<3,3> bcc;
+        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(0.0);
         

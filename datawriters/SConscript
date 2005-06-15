@@ -12,11 +12,14 @@ os.chdir('../')
 testsource = glob.glob('tests/*.cpp')
 os.chdir(curdir)
 
-base  = '-Icxxtest  -Idatawriters -I. -Idatawriters/tests '
+Import("*")
 
-opt = Environment(CCFLAGS = base ,CXX='/usr/bin/g++')
+opt = Environment(CCFLAGS = extra_flags, CXX=cxx, AR=ar)
+opt.Replace(CPPPATH = Split('#/cxxtest #/datawriters #/. #/datawriters/tests'))
 test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = './$SOURCE | tee $TARGET')
+
+opt.Append(LINKFLAGS = link_flags)
 
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests

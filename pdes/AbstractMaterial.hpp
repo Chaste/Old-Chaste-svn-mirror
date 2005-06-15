@@ -80,6 +80,7 @@ public:
 		else
 		{
 			assert(0);
+			return F; // Avoid compiler warning
 		}
 	}
 	
@@ -169,6 +170,7 @@ private:
 			default:
 			{
 				assert(0);
+				return F; // Avoid compiler warning
 			}	
 		}
 	}

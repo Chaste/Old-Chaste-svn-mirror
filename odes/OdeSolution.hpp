@@ -10,14 +10,23 @@
 
 class OdeSolution
 {
-	private:
-	int mNumberOfTimeSteps;	/** Variable for the number of timesteps */
+private:
+	int mNumberOfTimeSteps;	/**< Variable for the number of timesteps */
 	
-	public:
-	int GetNumberOfTimeSteps(void) {return mNumberOfTimeSteps;}
-	void SetNumberOfTimeSteps(int num_timesteps) {mNumberOfTimeSteps = num_timesteps;} 
-	std::vector<double> mTime; /** Sets up a vector of time. */
-	std::vector<std::vector<double> > mSolutions;  /** Sets up the solutions. */
+public:
+	int GetNumberOfTimeSteps(void)
+	{
+		return mNumberOfTimeSteps;
+	}
+	void SetNumberOfTimeSteps(int num_timesteps)
+	{
+		mNumberOfTimeSteps = num_timesteps;
+		mTime.reserve(num_timesteps+1);
+		mSolutions.reserve(num_timesteps+1);
+	} 
+
+	std::vector<double> mTime; /**< A vector of times at each timestep. */
+	std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
 	
 };
 

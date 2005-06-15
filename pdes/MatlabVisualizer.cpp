@@ -179,7 +179,8 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 			sprintf(infilename, "%s_%d.dat",mPathBaseName.c_str(), i);
 		}
 		if ( (fr=fopen(infilename,"r"))==NULL)
-		{		
+		{
+		    std::cout << infilename << std::endl;
 			throw Exception("The file for reading cannot be created successfully");
 		}
 		char buffer[1024];
@@ -196,9 +197,9 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 			}
 		}
 		fprintf(fw, "\n");
+		fclose(fr);
 	
-	}while(i++<num_files-1);
-	fclose(fr);
+	} while(i++<num_files-1);
 	fclose(fw);
 	
 //	std::vector< std::string > in_file_names;

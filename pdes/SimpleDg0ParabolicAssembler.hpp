@@ -110,19 +110,27 @@ public:
 		
 		/**
 		 * \todo Vec objects are just pointers, and need to be destroyed when finished
-		 * with. We don't do this yet, which could well be our memory leak problem.
+		 * with. This appears to be fixed here, but needs to be looked at in other
+		 * places.
 		 */
 		
 		double t = mTstart;
 		Vec currentSolution = mInitialCondition;
+		Vec nextSolution;
 		while( t < mTend - 1e-10 )
 		{
-			//std::cout << "t = " << t << "...\n";
-			currentSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, solver, currentSolution);
+			//std::cout << "t = " << t << std::endl << std::flush;
+			nextSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, solver, currentSolution);
 			t += mDt;
+			// Avoid memory leaks
+			if (currentSolution != mInitialCondition)
+			{
+				VecDestroy(currentSolution);
+			}
+			currentSolution = nextSolution;
 		}	
 		return currentSolution;
-	}	
+	}
 };
 
 

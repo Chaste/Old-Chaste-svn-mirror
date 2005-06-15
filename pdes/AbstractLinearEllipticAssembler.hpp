@@ -67,6 +67,7 @@ public:
 					   Vec currentSolution = NULL)
 	{
 		assert(false);
+		return NULL; // Avoid compiler warning
 	}
     
 };

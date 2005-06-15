@@ -108,12 +108,18 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         }        
         
     }
+
+    ~MonodomainPde(void)
+    {
+	delete mpZeroStimulus;
+    }
     
     /** This should not be called, use ComputeLinearSourceTermAtNode instead
      */
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         assert(0);
+	return 0.0;
     }
     
     /** This should not be called, use ComputeNonlinearSourceTermAtNode instead
@@ -121,6 +127,7 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
         assert(0);
+	return 0.0;
     }
 
         
@@ -140,7 +147,8 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         int index = node.GetIndex();
         if( !mOdeSolvedAtNode[ index ] )
         {
-            //\todo move this object and OdeSolution creation outside loop
+            ///
+	    ///\todo move this object and OdeSolution creation outside loop
             LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
             
             // overwrite the voltage with the input value
@@ -242,6 +250,9 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
 
     /** Calculate the ionic current, using the value of the gating variables at time t+dt, but using
      *  the old voltage at time t
+     *
+     * \todo Add a method to the ODE system object to retrieve the last calculated value
+     * for this?
      */    
     double GetIIonic(odeVariablesType odeVars, double voltage)
     {
@@ -250,7 +261,8 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
        double fast_sodium_current_m_gate_m              = odeVars[2];
        double intracellular_calcium_concentration_Cai   = odeVars[3];
 
-       // \todo ignore the voltage returned by the ode system solver ??
+       ///
+       /// \todo ignore the voltage returned by the ode system solver ??
        double membrane_V                                = odeVars[4]; // or use voltage;
 
        double slow_inward_current_d_gate_d              = odeVars[5];

@@ -86,7 +86,7 @@ MatrixDouble& MatrixDouble::operator*(double scalar)
 }
 
 
-MatrixDouble operator*(double scalar, const MatrixDouble &rMatrix)
+MatrixDouble operator*(double scalar, const MatrixDouble &rMatrix) const
 {
 	MatrixDouble result(rMatrix.Rows(), rMatrix.Columns());
 	for (int i=0; i<rMatrix.mNumberOfElements; i++)
@@ -111,19 +111,21 @@ double MatrixDouble::Determinant() const
 {
 	assert( mRows == mColumns );
 	assert( mRows > 0 && mRows < 4);
+	double ret = 0.0;
 	switch( mRows )
 	{
 		case 1 :
-			return mElementArray[0];
+			ret = mElementArray[0];
 			break;
 		case 2 :
-			return mElementArray[0]*mElementArray[3]-mElementArray[1]*mElementArray[2];
+			ret = mElementArray[0]*mElementArray[3]-mElementArray[1]*mElementArray[2];
 			break;
 		case 3 :
-			return mElementArray[0]*(mElementArray[8]*mElementArray[4] - mElementArray[5]*mElementArray[7])
+			ret = mElementArray[0]*(mElementArray[8]*mElementArray[4] - mElementArray[5]*mElementArray[7])
              - mElementArray[3]*(mElementArray[1]*mElementArray[8] - mElementArray[2]*mElementArray[7])
              + mElementArray[6]*(mElementArray[1]*mElementArray[5] - mElementArray[2]*mElementArray[4]);
 	}
+	return ret;
 }
 
 
@@ -160,7 +162,7 @@ MatrixDouble MatrixDouble::Inverse( void ) const
 }
 
 
-VectorDouble MatrixDouble::operator*(VectorDouble& rSomeVector)
+VectorDouble MatrixDouble::operator*(const VectorDouble& rSomeVector) const
 {
 	assert(mColumns==rSomeVector.Size());
 	VectorDouble result(mRows);
@@ -176,8 +178,8 @@ VectorDouble MatrixDouble::operator*(VectorDouble& rSomeVector)
 	return result;
 }
 
-
-//\todo: make this more efficient?
+///
+/// \todo make this more efficient?
 MatrixDouble operator*(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix)
 {
 	assert(rLeftMatrix.Columns()==rRightMatrix.Rows());
@@ -198,8 +200,8 @@ MatrixDouble operator*(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRig
 }
 
 
-
-//\todo: make this more efficient?
+///
+/// \todo make this more efficient?
 MatrixDouble operator+(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix)
 {
 	assert(rLeftMatrix.Rows()==rRightMatrix.Rows());
@@ -217,8 +219,8 @@ MatrixDouble operator+(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRig
 	return result;
 }
 
-
-//\todo: make this more efficient?
+///
+/// \todo make this more efficient?
 MatrixDouble operator-(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix)
 {
 	assert(rLeftMatrix.Rows()==rRightMatrix.Rows());
@@ -253,7 +255,7 @@ VectorDouble operator* (const VectorDouble& rSomeVector, const MatrixDouble& rSo
 }
 
 	
-MatrixDouble MatrixDouble::Transpose()
+MatrixDouble MatrixDouble::Transpose() const
 {
 	MatrixDouble result(mColumns, mRows);
 	for( int i = 0; i < mRows; i++)
@@ -274,13 +276,13 @@ void MatrixDouble::ResetToZero( void )
 	}
 }
 
-bool MatrixDouble::IsSquare( void )
+bool MatrixDouble::IsSquare( void ) const
 {
 	return (mRows==mColumns);
 }
 
 
-double MatrixDouble::GetTrace()
+double MatrixDouble::GetTrace() const
 {
 	assert(mRows==mColumns);
 	double sum=0;
@@ -293,7 +295,7 @@ double MatrixDouble::GetTrace()
 }
 
 
-double MatrixDouble::GetFirstInvariant()
+double MatrixDouble::GetFirstInvariant() const
 {
 	assert(mRows==mColumns);
 	assert(mRows<=3);
@@ -301,7 +303,7 @@ double MatrixDouble::GetFirstInvariant()
 	return GetTrace();
 }
 
-double MatrixDouble::GetSecondInvariant()
+double MatrixDouble::GetSecondInvariant() const
 {
 	assert(mRows==mColumns);
 	assert(mRows<=3);
@@ -331,7 +333,7 @@ double MatrixDouble::GetSecondInvariant()
 	return ret;
 }
 	
-double MatrixDouble::GetThirdInvariant()
+double MatrixDouble::GetThirdInvariant() const
 {
 	assert(mRows==mColumns);
 	assert(mRows==3);

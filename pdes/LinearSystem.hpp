@@ -18,13 +18,14 @@ class LinearSystem
 private:
 	Mat mLhsMatrix;
 	Vec mRhsVector;
-	Vec mLhsVector;
+	//Vec mLhsVector;
 	int mSize;
 	PetscInt mOwnershipRangeLo; /*< For parallel code.  Stores lowest index of vectors and lowest row of matrix*/ 
 	PetscInt mOwnershipRangeHi; /*< Stores <b>one more than</b> the highest index stored locally*/  
 	
 public:
     LinearSystem(int lhsVectorSize);
+    ~LinearSystem();
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
     void SetMatrixElement(int row, int col, double value);

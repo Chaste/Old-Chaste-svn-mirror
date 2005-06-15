@@ -115,6 +115,7 @@ double QuadraticBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> po
         }
     	break;
 	}
+	return 0.0; // Avoid compiler warning
 }
 
 

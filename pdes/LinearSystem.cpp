@@ -1,7 +1,6 @@
 /** Linear System implementation.
 *
 *
-*
 */
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
@@ -11,16 +10,16 @@
 
 LinearSystem::LinearSystem(int lhsVectorSize)
 {
-    VecCreate(PETSC_COMM_WORLD, &mLhsVector);
-    VecSetSizes(mLhsVector, PETSC_DECIDE, lhsVectorSize);
+	//VecCreate(PETSC_COMM_WORLD, &mLhsVector);
+    //VecSetSizes(mLhsVector, PETSC_DECIDE, lhsVectorSize);
     //VecSetType(mLhsVector, VECSEQ);
     //VecSetType(mLhsVector, VECMPI);
-    VecSetFromOptions(mLhsVector);
+    //VecSetFromOptions(mLhsVector);
     
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
     //VecSetType(mRhsVector, VECSEQ);
-	//VecSetType(mRhsVector, VECMPI);
+    //VecSetType(mRhsVector, VECMPI);
 	VecSetFromOptions(mRhsVector);
     
     MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
@@ -30,6 +29,12 @@ LinearSystem::LinearSystem(int lhsVectorSize)
     mSize = lhsVectorSize;
     
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
+}
+
+LinearSystem::~LinearSystem()
+{
+	VecDestroy(mRhsVector);
+	MatDestroy(mLhsMatrix);
 }
 
 //bool LinearSystem::IsMatrixEqualTo(Mat testMatrix)
