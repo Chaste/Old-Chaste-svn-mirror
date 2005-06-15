@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include "Point.hpp"
-#include "Exception.hpp"
+#include "common/Exception.hpp"
 
 /**
  * This class encapsulates tables of gaussian quadrature points and the

@@ -15,7 +15,7 @@
 #include "LinearBasisFunction.cpp"
 #include "AbstractMaterial.hpp"
 
-#include "Exception.hpp"
+#include "common/Exception.hpp"
 
 #include <vector>
 #include <iostream>

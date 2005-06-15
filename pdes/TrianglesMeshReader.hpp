@@ -10,7 +10,7 @@
 #define _TRIANGLESMESHREADER_H_
 
 #include "AbstractMeshReader.hpp"
-#include "Exception.hpp"
+#include "common/Exception.hpp"
 
 class TrianglesMeshReader : public AbstractMeshReader
 {

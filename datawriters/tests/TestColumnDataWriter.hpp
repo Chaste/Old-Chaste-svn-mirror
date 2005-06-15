@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include "ColumnDataWriter.hpp"
-#include "Exception.hpp"
+#include "common/Exception.hpp"
 
 using namespace std;
           

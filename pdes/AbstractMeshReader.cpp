@@ -1,5 +1,5 @@
 #include "AbstractMeshReader.hpp"
-#include "Exception.hpp"
+#include "common/Exception.hpp"
 
 // AbstractMeshReader.cpp
 
