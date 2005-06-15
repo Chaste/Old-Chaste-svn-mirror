@@ -1,5 +1,5 @@
 #include "AbstractMeshWriter.hpp"
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 
 
 void AbstractMeshWriter::SetNextNode(std::vector<double> nextNode)

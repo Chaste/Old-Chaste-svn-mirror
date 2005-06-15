@@ -2,7 +2,7 @@
 #define _CONFORMINGTETRAHEDRALMESH_CPP_
 
 #include "ConformingTetrahedralMesh.hpp"
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 
 #include <vector>
 #include <map>

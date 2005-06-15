@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 
 /**
  * The constructor of MESHALYZERVisualizer.

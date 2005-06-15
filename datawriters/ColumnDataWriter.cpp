@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <assert.h>
 #include "ColumnDataWriter.hpp"
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 
 
 using std::string;

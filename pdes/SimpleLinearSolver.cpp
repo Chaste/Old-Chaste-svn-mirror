@@ -1,6 +1,6 @@
 #include "SimpleLinearSolver.hpp"
 #include "petscksp.h"
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 #include <sstream>
 
 /**

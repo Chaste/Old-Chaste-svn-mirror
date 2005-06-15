@@ -1,7 +1,7 @@
 /** Implementation file for the FemlabMeshReader class.*/
 
 #include "FemlabMeshReader.hpp"
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 
 /**
  * The constructor takes the path to and names of a set of Femlab mesh files 

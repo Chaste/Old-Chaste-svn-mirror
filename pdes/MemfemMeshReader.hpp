@@ -11,7 +11,7 @@
  */
 
 #include "AbstractMeshReader.hpp"
-#include "common/Exception.hpp"
+#include "global/src/Exception.hpp"
 
 class MemfemMeshReader : public AbstractMeshReader
 {
