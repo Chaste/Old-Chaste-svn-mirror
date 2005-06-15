@@ -86,7 +86,7 @@ MatrixDouble& MatrixDouble::operator*(double scalar)
 }
 
 
-MatrixDouble operator*(double scalar, const MatrixDouble &rMatrix) const
+MatrixDouble operator*(double scalar, const MatrixDouble &rMatrix)
 {
 	MatrixDouble result(rMatrix.Rows(), rMatrix.Columns());
 	for (int i=0; i<rMatrix.mNumberOfElements; i++)
