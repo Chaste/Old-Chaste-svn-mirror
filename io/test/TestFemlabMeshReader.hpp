@@ -25,7 +25,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	{
 		TS_ASSERT_THROWS_NOTHING(
 		                  spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat"));
@@ -41,7 +41,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestNodesDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
@@ -54,7 +54,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestDimension(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
@@ -72,7 +72,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestElementsDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
@@ -92,7 +92,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestFacesDataRead(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
@@ -113,7 +113,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestGetNextNode(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
@@ -151,7 +151,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestGetNextElement(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
@@ -191,7 +191,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	void TestGetNextBoundaryFace(void)
 	{
 		spFemlabMeshReader=new FemlabMeshReader(
-		                  "pdes/tests/meshdata/",
+		                  "pde/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
