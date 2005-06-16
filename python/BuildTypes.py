@@ -75,6 +75,12 @@ class BuildType:
     except:
       return False
 
+  def DisplayStatus(self, status):
+    """
+    Return a (more) human readable version of the given status string.
+    """
+    return status.replace('_', '/') + ' tests passed'
+
 class GccOpt(BuildType):
   """
   gcc compiler with some optimisations enabled.

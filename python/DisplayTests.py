@@ -193,7 +193,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
     </tr>
 """ % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
-                      testsuite_status[testsuite]))
+                      build.DisplayStatus(testsuite_status[testsuite])))
 
   output = output + "  </table>\n"
   
