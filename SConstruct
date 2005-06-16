@@ -92,8 +92,8 @@ for src_folder in src_folders:
         cpppath.append('#/'+os.path.join(dirpath, dirname))
 Export("cpppath")
 
-SConscript('global/SConscript', build_dir='datawriters/build', duplicate=0)
+SConscript('global/SConscript', build_dir='global/build', duplicate=0)
 SConscript('io/SConscript', build_dir='io/build', duplicate=0)
-SConscript('ode/SConscript', build_dir='odes/build', duplicate=0)
-SConscript('pde/SConscript', build_dir='pdes/build', duplicate=0)
-SConscript('coupled/SConscript', build_dir='heart/build', duplicate=0)
+SConscript('ode/SConscript', build_dir='ode/build', duplicate=0)
+SConscript('pde/SConscript', build_dir='pde/build', duplicate=0)
+SConscript('coupled/SConscript', build_dir='coupled/build', duplicate=0)

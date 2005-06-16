@@ -9,7 +9,7 @@
 #define _TESTTRIANGLESMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../TrianglesMeshReader.hpp"
+#include "TrianglesMeshReader.hpp"
 
 
 class TestTrianglesMeshReaders : public CxxTest::TestSuite

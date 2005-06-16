@@ -9,11 +9,11 @@
 #define _TESTMESHWRITERS_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../MemfemMeshReader.hpp"
-#include "../FemlabMeshReader.hpp"
-#include "../TrianglesMeshReader.hpp"
-#include "../TrianglesMeshWriter.hpp"
-#include "../MeshalyzerMeshWriter.hpp"
+#include "MemfemMeshReader.hpp"
+#include "FemlabMeshReader.hpp"
+#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
+#include "MeshalyzerMeshWriter.hpp"
 #include <math.h>
 
 static AbstractMeshReader *spImportMeshReader;

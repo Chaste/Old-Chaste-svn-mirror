@@ -9,7 +9,7 @@
 #define _TESTFEMLABMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../FemlabMeshReader.hpp"
+#include "FemlabMeshReader.hpp"
 
 static		AbstractMeshReader *spFemlabMeshReader;
 class TestFemlabMeshReaders : public CxxTest::TestSuite

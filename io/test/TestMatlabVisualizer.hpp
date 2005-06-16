@@ -9,8 +9,8 @@
 #define _TESTMATLABVISUALIZER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "../AbstractVisualizer.hpp"
-#include "../MatlabVisualizer.cpp"
+#include "AbstractVisualizer.hpp"
+#include "MatlabVisualizer.cpp"
 
 static AbstractVisualizer<1> *spViewer;
 static AbstractVisualizer<2> *sp2DViewer;
