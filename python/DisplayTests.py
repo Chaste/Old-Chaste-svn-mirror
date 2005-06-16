@@ -209,16 +209,21 @@ def buildType(req, buildType, revision=None):
     revision = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
   BuildTypes = _importBuildTypesModule(revision)
   build = BuildTypes.GetBuildType(buildType)
+  test_packs = ''
+  for test_pack in build.TestPacks():
+    test_packs = test_packs + ', ' + test_pack
+  test_packs = test_packs[:-2]
   page_body = """\
-  <h1>Explanation of build type '%s'</h1>
+  <h1>Explanation of build type '%s' at revision %s</h1>
   <p>
   C++ compiler 'brand': %s<br />
   C++ extra compile flags: %s<br />
   Extra linker flags: %s<br />
   Test packs run: %s<br />
   </p>
-""" % (buildType, build.CompilerType(), build.CcFlags(), build.LinkFlags(),
-       str(build.TestPacks()))
+""" % (buildType, revision, build.CompilerType(),
+       build.CcFlags(), build.LinkFlags(),
+       test_packs)
   return _header() + page_body + _footer()
 
 
