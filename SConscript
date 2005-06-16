@@ -44,7 +44,7 @@ del _testsource
 
 petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
               'petscmat', 'petscvec', 'petsc']
-chaste_libs = ['global', 'io', 'ode', 'pde', 'coupled']
+chaste_libs = ['global', 'io', 'ode', 'pde', 'coupled', 'maths', 'mesh']
 
 all_libs = petsc_libs + chaste_libs + ['test'+toplevel_dir]
 
