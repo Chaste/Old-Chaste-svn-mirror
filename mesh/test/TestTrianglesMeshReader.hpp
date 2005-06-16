@@ -28,7 +28,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_522_elements"));
+		                  "mesh/test/data/disk_522_elements"));
         delete pMeshReader;                          
 		
 	}
@@ -63,14 +63,14 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_984_elements_indexed_from_1");
+		                  "mesh/test/data/disk_984_elements_indexed_from_1");
 		
 		TS_ASSERT( pMeshReader->GetNumNodes() == 543); 
         delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/baddata/bad_nodes_disk_522__elements_indexed_from_1"));		
+		                  "mesh/test/data/baddata/bad_nodes_disk_522__elements_indexed_from_1"));		
 	}
 	
 	
@@ -86,14 +86,14 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_984_elements_indexed_from_1");
+		                  "mesh/test/data/disk_984_elements_indexed_from_1");
 		
 		TS_ASSERT( pMeshReader->GetNumElements() == 984); 
         delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/baddata/bad_elements_disk_522_elements_indexed_from_1"));
+		                  "mesh/test/data/baddata/bad_elements_disk_522_elements_indexed_from_1"));
 
 	}
 	
@@ -110,14 +110,14 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_984_elements_indexed_from_1");
+		                  "mesh/test/data/disk_984_elements_indexed_from_1");
 		
 		TS_ASSERT( pMeshReader->GetNumFaces() == 1526); 
 		delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/baddata/bad_faces_disk_522__elements_indexed_from_1"));		
+		                  "mesh/test/data/baddata/bad_faces_disk_522__elements_indexed_from_1"));		
 	}
 	
 	
@@ -134,7 +134,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/slab_138_elements"));
+		                  "mesh/test/data/slab_138_elements"));
 			
 		TS_ASSERT (pMeshReader->GetNumElements() == 138);
 		delete pMeshReader;
@@ -153,7 +153,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_522_elements"));
+		                  "mesh/test/data/disk_522_elements"));
 		
 		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
 		
@@ -175,7 +175,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_522_elements_indexed_from_1"));
+		                  "mesh/test/data/disk_522_elements_indexed_from_1"));
 		
 		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
 		
@@ -198,7 +198,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_ANYTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/baddata/permuted_nodes_disk_522_elements"));	
+		                  "mesh/test/data/baddata/permuted_nodes_disk_522_elements"));	
 
 	}
 	
@@ -215,7 +215,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         AbstractMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_ANYTHING(
 		                  pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/baddata/disk_522_order_2_elements"));	
+		                  "mesh/test/data/baddata/disk_522_order_2_elements"));	
 	}
 	
 	
@@ -231,7 +231,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_984_elements");
+		                  "mesh/test/data/disk_984_elements");
 		
 		std::vector<double> FirstNode;
 		                  
@@ -269,7 +269,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_984_elements");
+		                  "mesh/test/data/disk_984_elements");
 		
 		std::vector<int> NextElement;
 		    		
@@ -294,7 +294,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_984_elements");
+		                  "mesh/test/data/disk_984_elements");
 		
 		std::vector<int> NextEdge;
 
@@ -314,7 +314,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/disk_522_elements");
+		                  "mesh/test/data/disk_522_elements");
 		
 		std::vector<int> NextEdge;
 		
@@ -342,7 +342,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	{
         AbstractMeshReader *pMeshReader;
 		pMeshReader=new TrianglesMeshReader(
-		                  "pde/test/data/trivial_1d_mesh");
+		                  "mesh/test/data/trivial_1d_mesh");
 		
 		TS_ASSERT( pMeshReader->GetNumNodes() == 11); 
 		

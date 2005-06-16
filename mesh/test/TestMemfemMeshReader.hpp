@@ -24,7 +24,7 @@ class TestMemfemMeshReaders : public CxxTest::TestSuite
 		MemfemMeshReader *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
 		                  pMeshReader = new MemfemMeshReader(
-		                  "pde/test/data/Memfem_slab"));		                  
+		                  "mesh/test/data/Memfem_slab"));		                  
 		             
 		TS_ASSERT(pMeshReader->GetNumNodes() == 381);
 		TS_ASSERT(pMeshReader->GetNumElements() == 1030);
