@@ -78,8 +78,21 @@ elif use_intel:
 
 Export("extra_flags", "link_flags")
 
+# Search path for #includes
+import glob, os
+cpppath = ['#/']
+src_folders = glob.glob('*/src')
+for src_folder in src_folders:
+  cpppath.append('#/'+src_folder)
+  for dirpath, dirnames, filenames in os.walk(src_folder):
+    for dirname in dirnames[:]:
+      if dirname == '.svn':
+        dirnames.remove(dirname)
+      else:
+        cpppath.append('#/'+os.path.join(dirpath, dirname))
+Export("cpppath")
 
-
+SConscript('io/SConscript', build_dir='io/build', duplicate=0)
 SConscript('odes/SConscript', build_dir='odes/build', duplicate=0)
 SConscript('datawriters/SConscript', build_dir='datawriters/build', duplicate=0)
 SConscript('pdes/SConscript', build_dir='pdes/build', duplicate=0)
