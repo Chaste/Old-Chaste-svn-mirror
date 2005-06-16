@@ -15,6 +15,7 @@
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "VaryingDiffusionAndSourceTermPde.hpp"
+#include "TrianglesMeshReader.hpp"
 
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {

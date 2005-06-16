@@ -6,6 +6,7 @@
 #include "GaussianQuadratureRule.hpp"
 #include "VectorDouble.hpp"
 #include "BasisFunctionsCheckers.hpp"
+#include "Element.hpp"
 #include <vector>
 
 

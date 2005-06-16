@@ -27,7 +27,7 @@
 #include "Example2DNonlinearEllipticPde.hpp"
 #include "NonlinearLinearHeatEquationPde.hpp"
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
-
+#include "TrianglesMeshReader.hpp"
 
 
 /**
@@ -107,7 +107,7 @@ public:
     void TestComputeResidual( void )
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh"); 
+        TrianglesMeshReader mesh_reader("mesh/test/data/practical1_1d_mesh"); 
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -208,7 +208,7 @@ public:
         MatSetType(analytic_jacobian, MATSEQDENSE);
     
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         // Instantiate PDE object
@@ -285,7 +285,7 @@ public:
     void TestWithHeatEquation1D()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -335,7 +335,7 @@ public:
     void TestWithHeatEquation1DAndNeumannBCs()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -390,7 +390,7 @@ public:
     void TestWithHeatEquation1D2()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -443,7 +443,7 @@ public:
     void TestWithHeatEquation1D3()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -496,7 +496,7 @@ public:
     void TestWithHeatEquation1D4()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -552,7 +552,7 @@ public:
     void TestWithHeatEquation1D5()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -610,7 +610,7 @@ public:
     void TestWithHeatEquation1DAndNeumannBCs2()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -662,7 +662,7 @@ public:
     void TestHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -716,7 +716,7 @@ public:
     void TestWithHeatEquation2DAndNeumannBCs()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -791,7 +791,7 @@ public:
     void Test2dOnUnitSquare()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -900,7 +900,7 @@ public:
     void TestNasty2dEquationOnUnitSquare()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
