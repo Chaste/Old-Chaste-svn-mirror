@@ -152,6 +152,8 @@ def GetBuildType(buildType):
     if extra == 'report':
       if issubclass(obj, Intel):
         obj.SetReporting(vec=3)
+    elif extra == 'notests':
+      obj.ClearTestPacks()
     else:
       # Assume it's a test pack
       obj.AddTestPacks(extra)

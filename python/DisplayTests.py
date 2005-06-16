@@ -208,7 +208,18 @@ def buildType(req, buildType, revision=None):
   else:
     revision = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
   _importBuildTypesModule(revision)
-  return _header() + "<p>Not yet implemented</p>" + _footer()
+  build = _buildTypesModule.GetBuildType(buildType)
+  page_body = """\
+  <h1>Explanation of build type '%s'</h1>
+  <p>
+  C++ compiler 'brand': %s<br />
+  C++ extra compile flags: %s<br />
+  Extra linker flags: %s<br />
+  Test packs run: %s<br />
+  </p>
+""" % (buildType, build.CompilerType(), build.CcFlags(), build.LinkFlags(),
+       str(build.TestPacks()))
+  return _header() + page_body + _footer()
 
 
 #####################################################################
