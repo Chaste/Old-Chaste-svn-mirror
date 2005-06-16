@@ -27,9 +27,9 @@ class TestMeshWriters : public CxxTest::TestSuite
 	void TestMemfemtoTetgen(void)
 	{	
 		spImportMeshReader=new MemfemMeshReader(
-							"pdes/tests/meshdata/Memfem_slab");
+							"pde/test/data/Memfem_slab");
 		spMeshWriter=new TrianglesMeshWriter(
-							"/tmp/MeshFromMemfem",3);
+							"testoutput/MeshFromMemfem",3);
 	
 		int i;
 		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
@@ -48,19 +48,19 @@ class TestMeshWriters : public CxxTest::TestSuite
 		spMeshWriter->WriteFiles();
 		
 		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
-								new TrianglesMeshReader("/tmp/MeshFromMemfem"));
+								new TrianglesMeshReader("testoutput/MeshFromMemfem"));
 	
 	}
 
 	void TestFemlabtoTriangles(void)
 	{	
 		spImportMeshReader=new FemlabMeshReader(
-							"pdes/tests/meshdata/",
+							"pde/test/data/",
 		                  	"femlab_lshape_nodes.dat",
 		                  	"femlab_lshape_elements.dat",
 		                  	"femlab_lshape_edges.dat");
 		spMeshWriter=new TrianglesMeshWriter(
-							"/tmp/MeshFromFemlab",2);
+							"testoutput/MeshFromFemlab",2);
 		int i;
 		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
 		{
@@ -78,15 +78,15 @@ class TestMeshWriters : public CxxTest::TestSuite
 		spMeshWriter->WriteFiles();
 
 		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
-							new TrianglesMeshReader("/tmp/MeshFromFemlab"));
+							new TrianglesMeshReader("testoutput/MeshFromFemlab"));
 	}
 	
 	void TestTrianglesToMeshalyzer(void)
 	{	
 		spImportMeshReader=new TrianglesMeshReader(
-							"pdes/tests/meshdata/slab_138_elements");
+							"pde/test/data/slab_138_elements");
 		spMeshWriter=new MeshalyzerMeshWriter(
-							"/tmp/MeshFromTetgen");
+							"testoutput/MeshFromTetgen");
 	
 		int i;
 		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
@@ -107,7 +107,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		int num_tsteps=500;
 		int num_nodes = spImportMeshReader->GetNumNodes();
 		char fake_data_name[40];
-		sprintf(fake_data_name, "/tmp/MeshFromTetgen.tdat");
+		sprintf(fake_data_name, "testoutput/MeshFromTetgen.tdat");
 		std::ofstream fake_data(fake_data_name) ;
 		for(int t= 0; t<num_tsteps ;t++)
 		{
@@ -122,10 +122,10 @@ class TestMeshWriters : public CxxTest::TestSuite
 	void TestTrianglesToCoolGraphics(void)
 	{	
 		spImportMeshReader=new TrianglesMeshReader(
-							"pdes/tests/meshdata/slab_138_elements");
+							"pde/test/data/slab_138_elements");
 		bool set_CG_format=true;
 		spMeshWriter=new MeshalyzerMeshWriter(
-							"/tmp/CGFromTetgen", set_CG_format);
+							"testoutput/CGFromTetgen", set_CG_format);
 	
 		int i;
 		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
@@ -148,7 +148,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		for(int t= 0; t<num_tsteps ;t++)
 		{
 			char fake_data_name[40];
-			sprintf(fake_data_name, "/tmp/CGFromTetgen.t%i", t);
+			sprintf(fake_data_name, "testoutput/CGFromTetgen.t%i", t);
 			std::ofstream fake_data(fake_data_name) ;
 			fake_data << "t = "<<t<<"\n";
 			for(int n=0 ; n<num_nodes ; n++)
