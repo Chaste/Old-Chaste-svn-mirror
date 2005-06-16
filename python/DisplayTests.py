@@ -93,15 +93,19 @@ def _recent(req, type=None):
       <th>Status</th>
     </tr>
 """
+  buildTypesModules = {}
   for build in builds:
     if type == 'nightly':
       date = time.strftime('%d/%m/%Y', time.localtime(build[0]))
     else:
       date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(build[0]))
     revision, machine, buildType = build[1], build[3], build[2]
+    if not buildTypesModules.has_key(revision);
+      buildTypesModules[revision] = _importBuildTypesModule(revision)
+    build = buildTypesModules[revision].GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
     testsuite_status, overall_status, colour = _getTestStatus(test_set_dir,
-                                                              buildType)
+                                                              build)
     
     output = output + """\
     <tr>
@@ -157,8 +161,10 @@ def _summary(req, type, revision, machine=None, buildType=None):
   
   # Now test_set_dir should be the directory containing the test results
   # to summarise. Extract summary info from the filenames.
+  buildTypesModule = _importBuildTypesModule(revision)
+  build = buildTypesModule.GetBuildType(buildType)
   testsuite_status, overall_status, colour = _getTestStatus(test_set_dir,
-                                                            buildType)
+                                                            build)
   
   # Produce output HTML
   output = """\
@@ -185,7 +191,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
       <td>%s</td>
       <td style="background-color: %s;">%s</td>
     </tr>
-""" % (testsuite, _statusColour(testsuite_status[testsuite], buildType),
+""" % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
                       testsuite_status[testsuite]))
 
@@ -255,10 +261,7 @@ def _importBuildTypesModule(revision=pysvn.Revision(pysvn.opt_revision_kind.head
   module from the repository.
   By default import the latest version.
   """
-  filepath = _svn_repos + '/python/BuildTypes.py'
-  client = _svnClient()  
-  module_text = client.cat(filepath, revision)
-  return _importCode(module_text, 'BuildTypes')
+  return _importModuleFromSvn('BuildTypes', '/python/BuildTypes.py', revision)
 
 def _svnClient():
   "Return a pysvn.Client object for communicating with the svn repository."
@@ -320,7 +323,7 @@ def _testResultsDir(type, revision, machine, buildType):
   """
   return os.path.join(_tests_dir, type, str(revision), machine+'.'+buildType)
 
-def _getTestStatus(test_set_dir, buildType):
+def _getTestStatus(test_set_dir, build):
   """
   Return the status for all tests in the given directory, and compute
   a summary status given the build type.
@@ -335,10 +338,10 @@ def _getTestStatus(test_set_dir, buildType):
     testsuite, status = _extractDotSeparatedPair(filename)
     testsuite_status[testsuite] = status
   overall_status, colour = _overallStatus(testsuite_status.values(),
-                                          buildType)
+                                          build)
   return testsuite_status, overall_status, colour
 
-def _overallStatus(statuses, buildType):
+def _overallStatus(statuses, build):
   """
   Given a list of the status of each test suite, and the type of build
   performed, return the overall status.
@@ -348,8 +351,8 @@ def _overallStatus(statuses, buildType):
   total = len(statuses)
   failed = 0
   for status in statuses:
-    # TODO: Use buildType to determine if status is bad
-    if int(status): failed = failed + 1
+    if not build.IsGoodStatus(status):
+      failed = failed + 1
   if failed > 0:
     result = "Failed %d out of %d test suites" % (failed, total)
     colour = "red"
@@ -358,16 +361,15 @@ def _overallStatus(statuses, buildType):
     colour = "green"
   return result, colour
 
-def _statusColour(status, buildType):
+def _statusColour(status, build):
   """
   Return the name of the colour in which this status string should be
-  displayed, given that the build type was buildType.
+  displayed, given that the build type was build.
   """
-  # TODO: Use buildType
-  if int(status):
-    colour = "red"
-  else:
+  if build.IsGoodStatus(status):
     colour = "green"
+  else:
+    colour = "red"
   return colour
 
 #####################################################################

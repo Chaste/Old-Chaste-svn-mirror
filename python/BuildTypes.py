@@ -61,6 +61,20 @@ class BuildType:
     "Empty the list of test packs to be run."
     self._test_packs = []
 
+  def IsGoodStatus(self, status):
+    """
+    Check the given status string to see if it represents a 'successful'
+    test suite under this build type. Return True if so.
+    """
+    # By default, 'n/n' is ok and anything else isn't.
+    i = status.find('/')
+    if i == -1: return False
+    passed, total = status[:i], status[i+1:]
+    try:
+      return int(passed) == int(total)
+    except:
+      return False
+
 class GccOpt(BuildType):
   """
   gcc compiler with some optimisations enabled.
