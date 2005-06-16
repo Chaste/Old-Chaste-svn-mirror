@@ -207,8 +207,8 @@ def buildType(req, buildType, revision=None):
     revision = pysvn.Revision(pysvn.opt_revision_kind.head)
   else:
     revision = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
-  _importBuildTypesModule(revision)
-  build = _buildTypesModule.GetBuildType(buildType)
+  BuildTypes = _importBuildTypesModule(revision)
+  build = BuildTypes.GetBuildType(buildType)
   page_body = """\
   <h1>Explanation of build type '%s'</h1>
   <p>
@@ -251,7 +251,7 @@ def _importBuildTypesModule(revision=pysvn.Revision(pysvn.opt_revision_kind.head
   filepath = _svn_repos + '/python/BuildTypes.py'
   client = _svnClient()  
   module_text = client.cat(filepath, revision)
-  _buildTypesModule = _importCode(module_text, 'BuildTypes')
+  return _importCode(module_text, 'BuildTypes')
 
 def _svnClient():
   "Return a pysvn.Client object for communicating with the svn repository."
