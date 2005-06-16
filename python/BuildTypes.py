@@ -146,7 +146,7 @@ def GetBuildType(buildType):
     
   if classname == '' or classname == 'default':
     classname = 'BuildType'
-  obj = classname()
+  exec "obj = %s()" % classname
   
   for extra in extras:
     if extra == 'report':

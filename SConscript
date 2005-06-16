@@ -21,11 +21,14 @@ for dirpath, dirnames, filenames in os.walk('../src'):
 # file, one per line.
 testfiles = []
 for testpack in build.TestPacks():
-  packfile = file('../test/'+testpack+'TestPack.txt', 'r')
-  for testfile in map(lambda s: s.strip(), packfile.readlines()):
-    if not testfile in testfiles:
-      testfiles.append(testfile)
-  packfile.close()
+  try:
+    packfile = file('../test/'+testpack+'TestPack.txt', 'r')
+    for testfile in map(lambda s: s.strip(), packfile.readlines()):
+      if not testfile in testfiles:
+        testfiles.append(testfile)
+    packfile.close()
+  except IOError:
+    pass
 
 
 # Look for source files that tests depend on in test/.

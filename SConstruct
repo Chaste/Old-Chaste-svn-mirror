@@ -57,8 +57,8 @@ Export("mpicxx", "mpirun", "cxx", "ar")
 
 
 ## Any extra CCFLAGS and LINKFLAGS
-extra_cc_flags = build.CcFlags()
-link_flags     = build.LinkFlags()
+extra_flags = build.CcFlags()
+link_flags  = build.LinkFlags()
 
 Export("extra_flags", "link_flags")
 
