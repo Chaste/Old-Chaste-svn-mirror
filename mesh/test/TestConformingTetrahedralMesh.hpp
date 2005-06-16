@@ -98,7 +98,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
     void TestMeshConstructionFromMeshReader(void)
 	{
 		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/disk_984_elements");
+		                  "mesh/test/data/disk_984_elements");
 		                  
 		//const int DIM = pMeshReader->GetDimension();
 		#define DIM 2
@@ -130,7 +130,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 	{
 		
 		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/disk_984_elements");
+		                  "mesh/test/data/disk_984_elements");
 		                  
 		//const int DIM = pMeshReader->GetDimension();
 		//#define DIM 2
@@ -175,7 +175,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 	{
 		
 		TrianglesMeshReader *pMeshReader = new TrianglesMeshReader(
-		                  "pdes/tests/meshdata/cube_136_elements");
+		                  "mesh/test/data/cube_136_elements");
 		                  
 		//const int DIM = pMeshReader->GetDimension();
 		ConformingTetrahedralMesh<DIMENSION,DIMENSION> mesh;
@@ -223,7 +223,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 	
 	void TestMeshWithBoundaryElements(void)
 	{
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_522_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/disk_522_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -245,7 +245,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
     void TestRescaleMeshFromBoundaryNode(void)
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

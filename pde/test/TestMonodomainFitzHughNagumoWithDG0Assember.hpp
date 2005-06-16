@@ -47,7 +47,7 @@ public:
         
         // Create mesh from mesh reader
         //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/heart_FHN_mesh");
+        TrianglesMeshReader mesh_reader("mesh/test/data/heart_FHN_mesh");
         //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
   
         //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
@@ -126,7 +126,7 @@ public:
         
 		// Uncomment all column writer related lines to write data
 		ColumnDataWriter *mpTestWriter;
-        mpTestWriter = new ColumnDataWriter("data","NewMonodomainFHN_1d");
+        mpTestWriter = new ColumnDataWriter("testoutput","NewMonodomainFHN_1d");
        
         int time_var_id = 0;
         int voltage_var_id = 0;
@@ -218,7 +218,7 @@ public:
 	AbstractVisualizer<1> *pViewer;
 	TS_ASSERT_THROWS_NOTHING(
 				 pViewer=new MatlabVisualizer<1>(
-		                  "data/NewMonodomainFHN_1d"));
+		                  "testoutput/NewMonodomainFHN_1d"));
 	//TS_ASSERT_THROWS_NOTHING(pViewer->CreateFilesForVisualization());	
 	try {
 	    pViewer->CreateFilesForVisualization();

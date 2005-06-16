@@ -7,7 +7,7 @@
 #include "ConstBoundaryCondition.hpp"
 #include "Node.hpp"
 #include "Element.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "VectorDouble.hpp" 

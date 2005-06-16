@@ -44,7 +44,7 @@ public:
         // Create mesh from mesh reader 
 		// TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
         
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -128,7 +128,7 @@ public:
         
 		//uncomment all column writer related lines to write data
         ColumnDataWriter *mpTestWriter;
-        mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_1d");
+        mpTestWriter = new ColumnDataWriter("testoutput","NewMonodomainLR91_1d");
        
         int time_var_id = 0;
         int voltage_var_id = 0;
@@ -214,7 +214,7 @@ public:
 		AbstractVisualizer<1> *pViewer;
 		TS_ASSERT_THROWS_NOTHING(
 								 pViewer=new MatlabVisualizer<1>(
-										"data/NewMonodomainLR91_1d"));
+										"testoutput/NewMonodomainLR91_1d"));
 		try {
 			pViewer->CreateFilesForVisualization();
 		} catch (Exception e) {
@@ -237,7 +237,7 @@ public:
         double tSmallStep  = 0.01;
         
         // read mesh on [0,1]x[0,1]
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -467,7 +467,7 @@ public:
         
         // read 3d mesh
         // TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cylinder_with_hole_840_elements");
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/slab_138_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/slab_138_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 

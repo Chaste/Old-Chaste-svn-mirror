@@ -35,7 +35,7 @@ for testpack in build.TestPacks():
 _testsource = os.listdir('../test')
 testsource = []
 for file in _testsource:
-  if file[:4] != 'Test' and file[-4:] == '.cpp':
+  if file[-4:] == '.cpp':
     testsource.append('test/' + file)
 del _testsource
 

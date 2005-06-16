@@ -14,12 +14,8 @@ TestNode.hpp
 TestNonlinearElasticityPde.hpp
 TestNonlinearHeatEquationPde.hpp
 TestNonnecroticTumourNonlinearEllipticEquation.hpp
-TestParallelLinearSystem.hpp
-TestParallelMonodomainDg0Assembler.hpp
-TestParallelSimpleLinearEllipticAssembler.hpp
 TestPetSCSetup.hpp
 TestPoint.hpp
-TestPracticalTwo.hpp
 TestQuadraticBasisFunction.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
