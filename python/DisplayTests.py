@@ -193,7 +193,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
     </tr>
 """ % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
-                      build.DisplayStatus(testsuite_status[testsuite])))
+                      testsuite_status[testsuite], build))
 
   output = output + "  </table>\n"
   
@@ -397,7 +397,8 @@ def _linkSummary(text, type, revision, machine, buildType):
                                                            machine, buildType)
   return '<a href="%s/summary?%s">%s</a>' % (_our_url, query, text)
 
-def _linkTestSuite(type, revision, machine, buildType, testsuite, status):
+def _linkTestSuite(type, revision, machine, buildType, testsuite,
+                   status, build):
   """
   Return a link tag to a page displaying the output from a single
   test suite.
@@ -405,7 +406,8 @@ def _linkTestSuite(type, revision, machine, buildType, testsuite, status):
   query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
                                                            machine, buildType)
   query = query + '&testsuite=%s&status=%s' % (testsuite, status)
-  return '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, status)
+  return '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, 
+                                               build.DisplayStatus(status))
 
 def _colourText(text, colour):
   "Return text in the given colour."
