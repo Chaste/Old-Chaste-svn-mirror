@@ -28,26 +28,26 @@ public:
     void testCreateColumnWriter(void)
     {
         //create a new csvdata writer
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
         //check that the output directory exists
         //use the Boost libraries for this check 
     }
     
     void testDefineUnlimitedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
     }
  
     void testDefineFixedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
     }
     
     void testDefineVariable( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -64,7 +64,7 @@ public:
 
     void testEndDefineMode( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testdefine"));
         //ending define mode without having defined a dimension and a variable should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
         
@@ -86,7 +86,7 @@ public:
 
     void testPutVariableInUnlimitedFile( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testunlimited"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -115,7 +115,7 @@ public:
     // Note to Dan: Gary wrote this one, it might not work.
     void testPutVariableInUnlimitedNegativeFile( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testunlimitednegative"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testunlimitednegative"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -142,7 +142,7 @@ public:
     void testPutVariableInFixedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testfixed"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixed"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -170,7 +170,7 @@ public:
     void testPutNegativeVariableInFixedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testfixed_negatives"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixed_negatives"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -197,7 +197,7 @@ public:
     void testPutVariableInFixedandUnlimitedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("data","testfixedandunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixedandunlimited"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -225,8 +225,8 @@ public:
     
     void testDefineFilesMatch( void )
     {
-        ifstream testfile("data/testdefine.dat",ios::in);
-        ifstream goodfile("data/testdefine_good.dat",ios::in);
+        ifstream testfile("testoutput/testdefine.dat",ios::in);
+        ifstream goodfile("io/test/data/testdefine_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(testfile, teststring))
@@ -240,8 +240,8 @@ public:
     }
     void testFixedFilesMatch( void )
     {
-        ifstream testfile("data/testfixed.dat",ios::in);
-        ifstream goodfile("data/testfixed_good.dat",ios::in);
+        ifstream testfile("testoutput/testfixed.dat",ios::in);
+        ifstream goodfile("io/test/data/testfixed_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(goodfile, goodstring))
@@ -255,8 +255,8 @@ public:
     }
     void testFixedAndUnlimitedTimeFilesMatch( void )
     {
-        ifstream testfile("data/testfixedandunlimitedTime.dat",ios::in);
-        ifstream goodfile("data/testfixedandunlimitedTime_good.dat",ios::in);
+        ifstream testfile("testoutput/testfixedandunlimitedTime.dat",ios::in);
+        ifstream goodfile("io/test/data/testfixedandunlimitedTime_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(goodfile, goodstring))
@@ -270,8 +270,8 @@ public:
     }
     void testFixedAndUnlimitedFilesMatch( void )
     {
-        ifstream testfile("data/testfixedandunlimited.dat",ios::in);
-        ifstream goodfile("data/testfixedandunlimited_good.dat",ios::in);
+        ifstream testfile("testoutput/testfixedandunlimited.dat",ios::in);
+        ifstream goodfile("io/test/data/testfixedandunlimited_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(goodfile, goodstring))
@@ -285,8 +285,8 @@ public:
     }
     void testUnlimitedFilesMatch( void )
     {
-        ifstream testfile("data/testunlimited.dat",ios::in);
-        ifstream goodfile("data/testunlimited_good.dat",ios::in);
+        ifstream testfile("testoutput/testunlimited.dat",ios::in);
+        ifstream goodfile("io/test/data/testunlimited_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(goodfile, goodstring))
@@ -302,8 +302,8 @@ public:
     //Gary wrote these two
     void testUnlimitedNegativeFilesMatch( void )
     {
-        ifstream testfile("data/testunlimitednegative.dat",ios::in);
-        ifstream goodfile("data/testunlimitednegative_good.dat",ios::in);
+        ifstream testfile("testoutput/testunlimitednegative.dat",ios::in);
+        ifstream goodfile("io/test/data/testunlimitednegative_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(goodfile, goodstring))
@@ -317,8 +317,8 @@ public:
 	
 	void testFixedNegativeFilesMatch( void )
     {
-        ifstream testfile("data/testfixed_negatives.dat",ios::in);
-        ifstream goodfile("data/testfixed_negatives_good.dat",ios::in);
+        ifstream testfile("testoutput/testfixed_negatives.dat",ios::in);
+        ifstream goodfile("io/test/testfixed_negatives_good.dat",ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(goodfile, goodstring))
