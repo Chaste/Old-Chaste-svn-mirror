@@ -204,24 +204,26 @@ def buildType(req, buildType, revision=None):
   definition of buildType has changed since.
   """
   if revision is None:
-    revision = pysvn.Revision(pysvn.opt_revision_kind.head)
+    rev = pysvn.Revision(pysvn.opt_revision_kind.head)
+    rev_text = ' at the latest revision'
   else:
-    revision = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
-  BuildTypes = _importBuildTypesModule(revision)
+    rev = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
+    rev_text = ' at revision %s' % revision
+  BuildTypes = _importBuildTypesModule(rev)
   build = BuildTypes.GetBuildType(buildType)
   test_packs = ''
   for test_pack in build.TestPacks():
     test_packs = test_packs + test_pack + ', '
   test_packs = test_packs[:-2]
   page_body = """\
-  <h1>Explanation of build type '%s' at revision %s</h1>
+  <h1>Explanation of build type '%s'%s</h1>
   <p>
   C++ compiler 'brand': %s<br />
   C++ extra compile flags: %s<br />
   Extra linker flags: %s<br />
   Test packs run: %s<br />
   </p>
-""" % (buildType, revision, build.CompilerType(),
+""" % (buildType, rev_text, build.CompilerType(),
        build.CcFlags(), build.LinkFlags(),
        test_packs)
   return _header() + page_body + _footer()
