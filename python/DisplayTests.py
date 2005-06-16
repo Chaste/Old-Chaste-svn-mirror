@@ -211,7 +211,7 @@ def buildType(req, buildType, revision=None):
   build = BuildTypes.GetBuildType(buildType)
   test_packs = ''
   for test_pack in build.TestPacks():
-    test_packs = test_packs + ', ' + test_pack
+    test_packs = test_packs + test_pack + ', '
   test_packs = test_packs[:-2]
   page_body = """\
   <h1>Explanation of build type '%s' at revision %s</h1>
