@@ -100,7 +100,7 @@ def _recent(req, type=None):
     else:
       date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(build[0]))
     revision, machine, buildType = build[1], build[3], build[2]
-    if not buildTypesModules.has_key(revision);
+    if not buildTypesModules.has_key(revision):
       buildTypesModules[revision] = _importBuildTypesModule(revision)
     build = buildTypesModules[revision].GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
