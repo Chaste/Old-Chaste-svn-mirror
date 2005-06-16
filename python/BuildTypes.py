@@ -66,8 +66,8 @@ class BuildType:
     Check the given status string to see if it represents a 'successful'
     test suite under this build type. Return True if so.
     """
-    # By default, 'n/n' is ok and anything else isn't.
-    i = status.find('/')
+    # By default, 'n_n' is ok and anything else isn't.
+    i = status.find('_')
     if i == -1: return False
     passed, total = status[:i], status[i+1:]
     try:
