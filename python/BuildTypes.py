@@ -6,3 +6,154 @@
 # tools & flags to use, and also how to interpret the status string of a test
 # suite.
 
+class BuildType:
+  """
+  Base class for all objects representing a build type.
+  Also gives the default build options.
+  """
+  
+  def __init__(self):
+    """
+    Do any setup.
+    Here we set member variables for each method to use.
+    """
+    self._compiler_type = 'gcc'
+    self._cc_flags = ''
+    self._link_flags = ''
+    self._test_packs = ['Continuous']
+  
+  def CompilerType(self):
+    """
+    Return the type of compiler tools to use.
+    Currently recognised strings are 'gcc' and 'intel'.
+    """
+    return self._compiler_type
+  
+  def CcFlags(self):
+    """
+    Return the CC flags to use, as a string.
+    Note that this does not cover include paths or library search paths.
+    """
+    return self._cc_flags
+  
+  def LinkFlags(self):
+    """
+    Return the linker flags to use, as a string."
+    Note that this does not cover library search paths or what to link with.
+    """
+    return self._link_flags
+  
+  def TestPacks(self):
+    """
+    Return a list of the test packs to run as part of this build.
+    """
+    return self._test_packs
+
+  def AddTestPacks(self, *packs):
+    """
+    Adds each string argument to the list of test packs to be run.
+    """
+    for pack in packs:
+      if not pack in self._test_packs:
+        self._test_packs.append(pack)
+  
+  def ClearTestPacks(self):
+    "Empty the list of test packs to be run."
+    self._test_packs = []
+
+class GccOpt(BuildType):
+  """
+  gcc compiler with some optimisations enabled.
+  """
+  def __init__(self):
+    BuildType.__init__(self)
+    self._cc_flags = '-O3'
+
+class GccOptP4(GccOpt):
+  """
+  gcc compiler with optimisations for Pentium 4.
+  """
+  def __init__(self):
+    GccOpt.__init__(self)
+    self._cc_flags = self._cc_flags+' -march=pentium4 -mmx -msse -msse2 -mfpmath=sse'
+    
+class GccProfiled(BuildType):
+  """
+  gcc compiler with profiling.
+  """
+  def _init__(self):
+    BuildType.__init__(self)
+    self._cc_flags = '-pg'
+    self._link_flags = '-pg'
+
+class Intel(BuildType):
+  "Intel compiler tools."
+  def __init__(self):
+    BuildType.__init__(self)
+    self._compiler_type = 'intel'
+    # Turn off some warnings
+    self._cc_flags = '-wr470 -wr186'
+    self._link_flags = '-static-libcxa'
+
+  def SetReporting(self, vec=1):
+    """
+    Set the reporting level.
+    vec controls the vectoriser report, and is the number to put after
+      -vec_report. Default is 1 to indicate vectorised loops; use 3 to
+      find out why loops aren't vectorised.
+    """
+    # Remove any current reporting
+    i = self._cc_flags.find('-vec_report')
+    if i > -1:
+      self._cc_flags = self._cc_flags[:i] + self._cc_flags[i+13:]
+    self._cc_flags = self._cc_flags + ' -vec_report' + vec
+
+class IntelNonopt(Intel):
+  "Intel compilers with no optimisation."
+  def __init__(self):
+    Intel.__init__(self)
+    self._cc_flags = self._cc_flags + ' -O0 -xK'
+
+class IntelP3(Intel):
+  "Intel compilers optimised for Pentium 3."
+  def __init__(self):
+    Intel.__init__(self)
+    self._cc_flags = self._cc_flags + ' -xK -O3 -ip -ipo0 -ipo_obj'
+    self._link_flags = self._link_flags + ' -ipo'
+
+class IntelP4(Intel):
+  "Intel compilers optimised for Pentium 4."
+  def __init__(self):
+    Intel.__init__(self)
+    self._cc_flags = self._cc_flags + ' -xN -O3 -ip -ipo0 -ipo_obj -static'
+    self._link_flags = self._link_flags + ' -ipo -lsvml -L/opt/intel_cc_80/lib -static'
+
+
+
+
+
+# Define mappings between arguments on the command line and BuildType objects.
+def GetBuildType(buildType):
+  """
+  Given a string representing a build type, create and return an instance of
+  the appropriate BuildType subclass.
+  Components of the string are separated by ':'. The first component is the
+  basic BuildType, and further components can customise that.
+  """
+  parts = buildType.split(':')
+  classname = parts[0]
+  extras = parts[1:]
+    
+  if classname == '' or classname == 'default':
+    classname = 'BuildType'
+  obj = classname()
+  
+  for extra in extras:
+    if extra == 'report':
+      if issubclass(obj, Intel):
+        obj.SetReporting(vec=3)
+    else:
+      # Assume it's a test pack
+      obj.AddTestPacks(extra)
+  
+  return obj
