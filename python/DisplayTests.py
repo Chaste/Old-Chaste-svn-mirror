@@ -363,7 +363,7 @@ def _linkRevision(revision):
 
 def _linkBuildType(buildType, revision):
   "Return a link tag to the detailed info page for this build type."
-  query = 'buildType/buildType=%s&revision=%s' % (buildType, revision)
+  query = 'buildType?buildType=%s&revision=%s' % (buildType, revision)
   return '<a href="%s/%s">%s</a>' % (_our_url, query, buildType)
 
 def _linkSummary(text, type, revision, machine, buildType):
