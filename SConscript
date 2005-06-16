@@ -19,12 +19,14 @@ for dirpath, dirnames, filenames in os.walk('../src'):
 # Look for files containing a test suite
 # A list of test suites to run will be found in a test/<name>TestPack.txt
 # file, one per line.
-try:
-  packfile = file('../test/ContinuousTestPack.txt', 'r')
-  testfiles = map(lambda s: s.strip(), packfile.readlines())
+testfiles = []
+for testpack in build.TestPacks():
+  packfile = file('../test/'+testpack+'TestPack.txt', 'r')
+  for testfile in map(lambda s: s.strip(), packfile.readlines()):
+    if not testfile in testfiles:
+      testfiles.append(testfile)
   packfile.close()
-except IOError:
-  testfiles = []
+
 
 # Look for source files that tests depend on in test/.
 _testsource = os.listdir('../test')
@@ -43,7 +45,7 @@ chaste_libs = ['global', 'io', 'ode', 'pde', 'coupled']
 
 all_libs = petsc_libs + chaste_libs + ['test'+toplevel_dir]
 
-opt= Environment(ENV = {'PATH' : os.environ['PATH']})
+opt = Environment(ENV = {'PATH' : os.environ['PATH']})
 opt.Append(CCFLAGS = petsc_incs+extra_flags)
 opt.Append(LINKFLAGS = link_flags)
 opt.Append(BOPT = 'g_c++')
@@ -65,11 +67,12 @@ opt.Install('../../lib', 'lib'+toplevel_dir+'.a')
 opt.Library('test'+toplevel_dir, testsource)
 
 for testfile in testfiles:
-  opt.Test(testfile[:-4]+'Runner.cpp', 'test/' + testfile) 
-  opt.Program(testfile[:-4]+'Runner', [testfile[:-4]+'Runner.cpp'],
+  prefix = testfile[:-4]
+  opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
+  opt.Program(testfile[:-4]+'Runner', [prefix+'Runner.cpp'],
               LIBS = all_libs,
               LIBPATH = ['../../lib', '.', petsc_libpath])
-  opt.RunTests(testfile[:-4]+'.log', testfile[:-4]+'Runner')
+  opt.RunTests(prefix+'.log', prefix+'Runner')
 
 
 # Parallel tests

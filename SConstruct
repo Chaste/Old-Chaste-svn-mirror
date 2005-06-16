@@ -1,3 +1,13 @@
+# Controlling scons build script for Chaste
+
+import sys
+sys.path.append('python')
+import BuildTypes
+
+build_type = ARGUMENTS.get('build', '')
+build = BuildTypes.GetBuildType(build_type)
+Export('build')
+
 # Specify system_name=finarfin to scons to change default paths
 system_name = ARGUMENTS.get('system_name', '')
 
@@ -25,11 +35,9 @@ Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "pet
 
 
 ## C++ build tools & MPI runner
-build_type = ARGUMENTS.get('build', '')
-use_intel = (build_type[:3] == 'icc')
 if system_name == 'finarfin':
   mpirun = '/usr/bin/mpirun'
-  if use_intel:
+  if build.CompilerType() == 'intel':
     # Use intel compiler
     mpicxx = '/usr/bin/mpicxx -CC=icpc'
     cxx    = '/opt/intel_cc_80/bin/icpc'
@@ -48,33 +56,9 @@ else:
 Export("mpicxx", "mpirun", "cxx", "ar")
 
 
-
 ## Any extra CCFLAGS and LINKFLAGS
-extra_flags, link_flags = '', ''
-
-if build_type == 'gcc_p4':
-  extra_flags, link_flags = ' -O3 -march=pentium4 -mmmx -msse -msse2 -mfpmath=sse ', ''
-elif build_type == 'gcc_opt':
-  extra_flags, link_flags = ' -O3 ', ''
-elif build_type == 'gcc_prof':
-  extra_flags, link_flags = ' -pg ', ' -pg ' # gcc profiling
-elif use_intel:
-  common_flags = ' -static-libcxa -wr470 -wr186 ' # (Turn off some warnings)
-  if build_type == 'icc_O0':
-    extra_flags = common_flags + '-O0 -xK '
-    link_flags = common_flags
-  elif build_type == 'icc_p3':
-    extra_flags = common_flags + '-xK -O3 -ip -ipo0 -ipo_obj '
-    link_flags = common_flags + '-ipo '
-  elif build_type == 'icc_p4':
-    extra_flags = common_flags + '-xN -O3 -ip -ipo0 -ipo_obj -static '
-    link_flags = common_flags + '-ipo -lsvml -L/opt/intel_cc_80/lib -static '
-  else:
-    extra_flags = common_flags
-    link_flags = common_flags
-  if ARGUMENTS.get('report', 0):
-    extra_flags = extra_flags + '-vec_report3 '
-
+extra_cc_flags = build.CcFlags()
+link_flags     = build.LinkFlags()
 
 Export("extra_flags", "link_flags")
 
