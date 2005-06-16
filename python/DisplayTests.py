@@ -261,7 +261,7 @@ def _importBuildTypesModule(revision=pysvn.Revision(pysvn.opt_revision_kind.head
   module from the repository.
   By default import the latest version.
   """
-  if type(revision) == type(""):
+  if type(revision) in [type(""), type(1)]:
     revision = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
   return _importModuleFromSvn('BuildTypes', '/python/BuildTypes.py', revision)
 
