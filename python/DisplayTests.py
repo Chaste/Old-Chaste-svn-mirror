@@ -216,7 +216,7 @@ def buildType(req, buildType, revision=None):
 #####################################################################
 
 def _importModuleFromSvn(module_name, module_filepath,
-                         revision=pysvn.Revision(pysvn.opt_revision_kind.head))
+                         revision=pysvn.Revision(pysvn.opt_revision_kind.head)):
   """
   Use pysvn and imp to import the requested revision of the given
     module from the repository.
