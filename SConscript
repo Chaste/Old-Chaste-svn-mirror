@@ -10,11 +10,13 @@ curdir = os.getcwd()
 toplevel_dir = os.path.basename(os.path.dirname(curdir))
 
 # Look for .cpp files within the src folder
+os.chdir('..') # This is so .o files are built in `toplevel_dir'/build/
 files = []
-for dirpath, dirnames, filenames in os.walk('../src'):
+for dirpath, dirnames, filenames in os.walk('src'):
   for filename in filenames:
     if filename[-4:] == '.cpp':
       files.append(os.path.join(dirpath, filename))
+os.chdir(curdir)
 
 # Look for files containing a test suite
 # A list of test suites to run will be found in a test/<name>TestPack.txt
