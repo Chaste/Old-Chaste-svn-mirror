@@ -86,11 +86,11 @@ class BuildType:
     Encode the output from a test program as a status string.
     If the exit code is zero then all tests passed, and the status
     is 'OK'. Otherwise the output must be parsed looking for a line
-    'Failed (\d+) of (\d+) tests' and the status string is '\1_\2'.
+    'Failed (\d+) of (\d+) tests?' and the status string is '\1_\2'.
     Return the encoded status.
     """
     import re
-    failed_tests = re.compile('Failed (\d+) of (\d+) tests')
+    failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
     status = 'Unknown'
     if exitCode:
       # At least one test failed

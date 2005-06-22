@@ -219,6 +219,7 @@ public:
 			pViewer->CreateFilesForVisualization();
 		} catch (Exception e) {
 			TS_TRACE(e.getMessage());
+			TS_ASSERT(0);
 		}
 		delete pViewer;
 		
