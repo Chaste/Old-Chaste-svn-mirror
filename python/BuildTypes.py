@@ -66,20 +66,43 @@ class BuildType:
     Check the given status string to see if it represents a 'successful'
     test suite under this build type. Return True if so.
     """
-    # By default, 'n_n' is ok and anything else isn't.
-    i = status.find('_')
-    if i == -1: return False
-    passed, total = status[:i], status[i+1:]
-    try:
-      return int(passed) == int(total)
-    except:
-      return False
-
+    # By default, 'OK' is ok and anything else isn't.
+    return status == 'OK'
+    
   def DisplayStatus(self, status):
     """
     Return a (more) human readable version of the given status string.
     """
-    return status.replace('_', '/') + ' tests passed'
+    if status == 'OK':
+      return 'All tests passed'
+    elif status == 'Unknown':
+      return 'Test output unrecognised'
+    else:
+      return status.replace('_', '/') + ' tests failed'
+
+  def EncodeStatus(self, exitCode, outputLines):
+    """
+    Encode the output from a test program as a status string.
+    If the exit code is zero then all tests passed, and the status
+    is 'OK'. Otherwise the output must be parsed looking for a line
+    'Failed (\d+) of (\d+) tests' and the status string is '\1_\2'.
+    Return the encoded status.
+    """
+    import re
+    failed_tests = re.compile('Failed (\d+) of (\d+) tests')
+    status = 'Unknown'
+    if exitCode:
+      # At least one test failed
+      for line in outputLines:
+        m = failed_tests.match(line)
+        if m:
+          status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
+          break
+    else:
+      # All tests passed
+      status = 'OK'
+    return status
+    
 
 class GccOpt(BuildType):
   """

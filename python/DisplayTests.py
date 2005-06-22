@@ -312,10 +312,11 @@ def _importCode(code, name, add_to_sys_modules=0):
 def _extractDotSeparatedPair(string):
   """
   Extract both parts from a string of the form part1.part2.
+  The '.' used is the last in the string.
   Returns a pair (part1, part2).
   Useful for parsing machine.buildType and TestSuite.Status filenames.
   """
-  i = string.find('.')
+  i = string.rfind('.')
   return string[:i], string[i+1:]
 
 def _testResultsDir(type, revision, machine, buildType):
