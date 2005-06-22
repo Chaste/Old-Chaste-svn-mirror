@@ -71,7 +71,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -131,7 +131,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -190,7 +190,7 @@ public:
 	void TestSimpleDg0ParabolicAssemblerNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -250,7 +250,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DZeroDirich( void )
 	{	
 		// read mesh on [0,1]x[0,1]
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -312,7 +312,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -379,7 +379,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
 
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
@@ -480,7 +480,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DNeumann( void )
 	{		
         // Create mesh from mesh reader
-		FemlabMeshReader mesh_reader("pdes/tests/meshdata/",
+		FemlabMeshReader mesh_reader("mesh/test/data/",
 		                  "femlab_square_nodes.dat",
 		                  "femlab_square_elements.dat",
 		                  "femlab_square_edges.dat");
@@ -585,7 +585,7 @@ public:
 	void dontTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
 	{		
 		// Create mesh from mesh reader
-		FemlabMeshReader mesh_reader("pdes/tests/meshdata/",
+		FemlabMeshReader mesh_reader("mesh/test/data/",
 		                  "femlab_fine_square_nodes.dat",
 		                  "femlab_fine_square_elements.dat",
 		                  "femlab_fine_square_edges.dat");
@@ -693,7 +693,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler3DZeroDirich( void )
 	{	
 		// read mesh on [0,1]x[0,1]x[0,1]
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -764,7 +764,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -843,7 +843,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
 
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);

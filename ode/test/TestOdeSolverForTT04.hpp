@@ -102,7 +102,7 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
          */                                                           
 		        
         ColumnDataWriter *mpTestWriter;
-        mpTestWriter = new ColumnDataWriter("data","TT04Result");
+        mpTestWriter = new ColumnDataWriter("testoutput","TT04Result");
         mpTestWriter->DefineFixedDimension("Time","ms", Solution.mSolutions.size());
         int time_var_id = mpTestWriter->DefineVariable("Time","ms");
 //        int a_var_id = mpTestWriter->DefineVariable("calcium_dynamics_Ca_i","microMol");/* Might be wrong units but that's what's in the paper */
@@ -149,8 +149,8 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
         
         
 //        //read in good data file and compare line by line
-//        std::ifstream testfile("data/TT04Result.dat",std::ios::in);
-//        std::ifstream goodfile("data/TT04ResultGood.dat",std::ios::in);
+//        std::ifstream testfile("testoutput/TT04Result.dat",std::ios::in);
+//        std::ifstream goodfile("ode/test/data/TT04ResultGood.dat",std::ios::in);
 //        std::string teststring;
 //        std::string goodstring;
 //        while(getline(testfile, teststring))

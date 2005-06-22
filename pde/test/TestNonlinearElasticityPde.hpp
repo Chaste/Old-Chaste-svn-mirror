@@ -29,7 +29,7 @@ public:
     // removed as 1D CompressibleIsoMRMaterial no longer allowed
 	void DO_NOT______testNonlinearElasticityPde1D()
 	{
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_mesh_5_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/1D_mesh_5_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -70,7 +70,7 @@ public:
 
 	void testNonlinearElasticityPde2D()
 	{
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -114,7 +114,7 @@ public:
 
 	void testNonlinearElasticityPde3D()
 	{
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cube_136_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		

@@ -296,7 +296,7 @@ public:
 	void TestDefineZeroDirichletOnMeshBoundary()
 	{
 		// Load a 2D square mesh with 1 central non-boundary node
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -317,7 +317,7 @@ public:
 	void TestValidate()
 	{
 		// Load a 2D square mesh with 1 central non-boundary node
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_4_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		

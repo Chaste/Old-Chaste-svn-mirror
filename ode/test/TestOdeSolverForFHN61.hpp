@@ -72,7 +72,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
          */                                                           
 		        
         ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","FHN61");
+        mpNewTestWriter = new ColumnDataWriter("testoutput","FHN61");
         mpNewTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
@@ -139,7 +139,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
 //         */                                                           
 //		        
 //        ColumnDataWriter *mpNewTestWriter;
-//        mpNewTestWriter = new ColumnDataWriter("data","FHN61a");
+//        mpNewTestWriter = new ColumnDataWriter("testoutput","FHN61a");
 //        mpNewTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
 //        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
 //        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");

@@ -77,7 +77,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
          */                                                           
 		        
         ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","HH52Result");
+        mpNewTestWriter = new ColumnDataWriter("testoutput","HH52Result");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
         int time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
@@ -98,8 +98,8 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         
         
         //read in good data file and compare line by line
-        std::ifstream testfile("data/HH52Result.dat",std::ios::in);
-        std::ifstream goodfile("data/HH52ResultGood.dat",std::ios::in);
+        std::ifstream testfile("testoutput/HH52Result.dat",std::ios::in);
+        std::ifstream goodfile("ode/test/data/HH52ResultGood.dat",std::ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(testfile, teststring))
@@ -176,7 +176,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
          */                                                           
                 
         ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","HH52RegResult");
+        mpNewTestWriter = new ColumnDataWriter("testoutput","HH52RegResult");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
         int time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
@@ -197,8 +197,8 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         
         
 //        //read in good data file and compare line by line
-//        std::ifstream testfile("data/NewLR91.dat",std::ios::in);
-//        std::ifstream goodfile("data/Lr91Good.dat",std::ios::in);
+//        std::ifstream testfile("testoutput/NewLR91.dat",std::ios::in);
+//        std::ifstream goodfile("ode/test/data/Lr91Good.dat",std::ios::in);
 //        std::string teststring;
 //        std::string goodstring;
 //        while(getline(testfile, teststring))

@@ -90,7 +90,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          */                                                           
 		        
         ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","NewLR91");
+        mpNewTestWriter = new ColumnDataWriter("testoutput","NewLR91");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
@@ -119,8 +119,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         
         //read in good data file and compare line by line
-        std::ifstream testfile("data/NewLR91.dat",std::ios::in);
-        std::ifstream goodfile("data/Lr91Good.dat",std::ios::in);
+        std::ifstream testfile("testoutput/NewLR91.dat",std::ios::in);
+        std::ifstream goodfile("ode/test/data/Lr91Good.dat",std::ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(testfile, teststring))
@@ -195,7 +195,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          */                                                           
                 
         ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","NewNoStimLR91");
+        mpNewTestWriter = new ColumnDataWriter("testoutput","NewNoStimLR91");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
@@ -224,8 +224,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         
         //read in good data file and compare line by line
-        std::ifstream testfile("data/NewNoStimLR91.dat",std::ios::in);
-        std::ifstream goodfile("data/Lr91NoStimGood.dat",std::ios::in);
+        std::ifstream testfile("testoutput/NewNoStimLR91.dat",std::ios::in);
+        std::ifstream goodfile("ode/test/data/Lr91NoStimGood.dat",std::ios::in);
         std::string teststring;
         std::string goodstring;
         while(getline(testfile, teststring))
@@ -312,7 +312,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
          */                                                           
                 
         ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","RegStimLR91");
+        mpNewTestWriter = new ColumnDataWriter("testoutput","RegStimLR91");
         mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
@@ -341,8 +341,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         
 //        //read in good data file and compare line by line
-//        std::ifstream testfile("data/NewNoStimLR91.dat",std::ios::in);
-//        std::ifstream goodfile("data/Lr91NoStimGood.dat",std::ios::in);
+//        std::ifstream testfile("testoutput/NewNoStimLR91.dat",std::ios::in);
+//        std::ifstream goodfile("ode/test/data/Lr91NoStimGood.dat",std::ios::in);
 //        std::string teststring;
 //        std::string goodstring;
 //        while(getline(testfile, teststring))
