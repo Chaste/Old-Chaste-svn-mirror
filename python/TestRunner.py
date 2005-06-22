@@ -16,7 +16,7 @@
 #  with altered names encoding the status, as determined by the
 #  BuildTypes module. If not provided then this isn't done.
 #  Files will be stored in a subfolder machine.build_type.
-#  The .log file name, without extension, will be prepended to the status.
+#  The .log file basename, without extension, will be prepended to the status.
 
 import os, sys
 
@@ -56,7 +56,6 @@ log_fp.writelines(test_output)
 log_fp.close()
 
 if outputdir:
-  print "Storing..."
   # Get the test status and copy log file
   machine  = socket.getfqdn()
   test_dir = os.path.join(outputdir, machine+'.'+build_type)
@@ -65,11 +64,11 @@ if outputdir:
   if not os.path.isdir(test_dir):
     print test_dir,"is not a directory; unable to copy output."
     sys.exit(1)
-  test_name = os.path.splitext(logfile)[0]
+  test_name = os.path.splitext(os.path.basename(logfile))[0]
   status    = build.EncodeStatus(exit_code, test_output)
-  print test_name, status
+  #print test_name, status
   copy_to   = os.path.join(test_dir, test_name+'.'+status)
-  print copy_to
+  #print copy_to
   fp = file(copy_to, 'w')
   fp.writelines(test_output)
   fp.close()

@@ -21,6 +21,7 @@ class BuildType:
     self._cc_flags = ''
     self._link_flags = ''
     self._test_packs = ['Continuous']
+    self._revision = ''
   
   def CompilerType(self):
     """
@@ -102,7 +103,22 @@ class BuildType:
       # All tests passed
       status = 'OK'
     return status
-    
+
+  def SetRevision(self, revision):
+    """
+    Set the subversion revision number of the code that is being built.
+    revision will be '' if we don't know or don't care.
+    """
+    self._revision = revision
+  
+  def GetTestReportDir(self):
+    """
+    Return the base directory in which to store the output from all
+    the tests. Files with names that include status info will be
+    saved in a subdirectory named 'machine.buildtype'.
+    """
+    return 'testoutput/'
+
 
 class GccOpt(BuildType):
   """

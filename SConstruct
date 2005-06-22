@@ -4,9 +4,10 @@ import sys
 sys.path.append('python')
 import BuildTypes
 
-build_type = ARGUMENTS.get('build', '')
+build_type = ARGUMENTS.get('build', 'default')
 build = BuildTypes.GetBuildType(build_type)
-Export('build')
+build.SetRevision(ARGUMENTS.get('revision', ''))
+Export('build', 'build_type')
 
 # Specify system_name=finarfin to scons to change default paths
 system_name = ARGUMENTS.get('system_name', '')
