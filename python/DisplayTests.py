@@ -342,13 +342,13 @@ def _getTestStatus(test_set_dir, build):
   the overall status, and the third is the colour in which to display
   the overall status.
   """
+  ignores = ['index.html', '.sconsign']
   result_files = os.listdir(test_set_dir)
-  if 'index.html' in result_files:
-    result_files.remove('index.html')
   testsuite_status = {}
   for filename in result_files:
-    testsuite, status = _extractDotSeparatedPair(filename)
-    testsuite_status[testsuite] = status
+    if not filename in ignores:
+      testsuite, status = _extractDotSeparatedPair(filename)
+      testsuite_status[testsuite] = status
   overall_status, colour = _overallStatus(testsuite_status.values(),
                                           build)
   return testsuite_status, overall_status, colour

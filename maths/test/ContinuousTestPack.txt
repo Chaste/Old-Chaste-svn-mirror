@@ -1,1 +1,3 @@
+TestVectorDouble.hpp
+TestMatrixDouble.hpp
 TestFourthOrderTensor.hpp

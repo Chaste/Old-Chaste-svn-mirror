@@ -81,6 +81,11 @@ for src_folder in src_folders:
         cpppath.append('#/'+os.path.join(dirpath, dirname))
 Export("cpppath")
 
+# Check for orphaned test files
+os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
+          'testoutput/OrphanedTests.log ' + build_type + ' ' +
+          build.GetTestReportDir() + ' --no-stdout')
+
 SConscript('maths/SConscript', build_dir='maths/build', duplicate=0)
 SConscript('mesh/SConscript', build_dir='mesh/build', duplicate=0)
 SConscript('global/SConscript', build_dir='global/build', duplicate=0)
@@ -89,12 +94,6 @@ SConscript('ode/SConscript', build_dir='ode/build', duplicate=0)
 SConscript('pde/SConscript', build_dir='pde/build', duplicate=0)
 SConscript('coupled/SConscript', build_dir='coupled/build', duplicate=0)
 
-#SConscript('global/SConscript', build_dir='build')
-#SConscript('io/SConscript', build_dir='build')
-#SConscript('ode/SConscript', build_dir='build')
-#SConscript('pde/SConscript', build_dir='build')
-#SConscript('coupled/SConscript', build_dir='build')
-
 
 # Test summary generation
 if test_summary:
@@ -102,10 +101,10 @@ if test_summary:
   fp = file('buildtime.txt', 'w')
   print >>fp, time.asctime()
   fp.close()
-  opt = Environment(ENV = {'PATH' : os.environ['PATH']})
   machine = socket.getfqdn()
   output_dir = os.path.join(build.GetTestReportDir(), machine+'.'+build_type)
   summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
+  opt = Environment(ENV = {'PATH' : os.environ['PATH']})
   opt['BUILDERS']['TestSummary'] = summary
   opt.TestSummary(os.path.join(output_dir, 'index.html'),
                   'buildtime.txt')

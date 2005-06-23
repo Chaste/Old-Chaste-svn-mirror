@@ -39,7 +39,7 @@ class BuildType:
   
   def LinkFlags(self):
     """
-    Return the linker flags to use, as a string."
+    Return the linker flags to use, as a string.
     Note that this does not cover library search paths or what to link with.
     """
     return self._link_flags
@@ -202,7 +202,7 @@ def GetBuildType(buildType):
   parts = buildType.split(':')
   classname = parts[0]
   extras = parts[1:]
-    
+  
   if classname == '' or classname == 'default':
     classname = 'BuildType'
   exec "obj = %s()" % classname

@@ -47,7 +47,8 @@ test_fp = os.popen(exefile, 'r')
 test_output = []
 for line in test_fp:
   test_output.append(line)
-  print line,
+  if not '--no-stdout' in sys.argv:
+    print line,
 exit_code = test_fp.close()
 
 # Write output to the log file
