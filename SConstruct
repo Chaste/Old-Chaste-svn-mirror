@@ -9,6 +9,10 @@ build = BuildTypes.GetBuildType(build_type)
 build.SetRevision(ARGUMENTS.get('revision', ''))
 Export('build', 'build_type')
 
+# Specify test_summary=1 to scons to generate a summary html page
+test_summary = ARGUMENTS.get('test_summary', 0)
+Export('test_summary')
+
 # Specify system_name=finarfin to scons to change default paths
 system_name = ARGUMENTS.get('system_name', '')
 

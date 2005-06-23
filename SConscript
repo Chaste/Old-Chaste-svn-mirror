@@ -89,3 +89,14 @@ for testfile in testfiles:
 #              LIBS=all_libs,
 #              LIBPATH=['../../datawriters/build', '.', petsc_libpath])
 #  opt.RunParallelTests('parbuild.log', 'paralleltestrunner')
+
+
+# Test summary generation
+if test_summary:
+  import socket
+  machine = socket.getfqdn()
+  output_dir = os.path.join(build.GetTestReportDir(), machine+'.'+build_type)
+  summary = Builder(action = 'python/DisplayTests.py '+output_dir+' '+build_type)
+  opt['BUILDERS']['TestSummary'] = summary
+  opt.TestSummary(os.path.join(output_dir, 'index.html'),
+                  output_dir)

@@ -497,3 +497,5 @@ if __name__ == '__main__':
   print >>_fp,_summary(None, 'standalone', 'working copy', _machine, _build_type)
   print >>_fp,_footer()
   _fp.close()
+
+  print "Test summary generated in", os.path.join(_dir, 'index.html')
