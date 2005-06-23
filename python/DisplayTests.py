@@ -5,6 +5,7 @@
 
 import os, time, pysvn
 
+_standalone = False
 
 #####################################################################
 ##                          Webpages                               ##
@@ -157,12 +158,18 @@ def _summary(req, type, revision, machine=None, buildType=None):
   else:
     if not (machine and buildType):
       return _error('No test set to summarise specified.')
-  test_set_dir = _testResultsDir(type, revision, machine, buildType)
+  if type == 'standalone':
+    test_set_dir = _dir
+  else:
+    test_set_dir = _testResultsDir(type, revision, machine, buildType)
   
   # Now test_set_dir should be the directory containing the test results
   # to summarise. Extract summary info from the filenames.
-  buildTypesModule = _importBuildTypesModule(revision)
-  build = buildTypesModule.GetBuildType(buildType)
+  if type == 'standalone':
+    build = _build
+  else:
+    buildTypesModule = _importBuildTypesModule(revision)
+    build = buildTypesModule.GetBuildType(buildType)
   testsuite_status, overall_status, colour = _getTestStatus(test_set_dir,
                                                             build)
   
@@ -336,6 +343,8 @@ def _getTestStatus(test_set_dir, build):
   the overall status.
   """
   result_files = os.listdir(test_set_dir)
+  if 'index.html' in result_files:
+    result_files.remove('index.html')
   testsuite_status = {}
   for filename in result_files:
     testsuite, status = _extractDotSeparatedPair(filename)
@@ -381,13 +390,18 @@ def _statusColour(status, build):
 
 def _linkRevision(revision):
   "Return a link tag to the source browser for this revision."
+  if revision == 'working copy':
+    return revision
   return '<a href="%s?rev=%s">%s</a>' % (_source_browser_url,
                                          revision, revision)
 
 def _linkBuildType(buildType, revision):
   "Return a link tag to the detailed info page for this build type."
-  query = 'buildType?buildType=%s&revision=%s' % (buildType, revision)
-  return '<a href="%s/%s">%s</a>' % (_our_url, query, buildType)
+  if revision == 'working copy':
+    return buildType
+  else:
+    query = 'buildType?buildType=%s&revision=%s' % (buildType, revision)
+    return '<a href="%s/%s">%s</a>' % (_our_url, query, buildType)
 
 def _linkSummary(text, type, revision, machine, buildType):
   """
@@ -404,11 +418,16 @@ def _linkTestSuite(type, revision, machine, buildType, testsuite,
   Return a link tag to a page displaying the output from a single
   test suite.
   """
-  query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
-                                                           machine, buildType)
-  query = query + '&testsuite=%s&status=%s' % (testsuite, status)
-  return '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, 
-                                               build.DisplayStatus(status))
+  if type == 'standalone':
+    filename = testsuite + '.' + status
+    link = '<a href="%s">%s</a>' % (filename, build.DisplayStatus(status))
+  else:
+    query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
+                                                             machine, buildType)
+    query = query + '&testsuite=%s&status=%s' % (testsuite, status)
+    link = '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, 
+                                                 build.DisplayStatus(status))
+  return link
 
 def _colourText(text, colour):
   "Return text in the given colour."
@@ -439,3 +458,42 @@ def _footer():
   </body>
 </html>""" % _our_url
   return footer
+
+
+#####################################################################
+##                     Standalone version                          ##
+#####################################################################
+
+if __name__ == '__main__':
+  # We're being run from the command line rather than from within mod_python
+  # Arguments should be:
+  #  1: the directory containing test output files
+  #  2: the type of build (string, defaults to 'default')
+  # We write an index.html file for the local run of tests in the given directory.
+  _standalone = True
+  import sys, BuildTypes, socket
+  if len(sys.argv) < 2:
+    print "Syntax error."
+    print "Usage:",sys.argv[0],"<test output dir> [<build type>]"
+    sys.exit(1)
+  _dir = sys.argv[1]
+  if len(sys.argv) > 2:
+    _build_type = sys.argv[2]
+  else:
+    _build_type = 'default'
+  _build = BuildTypes.GetBuildType(_build_type)
+  _machine = socket.getfqdn()
+
+  # Alter the configuration slightly
+  _tests_dir = '.'
+  _source_browser_url = 'https://comlab2.lsi.ox.ac.uk/cgi-bin/trac.cgi/browser/'
+  _our_url = 'https://comlab2.lsi.ox.ac.uk/tests.py'
+
+  _fp = file(os.path.join(_dir, 'index.html'), 'w')
+
+  print >>_fp,_header('Test Summary For Local Build')
+  print >>_fp,'<h1>Test Summary For Local Build</h1>'
+  print >>_fp,'<p>Displaying info for tests with output stored in',_dir,'</p>'
+  print >>_fp,_summary(None, 'standalone', 'working copy', _machine, _build_type)
+  print >>_fp,_footer()
+  _fp.close()
