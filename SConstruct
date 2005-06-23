@@ -11,7 +11,7 @@ Export('build', 'build_type')
 
 # Specify test_summary=1 to scons to generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 0)
-Export('test_summary')
+#Export('test_summary')
 
 # Specify system_name=finarfin to scons to change default paths
 system_name = ARGUMENTS.get('system_name', '')
@@ -94,3 +94,18 @@ SConscript('coupled/SConscript', build_dir='coupled/build', duplicate=0)
 #SConscript('ode/SConscript', build_dir='build')
 #SConscript('pde/SConscript', build_dir='build')
 #SConscript('coupled/SConscript', build_dir='build')
+
+
+# Test summary generation
+if test_summary:
+  import socket, time
+  fp = file('buildtime.txt', 'w')
+  print >>fp, time.asctime()
+  fp.close()
+  opt = Environment(ENV = {'PATH' : os.environ['PATH']})
+  machine = socket.getfqdn()
+  output_dir = os.path.join(build.GetTestReportDir(), machine+'.'+build_type)
+  summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
+  opt['BUILDERS']['TestSummary'] = summary
+  opt.TestSummary(os.path.join(output_dir, 'index.html'),
+                  'buildtime.txt')

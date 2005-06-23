@@ -1,6 +1,7 @@
 #ifndef _FOURTHORDERTENSOR_HPP_
 #define _FOURTHORDERTENSOR_HPP_
 
+#include <cassert>
 #include <vector>
 
 /** FourthOrderTensor
