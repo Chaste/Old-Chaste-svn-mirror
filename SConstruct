@@ -28,7 +28,7 @@ if system_name == 'finarfin':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 else:
   # DTC (default)
-  petsc_base = '../../petsc-2.2.1-with-mpi/'
+  petsc_base = '../../../petsc-2.2.1-with-mpi/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
   petsc_mpi = '-I'+petsc_base+'include/mpiuni '
@@ -53,8 +53,8 @@ if system_name == 'finarfin':
     cxx    = '/usr/bin/g++'
     ar     = '/usr/bin/ar'
 else:
-  mpicxx = '../../mpi/bin/mpicxx'
-  mpirun = '../../mpi/bin/mpirun'
+  mpicxx = '../../../mpi/bin/mpicxx'
+  mpirun = '../../../mpi/bin/mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
 
