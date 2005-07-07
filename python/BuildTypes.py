@@ -120,6 +120,14 @@ class BuildType:
     return 'testoutput/'
 
 
+class GccDebug(BuildType):
+  """
+  gcc compiler with debug enabled.
+  """
+  def __init__(self):
+    BuildType.__init__(self)
+    self._cc_flags = '-g'
+    
 class GccOpt(BuildType):
   """
   gcc compiler with some optimisations enabled.
