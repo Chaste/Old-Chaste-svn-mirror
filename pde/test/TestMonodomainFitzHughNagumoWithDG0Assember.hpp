@@ -35,7 +35,7 @@ public:
     
     /** \todo Not yet fully working...
      */
-    void TestVisualFHN1D()
+    void TestVisualFHN1DFAILING()
     {  
         
         double tStart = 0.0; 
