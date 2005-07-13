@@ -9,8 +9,8 @@ build = BuildTypes.GetBuildType(build_type)
 build.SetRevision(ARGUMENTS.get('revision', ''))
 Export('build', 'build_type')
 
-# Specify test_summary=1 to scons to generate a summary html page
-test_summary = ARGUMENTS.get('test_summary', 0)
+# Specify test_summary=0 to scons to *NOT* generate a summary html page
+test_summary = ARGUMENTS.get('test_summary', 1)
 #Export('test_summary')
 
 # Specify system_name=finarfin to scons to change default paths
@@ -85,6 +85,11 @@ Export("cpppath")
 os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
           'testoutput/OrphanedTests.log ' + build_type + ' ' +
           build.GetTestReportDir() + ' --no-stdout')
+# Check for duplicate file names in multiple directories
+os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
+          'testoutput/DuplicateFileNames.log ' + build_type + ' ' +
+          build.GetTestReportDir() + ' --no-stdout')
+
 
 SConscript('maths/SConscript', build_dir='maths/build', duplicate=0)
 SConscript('mesh/SConscript', build_dir='mesh/build', duplicate=0)
@@ -98,11 +103,18 @@ SConscript('coupled/SConscript', build_dir='coupled/build', duplicate=0)
 # Test summary generation
 if test_summary:
   import socket, time
+  # Touch a file, which we use as source for the summary target, so the summary
+  # is done on every build.
   fp = file('buildtime.txt', 'w')
   print >>fp, time.asctime()
   fp.close()
+  # Get the directory to put results & summary in
   machine = socket.getfqdn()
   output_dir = os.path.join(build.GetTestReportDir(), machine+'.'+build_type)
+  # Remove old results. Note that this command gets run before anything is built.
+  #for oldfile in os.listdir(output_dir):
+  #  os.remove(os.path.join(output_dir, oldfile))
+  # Add a summary generator to the list of things for scons to do
   summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
   opt = Environment(ENV = {'PATH' : os.environ['PATH']})
   opt['BUILDERS']['TestSummary'] = summary

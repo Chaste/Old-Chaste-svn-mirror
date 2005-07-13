@@ -29,8 +29,19 @@ for root, dirs, files in os.walk(chaste_dir):
                 source_files[file] = [os.path.join(root, file)]
 
 # Now check dictionary for duplicates
+num_found_dups = 0
 for file in source_files:
     if len(source_files[file]) > 1:
         print "Duplicate occurrences of",file,":"
         for loc in source_files[file]:
             print "  ",loc
+        num_found_dups += 1
+
+# Let the test summary script know
+if num_found_dups > 0:
+    print "The next line is for the benefit of the test summary scripts."
+    print "Failed",num_found_dups,"of",len(source_files),"tests"
+
+    # Return a non-zero exit code if orphans were found
+    import sys
+    sys.exit(num_found_dups)

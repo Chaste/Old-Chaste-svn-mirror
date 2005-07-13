@@ -36,7 +36,7 @@ if len(sys.argv) > 4:
     print "Output directory",outputdir,"does not exist."
     help()
     sys.exit(1)
-  import socket, BuildTypes
+  import socket, BuildTypes, glob
   build = BuildTypes.GetBuildType(build_type)
 else:
   outputdir = None
@@ -68,6 +68,11 @@ if outputdir:
   test_name = os.path.splitext(os.path.basename(logfile))[0]
   status    = build.EncodeStatus(exit_code, test_output)
   #print test_name, status
+  # Remove any old copies of results from this test
+  oldfiles = glob.glob(os.path.join(test_dir, test_name+'.*'))
+  for oldfile in oldfiles:
+    os.remove(oldfile)
+  # Copy the new results
   copy_to   = os.path.join(test_dir, test_name+'.'+status)
   #print copy_to
   fp = file(copy_to, 'w')
