@@ -36,41 +36,33 @@ template <int SPACE_DIM>
 class MonodomainPdeFitzHughNagumo : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 private:
-    // friend class TestMonodomainPdeFitzHughNagumo;
-
-    /// timestep used in the ode solvers        
+    // timestep used in the ode solvers        
     double mSmallTimeStep;
     
-    /// timestep used by the pde solver
+    // timestep used by the pde solver
     double mBigTimeStep;
     
     AbstractIvpOdeSolver *mpOdeSolver;
     
-    /// number of nodes in the mesh 
+    // number of nodes in the mesh 
     int mNumNodes;
     
     // Default stimulus function
     AbstractStimulusFunction*                mpZeroStimulus;
     
-    /** mOdeVarsAtNode[i] is a vector of the current values of the
-     *  voltage, gating variables, intracellular Calcium concentration at node 
-     *  i. The voltage returned by the ode solver is not used later since the pde
-     *  solves for the voltage.
-     */
+    // mOdeVarsAtNode[i] is a vector of the current values of the
+    //  voltage, gating variable 
+    //  The voltage returned by the ode solver is not used later since the pde
+    //  solves for the voltage.
     std::vector<odeVariablesType>            mOdeVarsAtNode;
     
-    /** Stimulus function applied to each node
-     */
+    // Stimulus function applied to each node
     std::vector<AbstractStimulusFunction* >  mStimulusAtNode;
     
-    /**
-     * Vector of pointers to an ODE system object for each node
-     */
+     // Vector of pointers to an ODE system object for each node
     std::vector<FitzHughNagumo1961OdeSystem*> mOdeSystems;
 
-    /** boolean stating whether the gating variables have been solved for at this node
-     *  yet
-     */
+    // boolean stating whether the gating variables have yet been solved for at this node
     std::vector<bool>                        mOdeSolvedAtNode;      
     
     double mTime;                  
@@ -105,7 +97,7 @@ public:
         mOdeVarsAtNode.resize(mNumNodes);
         mOdeSolvedAtNode.resize(mNumNodes);
         mStimulusAtNode.resize(mNumNodes);
-	mOdeSystems.reserve(mNumNodes);
+		mOdeSystems.reserve(mNumNodes);
         
         // Initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
@@ -118,32 +110,28 @@ public:
         }        
     }
 
-    /**
-     * Destructor to free allocated memory
-     */
+
     ~MonodomainPdeFitzHughNagumo(void)
     {
-	delete mpZeroStimulus;
-	for (int i=0; i<mNumNodes; i++)
-	{
-	    delete mOdeSystems[i];
-	}
+		delete mpZeroStimulus;
+		for (int i=0; i<mNumNodes; i++)
+		{
+	    	delete mOdeSystems[i];
+		}
     }
     
-    /** This should not be called, use ComputeLinearSourceTermAtNode instead
-     */
+    // This should not be called as it is a virtual function, use ComputeLinearSourceTermAtNode instead
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         assert(0);
-	return 0.0; // Avoid compiler warning
+	return 0.0;
     }
     
-    /** This should not be called, use ComputeNonlinearSourceTermAtNode instead
-     */
+    // This should not be called as it is a virtual function, use ComputeNonlinearSourceTermAtNode instead
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
         assert(0);
-	return 0.0; // Avoid compiler warning
+	return 0.0; 
     }
 
         
@@ -152,7 +140,8 @@ public:
         return 10 * MatrixDouble::Identity(SPACE_DIM);
     }
     
-    /**
+    /** double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
+     * 
      * Main method in this class.
      * First checks to see if the ode set of equations have been solved for
      * in this timestep. If not, it integrates the odes over the timestep,
@@ -162,54 +151,30 @@ public:
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
         int index = node.GetIndex();
+        
+        FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystems[index];
+        
         if( !mOdeSolvedAtNode[ index ] )
         {
-            FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystems[index];
             
             // overwrite the voltage with the input value
-            mOdeVarsAtNode[index][0] = voltage; 
+            mOdeVarsAtNode[index][0] = voltage;             
             
-            if (0) // fabs(mTime+mBigTimeStep - 0.5) < 1e-4 )
-            {
-                std::cout << "\n\n--------before-------\n\n";
-                std::cout << "t = " << mTime+mBigTimeStep << "\n";
-                std::cout << "index = " << index << "\n";
-                std::cout << "stim = " << mStimulusAtNode[index]->GetStimulus(mTime) << "\n";
-                for(int j = 0;j<2; j++)
-                {
-                    std::cout << mOdeVarsAtNode[index][j] << "\n";
-                }
-            }
-            
-	    // solve            
+	    	// solve            
             OdeSolution solution = mpOdeSolver->Solve(pFitzHughNagumoOdeSystem, mTime, mTime+mBigTimeStep, mSmallTimeStep, mOdeVarsAtNode[ index ]);
-            
-            if (0) // fabs(mTime+mBigTimeStep - 0.5) < 1e-4 )
-            {
-                std::cout << "\n\n--------after-------\n";
-                std::cout << " t = " << mTime+mBigTimeStep << "\n";
-                std::cout << " index = " << index << "\n";
-                std::cout << " stim = " << mStimulusAtNode[index]->GetStimulus(mTime) << "\n";
-                for(int j=0;j<2; j++)
-                {
-//                     std::cout << solution.mSolutions[j][0] << "\n";
-                    std::cout << " " << solution.mSolutions[ solution.mSolutions.size()-1 ][j] << "\n";
-                }
-            }
                     
             // extract solution at end time and save in the store 
-            //std::cout << "\n\n--------really after-------\n";
             for(int j=0; j < 2; j++)
             {
                 mOdeVarsAtNode[ index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
-                //std::cout << mOdeVarsAtNode[index][j] << "\n";
             }
             mOdeSolvedAtNode[ index ] = true;
-           
         }
         
+        delete pFitzHughNagumoOdeSystem;
+        
         double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) +
-	    GetIIonic( mOdeVarsAtNode[ index ], voltage );
+	    GetIIonic( mOdeVarsAtNode[ index ] );
         
         return -Itotal;
     }
@@ -220,16 +185,14 @@ public:
         return 0;
     }
     
-    /** Capacitance = 1
-     */
+    // Capacitance = 1
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
     {
         return 1;
     }
     
     
-    /** Apply same initial conditions to each node in the mesh
-     */
+    // Apply same initial conditions to each node in the mesh
     void SetUniversalInitialConditions(odeVariablesType initialConditions)
     {
         for(int i=0; i<mNumNodes; i++)
@@ -239,17 +202,15 @@ public:
     }
     
     
-    /** Set given stimulus function to a particular node
-     */
+    // Set given stimulus function to a particular node
     void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
     {
         mStimulusAtNode[ nodeIndex ] = pStimulus;        
     }
     
 
-    /** This function informs the class that the current pde timestep is over,
-     *  so the odes are reset as being unsolved.
-     */
+    // This function informs the class that the current pde timestep is over,
+    //  so the odes are reset as being unsolved.
     void ResetAsUnsolvedOdeSystem()
     {
         mTime += mBigTimeStep;
@@ -268,13 +229,11 @@ public:
 
 
 
-    /** Calculate the ionic current, using the value of the gating variables
-     *  at time t+dt, but using the old voltage at time t.
-     */    
-    double GetIIonic(odeVariablesType odeVars, double voltage)
+    // Calculate the ionic current, using the value of the gating variables
+    //  at time t+dt, but using the old voltage at time t. 
+    double GetIIonic(odeVariablesType odeVars)
     {
-	// \todo ignore the voltage returned by the ode system solver ??
-	double membrane_V        =  odeVars[0]; // or use voltage;
+	double membrane_V        =  odeVars[0];
 	double recovery_variable =  odeVars[1];
      
 	// Define some constants

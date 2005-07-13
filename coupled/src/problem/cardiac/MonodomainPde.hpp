@@ -114,16 +114,18 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
 	delete mpZeroStimulus;
     }
     
-    /** This should not be called, use ComputeLinearSourceTermAtNode instead
-     */
+    // This should not be called as it is a virtual function, use 
+    // ComputeLinearSourceTermAtNode instead
+    
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         assert(0);
 	return 0.0;
     }
     
-    /** This should not be called, use ComputeNonlinearSourceTermAtNode instead
-     */
+    // This should not be called as it is a virtual function, use 
+    // ComputeNonlinearSourceTermAtNode instead
+    
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
         assert(0);
@@ -136,7 +138,9 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         return  DIFFUSION_CONST * MatrixDouble::Identity(SPACE_DIM);
     }
     
-    /** Main function is this class:
+    /** ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
+     * 
+     *  Main function is this class:
      *  computeNonlinearSourceTerm first checks to see if the ode set of equations have been
      *  solved for in this timestep. If not, it integrates the odes over the timestep, and uses
      *  the new results for the gating variables, together with the OLD voltage, to calculate and
@@ -145,51 +149,25 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
         int index = node.GetIndex();
+        
+        LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
+        
         if( !mOdeSolvedAtNode[ index ] )
         {
-            ///
-	    ///\todo move this object and OdeSolution creation outside loop
-            LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
-            
             // overwrite the voltage with the input value
             mOdeVarsAtNode[index][4] = voltage; 
             
-            if (0) // fabs(mTime+mBigTimeStep - 0.5) < 1e-4 )
-            {
-                std::cout << "\n\n--------before-------\n\n";
-                std::cout << "t = " << mTime+mBigTimeStep << "\n";
-                std::cout << "index = " << index << "\n";
-                std::cout << "stim = " << mStimulusAtNode[index]->GetStimulus(mTime) << "\n";
-                for(int j = 0;j<8; j++)
-                {
-                    std::cout << mOdeVarsAtNode[index][j] << "\n";
-                }
-            }
-            
             // solve            
             OdeSolution solution = mpOdeSolver->Solve(pLr91OdeSystem, mTime, mTime+mBigTimeStep, mSmallTimeStep, mOdeVarsAtNode[ index ]);
-
-            if (0) // fabs(mTime+mBigTimeStep - 0.5) < 1e-4 )
-            {
-                std::cout << "\n\n--------after-------\n";
-                std::cout << " t = " << mTime+mBigTimeStep << "\n";
-                std::cout << " index = " << index << "\n";
-                std::cout << " stim = " << mStimulusAtNode[index]->GetStimulus(mTime) << "\n";
-                for(int j=0;j<8; j++)
-                {
-//                     std::cout << solution.mSolutions[j][0] << "\n";
-                    std::cout << " " << solution.mSolutions[ solution.mSolutions.size()-1 ][j] << "\n";
-                }
-            }
-                    
+ 
             // extract solution at end time and save in the store 
             mOdeVarsAtNode[ index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
             mOdeSolvedAtNode[ index ] = true;
-           
-            delete pLr91OdeSystem;
         }
         
-        double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) + GetIIonic( mOdeVarsAtNode[ index ], voltage );
+        delete pLr91OdeSystem;
+        
+        double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) + GetIIonic( mOdeVarsAtNode[ index ]);
         
         return -Itotal;
     }
@@ -200,16 +178,14 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         return 0;
     }
     
-    /** Capacitence = 1
-     */
+    // Capacitance = 1
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
     {
         return 1;
     }
     
     
-    /** Apply same initial conditions to each node in the mesh
-     */
+    // Apply same initial conditions to each node in the mesh
     void SetUniversalInitialConditions(odeVariablesType initialConditions)
     {
         for(int i=0; i<mNumNodes; i++)
@@ -219,17 +195,15 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     }
     
     
-    /** Set given stimulus function to a particular node
-     */
+    // Set given stimulus function to a particular node
     void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
     {
         mStimulusAtNode[ nodeIndex ] = pStimulus;        
     }
     
 
-    /** This function informs the class that the current pde timestep is over, so the odes are reset
-     *  as being unsolved 
-     */
+    // This function informs the class that the current pde timestep is over, so the odes are reset
+    // as being unsolved 
     void ResetAsUnsolvedOdeSystem()
     {
         mTime += mBigTimeStep;
@@ -248,22 +222,18 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
 
 
 
-    /** Calculate the ionic current, using the value of the gating variables at time t+dt, but using
-     *  the old voltage at time t
-     *
-     * \todo Add a method to the ODE system object to retrieve the last calculated value
-     * for this?
-     */    
-    double GetIIonic(odeVariablesType odeVars, double voltage)
+    // Calculate the ionic current, using the value of the gating variables at time t+dt, but using
+    // the old voltage at time t
+    // todo Add a method to the ODE system object to retrieve the last calculated value
+    // for this? 
+    double GetIIonic(odeVariablesType odeVars)
     {
        double fast_sodium_current_h_gate_h              = odeVars[0];
        double fast_sodium_current_j_gate_j              = odeVars[1];
        double fast_sodium_current_m_gate_m              = odeVars[2];
        double intracellular_calcium_concentration_Cai   = odeVars[3];
 
-       ///
-       /// \todo ignore the voltage returned by the ode system solver ??
-       double membrane_V                                = odeVars[4]; // or use voltage;
+       double membrane_V                                = odeVars[4];
 
        double slow_inward_current_d_gate_d              = odeVars[5];
        double slow_inward_current_f_gate_f              = odeVars[6];

@@ -30,8 +30,8 @@ public:
         
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
     }   
-
-    void TestMonodomainDg01DVisual()
+ 
+    void TestMonodomainDg01DVisualFAILING()
     {  
         
         double tStart = 0; 
@@ -214,7 +214,7 @@ public:
 		AbstractVisualizer<1> *pViewer;
 		TS_ASSERT_THROWS_NOTHING(
 								 pViewer=new MatlabVisualizer<1>(
-										"testoutput/NewMonodomainLR91_1d"));
+										"io/test/data/NewMonodomainLR91_1d"));
 		try {
 			pViewer->CreateFilesForVisualization();
 		} catch (Exception e) {

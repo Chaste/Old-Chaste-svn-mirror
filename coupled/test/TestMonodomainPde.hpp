@@ -22,7 +22,7 @@
 #include "EulerIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 
-
+// todo: test Fitzhugh Nagumo PDE 
  
 #include <cxxtest/TestSuite.h>
 
@@ -89,7 +89,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         OdeSolution SolutionNewStimulated = pMySolver->Solve(pLr91OdeSystemStimulated, start_time, start_time + big_time_step, small_time_step, initialConditions);  
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.mSolutions[ SolutionNewStimulated.mSolutions.size()-1 ];
         
-        double value2 = -(-80 + monodomain_pde.GetIIonic(solutionSetStimT_05, voltage));
+        double value2 = -(-80 + monodomain_pde.GetIIonic(solutionSetStimT_05));
         
         TS_ASSERT_DELTA(value1, value2, 0.000001);
 
@@ -106,7 +106,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.mSolutions[ SolutionNewNotStim.mSolutions.size()-1 ];
        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage);
-        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetNoStimT_05, voltage));
+        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetNoStimT_05));
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
  
@@ -126,7 +126,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
                                                                 solutionSetStimT_05);  
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.mSolutions[ SolutionNewStimulatedT_1.mSolutions.size()-1 ];
         
-        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetStimT_1, solutionSetStimT_05[4]));
+        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetStimT_1));
         
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
@@ -142,7 +142,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.mSolutions[ SolutionNewNotStimT_1.mSolutions.size()-1 ];
        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, solutionSetNoStimT_05[4]);
-        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetNoStimT_1, solutionSetNoStimT_05[4]));
+        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetNoStimT_1));
 
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
@@ -152,107 +152,5 @@ class TestMonodomainPde : public CxxTest::TestSuite
     
      
 };
-    
-        
-/*            OLD CODE - can delete later once practical 6 is finished    
- * 
- * double i_stim = 0.0; // Set i_stim to zero by default
-        
-        double i_ionic;
-        double i_total;        
-                  
-        //  Comparing data against data for known solution: t = 0.5
-        double v = -4.4120e+01 ;
-        m = 2.4052e-01;
-        h = 9.6746e-01 ; 
-        j = 9.8200e-01; 
-        d = 3.6459e-03;
-        f = 9.9997e-01;
-        x = 5.6535e-03;
-        caI = 1.9913e-04;
-                  
-        std::vector<double> solutionSetStimT_05;
-        solutionSetStimT_05.push_back(h);
-        solutionSetStimT_05.push_back(j);
-        solutionSetStimT_05.push_back(m);
-        solutionSetStimT_05.push_back(caI);
-        solutionSetStimT_05.push_back(v);
-        solutionSetStimT_05.push_back(d);
-        solutionSetStimT_05.push_back(f);
-        solutionSetStimT_05.push_back(x);
-        
-        magnitudeOfStimulus = -80; //at time t=1, stimulus is zero
-        i_stim = magnitudeOfStimulus;
-        
-         // voltage that gets passed in solving ode
-        voltage = -84.5;
-        
-        i_ionic = monodomain_pde.GetIIonic(solutionSetStimT_05, voltage);
-        i_total = i_stim + i_ionic;
-  */ 
-       // TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage),i_total,0.00001);
-
-        // Check that we get the same result because ResetAsUnsolvedOdeSystem() has not yet been called.
-        // TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage),i_total,0.00001);
-        
-        // Compare against known data with no stimulus at t = 0.5       
-   /*     i_stim  = 0.0;   
-        v = -8.4507e+01;
-        m = 1.6777e-03;
-        h =  9.8328e-01; 
-        j = 9.8950e-01;
-        d = 2.9993e-03;  
-        f = 1.0000e-00;
-        x = 5.6001e-03;
-        caI = 1.9926e-04;
-        
-        std::vector<double> solutionSetNoStimT_05;
-        solutionSetNoStimT_05.push_back(h);
-        solutionSetNoStimT_05.push_back(j);
-        solutionSetNoStimT_05.push_back(m);
-        solutionSetNoStimT_05.push_back(caI);
-        solutionSetNoStimT_05.push_back(v);
-        solutionSetNoStimT_05.push_back(d);
-        solutionSetNoStimT_05.push_back(f);
-        solutionSetNoStimT_05.push_back(x);
-                              
-        // remark: the 'voltage' used is the resting membrane potential -84.5mV                      
-        i_ionic = monodomain_pde.GetIIonic(solutionSetNoStimT_05,voltage);
-        i_total = i_stim + i_ionic;
-         
-        //TS_ASSERT_DELTA(monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage),i_total,0.00000001);
-  
-   */
-
-/*        voltage = -4.4120e+01; // reset voltage to value at t = 0.5
-
-        //Comparing data against data for known solution: t = 1
-        v = 4.2094e+01;
-        m = 9.9982e-01;
-        h = 9.4396e-02; 
-        j = 8.7622e-01; 
-        d = 2.1953e-02;
-        f = 9.9889e-01;   
-        x = 6.8886e-03; 
-        caI = 1.9979e-04;
-        
-        std::vector<double> solutionSetStimT_1; 
-        solutionSetStimT_1.push_back(h);
-        solutionSetStimT_1.push_back(j);
-        solutionSetStimT_1.push_back(m); 
-        solutionSetStimT_1.push_back(caI);
-        solutionSetStimT_1.push_back(v);
-        solutionSetStimT_1.push_back(d);
-        solutionSetStimT_1.push_back(f);
-        solutionSetStimT_1.push_back(x);
-        
-        magnitudeOfStimulus = 0; //at time t=1, stimulus is zero
-        i_stim = magnitudeOfStimulus;
-                
-        i_ionic = monodomain_pde.GetIIonic(solutionSetStimT_1, voltage);
-        i_total = i_stim + i_ionic; 
-         */
-         
-
 
 #endif //_TESTMONODOMAINPDE_HPP_
