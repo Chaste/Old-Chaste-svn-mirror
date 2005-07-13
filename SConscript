@@ -26,7 +26,8 @@ for testpack in build.TestPacks():
   try:
     packfile = file('../test/'+testpack+'TestPack.txt', 'r')
     for testfile in map(lambda s: s.strip(), packfile.readlines()):
-      if not testfile in testfiles:
+      # Ignore blank lines and repeated tests.
+      if testfile and not testfile in testfiles:
         testfiles.append(testfile)
     packfile.close()
   except IOError:

@@ -39,6 +39,7 @@ for file in source_files:
 
 # Let the test summary script know
 if num_found_dups > 0:
+    print
     print "The next line is for the benefit of the test summary scripts."
     print "Failed",num_found_dups,"of",len(source_files),"tests"
 
