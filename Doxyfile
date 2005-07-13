@@ -81,25 +81,14 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-#INPUT                  = pdes \
-#                         odes \
-#                         cancer \
-#                         datawriters \
-#                         parameters \
-#                         heart \
-INPUT                  = pdes \
-                         pdes/tests \
-                         odes \
-                         odes/tests \
-                         cancer \
-                         cancer/tests \
-                         datawriters \
-                         datawriters/tests \
-                         parameters \
-                         parameters/tests \
-                         heart \
-                         heart/tests
-                         
+INPUT                  =    coupled/src \
+							global/src \
+							io/src \
+							maths/src \
+							mesh/src \
+							ode/src \ 
+							pde/src 
+							                         
 FILE_PATTERNS          = *.c \
                          *.cc \
                          *.cxx \
@@ -139,7 +128,7 @@ FILE_PATTERNS          = *.c \
                          *.PHP3 \
                          *.M \
                          *.MM
-RECURSIVE              = NO
+RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = CxxTest*
