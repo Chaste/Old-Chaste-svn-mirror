@@ -1,12 +1,10 @@
-// TestMeshWriters.hpp
-
+#ifndef _TESTMESHWRITERS_HPP_
+#define _TESTMESHWRITERS_HPP_
 /**
  * Test suite for the MeshWriter class(es).
  * 
  */
 
-#ifndef _TESTMESHWRITERS_HPP_
-#define _TESTMESHWRITERS_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "MemfemMeshReader.hpp"

@@ -21,7 +21,7 @@
 import os, sys
 
 def help():
-  print "Usage:",sys.argv[0],"<test exe> <.log file> <build type> [output dir]"
+  print "Usage:",sys.argv[0],"<test exe> <.log file> <build type> [output dir] [--no-stdout]"
 
 # Check for valid arguments.
 if len(sys.argv) < 4:
@@ -30,20 +30,27 @@ if len(sys.argv) < 4:
   sys.exit(1)
 
 exefile, logfile, build_type = sys.argv[1:4]
+
+# Check the output directory given
 if len(sys.argv) > 4:
   outputdir = sys.argv[4]
   if not os.path.isdir(outputdir):
     print "Output directory",outputdir,"does not exist."
     help()
     sys.exit(1)
-  import socket, BuildTypes, glob
-  build = BuildTypes.GetBuildType(build_type)
+  import socket, glob  # These modules only needed if we have an output dir
 else:
   outputdir = None
-  build = None
+
+# Get a build object for this build type
+import BuildTypes
+build = BuildTypes.GetBuildType(build_type)
+
+# Find out how we're supposed to run tests under this build type
+command = build.GetTestRunnerCommand(exefile)
 
 # Run the test program and record output & exit code
-test_fp = os.popen(exefile, 'r')
+test_fp = os.popen(command, 'r')
 test_output = []
 for line in test_fp:
   test_output.append(line)

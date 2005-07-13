@@ -89,11 +89,11 @@ class BuildType:
     'Failed (\d+) of (\d+) tests?' and the status string is '\1_\2'.
     Return the encoded status.
     """
-    import re
-    failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
     status = 'Unknown'
     if exitCode:
-      # At least one test failed
+      # At least one test failed. Find out how many by parsing the output.
+      import re
+      failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
       for line in outputLines:
         m = failed_tests.match(line)
         if m:
@@ -118,6 +118,14 @@ class BuildType:
     saved in a subdirectory named 'machine.buildtype'.
     """
     return 'testoutput/'
+  
+  def GetTestRunnerCommand(self, exefile):
+    """
+    Return the command to be used to run a test suite.
+    exefile is the filename of the test executable.
+    The default is just to run the given exectuable.
+    """
+    return exefile
 
 
 class GccDebug(BuildType):
@@ -127,7 +135,44 @@ class GccDebug(BuildType):
   def __init__(self):
     BuildType.__init__(self)
     self._cc_flags = '-g'
-    
+
+class MemoryTesting(BuildType):
+  """
+  Compile using gcc with debugging turned on, and run tests under valgrind.
+  """
+  def GetTestRunnerCommand(self, exefile):
+    "Run all tests using valgrind to check for memory leaks."
+    return 'valgrind --tool=memcheck --log-fd=1 --track-fds=yes --leak-check=full ' + exefile
+
+  def DisplayStatus(self, status):
+    "Return a (more) human readable version of the given status string."
+    if status == 'OK':
+      return 'No leaks found'
+    elif status == 'Unknown':
+      return 'Test output unrecognised'
+    else:
+      return 'Memory leaks found'
+
+  def EncodeStatus(self, exitCode, outputLines):
+    """
+    Encode the output from a test program as a status string.
+    The output from valgrind needs to be parsed to check for a leak summary.
+    If one is found the status is 'Leaky', otherwise 'OK'.
+    Return the encoded status.
+    """
+    status = 'Unknown'
+    import re
+    leaks = re.compile('==\d+== LEAK SUMMARY:')
+    for line in outputLines:
+      m = leaks.match(line)
+      if m:
+        status = 'Leaky'
+        break
+    else:
+      # No leak summary found
+      status = 'OK'
+    return status
+
 class GccOpt(BuildType):
   """
   gcc compiler with some optimisations enabled.
