@@ -27,6 +27,7 @@ ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
                              mUnlimitedDimensionPosition(0),
                              mFixedDimensionSize(-1),
                              mpCurrentOutputFile(NULL),
+                             mpCurrentAncillaryFile(NULL),
                              mpUnlimitedDimensionVariable(NULL),
                              mpFixedDimensionVariable(NULL)
 {
@@ -38,7 +39,39 @@ ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
 */
 ColumnDataWriter::~ColumnDataWriter()
 {
-    this->Close();
+	// Close any open output files.
+	Close();
+	
+	// Delete memory allocated for variables.
+	if (mpUnlimitedDimensionVariable != NULL)
+	{
+		delete mpUnlimitedDimensionVariable;
+	}
+	if (mpFixedDimensionVariable != NULL)
+	{
+		delete mpFixedDimensionVariable;
+	}
+}
+
+/**
+ * Close any open files.
+ */
+void ColumnDataWriter::Close()
+{
+	if (mpCurrentOutputFile != NULL)
+	{
+		std::cout << "closing output file." << std::endl;
+		mpCurrentOutputFile->close();
+		delete mpCurrentOutputFile;
+		mpCurrentOutputFile = NULL;
+	}
+
+	if (mpCurrentAncillaryFile != NULL)
+	{
+		mpCurrentAncillaryFile->close();
+		delete mpCurrentAncillaryFile;
+		mpCurrentAncillaryFile = NULL;
+	}
 }
 
 /**
@@ -239,6 +272,11 @@ void ColumnDataWriter::EndDefineMode()
  */
 void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
 {
+	// Delete old data file object, if any
+	if (mpCurrentOutputFile != NULL)
+	{
+		delete mpCurrentOutputFile;
+	}
     //create new data file
     mpCurrentOutputFile = new std::ofstream(filepath.c_str(), std::ios::out);
     if(!mpCurrentOutputFile->is_open())
@@ -271,18 +309,6 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
 
 }
 
-/**
-*  Closes the DataWriter
-*
-*/
-void ColumnDataWriter::Close()
-{
-   if(mpCurrentOutputFile == NULL)
-   {
-       throw Exception("Cannot close datawriter - current output file not defined");
-   }
-   mpCurrentOutputFile->close();
-}
 
 /**
 *  Advance along the unlimited dimension. Normally this will be called
