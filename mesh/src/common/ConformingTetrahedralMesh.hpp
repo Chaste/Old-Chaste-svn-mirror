@@ -44,11 +44,11 @@ private:
 	// Methods used for testing before we had MeshReader.
     void AddElement(Element<ELEMENT_DIM, SPACE_DIM> newElement);
     void AddNode(Node<SPACE_DIM> newNode);
-    /**
-     * \todo
-     *  Tests should all be changed to use MeshReaders.
-     */
-    void AddSurfaceElement(const Element<ELEMENT_DIM-1, SPACE_DIM> *pNewElement);
+//    /**
+//     * \todo
+//     *  Tests should all be changed to use MeshReaders.
+//     */
+//    void AddSurfaceElement(const Element<ELEMENT_DIM-1, SPACE_DIM> *pNewElement);
     /**
      * \todo
      * Create our list of boundary nodes from the node list.
@@ -70,6 +70,8 @@ public:
     
 	ConformingTetrahedralMesh();
     ConformingTetrahedralMesh(long numElements);
+    
+    ~ConformingTetrahedralMesh();
     
     void ConstructFromMeshReader(AbstractMeshReader &rMeshReader, int orderOfBasisFunctions=1);
     

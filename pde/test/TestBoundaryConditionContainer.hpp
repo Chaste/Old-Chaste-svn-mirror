@@ -15,40 +15,6 @@
 class TestBoundaryConditionContainer : public CxxTest::TestSuite 
 {
 private:
-	/**
-	 * \todo Note that we currently leak the memory allocated for these nodes
-	 */
-	Element<0,1> Create0DElement(int i)
-	{
-		std::vector<const Node<1>* > nodes;
-		const Node<1>* node = new Node<1>(i,true,0);
-		nodes.push_back(node);
-		
-		Element<0,1> ret(nodes);
-		return  ret;		
-	}
-	Element<1,2> Create1DElement(int i)
-	{
-		std::vector<const Node<2>* > nodes;
-		const Node<2>* node0 = new Node<2>(i,true,0,0);
-		const Node<2>* node1 = new Node<2>(i,true,0,0);
-		nodes.push_back(node0);
-		nodes.push_back(node1);
-		Element<1,2> ret(nodes);
-		return  ret;		
-	}
-	Element<2,3> Create2DElement(int i)
-	{
-		std::vector<const Node<3>* > nodes;
-		const Node<3>* node0 = new Node<3>(i,true,0,0,0);
-		const Node<3>* node1 = new Node<3>(i,true,0,0,0);
-		const Node<3>* node2 = new Node<3>(i,true,0,0,0);
-		nodes.push_back(node0);
-		nodes.push_back(node1);
-		nodes.push_back(node2);
-		Element<2,3> ret(nodes);
-		return  ret;		
-	}
 			
 public:
 	void setUp()
@@ -88,7 +54,12 @@ public:
 		std::vector<Element<0,1> > elements;
 		for(int i=0; i<numElem; i++)
 		{
-			elements.push_back(Create0DElement(i));
+			std::vector<const Node<1>* > nodes;
+			const Node<1>* node = new Node<1>(i,true,0);
+			nodes.push_back(node);
+			
+			Element<0,1> element(nodes);
+			elements.push_back(element);
 		}
 		for(int i=0; i<numElem; i++)
 		{
@@ -100,6 +71,7 @@ public:
 		{
 			VectorDouble value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
+			delete elements[i].GetNode(0);
 		}		
 
 		//////////////////////////////////////////////////////////////
@@ -127,7 +99,14 @@ public:
 		std::vector<Element<1,2> > elements2;
 		for(int i=0; i<numElem; i++)
 		{
-			elements2.push_back(Create1DElement(i));
+			std::vector<const Node<2>* > nodes;
+			const Node<2>* node0 = new Node<2>(i,true,0,0);
+			const Node<2>* node1 = new Node<2>(i,true,0,0);
+			nodes.push_back(node0);
+			nodes.push_back(node1);
+			Element<1,2> element(nodes);
+			
+			elements2.push_back(element);
 		}
 		for(int i=0; i<numElem; i++)
 		{
@@ -139,6 +118,8 @@ public:
 		{
 			VectorDouble value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
+			delete elements2[i].GetNode(0);
+			delete elements2[i].GetNode(1);
 		}		
 		
 		//////////////////////////////////////////////////////////////
@@ -166,7 +147,16 @@ public:
 		std::vector<Element<2,3> > elements3;
 		for(int i=0; i<numElem; i++)
 		{
-			elements3.push_back(Create2DElement(i));
+			std::vector<const Node<3>* > nodes;
+			const Node<3>* node0 = new Node<3>(i,true,0,0,0);
+			const Node<3>* node1 = new Node<3>(i,true,0,0,0);
+			const Node<3>* node2 = new Node<3>(i,true,0,0,0);
+			nodes.push_back(node0);
+			nodes.push_back(node1);
+			nodes.push_back(node2);
+			Element<2,3> element(nodes);
+			
+			elements3.push_back(element);
 		}
 		for(int i=0; i<numElem; i++)
 		{
@@ -178,6 +168,9 @@ public:
 		{
 			VectorDouble value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
+			delete elements3[i].GetNode(0);
+			delete elements3[i].GetNode(1);
+			delete elements3[i].GetNode(2);
 		}		
 	}
 
@@ -364,7 +357,7 @@ public:
 		BoundaryConditionsContainer<3,3> bcc32(2,SIZE);
 		
 		// Apply dirichlet boundary conditions to all but last node
-		for(int i = 0; i < SIZE; i++)
+		for(int i = 0; i < SIZE-1; i++)
 		{
 			p3d_nodes[i] = new Node<3>(i,true);
 			VectorDouble vec(2);
@@ -383,7 +376,7 @@ public:
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
 
-		for( int i = 0; i < SIZE; i++)
+		for( int i = 0; i < SIZE-1; i++)
 		{
 	        TS_ASSERT_DELTA(solution_elements[i],      -1.0, 0.000001);
 	        TS_ASSERT_DELTA(solution_elements[i+SIZE], -2.0, 0.000001);
@@ -415,7 +408,7 @@ public:
 		BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
 		
 		// Apply dirichlet boundary conditions to all but last node
-		for(int i = 0; i < SIZE; i++)
+		for(int i = 0; i < SIZE-1; i++)
 		{
 			p3d_nodes[i] = new Node<3>(i,true);
 			VectorDouble vec(3);

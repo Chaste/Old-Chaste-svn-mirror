@@ -172,9 +172,22 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 			}
 		}
 		
+		// The added elements will be deleted in our destructor
 		mBoundaryElements.push_back(new Element<ELEMENT_DIM-1,SPACE_DIM>(nodes,orderOfBasisFunctions));
 	}
 	
+}
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ConformingTetrahedralMesh()
+{
+	// Iterate over boundary elements and free the memory
+	BoundaryElementIterator it = GetFirstBoundaryElement();
+	while (it != GetLastBoundaryElement())
+	{
+		delete (*it);
+		it++;
+	}
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
@@ -190,11 +203,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> 
     mNodes.push_back(newNode);
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddSurfaceElement(const Element<ELEMENT_DIM-1, SPACE_DIM> *pNewElement)
-{
-	mBoundaryElements.push_back(pNewElement);
-}
+//template<int ELEMENT_DIM, int SPACE_DIM>
+//void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddSurfaceElement(const Element<ELEMENT_DIM-1, SPACE_DIM> *pNewElement)
+//{
+//	mBoundaryElements.push_back(pNewElement);
+//}
 
 /**
  * Get a node reference from the mesh.

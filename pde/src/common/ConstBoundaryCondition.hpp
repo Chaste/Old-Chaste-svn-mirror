@@ -19,13 +19,13 @@ public:
 	 * @param value The value of this boundary condition at all points where it
 	 *    is applied.
 	 */
-    ConstBoundaryCondition(double value)
+    ConstBoundaryCondition(const double value)
     {
     	mpValue = new VectorDouble(1);
     	(*mpValue)(0) = value;
     }
 
-    ConstBoundaryCondition(VectorDouble value)
+    ConstBoundaryCondition(const VectorDouble value)
     {
     	mpValue = new VectorDouble( value.Size() );
     	for( int i = 0; i < value.Size(); i++ )
@@ -41,6 +41,14 @@ public:
     VectorDouble GetValue( const Point<SPACE_DIM> x) const
     {
         return *mpValue;
+    }
+    
+    /**
+     * Delete the stored VectorDouble giving the value of this boundary condition.
+     */
+    ~ConstBoundaryCondition()
+    {
+    	delete mpValue;
     }
 };
 
