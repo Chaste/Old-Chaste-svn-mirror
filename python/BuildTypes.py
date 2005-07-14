@@ -265,7 +265,7 @@ def GetBuildType(buildType):
   extras = parts[1:]
   
   if classname == '' or classname == 'default':
-    classname = 'BuildType'
+    classname = 'GccDebug'
   exec "obj = %s()" % classname
   
   for extra in extras:

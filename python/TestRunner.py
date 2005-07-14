@@ -47,7 +47,7 @@ import BuildTypes
 build = BuildTypes.GetBuildType(build_type)
 
 # Find out how we're supposed to run tests under this build type
-command = build.GetTestRunnerCommand(exefile)
+command = build.GetTestRunnerCommand(exefile + ' 2>&1 ')
 
 # Run the test program and record output & exit code
 test_fp = os.popen(command, 'r')
