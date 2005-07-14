@@ -163,10 +163,18 @@ class MemoryTesting(BuildType):
     status = 'Unknown'
     import re
     leaks = re.compile('==\d+== LEAK SUMMARY:')
+    definitely_lost = re.compile('==\d+==\s+definitely lost: (\d+) bytes in (\d+) blocks.')
+    possibly_lost = re.compile('==\d+==\s+possibly lost: (\d+) bytes in (\d+) blocks.')
     for line in outputLines:
       m = leaks.match(line)
       if m:
-        status = 'Leaky'
+        # Check we have really lost some memory
+        md = definitely_lost.match(outputLines.next())
+        mp = possibly_lost.match(outputLines.next())
+        if int(md.group(2)) > 0 or int(mp.group(2)) > 0:
+          status = 'Leaky'
+        else:
+          status = 'OK'
         break
     else:
       # No leak summary found
