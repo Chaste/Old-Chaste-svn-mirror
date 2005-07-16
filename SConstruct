@@ -1,6 +1,6 @@
 # Controlling scons build script for Chaste
 
-import sys
+import sys, os
 sys.path.append('python')
 import BuildTypes
 
@@ -11,10 +11,22 @@ Export('build', 'build_type')
 
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
-#Export('test_summary')
 
 # Specify system_name=finarfin to scons to change default paths
 system_name = ARGUMENTS.get('system_name', '')
+
+# To run a single test suite only, give its path (relative to the Chaste
+# root) as the test_suite=<path> argument.
+single_test_suite = ARGUMENTS.get('test_suite', '')
+if single_test_suite:
+  print single_test_suite, single_test_suite.split(os.path.sep)
+  single_test_suite = single_test_suite.split(os.path.sep)
+  single_test_suite_dir = single_test_suite[0]
+  single_test_suite = single_test_suite[-1]
+else:
+  single_test_suite_dir = ''
+Export('single_test_suite', 'single_test_suite_dir')
+
 
 ## PETSc library paths
 if system_name == 'finarfin':
@@ -68,7 +80,7 @@ link_flags  = build.LinkFlags()
 Export("extra_flags", "link_flags")
 
 # Search path for #includes
-import glob, os
+import glob
 cpppath = ['#/', '#/cxxtest']
 src_folders = glob.glob('*/src')
 for src_folder in src_folders:

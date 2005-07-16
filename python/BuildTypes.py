@@ -127,8 +127,9 @@ class BuildType:
     """
     return exefile
 
+Gcc = BuildType
 
-class GccDebug(BuildType):
+class GccDebug(Gcc):
   """
   gcc compiler with debug enabled.
   """
@@ -136,7 +137,7 @@ class GccDebug(BuildType):
     BuildType.__init__(self)
     self._cc_flags = '-g'
 
-class MemoryTesting(BuildType):
+class MemoryTesting(GccDebug):
   """
   Compile using gcc with debugging turned on, and run tests under valgrind.
   """
@@ -180,8 +181,8 @@ class MemoryTesting(BuildType):
       # No leak summary found
       status = 'OK'
     return status
-
-class GccOpt(BuildType):
+  
+class GccOpt(Gcc):
   """
   gcc compiler with some optimisations enabled.
   """
@@ -197,7 +198,7 @@ class GccOptP4(GccOpt):
     GccOpt.__init__(self)
     self._cc_flags = self._cc_flags+' -march=pentium4 -mmx -msse -msse2 -mfpmath=sse'
     
-class GccProfiled(BuildType):
+class GccProfiled(Gcc):
   """
   gcc compiler with profiling.
   """
@@ -265,6 +266,7 @@ def GetBuildType(buildType):
   extras = parts[1:]
   
   if classname == '' or classname == 'default':
+    # Default build type
     classname = 'GccDebug'
   exec "obj = %s()" % classname
   

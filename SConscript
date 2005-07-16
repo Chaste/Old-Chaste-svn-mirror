@@ -21,17 +21,23 @@ os.chdir(curdir)
 # Look for files containing a test suite
 # A list of test suites to run will be found in a test/<name>TestPack.txt
 # file, one per line.
+# Alternatively, a single test suite may have been specified on the command
+# line
 testfiles = []
-for testpack in build.TestPacks():
-  try:
-    packfile = file('../test/'+testpack+'TestPack.txt', 'r')
-    for testfile in map(lambda s: s.strip(), packfile.readlines()):
-      # Ignore blank lines and repeated tests.
-      if testfile and not testfile in testfiles:
-        testfiles.append(testfile)
-    packfile.close()
-  except IOError:
-    pass
+if single_test_suite:
+  if single_test_suite_dir == toplevel_dir:
+    testfiles = [single_test_suite]
+else:
+  for testpack in build.TestPacks():
+    try:
+      packfile = file('../test/'+testpack+'TestPack.txt', 'r')
+      for testfile in map(lambda s: s.strip(), packfile.readlines()):
+        # Ignore blank lines and repeated tests.
+        if testfile and not testfile in testfiles:
+          testfiles.append(testfile)
+      packfile.close()
+    except IOError:
+      pass
 
 
 # Look for source files that tests depend on in test/.
