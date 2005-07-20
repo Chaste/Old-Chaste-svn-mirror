@@ -164,18 +164,20 @@ class MemoryTesting(GccDebug):
     status = 'Unknown'
     import re
     leaks = re.compile('==\d+== LEAK SUMMARY:')
-    definitely_lost = re.compile('==\d+==\s+definitely lost: (\d+) bytes in (\d+) blocks.')
-    possibly_lost = re.compile('==\d+==\s+possibly lost: (\d+) bytes in (\d+) blocks.')
-    for line in outputLines:
-      m = leaks.match(line)
+    lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
+    for lineno in range(len(outputLines)):
+      m = leaks.match(outputLines[lineno])
       if m:
         # Check we have really lost some memory
-        md = definitely_lost.match(outputLines.next())
-        mp = possibly_lost.match(outputLines.next())
-        if int(md.group(2)) > 0 or int(mp.group(2)) > 0:
-          status = 'Leaky'
-        else:
-          status = 'OK'
+        status = 'OK'
+        lineno += 1
+        match = lost.match(outputLines[lineno])
+        while match:
+          if int(match.group(3)) > 0:
+            status = 'Leaky'
+            break
+          lineno += 1
+          match = lost.match(outputLines[lineno])
         break
     else:
       # No leak summary found

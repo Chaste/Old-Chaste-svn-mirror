@@ -27,6 +27,11 @@ testfiles = []
 if single_test_suite:
   if single_test_suite_dir == toplevel_dir:
     testfiles = [single_test_suite]
+    # Remove any old test output file to force a re-run
+    try:
+      os.remove(single_test_suite[:-4] + '.log')
+    except OSError:
+      print "Hmm"
 else:
   for testpack in build.TestPacks():
     try:

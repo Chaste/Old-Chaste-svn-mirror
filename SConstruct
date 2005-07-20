@@ -17,12 +17,13 @@ system_name = ARGUMENTS.get('system_name', '')
 
 # To run a single test suite only, give its path (relative to the Chaste
 # root) as the test_suite=<path> argument.
+# This will force the test suite to be run even if the source is unchanged.
 single_test_suite = ARGUMENTS.get('test_suite', '')
 if single_test_suite:
-  print single_test_suite, single_test_suite.split(os.path.sep)
   single_test_suite = single_test_suite.split(os.path.sep)
   single_test_suite_dir = single_test_suite[0]
   single_test_suite = single_test_suite[-1]
+  print single_test_suite, single_test_suite_dir
 else:
   single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')
