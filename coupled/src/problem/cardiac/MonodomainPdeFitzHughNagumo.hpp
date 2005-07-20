@@ -171,7 +171,7 @@ public:
             mOdeSolvedAtNode[ index ] = true;
         }
         
-        delete pFitzHughNagumoOdeSystem;
+        //Who wrote this? delete pFitzHughNagumoOdeSystem;
         
         double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) +
 	    GetIIonic( mOdeVarsAtNode[ index ] );

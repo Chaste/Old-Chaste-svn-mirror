@@ -44,7 +44,6 @@ public:
         // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
         double tBigStep = 0.01; 
         double tSmallStep  = 0.01;
-        
         // Create mesh from mesh reader
         //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
         TrianglesMeshReader mesh_reader("mesh/test/data/heart_FHN_mesh");

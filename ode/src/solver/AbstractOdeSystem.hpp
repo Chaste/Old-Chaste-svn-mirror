@@ -19,7 +19,7 @@ class AbstractOdeSystem
 	
 	AbstractOdeSystem(int numberOfEquations): mNumberOfEquations(numberOfEquations) {}; /**< Constructor*/
 	
-	~AbstractOdeSystem() {}; /**<  Destructor */  
+	virtual ~AbstractOdeSystem() {}; /**<  Destructor */  
 	
 	virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
 	
