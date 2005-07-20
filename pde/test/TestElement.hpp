@@ -148,7 +148,9 @@ public:
 		TS_ASSERT_DELTA(Det1d, 0.5, 1e-12);
 		const MatrixDouble *J1dinv = element1d.GetInverseJacobian();
 		TS_ASSERT_DELTA((*J1dinv)(0,0), 2.0, 1e-12);
-		
+				
+		delete nodes1d[0];
+		delete nodes1d[1];
 		// 2d easy
 		
 		std::vector<const Node<2>*> nodes2d;
@@ -162,6 +164,10 @@ public:
 		TS_ASSERT_DELTA((*J2d)(1,0), 0.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d)(1,1), 1.0, 1e-12);
 		
+		delete nodes2d[0];
+		delete nodes2d[1];
+		delete nodes2d[2];
+
 		//2d general
 		std::vector<const Node<2>*> nodes2d2;
 		nodes2d2.push_back(new Node<2>(0, false, 1.0, -2.0));
@@ -181,6 +187,11 @@ public:
 		TS_ASSERT_DELTA((*J2d2inv)(0,1), -0.25, 1e-12);
 		TS_ASSERT_DELTA((*J2d2inv)(1,0), 0.25, 1e-12);
 		TS_ASSERT_DELTA((*J2d2inv)(1,1), 0.75, 1e-12);
+
+		delete nodes2d2[0];
+		delete nodes2d2[1];
+		delete nodes2d2[2];
+
 		
 		// 3d easy
 		std::vector<const Node<3>*> nodes3d;
@@ -199,6 +210,12 @@ public:
 		TS_ASSERT_DELTA((*J3d)(2,0), 0.0, 1e-12);
 		TS_ASSERT_DELTA((*J3d)(2,1), 0.0, 1e-12);
 		TS_ASSERT_DELTA((*J3d)(2,2), 1.0, 1e-12);
+		
+		delete nodes3d[0];
+		delete nodes3d[1];
+		delete nodes3d[2];
+    	delete nodes3d[3];
+		
 		
 		// 3d general
 		std::vector<const Node<3>*> nodes3d2;
@@ -231,6 +248,10 @@ public:
 		TS_ASSERT_DELTA((*J3d2inv)(2,1), -2.0/7.0, 1e-4);
 		TS_ASSERT_DELTA((*J3d2inv)(2,2), 1.0, 1e-4);
 		
+		delete nodes3d2[0];
+		delete nodes3d2[1];
+		delete nodes3d2[2];
+    	delete nodes3d2[3];
 	}
 	
     void TestNodeToElementConversion(void)
