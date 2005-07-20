@@ -23,7 +23,7 @@ if single_test_suite:
   single_test_suite = single_test_suite.split(os.path.sep)
   single_test_suite_dir = single_test_suite[0]
   single_test_suite = single_test_suite[-1]
-  print single_test_suite, single_test_suite_dir
+  #print single_test_suite, single_test_suite_dir
 else:
   single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')

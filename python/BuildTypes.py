@@ -163,9 +163,18 @@ class MemoryTesting(GccDebug):
     """
     status = 'Unknown'
     import re
+    invalid = re.compile('==\d+== Invalid ')
+    glibc = re.compile('__libc_freeres')
     leaks = re.compile('==\d+== LEAK SUMMARY:')
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
     for lineno in range(len(outputLines)):
+      m = invalid.match(outputLines[lineno])
+      if m:
+        # Invalid read/write/free()/etc. found. This is bad, unless it's glibc's fault.
+        match = glibc.search(outputLines[lineno+3])
+        if not match:
+          status = 'Leaky'
+          break
       m = leaks.match(outputLines[lineno])
       if m:
         # Check we have really lost some memory

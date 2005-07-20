@@ -31,7 +31,7 @@ if single_test_suite:
     try:
       os.remove(single_test_suite[:-4] + '.log')
     except OSError:
-      print "Hmm"
+      pass
 else:
   for testpack in build.TestPacks():
     try:
