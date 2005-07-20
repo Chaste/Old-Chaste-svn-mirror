@@ -37,7 +37,72 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 
 	// Reserve memory for nodes, so we don't have problems with pointers stored in
 	// elements becoming invalid.	
-	mNodes.reserve(mNumCornerNodes);
+	// For quadratic basis functions we need to go through and count them first
+	
+	if (orderOfBasisFunctions == 1)
+	{
+		mNodes.reserve(mNumCornerNodes);
+	}
+	else if (orderOfBasisFunctions == 2)
+	{	
+		typename std::map<std::pair<int,int>,int>::const_iterator iterator;
+		std::map<std::pair<int,int>,int> internal_nodes_map;
+		
+		std::vector<Node<SPACE_DIM> > temp_nodes;
+		temp_nodes.reserve(mNumCornerNodes);
+		
+		// Add corner nodes to temporary nodes vector
+		std::vector<double> coords;
+		for (int i=0; i < mNumCornerNodes; i++)
+		{
+			coords = rMeshReader.GetNextNode();
+			temp_nodes.push_back(Node<SPACE_DIM>(i, Point<SPACE_DIM>(coords), false));
+		}
+		
+		int new_node_index = mNumCornerNodes;		
+		
+		// Create the map of internal node indices
+		for (int i=0; i < rMeshReader.GetNumElements(); i++)
+		{
+			std::vector<int> node_indices = rMeshReader.GetNextElement();
+			std::vector<const Node<SPACE_DIM>*> nodes;
+		    
+		    //Debugging code
+		    int nodes_size = node_indices.size();
+		    
+			for (int j=0; j < nodes_size; j++)
+			{
+				assert(node_indices[j] < temp_nodes.size());
+				nodes.push_back(&temp_nodes[node_indices[j]]);
+			}
+						
+			for (int j=0; j < ELEMENT_DIM + 1; j++)
+			{
+				for (int k=j+1; k < ELEMENT_DIM + 1; k++)
+				{
+					assert(j < nodes_size && k < nodes_size);					
+					int node_i = nodes[j]->GetIndex();
+					int node_j = nodes[k]->GetIndex();
+					if (node_j < node_i)
+					{
+						int temp = node_i;
+						node_i = node_j;
+						node_j = temp;
+					}
+					iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
+					if (iterator == internal_nodes_map.end())
+					{
+						// add node to map
+						internal_nodes_map[(std::pair<int,int>(node_i, node_j))] = new_node_index;
+						new_node_index++;
+					}
+				}
+			}	
+		}		
+		mNodes.reserve(new_node_index);				
+	}
+	
+	rMeshReader.Reset();	
 	
 	typename std::map<std::pair<int,int>,int>::const_iterator iterator;
 	std::map<std::pair<int,int>,int> internal_nodes_map;
@@ -58,9 +123,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		{
 			std::vector<int> node_indices = rMeshReader.GetNextElement();
 			std::vector<const Node<SPACE_DIM>*> nodes;
-		
-			for (int j=0; j<node_indices.size(); j++)
+		    
+		    //Debugging code
+		    int nodes_size = node_indices.size();
+		    
+			for (int j=0; j < nodes_size; j++)
 			{
+				assert(node_indices[j] < mNodes.size());
 				nodes.push_back(&mNodes[node_indices[j]]);
 			}
 						
@@ -68,6 +137,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 			{
 				for (int k=j+1; k < ELEMENT_DIM + 1; k++)
 				{
+					assert(j < nodes_size && k < nodes_size);					
 					int node_i = nodes[j]->GetIndex();
 					int node_j = nodes[k]->GetIndex();
 					if (node_j < node_i)
@@ -102,9 +172,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 	{
 		std::vector<int> node_indices = rMeshReader.GetNextElement();
 		std::vector<const Node<SPACE_DIM>*> nodes;
-		
-		for (int j=0; j<node_indices.size(); j++)
+		int nodes_size = node_indices.size();
+		for (int j=0; j<nodes_size; j++)
 		{
+			assert(node_indices[j] < mNodes.size());
 			nodes.push_back(&mNodes[node_indices[j]]);
 		}		        
         
@@ -114,6 +185,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 			{
 				for (int k=j+1; k < ELEMENT_DIM + 1; k++)
 				{
+					assert(j < nodes_size && k < nodes_size);
 					int node_i = nodes[j]->GetIndex();
 					int node_j = nodes[k]->GetIndex();
 					if (node_j < node_i)
@@ -140,6 +212,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		std::vector<const Node<SPACE_DIM>*> nodes;
 		for (int j=0; j<node_indices.size(); j++)
 		{
+			assert(node_indices[j] < mNodes.size());
 			// Add Node pointer to list for creating an element
 			nodes.push_back(&mNodes[node_indices[j]]);
 			// If Node hasn't been marked as a boundary node, do so
@@ -152,10 +225,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		
 		if (orderOfBasisFunctions == 2)
 		{
+			int nodes_size = node_indices.size();
 			for (int j=0; j < ELEMENT_DIM; j++)
 			{
 				for (int k=j+1; k < ELEMENT_DIM; k++)
 				{
+					assert(j < nodes_size && k < nodes_size);
 					int node_i = nodes[j]->GetIndex();
 					int node_j = nodes[k]->GetIndex();
 					if (node_j < node_i)

@@ -2,6 +2,7 @@
 #define _NODE_HPP_
 
 #include "Point.hpp"
+#include <iostream>
 
 template<int SPACE_DIM>
 class Node
@@ -14,10 +15,11 @@ private:
 
 	//TODO:
 	//bool mIsDirichletNode;
-    
+	Node() {}
+	    
 public:
 
-	Node() {}
+
 	
 	Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
 	{
