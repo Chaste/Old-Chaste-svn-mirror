@@ -9,18 +9,18 @@
 class TestSimpleLinearSolver : public CxxTest::TestSuite 
 {
 public:
-    void setUp()
-    {
+	void setUp()
+	{
 		int FakeArgc=0;
 		char *FakeArgv0="testrunner";
 		char **FakeArgv=&FakeArgv0;
    		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }   
-        
+	}   
+		
 
 	void TestLinearSolverEasy( void )
-    {
-	    // Solve Ax=b. 2x2 matrix
+	{
+		// Solve Ax=b. 2x2 matrix
 	
 		SimpleLinearSolver solver;
 	
@@ -50,20 +50,25 @@ public:
 	   	MatAssemblyBegin(lhs_matrix, MAT_FINAL_ASSEMBLY);
 	   	MatAssemblyEnd(lhs_matrix, MAT_FINAL_ASSEMBLY);
 	   	
-	    // Call solver
-	    Vec lhs_vector;
-	    TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
-	    
-	    // Check result
-	    PetscScalar *lhs_elements;
-	    VecGetArray(lhs_vector, &lhs_elements);
-	    TS_ASSERT_DELTA(lhs_elements[0], 1.0, 0.000001);
-	    TS_ASSERT_DELTA(lhs_elements[1], 1.0, 0.000001);
-    }
-    
+		// Call solver
+		Vec lhs_vector;
+		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
+		
+		// Check result
+		PetscScalar *lhs_elements;
+		VecGetArray(lhs_vector, &lhs_elements);
+		TS_ASSERT_DELTA(lhs_elements[0], 1.0, 0.000001);
+		TS_ASSERT_DELTA(lhs_elements[1], 1.0, 0.000001);
+		
+		// Free memory
+		VecDestroy(rhs_vector);
+		VecDestroy(lhs_vector);
+		MatDestroy(lhs_matrix);
+	}
+	
 	void TestLinearSolverThrowsIfDoesNotConverge( void )
-    {
-	    // Solve Ax=b. 2x2 matrix
+	{
+		// Solve Ax=b. 2x2 matrix
 		SimpleLinearSolver solver;
 	
 		// Set rhs vector
@@ -91,15 +96,19 @@ public:
 	   	MatAssemblyBegin(lhs_matrix, MAT_FINAL_ASSEMBLY);
 	   	MatAssemblyEnd(lhs_matrix, MAT_FINAL_ASSEMBLY);
 	   	
-	    // Call solver
-	    Vec lhs_vector;
-	    
-	    TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
-    }
-    
+		// Call solver
+		Vec lhs_vector;
+		
+		TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
+		
+		// Free memory
+		VecDestroy(rhs_vector);
+		MatDestroy(lhs_matrix);
+	}
+	
 	void TestLinearSolverHarder( void )
-    {
-	    // Solve Ax=b. 2x2 matrix
+	{
+		// Solve Ax=b. 2x2 matrix
 		SimpleLinearSolver solver;
 	
 		// Set rhs vector
@@ -128,16 +137,21 @@ public:
 	   	MatAssemblyBegin(lhs_matrix, MAT_FINAL_ASSEMBLY);
 	   	MatAssemblyEnd(lhs_matrix, MAT_FINAL_ASSEMBLY);
 	   	
-	    // Call solver
-	    Vec lhs_vector;
-	    TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
-	    
-	    // Check result
-	    PetscScalar *lhs_elements;
-	    VecGetArray(lhs_vector, &lhs_elements);
-	    TS_ASSERT_DELTA(lhs_elements[0], 5.0, 0.000001);
-	    TS_ASSERT_DELTA(lhs_elements[1], 6.0, 0.000001);
-    }    
+		// Call solver
+		Vec lhs_vector;
+		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
+		
+		// Check result
+		PetscScalar *lhs_elements;
+		VecGetArray(lhs_vector, &lhs_elements);
+		TS_ASSERT_DELTA(lhs_elements[0], 5.0, 0.000001);
+		TS_ASSERT_DELTA(lhs_elements[1], 6.0, 0.000001);
+		
+		// Free memory
+		VecDestroy(rhs_vector);
+		VecDestroy(lhs_vector);
+		MatDestroy(lhs_matrix);
+	}
 };
 
 #endif //_TESTSIMPLELINEARSOLVER_HPP_

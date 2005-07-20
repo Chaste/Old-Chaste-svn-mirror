@@ -6,7 +6,7 @@
 #include "petscvec.h"
 #include "petscmat.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
   
 PetscErrorCode ComputeTestResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext);  
 PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
@@ -28,7 +28,7 @@ public:
     
     void TestOn2dNonlinearProblem(void)
     {
-    	SimpleNonlinearSolver *solver=new SimpleNonlinearSolver();
+    	SimpleNonlinearSolver solver;
     	
     	// Set up solution guess for residuals
     	int length=2;
@@ -46,10 +46,11 @@ public:
 		
     	Vec answer;
     	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
+    	VecDuplicate(initialGuess, &residual);
+    	VecDuplicate(initialGuess, &answer);
     	    	
- 		answer=solver->Solve(&ComputeTestResidual, &ComputeTestJacobian, residual, initialGuess, NULL);
+ 		answer = solver.Solve(&ComputeTestResidual, &ComputeTestJacobian,
+ 							  residual, initialGuess, NULL);
     	
     	PetscScalar *answerElements;
 		VecGetArray(answer, &answerElements);
@@ -60,11 +61,15 @@ public:
     	double tol = 1e-6;
     	TS_ASSERT_DELTA(x,1/sqrt(2),tol);
     	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
+    	
+    	VecDestroy(initialGuess);
+    	VecDestroy(residual);
+    	VecDestroy(answer);
     }
     
     void TestOn3dNonlinearProblem(void)
     {
-    	SimpleNonlinearSolver *solver=new SimpleNonlinearSolver();
+    	SimpleNonlinearSolver solver;
     	
     	// Set up solution guess for residuals
     	int length=3;
@@ -86,7 +91,8 @@ public:
     	VecDuplicate(initialGuess,&residual);
     	VecDuplicate(initialGuess,&answer);
     	    	
- 		answer=solver->Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d, residual, initialGuess, NULL);
+ 		answer = solver.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
+ 							  residual, initialGuess, NULL);
     	
     	PetscScalar *answerElements;
 		VecGetArray(answer, &answerElements);
@@ -99,8 +105,12 @@ public:
     	TS_ASSERT_DELTA(x,1/sqrt(3),tol);
     	TS_ASSERT_DELTA(y,1/sqrt(3),tol);
     	TS_ASSERT_DELTA(z,1/sqrt(3),tol);
-    }
-    
+    	
+    	VecDestroy(initialGuess);
+    	VecDestroy(residual);
+    	VecDestroy(answer);
+	}
+
 };
 
 PetscErrorCode ComputeTestResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext)

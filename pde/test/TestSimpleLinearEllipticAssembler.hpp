@@ -49,7 +49,11 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
         
         TS_ASSERT_DELTA(bel(0),1, 1e-12);
-        TS_ASSERT_DELTA(bel(1),1, 1e-12);        
+        TS_ASSERT_DELTA(bel(1),1, 1e-12);
+        
+        // Free memory for nodes
+        delete nodes[0];
+        delete nodes[1];
     }
 
     void TestAssembleOnElement2DCanonical ( void )

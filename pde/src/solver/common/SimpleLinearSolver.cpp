@@ -4,23 +4,19 @@
 #include <sstream>
 
 /**
- * \todo Document class + exceptional behaviour
+ * \todo Document class + exceptional behaviour.
  * 
- * \todo Use VecDuplicate to create lhs_vector.
+ * This method can solve linear systems of the form Ax = b
  * 
+ * @param lhsMatrix A
+ * @param rhsVector b
+ * @return The solution Vec x.
  */
 
 Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
 {
     Vec lhs_vector;
-    VecCreate(PETSC_COMM_WORLD, &lhs_vector);
-    int rhs_size;
-
-    VecGetSize(rhsVector, &rhs_size);
-    VecSetSizes(lhs_vector,PETSC_DECIDE,rhs_size);
-    //VecSetType(lhs_vector, VECSEQ);
-	//VecSetType(lhs_vector, VECMPI);
-	VecSetFromOptions(lhs_vector);
+	VecDuplicate(rhsVector, &lhs_vector);
 
     KSP simple_solver; 
     KSPCreate(PETSC_COMM_WORLD, &simple_solver);
@@ -29,9 +25,7 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     KSPSetFromOptions(simple_solver) ;
     KSPSetUp(simple_solver);   
     
-    
-    KSPSolve(simple_solver,rhsVector,lhs_vector);
-    
+    KSPSolve(simple_solver, rhsVector, lhs_vector);
     
     // Check that solver converged and throw if not
     KSPConvergedReason reason;
@@ -45,5 +39,4 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     }
     KSPDestroy(simple_solver) ;
     return lhs_vector;
-    
 }
