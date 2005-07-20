@@ -118,7 +118,12 @@ public :
 
 				TS_ASSERT_DELTA(integral, 1.0/(poly_degree+1.0)*(pow(3,poly_degree+1)-1), 1e-7);
 				
+				delete nodes2[0];
+				delete nodes2[1];
+				
 			}
+			
+			
 		}
 			
 	}

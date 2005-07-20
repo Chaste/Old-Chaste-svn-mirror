@@ -14,9 +14,9 @@
 #include "MeshalyzerMeshWriter.hpp"
 #include <math.h>
 
-static AbstractMeshReader *spImportMeshReader;
-static AbstractMeshReader *spNewMeshReader;
-static AbstractMeshWriter *spMeshWriter;
+AbstractMeshReader *pImportMeshReader;
+AbstractMeshReader *pNewMeshReader;
+AbstractMeshWriter *pMeshWriter;
 
 class TestMeshWriters : public CxxTest::TestSuite
 {
@@ -24,86 +24,94 @@ class TestMeshWriters : public CxxTest::TestSuite
 		
 	void TestMemfemtoTetgen(void)
 	{	
-		spImportMeshReader=new MemfemMeshReader(
+		pImportMeshReader=new MemfemMeshReader(
 							"mesh/test/data/Memfem_slab");
-		spMeshWriter=new TrianglesMeshWriter(
+		pMeshWriter=new TrianglesMeshWriter(
 							"testoutput/MeshFromMemfem",3);
 	
 		int i;
-		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
+		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
 		{
-			spMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+			pMeshWriter->SetNextNode(pImportMeshReader->GetNextNode());
 		}
-		for (i=0; i<spImportMeshReader->GetNumElements();i++)
+		for (i=0; i<pImportMeshReader->GetNumElements();i++)
 		{
-			spMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
 		{
-			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
 		}
 		
-		spMeshWriter->WriteFiles();
+		pMeshWriter->WriteFiles();
 		
-		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
+		TS_ASSERT_THROWS_NOTHING(pNewMeshReader = 
 								new TrianglesMeshReader("testoutput/MeshFromMemfem"));
+								
+		delete pImportMeshReader;
+		delete pMeshWriter;
+		delete pNewMeshReader;
 	
 	}
 
 	void TestFemlabtoTriangles(void)
 	{	
-		spImportMeshReader=new FemlabMeshReader(
+		pImportMeshReader=new FemlabMeshReader(
 							"mesh/test/data/",
 		                  	"femlab_lshape_nodes.dat",
 		                  	"femlab_lshape_elements.dat",
 		                  	"femlab_lshape_edges.dat");
-		spMeshWriter=new TrianglesMeshWriter(
+		pMeshWriter=new TrianglesMeshWriter(
 							"testoutput/MeshFromFemlab",2);
 		int i;
-		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
+		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
 		{
-			spMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+			pMeshWriter->SetNextNode(pImportMeshReader->GetNextNode());
 		}
-		for (i=0; i<spImportMeshReader->GetNumElements();i++)
+		for (i=0; i<pImportMeshReader->GetNumElements();i++)
 		{
-			spMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
 		{
-			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
 		}
 		
-		spMeshWriter->WriteFiles();
+		pMeshWriter->WriteFiles();
 
-		TS_ASSERT_THROWS_NOTHING(spNewMeshReader = 
+		TS_ASSERT_THROWS_NOTHING(pNewMeshReader = 
 							new TrianglesMeshReader("testoutput/MeshFromFemlab"));
+							
+		delete pImportMeshReader;
+		delete pMeshWriter;
+		delete pNewMeshReader;							
 	}
 	
 	void TestTrianglesToMeshalyzer(void)
 	{	
-		spImportMeshReader=new TrianglesMeshReader(
+		pImportMeshReader=new TrianglesMeshReader(
 							"mesh/test/data/slab_138_elements");
-		spMeshWriter=new MeshalyzerMeshWriter(
+		pMeshWriter=new MeshalyzerMeshWriter(
 							"testoutput/MeshFromTetgen");
 	
 		int i;
-		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
+		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
 		{
-			spMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+			pMeshWriter->SetNextNode(pImportMeshReader->GetNextNode());
 		}
-		for (i=0; i<spImportMeshReader->GetNumElements();i++)
+		for (i=0; i<pImportMeshReader->GetNumElements();i++)
 		{
-			spMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
 		{
-			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
 		}
 				
-		TS_ASSERT_THROWS_NOTHING(spMeshWriter->WriteFiles());
+		TS_ASSERT_THROWS_NOTHING(pMeshWriter->WriteFiles());
 		
 		int num_tsteps=500;
-		int num_nodes = spImportMeshReader->GetNumNodes();
+		int num_nodes = pImportMeshReader->GetNumNodes();
 		char fake_data_name[40];
 		sprintf(fake_data_name, "testoutput/MeshFromTetgen.tdat");
 		std::ofstream fake_data(fake_data_name) ;
@@ -115,34 +123,38 @@ class TestMeshWriters : public CxxTest::TestSuite
 			}
 		} 
 		fake_data.close() ;		
+		
+		delete pImportMeshReader;
+		delete pMeshWriter;
+
 	}
 
 	void TestTrianglesToCoolGraphics(void)
 	{	
-		spImportMeshReader=new TrianglesMeshReader(
+		pImportMeshReader=new TrianglesMeshReader(
 							"mesh/test/data/slab_138_elements");
 		bool set_CG_format=true;
-		spMeshWriter=new MeshalyzerMeshWriter(
+		pMeshWriter=new MeshalyzerMeshWriter(
 							"testoutput/CGFromTetgen", set_CG_format);
 	
 		int i;
-		for (i=0; i<spImportMeshReader->GetNumNodes();i++)
+		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
 		{
-			spMeshWriter->SetNextNode(spImportMeshReader->GetNextNode());
+			pMeshWriter->SetNextNode(pImportMeshReader->GetNextNode());
 		}
-		for (i=0; i<spImportMeshReader->GetNumElements();i++)
+		for (i=0; i<pImportMeshReader->GetNumElements();i++)
 		{
-			spMeshWriter->SetNextElement(spImportMeshReader->GetNextElement());
+			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<spImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
 		{
-			spMeshWriter->SetNextBoundaryFace(spImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
 		}				
 		
-		TS_ASSERT_THROWS_NOTHING(spMeshWriter->WriteFiles());
+		TS_ASSERT_THROWS_NOTHING(pMeshWriter->WriteFiles());
 				
 		int num_tsteps=500;
-		int num_nodes = spImportMeshReader->GetNumNodes();
+		int num_nodes = pImportMeshReader->GetNumNodes();
 		for(int t= 0; t<num_tsteps ;t++)
 		{
 			char fake_data_name[40];
@@ -156,6 +168,10 @@ class TestMeshWriters : public CxxTest::TestSuite
 		 
 			fake_data.close() ;
 		}
+		
+		delete pImportMeshReader;
+		delete pMeshWriter;
+
 	}	
 };
 
