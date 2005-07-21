@@ -11,6 +11,8 @@
  *   
  */
 
+
+
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include <vector>
@@ -31,7 +33,11 @@
 #define PI M_PI
 
 
-class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite 
+#include "PetscSetupAndFinalize.hpp"
+
+
+
+class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {	
 private:
 
@@ -56,20 +62,15 @@ private:
 	}
 
 public:
-	/// Standard setup method for PETSc
-	void setUp()
-	{
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
 
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-	}	
-    
-    
     /// test 1D problem
 	void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
-	{		
+	{
+		
+		PetscTruth is_there;
+        PetscInitialized(&is_there);
+        TS_ASSERT( is_there == PETSC_TRUE );
+        
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
@@ -396,20 +397,9 @@ public:
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
 			
-			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
-			
-			if (fabs(y) < 0.01)
+			if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
 			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if (fabs(y - 1.0) < 0.01)
-			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if (fabs(x) < 0.01)
-			{
+				ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
 				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
 			}
 			
@@ -500,20 +490,9 @@ public:
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
 			
-			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
-			
-			if (fabs(y) < 0.01)
+			if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
 			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if (fabs(y - 1.0) < 0.01)
-			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if (fabs(x) < 0.01)
-			{
+				ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
 				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
 			}
 			
@@ -851,7 +830,7 @@ public:
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationPde<3> pde;  		
 	
-		// Boundary conditions - zero dirichlet on boundary;
+		// Boundary conditions
 	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
         
@@ -861,30 +840,12 @@ public:
 			double y = (*iter)->GetPoint()[1];
 			double z = (*iter)->GetPoint()[2];			
 			
-			ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(x);
 			
-			if (fabs(y) < 0.01) 
+			if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) ||
+				(fabs(x) < 0.01) ||
+				(fabs(z) < 0.01) || (fabs(z - 1.0) < 0.01) )
 			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if ((fabs(y - 1.0) < 0.01))
-			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if (fabs(x) < 0.01)
-			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-			
-			if (fabs(z) < 0.01)
-			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
-			}
-						
-			if (fabs(z - 1.0) < 0.01)
-			{
+				ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(x);
 				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
 			}
 						
