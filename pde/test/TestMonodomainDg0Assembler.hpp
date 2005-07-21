@@ -132,8 +132,8 @@ public:
 		mesh.ConstructFromMeshReader(mesh_reader);
         
 		// Instantiate PDE object
-		AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-		MonodomainPde<1> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+		EulerIvpOdeSolver mySolver;
+		MonodomainPde<1> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
         
 		// sets Luo Rudy system with initial conditions passed on
 		double voltage = -9999; // This voltage will be ignored
@@ -165,8 +165,8 @@ public:
 		//need to write mesh.GetInitialConditionsNodes
         
 		// add initial stim to node 0 only
-		AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-		monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
+		InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
+		monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
                 
         
 		// Boundary conditions: zero neumann on entire boundary
@@ -304,8 +304,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-        MonodomainPde<2> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+        EulerIvpOdeSolver mySolver;
+        MonodomainPde<2> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
                 
         
         // sets Luo Rudy system with initial conditions passed on
@@ -335,8 +335,8 @@ public:
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
                 
         // add initial stim to node 0 only
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
+        monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
                          
         // Boundary conditions: zero neumann on boundary
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
@@ -519,8 +519,8 @@ public:
 
         
         // Instantiate PDE object
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-        MonodomainPde<3> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+        EulerIvpOdeSolver mySolver;
+        MonodomainPde<3> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
                 
         
         // sets Luo Rudy system with initial conditions passed on
@@ -550,8 +550,8 @@ public:
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
              
         // add initial stimulus to node 0 only
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
+        monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
  
                  
         // Boundary conditions, zero neumann everywhere
