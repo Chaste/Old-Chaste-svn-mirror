@@ -12,7 +12,7 @@
 
 class TestQuadraticBasisFunction : public CxxTest::TestSuite 
 {
-	public:
+public:
 	
 	void TestQuadraticBasisFunction0d() 
 	{
@@ -181,10 +181,15 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		std::vector<VectorDouble> trans_deriv =
 			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
 																		*inverseJacobian);
-																		
+
 		TS_ASSERT_DELTA(trans_deriv[0](0),-1.1, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[1](0),-0.1, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[2](0),1.2, 1e-12);
+		
+		// Free nodes
+		for (int i=0; i<nodes.size(); i++) {
+			delete nodes[i];
+		}
 	}
 	
 	void TestComputeTransformedQuadraticBasisFunction2d( void )		
@@ -217,6 +222,11 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(trans_deriv[4](1),-1.28, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[5](0),0.72, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[5](1),0.96, 1e-12);
+		
+		// Free nodes
+		for (int i=0; i<nodes.size(); i++) {
+			delete nodes[i];
+		}
 	}
 	
 	void TestComputeTransformedQuadraticBasisFunction3d( void )		
@@ -271,6 +281,11 @@ class TestQuadraticBasisFunction : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(trans_deriv[9](0),-0.16, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[9](1),0.2, 1e-12);
 		TS_ASSERT_DELTA(trans_deriv[9](2),0.12, 1e-12);
+		
+		// Free nodes
+		for (int i=0; i<nodes.size(); i++) {
+			delete nodes[i];
+		}
 	}
 };
 

@@ -16,14 +16,17 @@
 #include "OdeSolution.hpp"
 #include "ColumnDataWriter.hpp"
 #include "TenTusscherModel2004OdeSystem.hpp"
-// NOT WORKING AS YET - HAVE TO CHECK CellML model.....
+
+/**
+ * \todo NOT WORKING AS YET - HAVE TO CHECK CellML model.....
+ */
 
 class TestOdeSolverForTT04 : public CxxTest::TestSuite
 {
     public:
     
     // Test Ode Solver for TT04
-    void testOdeSolverForTT04WithNoStimulus(void)
+    void TestOdeSolverForTT04WithNoStimulus(void)
     {
         /*
          * Set initial conditions and magnitude of stimulus
@@ -75,17 +78,17 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus); 
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pTt04OdeSystem = new TenTusscherModel2004OdeSystem(pStimulus);
+        TenTusscherModel2004OdeSystem tt04_ode_system(&stimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -94,7 +97,7 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
         double endTime = 10.0;
         double timeStep = 0.01;             
                 
-        OdeSolution Solution = pMySolver->Solve(pTt04OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution = solver.Solve(&tt04_ode_system, startTime, endTime, timeStep, initialConditions);
         
               
         /*
@@ -103,7 +106,7 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
 		        
         ColumnDataWriter *mpTestWriter;
         mpTestWriter = new ColumnDataWriter("testoutput","TT04Result");
-        mpTestWriter->DefineFixedDimension("Time","ms", Solution.mSolutions.size());
+        mpTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
         int time_var_id = mpTestWriter->DefineVariable("Time","ms");
 //        int a_var_id = mpTestWriter->DefineVariable("calcium_dynamics_Ca_i","microMol");/* Might be wrong units but that's what's in the paper */
 //        int b_var_id = mpTestWriter->DefineVariable("calcium_dynamics_Ca_SR","mMol");
@@ -124,28 +127,29 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
         int q_var_id = mpTestWriter->DefineVariable("transient_outward_current_s_gate_s","milliamperes");
         mpTestWriter->EndDefineMode();
 				
-        for (int i = 0; i < Solution.mSolutions.size(); i++) 
+        for (int i = 0; i < solution.mSolutions.size(); i++) 
         {
-            mpTestWriter->PutVariable(time_var_id, Solution.mTime[i], i);
-//            mpTestWriter->PutVariable(a_var_id, Solution.mSolutions[i][0], i);
-//            mpTestWriter->PutVariable(b_var_id, Solution.mSolutions[i][1], i);
-//            mpTestWriter->PutVariable(c_var_id, Solution.mSolutions[i][2], i);
-            mpTestWriter->PutVariable(d_var_id, Solution.mSolutions[i][3], i);
-            mpTestWriter->PutVariable(e_var_id, Solution.mSolutions[i][4], i);
-            mpTestWriter->PutVariable(f_var_id, Solution.mSolutions[i][5], i);
-            mpTestWriter->PutVariable(g_var_id, Solution.mSolutions[i][6], i);
-            mpTestWriter->PutVariable(h_var_id, Solution.mSolutions[i][7], i);     
-            mpTestWriter->PutVariable(i_var_id, Solution.mSolutions[i][8], i);
-//            mpTestWriter->PutVariable(j_var_id, Solution.mSolutions[i][9], i);
-//            mpTestWriter->PutVariable(k_var_id, Solution.mSolutions[i][10], i);
-            mpTestWriter->PutVariable(l_var_id, Solution.mSolutions[i][11], i);
-            mpTestWriter->PutVariable(m_var_id, Solution.mSolutions[i][12], i);
-            mpTestWriter->PutVariable(n_var_id, Solution.mSolutions[i][13], i);
-//            mpTestWriter->PutVariable(o_var_id, Solution.mSolutions[i][14], i);
-            mpTestWriter->PutVariable(p_var_id, Solution.mSolutions[i][15], i);  
-            mpTestWriter->PutVariable(q_var_id, Solution.mSolutions[i][16], i);       
+            mpTestWriter->PutVariable(time_var_id, solution.mTime[i], i);
+//            mpTestWriter->PutVariable(a_var_id, solution.mSolutions[i][0], i);
+//            mpTestWriter->PutVariable(b_var_id, solution.mSolutions[i][1], i);
+//            mpTestWriter->PutVariable(c_var_id, solution.mSolutions[i][2], i);
+            mpTestWriter->PutVariable(d_var_id, solution.mSolutions[i][3], i);
+            mpTestWriter->PutVariable(e_var_id, solution.mSolutions[i][4], i);
+            mpTestWriter->PutVariable(f_var_id, solution.mSolutions[i][5], i);
+            mpTestWriter->PutVariable(g_var_id, solution.mSolutions[i][6], i);
+            mpTestWriter->PutVariable(h_var_id, solution.mSolutions[i][7], i);     
+            mpTestWriter->PutVariable(i_var_id, solution.mSolutions[i][8], i);
+//            mpTestWriter->PutVariable(j_var_id, solution.mSolutions[i][9], i);
+//            mpTestWriter->PutVariable(k_var_id, solution.mSolutions[i][10], i);
+            mpTestWriter->PutVariable(l_var_id, solution.mSolutions[i][11], i);
+            mpTestWriter->PutVariable(m_var_id, solution.mSolutions[i][12], i);
+            mpTestWriter->PutVariable(n_var_id, solution.mSolutions[i][13], i);
+//            mpTestWriter->PutVariable(o_var_id, solution.mSolutions[i][14], i);
+            mpTestWriter->PutVariable(p_var_id, solution.mSolutions[i][15], i);  
+            mpTestWriter->PutVariable(q_var_id, solution.mSolutions[i][16], i);       
         }
-        mpTestWriter->Close();
+        
+        delete mpTestWriter;
         
         
 //        //read in good data file and compare line by line
@@ -160,7 +164,7 @@ class TestOdeSolverForTT04 : public CxxTest::TestSuite
 //        }
 //        testfile.close();
 //        goodfile.close();
-                               
+
     }	
 
 };
