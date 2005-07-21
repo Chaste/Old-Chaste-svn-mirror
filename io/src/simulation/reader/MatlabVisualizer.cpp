@@ -17,13 +17,21 @@
  * as mPathBaseName, "xx" is the time (converted from double to string).
  */
 template<int SPACE_DIM> 
-MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)
+MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string outputPathBaseName, std::string inputPathBaseName)
 {
-	mPathBaseName = PathBaseName;
+	
+	mOutputPathBaseName = outputPathBaseName;
 	mHasTimeFile = false;
 	
+	if (inputPathBaseName.empty())
+	{
+		mInputPathBaseName = outputPathBaseName;
+	} else {
+		mInputPathBaseName = inputPathBaseName;	
+	}
+	
 	std::stringstream time_file_name_stream;
-	time_file_name_stream<<mPathBaseName<<"Time.dat";
+	time_file_name_stream<<mOutputPathBaseName<<"Time.dat";
 	std::string time_file_name=time_file_name_stream.str();
 	
 	std::ifstream data_file(time_file_name.c_str());
@@ -31,7 +39,6 @@ MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string PathBaseName)
 	if (data_file.is_open())
 	{
 		mHasTimeFile = true;
-		
 			// Read each line in turn
 	
 		std::string RawLineFromFile;
@@ -88,11 +95,11 @@ template<int SPACE_DIM>
 void MatlabVisualizer<SPACE_DIM>::CreateNodesFileForVisualization()
 {
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
-	std::string node_file_name=mPathBaseName+".node";
+	std::string node_file_name=mInputPathBaseName+".node";
 	std::vector<std::string> node_data=GetRawDataFromFile(node_file_name);
 
 	//Write node file for Matlab - without any comments
-	std::string output_node_file_name=mPathBaseName+".coord";
+	std::string output_node_file_name=mOutputPathBaseName+".coord";
 	std::ofstream output_node_file(output_node_file_name.c_str());
 	
 	for (int i = 1; i<node_data.size(); i++)
@@ -161,7 +168,7 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 {
 	FILE *fw, *fr;
 	char outfilename[1024], infilename[1024];
-	sprintf(outfilename, "%s.val", mPathBaseName.c_str());
+	sprintf(outfilename, "%s.val", mOutputPathBaseName.c_str());
 	if ( (fw = fopen(outfilename,"w"))==NULL)
 	{	
 		throw Exception("The file for writing cannot be created successfully");
@@ -173,10 +180,10 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 	{
 		if (num_files==0)	//time independent
 		{
-			sprintf(infilename,"%s.dat", mPathBaseName.c_str());
+			sprintf(infilename,"%s.dat", mOutputPathBaseName.c_str());
 		}else
 		{
-			sprintf(infilename, "%s_%d.dat",mPathBaseName.c_str(), i);
+			sprintf(infilename, "%s_%d.dat",mOutputPathBaseName.c_str(), i);
 		}
 		if ( (fr=fopen(infilename,"r"))==NULL)
 		{
@@ -260,10 +267,8 @@ std::vector<std::string> MatlabVisualizer<SPACE_DIM>::GetRawDataFromFile(std::st
 	 * exception that should be caught by the user.
 	 * 
 	 */
-	std::cout<<fileName<<"\n";
 	if (!dataFile.is_open())	
 	{
-		std::cout<<"in the throw body\n";
 		throw Exception("Could not open data file "+fileName+" .");
 	}
 	

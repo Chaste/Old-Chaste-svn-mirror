@@ -35,7 +35,7 @@ public:
     
     /** \todo Not yet fully working...
      */
-    void TestVisualFHN1DFAILING()
+    void TestVisualFHN1D()
     {  
         
         double tStart = 0.0; 
@@ -217,13 +217,15 @@ public:
 	AbstractVisualizer<1> *pViewer;
 	TS_ASSERT_THROWS_NOTHING(
 				 pViewer=new MatlabVisualizer<1>(
-		                  "testoutput/NewMonodomainFHN_1d"));
-	//TS_ASSERT_THROWS_NOTHING(pViewer->CreateFilesForVisualization());	
-	try {
+		                  "testoutput/NewMonodomainFHN_1d", 
+		                  "mesh/test/data/heart_FHN_mesh"));
+	TS_ASSERT_THROWS_NOTHING(pViewer->CreateFilesForVisualization());	
+	/*try {
 	    pViewer->CreateFilesForVisualization();
 	} catch (Exception e) {
 	    TS_TRACE(e.getMessage());
 	}
+	*/
 	delete pViewer;
 
     }

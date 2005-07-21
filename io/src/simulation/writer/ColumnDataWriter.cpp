@@ -60,7 +60,7 @@ void ColumnDataWriter::Close()
 {
 	if (mpCurrentOutputFile != NULL)
 	{
-		std::cout << "closing output file." << std::endl;
+//		std::cout << "closing output file." << std::endl;
 		mpCurrentOutputFile->close();
 		delete mpCurrentOutputFile;
 		mpCurrentOutputFile = NULL;

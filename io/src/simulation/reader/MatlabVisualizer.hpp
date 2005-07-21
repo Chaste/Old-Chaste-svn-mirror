@@ -19,7 +19,8 @@ template<int SPACE_DIM>
 class MatlabVisualizer: public AbstractVisualizer<SPACE_DIM>
 {
 private:
-	std::string mPathBaseName; /**<path base name of the files */
+	std::string mOutputPathBaseName; /**<path base name of the files */
+	std::string mInputPathBaseName; /**<path base name of original mesh files */
 	std::vector<double> mTimeSeries; /**< a vector to store the time steps which may be used as part of the file names. */
 	bool mHasTimeFile; /**< a flag to indicate whether there is .time file, true if there is. */
 	void CreateNodesFileForVisualization();	     
@@ -27,7 +28,8 @@ private:
 	std::vector<std::string> GetRawDataFromFile(std::string fileName);
 	
 public:
-	MatlabVisualizer(std::string pathBaseName);//, int dimension);
+	MatlabVisualizer(std::string outputPathBaseName, 
+	         std::string inputPathBaseName="");//, int dimension);
 	~MatlabVisualizer();
 	
 	void CreateFilesForVisualization();
