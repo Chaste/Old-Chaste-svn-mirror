@@ -54,8 +54,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-       	MonodomainPdeFitzHughNagumo<1> monodomain_pde(mesh.GetNumNodes(), pMySolver, tStart, tBigStep, tSmallStep);
+        EulerIvpOdeSolver mySolver;
+       	MonodomainPdeFitzHughNagumo<1> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
         
         // sets FHN system with initial conditions passed on
         double voltage = -9999; // This voltage will be ignored
@@ -73,7 +73,7 @@ public:
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
         // add initial stim to node 0 only
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
         // NO stimulus applied
         //        monodomain_pde.SetStimulusFunctionAtNode(5, pStimulus);
                 
