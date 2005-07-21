@@ -18,18 +18,12 @@
 
 #include "MonodomainPde.hpp"
 #include "FischerPde.hpp"
- 
+
+#include "PetscSetupAndFinalize.hpp"
+
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 public:
-	void setUp()
-	{
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-        
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-	}   
 	
 	/**
 	 * Refactor code to set up a PETSc vector holding the initial condition.

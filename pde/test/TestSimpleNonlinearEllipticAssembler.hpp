@@ -29,6 +29,8 @@
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
 #include "TrianglesMeshReader.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
 
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
@@ -95,14 +97,6 @@ private:
 	}
 
 public:
-	void setUp()
-	{
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-			
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-	}
 		
 	void TestComputeResidual( void )
 	{

@@ -162,12 +162,22 @@ class MemoryTesting(GccDebug):
     Return the encoded status.
     """
     status = 'Unknown'
+    
+    # Regexps to check for
     import re
     invalid = re.compile('==\d+== Invalid ')
     glibc = re.compile('__libc_freeres')
     leaks = re.compile('==\d+== LEAK SUMMARY:')
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
+    petsc = re.compile('\[0]Total space allocated (\d+) bytes')
+    
     for lineno in range(len(outputLines)):
+      m = petsc.match(outputLines[lineno])
+      if m and int(m.group(1)) > 0:
+        # PETSc Vec or Mat allocated and not destroyed
+        status = 'Leaky'
+        break
+    
       m = invalid.match(outputLines[lineno])
       if m:
         # Invalid read/write/free()/etc. found. This is bad, unless it's glibc's fault.
@@ -175,9 +185,11 @@ class MemoryTesting(GccDebug):
         if not match:
           status = 'Leaky'
           break
+          
       m = leaks.match(outputLines[lineno])
       if m:
         # Check we have really lost some memory
+        # (i.e. ignore 'still reachable' memory)
         status = 'OK'
         lineno += 1
         match = lost.match(outputLines[lineno])

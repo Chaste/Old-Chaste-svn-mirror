@@ -5,19 +5,12 @@
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include "petscmat.h"
-  
+ 
+#include "PetscSetupAndFinalize.hpp"
+
 class TestSimpleLinearSolver : public CxxTest::TestSuite 
 {
 public:
-	void setUp()
-	{
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-   		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-	}   
-		
-
 	void TestLinearSolverEasy( void )
 	{
 		// Solve Ax=b. 2x2 matrix

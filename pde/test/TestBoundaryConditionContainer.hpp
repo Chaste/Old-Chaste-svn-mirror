@@ -12,19 +12,14 @@
 #include "SimpleLinearSolver.hpp"
 #include "VectorDouble.hpp" 
  
+#include "PetscSetupAndFinalize.hpp"
+
 class TestBoundaryConditionContainer : public CxxTest::TestSuite 
 {
 private:
 			
 public:
-	void setUp()
-    {
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-    	
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }	
+
     
 	void TestSetGet()
 	{

@@ -18,18 +18,12 @@
 #include <cmath>
 #include "MatlabVisualizer.cpp"
 
- 
+
+#include "PetscSetupAndFinalize.hpp"
+
 class TestMonodomainDg0AssemblerVisualisation : public CxxTest::TestSuite 
 {   
 public:
-    void setUp()
-    {
-        int FakeArgc=0;
-        char *FakeArgv0="testrunner";
-        char **FakeArgv=&FakeArgv0;
-        
-        PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }   
  
     void TestMonodomainDg01DVisual()
     {  

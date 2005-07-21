@@ -7,7 +7,9 @@
 #include "petscmat.h"
 #include <iostream>
 #include <cmath>
-  
+
+#include "PetscSetupAndFinalize.hpp"
+
 PetscErrorCode ComputeTestResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext);  
 PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solutionGuess,Vec residual,void *pContext);  
@@ -16,15 +18,6 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
 class TestSimpleNonlinearSolver : public CxxTest::TestSuite 
 {
 public:
-    void setUp()
-    {
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-    	
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }   
-        
     
     void TestOn2dNonlinearProblem(void)
     {

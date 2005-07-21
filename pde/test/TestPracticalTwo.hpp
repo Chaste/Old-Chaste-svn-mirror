@@ -24,7 +24,10 @@
 
 #include "EulerIvpOdeSolver.hpp"
 
-  
+
+#include "PetscSetupAndFinalize.hpp"
+
+
 class TestPracticalTwo : public CxxTest::TestSuite 
 {
 public:
@@ -32,11 +35,6 @@ public:
 
     void donttestPrac2Question1(void)
     {
-        int FakeArgc=0;
-        char *FakeArgv0="testrunner";
-        char **FakeArgv=&FakeArgv0;
-        PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-        
         const int SPACE_DIM = 1;
         const int ELEMENT_DIM = 1;
         double alpha = 0.5;

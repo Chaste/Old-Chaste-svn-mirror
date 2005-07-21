@@ -17,17 +17,11 @@
 #include "VaryingDiffusionAndSourceTermPde.hpp"
 #include "TrianglesMeshReader.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
 class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {
     public:
-
-    void setUp( void )
-    {
-        int FakeArgc=0;
-        char *FakeArgv0="testrunner";
-        char **FakeArgv=&FakeArgv0;
-        PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);        
-    }
     
     void TestAssembleOnElement( void )
     {

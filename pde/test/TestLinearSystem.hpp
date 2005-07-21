@@ -5,17 +5,12 @@
 #include <cxxtest/TestSuite.h>
 #include "LinearSystem.hpp"
 #include "SimpleLinearSolver.hpp"
-          
+
+#include "PetscSetupAndFinalize.hpp"
+
 class TestLinearSystem : public CxxTest::TestSuite 
 {
 public:
-    void setUp()
-    {
-		int FakeArgc=0;
-		char *FakeArgv0="testrunner";
-		char **FakeArgv=&FakeArgv0;
-		PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);
-    }   
     
     void TestLinearSystem1( void )
     {
