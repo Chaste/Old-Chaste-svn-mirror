@@ -50,17 +50,17 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pHh52OdeSystem = new HodgkinHuxleySquidAxon1952OriginalOdeSystem(pStimulus);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
         
         /*
          * Choose an ode solver
-         */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+         */
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -69,7 +69,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         double endTime = 1.0;
         double timeStep = 0.01;             
                 
-        OdeSolution SolutionNew = pMySolver->Solve(pHh52OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution_new = solver.Solve(&hh52_ode_system, startTime, endTime, timeStep, initialConditions);
         
               
         /*
@@ -78,7 +78,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
 		        
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","HH52Result");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
         int n_var_id = mpNewTestWriter->DefineVariable("n"," ");
@@ -86,15 +86,16 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         int m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         mpNewTestWriter->EndDefineMode();
 				
-        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
+        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
         {
-            mpNewTestWriter->PutVariable(time_var_id, SolutionNew.mTime[i], i);
-            mpNewTestWriter->PutVariable(v_var_id, SolutionNew.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(n_var_id, SolutionNew.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(h_var_id, SolutionNew.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(m_var_id, SolutionNew.mSolutions[i][3], i);         
+            mpNewTestWriter->PutVariable(time_var_id, solution_new.mTime[i], i);
+            mpNewTestWriter->PutVariable(v_var_id, solution_new.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(n_var_id, solution_new.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(h_var_id, solution_new.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(m_var_id, solution_new.mSolutions[i][3], i);         
         }
-        mpNewTestWriter->Close();
+        
+        delete mpNewTestWriter;
         
         
         //read in good data file and compare line by line
@@ -150,16 +151,16 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
          * Choose function for stimulus
          */             
        
-        AbstractStimulusFunction *pStimulus = new RegularStimulus(magnitudeOfStimulus, durationOfStimulus, frequency, startStimulus); 
+        RegularStimulus stimulus(magnitudeOfStimulus, durationOfStimulus, frequency, startStimulus);
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pHh52OdeSystem = new HodgkinHuxleySquidAxon1952OriginalOdeSystem(pStimulus);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -168,7 +169,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         double endTime = 1.0;
         double timeStep = 0.01;             
                 
-        OdeSolution SolutionNew = pMySolver->Solve(pHh52OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution_new = solver.Solve(&hh52_ode_system, startTime, endTime, timeStep, initialConditions);
         
               
         /*
@@ -177,7 +178,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
                 
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","HH52RegResult");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
         int n_var_id = mpNewTestWriter->DefineVariable("n"," ");
@@ -185,15 +186,16 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         int m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         mpNewTestWriter->EndDefineMode();
                 
-        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
+        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
         {
-            mpNewTestWriter->PutVariable(time_var_id, SolutionNew.mTime[i], i);
-            mpNewTestWriter->PutVariable(v_var_id, SolutionNew.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(n_var_id, SolutionNew.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(h_var_id, SolutionNew.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(m_var_id, SolutionNew.mSolutions[i][3], i);         
+            mpNewTestWriter->PutVariable(time_var_id, solution_new.mTime[i], i);
+            mpNewTestWriter->PutVariable(v_var_id, solution_new.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(n_var_id, solution_new.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(h_var_id, solution_new.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(m_var_id, solution_new.mSolutions[i][3], i);         
         }
-        mpNewTestWriter->Close();
+        
+        delete mpNewTestWriter;
         
         
 //        //read in good data file and compare line by line

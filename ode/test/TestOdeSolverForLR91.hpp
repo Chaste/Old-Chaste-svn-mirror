@@ -63,17 +63,17 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus); 
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pLr91OdeSystem = new LuoRudyIModel1991OdeSystem(pStimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&stimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -82,7 +82,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double endTime = 1.0;
         double timeStep = 0.01;             
                 
-        OdeSolution SolutionNew = pMySolver->Solve(pLr91OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution_new = solver.Solve(&lr91_ode_system, startTime, endTime, timeStep, initialConditions);
         
               
         /*
@@ -91,7 +91,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
 		        
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","NewLR91");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
@@ -103,19 +103,20 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
         mpNewTestWriter->EndDefineMode();
 				
-        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
+        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
         {
-            mpNewTestWriter->PutVariable(new_time_var_id, SolutionNew.mTime[i], i);
-            mpNewTestWriter->PutVariable(new_v_var_id, SolutionNew.mSolutions[i][4], i);
-            mpNewTestWriter->PutVariable(new_m_var_id, SolutionNew.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(new_h_var_id, SolutionNew.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(new_j_var_id, SolutionNew.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(new_f_var_id, SolutionNew.mSolutions[i][6], i);
-            mpNewTestWriter->PutVariable(new_d_var_id, SolutionNew.mSolutions[i][5], i);
-            mpNewTestWriter->PutVariable(new_x_var_id, SolutionNew.mSolutions[i][7], i);
-            mpNewTestWriter->PutVariable(new_caI_var_id, SolutionNew.mSolutions[i][3], i);            
+            mpNewTestWriter->PutVariable(new_time_var_id, solution_new.mTime[i], i);
+            mpNewTestWriter->PutVariable(new_v_var_id, solution_new.mSolutions[i][4], i);
+            mpNewTestWriter->PutVariable(new_m_var_id, solution_new.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(new_h_var_id, solution_new.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(new_j_var_id, solution_new.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(new_f_var_id, solution_new.mSolutions[i][6], i);
+            mpNewTestWriter->PutVariable(new_d_var_id, solution_new.mSolutions[i][5], i);
+            mpNewTestWriter->PutVariable(new_x_var_id, solution_new.mSolutions[i][7], i);
+            mpNewTestWriter->PutVariable(new_caI_var_id, solution_new.mSolutions[i][3], i);            
         }
-        mpNewTestWriter->Close();
+        
+        delete mpNewTestWriter;
         
         
         //read in good data file and compare line by line
@@ -133,7 +134,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                                
     }	
 
-// Test Ode Solver for LR91
+	// Test Ode Solver for LR91
     void testOdeSolverForLR91NoStimulus(void)
     {
         /*
@@ -168,17 +169,17 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus); 
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pLr91OdeSystem = new LuoRudyIModel1991OdeSystem(pStimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&stimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -187,16 +188,16 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double endTime = 1.0;
         double timeStep = 0.01;             
                 
-        OdeSolution SolutionNew = pMySolver->Solve(pLr91OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution_new = solver.Solve(&lr91_ode_system, startTime, endTime, timeStep, initialConditions);
         
-              
+        
         /*
          * Write data to a file NewLR91.dat using ColumnDataWriter
          */                                                           
                 
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","NewNoStimLR91");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
@@ -208,19 +209,20 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
         mpNewTestWriter->EndDefineMode();
                 
-        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
+        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
         {
-            mpNewTestWriter->PutVariable(new_time_var_id, SolutionNew.mTime[i], i);
-            mpNewTestWriter->PutVariable(new_v_var_id, SolutionNew.mSolutions[i][4], i);
-            mpNewTestWriter->PutVariable(new_m_var_id, SolutionNew.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(new_h_var_id, SolutionNew.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(new_j_var_id, SolutionNew.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(new_f_var_id, SolutionNew.mSolutions[i][6], i);
-            mpNewTestWriter->PutVariable(new_d_var_id, SolutionNew.mSolutions[i][5], i);
-            mpNewTestWriter->PutVariable(new_x_var_id, SolutionNew.mSolutions[i][7], i);
-            mpNewTestWriter->PutVariable(new_caI_var_id, SolutionNew.mSolutions[i][3], i);            
+            mpNewTestWriter->PutVariable(new_time_var_id, solution_new.mTime[i], i);
+            mpNewTestWriter->PutVariable(new_v_var_id, solution_new.mSolutions[i][4], i);
+            mpNewTestWriter->PutVariable(new_m_var_id, solution_new.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(new_h_var_id, solution_new.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(new_j_var_id, solution_new.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(new_f_var_id, solution_new.mSolutions[i][6], i);
+            mpNewTestWriter->PutVariable(new_d_var_id, solution_new.mSolutions[i][5], i);
+            mpNewTestWriter->PutVariable(new_x_var_id, solution_new.mSolutions[i][7], i);
+            mpNewTestWriter->PutVariable(new_caI_var_id, solution_new.mSolutions[i][3], i);            
         }
-        mpNewTestWriter->Close();
+        
+        delete mpNewTestWriter;
         
         
         //read in good data file and compare line by line
@@ -285,17 +287,17 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new RegularStimulus(magnitudeOfStimulus, durationOfStimulus, frequency, startStimulus); 
+        RegularStimulus stimulus(magnitudeOfStimulus, durationOfStimulus, frequency, startStimulus);
         
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pLr91OdeSystem = new LuoRudyIModel1991OdeSystem(pStimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&stimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -304,7 +306,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         double endTime = 1.0;
         double timeStep = 0.01;             
                 
-        OdeSolution SolutionNew = pMySolver->Solve(pLr91OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution_new = solver.Solve(&lr91_ode_system, startTime, endTime, timeStep, initialConditions);  
         
               
         /*
@@ -313,7 +315,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                 
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","RegStimLR91");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", SolutionNew.mSolutions.size());
+        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
         int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
@@ -325,19 +327,20 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
         mpNewTestWriter->EndDefineMode();
                 
-        for (int i = 0; i < SolutionNew.mSolutions.size(); i++) 
+        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
         {
-            mpNewTestWriter->PutVariable(new_time_var_id, SolutionNew.mTime[i], i);
-            mpNewTestWriter->PutVariable(new_v_var_id, SolutionNew.mSolutions[i][4], i);
-            mpNewTestWriter->PutVariable(new_m_var_id, SolutionNew.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(new_h_var_id, SolutionNew.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(new_j_var_id, SolutionNew.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(new_f_var_id, SolutionNew.mSolutions[i][6], i);
-            mpNewTestWriter->PutVariable(new_d_var_id, SolutionNew.mSolutions[i][5], i);
-            mpNewTestWriter->PutVariable(new_x_var_id, SolutionNew.mSolutions[i][7], i);
-            mpNewTestWriter->PutVariable(new_caI_var_id, SolutionNew.mSolutions[i][3], i);            
+            mpNewTestWriter->PutVariable(new_time_var_id, solution_new.mTime[i], i);
+            mpNewTestWriter->PutVariable(new_v_var_id, solution_new.mSolutions[i][4], i);
+            mpNewTestWriter->PutVariable(new_m_var_id, solution_new.mSolutions[i][2], i);
+            mpNewTestWriter->PutVariable(new_h_var_id, solution_new.mSolutions[i][0], i);
+            mpNewTestWriter->PutVariable(new_j_var_id, solution_new.mSolutions[i][1], i);
+            mpNewTestWriter->PutVariable(new_f_var_id, solution_new.mSolutions[i][6], i);
+            mpNewTestWriter->PutVariable(new_d_var_id, solution_new.mSolutions[i][5], i);
+            mpNewTestWriter->PutVariable(new_x_var_id, solution_new.mSolutions[i][7], i);
+            mpNewTestWriter->PutVariable(new_caI_var_id, solution_new.mSolutions[i][3], i);            
         }
-        mpNewTestWriter->Close();
+        
+        delete mpNewTestWriter;
         
         
 //        //read in good data file and compare line by line
@@ -356,7 +359,5 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
     } 
            
 };
-
-
 
 #endif //_TESTODESOLVERFORLR91_HPP_
