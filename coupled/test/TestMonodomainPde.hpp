@@ -44,9 +44,9 @@ class TestMonodomainPde : public CxxTest::TestSuite
         double start_time = 0;  
         double big_time_step = 0.5;
         double small_time_step = 0.01; 
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver mySolver;
         
-        MonodomainPde<1> monodomain_pde(num_nodes, pMySolver, start_time, big_time_step, small_time_step);
+        MonodomainPde<1> monodomain_pde(num_nodes, &mySolver, start_time, big_time_step, small_time_step);
         
         // sets Luo Rudy system with initial conditions passed on
         double voltage = -9999; // This voltage will be ignored
@@ -73,9 +73,9 @@ class TestMonodomainPde : public CxxTest::TestSuite
         
         monodomain_pde.SetUniversalInitialConditions(initialConditions);
         
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
            
-        monodomain_pde.SetStimulusFunctionAtNode(0, pStimulus);
+        monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
         
         // voltage that gets passed in solving ode
         voltage = -84.5;
@@ -84,9 +84,9 @@ class TestMonodomainPde : public CxxTest::TestSuite
         double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
    
         initialConditions[4] = voltage;
-        AbstractOdeSystem *pLr91OdeSystemStimulated = new LuoRudyIModel1991OdeSystem(pStimulus);
+        LuoRudyIModel1991OdeSystem Lr91OdeSystemStimulated(&stimulus);
                               
-        OdeSolution SolutionNewStimulated = pMySolver->Solve(pLr91OdeSystemStimulated, start_time, start_time + big_time_step, small_time_step, initialConditions);  
+        OdeSolution SolutionNewStimulated = mySolver.Solve(&Lr91OdeSystemStimulated, start_time, start_time + big_time_step, small_time_step, initialConditions);  
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.mSolutions[ SolutionNewStimulated.mSolutions.size()-1 ];
         
         double value2 = -(-80 + monodomain_pde.GetIIonic(solutionSetStimT_05));
@@ -99,10 +99,10 @@ class TestMonodomainPde : public CxxTest::TestSuite
   
  
  
-        AbstractStimulusFunction* pZeroStimulus = new InitialStimulus(0, 0); 
-        AbstractOdeSystem *pLr91OdeSystemNotStim = new LuoRudyIModel1991OdeSystem(pZeroStimulus);
+        InitialStimulus zeroStimulus(0, 0); 
+        LuoRudyIModel1991OdeSystem Lr91OdeSystemNotStim(&zeroStimulus);
 
-        OdeSolution SolutionNewNotStim = pMySolver->Solve(pLr91OdeSystemNotStim, start_time, start_time + big_time_step, small_time_step, initialConditions);  
+        OdeSolution SolutionNewNotStim = mySolver.Solve(&Lr91OdeSystemNotStim, start_time, start_time + big_time_step, small_time_step, initialConditions);  
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.mSolutions[ SolutionNewNotStim.mSolutions.size()-1 ];
        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage);
@@ -121,7 +121,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);
 
 
-        OdeSolution SolutionNewStimulatedT_1 = pMySolver->Solve(pLr91OdeSystemStimulated, start_time + big_time_step, 
+        OdeSolution SolutionNewStimulatedT_1 = mySolver.Solve(&Lr91OdeSystemStimulated, start_time + big_time_step, 
                                                                 start_time + 2*big_time_step, small_time_step,
                                                                 solutionSetStimT_05);  
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.mSolutions[ SolutionNewStimulatedT_1.mSolutions.size()-1 ];
@@ -135,7 +135,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
 
 
-        OdeSolution SolutionNewNotStimT_1 = pMySolver->Solve(pLr91OdeSystemNotStim, start_time + big_time_step, 
+        OdeSolution SolutionNewNotStimT_1 = mySolver.Solve(&Lr91OdeSystemNotStim, start_time + big_time_step, 
                                                              start_time + 2*big_time_step, small_time_step, 
                                                              solutionSetNoStimT_05);
         

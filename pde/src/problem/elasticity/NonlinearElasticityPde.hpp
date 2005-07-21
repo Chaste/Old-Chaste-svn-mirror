@@ -24,6 +24,11 @@ public:
 			(*mpGravity)(i) = gravity(i);
 		}
 	}
+	
+	~NonlinearElasticityPde()
+	{
+		delete mpGravity;
+	}
 
 
 	MatrixDouble ComputeStress(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)

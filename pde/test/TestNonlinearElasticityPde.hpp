@@ -26,48 +26,7 @@ public:
         PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, 0);        
     }
     
-    // removed as 1D CompressibleIsoMRMaterial no longer allowed
-	void DO_NOT______testNonlinearElasticityPde1D()
-	{
-		TrianglesMeshReader mesh_reader("mesh/test/data/1D_mesh_5_elements");
-		ConformingTetrahedralMesh<1,1> mesh;
-		mesh.ConstructFromMeshReader(mesh_reader);
-		
-		double c1 = 12.23;
-		CompressibleIsotropicMooneyRivlinMaterial<1>* pMaterial = new CompressibleIsotropicMooneyRivlinMaterial<1>(c1);
-		pMaterial->SetDensity(1.5);
-		double density = pMaterial->GetDensity();
-	
-		VectorDouble gravity(1);
-		gravity(0) = 10;
-		NonlinearElasticityPde<1,1> pde(gravity);
-
-
-		for(int i=0; i<mesh.GetNumElements(); i++)		 
-		{
-			mesh.SetMaterialToElement(i, pMaterial);		
-		}
-
-	
-		for(int i=0; i<mesh.GetNumElements(); i++)		 
-		{
-			MatrixDouble I = MatrixDouble::Identity(1);						 
-			MatrixDouble T = pde.ComputeStress( mesh.GetElement(i), I);
-
-			VectorDouble rhoG = pde.ComputeGravityForceTerm(  mesh.GetElement(i) );
-			
-			TS_ASSERT_EQUALS( T.Rows()   ,1);
-			TS_ASSERT_EQUALS( T.Columns(),1);
-			TS_ASSERT_EQUALS( rhoG.Size(),1);
-			
-			TS_ASSERT_DELTA( T(0,0),  2*c1, 1e-12);
-			TS_ASSERT_DELTA( rhoG(0), 15.0, 1e-12);							
-		}
-	}
-
-
-
-
+    
 	void testNonlinearElasticityPde2D()
 	{
 		TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
@@ -75,9 +34,9 @@ public:
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
 		double c1 = 12.23;
-		CompressibleIsotropicMooneyRivlinMaterial<2>* pMaterial = new CompressibleIsotropicMooneyRivlinMaterial<2>(c1);
-		pMaterial->SetDensity(1.5);
-		double density = pMaterial->GetDensity();
+		CompressibleIsotropicMooneyRivlinMaterial<2> material(c1);
+		material.SetDensity(1.5);
+		double density = material.GetDensity();
 	
 		VectorDouble gravity(2);
 		gravity(0) = 1;
@@ -87,7 +46,7 @@ public:
 
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
-			mesh.SetMaterialToElement(i, pMaterial);		
+			mesh.SetMaterialToElement(i, &material);		
 		}
 
 	
@@ -120,9 +79,9 @@ public:
 		
 		double c1 = 12.23;
 		double c2 = 13.34;
-		CompressibleIsotropicMooneyRivlinMaterial<3>* pMaterial = new CompressibleIsotropicMooneyRivlinMaterial<3>(c1,c2);
-		pMaterial->SetDensity(1.5);
-		double density = pMaterial->GetDensity();
+		CompressibleIsotropicMooneyRivlinMaterial<3> material(c1,c2);
+		material.SetDensity(1.5);
+		double density = material.GetDensity();
 	
 		VectorDouble gravity(3);
 		gravity(0) = 1;
@@ -133,7 +92,7 @@ public:
 
 		for(int i=0; i<mesh.GetNumElements(); i++)		 
 		{
-			mesh.SetMaterialToElement(i, pMaterial);		
+			mesh.SetMaterialToElement(i, &material);		
 		}
 
 	

@@ -45,17 +45,17 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
         /*
          * Choose function for stimulus
          */             
-        AbstractStimulusFunction *pStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus); 
+        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus); 
         
         /*
          * Instantiate the LHN model: need to pass initial data and stimulus function
          */        
-        AbstractOdeSystem *pFhn61OdeSystem = new FitzHughNagumo1961OdeSystem(pStimulus);
+        FitzHughNagumo1961OdeSystem Fhn61OdeSystem(&stimulus);
         
         /*
          * Choose an ode solver
          */      
-        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
+        EulerIvpOdeSolver mySolver;
         
         /*
          * Solve 
@@ -64,28 +64,27 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
         double endTime = 500.0; // ms
         double timeStep = 0.01;             
                 
-        OdeSolution solution = pMySolver->Solve(pFhn61OdeSystem, startTime, endTime, timeStep, initialConditions);  
+        OdeSolution solution = mySolver.Solve(&Fhn61OdeSystem, startTime, endTime, timeStep, initialConditions);  
         
               
         /*
          * Write data to a file FHN61.dat using ColumnDataWriter
          */                                                           
 		        
-        ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("testoutput","FHN61");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
-        int new_w_var_id = mpNewTestWriter->DefineVariable("w"," ");
-        mpNewTestWriter->EndDefineMode();
+        ColumnDataWriter mNewTestWriter("testoutput","FHN61");
+        mNewTestWriter.DefineFixedDimension("Time","ms", solution.mSolutions.size());
+        int new_v_var_id = mNewTestWriter.DefineVariable("V","mV");
+        int new_time_var_id = mNewTestWriter.DefineVariable("Time","ms");
+        int new_w_var_id = mNewTestWriter.DefineVariable("w"," ");
+        mNewTestWriter.EndDefineMode();
 				
         for (int i = 0; i < solution.mSolutions.size(); i++) 
         {
-            mpNewTestWriter->PutVariable(new_time_var_id, solution.mTime[i], i);
-            mpNewTestWriter->PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
+            mNewTestWriter.PutVariable(new_time_var_id, solution.mTime[i], i);
+            mNewTestWriter.PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
+            mNewTestWriter.PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
         }
-        mpNewTestWriter->Close();                            
+        mNewTestWriter.Close();                            
     }
     
 //    void testOdeSolverForFHN61WithRegularStimulus(void)
