@@ -18,8 +18,13 @@ public:
 	/// Standard setup method for PETSc.
 	bool setUpWorld()
 	{
-		int FakeArgc=4;
+#ifdef PETSC_MEMORY_TRACING
+		int FakeArgc = 4;
 		char *FakeArgs[] = {"testrunner", "-trmalloc", "-trdebug", "-trdump"};
+#else
+		int FakeArgc = 1;
+		char *FakeArgs[] = {"testrunner"};
+#endif
 		char **FakeArgv=(char **)FakeArgs;
 
 		PetscErrorCode ierr = PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, PETSC_NULL);
