@@ -208,14 +208,10 @@ public:
 		AbstractVisualizer<1> *pViewer;
 		TS_ASSERT_THROWS_NOTHING(
 								 pViewer=new MatlabVisualizer<1>(
-										"testoutput/NewMonodomainLR91_1d"));
+										"testoutput/NewMonodomainLR91_1d",
+										"io/test/data/NewMonodomainLR91_1d"));
 		try {
-			// Quick fix to a failing test: copy an input file into the 
-			// testoutput directory, since the input file needs to be
-			// in the same directory as the .coord and .val files
-			system("cp -f io/test/data/NewMonodomainLR91_1d.node testoutput/NewMonodomainLR91_1d.node");
 			pViewer->CreateFilesForVisualization();
-			system("rm -f testoutput/NewMonodomainLR91_1d.node");
 		} catch (Exception e) {
 			TS_TRACE(e.getMessage());
 			TS_ASSERT(0);
