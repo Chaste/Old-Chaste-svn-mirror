@@ -136,6 +136,17 @@ class GccDebug(Gcc):
   def __init__(self):
     BuildType.__init__(self)
     self._cc_flags = '-g'
+    
+class Parallel(GccDebug):
+  """
+  Run using mpi run for tests which run in a parallel environment
+  """
+  def GetTestRunnerCommand(self, exefile):
+    "Run test with a two processor environment"
+    return '../../../mpi/bin/mpirun -np 2 ' + exefile
+  
+  def TestPacks(self):
+    return ['Parallel']
 
 class MemoryTesting(GccDebug):
   """
