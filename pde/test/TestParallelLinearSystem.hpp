@@ -5,6 +5,7 @@
 #include <cxxtest/TestSuite.h>
 #include "LinearSystem.hpp"
 #include "SimpleLinearSolver.hpp"
+#include "PetscSetupAndFinalize.hpp"
           
 class TestParallelLinearSystem : public CxxTest::TestSuite 
 {

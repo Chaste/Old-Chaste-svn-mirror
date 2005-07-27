@@ -16,8 +16,7 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "VaryingDiffusionAndSourceTermPde.hpp"
 #include "TrianglesMeshReader.hpp"
-
-
+#include "PetscSetupAndFinalize.hpp"
 
 class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {
@@ -28,7 +27,7 @@ class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	void testWithHeatEquationAndMeshReader()   
 	{
 		// Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
+		TrianglesMeshReader mesh_reader("mesh/test/data/trivial_1d_mesh");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -70,7 +69,7 @@ class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 	void testHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/disk_984_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

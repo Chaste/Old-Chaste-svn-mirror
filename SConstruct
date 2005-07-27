@@ -44,7 +44,8 @@ else:
   petsc_base = '../../../petsc-2.2.1-with-mpi/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
-  petsc_mpi = '-I'+petsc_base+'include/mpiuni '
+  # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
+  petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
   
   petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'

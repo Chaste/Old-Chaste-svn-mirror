@@ -16,6 +16,7 @@
 #include "ParallelMonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
 #include "math.h"
+#include "PetscSetupAndFinalize.hpp"
 
  
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
@@ -25,8 +26,6 @@ public:
 	{  
         
 		
-		
-		
 		double tStart = 0; 
 		double tFinal = 0.1;
         
@@ -35,7 +34,7 @@ public:
 		double tSmallStep  = 0.01;
         
 		// Create mesh from mesh reader 
-		TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
+		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -215,7 +214,7 @@ public:
         double tSmallStep  = 0.01;
         
         // read mesh on [0,1]x[0,1]
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/square_128_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -429,7 +428,7 @@ public:
         
         // read 3d mesh
         // TrianglesMeshReader mesh_reader("pdes/tests/meshdata/cylinder_with_hole_840_elements");
-        TrianglesMeshReader mesh_reader("pdes/tests/meshdata/slab_138_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/slab_138_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
