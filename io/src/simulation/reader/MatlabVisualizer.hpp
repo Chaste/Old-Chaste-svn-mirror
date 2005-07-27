@@ -21,7 +21,8 @@ class MatlabVisualizer: public AbstractVisualizer<SPACE_DIM>
 private:
 	std::string mOutputPathBaseName; /**<path base name of the files */
 	std::string mInputPathBaseName; /**<path base name of original mesh files */
-	std::vector<double> mTimeSeries; /**< a vector to store the time steps which may be used as part of the file names. */
+	//std::vector<double> mTimeSeries; /**< a vector to store the time steps which may be used as part of the file names. */
+	int mNumOutputFiles;
 	bool mHasTimeFile; /**< a flag to indicate whether there is .time file, true if there is. */
 	void CreateNodesFileForVisualization();	     
 	void CreateOutputFileForVisualization();

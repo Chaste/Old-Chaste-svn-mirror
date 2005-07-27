@@ -141,12 +141,13 @@ class Parallel(GccDebug):
   """
   Run using mpi run for tests which run in a parallel environment
   """
+  def __init__(self):
+    GccDebug.__init__(self)
+    self._test_packs = ['Parallel']
+  
   def GetTestRunnerCommand(self, exefile):
     "Run test with a two processor environment"
     return '../../../mpi/bin/mpirun -np 2 ' + exefile
-  
-  def TestPacks(self):
-    return ['Parallel']
 
 class MemoryTesting(GccDebug):
   """
@@ -185,11 +186,18 @@ class MemoryTesting(GccDebug):
     leaks = re.compile('==\d+== LEAK SUMMARY:')
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
     petsc = re.compile('\[0]Total space allocated (\d+) bytes')
+    uninit = re.compile('==\d+== Conditional jump or move depends on uninitialised value(s)')
     
     for lineno in range(len(outputLines)):
       m = petsc.match(outputLines[lineno])
       if m and int(m.group(1)) > 0:
         # PETSc Vec or Mat allocated and not destroyed
+        status = 'Leaky'
+        break
+        
+      m = uninit.match(outputLines[lineno])
+      if m:
+        # Uninitialised values problem
         status = 'Leaky'
         break
     

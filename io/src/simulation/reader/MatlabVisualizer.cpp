@@ -30,6 +30,8 @@ MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string outputPathBaseName, st
 		mInputPathBaseName = inputPathBaseName;	
 	}
 	
+	mNumOutputFiles = 0;
+	
 	std::stringstream time_file_name_stream;
 	time_file_name_stream<<mOutputPathBaseName<<"Time.dat";
 	std::string time_file_name=time_file_name_stream.str();
@@ -62,10 +64,11 @@ MatlabVisualizer<SPACE_DIM>::MatlabVisualizer(std::string outputPathBaseName, st
 			int notBlankLocation=RawLineFromFile.find_first_not_of(" \t",0);
 			if (notBlankLocation >= 0)
 			{
-				double value;
-				std::stringstream line_data(RawLineFromFile);
-				line_data >> value;
-				mTimeSeries.push_back(value);
+				mNumOutputFiles++;
+//				double value = -99999999;
+//				std::stringstream line_data(RawLineFromFile);
+//				line_data >> value;
+//				mTimeSeries.push_back(value);
 			}		
 			
 			// Move onto next line
@@ -174,7 +177,7 @@ void MatlabVisualizer<SPACE_DIM>::CreateOutputFileForVisualization()
 		throw Exception("The file for writing cannot be created successfully");
 	}
 	
-	int num_files = mTimeSeries.size();
+	int num_files = mNumOutputFiles; //mTimeSeries.size();
 	int i=0;
 	do
 	{
