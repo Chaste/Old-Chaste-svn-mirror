@@ -215,6 +215,7 @@ public:
         TS_ASSERT_DELTA(solution_elements[SIZE-1], 11.0, 0.000001);
         
         VecRestoreArray(solution_vector, &solution_elements);
+        VecDestroy(solution_vector);
 	}
 	
 	
@@ -279,6 +280,9 @@ public:
 		
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
 		ierr = VecRestoreArray(residual, &residualArrayPostMod);
+		
+		VecDestroy(currentSolution);
+		VecDestroy(residual);
 	}
 	
 	void TestDefineZeroDirichletOnMeshBoundary()
@@ -379,6 +383,7 @@ public:
 		}
        
         VecRestoreArray(solution_vector, &solution_elements);
+        VecDestroy(solution_vector);
 	}
 	
 	
@@ -432,6 +437,7 @@ public:
 		}
          
         VecRestoreArray(solution_vector, &solution_elements);
+        VecDestroy(solution_vector);
 	}
 	
 
@@ -505,6 +511,9 @@ public:
 		 
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
 		ierr = VecRestoreArray(residual, &residualArrayPostMod);
+		
+		VecDestroy(currentSolution);
+		VecDestroy(residual);
 	}
     
 };

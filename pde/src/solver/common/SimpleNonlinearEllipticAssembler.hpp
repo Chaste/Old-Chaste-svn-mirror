@@ -140,9 +140,12 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
     Vec residual;
  	VecDuplicate(initialGuess, &residual);
 
-	return pSolver->Solve(&ComputeResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
+	Vec answer = pSolver->Solve(&ComputeResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
 		&ComputeJacobianPetsc<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
 
+	VecDestroy(residual);
+	
+	return answer;
 }
 
 

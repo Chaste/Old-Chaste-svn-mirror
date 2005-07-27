@@ -189,6 +189,9 @@ public:
 
 		//std::cout << "Our J matrix: " << std::endl;
 		//MatView(jacobian,0);
+		
+		VecDestroy(input);
+		MatDestroy(jacobian);
 	}
 	
 	void TestNumericalAgainstAnalyticJacobian()
@@ -878,10 +881,11 @@ public:
 			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
+		VecDestroy(answer);
 		
 		// Analytical Jacobian
 		try {
-		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
 			TS_TRACE(e.getMessage());
 			TS_ASSERT(0);
@@ -989,6 +993,7 @@ public:
 			TS_ASSERT_DELTA(ans[i], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
+		VecDestroy(answer);
 		
 		// Analytical Jacobian
 		try {

@@ -40,7 +40,6 @@ public:
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess, &residual);
-    	VecDuplicate(initialGuess, &answer);
     	    	
  		answer = solver.Solve(&ComputeTestResidual, &ComputeTestJacobian,
  							  residual, initialGuess, NULL);
@@ -82,7 +81,6 @@ public:
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess,&residual);
-    	VecDuplicate(initialGuess,&answer);
     	    	
  		answer = solver.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
  							  residual, initialGuess, NULL);

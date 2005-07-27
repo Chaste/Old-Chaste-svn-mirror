@@ -34,9 +34,11 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     {
     	std::stringstream reason_stream;
     	reason_stream << reason;
+    	VecDestroy(lhs_vector);    // Delete vec memory, since caller can't do so
+    	KSPDestroy(simple_solver); // Likewise for the solver
     	throw Exception("Linear Solver did not converge. Petsc reason code:"
     	                +reason_stream.str()+" .");
     }
-    KSPDestroy(simple_solver) ;
+    KSPDestroy(simple_solver);
     return lhs_vector;
 }

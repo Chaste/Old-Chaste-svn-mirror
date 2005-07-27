@@ -66,33 +66,42 @@ public:
 		SimpleDg0ParabolicAssembler<1,1> simple_assembler;
         
 		// initial condition;   
-		Vec current_solution_1, initial_condition_1, current_solution_2, initial_condition_2;
-		current_solution_1 = CreateInitialConditionVec(mesh.GetNumNodes());
-		VecDuplicate(current_solution_1,  &current_solution_2);
+		Vec initial_condition_1, initial_condition_2;
+		initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
+		VecDuplicate(initial_condition_1, &initial_condition_2);
   
 		double* init_array;
-		int ierr = VecGetArray(current_solution_1, &init_array); 
+		int ierr = VecGetArray(initial_condition_1, &init_array); 
 		for (int i=0; i<mesh.GetNumNodes(); i++)
 		{
 			double x=mesh.GetNodeAt(i)->GetPoint()[0];
 			init_array[i] = exp(-(x*x)/100);
 		}
-		VecRestoreArray(current_solution_1, &init_array);      
-		VecAssemblyBegin(current_solution_1);
-		VecAssemblyEnd(current_solution_1);
-		VecCopy(current_solution_1, current_solution_2);
-           
+		VecRestoreArray(initial_condition_1, &init_array);      
+		VecAssemblyBegin(initial_condition_1);
+		VecAssemblyEnd(initial_condition_1);
+		VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
+
+		// Vars to hold current solutions at each iteration
+		Vec current_solution_1, current_solution_2;
+
 		double tCurrent = tStart;
 		while( tCurrent < tFinal )
 		{
 			monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
 			simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
 			
-			monodomain_assembler.SetInitialCondition( current_solution_1 );
-			simple_assembler.SetInitialCondition( current_solution_2 );
+			monodomain_assembler.SetInitialCondition( initial_condition_1 );
+			simple_assembler.SetInitialCondition( initial_condition_2 );
 
 			current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc, &linearSolver);
 			current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc, &linearSolver);
+     
+     		// Next iteration uses current solution as initial condition
+     		VecDestroy(initial_condition_1); // Free old initial condition
+     		VecDestroy(initial_condition_2);
+     		initial_condition_1 = current_solution_1;
+     		initial_condition_2 = current_solution_2;
      
 			tCurrent += tBigStep;
 		}
@@ -181,23 +190,23 @@ public:
 		MonodomainDg0Assembler<1,1> monodomainAssembler;
         
 		// initial condition;   
-		Vec currentVoltage;
-		VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-		VecSetSizes(currentVoltage, PETSC_DECIDE, mesh.GetNumNodes() );
-		//VecSetType(initialCondition, VECSEQ);
-		VecSetFromOptions(currentVoltage);
+		Vec initial_condition;
+		VecCreate(PETSC_COMM_WORLD, &initial_condition);
+		VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
+		//VecSetType(initial_condition, VECSEQ);
+		VecSetFromOptions(initial_condition);
   
-		double* currentVoltageArray;
-		int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+		double* initial_condition_array;
+		int ierr = VecGetArray(initial_condition, &initial_condition_array); 
         
 		// initial voltage condition of a constant everywhere on the mesh
 		for(int i=0; i<mesh.GetNumNodes(); i++)
 		{
-			currentVoltageArray[i] = -84.5;
+			initial_condition_array[i] = -84.5;
 		}
-		VecRestoreArray(currentVoltage, &currentVoltageArray);      
-		VecAssemblyBegin(currentVoltage);
-		VecAssemblyEnd(currentVoltage);
+		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecAssemblyBegin(initial_condition);
+		VecAssemblyEnd(initial_condition);
 
               
 		/*
@@ -219,16 +228,23 @@ public:
 		//time_var_id = mpTestWriter->DefineVariable("Time","msecs");
 		//voltage_var_id = mpTestWriter->DefineVariable("V","mV");
 		//mpTestWriter->EndDefineMode();
-           
+        
+        Vec currentVoltage;  // Current solution
+        
 		double tCurrent = tStart;        
 		while( tCurrent < tFinal )
 		{ 
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
+            
+            // Free old initial condition
+            VecDestroy(initial_condition);
+            // Initial condition for next loop is current solution
+            initial_condition = currentVoltage;
             
             // Writing data out to the file NewMonodomainLR91_1d.dat
          
@@ -253,6 +269,7 @@ public:
         //mpTestWriter->Close();
 
         // test whether voltages and gating variables are in correct ranges
+        double *currentVoltageArray;
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
         for(int i=0; i<mesh.GetNumNodes(); i++)
@@ -279,6 +296,7 @@ public:
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
+        VecDestroy(currentVoltage);
     }
     
  
@@ -351,24 +369,24 @@ public:
         MonodomainDg0Assembler<2,2> monodomainAssembler;
         
         // initial condition;   
-        Vec currentVoltage;
-        VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-        VecSetSizes(currentVoltage, PETSC_DECIDE, mesh.GetNumNodes() );
-        //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(currentVoltage);
+        Vec initial_condition;
+        VecCreate(PETSC_COMM_WORLD, &initial_condition);
+        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
+        //VecSetType(initial_condition, VECSEQ);
+        VecSetFromOptions(initial_condition);
   
-        double* currentVoltageArray;
-        int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        double* initial_condition_array;
+        int ierr = VecGetArray(initial_condition, &initial_condition_array); 
         
         // initial voltage condition of a constant everywhere on the mesh
         for(int i=0; i<mesh.GetNumNodes(); i++)
         {
-            currentVoltageArray[i] = -84.5;
+            initial_condition_array[i] = -84.5;
         }
      
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
+        VecRestoreArray(initial_condition, &initial_condition_array);      
+        VecAssemblyBegin(initial_condition);
+        VecAssemblyEnd(initial_condition);
 
               
         /*
@@ -391,16 +409,23 @@ public:
       //  time_var_id = mpTestWriter->DefineVariable("Time","msecs");
      //   voltage_var_id = mpTestWriter->DefineVariable("V","mV");
      //   mpTestWriter->EndDefineMode();
-           
+        
+        Vec currentVoltage; // Current solution
+        
         double tCurrent = tStart;        
         while( tCurrent < tFinal )
         {
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
+            
+            // Free old initial condition
+            VecDestroy(initial_condition);
+            // Initial condition for next loop is current solution
+            initial_condition = currentVoltage;
             
             // Writing data out to the file NewMonodomainLR91_2d.dat
          
@@ -464,6 +489,7 @@ public:
 
 
         // test whether voltages and gating variables are in correct ranges
+        double *currentVoltageArray;
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
         for(int i=0; i<mesh.GetNumNodes(); i++)
@@ -490,7 +516,7 @@ public:
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
- 
+ 		VecDestroy(currentVoltage);
 
 
     }   
@@ -566,23 +592,23 @@ public:
         MonodomainDg0Assembler<3,3> monodomainAssembler;
         
         // initial condition;   
-        Vec currentVoltage;
-        VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-        VecSetSizes(currentVoltage, PETSC_DECIDE, mesh.GetNumNodes() );
-        //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(currentVoltage);
+        Vec initial_condition;
+        VecCreate(PETSC_COMM_WORLD, &initial_condition);
+        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
+        //VecSetType(initial_condition, VECSEQ);
+        VecSetFromOptions(initial_condition);
   
-        double* currentVoltageArray;
-        int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        double* initial_condition_array;
+        int ierr = VecGetArray(initial_condition, &initial_condition_array); 
         
         // initial voltage condition of a constant everywhere on the mesh
         for(int i=0; i<mesh.GetNumNodes(); i++)
         {
-            currentVoltageArray[i] = -84.5;
+            initial_condition_array[i] = -84.5;
         }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
+        VecRestoreArray(initial_condition, &initial_condition_array);      
+        VecAssemblyBegin(initial_condition);
+        VecAssemblyEnd(initial_condition);
 
               
         /*
@@ -604,16 +630,23 @@ public:
       //  time_var_id = mpTestWriter->DefineVariable("Time","msecs");
      //   voltage_var_id = mpTestWriter->DefineVariable("V","mV");
      //   mpTestWriter->EndDefineMode();
-           
+        
+        Vec currentVoltage; // Current solution
+        
         double tCurrent = tStart;        
         while( tCurrent < tFinal )
         {
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
+            
+            // Free old initial condition
+            VecDestroy(initial_condition);
+            // Initial condition for next loop is current solution
+            initial_condition = currentVoltage;
             
             // Writing data out to the file NewMonodomainLR91_3d.dat
          
@@ -639,6 +672,7 @@ public:
         
         
         // test whether voltages and gating variables are in correct ranges
+        double *currentVoltageArray;
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
         for(int i=0; i<mesh.GetNumNodes(); i++)
@@ -665,6 +699,7 @@ public:
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
+        VecDestroy(currentVoltage);
            
     }   
 };

@@ -64,16 +64,22 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     VecCopy(initialGuess, x);
     
     SNESSolve(snes, x);
+    
+    MatDestroy(J); // Free Jacobian
+    
     SNESConvergedReason reason;
     SNESGetConvergedReason(snes,&reason);
     if (reason<0)
     {
     	std::stringstream reason_stream;
     	reason_stream << reason;
+    	VecDestroy(x); // Since caller can't free the memory in this case
+    	SNESDestroy(snes);
     	throw Exception("Nonlinear Solver did not converge. Petsc reason code:"
     	                +reason_stream.str()+" .");
     }
 
-    return x;
+	SNESDestroy(snes);
 
+    return x;
 }

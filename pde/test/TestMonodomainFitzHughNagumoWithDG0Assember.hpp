@@ -90,14 +90,14 @@ public:
         MonodomainDg0Assembler<1,1> monodomainAssembler;
         
         // initial condition;   
-        Vec currentVoltage; 
-        VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-        VecSetSizes(currentVoltage, PETSC_DECIDE, mesh.GetNumNodes() );
-        //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(currentVoltage);
+        Vec initial_condition; 
+        VecCreate(PETSC_COMM_WORLD, &initial_condition);
+        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
+        //VecSetType(initial_condition, VECSEQ);
+        VecSetFromOptions(initial_condition);
   
-        double* currentVoltageArray;
-        int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        double* initial_condition_array;
+        int ierr = VecGetArray(initial_condition, &initial_condition_array); 
         
         // initial voltage condition of a constant everywhere on the mesh
         // ALREADY CHECKED
@@ -106,11 +106,11 @@ public:
         	// change intiial conditions to exp(-x^2/10)
         	double x = mesh.GetNodeAt(i)->GetPoint()[0];
         	//std::cout << i << " " << x << std::endl;
-            currentVoltageArray[i] = exp(-(x*x)/10);
+            initial_condition_array[i] = exp(-(x*x)/10);
         }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
+        VecRestoreArray(initial_condition, &initial_condition_array);      
+        VecAssemblyBegin(initial_condition);
+        VecAssemblyEnd(initial_condition);
 
         /*
          * Write data to a file NewMonodomainFHN_1d_xx.dat, 'xx' refers to nth time step
@@ -133,17 +133,24 @@ public:
            
         double tCurrent = tStart;  
         int counter = 0;      
-        
+        Vec currentVoltage;
+        double *currentVoltageArray;
         while( tCurrent < tFinal )
         {
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             try {
             	currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
             } catch (Exception e) {
             	TS_TRACE(e.getMessage());
+            	TS_ASSERT(0);
             }
+            
+            // Free old initial condition
+            VecDestroy(initial_condition);
+            // Initial condition for next loop is current solution
+            initial_condition = currentVoltage;
 
             // Writing data out to the file NewMonodomainLR91_1d.dat
 			if (counter % 20 == 0)    
@@ -213,13 +220,12 @@ public:
 				 pViewer=new MatlabVisualizer<1>(
 		                  "testoutput/NewMonodomainFHN_1d", 
 		                  "mesh/test/data/heart_FHN_mesh"));
-	TS_ASSERT_THROWS_NOTHING(pViewer->CreateFilesForVisualization());	
-	/*try {
+	try {
 	    pViewer->CreateFilesForVisualization();
 	} catch (Exception e) {
 	    TS_TRACE(e.getMessage());
+	    TS_ASSERT(0);
 	}
-	*/
 	delete pViewer;
 
     }
