@@ -6,6 +6,8 @@
 # tools & flags to use, and also how to interpret the status string of a test
 # suite.
 
+import os
+
 class BuildType:
   """
   Base class for all objects representing a build type.
@@ -126,6 +128,39 @@ class BuildType:
     The default is just to run the given exectuable.
     """
     return exefile
+    
+  def ResultsFileName(self, dir, testsuite, status, runtime):
+    """
+    Return the path to a results file.
+    dir is the directory in which files should be put.
+    testsuite is the name of the test suite giving these results.
+    status is an encoded status string summarising the results of the test.
+    runtime is the time taken for the test to complete, in seconds (as a floating point no.).
+    """
+    leafname = testsuite + '.' + status + '.' + str(int(runtime))
+    pathname = os.path.join(dir, leafname)
+    return pathname
+  
+  def GetInfoFromResultsFileName(self, leafname):
+    """
+    Extract the metadata held within the name of a results file.
+    This returns a dictionary, with keys 'testsuite', 'status' and 'runtime'.
+    testsuite is the name of the test suite.
+    status is the encoded status string.
+    runtime is the run time for the test suite in seconds.
+    """
+    # Components are separated by '.'
+    i2 = leafname.rfind('.')
+    i1 = leafname.rfind('.', 0, i2)
+    if i1 == -1:
+      # No runtime info available
+      runtime = -1
+      i1, i2 = i2, len(leafname)
+    else:
+      runtime = int(leafname[i2+1:])
+    return {'testsuite': leafname[:i1],
+            'status': leafname[i1+1:i2],
+            'runtime': runtime}
 
 Gcc = BuildType
 
@@ -147,7 +182,7 @@ class Parallel(GccDebug):
   
   def GetTestRunnerCommand(self, exefile):
     "Run test with a two processor environment"
-    return '../../../mpi/bin/mpirun -np 2 ' + exefile
+    return '../../../mpi/bin/mpirun -np 2 ' + exefile # TODO: Do this properly! i.e. get path from scons
 
 class MemoryTesting(GccDebug):
   """
@@ -304,10 +339,10 @@ def GetBuildType(buildType):
   """
   Given a string representing a build type, create and return an instance of
   the appropriate BuildType subclass.
-  Components of the string are separated by ':'. The first component is the
+  Components of the string are separated by '_'. The first component is the
   basic BuildType, and further components can customise that.
   """
-  parts = buildType.split(':')
+  parts = buildType.split('_')
   classname = parts[0]
   extras = parts[1:]
   

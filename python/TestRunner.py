@@ -18,7 +18,7 @@
 #  Files will be stored in a subfolder machine.build_type.
 #  The .log file basename, without extension, will be prepended to the status.
 
-import os, sys
+import os, sys, time
 
 def help():
   print "Usage:",sys.argv[0],"<test exe> <.log file> <build type> [output dir] [--no-stdout]"
@@ -50,6 +50,7 @@ build = BuildTypes.GetBuildType(build_type)
 command = build.GetTestRunnerCommand(exefile + ' 2>&1 ')
 
 # Run the test program and record output & exit code
+start_time = time.time()
 test_fp = os.popen(command, 'r')
 test_output = []
 for line in test_fp:
@@ -57,6 +58,9 @@ for line in test_fp:
   if not '--no-stdout' in sys.argv:
     print line,
 exit_code = test_fp.close()
+end_time = time.time()
+
+#print "Time",end_time,start_time
 
 # Write output to the log file
 log_fp = file(logfile, 'w')
@@ -80,7 +84,7 @@ if outputdir:
   for oldfile in oldfiles:
     os.remove(oldfile)
   # Copy the new results
-  copy_to   = os.path.join(test_dir, test_name+'.'+status)
+  copy_to = build.ResultsFileName(dir=test_dir, testsuite=test_name, status=status, runtime=end_time-start_time)
   #print copy_to
   fp = file(copy_to, 'w')
   fp.writelines(test_output)

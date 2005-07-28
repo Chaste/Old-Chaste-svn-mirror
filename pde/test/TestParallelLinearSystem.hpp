@@ -6,6 +6,8 @@
 #include "LinearSystem.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
+
+#include "mpi.h"
           
 class TestParallelLinearSystem : public CxxTest::TestSuite 
 {
@@ -50,6 +52,25 @@ public:
     	VecRestoreArray(solution_vector, &solution_elements);
     	
     	VecDestroy(solution_vector);
+    }
+    
+    /**
+     * This test was used to check that the infrastructure correctly recognises
+     * failing parallel tests, even when only 1 process fails.
+     */
+    void DontTestInfrastructure(void)
+    {
+    	// Test infrastructure behaviour on failing parallel tests
+    	int rank;
+    	MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+    	if (rank == 0)
+    	{
+    		TS_ASSERT(false);
+    	}
+    	else
+    	{
+    		TS_ASSERT(true);
+    	}
     }
 
     void testLinearSystem2( void )

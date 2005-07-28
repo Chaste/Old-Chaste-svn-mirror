@@ -105,8 +105,7 @@ def _recent(req, type=None):
       buildTypesModules[revision] = _importBuildTypesModule(revision)
     build = buildTypesModules[revision].GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
-    testsuite_status, overall_status, colour = _getTestStatus(test_set_dir,
-                                                              build)
+    testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
     
     output = output + """\
     <tr>
@@ -170,8 +169,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   else:
     buildTypesModule = _importBuildTypesModule(revision)
     build = buildTypesModule.GetBuildType(buildType)
-  testsuite_status, overall_status, colour = _getTestStatus(test_set_dir,
-                                                            build)
+  testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
   
   # Produce output HTML
   output = """\
@@ -185,6 +183,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
     <tr>
       <th>Test Suite</th>
       <th>Status</th>
+      <th>Run Time</th>
     </tr>
 """ % (_linkRevision(revision), _colourText(overall_status, colour),
        _linkBuildType(buildType, revision), machine)
@@ -197,10 +196,12 @@ def _summary(req, type, revision, machine=None, buildType=None):
     <tr>
       <td>%s</td>
       <td style="background-color: %s;">%s</td>
+      <td>%s</td>
     </tr>
 """ % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
-                      testsuite_status[testsuite], build))
+                      testsuite_status[testsuite], build),
+       _formatRunTime(runtime[testsuite]))
 
   output = output + "  </table>\n"
   
@@ -321,7 +322,7 @@ def _extractDotSeparatedPair(string):
   Extract both parts from a string of the form part1.part2.
   The '.' used is the last in the string.
   Returns a pair (part1, part2).
-  Useful for parsing machine.buildType and TestSuite.Status filenames.
+  Useful for parsing machine.buildType filenames.
   """
   i = string.rfind('.')
   return string[:i], string[i+1:]
@@ -344,14 +345,16 @@ def _getTestStatus(test_set_dir, build):
   """
   ignores = ['index.html', '.sconsign']
   result_files = os.listdir(test_set_dir)
-  testsuite_status = {}
+  testsuite_status, runtime = {}, {}
   for filename in result_files:
     if not filename in ignores:
-      testsuite, status = _extractDotSeparatedPair(filename)
-      testsuite_status[testsuite] = status
+      d = build.GetInfoFromResultsFileName(filename)
+      testsuite = d['testsuite']
+      testsuite_status[testsuite] = d['status']
+      runtime[testsuite] = d['runtime']
   overall_status, colour = _overallStatus(testsuite_status.values(),
                                           build)
-  return testsuite_status, overall_status, colour
+  return testsuite_status, overall_status, colour, runtime
 
 def _overallStatus(statuses, build):
   """
@@ -428,6 +431,17 @@ def _linkTestSuite(type, revision, machine, buildType, testsuite,
     link = '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, 
                                                  build.DisplayStatus(status))
   return link
+
+def _formatRunTime(runtime):
+  "Return a human-readable version of the given runtime (which is in s)."
+  if runtime < 0:
+    s = 'Unknown'
+  elif runtime < 60:
+    s = str(runtime) + 's'
+  else:
+    # Minutes & seconds
+    s = "%d:%d" % (runtime // 60, runtime % 60)
+  return s
 
 def _colourText(text, colour):
   "Return text in the given colour."
