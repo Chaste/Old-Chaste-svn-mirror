@@ -214,7 +214,7 @@ public:
     
  
     
-    void testMonodomainDg02D( void )
+    void testMonodomainDg02DFailsParallel( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
@@ -292,7 +292,10 @@ public:
         int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
         // initial voltage condition of a constant everywhere on the mesh
-        for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo, hi;
+        VecGetOwnershipRange(currentVoltage,&lo,&hi);
+        
+        for(int i=0; i<hi-lo; i++)
         {
             currentVoltageArray[i] = -84.5;
         }
@@ -403,7 +406,7 @@ public:
         // test whether voltages and gating variables are in correct ranges
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        for(int i=0; i<mesh.GetNumNodes(); i++)
+        for(int i=lo; i<hi; i++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
@@ -434,7 +437,7 @@ public:
     }   
 
 
-    void testMonodomainDg03D( void )
+    void testMonodomainDg03DFailsParallel( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
