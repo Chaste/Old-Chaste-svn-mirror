@@ -40,7 +40,7 @@ protected:
        
         ParallelMonodomainPde<SPACE_DIM> *pPde= (ParallelMonodomainPde<SPACE_DIM> *) pAbstractPde;
         
-        if (pPde->IsOdeSolvedAtAnyNode() == false)
+        if (!pPde->IsOdeSolvedAtAnyNode())
         {
         	pPde->ComputeAllNonlinearSourceTerms(currentSolution);
 			/*int rank;MPI_Comm_rank(PETSC_COMM_WORLD,&rank);

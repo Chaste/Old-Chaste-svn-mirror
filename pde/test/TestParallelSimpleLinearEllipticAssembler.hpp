@@ -20,9 +20,7 @@
 
 class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
 {
-	public:
-
-
+public:
  
 	void testWithHeatEquationAndMeshReader()   
 	{
@@ -64,6 +62,7 @@ class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 			}
 		}
 		VecRestoreArray(result, &res);
+		VecDestroy(result);
 	}
 	
 	void testHeatEquationWithNeumannOnUnitDisc( void )
@@ -115,6 +114,8 @@ class TestParallelSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             	TS_ASSERT_DELTA(res[i-lo], u, 0.01);
 			}
         }
+        VecRestoreArray(result, &res);
+        VecDestroy(result);
     }
     
 }; 

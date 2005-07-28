@@ -15,7 +15,7 @@
 #include "ParallelMonodomainPde.hpp"
 #include "ParallelMonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
-#include "math.h"
+#include <cmath>
 #include "PetscSetupAndFinalize.hpp"
 
  
@@ -114,6 +114,8 @@ public:
 		VecAssemblyBegin(currentVoltage);
 		VecAssemblyEnd(currentVoltage);
 
+		// Hackish fix to save typing...
+		Vec initial_condition = currentVoltage;
 	          
 		/*
 		 * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
@@ -141,12 +143,16 @@ public:
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 	
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             
     //int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
 	//if (rank==0) std::cout<<"!!!!!!!!!!!!!!!!!! Call 1\n";
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
     //if (rank==0) 	std::cout<<"!!!!!!!!!!!!!!!!!! Call 2\n";
+    
+    		// New initial condition is current solution
+    		VecDestroy(initial_condition);
+    		initial_condition = currentVoltage;
 	        
             // Writing data out to the file NewMonodomainLR91_1d.dat
          
@@ -200,6 +206,10 @@ public:
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
+        
+        delete pMySolver;
+        delete pStimulus;
+        VecDestroy(currentVoltage);
     }
     
  
@@ -291,6 +301,8 @@ public:
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
 
+		// Hackish fix to save typing...
+		Vec initial_condition = currentVoltage;
               
         /*
         * Write data to a file NewMonodomainLR91_2d_xx.dat, 'xx' refers to nth time step
@@ -319,9 +331,13 @@ public:
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
+            
+            // New initial condition is current solution
+    		VecDestroy(initial_condition);
+    		initial_condition = currentVoltage;
             
             // Writing data out to the file NewMonodomainLR91_2d.dat
          
@@ -412,8 +428,9 @@ public:
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
  
-
-
+		delete pMySolver;
+		delete pStimulus;
+		VecDestroy(currentVoltage);
     }   
 
 
@@ -505,7 +522,9 @@ public:
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
 
-              
+        // Hackish fix to save typing...
+		Vec initial_condition = currentVoltage;
+		
         /*
          *  Write data to a file NewMonodomainLR91_3d_xx.dat, 'xx' refers to nth time step
          *  using ColumnDataWriter 
@@ -532,9 +551,13 @@ public:
             // std::cout << "t = " << tCurrent << "\n" << std::flush;
 
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
+            monodomainAssembler.SetInitialCondition( initial_condition );
             
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
+            
+            // New initial condition is current solution
+    		VecDestroy(initial_condition);
+    		initial_condition = currentVoltage;
             
             // Writing data out to the file NewMonodomainLR91_3d.dat
          
@@ -586,7 +609,10 @@ public:
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(currentVoltage);
         VecAssemblyEnd(currentVoltage);
-           
+        
+        delete pMySolver;
+        delete pStimulus;
+        VecDestroy(currentVoltage);
     }   
 };
 #endif //_TESTPARALLELMONODOMAINDG0ASSEMBLER_HPP_

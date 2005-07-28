@@ -50,45 +50,45 @@ typedef std::vector<double> odeVariablesType;
 template <int SPACE_DIM>
 class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
 {
-    private:
-        // timestep used in the ode solvers        
-        double mSmallTimeStep;
+private:
+    // timestep used in the ode solvers        
+    double mSmallTimeStep;
 
-        // timestep used by the pde solver
-        double mBigTimeStep;
+    // timestep used by the pde solver
+    double mBigTimeStep;
 
-        AbstractIvpOdeSolver *mpOdeSolver;
+    AbstractIvpOdeSolver *mpOdeSolver;
 
-        // number of nodes in the mesh 
-        int mNumNodes;
+    // number of nodes in the mesh 
+    int mNumNodes;
         
-        // Lowest value of index that this part of the global object stores
-        int mOwnershipRangeLo;
+    // Lowest value of index that this part of the global object stores
+    int mOwnershipRangeLo;
         
-        // One more than the local highest index
-        int mOwnershipRangeHi;
+    // One more than the local highest index
+    int mOwnershipRangeHi;
         
 
-        AbstractStimulusFunction*                mpZeroStimulus;
+    AbstractStimulusFunction*                mpZeroStimulus;
 
-        /** mOdeVarsAtNode[i] is a vector of the current values of the
-         *  voltage, gating variables, intracellular Calcium concentration at node 
-         *  i. The voltage returned by the ode solver is not used later since the pde
-         *  solves for the voltage.
-         */
-        std::vector<odeVariablesType>            mOdeVarsAtNode;
+    /** mOdeVarsAtNode[i] is a vector of the current values of the
+     *  voltage, gating variables, intracellular Calcium concentration at node 
+     *  i. The voltage returned by the ode solver is not used later since the pde
+     *  solves for the voltage.
+     */
+    std::vector<odeVariablesType>            mOdeVarsAtNode;
 
-        // Stimulus function applied to each node
-        std::vector<AbstractStimulusFunction* >  mStimulusAtNode;
+    // Stimulus function applied to each node
+    std::vector<AbstractStimulusFunction* >  mStimulusAtNode;
 
-        // boolean stating whether the gating variables have been solved for at this node
-        //  yet
-        std::vector<bool>                        mOdeSolvedAtNode;      
-		std::vector<double>	mCurrentCache;
-    	double mTime;                  
+    // boolean stating whether the gating variables have been solved for at this node
+    //  yet
+    std::vector<bool>                        mOdeSolvedAtNode;      
+	std::vector<double>	mCurrentCache;
+    double mTime;                  
 
-    public:
-    std::vector<double>	solutionCache;
+public:
+	std::vector<double>	solutionCache;
         
     //Constructor
     ParallelMonodomainPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
@@ -132,6 +132,12 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         }
     }
     
+    // Destructor
+    ~ParallelMonodomainPde()
+    {
+    	delete mpZeroStimulus;
+    }
+    
     // This should not be called as it is a virtual function, use ComputeLinearSourceTermAtNode instead
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
@@ -164,28 +170,29 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
 			return false;
         }
     
-    void ComputeAllNonlinearSourceTerms(Vec currentSolution){
+    void ComputeAllNonlinearSourceTerms(Vec currentSolution)
+    {
     	double *currentSolutionArray;
         VecGetArray(currentSolution, &currentSolutionArray);
  			  
         double all_local_currents[mNumNodes];
         double all_local_solutions[mNumNodes];
         for (int i=0; i<mNumNodes; i++)
-        	{
-        		if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
-	        		{ 
-		        		double current=ReallyComputeNonlinearSourceTermAtNode(i, currentSolutionArray[i-mOwnershipRangeLo]); 
-	 			    	all_local_currents[i] =current;
-	 			    	all_local_solutions[i]=currentSolutionArray[i-mOwnershipRangeLo]; 
-	        		} 
-	        	else 
-	        		{
-	        			mOdeSolvedAtNode[ i] = true;
-	 			    	all_local_currents[i] =0.0;
-	        	    	all_local_solutions[i] =0.0;
-	        		}
+        {
+        	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
+	    	{ 
+		    	double current=ReallyComputeNonlinearSourceTermAtNode(i, currentSolutionArray[i-mOwnershipRangeLo]); 
+	 			all_local_currents[i] =current;
+	 			all_local_solutions[i]=currentSolutionArray[i-mOwnershipRangeLo]; 
+	        } 
+	        else 
+	        {
+	        	mOdeSolvedAtNode[ i] = true;
+	 		   	all_local_currents[i] =0.0;
+	           	all_local_solutions[i] =0.0;
+	        }
         	
-        	}
+        }
     	double all_currents[mNumNodes];
     	double all_solutions[mNumNodes];
  
@@ -199,7 +206,7 @@ class ParallelMonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     		solutionCache[i]=all_solutions[i];
     	}
     
-    	
+    	VecRestoreArray(currentSolution, &currentSolutionArray);
     }
     /** double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
      * 

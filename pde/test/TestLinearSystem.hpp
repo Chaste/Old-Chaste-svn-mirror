@@ -38,6 +38,7 @@ public:
         TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
         TS_ASSERT_DELTA(solution_elements[1], 2.0, 0.000001);
         TS_ASSERT_DELTA(solution_elements[2], 3.0, 0.000001);
+        VecRestoreArray(solution_vector, &solution_elements);
         
         VecDestroy(solution_vector);
         
@@ -65,6 +66,7 @@ public:
         VecGetArray(solution_vector, &solution_elements);
         TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
         TS_ASSERT_DELTA(solution_elements[1], 1.0, 0.000001);
+        VecRestoreArray(solution_vector, &solution_elements);
         
         VecDestroy(solution_vector);
         
