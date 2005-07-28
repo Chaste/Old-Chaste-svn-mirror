@@ -31,7 +31,7 @@ def index(req):
   return _header() + page_body + _footer()
 
 
-def testsuite(req, type, revision, machine, buildType, testsuite, status):
+def testsuite(req, type, revision, machine, buildType, testsuite, status, runtime):
   """
   Display the results for the given testsuite, by passing the file back
   to the user.
@@ -39,7 +39,9 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status):
   req.content_type = 'text/html'
   req.write(_header(), 0)
   test_set_dir = _testResultsDir(type, revision, machine, buildType)
-  testsuite_file = os.path.join(test_set_dir, testsuite+'.'+status)
+  buildTypesModule = _importBuildTypesModule(revision)
+  build = buildTypesModule.GetBuildType(buildType)
+  testsuite_file = build.ResultsFileName(test_set_dir, testsuite, status, runtime)
   if os.path.isfile(testsuite_file):
     req.write('\n<pre>\n', 0)
     req.sendfile(testsuite_file)
@@ -200,7 +202,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
     </tr>
 """ % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
-                      testsuite_status[testsuite], build),
+                      testsuite_status[testsuite], runtime[testsuite], build),
        _formatRunTime(runtime[testsuite]))
 
   output = output + "  </table>\n"
@@ -416,18 +418,18 @@ def _linkSummary(text, type, revision, machine, buildType):
   return '<a href="%s/summary?%s">%s</a>' % (_our_url, query, text)
 
 def _linkTestSuite(type, revision, machine, buildType, testsuite,
-                   status, build):
+                   status, runtime, build):
   """
   Return a link tag to a page displaying the output from a single
   test suite.
   """
   if type == 'standalone':
-    filename = testsuite + '.' + status
+    filename = build.ResultsFileName(os.curdir, testsuite, status, runtime)
     link = '<a href="%s">%s</a>' % (filename, build.DisplayStatus(status))
   else:
     query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
                                                              machine, buildType)
-    query = query + '&testsuite=%s&status=%s' % (testsuite, status)
+    query = query + '&testsuite=%s&status=%s&runtime=%d' % (testsuite, status, runtime)
     link = '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, 
                                                  build.DisplayStatus(status))
   return link

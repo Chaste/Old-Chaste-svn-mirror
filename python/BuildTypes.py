@@ -137,7 +137,9 @@ class BuildType:
     status is an encoded status string summarising the results of the test.
     runtime is the time taken for the test to complete, in seconds (as a floating point no.).
     """
-    leafname = testsuite + '.' + status + '.' + str(int(runtime))
+    leafname = testsuite + '.' + status
+    if runtime >= 0:
+      leafname = leafname + '.' + str(int(runtime))
     pathname = os.path.join(dir, leafname)
     return pathname
   
