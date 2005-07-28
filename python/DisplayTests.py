@@ -440,7 +440,7 @@ def _formatRunTime(runtime):
     s = str(runtime) + 's'
   else:
     # Minutes & seconds
-    s = "%d:%d" % (runtime // 60, runtime % 60)
+    s = "%d:%02d" % (runtime // 60, runtime % 60)
   return s
 
 def _colourText(text, colour):

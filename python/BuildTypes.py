@@ -182,7 +182,7 @@ class Parallel(GccDebug):
   
   def GetTestRunnerCommand(self, exefile):
     "Run test with a two processor environment"
-    return '../../../mpi/bin/mpirun -np 2 ' + exefile # TODO: Do this properly! i.e. get path from scons
+    return '../../../mpi/bin/mpirun -np 2 ' + exefile # TODO: Do this properly! i.e. get path from scons or put mpirun on the path
 
 class MemoryTesting(GccDebug):
   """
