@@ -3,9 +3,9 @@
 # This program is designed to run from mod_python, and displays results
 # from tests run on Chaste in a user-friendly manner.
 
-# Requests to https://comlab2.lsi.ox.ac.uk/tests.py will be directed to
+# Requests to https://chaste.ediamond.ox.ac.uk/tests.py will be directed to
 # the index method.
-# Requests to https://comlab2.lsi.ox.ac.uk/tests.py/methodname will be
+# Requests to https://chaste.ediamond.ox.ac.uk/tests.py/methodname will be
 # directed to the appropriate method.
 
 #####################################################################
@@ -17,13 +17,13 @@ class _conf:
   _tests_dir = '/var/www/chaste_test_data'
 
   # Base URL for source browsing
-  _source_browser_url = 'https://comlab2.lsi.ox.ac.uk/cgi-bin/trac.cgi/browser/'
+  _source_browser_url = 'https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/browser/'
 
   # Base URL for this script
   _our_url = '/tests.py'
 
   # Repository URL or path, username, and password
-  #_svn_repos = 'https://comlab2.lsi.ox.ac.uk/svn/chaste/trunk'
+  #_svn_repos = 'https://chaste.ediamond.ox.ac.uk/svn/chaste/trunk'
   _svn_repos = 'file:///var/svn/chaste/trunk'
   _svn_user  = 'dev'
   _svn_pass  = 'deve10p3r'
