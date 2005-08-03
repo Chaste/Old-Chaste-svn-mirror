@@ -145,10 +145,7 @@ public:
             monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             monodomainAssembler.SetInitialCondition( initial_condition );
             
-    //int rank; MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
-	//if (rank==0) std::cout<<"!!!!!!!!!!!!!!!!!! Call 1\n";
             currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-    //if (rank==0) 	std::cout<<"!!!!!!!!!!!!!!!!!! Call 2\n";
     
     		// New initial condition is current solution
     		VecDestroy(initial_condition);
@@ -180,7 +177,7 @@ public:
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         //int lo,hi;
         //VecGetOwnershipRange(currentVoltage,&lo,&hi);
-        for(int i=lo; i<hi; i++)
+        for(int globalIndex=lo; globalIndex<hi; globalIndex++)
         {
            
             	// assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
@@ -188,10 +185,10 @@ public:
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[globalIndex-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[globalIndex-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(globalIndex);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -214,7 +211,7 @@ public:
     
  
     
-    void testMonodomainDg02DFailsParallel( void )
+    void testMonodomainDg02D( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
@@ -406,17 +403,17 @@ public:
         // test whether voltages and gating variables are in correct ranges
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        for(int i=lo; i<hi; i++)
+        for(int globalIndex=lo; globalIndex<hi; globalIndex++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[globalIndex-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[globalIndex-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(globalIndex);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -437,7 +434,7 @@ public:
     }   
 
 
-    void testMonodomainDg03DFailsParallel( void )
+    void testMonodomainDg03D( void )
     {   
         double tStart = 0; 
         double tFinal = 0.1;
@@ -517,7 +514,9 @@ public:
         int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
         // initial voltage condition of a constant everywhere on the mesh
-        for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo, hi;
+        VecGetOwnershipRange(currentVoltage,&lo,&hi);
+        for(int i=0; i<hi-lo; i++)
         {
             currentVoltageArray[i] = -84.5;
         }
@@ -588,17 +587,17 @@ public:
         // test whether voltages and gating variables are in correct ranges
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        for(int i=0; i<mesh.GetNumNodes(); i++)
+        for(int globalIndex=lo; globalIndex<hi; globalIndex++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[globalIndex] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[globalIndex] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(globalIndex);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
