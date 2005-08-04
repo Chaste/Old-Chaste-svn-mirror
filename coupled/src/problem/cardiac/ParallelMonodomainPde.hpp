@@ -41,8 +41,6 @@ const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
  * solution we construct a PETSc vector and interrogate its distribution properties.
  */
 
-/* foobar */
-
 typedef std::vector<double> odeVariablesType;
 
 
