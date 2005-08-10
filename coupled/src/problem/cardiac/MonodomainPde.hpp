@@ -25,9 +25,9 @@ const double RADIUS = 0.00011;                          // radius of cell, cm
 const double LENGTH = 0.01;                             // length of cell, cm
 const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
 const double rA = rMyo + rG / LENGTH;//* BETA;
-const double  DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
-
-
+//const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
+//const double DIFFUSION_CONST = 0.0;
+const double DIFFUSION_CONST = 0.002;
 /**
  * MonodomainPde class.
  * 
@@ -120,7 +120,7 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         assert(0);
-	return 0.0;
+	    return 0.0;
     }
     
     // This should not be called as it is a virtual function, use 
@@ -129,7 +129,7 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
         assert(0);
-	return 0.0;
+	    return 0.0;
     }
 
         
