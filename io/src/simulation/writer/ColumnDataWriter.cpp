@@ -328,7 +328,7 @@ void ColumnDataWriter::CreateInfoFile(std::string filepath)
         throw Exception("Could not open file: " + filepath);
     }
 
-    info_file << "FIXED " << mIsFixedDimensionSet << std::endl;
+    info_file << "FIXED " << mFixedDimensionSize << std::endl;
     info_file << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
     info_file << "VARIABLES " << mVariables.size() << std::endl;    
 

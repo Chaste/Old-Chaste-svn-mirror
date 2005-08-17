@@ -226,6 +226,9 @@ public:
 
 		TS_ASSERT(filesMatch("testoutput/testfixed.dat", 
 		                     "io/test/data/testfixed_good.dat"));
+		                     
+		TS_ASSERT(filesMatch("testoutput/testfixed.info", 
+		                     "io/test/data/testfixed_good.info"));
     }
     
     
