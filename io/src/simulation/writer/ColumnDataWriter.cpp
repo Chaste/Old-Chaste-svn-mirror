@@ -263,6 +263,11 @@ void ColumnDataWriter::EndDefineMode()
         std::string filepath = mDirectory + "/" + mBaseName + ".dat";
         this->CreateFixedDimensionFile(filepath);
     }
+    
+    // Write info file
+    std::string infopath = mDirectory + "/" + mBaseName + ".info";
+    this->CreateInfoFile(infopath);
+    
     mIsInDefineMode = false;
 }
 
@@ -306,6 +311,26 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
     { 
         (*mpCurrentOutputFile) << blank_line << std::endl; 
     }
+
+}
+
+
+
+/**
+ * CreateInfoFile created the info file.
+ */
+void ColumnDataWriter::CreateInfoFile(std::string filepath)
+{
+	//create new info file
+    std::ofstream info_file(filepath.c_str(), std::ios::out);
+    if(!info_file.is_open())
+    {
+        throw Exception("Could not open file: " + filepath);
+    }
+
+    info_file << "FIXED " << mIsFixedDimensionSet << std::endl;
+    info_file << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
+    info_file << "VARIABLES " << mVariables.size() << std::endl;    
 
 }
 

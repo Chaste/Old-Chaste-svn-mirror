@@ -52,6 +52,8 @@ private:
 
     void CreateFixedDimensionFile(std::string filepath);
     
+    void CreateInfoFile(std::string filepath);
+    
 public:
 
     ColumnDataWriter(std::string directory, std::string baseName);

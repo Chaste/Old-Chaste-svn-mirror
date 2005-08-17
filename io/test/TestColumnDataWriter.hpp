@@ -14,7 +14,40 @@ class TestColumnDataWriter : public CxxTest::TestSuite
 
 private: 
 	ColumnDataWriter *mpTestWriter;
-
+	
+	bool filesMatch(std::string testfileName, std::string goodfileName)
+	{	
+		bool matching = true;
+			
+		ifstream testfile(testfileName.c_str(),ios::in);
+        ifstream goodfile(goodfileName.c_str(),ios::in);
+        std::string teststring;
+        std::string goodstring;
+        
+        if (!testfile.is_open() || !goodfile.is_open())
+        {
+        	throw new Exception("Files not present.");
+        }
+        
+        while(getline(testfile, teststring))
+        {
+              getline(goodfile,goodstring);
+              if (teststring != goodstring)
+              {
+              		matching = false;
+              }
+        }
+        
+        if(getline(goodfile,goodstring))
+        {
+        	matching = false;
+        }
+        
+        testfile.close();
+        goodfile.close();
+        return matching;
+	}
+	
 public:
 
     void setUp()
@@ -90,19 +123,17 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
         
         delete mpTestWriter;
+
+		TS_ASSERT(filesMatch("testoutput/testdefine.dat", 
+		                     "io/test/data/testdefine_good.dat"));
+		                     
+		TS_ASSERT(filesMatch("testoutput/testdefine.info", 
+		                     "io/test/data/testdefine_good.info"));
+		                     
+		TS_ASSERT(!filesMatch("testoutput/testdefine.info", 
+		                      "io/test/data/testdefine_bad.info"));
         
-        // Check files match
-        ifstream testfile("testoutput/testdefine.dat",ios::in);
-        ifstream goodfile("io/test/data/testdefine_good.dat",ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(testfile, teststring))
-        {
-              getline(goodfile,goodstring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
+        
     }
 
     void testPutVariableInUnlimitedFile( void )
@@ -129,18 +160,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124));
         
 		delete mpTestWriter;
-		
-		ifstream testfile("testoutput/testunlimited.dat",ios::in);
-        ifstream goodfile("io/test/data/testunlimited_good.dat",ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(goodfile, goodstring))
-        {
-              getline(testfile,teststring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
+
+		TS_ASSERT(filesMatch("testoutput/testunlimited.dat", 
+		                     "io/test/data/testunlimited_good.dat"));
+		                     
     }
     
     
@@ -168,18 +191,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
     
     	delete mpTestWriter; 
-    	
-    	ifstream testfile("testoutput/testunlimitednegative.dat",ios::in);
-        ifstream goodfile("io/test/data/testunlimitednegative_good.dat",ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(goodfile, goodstring))
-        {
-              getline(testfile,teststring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();   
+
+		TS_ASSERT(filesMatch("testoutput/testunlimitednegative.dat", 
+		                     "io/test/data/testunlimitednegative_good.dat"));
+		                      
     }
 
     void testPutVariableInFixedFile( void )
@@ -208,18 +223,9 @@ public:
         mpTestWriter->PutVariable(node_var_id, 4,3);
 
 		delete mpTestWriter;
-		
-		ifstream testfile("testoutput/testfixed.dat",ios::in);
-        ifstream goodfile("io/test/data/testfixed_good.dat",ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(goodfile, goodstring))
-        {
-              getline(testfile,teststring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
+
+		TS_ASSERT(filesMatch("testoutput/testfixed.dat", 
+		                     "io/test/data/testfixed_good.dat"));
     }
     
     
@@ -250,17 +256,9 @@ public:
     
     	delete mpTestWriter;
     	
-    	ifstream testfile("testoutput/testfixed_negatives.dat",ios::in);
-        ifstream goodfile("io/test/testfixed_negatives_good.dat",ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(goodfile, goodstring))
-        {
-              getline(testfile,teststring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
+		TS_ASSERT(filesMatch("testoutput/testfixed_negatives.dat", 
+		                     "io/test/data/testfixed_negatives_good.dat"));
+
     }
     
     void testPutVariableInFixedandUnlimitedFile( void )
@@ -290,32 +288,13 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(time_var_id, 0.2,3));
 
-		std::cout << "Boo!" << std::endl;
 		delete mpTestWriter;
 		
-		ifstream testfile("testoutput/testfixedandunlimitedTime.dat",ios::in);
-        ifstream goodfile("io/test/data/testfixedandunlimitedTime_good.dat",ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(goodfile, goodstring))
-        {
-              getline(testfile,teststring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
-        
-        ifstream testfile2("testoutput/testfixedandunlimited.dat",ios::in);
-        ifstream goodfile2("io/test/data/testfixedandunlimited_good.dat",ios::in);
-        std::string teststring2;
-        std::string goodstring2;
-        while(getline(goodfile2, goodstring2))
-        {
-              getline(testfile2,teststring2);
-              TS_ASSERT_EQUALS(teststring2,goodstring2);
-        }
-        testfile2.close();
-        goodfile2.close();
+		TS_ASSERT(filesMatch("testoutput/testfixedandunlimitedTime.dat", 
+		                     "io/test/data/testfixedandunlimitedTime_good.dat"));
+
+		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_1.dat", 
+		                     "io/test/data/testfixedandunlimited_1_good.dat"));
     }
     
 };
