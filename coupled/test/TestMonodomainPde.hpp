@@ -21,7 +21,9 @@
 
 #include "EulerIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
+ 
 // todo: test Fitzhugh Nagumo PDE 
  
 #include <cxxtest/TestSuite.h>

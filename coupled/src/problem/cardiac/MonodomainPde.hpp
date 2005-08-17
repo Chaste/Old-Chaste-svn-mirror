@@ -15,7 +15,7 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "MatrixDouble.hpp"
-
+#include "AbstractCoupledPde.hpp"
 
 
 
@@ -43,17 +43,16 @@ typedef std::vector<double> odeVariablesType;
 
 
 template <int SPACE_DIM>
-class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
+class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
 {
     private:
         friend class TestMonodomainPde;
-
-        /// timestep used in the ode solvers        
+        
         double mSmallTimeStep;
-
-        /// timestep used by the pde solver
         double mBigTimeStep;
+        double mTime;
 
+  
         AbstractIvpOdeSolver *mpOdeSolver;
 
         /// number of nodes in the mesh 
@@ -77,22 +76,25 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
          */
         std::vector<bool>                        mOdeSolvedAtNode;      
 
-        double mTime;                  
-
+  
     public:
     
     //Constructor
-    MonodomainPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
+    MonodomainPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, 
+                 double tStart, double bigTimeStep, double smallTimeStep) :
+    AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
+                  tStart,  bigTimeStep,  smallTimeStep)          
     {
+        std::cout<<"MonodomainPde constructor\n";
         assert(smallTimeStep < bigTimeStep + 1e-10);
         assert(numNodes > 0);
         
-        mNumNodes=numNodes;
-        mBigTimeStep=bigTimeStep;
-        mpOdeSolver=pOdeSolver;
         mSmallTimeStep=smallTimeStep;
-     
-        mTime = tStart;
+        mBigTimeStep=bigTimeStep;
+        mTime=tStart;
+        
+        mNumNodes=numNodes;
+        mpOdeSolver=pOdeSolver;
         
         mOdeVarsAtNode.resize(mNumNodes);
         mOdeSolvedAtNode.resize(mNumNodes);
@@ -158,7 +160,9 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
             mOdeVarsAtNode[index][4] = voltage; 
             
             // solve            
-            OdeSolution solution = mpOdeSolver->Solve(pLr91OdeSystem, mTime, mTime+mBigTimeStep, mSmallTimeStep, mOdeVarsAtNode[ index ]);
+            OdeSolution solution = mpOdeSolver->Solve(pLr91OdeSystem, mTime, 
+            mTime + mBigTimeStep,
+            mSmallTimeStep, mOdeVarsAtNode[ index ]);
  
             // extract solution at end time and save in the store 
             mOdeVarsAtNode[ index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
@@ -167,7 +171,8 @@ class MonodomainPde : public AbstractLinearParabolicPde<SPACE_DIM>
         
         delete pLr91OdeSystem;
         
-        double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) + GetIIonic( mOdeVarsAtNode[ index ]);
+        double Itotal = mStimulusAtNode[index]->GetStimulus(mTime
+                      + mBigTimeStep) + GetIIonic( mOdeVarsAtNode[ index ]);
         
         return -Itotal;
     }

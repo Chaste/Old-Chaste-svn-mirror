@@ -15,6 +15,7 @@
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "MatrixDouble.hpp"
+#include "AbstractCoupledPde.hpp"
 
 
 
@@ -33,14 +34,13 @@ typedef std::vector<double> odeVariablesType;
 
 
 template <int SPACE_DIM>
-class MonodomainPdeFitzHughNagumo : public AbstractLinearParabolicPde<SPACE_DIM>
+class MonodomainPdeFitzHughNagumo : public AbstractCoupledPde<SPACE_DIM>
 {
 private:
-    // timestep used in the ode solvers        
-    double mSmallTimeStep;
-    
-    // timestep used by the pde solver
-    double mBigTimeStep;
+
+	double mSmallTimeStep;
+	double mBigTimeStep;
+	double mTime;
     
     AbstractIvpOdeSolver *mpOdeSolver;
     
@@ -65,7 +65,6 @@ private:
     // boolean stating whether the gating variables have yet been solved for at this node
     std::vector<bool>                        mOdeSolvedAtNode;      
     
-    double mTime;                  
     
 public:
     
@@ -82,17 +81,19 @@ public:
      * @param smallTimeStep Time step the ODE solver should use
      */
     MonodomainPdeFitzHughNagumo(int numNodes, AbstractIvpOdeSolver *pOdeSolver,
-				double tStart, double bigTimeStep, double smallTimeStep)
+				double tStart, double bigTimeStep, double smallTimeStep):
+    AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
+                  tStart,  bigTimeStep,  smallTimeStep)          
     {
         assert(smallTimeStep < bigTimeStep + 1e-10);
         assert(numNodes > 0);
         
         mNumNodes = numNodes;
-        mBigTimeStep = bigTimeStep;
         mpOdeSolver = pOdeSolver;
-        mSmallTimeStep = smallTimeStep;
-     
-        mTime = tStart;
+
+        mSmallTimeStep=smallTimeStep;
+        mBigTimeStep=bigTimeStep;
+        mTime=tStart;
         
         mOdeVarsAtNode.resize(mNumNodes);
         mOdeSolvedAtNode.resize(mNumNodes);

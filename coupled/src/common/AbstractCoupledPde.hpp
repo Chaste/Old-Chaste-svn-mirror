@@ -1,16 +1,17 @@
-#ifndef _COUPLEDPDE_HPP_
-#define _COUPLEDPDE_HPP_
+#ifndef _ABSTRACTCOUPLEDPDE_HPP_
+#define _ABSTRACTCOUPLEDPDE_HPP_
 
 #include "AbstractLinearParabolicPde.hpp"
 #include <vector>
+#include "petscvec.h"
 
 typedef std::vector<double> odeVariablesType;
 
 template <int SPACE_DIM>
-class CoupledPde : public AbstractLinearParabolicPde<SPACE_DIM>
+class AbstractCoupledPde : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 
-protected:
+public:
     // timestep used in the ode solvers        
     double mSmallTimeStep;
 
@@ -47,11 +48,12 @@ protected:
     
 public:
     // Replicated
-  	std::vector<double>	solutionCache
+  	std::vector<double>	solutionCache;
     
         //Constructor
-    CoupledPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
+    AbstractCoupledPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
     {
+        std::cout<<"AbstractCoupledPde constructor\n";
         assert(smallTimeStep < bigTimeStep + 1e-10);
         assert(numNodes > 0);
         
@@ -83,4 +85,4 @@ public:
 
 };        
         
-#endif //_COUPLEDPDE_HPP_
+#endif //_ABSTRACTCOUPLEDPDE_HPP_
