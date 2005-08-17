@@ -53,7 +53,6 @@ public:
         //Constructor
     AbstractCoupledPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
     {
-        std::cout<<"AbstractCoupledPde constructor\n";
         assert(smallTimeStep < bigTimeStep + 1e-10);
         assert(numNodes > 0);
         

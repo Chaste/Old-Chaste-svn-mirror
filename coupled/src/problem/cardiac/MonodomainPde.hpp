@@ -65,9 +65,6 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
                   tStart,  bigTimeStep,  smallTimeStep)          
     {
-        std::cout<<"MonodomainPde constructor\n";
-        assert(smallTimeStep < bigTimeStep + 1e-10);
-        assert(numNodes > 0);
         
 
         mStimulusAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);

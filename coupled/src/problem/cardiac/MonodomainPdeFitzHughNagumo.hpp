@@ -37,33 +37,18 @@ template <int SPACE_DIM>
 class MonodomainPdeFitzHughNagumo : public AbstractCoupledPde<SPACE_DIM>
 {
 private:
-
-	double mSmallTimeStep;
-	double mBigTimeStep;
-	double mTime;
     
-    AbstractIvpOdeSolver *mpOdeSolver;
-    
-    // number of nodes in the mesh 
-    int mNumNodes;
     
     // Default stimulus function
     AbstractStimulusFunction*                mpZeroStimulus;
     
-    // mOdeVarsAtNode[i] is a vector of the current values of the
-    //  voltage, gating variable 
-    //  The voltage returned by the ode solver is not used later since the pde
-    //  solves for the voltage.
-    std::vector<odeVariablesType>            mOdeVarsAtNode;
     
     // Stimulus function applied to each node
     std::vector<AbstractStimulusFunction* >  mStimulusAtNode;
     
      // Vector of pointers to an ODE system object for each node
     std::vector<FitzHughNagumo1961OdeSystem*> mOdeSystems;
-
-    // boolean stating whether the gating variables have yet been solved for at this node
-    std::vector<bool>                        mOdeSolvedAtNode;      
+   
     
     
 public:
@@ -85,27 +70,18 @@ public:
     AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
                   tStart,  bigTimeStep,  smallTimeStep)          
     {
-        assert(smallTimeStep < bigTimeStep + 1e-10);
-        assert(numNodes > 0);
         
-        mNumNodes = numNodes;
-        mpOdeSolver = pOdeSolver;
 
-        mSmallTimeStep=smallTimeStep;
-        mBigTimeStep=bigTimeStep;
-        mTime=tStart;
         
-        mOdeVarsAtNode.resize(mNumNodes);
-        mOdeSolvedAtNode.resize(mNumNodes);
-        mStimulusAtNode.resize(mNumNodes);
-		mOdeSystems.reserve(mNumNodes);
+        AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
+        mStimulusAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
+		mOdeSystems.reserve(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
         
         // Initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
                         
         for (int i=0; i<numNodes; i++)
         {   
-            mOdeSolvedAtNode[i] = false;
             mStimulusAtNode[i] = mpZeroStimulus;
 	    mOdeSystems.push_back(new FitzHughNagumo1961OdeSystem(mStimulusAtNode[i]));
         }        
@@ -115,7 +91,7 @@ public:
     ~MonodomainPdeFitzHughNagumo(void)
     {
 		delete mpZeroStimulus;
-		for (int i=0; i<mNumNodes; i++)
+		for (int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
 		{
 	    	delete mOdeSystems[i];
 		}
@@ -155,27 +131,27 @@ public:
         
         FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystems[index];
         
-        if( !mOdeSolvedAtNode[ index ] )
+        if( !AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] )
         {
             
             // overwrite the voltage with the input value
-            mOdeVarsAtNode[index][0] = voltage;             
+            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][0] = voltage;             
             
 	    	// solve            
-            OdeSolution solution = mpOdeSolver->Solve(pFitzHughNagumoOdeSystem, mTime, mTime+mBigTimeStep, mSmallTimeStep, mOdeVarsAtNode[ index ]);
+            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pFitzHughNagumoOdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep, AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
                     
             // extract solution at end time and save in the store 
             for(int j=0; j < 2; j++)
             {
-                mOdeVarsAtNode[ index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
+                AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
             }
-            mOdeSolvedAtNode[ index ] = true;
+            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] = true;
         }
         
         //Who wrote this? delete pFitzHughNagumoOdeSystem;
         
-        double Itotal = mStimulusAtNode[index]->GetStimulus(mTime+mBigTimeStep) +
-	    GetIIonic( mOdeVarsAtNode[ index ] );
+        double Itotal = mStimulusAtNode[index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) +
+	    GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] );
         
         return -Itotal;
     }
@@ -196,9 +172,9 @@ public:
     // Apply same initial conditions to each node in the mesh
     void SetUniversalInitialConditions(odeVariablesType initialConditions)
     {
-        for(int i=0; i<mNumNodes; i++)
+        for(int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
         {
-            mOdeVarsAtNode[i] = initialConditions;
+            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[i] = initialConditions;
         }
     }
     
@@ -214,18 +190,18 @@ public:
     //  so the odes are reset as being unsolved.
     void ResetAsUnsolvedOdeSystem()
     {
-        mTime += mBigTimeStep;
+        AbstractCoupledPde<SPACE_DIM>::mTime += AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
         
-        for(int i=0; i<mNumNodes; i++)
+        for(int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
         {
-            mOdeSolvedAtNode[i] = false;
+            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[i] = false;
         }        
     }
     
     
     odeVariablesType GetOdeVarsAtNode( int index )
     {
-        return mOdeVarsAtNode[index];
+        return AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index];
     }        
 
 
