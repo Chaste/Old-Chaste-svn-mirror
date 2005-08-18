@@ -1,3 +1,6 @@
+#ifndef _TESTCOLUMNDATAREADERWRITER_HPP_
+#define _TESTCOLUMNDATAREADERWRITER_HPP_
+
 // MyTestSuite.h
 #include <cxxtest/TestSuite.h>
 #include <iostream>
@@ -5,15 +8,17 @@
 #include <fstream>
 #include <sstream>
 #include "ColumnDataWriter.hpp"
+#include "ColumnDataReader.hpp"
 #include "global/src/Exception.hpp"
 
 using namespace std;
           
-class TestColumnDataWriter : public CxxTest::TestSuite 
+class TestColumnDataReaderWriter : public CxxTest::TestSuite 
 {
 
 private: 
 	ColumnDataWriter *mpTestWriter;
+	ColumnDataReader *mpTestReader;
 	
 	bool filesMatch(std::string testfileName, std::string goodfileName)
 	{	
@@ -66,6 +71,14 @@ public:
         //use the Boost libraries for this check
         
         delete mpTestWriter; 
+    }
+    
+    void testCreateColumnReader(void)
+    {
+        //create a new csvdata writer
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("testoutput","testdoesnotexist"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data","testbad"));
+        delete mpTestReader; 
     }
     
     void testDefineUnlimitedDimension( void )
@@ -229,6 +242,9 @@ public:
 		                     
 		TS_ASSERT(filesMatch("testoutput/testfixed.info", 
 		                     "io/test/data/testfixed_good.info"));
+		                     
+		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testfixed"));
+        delete mpTestReader;
     }
     
     
@@ -301,3 +317,5 @@ public:
     }
     
 };
+
+#endif //_TESTCOLUMNDATAREADERWRITER_HPP_

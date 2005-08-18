@@ -1,2 +1,1 @@
-TestColumnDataWriter.hpp
-TestColumnDataReader.hpp
+TestColumnDataReaderWriter.hpp
