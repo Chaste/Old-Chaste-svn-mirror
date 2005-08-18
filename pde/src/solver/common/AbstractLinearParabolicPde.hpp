@@ -27,6 +27,10 @@ public:
 	//virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
 	//virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
 
+     void PrepareForAssembleSystem(void)
+     {	
+     	// std::cout<<"AbstractLinearParabolicPde::PrepareForAssembleSystem\n";
+     }
 };
 
 #endif //_ABSTRACTLINEARPARABOLICPDE_HPP_

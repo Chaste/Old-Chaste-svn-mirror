@@ -81,6 +81,11 @@ public:
             mOdeSolvedAtNode[i] = false;  	
         }
      }
+     
+     void PrepareForAssembleSystem(void)
+     {	
+     	// std::cout<<"AbstractCoupledPde::PrepareForAssembleSystem\n";
+     }
 
 };        
         

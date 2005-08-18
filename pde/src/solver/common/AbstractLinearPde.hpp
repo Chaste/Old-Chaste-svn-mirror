@@ -53,6 +53,20 @@ public:
     {
         return ComputeLinearSourceTerm(node.GetPoint());
     }
+    
+    void PrepareForAssembleSystem(void)
+    {
+    	/**
+    	 * PrepareForAssembleSystem is not a virtual method but is a null binding.
+    	 * It's called by the AssembleSystem method of the assembler before any other
+    	 * useful work happens.  The idea is that a *coupled system* will want to 
+    	 * solve all the ODE systems before the PDE is solved.  A *parallel* coupled
+    	 * system will want to solve the ODE systems and distribute the answers 
+    	 * before anything else happens.
+    	 */ 
+    	// std::cout<<"AbstractLinearPde::PrepareForAssembleSystem\n";
+    	return;
+    }
 
 };
 
