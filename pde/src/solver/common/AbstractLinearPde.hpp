@@ -4,6 +4,7 @@
 #include "MatrixDouble.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
+#include "petscvec.h"
 
 /**
  * AbstractLinearPde class.
@@ -54,7 +55,7 @@ public:
         return ComputeLinearSourceTerm(node.GetPoint());
     }
     
-    void PrepareForAssembleSystem(void)
+    virtual void PrepareForAssembleSystem(Vec currentSolution)
     {
     	/**
     	 * PrepareForAssembleSystem is not a virtual method but is a null binding.
@@ -64,7 +65,6 @@ public:
     	 * system will want to solve the ODE systems and distribute the answers 
     	 * before anything else happens.
     	 */ 
-    	// std::cout<<"AbstractLinearPde::PrepareForAssembleSystem\n";
     	return;
     }
 

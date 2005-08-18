@@ -120,10 +120,12 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         int index = node.GetIndex();
         
+        
         LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
         
         if( !AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] )
         {
+        	// std::cout << "Should not be computing index number " << index << "\n";
             // overwrite the voltage with the input value
             AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][4] = voltage; 
             
@@ -331,6 +333,33 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
        double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
        return i_ionic;
     }
+    
+     virtual void PrepareForAssembleSystem(Vec currentSolution)
+     {	
+     	//std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
+     	
+     	double *currentSolutionArray;
+        int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+     	
+     	for (int index=0; index<AbstractCoupledPde<SPACE_DIM>::mNumNodes; index++)
+     	{
+     		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
+     		
+            // overwrite the voltage with the input value
+            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][4] = currentSolutionArray[index]; 
+            
+            // solve            
+            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pLr91OdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
+            AbstractCoupledPde<SPACE_DIM>::mTime + AbstractCoupledPde<SPACE_DIM>::mBigTimeStep,
+            AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
+ 
+            // extract solution at end time and save in the store 
+            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
+            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] = true;
+            
+            delete pLr91OdeSystem;
+        }
+     }
 };
 
 #endif //_MONODOMAINPARABOLICPDE_HPP_

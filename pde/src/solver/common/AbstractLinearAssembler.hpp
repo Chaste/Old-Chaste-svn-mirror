@@ -237,7 +237,7 @@ protected:
 		/* Allow the PDE to set up anything necessary for the assembly of the
 		 * solution (eg. if it's a coupled system, then solve the ODEs)
 		 */
-		 pPde->PrepareForAssembleSystem();
+		 pPde->PrepareForAssembleSystem(currentSolution);
 		
 		// Linear system in n unknowns, where n=#nodes
 		mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());

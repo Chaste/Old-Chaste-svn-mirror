@@ -82,9 +82,9 @@ public:
         }
      }
      
-     void PrepareForAssembleSystem(void)
+     virtual void PrepareForAssembleSystem(Vec currentSolution)
      {	
-     	// std::cout<<"AbstractCoupledPde::PrepareForAssembleSystem\n";
+     	std::cout<<"AbstractCoupledPde::PrepareForAssembleSystem\n";
      }
 
 };        

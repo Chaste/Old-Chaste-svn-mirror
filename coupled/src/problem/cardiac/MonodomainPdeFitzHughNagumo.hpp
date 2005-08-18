@@ -138,7 +138,11 @@ public:
             AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][0] = voltage;             
             
 	    	// solve            
-            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pFitzHughNagumoOdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep, AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
+            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(
+                        pFitzHughNagumoOdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
+                        AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep, 
+                        AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, 
+                        AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
                     
             // extract solution at end time and save in the store 
             for(int j=0; j < 2; j++)
