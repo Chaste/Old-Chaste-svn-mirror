@@ -470,7 +470,7 @@ def _footer():
   footer = """\
   <hr />
   <a href="%s">Tests index page</a><br />
-  <a href="https://comlab2.lsi.ox.ac.uk/cgi-bin/trac.cgi">Chaste project website</a>
+  <a href="https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi">Chaste project website</a>
   </body>
 </html>""" % _our_url
   return footer
