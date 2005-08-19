@@ -231,6 +231,9 @@ def buildType(req, buildType, revision=None):
   for test_pack in build.TestPacks():
     test_packs = test_packs + test_pack + ', '
   test_packs = test_packs[:-2]
+  # How test suites are run
+  testsuite_exe = "testsuite.exe"
+  testsuite_cmd = build.GetTestRunnerCommand(testsuite_exe)
   page_body = """\
   <h1>Explanation of build type '%s'%s</h1>
   <p>
@@ -238,10 +241,11 @@ def buildType(req, buildType, revision=None):
   C++ extra compile flags: %s<br />
   Extra linker flags: %s<br />
   Test packs run: %s<br />
+  Command to run '%s': %s<br />
   </p>
 """ % (buildType, rev_text, build.CompilerType(),
        build.CcFlags(), build.LinkFlags(),
-       test_packs)
+       test_packs, testsuite_exe, testsuite_cmd)
   return _header() + page_body + _footer()
 
 
