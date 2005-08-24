@@ -19,7 +19,7 @@
 #include "PetscSetupAndFinalize.hpp"
 
  
-class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
+class TestParallelMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 public:
 	void testMonodomainDg01D()

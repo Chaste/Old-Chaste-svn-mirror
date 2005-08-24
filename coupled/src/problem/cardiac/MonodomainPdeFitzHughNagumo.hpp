@@ -169,11 +169,7 @@ public:
     }
     
     
-    odeVariablesType GetOdeVarsAtNode( int index )
-    {
-        return AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index];
-    }        
-
+  
 
 
     // Calculate the ionic current, using the value of the gating variables

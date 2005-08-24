@@ -4,7 +4,6 @@
 
 #include "AbstractLinearParabolicPde.hpp"
 #include "Point.hpp"
-
 /**
  * A simple parabolic PDE used in tests.
  */
@@ -14,6 +13,7 @@ class FischerPde : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 	
 public:
+	std::vector<double> inputCache; 
 	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
 	{
 		return 0.0;
@@ -33,6 +33,40 @@ public:
     {
     	return 1;
     }
+    
+    void PrepareForAssembleSystem(Vec v)
+    {
+        int lo, hi, numNodes;	
+     	VecGetOwnershipRange(v, &lo, &hi);
+        VecGetSize(v,&numNodes);
+        double *vArray;
+        VecGetArray(v, &vArray);
+        double all_local_solutions[numNodes];
+        for (int i=0; i<numNodes; i++)
+        {
+        	if (lo <= i && i < hi)
+	    	{ 
+				all_local_solutions[i]=vArray[i-lo]; 
+	        } 
+	        else 
+	        {
+	           	all_local_solutions[i] =0.0;
+	        }
+        	
+        }
+ 
+    	double all_solutions[numNodes];
+ 		MPI_Allreduce(all_local_solutions, all_solutions, numNodes, MPI_DOUBLE, 
+ 		             MPI_SUM, PETSC_COMM_WORLD); 
+    	
+    		
+    		inputCache.resize(numNodes);    
+    	for (int i=0; i<numNodes; i++)
+    	{
+   			inputCache[i]=all_solutions[i];
+    	}
+    
+     }
     
 };
 

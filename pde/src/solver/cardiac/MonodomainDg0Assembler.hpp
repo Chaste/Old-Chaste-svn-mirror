@@ -68,6 +68,7 @@ protected:
                     x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
                 }
                 
+                //JOE 24-AUG-2005 - Warning: currentSolutionArray is NOT replicated.
                 u  += phi[i]*currentSolutionArray[ rElement.GetNodeGlobalIndex(i) ];
                 sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] );
                 

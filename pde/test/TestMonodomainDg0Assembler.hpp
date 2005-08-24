@@ -39,6 +39,7 @@ public:
 	
 	void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
 	{
+		
 		double tStart = 0;
 		double tFinal = 1;
 		double tBigStep = 0.01;
@@ -71,15 +72,18 @@ public:
 		VecDuplicate(initial_condition_1, &initial_condition_2);
   
 		double* init_array;
+	    int lo, hi;
+		VecGetOwnershipRange(initial_condition_1,&lo,&hi);
 		int ierr = VecGetArray(initial_condition_1, &init_array); 
-		for (int i=0; i<mesh.GetNumNodes(); i++)
+		for (int i=lo; i<hi; i++)
 		{
 			double x=mesh.GetNodeAt(i)->GetPoint()[0];
-			init_array[i] = exp(-(x*x)/100);
+			init_array[i-lo] = exp(-(x*x)/100);
 		}
 		VecRestoreArray(initial_condition_1, &init_array);      
 		VecAssemblyBegin(initial_condition_1);
 		VecAssemblyEnd(initial_condition_1);
+		//VecView(initial_condition_1, PETSC_VIEWER_STDOUT_WORLD);
 		VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
 
 		// Vars to hold current solutions at each iteration
@@ -94,8 +98,11 @@ public:
 			monodomain_assembler.SetInitialCondition( initial_condition_1 );
 			simple_assembler.SetInitialCondition( initial_condition_2 );
 
+			//std::cout<<"monodomain solve\n";std::cerr.flush();std::cout.flush();
 			current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc, &linearSolver);
+			//std::cout<<"simple solve\n";
 			current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc, &linearSolver);
+			//std::cout<<" solved\n";
      
      		// Next iteration uses current solution as initial condition
      		VecDestroy(initial_condition_1); // Free old initial condition
@@ -110,9 +117,9 @@ public:
 		double *res1, *res2;
 		VecGetArray(current_solution_1, &res1);
 		VecGetArray(current_solution_2, &res2);
-		for (int i=0; i<mesh.GetNumNodes(); i++)
+		for (int i=lo; i<hi; i++)
 		{
-			TS_ASSERT_DELTA(res1[i], res2[i], 1e-3);
+			TS_ASSERT_DELTA(res1[i-lo], res2[i-lo], 1e-3);
 		}
 		VecRestoreArray(current_solution_1, &res1);
 		VecRestoreArray(current_solution_2, &res2);

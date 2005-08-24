@@ -40,14 +40,17 @@ public:
     // Distributed
     std::vector<odeVariablesType>            mOdeVarsAtNode;
  	
+    
+public:
  	/**  solutionCache stores the solutions to the ODEs (Icurrent) for
  	 *  each node in the global system
  	 */
  	// Replicated
   	std::vector<double>	solutionCache;
  
-    
-public:
+ 	// Replicated
+  	std::vector<double>	inputCache;
+ 
     
         //Constructor
     AbstractCoupledPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
@@ -101,7 +104,8 @@ public:
         }
  
     	double all_solutions[mNumNodes];
- 		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD); 
+ 		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, 
+ 		             MPI_SUM, PETSC_COMM_WORLD); 
     	
     		    
     	for (int i=0; i<mNumNodes; i++)
@@ -110,7 +114,44 @@ public:
     	}
     
      }
-
+    
+    odeVariablesType GetOdeVarsAtNode( int globalIndex )
+    {
+        assert(mOwnershipRangeLo <= globalIndex && globalIndex < mOwnershipRangeHi);
+  	    return AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[globalIndex];
+    }        
+     
+ 	void DistributeInputCache(Vec v)
+    {
+        double *vArray;
+        VecGetArray(v, &vArray);
+        double all_local_solutions[mNumNodes];
+        for (int i=0; i<mNumNodes; i++)
+        {
+        	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
+	    	{ 
+				all_local_solutions[i]=vArray[i-mOwnershipRangeLo]; 
+	        } 
+	        else 
+	        {
+	           	all_local_solutions[i] =0.0;
+	        }
+        	
+        }
+ 
+    	double all_solutions[mNumNodes];
+ 		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, 
+ 		             MPI_SUM, PETSC_COMM_WORLD); 
+    	
+    		
+    		inputCache.resize(mNumNodes);    
+    	for (int i=0; i<mNumNodes; i++)
+    	{
+   			inputCache[i]=all_solutions[i];
+    	}
+    
+     }
+    
 };        
         
 #endif //_ABSTRACTCOUPLEDPDE_HPP_
