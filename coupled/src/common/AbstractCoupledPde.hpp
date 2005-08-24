@@ -40,11 +40,6 @@ public:
      // Distributed
     std::vector<odeVariablesType>            mOdeVarsAtNode;
 
-    // boolean stating whether the gating variables have been solved for at this node
-    //  yet
-    // Replicated
-    std::vector<bool>                        mOdeSolvedAtNode;  
-    
     
 public:
     // Replicated
@@ -73,13 +68,10 @@ public:
         VecDestroy(tempVec); // no longer needed
         
         mOdeVarsAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
-        mOdeSolvedAtNode.resize(mNumNodes);
+      
         solutionCache.resize(mNumNodes);
 
-        for(int i=0; i<mNumNodes; i++)
-        {
-            mOdeSolvedAtNode[i] = false;  	
-        }
+
      }
      
      virtual void PrepareForAssembleSystem(Vec currentSolution)

@@ -1,5 +1,5 @@
-#ifndef _MONODOMAINPARABOLICPDE_HPP_
-#define _MONODOMAINPARABOLICPDE_HPP_
+#ifndef _MONODOMAINPDE_HPP_
+#define _MONODOMAINPDE_HPP_
 
 #include <iostream>
 #include <vector>
@@ -119,32 +119,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
         int index = node.GetIndex();
-        
-        
-        LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ index ] );
-        
-        if( !AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] )
-        {
-        	// std::cout << "Should not be computing index number " << index << "\n";
-            // overwrite the voltage with the input value
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][4] = voltage; 
-            
-            // solve            
-            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pLr91OdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
-            AbstractCoupledPde<SPACE_DIM>::mTime + AbstractCoupledPde<SPACE_DIM>::mBigTimeStep,
-            AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
- 
-            // extract solution at end time and save in the store 
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
-            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] = true;
-        }
-        
-        delete pLr91OdeSystem;
-        
-        double Itotal = mStimulusAtNode[index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime
-                      + AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) + GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
-        
-        return -Itotal;
+        return AbstractCoupledPde<SPACE_DIM>::solutionCache[index];
     }
     
     
@@ -183,10 +158,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         AbstractCoupledPde<SPACE_DIM>::mTime += AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
         
-        for(int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
-        {
-            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[i] = false;
-        }        
+ 
     }
     
     
@@ -355,11 +327,15 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
  
             // extract solution at end time and save in the store 
             AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
-            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] = true;
             
             delete pLr91OdeSystem;
+  
+            double Itotal = mStimulusAtNode[index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime
+                      + AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) + GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
+        
+		    AbstractCoupledPde<SPACE_DIM>::solutionCache[index] = - Itotal;
         }
      }
 };
 
-#endif //_MONODOMAINPARABOLICPDE_HPP_
+#endif //_MONODOMAINPDE_HPP_

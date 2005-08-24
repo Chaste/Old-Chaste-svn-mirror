@@ -22,7 +22,7 @@
 #include "EulerIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
-
+#include "petscvec.h"
  
 // todo: test Fitzhugh Nagumo PDE 
  
@@ -80,9 +80,28 @@ class TestMonodomainPde : public CxxTest::TestSuite
         monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
         
         // voltage that gets passed in solving ode
-        voltage = -84.5;
-    
+         voltage = -84.5;
+ 
+   		// initial condition;   
+		Vec currentVoltage;
+		VecCreate(PETSC_COMM_WORLD, &currentVoltage);
+		VecSetSizes(currentVoltage, PETSC_DECIDE, num_nodes);
+		//VecSetType(initialCondition, VECSEQ);
+		VecSetFromOptions(currentVoltage);
   
+		double* currentVoltageArray;
+		int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+        
+		// initial voltage condition of a constant everywhere on the mesh
+		
+		currentVoltageArray[0] = -84.5;
+		currentVoltageArray[1] = -84.5;
+		
+		VecRestoreArray(currentVoltage, &currentVoltageArray);      
+		VecAssemblyBegin(currentVoltage);
+		VecAssemblyEnd(currentVoltage);
+		 
+	    monodomain_pde.PrepareForAssembleSystem(currentVoltage);
         double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
    
         initialConditions[4] = voltage;
@@ -116,8 +135,16 @@ class TestMonodomainPde : public CxxTest::TestSuite
  
  
         // Reset       
-        monodomain_pde.ResetAsUnsolvedOdeSystem();
-                       
+       	VecGetArray(currentVoltage, &currentVoltageArray); 
+		currentVoltageArray[0] = solutionSetStimT_05[4];
+		currentVoltageArray[1] = solutionSetNoStimT_05[4];
+		
+		VecRestoreArray(currentVoltage, &currentVoltageArray);      
+		VecAssemblyBegin(currentVoltage);
+		VecAssemblyEnd(currentVoltage);
+		monodomain_pde.ResetAsUnsolvedOdeSystem();
+        monodomain_pde.PrepareForAssembleSystem(currentVoltage);
+              
 
         
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);

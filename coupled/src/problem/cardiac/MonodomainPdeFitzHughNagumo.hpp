@@ -70,10 +70,7 @@ public:
     AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
                   tStart,  bigTimeStep,  smallTimeStep)          
     {
-        
-
-        
-        AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
+              
         mStimulusAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
 		mOdeSystems.reserve(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
         
@@ -128,36 +125,9 @@ public:
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
         int index = node.GetIndex();
-        
-        FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystems[index];
-        
-        if( !AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] )
-        {
-            
-            // overwrite the voltage with the input value
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][0] = voltage;             
-            
-	    	// solve            
-            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(
-                        pFitzHughNagumoOdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
-                        AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep, 
-                        AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, 
-                        AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
-                    
-            // extract solution at end time and save in the store 
-            for(int j=0; j < 2; j++)
-            {
-                AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
-            }
-            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[ index ] = true;
-        }
-        
-        //Who wrote this? delete pFitzHughNagumoOdeSystem;
-        
-        double Itotal = mStimulusAtNode[index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) +
-	    GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] );
-        
-        return -Itotal;
+       
+        return AbstractCoupledPde<SPACE_DIM>::solutionCache[index];
+   
     }
     
     
@@ -195,11 +165,7 @@ public:
     void ResetAsUnsolvedOdeSystem()
     {
         AbstractCoupledPde<SPACE_DIM>::mTime += AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
-        
-        for(int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
-        {
-            AbstractCoupledPde<SPACE_DIM>::mOdeSolvedAtNode[i] = false;
-        }        
+          
     }
     
     
@@ -227,8 +193,41 @@ public:
  
 	return nonlinearSourceTerm;
     }
-}; 
 
 
+   
+	virtual void PrepareForAssembleSystem(Vec currentSolution)
+  	{	
+     	
+     	double *currentSolutionArray;
+        int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+     	
+     	for (int index=0; index<AbstractCoupledPde<SPACE_DIM>::mNumNodes; index++)
+     	{
+    	    FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystems[index];
+        
+            
+            // overwrite the voltage with the input value
+            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[index][0] = currentSolutionArray[index];             
+            
+	    	// solve            
+            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(
+                        pFitzHughNagumoOdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
+                        AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep, 
+                        AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, 
+                        AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ]);
+                    
+            // extract solution at end time and save in the store 
+            for(int j=0; j < 2; j++)
+            {
+                AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
+            }
+            
+       		double Itotal = mStimulusAtNode[index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) +
+	    					GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] );
+	    	AbstractCoupledPde<SPACE_DIM>::solutionCache[index] = -Itotal;
+         }
+  	}
+};	        
 #endif //_MONODOMAINPDEFITZHUGHNAGUMO_HPP_
 
