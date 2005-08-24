@@ -227,6 +227,8 @@ public:
 	    					GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ index ] );
 	    	AbstractCoupledPde<SPACE_DIM>::solutionCache[index] = -Itotal;
          }
+         
+         AbstractCoupledPde<SPACE_DIM>::DistributeSolutionCache();
   	}
 };	        
 #endif //_MONODOMAINPDEFITZHUGHNAGUMO_HPP_

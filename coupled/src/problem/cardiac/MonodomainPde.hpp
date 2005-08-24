@@ -335,6 +335,8 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         
 		    AbstractCoupledPde<SPACE_DIM>::solutionCache[index] = - Itotal;
         }
+        
+        AbstractCoupledPde<SPACE_DIM>::DistributeSolutionCache();
      }
 };
 

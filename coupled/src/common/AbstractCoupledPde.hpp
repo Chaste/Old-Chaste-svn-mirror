@@ -78,6 +78,11 @@ public:
      {	
      	std::cout<<"AbstractCoupledPde::PrepareForAssembleSystem\n";
      }
+     
+     void DistributeSolutionCache(void)
+     {
+     	//std::cout<<"AbstractCoupledPde::DistributeSolutionCache\n";
+     }
 
 };        
         
