@@ -138,8 +138,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   
   Returns a string representing part of a webpage.
   """
-  output = "<p>Type:%s<br />Rev:%s<br />Mach:%s<br />buildType:%s</p>" % \
-    (type, revision, machine, buildType)
+  output = ""
   if not (type and revision):
     return _error('No test set to summarise specified.')
   
@@ -157,8 +156,6 @@ def _summary(req, type, revision, machine=None, buildType=None):
                     '. Probably the build is still in progress.')
     else:
       machine, buildType = _extractDotSeparatedPair(builds[0])
-    output = output + "<p>Now:<br />Type:%s<br />Rev:%s<br />Mach:%s<br />buildType:%s</p>" % \
-      (type, revision, machine, buildType)
   else:
     if not (machine and buildType):
       return _error('No test set to summarise specified.')
