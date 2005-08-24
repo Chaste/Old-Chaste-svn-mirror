@@ -12,6 +12,11 @@ class ColumnDataReader : public AbstractDataReader
 private:
     std::map<std::string,int> mVariablesToColumns;
     std::map<std::string, std::string> mVariablesToUnits;
+    int mNumFixedDimensions;
+    bool mHasUnlimitedDimension;
+    int mNumVariables;
+    std::string mInfoFilename;
+    std::string mDataFilename;
     
 public:
     

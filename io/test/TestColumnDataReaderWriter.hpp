@@ -163,19 +163,47 @@ public:
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         //TS_TRACE("Here");
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
-        int i = 12;
-
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.1));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
-        mpTestWriter->AdvanceAlongUnlimitedDimension();
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124));
+//        int i = 12;
+//
+//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.1));
+//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i));
+//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124));
+//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
+//        mpTestWriter->AdvanceAlongUnlimitedDimension();
+//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124));
+        
+        for (int i=0; i<10; i++)
+        {
+        	mpTestWriter->PutVariable(time_var_id, (double)(i)/10);
+        	mpTestWriter->PutVariable(ina_var_id, 12.0);
+        	mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0);
+        	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0);
+        	mpTestWriter->AdvanceAlongUnlimitedDimension();
+        }
+        
+        int i = 10;
+        mpTestWriter->PutVariable(time_var_id, (double)(i)/10);
+    	mpTestWriter->PutVariable(ina_var_id, 12.0);
+    	mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0);
+    	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0);
         
 		delete mpTestWriter;
 
 		TS_ASSERT(filesMatch("testoutput/testunlimited.dat", 
 		                     "io/test/data/testunlimited_good.dat"));
+		                     
+		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testunlimited"));
+		
+		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K",3));
+
+		std::vector<double> values_ik = mpTestReader->GetValues("I_K");
+		
+		for (int i=0; i<11; i++)
+		{
+			TS_ASSERT_DELTA(values_ik[i]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
+		}
+		
+        delete mpTestReader;		                     
 		                     
     }
     
@@ -224,16 +252,19 @@ public:
         TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
-        int i = 12;
+                
+        for (int i=0; i<4; i++)
+        {
+        	mpTestWriter->PutVariable(node_var_id, (double)(i+1), i);
+        	mpTestWriter->PutVariable(ina_var_id, 12.0, i);
+        	mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0, i);
+        	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0, i);
+        }
 
-        mpTestWriter->PutVariable(ina_var_id, (double) i,0);
-        mpTestWriter->PutVariable(ina_var_id, (double) i,1);
-        mpTestWriter->PutVariable(ica_var_id, 33.124,3);
-        mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
-        mpTestWriter->PutVariable(ica_var_id, 63.124,2);
-        mpTestWriter->PutVariable(node_var_id, 1,0);
-        mpTestWriter->PutVariable(node_var_id, 4,3);
+//        mpTestWriter->PutVariable(ica_var_id, 33.124,3);
+//        mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
+//        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
+//        mpTestWriter->PutVariable(ica_var_id, 63.124,2);
 
 		delete mpTestWriter;
 
@@ -244,6 +275,15 @@ public:
 		                     "io/test/data/testfixed_good.info"));
 		                     
 		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testfixed"));
+		
+		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K"));
+		
+		for (int i=0; i<4; i++)
+		{
+			std::vector<double> values_ik = mpTestReader->GetValues("I_K", i);
+			TS_ASSERT_DELTA(values_ik[0]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
+		}
+		
         delete mpTestReader;
     }
     

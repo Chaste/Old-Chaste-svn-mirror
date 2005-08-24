@@ -15,31 +15,32 @@
 ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 {
 	//Read in info file
-	std::string filename = filepath + "/" + basename + ".info";
-	std::ifstream infofile(filename.c_str(),std::ios::in);
+	std::string mInfoFilename = filepath + "/" + basename + ".info";
+	std::ifstream infofile(mInfoFilename.c_str(),std::ios::in);
 	//If it doesn't exist - throw exception
 	if(!infofile.is_open())
 	{
-		throw new Exception("Couldn't open info file");
+		throw Exception("Couldn't open info file");
 	}
 	std::string junk;
-	int numFixedDimensions = -999;
-	bool hasUnlimitedDimension = false;
-	int numVariables = -999;
+	mNumFixedDimensions = -999;
+	mHasUnlimitedDimension = false;
+	mNumVariables = -999;
 		
 	infofile >> junk;	
-    infofile >> numFixedDimensions >> junk;
-    infofile >> hasUnlimitedDimension >> junk;
-    infofile >> numVariables;
+    infofile >> mNumFixedDimensions >> junk;
+    infofile >> mHasUnlimitedDimension >> junk;
+    infofile >> mNumVariables;
 	
-	if(numFixedDimensions == -999 || numVariables == -999)
+	if(mNumFixedDimensions == -999 || mNumVariables == -999)
 	{
-		throw new Exception("Couldn't read info file correctly");
+		infofile.close();
+		throw Exception("Couldn't read info file correctly");
 	}
 	//Read in variables and associated them with a column number
 	std::string variables;
 	std::string dataFilename;	    	
-	if(hasUnlimitedDimension)
+	if(mHasUnlimitedDimension)
 	{
 		//TODO: complete this
 		
@@ -50,27 +51,27 @@ ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 		//THAT MAKES IT EASIER TO OPEN FROM HERE BECAUSE WE'LL KNOW WHAT IT'S
 		//CALLED
 		
-		if(numFixedDimensions < 1)
+		if(mNumFixedDimensions < 1)
 		{
-		   	dataFilename = filepath + "/" + basename + ".dat";
+		   	mDataFilename = filepath + "/" + basename + ".dat";
 		}
 		else
 		{
-			dataFilename = filepath + "/" + basename + "_0.dat";
+			mDataFilename = filepath + "/" + basename + "_0.dat";
 		   //READ IN THE ANCILLARY FILE WITH THE TIMESTEPS IN
 		   //AND INSERT THAT INFO INTO THE MAP	
 		}
 	}
 	else
 	{
-	    dataFilename = filepath + "/" + basename + ".dat";	    	
+	    mDataFilename = filepath + "/" + basename + ".dat";	    	
 	}
 	
-	std::ifstream datafile(dataFilename.c_str(),std::ios::in);
+	std::ifstream datafile(mDataFilename.c_str(),std::ios::in);
 	//If it doesn't exist - throw exception
 	if(!datafile.is_open())
 	{
-        throw new Exception("Couldn't open data file");
+        throw Exception("Couldn't open data file");
 	}
 			
   	std::getline(datafile, variables);
@@ -96,11 +97,96 @@ ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 
 std::vector<double> ColumnDataReader::GetValues(std::string variableName)
 {
+
+	if (mNumFixedDimensions > 0)
+	{
+		throw Exception("Data file has fixed dimension which must be specified");
+	}
 	
+	std::ifstream datafile(mDataFilename.c_str(),std::ios::in);
+	//If it doesn't exist - throw exception
+	if(!datafile.is_open())
+	{
+		throw Exception("Couldn't open data file");
+	}
+	
+	std::vector<double> all_values;
+	
+	int column = mVariablesToColumns[variableName];
+	std::string junk;
+	std::string variable_values;
+	double value;
+	
+	// the current variable becomes true just after reading the last line
+	bool end_of_file_reached=false;
+		
+	// getline to get past line of headers
+	end_of_file_reached = std::getline(datafile, variable_values).eof();		
+
+	
+	while(!end_of_file_reached)
+	{
+		end_of_file_reached = std::getline(datafile, variable_values).eof();
+		std::stringstream variableStream(variable_values);
+		
+		for (int i=0; i<column; i++)
+		{
+			variableStream >> junk;
+		}
+		
+		variableStream >> value;
+		
+		all_values.push_back(value);
+	}
+
+	return all_values;
 }
 
 std::vector<double> ColumnDataReader::GetValues(std::string variableName, 
                                                 int fixedDimension)
 {
+	if (mNumFixedDimensions < 1)
+	{
+		throw Exception("Data file has no fixed dimension");
+	}
 	
+	std::vector<double> all_values;
+		
+	
+	if (mHasUnlimitedDimension)
+	{
+		
+	}
+	else
+	{
+		std::ifstream datafile(mDataFilename.c_str(),std::ios::in);
+		//If it doesn't exist - throw exception
+		if(!datafile.is_open())
+		{
+			throw Exception("Couldn't open data file");
+		}
+		
+		int column = mVariablesToColumns[variableName];
+		std::string junk;
+		std::string variable_values;
+		double value;
+		for (int i=0; i<fixedDimension+1; i++)
+		{
+			std::getline(datafile, variable_values);
+		}
+		
+		std::getline(datafile, variable_values);
+		std::stringstream variableStream(variable_values);
+		
+		for (int i=0; i<column; i++)
+		{
+			variableStream >> junk;
+		}
+		
+		variableStream >> value;
+		
+		all_values.push_back(value);
+	}
+	
+	return all_values;
 }
