@@ -138,6 +138,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
   
   Returns a string representing part of a webpage.
   """
+  output = "<p>Type:%s<br />Rev:%s<br />Mach:%s<br />buildType:%s</p>" % \
+    (type, revision, machine, buildType)
   if not (type and revision):
     return _error('No test set to summarise specified.')
   
@@ -151,9 +153,12 @@ def _summary(req, type, revision, machine=None, buildType=None):
     test_set_dir = os.path.join(_tests_dir, type, revision)
     builds = os.listdir(test_set_dir)
     if len(builds) < 1:
-      return _error('No test set found for revision '+revision+'.')
+      return _error('No test set found for revision '+revision+
+                    '. Probably the build is still in progress.')
     else:
       machine, buildType = _extractDotSeparatedPair(builds[0])
+    output = output + "<p>Now:<br />Type:%s<br />Rev:%s<br />Mach:%s<br />buildType:%s</p>" % \
+      (type, revision, machine, buildType)
   else:
     if not (machine and buildType):
       return _error('No test set to summarise specified.')
@@ -173,7 +178,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
   
   # Produce output HTML
-  output = """\
+  output = output + """\
   <p>
   Revision: %s<br />
   Overall status: %s<br />
