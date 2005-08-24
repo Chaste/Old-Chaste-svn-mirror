@@ -146,10 +146,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
   if type == 'continuous' and revision == 'last':
     revisions = os.listdir(os.path.join(_tests_dir, type))
     revision = max(revisions)
-  
-  # There is only one continuous build per revision, so we don't
-  # specify the machine & buildType as arguments.
-  if type == 'continuous':
+    # When getting the latest continuous build, pick the first result
+    # set found to determine machine & buildType.
     test_set_dir = os.path.join(_tests_dir, type, revision)
     builds = os.listdir(test_set_dir)
     if len(builds) < 1:
@@ -159,6 +157,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   else:
     if not (machine and buildType):
       return _error('No test set to summarise specified.')
+  # Find the directory with appropriate test results
   if type == 'standalone':
     test_set_dir = _dir
   else:
