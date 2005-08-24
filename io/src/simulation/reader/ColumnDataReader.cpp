@@ -12,6 +12,10 @@
 #include "ColumnDataReader.hpp"
 #include "global/src/Exception.hpp"
 
+// variables read in from the data file are initialised to the
+// following constant so one can check if they were read correctly
+const int NOT_READ = -999;
+
 ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 {
 	//Read in info file
@@ -23,16 +27,16 @@ ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 		throw Exception("Couldn't open info file");
 	}
 	std::string junk;
-	mNumFixedDimensions = -999;
+	mNumFixedDimensions = NOT_READ;
 	mHasUnlimitedDimension = false;
-	mNumVariables = -999;
+	mNumVariables = NOT_READ;
 		
 	infofile >> junk;	
     infofile >> mNumFixedDimensions >> junk;
     infofile >> mHasUnlimitedDimension >> junk;
     infofile >> mNumVariables;
 	
-	if(mNumFixedDimensions == -999 || mNumVariables == -999)
+	if(mNumFixedDimensions == NOT_READ || mNumVariables == NOT_READ)
 	{
 		infofile.close();
 		throw Exception("Couldn't read info file correctly");
