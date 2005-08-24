@@ -37,13 +37,17 @@ public:
      *  i. The voltage returned by the ode solver is not used later since the pde
      *  solves for the voltage.
      */
-     // Distributed
+    // Distributed
     std::vector<odeVariablesType>            mOdeVarsAtNode;
-
+ 	
+ 	/**  solutionCache stores the solutions to the ODEs (Icurrent) for
+ 	 *  each node in the global system
+ 	 */
+ 	// Replicated
+  	std::vector<double>	solutionCache;
+ 
     
 public:
-    // Replicated
-  	std::vector<double>	solutionCache;
     
         //Constructor
     AbstractCoupledPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
@@ -82,8 +86,29 @@ public:
      void DistributeSolutionCache(void)
      {
      	
-     	
-     	//std::cout<<"AbstractCoupledPde::DistributeSolutionCache\n";
+        double all_local_solutions[mNumNodes];
+        for (int i=0; i<mNumNodes; i++)
+        {
+        	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
+	    	{ 
+				all_local_solutions[i]=solutionCache[i]; 
+	        } 
+	        else 
+	        {
+	           	all_local_solutions[i] =0.0;
+	        }
+        	
+        }
+ 
+    	double all_solutions[mNumNodes];
+ 		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD); 
+    	
+    		    
+    	for (int i=0; i<mNumNodes; i++)
+    	{
+   			solutionCache[i]=all_solutions[i];
+    	}
+    
      }
 
 };        
