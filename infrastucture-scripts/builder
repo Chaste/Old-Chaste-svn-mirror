@@ -43,9 +43,10 @@ prepare_for_build()
 
 clear_up_after_build()
 {
+	# Move the test results to a safe location for the server to collect
+	mv testoutput/userpc60.comlab.ox.ac.uk.* ~/testresults/
 	# Clear up after ourselves in case the next build fails before executing
 	# prepare_for_build()
-	# May interfere with copying test results. *TODO: Check*
 	cd
 	rm -rf ~/eclipse/workspace/trunk
 }
