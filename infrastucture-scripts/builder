@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Script that runs builds on the integration machine.
+
+# The first argument should be the current revision number, unless it is
+# 'no-lock', in which case do the build without locking.
+if [ "$1" == "no-lock" ]; then
+	no_lock=1
+	shift
+fi
+rev=$1
+# With no additional arguments, runs a continuous build, both default & Parallel.
+# If an extra argument is given, this should be a valid build type.
+
+. ~/.bash_profile
+. ~/.bashrc
+
+#(flock --timeout=$timeout eclipse/workspace ./real-builder) || ./real-builder
+
+do_cts_build()
+{
+	prepare_for_build $rev
+	nice scons revision=$rev
+	nice scons revision=$rev build=Parallel
+	clear_up_after_build
+}
+
+do_build()
+{
+	prepare_for_build $rev
+	nice scons revision=$rev build=$1
+	clear_up_after_build
+}
+
+prepare_for_build()
+{
+	# Check out the given revision
+	rm -rf ~/eclipse/workspace/*
+	cd ~/eclipse/workspace
+	svn --password deve10p3r -r $rev co http://chaste.ediamond.ox.ac.uk/svn/chaste/trunk
+	cd trunk
+}
+
+clear_up_after_build()
+{
+	# Clear up after ourselves in case the next build fails before executing
+	# prepare_for_build()
+	# May interfere with copying test results. *TODO: Check*
+	cd
+	rm -rf ~/eclipse/workspace/trunk
+}
+
+# Get a lock to stop multiple simultaneous builds.
+# Set a timeout in case the previous build collapsed.
+if [ -z "$no_lock" ]; then
+	if [ -z "$2" ]; then
+		# 5 minutes for cts builds
+		(flock --timeout=3 eclipse/workspace ./builder "no-lock" $1) || ./builder "no-lock" $1
+	else
+		# 15 minutes otherwise
+		(flock --timeout=9 eclipse/workspace ./builder "no-lock" $1 $2) || ./builder "no-lock" $1 $2
+	fi
+else
+	if [ -z "$2" ]; then
+		do_cts_build
+	else
+		do_build $2
+	fi
+fi
+

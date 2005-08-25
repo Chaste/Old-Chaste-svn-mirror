@@ -1,0 +1,10 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+# Chaste stuff
+# Doxygen check every 5 minutes
+*/5 * * * * root /root/run-doxygen.py >/dev/null
+# Nightly builds. Currently Friday 1am.
+0 1 * * Fri root /root/nightly-build.sh
