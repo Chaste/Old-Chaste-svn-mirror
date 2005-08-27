@@ -466,6 +466,7 @@ def _header(title=""):
 <html>
   <head>
     <title>Chaste Tests%s</title>
+    <link rel="stylesheet" href="/style.css" type="text/css">
   </head>
   <body>""" % title
   return header
