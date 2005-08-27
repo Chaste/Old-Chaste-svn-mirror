@@ -7,4 +7,4 @@ HOME=/
 # Doxygen check every 5 minutes
 */5 * * * * root /root/run-doxygen.py >/dev/null
 # Nightly builds. Currently Friday 1am.
-0 1 * * Fri root /root/nightly-build.sh
+0 1 * * Fri svn /home/svn/nightly-build.sh
