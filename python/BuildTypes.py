@@ -92,7 +92,7 @@ class BuildType:
     Return the encoded status.
     """
     status = 'Unknown'
-    if exitCode:
+    if exitCode: # TODO: Verify (again!) on parallel tests!
       # At least one test failed. Find out how many by parsing the output.
       import re
       failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
@@ -223,7 +223,7 @@ class MemoryTesting(GccDebug):
     leaks = re.compile('==\d+== LEAK SUMMARY:')
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
     petsc = re.compile('\[0]Total space allocated (\d+) bytes')
-    uninit = re.compile('==\d+== Conditional jump or move depends on uninitialised value(s)')
+    uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
     
     for lineno in range(len(outputLines)):
       m = petsc.match(outputLines[lineno])
