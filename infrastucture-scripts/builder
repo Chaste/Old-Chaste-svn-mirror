@@ -37,6 +37,7 @@ prepare_for_build()
 	# Check out the given revision
 	rm -rf ~/eclipse/workspace/*
 	cd ~/eclipse/workspace
+	sleep 5
 	svn --password deve10p3r -r $rev co http://chaste.ediamond.ox.ac.uk/svn/chaste/trunk
 	cd trunk
 }
@@ -56,10 +57,10 @@ clear_up_after_build()
 if [ -z "$no_lock" ]; then
 	if [ -z "$2" ]; then
 		# 5 minutes for cts builds
-		(flock --timeout=3 eclipse/workspace ./builder "no-lock" $1) || ./builder "no-lock" $1
+		(flock --timeout=300 eclipse/workspace ./builder "no-lock" $1) || ./builder "no-lock" $1
 	else
 		# 15 minutes otherwise
-		(flock --timeout=9 eclipse/workspace ./builder "no-lock" $1 $2) || ./builder "no-lock" $1 $2
+		(flock --timeout=900 eclipse/workspace ./builder "no-lock" $1 $2) || ./builder "no-lock" $1 $2
 	fi
 else
 	if [ -z "$2" ]; then

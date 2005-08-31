@@ -6,5 +6,5 @@ HOME=/
 # Chaste stuff
 # Doxygen check every 5 minutes
 */5 * * * * root /root/run-doxygen.py >/dev/null
-# Nightly builds. Currently Friday 1am.
+# Nightly builds. Currently Friday 1am. Note svn user.
 0 1 * * Fri svn /home/svn/nightly-build.sh
