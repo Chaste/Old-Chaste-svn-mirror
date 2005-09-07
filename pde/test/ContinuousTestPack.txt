@@ -8,8 +8,6 @@ TestLinearHeatEquation.hpp
 TestLinearSystem.hpp
 TestMaterials.hpp
 TestMonodomainDg0Assembler.hpp
-TestMonodomainDg0AssemblerVisualisation.hpp
-TestMonodomainFitzHughNagumoWithDG0Assember.hpp
 TestNode.hpp
 TestNonlinearElasticityPde.hpp
 TestNonlinearHeatEquationPde.hpp
