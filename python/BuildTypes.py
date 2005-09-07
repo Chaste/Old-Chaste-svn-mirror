@@ -92,7 +92,7 @@ class BuildType:
     Return the encoded status.
     """
     status = 'Unknown'
-    if exitCode: # TODO: Verify (again!) on parallel tests!
+    if exitCode:
       # At least one test failed. Find out how many by parsing the output.
       import re
       failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
@@ -185,7 +185,7 @@ class Parallel(GccDebug):
   
   def GetTestRunnerCommand(self, exefile):
     "Run test with a two processor environment"
-    return '../../../mpi/bin/mpirun -np ' + str(self._num_processes) + ' ' + exefile # TODO: Do this properly! i.e. get path from scons or put mpirun on the path
+    return 'mpirun -np ' + str(self._num_processes) + ' ' + exefile
 
   def EncodeStatus(self, exitCode, outputLines):
     """
@@ -233,10 +233,11 @@ class MemoryTesting(GccDebug):
   """
   Compile using gcc with debugging turned on, and run tests under valgrind.
   """
+  _petsc_flags = "-trmalloc -trdebug -trdump"
+
   def __init__(self):
     GccDebug.__init__(self)
     #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
-    self._petsc_flags = "-trmalloc -trdebug -trdump"
     self._valgrind_flags = "--tool=memcheck --log-fd=1 --track-fds=yes --leak-check=full"
 
   def GetTestRunnerCommand(self, exefile):
@@ -309,7 +310,50 @@ class MemoryTesting(GccDebug):
       # No leak summary found
       status = 'OK'
     return status
-  
+
+
+class ParallelMemoryTesting(MemoryTesting, Parallel):
+  """
+  """
+  def __init__(self):
+    Parallel.__init__(self)
+
+  def GetTestRunnerCommand(self, exefile):
+    "Run test within a two processor environment"
+    return 'mpirun -np ' + str(self._num_processes) + ' -dbg=valgrind ' + exefile + ' ' + self._petsc_flags
+
+  def EncodeStatus(self, exitCode, outputLines):
+    """
+    Encode the output from a test program as a status string.
+    The output is sorted by process ID so that checking context in the valgrind
+    output (from a single process) works as expected.
+    The output from valgrind needs to be parsed to check for a leak summary.
+    If one is found the status is 'Leaky', otherwise 'OK'.
+    Return the encoded status.
+    """
+    # First stably sort the output by process id
+    import re
+    pid = re.compile('==(\d+)==')
+    def cmp(l1, l2):
+      m1, m2 = pid.match(l1), pid.match(l2)
+      if m1:
+        pid1 = int(m1.group(1))
+      else:
+        pid1 = 0
+      if m2:
+        pid2 = int(m2.group(1))
+      else:
+        pid2 = 0
+      if pid1 == pid2: return 0
+      elif pid1 < pid2: return -1
+      else: return 1
+
+    outputLines.sort(cmp)
+    
+    # Now use the parsing from the superclass
+    return MemoryTesting.EncodeStatus(self, exitCode, outputLines)
+
+
 class GccOpt(Gcc):
   """
   gcc compiler with some optimisations enabled.

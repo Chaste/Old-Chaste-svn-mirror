@@ -67,8 +67,8 @@ if system_name == 'finarfin':
     cxx    = '/usr/bin/g++'
     ar     = '/usr/bin/ar'
 else:
-  mpicxx = '../../../mpi/bin/mpicxx'
-  mpirun = '../../../mpi/bin/mpirun'
+  mpicxx = 'mpicxx'
+  mpirun = 'mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
 
