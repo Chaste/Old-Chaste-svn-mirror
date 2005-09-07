@@ -91,9 +91,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
 		        
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","NewLR91");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
+        int new_time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
         int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
@@ -197,9 +196,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                 
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","NewNoStimLR91");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
+        int new_time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
         int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
@@ -315,9 +313,8 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
                 
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","RegStimLR91");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
+        int new_time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
         int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
         int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
         int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");

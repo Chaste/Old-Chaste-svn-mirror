@@ -13,10 +13,10 @@ class AbstractDataWriter
 
 public:
 
-    virtual void DefineFixedDimension(std::string dimensionName, 
-                                     std::string dimensionUnits,
-                                     long dimensionSize) = 0;
-    virtual void DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits) = 0;
+    virtual int  DefineFixedDimension(std::string dimensionName, 
+                                      std::string dimensionUnits,
+                                      long dimensionSize) = 0;
+    virtual int  DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits) = 0;
     virtual int  DefineVariable(std::string variableName, std::string variableUnits) = 0;     
     virtual void EndDefineMode() = 0;
     virtual void AdvanceAlongUnlimitedDimension() = 0;

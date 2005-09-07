@@ -1,7 +1,7 @@
 #ifndef _TESTCOLUMNDATAREADERWRITER_HPP_
 #define _TESTCOLUMNDATAREADERWRITER_HPP_
 
-// MyTestSuite.h
+//  MyTestSuite.h
 #include <cxxtest/TestSuite.h>
 #include <iostream>
 #include <string>
@@ -129,7 +129,6 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes")); 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
@@ -156,10 +155,9 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));        
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         //TS_TRACE("Here");
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
@@ -201,8 +199,13 @@ public:
 		for (int i=0; i<11; i++)
 		{
 			TS_ASSERT_DELTA(values_ik[i]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
-		}
-		
+		}		
+
+        std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
+        for(int i=0; i < 10; i++)
+        {
+            TS_ASSERT_DELTA(time_values[i],i*0.1,1e-3);   
+        }
         delete mpTestReader;		                     
 		                     
     }
@@ -215,10 +218,10 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         //TS_TRACE("Here");
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
@@ -246,10 +249,10 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
+        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
                 
@@ -283,7 +286,8 @@ public:
 			std::vector<double> values_ik = mpTestReader->GetValues("I_K", i);
 			TS_ASSERT_DELTA(values_ik[0]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
 		}
-		
+        
+		TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1));
         delete mpTestReader;
     }
     
@@ -296,10 +300,10 @@ public:
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
-        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
+        TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
@@ -325,12 +329,13 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixedandunlimited"));
         int time_var_id = 0;
+        int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
         int ica_var_id = 0;
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless",4));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
@@ -340,20 +345,33 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.1));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i,0));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i,1));
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124,3));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124,2));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -35.124,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(time_var_id, 0.2,3));
 
 		delete mpTestWriter;
 		
-		TS_ASSERT(filesMatch("testoutput/testfixedandunlimitedTime.dat", 
-		                     "io/test/data/testfixedandunlimitedTime_good.dat"));
+		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_unlimited.dat", 
+		                     "io/test/data/testfixedandunlimited_unlimited_good.dat"));
 
 		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_1.dat", 
 		                     "io/test/data/testfixedandunlimited_1_good.dat"));
+                             
+        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testfixedandunlimited"));                             
+
+        std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
+        std::vector<double> ica_values = mpTestReader->GetValues("I_Ca",3);
+        for(int i=0; i < 2; i++)
+        {
+            TS_ASSERT_DELTA(time_values[i],(i+1)*0.1,1e-3);   
+            TS_ASSERT_DELTA(ica_values[i],-33.124 - i * 2,1e-3);   
+        }
+        
+                                     
     }
     
 };

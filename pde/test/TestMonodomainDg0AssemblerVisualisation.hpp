@@ -128,9 +128,8 @@ public:
         int voltage_var_id = 0;
 
         mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-        mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+        time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs");
 
-        time_var_id = mpTestWriter->DefineVariable("Time","msecs");
         voltage_var_id = mpTestWriter->DefineVariable("V","mV");
         mpTestWriter->EndDefineMode();
            
@@ -335,6 +334,7 @@ public:
         mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
         mpTestWriter->DefineUnlimitedDimension("Time","msecs");
 
+// see change made in previous test
         time_var_id = mpTestWriter->DefineVariable("Time","msecs");
         voltage_var_id = mpTestWriter->DefineVariable("V","mV");
         mpTestWriter->EndDefineMode();

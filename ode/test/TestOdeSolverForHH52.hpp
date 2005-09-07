@@ -78,8 +78,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
 		        
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","HH52Result");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
-        int time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
+        int time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
         int n_var_id = mpNewTestWriter->DefineVariable("n"," ");
         int h_var_id = mpNewTestWriter->DefineVariable("h"," ");
@@ -178,8 +177,7 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
                 
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","HH52RegResult");
-        mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
-        int time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
+        int time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
         int n_var_id = mpNewTestWriter->DefineVariable("n"," ");
         int h_var_id = mpNewTestWriter->DefineVariable("h"," ");

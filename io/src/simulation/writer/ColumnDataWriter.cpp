@@ -80,8 +80,9 @@ void ColumnDataWriter::Close()
 *  @param dimensionName The name of the unlimited dimension
 *  @param dimensionUnits The physical units of the unlimited dimension
 *
+*  @return The identifier of the variable
 */
-void ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dimensionUnits)
+int ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dimensionUnits)
 {
     if(!mIsInDefineMode)
     {
@@ -91,7 +92,13 @@ void ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dim
     mUnlimitedDimensionName = dimensionName;
     mUnlimitedDimensionUnits = dimensionUnits;
 
+    mpUnlimitedDimensionVariable = new DataWriterVariable;
+    mpUnlimitedDimensionVariable->mVariableName = dimensionName;
+    mpUnlimitedDimensionVariable->mVariableUnits = dimensionUnits;
+    
     mIsUnlimitedDimensionSet = true;
+    
+    return UNLIMITED_DIMENSION_VAR_ID;
 }
 
 /**
@@ -103,7 +110,7 @@ void ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dim
 *  @param dimensionSize The size of the dimension
 *
 */
-void ColumnDataWriter::DefineFixedDimension(string dimensionName, string dimensionUnits, long dimensionSize)
+int ColumnDataWriter::DefineFixedDimension(string dimensionName, string dimensionUnits, long dimensionSize)
 {
     if(!mIsInDefineMode)
     {
@@ -119,6 +126,11 @@ void ColumnDataWriter::DefineFixedDimension(string dimensionName, string dimensi
     mFixedDimensionSize = dimensionSize;
 
     mIsFixedDimensionSet = true;
+    
+    mpFixedDimensionVariable = new DataWriterVariable;
+    mpFixedDimensionVariable->mVariableName = dimensionName;
+    mpFixedDimensionVariable->mVariableUnits = dimensionUnits;
+    return FIXED_DIMENSION_VAR_ID;
 }
 
 /**
@@ -145,17 +157,11 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
 
     if(variableName == mUnlimitedDimensionName)
     {
-        mpUnlimitedDimensionVariable = new DataWriterVariable;
-        mpUnlimitedDimensionVariable->mVariableName = variableName;
-        mpUnlimitedDimensionVariable->mVariableUnits = variableUnits;
-        variable_id = UNLIMITED_DIMENSION_VAR_ID;
+        throw Exception("Variable name: " + variableName + " already in use as unlimited dimension");
     }
     else if(variableName == mFixedDimensionName)
     {
-        mpFixedDimensionVariable = new DataWriterVariable;
-        mpFixedDimensionVariable->mVariableName = variableName;
-        mpFixedDimensionVariable->mVariableUnits = variableUnits;
-        variable_id = FIXED_DIMENSION_VAR_ID;
+        throw Exception("Variable name: " + variableName + " already in use as fixed dimension");
     }
     else //ordinary variable
     {
@@ -186,7 +192,7 @@ void ColumnDataWriter::EndDefineMode()
     if(mVariables.size() < 1)
     {
         throw Exception("Cannot end define mode. No variables have been defined.");
-    }  
+    }   
     //Calculate the width of each row
     int unlimited_dimension_variable = (mpUnlimitedDimensionVariable != NULL);
     int fixed_dimension_variable = (mpFixedDimensionVariable != NULL);
@@ -203,7 +209,7 @@ void ColumnDataWriter::EndDefineMode()
             std::string filepath = mDirectory + "/" + mBaseName + "_" + suffix.str() + ".dat";
             if(mpUnlimitedDimensionVariable != NULL)
             {
-                std::string ancillary_filepath = mDirectory + "/" + mBaseName + mpUnlimitedDimensionVariable->mVariableName + ".dat";
+                std::string ancillary_filepath = mDirectory + "/" + mBaseName + "_unlimited.dat";
                 mpCurrentAncillaryFile = new std::ofstream(ancillary_filepath.c_str(),std::ios::out);
                 if(!mpCurrentAncillaryFile->is_open())
                 {
@@ -215,8 +221,7 @@ void ColumnDataWriter::EndDefineMode()
                 {
                     (*mpCurrentAncillaryFile) << mpUnlimitedDimensionVariable->mVariableName 
                         << "(" << mpUnlimitedDimensionVariable->mVariableUnits << ") ";
-                }
-                (*mpCurrentAncillaryFile) << std::endl;
+                }                
             }
             mAncillaryRowStartPosition = mpCurrentAncillaryFile->tellp();
             this->CreateFixedDimensionFile(filepath);
@@ -417,14 +422,14 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
 
                 if(variableValue >= 0)
                 {
-                     (*mpCurrentAncillaryFile) << "  ";
+                     (*mpCurrentAncillaryFile) << std::endl << "  ";
                 }
                 else //negative variable value has extra minus sign
                 {
-                     (*mpCurrentAncillaryFile) << " ";
+                     (*mpCurrentAncillaryFile) << std::endl << " ";
                 }
                 mpCurrentAncillaryFile->width(FIELD_WIDTH);
-                (*mpCurrentAncillaryFile) << variableValue << std::endl;
+                (*mpCurrentAncillaryFile) << variableValue;
             }
             else
             {

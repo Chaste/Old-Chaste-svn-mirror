@@ -58,8 +58,8 @@ public:
 
     ColumnDataWriter(std::string directory, std::string baseName);
     ~ColumnDataWriter();
-    void DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits);
-    void DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
+    int DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits);
+    int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
     int DefineVariable(std::string variableName, std::string variableUnits);
     void EndDefineMode();
     void AdvanceAlongUnlimitedDimension();
