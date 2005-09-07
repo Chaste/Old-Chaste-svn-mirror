@@ -4,3 +4,4 @@ TestOdeSolverForFHN61.hpp
 TestOdeSolverForHH52.hpp
 TestOdeSolverForLR91.hpp
 TestOdeSolverForTT04.hpp
+TestMockEulerIvpOdeSolver.hpp

@@ -37,6 +37,7 @@ protected:
 		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
 			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
 
+        //std::cout << "In AssembleOnElement." << std::endl << std::flush;
         double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
         
@@ -69,11 +70,13 @@ protected:
                 }
                 
                 //JOE 24-AUG-2005 - Warning: currentSolutionArray is NOT replicated.
-                u  += phi[i]*currentSolutionArray[ rElement.GetNodeGlobalIndex(i) ];
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] );
+                //std::cout << "About to read inputCache" << std::endl << std::flush;
+                u  += phi[i]*pPde->inputCache[ rElement.GetNodeGlobalIndex(i) ];
+                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), pPde->inputCache[rElement.GetNodeGlobalIndex(i)] );
                 
                 //std::cout << pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] ) << "\n";
             }
+            //std::cout << "Done some reading" << std::endl << std::flush;
 
             //std::cout << "source = " << sourceTerm << std::endl << std::flush;
 

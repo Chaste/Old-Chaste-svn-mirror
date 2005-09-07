@@ -108,12 +108,8 @@ public:
 		assert(mTimesSet);
 		assert(mInitialConditionSet);
 		
-		/**
-		 * \todo Vec objects are just pointers, and need to be destroyed when finished
-		 * with. This appears to be fixed here, but needs to be looked at in other
-		 * places.
-		 */
-		
+        //std::cout << "In solve method" << std::endl;
+        
 		double t = mTstart;
 		Vec currentSolution = mInitialCondition;
 		Vec nextSolution;
@@ -121,7 +117,8 @@ public:
 		{
 			//std::cout << "t = " << t << std::endl << std::flush;
 			nextSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, solver, currentSolution);
-			t += mDt;
+			//std::cout << "Done AssembleSystem." << std::endl << std::flush;
+            t += mDt;
 			// Avoid memory leaks
 			if (currentSolution != mInitialCondition)
 			{

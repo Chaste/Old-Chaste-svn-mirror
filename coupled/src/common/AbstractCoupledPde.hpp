@@ -4,6 +4,7 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include <vector>
 #include "petscvec.h"
+#include <iostream>
 
 typedef std::vector<double> odeVariablesType;
 
@@ -49,7 +50,7 @@ public:
   	std::vector<double>	solutionCache;
  
  	// Replicated
-  	std::vector<double>	inputCache;
+  	//std::vector<double>	inputCache;
  
     
         //Constructor
@@ -82,11 +83,13 @@ public:
      }
      
      virtual void PrepareForAssembleSystem(Vec currentSolution)
-     {	
-     	std::cout<<"AbstractCoupledPde::PrepareForAssembleSystem\n";
+     {
+        //std::cout << "PrepareForAssembleSystem" << std::endl;
+     	DistributeInputCache(currentSolution);
+        //std::cout << "PrepareForAssembleSystem done" << std::endl;
      }
      
-     void DistributeSolutionCache(void)
+     virtual void DistributeSolutionCache(void)
      {
      	
         double all_local_solutions[mNumNodes];
@@ -94,7 +97,7 @@ public:
         {
         	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
 	    	{ 
-				all_local_solutions[i]=solutionCache[i]; 
+				all_local_solutions[i]=solutionCache[i];
 	        } 
 	        else 
 	        {
@@ -107,7 +110,7 @@ public:
  		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, 
  		             MPI_SUM, PETSC_COMM_WORLD); 
     	
-    		    
+    	// Could be more efficient if MPI wrote to solutionCache above.
     	for (int i=0; i<mNumNodes; i++)
     	{
    			solutionCache[i]=all_solutions[i];
@@ -117,14 +120,29 @@ public:
     
     odeVariablesType GetOdeVarsAtNode( int globalIndex )
     {
+        if (!(mOwnershipRangeLo <= globalIndex && globalIndex < mOwnershipRangeHi)) {
+            std::cout << "i " << globalIndex << " lo " << mOwnershipRangeLo <<
+                " hi " << mOwnershipRangeHi << std::endl;
+        }
         assert(mOwnershipRangeLo <= globalIndex && globalIndex < mOwnershipRangeHi);
-  	    return AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[globalIndex];
-    }        
+  	    return mOdeVarsAtNode[globalIndex-mOwnershipRangeLo];
+    }
+    
+    /**
+     * Apply same initial conditions to each node in the mesh
+     */
+    void SetUniversalInitialConditions(odeVariablesType initialConditions)
+    {
+        for (int i=0; i<mOwnershipRangeHi-mOwnershipRangeLo; i++)
+        {
+            mOdeVarsAtNode[i] = initialConditions;
+        }
+    }
      
- 	void DistributeInputCache(Vec v)
+ 	void DistributeInputCache(Vec inputVector)
     {
         double *vArray;
-        VecGetArray(v, &vArray);
+        VecGetArray(inputVector, &vArray);
         double all_local_solutions[mNumNodes];
         for (int i=0; i<mNumNodes; i++)
         {
@@ -134,7 +152,7 @@ public:
 	        } 
 	        else 
 	        {
-	           	all_local_solutions[i] =0.0;
+	           	all_local_solutions[i]=0.0;
 	        }
         	
         }
@@ -143,11 +161,11 @@ public:
  		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, 
  		             MPI_SUM, PETSC_COMM_WORLD); 
     	
-    		
-    		inputCache.resize(mNumNodes);    
+    	// Could be more efficient if MPI wrote to inputCache above.
+    	AbstractLinearPde<SPACE_DIM>::inputCache.resize(mNumNodes);    
     	for (int i=0; i<mNumNodes; i++)
     	{
-   			inputCache[i]=all_solutions[i];
+   			AbstractLinearPde<SPACE_DIM>::inputCache[i]=all_solutions[i];
     	}
     
      }

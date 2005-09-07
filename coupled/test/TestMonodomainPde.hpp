@@ -176,7 +176,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
      
-
+        VecDestroy(currentVoltage);
     }
     
      

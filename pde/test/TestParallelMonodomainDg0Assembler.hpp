@@ -594,8 +594,8 @@ public:
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[globalIndex] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[globalIndex] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[globalIndex-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[globalIndex-lo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(globalIndex);           
             for(int j=0; j<8; j++)

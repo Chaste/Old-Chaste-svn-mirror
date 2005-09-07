@@ -10,7 +10,7 @@
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
 	public: 
-	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+	virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
 				              double startTime,
 				              double endTime,
 				              double timeStep,

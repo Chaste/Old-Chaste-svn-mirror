@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include <iostream>
 #include "petscvec.h"
 
 #include "LinearSystem.hpp"
@@ -237,8 +238,12 @@ protected:
 		/* Allow the PDE to set up anything necessary for the assembly of the
 		 * solution (eg. if it's a coupled system, then solve the ODEs)
 		 */
-		 pPde->PrepareForAssembleSystem(currentSolution);
-		
+		pPde->PrepareForAssembleSystem(currentSolution);
+        
+        //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
+        //std::cout << std::endl;
+        // ^ gives the same in parallel
+        
 		// Linear system in n unknowns, where n=#nodes
 		mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());
                 
@@ -269,6 +274,7 @@ protected:
 			}
 			iter++;
 		}
+        
         
         
 		// add the integrals associated with Neumann boundary conditions to the linear system

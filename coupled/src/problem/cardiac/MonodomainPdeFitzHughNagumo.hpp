@@ -143,16 +143,6 @@ public:
     }
     
     
-    // Apply same initial conditions to each node in the mesh
-    void SetUniversalInitialConditions(odeVariablesType initialConditions)
-    {
-        for(int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
-        {
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[i] = initialConditions;
-        }
-    }
-    
-    
     // Set given stimulus function to a particular node
     void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
     {
@@ -193,7 +183,8 @@ public:
 
    
 	virtual void PrepareForAssembleSystem(Vec currentSolution)
-  	{	
+  	{
+  		AbstractCoupledPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
      	
      	double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
