@@ -70,7 +70,7 @@ opt.Replace(CXX = mpicxx)
 opt.Replace(AR = ar)
 opt.Replace(CPPPATH = cpppath)
 
-test = Builder(action = 'cxxtest/cxxtestgen.pl --error-printer -o $TARGET $SOURCES')
+test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
                    build_type + ' ' + build.GetTestReportDir())
 #runtests = Builder(action = './$SOURCE | tee $TARGET')

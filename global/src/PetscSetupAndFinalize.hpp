@@ -10,7 +10,8 @@
  */
 
 #include <cxxtest/GlobalFixture.h>
-#include "petsc.h"  
+#include "petsc.h"
+#include <stdlib.h>
 
 class PetSCSetup : public CxxTest::GlobalFixture
 {
@@ -18,16 +19,11 @@ public:
 	/// Standard setup method for PETSc.
 	bool setUpWorld()
 	{
-#ifdef PETSC_MEMORY_TRACING
-		int FakeArgc = 4;
-		char *FakeArgs[] = {"testrunner", "-trmalloc", "-trdebug", "-trdump"};
-#else
-		int FakeArgc = 1;
-		char *FakeArgs[] = {"testrunner"};
-#endif
-		char **FakeArgv=(char **)FakeArgs;
-
-		PetscErrorCode ierr = PetscInitialize(&FakeArgc, &FakeArgv, PETSC_NULL, PETSC_NULL);
+        /**
+         * The cxxtest_argc and cxxtest_argv variables are global, and filled in
+         * from the arguments passed to the cxxtest test suite runner.
+         */
+		PetscErrorCode ierr = PetscInitialize(&cxxtest_argc, &cxxtest_argv, PETSC_NULL, PETSC_NULL);
 		
 		//std::cout << std::endl << "Petsc init: " << ierr << std::endl;
 		
