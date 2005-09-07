@@ -78,7 +78,7 @@ private:
 public:
     // This test is disabled because it uses the SimpleDG0Assembler, which does
     // not work in parallel
-	void noTestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
+	void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
 	{
 		
 		double tStart = 0;
@@ -110,7 +110,7 @@ public:
 		// initial condition;   
 		Vec initial_condition_1, initial_condition_2;
 		initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
-		//VecDuplicate(initial_condition_1, &initial_condition_2);
+		VecDuplicate(initial_condition_1, &initial_condition_2);
   
 		double* init_array;
 	    int lo, hi;
@@ -125,7 +125,7 @@ public:
 		VecAssemblyBegin(initial_condition_1);
 		VecAssemblyEnd(initial_condition_1);
 		//VecView(initial_condition_1, PETSC_VIEWER_STDOUT_WORLD);
-		//VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
+		VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
 
 		// Vars to hold current solutions at each iteration
 		Vec current_solution_1, current_solution_2;
@@ -134,22 +134,22 @@ public:
 		while( tCurrent < tFinal )
 		{
 			monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-			//simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
+			simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
 			
 			monodomain_assembler.SetInitialCondition( initial_condition_1 );
-			//simple_assembler.SetInitialCondition( initial_condition_2 );
+			simple_assembler.SetInitialCondition( initial_condition_2 );
 
 			//std::cout<<"monodomain solve\n";std::cerr.flush();std::cout.flush();
 			current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc, &linearSolver);
 			//std::cout<<"simple solve\n";
-			//current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc, &linearSolver);
+			current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc, &linearSolver);
 			//std::cout<<" solved\n";
      
      		// Next iteration uses current solution as initial condition
      		VecDestroy(initial_condition_1); // Free old initial condition
-     		//VecDestroy(initial_condition_2);
+     		VecDestroy(initial_condition_2);
      		initial_condition_1 = current_solution_1;
-     		//initial_condition_2 = current_solution_2;
+     		initial_condition_2 = current_solution_2;
      
 			tCurrent += tBigStep;
 		}
@@ -157,24 +157,24 @@ public:
 		// Compare the results
 		double *res1, *res2;
 		VecGetArray(current_solution_1, &res1);
-//		VecGetArray(current_solution_2, &res2);
+		VecGetArray(current_solution_2, &res2);
 		for (int i=lo; i<hi; i++)
 		{
-//			TS_ASSERT_DELTA(res1[i-lo], res2[i-lo], 1e-3);
-            if (i==25 || i==75|| (i>=8 && i<=12) || (i>=45 && i <= 55))
-            {
-                std::cout << "Final solution at i=" << i << " is "
-                    << res1[i-lo] << std::endl;
-            }
+			TS_ASSERT_DELTA(res1[i-lo], res2[i-lo], 1e-3);
+//            if (i==25 || i==75|| (i>=8 && i<=12) || (i>=45 && i <= 55))
+//            {
+//                std::cout << "Final solution at i=" << i << " is "
+//                    << res1[i-lo] << std::endl;
+//            }
             if (i==10) TS_ASSERT_DELTA(res1[i-lo], 2.8951e-7, 1e-9);
             if (i==25) TS_ASSERT_DELTA(res1[i-lo], 0.0060696, 1e-5);
             if (i==50) TS_ASSERT_DELTA(res1[i-lo], 0.992834, 1e-5);
             if (i==75) TS_ASSERT_DELTA(res1[i-lo], 0.0060696, 1e-5);
         }
 		VecRestoreArray(current_solution_1, &res1);
-		//VecRestoreArray(current_solution_2, &res2);
+		VecRestoreArray(current_solution_2, &res2);
 		VecDestroy(current_solution_1);
-		//VecDestroy(current_solution_2);
+		VecDestroy(current_solution_2);
 	}
     
 	void TestMonodomainDg01D()

@@ -81,13 +81,7 @@ protected:
 		
 		const int num_nodes = rElement.GetNumNodes();
 
-		// If we have a current solution (e.g. this is a parabolic PDE)
-		// get the value in a usable form.
-		double *currentSolutionArray = NULL;
-		if (currentSolution)
-		{
-			PetscErrorCode ierr = VecGetArray(currentSolution, &currentSolutionArray);
-		}
+			
 
 		// Initialise element contributions to zero
 		rAElem.ResetToZero();
@@ -111,9 +105,13 @@ protected:
 				{
 					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				}
-				if (currentSolutionArray)
+				if (currentSolution)
 				{
-					u += phi[i]*currentSolutionArray[ rElement.GetNodeGlobalIndex(i) ];
+                     // If we have a current solution (e.g. this is a parabolic PDE)
+                     // get the value in a usable form.
+                     // NOTE - currentSolution input is actually now redundant at this point,
+                     // the work is done in PrepareForAssembleSystem
+					u += phi[i]*pPde->inputCache[ rElement.GetNodeGlobalIndex(i) ];
 				}
 			}
 			
@@ -136,11 +134,7 @@ protected:
 				rBElem(row) += integrand_value * wJ;
 			}
 		}
-		
-		if (currentSolutionArray)
-		{
-			PetscErrorCode ierr = VecRestoreArray(currentSolution, &currentSolutionArray);
-		}
+
 	}
 	
 	/**

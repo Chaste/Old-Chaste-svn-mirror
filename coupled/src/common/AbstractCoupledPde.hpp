@@ -82,13 +82,7 @@ public:
 
      }
      
-     virtual void PrepareForAssembleSystem(Vec currentSolution)
-     {
-        //std::cout << "PrepareForAssembleSystem" << std::endl;
-     	DistributeInputCache(currentSolution);
-        //std::cout << "PrepareForAssembleSystem done" << std::endl;
-     }
-     
+ 
      virtual void DistributeSolutionCache(void)
      {
      	
@@ -139,36 +133,7 @@ public:
         }
     }
      
- 	void DistributeInputCache(Vec inputVector)
-    {
-        double *vArray;
-        VecGetArray(inputVector, &vArray);
-        double all_local_solutions[mNumNodes];
-        for (int i=0; i<mNumNodes; i++)
-        {
-        	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
-	    	{ 
-				all_local_solutions[i]=vArray[i-mOwnershipRangeLo]; 
-	        } 
-	        else 
-	        {
-	           	all_local_solutions[i]=0.0;
-	        }
-        	
-        }
- 
-    	double all_solutions[mNumNodes];
- 		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, 
- 		             MPI_SUM, PETSC_COMM_WORLD); 
-    	
-    	// Could be more efficient if MPI wrote to inputCache above.
-    	AbstractLinearPde<SPACE_DIM>::inputCache.resize(mNumNodes);    
-    	for (int i=0; i<mNumNodes; i++)
-    	{
-   			AbstractLinearPde<SPACE_DIM>::inputCache[i]=all_solutions[i];
-    	}
-    
-     }
+  
     
 };        
         
