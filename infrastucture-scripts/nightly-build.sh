@@ -33,6 +33,7 @@ do_build ()
 if [ -z "$1" ]; then
 	# Memory tests
 	do_build MemoryTesting
+	do_build ParallelMemoryTesting
 else
 	do_build $1
 fi
