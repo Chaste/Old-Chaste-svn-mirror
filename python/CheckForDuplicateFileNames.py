@@ -46,3 +46,5 @@ if num_found_dups > 0:
     # Return a non-zero exit code if orphans were found
     import sys
     sys.exit(num_found_dups)
+else:
+    print "Infrastructure test passed ok."

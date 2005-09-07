@@ -68,3 +68,6 @@ if orphans:
   # Return a non-zero exit code if orphans were found
   import sys
   sys.exit(n_orphans)
+else:
+  print "Infrastructure test passed ok."
+  

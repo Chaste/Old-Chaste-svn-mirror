@@ -181,10 +181,53 @@ class Parallel(GccDebug):
   def __init__(self):
     GccDebug.__init__(self)
     self._test_packs = ['Parallel']
+    self._num_processes = 2
   
   def GetTestRunnerCommand(self, exefile):
     "Run test with a two processor environment"
-    return '../../../mpi/bin/mpirun -np 2 ' + exefile # TODO: Do this properly! i.e. get path from scons or put mpirun on the path
+    return '../../../mpi/bin/mpirun -np ' + str(self._num_processes) + ' ' + exefile # TODO: Do this properly! i.e. get path from scons or put mpirun on the path
+
+  def EncodeStatus(self, exitCode, outputLines):
+    """
+    Encode the output from a test program as a status string.
+    If the exit code is zero then all tests passed, and the status
+    is 'OK'. Otherwise the output must be parsed looking for a line
+    'Failed (\d+) of (\d+) tests?' and the status string is '\1_\2'.
+    Return the encoded status.
+    """
+    status = 'Unknown'
+    
+    import re
+    failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
+    ok, ok_count = re.compile('OK!'), 0
+    infrastructure_ok = re.compile('Infrastructure test passed ok.')
+    
+    for line in outputLines:
+      m = failed_tests.match(line)
+      if m:
+        status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
+        break
+      m = ok.match(line)
+      if m:
+        ok_count += 1
+      m = infrastructure_ok.match(line)
+      if m:
+        ok_count = self._num_processes
+        break
+    
+    if ok_count == self._num_processes:
+      # All tests passed on all processes
+      status = 'OK'
+    return status
+
+class Parallel10(Parallel):
+  """
+  Run using mpi run for tests which run in a parallel environment
+  """
+  def __init__(self):
+    Parallel.__init__(self)
+    self._num_processes = 10
+    
 
 class MemoryTesting(GccDebug):
   """
@@ -192,11 +235,13 @@ class MemoryTesting(GccDebug):
   """
   def __init__(self):
     GccDebug.__init__(self)
-    self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
+    #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
+    self._petsc_flags = "-trmalloc -trdebug -trdump"
+    self._valgrind_flags = "--tool=memcheck --log-fd=1 --track-fds=yes --leak-check=full"
 
   def GetTestRunnerCommand(self, exefile):
     "Run all tests using valgrind to check for memory leaks."
-    return 'valgrind --tool=memcheck --log-fd=1 --track-fds=yes --leak-check=full ' + exefile
+    return 'valgrind  ' + self._valgrind_flags + ' ' + exefile + ' ' + self._petsc_flags
 
   def DisplayStatus(self, status):
     "Return a (more) human readable version of the given status string."
