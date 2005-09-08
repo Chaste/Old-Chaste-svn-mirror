@@ -1,6 +1,6 @@
 # Controlling scons build script for Chaste
 
-import sys, os
+import sys, os, glob
 sys.path.append('python')
 import BuildTypes
 
@@ -112,6 +112,12 @@ SConscript('io/SConscript', build_dir='io/build', duplicate=0)
 SConscript('ode/SConscript', build_dir='ode/build', duplicate=0)
 SConscript('pde/SConscript', build_dir='pde/build', duplicate=0)
 SConscript('coupled/SConscript', build_dir='coupled/build', duplicate=0)
+
+
+# Remove the contents of testoutput/ on a clean build
+test_output_files = glob.glob('testoutput/*')
+Clean('.', test_output_files)
+
 
 
 # Test summary generation
