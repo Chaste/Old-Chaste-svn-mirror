@@ -18,6 +18,11 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     Vec lhs_vector;
 	VecDuplicate(rhsVector, &lhs_vector);
 
+    /* The following lines are very useful for debugging
+     *    MatView(lhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
+     *    VecView(rhsVector,    PETSC_VIEWER_STDOUT_WORLD);
+     */
+     
     KSP simple_solver; 
     KSPCreate(PETSC_COMM_WORLD, &simple_solver);
     
