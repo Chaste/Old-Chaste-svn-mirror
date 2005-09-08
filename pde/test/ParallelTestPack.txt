@@ -1,5 +1,4 @@
-TestParallelLinearSystem.hpp
-TestParallelMonodomainDg0Assembler.hpp
+TestLinearSystem.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
-TestParallelSimpleLinearEllipticAssembler.hpp
+TestSimpleLinearEllipticAssembler.hpp

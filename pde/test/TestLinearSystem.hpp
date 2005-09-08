@@ -33,11 +33,22 @@ public:
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
         
+        int lo,hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-        TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
-        TS_ASSERT_DELTA(solution_elements[1], 2.0, 0.000001);
-        TS_ASSERT_DELTA(solution_elements[2], 3.0, 0.000001);
+        if (0>=lo && 0<hi)
+        {
+            TS_ASSERT_DELTA(solution_elements[0-lo], 1.0, 0.000001);
+        }
+        if (1>=lo && 1<hi)
+        {
+            TS_ASSERT_DELTA(solution_elements[1-lo], 2.0, 0.000001);
+        }
+        if (2>=lo && 2<hi)
+        {
+            TS_ASSERT_DELTA(solution_elements[2-lo], 3.0, 0.000001);
+        }
         VecRestoreArray(solution_vector, &solution_elements);
         
         VecDestroy(solution_vector);
@@ -62,10 +73,18 @@ public:
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
         
+        int lo,hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-        TS_ASSERT_DELTA(solution_elements[0], 1.0, 0.000001);
-        TS_ASSERT_DELTA(solution_elements[1], 1.0, 0.000001);
+        if (0>=lo && 0<hi)
+        {
+            TS_ASSERT_DELTA(solution_elements[0-lo], 1.0, 0.000001);
+        }
+        if (1>=lo && 1<hi)
+        {
+            TS_ASSERT_DELTA(solution_elements[1-lo], 1.0, 0.000001);
+        }
         VecRestoreArray(solution_vector, &solution_elements);
         
         VecDestroy(solution_vector);
