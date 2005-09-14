@@ -4,8 +4,8 @@
 #include <cxxtest/TestSuite.h>
 #include <cmath>
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <string>
 
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
@@ -21,6 +21,7 @@
 #include "ColumnDataWriter.hpp"
 #include "ColumnDataReader.hpp"
 
+#include "AbstractOdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
 
@@ -29,51 +30,24 @@ const double TOLERANCE = 1e-2; // Not used at present
 
 class TestOdeSolverForHH52 : public CxxTest::TestSuite
 {
-    public:
-    
-    
-    /* Test Ode Solver for HH52
-     *
-     * The aim of this test is to simulate a single cell.
-     * We run the ode solver with the cell model for a period of
-     * time.  
-     * 
-     */
-    
-    void runOdeSolverForHH52(AbstractStimulusFunction *pStimulus,
-                             const char *pFilename,
-                             double endTime,
-                             double timeStep)
+public:
+
+    void runOdeSolverWithIonicModel(AbstractOdeSystem *pOdeSystem,
+                                    double endTime,
+                                    double timeStep,
+                                    std::vector<double> &rInitialConditions,
+                                    const char *pFilename,
+                                    std::vector<std::string> &rVariableNames,
+                                    std::vector<std::string> &rVariableUnits)
     {
-        /*
-         * Set initial conditions
-         * 
-         */
-         
-        double voltage = 0.0;
-        double n = 0.31768;
-        double h = 0.59612;
-        double m = 0.05293;
-
-        /*
-         * Collect initial data in a vector
-         * 
-         */  
-        std::vector<double> initial_conditions;
-        initial_conditions.push_back(voltage);
-        initial_conditions.push_back(n);
-        initial_conditions.push_back(h);
-        initial_conditions.push_back(m);        
-
-        /*
-         * Instantiate the ionic model: need to pass stimulus function
-         */        
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(pStimulus);
+        // Consistency checks
+        assert(rInitialConditions.size() == rVariableNames.size());
+        assert(rInitialConditions.size() == rVariableUnits.size());
         
         /*
          * Choose an ode solver
          */
-        RungeKutta4IvpOdeSolver solver;
+        EulerIvpOdeSolver solver;
         
         /*
          * Solve 
@@ -81,37 +55,89 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         double start_time = 0.0;
         int step_per_row = 10;             
                 
-        OdeSolution solution_new = solver.Solve(&hh52_ode_system, start_time, endTime, timeStep, initial_conditions);
+        OdeSolution solution = solver.Solve(pOdeSystem, start_time, endTime,
+                                            timeStep, rInitialConditions);
         
-              
         /*
          * Write data to a file using ColumnDataWriter
          */                                                           
-        ColumnDataWriter *p_writer;
-        p_writer = new ColumnDataWriter("testoutput",pFilename);
-        int time_var_id=p_writer->DefineUnlimitedDimension("Time","ms"); //, solution_new.mSolutions.size());
-        int v_var_id = p_writer->DefineVariable("V","milliamperes");
-        int n_var_id = p_writer->DefineVariable("n","");
-        int h_var_id = p_writer->DefineVariable("h","");
-        int m_var_id = p_writer->DefineVariable("m","");
-        p_writer->EndDefineMode();
+        ColumnDataWriter writer("testoutput",pFilename);
+        int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
+        
+        std::vector<int> var_ids;
+        for (int i=0; i<rVariableNames.size(); i++)
+        {
+            var_ids.push_back(writer.DefineVariable(rVariableNames[i],
+                                                    rVariableUnits[i]));
+        }
+        writer.EndDefineMode();
                 
-        for (int i = 0; i < solution_new.mSolutions.size(); i+=step_per_row) 
+        for (int i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
         {
             if (i!=0)
             {
-                p_writer->AdvanceAlongUnlimitedDimension();
+                writer.AdvanceAlongUnlimitedDimension();
             }
-            p_writer->PutVariable(time_var_id, solution_new.mTime[i]);
-            p_writer->PutVariable(v_var_id, solution_new.mSolutions[i][0]);
-            p_writer->PutVariable(n_var_id, solution_new.mSolutions[i][1]);
-            p_writer->PutVariable(h_var_id, solution_new.mSolutions[i][2]);
-            p_writer->PutVariable(m_var_id, solution_new.mSolutions[i][3]);
-            
+            writer.PutVariable(time_var_id, solution.mTime[i]);
+            for (int j=0; j<var_ids.size(); j++)
+            {
+                writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
+            }
         }
         
-        delete p_writer;
-
+        writer.Close();        
+    }
+   
+    /* Test Ode Solver for HH52
+     *
+     * The aim of this test is to simulate a single cell.
+     * We run the ode solver with the cell model for a period of
+     * time.  
+     * 
+     */
+    void runOdeSolverForHH52(AbstractStimulusFunction *pStimulus,
+                             const char *pFilename,
+                             double endTime,
+                             double timeStep)
+    {
+        /*
+         * Instantiate the ionic model: need to pass stimulus function
+         */        
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(pStimulus);
+        
+        /*
+         * Create vectors of variable names & units
+         */
+        std::vector<std::string> variable_names;
+        std::vector<std::string> variable_units;
+        std::vector<double> initial_conditions;
+        
+        variable_names.push_back("V");
+        variable_units.push_back("mV");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("n");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.31768);
+        
+        variable_names.push_back("h");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.59612);
+        
+        variable_names.push_back("m");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.05293);
+        
+        /*
+         * Solve and write to file
+         */
+        runOdeSolverWithIonicModel(&hh52_ode_system,
+                                   endTime,
+                                   timeStep,
+                                   initial_conditions,
+                                   pFilename,
+                                   variable_names,
+                                   variable_units);
     }
     
     void testOdeSolverForHH52WithInitialStimulus(void)
@@ -135,15 +161,6 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
     
     void testOdeSolverForHH52WithRegularStimulus(void)
     {
-        
-        /*
-         * This test doesn't really do anything. 
-         * This is because it would have to run for quite a while and use up 
-         * lots of memory to generate repeated stimulus results. To get lovely 
-         * pictures increase the amount of time this runs for...
-         * 
-         */
-        
         /*
          * Set magnitude of stimulus
          * 
@@ -189,56 +206,39 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
                               double timeStep)
     {
         /*
-         * Set initial conditions
-         */
-        double voltage = 0.0; // initial resting potential
-        double w = 0.0;       // initial value for recovery variable
-        
-        /*
-         * Collect initial data in a vector
-         * 
-         */  
-        std::vector<double> initial_conditions;
-        initial_conditions.push_back(voltage);
-        initial_conditions.push_back(w);
-        
-        /*
          * Instantiate the FHN model: need to pass stimulus function
          */        
         FitzHughNagumo1961OdeSystem fhn61_ode_system(pStimulus);
         
         /*
-         * Choose an ode solver
-         */      
-        EulerIvpOdeSolver solver;
+         * Create vectors of variable names & units
+         * and set initial conditions
+         */
+         
+        std::vector<std::string> variable_names;
+        std::vector<std::string> variable_units;
+        std::vector<double> initial_conditions;
+        
+        variable_names.push_back("V");
+        variable_units.push_back("mV");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("w");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.0);
         
         /*
-         * Solve
+         * Solve and write to file
          */
-        double start_time = 0.0;
-        OdeSolution solution = solver.Solve(&fhn61_ode_system,
-                                            start_time,
-                                            endTime,
-                                            timeStep,
-                                            initial_conditions);  
+        runOdeSolverWithIonicModel(&fhn61_ode_system,
+                                   endTime,
+                                   timeStep,
+                                   initial_conditions,
+                                   pFilename,
+                                   variable_names,
+                                   variable_units); 
          
-        /*
-         * Write data to a file FHN61.dat using ColumnDataWriter
-         */                                                           
-        ColumnDataWriter writer("testoutput", pFilename);
-        int new_time_var_id = writer.DefineFixedDimension("Time", "ms",
-                                                          solution.mSolutions.size());
-        int new_v_var_id = writer.DefineVariable("V","mV");
-        int new_w_var_id = writer.DefineVariable("w","");
-        writer.EndDefineMode();
-                
-        for (int i = 0; i < solution.mSolutions.size(); i++) 
-        {
-            writer.PutVariable(new_time_var_id, solution.mTime[i], i);
-            writer.PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
-            writer.PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
-        }
-        writer.Close();                            
+                                  
     }
     
     // Test Ode Solver for FHN61
