@@ -119,17 +119,17 @@ public:
          */                                                                            
         
         // Uncomment all column writer related lines to write data
-        ColumnDataWriter *mpTestWriter;
-        mpTestWriter = new ColumnDataWriter("testoutput","NewMonodomainFHN_1d");
+        ColumnDataWriter *writer;
+        writer = new ColumnDataWriter("testoutput","NewMonodomainFHN_1d");
        
         int time_var_id = 0;
         int voltage_var_id = 0;
 
-        mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-        time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+        writer->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+        time_var_id = writer->DefineUnlimitedDimension("Time","msecs");
 
-        voltage_var_id = mpTestWriter->DefineVariable("V","mV");
-        mpTestWriter->EndDefineMode();
+        voltage_var_id = writer->DefineVariable("V","mV");
+        writer->EndDefineMode();
            
         double tCurrent = tStart;  
         int counter = 0;      
@@ -157,18 +157,17 @@ public:
             if (counter % 20 == 0)    
             {
                 int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-                mpTestWriter->PutVariable(time_var_id, tCurrent); 
+                writer->PutVariable(time_var_id, tCurrent); 
                 // TS_TRACE("Put out voltage");
                 for(int j=0; j<mesh.GetNumNodes(); j++) 
                 {
-                    mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+                    writer->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
                     //std::cout << currentVoltageArray[j] << "\n" ;
                 }
                 
                 VecRestoreArray(currentVoltage, &currentVoltageArray); 
-                mpTestWriter->AdvanceAlongUnlimitedDimension();
+                writer->AdvanceAlongUnlimitedDimension();
             } //end if currentTime
-            
             
             monodomain_pde.ResetAsUnsolvedOdeSystem();
             tCurrent += tBigStep;
@@ -176,43 +175,20 @@ public:
         }
         
         // close the file that stores voltage values
-        mpTestWriter->Close();
-        delete mpTestWriter;
+        writer->Close();
+        delete writer;
         
-      // test whether voltages and gating variables are in correct ranges
-        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-                
+        // test whether voltage is in correct range
+        ierr = VecGetArray(currentVoltage, &currentVoltageArray);
+        
         for(int local_index=0; local_index<hi-lo; local_index++)
         {
-            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            double Istim = -80.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[local_index] + (Ek-30), 0);
-                
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(local_index+lo);           
-            for(int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
-                   //std::cout<< "gating variable is "<< odeVars[j] << sdt::endl;                   
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
-                }
-                //test that Ca concentration is always great than 
-                else if (j==3)
-                {
-                  TS_ASSERT_LESS_THAN_EQUALS ( -odeVars[3], 0.0);
-                }
-            }
+            TS_ASSERT_LESS_THAN_EQUALS(currentVoltageArray[local_index], 50);
+            TS_ASSERT_LESS_THAN_EQUALS(-100, currentVoltageArray[local_index]);
         }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
+        VecRestoreArray(currentVoltage, &currentVoltageArray);
 
-    VecDestroy(currentVoltage);
-
+        VecDestroy(currentVoltage);
     }
 
 }; 
