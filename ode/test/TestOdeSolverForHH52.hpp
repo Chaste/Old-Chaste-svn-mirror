@@ -30,42 +30,39 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
      *
      * The aim of this test is to simulate a single cell.
      * We run the ode solver with the cell model for a period of
-     * time. We then test that the result at each time step
-     * agrees with the result from a known-good file. 
+     * time.  
      * 
      */
     
-    void testOdeSolverForHH52WithInitialStimulus(void)
+    void runOdeSolverForHH52(AbstractStimulusFunction *pStimulus,
+                             const char *pFilename,
+                             double endTime,
+                             double timeStep)
     {
         /*
-         * Set initial conditions and magnitude of stimulus
+         * Set initial conditions
          * 
          */
-		double voltage = 0.0;
+         
+        double voltage = 0.0;
         double n = 0.31768;
         double h = 0.59612;
         double m = 0.05293;
-  
-        double magnitudeOfStimulus = -20.0;  
-        double durationOfStimulus  = 0.5 ;  // ms                     
-        
+
         /*
          * Collect initial data in a vector
          * 
          */  
-        std::vector<double> initialConditions;
-        initialConditions.push_back(voltage);
-        initialConditions.push_back(n);
-        initialConditions.push_back(h);
-        initialConditions.push_back(m);        
-        /*
-         * Choose function for stimulus
-         */             
-        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
+        std::vector<double> initial_conditions;
+        initial_conditions.push_back(voltage);
+        initial_conditions.push_back(n);
+        initial_conditions.push_back(h);
+        initial_conditions.push_back(m);        
+
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(pStimulus);
         
         /*
          * Choose an ode solver
@@ -75,43 +72,59 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         /*
          * Solve 
          */
-        double startTime = 0.0;
-        double endTime = 5.0;
-        double timeStep = 0.0001;
+        double start_time = 0.0;
         int step_per_row = 10;             
                 
-        OdeSolution solution_new = solver.Solve(&hh52_ode_system, startTime, endTime, timeStep, initialConditions);
+        OdeSolution solution_new = solver.Solve(&hh52_ode_system, start_time, endTime, timeStep, initial_conditions);
         
               
         /*
          * Write data to a file NewLR91.dat using ColumnDataWriter
          */                                                           
-        ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("testoutput","HH52Result");
-        int time_var_id=mpNewTestWriter->DefineUnlimitedDimension("Time","ms"); //, solution_new.mSolutions.size());
-        int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
-        int n_var_id = mpNewTestWriter->DefineVariable("n","");
-        int h_var_id = mpNewTestWriter->DefineVariable("h","");
-        int m_var_id = mpNewTestWriter->DefineVariable("m","");
-        mpNewTestWriter->EndDefineMode();
-				
+        ColumnDataWriter *p_writer;
+        p_writer = new ColumnDataWriter("testoutput",pFilename);
+        int time_var_id=p_writer->DefineUnlimitedDimension("Time","ms"); //, solution_new.mSolutions.size());
+        int v_var_id = p_writer->DefineVariable("V","milliamperes");
+        int n_var_id = p_writer->DefineVariable("n","");
+        int h_var_id = p_writer->DefineVariable("h","");
+        int m_var_id = p_writer->DefineVariable("m","");
+        p_writer->EndDefineMode();
+                
         for (int i = 0; i < solution_new.mSolutions.size(); i+=step_per_row) 
         {
             if (i!=0)
             {
-                mpNewTestWriter->AdvanceAlongUnlimitedDimension();
+                p_writer->AdvanceAlongUnlimitedDimension();
             }
-            mpNewTestWriter->PutVariable(time_var_id, solution_new.mTime[i]);
-            mpNewTestWriter->PutVariable(v_var_id, solution_new.mSolutions[i][0]);
-            mpNewTestWriter->PutVariable(n_var_id, solution_new.mSolutions[i][1]);
-            mpNewTestWriter->PutVariable(h_var_id, solution_new.mSolutions[i][2]);
-            mpNewTestWriter->PutVariable(m_var_id, solution_new.mSolutions[i][3]);
+            p_writer->PutVariable(time_var_id, solution_new.mTime[i]);
+            p_writer->PutVariable(v_var_id, solution_new.mSolutions[i][0]);
+            p_writer->PutVariable(n_var_id, solution_new.mSolutions[i][1]);
+            p_writer->PutVariable(h_var_id, solution_new.mSolutions[i][2]);
+            p_writer->PutVariable(m_var_id, solution_new.mSolutions[i][3]);
             
         }
         
-        delete mpNewTestWriter;
+        delete p_writer;
 
-                               
+    }
+    
+    void testOdeSolverForHH52WithInitialStimulus(void)
+    {
+        /*
+         * Set magnitude of stimulus
+         * 
+         */
+  
+        double magnitude_of_stimulus = -20.0;  
+        double duration_of_stimulus  = 0.5 ;  // ms                     
+        
+        /*
+         * Choose function for stimulus
+         */             
+        InitialStimulus stimulus(magnitude_of_stimulus, duration_of_stimulus);
+
+
+        runOdeSolverForHH52(&stimulus, "HH52Result.dat", 5.0, 0.0001);
     }	
     
     void testOdeSolverForHH52WithRegularStimulus(void)
@@ -126,91 +139,28 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
          */
         
         /*
-         * Set initial conditions and magnitude of stimulus
+         * Set magnitude of stimulus
          * 
          */
-        double voltage = 0.0;
-        double n = 0.31768;
-        double h = 0.59612;
-        double m = 0.05293;
-  
-        double magnitudeOfStimulus = -20.0;  
-        double durationOfStimulus  = 0.5 ;  // ms                     
+           
+        double magnitude_of_stimulus = -20.0;  
+        double duration_of_stimulus  = 0.5 ;  // ms                     
         double frequency = 1.0/50.0;
-        double startStimulus = 40.0;              
+        double start_stimulus = 40.0;              
         
-        /*
-         * Collect initial data in a vector
-         * 
-         */  
-        std::vector<double> initialConditions;
-        initialConditions.push_back(voltage);
-        initialConditions.push_back(n);
-        initialConditions.push_back(h);
-        initialConditions.push_back(m);        
         /*
          * Choose function for stimulus
-         */             
-       
-        RegularStimulus stimulus(magnitudeOfStimulus, durationOfStimulus, frequency, startStimulus);
-        /*
-         * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
-         */        
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
-        
-        /*
-         * Choose an ode solver
-         */      
-        EulerIvpOdeSolver solver;
-        
+         */                    
+        RegularStimulus stimulus(magnitude_of_stimulus,
+                                 duration_of_stimulus,
+                                 frequency,
+                                 start_stimulus);
+
         /*
          * Solve 
-         */
-        double startTime = 0.0;
-        double endTime = 1.0;
-        double timeStep = 0.01;             
-                
-        OdeSolution solution_new = solver.Solve(&hh52_ode_system, startTime, endTime, timeStep, initialConditions);
-        
-              
-        /*
-         * Write data to a file NewLR91.dat using ColumnDataWriter
-         */                                                           
-                
-        ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("testoutput","HH52RegResult");
-        int time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
-        int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
-        int n_var_id = mpNewTestWriter->DefineVariable("n","");
-        int h_var_id = mpNewTestWriter->DefineVariable("h","");
-        int m_var_id = mpNewTestWriter->DefineVariable("m","");
-        mpNewTestWriter->EndDefineMode();
-                
-        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
-        {
-            mpNewTestWriter->PutVariable(time_var_id, solution_new.mTime[i], i);
-            mpNewTestWriter->PutVariable(v_var_id, solution_new.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(n_var_id, solution_new.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(h_var_id, solution_new.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(m_var_id, solution_new.mSolutions[i][3], i);         
-        }
-        
-        delete mpNewTestWriter;
-        
-        
-//        //read in good data file and compare line by line
-//        std::ifstream testfile("testoutput/NewLR91.dat",std::ios::in);
-//        std::ifstream goodfile("ode/test/data/Lr91Good.dat",std::ios::in);
-//        std::string teststring;
-//        std::string goodstring;
-//        while(getline(testfile, teststring))
-//        {
-//              getline(goodfile,goodstring);
-//              TS_ASSERT_EQUALS(teststring,goodstring);
-//        }
-//        testfile.close();
-//        goodfile.close();
-                               
+         */            
+        runOdeSolverForHH52(&stimulus, "HH52RegResult.dat", 150.0, 0.01);
+             
     }   
 
 };
