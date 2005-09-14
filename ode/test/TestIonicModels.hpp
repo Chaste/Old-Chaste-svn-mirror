@@ -24,6 +24,7 @@
 #include "AbstractOdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 const double TOLERANCE = 1e-2; // Not used at present
 
@@ -53,7 +54,7 @@ public:
          * Solve 
          */
         double start_time = 0.0;
-        int step_per_row = 10;             
+        int step_per_row = 100;             
                 
         OdeSolution solution = solver.Solve(pOdeSystem, start_time, endTime,
                                             timeStep, rInitialConditions);
@@ -273,6 +274,108 @@ public:
          */
         runOdeSolverForFHN61(&stimulus, "FHN61RegResult.dat", 500.0, 0.01);
     }
+    
+        
+    
+    void runOdeSolverForLR91(AbstractStimulusFunction *pStimulus,
+                             const char *pFilename,
+                             double endTime,
+                             double timeStep)
+    {
+        /*
+         * Instantiate the ionic model: need to pass stimulus function
+         */        
+        LuoRudyIModel1991OdeSystem lr91_ode_system(pStimulus);
+        
+        /*
+         * Create vectors of variable names & units
+         */
+        std::vector<std::string> variable_names;
+        std::vector<std::string> variable_units;
+        std::vector<double> initial_conditions;
+        
+        variable_names.push_back("h");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.9833);
+         
+        variable_names.push_back("j");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.9895);
+         
+        variable_names.push_back("m");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.0017);
+         
+        variable_names.push_back("CaI");
+        variable_units.push_back("mMol");
+        initial_conditions.push_back(0.0002);
+         
+        variable_names.push_back("V");
+        variable_units.push_back("mV");
+        initial_conditions.push_back(-84.5);
+         
+        variable_names.push_back("d");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.003);
+         
+        variable_names.push_back("f");
+         variable_units.push_back("");
+        initial_conditions.push_back(1);
+         
+        variable_names.push_back("x");
+        variable_units.push_back("");
+        initial_conditions.push_back(0.0056);
+         
+       
+        /*
+         * Solve and write to file
+         */
+        runOdeSolverWithIonicModel(&lr91_ode_system,
+                                   endTime,
+                                   timeStep,
+                                   initial_conditions,
+                                   pFilename,
+                                   variable_names,
+                                   variable_units);
+    }    
+    
+    void testOdeSolverForLR91WithDelayedInitialStimulus(void)
+    {
+        /*
+         * Set stimulus
+         */
+        
+        double magnitude = -80.0;  
+        double duration  = 0.5 ;  // ms                     
+        double when = 100.0; // ms
+        
+        InitialStimulus stimulus(magnitude, duration, when); 
+        
+        double end_time = 1000.0; //One second in milliseconds
+        double time_step = 0.01;  //1e-5 seconds in milliseconds           
+        
+        runOdeSolverForLR91(&stimulus, "NewDelayedStimLR91", end_time, time_step);                
+        
+        //read in good data file and compare line by line
+        std::ifstream testfile("testoutput/NewDelayedStimLR91.dat",std::ios::in);
+        std::ifstream goodfile("ode/test/data/Lr91DelayedStimGood.dat",std::ios::in);
+        std::string teststring;
+        std::string goodstring;
+        while(getline(testfile, teststring))
+        {
+              getline(goodfile,goodstring);
+              TS_ASSERT_EQUALS(teststring,goodstring);
+        }
+        testfile.close();
+        goodfile.close();
+                               
+    }   
+    
+    
+    
+    
+    
+
 };
 
 
