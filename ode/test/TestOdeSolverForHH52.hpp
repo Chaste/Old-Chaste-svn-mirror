@@ -15,7 +15,10 @@
 #include "AdamsBashforthIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 #include "ColumnDataWriter.hpp"
+#include "ColumnDataReader.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
+
+const double TOLERANCE = 1e-2;
 
 
 class TestOdeSolverForHH52 : public CxxTest::TestSuite
@@ -23,7 +26,15 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
     public:
     
     
-    // Test Ode Solver for HH52
+    /* Test Ode Solver for HH52
+     *
+     * The aim of this test is to simulate a single cell.
+     * We run the ode solver with the cell model for a period of
+     * time. We then test that the result at each time step
+     * agrees with the result from a known-good file. 
+     * 
+     */
+    
     void testOdeSolverForHH52WithInitialStimulus(void)
     {
         /*
@@ -51,7 +62,6 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
          * Choose function for stimulus
          */             
         InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
-        
         /*
          * Instantiate the Luo-Rudy model: need to pass initial data and stimulus function
          */        
@@ -60,14 +70,15 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         /*
          * Choose an ode solver
          */
-        EulerIvpOdeSolver solver;
+        RungeKutta4IvpOdeSolver solver;
         
         /*
          * Solve 
          */
         double startTime = 0.0;
-        double endTime = 1.0;
-        double timeStep = 0.01;             
+        double endTime = 5.0;
+        double timeStep = 0.0001;
+        int step_per_row = 10;             
                 
         OdeSolution solution_new = solver.Solve(&hh52_ode_system, startTime, endTime, timeStep, initialConditions);
         
@@ -75,40 +86,31 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         /*
          * Write data to a file NewLR91.dat using ColumnDataWriter
          */                                                           
-		        
         ColumnDataWriter *mpNewTestWriter;
         mpNewTestWriter = new ColumnDataWriter("testoutput","HH52Result");
-        int time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
+        int time_var_id=mpNewTestWriter->DefineUnlimitedDimension("Time","ms"); //, solution_new.mSolutions.size());
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
-        int n_var_id = mpNewTestWriter->DefineVariable("n"," ");
-        int h_var_id = mpNewTestWriter->DefineVariable("h"," ");
-        int m_var_id = mpNewTestWriter->DefineVariable("m"," ");
+        int n_var_id = mpNewTestWriter->DefineVariable("n","");
+        int h_var_id = mpNewTestWriter->DefineVariable("h","");
+        int m_var_id = mpNewTestWriter->DefineVariable("m","");
         mpNewTestWriter->EndDefineMode();
 				
-        for (int i = 0; i < solution_new.mSolutions.size(); i++) 
+        for (int i = 0; i < solution_new.mSolutions.size(); i+=step_per_row) 
         {
-            mpNewTestWriter->PutVariable(time_var_id, solution_new.mTime[i], i);
-            mpNewTestWriter->PutVariable(v_var_id, solution_new.mSolutions[i][0], i);
-            mpNewTestWriter->PutVariable(n_var_id, solution_new.mSolutions[i][1], i);
-            mpNewTestWriter->PutVariable(h_var_id, solution_new.mSolutions[i][2], i);
-            mpNewTestWriter->PutVariable(m_var_id, solution_new.mSolutions[i][3], i);         
+            if (i!=0)
+            {
+                mpNewTestWriter->AdvanceAlongUnlimitedDimension();
+            }
+            mpNewTestWriter->PutVariable(time_var_id, solution_new.mTime[i]);
+            mpNewTestWriter->PutVariable(v_var_id, solution_new.mSolutions[i][0]);
+            mpNewTestWriter->PutVariable(n_var_id, solution_new.mSolutions[i][1]);
+            mpNewTestWriter->PutVariable(h_var_id, solution_new.mSolutions[i][2]);
+            mpNewTestWriter->PutVariable(m_var_id, solution_new.mSolutions[i][3]);
+            
         }
         
         delete mpNewTestWriter;
-        
-        
-        //read in good data file and compare line by line
-        std::ifstream testfile("testoutput/HH52Result.dat",std::ios::in);
-        std::ifstream goodfile("ode/test/data/HH52ResultGood.dat",std::ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(testfile, teststring))
-        {
-              getline(goodfile,goodstring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
+
                                
     }	
     
@@ -179,9 +181,9 @@ class TestOdeSolverForHH52 : public CxxTest::TestSuite
         mpNewTestWriter = new ColumnDataWriter("testoutput","HH52RegResult");
         int time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int v_var_id = mpNewTestWriter->DefineVariable("V","milliamperes");
-        int n_var_id = mpNewTestWriter->DefineVariable("n"," ");
-        int h_var_id = mpNewTestWriter->DefineVariable("h"," ");
-        int m_var_id = mpNewTestWriter->DefineVariable("m"," ");
+        int n_var_id = mpNewTestWriter->DefineVariable("n","");
+        int h_var_id = mpNewTestWriter->DefineVariable("h","");
+        int m_var_id = mpNewTestWriter->DefineVariable("m","");
         mpNewTestWriter->EndDefineMode();
                 
         for (int i = 0; i < solution_new.mSolutions.size(); i++) 

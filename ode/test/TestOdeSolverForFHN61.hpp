@@ -74,7 +74,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
         ColumnDataWriter mNewTestWriter("testoutput","FHN61");
         int new_time_var_id=mNewTestWriter.DefineFixedDimension("Time","ms", solution.mSolutions.size());
         int new_v_var_id = mNewTestWriter.DefineVariable("V","mV");
-        int new_w_var_id = mNewTestWriter.DefineVariable("w"," ");
+        int new_w_var_id = mNewTestWriter.DefineVariable("w","");
         mNewTestWriter.EndDefineMode();
 				
         for (int i = 0; i < solution.mSolutions.size(); i++) 
@@ -141,7 +141,7 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
 //        mpNewTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
 //        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
 //        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
-//        int new_w_var_id = mpNewTestWriter->DefineVariable("w"," ");
+//        int new_w_var_id = mpNewTestWriter->DefineVariable("w","");
 //        mpNewTestWriter->EndDefineMode();
 //				
 //        for (int i = 0; i < solution.mSolutions.size(); i++) 

@@ -7,10 +7,10 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <assert.h>
+#include <cassert>
+#include <ctype.h>
 #include "ColumnDataWriter.hpp"
 #include "global/src/Exception.hpp"
-
 
 using std::string;
 /**
@@ -74,6 +74,28 @@ void ColumnDataWriter::Close()
 	}
 }
 
+
+void ColumnDataWriter::CheckVariableName(std::string name)
+{
+    if (name.length() == 0)
+    {
+        throw Exception("Variable name not allowed: may not be blank.");
+    }
+    CheckUnitsName(name);
+}
+
+void ColumnDataWriter::CheckUnitsName(std::string name)
+{
+    for (int i=0; i<name.length(); i++)
+    {
+        if (!isalnum(name[i]) && !(name[i]=='_'))
+        {
+            std::string error = "Variable name/units '" + name + "' not allowed: may only contain alphanumeric characters or '_'.";
+            throw Exception(error);
+        }
+    }
+}
+
 /**
 * Define the unlimited dimension, i.e. the dimension that increases as the simulation progresses.
 *
@@ -88,6 +110,9 @@ int ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dime
     {
         throw Exception("Cannot define variables when not in Define mode");
     }
+    
+    CheckVariableName(dimensionName);
+    CheckUnitsName(dimensionUnits);
 
     mUnlimitedDimensionName = dimensionName;
     mUnlimitedDimensionUnits = dimensionUnits;
@@ -121,6 +146,9 @@ int ColumnDataWriter::DefineFixedDimension(string dimensionName, string dimensio
         throw Exception("Fixed dimension must be at least 1 long");
     }
 
+    CheckVariableName(dimensionName);
+    CheckUnitsName(dimensionUnits);
+    
     mFixedDimensionName = dimensionName;
     mFixedDimensionUnits = dimensionUnits;
     mFixedDimensionSize = dimensionSize;
@@ -149,7 +177,10 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
     {
         throw Exception("Cannot define variables when not in Define mode");
     }
-   
+    
+    CheckVariableName(variableName);
+    CheckUnitsName(variableUnits);
+    
     DataWriterVariable new_variable;
     new_variable.mVariableName = variableName;
     new_variable.mVariableUnits = variableUnits;

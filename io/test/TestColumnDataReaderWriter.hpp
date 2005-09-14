@@ -75,7 +75,6 @@ public:
     
     void testCreateColumnReader(void)
     {
-        //create a new csvdata writer
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("testoutput","testdoesnotexist"));
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data","testbad"));
         delete mpTestReader; 
@@ -86,6 +85,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","m secs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
+        
         delete mpTestWriter;
     }
  
@@ -93,6 +96,10 @@ public:
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
+ 
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimension.less", 5000));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("*Node*","dimensionless", 5000));
         
         delete mpTestWriter;
     }
@@ -106,8 +113,14 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
 
-        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milli amperes"));
-        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milli amperes"));
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineVariable("Dummy",""));
+        
+        // Bad variable names/units
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milli amperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K","milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K","milliamperes"));
         
         TS_ASSERT_EQUALS(ina_var_id, 0);
         TS_ASSERT_EQUALS(ik_var_id, 1);
@@ -159,16 +172,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));        
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
-        //TS_TRACE("Here");
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
-//        int i = 12;
-//
-//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.1));
-//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i));
-//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124));
-//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
-//        mpTestWriter->AdvanceAlongUnlimitedDimension();
-//        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124));
+
         
         for (int i=0; i<10; i++)
         {

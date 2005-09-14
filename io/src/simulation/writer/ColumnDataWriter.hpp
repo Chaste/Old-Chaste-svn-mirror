@@ -54,6 +54,9 @@ private:
     
     void CreateInfoFile(std::string filepath);
     
+    void CheckVariableName(std::string name); /**< Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank */
+    void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
+    
 public:
 
     ColumnDataWriter(std::string directory, std::string baseName);

@@ -93,13 +93,13 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         mpNewTestWriter = new ColumnDataWriter("testoutput","NewLR91");
         int new_time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
-        int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
-        int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
-        int new_d_var_id = mpNewTestWriter->DefineVariable("d"," ");
-        int new_f_var_id = mpNewTestWriter->DefineVariable("f"," ");
-        int new_x_var_id = mpNewTestWriter->DefineVariable("x"," ");
-        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
+        int new_m_var_id = mpNewTestWriter->DefineVariable("m","");
+        int new_h_var_id = mpNewTestWriter->DefineVariable("h","");
+        int new_j_var_id = mpNewTestWriter->DefineVariable("j","");
+        int new_d_var_id = mpNewTestWriter->DefineVariable("d","");
+        int new_f_var_id = mpNewTestWriter->DefineVariable("f","");
+        int new_x_var_id = mpNewTestWriter->DefineVariable("x","");
+        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol");
         mpNewTestWriter->EndDefineMode();
 				
         for (int i = 0; i < solution_new.mSolutions.size(); i++) 
@@ -117,19 +117,6 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         delete mpNewTestWriter;
         
-        
-        //read in good data file and compare line by line
-        std::ifstream testfile("testoutput/NewLR91.dat",std::ios::in);
-        std::ifstream goodfile("ode/test/data/Lr91Good.dat",std::ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(testfile, teststring))
-        {
-              getline(goodfile,goodstring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
                                
     }	
 
@@ -198,13 +185,13 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         mpNewTestWriter = new ColumnDataWriter("testoutput","NewNoStimLR91");
         int new_time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
-        int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
-        int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
-        int new_d_var_id = mpNewTestWriter->DefineVariable("d"," ");
-        int new_f_var_id = mpNewTestWriter->DefineVariable("f"," ");
-        int new_x_var_id = mpNewTestWriter->DefineVariable("x"," ");
-        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
+        int new_m_var_id = mpNewTestWriter->DefineVariable("m","");
+        int new_h_var_id = mpNewTestWriter->DefineVariable("h","");
+        int new_j_var_id = mpNewTestWriter->DefineVariable("j","");
+        int new_d_var_id = mpNewTestWriter->DefineVariable("d","");
+        int new_f_var_id = mpNewTestWriter->DefineVariable("f","");
+        int new_x_var_id = mpNewTestWriter->DefineVariable("x","");
+        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol");
         mpNewTestWriter->EndDefineMode();
                 
         for (int i = 0; i < solution_new.mSolutions.size(); i++) 
@@ -221,20 +208,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         }
         
         delete mpNewTestWriter;
-        
-        
-        //read in good data file and compare line by line
-        std::ifstream testfile("testoutput/NewNoStimLR91.dat",std::ios::in);
-        std::ifstream goodfile("ode/test/data/Lr91NoStimGood.dat",std::ios::in);
-        std::string teststring;
-        std::string goodstring;
-        while(getline(testfile, teststring))
-        {
-              getline(goodfile,goodstring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();
+
                                
     }   
     
@@ -315,13 +289,13 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         mpNewTestWriter = new ColumnDataWriter("testoutput","RegStimLR91");
         int new_time_var_id=mpNewTestWriter->DefineFixedDimension("Time","ms", solution_new.mSolutions.size());
         int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-        int new_m_var_id = mpNewTestWriter->DefineVariable("m"," ");
-        int new_h_var_id = mpNewTestWriter->DefineVariable("h"," ");
-        int new_j_var_id = mpNewTestWriter->DefineVariable("j"," ");
-        int new_d_var_id = mpNewTestWriter->DefineVariable("d"," ");
-        int new_f_var_id = mpNewTestWriter->DefineVariable("f"," ");
-        int new_x_var_id = mpNewTestWriter->DefineVariable("x"," ");
-        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol ");
+        int new_m_var_id = mpNewTestWriter->DefineVariable("m","");
+        int new_h_var_id = mpNewTestWriter->DefineVariable("h","");
+        int new_j_var_id = mpNewTestWriter->DefineVariable("j","");
+        int new_d_var_id = mpNewTestWriter->DefineVariable("d","");
+        int new_f_var_id = mpNewTestWriter->DefineVariable("f","");
+        int new_x_var_id = mpNewTestWriter->DefineVariable("x","");
+        int new_caI_var_id = mpNewTestWriter->DefineVariable("CaI","mMol");
         mpNewTestWriter->EndDefineMode();
                 
         for (int i = 0; i < solution_new.mSolutions.size(); i++) 
@@ -339,20 +313,7 @@ class TestOdeSolverForLR91 : public CxxTest::TestSuite
         
         delete mpNewTestWriter;
         
-        
-//        //read in good data file and compare line by line
-//        std::ifstream testfile("testoutput/NewNoStimLR91.dat",std::ios::in);
-//        std::ifstream goodfile("ode/test/data/Lr91NoStimGood.dat",std::ios::in);
-//        std::string teststring;
-//        std::string goodstring;
-//        while(getline(testfile, teststring))
-//        {
-//              getline(goodfile,goodstring);
-//              TS_ASSERT_EQUALS(teststring,goodstring);
-//        }
-//        testfile.close();
-//        goodfile.close();
-                               
+                                       
     } 
            
 };

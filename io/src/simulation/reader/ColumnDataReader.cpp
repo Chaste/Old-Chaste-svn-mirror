@@ -12,8 +12,10 @@
 #include "ColumnDataReader.hpp"
 #include "global/src/Exception.hpp"
 
-// variables read in from the data file are initialised to the
-// following constant so one can check if they were read correctly
+/**
+ * Variables read in from the data file are initialised to the
+ * following constant so one can check if they were read correctly.
+ */
 const int NOT_READ = -999;
 
 ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
@@ -122,9 +124,8 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName)
 	{
 		throw Exception("Data file has fixed dimension which must be specified");
 	}
-    
     int column = mVariablesToColumns[variableName];	
-    ReadColumnFromFile(mDataFilename, column);    	
+    ReadColumnFromFile(mDataFilename, column);
 
 	return mValues;
 }
@@ -255,8 +256,8 @@ void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
 {
     int startpos = col * (FIELD_WIDTH + SPACING) + SPACING - 1;
     std::string value = line.substr(startpos,FIELD_WIDTH + 1);
-    std::stringstream variableStream(value);     
+    std::stringstream variable_stream(value);     
     double d_value;
-	variableStream >> d_value;		
+	variable_stream >> d_value;		
 	mValues.push_back(d_value);	
 }
