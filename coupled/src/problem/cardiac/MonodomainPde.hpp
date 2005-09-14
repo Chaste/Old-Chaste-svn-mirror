@@ -300,27 +300,31 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
      	
      	double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
-     	
-     	for (int local_index=0; local_index<AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeHi-AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo; local_index++)
+     	int lo=AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo;
+        int hi=AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeHi;
+        double time=AbstractCoupledPde<SPACE_DIM>::mTime;
+        double small_time_step=AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep;
+        double big_time_step=AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
+        
+     	for (int local_index=0; local_index < hi-lo; local_index++)
      	{
-            int global_index = local_index + AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo;
+            int global_index = local_index + lo;
      		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ global_index ] );
      		
             // overwrite the voltage with the input value
             AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[local_index][4] = currentSolutionArray[local_index]; 
             
             // solve            
-            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pLr91OdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
-            AbstractCoupledPde<SPACE_DIM>::mTime + AbstractCoupledPde<SPACE_DIM>::mBigTimeStep,
-            AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
+            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pLr91OdeSystem, time, 
+            time + big_time_step, small_time_step, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
  
             // extract solution at end time and save in the store 
             AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
             
             delete pLr91OdeSystem;
   
-            double Itotal = mStimulusAtNode[global_index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime
-                      + AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) + GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
+            double Itotal = mStimulusAtNode[global_index]->GetStimulus(time + big_time_step)
+             + GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
         
 		    AbstractCoupledPde<SPACE_DIM>::solutionCache[global_index] = - Itotal;
         }

@@ -5,10 +5,11 @@
  * Constructor
  * 
  */
-InitialStimulus::InitialStimulus(double magnitudeOfStimulus, double duration)
+InitialStimulus::InitialStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus)
 {  
     mMagnitudeOfStimulus = magnitudeOfStimulus;
     mDuration = duration;
+    mTimeOfStimulus = timeOfStimulus;
 }
  /**
  * Destructor
@@ -26,7 +27,7 @@ InitialStimulus::~InitialStimulus()
  */
 double InitialStimulus::GetStimulus(double time)
 {
-    if (time <= mDuration) 
+    if (mTimeOfStimulus <= time  && time <= mDuration+mTimeOfStimulus) 
     {
     	return mMagnitudeOfStimulus;
     } 

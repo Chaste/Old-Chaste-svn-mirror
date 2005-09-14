@@ -13,9 +13,9 @@ class InitialStimulus : public AbstractStimulusFunction
         double mMagnitudeOfStimulus;
         // Duration of initial stimulus
         double mDuration;
-        
+        double mTimeOfStimulus;
      public: 
-         InitialStimulus(double magnitudeOfStimulus, double duration);
+         InitialStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus=0.0);
         ~InitialStimulus();
          double GetStimulus(double time);       
 };

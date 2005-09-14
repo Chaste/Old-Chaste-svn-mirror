@@ -116,10 +116,10 @@ public:
 	    int lo, hi;
 		VecGetOwnershipRange(initial_condition_1, &lo, &hi);
 		int ierr = VecGetArray(initial_condition_1, &init_array); 
-		for (int i=lo; i<hi; i++)
+		for (int global_index=lo; global_index<hi; global_index++)
 		{
-			double x=mesh.GetNodeAt(i)->GetPoint()[0];
-			init_array[i-lo] = exp(-(x*x)/100);
+			double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
+			init_array[global_index-lo] = exp(-(x*x)/100);
 		}
 		VecRestoreArray(initial_condition_1, &init_array);      
 		VecAssemblyBegin(initial_condition_1);
@@ -158,18 +158,13 @@ public:
 		double *res1, *res2;
 		VecGetArray(current_solution_1, &res1);
 		VecGetArray(current_solution_2, &res2);
-		for (int i=lo; i<hi; i++)
+		for (int global_index=lo; global_index<hi; global_index++)
 		{
-			TS_ASSERT_DELTA(res1[i-lo], res2[i-lo], 1e-3);
-//            if (i==25 || i==75|| (i>=8 && i<=12) || (i>=45 && i <= 55))
-//            {
-//                std::cout << "Final solution at i=" << i << " is "
-//                    << res1[i-lo] << std::endl;
-//            }
-            if (i==10) TS_ASSERT_DELTA(res1[i-lo], 2.8951e-7, 1e-9);
-            if (i==25) TS_ASSERT_DELTA(res1[i-lo], 0.0060696, 1e-5);
-            if (i==50) TS_ASSERT_DELTA(res1[i-lo], 0.992834, 1e-5);
-            if (i==75) TS_ASSERT_DELTA(res1[i-lo], 0.0060696, 1e-5);
+			TS_ASSERT_DELTA(res1[global_index-lo], res2[global_index-lo], 1e-3);
+            if (global_index==10) TS_ASSERT_DELTA(res1[global_index-lo], 2.8951e-7, 1e-9);
+            if (global_index==25) TS_ASSERT_DELTA(res1[global_index-lo], 0.0060696, 1e-5);
+            if (global_index==50) TS_ASSERT_DELTA(res1[global_index-lo], 0.992834, 1e-5);
+            if (global_index==75) TS_ASSERT_DELTA(res1[global_index-lo], 0.0060696, 1e-5);
         }
 		VecRestoreArray(current_solution_1, &res1);
 		VecRestoreArray(current_solution_2, &res2);
@@ -235,10 +230,10 @@ public:
 		int ierr = VecGetArray(initial_condition, &initial_condition_array); 
         int lo, hi;
 		VecGetOwnershipRange(initial_condition,&lo,&hi);
-		for (int i=lo; i<hi; i++)
+		for (int global_index=lo; global_index<hi; global_index++)
 		// initial voltage condition of a constant everywhere on the mesh
 		{
-			initial_condition_array[i-lo] = -84.5;
+			initial_condition_array[global_index-lo] = -84.5;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		VecAssemblyBegin(initial_condition);
@@ -322,17 +317,17 @@ public:
         // test whether voltages and gating variables are in correct ranges        
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        for(int i=lo; i<hi; i++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-lo] + (Ek-30), 0);
             
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(global_index);
             
             for(int j=0; j<8; j++)
             {
@@ -344,34 +339,34 @@ public:
                 }
             }
             
-//            if (i==25 || i==75 || i==30 || (i>=8 && i<=12) || i==51)
+//            if (global_index==25 || global_index==75 || global_index==30 || (global_index>=8 && global_index<=12) || global_index==51)
 //            {
-//                std::cout << "Final solution at i=" << i << " is "
-//                    << currentVoltageArray[i-lo] << std::endl;
+//                std::cout << "Final solution at global_index=" << global_index << " is "
+//                    << currentVoltageArray[global_index-lo] << std::endl;
 //            }
-            if (i==25)
+            if (global_index==25)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[i-lo], 16.972, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], 16.972, 0.001);
             }
-            if (i==30)
+            if (global_index==30)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[i-lo], 18.8826, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], 18.8826, 0.001);
             }
-            if (i==40)
+            if (global_index==40)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[i-lo], 18.2916, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], 18.2916, 0.001);
             }
-            if (i==50)
+            if (global_index==50)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[i-lo], -82.6575, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], -82.6575, 0.001);
             }
-            if (i==51)
+            if (global_index==51)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[i-lo], -83.4065, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], -83.4065, 0.001);
             }
-            if (i==75)
+            if (global_index==75)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[i-lo], -84.5504, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], -84.5504, 0.001);
             }
         }
         VecRestoreArray(currentVoltage, &currentVoltageArray);      
@@ -447,9 +442,9 @@ public:
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         
         // initial voltage condition of a constant everywhere on the mesh
-        for(int i=lo; i<hi; i++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
-            initial_condition_array[i-lo] = -84.5;
+            initial_condition_array[global_index-lo] = -84.5;
         }
      
         VecRestoreArray(initial_condition, &initial_condition_array);      
@@ -560,17 +555,17 @@ public:
         double *currentVoltageArray;
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        for(int i=lo; i<hi; i++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -650,9 +645,9 @@ public:
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         
         // initial voltage condition of a constant everywhere on the mesh
-        for(int i=lo; i<hi; i++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
-            initial_condition_array[i-lo] = -84.5;
+            initial_condition_array[global_index-lo] = -84.5;
         }
         VecRestoreArray(initial_condition, &initial_condition_array);      
         VecAssemblyBegin(initial_condition);
@@ -723,17 +718,17 @@ public:
         double *currentVoltageArray;
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
-        for(int i=lo; i<hi; i++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[i-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[i-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(i);           
+            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
