@@ -24,6 +24,8 @@ do_build ()
 {
 	# Run the build
 	ssh bob@$machine ./builder $rev $1 2>&1 >/var/www/html/out/nightly_$rev.$machine.$1
+	# Remove any old results from this revision, machine & build type
+	/bin/rm -rf $local_base$rev/$machine.$1
 	# Copy results
 	scp -r bob@$machine:$remote_base$machine.$1 $local_base$rev/$machine.$1
 	# And remove from the integration machine
