@@ -1,6 +1,4 @@
 TestAbstractIvpOdeSolver.hpp
 TestAbstractOdeSystem.hpp
 TestIonicModels.hpp
-TestOdeSolverForLR91.hpp
-TestOdeSolverForTT04.hpp
 TestMockEulerIvpOdeSolver.hpp

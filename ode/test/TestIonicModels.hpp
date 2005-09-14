@@ -25,6 +25,7 @@
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "TenTusscherModel2004OdeSystem.hpp"
 
 const double TOLERANCE = 1e-2; // Not used at present
 
@@ -44,10 +45,7 @@ public:
         // Consistency checks
         assert(rInitialConditions.size() == rVariableNames.size());
         assert(rInitialConditions.size() == rVariableUnits.size());
-        
-        /*
-         * Choose an ode solver
-         */
+
         EulerIvpOdeSolver solver;
         
         /*
@@ -84,30 +82,21 @@ public:
             {
                 writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
             }
-        }
-        
+        }        
         writer.Close();        
     }
    
-    /* Test Ode Solver for HH52
-     *
-     * The aim of this test is to simulate a single cell.
-     * We run the ode solver with the cell model for a period of
-     * time.  
-     * 
-     */
+
     void runOdeSolverForHH52(AbstractStimulusFunction *pStimulus,
                              const char *pFilename,
                              double endTime,
                              double timeStep)
     {
-        /*
-         * Instantiate the ionic model: need to pass stimulus function
-         */        
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(pStimulus);
         
         /*
          * Create vectors of variable names & units
+         * and initial conditions
          */
         std::vector<std::string> variable_names;
         std::vector<std::string> variable_units;
@@ -140,22 +129,16 @@ public:
                                    variable_names,
                                    variable_units);
     }
+
     
     void testOdeSolverForHH52WithInitialStimulus(void)
     {
         /*
-         * Set magnitude of stimulus
-         * 
+         * Set stimulus
          */
-  
         double magnitude_of_stimulus = -20.0;  
         double duration_of_stimulus  = 0.5 ;  // ms                     
-        
-        /*
-         * Choose function for stimulus
-         */             
         InitialStimulus stimulus(magnitude_of_stimulus, duration_of_stimulus);
-
 
         runOdeSolverForHH52(&stimulus, "HH52Result.dat", 5.0, 0.0001);
     }	
@@ -163,22 +146,16 @@ public:
     void testOdeSolverForHH52WithRegularStimulus(void)
     {
         /*
-         * Set magnitude of stimulus
-         * 
-         */
-           
+         * Set stimulus
+         */   
         double magnitude_of_stimulus = -20.0;  
         double duration_of_stimulus  = 0.5 ;  // ms                     
         double frequency = 1.0/50.0;
-        double start_stimulus = 40.0;              
-        
-        /*
-         * Choose function for stimulus
-         */                    
+        double when = 40.0;                                      
         RegularStimulus stimulus(magnitude_of_stimulus,
                                  duration_of_stimulus,
                                  frequency,
-                                 start_stimulus);
+                                 when);
 
         /*
          * Solve 
@@ -186,36 +163,19 @@ public:
         runOdeSolverForHH52(&stimulus, "HH52RegResult.dat", 150.0, 0.01);
              
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
     void runOdeSolverForFHN61(AbstractStimulusFunction *pStimulus,
                               const char *pFilename,
                               double endTime,
                               double timeStep)
     {
-        /*
-         * Instantiate the FHN model: need to pass stimulus function
-         */        
         FitzHughNagumo1961OdeSystem fhn61_ode_system(pStimulus);
         
         /*
          * Create vectors of variable names & units
          * and set initial conditions
-         */
-         
+         */         
         std::vector<std::string> variable_names;
         std::vector<std::string> variable_units;
         std::vector<double> initial_conditions;
@@ -237,12 +197,10 @@ public:
                                    initial_conditions,
                                    pFilename,
                                    variable_names,
-                                   variable_units); 
-         
-                                  
+                                   variable_units);                               
     }
     
-    // Test Ode Solver for FHN61
+    
     void testOdeSolverForFHN61WithInitialStimulus(void)
     {
         /*
@@ -261,7 +219,7 @@ public:
     void testOdeSolverForFHN61WithRegularStimulus(void)
     {
         /*
-         * Choose function for stimulus
+         * Set stimulus
          */             
         double magnitude = 1.0;  
         double duration  = 0.5 ;  // ms                     
@@ -276,19 +234,16 @@ public:
     }
     
         
-    
     void runOdeSolverForLR91(AbstractStimulusFunction *pStimulus,
                              const char *pFilename,
                              double endTime,
                              double timeStep)
     {
-        /*
-         * Instantiate the ionic model: need to pass stimulus function
-         */        
         LuoRudyIModel1991OdeSystem lr91_ode_system(pStimulus);
         
         /*
          * Create vectors of variable names & units
+         * and set initial conditions
          */
         std::vector<std::string> variable_names;
         std::vector<std::string> variable_units;
@@ -319,14 +274,13 @@ public:
         initial_conditions.push_back(0.003);
          
         variable_names.push_back("f");
-         variable_units.push_back("");
+        variable_units.push_back("");
         initial_conditions.push_back(1);
          
         variable_names.push_back("x");
         variable_units.push_back("");
         initial_conditions.push_back(0.0056);
-         
-       
+            
         /*
          * Solve and write to file
          */
@@ -339,16 +293,15 @@ public:
                                    variable_units);
     }    
     
+    
     void testOdeSolverForLR91WithDelayedInitialStimulus(void)
     {
         /*
          * Set stimulus
          */
-        
         double magnitude = -80.0;  
         double duration  = 0.5 ;  // ms                     
         double when = 100.0; // ms
-        
         InitialStimulus stimulus(magnitude, duration, when); 
         
         double end_time = 1000.0; //One second in milliseconds
@@ -367,14 +320,122 @@ public:
               TS_ASSERT_EQUALS(teststring,goodstring);
         }
         testfile.close();
-        goodfile.close();
-                               
+        goodfile.close();                       
     }   
+
+
+
+
+    void runOdeSolverForTT04(AbstractStimulusFunction *pStimulus,
+                             const char *pFilename,
+                             double endTime,
+                             double timeStep)
+    {
+        TenTusscherModel2004OdeSystem tt04_ode_system(pStimulus);
+        
+        /*
+         * Create vectors of variable names & units
+         * and set initial conditions
+         */
+        std::vector<std::string> variable_names;
+        std::vector<std::string> variable_units;
+        std::vector<double> initial_conditions;
+
+        variable_names.push_back("calcium_dynamics_Ca_i");
+        variable_units.push_back("microMo");
+        initial_conditions.push_back(0.0002);
+        
+        variable_names.push_back("calcium_dynamics_Ca_SR");
+        variable_units.push_back("mMol");
+        initial_conditions.push_back(0.2);
+        
+        variable_names.push_back("calcium_dynamics_g");
+        variable_units.push_back("mMol");
+        initial_conditions.push_back(1.0);
+        
+        variable_names.push_back("fast_sodium_current_h_gate_h");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.75);
+        
+        variable_names.push_back("fast_sodium_current_j_gate_j");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.75);
+        
+        variable_names.push_back("fast_sodium_current_m_gate_m");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("L_type_calcium_current_d_gate_d");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("L_type_calcium_current_f_Ca_gate_f_Ca");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(1.0);
+        
+        variable_names.push_back("L_type_calcium_current_f_gate_f");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(1.0);
+        
+        variable_names.push_back("membrane_V");
+        variable_units.push_back("millivolts");
+        initial_conditions.push_back(-86.2);
+        
+        variable_names.push_back("potassium_dynamics_K_i");
+        variable_units.push_back("mMol");
+        initial_conditions.push_back(138.3);
+        
+        variable_names.push_back("rapid_delayed_rectifier_current_X_r1_gate_X_r1");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("rapid_delayed_rectifier_current_X_r2_gate_X_r2");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(1.0);
+        
+        variable_names.push_back("slow_delayed_rectifier_current_X_s_gate_X_s");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("sodium_dynamics_Na_i");
+        variable_units.push_back("mMol");
+        initial_conditions.push_back(11.6);
+        
+        variable_names.push_back("transient_outward_current_r_gate_r");
+        variable_units.push_back("milliamperes");
+        initial_conditions.push_back(0.0);
+        
+        variable_names.push_back("transient_outward_current_s_gate_s");
+        initial_conditions.push_back(1.0);
+        variable_units.push_back("milliamperes");
+        
+        /*
+         * Solve and write to file
+         */
+        runOdeSolverWithIonicModel(&tt04_ode_system,
+                                   endTime,
+                                   timeStep,
+                                   initial_conditions,
+                                   pFilename,
+                                   variable_names,
+                                   variable_units);
+    }
     
-    
-    
-    
-    
+
+    void TestTenTusscher04ModelWithNoStimulus(void)
+    {
+        /*
+         * Set stimulus
+         */
+        double magnitude = 0.0;  
+        double duration  = 1.0;  // ms                     
+        InitialStimulus stimulus(magnitude, duration);
+        
+        double end_time = 10.0;  // ms
+        double time_step = 0.01; // 1e-5 seconds in milliseconds           
+        
+        runOdeSolverForTT04(&stimulus, "NoStimulusTT04", end_time, time_step);  
+    }
 
 };
 
