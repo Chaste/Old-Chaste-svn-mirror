@@ -23,135 +23,96 @@ class TestOdeSolverForFHN61 : public CxxTest::TestSuite
     public:
     
     
-    // Test Ode Solver for FHN61
-    void testOdeSolverForFHN61WithInitialStimulus(void)
+    void runOdeSolverForFHN61(AbstractStimulusFunction *pStimulus,
+                              const char *pFilename,
+                              double endTime,
+                              double timeStep)
     {
         /*
-         * Set initial conditions and magnitude of stimulus
+         * Set initial conditions
          */
-		double voltage = 0.0; // initial resting potential
-        double w = 0.0; // initial value for gating variable
-        double magnitudeOfStimulus = 1.0;  
-        double durationOfStimulus  = 0.5;  // ms                   
+        double voltage = 0.0; // initial resting potential
+        double w = 0.0;       // initial value for recovery variable
         
         /*
          * Collect initial data in a vector
          * 
          */  
-        std::vector<double> initialConditions;
-        initialConditions.push_back(voltage);
-        initialConditions.push_back(w);
-         
-        /*
-         * Choose function for stimulus
-         */             
-        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus); 
+        std::vector<double> initial_conditions;
+        initial_conditions.push_back(voltage);
+        initial_conditions.push_back(w);
         
         /*
-         * Instantiate the LHN model: need to pass initial data and stimulus function
+         * Instantiate the FHN model: need to pass stimulus function
          */        
-        FitzHughNagumo1961OdeSystem Fhn61OdeSystem(&stimulus);
+        FitzHughNagumo1961OdeSystem fhn61_ode_system(pStimulus);
         
         /*
          * Choose an ode solver
          */      
-        EulerIvpOdeSolver mySolver;
+        EulerIvpOdeSolver solver;
+        
+        /*
+         * Solve
+         */
+        double start_time = 0.0;
+        OdeSolution solution = solver.Solve(&fhn61_ode_system,
+                                            start_time,
+                                            endTime,
+                                            timeStep,
+                                            initial_conditions);  
+         
+        /*
+         * Write data to a file FHN61.dat using ColumnDataWriter
+         */                                                           
+        ColumnDataWriter writer("testoutput", pFilename);
+        int new_time_var_id = writer.DefineFixedDimension("Time", "ms",
+                                                          solution.mSolutions.size());
+        int new_v_var_id = writer.DefineVariable("V","mV");
+        int new_w_var_id = writer.DefineVariable("w","");
+        writer.EndDefineMode();
+                
+        for (int i = 0; i < solution.mSolutions.size(); i++) 
+        {
+            writer.PutVariable(new_time_var_id, solution.mTime[i], i);
+            writer.PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
+            writer.PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
+        }
+        writer.Close();                            
+    }
+    
+    // Test Ode Solver for FHN61
+    void testOdeSolverForFHN61WithInitialStimulus(void)
+    {
+        /*
+         * Choose function for stimulus
+         */             
+        double magnitude = 1.0;  
+        double duration  = 0.5;  // ms                   
+        InitialStimulus stimulus(magnitude, duration); 
         
         /*
          * Solve 
          */
-        double startTime = 0.0;
-        double endTime = 500.0; // ms
-        double timeStep = 0.01;             
-                
-        OdeSolution solution = mySolver.Solve(&Fhn61OdeSystem, startTime, endTime, timeStep, initialConditions);  
-        
-              
-        /*
-         * Write data to a file FHN61.dat using ColumnDataWriter
-         */                                                           
-		        
-        ColumnDataWriter mNewTestWriter("testoutput","FHN61");
-        int new_time_var_id=mNewTestWriter.DefineFixedDimension("Time","ms", solution.mSolutions.size());
-        int new_v_var_id = mNewTestWriter.DefineVariable("V","mV");
-        int new_w_var_id = mNewTestWriter.DefineVariable("w","");
-        mNewTestWriter.EndDefineMode();
-				
-        for (int i = 0; i < solution.mSolutions.size(); i++) 
-        {
-            mNewTestWriter.PutVariable(new_time_var_id, solution.mTime[i], i);
-            mNewTestWriter.PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
-            mNewTestWriter.PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
-        }
-        mNewTestWriter.Close();                            
+        runOdeSolverForFHN61(&stimulus, "FHN61Result.dat", 500.0, 0.01);
     }
     
-//    void testOdeSolverForFHN61WithRegularStimulus(void)
-//    {
-//        /*
-//         * Set initial conditions and magnitude of stimulus
-//         */
-//		double voltage = 0.0; // initial resting potential
-//        double w = 0.0; // initial gating variable
-//        
-//        double magnitudeOfStimulus = 1.0;  
-//        double durationOfStimulus  = 0.5 ;  // ms                     
-//        double frequency = 1.0/500.0;
-//        double startStimulus = 40.0;                 
-//        
-//        /*
-//         * Collect initial data in a vector
-//         * 
-//         */  
-//        std::vector<double> initialConditions;
-//        initialConditions.push_back(voltage);
-//        initialConditions.push_back(w);
-//         
-//        /*
-//         * Choose function for stimulus
-//         */             
-//        AbstractStimulusFunction *pStimulus = new RegularStimulus(magnitudeOfStimulus, durationOfStimulus, frequency, startStimulus); 
-//        
-//        /*
-//         * Instantiate the LHN model: need to pass initial data and stimulus function
-//         */        
-//        AbstractOdeSystem *pFhn61OdeSystem = new FitzHughNagumo1961OdeSystem(pStimulus);
-//        
-//        /*
-//         * Choose an ode solver
-//         */      
-//        AbstractIvpOdeSolver *pMySolver = new EulerIvpOdeSolver();
-//        
-//        /*
-//         * Solve 
-//         */
-//        double startTime = 0.0;
-//        double endTime = 500.0; // ms?
-//        double timeStep = 0.01;             
-//                
-//        OdeSolution solution = pMySolver->Solve(pFhn61OdeSystem, startTime, endTime, timeStep, initialConditions);  
-//        
-//              
-//        /*
-//         * Write data to a file FHN61a.dat using ColumnDataWriter
-//         */                                                           
-//		        
-//        ColumnDataWriter *mpNewTestWriter;
-//        mpNewTestWriter = new ColumnDataWriter("testoutput","FHN61a");
-//        mpNewTestWriter->DefineFixedDimension("Time","ms", solution.mSolutions.size());
-//        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");
-//        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","ms");
-//        int new_w_var_id = mpNewTestWriter->DefineVariable("w","");
-//        mpNewTestWriter->EndDefineMode();
-//				
-//        for (int i = 0; i < solution.mSolutions.size(); i++) 
-//        {
-//            mpNewTestWriter->PutVariable(new_time_var_id, solution.mTime[i], i);
-//            mpNewTestWriter->PutVariable(new_v_var_id, solution.mSolutions[i][0], i);
-//            mpNewTestWriter->PutVariable(new_w_var_id, solution.mSolutions[i][1], i);            
-//        }
-//        mpNewTestWriter->Close();                             
-//    }	      
+    void testOdeSolverForFHN61WithRegularStimulus(void)
+    {
+        /*
+         * Choose function for stimulus
+         */             
+        double magnitude = 1.0;  
+        double duration  = 0.5 ;  // ms                     
+        double frequency = 1.0/500.0;
+        double start_stimulus = 40.0;                 
+        RegularStimulus stimulus(magnitude, duration, frequency, start_stimulus); 
+
+        /*
+         * Solve 
+         */
+        runOdeSolverForFHN61(&stimulus, "FHN61RegResult.dat", 500.0, 0.01);
+    }	      
 };
 
 #endif //_TESTODESOLVERFORFHN61_HPP_
