@@ -106,6 +106,11 @@ void ColumnDataWriter::CheckUnitsName(std::string name)
 */
 int ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dimensionUnits)
 {
+    if(mIsUnlimitedDimensionSet)
+    {
+        throw Exception("Unlimited dimension already set. Cannot be defined twice");
+    }
+    
     if(!mIsInDefineMode)
     {
         throw Exception("Cannot define variables when not in Define mode");
