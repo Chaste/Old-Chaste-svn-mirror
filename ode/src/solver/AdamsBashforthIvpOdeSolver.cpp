@@ -41,7 +41,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 				std::vector<double> initialConditions)
 {
 
-    int num_equations = pAbstractOdeSystem->GetNumberOfEquations();
+    int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     // Assert that the size of Initial Conditions vector = number of equations.
     assert(initialConditions.size()==num_equations);	

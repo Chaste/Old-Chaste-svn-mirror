@@ -7,7 +7,7 @@
  * Constructor
  */
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractStimulusFunction *stimulus):
-AbstractOdeSystem(8)
+AbstractOdeSystem()
 {
    mpStimulus= stimulus;
 
@@ -33,6 +33,42 @@ AbstractOdeSystem(8)
    
    plateau_potassium_current_g_Kp = 0.0183;
    time_dependent_potassium_current_PR_NaK = 0.01833;
+   
+   /*
+    * State variable
+    */
+   
+    mVariableNames.push_back("h");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.9833);
+     
+    mVariableNames.push_back("j");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.9895);
+     
+    mVariableNames.push_back("m");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.0017);
+     
+    mVariableNames.push_back("CaI");
+    mVariableUnits.push_back("mMol");
+    mInitialConditions.push_back(0.0002);
+     
+    mVariableNames.push_back("V");
+    mVariableUnits.push_back("mV");
+    mInitialConditions.push_back(-84.5);
+     
+    mVariableNames.push_back("d");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.003);
+     
+    mVariableNames.push_back("f");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(1);
+     
+    mVariableNames.push_back("x");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.0056);
 }
 
 /**

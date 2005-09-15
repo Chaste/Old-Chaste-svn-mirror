@@ -7,13 +7,25 @@
  * Constructor
  */
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractStimulusFunction *stimulus):
-AbstractOdeSystem(2)
+AbstractOdeSystem()
 {
    mpStimulus= stimulus;
    // Initialize model constants
    mAlpha = -0.08; // Typical values between 0.10 and 0.15
    mGamma = 3.00; 
    mEpsilon = 0.005;
+
+   /*
+    * State variable
+    */
+   
+    mVariableNames.push_back("V");
+    mVariableUnits.push_back("mV");
+    mInitialConditions.push_back(0.0);
+    
+    mVariableNames.push_back("w");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.0);
 }
 
 /**

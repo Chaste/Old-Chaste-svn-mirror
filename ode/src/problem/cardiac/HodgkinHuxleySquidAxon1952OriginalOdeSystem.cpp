@@ -7,7 +7,7 @@
  * Constructor
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(AbstractStimulusFunction *stimulus):
-AbstractOdeSystem(4)
+AbstractOdeSystem()
 {
    mpStimulus= stimulus;
 
@@ -20,6 +20,26 @@ AbstractOdeSystem(4)
    membrane_E_R = 0.0;
    potassium_channel_g_K = 36.0;
    sodium_channel_g_Na = 120.0;
+
+   /*
+    * State variable
+    */
+   
+    mVariableNames.push_back("V");
+    mVariableUnits.push_back("mV");
+    mInitialConditions.push_back(0.0);
+    
+    mVariableNames.push_back("n");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.31768);
+    
+    mVariableNames.push_back("h");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.59612);
+    
+    mVariableNames.push_back("m");
+    mVariableUnits.push_back("");
+    mInitialConditions.push_back(0.05293);
 }
 
 /**

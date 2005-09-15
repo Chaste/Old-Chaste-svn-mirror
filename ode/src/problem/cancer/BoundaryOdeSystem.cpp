@@ -3,7 +3,7 @@
  */ 
 #include "BoundaryOdeSystem.hpp"
 
-BoundaryOdeSystem::BoundaryOdeSystem() : AbstractOdeSystem(1)
+BoundaryOdeSystem::BoundaryOdeSystem() : AbstractOdeSystem()
 {
 // Use AbstractOdeSystem constructors
 
@@ -11,7 +11,7 @@ BoundaryOdeSystem::BoundaryOdeSystem() : AbstractOdeSystem(1)
 
 std::vector<double> BoundaryOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> yDerivatives(GetNumberOfEquations());
+	std::vector<double> yDerivatives(1);
 	yDerivatives[0] = mCellVelocityAtBoundary;
 	
 	return yDerivatives;

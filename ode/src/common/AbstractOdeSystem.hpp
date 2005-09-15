@@ -6,23 +6,26 @@
 #define _ABSTRACTODESYSTEM_HPP_
 
 #include <vector>
+#include <string>
 
 class AbstractOdeSystem
 {
-	private:
-	
-	int mNumberOfEquations; /**< Number of equations in the ODE system */
-	
 	public:
 	
-	int GetNumberOfEquations(void ) {return mNumberOfEquations;}
-	
-	AbstractOdeSystem(int numberOfEquations): mNumberOfEquations(numberOfEquations) {}; /**< Constructor*/
+    std::vector<std::string> mVariableNames;
+    std::vector<std::string> mVariableUnits;
+    std::vector<double> mInitialConditions;
+
+	AbstractOdeSystem() {}; /**< Constructor*/
 	
 	virtual ~AbstractOdeSystem() {}; /**<  Destructor */  
 	
 	virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
 	
+    int GetNumberOfStateVariables()
+    { 
+        return mInitialConditions.size(); 
+    };
 };
 
 #endif //_ABSTRACTODESYSTEM_HPP_

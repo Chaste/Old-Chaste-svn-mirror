@@ -30,7 +30,7 @@ std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
      * equation in the system.
 	 */
 	 
-    int num_equations = pAbstractOdeSystem->GetNumberOfEquations();
+    int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     
     std::vector<double> k1(num_equations);

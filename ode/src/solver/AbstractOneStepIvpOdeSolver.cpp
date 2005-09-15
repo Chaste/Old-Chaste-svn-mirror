@@ -26,10 +26,8 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 				              std::vector<double> initialConditions)
 
 {	
-    int num_equations = pAbstractOdeSystem->GetNumberOfEquations();
-    
     // Assert that the size of initialConditions vector = number of equations.
-    assert(initialConditions.size()==num_equations);	
+    assert(initialConditions.size()==pAbstractOdeSystem->GetNumberOfStateVariables());	
     
     // Assert that the timestep does not exceed the time interval.
     assert(timeStep < endTime - startTime  + 1e-10);
