@@ -209,7 +209,11 @@ public:
 	{
 		dirichIterator = mpDirichletMap->begin();
 
-		double *currentSolutionArray;
+        int lo, hi;
+
+        VecGetOwnershipRange(currentSolution, &lo, &hi);
+        
+        double *currentSolutionArray;
 		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
 			
 		double *residualArray;
@@ -217,13 +221,20 @@ public:
 		
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
-			long index = dirichIterator->first->GetIndex();
-			VectorDouble value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
-		
-			for(int i=0; i<mSizeDependentVariable; i++)
-			{			
-				residualArray[index + i*mNumNodes] = currentSolutionArray[index+ i*mNumNodes] - value(i);
-			}
+			long node_index = dirichIterator->first->GetIndex();
+
+            VectorDouble value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+            
+            for(int i=0; i<mSizeDependentVariable; i++)
+            {
+                int global_index = node_index  + i*mNumNodes;
+                
+                if (lo <= global_index && global_index < hi)
+                {           
+                    residualArray[global_index - lo] = currentSolutionArray[global_index - lo] - value(i);
+                }
+            }
+
 			dirichIterator++;
 		}
 		

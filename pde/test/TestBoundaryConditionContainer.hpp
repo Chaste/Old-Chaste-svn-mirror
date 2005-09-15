@@ -257,9 +257,7 @@ public:
 		double *residualArray;
 		ierr = VecGetArray(residual, &residualArray);
 	
-		std::cout << "Got here" << std::endl;
-        
-        for(int local_index=0;local_index<hi-lo;local_index++)
+		for(int local_index=0;local_index<hi-lo;local_index++)
 		{
 			currentSolutionArray[local_index] = local_index+lo;
 			residualArray[local_index] = SIZE+local_index+lo;
@@ -401,11 +399,26 @@ public:
         
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-
-		for( int i = 0; i < SIZE-1; i++)
+ 
+        int lo, hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        
+	    //for(int local_index=0;local_index<hi-lo;local_index++)
+    	for( int i = 0; i < SIZE-1; i++)
 		{
-	        TS_ASSERT_DELTA(solution_elements[i],      -1.0, 0.000001);
-	        TS_ASSERT_DELTA(solution_elements[i+SIZE], -2.0, 0.000001);
+            int local_index_1 = i-lo;
+            if(0<=local_index_1 && local_index_1<hi-lo)
+            {
+	           TS_ASSERT_DELTA(solution_elements[local_index_1], -1.0, 0.000001);
+            }
+            int local_index_2 = i-lo+SIZE;
+            if(0<=local_index_2 && local_index_2<hi-lo)
+            {
+	           TS_ASSERT_DELTA(solution_elements[local_index_2], -2.0, 0.000001);
+            }
+        }
+        for( int i = 0; i < SIZE-1; i++)
+        {
 	        delete p3d_nodes[i];
 		}
        
@@ -454,12 +467,27 @@ public:
         
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
+        
+        int lo, hi;
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
 
 		for( int i = 0; i < SIZE-1; i++)
 		{
-	        TS_ASSERT_DELTA(solution_elements[i],        -1.0, 0.000001);
-	        TS_ASSERT_DELTA(solution_elements[i+  SIZE], -2.0, 0.000001);
-	        TS_ASSERT_DELTA(solution_elements[i+2*SIZE],    0, 0.000001);
+            int local_index_1 = i-lo;
+            if(0<=local_index_1 && local_index_1<hi-lo)
+            {
+	           TS_ASSERT_DELTA(solution_elements[local_index_1], -1.0, 0.000001);
+            }
+            int local_index_2 = i-lo+SIZE;
+            if(0<=local_index_2 && local_index_2<hi-lo)
+            {
+	           TS_ASSERT_DELTA(solution_elements[local_index_2], -2.0, 0.000001);
+            }
+            int local_index_3 = i-lo+2*SIZE;
+            if(0<=local_index_3 && local_index_3<hi-lo)
+            {
+	           TS_ASSERT_DELTA(solution_elements[local_index_3],  0, 0.000001);
+            }
 	        delete p3d_nodes[i];
 		}
          
@@ -471,32 +499,35 @@ public:
 	void TestApplyToNonlinearSystem3Unknowns( void )
 	{
 		const int SIZE = 10;
-		Vec currentSolution;
+		Vec current_solution;
 
-		VecCreate(PETSC_COMM_WORLD, &currentSolution);
-    	VecSetSizes(currentSolution, PETSC_DECIDE, 3*SIZE);
-    	VecSetType(currentSolution, VECSEQ);
+		VecCreate(PETSC_COMM_WORLD, &current_solution);
+    	VecSetSizes(current_solution, PETSC_DECIDE, 3*SIZE);
+    	VecSetFromOptions(current_solution);
 
 		Vec residual;
 
 		VecCreate(PETSC_COMM_WORLD, &residual);
     	VecSetSizes(residual, PETSC_DECIDE, 3*SIZE);
-    	VecSetType(residual, VECSEQ);
+    	VecSetFromOptions(residual);
 
-		double *currentSolutionArray;
-		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+		double *current_solution_array;
+		int ierr = VecGetArray(current_solution, &current_solution_array);
 			
-		double *residualArray;
-		ierr = VecGetArray(residual, &residualArray);
+		double *residual_array;
+		ierr = VecGetArray(residual, &residual_array);
+        
+        int lo,hi;
+        VecGetOwnershipRange(current_solution,&lo,&hi);
 	
-		for(int i=0;i<3*SIZE;i++)
+		for(int global_index=lo; global_index<hi; global_index++)
 		{
-			currentSolutionArray[i] = i;
-			residualArray[i]        = 100;
+			current_solution_array[global_index-lo] = global_index;
+			residual_array[global_index-lo]         = 100;
 		}
 
-		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);
-		ierr = VecRestoreArray(residual, &residualArray);
+		ierr = VecRestoreArray(current_solution, &current_solution_array);
+		ierr = VecRestoreArray(residual, &residual_array);
 
 		Node<3>* p3dNode[SIZE];
 		BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
@@ -514,32 +545,50 @@ public:
 			bcc33.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
 		}
 		
-		bcc33.ApplyDirichletToNonlinearResidual(currentSolution, residual);
-
-		double *currentSolutionArrayPostMod;
-		ierr = VecGetArray(currentSolution, &currentSolutionArrayPostMod);
+        bcc33.ApplyDirichletToNonlinearResidual(current_solution, residual);
+        
+		double *current_solution_array_post_mod;
+		ierr = VecGetArray(current_solution, &current_solution_array_post_mod);
 			
-		double *residualArrayPostMod;
-		ierr = VecGetArray(residual, &residualArrayPostMod);
+		double *residual_array_post_mod;
+		ierr = VecGetArray(residual, &residual_array_post_mod);
 	
 		for(int i=0;i<SIZE-1;i++)
 		{
-			TS_ASSERT_DELTA(currentSolutionArrayPostMod[i], i,   1e-12);
-			TS_ASSERT_DELTA(       residualArrayPostMod[i], i+1, 1e-12);
-
-			TS_ASSERT_DELTA(currentSolutionArrayPostMod[i+SIZE], i+SIZE,   1e-12);
-			TS_ASSERT_DELTA(       residualArrayPostMod[i+SIZE], i+SIZE+2, 1e-12);
-
-			TS_ASSERT_DELTA(currentSolutionArrayPostMod[i+2*SIZE], i+2*SIZE,   1e-12);
-			TS_ASSERT_DELTA(       residualArrayPostMod[i+2*SIZE], i+2*SIZE+3, 1e-12);
+            int global_index_1 = i;
+            if(lo<=global_index_1 && global_index_1<hi)
+            {
+    			TS_ASSERT_DELTA(current_solution_array_post_mod[global_index_1-lo], 
+                  global_index_1,   1e-12);
+    			TS_ASSERT_DELTA(        residual_array_post_mod[global_index_1-lo], 
+                  global_index_1+1, 1e-12);
+            }
+            
+            int global_index_2 = i+SIZE;
+            if(lo<=global_index_2 && global_index_2<hi)
+            {
+    			TS_ASSERT_DELTA(current_solution_array_post_mod[global_index_2-lo], 
+                  global_index_2,   1e-12);
+                TS_ASSERT_DELTA(        residual_array_post_mod[global_index_2-lo], 
+                  global_index_2+2, 1e-12);
+            }
+            
+            int global_index_3 = i+2*SIZE;
+            if(lo<=global_index_3 && global_index_3<hi)
+            {
+    			TS_ASSERT_DELTA(current_solution_array_post_mod[global_index_3-lo], 
+                  global_index_3,   1e-12);
+                TS_ASSERT_DELTA(        residual_array_post_mod[global_index_3-lo], 
+                  global_index_3+3, 1e-12);
+            }
 
 			delete p3dNode[i];
 		}
 		 
-		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
-		ierr = VecRestoreArray(residual, &residualArrayPostMod);
+		ierr = VecRestoreArray(current_solution, &current_solution_array_post_mod);
+		ierr = VecRestoreArray(residual, &residual_array_post_mod);
 		
-		VecDestroy(currentSolution);
+		VecDestroy(current_solution);
 		VecDestroy(residual);
 	}
     
