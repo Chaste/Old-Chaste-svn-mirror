@@ -92,10 +92,19 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		double* currentVoltageArray;
 		int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
+        int lo, hi;
+        VecGetOwnershipRange(currentVoltage,&lo,&hi);
+        
 		// initial voltage condition of a constant everywhere on the mesh
 		
-		currentVoltageArray[0] = -84.5;
-		currentVoltageArray[1] = -84.5;
+        if (lo<=0 && 0<hi)
+        {
+            currentVoltageArray[0-lo] = -84.5;
+        }
+        if (lo<=1 && 1<hi)
+        {
+		  currentVoltageArray[1-lo] = -84.5;
+        }
 		
 		VecRestoreArray(currentVoltage, &currentVoltageArray);      
 		VecAssemblyBegin(currentVoltage);
@@ -118,8 +127,6 @@ class TestMonodomainPde : public CxxTest::TestSuite
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
         TS_ASSERT_DELTA(value1, value2, 0.000001);
   
- 
- 
         InitialStimulus zeroStimulus(0, 0); 
         LuoRudyIModel1991OdeSystem Lr91OdeSystemNotStim(&zeroStimulus);
 
@@ -136,8 +143,15 @@ class TestMonodomainPde : public CxxTest::TestSuite
  
         // Reset       
        	VecGetArray(currentVoltage, &currentVoltageArray); 
-		currentVoltageArray[0] = solutionSetStimT_05[4];
-		currentVoltageArray[1] = solutionSetNoStimT_05[4];
+        
+        if (lo<=0 && 0<hi)
+        {
+    		currentVoltageArray[0-lo] = solutionSetStimT_05[4];
+        }
+        if (lo<=1 && 1<hi)
+        {
+    		currentVoltageArray[1-lo] = solutionSetNoStimT_05[4];
+        }
 		
 		VecRestoreArray(currentVoltage, &currentVoltageArray);      
 		VecAssemblyBegin(currentVoltage);
@@ -145,10 +159,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		monodomain_pde.ResetAsUnsolvedOdeSystem();
         monodomain_pde.PrepareForAssembleSystem(currentVoltage);
               
-
-        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);
-
 
         OdeSolution SolutionNewStimulatedT_1 = mySolver.Solve(&Lr91OdeSystemStimulated, start_time + big_time_step, 
                                                                 start_time + 2*big_time_step, small_time_step,

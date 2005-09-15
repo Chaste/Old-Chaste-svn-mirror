@@ -123,7 +123,7 @@ public:
 		Vec currentSolution_vector;
 		VecCreate(PETSC_COMM_WORLD, &currentSolution_vector);
 		VecSetSizes(currentSolution_vector,PETSC_DECIDE,mesh.GetNumNodes());
-		VecSetType(currentSolution_vector, VECSEQ);
+		VecSetFromOptions(currentSolution_vector);
 		
 		Vec res_vector;
 		VecDuplicate(currentSolution_vector,&res_vector);
@@ -146,19 +146,33 @@ public:
 		double InitialGuess = 1.0;
 		Vec result;
 		VecDuplicate(currentSolution_vector, &result);
-		assembler.ComputeResidual(currentSolution_vector, result);
+
+		//15-SEP-2005 This is where we got to....
+        assembler.ComputeResidual(currentSolution_vector, result);
 		
-		PetscScalar *answerElements;
+ 		PetscScalar *answerElements;
 		VecGetArray(result, &answerElements);
-		double value1 = answerElements[0];
-		double value2 = answerElements[1];
-		double valueLast = answerElements[mesh.GetNumNodes()-1];
-		VecRestoreArray(result, &answerElements);   
 
-		TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
-		TS_ASSERT(fabs(value2 + h) < 0.001);
-		TS_ASSERT(fabs(valueLast + VonNeumannBCValue + h/2) < 0.001);
-
+        int lo, hi;
+        VecGetOwnershipRange(result,&lo,&hi);
+  //      VecView(result,     PETSC_VIEWER_STDOUT_WORLD );
+  
+        if (lo<=0 && 0<hi)
+        {
+		    double value1 = answerElements[0-lo];
+            TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
+        }
+        if (lo<=1 && 1<hi)
+		{
+            double value2 = answerElements[1-lo];
+            TS_ASSERT(fabs(value2 + h) < 0.001);
+        }
+        if (lo<=mesh.GetNumNodes()-1 && mesh.GetNumNodes()-1<hi)
+		{
+            double valueLast = answerElements[mesh.GetNumNodes()-1-lo];
+		    TS_ASSERT(fabs(valueLast + VonNeumannBCValue + h/2) < 0.001);
+        }
+        VecRestoreArray(result, &answerElements);   
 		VecDestroy(result);
 		VecDestroy(res_vector);
 		VecDestroy(currentSolution_vector);
@@ -168,7 +182,7 @@ public:
 	 * \todo This should be made into a proper test that the jacobian calculation
 	 * is correct, for some test cases.
 	 */
-	void oldTestComputeJacobianNumerically(void)
+	void TestComputeJacobianNumerically(void)
 	{	
 		SNES snes;
 		

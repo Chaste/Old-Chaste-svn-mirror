@@ -40,19 +40,29 @@ public:
     	Vec answer;
     	Vec residual;
     	VecDuplicate(initialGuess, &residual);
-    	    	
+    	 
+           	
  		answer = solver.Solve(&ComputeTestResidual, &ComputeTestJacobian,
  							  residual, initialGuess, NULL);
+                              
     	
     	PetscScalar *answerElements;
 		VecGetArray(answer, &answerElements);
-		double x = answerElements[0];
-		double y = answerElements[1];
-		VecRestoreArray(answer,&answerElements);
-    	
-    	double tol = 1e-6;
-    	TS_ASSERT_DELTA(x,1/sqrt(2),tol);
-    	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
+        int lo, hi;
+        VecGetOwnershipRange(answer, &lo, &hi);
+        
+	    double tol = 1e-6;
+    	if (lo<=0 && 0<hi)
+        {
+          double x = answerElements[0-lo];
+	      TS_ASSERT_DELTA(x,1/sqrt(2),tol);
+        }
+        if (lo<=1 && 1<hi)
+        {
+        	double y = answerElements[1-lo];	
+        	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
+        }
+        VecRestoreArray(answer,&answerElements);
     	
     	VecDestroy(initialGuess);
     	VecDestroy(residual);
@@ -87,15 +97,26 @@ public:
     	
     	PetscScalar *answerElements;
 		VecGetArray(answer, &answerElements);
-		double x = answerElements[0];
-		double y = answerElements[1];
-		double z = answerElements[2];
-		VecRestoreArray(answer,&answerElements);
-    	
-    	double tol = 1e-6;
-    	TS_ASSERT_DELTA(x,1/sqrt(3),tol);
-    	TS_ASSERT_DELTA(y,1/sqrt(3),tol);
-    	TS_ASSERT_DELTA(z,1/sqrt(3),tol);
+        int lo, hi;
+        VecGetOwnershipRange(answer, &lo, &hi);
+        
+        double tol = 1e-6;
+        if (lo<=0 && 0<hi)
+        {
+    		double x = answerElements[0-lo];
+            TS_ASSERT_DELTA(x,1/sqrt(3),tol);
+        }
+       if (lo<=1 && 1<hi)
+       {
+ 		    double y = answerElements[1-lo];
+            TS_ASSERT_DELTA(y,1/sqrt(3),tol);
+       }
+       if (lo<=2 && 2<hi)
+       {
+ 		    double z = answerElements[2-lo];
+        	TS_ASSERT_DELTA(z,1/sqrt(3),tol);
+       }
+        VecRestoreArray(answer,&answerElements);
     	
     	VecDestroy(initialGuess);
     	VecDestroy(residual);
@@ -110,10 +131,30 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solutionGuess,Vec residual,void
 	
 	PetscScalar *solutionGuessElements;
 	VecGetArray(solutionGuess, &solutionGuessElements);
-	x = solutionGuessElements[0];
-	y = solutionGuessElements[1];
+    
+    int lo, hi;
+	VecGetOwnershipRange(solutionGuess, &lo, &hi);
+    
+    double all_solution_guess[2], all_solution_guess_replicated[2];
+    all_solution_guess[0]=0.0;
+    all_solution_guess[1]=0.0;
+    
+    if (lo<=0 && 0< hi)
+    {
+        all_solution_guess[0]=solutionGuessElements[0-lo];
+    } 
+    if (lo<=1 && 1< hi)
+    {
+        all_solution_guess[1]=solutionGuessElements[1-lo];
+    } 
+    VecRestoreArray(solutionGuess,&solutionGuessElements);
+    
+    MPI_Allreduce(all_solution_guess, all_solution_guess_replicated, 2, MPI_DOUBLE,
+                             MPI_SUM, PETSC_COMM_WORLD);
+    
+    x = all_solution_guess_replicated[0];
+	y = all_solution_guess_replicated[1];
 	
-	VecRestoreArray(solutionGuess,&solutionGuessElements);
 	VecSetValue(residual,0,x*x+y*y-1,INSERT_VALUES);
 	VecSetValue(residual,1,x-y,INSERT_VALUES);
 	VecAssemblyBegin(residual);
@@ -127,9 +168,27 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
 		
 	PetscScalar *inputElements;
 	VecGetArray(input, &inputElements);
-	x = inputElements[0];
-	y = inputElements[1];
-	VecRestoreArray(input,&inputElements);
+	int lo, hi;
+    VecGetOwnershipRange(input, &lo, &hi);
+    
+    double all_input[2], all_input_replicated[2];
+    all_input[0]=0.0;
+    all_input[1]=0.0;
+    
+    if (lo<=0 && 0< hi)
+    {
+        all_input[0]=inputElements[0-lo];
+    } 
+    if (lo<=1 && 1< hi)
+    {
+        all_input[1]=inputElements[1-lo];
+    } 
+    
+    VecRestoreArray(input,&inputElements);
+    MPI_Allreduce(all_input, all_input_replicated, 2, MPI_DOUBLE,
+                             MPI_SUM, PETSC_COMM_WORLD);
+    x = all_input_replicated[0];
+	y = all_input_replicated[1];
 		
 	MatSetValue(*pJacobian, 0 , 0 , 2.0*x , INSERT_VALUES);
 	MatSetValue(*pJacobian, 0 , 1 , 2.0*y, INSERT_VALUES);
@@ -147,17 +206,41 @@ PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solutionGuess,Vec residual,vo
 	
 	PetscScalar *solutionGuessElements;
 	VecGetArray(solutionGuess, &solutionGuessElements);
-	x = solutionGuessElements[0];
-	y = solutionGuessElements[1];
-	z = solutionGuessElements[2];
+    int lo, hi;
+    VecGetOwnershipRange(solutionGuess, &lo, &hi);
+    
+    double all_solution_guess[3], all_solution_guess_replicated[3];
+    all_solution_guess[0]=0.0;
+    all_solution_guess[1]=0.0;
+    all_solution_guess[2]=0.0;
+    
+    if (lo<=0 && 0< hi)
+    {
+        all_solution_guess[0]=solutionGuessElements[0-lo];
+    } 
+    if (lo<=1 && 1< hi)
+    {
+        all_solution_guess[1]=solutionGuessElements[1-lo];
+    } 
+    if (lo<=2 && 2< hi)
+    {
+        all_solution_guess[2]=solutionGuessElements[2-lo];
+    } 
+    VecRestoreArray(solutionGuess,&solutionGuessElements);
+    
+    MPI_Allreduce(all_solution_guess, all_solution_guess_replicated, 3, MPI_DOUBLE,
+                             MPI_SUM, PETSC_COMM_WORLD);
+    
+    x = all_solution_guess_replicated[0];
+    y = all_solution_guess_replicated[1];
+    z = all_solution_guess_replicated[2];
 	
-	VecRestoreArray(solutionGuess,&solutionGuessElements);
 	VecSetValue(residual,0,x*x+y*y+z*z-1,INSERT_VALUES);
 	VecSetValue(residual,1,x-y,INSERT_VALUES);
 	VecSetValue(residual,2,y-z,INSERT_VALUES);
 	VecAssemblyBegin(residual);
 	VecAssemblyEnd(residual);
-	return 0;
+	return 0; 
 }
 
 PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
@@ -166,10 +249,33 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
 		
 	PetscScalar *inputElements;
 	VecGetArray(input, &inputElements);
-	x = inputElements[0];
-	y = inputElements[1];
-	z = inputElements[2];
-	VecRestoreArray(input,&inputElements);
+    int lo, hi;
+    VecGetOwnershipRange(input, &lo, &hi);
+    
+    double all_input[3], all_input_replicated[3];
+    all_input[0]=0.0;
+    all_input[1]=0.0;
+    all_input[2]=0.0;
+    
+    if (lo<=0 && 0< hi)
+    {
+        all_input[0]=inputElements[0-lo];
+    } 
+    if (lo<=1 && 1< hi)
+    {
+        all_input[1]=inputElements[1-lo];
+    } 
+    if (lo<=2 && 2< hi)
+    {
+        all_input[2]=inputElements[2-lo];
+    } 
+    
+    VecRestoreArray(input,&inputElements);
+    MPI_Allreduce(all_input, all_input_replicated, 3, MPI_DOUBLE,
+                             MPI_SUM, PETSC_COMM_WORLD);
+    x = all_input_replicated[0];
+    y = all_input_replicated[1];
+    z = all_input_replicated[2];
 		
 	MatSetValue(*pJacobian, 0 , 0 , 2.0*x , INSERT_VALUES);
 	MatSetValue(*pJacobian, 0 , 1 , 2.0*y, INSERT_VALUES);

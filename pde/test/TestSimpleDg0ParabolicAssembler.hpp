@@ -87,6 +87,7 @@ public:
         ConstBoundaryCondition<1>* pBoundaryCondition2 = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), pBoundaryCondition2);
    
+   
    		// Linear solver
 		SimpleLinearSolver linearSolver;
 	
@@ -97,10 +98,13 @@ public:
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   		double *initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        
+		for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			initial_condition_array[i] = sin(x*PI);
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			initial_condition_array[local_index] = sin(x*PI);
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		VecAssemblyBegin(initial_condition);
@@ -117,11 +121,11 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-t*pi*pi} sin(x*pi), t=1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
 			double u = exp(-0.1*PI*PI)*sin(x*PI);
-			TS_ASSERT_DELTA(res[i], u, 0.1);
+			TS_ASSERT_DELTA(res[local_index], u, 0.1);
 		}
 		VecRestoreArray(result, &res);
 		VecDestroy(initial_condition);
@@ -159,10 +163,12 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			initial_condition_array[i] = sin(x*PI)-0.5*x*x;
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			initial_condition_array[local_index] = sin(x*PI)-0.5*x*x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -176,11 +182,11 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-t*pi*pi} sin(x*pi) + 0.5*x^2, t=1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
 			double u = exp(-0.1*PI*PI)*sin(x*PI)-0.5*x*x;
-			TS_ASSERT_DELTA(res[i], u, 0.1);
+			TS_ASSERT_DELTA(res[local_index], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
@@ -221,10 +227,12 @@ public:
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
 		const double PI_over_2 = PI/2.0;
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			initial_condition_array[i] = x + sin(PI_over_2 * x);
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			initial_condition_array[local_index] = x + sin(PI_over_2 * x);
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 
@@ -236,11 +244,11 @@ public:
 		double *res;
 	    ierr = VecGetArray(result, &res);
 
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
 			double u = x + exp(-0.5*PI_over_2*PI_over_2)*sin(x*PI_over_2); 
-			TS_ASSERT_DELTA(res[i], u, 0.01);
+			TS_ASSERT_DELTA(res[local_index], u, 0.01);
 		} 
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
@@ -277,11 +285,13 @@ public:
 		// choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
 		// the heat equation.
 
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			initial_condition_array[i] = sin(x*PI)*sin(y*PI);
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI);
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -296,12 +306,12 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-2*t*pi*pi} sin(x*pi)*sin(y*pi), t=1
-		for (int i=0; i < mesh.GetNumNodes(); i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp(-2*t_end*PI*PI)*sin(x*PI)*sin(y*PI);
-			TS_ASSERT_DELTA(res[i], u, 0.01);
+			TS_ASSERT_DELTA(res[local_index], u, 0.01);
 		}
 		VecRestoreArray(result, &res);
 		VecDestroy(initial_condition);
@@ -345,11 +355,13 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			initial_condition_array[i] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -364,12 +376,12 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
-			TS_ASSERT_DELTA(res[i], u, 0.1);
+			TS_ASSERT_DELTA(res[local_index], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
@@ -434,11 +446,13 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -453,12 +467,12 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) +x; 
-			TS_ASSERT_DELTA(res[i], u, u*0.15);
+			TS_ASSERT_DELTA(res[local_index], u, u*0.15);
 		}
 		VecRestoreArray(result, &res);
 		VecDestroy(initial_condition);
@@ -527,11 +541,13 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];			
-			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];			
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];			
+			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -545,12 +561,12 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) + x; 
-			TS_ASSERT_DELTA(res[i], u, u*0.1);
+			TS_ASSERT_DELTA(res[local_index], u, u*0.1);
 		}
 		VecRestoreArray(result, &res);
 		VecDestroy(initial_condition);
@@ -632,11 +648,13 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];			
-			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)+x;
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];			
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];			
+			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)+x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -650,12 +668,12 @@ public:
 		ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp((-5/4)*PI*PI*t_end) * sin(0.5*PI*x) * sin(PI*y) + x; 
-			TS_ASSERT_DELTA(res[i], u, 0.01);
+			TS_ASSERT_DELTA(res[local_index], u, 0.01);
 		}
 		VecRestoreArray(result, &res);
 		VecDestroy(result);
@@ -698,12 +716,14 @@ public:
 		// choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an 
 		//eigenfunction of the heat equation.
 
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
-			initial_condition_array[i] = sin(x*PI)*sin(y*PI)*sin(z*PI);
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];			
+			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)*sin(z*PI);
 		}
 
 		VecRestoreArray(initial_condition, &initial_condition_array);
@@ -718,13 +738,13 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
-		for (int i=0; i < mesh.GetNumNodes(); i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];			
 			double u = exp(-3*t_end*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI);
-			TS_ASSERT_DELTA(res[i], u, 0.1);
+			TS_ASSERT_DELTA(res[local_index], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
@@ -776,12 +796,14 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];			
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
-			initial_condition_array[i] = sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z);
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];			
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];			
+			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z);
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -795,13 +817,13 @@ public:
 	    ierr = VecGetArray(result, &res);
 
 		// Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) sin(z*pi) - 1/6(x^2+y^2+z^2), t=0.1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double z = mesh.GetNodeAt(i)->GetPoint()[2];			
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];			
 			double u = exp(-t_end*3*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z); 
-			TS_ASSERT_DELTA(res[i], u, 0.1);
+			TS_ASSERT_DELTA(res[local_index], u, 0.1);
 		}
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
@@ -880,13 +902,15 @@ public:
   		double* initial_condition_array;
  		int ierr = VecGetArray(initial_condition, &initial_condition_array);
 		
-		for(int i=0; i<mesh.GetNumNodes(); i++)
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double z = mesh.GetNodeAt(i)->GetPoint()[2];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];
 			
-			initial_condition_array[i] = sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x;
+			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x;
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
@@ -900,14 +924,14 @@ public:
 	    ierr = VecGetArray(result, &res); 
 
 		// Solution should be u = e^{-5/2*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x, t=0.1
-		for (int i=0; i < mesh.GetNumNodes() ; i++)
+        for(int local_index=0; local_index<hi-lo; local_index++)
 		{
-			double x = mesh.GetNodeAt(i)->GetPoint()[0];
-			double y = mesh.GetNodeAt(i)->GetPoint()[1];
-			double z = mesh.GetNodeAt(i)->GetPoint()[2];
+			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+			double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];
 			
 			double u = exp((-5/2)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y)* sin(PI*z) + x; 
-			TS_ASSERT_DELTA(res[i], u, u*0.15);
+			TS_ASSERT_DELTA(res[local_index], u, u*0.15);
 		}
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
