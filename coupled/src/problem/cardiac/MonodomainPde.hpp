@@ -65,18 +65,17 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
                   tStart,  bigTimeStep,  smallTimeStep)          
     {
-        
-
-        mStimulusAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
-        
-        /// initialise as zero stimulus everywhere.
+        // Initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
-                        
+        mStimulusAtNode.resize(this->mNumNodes);
         for(int i=0; i<numNodes; i++)
         {   
             mStimulusAtNode[i] = mpZeroStimulus;
         }        
         
+        // Set default initial conditions everywhere
+        LuoRudyIModel1991OdeSystem ode_system(mpZeroStimulus);
+        this->SetUniversalInitialConditions(ode_system.mInitialConditions);
     }
 
     ~MonodomainPde(void)
@@ -84,18 +83,20 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         delete mpZeroStimulus;
     }
     
-    // This should not be called as it is a virtual function, use 
-    // ComputeLinearSourceTermAtNode instead
-    
+    /**
+     * This should not be called; use 
+     * ComputeLinearSourceTermAtNode instead
+     */
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         assert(0);
 	    return 0.0;
     }
     
-    // This should not be called as it is a virtual function, use 
-    // ComputeNonlinearSourceTermAtNode instead
-    
+    /**
+     * This should not be called; use 
+     * ComputeNonlinearSourceTermAtNode instead
+     */
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
         assert(0);
@@ -119,7 +120,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
         int index = node.GetIndex();
-        return AbstractCoupledPde<SPACE_DIM>::solutionCache[index];
+        return this->solutionCache[index];
     }
     
     
@@ -136,30 +137,38 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     
     
     
-    // Set given stimulus function to a particular node
+    /**
+     * Set given stimulus function at a particular node.
+     * 
+     * @param nodeIndex  Global index specifying the node to set the stimulus at.
+     * @param pStimulus  Pointer to the stimulus object to use.
+     */
     void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
     {
         mStimulusAtNode[ nodeIndex ] = pStimulus;        
     }
     
 
-    // This function informs the class that the current pde timestep is over, so the odes are reset
-    // as being unsolved 
+    /**
+     * This function informs the class that the current pde timestep is over,
+     * so the odes are reset as being unsolved, and time is advanced.
+     */
     void ResetAsUnsolvedOdeSystem()
     {
-        AbstractCoupledPde<SPACE_DIM>::mTime += AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
-        
- 
+        this->mTime += this->mBigTimeStep;
     }
     
     
  
 
 
-    // Calculate the ionic current, using the value of the gating variables at time t+dt, but using
-    // the old voltage at time t
-    // todo Add a method to the ODE system object to retrieve the last calculated value
-    // for this? 
+    /**
+     * Calculate the ionic current, using the value of the gating variables
+     * at time t+dt, but using the old voltage at time t
+     * 
+     * \todo Add a method to the ODE system object to retrieve the last
+     * calculated value for this?
+     */
     double GetIIonic(odeVariablesType odeVars)
     {
        double fast_sodium_current_h_gate_h              = odeVars[0];
@@ -293,40 +302,44 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
        return i_ionic;
     }
     
-     virtual void PrepareForAssembleSystem(Vec currentSolution)
-     {
-     	AbstractCoupledPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
-     	//std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
-     	
-     	double *currentSolutionArray;
+    virtual void PrepareForAssembleSystem(Vec currentSolution)
+    {
+        AbstractCoupledPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
+        //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
+
+        double *currentSolutionArray;
         int ierr = VecGetArray(currentSolution, &currentSolutionArray);
-     	int lo=AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo;
-        int hi=AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeHi;
-        double time=AbstractCoupledPde<SPACE_DIM>::mTime;
-        double small_time_step=AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep;
-        double big_time_step=AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
+        int lo=this->mOwnershipRangeLo;
+        int hi=this->mOwnershipRangeHi;
+        double time=this->mTime;
+        double small_time_step=this->mSmallTimeStep;
+        double big_time_step=this->mBigTimeStep;
         
-     	for (int local_index=0; local_index < hi-lo; local_index++)
-     	{
+    	for (int local_index=0; local_index < hi-lo; local_index++)
+    	{
             int global_index = local_index + lo;
-     		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ global_index ] );
+    		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ global_index ] );
      		
             // overwrite the voltage with the input value
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[local_index][4] = currentSolutionArray[local_index]; 
+            this->mOdeVarsAtNode[local_index][4] = currentSolutionArray[local_index]; 
             
             // solve            
-            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(pLr91OdeSystem, time, 
-            time + big_time_step, small_time_step, AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
+            OdeSolution solution =
+                this->mpOdeSolver->Solve(pLr91OdeSystem,
+                                         time, 
+                                         time + big_time_step,
+                                         small_time_step,
+                                         this->mOdeVarsAtNode[ local_index ]);
  
             // extract solution at end time and save in the store 
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
+            this->mOdeVarsAtNode[ local_index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
             
             delete pLr91OdeSystem;
   
             double Itotal = mStimulusAtNode[global_index]->GetStimulus(time + big_time_step)
-             + GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
+                            + GetIIonic( this->mOdeVarsAtNode[ local_index ]);
         
-		    AbstractCoupledPde<SPACE_DIM>::solutionCache[global_index] = - Itotal;
+		    this->solutionCache[global_index] = - Itotal;
         }
         
         AbstractCoupledPde<SPACE_DIM>::DistributeSolutionCache();

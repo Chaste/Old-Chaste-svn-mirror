@@ -24,7 +24,7 @@ public:
 
     AbstractIvpOdeSolver *mpOdeSolver;
 
-        // number of nodes in the mesh 
+    // number of nodes in the mesh 
     int mNumNodes;
         
     // Lowest value of index that this part of the global object stores
@@ -37,23 +37,25 @@ public:
      *  voltage, gating variables, intracellular Calcium concentration at node 
      *  i. The voltage returned by the ode solver is not used later since the pde
      *  solves for the voltage.
+     * 
+     * This is distributed, i.e. i should be a local index.
      */
-    // Distributed
     std::vector<odeVariablesType>            mOdeVarsAtNode;
  	
     
 public:
- 	/**  solutionCache stores the solutions to the ODEs (Icurrent) for
- 	 *  each node in the global system
+ 	/** solutionCache stores the solutions to the ODEs (Icurrent) for
+ 	 *  each node in the global system.
+     * 
+     * This is replicated, i.e. use a global index for access.
  	 */
- 	// Replicated
   	std::vector<double>	solutionCache;
  
  	// Replicated
   	//std::vector<double>	inputCache;
  
     
-        //Constructor
+    //Constructor
     AbstractCoupledPde(int numNodes, AbstractIvpOdeSolver *pOdeSolver, double tStart, double bigTimeStep, double smallTimeStep)
     {
         assert(smallTimeStep < bigTimeStep + 1e-10);
@@ -66,8 +68,9 @@ public:
      
         mTime = tStart;
         
-        // Resize vectors to the appropriate size for each process
-        // Create a PETSc vector and use the ownership range of the PETSc vector to size our C++ vectors
+        // Resize vectors to the appropriate size for each process:
+        // Create a PETSc vector and use the ownership range of the PETSc vector
+        // to size our C++ vectors
         Vec tempVec;
         VecCreate(PETSC_COMM_WORLD, &tempVec);
         VecSetSizes(tempVec, PETSC_DECIDE, numNodes);
@@ -110,7 +113,7 @@ public:
    			solutionCache[i]=all_solutions[i];
     	}
     
-     }
+    }
     
     odeVariablesType GetOdeVarsAtNode( int globalIndex )
     {
@@ -132,9 +135,7 @@ public:
             mOdeVarsAtNode[i] = initialConditions;
         }
     }
-     
-  
-    
+
 };        
         
 #endif //_ABSTRACTCOUPLEDPDE_HPP_

@@ -23,41 +23,6 @@
 #include "PetscSetupAndFinalize.hpp"
 
 
-template <int SPACE_DIM>
-class InitialConditions
-{
-public:
-    InitialConditions() {};
-    
-    void SetInitialConditions(MonodomainPde<SPACE_DIM> &rPde)
-    {
-        // Sets Luo Rudy system with initial conditions passed on
-        double voltage = -9999; // This voltage will be ignored
-        double m = 0.0017;
-        double h = 0.9833;
-        double j = 0.9895;  
-        double d = 0.003;
-        double f = 1;
-        double x = 0.0056;
-        double caI = 0.0002;
-                  
-        // Take care to get the order right...
-        std::vector<double> ode_initial_conditions;
-        ode_initial_conditions.push_back(h);
-        ode_initial_conditions.push_back(j);
-        ode_initial_conditions.push_back(m);
-        ode_initial_conditions.push_back(caI);
-        ode_initial_conditions.push_back(voltage);
-        ode_initial_conditions.push_back(d);
-        ode_initial_conditions.push_back(f);
-        ode_initial_conditions.push_back(x);
-
-        // Set this as the initial condition of the gating vars at each node in the mesh        
-        rPde.SetUniversalInitialConditions(ode_initial_conditions);
-        
-        
-    }    
-};
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
@@ -76,8 +41,6 @@ private:
 	}
     
 public:
-    // This test is disabled because it uses the SimpleDG0Assembler, which does
-    // not work in parallel
 	void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
 	{
 		
@@ -189,9 +152,6 @@ public:
 		// Instantiate PDE object
 		MockEulerIvpOdeSolver mySolver;
 		MonodomainPde<1> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
-        
-        InitialConditions<1> initial_conditions;
-        initial_conditions.SetInitialConditions(monodomain_pde);
         
         // Add initial stim to node 0 only
         double magnitude_of_stimulus = -600.0;  
@@ -400,10 +360,7 @@ public:
         // Instantiate PDE object
         EulerIvpOdeSolver mySolver;
         MonodomainPde<2> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
-                
-        InitialConditions<2> initial_conditions;
-        initial_conditions.SetInitialConditions(monodomain_pde);
-        
+
         // Add initial stim to node 0 only
         double magnitude_of_stimulus = -80.0;
         double duration_of_stimulus  = 0.5;
@@ -604,10 +561,7 @@ public:
         // Instantiate PDE object
         EulerIvpOdeSolver mySolver;
         MonodomainPde<3> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
-                
-        InitialConditions<3> initial_conditions;
-        initial_conditions.SetInitialConditions(monodomain_pde);
-        
+
         // Add initial stim to node 0 only
         double magnitude_of_stimulus = -80.0;
         double duration_of_stimulus  = 0.5;
