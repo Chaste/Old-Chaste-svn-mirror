@@ -154,12 +154,17 @@ public:
             initial_condition = currentVoltage;
 
             // Writing data out to the file NewMonodomainLR91_1d.dat
-            if (counter % 20 == 0)    
+            /** \todo 
+             * Here's a simple hack to make sure that the
+             * data writers don't fall over in parallel.
+             * It does *not* make them work!
+             */
+            if (counter % 20 == 0 && lo==0)    
             {
                 int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
                 writer->PutVariable(time_var_id, tCurrent); 
                 // TS_TRACE("Put out voltage");
-                for(int j=0; j<mesh.GetNumNodes(); j++) 
+                for(int j=0; j</*mesh.GetNumNodes()*/ hi-lo; j++) 
                 {
                     writer->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
                     //std::cout << currentVoltageArray[j] << "\n" ;
