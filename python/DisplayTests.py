@@ -173,11 +173,17 @@ def _summary(req, type, revision, machine=None, buildType=None):
     buildTypesModule = _importBuildTypesModule(revision)
     build = buildTypesModule.GetBuildType(buildType)
   testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
+
+  # Get the timestamp on the directory
+  st = os.stat(test_set_dir)
+  mod_time = st.st_mtime
+  date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(mod_time))
   
   # Produce output HTML
   output = output + """\
   <p>
   Revision: %s<br />
+  Date and time: %s<br />
   Overall status: %s<br />
   Build type: %s<br />
   Machine: %s
@@ -188,7 +194,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
       <th>Status</th>
       <th>Run Time</th>
     </tr>
-""" % (_linkRevision(revision), _colourText(overall_status, colour),
+""" % (_linkRevision(revision), date, _colourText(overall_status, colour),
        _linkBuildType(buildType, revision), machine)
   
   # Display the status of each test suite, in alphabetical order
