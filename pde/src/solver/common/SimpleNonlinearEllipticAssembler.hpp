@@ -348,6 +348,27 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	PetscScalar zero = 0.0;
 	ierr = VecSet(&zero, residualVector); CHKERRQ(ierr);
     
+    //Replicate the currentSolution data
+    int lo, hi, size;
+    VecGetOwnershipRange(currentSolution, &lo, &hi);
+    VecGetSize(currentSolution, &size);
+    double current_solution[size], current_solution_replicated[size];
+    double *answer_elements;
+    VecGetArray(currentSolution, &answer_elements);
+    for (int global_index=0;global_index<size;global_index++)
+    {
+        if (lo<=global_index && global_index<hi)
+        {
+            current_solution[global_index]=answer_elements[global_index-lo];
+        } else {
+            current_solution[global_index]=0.0;
+        } 
+    }
+    VecRestoreArray(currentSolution, &answer_elements);
+    MPI_Allreduce(current_solution, current_solution_replicated, size, MPI_DOUBLE,
+                             MPI_SUM, PETSC_COMM_WORLD);
+    
+    
 	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter
 		= mpMesh->GetFirstElement();
@@ -356,7 +377,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	const int num_nodes = iter->GetNumNodes();
 	// Will contain the contribution of a single element to the residual
 	VectorDouble b_elem(num_nodes);
-
+ 
 	// Iterate over all elements, summing the contribution of each to the residual
 	while (iter != mpMesh->GetLastElement())
 	{
@@ -366,23 +387,24 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 
 		// Ui contains the values of the current solution at the nodes of this element
 		VectorDouble Ui(num_nodes);
-		double *answerElements;
-		ierr = VecGetArray(currentSolution, &answerElements); CHKERRQ(ierr);
 		for (int i=0; i<num_nodes; i++)
 		{
-			int node = element.GetNodeGlobalIndex(i);
-			Ui(i) = answerElements[node];
+			int node_index = element.GetNodeGlobalIndex(i);
+			Ui(i) = current_solution_replicated[node_index];
         }
-		ierr = VecRestoreArray(currentSolution, &answerElements); CHKERRQ(ierr);
         
 		ComputeResidualOnElement(element, b_elem, mpPde, Ui);
 
 		// Update the residual vector for this element
 		for (int i=0; i<num_nodes; i++)
 		{
-			int node = element.GetNodeGlobalIndex(i);
-			PetscScalar value = b_elem(i);
-			ierr = VecSetValue(residualVector,node,value,ADD_VALUES); CHKERRQ(ierr);
+			int node_index = element.GetNodeGlobalIndex(i);
+            //Make sure it's only done once
+            if (lo<=node_index && node_index<hi)
+            {
+			     PetscScalar value = b_elem(i);
+			     ierr = VecSetValue(residualVector,node_index,value,ADD_VALUES); CHKERRQ(ierr);
+            }
         }
         iter++;
     }
@@ -407,14 +429,11 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 			
 			// UiSurf contains the values of the current solution at the nodes of this surface element
 			VectorDouble UiSurf(num_surf_nodes);
-			double *answerElements;
-			ierr = VecGetArray(currentSolution, &answerElements); CHKERRQ(ierr);
 			for (int i=0; i<num_surf_nodes; i++)
             {
             	int node = surf_element.GetNodeGlobalIndex(i);
-            	UiSurf(i) = answerElements[node];
+            	UiSurf(i) = current_solution_replicated[node];
             }
-            ierr = VecRestoreArray(currentSolution, &answerElements); CHKERRQ(ierr);
 
 			/**
 			 * \todo
@@ -429,7 +448,10 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 				{
 					int node = surf_element.GetNodeGlobalIndex(i);
 					PetscScalar value = b_surf_elem(i);
-					ierr = VecSetValue(residualVector, node, value, ADD_VALUES); CHKERRQ(ierr);
+                    if (lo<=node && node<hi) 
+                    {
+					   ierr = VecSetValue(residualVector, node, value, ADD_VALUES); CHKERRQ(ierr);
+                    }
 				}
 			}
 			surf_iter++;
@@ -629,7 +651,27 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	// Set all entries of jacobian to 0
 	MatZeroEntries(*pGlobalJacobian);
     
-	// Get an iterator over the elements of the mesh
+   //Replicate the currentSolution data
+    int lo, hi, size;
+    VecGetOwnershipRange(currentSolution, &lo, &hi);
+    VecGetSize(currentSolution, &size);
+    double current_solution[size], current_solution_replicated[size];
+    double *answer_elements;
+    VecGetArray(currentSolution, &answer_elements);
+    for (int global_index=0;global_index<size;global_index++)
+    {
+        if (lo<=global_index && global_index<hi)
+        {
+            current_solution[global_index]=answer_elements[global_index-lo];
+        } else {
+            current_solution[global_index]=0.0;
+        } 
+    }
+    VecRestoreArray(currentSolution, &answer_elements);
+    MPI_Allreduce(current_solution, current_solution_replicated, size, MPI_DOUBLE,
+                             MPI_SUM, PETSC_COMM_WORLD);
+ 
+ 	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 		mpMesh->GetFirstElement();
 
@@ -646,14 +688,11 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 
 		// Ui contains the values of the current solution at the nodes of this element
         VectorDouble Ui(num_nodes);
-        double *answerElements;
-        ierr = VecGetArray(currentSolution, &answerElements); CHKERRQ(ierr);
         for (int i=0; i<num_nodes; i++)
 		{
 			int node = element.GetNodeGlobalIndex(i);
-			Ui(i) = answerElements[node];
+			Ui(i) = current_solution_replicated[node];
 		}
-		ierr = VecRestoreArray(currentSolution, &answerElements); CHKERRQ(ierr);
 
 		ComputeJacobianOnElement(element, a_elem, mpPde, Ui);
 
@@ -661,12 +700,14 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 		for (int i=0; i<num_nodes; i++)
 		{
 			PetscInt node_i = element.GetNodeGlobalIndex(i);
-			for (int j=0; j<num_nodes; j++)
-			{
-				PetscInt node_j = element.GetNodeGlobalIndex(j);
-				PetscScalar value = a_elem(i,j);
-				MatSetValue(*pGlobalJacobian, node_i, node_j, value, ADD_VALUES);
-			}
+            if (lo<=node_i && node_i<hi){  
+    			for (int j=0; j<num_nodes; j++)
+    			{
+    				PetscInt node_j = element.GetNodeGlobalIndex(j);
+    				PetscScalar value = a_elem(i,j);				
+                    MatSetValue(*pGlobalJacobian, node_i, node_j, value, ADD_VALUES);
+    			}
+            }
 		}
 
 		iter++;
@@ -732,27 +773,35 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	PetscScalar subtract = -1;
 	PetscScalar one_over_h = 1.0/h;
 
+    int lo, hi;
+    VecGetOwnershipRange(inputcopy, &lo, &hi);
 	// Iterate over entries in the input vector.
-	// This could be tricky to parallelise efficiently, since it's column oriented.
 	for(int j = 0; j < num_nodes; j++)
 	{
-		ierr = VecSetValue(inputcopy, j,h, ADD_VALUES); CHKERRQ(ierr);
-        
-		ComputeResidual(inputcopy, perturbed_residual);
+		//Only perturb if we own it
+        if (lo<=j && j<hi)
+        {
+            ierr = VecSetValue(inputcopy, j,h, ADD_VALUES); CHKERRQ(ierr);
+        }
+        ComputeResidual(inputcopy, perturbed_residual);
         
         // result = (perturbed_residual - residual) / h
         ierr = VecWAXPY(&subtract, residual, perturbed_residual, result); CHKERRQ(ierr);
         ierr = VecScale(&one_over_h, result); CHKERRQ(ierr);
-        
-	    PetscScalar *result_elements;
+    
+        PetscScalar *result_elements;
 		ierr = VecGetArray(result, &result_elements); CHKERRQ(ierr);
-		for (int i=0; i < num_nodes; i++)
+		for (int global_index=lo; global_index < hi; global_index++)
 		{
-			ierr = MatSetValue(*pJacobian, i, j, result_elements[i], INSERT_VALUES); CHKERRQ(ierr);
+			ierr = MatSetValue(*pJacobian, global_index, j, 
+                   result_elements[global_index-lo], INSERT_VALUES); CHKERRQ(ierr);
 	 	}
 		ierr = VecRestoreArray(result, &result_elements); CHKERRQ(ierr);
 	    
-		ierr = VecSetValue(inputcopy, j, -h, ADD_VALUES); CHKERRQ(ierr);
+	    if (lo<=j && j<hi)
+        {
+    	   ierr = VecSetValue(inputcopy, j, -h, ADD_VALUES); CHKERRQ(ierr);
+        }
 	}
     
 	VecDestroy(residual);
@@ -762,7 +811,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  
 	MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
 	MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
-
+    
 	return 0; // No error
 }
  
