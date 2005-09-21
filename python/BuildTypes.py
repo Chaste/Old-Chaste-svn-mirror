@@ -190,9 +190,13 @@ class Parallel(GccDebug):
   def EncodeStatus(self, exitCode, outputLines):
     """
     Encode the output from a test program as a status string.
-    If the exit code is zero then all tests passed, and the status
-    is 'OK'. Otherwise the output must be parsed looking for a line
-    'Failed (\d+) of (\d+) tests?' and the status string is '\1_\2'.
+    Parses the output looking for a lines
+    'Failed (\d+) of (\d+) tests?'; if one is found then the
+    testsuite failed and the status string is '\1_\2'.
+    Otherwise if the output contains at least one line 'OK!'
+    then the test suite is deemed to have passed.  If neither
+    type of line is found (e.g. due to premature termination)
+    then the status is 'Unknown'.
     Return the encoded status.
     """
     status = 'Unknown'
@@ -215,7 +219,7 @@ class Parallel(GccDebug):
         ok_count = self._num_processes
         break
     
-    if ok_count == self._num_processes:
+    if ok_count > 0 and status == 'Unknown':
       # All tests passed on all processes
       status = 'OK'
     return status
