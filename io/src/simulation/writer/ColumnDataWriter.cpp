@@ -2,15 +2,11 @@
 * Implementation file for ColumnDataWriter class.
 *
 */
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <cassert>
-#include <ctype.h>
+
 #include "ColumnDataWriter.hpp"
-#include "global/src/Exception.hpp"
+
+
+
 
 using std::string;
 /**
@@ -240,7 +236,8 @@ void ColumnDataWriter::EndDefineMode()
             mAncillaryRowWidth = FIELD_WIDTH + SPACING; 
             //write out the headers for the first position along the unlimited dimension
             std::stringstream suffix;
-            suffix << mUnlimitedDimensionPosition;
+            suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << mUnlimitedDimensionPosition;
+            
             // filepath is the name for the output file.
             std::string filepath = mDirectory + "/" + mBaseName + "_" + suffix.str() + ".dat";
             if(mpUnlimitedDimensionVariable != NULL)
@@ -390,7 +387,15 @@ void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
             //first close the current file before creating another one
             mpCurrentOutputFile->close();
             std::stringstream suffix;
-            suffix << mUnlimitedDimensionPosition + 1;
+            suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << mUnlimitedDimensionPosition + 1;
+           
+            
+//            // pad out the suffix, so that its always 6 digits
+//            while (suffix.size() < 6)
+//            {
+//                suffix = "0" + suffix;   
+//            }
+            
             std::string filepath = mDirectory + "/" + mBaseName + "_" + suffix.str() + ".dat";
             this->CreateFixedDimensionFile(filepath);
         }

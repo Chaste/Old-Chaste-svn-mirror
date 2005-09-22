@@ -2,9 +2,11 @@
 #define _COLUMNDATAREADER_HPP_
 
 #include "AbstractDataReader.hpp"
+#include "ColumnDataWriter.hpp"
 #include <string>
 #include <vector>
 #include <map>
+
 
 class ColumnDataReader : public AbstractDataReader
 {

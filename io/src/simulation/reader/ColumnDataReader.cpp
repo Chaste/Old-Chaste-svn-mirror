@@ -54,7 +54,10 @@ ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 		}
 		else
 		{
-			mDataFilename = filepath + "/" + basename + "_0.dat";            		
+            std::stringstream suffix;
+            suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << 0;
+
+			mDataFilename = filepath + "/" + basename + "_" + suffix.str() + ".dat";            		
             //the ancillary path needs to come from a single place that is 
             //used by both the reader & writer, otherwise all will be bad.
             mAncillaryFilename = filepath + "/" + basename + "_unlimited.dat"; 
@@ -163,13 +166,13 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
             
             //advance counter
             int underscore_pos = datafile.rfind("_",datafile.length());
-            std::stringstream css;
-            css << counter;
-            std::string counter_string = css.str();
+            std::stringstream suffix;
             
+            suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << counter;
+                       
             if(underscore_pos != std::string::npos)
             {
-                datafile = datafile.substr(0,underscore_pos+1) + counter_string + ".dat";   
+                datafile = datafile.substr(0,underscore_pos+1) + suffix.str() + ".dat";   
             }            
             counter++;                
         }

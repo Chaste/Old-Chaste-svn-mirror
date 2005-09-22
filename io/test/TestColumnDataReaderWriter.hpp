@@ -365,8 +365,8 @@ public:
 		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_unlimited.dat", 
 		                     "io/test/data/testfixedandunlimited_unlimited_good.dat"));
 
-		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_1.dat", 
-		                     "io/test/data/testfixedandunlimited_1_good.dat"));
+		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_000001.dat", 
+		                     "io/test/data/testfixedandunlimited_000001_good.dat"));
                              
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testfixedandunlimited"));                             
 

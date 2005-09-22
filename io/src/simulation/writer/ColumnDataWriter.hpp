@@ -9,10 +9,22 @@
 #include <fstream>
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
+#include "Exception.hpp"
+
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <cassert>
+#include <ctype.h>
+
+const int FILE_SUFFIX_WIDTH = 6;
+
 
 class ColumnDataWriter : public AbstractDataWriter
 {
-private:
+protected:
    
     bool mIsInDefineMode; /**< Is the DataWriter in define mode or not */
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
@@ -65,7 +77,7 @@ public:
     int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
     int DefineVariable(std::string variableName, std::string variableUnits);
     void EndDefineMode();
-    void AdvanceAlongUnlimitedDimension();
+    virtual void AdvanceAlongUnlimitedDimension();
 
     void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
     void Close();
