@@ -274,6 +274,7 @@ class MemoryTesting(GccDebug):
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
     petsc = re.compile('\[0]Total space allocated (\d+) bytes')
     uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
+    open_files = re.compile('==\d+== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/workspace|/dev/urandom))(.*)')
     
     for lineno in range(len(outputLines)):
       m = petsc.match(outputLines[lineno])
@@ -309,6 +310,14 @@ class MemoryTesting(GccDebug):
             break
           lineno += 1
           match = lost.match(outputLines[lineno])
+        break
+        
+      m = open_files.match(outputLines[lineno])
+      if m:
+        # There's a file open that shouldn't be.
+        # Descriptors 0, 1 and 2 are ok, as are names /dev/urandom
+        # and /home/bob/eclipse/workspace.
+        status = 'Leaky'
         break
     else:
       # No leak summary found
