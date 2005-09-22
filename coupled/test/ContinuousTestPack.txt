@@ -1,1 +1,2 @@
 TestMonodomainPde.hpp
+TestPhysiologicalProperties.hpp

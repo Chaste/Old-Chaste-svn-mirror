@@ -101,7 +101,7 @@ public:
         runOdeSolverWithIonicModel(&hh52_ode_system,
                                    150.0,
                                    0.01,
-                                   "HH52RegResult.dat");
+                                   "HH52RegResult");
     }
 
 
@@ -124,7 +124,7 @@ public:
         runOdeSolverWithIonicModel(&fhn61_ode_system,
                                    500.0,
                                    0.01,
-                                   "FHN61RegResult.dat");
+                                   "FHN61RegResult");
     }
     
         
