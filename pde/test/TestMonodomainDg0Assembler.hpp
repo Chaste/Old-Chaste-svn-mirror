@@ -510,15 +510,17 @@ public:
     void testMonodomainDg03D( void )
     {   
         double tStart = 0; 
-        double tFinal = 0.1;
-         
+        //double tFinal = 0.1;
+        double tFinal = 0.29;
+        ///todo This test now fails (not sensible ODE values) for tFinal >= 0.30 
         
         double tBigStep = 0.01; 
         double tSmallStep  = 0.01;
         
         // read 3d mesh
-        // TrianglesMeshReader mesh_reader("mesh/test/data/cylinder_with_hole_840_elements");
-        TrianglesMeshReader mesh_reader("mesh/test/data/slab_138_elements");
+        //TrianglesMeshReader mesh_reader("mesh/test/data/cylinder_with_hole_840_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/slab_395_elements");
+        //TrianglesMeshReader mesh_reader("mesh/test/data/slab_138_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
