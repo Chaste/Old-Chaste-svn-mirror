@@ -21,7 +21,7 @@
 
 #include "MonodomainPde.hpp"
 #include "MockEulerIvpOdeSolver.hpp"
-#include "FischerPde.hpp"
+#include "FischerPde2.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
