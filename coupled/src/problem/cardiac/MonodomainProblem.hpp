@@ -98,54 +98,16 @@ public:
     
         // Boundary conditions, zero neumann everywhere
         BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mesh.GetNumNodes());
-    
-        // VERY IMPORTANT: find a solution to the template issue with the iter
-        //                 declaration. At the moment, if we use constant values
-        //                 (i.e. 1, 2 or 3), then the declaration is fine, but if
-        //                 we try to use SPACE_DIM (as we normally should) then the
-        //                 compiler complains (?!?!) 
-    
-        switch (SPACE_DIM)
+       
+        // The 'typename' keyword is required otherwise the compiler complains
+        // Not totally sure why!
+        typename ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+        ConstBoundaryCondition<SPACE_DIM>* pNeumannBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+        
+        while(iter < mesh.GetLastBoundaryElement())
         {
-/*            case 1:
-            {
-                ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-                ConstBoundaryCondition<SPACE_DIM>* pNeumannBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-                
-                while(iter < mesh.GetLastBoundaryElement())
-                {
-                    bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
-                    iter++;
-                }
-                
-                break;
-            }
-            case 2:
-            {
-                ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-                ConstBoundaryCondition<SPACE_DIM>* pNeumannBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-                
-                while(iter < mesh.GetLastBoundaryElement())
-                {
-                    bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
-                    iter++;
-                }
-                
-                break;
-            }
-*/            case 3:
-            {
-                ConformingTetrahedralMesh<3,3>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-                ConstBoundaryCondition<SPACE_DIM>* pNeumannBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-                
-                while(iter < mesh.GetLastBoundaryElement())
-                {
-                    bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
-                    iter++;
-                }
-                
-                break;
-            }
+            bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+            iter++;
         }
         
         // Linear solver
