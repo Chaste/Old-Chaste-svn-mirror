@@ -22,7 +22,7 @@
 #include "ColumnDataWriter.hpp"
 
 #include "MonodomainPde.hpp"
-#include "EulerIvpOdeSolver.hpp"
+#include "MockEulerIvpOdeSolver.hpp"
 //#include "FischerPde.hpp"
 
 //#include "PetscSetupAndFinalize.hpp"
@@ -86,7 +86,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
     
         // Instantiate PDE object
-        EulerIvpOdeSolver mySolver;
+        MockEulerIvpOdeSolver mySolver;
         monodomain_pde = new MonodomainPde<SPACE_DIM>(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
     
         // Initialise the stimulus' magnitude and duration        
@@ -123,7 +123,7 @@ public:
             VecSetFromOptions(initial_condition);
       
             double* initial_condition_array;
-            int ierr = VecGetArray(initial_condition, &initial_condition_array); 
+            VecGetArray(initial_condition, &initial_condition_array); 
             
             VecGetOwnershipRange(initial_condition, &lo, &hi);
             
@@ -158,6 +158,8 @@ public:
         double* currentVoltageArray;
         
         double tCurrent = tStart;        
+
+        int big_steps = 0;
         
         while( tCurrent < tFinal )
         {
@@ -173,21 +175,25 @@ public:
             
             // Writing data out to the file <mOutputFilenamePrefix>.dat
              
-                int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-                  
-                mpTestWriter->PutVariable(time_var_id, tCurrent); 
-                for(int j=0; j<mesh.GetNumNodes(); j++) 
-                {
-                    mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
-                }
-      
-                VecRestoreArray(currentVoltage, &currentVoltageArray); 
-                 mpTestWriter->AdvanceAlongUnlimitedDimension();
-         
-                monodomain_pde->ResetAsUnsolvedOdeSystem();
-                tCurrent += tBigStep;
+            VecGetArray(currentVoltage, &currentVoltageArray);
+
+            mpTestWriter->PutVariable(time_var_id, tCurrent); 
+            for(int j=0; j<mesh.GetNumNodes(); j++) 
+            {
+                mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
             }
-    
+  
+            VecRestoreArray(currentVoltage, &currentVoltageArray); 
+             mpTestWriter->AdvanceAlongUnlimitedDimension();
+     
+            monodomain_pde->ResetAsUnsolvedOdeSystem();
+            tCurrent += tBigStep;
+                
+            big_steps++;
+        }
+
+        TS_ASSERT_EQUALS(mySolver.GetCallCount(), (hi-lo)*big_steps);
+
             // close the file that stores voltage values
         mpTestWriter->Close();
         delete mpTestWriter;

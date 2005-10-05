@@ -138,154 +138,31 @@ public:
     
 	void TestMonodomainDg01D()
 	{
-		double tStart = 0; 
-		double tFinal = 5;
+        MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
+                                               5, 
+                                               -600.0, 
+                                               "testoutput/MonoDg01d",
+                                               "NewMonodomainLR91_1d");
+
+        monodomainProblem.Solve();
         
-		// use big time step (the pde timestep) is the same as the small time step (the ode timestep)
-		double tBigStep = 0.01; 
-		double tSmallStep  = 0.01;
-        
-		// Create mesh from mesh reader 
-		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
-		ConformingTetrahedralMesh<1,1> mesh;
-		mesh.ConstructFromMeshReader(mesh_reader);
-        
-		// Instantiate PDE object
-		MockEulerIvpOdeSolver mySolver;
-		MonodomainPde<1> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
-        
-        // Add initial stim to node 0 only
-        double magnitude_of_stimulus = -600.0;  
-        double duration_of_stimulus  = 0.5;
-        InitialStimulus stimulus(magnitude_of_stimulus, duration_of_stimulus);
-        monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
-        
-		//monodomain_pde.SetInitialConditions(mesh, 
-		//need to write mesh.GetInitialConditionsNodes
-        
-		// Boundary conditions: zero neumann on entire boundary
-		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
-		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition1);
-		
-		
-		ConstBoundaryCondition<1>* pNeumannBoundaryCondition2 = new ConstBoundaryCondition<1>(0.0);
-		iter = mesh.GetLastBoundaryElement();
-		iter--;
-		bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition2);
-		
-		SimpleLinearSolver linearSolver;
+        double* currentVoltageArray;
     
-		// Assembler
-		MonodomainDg0Assembler<1,1> monodomainAssembler;
-        
-		// initial condition;   
-		Vec initial_condition;
-		VecCreate(PETSC_COMM_WORLD, &initial_condition);
-		VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
-		//VecSetType(initial_condition, VECSEQ);
-		VecSetFromOptions(initial_condition);
-  
-		double* initial_condition_array;
-		int ierr = VecGetArray(initial_condition, &initial_condition_array); 
-        int lo, hi;
-		VecGetOwnershipRange(initial_condition,&lo,&hi);
-		for (int global_index=lo; global_index<hi; global_index++)
-		// initial voltage condition of a constant everywhere on the mesh
-		{
-			initial_condition_array[global_index-lo] = -84.5;
-		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
-		VecAssemblyBegin(initial_condition);
-		VecAssemblyEnd(initial_condition);
-        
-        // Linear solver
-        /*
-		 * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
-		 *  using ColumnDataWriter 
-		 */                                                                            
-           
-        
-		// uncomment all column writer related lines to write data (and the line further below)         
-		//ColumnDataWriter *mpTestWriter;
-		//mpTestWriter = new ColumnDataWriter("testoutput","NewMonodomainLR91_1d");
+        // test whether voltages and gating variables are in correct ranges
 
-		int time_var_id = 0;
-		int voltage_var_id = 0;
-
-		//mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-		//mpTestWriter->DefineUnlimitedDimension("Time","msecs");
-
-		//time_var_id = mpTestWriter->DefineVariable("Time","msecs");
-		//voltage_var_id = mpTestWriter->DefineVariable("V","mV");
-		//mpTestWriter->EndDefineMode();
+        int ierr = VecGetArray(monodomainProblem.currentVoltage, &currentVoltageArray); 
         
-        Vec currentVoltage;  // Current solution
-        double *currentVoltageArray;
-        
-        
-        int big_steps=0;
-		double tCurrent = tStart;        
-		while( tCurrent < tFinal )
-		{ 
-            // std::cout << "t = " << tCurrent << "\n" << std::flush;
-
-            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( initial_condition );
-            
-            //std::cout << "Here 1" << std::endl;
-        
-            currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-            
-            //std::cout << "Here 2" << std::endl;
-        
-            // Free old initial condition
-            VecDestroy(initial_condition);
-            // Initial condition for next loop is current solution
-            initial_condition = currentVoltage;
-            
-            // Writing data out to the file NewMonodomainLR91_1d.dat
-         
-            //int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-              
-            //mpTestWriter->PutVariable(time_var_id, tCurrent); 
-            //for(int j=lo; j<hi; j++) 
-            //{
-            //    //uncomment the line below to write data (and the line further below)
-            //    mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j-lo], j);    
-            //}
-  
-            //VecRestoreArray(currentVoltage, &currentVoltageArray); 
-            //uncomment the line below to write data
-            //mpTestWriter->AdvanceAlongUnlimitedDimension();
-            
-            monodomain_pde.ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
-            big_steps++;
-        }
-        
-        //std::cout << "Solved." << std::endl << std::flush;
-
-        // close the file that stores voltage values
-        //mpTestWriter->Close();
-        //delete mpTestWriter;
-
-        // test whether voltages and gating variables are in correct ranges        
-        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-        
-        for(int global_index=lo; global_index<hi; global_index++)
+        for(int global_index=monodomainProblem.lo; global_index<monodomainProblem.hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-lo] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(global_index);
-            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.lo] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomainProblem.monodomain_pde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -294,200 +171,68 @@ public:
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
                 }
-            }
-            
-//            if (global_index==25 || global_index==75 || global_index==30 || (global_index>=8 && global_index<=12) || global_index==51)
-//            {
-//                std::cout << "Final solution at global_index=" << global_index << " is "
-//                    << currentVoltageArray[global_index-lo] << std::endl;
-//            }
-            if (global_index==25)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], 16.972, 0.001);
-            }
-            if (global_index==30)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], 18.8826, 0.001);
-            }
-            if (global_index==40)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], 18.2916, 0.001);
-            }
-            if (global_index==50)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], -82.6575, 0.001);
-            }
-            if (global_index==51)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], -83.4065, 0.001);
-            }
-            if (global_index==75)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-lo], -84.5504, 0.001);
+               
+                if (global_index==25)
+                {
+                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.lo], 16.972, 0.001);
+                }
+                if (global_index==30)
+                {
+                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.lo], 18.8826, 0.001);
+                }
+                if (global_index==40)
+                {
+                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.lo], 18.2916, 0.001);
+                }
+                if (global_index==50)
+                {
+                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.lo], -82.6575, 0.001);
+                }
+                if (global_index==51)
+                {
+                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.lo], -83.4065, 0.001);
+                }
+                if (global_index==75)
+                {
+                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.lo], -84.5504, 0.001);
+                }
             }
         }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
-        VecDestroy(currentVoltage);
-        
-        //std::cout << "lo=" << lo << " hi=" << hi << " ode solver calls="
-        //    << mySolver.GetCallCount() << std::endl;
-        
-        TS_ASSERT_EQUALS(mySolver.GetCallCount(), (hi-lo)*big_steps);
-        
+        VecRestoreArray(monodomainProblem.currentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(monodomainProblem.currentVoltage);
+        VecAssemblyEnd(monodomainProblem.currentVoltage);
+        VecDestroy(monodomainProblem.currentVoltage);
     }
     
  
     
     void testMonodomainDg02D( void )
     {   
-        double tStart = 0; 
-        double tFinal = 0.1;
-        
-        // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
-        double tBigStep = 0.01; 
-        double tSmallStep  = 0.01;
-        
-        // read mesh on [0,1]x[0,1]
-        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Instantiate PDE object
-        EulerIvpOdeSolver mySolver;
-        MonodomainPde<2> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
+        MonodomainProblem<2> monodomainProblem("mesh/test/data/square_128_elements",
+                                               0.1, 
+                                               -80.0, 
+                                               "testoutput/MonoDg02d",
+                                               "NewMonodomainLR91_2d");
 
-        // Add initial stim to node 0 only
-        double magnitude_of_stimulus = -80.0;
-        double duration_of_stimulus  = 0.5;
-        InitialStimulus stimulus(magnitude_of_stimulus, duration_of_stimulus);
-        monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
-                         
-        // Boundary conditions: zero neumann on boundary
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
-        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        monodomainProblem.Solve();
         
-        while(surf_iter < mesh.GetLastBoundaryElement())
-        {
-            bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
-            surf_iter++;
-        }
-        
-        
-        // Linear solver
-        SimpleLinearSolver linearSolver;
+        double* currentVoltageArray;
     
-        // Assembler
-        MonodomainDg0Assembler<2,2> monodomainAssembler;
-        
-        // initial condition;   
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
-        //VecSetType(initial_condition, VECSEQ);
-        VecSetFromOptions(initial_condition);
-  
-        double* initial_condition_array;
-        int ierr = VecGetArray(initial_condition, &initial_condition_array); 
-        
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition, &lo, &hi);
-        
-        // initial voltage condition of a constant everywhere on the mesh
-        for(int global_index=lo; global_index<hi; global_index++)
-        {
-            initial_condition_array[global_index-lo] = -84.5;
-        }
-     
-        VecRestoreArray(initial_condition, &initial_condition_array);      
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-
-              
-        /*
-        * Write data to a file NewMonodomainLR91_2d_xx.dat, 'xx' refers to nth time step
-        *  using ColumnDataWriter 
-        */                                                                
-        //mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_2d");
-               
-        
-        Vec currentVoltage; // Current solution
-        
-        double tCurrent = tStart;        
-        while( tCurrent < tFinal )
-        {
-            // std::cout << "t = " << tCurrent << "\n" << std::flush;
-
-            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( initial_condition );
-            
-            currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-            
-            // Free old initial condition
-            VecDestroy(initial_condition);
-            // Initial condition for next loop is current solution
-            initial_condition = currentVoltage;
-            
-     
-            monodomain_pde.ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
-        }
-
-        // this saves to one file all voltages at one chosen node, rather than creating a series of files      
-        /*         
-        ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_2d");
-        mpNewTestWriter->DefineUnlimitedDimension("Time","msecs");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","msecs");
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");   
-        mpNewTestWriter->EndDefineMode();
-           
-        double tCurrent = tStart;        
-        while( tCurrent < tFinal )
-        {
-            // std::cout << "t = " << tCurrent << "\n" << std::flush;
-            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
-            
-            currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-            
-            // Writing data out to the file NewMonodomainLR91.dat
-         
-            int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-              
-            // output to file
-            mpNewTestWriter->PutVariable(new_time_var_id, tCurrent);
-            mpNewTestWriter->PutVariable(new_v_var_id, currentVoltageArray[53]);
-            VecRestoreArray(currentVoltage, &currentVoltageArray); 
-
-            mpNewTestWriter->AdvanceAlongUnlimitedDimension();
-              
-            monodomain_pde.ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
-        }
-        
-        mpNewTestWriter->Close();
-        */
-
-
-
         // test whether voltages and gating variables are in correct ranges
-        double *currentVoltageArray;
-        ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+
+        int ierr = VecGetArray(monodomainProblem.currentVoltage, &currentVoltageArray); 
         
-        for(int global_index=lo; global_index<hi; global_index++)
+        for(int global_index=monodomainProblem.lo; global_index<monodomainProblem.hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
             double Ena   =  54.4;
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_pde.GetOdeVarsAtNode(global_index);           
+            std::vector<double> odeVars = monodomainProblem.monodomain_pde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -498,12 +243,10 @@ public:
                 }
             }
         }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(currentVoltage);
-        VecAssemblyEnd(currentVoltage);
- 		VecDestroy(currentVoltage);
-
-
+        VecRestoreArray(monodomainProblem.currentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(monodomainProblem.currentVoltage);
+        VecAssemblyEnd(monodomainProblem.currentVoltage);
+        VecDestroy(monodomainProblem.currentVoltage);
     }   
 
 
