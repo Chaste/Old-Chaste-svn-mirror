@@ -25,7 +25,37 @@
 
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
+#include "AbstractLinearParabolicPde.hpp"
+#include "GenericCoupledProblemStimulus.hpp"
 
+class Stimulus1D: public GenericCoupledProblemStimulus<1>
+{
+public:
+    virtual void Apply(MonodomainPde<1> *pPde)
+    {
+        static InitialStimulus stimulus(-600.0, 0.5);
+        pPde->SetStimulusFunctionAtNode(0, &stimulus);
+    }
+
+};
+
+class Stimulus2D: public GenericCoupledProblemStimulus<2>
+{
+    virtual void Apply(MonodomainPde<2> *pPde)
+    {
+        static InitialStimulus stimulus(-80.0, 0.5);
+        pPde->SetStimulusFunctionAtNode(0, &stimulus);
+    }
+};
+
+class Stimulus3D: public GenericCoupledProblemStimulus<3>
+{
+    virtual void Apply(MonodomainPde<3> *pPde)
+    {
+        static InitialStimulus stimulus(-80.0, 0.5);
+        pPde->SetStimulusFunctionAtNode(0, &stimulus);
+    }
+};
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
@@ -138,11 +168,12 @@ public:
     
 	void TestMonodomainDg01D()
 	{
+        Stimulus1D *stimulus1D = new Stimulus1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
                                                5, 
-                                               -600.0, 
                                                "testoutput/MonoDg01d",
-                                               "NewMonodomainLR91_1d");
+                                               "NewMonodomainLR91_1d",
+                                               stimulus1D);
 
         monodomainProblem.Solve();
         
@@ -202,17 +233,19 @@ public:
         VecAssemblyBegin(monodomainProblem.currentVoltage);
         VecAssemblyEnd(monodomainProblem.currentVoltage);
         VecDestroy(monodomainProblem.currentVoltage);
+        
+        delete stimulus1D;
     }
     
- 
-    
-    void testMonodomainDg02D( void )
+    void TestMonodomainDg02D( void )
     {   
+        Stimulus2D *stimulus2D = new Stimulus2D;
+        
         MonodomainProblem<2> monodomainProblem("mesh/test/data/square_128_elements",
                                                0.1, 
-                                               -80.0, 
                                                "testoutput/MonoDg02d",
-                                               "NewMonodomainLR91_2d");
+                                               "NewMonodomainLR91_2d",
+                                               stimulus2D);
 
         monodomainProblem.Solve();
         
@@ -247,16 +280,19 @@ public:
         VecAssemblyBegin(monodomainProblem.currentVoltage);
         VecAssemblyEnd(monodomainProblem.currentVoltage);
         VecDestroy(monodomainProblem.currentVoltage);
+        
+        delete stimulus2D;
     }   
 
-
-    void testMonodomainDg03D( void )
+    void TestMonodomainDg03D( void )
     {
+        Stimulus3D *stimulus3D = new Stimulus3D;
+        
         MonodomainProblem<3> monodomainProblem("mesh/test/data/slab_138_elements",
                                                0.1, 
-                                               -80.0, 
                                                "testoutput/MonoDg03d",
-                                               "NewMonodomainLR91_3d");
+                                               "NewMonodomainLR91_3d",
+                                               stimulus3D);
 
         monodomainProblem.Solve();
         
@@ -291,6 +327,8 @@ public:
         VecAssemblyBegin(monodomainProblem.currentVoltage);
         VecAssemblyEnd(monodomainProblem.currentVoltage);
         VecDestroy(monodomainProblem.currentVoltage);
+        
+        delete stimulus3D;
     }   
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

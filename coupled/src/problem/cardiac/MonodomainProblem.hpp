@@ -27,13 +27,14 @@
 
 //#include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
+#include "GenericCoupledProblemStimulus.hpp"
 
 template<int SPACE_DIM>
 class MonodomainProblem
 {
 private:
     double tFinal;
-    double magnitude_of_stimulus;
+    GenericCoupledProblemStimulus<SPACE_DIM> *stimulus;
 
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mesh;
 
@@ -50,14 +51,14 @@ public:
      
     MonodomainProblem(const std::string &rMeshFilename,
                       const double &rFinal,
-                      const double &rMagnitudeOfStimulus,
                       const std::string &rOutputDirectory,
-                      const std::string &rOutputFilenamePrefix)
+                      const std::string &rOutputFilenamePrefix,
+                      GenericCoupledProblemStimulus<SPACE_DIM> *rStimulus)
     : mMeshFilename(rMeshFilename),
       tFinal(rFinal),
-      magnitude_of_stimulus(rMagnitudeOfStimulus),
       mOutputDirectory(rOutputDirectory),
       mOutputFilenamePrefix(rOutputFilenamePrefix),
+      stimulus(rStimulus),
       monodomain_pde(NULL)
     {
     }
@@ -89,12 +90,8 @@ public:
         MockEulerIvpOdeSolver mySolver;
         monodomain_pde = new MonodomainPde<SPACE_DIM>(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
     
-        // Initialise the stimulus' magnitude and duration        
-        double duration_of_stimulus  = 0.5;
-    
-        // Add initial stim to node 0 only
-        InitialStimulus stimulus(magnitude_of_stimulus, duration_of_stimulus);
-        monodomain_pde->SetStimulusFunctionAtNode(0, &stimulus);
+        // Add initial stim       
+        stimulus->Apply(monodomain_pde);    
     
         // Boundary conditions, zero neumann everywhere
         BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mesh.GetNumNodes());
