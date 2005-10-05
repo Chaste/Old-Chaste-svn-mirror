@@ -24,7 +24,16 @@ public:
 		mTime.reserve(num_timesteps+1);
 		mSolutions.reserve(num_timesteps+1);
 	} 
-
+    
+    std::vector<double> GetVariableAtIndex(int index)
+    {
+        std::vector<double> answer;
+        for (int i=0; i<mSolutions.size(); i++){
+            answer.push_back(mSolutions[i][index]);
+        }
+        return(answer);
+    }
+    
 	std::vector<double> mTime; /**< A vector of times at each timestep. */
 	std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
 	

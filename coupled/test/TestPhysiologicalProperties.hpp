@@ -58,9 +58,9 @@ public:
 //        }
         
         // Now calculate the properties
-        PhysiologicalProperties pp;
-        pp.SetData(solution, 4); // Use default threshold
-        
+        std::vector<double> voltage=solution.GetVariableAtIndex(4);
+        PhysiologicalProperties  pp(voltage, solution.mTime); // Use default threshold
+
 //        std::cout << "Max upstroke vel: " << pp.GetMaxUpstrokeVelocity() << std::endl;
 //        std::cout << "Cycle length: " << pp.GetCycleLength() << std::endl;
 //        std::cout << "Max potential: " << pp.GetMaxPotential() << std::endl;
@@ -69,7 +69,7 @@ public:
 //        std::cout << "APD20: " << pp.GetActionPotentialDuration(20) << std::endl;
 //        std::cout << "APD50: " << pp.GetActionPotentialDuration(50) << std::endl;
 //        std::cout << "APD90: " << pp.GetActionPotentialDuration(90) << std::endl;
-        
+       
         TS_ASSERT_DELTA(pp.GetMaxUpstrokeVelocity(), 418.834, 0.001);
         TS_ASSERT_DELTA(pp.GetCycleLength(), 999.99, 0.01);
         TS_ASSERT_DELTA(pp.GetMaxPotential(), 43.1772, 0.0001);
@@ -78,6 +78,7 @@ public:
         TS_ASSERT_DELTA(pp.GetActionPotentialDuration(20), 6.65597, 0.00001);
         TS_ASSERT_DELTA(pp.GetActionPotentialDuration(50), 271.156, 0.001);
         TS_ASSERT_DELTA(pp.GetActionPotentialDuration(90), 361.546, 0.001);
+        TS_ASSERT_DELTA(pp.GetTimeAtMaxUpstrokeVelocity(), 3100.7400, 0.001);
     }
 };
 

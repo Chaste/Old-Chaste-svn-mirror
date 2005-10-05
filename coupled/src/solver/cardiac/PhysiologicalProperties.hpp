@@ -25,18 +25,11 @@ private:
     /**
      * The simulation results to process
      */
-    OdeSolution mSolutionData;
-    /**
-     * The index of the membrane potential within the state variables
-     */
-    int mVIndex;
-
-    /**
-     * Whether we have already calculated the properties and cached the values,
-     * or not.
-     */
-    bool mCalculatedProperties;
-
+    std::vector<double> mTime;
+    std::vector<double> mVoltage;
+    
+    
+   
     /**
      * Threshold for determining what counts as an action potential.
      * This is a value part way between the min & max potential, to avoid
@@ -48,6 +41,7 @@ private:
      * Cached values of the properties
      */
     double mMaxUpstrokeVelocity;
+    double mTimeAtMaxUpstrokeVelocity;
     double mCycleLength;
     double mMaxPotential, mMinPotential;
     double mUpstrokeStartTime;
@@ -79,10 +73,9 @@ public:
     /**
      * Constructor does nothing much
      */
-    PhysiologicalProperties() : mCalculatedProperties(false)
+    PhysiologicalProperties(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
     {
-        mSolutionData = OdeSolution();
-        mSolutionData.SetNumberOfTimeSteps(0);
+        SetData(rVoltage, rTime, threshold);
     }
     
     /**
@@ -92,12 +85,12 @@ public:
      * @param vIndex  The index of the membrane potential within the state
      *                variables
      */
-    void SetData(OdeSolution &rSolutionData, int vIndex, double threshold=-30.0)
+    void SetData(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
     {
-        mSolutionData = rSolutionData; // Check if does copy or ref
-        mVIndex = vIndex;
+        mVoltage = rVoltage; 
+        mTime = rTime;
         mThreshold = threshold;
-        mCalculatedProperties = false;
+        CalculateProperties();
     }
     
     /**
@@ -105,15 +98,20 @@ public:
      */
     double GetMaxUpstrokeVelocity()
     {
-        CalculateProperties();
         return mMaxUpstrokeVelocity;
+    }
+     /**
+     * Return the time at which the maximum upstroke velocity occured.
+     */
+    double GetTimeAtMaxUpstrokeVelocity()
+    {
+        return mTimeAtMaxUpstrokeVelocity;
     }
     /**
      * Return the cycle length.
      */
     double GetCycleLength()
     {
-        CalculateProperties();
         return mCycleLength;
     }
     /**
@@ -121,7 +119,6 @@ public:
      */
     double GetMaxPotential()
     {
-        CalculateProperties();
         return mMaxPotential;
     }
     /**
@@ -129,7 +126,6 @@ public:
      */
     double GetMinPotential()
     {
-        CalculateProperties();
         return mMinPotential;
     }
     /**
@@ -137,7 +133,6 @@ public:
      */
     double GetActionPotentialAmplitude()
     {
-        CalculateProperties();
         return mMaxPotential - mMinPotential;
     }
     /**

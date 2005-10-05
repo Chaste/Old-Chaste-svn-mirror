@@ -30,8 +30,9 @@
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 private:
-	
-	/**
+
+       bool mSequential; 
+ 	/**
 	 * Refactor code to set up a PETSc vector holding the initial condition.
 	 */
 	Vec CreateInitialConditionVec(int size)
@@ -44,10 +45,15 @@ private:
 	}
     
 public:
+    void setUp(){
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        mSequential = (num_procs == 1);    
+    
+    }
 	void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
 	{
-		
-		double tStart = 0;
+     	double tStart = 0;
 		double tFinal = 1;
 		double tBigStep = 0.01;
 		// Create mesh from mesh reader 
@@ -138,7 +144,8 @@ public:
     
 	void TestMonodomainDg01D()
 	{
-		double tStart = 0; 
+	try{
+        double tStart = 0; 
 		double tFinal = 5;
         
 		// use big time step (the pde timestep) is the same as the small time step (the ode timestep)
@@ -205,21 +212,19 @@ public:
 		 * Write data to a file NewMonodomainLR91_1d_xx.dat, 'xx' refers to nth time step
 		 *  using ColumnDataWriter 
 		 */                                                                            
-           
+        ColumnDataWriter *pTestWriter;           
+        int time_var_id = 0;
+        int voltage_var_id = 0;
         
-		// uncomment all column writer related lines to write data (and the line further below)         
-		//ColumnDataWriter *mpTestWriter;
-		//mpTestWriter = new ColumnDataWriter("testoutput","NewMonodomainLR91_1d");
+        if (mSequential) {
 
-		int time_var_id = 0;
-		int voltage_var_id = 0;
+		  pTestWriter = new ColumnDataWriter("testoutput","NewMonodomainLR91_1d");        
+		  pTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+		  time_var_id = pTestWriter->DefineUnlimitedDimension("Time","msecs");
 
-		//mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-		//mpTestWriter->DefineUnlimitedDimension("Time","msecs");
-
-		//time_var_id = mpTestWriter->DefineVariable("Time","msecs");
-		//voltage_var_id = mpTestWriter->DefineVariable("V","mV");
-		//mpTestWriter->EndDefineMode();
+		  voltage_var_id = pTestWriter->DefineVariable("V","mV");
+		  pTestWriter->EndDefineMode();
+        }
         
         Vec currentVoltage;  // Current solution
         double *currentVoltageArray;
@@ -247,19 +252,18 @@ public:
             
             // Writing data out to the file NewMonodomainLR91_1d.dat
          
-            //int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+            if (mSequential) {
+                int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
               
-            //mpTestWriter->PutVariable(time_var_id, tCurrent); 
-            //for(int j=lo; j<hi; j++) 
-            //{
-            //    //uncomment the line below to write data (and the line further below)
-            //    mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j-lo], j);    
-            //}
-  
-            //VecRestoreArray(currentVoltage, &currentVoltageArray); 
-            //uncomment the line below to write data
-            //mpTestWriter->AdvanceAlongUnlimitedDimension();
-            
+                pTestWriter->PutVariable(time_var_id, tCurrent); 
+                for(int j=lo; j<hi; j++) 
+                {
+                    pTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j-lo], j);    
+                }
+      
+                VecRestoreArray(currentVoltage, &currentVoltageArray); 
+                pTestWriter->AdvanceAlongUnlimitedDimension();
+            }
             monodomain_pde.ResetAsUnsolvedOdeSystem();
             tCurrent += tBigStep;
             big_steps++;
@@ -267,10 +271,12 @@ public:
         
         //std::cout << "Solved." << std::endl << std::flush;
 
-        // close the file that stores voltage values
-        //mpTestWriter->Close();
-        //delete mpTestWriter;
-
+        if (mSequential) {
+            // close the file that stores voltage values
+            pTestWriter->Close();
+            delete pTestWriter;
+        }
+        
         // test whether voltages and gating variables are in correct ranges        
         ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
         
@@ -335,7 +341,9 @@ public:
         //    << mySolver.GetCallCount() << std::endl;
         
         TS_ASSERT_EQUALS(mySolver.GetCallCount(), (hi-lo)*big_steps);
-        
+    } catch (Exception &e) {
+      std::cout<<e.getMessage()<<std::endl;   
+    }
     }
     
  
@@ -406,11 +414,6 @@ public:
         VecAssemblyEnd(initial_condition);
 
               
-        /*
-        * Write data to a file NewMonodomainLR91_2d_xx.dat, 'xx' refers to nth time step
-        *  using ColumnDataWriter 
-        */                                                                
-        //mpTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_2d");
                
         
         Vec currentVoltage; // Current solution
@@ -435,43 +438,7 @@ public:
             tCurrent += tBigStep;
         }
 
-        // this saves to one file all voltages at one chosen node, rather than creating a series of files      
-        /*         
-        ColumnDataWriter *mpNewTestWriter;
-        mpNewTestWriter = new ColumnDataWriter("data","NewMonodomainLR91_2d");
-        mpNewTestWriter->DefineUnlimitedDimension("Time","msecs");
-        int new_time_var_id = mpNewTestWriter->DefineVariable("Time","msecs");
-        int new_v_var_id = mpNewTestWriter->DefineVariable("V","mV");   
-        mpNewTestWriter->EndDefineMode();
-           
-        double tCurrent = tStart;        
-        while( tCurrent < tFinal )
-        {
-            // std::cout << "t = " << tCurrent << "\n" << std::flush;
-            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( currentVoltage );
-            
-            currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-            
-            // Writing data out to the file NewMonodomainLR91.dat
-         
-            int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
-              
-            // output to file
-            mpNewTestWriter->PutVariable(new_time_var_id, tCurrent);
-            mpNewTestWriter->PutVariable(new_v_var_id, currentVoltageArray[53]);
-            VecRestoreArray(currentVoltage, &currentVoltageArray); 
-
-            mpNewTestWriter->AdvanceAlongUnlimitedDimension();
-              
-            monodomain_pde.ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
-        }
-        
-        mpNewTestWriter->Close();
-        */
-
-
+ 
 
         // test whether voltages and gating variables are in correct ranges
         double *currentVoltageArray;
@@ -579,23 +546,21 @@ public:
          *  Write data to a file NewMonodomainLR91_3d_xx.dat, 'xx' refers to nth time step
          *  using ColumnDataWriter 
          */         
-        
-        // uncomment all column writer related lines to write data (and the line further below)
-        
-        mkdir("testoutput/MonoDg03d", 0777);
-                 
-        ColumnDataWriter *mpTestWriter;
-        mpTestWriter = new ColumnDataWriter("testoutput/MonoDg03d","NewMonodomainLR91_3d");
-       
+        ColumnDataWriter *pTestWriter;        
         int time_var_id = 0;
         int voltage_var_id = 0;
-
-        mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-        time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs");
-
-        //time_var_id = mpTestWriter->DefineVariable("Time","msecs");
-        voltage_var_id = mpTestWriter->DefineVariable("V","mV");
-        mpTestWriter->EndDefineMode();
+        if (mSequential) {
+            mkdir("testoutput/MonoDg03d", 0777);
+                     
+            pTestWriter = new ColumnDataWriter("testoutput/MonoDg03d","NewMonodomainLR91_3d");           
+    
+            pTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+            time_var_id = pTestWriter->DefineUnlimitedDimension("Time","msecs");
+    
+            //time_var_id = pTestWriter->DefineVariable("Time","msecs");
+            voltage_var_id = pTestWriter->DefineVariable("V","mV");
+            pTestWriter->EndDefineMode();
+        }
         
         Vec currentVoltage; // Current solution
         
@@ -618,25 +583,28 @@ public:
             
             // Writing data out to the file NewMonodomainLR91_3d.dat
          
-            int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+            if (mSequential) {
+                ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
               
-            mpTestWriter->PutVariable(time_var_id, tCurrent); 
-            for(int j=0; j<mesh.GetNumNodes(); j++) 
-            {
-                mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+                pTestWriter->PutVariable(time_var_id, tCurrent); 
+                for(int j=0; j<mesh.GetNumNodes(); j++) 
+                {
+                    pTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+                }
+      
+                VecRestoreArray(currentVoltage, &currentVoltageArray); 
+                pTestWriter->AdvanceAlongUnlimitedDimension();
             }
-  
-            VecRestoreArray(currentVoltage, &currentVoltageArray); 
-             mpTestWriter->AdvanceAlongUnlimitedDimension();
-     
+         
             monodomain_pde.ResetAsUnsolvedOdeSystem();
             tCurrent += tBigStep;
         }
 
-        // close the file that stores voltage values
-        mpTestWriter->Close();
-        delete mpTestWriter;
-        
+        if (mSequential) {
+            // close the file that stores voltage values
+            pTestWriter->Close();
+            delete pTestWriter;
+        }
         
         // test whether voltages and gating variables are in correct ranges
 
