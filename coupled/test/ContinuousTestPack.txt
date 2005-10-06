@@ -2,3 +2,4 @@ TestCellProperties.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
+TestPropagationPropertiesCalculator.hpp
