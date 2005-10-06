@@ -1,3 +1,4 @@
 TestMonodomainDg0Assembler.hpp
 TestMonodomainPde.hpp
+TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestPhysiologicalProperties.hpp

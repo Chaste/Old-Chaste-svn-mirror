@@ -3,12 +3,6 @@
 
 #include <iostream>
 
-//#include "petscvec.h"
-//#include <vector>
-//#include <cmath>
-//#include <sys/stat.h>
-//#include <sys/types.h>
-
 #include "MonodomainProblem.hpp"
 
 #include "SimpleLinearSolver.hpp"
@@ -23,43 +17,39 @@
 
 #include "MonodomainPde.hpp"
 #include "MockEulerIvpOdeSolver.hpp"
-//#include "FischerPde.hpp"
 
-//#include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
-#include "GenericCoupledProblemStimulus.hpp"
+#include "MonodomainProblemStimulus.hpp"
 
 template<int SPACE_DIM>
 class MonodomainProblem
 {
 private:
-    double tFinal;
-    GenericCoupledProblemStimulus<SPACE_DIM> *stimulus;
-
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mesh;
-
+    double mEndTime;
+    MonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     std::string mMeshFilename, mOutputDirectory, mOutputFilenamePrefix;
 
 public:
-    Vec currentVoltage; // Current solution
-    int lo, hi;
-    MonodomainPde<SPACE_DIM> *monodomain_pde;
+    Vec mCurrentVoltage; // Current solution
+    int mLo, mHi;
+    MonodomainPde<SPACE_DIM> *mMonodomainPde;
     
     /**
      * Constructor
      */
      
     MonodomainProblem(const std::string &rMeshFilename,
-                      const double &rFinal,
+                      const double &rEndTime,
                       const std::string &rOutputDirectory,
                       const std::string &rOutputFilenamePrefix,
-                      GenericCoupledProblemStimulus<SPACE_DIM> *rStimulus)
+                      MonodomainProblemStimulus<SPACE_DIM> *rStimulus)
     : mMeshFilename(rMeshFilename),
-      tFinal(rFinal),
+      mEndTime(rEndTime),
       mOutputDirectory(rOutputDirectory),
       mOutputFilenamePrefix(rOutputFilenamePrefix),
-      stimulus(rStimulus),
-      monodomain_pde(NULL)
+      mpStimulus(rStimulus),
+      mMonodomainPde(NULL)
     {
     }
 
@@ -69,7 +59,10 @@ public:
      
     ~MonodomainProblem()
     { 
-        if (monodomain_pde != NULL) delete monodomain_pde;
+        if (mMonodomainPde != NULL)
+        {
+            delete mMonodomainPde;
+        }
     }
 
     /**
@@ -77,123 +70,123 @@ public:
      */
     void Solve(void)
     {
-        double tStart = 0.0;
+        double start_time = 0.0;
     
-        double tBigStep = 0.01; 
-        double tSmallStep = 0.01;
+        double big_time_step = 0.01; 
+        double small_time_step = 0.01;
     
-        // Read mesh
+        // Read mMesh
         TrianglesMeshReader mesh_reader(mMeshFilename);
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mMesh.ConstructFromMeshReader(mesh_reader);
     
         // Instantiate PDE object
-        MockEulerIvpOdeSolver mySolver;
-        monodomain_pde = new MonodomainPde<SPACE_DIM>(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
+        MockEulerIvpOdeSolver ode_solver;
+        mMonodomainPde = new MonodomainPde<SPACE_DIM>(mMesh.GetNumNodes(), &ode_solver, start_time, big_time_step, small_time_step);
     
         // Add initial stim       
-        stimulus->Apply(monodomain_pde);    
+        mpStimulus->Apply(mMonodomainPde);    
     
         // Boundary conditions, zero neumann everywhere
-        BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
        
         // The 'typename' keyword is required otherwise the compiler complains
         // Not totally sure why!
-        typename ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-        ConstBoundaryCondition<SPACE_DIM>* pNeumannBoundaryCondition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+        typename ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>::BoundaryElementIterator iter = mMesh.GetFirstBoundaryElement();
+        ConstBoundaryCondition<SPACE_DIM>* p_neumann_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         
-        while(iter < mesh.GetLastBoundaryElement())
+        while(iter < mMesh.GetLastBoundaryElement())
         {
-            bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+            bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
             iter++;
         }
         
         // Linear solver
-        SimpleLinearSolver linearSolver;
+        SimpleLinearSolver linear_solver;
     
         // Assembler
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomainAssembler;
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
         
         // initial condition;   
-            Vec initial_condition;
-            VecCreate(PETSC_COMM_WORLD, &initial_condition);
-            VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
-            VecSetFromOptions(initial_condition);
-      
-            double* initial_condition_array;
-            VecGetArray(initial_condition, &initial_condition_array); 
-            
-            VecGetOwnershipRange(initial_condition, &lo, &hi);
-            
-            // initial voltage condition of a constant everywhere on the mesh
-        for(int global_index=lo; global_index<hi; global_index++)
+        Vec initial_condition;
+        VecCreate(PETSC_COMM_WORLD, &initial_condition);
+        VecSetSizes(initial_condition, PETSC_DECIDE, mMesh.GetNumNodes() );
+        VecSetFromOptions(initial_condition);
+  
+        double* initial_condition_array;
+        VecGetArray(initial_condition, &initial_condition_array); 
+        
+        VecGetOwnershipRange(initial_condition, &mLo, &mHi);
+        
+        // Set a constant initial voltage throughout the mMesh
+        for(int global_index=mLo; global_index<mHi; global_index++)
         {
-            initial_condition_array[global_index-lo] = -84.5;
+            initial_condition_array[global_index-mLo] = -84.5;
         }
         VecRestoreArray(initial_condition, &initial_condition_array);      
         VecAssemblyBegin(initial_condition);
         VecAssemblyEnd(initial_condition);
     
         /*
-         *  Write data to a file NewMonodomainLR91_3d_xx.dat, 'xx' refers to nth time step
-         *  using ColumnDataWriter 
+         *  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
+         *  'xx'th time step using ColumnDataWriter 
          */         
         
         mkdir(mOutputDirectory.c_str(), 0777);
                  
-        ColumnDataWriter *mpTestWriter;
-        mpTestWriter = new ColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+        ColumnDataWriter *p_test_writer;
+        p_test_writer = new ColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
        
         int time_var_id = 0;
         int voltage_var_id = 0;
     
-        mpTestWriter->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-        time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs");
+        p_test_writer->DefineFixedDimension("Node", "dimensionless", mMesh.GetNumNodes() );
+        time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
     
-        voltage_var_id = mpTestWriter->DefineVariable("V","mV");
-        mpTestWriter->EndDefineMode();
+        voltage_var_id = p_test_writer->DefineVariable("V","mV");
+        p_test_writer->EndDefineMode();
         
-        double* currentVoltageArray;
+        double* p_current_voltage_array;
         
-        double tCurrent = tStart;        
+        double current_time = start_time;        
 
         int big_steps = 0;
         
-        while( tCurrent < tFinal )
+        while( current_time < mEndTime )
         {
-            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( initial_condition );
+            monodomain_assembler.SetTimes(current_time, current_time+big_time_step, big_time_step);
+            monodomain_assembler.SetInitialCondition( initial_condition );
             
-            currentVoltage = monodomainAssembler.Solve(mesh, monodomain_pde, bcc, &linearSolver);
+            mCurrentVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPde, bcc, &linear_solver);
             
             // Free old initial condition
             VecDestroy(initial_condition);
             // Initial condition for next loop is current solution
-            initial_condition = currentVoltage;
+            initial_condition = mCurrentVoltage;
             
             // Writing data out to the file <mOutputFilenamePrefix>.dat
              
-            VecGetArray(currentVoltage, &currentVoltageArray);
+            VecGetArray(mCurrentVoltage, &p_current_voltage_array);
 
-            mpTestWriter->PutVariable(time_var_id, tCurrent); 
-            for(int j=0; j<mesh.GetNumNodes(); j++) 
+            p_test_writer->PutVariable(time_var_id, current_time); 
+            for(int j=0; j<mMesh.GetNumNodes(); j++) 
             {
-                mpTestWriter->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
+                p_test_writer->PutVariable(voltage_var_id, p_current_voltage_array[j], j);    
             }
   
-            VecRestoreArray(currentVoltage, &currentVoltageArray); 
-             mpTestWriter->AdvanceAlongUnlimitedDimension();
+            VecRestoreArray(mCurrentVoltage, &p_current_voltage_array); 
+             p_test_writer->AdvanceAlongUnlimitedDimension();
      
-            monodomain_pde->ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
+            mMonodomainPde->ResetAsUnsolvedOdeSystem();
+            current_time += big_time_step;
                 
             big_steps++;
         }
 
-        TS_ASSERT_EQUALS(mySolver.GetCallCount(), (hi-lo)*big_steps);
+        TS_ASSERT_EQUALS(ode_solver.GetCallCount(), (mHi-mLo)*big_steps);
 
             // close the file that stores voltage values
-        mpTestWriter->Close();
-        delete mpTestWriter;
+        p_test_writer->Close();
+        delete p_test_writer;
     }
 };
 #endif //_MONODOMAINPROBLEM_HPP_
