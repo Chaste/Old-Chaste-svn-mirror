@@ -29,7 +29,7 @@ void PhysiologicalProperties::CalculateProperties()
     mOnset = -1.0, mPrevOnset = -1.0;
     APPhases ap_phase = undefined;
     
-    int time_steps = mTime.size();
+    int time_steps = mTime.size()-1; //The number of time steps is the number of intervals
     
     for (int i=1; i<=time_steps; i++)
     {

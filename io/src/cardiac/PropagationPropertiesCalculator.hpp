@@ -11,10 +11,13 @@ public:
 	PropagationPropertiesCalculator(const AbstractDataReader *pDataReader);
 	virtual ~PropagationPropertiesCalculator();
     
-    double CalculateMaximumUpstrokeVelocity();
-    double CalculateConductionVelocity();
-    double CalculateActionPotentialDuration90();
-    double CalculatePeakMembranePotential();
+    double CalculateMaximumUpstrokeVelocity(int globalNodeIndex);
+    double CalculateConductionVelocity(int globalNearNodeIndex,
+                                       int globalFarNodeIndex, 
+                                       const double euclideanDistance);
+    double CalculateActionPotentialDuration(const double percentage,
+                                            int globalNodeIndex);
+    double CalculatePeakMembranePotential(int globalNodeIndex);
 };
 
 #endif //_PROPAGATIONPROPERTIESCALCULATOR_HPP_
