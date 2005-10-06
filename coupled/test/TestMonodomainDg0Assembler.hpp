@@ -28,7 +28,7 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
-class Stimulus1D: public AbstractMonodomainProblemStimulus<1>
+class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
 {
 public:
     virtual void Apply(MonodomainPde<1> *pPde)
@@ -38,20 +38,72 @@ public:
     }
 };
 
-class Stimulus2D: public AbstractMonodomainProblemStimulus<2>
+class EdgeStimulus2D: public AbstractMonodomainProblemStimulus<2>
 {
     virtual void Apply(MonodomainPde<2> *pPde)
     {
-        static InitialStimulus stimulus(-80.0, 0.5);
+        static InitialStimulus stimulus(-600.0, 0.5);
+        pPde->SetStimulusFunctionAtNode(0, &stimulus);
+        pPde->SetStimulusFunctionAtNode(3, &stimulus);
+        pPde->SetStimulusFunctionAtNode(5, &stimulus);
+        pPde->SetStimulusFunctionAtNode(14, &stimulus);
+        pPde->SetStimulusFunctionAtNode(17, &stimulus);
+        pPde->SetStimulusFunctionAtNode(43, &stimulus);
+        pPde->SetStimulusFunctionAtNode(52, &stimulus);
+        pPde->SetStimulusFunctionAtNode(53, &stimulus);
+        pPde->SetStimulusFunctionAtNode(63, &stimulus);
+    }
+};
+
+class PointStimulus2D: public AbstractMonodomainProblemStimulus<2>
+{
+    virtual void Apply(MonodomainPde<2> *pPde)
+    {
+        static InitialStimulus stimulus(-600.0, 0.5);
         pPde->SetStimulusFunctionAtNode(0, &stimulus);
     }
 };
 
-class Stimulus3D: public AbstractMonodomainProblemStimulus<3>
+class FaceStimulus3D: public AbstractMonodomainProblemStimulus<3>
 {
     virtual void Apply(MonodomainPde<3> *pPde)
     {
-        static InitialStimulus stimulus(-80.0, 0.5);
+        static InitialStimulus stimulus(-600.0, 0.5);
+        pPde->SetStimulusFunctionAtNode(0, &stimulus);
+        pPde->SetStimulusFunctionAtNode(3, &stimulus);
+        pPde->SetStimulusFunctionAtNode(4, &stimulus);
+        pPde->SetStimulusFunctionAtNode(7, &stimulus);
+        pPde->SetStimulusFunctionAtNode(8, &stimulus);
+        pPde->SetStimulusFunctionAtNode(11, &stimulus);
+        pPde->SetStimulusFunctionAtNode(17, &stimulus);
+        pPde->SetStimulusFunctionAtNode(18, &stimulus);
+        pPde->SetStimulusFunctionAtNode(23, &stimulus);
+        pPde->SetStimulusFunctionAtNode(32, &stimulus);
+        pPde->SetStimulusFunctionAtNode(33, &stimulus);
+        pPde->SetStimulusFunctionAtNode(34, &stimulus);
+        pPde->SetStimulusFunctionAtNode(41, &stimulus);
+        pPde->SetStimulusFunctionAtNode(45, &stimulus);
+        pPde->SetStimulusFunctionAtNode(46, &stimulus);
+        pPde->SetStimulusFunctionAtNode(52, &stimulus);
+        pPde->SetStimulusFunctionAtNode(56, &stimulus);
+        pPde->SetStimulusFunctionAtNode(57, &stimulus);
+        pPde->SetStimulusFunctionAtNode(58, &stimulus);
+        pPde->SetStimulusFunctionAtNode(78, &stimulus);
+        pPde->SetStimulusFunctionAtNode(80, &stimulus);
+        pPde->SetStimulusFunctionAtNode(83, &stimulus);
+        pPde->SetStimulusFunctionAtNode(86, &stimulus);
+        pPde->SetStimulusFunctionAtNode(87, &stimulus);
+        pPde->SetStimulusFunctionAtNode(88, &stimulus);
+        pPde->SetStimulusFunctionAtNode(106, &stimulus);
+        pPde->SetStimulusFunctionAtNode(113, &stimulus);
+    }
+};
+
+class PointStimulus3D: public AbstractMonodomainProblemStimulus<3>
+{
+    virtual void Apply(MonodomainPde<3> *pPde)
+    {
+        static InitialStimulus stimulus(-600.0, 0.5);
         pPde->SetStimulusFunctionAtNode(0, &stimulus);
     }
 };
@@ -74,12 +126,12 @@ private:
 public:
 	void TestMonodomainDg01D()
 	{
-        Stimulus1D stimulus_1D;
+        PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
                                                5, 
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
-                                               &stimulus_1D);
+                                               &point_stimulus_1D);
 
         monodomainProblem.Solve();
         
@@ -141,15 +193,15 @@ public:
         VecDestroy(monodomainProblem.mCurrentVoltage);
     }
     
-    void TestMonodomainDg02D( void )
+    void TestMonodomainDg02DWithEdgeStimulus( void )
     {   
-        Stimulus2D stimulus_2D;
+        EdgeStimulus2D edge_stimulus_2D;
         
         MonodomainProblem<2> monodomainProblem("mesh/test/data/square_128_elements",
                                                0.1, 
-                                               "testoutput/MonoDg02d",
-                                               "NewMonodomainLR91_2d",
-                                               &stimulus_2D);
+                                               "testoutput/MonoDg02dWithEdgeStimulus",
+                                               "NewMonodomainLR91_2dWithEdgeStimulus",
+                                               &edge_stimulus_2D);
 
         monodomainProblem.Solve();
         
@@ -186,16 +238,107 @@ public:
         VecDestroy(monodomainProblem.mCurrentVoltage);
     }   
 
-    void TestMonodomainDg03D( void )
+    void TestMonodomainDg02DWithPointStimulus( void )
+    {   
+        PointStimulus2D point_stimulus_2D;
+        
+        MonodomainProblem<2> monodomainProblem("mesh/test/data/square_128_elements",
+                                               0.1, 
+                                               "testoutput/MonoDg02dWithPointStimulus",
+                                               "NewMonodomainLR91_2dWithPointStimulus",
+                                               &point_stimulus_2D);
+
+        monodomainProblem.Solve();
+        
+        double* currentVoltageArray;
+    
+        // test whether voltages and gating variables are in correct ranges
+
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        
+        for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            double Istim = -80.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }
+            }
+        }
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
+        VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
+        VecDestroy(monodomainProblem.mCurrentVoltage);
+    }   
+
+    void TestMonodomainDg03DWithFaceStimulus( void )
     {
-        Stimulus3D stimulus_3D;
+        FaceStimulus3D face_stimulus_3D;
         
         MonodomainProblem<3> monodomainProblem("mesh/test/data/slab_395_elements",
-                                               0.29, 
-                                               "testoutput/MonoDg03d",
-                                               "NewMonodomainLR91_3d",
-                                               &stimulus_3D);
-        ///todo This test now fails (not sensible ODE values) for mEndTime >= 0.30 
+                                               0.25, 
+                                               "testoutput/MonoDg03dWithFaceStimulus",
+                                               "NewMonodomainLR91_3dWithFaceStimulus",
+                                               &face_stimulus_3D);
+        ///todo This test now fails (not sensible ODE values) for mEndTime >= 0.26 
+
+        monodomainProblem.Solve();
+        
+        double* currentVoltageArray;
+    
+        // test whether voltages and gating variables are in correct ranges
+
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        
+        for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            double Istim = -80.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }
+            }
+        }
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
+        VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
+        VecDestroy(monodomainProblem.mCurrentVoltage);
+    }   
+
+    void TestMonodomainDg03DWithPointStimulus( void )
+    {
+        PointStimulus3D point_stimulus_3D;
+        
+        MonodomainProblem<3> monodomainProblem("mesh/test/data/slab_395_elements",
+                                               0.25, 
+                                               "testoutput/MonoDg03dWithPointStimulus",
+                                               "NewMonodomainLR91_3dWithPointStimulus",
+                                               &point_stimulus_3D);
+        ///todo This test now fails (not sensible ODE values) for mEndTime >= 0.26 
 
         monodomainProblem.Solve();
         
