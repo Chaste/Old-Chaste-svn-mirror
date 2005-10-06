@@ -232,6 +232,34 @@ public:
                 }
             }
         }
+
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+
+        if (num_procs == 1)
+        {
+            /*
+             * Test the top right node against the right one in the 1D case, 
+             * comparing voltage
+             */
+
+// TO BE DONE!
+//            TS_ASSERT_DELTA(currentVoltageArray[1], <some value>, 0.001);
+             
+            /*
+             * Test all the nodes on the right hand side of the square against 
+             * the top right one, comparing voltage
+             */
+            TS_ASSERT_DELTA(currentVoltageArray[2], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[6], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[21], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[23], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[73], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[76], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[77], currentVoltageArray[1], 0.001);
+//            TS_ASSERT_DELTA(currentVoltageArray[79], currentVoltageArray[1], 0.001);
+        }
+        
         VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
