@@ -26,9 +26,9 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
-#include "MonodomainProblemStimulus.hpp"
+#include "AbstractMonodomainProblemStimulus.hpp"
 
-class Stimulus1D: public MonodomainProblemStimulus<1>
+class Stimulus1D: public AbstractMonodomainProblemStimulus<1>
 {
 public:
     virtual void Apply(MonodomainPde<1> *pPde)
@@ -38,7 +38,7 @@ public:
     }
 };
 
-class Stimulus2D: public MonodomainProblemStimulus<2>
+class Stimulus2D: public AbstractMonodomainProblemStimulus<2>
 {
     virtual void Apply(MonodomainPde<2> *pPde)
     {
@@ -47,7 +47,7 @@ class Stimulus2D: public MonodomainProblemStimulus<2>
     }
 };
 
-class Stimulus3D: public MonodomainProblemStimulus<3>
+class Stimulus3D: public AbstractMonodomainProblemStimulus<3>
 {
     virtual void Apply(MonodomainPde<3> *pPde)
     {
@@ -59,7 +59,6 @@ class Stimulus3D: public MonodomainProblemStimulus<3>
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 private:
-	
 	/**
 	 * Refactor code to set up a PETSc vector holding the initial condition.
 	 */
@@ -191,11 +190,12 @@ public:
     {
         Stimulus3D stimulus_3D;
         
-        MonodomainProblem<3> monodomainProblem("mesh/test/data/slab_138_elements",
-                                               0.1, 
+        MonodomainProblem<3> monodomainProblem("mesh/test/data/slab_395_elements",
+                                               0.29, 
                                                "testoutput/MonoDg03d",
                                                "NewMonodomainLR91_3d",
                                                &stimulus_3D);
+        ///todo This test now fails (not sensible ODE values) for mEndTime >= 0.30 
 
         monodomainProblem.Solve();
         

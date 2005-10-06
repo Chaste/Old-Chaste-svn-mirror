@@ -1,6 +1,5 @@
 TestBoundaryConditionContainer.hpp
 TestLinearSystem.hpp
-TestMonodomainDg0Assembler2.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestNonlinearElasticityPde.hpp
 TestSimpleDg0ParabolicAssembler.hpp

@@ -7,7 +7,6 @@ TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestLinearSystem.hpp
 TestMaterials.hpp
-TestMonodomainDg0Assembler2.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestNode.hpp
 TestNonlinearElasticityPde.hpp
