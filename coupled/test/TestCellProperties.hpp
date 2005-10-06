@@ -1,12 +1,12 @@
-#ifndef _TESTPHYSIOLOGICALPROPERTIES_HPP_
-#define _TESTPHYSIOLOGICALPROPERTIES_HPP_
+#ifndef _TESTCELLPROPERTIES_HPP_
+#define _TESTCELLPROPERTIES_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include <iostream>
 
 #include "OdeSolution.hpp"
-#include "PhysiologicalProperties.hpp"
+#include "CellProperties.hpp"
 
 #include "RegularStimulus.hpp"
 
@@ -59,27 +59,27 @@ public:
         
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
-        PhysiologicalProperties  pp(voltage, solution.mTime); // Use default threshold
+        CellProperties  cell_props(voltage, solution.mTime); // Use default threshold
 
-//        std::cout << "Max upstroke vel: " << pp.GetMaxUpstrokeVelocity() << std::endl;
-//        std::cout << "Cycle length: " << pp.GetCycleLength() << std::endl;
-//        std::cout << "Max potential: " << pp.GetMaxPotential() << std::endl;
-//        std::cout << "Min potential: " << pp.GetMinPotential() << std::endl;
-//        std::cout << "AP amplitude: " << pp.GetActionPotentialAmplitude() << std::endl;
-//        std::cout << "APD20: " << pp.GetActionPotentialDuration(20) << std::endl;
-//        std::cout << "APD50: " << pp.GetActionPotentialDuration(50) << std::endl;
-//        std::cout << "APD90: " << pp.GetActionPotentialDuration(90) << std::endl;
+//        std::cout << "Max upstroke vel: " << cell_props.GetMaxUpstrokeVelocity() << std::endl;
+//        std::cout << "Cycle length: " << cell_props.GetCycleLength() << std::endl;
+//        std::cout << "Max potential: " << cell_props.GetMaxPotential() << std::endl;
+//        std::cout << "Min potential: " << cell_props.GetMinPotential() << std::endl;
+//        std::cout << "AP amplitude: " << cell_props.GetActionPotentialAmplitude() << std::endl;
+//        std::cout << "APD20: " << cell_props.GetActionPotentialDuration(20) << std::endl;
+//        std::cout << "APD50: " << cell_props.GetActionPotentialDuration(50) << std::endl;
+//        std::cout << "APD90: " << cell_props.GetActionPotentialDuration(90) << std::endl;
        
-        TS_ASSERT_DELTA(pp.GetMaxUpstrokeVelocity(), 418.834, 0.001);
-        TS_ASSERT_DELTA(pp.GetCycleLength(), 999.99, 0.01);
-        TS_ASSERT_DELTA(pp.GetMaxPotential(), 43.1772, 0.0001);
-        TS_ASSERT_DELTA(pp.GetMinPotential(), -84.4392, 0.0001);
-        TS_ASSERT_DELTA(pp.GetActionPotentialAmplitude(), 127.616, 0.001);
-        TS_ASSERT_DELTA(pp.GetActionPotentialDuration(20), 6.65597, 0.00001);
-        TS_ASSERT_DELTA(pp.GetActionPotentialDuration(50), 271.156, 0.001);
-        TS_ASSERT_DELTA(pp.GetActionPotentialDuration(90), 361.546, 0.001);
-        TS_ASSERT_DELTA(pp.GetTimeAtMaxUpstrokeVelocity(), 3100.7400, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocity(), 418.834, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetCycleLength(), 999.99, 0.01);
+        TS_ASSERT_DELTA(cell_props.GetMaxPotential(), 43.1772, 0.0001);
+        TS_ASSERT_DELTA(cell_props.GetMinPotential(), -84.4392, 0.0001);
+        TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitude(), 127.616, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(20), 6.65597, 0.00001);
+        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(50), 271.156, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(90), 361.546, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetTimeAtMaxUpstrokeVelocity(), 3100.7400, 0.001);
     }
 };
 
-#endif //_TESTPHYSIOLOGICALPROPERTIES_HPP_
+#endif //_TESTCELLPROPERTIES_HPP_

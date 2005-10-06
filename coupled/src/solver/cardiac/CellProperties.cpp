@@ -1,10 +1,10 @@
-#include "PhysiologicalProperties.hpp"
+#include "CellProperties.hpp"
 #include "Exception.hpp"
 #include <cmath>
 
 enum APPhases { undefined, upstroke, repolarisation };
 
-void PhysiologicalProperties::CalculateProperties()
+void CellProperties::CalculateProperties()
 {
     // Check we have some suitable data to process
     if (mTime.size() < 1)
@@ -106,7 +106,7 @@ void PhysiologicalProperties::CalculateProperties()
 }
 
 
-double PhysiologicalProperties::CalculateActionPotentialDuration(
+double CellProperties::CalculateActionPotentialDuration(
                                             const double percentage,
                                             const double onset,
                                             const double minPotential,
@@ -143,7 +143,7 @@ double PhysiologicalProperties::CalculateActionPotentialDuration(
 }
 
 
-double PhysiologicalProperties::GetActionPotentialDuration(const double percentage)
+double CellProperties::GetActionPotentialDuration(const double percentage)
 {
     double apd = 0.0;
     // Check we had at least one upstroke

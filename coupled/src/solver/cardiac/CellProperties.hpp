@@ -1,5 +1,5 @@
-#ifndef _PHYSIOLOGICALPROPERTIES_HPP_
-#define _PHYSIOLOGICALPROPERTIES_HPP_
+#ifndef _CELLPROPERTIES_HPP_
+#define _CELLPROPERTIES_HPP_
 
 #include "OdeSolution.hpp"
 
@@ -19,7 +19,7 @@
  * Results may be incorrect if you are stimulating the cell strangely.
  */
 
-class PhysiologicalProperties
+class CellProperties
 {
 private:
     /**
@@ -73,7 +73,7 @@ public:
     /**
      * Constructor does nothing much
      */
-    PhysiologicalProperties(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
+    CellProperties(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
     {
         SetData(rVoltage, rTime, threshold);
     }
@@ -143,4 +143,4 @@ public:
     double GetActionPotentialDuration(const double percentage);
 };
 
-#endif //_PHYSIOLOGICALPROPERTIES_HPP_
+#endif //_CELLPROPERTIES_HPP_
