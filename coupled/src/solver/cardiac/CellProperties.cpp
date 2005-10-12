@@ -18,6 +18,7 @@ void CellProperties::CalculateProperties()
     mMaxPotential = 0.0;
     mMinPotential = 0.0;
     mUpstrokeStartTime = 0.0;
+    mTimeAtMaxUpstrokeVelocity = -1.0;
     
     double prev_v = mVoltage[0];
     double prev_t = mTime[0];
