@@ -27,7 +27,7 @@ const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume rat
 const double rA = rMyo + rG / LENGTH;//* BETA;
 //const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
 //const double DIFFUSION_CONST = 0.0;
-const double DIFFUSION_CONST = 0.002;
+const double DIFFUSION_CONST = 0.0005;
 /**
  * MonodomainPde class.
  * 

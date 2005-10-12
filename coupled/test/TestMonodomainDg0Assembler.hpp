@@ -18,6 +18,8 @@
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ColumnDataWriter.hpp"
+#include "ColumnDataReader.hpp"
+#include "PropagationPropertiesCalculator.hpp"
 
 #include "MonodomainPde.hpp"
 #include "MockEulerIvpOdeSolver.hpp"
@@ -128,7 +130,7 @@ public:
 	{
         PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
-                                               5, 
+                                               30, 
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
@@ -159,38 +161,52 @@ public:
                 {
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
-                }
-               
-                if (global_index==25)
-                {
-                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 16.972, 0.001);
-                }
-                if (global_index==30)
-                {
-                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 18.8826, 0.001);
-                }
-                if (global_index==40)
-                {
-                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 18.2916, 0.001);
-                }
-                if (global_index==50)
-                {
-                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], -82.6575, 0.001);
-                }
-                if (global_index==51)
-                {
-                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], -83.4065, 0.001);
-                }
-                if (global_index==75)
-                {
-                    TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], -84.5504, 0.001);
-                }
+                }   
             }
+               
+            if (global_index==25)
+            {
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 8.3749, 0.001);
+            }
+            if (global_index==30)
+            {
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 8.0799, 0.001);
+            }
+            if (global_index==40)
+            {
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 7.4640, 0.001);
+            }
+            if (global_index==50)
+            {
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 6.8283, 0.001);
+            }
+            if (global_index==51)
+            {
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 6.7649, 0.001);
+            }
+            if (global_index==75)
+            {
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 5.4807, 0.001);
+            }
+            
         }
         VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
+        
+        // Calculate the conduction velocity
+        ColumnDataReader simulation_data("testoutput/MonoDg01d",
+                                         "NewMonodomainLR91_1d");
+        PropagationPropertiesCalculator ppc(&simulation_data);
+        double velocity;
+        
+        // Check action potential propagated to node 95
+        TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,95,0.9));
+        
+        // The value should be approximately 50cm/sec
+        // i.e. 0.05 cm/msec (which is the units of the simulation)
+        TS_ASSERT_DELTA(velocity, 0.05, 0.005);
     }
     
     void TestMonodomainDg02DWithEdgeStimulus( void )
