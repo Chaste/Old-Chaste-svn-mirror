@@ -144,6 +144,5 @@ public:
             TS_ASSERT_DELTA(velocity, 0.05, 0.005);
         }
     }
-    
 };
 #endif //_TESTMONODOMAINSLOW_HPP_

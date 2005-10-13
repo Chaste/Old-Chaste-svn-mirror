@@ -22,7 +22,7 @@ private:
 											std::vector<std::string> rawData,
 											int dimensionOfObject);											
 public:
-	TrianglesMeshReader(std::string pathBaseName);
+	TrianglesMeshReader(std::string pathBaseName, const bool& rContainsInternalFaces = true);
 	virtual ~TrianglesMeshReader();
 }; 
 

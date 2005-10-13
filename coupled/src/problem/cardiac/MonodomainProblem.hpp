@@ -34,6 +34,7 @@ private:
     AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     std::string mMeshFilename, mOutputDirectory, mOutputFilenamePrefix;
+    bool mContainsInternalFaces;
 
 public:
     Vec mCurrentVoltage; // Current solution
@@ -48,13 +49,15 @@ public:
                       const double &rEndTime,
                       const std::string &rOutputDirectory,
                       const std::string &rOutputFilenamePrefix,
-                      AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus)
+                      AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus,
+                      const bool& rContainsInternalFaces = true)
     : mMeshFilename(rMeshFilename),
       mEndTime(rEndTime),
       mOutputDirectory(rOutputDirectory),
       mOutputFilenamePrefix(rOutputFilenamePrefix),
       mpStimulus(rStimulus),
-      mMonodomainPde(NULL)
+      mMonodomainPde(NULL),
+      mContainsInternalFaces(rContainsInternalFaces)
     {
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
@@ -86,7 +89,7 @@ public:
             double small_time_step = 0.01;
         
             // Read mMesh
-            TrianglesMeshReader mesh_reader(mMeshFilename);
+            TrianglesMeshReader mesh_reader(mMeshFilename, mContainsInternalFaces);
             mMesh.ConstructFromMeshReader(mesh_reader);
         
             // Instantiate PDE object

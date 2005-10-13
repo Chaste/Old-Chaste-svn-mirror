@@ -283,7 +283,7 @@ std::vector<int> AbstractMeshReader::GetNextBoundaryEdge()
  * boundary face data to another place.
  */
 
-std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
+std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces(const bool& rContainsInternalFaces)
 {
 	std::vector< std::vector<int> > boundary_faces; 	
 
@@ -293,47 +293,55 @@ std::vector< std::vector<int> > AbstractMeshReader::CullInternalFaces()
 	for (int faceIndex=0; faceIndex<num_faces; faceIndex++)
 	{
 		std::vector<int> current_face = mFaceData[faceIndex];
-		// Initialise count of how many elements this face belongs to
-		int num_of_owning_elements = 0;
 
-		// Iterate over all elements
-		int num_elements=GetNumElements();		
-		for (int elementIndex = 0; elementIndex < num_elements && num_of_owning_elements < 2; 
-															elementIndex++ )
-		{
-			int num_of_matches = 0;
-			std::vector<int> current_element = mElementData[elementIndex];
-			
-			//Iterate over indices of the element
-			for (int count = 0; count<=mDimension && num_of_matches >= count-1; count++)
-			{
-				//Iterate over indices of the face
-				for (int i=0; i<mDimension; i++)
-				{
-					if (current_face[i] == current_element[count])
-					{
-						num_of_matches++;
-						break;
-					}
-				}						
-			}	
-			//The current face is a member of the current element
-			if (num_of_matches == mDimension)
-			{
-				num_of_owning_elements++;
-			}		
-
-		}
-		// A face belonging to exactly one element is a boundary face
-		if ( num_of_owning_elements == 1 )
-		{
-			boundary_faces.push_back(current_face);
-			//mNumBoundaryFaces++;
-		}		
-		else if (num_of_owning_elements != 2 )
-		{
-			throw Exception("All faces should belong to either one or two elements. ");
-		}
+        if (rContainsInternalFaces)
+        {
+    		// Initialise count of how many elements this face belongs to
+    		int num_of_owning_elements = 0;
+    
+    		// Iterate over all elements
+    		int num_elements=GetNumElements();		
+    		for (int elementIndex = 0; elementIndex < num_elements && num_of_owning_elements < 2; 
+    															elementIndex++ )
+    		{
+    			int num_of_matches = 0;
+    			std::vector<int> current_element = mElementData[elementIndex];
+    			
+    			//Iterate over indices of the element
+    			for (int count = 0; count<=mDimension && num_of_matches >= count-1; count++)
+    			{
+    				//Iterate over indices of the face
+    				for (int i=0; i<mDimension; i++)
+    				{
+    					if (current_face[i] == current_element[count])
+    					{
+    						num_of_matches++;
+    						break;
+    					}
+    				}						
+    			}	
+    			//The current face is a member of the current element
+    			if (num_of_matches == mDimension)
+    			{
+    				num_of_owning_elements++;
+    			}		
+    
+    		}
+    		// A face belonging to exactly one element is a boundary face
+    		if ( num_of_owning_elements == 1 )
+    		{
+    			boundary_faces.push_back(current_face);
+    			//mNumBoundaryFaces++;
+    		}		
+    		else if (num_of_owning_elements != 2 )
+    		{
+    			throw Exception("All faces should belong to either one or two elements. ");
+    		}
+        }
+        else
+        {
+            boundary_faces.push_back(current_face);
+        }
 	}	
 	
 	return boundary_faces;

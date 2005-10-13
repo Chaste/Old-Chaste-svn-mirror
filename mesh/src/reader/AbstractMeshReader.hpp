@@ -51,7 +51,7 @@ class AbstractMeshReader
 		bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 
 		std::vector<std::string> GetRawDataFromFile(std::string fileName); /**< Reads an input file fileName, removes comments (indicated by a #) and blank lines */
-		std::vector< std::vector<int> > CullInternalFaces(); /**< Remove internal faces and store the result in mBoundaryFaceData */
+		std::vector< std::vector<int> > CullInternalFaces(const bool& rContainsInternalFaces = true); /**< Remove internal faces and store the result in mBoundaryFaceData */
 
 
 	public:	

@@ -10,7 +10,8 @@
  *		                  "pdes/tests/meshdata/disk_522_elements");
  * Also calls the superclass AbstractMeshReader's constructor
  */ 
-TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
+TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, 
+                                         const bool& rContainsInternalFaces)
 {
 	bool indexed_from_zero = false;
 	bool already_checked_indexing = false;
@@ -33,7 +34,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
 	//Initialise iterator for public GetNextNode method
 	mpNodeIterator = mNodeData.begin();
-	
+
 	//Check that the size of the data matches the information in the header
 	if (num_nodes != mNodeData.size())
 	{
@@ -57,11 +58,10 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	{
 		throw Exception("Number of nodes per element is not supported");
 	}
-	
+
 	// Read the rest of the element data using TokenizeStringsToInts method
 	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
  	mpElementIterator = mElementData.begin();
- 	
  	
  	//Check that the size of the data matches the information in the header
  	if (num_elements != mElementData.size())
@@ -103,7 +103,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 		return;
 	}
 	mFaceRawData=GetRawDataFromFile(faceFileName);
-	
+
 	/* Read single line header as at:
 	 * http://tetgen.berlios.de/fformats.face.html
 	 * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
@@ -120,7 +120,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	
 //	std::stringstream boundary_face_header_stream(mFaceRawData[0]);
 //	boundary_face_header_stream >> mNumBoundaryFaces;
-	mBoundaryFaceData = CullInternalFaces();
+	mBoundaryFaceData = CullInternalFaces(rContainsInternalFaces);
 	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
 	
 	//Check that the size of the data matches the information in the header
@@ -128,9 +128,6 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName)
 	{
 		throw Exception("Number of faces does not match expected number declared in header");
 	}
-	
-	
-	
 }
 
 /** 
