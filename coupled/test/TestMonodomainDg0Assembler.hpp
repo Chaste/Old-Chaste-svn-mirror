@@ -129,7 +129,7 @@ public:
 	void TestMonodomainDg01D()
 	{
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
+        MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_10_elements",
                                                30, 
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
@@ -164,29 +164,25 @@ public:
                 }   
             }
                
-            if (global_index==25)
+            if (global_index==1)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 8.3749, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 7.4940, 0.001);
             }
-            if (global_index==30)
+            if (global_index==3)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 8.0799, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 0.3840, 0.001);
             }
-            if (global_index==40)
+            if (global_index==5)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 7.4640, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], -52.8798, 0.001);
             }
-            if (global_index==50)
+            if (global_index==7)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 6.8283, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], -84.9598, 0.001);
             }
-            if (global_index==51)
+            if (global_index==9)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 6.7649, 0.001);
-            }
-            if (global_index==75)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 5.4807, 0.001);
+                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], -84.5556, 0.001);
             }
             
         }
@@ -194,19 +190,7 @@ public:
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
-        
-        // Calculate the conduction velocity
-        ColumnDataReader simulation_data("testoutput/MonoDg01d",
-                                         "NewMonodomainLR91_1d");
-        PropagationPropertiesCalculator ppc(&simulation_data);
-        double velocity;
-        
-        // Check action potential propagated to node 95
-        TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,95,0.9));
-        
-        // The value should be approximately 50cm/sec
-        // i.e. 0.05 cm/msec (which is the units of the simulation)
-        TS_ASSERT_DELTA(velocity, 0.05, 0.005);
+
     }
     
     void TestMonodomainDg02DWithEdgeStimulus( void )
