@@ -33,9 +33,12 @@ do_build ()
 }
 
 if [ -z "$1" ]; then
+	# Nightly test pack (don't include default tests)
+	do_build default_notests_Nightly
 	# Memory tests
 	do_build MemoryTesting
 	do_build ParallelMemoryTesting
+	do_build Parallel_Continuous
 else
 	do_build $1
 fi
