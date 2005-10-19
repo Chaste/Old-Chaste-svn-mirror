@@ -21,6 +21,10 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
+/**
+ * Class which specifies and solves a monodomain problem.
+ */
+
 template<int SPACE_DIM>
 class MonodomainProblem
 {
@@ -43,6 +47,12 @@ public:
     
     /**
      * Constructor
+     * @param rMeshFilename Name of mesh used in simulation.
+     * @param rEndTime Duration of simulation.
+     * @param rOutputDirectory Directory where voltage for each time step is written.
+     * @param rOutputFilePrefix Filename prefix for above. "_nnnnnn.dat" is appended where nnnnnn is the time step.
+     * @param rStimulus Object specifying the stimulus information.
+     * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
      */
      
     MonodomainProblem(const std::string &rMeshFilename,
