@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINHEART_HPP_
-#define _TESTMONODOMAINHEART_HPP_
+#ifndef _TESTMONODOMAINSLAB_HPP_
+#define _TESTMONODOMAINSLAB_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
@@ -30,10 +30,10 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
-class PointStimulusHeart: public AbstractMonodomainProblemStimulus<3>
+class PointStimulusSlab: public AbstractMonodomainProblemStimulus<2>
 {
 public:
-    virtual void Apply(MonodomainPde<3> *pPde)
+    virtual void Apply(MonodomainPde<2> *pPde)
     {
         static InitialStimulus stimulus(-600.0, 0.5);
         pPde->SetStimulusFunctionAtNode(0, &stimulus);
@@ -56,13 +56,13 @@ private:
     }
     
 public:
-    void DONTTestMonodomainDg0Heart()
+    void TestMonodomainDg0Slab()
     {
-        PointStimulusHeart point_stimulus_heart;
-        MonodomainProblem<3> monodomainProblem("mesh/test/data/heart",
-                                               0.01, 
-                                               "testoutput/MonoDg0Heart",
-                                               "MonodomainLR91_Heart",
+        PointStimulusSlab point_stimulus_heart;
+        MonodomainProblem<2> monodomainProblem("mesh/test/data/square_4096_elements",
+                                               250, 
+                                               "testoutput/MonoDg0Slab",
+                                               "MonodomainLR91_Slab",
                                                &point_stimulus_heart,
                                                false);
 
@@ -76,4 +76,5 @@ public:
         VecDestroy(monodomainProblem.mCurrentVoltage);
     }
 };
-#endif //_TESTMONODOMAINHEART_HPP_
+
+#endif //_TESTMONODOMAINSLAB_HPP_

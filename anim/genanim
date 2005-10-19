@@ -1,0 +1,15 @@
+# Shell script to create animation following a simulation run
+tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/square_4096_elements
+results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg0Slab/MonodomainLR91_Slab
+out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/square_4096_elements
+
+# Convert node file into pts file to be read by meshalyser
+cat ${tetgen_mesh_prefix}.node | head -n 1 | awk '{print $1}' > ${out_prefix}.pts
+
+cat ${tetgen_mesh_prefix}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" 0}' >> ${out_prefix}.pts
+
+# Create the scalar data
+rm -f ${out_prefix}.dat
+for i in ${results_prefix}_*.dat; do
+  tail -n +2 $i >> ${out_prefix}.dat
+done
