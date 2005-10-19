@@ -36,7 +36,6 @@ private:
     
     double mEndTime;
     AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     std::string mMeshFilename, mOutputDirectory, mOutputFilenamePrefix;
     bool mContainsInternalFaces;
 
@@ -44,6 +43,7 @@ public:
     Vec mCurrentVoltage; // Current solution
     int mLo, mHi;
     MonodomainPde<SPACE_DIM> *mMonodomainPde;
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
     /**
      * Constructor
@@ -107,7 +107,7 @@ public:
             mMonodomainPde = new MonodomainPde<SPACE_DIM>(mMesh.GetNumNodes(), &ode_solver, start_time, big_time_step, small_time_step);
         
             // Add initial stim       
-            mpStimulus->Apply(mMonodomainPde);    
+            mpStimulus->Apply(mMonodomainPde, &mMesh);
         
             // Boundary conditions, zero neumann everywhere
             BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());

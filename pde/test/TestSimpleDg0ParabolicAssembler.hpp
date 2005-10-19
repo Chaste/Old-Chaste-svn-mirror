@@ -366,7 +366,7 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, t_end, 0.01);
+		fullSolver.SetTimes(0, t_end, 0.001);
 		fullSolver.SetInitialCondition(initial_condition);
 
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
@@ -381,13 +381,87 @@ public:
 			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
 			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
-			TS_ASSERT_DELTA(res[local_index], u, 0.1);
+			TS_ASSERT_DELTA(res[local_index], u, 0.05);
 		}
 		VecRestoreArray(result, &res);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
-	}	
+    }
 	
+    // test 2D problem
+    ///todo - This test fails with current tolerance.
+    void xTestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTermOnFineMeshWithSmallDt( void )
+    {       
+        // Create mesh from mesh reader
+        FemlabMeshReader mesh_reader("mesh/test/data/",
+                          "femlab_square_nodes.dat",
+                          "femlab_square_elements.dat",
+                          "femlab_square_edges.dat");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;         
+    
+        // Boundary conditions - zero dirichlet on boundary;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        
+        while(iter < mesh.GetLastBoundaryNode())
+        {
+            double x = (*iter)->GetPoint()[0];
+            double y = (*iter)->GetPoint()[1];
+            ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(-0.25*(x*x+y*y));
+            bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+            iter++;
+        }
+                   
+        // Linear solver
+        SimpleLinearSolver linearSolver;
+    
+        // Assembler
+        SimpleDg0ParabolicAssembler<2,2> fullSolver;
+        
+        // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
+        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+  
+        double* initial_condition_array;
+        int ierr = VecGetArray(initial_condition, &initial_condition_array);
+        
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for(int local_index=0; local_index<hi-lo; local_index++)
+        {
+            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+            double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+            initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
+        }
+        VecRestoreArray(initial_condition, &initial_condition_array);
+        
+        double t_end = 0.1; 
+        fullSolver.SetTimes(0, t_end, 0.001);
+        fullSolver.SetInitialCondition(initial_condition);
+
+        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+        
+        // Check result 
+        double *res;
+        ierr = VecGetArray(result, &res);
+
+        // Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
+        for(int local_index=0; local_index<hi-lo; local_index++)
+        {
+            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+            double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+            double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
+              TS_ASSERT_DELTA(res[local_index], u, 0.001);
+        }
+        VecRestoreArray(result, &res);  
+        VecDestroy(initial_condition);
+        VecDestroy(result);
+    }
+    
+    
 	// test 2D problem
 	void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
 	{		
@@ -577,7 +651,7 @@ public:
 	
 	// test 2D problem - takes a long time to run.
 	// solution is incorrect to specified tolerance.
-	void dontTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
+	void xTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
 	{		
 		// Create mesh from mesh reader
 		FemlabMeshReader mesh_reader("mesh/test/data/",
@@ -673,7 +747,7 @@ public:
 			double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
 			double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
 			double u = exp((-5/4)*PI*PI*t_end) * sin(0.5*PI*x) * sin(PI*y) + x; 
-			TS_ASSERT_DELTA(res[local_index], u, 0.01);
+			TS_ASSERT_DELTA(res[local_index], u, 0.001);
 		}
 		VecRestoreArray(result, &res);
 		VecDestroy(result);

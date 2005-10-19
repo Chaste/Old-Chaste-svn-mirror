@@ -308,9 +308,29 @@ protected:
         mpAssembledLinearSystem->AssembleFinalMatrix();
         
         Vec sol = mpAssembledLinearSystem->Solve(pSolver);
+        
         delete mpAssembledLinearSystem;
         return sol;
 	}
+    
+    void DebugWithSolution(Vec sol)
+    {
+        std::cout<<"\n\nWS: This is the matrix>>>>>>>>>>>>>\n"; 
+        mpAssembledLinearSystem->DisplayMatrix();
+        std::cout<<"\n\nWS: This is the righthand side>>>>>>>>>>>>>\n"; 
+        mpAssembledLinearSystem->DisplayRhs();
+        std::cout<<"\n\nWS: This is the solution>>>>>>>>>>>>>\n"; 
+        VecView(sol, PETSC_VIEWER_STDOUT_WORLD);
+        
+    }
+    void Debug()
+    {
+        std::cout<<"\n\nThis is the matrix>>>>>>>>>>>>>\n"; 
+        mpAssembledLinearSystem->DisplayMatrix();
+        std::cout<<"\n\nThis is the righthand side>>>>>>>>>>>>>\n"; 
+        mpAssembledLinearSystem->DisplayRhs();
+        
+    }
 };
 
 #endif //_ABSTRACTLINEARASSEMBLER_HPP_

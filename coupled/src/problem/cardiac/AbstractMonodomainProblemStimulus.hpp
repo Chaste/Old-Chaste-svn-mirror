@@ -2,6 +2,7 @@
 #define _ABSTRACTMONODOMAINPROBLEMSTIMULUS_HPP_
 
 #include "MonodomainPde.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 
 /**
  * Abstract class that specifies the stimulus protocol for a
@@ -20,9 +21,11 @@ public:
      * method, uses the static keyword to ensure the stimulus
      * function persits through the execution of the simulation.
      * 
-     * @param pPde Monodomain Pde to which stimulus should be applied.
+     * @param pPde  Monodomain Pde to which stimulus should be applied.
+     * @param pMesh The mesh to apply the stimulus on.
      */
-    virtual void Apply(MonodomainPde<SPACE_DIM> *pPde) = 0;
+    virtual void Apply(MonodomainPde<SPACE_DIM> *pPde,
+                       ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh) = 0;
 };
 
 #endif //_ABSTRACTMONODOMAINPROBLEMSTIMULUS_HPP_
