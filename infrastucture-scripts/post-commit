@@ -39,8 +39,12 @@ echo "Revision: $REV" > /var/www/html/out/$REV
 ln -sf /var/www/html/out/$REV /var/www/html/out/latest
 mkdir /var/www/chaste_test_data/continuous/$REV
 
-(ssh bob@userpc60.comlab.ox.ac.uk ./builder $REV>>/var/www/html/out/$REV 2>&1 ;\
-scp -r bob@userpc60.comlab.ox.ac.uk:testresults/userpc60.comlab.ox.ac.uk.\* /var/www/chaste_test_data/continuous/$REV/;
+(ssh bob@userpc60.comlab.ox.ac.uk ./builder $REV>>/var/www/html/out/$REV 2>&1 ;
+scp -r bob@userpc60.comlab.ox.ac.uk:testresults/userpc60.comlab.ox.ac.uk.\* \
+       /var/www/chaste_test_data/continuous/$REV/;
+for dir in /var/www/chaste_test_data/continuous/$REV/*; do
+  ln -s /var/www/html/out/$REV $dir/build.log;
+done;
 ssh bob@userpc60.comlab.ox.ac.uk /bin/rm -r ./testresults/userpc60.comlab.ox.ac.uk.\* ; ) &
 
 #commit-email.pl "$REPOS" "$REV" commit-watchers@example.org

@@ -28,6 +28,8 @@ do_build ()
 	/bin/rm -rf $local_base$rev/$machine.$1
 	# Copy results
 	scp -r bob@$machine:$remote_base$machine.$1 $local_base$rev/$machine.$1
+	# Add a link to the build log
+	ln -s /var/www/html/out/nightly_$rev.$machine.$1 $local_base$rev/$machine.$1/build.log
 	# And remove from the integration machine
 	ssh bob@$machine /bin/rm -r $remote_base$machine.$1
 }
