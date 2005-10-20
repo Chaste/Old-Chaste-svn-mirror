@@ -14,7 +14,6 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ColumnDataWriter.hpp"
@@ -29,7 +28,6 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
-#include "FakeLr91Pde.hpp"
 
 class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
 {
@@ -130,32 +128,33 @@ private:
 	}
     
 public:
+
+    // Solve on a 1D string of cells, 1cm long.
 	void TestMonodomainDg01D()
 	{
         PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
-                                               30, 
+                                               30, // ms
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
 
         monodomainProblem.Solve();
         
-        double* currentVoltageArray;
+        double* voltage_array;
     
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
-            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
-            double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
@@ -170,27 +169,27 @@ public:
                
             if (global_index==1)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 9.4435, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 9.4435, 0.001);
             }
             if (global_index==3)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 9.4145, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 9.4145, 0.001);
             }
             if (global_index==5)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 9.3630, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 9.3630, 0.001);
             }
             if (global_index==7)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 9.2948, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 9.2948, 0.001);
             }
             if (global_index==9)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 9.2135, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 9.2135, 0.001);
             }
             if (global_index==75)
             {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 5.4796, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 5.4796, 0.001);
             }
         }
 
@@ -198,60 +197,59 @@ public:
 
 
 
-        // Display the voltage at the right hand node of the mesh.
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-
-        if (num_procs == 1)
-        {
-           for (int i = 0; i < monodomainProblem.mMesh.GetNumNodes(); i++)
-            {
-                if (monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[0] == 1.0)
-                {
-//std::cout << "Voltage: " << currentVoltageArray[i] << std::endl;
-                }
-            }
-        }
-
-
+//        // Display the voltage at the right hand node of the mesh.
+//        int num_procs;
+//        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+//
+//        if (num_procs == 1)
+//        {
+//           for (int i = 0; i < monodomainProblem.mMesh.GetNumNodes(); i++)
+//            {
+//                if (monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[0] == 1.0)
+//                {
+//                    std::cout << "Voltage: " << voltage_array[i] << std::endl;
+//                }
+//            }
+//        }
 
 
 
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+
+
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
 
     }
     
-    void TestMonodomainDg02DWithEdgeStimulus( void )
+    // Solve on a 2D 1cm by 1cm mesh, stimulating the left edge.
+    // Should behave like the 1D case, extrapolated.
+    // Not yet working.
+    void xTestMonodomainDg02DWithEdgeStimulus( void )
     {   
         EdgeStimulus2D edge_stimulus_2D;
         
         MonodomainProblem<2> monodomainProblem("mesh/test/data/square_128_elements",
-                                               0.01,//0.1,
-// 0.01 is just so that we run the model for 1 time step only. will change to match prev test
+                                               0.1,
                                                "testoutput/MonoDg02dWithEdgeStimulus",
                                                "NewMonodomainLR91_2dWithEdgeStimulus",
                                                &edge_stimulus_2D);
 
         monodomainProblem.Solve();
         
-        double* currentVoltageArray;
+        double* voltage_array;
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
     
         // test whether voltages and gating variables are in correct ranges
-
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
-        
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
-            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
-            double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
@@ -272,45 +270,34 @@ public:
         {
             /*
              * Test the top right node against the right one in the 1D case, 
-             * comparing voltage and then test all the nodes on the right hand 
-             * side of the square against the top right one, comparing voltage
+             * comparing voltage, and then test all the nodes on the right hand 
+             * side of the square against the top right one, comparing voltage.
              */
+            bool need_initialisation = true;
+            double voltage;
 
-            bool needInitialisation = true;
-            double rhsVoltage;
-
-//std::cout << "--------------------------------------------------" << std::endl;
-//std::cout << "LEFT HAND SIDE" << std::endl;
-//
+            // Test the left hand side of the mesh, to check the voltage is
+            // the 'same' all along it.
 //            for (int i = 0; i < monodomainProblem.mMesh.GetNumNodes(); i++)
 //            {
 //                if (monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[0] == 0.0)
 //                {
-//                    // x = 0 is where the stimulus has been applied
-//                    // x = 1 is the other end of the mesh and where we want to 
-//                    //       to test the value of the nodes
-//                    
-//                    if (needInitialisation)
+//                    if (need_initialisation)
 //                    {
-//                        rhsVoltage = currentVoltageArray[i];
-//                        needInitialisation = false;
-//
-////                        TS_ASSERT_DELTA(rhsVoltage, -84.5001, 0.001);   // No diffusion (tEnd = 0.01 ms)
-////                        TS_ASSERT_DELTA(rhsVoltage, -84.5015, 0.001);   // No diffusion (tEnd = 0.1 ms)
+//                        voltage = voltage_array[i];
+//                        need_initialisation = false;
 //                    }
 //                    else
 //                    {
-//                        TS_ASSERT_DELTA(currentVoltageArray[i], rhsVoltage, 0.001);
+//                        TS_ASSERT_DELTA(voltage_array[i], voltage, 0.001);
 //                        std::cout << "y=" << monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
 //                    }
 //                }
 //            }
 
-//std::cout << "--------------------------------------------------" << std::endl;
-//std::cout << "RIGHT HAND SIDE" << std::endl;
+            need_initialisation = true;
 
-            needInitialisation = true;
-
+            // Test the RHS of the mesh
             for (int i = 0; i < monodomainProblem.mMesh.GetNumNodes(); i++)
             {
                 if (monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[0] == 1.0)
@@ -319,24 +306,24 @@ public:
                     // x = 1 is the other end of the mesh and where we want to 
                     //       to test the value of the nodes
                     
-                    if (needInitialisation)
+                    if (need_initialisation)
                     {
-                        rhsVoltage = currentVoltageArray[i];
-                        needInitialisation = false;
-
-//                        TS_ASSERT_DELTA(rhsVoltage, -84.5001, 0.001);   // No diffusion (tEnd = 0.01 ms)
-//                        TS_ASSERT_DELTA(rhsVoltage, -84.5015, 0.001);   // No diffusion (tEnd = 0.1 ms)
+                        voltage = voltage_array[i];
+                        need_initialisation = false;
                     }
                     else
                     {
-                        TS_ASSERT_DELTA(currentVoltageArray[i], rhsVoltage, 0.001);
+                        TS_ASSERT_DELTA(voltage_array[i], voltage, 0.001);
                        // std::cout << "y=" << monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
+                    
+                    // Check against 1d case
+                    TS_ASSERT_DELTA(voltage_array[i], 5.643, 0.001);
                 }
             }
         }
         
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
@@ -354,21 +341,20 @@ public:
 
         monodomainProblem.Solve();
         
-        double* currentVoltageArray;
+        double* voltage_array;
     
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
-            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
-            double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
@@ -390,16 +376,16 @@ public:
             /*
              * Test that corners are equal, and centres of sides.
              */
-            TS_ASSERT_DELTA(currentVoltageArray[0], currentVoltageArray[1], 0.0001);
-            TS_ASSERT_DELTA(currentVoltageArray[0], currentVoltageArray[2], 0.0001);
-            TS_ASSERT_DELTA(currentVoltageArray[0], currentVoltageArray[3], 0.0001);
+            TS_ASSERT_DELTA(voltage_array[0], voltage_array[1], 0.0001);
+            TS_ASSERT_DELTA(voltage_array[0], voltage_array[2], 0.0001);
+            TS_ASSERT_DELTA(voltage_array[0], voltage_array[3], 0.0001);
             
-            TS_ASSERT_DELTA(currentVoltageArray[5], currentVoltageArray[6], 0.0001);
-            TS_ASSERT_DELTA(currentVoltageArray[5], currentVoltageArray[7], 0.0001);
-            TS_ASSERT_DELTA(currentVoltageArray[5], currentVoltageArray[8], 0.0001);
+            TS_ASSERT_DELTA(voltage_array[5], voltage_array[6], 0.0001);
+            TS_ASSERT_DELTA(voltage_array[5], voltage_array[7], 0.0001);
+            TS_ASSERT_DELTA(voltage_array[5], voltage_array[8], 0.0001);
         }
         
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
@@ -418,11 +404,11 @@ public:
 
         monodomainProblem.Solve();
         
-        double* currentVoltageArray;
+        double* voltage_array;
     
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
@@ -431,8 +417,8 @@ public:
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
@@ -445,7 +431,7 @@ public:
                 }
             }
         }
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
@@ -464,11 +450,11 @@ public:
 
         monodomainProblem.Solve();
         
-        double* currentVoltageArray;
+        double* voltage_array;
     
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
@@ -477,8 +463,8 @@ public:
             double Ek    = -77.0;
             double Istim = -80.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
             for(int j=0; j<8; j++)
@@ -491,7 +477,7 @@ public:
                 }
             }
         }
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
@@ -499,169 +485,6 @@ public:
     
     
     
-    void TestFakePdeWithSimpleAssembler2D( void )
-    {       
-        // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Instantiate PDE object
-        FakeLr91Pde<2> pde;         
-    
-        // Boundary conditions - zero neumann on boundary;
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-//        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-//        ConstBoundaryCondition<2>* zero_neumann_bc = new ConstBoundaryCondition<2>(0.0);        
-//        while(iter < mesh.GetLastBoundaryElement())
-//        {
-//            bcc.AddNeumannBoundaryCondition(*iter, zero_neumann_bc);
-//            iter++;
-//        }
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
-        ConstBoundaryCondition<2>* zero_dirichlet_bc = new ConstBoundaryCondition<2>(-84.5);        
-        while(iter < mesh.GetLastBoundaryNode())
-        {
-            bcc.AddDirichletBoundaryCondition(*iter, zero_dirichlet_bc);
-            iter++;
-        }           
-        // Linear solver
-        SimpleLinearSolver linearSolver;
-    
-        // Assembler
-        SimpleDg0ParabolicAssembler<2,2> fullSolver;
-        
-        // initial condition;   
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
-        VecSetFromOptions(initial_condition);
-  
-        double* initial_condition_array;
-        VecGetArray(initial_condition, &initial_condition_array); 
-        
-        int mLo, mHi;
-        VecGetOwnershipRange(initial_condition, &mLo, &mHi);
-        
-        // Set a constant initial voltage throughout the mMesh
-        for(int global_index=mLo; global_index<mHi; global_index++)
-        {
-            initial_condition_array[global_index-mLo] = -84.5;
-        }
-        VecRestoreArray(initial_condition, &initial_condition_array);      
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-        
-        double t_end = 0.01;
-        fullSolver.SetTimes(0, t_end, 0.01);
-        fullSolver.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
-        
-        double* currentVoltageArray;
-        int ierr = VecGetArray(result, &currentVoltageArray); 
- 
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-
-        if (num_procs == 1)
-        {
-
-            for (int i = 0; i < mesh.GetNumNodes(); i++)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[i], -84.5, 0.0001);
-//                std::cout << "x=" << mesh.GetNodeAt(i)->GetPoint()[0] << std::endl;
-//                std::cout << "y=" << mesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
-//                
-            }
-        }
-        
-        VecRestoreArray(result, &currentVoltageArray);
-        
-        VecDestroy(initial_condition);
-        VecDestroy(result);
-    }
-    
-    void TestFakePdeWithSimpleAssembler1D( void )
-    {       
-        // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Instantiate PDE object
-        FakeLr91Pde<1> pde;
-    
-        // Boundary conditions - zero neumann on boundary;
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-//        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-//        ConstBoundaryCondition<2>* zero_neumann_bc = new ConstBoundaryCondition<2>(0.0);        
-//        while(iter < mesh.GetLastBoundaryElement())
-//        {
-//            bcc.AddNeumannBoundaryCondition(*iter, zero_neumann_bc);
-//            iter++;
-//        }
-        ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
-        ConstBoundaryCondition<1>* zero_dirichlet_bc = new ConstBoundaryCondition<1>(-84.5);
-        while(iter < mesh.GetLastBoundaryNode())
-        {
-            bcc.AddDirichletBoundaryCondition(*iter, zero_dirichlet_bc);
-            iter++;
-        }           
-        // Linear solver
-        SimpleLinearSolver linearSolver;
-    
-        // Assembler
-        SimpleDg0ParabolicAssembler<1,1> fullSolver;
-        
-        // initial condition;   
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
-        VecSetFromOptions(initial_condition);
-  
-        double* initial_condition_array;
-        VecGetArray(initial_condition, &initial_condition_array); 
-        
-        int mLo, mHi;
-        VecGetOwnershipRange(initial_condition, &mLo, &mHi);
-        
-        // Set a constant initial voltage throughout the mMesh
-        for(int global_index=mLo; global_index<mHi; global_index++)
-        {
-            initial_condition_array[global_index-mLo] = -84.5;
-        }
-        VecRestoreArray(initial_condition, &initial_condition_array);      
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-        
-        double t_end = 1;
-        fullSolver.SetTimes(0, t_end, 0.01);
-        fullSolver.SetInitialCondition(initial_condition);
-
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
-        
-        double* currentVoltageArray;
-        int ierr = VecGetArray(result, &currentVoltageArray); 
- 
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-
-        if (num_procs == 1)
-        {
-
-            for (int i = 0; i < mesh.GetNumNodes(); i++)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[i], -84.5, 0.0001);
-  //              std::cout << "x=" << mesh.GetNodeAt(i)->GetPoint()[0] << std::endl;
-                
-            }
-        }
-        
-        VecRestoreArray(result, &currentVoltageArray);
-        
-        VecDestroy(initial_condition);
-        VecDestroy(result);
-    }
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

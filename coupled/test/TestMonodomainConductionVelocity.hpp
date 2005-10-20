@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINSLOW_HPP_
-#define _TESTMONODOMAINSLOW_HPP_
+#ifndef _TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
+#define _TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
@@ -33,14 +33,15 @@
 class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
 {
 public:
-    virtual void Apply(MonodomainPde<1> *pPde)
+    virtual void Apply(MonodomainPde<1> *pPde, 
+                       ConformingTetrahedralMesh<1,1> *pMesh)
     {
         static InitialStimulus stimulus(-600.0, 0.5);
         pPde->SetStimulusFunctionAtNode(0, &stimulus);
     }
 };
 
-class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
+class TestMonodomainConductionVelocity : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -56,15 +57,15 @@ private:
     }
     
 public:
-    void TestMonodomainDg01D()
+    void TestMonodomainDg01D_100elements()
     {
         PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
-                                               30, 
+                                               30, // ms
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
-
+        monodomainProblem.time_step = 0.01; // ms
         monodomainProblem.Solve();
         
         double* currentVoltageArray;
@@ -75,10 +76,9 @@ public:
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
-            // assuming LR model has Ena = 54.4 and Ek = -77 and given magnitude of initial stim = -80
+            // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
-            double Istim = -80.0;
             
             TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
@@ -93,32 +93,6 @@ public:
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
                 }   
             }
-               
-            if (global_index==25)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 8.3749, 0.001);
-            }
-            if (global_index==30)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 8.0799, 0.001);
-            }
-            if (global_index==40)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 7.4640, 0.001);
-            }
-            if (global_index==50)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 6.8283, 0.001);
-            }
-            if (global_index==51)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 6.7649, 0.001);
-            }
-            if (global_index==75)
-            {
-                TS_ASSERT_DELTA(currentVoltageArray[global_index-monodomainProblem.mLo], 5.4807, 0.001);
-            }
-            
         }
         VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
@@ -141,7 +115,69 @@ public:
             
             // The value should be approximately 50cm/sec
             // i.e. 0.05 cm/msec (which is the units of the simulation)
-            TS_ASSERT_DELTA(velocity, 0.05, 0.005);
+            TS_ASSERT_DELTA(velocity, 0.05, 0.003);
+        }
+    }
+    
+    void TestMonodomainDg01D_200elements()
+    {
+        PointStimulus1D point_stimulus_1D;
+        MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_200_elements",
+                                               30, // ms
+                                               "testoutput/MonoDg01d",
+                                               "NewMonodomainLR91_1d",
+                                               &point_stimulus_1D);
+        monodomainProblem.time_step = 0.002; // ms
+        monodomainProblem.Solve();
+        
+        double* currentVoltageArray;
+    
+        // test whether voltages and gating variables are in correct ranges
+
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        
+        for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }   
+            }
+        }
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
+        VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
+        VecDestroy(monodomainProblem.mCurrentVoltage);
+        
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+
+        if (num_procs == 1)
+        {
+            // Calculate the conduction velocity
+            ColumnDataReader simulation_data("testoutput/MonoDg01d",
+                                             "NewMonodomainLR91_1d");
+            PropagationPropertiesCalculator ppc(&simulation_data);
+            double velocity;
+            
+            // Check action potential propagated to node 95
+            TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,185,0.9));
+            
+            // The value should be approximately 50cm/sec
+            // i.e. 0.05 cm/msec (which is the units of the simulation)
+            TS_ASSERT_DELTA(velocity, 0.05, 0.003);
         }
     }
 };

@@ -45,10 +45,13 @@ public:
     MonodomainPde<SPACE_DIM> *mMonodomainPde;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
+    double time_step;
+    
     /**
      * Constructor
-     * @param rMeshFilename Name of mesh used in simulation.
-     * @param rEndTime Duration of simulation.
+     * @param rMeshFilename Name of mesh used in simulation.  Note that the space
+     *     step is measured in cm.
+     * @param rEndTime Duration of simulation, in milliseconds.
      * @param rOutputDirectory Directory where voltage for each time step is written.
      * @param rOutputFilePrefix Filename prefix for above. "_nnnnnn.dat" is appended where nnnnnn is the time step.
      * @param rStimulus Object specifying the stimulus information.
@@ -71,7 +74,8 @@ public:
     {
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-        mSequential = (num_procs == 1);    
+        mSequential = (num_procs == 1);
+        time_step = 0.01; // ms
     }
 
     /**
@@ -95,8 +99,8 @@ public:
         {
             double start_time = 0.0;
         
-            double big_time_step = 0.01; 
-            double small_time_step = 0.01;
+            double big_time_step = time_step; 
+            double small_time_step = time_step;
         
             // Read mMesh
             TrianglesMeshReader mesh_reader(mMeshFilename, mContainsInternalFaces);
@@ -159,7 +163,7 @@ public:
             int time_var_id = 0;
             int voltage_var_id = 0;
 
-            if (mSequential)
+            if (mSequential && mOutputFilenamePrefix.length() > 0)
             {        
                 mkdir(mOutputDirectory.c_str(), 0777);
                      
@@ -216,7 +220,7 @@ public:
     
             // close the file that stores voltage values
             
-            if (mSequential)
+            if (mSequential && mOutputFilenamePrefix.length() > 0)
             {
                 p_test_writer->Close();
             

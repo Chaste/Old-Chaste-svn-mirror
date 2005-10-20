@@ -1011,6 +1011,109 @@ public:
 		VecDestroy(initial_condition);
 		VecDestroy(result);
 	}
+    
+    
+    void TestHeatEquationSolutionDoesntDrift2D( void )
+    {       
+        // Create mesh from mesh reader
+        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        TimeDependentDiffusionEquationPde<2> pde;         
+    
+        // Boundary conditions - non-zero constant dirichlet on boundary;
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConstBoundaryCondition<2>* dirichlet_bc = new ConstBoundaryCondition<2>(-84.5);        
+        while(iter < mesh.GetLastBoundaryNode())
+        {
+            bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
+            iter++;
+        }           
+        // Linear solver
+        SimpleLinearSolver linearSolver;
+    
+        // Assembler
+        SimpleDg0ParabolicAssembler<2,2> fullSolver;
+        
+        // initial condition;   
+        Vec initial_condition = CreateConstantConditionVec(mesh.GetNumNodes(), -84.5);
+              
+        double t_end = 1.0;
+        fullSolver.SetTimes(0, t_end, 0.01);
+        fullSolver.SetInitialCondition(initial_condition);
+
+        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+        
+        // Check solution is constant throughout the mesh
+        double* result_array;
+        int ierr = VecGetArray(result, &result_array); 
+ 
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for (int local_index=0; local_index<hi-lo; local_index++)
+        {
+            TS_ASSERT_DELTA(result_array[local_index], -84.5, 0.0001);
+        }
+        
+        VecRestoreArray(result, &result_array);
+        
+        VecDestroy(initial_condition);
+        VecDestroy(result);
+    }
+    
+    void TestHeatEquationSolutionDoesntDrift1D( void )
+    {       
+        // Create mesh from mesh reader
+        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        TimeDependentDiffusionEquationPde<1> pde;
+    
+        // Boundary conditions - non-zero constant dirichlet on boundary;
+        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+        ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConstBoundaryCondition<1>* dirichlet_bc = new ConstBoundaryCondition<1>(-84.5);
+        while(iter < mesh.GetLastBoundaryNode())
+        {
+            bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
+            iter++;
+        }           
+        // Linear solver
+        SimpleLinearSolver linearSolver;
+    
+        // Assembler
+        SimpleDg0ParabolicAssembler<1,1> fullSolver;
+        
+        // initial condition;   
+        Vec initial_condition = CreateConstantConditionVec(mesh.GetNumNodes(), -84.5);
+              
+        double t_end = 1;
+        fullSolver.SetTimes(0, t_end, 0.01);
+        fullSolver.SetInitialCondition(initial_condition);
+
+        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+
+        // Check solution is constant throughout the mesh
+        double* result_array;
+        int ierr = VecGetArray(result, &result_array); 
+ 
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for (int local_index=0; local_index<hi-lo; local_index++)
+        {
+            TS_ASSERT_DELTA(result_array[local_index], -84.5, 0.0001);
+        }
+        
+        VecRestoreArray(result, &result_array);
+        
+        VecDestroy(initial_condition);
+        VecDestroy(result);
+    }
 };
 
 #endif //_TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_

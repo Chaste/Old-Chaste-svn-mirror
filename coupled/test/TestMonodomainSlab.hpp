@@ -40,7 +40,7 @@ public:
     }
 };
 
-class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
+class TestMonodomainSlab : public CxxTest::TestSuite 
 {   
 private:
     /**
