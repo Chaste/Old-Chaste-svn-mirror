@@ -46,13 +46,13 @@ def index(req):
   return _m.index(req)
 
 
-def testsuite(req, type, revision, machine, buildType, testsuite, status):
+def testsuite(req, type, revision, machine, buildType, testsuite, status, runtime):
   """
   Display the results for the given testsuite, by passing the file back
   to the user.
   """
   _importCodeModule()
-  return _m.testsuite(req, type, revision, machine, buildType, testsuite, status)
+  return _m.testsuite(req, type, revision, machine, buildType, testsuite, status, runtime)
 
 def recent(req, type=''):
   """Display brief summaries of recent builds of the given type.

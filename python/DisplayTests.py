@@ -356,7 +356,7 @@ def _getTestStatus(test_set_dir, build):
   the overall status, and the third is the colour in which to display
   the overall status.
   """
-  ignores = ['index.html', '.sconsign']
+  ignores = ['index.html', '.sconsign', 'build.log']
   result_files = os.listdir(test_set_dir)
   testsuite_status, runtime = {}, {}
   for filename in result_files:
@@ -367,6 +367,23 @@ def _getTestStatus(test_set_dir, build):
       runtime[testsuite] = d['runtime']
   overall_status, colour = _overallStatus(testsuite_status.values(),
                                           build)
+
+  # Check for build failure
+  import re
+  build_failed = re.compile('scons: building terminated because of errors.')
+  try:
+    log = file(os.path.join(test_set_dir, 'build.log'), 'r')
+    for line in log:
+      m = build_failed.match(line)
+      if m:
+        overall_status = 'Build failed.  ' + overall_status
+        colour = 'red'
+        break
+    log.close()
+  except:
+    # Build log may not exists for old builds
+    pass
+  
   return testsuite_status, overall_status, colour, runtime
 
 def _overallStatus(statuses, build):
@@ -385,7 +402,7 @@ def _overallStatus(statuses, build):
     result = "Failed %d out of %d test suites" % (failed, total)
     colour = "red"
   else:
-    result = "All tests passed"
+    result = "All tests (that ran) passed"
     colour = "green"
   return result, colour
 
