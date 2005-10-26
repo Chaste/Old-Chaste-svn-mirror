@@ -178,6 +178,18 @@ def _summary(req, type, revision, machine=None, buildType=None):
   st = os.stat(test_set_dir)
   mod_time = st.st_mtime
   date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(mod_time))
+
+  # Work out the URL of the build log file
+  build_log = ""
+  if type == 'continuous':
+    logname = str(revision)
+  elif type == 'nightly':
+    logname = "nightly_%d.%s.%s" % (revision, machine, buildType)
+  else:
+    logname = ""
+  if logname:
+    logurl = "/out/" + logname
+    build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logname)
   
   # Produce output HTML
   output = output + """\
@@ -186,7 +198,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
   Date and time: %s<br />
   Overall status: %s<br />
   Build type: %s<br />
-  Machine: %s
+  Machine: %s<br />
+  %s
   </p>
   <table border="1">
     <tr>
@@ -195,7 +208,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
       <th>Run Time</th>
     </tr>
 """ % (_linkRevision(revision), date, _colourText(overall_status, colour),
-       _linkBuildType(buildType, revision), machine)
+       _linkBuildType(buildType, revision), machine, build_log)
   
   # Display the status of each test suite, in alphabetical order
   testsuites = testsuite_status.keys()
