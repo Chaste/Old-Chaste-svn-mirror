@@ -57,6 +57,7 @@ private:
     }
     
 public:
+    // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
     void TestMonodomainDg01D_100elements()
     {
         PointStimulus1D point_stimulus_1D;
@@ -119,6 +120,12 @@ public:
         }
     }
     
+    // Solve on a 1D string of cells, 1cm long with a space step of 0.05mm.
+    // The purpose of this test is to check that it still gives similar results
+    // to TestMonodomainDg01D_100elements. This is based on the assumption that 
+    // 0.1mm is the space step from which convergence occurs. In that context, 
+    // going for a smaller space step should still the same converging results. 
+    // Note though that this requires a smaller time step for the integrator...
     void TestMonodomainDg01D_200elements()
     {
         PointStimulus1D point_stimulus_1D;
@@ -172,12 +179,77 @@ public:
             PropagationPropertiesCalculator ppc(&simulation_data);
             double velocity;
             
-            // Check action potential propagated to node 95
+            // Check action potential propagated to node 185
             TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,185,0.9));
             
             // The value should be approximately 50cm/sec
             // i.e. 0.05 cm/msec (which is the units of the simulation)
             TS_ASSERT_DELTA(velocity, 0.05, 0.003);
+        }
+    }
+
+    // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.
+    // See above for the reasons behind this test. 
+    // Note that this space step ought to be too big!
+    void TestMonodomainDg01D_20elements()
+    {
+        PointStimulus1D point_stimulus_1D;
+        MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_20_elements",
+                                               30, // ms
+                                               "testoutput/MonoDg01d",
+                                               "NewMonodomainLR91_1d",
+                                               &point_stimulus_1D);
+        monodomainProblem.time_step = 0.01; // ms
+        monodomainProblem.Solve();
+        
+        double* currentVoltageArray;
+    
+        // test whether voltages and gating variables are in correct ranges
+
+        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray); 
+        
+        for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
+        {
+            // assuming LR model has Ena = 54.4 and Ek = -77
+            double Ena   =  54.4;
+            double Ek    = -77.0;
+            
+            TS_ASSERT_LESS_THAN_EQUALS(   currentVoltageArray[global_index-monodomainProblem.mLo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -currentVoltageArray[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+                
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                }   
+            }
+        }
+        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
+        VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
+        VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
+        VecDestroy(monodomainProblem.mCurrentVoltage);
+        
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+
+        if (num_procs == 1)
+        {
+            // Calculate the conduction velocity
+            ColumnDataReader simulation_data("testoutput/MonoDg01d",
+                                             "NewMonodomainLR91_1d");
+            PropagationPropertiesCalculator ppc(&simulation_data);
+            double velocity;
+            
+            // Check action potential propagated to node 47
+            TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(1,19,0.9));
+            
+            // The value should NOT be approximately 50cm/sec
+            // i.e. 0.05 cm/msec (which is the units of the simulation)
+            TS_ASSERT(fabs(velocity-0.05) > 0.003);
         }
     }
 };

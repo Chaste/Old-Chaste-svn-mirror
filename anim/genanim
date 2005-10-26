@@ -1,7 +1,12 @@
 # Shell script to create animation following a simulation run
-tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/square_4096_elements
-results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg0Slab/MonodomainLR91_Slab
-out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/square_4096_elements
+
+#tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/2D_0_to_1mm_200_elements
+#results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg02dWithPointStimulus/NewMonodomainLR91_2dWithPointStimulus
+#out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/2D_0_to_1mm
+
+tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/2D_0_to_1mm_200_elements
+results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg02dWithEdgeStimulus/NewMonodomainLR91_2dWithEdgeStimulus
+out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/2D_0_to_1mm
 
 # Convert node file into pts file to be read by meshalyser
 cat ${tetgen_mesh_prefix}.node | head -n 1 | awk '{print $1}' > ${out_prefix}.pts

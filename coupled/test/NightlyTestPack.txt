@@ -1,2 +1,2 @@
 TestMonodomainConductionVelocity.hpp
-TestMonodomainHeart.hpp
+TestMonodomainSlab.hpp
