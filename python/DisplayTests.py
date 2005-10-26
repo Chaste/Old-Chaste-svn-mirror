@@ -184,7 +184,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   if type == 'continuous':
     logname = str(revision)
   elif type == 'nightly':
-    logname = "nightly_%d.%s.%s" % (revision, machine, buildType)
+    logname = "nightly_%s.%s.%s" % (str(revision), machine, buildType)
   else:
     logname = ""
   if logname:
