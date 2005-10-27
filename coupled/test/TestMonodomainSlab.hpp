@@ -33,10 +33,28 @@
 class PointStimulusSlab: public AbstractMonodomainProblemStimulus<2>
 {
 public:
-    virtual void Apply(MonodomainPde<2> *pPde)
+    virtual void Apply(MonodomainPde<2> *pPde,
+                       ConformingTetrahedralMesh<2,2> *pMesh)
     {
         static InitialStimulus stimulus(-600.0, 0.5);
         pPde->SetStimulusFunctionAtNode(0, &stimulus);
+    }
+};
+
+class FaceStimulus3D: public AbstractMonodomainProblemStimulus<3>
+{
+    virtual void Apply(MonodomainPde<3> *pPde,
+                       ConformingTetrahedralMesh<3,3> *pMesh)
+    {
+        static InitialStimulus stimulus(-600.0, 0.5);
+
+        for (int i = 0; i < pMesh->GetNumNodes(); i++)
+        {
+            if (pMesh->GetNodeAt(i)->GetPoint()[0] == 0.0)
+            {
+                pPde->SetStimulusFunctionAtNode(i, &stimulus);
+            }
+        }
     }
 };
 
