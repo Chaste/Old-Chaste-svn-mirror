@@ -119,7 +119,15 @@ public:
                 }
             }
 
-            double relerr = fabs ((voltage_array[5] - prev_voltage) / prev_voltage);
+            double my_voltage = 0.0;
+            if ((monodomainProblem.mLo <= 5) && (monodomainProblem.mHi > 5))
+            {
+                my_voltage = voltage_array[5-monodomainProblem.mLo];
+            }
+            double probe_voltage;
+            MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+
+            double relerr = fabs ((probe_voltage - prev_voltage) / prev_voltage);
 // Note: the first time around this iteration, the relative error will be wrong
 //       because of the initial value of prev_voltage
 //            std::cout << "Testing for dt = " << monodomainProblem.time_step
@@ -138,7 +146,7 @@ public:
                 time_step *= 0.5;
             }
 
-            prev_voltage = voltage_array[5];
+            prev_voltage = probe_voltage;
     
             VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
             VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
@@ -238,14 +246,22 @@ public:
                 }
             }
 
-            double relerr = fabs ((voltage_array[middle_node] - prev_voltage) / prev_voltage);
+            double my_voltage = 0.0;
+            if ((monodomainProblem.mLo <= middle_node) && (monodomainProblem.mHi > middle_node))
+            {
+                my_voltage = voltage_array[middle_node-monodomainProblem.mLo];
+            }
+            double probe_voltage;
+            MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+
+            double relerr = fabs ((probe_voltage - prev_voltage) / prev_voltage);
 // Note: the first time around this iteration, the relative error will be wrong
 //       because of the initial value of prev_voltage
 //            std::cout << "Testing for dx = " << space_step
 //                << "cm (dt = " << time_step << "ms) err = " << relerr << " V = " 
 //                << voltage_array[middle_node] << "mV" << std::endl << std::flush;
             
-            prev_voltage = voltage_array[middle_node];
+            prev_voltage = probe_voltage;
 
             if (relerr < 1e-2)
             {
