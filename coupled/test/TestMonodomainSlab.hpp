@@ -78,7 +78,10 @@ public:
     // Solve on a 3D 1mm by 1mm by 1mm mesh (space step = 0.1mm), stimulating 
     // the left face.
     // Should behave like the 1D case, extrapolated.
-    void TestMonodomainDg03DWithFaceStimulus( void )
+    // This version has a longer duration, and is disabled by default.  The
+    // version below has the same duration as the tests in
+    // TestMonodomainDg0Assembler.hpp
+    void longTestMonodomainDg03DWithFaceStimulus( void )
     {
         FaceStimulus3D face_stimulus_3D;
         
