@@ -41,14 +41,14 @@ if system_name == 'finarfin':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 else:
   # DTC (default)
-  petsc_base = '../../../petsc-2.2.1-with-mpi/'
+  petsc_base = '/home/chaste/petsc-2.2.1-with-mpi/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
   petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
   
-  petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'
+  petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 
 Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath")
 
