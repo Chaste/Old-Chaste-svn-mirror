@@ -1,7 +1,4 @@
 TestBoundaryConditionContainer.hpp
-TestLinearSystem.hpp
-TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestNonlinearElasticityPde.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
-TestSimpleNonlinearSolver.hpp

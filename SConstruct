@@ -105,7 +105,7 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
           build.GetTestReportDir() + ' --no-stdout')
 
 
-SConscript('maths/SConscript', build_dir='maths/build', duplicate=0)
+SConscript('linalg/SConscript', build_dir='linalg/build', duplicate=0)
 SConscript('mesh/SConscript', build_dir='mesh/build', duplicate=0)
 SConscript('global/SConscript', build_dir='global/build', duplicate=0)
 SConscript('io/SConscript', build_dir='io/build', duplicate=0)

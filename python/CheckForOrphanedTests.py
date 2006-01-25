@@ -36,17 +36,34 @@ for test_pack_file in test_pack_files:
   # Add all tests in this file
   fp = file(test_pack_file)
   for line in fp:
+    line = line.strip()
     if not line in found_tests:
-      found_tests.append(line.strip())
+      found_tests.append(line)
   fp.close()
 
 # Now check for orphaned tests
 test_dirs = glob.glob('*/test/')
 
+local_found_tests = {} # Names of tests found in test packs in each folder
+
 for test_dir in test_dirs:
-  for file in os.listdir(test_dir):
-    if IsTestFile(test_dir, file) and not file in found_tests:
-      orphans.append(os.path.join(test_dir, file))
+  local_found_tests[test_dir] = []
+  test_pack_files = glob.glob(test_dir + '*TestPack.txt')
+  for test_pack_file in test_pack_files:
+    # Update list of tests that should be in this folder
+    fp = file(test_pack_file)
+    for line in fp:
+      line = line.strip()
+      if not line in local_found_tests[test_dir]:
+        local_found_tests[test_dir].append(line)
+    fp.close()
+  # Check for orphans in this folder
+  for filename in os.listdir(test_dir):
+    if IsTestFile(test_dir, filename):
+      if not filename in local_found_tests[test_dir]:
+        orphans.append(os.path.join(test_dir, filename))
+      else:
+        local_found_tests[test_dir].remove(filename)
 
 # Output the names of test packs found
 if test_packs:
@@ -56,11 +73,22 @@ if test_packs:
   print
 
 # Output any orphaned tests found
-if orphans:
-  print "Orphaned tests found:"
-  for orphan in orphans:
-    print " ", orphan
-  print
+not_found = []
+for test_dir in local_found_tests.keys():
+  for test_file in local_found_tests[test_dir]:
+    not_found.append(test_dir + test_file)
+
+if orphans or not_found:
+  if orphans:
+    print "Orphaned tests found:"
+    for orphan in orphans:
+      print " ", orphan
+    print
+  if not_found:
+    print "Tests that don't exist:"
+    for test in not_found:
+      print " ", test
+    print
   print "The next line is for the benefit of the test summary scripts."
   n_orphans, n_found = len(orphans), len(found_tests)
   print "Failed",n_orphans,"of",n_orphans+n_found,"tests"
