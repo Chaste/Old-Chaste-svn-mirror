@@ -104,14 +104,13 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
           'testoutput/DuplicateFileNames.log ' + build_type + ' ' +
           build.GetTestReportDir() + ' --no-stdout')
 
-
-SConscript('linalg/SConscript', build_dir='linalg/build', duplicate=0)
-SConscript('mesh/SConscript', build_dir='mesh/build', duplicate=0)
-SConscript('global/SConscript', build_dir='global/build', duplicate=0)
-SConscript('io/SConscript', build_dir='io/build', duplicate=0)
-SConscript('ode/SConscript', build_dir='ode/build', duplicate=0)
-SConscript('pde/SConscript', build_dir='pde/build', duplicate=0)
-SConscript('coupled/SConscript', build_dir='coupled/build', duplicate=0)
+build_dir = build.build_dir
+print build_dir
+for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'ode', 'pde', 'coupled']:
+    bld_dir = toplevel_dir + '/build/' + build_dir
+    if not os.path.exists(bld_dir):
+        os.mkdir(bld_dir)
+    SConscript(toplevel_dir + '/SConscript', build_dir=bld_dir, duplicate=0)
 
 
 # Remove the contents of testoutput/ on a clean build

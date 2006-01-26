@@ -24,6 +24,7 @@ class BuildType:
     self._link_flags = ''
     self._test_packs = ['Continuous']
     self._revision = ''
+    self.build_dir = 'default'
   
   def CompilerType(self):
     """
@@ -173,7 +174,24 @@ class GccDebug(Gcc):
   def __init__(self):
     BuildType.__init__(self)
     self._cc_flags = '-g'
+    self.build_dir = 'debug'
     
+class Profile(GccDebug):
+  """
+  gcc compiler with profiling enabled.
+  """
+  def __init__(self):
+    BuildType.__init__(self)
+    self._cc_flags += ' -pg'
+    self._link_flags += ' -pg'
+    self._test_packs = ['Profile']
+    self.build_dir = 'profile'
+  
+  def GetTestRunnerCommand(self, exefile):
+    "Run test with a profiler and rename gmon.out"
+    return exefile + ' ; gprof ' + exefile
+
+
 class Parallel(GccDebug):
   """
   Run using mpi run for tests which run in a parallel environment
@@ -374,6 +392,7 @@ class GccOpt(Gcc):
   def __init__(self):
     BuildType.__init__(self)
     self._cc_flags = '-O3'
+    self.build_dir = 'optimised'
 
 class GccOptP4(GccOpt):
   """
@@ -382,16 +401,8 @@ class GccOptP4(GccOpt):
   def __init__(self):
     GccOpt.__init__(self)
     self._cc_flags = self._cc_flags+' -march=pentium4 -mmx -msse -msse2 -mfpmath=sse'
+    self.build_dir = 'optimised_P4'
     
-class GccProfiled(Gcc):
-  """
-  gcc compiler with profiling.
-  """
-  def _init__(self):
-    BuildType.__init__(self)
-    self._cc_flags = '-pg'
-    self._link_flags = '-pg'
-
 class Intel(BuildType):
   "Intel compiler tools."
   def __init__(self):
@@ -400,6 +411,7 @@ class Intel(BuildType):
     # Turn off some warnings
     self._cc_flags = '-wr470 -wr186'
     self._link_flags = '-static-libcxa'
+    self.build_dir = 'intel'
 
   def SetReporting(self, vec=1):
     """

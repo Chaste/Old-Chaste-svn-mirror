@@ -3,14 +3,16 @@ import os
 
 Import("*")
 
-# Note that this script is executed from within the build/ folder
+# Note that this script is executed from within the build/<something>/ folder
 curdir = os.getcwd()
 
 # Get our top-level directory
-toplevel_dir = os.path.basename(os.path.dirname(curdir))
+toplevel_dir = os.path.basename(os.path.dirname(os.path.dirname(curdir)))
+
+print curdir, toplevel_dir
 
 # Look for .cpp files within the src folder
-os.chdir('..') # This is so .o files are built in `toplevel_dir'/build/
+os.chdir('../..') # This is so .o files are built in `toplevel_dir'/build/
 files = []
 for dirpath, dirnames, filenames in os.walk('src'):
   for filename in filenames:
@@ -35,7 +37,7 @@ if single_test_suite:
 else:
   for testpack in build.TestPacks():
     try:
-      packfile = file('../test/'+testpack+'TestPack.txt', 'r')
+      packfile = file('../../test/'+testpack+'TestPack.txt', 'r')
       for testfile in map(lambda s: s.strip(), packfile.readlines()):
         # Ignore blank lines and repeated tests.
         if testfile and not testfile in testfiles:
@@ -46,7 +48,7 @@ else:
 
 
 # Look for source files that tests depend on in test/.
-_testsource = os.listdir('../test')
+_testsource = os.listdir('../../test')
 testsource = []
 for file in _testsource:
   if file[-4:] == '.cpp':
@@ -82,7 +84,7 @@ opt['BUILDERS']['RunTests'] = runtests
 
 opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 opt.Library(toplevel_dir, files)
-opt.Install('../../lib', 'lib'+toplevel_dir+'.a')
+opt.Install('../../../lib', 'lib'+toplevel_dir+'.a')
 opt.Library('test'+toplevel_dir, testsource)
 
 for testfile in testfiles:
@@ -90,7 +92,7 @@ for testfile in testfiles:
   opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
   opt.Program(testfile[:-4]+'Runner', [prefix+'Runner.cpp'],
               LIBS = all_libs,
-              LIBPATH = ['../../lib', '.', petsc_libpath])
+              LIBPATH = ['../../../lib', '.', petsc_libpath])
   opt.RunTests(prefix+'.log', prefix+'Runner')
 
 
