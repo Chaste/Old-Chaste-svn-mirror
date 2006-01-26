@@ -335,7 +335,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 			 
@@ -393,7 +393,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 				
@@ -447,7 +447,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 
@@ -504,7 +504,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 				
@@ -563,7 +563,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 				
@@ -624,7 +624,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 				
@@ -679,7 +679,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 				
@@ -735,7 +735,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 		
@@ -814,7 +814,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 				
@@ -907,7 +907,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 		
@@ -930,7 +930,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 		
@@ -1021,7 +1021,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 		
@@ -1044,7 +1044,7 @@ public:
 		try {
 			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		} catch (Exception e) {
-			TS_TRACE(e.getMessage());
+			TS_TRACE(e.GetMessage());
 			TS_ASSERT(0);
 		}
 		

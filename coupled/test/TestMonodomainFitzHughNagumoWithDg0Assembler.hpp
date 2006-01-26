@@ -144,7 +144,7 @@ public:
             try {
                 currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
              } catch (Exception e) {
-                TS_TRACE(e.getMessage());
+                TS_TRACE(e.GetMessage());
                 TS_ASSERT(0);
             }
             

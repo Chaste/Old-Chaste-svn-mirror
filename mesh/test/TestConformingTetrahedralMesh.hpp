@@ -60,7 +60,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		}
 		catch(Exception &e)
 		{
-			std::cout << e.getMessage() << std::endl;
+			std::cout << e.GetMessage() << std::endl;
 			TS_ASSERT(0);
 		}
 		
@@ -122,7 +122,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		}
 		catch(Exception &e)
 		{
-			std::cout << e.getMessage() << std::endl;
+			std::cout << e.GetMessage() << std::endl;
 			TS_ASSERT(0);
 		}
 		
@@ -167,7 +167,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		}
 		catch(Exception &e)
 		{
-			std::cout << e.getMessage() << std::endl;
+			std::cout << e.GetMessage() << std::endl;
 		}
 		
 		// Check we have the right number of nodes & elements
@@ -199,7 +199,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		}
 		catch(Exception &e)
 		{
-			std::cout << e.getMessage() << std::endl;
+			std::cout << e.GetMessage() << std::endl;
 		}
 		
 		// Check we have the right number of nodes & elements

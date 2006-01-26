@@ -25,7 +25,7 @@ public:
      *
      * @return The message set when the exception was thrown.
      **/
-    std::string getMessage()
+    std::string GetMessage()
     {
         return mMessage;
     }

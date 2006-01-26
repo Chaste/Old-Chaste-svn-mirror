@@ -229,7 +229,7 @@ public:
         }
         catch (Exception &e)
         {
-            std::cout<<e.getMessage()<<std::endl;   
+            std::cout<<e.GetMessage()<<std::endl;   
         }
     }
 };
