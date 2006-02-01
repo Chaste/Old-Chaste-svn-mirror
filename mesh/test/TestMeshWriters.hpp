@@ -38,9 +38,10 @@ class TestMeshWriters : public CxxTest::TestSuite
 		{
 			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
+        // Note: the results of this may not be as expected!
+		for (i=0; i<pImportMeshReader->GetNumFaces();i++)
 		{
-			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextFace());
 		}
 		
 		pMeshWriter->WriteFiles();
@@ -72,9 +73,9 @@ class TestMeshWriters : public CxxTest::TestSuite
 		{
 			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumFaces();i++)
 		{
-			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextFace());
 		}
 		
 		pMeshWriter->WriteFiles();
@@ -103,9 +104,9 @@ class TestMeshWriters : public CxxTest::TestSuite
 		{
 			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumFaces();i++)
 		{
-			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextFace());
 		}
 				
 		TS_ASSERT_THROWS_NOTHING(pMeshWriter->WriteFiles());
@@ -146,9 +147,9 @@ class TestMeshWriters : public CxxTest::TestSuite
 		{
 			pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 		}
-		for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
+		for (i=0; i<pImportMeshReader->GetNumFaces();i++)
 		{
-			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
+			pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextFace());
 		}				
 		
 		TS_ASSERT_THROWS_NOTHING(pMeshWriter->WriteFiles());

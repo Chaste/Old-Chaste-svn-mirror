@@ -92,7 +92,7 @@ public :
 			for (int poly_degree=0; poly_degree<2*num_quad_points; poly_degree++)
 			{
 				
-				std::vector<const Node<1>*> nodes2;
+				std::vector<Node<1>*> nodes2;
 				nodes2.push_back(new Node<1>(0, false, 1.0));
 				nodes2.push_back(new Node<1>(1, false, 3.0));
 				Element<1,1> element(nodes2);

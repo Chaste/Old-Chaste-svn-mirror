@@ -3,6 +3,7 @@
 
 #include "Point.hpp"
 #include <iostream>
+#include <set>
 
 template<int SPACE_DIM>
 class Node
@@ -13,14 +14,15 @@ private:
     
     bool mIsBoundaryNode;
 
+    // Set of pointers to elements containing this node as a vertex
+    std::set<const void *> mElements;
+
 	//TODO:
 	//bool mIsDirichletNode;
 	Node() {}
 	    
 public:
 
-
-	
 	Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
 	{
 		mPoint = point;
@@ -67,6 +69,25 @@ public:
 	{
 		return mIsBoundaryNode;
 	}
+    
+    /**
+     * Add an element that contains this node.
+     * 
+     * @param pElement Pointer to the element to add.
+     */
+    void AddElement(const void *pElement)
+    {
+        mElements.insert(pElement);
+    }
+
+    /**
+     * Return a set of pointers to elements containing this node as a vertex.
+     */
+    std::set<const void *> &rGetContainingElements()
+    {
+        return mElements;
+    }
+
 };
 
 

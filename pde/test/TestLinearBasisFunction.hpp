@@ -164,7 +164,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 	{		
 		// 2D - with better test data
 		
-		std::vector<const Node<2>*> nodes;
+		std::vector<Node<2>*> nodes;
 		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
 		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
 		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));

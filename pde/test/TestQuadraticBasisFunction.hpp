@@ -169,7 +169,7 @@ public:
 	
 	void TestComputeTransformedQuadraticBasisFunctionDerivatives1d( void )
 	{
-		std::vector<const Node<1>*> nodes;
+		std::vector<Node<1>*> nodes;
 		nodes.push_back(new Node<1>(0, false, 3.0));
 		nodes.push_back(new Node<1>(1, false, 5.0));
 		nodes.push_back(new Node<1>(2, false, 4.0));
@@ -194,7 +194,7 @@ public:
 	
 	void TestComputeTransformedQuadraticBasisFunction2d( void )		
 	{		
-		std::vector<const Node<2>*> nodes;
+		std::vector<Node<2>*> nodes;
 		nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
 		nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
 		nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
@@ -231,7 +231,7 @@ public:
 	
 	void TestComputeTransformedQuadraticBasisFunction3d( void )		
 	{		
-		std::vector<const Node<3>*> nodes;
+		std::vector<Node<3>*> nodes;
 		nodes.push_back(new Node<3>(0, false, 4.0, 3.0, 0.0));
 		nodes.push_back(new Node<3>(1, false, 6.0, 4.0, 1.0));
 		nodes.push_back(new Node<3>(2, false, 3.0, 5.0, 2.0));

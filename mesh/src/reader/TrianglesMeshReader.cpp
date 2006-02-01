@@ -97,9 +97,6 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 			mFaceData.push_back(current_item);
 		}
 		mpFaceIterator = mFaceData.begin();
-		//Find out boundary nodes.
-		mBoundaryFaceData = CullInternalFaces();
-		mpBoundaryFaceIterator = mBoundaryFaceData.begin();		
 		return;
 	}
 	mFaceRawData=GetRawDataFromFile(faceFileName);
@@ -117,11 +114,6 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	// Read the rest of the face/edge data using TokenizeStringsToInts method
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
 	mpFaceIterator = mFaceData.begin();
-	
-//	std::stringstream boundary_face_header_stream(mFaceRawData[0]);
-//	boundary_face_header_stream >> mNumBoundaryFaces;
-	mBoundaryFaceData = CullInternalFaces(rContainsInternalFaces);
-	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
 	
 	//Check that the size of the data matches the information in the header
 	if (num_faces != mFaceData.size())

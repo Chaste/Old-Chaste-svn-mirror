@@ -53,10 +53,6 @@ FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFil
 	// Read the rest of the face/edge data using TokenizeStringsToInts method
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
 	mpFaceIterator = mFaceData.begin();
-
-	mBoundaryFaceData = mFaceData; // Femlab returns only the boundary faces
-	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
-	
 }
 
 /** 

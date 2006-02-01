@@ -40,15 +40,15 @@ if system_name == 'finarfin':
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 else:
-  # DTC (default)
-  petsc_base = '/home/chaste/petsc-2.2.1-with-mpi/'
+  # Default
+  petsc_base = '../../petsc-2.2.1-with-mpi/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
   petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
   
-  petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
+  petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'
 
 Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath")
 
@@ -105,7 +105,6 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
           build.GetTestReportDir() + ' --no-stdout')
 
 build_dir = build.build_dir
-print build_dir
 for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'ode', 'pde', 'coupled']:
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
@@ -135,7 +134,9 @@ if test_summary:
   #  os.remove(os.path.join(output_dir, oldfile))
   # Add a summary generator to the list of things for scons to do
   summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
-  opt = Environment(ENV = {'PATH' : os.environ['PATH']})
+  opt = Environment(ENV = {'PATH': os.environ['PATH'],
+                           'PYTHONPATH': os.environ['PYTHONPATH'],
+                           'LD_LIBRARY_PATH': os.environ['LD_LIBRARY_PATH']})
   opt['BUILDERS']['TestSummary'] = summary
   opt.TestSummary(os.path.join(output_dir, 'index.html'),
                   'buildtime.txt')

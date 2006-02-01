@@ -101,10 +101,13 @@ void MeshalyzerVisualizer<SPACE_DIM>::CreateNodesFileForVisualization()
 	{
 		pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
 	}
-	for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
-	{
-		pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
-	}
+    
+    // Doesn't work now ConformingTetrahedralMesh does the work of determining
+    // boundary faces - MeshReaders can no longer do this.
+//	for (i=0; i<pImportMeshReader->GetNumBoundaryFaces();i++)
+//	{
+//		pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextBoundaryFace());
+//	}
 	
 	pMeshWriter->WriteFiles();
 	

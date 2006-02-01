@@ -192,13 +192,13 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	}
 	
 	/**
-	 * Check that GetNextBoundaryFace() works. Checks that no errors are thrown for 
+	 * Check that GetNextFace() works. Checks that no errors are thrown for 
 	 * all of the elements and that an error is thrown if we try to call the 
 	 * function too many times.
 	 * 
 	 */
 	 
-	void TestGetNextBoundaryFace(void)
+	void TestGetNextFace(void)
 	{
 		pFemlabMeshReader=new FemlabMeshReader(
 		                  "mesh/test/data/",
@@ -206,26 +206,26 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		                  "femlab_lshape_elements.dat",
 		                  "femlab_lshape_edges.dat");
 		
-		std::vector<int> FirstBoundaryFace;
+		std::vector<int> FirstFace;
 		                  
-		FirstBoundaryFace = pFemlabMeshReader->GetNextBoundaryFace();
+		FirstFace = pFemlabMeshReader->GetNextFace();
 		
-		TS_ASSERT( FirstBoundaryFace[0]==0);
-		TS_ASSERT( FirstBoundaryFace[1]==8);
+		TS_ASSERT( FirstFace[0]==0);
+		TS_ASSERT( FirstFace[1]==8);
 
-		std::vector<int> NextBoundaryFace;
+		std::vector<int> NextFace;
 		                  
-		NextBoundaryFace = pFemlabMeshReader->GetNextBoundaryFace();
+		NextFace = pFemlabMeshReader->GetNextFace();
 		
-		TS_ASSERT( NextBoundaryFace[0]==8);
-		TS_ASSERT( NextBoundaryFace[1]==9);
+		TS_ASSERT( NextFace[0]==8);
+		TS_ASSERT( NextFace[1]==9);
 			    		
-		for (int i = 2; i < pFemlabMeshReader->GetNumBoundaryFaces(); i++)
+		for (int i = 2; i < pFemlabMeshReader->GetNumFaces(); i++)
 		{
-			TS_ASSERT_THROWS_NOTHING(NextBoundaryFace = pFemlabMeshReader->GetNextBoundaryFace());
+			TS_ASSERT_THROWS_NOTHING(NextFace = pFemlabMeshReader->GetNextFace());
 		}
 		
-		TS_ASSERT_THROWS_ANYTHING(NextBoundaryFace = pFemlabMeshReader->GetNextBoundaryFace());
+		TS_ASSERT_THROWS_ANYTHING(NextFace = pFemlabMeshReader->GetNextFace());
 		
 		delete pFemlabMeshReader;
 		

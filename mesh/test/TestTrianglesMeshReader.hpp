@@ -309,33 +309,10 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		TS_ASSERT_THROWS_ANYTHING(NextEdge = pMeshReader->GetNextEdge());
 		delete pMeshReader;
 	}
-	
-	void TestGetNextBoundaryEdge(void)
-	{
-        AbstractMeshReader *pMeshReader;
-		pMeshReader=new TrianglesMeshReader(
-		                  "mesh/test/data/disk_522_elements");
-		
-		std::vector<int> NextEdge;
-		
-		TS_ASSERT(pMeshReader->GetNumBoundaryEdges() == 100);
-		
-		TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextBoundaryFace());
-		TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextBoundaryFace());
-		    		
-		for (int i = 2; i < pMeshReader->GetNumBoundaryEdges(); i++)
-		{
-			TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextBoundaryEdge());
-		}
-		
-		TS_ASSERT_THROWS_ANYTHING(NextEdge = pMeshReader->GetNextBoundaryEdge());
-		delete pMeshReader;
-	}	
 
 	/**
 	 * Check that the 1D data are read correctly. Check that the output vector
-	 * for a given input file is the correct length. Check that the number of 
-	 * boundary faces is 2.
+	 * for a given input file is the correct length.
 	 */
 	
 	void Test1DMeshRead(void)
@@ -350,7 +327,8 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 		
 		TS_ASSERT( pMeshReader->GetNumFaces() == 11); 		
 		
-		TS_ASSERT( pMeshReader->GetNumBoundaryFaces() == 2); 		
+        // Determining boundary faces is no longer done by the MeshReader
+		//TS_ASSERT( pMeshReader->GetNumBoundaryFaces() == 2); 		
 	    
         delete pMeshReader;
        

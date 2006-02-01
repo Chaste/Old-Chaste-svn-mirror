@@ -2,10 +2,12 @@
 #define _CONFORMINGTETRAHEDRALMESH_CPP_
 
 #include "ConformingTetrahedralMesh.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 #include <vector>
 #include <map>
+#include <set>
+#include <algorithm>
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
@@ -33,10 +35,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 	assert(orderOfBasisFunctions == 1 || orderOfBasisFunctions == 2);
 	
 	// Record number of corner nodes
-	mNumCornerNodes = rMeshReader.GetNumNodes();	
+	mNumCornerNodes = rMeshReader.GetNumNodes();
 
 	// Reserve memory for nodes, so we don't have problems with pointers stored in
-	// elements becoming invalid.	
+	// elements becoming invalid.
 	// For quadratic basis functions we need to go through and count them first
 	
 	if (orderOfBasisFunctions == 1)
@@ -44,7 +46,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		mNodes.reserve(mNumCornerNodes);
 	}
 	else if (orderOfBasisFunctions == 2)
-	{	
+	{
 		typename std::map<std::pair<int,int>,int>::const_iterator iterator;
 		std::map<std::pair<int,int>,int> internal_nodes_map;
 		
@@ -115,10 +117,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		mNodes.push_back(Node<SPACE_DIM>(i, Point<SPACE_DIM>(coords), false));
 	}
 	
-    int new_node_index = mNumCornerNodes;		
+    int new_node_index = mNumCornerNodes;
 	
 	if (orderOfBasisFunctions == 2)
-	{					
+	{
 		for (int i=0; i < rMeshReader.GetNumElements(); i++)
 		{
 			std::vector<int> node_indices = rMeshReader.GetNextElement();
@@ -164,20 +166,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 			}	
 		}		
 	}			
-	rMeshReader.Reset();	
+	rMeshReader.Reset();
 	// Add elements
-	new_node_index = mNumCornerNodes;		
+	new_node_index = mNumCornerNodes;
+    mElements.reserve(rMeshReader.GetNumElements());
 	
 	for (int i=0; i < rMeshReader.GetNumElements(); i++)
 	{
 		std::vector<int> node_indices = rMeshReader.GetNextElement();
-		std::vector<const Node<SPACE_DIM>*> nodes;
+		std::vector<Node<SPACE_DIM>*> nodes;
 		int nodes_size = node_indices.size();
 		for (int j=0; j<nodes_size; j++)
 		{
 			assert(node_indices[j] < mNodes.size());
 			nodes.push_back(&mNodes[node_indices[j]]);
-		}		        
+		}
         
 		if (orderOfBasisFunctions == 2)
 		{
@@ -200,57 +203,101 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 					nodes.push_back(this->GetNodeAt(iterator->second));
 					new_node_index++;
 				}
-			}	
+			}
 		}
 		mElements.push_back(Element<ELEMENT_DIM,SPACE_DIM>(nodes,orderOfBasisFunctions));
 	}
 	
 	// Add boundary elements & nodes
-	for (int i=0; i<rMeshReader.GetNumBoundaryFaces(); i++)
+	for (int i=0; i<rMeshReader.GetNumFaces(); i++)
 	{
-		std::vector<int> node_indices = rMeshReader.GetNextBoundaryFace();
-		std::vector<const Node<SPACE_DIM>*> nodes;
+		std::vector<int> node_indices = rMeshReader.GetNextFace();
+        
+        // Determine if this is a boundary face
+        std::set<const void *> containing_elements; // Elements that contain this face
+		std::vector<Node<SPACE_DIM>*> nodes;
 		for (int j=0; j<node_indices.size(); j++)
 		{
 			assert(node_indices[j] < mNodes.size());
 			// Add Node pointer to list for creating an element
 			nodes.push_back(&mNodes[node_indices[j]]);
-			// If Node hasn't been marked as a boundary node, do so
-			if (!mNodes[node_indices[j]].IsBoundaryNode())
-			{
-				mNodes[node_indices[j]].SetAsBoundaryNode();
-				mBoundaryNodes.push_back(&mNodes[node_indices[j]]);
-			}
+            
+//            // Debugging
+//            std::cout << " " << node_indices[j] << ":[";
+//            std::set<const void *> s = nodes[j]->rGetContainingElements();
+//            for (std::set<const void *>::iterator it = s.begin(); it != s.end(); it++)
+//            {
+//                const Element<ELEMENT_DIM, SPACE_DIM> *e =
+//                    (const Element<ELEMENT_DIM, SPACE_DIM> *) *it;
+//                std::cout << "(";
+//                for (int n=0; n<e->GetNumNodes(); n++)
+//                {
+//                    const Node<SPACE_DIM> *node = e->GetNode(n);
+//                    if (n != 0) std::cout << ",";
+//                    std::cout << node->GetIndex();
+//                }
+//                std::cout << ")";
+//            }
+//            std::cout << "]";
+            
+            // Work out what elements contain this face, by taking the intersection
+            // of the sets of elements containing each node in the face.
+            if (j == 0)
+            {
+                containing_elements = nodes[j]->rGetContainingElements();
+            } else {
+                std::set<const void *> temp;
+                std::set_intersection(nodes[j]->rGetContainingElements().begin(),
+                                      nodes[j]->rGetContainingElements().end(),
+                                      containing_elements.begin(), containing_elements.end(),
+                                      std::inserter(temp, temp.begin()));
+                containing_elements = temp;
+            }
 		}
+        
+//        std::cout << " " << containing_elements.size() << std::endl;
+        if (containing_elements.size() == 1)
+        {
+            // This is a boundary face
+            // Ensure all its nodes are marked as boundary nodes
+            for (int j=0; j<nodes.size(); j++)
+            {
+                if (!nodes[j]->IsBoundaryNode())
+                {
+                    nodes[j]->SetAsBoundaryNode();
+                    mBoundaryNodes.push_back(nodes[j]);
+                }
+            }
+
 		
-		if (orderOfBasisFunctions == 2)
-		{
-			int nodes_size = node_indices.size();
-			for (int j=0; j < ELEMENT_DIM; j++)
-			{
-				for (int k=j+1; k < ELEMENT_DIM; k++)
-				{
-					assert(j < nodes_size && k < nodes_size);
-					int node_i = nodes[j]->GetIndex();
-					int node_j = nodes[k]->GetIndex();
-					if (node_j < node_i)
-					{
-						int temp = node_i;
-						node_i = node_j;
-						node_j = temp;
-					}
-					iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));					
-					assert(iterator != internal_nodes_map.end());					
-					// add node to element
-					nodes.push_back(this->GetNodeAt(iterator->second));
-				}
-			}
-		}
-		
-		// The added elements will be deleted in our destructor
-		mBoundaryElements.push_back(new Element<ELEMENT_DIM-1,SPACE_DIM>(nodes,orderOfBasisFunctions));
-	}
-	
+    		if (orderOfBasisFunctions == 2)
+    		{
+    			int nodes_size = node_indices.size();
+    			for (int j=0; j < ELEMENT_DIM; j++)
+    			{
+    				for (int k=j+1; k < ELEMENT_DIM; k++)
+    				{
+    					assert(j < nodes_size && k < nodes_size);
+    					int node_i = nodes[j]->GetIndex();
+    					int node_j = nodes[k]->GetIndex();
+    					if (node_j < node_i)
+    					{
+    						int temp = node_i;
+    						node_i = node_j;
+    						node_j = temp;
+    					}
+    					iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
+    					assert(iterator != internal_nodes_map.end());
+    					// add node to element
+    					nodes.push_back(this->GetNodeAt(iterator->second));
+    				}
+    			}
+    		}
+    		
+    		// The added elements will be deleted in our destructor
+    		mBoundaryElements.push_back(new Element<ELEMENT_DIM-1,SPACE_DIM>(nodes,orderOfBasisFunctions));
+    	}
+    }
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
@@ -290,7 +337,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> 
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-const Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index) const
+Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index)
 {
 	assert(index < mNodes.size());
     return &(mNodes[index]);

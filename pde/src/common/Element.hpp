@@ -25,7 +25,7 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 class Element
 {
 private:
-    std::vector<const Node<SPACE_DIM>*> mNodes;
+    std::vector<Node<SPACE_DIM>*> mNodes;
     int mOrderOfBasisFunctions;
     const Element<ELEMENT_DIM-1,SPACE_DIM>* mLowerOrderElements[ELEMENT_DIM+1];
     bool mHasLowerOrderElements;
@@ -56,7 +56,7 @@ public:
      *     For surface (boundary) elements we only calculate the determinant,
      *     but this is all that is needed.
 	 */
-    Element(std::vector<const Node<SPACE_DIM>*> nodes,
+    Element(std::vector<Node<SPACE_DIM>*> nodes,
     		int orderOfBasisFunctions=1,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
     {
@@ -148,6 +148,17 @@ public:
     {
 		mNodes = element.mNodes;
 		
+        // Allow nodes to keep track of containing elements (but not surface/boundary elements)
+        // Only done in copy constructor, since that is what is called to put elements
+        // in the vector contained in ConformingTetrahedralMesh.
+        if (ELEMENT_DIM == SPACE_DIM)
+        {
+            for (int i=0; i<mNodes.size(); i++)
+            {
+                mNodes[i]->AddElement((const void*)this);
+            }
+        }
+ 
 		mHasLowerOrderElements = element.mHasLowerOrderElements;
     	if (mHasLowerOrderElements)
     	{
@@ -187,8 +198,7 @@ public:
     			delete mLowerOrderElements[i];
     		}
     	}
-    
-    	
+     	
     	if (mpJacobian != NULL)
     	{
     		delete mpJacobian;
@@ -211,7 +221,7 @@ public:
     {
     	for (int i = 0; i < ELEMENT_DIM + 1; i++)
         {
-	        std::vector<const Node<SPACE_DIM>*> somenodes;
+	        std::vector<Node<SPACE_DIM>*> somenodes;
 			for (int j = 0; j < ELEMENT_DIM; j++)
            	{
                	int nodeIndex = ((i + j + 1) % (ELEMENT_DIM + 1));
@@ -299,7 +309,7 @@ template <int SPACE_DIM>
 class Element<0, SPACE_DIM>
 {
 private:
-    std::vector<const Node<SPACE_DIM>*> mNodes;
+    std::vector<Node<SPACE_DIM>*> mNodes;
 
     MatrixDouble *mpJacobian;
     MatrixDouble *mpInverseJacobian;
@@ -322,15 +332,15 @@ public:
 	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
 	 *     Currently only works for non-sub-elements with straight edges.
 	 */
-    Element(std::vector<const Node<SPACE_DIM>*> nodes,
+    Element(std::vector<Node<SPACE_DIM>*> nodes,
     		int notUsed=1,
     	    bool createLowerOrderElements=false, bool createJacobian=true)
     {
     	// Store Node pointers
     	assert(nodes.size() == 1);
     	mNodes = nodes;
-    	
-    	// Create Jacobian?
+
+     	// Create Jacobian?
     	mpJacobian = NULL;
     	mpInverseJacobian = NULL;
     	if (createJacobian)
@@ -357,12 +367,12 @@ public:
      * SPACE_DIM identical to that of the node from which it is constructed
      * 
      */
-    Element(const Node<SPACE_DIM> *node,
+    Element(Node<SPACE_DIM> *node,
             bool createLowerOrderElements=false, bool createJacobian=true)
     {
         // Store Node pointer
         mNodes.push_back(node);
-        
+
         // Create Jacobian?
         mpJacobian = NULL;
         mpInverseJacobian = NULL;
@@ -385,7 +395,18 @@ public:
     {
 		mNodes = element.mNodes;
 		
-		mJacobianDeterminant = element.mJacobianDeterminant;
+        // Allow nodes to keep track of containing elements (but not surface/boundary elements)
+        // Only done in copy constructor, since that is what is called to put elements
+        // in the vector contained in ConformingTetrahedralMesh.
+        if (0 == SPACE_DIM)
+        {
+            for (int i=0; i<mNodes.size(); i++)
+            {
+                mNodes[i]->AddElement((const void*)this);
+            }
+        }
+ 
+ 		mJacobianDeterminant = element.mJacobianDeterminant;
 		mpJacobian = NULL;
 		if (element.mpJacobian != NULL)
 		{

@@ -68,8 +68,8 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 	 */
 	
 	// Read the face/edge data using TokenizeStringsToInts method
-	mBoundaryFaceData = TokenizeStringsToInts(mFaceRawData,mDimension,false);
-	mpBoundaryFaceIterator = mBoundaryFaceData.begin();
+	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension,false);
+	mpFaceIterator = mFaceData.begin();
 	
 	
 	

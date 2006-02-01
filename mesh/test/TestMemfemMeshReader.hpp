@@ -28,15 +28,15 @@ class TestMemfemMeshReaders : public CxxTest::TestSuite
 		             
 		TS_ASSERT(pMeshReader->GetNumNodes() == 381);
 		TS_ASSERT(pMeshReader->GetNumElements() == 1030);
-		TS_ASSERT(pMeshReader->GetNumBoundaryFaces() == 758);
+		TS_ASSERT(pMeshReader->GetNumFaces() == 758);
 		
-		std::vector<int> NextBoundaryFace;
+		std::vector<int> NextFace;
 		                  
-		NextBoundaryFace = pMeshReader->GetNextBoundaryFace();
+		NextFace = pMeshReader->GetNextFace();
 		
-		TS_ASSERT( NextBoundaryFace[0] == 338  );
-		TS_ASSERT( NextBoundaryFace[1] == 23 );
-		TS_ASSERT( NextBoundaryFace[2] == 374 );
+		TS_ASSERT( NextFace[0] == 338  );
+		TS_ASSERT( NextFace[1] == 23 );
+		TS_ASSERT( NextFace[2] == 374 );
 		
 		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
 		

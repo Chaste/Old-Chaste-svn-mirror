@@ -3,7 +3,8 @@
 # This module contains most of the functionality, and is loaded from the
 # repository by a wrapper script.
 
-import os, time, pysvn
+import os, time
+import pysvn
 
 _standalone = False
 
@@ -544,8 +545,8 @@ if __name__ == '__main__':
 
   # Alter the configuration slightly
   _tests_dir = '.'
-  _source_browser_url = 'https://comlab2.lsi.ox.ac.uk/cgi-bin/trac.cgi/browser/'
-  _our_url = 'https://comlab2.lsi.ox.ac.uk/tests.py'
+  _source_browser_url = 'https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/browser/'
+  _our_url = 'https://chaste.ediamond.ox.ac.uk/tests.py'
 
   _fp = file(os.path.join(_dir, 'index.html'), 'w')
 

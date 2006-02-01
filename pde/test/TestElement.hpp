@@ -28,7 +28,7 @@ class TestElement : public CxxTest::TestSuite
 public:
 	void TestConstructionForQuadraticBasisFunctions()
 	{
-		std::vector<const Node<3>*> nodes;
+		std::vector<Node<3>*> nodes;
 //		for (int i=0; i<4; i++)
 //		{
 //			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
@@ -84,7 +84,7 @@ public:
 	
 	void TestConstructionForLinearBasisFunctions()
 	{
-		std::vector<const Node<3>*> cornerNodes;
+		std::vector<Node<3>*> cornerNodes;
 //		for (int i=0; i<4; i++)
 //		{
 //			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
@@ -137,7 +137,7 @@ public:
 	void TestJacobian()
 	{
 		// 1d
-		std::vector<const Node<1>*> nodes1d;
+		std::vector<Node<1>*> nodes1d;
 		nodes1d.push_back(new Node<1>(0, false, 2.0));
 		nodes1d.push_back(new Node<1>(1, false, 2.5));
 		Element<1,1> element1d(nodes1d);
@@ -153,7 +153,7 @@ public:
 		delete nodes1d[1];
 		// 2d easy
 		
-		std::vector<const Node<2>*> nodes2d;
+		std::vector<Node<2>*> nodes2d;
 		nodes2d.push_back(new Node<2>(0, false, 0.0, 0.0));
 		nodes2d.push_back(new Node<2>(1, false, 1.0, 0.0));
 		nodes2d.push_back(new Node<2>(2, false, 0.0, 1.0));
@@ -169,7 +169,7 @@ public:
 		delete nodes2d[2];
 
 		//2d general
-		std::vector<const Node<2>*> nodes2d2;
+		std::vector<Node<2>*> nodes2d2;
 		nodes2d2.push_back(new Node<2>(0, false, 1.0, -2.0));
 		nodes2d2.push_back(new Node<2>(1, false, 4.0, -3.0));
 		nodes2d2.push_back(new Node<2>(2, false, 2.0, -1.0));
@@ -194,7 +194,7 @@ public:
 
 		
 		// 3d easy
-		std::vector<const Node<3>*> nodes3d;
+		std::vector<Node<3>*> nodes3d;
 		nodes3d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
 		nodes3d.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
 		nodes3d.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
@@ -218,7 +218,7 @@ public:
 		
 		
 		// 3d general
-		std::vector<const Node<3>*> nodes3d2;
+		std::vector<Node<3>*> nodes3d2;
 		nodes3d2.push_back(new Node<3>(0, false, 1.0, 2.0, 3.0));
 		nodes3d2.push_back(new Node<3>(1, false, 2.0, 1.0, 3.0));
 		nodes3d2.push_back(new Node<3>(2, false, 5.0, 5.0, 5.0));

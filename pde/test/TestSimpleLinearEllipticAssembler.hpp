@@ -26,7 +26,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestAssembleOnElement( void )
     {
         LinearHeatEquationPde<1> pde;
-        std::vector<const Node<1>*> nodes;
+        std::vector<Node<1>*> nodes;
         nodes.push_back(new Node<1>(0, false, 1.0));
         nodes.push_back(new Node<1>(1, false, 3));
         Element<1,1> element(nodes);
@@ -53,7 +53,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestAssembleOnElement2DCanonical ( void )
     {
         LinearHeatEquationPde<2> pde;
-        std::vector<const Node<2>*> nodes;
+        std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
         nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
@@ -90,7 +90,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestAssembleOnElement2DGeneral ( void )
     {
         LinearHeatEquationPde<2> pde;
-        std::vector<const Node<2>*> nodes;
+        std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
         nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
         nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
