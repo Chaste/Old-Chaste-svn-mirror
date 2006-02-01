@@ -126,7 +126,7 @@ public:
     {
         int index = node.GetIndex();
        
-        return AbstractCoupledPde<SPACE_DIM>::solutionCache[index];
+        return AbstractCoupledPde<SPACE_DIM>::solutionCacheReplicated[index];
    
     }
     
@@ -186,8 +186,8 @@ public:
   	{
   		AbstractCoupledPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
       	
-     	double *currentSolutionArray;
-        int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+     	double *p_current_solution;
+        int ierr = VecGetArray(currentSolution, &p_current_solution);
      	
         for (int local_index=0; local_index<AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeHi-AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo; local_index++)
      	{
@@ -196,7 +196,7 @@ public:
         
             
             // overwrite the voltage with the input value
-            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[local_index][0] = currentSolutionArray[local_index];             
+            AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[local_index][0] = p_current_solution[local_index];             
             
 	    	// solve            
             OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(
@@ -213,10 +213,10 @@ public:
             
        		double Itotal = mStimulusAtNode[global_index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) +
 	    					GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ] );
-	    	AbstractCoupledPde<SPACE_DIM>::solutionCache[global_index] = -Itotal;
+	    	AbstractCoupledPde<SPACE_DIM>::solutionCacheReplicated[global_index] = -Itotal;
          }
          
-         AbstractCoupledPde<SPACE_DIM>::DistributeSolutionCache();
+         AbstractCoupledPde<SPACE_DIM>::ReplicateSolutionCache();
   	}
 };	        
 #endif //_MONODOMAINPDEFITZHUGHNAGUMO_HPP_

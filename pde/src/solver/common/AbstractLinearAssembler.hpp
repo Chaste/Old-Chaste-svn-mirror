@@ -111,7 +111,7 @@ protected:
                      // get the value in a usable form.
                      // NOTE - currentSolution input is actually now redundant at this point,
                      // the work is done in PrepareForAssembleSystem
-					u += phi[i]*pPde->inputCache[ rElement.GetNodeGlobalIndex(i) ];
+					u += phi[i]*pPde->inputCacheReplicated[ rElement.GetNodeGlobalIndex(i) ];
 				}
 			}
 			

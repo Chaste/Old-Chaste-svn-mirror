@@ -120,7 +120,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
     {
         int index = node.GetIndex();
-        return this->solutionCache[index];
+        return this->solutionCacheReplicated[index];
     }
     
     
@@ -307,8 +307,8 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         AbstractCoupledPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
         //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
 
-        double *currentSolutionArray;
-        int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+        double *p_current_solution;
+        int ierr = VecGetArray(currentSolution, &p_current_solution);
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
         double time=this->mTime;
@@ -321,7 +321,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ global_index ] );
      		
             // overwrite the voltage with the input value
-            this->mOdeVarsAtNode[local_index][4] = currentSolutionArray[local_index]; 
+            this->mOdeVarsAtNode[local_index][4] = p_current_solution[local_index]; 
             
             // solve            
             OdeSolution solution =
@@ -339,10 +339,10 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
             double Itotal = mStimulusAtNode[global_index]->GetStimulus(time + big_time_step)
                             + GetIIonic( this->mOdeVarsAtNode[ local_index ]);
         
-		    this->solutionCache[global_index] = - Itotal;
+		    this->solutionCacheReplicated[global_index] = - Itotal;
         }
         
-        AbstractCoupledPde<SPACE_DIM>::DistributeSolutionCache();
+        AbstractCoupledPde<SPACE_DIM>::ReplicateSolutionCache();
      }
 };
 

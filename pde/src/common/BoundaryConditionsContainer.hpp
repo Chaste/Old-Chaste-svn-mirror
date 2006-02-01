@@ -213,11 +213,11 @@ public:
 
         VecGetOwnershipRange(currentSolution, &lo, &hi);
         
-        double *currentSolutionArray;
-		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+        double *p_current_solution;
+		int ierr = VecGetArray(currentSolution, &p_current_solution);
 			
-		double *residualArray;
-		ierr = VecGetArray(residual, &residualArray);
+		double *p_residual;
+		ierr = VecGetArray(residual, &p_residual);
 		
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
@@ -230,16 +230,17 @@ public:
                 int global_index = node_index  + i*mNumNodes;
                 
                 if (lo <= global_index && global_index < hi)
-                {           
-                    residualArray[global_index - lo] = currentSolutionArray[global_index - lo] - value(i);
+                {    
+                	int local_index = global_index - lo;       
+                    p_residual[local_index] = p_current_solution[local_index] - value(i);
                 }
             }
 
 			dirichIterator++;
 		}
 		
-		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);	
-		ierr = VecRestoreArray(residual, &residualArray);	
+		ierr = VecRestoreArray(currentSolution, &p_current_solution);	
+		ierr = VecRestoreArray(residual, &p_residual);	
 	}
 	
 	/**

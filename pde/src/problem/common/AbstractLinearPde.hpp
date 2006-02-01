@@ -18,13 +18,16 @@
 template <int SPACE_DIM>
 class AbstractLinearPde
 {
-public:
+  public:
     // Kludge to make parallel stuff work...
-    std::vector<double> inputCache;
+    std::vector<double> inputCacheReplicated;
+    
+
 	/**
 	 * Compute Linear Source Term.
 	 * @param x The point in space at which the Linear Source Term is computed.
 	 */
+	 
 	virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
     
  	/**
@@ -69,41 +72,42 @@ public:
     */ 
     virtual void PrepareForAssembleSystem(Vec currentSolution)
     {
-        DistributeInputCache(currentSolution);
+        ReplicateInputCache(currentSolution);
     }
  
-    void DistributeInputCache(Vec inputVector)
+    void ReplicateInputCache(Vec inputVector)
     {
         if (inputVector != NULL) 
         {
             int lo, hi, num_nodes;  
             VecGetOwnershipRange(inputVector, &lo, &hi);
             VecGetSize(inputVector,&num_nodes);       
-            double *vArray;
-            VecGetArray(inputVector, &vArray);
-            double all_local_solutions[num_nodes];
-            for (int i=0; i<num_nodes; i++)
+            double *p_input_vector;
+            VecGetArray(inputVector, &p_input_vector);
+            double input_vector_local_array[num_nodes];
+            for (int global_index=0; global_index<num_nodes; global_index++)
             {
-                if (lo <= i && i < hi)
+                if (lo <= global_index && global_index < hi)
                 { 
-                    all_local_solutions[i]=vArray[i-lo]; 
+                	int local_index = global_index - lo;
+                    input_vector_local_array[global_index]=p_input_vector[local_index]; 
                 } 
                 else 
                 {
-                    all_local_solutions[i]=0.0;
+                    input_vector_local_array[global_index]=0.0;
                 }
                 
             }
      
-            double all_solutions[num_nodes];
-            MPI_Allreduce(all_local_solutions, all_solutions, num_nodes, MPI_DOUBLE, 
+            double input_vector_replicated_array[num_nodes];
+            MPI_Allreduce(input_vector_local_array,input_vector_replicated_array, num_nodes, MPI_DOUBLE, 
                          MPI_SUM, PETSC_COMM_WORLD); 
             
-            // Could be more efficient if MPI wrote to inputCache above.
-            inputCache.resize(num_nodes);    
-            for (int i=0; i<num_nodes; i++)
+            // Could be more efficient if MPI wrote to inputCacheReplicated above.
+            inputCacheReplicated.resize(num_nodes);    
+            for (int global_index=0; global_index<num_nodes; global_index++)
             {
-                inputCache[i]=all_solutions[i];
+                inputCacheReplicated[global_index]=input_vector_replicated_array[global_index];
             }
         } 
     }

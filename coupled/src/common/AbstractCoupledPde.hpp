@@ -49,7 +49,7 @@ public:
      * 
      * This is replicated, i.e. use a global index for access.
  	 */
-  	std::vector<double>	solutionCache;
+  	std::vector<double>	solutionCacheReplicated;
  
  	// Replicated
   	//std::vector<double>	inputCache;
@@ -80,37 +80,37 @@ public:
         
         mOdeVarsAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
       
-        solutionCache.resize(mNumNodes);
+        solutionCacheReplicated.resize(mNumNodes);
 
 
      }
      
  
-     virtual void DistributeSolutionCache(void)
+     virtual void ReplicateSolutionCache(void)
      {
      	
-        double all_local_solutions[mNumNodes];
-        for (int i=0; i<mNumNodes; i++)
+        double solution_cache_local_array[mNumNodes];
+        for (int global_index=0; global_index<mNumNodes; global_index++)
         {
-        	if (mOwnershipRangeLo <= i && i < mOwnershipRangeHi)
+        	if (mOwnershipRangeLo <= global_index && global_index < mOwnershipRangeHi)
 	    	{ 
-				all_local_solutions[i]=solutionCache[i];
+				solution_cache_local_array[global_index]=solutionCacheReplicated[global_index];
 	        } 
 	        else 
 	        {
-	           	all_local_solutions[i] =0.0;
+	           	solution_cache_local_array[global_index] =0.0;
 	        }
         	
         }
  
-    	double all_solutions[mNumNodes];
- 		MPI_Allreduce(all_local_solutions, all_solutions, mNumNodes, MPI_DOUBLE, 
+    	double solution_cache_replicated_array[mNumNodes];
+ 		MPI_Allreduce(solution_cache_local_array, solution_cache_replicated_array, mNumNodes, MPI_DOUBLE, 
  		             MPI_SUM, PETSC_COMM_WORLD); 
     	
-    	// Could be more efficient if MPI wrote to solutionCache above.
-    	for (int i=0; i<mNumNodes; i++)
+    	// Could be more efficient if MPI wrote to solutionCacheReplicated above.
+    	for (int global_index=0; global_index<mNumNodes; global_index++)
     	{
-   			solutionCache[i]=all_solutions[i];
+   			solutionCacheReplicated[global_index]=solution_cache_replicated_array[global_index];
     	}
     
     }

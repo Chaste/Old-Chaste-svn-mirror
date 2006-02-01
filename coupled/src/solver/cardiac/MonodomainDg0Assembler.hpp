@@ -38,8 +38,8 @@ protected:
 			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
 
         //std::cout << "In AssembleOnElement." << std::endl << std::flush;
-        double *currentSolutionArray;
-        int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+        //double *p_current_solution;
+        //int ierr = VecGetArray(currentSolution, &p_current_solution);
         
         
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
@@ -69,12 +69,12 @@ protected:
                     x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
                 }
                 
-                //JOE 24-AUG-2005 - Warning: currentSolutionArray is NOT replicated.
-                //std::cout << "About to read inputCache" << std::endl << std::flush;
-                u  += phi[i]*pPde->inputCache[ rElement.GetNodeGlobalIndex(i) ];
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), pPde->inputCache[rElement.GetNodeGlobalIndex(i)] );
                 
-                //std::cout << pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), currentSolutionArray[rElement.GetNodeGlobalIndex(i)] ) << "\n";
+                //std::cout << "About to read inputCache" << std::endl << std::flush;
+                u  += phi[i]*pPde->inputCacheReplicated[ rElement.GetNodeGlobalIndex(i) ];
+                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), pPde->inputCacheReplicated[rElement.GetNodeGlobalIndex(i)] );
+                
+                //std::cout << pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), p_current_solution[rElement.GetNodeGlobalIndex(i)] ) << "\n";
             }
             //std::cout << "Done some reading" << std::endl << std::flush;
 
@@ -94,7 +94,7 @@ protected:
 
                 // RHS
 //				double vec_integrand_val1 // = (pPde->ComputeLinearSourceTerm(x) + 
-//					= pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(quad_index)), currentSolutionArray[rElement.GetNodeGlobalIndex(quad_index)] ) * phi[row];
+//					= pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(quad_index)), p_current_solution[rElement.GetNodeGlobalIndex(quad_index)] ) * phi[row];
 //				vec_integrand_val1 = pPde->ComputeNonlinearSourceTermAtNode( *( rElement.GetNode(quad_index) ), u)) * phi[row];
                 
                 
@@ -106,7 +106,7 @@ protected:
             }
         }
         
-        ierr = VecRestoreArray(currentSolution, &currentSolutionArray); 
+        //ierr = VecRestoreArray(currentSolution, &p_current_solution); 
     }       
 
 

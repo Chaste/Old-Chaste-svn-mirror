@@ -139,17 +139,17 @@ public:
             VecSetSizes(initial_condition, PETSC_DECIDE, mMesh.GetNumNodes() );
             VecSetFromOptions(initial_condition);
       
-            double* initial_condition_array;
-            VecGetArray(initial_condition, &initial_condition_array); 
+            double* p_initial_condition;
+            VecGetArray(initial_condition, &p_initial_condition); 
             
             VecGetOwnershipRange(initial_condition, &mLo, &mHi);
             
             // Set a constant initial voltage throughout the mMesh
-            for(int global_index=mLo; global_index<mHi; global_index++)
-            {
-                initial_condition_array[global_index-mLo] = -84.5;
+            for(int local_index=0; local_index<mHi - mLo; local_index++)
+            {            	
+                p_initial_condition[local_index] = -84.5;
             }
-            VecRestoreArray(initial_condition, &initial_condition_array);      
+            VecRestoreArray(initial_condition, &p_initial_condition);      
             VecAssemblyBegin(initial_condition);
             VecAssemblyEnd(initial_condition);
         
@@ -176,7 +176,7 @@ public:
                 p_test_writer->EndDefineMode();
             }
             
-            double* p_current_voltage_array;
+            double* p_current_voltage;
             
             double current_time = start_time;        
     
@@ -198,15 +198,15 @@ public:
                  
                 if (mSequential)
                 {
-                    VecGetArray(mCurrentVoltage, &p_current_voltage_array);
+                    VecGetArray(mCurrentVoltage, &p_current_voltage);
         
                     p_test_writer->PutVariable(time_var_id, current_time); 
                     for(int j=0; j<mMesh.GetNumNodes(); j++) 
                     {
-                        p_test_writer->PutVariable(voltage_var_id, p_current_voltage_array[j], j);    
+                        p_test_writer->PutVariable(voltage_var_id, p_current_voltage[j], j);    
                     }
           
-                    VecRestoreArray(mCurrentVoltage, &p_current_voltage_array); 
+                    VecRestoreArray(mCurrentVoltage, &p_current_voltage); 
                      p_test_writer->AdvanceAlongUnlimitedDimension();
                 }
          

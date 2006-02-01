@@ -352,20 +352,21 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     int lo, hi, size;
     VecGetOwnershipRange(currentSolution, &lo, &hi);
     VecGetSize(currentSolution, &size);
-    double current_solution[size], current_solution_replicated[size];
-    double *answer_elements;
-    VecGetArray(currentSolution, &answer_elements);
+    double current_solution_local_array[size], current_solution_replicated_array[size];
+    double *p_current_solution;
+    VecGetArray(currentSolution, &p_current_solution);
     for (int global_index=0;global_index<size;global_index++)
     {
-        if (lo<=global_index && global_index<hi)
+    	if (lo<=global_index && global_index<hi)
         {
-            current_solution[global_index]=answer_elements[global_index-lo];
+            int local_index = global_index - lo;
+            current_solution_local_array[global_index]=p_current_solution[local_index];
         } else {
-            current_solution[global_index]=0.0;
+            current_solution_local_array[global_index]=0.0;
         } 
     }
-    VecRestoreArray(currentSolution, &answer_elements);
-    MPI_Allreduce(current_solution, current_solution_replicated, size, MPI_DOUBLE,
+    VecRestoreArray(currentSolution, &p_current_solution);
+    MPI_Allreduce(current_solution_local_array, current_solution_replicated_array, size, MPI_DOUBLE,
                              MPI_SUM, PETSC_COMM_WORLD);
     
     
@@ -390,7 +391,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 		for (int i=0; i<num_nodes; i++)
 		{
 			int node_index = element.GetNodeGlobalIndex(i);
-			Ui(i) = current_solution_replicated[node_index];
+			Ui(i) = current_solution_replicated_array[node_index];
         }
         
 		ComputeResidualOnElement(element, b_elem, mpPde, Ui);
@@ -432,7 +433,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 			for (int i=0; i<num_surf_nodes; i++)
             {
             	int node = surf_element.GetNodeGlobalIndex(i);
-            	UiSurf(i) = current_solution_replicated[node];
+            	UiSurf(i) = current_solution_replicated_array[node];
             }
 
 			/**
@@ -655,20 +656,21 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     int lo, hi, size;
     VecGetOwnershipRange(currentSolution, &lo, &hi);
     VecGetSize(currentSolution, &size);
-    double current_solution[size], current_solution_replicated[size];
-    double *answer_elements;
-    VecGetArray(currentSolution, &answer_elements);
+    double current_solution_local_array[size], current_solution_replicated_array[size];
+    double *p_current_solution;
+    VecGetArray(currentSolution, &p_current_solution);
     for (int global_index=0;global_index<size;global_index++)
     {
         if (lo<=global_index && global_index<hi)
         {
-            current_solution[global_index]=answer_elements[global_index-lo];
+        	int local_index = global_index - lo;
+            current_solution_local_array[global_index]=p_current_solution[local_index];
         } else {
-            current_solution[global_index]=0.0;
+            current_solution_local_array[global_index]=0.0;
         } 
     }
-    VecRestoreArray(currentSolution, &answer_elements);
-    MPI_Allreduce(current_solution, current_solution_replicated, size, MPI_DOUBLE,
+    VecRestoreArray(currentSolution, &p_current_solution);
+    MPI_Allreduce(current_solution_local_array, current_solution_replicated_array, size, MPI_DOUBLE,
                              MPI_SUM, PETSC_COMM_WORLD);
  
  	// Get an iterator over the elements of the mesh
@@ -691,7 +693,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
         for (int i=0; i<num_nodes; i++)
 		{
 			int node = element.GetNodeGlobalIndex(i);
-			Ui(i) = current_solution_replicated[node];
+			Ui(i) = current_solution_replicated_array[node];
 		}
 
 		ComputeJacobianOnElement(element, a_elem, mpPde, Ui);
@@ -776,12 +778,12 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     int lo, hi;
     VecGetOwnershipRange(inputcopy, &lo, &hi);
 	// Iterate over entries in the input vector.
-	for(int j = 0; j < num_nodes; j++)
+	for(int global_index_outer = 0; global_index_outer < num_nodes; global_index_outer++)
 	{
 		//Only perturb if we own it
-        if (lo<=j && j<hi)
+        if (lo<=global_index_outer && global_index_outer<hi)
         {
-            ierr = VecSetValue(inputcopy, j,h, ADD_VALUES); CHKERRQ(ierr);
+            ierr = VecSetValue(inputcopy, global_index_outer,h, ADD_VALUES); CHKERRQ(ierr);
         }
         ComputeResidual(inputcopy, perturbed_residual);
         
@@ -789,18 +791,19 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
         ierr = VecWAXPY(&subtract, residual, perturbed_residual, result); CHKERRQ(ierr);
         ierr = VecScale(&one_over_h, result); CHKERRQ(ierr);
     
-        PetscScalar *result_elements;
-		ierr = VecGetArray(result, &result_elements); CHKERRQ(ierr);
+        double *p_result;
+		ierr = VecGetArray(result, &p_result); CHKERRQ(ierr);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
-			ierr = MatSetValue(*pJacobian, global_index, j, 
-                   result_elements[global_index-lo], INSERT_VALUES); CHKERRQ(ierr);
+			int local_index = global_index - lo;
+			ierr = MatSetValue(*pJacobian, global_index, global_index_outer, 
+                   p_result[local_index], INSERT_VALUES); CHKERRQ(ierr);
 	 	}
-		ierr = VecRestoreArray(result, &result_elements); CHKERRQ(ierr);
+		ierr = VecRestoreArray(result, &p_result); CHKERRQ(ierr);
 	    
-	    if (lo<=j && j<hi)
+	    if (lo<=global_index_outer && global_index_outer<hi)
         {
-    	   ierr = VecSetValue(inputcopy, j, -h, ADD_VALUES); CHKERRQ(ierr);
+    	   ierr = VecSetValue(inputcopy, global_index_outer, -h, ADD_VALUES); CHKERRQ(ierr);
         }
 	}
     
