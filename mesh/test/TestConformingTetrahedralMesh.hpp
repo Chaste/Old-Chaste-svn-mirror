@@ -271,6 +271,19 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         }
     }
 	
+	// This test is mainly here for performance testing, to check that loading a
+	// (relatively) large mesh doesn't take too long.
+	void TestLoadingLargeMesh(void)
+	{
+		TrianglesMeshReader meshReader("mesh/test/data/heart");
+		ConformingTetrahedralMesh<3,3> mesh;
+		mesh.ConstructFromMeshReader(meshReader, 1);
+		
+		// Check we have the right number of nodes & elements
+		TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 63885);
+		TS_ASSERT_EQUALS(mesh.GetNumElements(), 322267);
+		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 41812);
+	}
 };
 
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
