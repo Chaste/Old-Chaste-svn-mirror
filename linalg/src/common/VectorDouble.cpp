@@ -69,11 +69,11 @@ double VectorDouble::dot(const VectorDouble &rOtherVector) const
 	return product;
 }
 
-double& VectorDouble::operator()(int Entry) const
+double& VectorDouble::operator()(int entry) const
 {
-	assert(Entry > -1);
-	assert(Entry < mSize);
-	return mElementArray[Entry];
+	assert(entry > -1);
+	assert(entry < mSize);
+	return mElementArray[entry];
 }
 
 int VectorDouble::Size(void) const
@@ -81,7 +81,7 @@ int VectorDouble::Size(void) const
 	return mSize;
 }
 
-void VectorDouble::ResetToZero( void )
+void VectorDouble::ResetToZero(void)
 {
 	for (int i=0; i<mSize; i++)
 	{
@@ -89,16 +89,16 @@ void VectorDouble::ResetToZero( void )
 	}
 }
 
-VectorDouble VectorDouble::VectorProduct(const VectorDouble& rSomeVector )
+VectorDouble VectorDouble::VectorProduct(const VectorDouble& rSomeVector)
 {
 	assert(mSize==3);
 	assert(rSomeVector.Size()==3);
 	
 	VectorDouble result(3);
 	
-	double x1=(*this)(0);
-	double y1=(*this)(1);
-	double z1=(*this)(2);	
+	double x1=mElementArray[0];
+	double y1=mElementArray[1];
+	double z1=mElementArray[2];
 	double x2=rSomeVector(0);
 	double y2=rSomeVector(1);
 	double z2=rSomeVector(2);
@@ -110,22 +110,22 @@ VectorDouble VectorDouble::VectorProduct(const VectorDouble& rSomeVector )
 	return result;
 }
 
-VectorDouble VectorDouble::operator*(double Scalar)
+VectorDouble VectorDouble::operator*(double scalar)
 {
 	VectorDouble result(mSize);
 	for (int i=0; i<mSize; i++)
 	{
-		result(i)=Scalar*(*this)(i);
+		result(i)=scalar*mElementArray[i];
 	}
 	return result;
 }
 
-VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector)
+VectorDouble operator*(double scalar, const VectorDouble& rSomeVector)
 {
 	VectorDouble result(rSomeVector.Size());
 	for (int i=0; i<rSomeVector.Size(); i++)
 	{
-		result(i)=Scalar*rSomeVector(i);
+		result(i)=scalar*rSomeVector(i);
 	}
 	return result;
 }
@@ -152,7 +152,7 @@ VectorDouble VectorDouble::operator-(const VectorDouble& rSomeVector1)
 	return result;
 }
 
-double VectorDouble::L2Norm( void )
+double VectorDouble::L2Norm(void)
 {
 	return sqrt((*this).dot(*this));
 }
