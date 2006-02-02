@@ -18,7 +18,7 @@
  * @return The value of the basis function.
  */
 template <int ELEM_DIM>
-double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point, int basisIndex) const
+double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const
 {
 	assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
 	switch(ELEM_DIM)
@@ -32,10 +32,10 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
 		switch (basisIndex)
 		{
 			case 0:
-				return 1.0 - point[0];
+				return 1.0 - rPoint[0];
 				break;
     		case 1:
-        		return point[0];
+        		return rPoint[0];
         		break;
         	default:
         		assert(false);   
@@ -46,13 +46,13 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
     	switch (basisIndex)
     	{
     		case 0:
-    			return 1.0 - point[0] - point[1];
+    			return 1.0 - rPoint[0] - rPoint[1];
     			break;
     		case 1:
-    			return point[0];
+    			return rPoint[0];
     			break;
     		case 2:
-    			return point[1];
+    			return rPoint[1];
     			break;
     		default:
     			assert(false);   
@@ -63,16 +63,16 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
     	switch (basisIndex)
     	{
     		case 0:	
-        		return 1.0 - point[0] - point[1] - point[2];
+        		return 1.0 - rPoint[0] - rPoint[1] - rPoint[2];
         		break;
     		case 1:
-    			return point[0];
+    			return rPoint[0];
     			break;
 			case 2:
-				return point[1];
+				return rPoint[1];
 				break;
 			case 3:
-				return point[2]; 
+				return rPoint[2]; 
 				break;
 			default:
 				assert(false);  
@@ -94,7 +94,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(Point<ELEM_DIM> point
  *     instance) giving the derivative along each axis.
  */
 template <int ELEM_DIM>
-VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point<ELEM_DIM> point, int basisIndex) const
+VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const
 {
     VectorDouble gradN(ELEM_DIM);
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -105,7 +105,7 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
     	switch (basisIndex)
     	{
     		case 0:
-    			gradN(0) =  - 1;
+    			gradN(0) = -1;
     			break;
 			case 1:
 				gradN(0) = 1; 
@@ -119,8 +119,8 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
     	switch (basisIndex)
     	{
     		case 0:
-        		gradN(0) =  - 1;
-        		gradN(1) = - 1;
+        		gradN(0) = -1;
+        		gradN(1) = -1;
         		break;
     		case 1:
         		gradN(0) = 1;
@@ -139,9 +139,9 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
     	switch (basisIndex)
     	{
     		case 0:
-        		gradN(0) =  - 1;
-        		gradN(1) = - 1;
-        		gradN(2) = - 1;
+        		gradN(0) = -1;
+        		gradN(1) = -1;
+        		gradN(2) = -1;
         		break;
     		case 1:
     			gradN(0) =  1;
@@ -175,13 +175,13 @@ VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(Point
  * @return The values of the basis functions, in local index order.
  */
 template <int ELEM_DIM>
-std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<ELEM_DIM> point) const
+std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const
 {
     std::vector<double> basisValues(ELEM_DIM+1);
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        basisValues[i] = ComputeBasisFunction(point,i);
+        basisValues[i] = ComputeBasisFunction(rPoint, i);
     }
     return basisValues;
 }
@@ -198,13 +198,14 @@ std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(Point<E
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(Point<ELEM_DIM> point) const
+std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const
 {
-    std::vector<VectorDouble> basisGradValues;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    std::vector<VectorDouble> basisGradValues;
+    basisGradValues.reserve(ELEM_DIM+1);
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        basisGradValues.push_back(ComputeBasisFunctionDerivative(point,i));
+        basisGradValues.push_back(ComputeBasisFunctionDerivative(rPoint,i));
     }
 
     return basisGradValues;    
@@ -225,16 +226,17 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(Point<ELEM_DIM> point, MatrixDouble inverseJacobian) const
+std::vector<VectorDouble> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const MatrixDouble &rInverseJacobian) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    assert(inverseJacobian.Rows()==inverseJacobian.Columns());
-    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(point);
+    assert(rInverseJacobian.Rows() == rInverseJacobian.Columns());
+    std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
   	std::vector<VectorDouble> transformedGradValues;
+  	transformedGradValues.reserve(ELEM_DIM+1);
     
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        transformedGradValues.push_back( basisGradValues[i]*inverseJacobian );
+        transformedGradValues.push_back(basisGradValues[i] * rInverseJacobian);
     }
 
     return transformedGradValues;    	

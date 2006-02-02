@@ -3,6 +3,23 @@
 #include <iostream>
 #include <math.h>
 
+/**
+ * Default constructor.
+ * 
+ * This constructor exists so that we can allocate a std::vector<VectorDouble>
+ * with a given number of elements.
+ * 
+ * Note that we don't know what size this VectorDouble will be, so we can't
+ * allocate any memory for it.  Hence we set our size to -1, to ensure that
+ * an error will be given if this object is used as though it were a normal
+ * VectorDouble.  It shouldn't be, because default elements of the std::vector
+ * will be replaced by 'real' VectorDouble objects.
+ */
+VectorDouble::VectorDouble()
+{
+	mSize = -1;
+}
+
 VectorDouble::VectorDouble(int Size)
 {
 	assert(Size > 0);

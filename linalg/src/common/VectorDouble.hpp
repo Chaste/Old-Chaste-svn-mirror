@@ -9,6 +9,7 @@ class VectorDouble
 		int mSize;
 		double *mElementArray;
 	public:
+		VectorDouble(); // For use in allocating a std::vector of VectorDoubles
 		VectorDouble(int Size);
 		VectorDouble(const VectorDouble& rOtherVector);
 		~VectorDouble();
