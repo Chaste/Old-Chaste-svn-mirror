@@ -41,7 +41,6 @@ protected:
         //double *p_current_solution;
         //int ierr = VecGetArray(currentSolution, &p_current_solution);
         
-        
         const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
@@ -51,7 +50,7 @@ protected:
 
         const int num_nodes = rElement.GetNumNodes();
                 
-        for(int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
+        for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
@@ -62,51 +61,38 @@ protected:
             Point<SPACE_DIM> x(0,0,0);
             double u=0;
             double sourceTerm = 0;
-            for(int i=0; i<num_nodes; i++)
+            for (int i=0; i<num_nodes; i++)
             {
-                for(int j=0; j<SPACE_DIM; j++)
+                for (int j=0; j<SPACE_DIM; j++)
                 {
                     x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
                 }
                 
-                
-                //std::cout << "About to read inputCache" << std::endl << std::flush;
-                u  += phi[i]*pPde->inputCacheReplicated[ rElement.GetNodeGlobalIndex(i) ];
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), pPde->inputCacheReplicated[rElement.GetNodeGlobalIndex(i)] );
-                
-                //std::cout << pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(i)), p_current_solution[rElement.GetNodeGlobalIndex(i)] ) << "\n";
+                u  += phi[i]*pPde->inputCacheReplicated[rElement.GetNodeGlobalIndex(i)];
+                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*(rElement.GetNode(i)), pPde->inputCacheReplicated[rElement.GetNodeGlobalIndex(i)]);
             }
-            //std::cout << "Done some reading" << std::endl << std::flush;
 
-            //std::cout << "source = " << sourceTerm << std::endl << std::flush;
-
-            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);  
+			double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
+			MatrixDouble pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
+            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             for (int row=0; row < num_nodes; row++)
             {
                 for (int col=0; col < num_nodes; col++)
                 {
-                    double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pPde->ComputeDuDtCoefficientFunction(x) * phi[row] * phi[col];
-                    rAElem(row,col) += integrand_val1 * wJ; 
+                    double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi[row] * phi[col];
+                    rAElem(row,col) += integrand_val1 * wJ;
 
-                    double integrand_val2 = gradPhi[row].dot(pPde->ComputeDiffusionTerm(x) * gradPhi[col]);                             
+                    double integrand_val2 = gradPhi[row].dot(pde_diffusion_term * gradPhi[col]);
                     rAElem(row,col) += integrand_val2 * wJ;
                 }
-
-                // RHS
-//				double vec_integrand_val1 // = (pPde->ComputeLinearSourceTerm(x) + 
-//					= pPde->ComputeNonlinearSourceTermAtNode( *(rElement.GetNode(quad_index)), p_current_solution[rElement.GetNodeGlobalIndex(quad_index)] ) * phi[row];
-//				vec_integrand_val1 = pPde->ComputeNonlinearSourceTermAtNode( *( rElement.GetNode(quad_index) ), u)) * phi[row];
-                
                 
                 double vec_integrand_val1 = sourceTerm * phi[row];
                 rBElem(row) += vec_integrand_val1 * wJ;
 
-                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pPde->ComputeDuDtCoefficientFunction(x) * u * phi[row];
-                rBElem(row) += vec_integrand_val2 * wJ;             
+                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi[row];
+                rBElem(row) += vec_integrand_val2 * wJ;
             }
         }
-        
-        //ierr = VecRestoreArray(currentSolution, &p_current_solution); 
     }       
 
 
