@@ -41,7 +41,7 @@ if system_name == 'finarfin':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 else:
   # Default
-  petsc_base = '../../petsc-2.2.1-with-mpi/'
+  petsc_base = '../../../petsc-2.2.1-with-mpi/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
@@ -135,8 +135,8 @@ if test_summary:
   # Add a summary generator to the list of things for scons to do
   summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
   opt = Environment(ENV = {'PATH': os.environ['PATH'],
-                           'PYTHONPATH': os.environ['PYTHONPATH'],
-                           'LD_LIBRARY_PATH': os.environ['LD_LIBRARY_PATH']})
+                           'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
+                           'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')})
   opt['BUILDERS']['TestSummary'] = summary
   opt.TestSummary(os.path.join(output_dir, 'index.html'),
                   'buildtime.txt')
