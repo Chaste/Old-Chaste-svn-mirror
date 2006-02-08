@@ -63,13 +63,15 @@ protected:
             double sourceTerm = 0;
             for (int i=0; i<num_nodes; i++)
             {
+            	const Node<SPACE_DIM> *node = rElement.GetNode(i);
+            	const Point<SPACE_DIM> node_loc = node->rGetPoint();
                 for (int j=0; j<SPACE_DIM; j++)
                 {
-                    x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
+                    x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
                 }
-                
-                u  += phi[i]*pPde->inputCacheReplicated[rElement.GetNodeGlobalIndex(i)];
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*(rElement.GetNode(i)), pPde->inputCacheReplicated[rElement.GetNodeGlobalIndex(i)]);
+                int node_global_index = rElement.GetNodeGlobalIndex(i);
+                u  += phi[i]*pPde->inputCacheReplicated[node_global_index];
+                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->inputCacheReplicated[node_global_index]);
             }
 
 			double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);

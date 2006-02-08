@@ -101,9 +101,10 @@ protected:
 			double u = 0.0;
 			for(int i=0; i<rElement.GetNumNodes(); i++)
 			{
+				const Point<SPACE_DIM> node_loc = rElement.GetNode(i)->rGetPoint();
 				for(int j=0; j<SPACE_DIM; j++)
 				{
-					x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
+					x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
 				}
 				if (currentSolution)
 				{
@@ -176,9 +177,10 @@ protected:
 			Point<SPACE_DIM> x(0,0,0);
 			for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
 			{
+				const Point<SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetPoint();
 				for(int j=0; j<SPACE_DIM; j++)
 				{
-					x.SetCoordinate(j, x[j] + phi[i]*rSurfaceElement.GetNodeLocation(i,j));
+					x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
 				}
 			}
 			

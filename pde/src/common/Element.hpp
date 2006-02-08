@@ -237,7 +237,7 @@ public:
     {
     	assert(dimension < SPACE_DIM);
     	assert(localIndex < mNodes.size());
-    	return mNodes[localIndex]->GetPoint()[dimension];
+    	return mNodes[localIndex]->rGetPoint()[dimension];
     }
     
     long GetNodeGlobalIndex(int localIndex) const

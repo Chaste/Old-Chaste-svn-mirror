@@ -2,7 +2,6 @@
 #define _NODE_HPP_
 
 #include "Point.hpp"
-#include <iostream>
 #include <set>
 
 template<int SPACE_DIM>
@@ -56,6 +55,11 @@ public:
 	}
 			
 	Point<SPACE_DIM> GetPoint() const
+	{
+		return mPoint;
+	}
+
+	const Point<SPACE_DIM> &rGetPoint() const
 	{
 		return mPoint;
 	}
