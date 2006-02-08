@@ -1,19 +1,12 @@
 #ifndef _MONODOMAINPDE_HPP_
 #define _MONODOMAINPDE_HPP_
 
-#include <iostream>
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
-#include "RegularStimulus.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "AdamsBashforthIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "AbstractLinearParabolicPde.hpp"
 #include "MatrixDouble.hpp"
 #include "AbstractCoupledPde.hpp"
 
@@ -48,15 +41,11 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     private:
         friend class TestMonodomainPde;
 
+        AbstractStimulusFunction* mpZeroStimulus;
 
-        
-        AbstractStimulusFunction*                mpZeroStimulus;
+        /** The ODE system at each cell. Distributed. */
+        std::vector<LuoRudyIModel1991OdeSystem*> mOdeSystemsDistributed;
 
-        /** Stimulus function applied to each node
-         */
-        std::vector<AbstractStimulusFunction* >  mStimulusAtNode;
-
-  
     public:
     
     //Constructor
@@ -67,12 +56,15 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         // Initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
-        mStimulusAtNode.resize(this->mNumNodes);
-        for(int i=0; i<numNodes; i++)
-        {   
-            mStimulusAtNode[i] = mpZeroStimulus;
-        }        
-        
+
+        // Create all our ODE systems, with a zero stimulus
+        int lo=this->mOwnershipRangeLo;
+        int hi=this->mOwnershipRangeHi;
+        mOdeSystemsDistributed.reserve(hi-lo);
+        for (int local_index=0; local_index < hi-lo; local_index++)
+        {
+            mOdeSystemsDistributed.push_back(new LuoRudyIModel1991OdeSystem(mpZeroStimulus));
+        }
         // Set default initial conditions everywhere
         LuoRudyIModel1991OdeSystem ode_system(mpZeroStimulus);
         this->SetUniversalInitialConditions(ode_system.mInitialConditions);
@@ -81,6 +73,12 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     ~MonodomainPde(void)
     {
         delete mpZeroStimulus;
+        
+        // Free ODE systems
+        for (int i=0; i<mOdeSystemsDistributed.size(); i++)
+        {
+            delete mOdeSystemsDistributed[i];
+        }
     }
     
     /**
@@ -136,31 +134,31 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     }
     
     
-    
     /**
      * Set given stimulus function at a particular node.
      * 
      * @param nodeIndex  Global index specifying the node to set the stimulus at.
      * @param pStimulus  Pointer to the stimulus object to use.
      */
-    void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
+    void SetStimulusFunctionAtNode(int nodeGlobalIndex, AbstractStimulusFunction* pStimulus)
     {
-        mStimulusAtNode[ nodeIndex ] = pStimulus;        
+        if (nodeGlobalIndex >= this->mOwnershipRangeLo && nodeGlobalIndex < this->mOwnershipRangeHi)
+        {
+            int local_index = nodeGlobalIndex - this->mOwnershipRangeLo;
+            mOdeSystemsDistributed[local_index]->SetStimulusFunction(pStimulus);
+        }
     }
     
 
     /**
      * This function informs the class that the current pde timestep is over,
-     * so the odes are reset as being unsolved, and time is advanced.
+     * so time is advanced.
      */
     void ResetAsUnsolvedOdeSystem()
     {
         this->mTime += this->mBigTimeStep;
     }
     
-    
- 
-
 
     /**
      * Calculate the ionic current, using the value of the gating variables
@@ -318,7 +316,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     	for (int local_index=0; local_index < hi-lo; local_index++)
     	{
             int global_index = local_index + lo;
-    		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = new LuoRudyIModel1991OdeSystem( mStimulusAtNode[ global_index ] );
+    		LuoRudyIModel1991OdeSystem* pLr91OdeSystem = mOdeSystemsDistributed[local_index];
      		
             // overwrite the voltage with the input value
             this->mOdeVarsAtNode[local_index][4] = p_current_solution[local_index]; 
@@ -333,10 +331,8 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
  
             // extract solution at end time and save in the store 
             this->mOdeVarsAtNode[ local_index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
-            
-            delete pLr91OdeSystem;
   
-            double Itotal = mStimulusAtNode[global_index]->GetStimulus(time + big_time_step)
+            double Itotal = pLr91OdeSystem->GetStimulus(time + big_time_step)
                             + GetIIonic( this->mOdeVarsAtNode[ local_index ]);
         
 		    this->solutionCacheReplicated[global_index] = - Itotal;

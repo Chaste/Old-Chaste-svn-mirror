@@ -2,6 +2,7 @@
 #define _ABSTRACTCOUPLEDPDE_HPP_
 
 #include "AbstractLinearParabolicPde.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 #include <vector>
 #include "petscvec.h"
 #include <iostream>

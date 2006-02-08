@@ -1,5 +1,4 @@
 #include "FitzHughNagumo1961OdeSystem.hpp"
-#include "AbstractOdeSystem.hpp"
 #include <cmath>
 #include <cassert>
 
@@ -63,4 +62,22 @@ std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double ti
    RHS.push_back(recovery_variable_prime);
 
    return RHS;
+}
+
+/**
+ * Set the stimulus function used by this cell.
+ * 
+ * @param stimulus  The stimulus function to use.
+ */
+void FitzHughNagumo1961OdeSystem::SetStimulusFunction(AbstractStimulusFunction *stimulus)
+{
+    mpStimulus = stimulus;
+}
+
+/**
+ * Return the value of our stimulus function at the given time.
+ */
+double FitzHughNagumo1961OdeSystem::GetStimulus(double time)
+{
+    return mpStimulus->GetStimulus(time);
 }

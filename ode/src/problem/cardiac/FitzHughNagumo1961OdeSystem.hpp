@@ -25,6 +25,9 @@ class FitzHughNagumo1961OdeSystem : public AbstractOdeSystem
       // Destructor
       ~FitzHughNagumo1961OdeSystem();
 
+      void SetStimulusFunction(AbstractStimulusFunction *stimulus);
+      double GetStimulus(double time);
+      
       // Compute the RHS of the FitHugh-Nagumo system of ODEs
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
 };

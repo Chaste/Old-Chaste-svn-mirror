@@ -16,8 +16,8 @@
 
 #include "MonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
-#include "math.h"
-
+#include <cmath>
+#include "EulerIvpOdeSolver.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 

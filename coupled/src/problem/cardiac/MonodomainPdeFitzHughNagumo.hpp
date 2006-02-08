@@ -1,19 +1,12 @@
 #ifndef _MONODOMAINPDEFITZHUGHNAGUMO_HPP_
 #define _MONODOMAINPDEFITZHUGHNAGUMO_HPP_
 
-#include <iostream>
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
-#include "RegularStimulus.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "AdamsBashforthIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
-#include "AbstractLinearParabolicPde.hpp"
 #include "MatrixDouble.hpp"
 #include "AbstractCoupledPde.hpp"
 
@@ -39,15 +32,13 @@ class MonodomainPdeFitzHughNagumo : public AbstractCoupledPde<SPACE_DIM>
 private:
     
     
-    // Default stimulus function
-    AbstractStimulusFunction*                mpZeroStimulus;
+    /** Default stimulus function
+     */
+    AbstractStimulusFunction* mpZeroStimulus;
     
-    
-    // Stimulus function applied to each node
-    std::vector<AbstractStimulusFunction* >  mStimulusAtNode;
-    
-     // Vector of pointers to an ODE system object for each node
-    std::vector<FitzHughNagumo1961OdeSystem*> mOdeSystems;
+     /** Vector of pointers to an ODE system object for each node
+      */
+    std::vector<FitzHughNagumo1961OdeSystem*> mOdeSystemsDistributed;
    
     
     
@@ -70,17 +61,16 @@ public:
     AbstractCoupledPde<SPACE_DIM>(numNodes, pOdeSolver, 
                   tStart,  bigTimeStep,  smallTimeStep)          
     {
-              
-        mStimulusAtNode.resize(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
-		mOdeSystems.reserve(AbstractCoupledPde<SPACE_DIM>::mNumNodes);
+        int lo=this->mOwnershipRangeLo;
+        int hi=this->mOwnershipRangeHi;
+		mOdeSystemsDistributed.reserve(hi-lo);
         
         // Initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
                         
         for (int i=0; i<numNodes; i++)
-        {   
-            mStimulusAtNode[i] = mpZeroStimulus;
-	    mOdeSystems.push_back(new FitzHughNagumo1961OdeSystem(mStimulusAtNode[i]));
+        {
+	        mOdeSystemsDistributed.push_back(new FitzHughNagumo1961OdeSystem(mpZeroStimulus));
         }        
     }
 
@@ -88,9 +78,9 @@ public:
     ~MonodomainPdeFitzHughNagumo(void)
     {
 		delete mpZeroStimulus;
-		for (int i=0; i<AbstractCoupledPde<SPACE_DIM>::mNumNodes; i++)
+		for (int i=0; i<mOdeSystemsDistributed.size(); i++)
 		{
-	    	delete mOdeSystems[i];
+	    	delete mOdeSystemsDistributed[i];
 		}
     }
     
@@ -98,14 +88,14 @@ public:
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         assert(0);
-	return 0.0;
+	    return 0.0;
     }
     
     // This should not be called as it is a virtual function, use ComputeNonlinearSourceTermAtNode instead
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
     {
         assert(0);
-	return 0.0; 
+	    return 0.0; 
     }
 
         
@@ -114,8 +104,7 @@ public:
         return 10 * MatrixDouble::Identity(SPACE_DIM);
     }
     
-    /** double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
-     * 
+    /**
      * Main method in this class.
      * First checks to see if the ode set of equations have been solved for
      * in this timestep. If not, it integrates the odes over the timestep,
@@ -143,27 +132,39 @@ public:
     }
     
     
-    // Set given stimulus function to a particular node
-    void SetStimulusFunctionAtNode(int nodeIndex, AbstractStimulusFunction* pStimulus)
+    /**
+     * Set given stimulus function at a particular node.
+     * 
+     * @param nodeIndex  Global index specifying the node to set the stimulus at.
+     * @param pStimulus  Pointer to the stimulus object to use.
+     */
+    void SetStimulusFunctionAtNode(int nodeGlobalIndex, AbstractStimulusFunction* pStimulus)
     {
-        mStimulusAtNode[ nodeIndex ] = pStimulus;        
+        if (nodeGlobalIndex >= this->mOwnershipRangeLo && nodeGlobalIndex < this->mOwnershipRangeHi)
+        {
+            int local_index = nodeGlobalIndex - this->mOwnershipRangeLo;
+            mOdeSystemsDistributed[local_index]->SetStimulusFunction(pStimulus);
+        }
     }
     
 
-    // This function informs the class that the current pde timestep is over,
-    //  so the odes are reset as being unsolved.
+    /**
+     * This function informs the class that the current pde timestep is over,
+     * so time is advanced.
+     */
     void ResetAsUnsolvedOdeSystem()
     {
         AbstractCoupledPde<SPACE_DIM>::mTime += AbstractCoupledPde<SPACE_DIM>::mBigTimeStep;
           
     }
     
-    
-  
-
-
-    // Calculate the ionic current, using the value of the gating variables
-    //  at time t+dt, but using the old voltage at time t. 
+    /**
+     * Calculate the ionic current, using the value of the gating variables
+     * at time t+dt, but using the old voltage at time t
+     * 
+     * \todo Add a method to the ODE system object to retrieve the last
+     * calculated value for this?
+     */
     double GetIIonic(odeVariablesType odeVars)
     {
 	double membrane_V        =  odeVars[0];
@@ -192,7 +193,7 @@ public:
         for (int local_index=0; local_index<AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeHi-AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo; local_index++)
      	{
             int global_index = local_index + AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo;
-            FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystems[local_index];
+            FitzHughNagumo1961OdeSystem* pFitzHughNagumoOdeSystem = mOdeSystemsDistributed[local_index];
         
             
             // overwrite the voltage with the input value
@@ -211,9 +212,9 @@ public:
                 AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
             }
             
-       		double Itotal = mStimulusAtNode[global_index]->GetStimulus(AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep) +
-	    					GetIIonic( AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ] );
-	    	AbstractCoupledPde<SPACE_DIM>::solutionCacheReplicated[global_index] = -Itotal;
+       		double Itotal = pFitzHughNagumoOdeSystem->GetStimulus(this->mTime+this->mBigTimeStep) +
+	    					GetIIonic( this->mOdeVarsAtNode[ local_index ] );
+	    	this->solutionCacheReplicated[global_index] = -Itotal;
          }
          
          AbstractCoupledPde<SPACE_DIM>::ReplicateSolutionCache();

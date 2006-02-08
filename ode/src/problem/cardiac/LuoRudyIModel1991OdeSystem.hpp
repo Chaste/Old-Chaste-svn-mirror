@@ -35,6 +35,9 @@ class LuoRudyIModel1991OdeSystem : public AbstractOdeSystem
       LuoRudyIModel1991OdeSystem(AbstractStimulusFunction *stimulus);
       // Destructor
       ~LuoRudyIModel1991OdeSystem();
+      
+      void SetStimulusFunction(AbstractStimulusFunction *stimulus);
+      double GetStimulus(double time);
 
       // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
