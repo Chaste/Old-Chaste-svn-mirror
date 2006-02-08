@@ -37,7 +37,7 @@ for test_pack_file in test_pack_files:
   fp = file(test_pack_file)
   for line in fp:
     line = line.strip()
-    if not line in found_tests:
+    if line and not line in found_tests:
       found_tests.append(line)
   fp.close()
 
@@ -54,7 +54,7 @@ for test_dir in test_dirs:
     fp = file(test_pack_file)
     for line in fp:
       line = line.strip()
-      if not line in local_found_tests[test_dir]:
+      if line and not line in local_found_tests[test_dir]:
         local_found_tests[test_dir].append(line)
     fp.close()
   # Check for orphans in this folder
