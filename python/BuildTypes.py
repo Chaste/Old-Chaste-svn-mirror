@@ -191,6 +191,15 @@ class Profile(GccDebug):
     "Run test with a profiler and rename gmon.out"
     return exefile + ' ; gprof ' + exefile
 
+class ProfileGccOpt(Profile):
+  """
+  gcc compiler with profiling and optimization
+  """
+  def __init__(self):
+    BuildType.__init__(self)
+    self._cc_flags += ' -O3'
+    self._test_packs = ['Profile']
+    self.build_dir = 'profile_optimised'
 
 class Parallel(GccDebug):
   """
@@ -400,7 +409,7 @@ class GccOptP4(GccOpt):
   """
   def __init__(self):
     GccOpt.__init__(self)
-    self._cc_flags = self._cc_flags+' -march=pentium4 -mmx -msse -msse2 -mfpmath=sse'
+    self._cc_flags = self._cc_flags+' -march=pentium4 -mmmx -msse -msse2 -mfpmath=sse'
     self.build_dir = 'optimised_P4'
     
 class Intel(BuildType):
