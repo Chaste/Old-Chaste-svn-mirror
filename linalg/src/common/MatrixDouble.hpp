@@ -28,6 +28,9 @@ class MatrixDouble
 		friend MatrixDouble operator+(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
 		friend MatrixDouble operator-(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
 		
+        void VectorPostMultiply(const VectorDouble& rOperandVector, VectorDouble& rResultVector) const;
+        
+        
 		friend VectorDouble operator*(const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix);
 		VectorDouble operator*(const VectorDouble& rSomeVector) const;
 		MatrixDouble Transpose() const;
