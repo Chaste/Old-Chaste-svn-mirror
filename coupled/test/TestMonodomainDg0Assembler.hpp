@@ -247,12 +247,14 @@ public:
                         // thus varies by about 3mV in 1 timestep.  So this isn't
                         // quite as bad as it looks.
                         // A finer mesh should give better results...
+
                         TS_ASSERT_DELTA(voltage_array[i], voltage, 4.0);
+
                        // std::cout << "y=" << monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
                     
                     // Check against 1d case
-                    TS_ASSERT_DELTA(voltage_array[i], -35.1363, 3.0);
+                    TS_ASSERT_DELTA(voltage_array[i], -35.1363, 35*0.1);
                 }
             }
         }

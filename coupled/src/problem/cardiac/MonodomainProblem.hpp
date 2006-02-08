@@ -182,6 +182,20 @@ public:
     
             int big_steps = 0;
             
+            
+           	if (mSequential)
+            {
+                p_test_writer->PutVariable(time_var_id, current_time); 
+                for(int j=0; j<mMesh.GetNumNodes(); j++) 
+                {
+                    p_test_writer->PutVariable(voltage_var_id, p_initial_condition[j], j);    
+                }
+                p_test_writer->AdvanceAlongUnlimitedDimension();
+            }
+         
+            
+            
+            
             while( current_time < mEndTime )
             {
                 monodomain_assembler.SetTimes(current_time, current_time+big_time_step, big_time_step);
@@ -207,7 +221,7 @@ public:
                     }
           
                     VecRestoreArray(mCurrentVoltage, &p_current_voltage); 
-                     p_test_writer->AdvanceAlongUnlimitedDimension();
+                    p_test_writer->AdvanceAlongUnlimitedDimension();
                 }
          
                 mMonodomainPde->ResetAsUnsolvedOdeSystem();
