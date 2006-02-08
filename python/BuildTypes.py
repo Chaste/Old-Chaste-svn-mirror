@@ -172,7 +172,7 @@ class GccDebug(Gcc):
   gcc compiler with debug enabled.
   """
   def __init__(self):
-    BuildType.__init__(self)
+    Gcc.__init__(self)
     self._cc_flags = '-g'
     self.build_dir = 'debug'
     
@@ -181,7 +181,7 @@ class Profile(GccDebug):
   gcc compiler with profiling enabled.
   """
   def __init__(self):
-    BuildType.__init__(self)
+    GccDebug.__init__(self)
     self._cc_flags += ' -pg'
     self._link_flags += ' -pg'
     self._test_packs = ['Profile']
@@ -196,9 +196,8 @@ class ProfileGccOpt(Profile):
   gcc compiler with profiling and optimization
   """
   def __init__(self):
-    BuildType.__init__(self)
+    Profile.__init__(self)
     self._cc_flags += ' -O3'
-    self._test_packs = ['Profile']
     self.build_dir = 'profile_optimised'
 
 class Parallel(GccDebug):

@@ -41,6 +41,7 @@ if [ -z "$1" ]; then
 	do_build MemoryTesting
 	do_build ParallelMemoryTesting
 	do_build Parallel_Continuous
+	do_build Profile
 else
 	do_build $1
 fi
