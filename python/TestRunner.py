@@ -54,42 +54,42 @@ else:
     command = build.GetTestRunnerCommand(exefile + ' 2>&1 ')
 
 # Run the test program and record output & exit code
+log_fp = file(logfile, 'w')
+if not log_fp:
+    print "Unable to open log file"
+    sys.exit(1)
 start_time = time.time()
 test_fp = os.popen(command, 'r')
-test_output = []
 for line in test_fp:
-  test_output.append(line)
-  if not '--no-stdout' in sys.argv:
-    print line,
+    log_fp.write(line)
+    if not '--no-stdout' in sys.argv:
+        print line,
 exit_code = test_fp.close()
 end_time = time.time()
+log_fp.close()
 
 #print "Time",end_time,start_time
 
-# Write output to the log file
-log_fp = file(logfile, 'w')
-log_fp.writelines(test_output)
-log_fp.close()
-
 if outputdir:
-  # Get the test status and copy log file
-  machine  = socket.getfqdn()
-  test_dir = os.path.join(outputdir, machine+'.'+build_type)
-  if not os.path.exists(test_dir):
-    os.mkdir(test_dir)
-  if not os.path.isdir(test_dir):
-    print test_dir,"is not a directory; unable to copy output."
-    sys.exit(1)
-  test_name = os.path.splitext(os.path.basename(logfile))[0]
-  status    = build.EncodeStatus(exit_code, test_output)
-  #print test_name, status
-  # Remove any old copies of results from this test
-  oldfiles = glob.glob(os.path.join(test_dir, test_name+'.*'))
-  for oldfile in oldfiles:
-    os.remove(oldfile)
-  # Copy the new results
-  copy_to = build.ResultsFileName(dir=test_dir, testsuite=test_name, status=status, runtime=end_time-start_time)
-  #print copy_to
-  fp = file(copy_to, 'w')
-  fp.writelines(test_output)
-  fp.close()
+    # Get the test status and copy log file
+    machine  = socket.getfqdn()
+    test_dir = os.path.join(outputdir, machine+'.'+build_type)
+    if not os.path.exists(test_dir):
+        os.mkdir(test_dir)
+    if not os.path.isdir(test_dir):
+        print test_dir,"is not a directory; unable to copy output."
+        sys.exit(1)
+    test_name = os.path.splitext(os.path.basename(logfile))[0]
+    log_fp = open(logfile, 'r')
+    status = build.EncodeStatus(exit_code, log_fp)
+    log_fp.close()
+    #print test_name, status
+    # Remove any old copies of results from this test
+    oldfiles = glob.glob(os.path.join(test_dir, test_name+'.*'))
+    for oldfile in oldfiles:
+        os.remove(oldfile)
+    # Copy the new results
+    copy_to = build.ResultsFileName(dir=test_dir, testsuite=test_name, status=status,
+                                    runtime=end_time-start_time)
+    #print copy_to
+    os.system("/bin/cp -f " + logfile + " " + copy_to)
