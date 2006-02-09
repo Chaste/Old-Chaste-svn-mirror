@@ -240,6 +240,7 @@ protected:
         //std::cout << std::endl;
         // ^ gives the same in parallel
         
+        ///\todo The linear system should be re-used from the previous step
 		// Linear system in n unknowns, where n=#nodes
 		mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());
                 

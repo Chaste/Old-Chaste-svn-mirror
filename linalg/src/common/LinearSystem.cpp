@@ -25,8 +25,13 @@ LinearSystem::LinearSystem(int lhsVectorSize)
     MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
     //MatSetType(mLhsMatrix, MATSEQDENSE);
     MatSetType(mLhsMatrix, MATMPIDENSE);
-	MatSetFromOptions(mLhsMatrix);
-    mSize = lhsVectorSize;
+    MatSetFromOptions(mLhsMatrix);
+    
+    ///\todo: Sparsify matrices (and get the allocation rule correct). 
+    //MatSetType(mLhsMatrix, MATMPIAIJ);
+    //MatMPIAIJSetPreallocation(mLhsMatrix, 5, PETSC_NULL, 5, PETSC_NULL);
+    
+	mSize = lhsVectorSize;
     
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 }
@@ -55,7 +60,7 @@ LinearSystem::~LinearSystem()
 void LinearSystem::SetMatrixElement(int row, int col, double value)
 {
     if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {    
+    {
  		MatSetValue(mLhsMatrix, row, col, value, INSERT_VALUES);
     }
 }
@@ -63,7 +68,7 @@ void LinearSystem::SetMatrixElement(int row, int col, double value)
 void LinearSystem::AddToMatrixElement(int row, int col, double value)
 {
     if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {    
+    {
  	   MatSetValue(mLhsMatrix, row, col, value, ADD_VALUES);
     }
 }
