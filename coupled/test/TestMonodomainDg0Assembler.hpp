@@ -362,7 +362,7 @@ public:
     {   
         PointStimulus2D point_stimulus_2D(60); // Central node
         
-        MonodomainProblem<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_200_elements",
+        MonodomainProblem<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
                                                1,   // ms
                                                "testoutput/MonoDg02dWithPointStimulus",
                                                "NewMonodomainLR91_2dWithPointStimulus",

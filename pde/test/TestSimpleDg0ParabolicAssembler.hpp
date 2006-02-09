@@ -19,6 +19,8 @@
 #include <iostream>
 #include <cmath>
 
+#include <sys/stat.h> // for mkdir
+
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
@@ -29,6 +31,7 @@
 #include "TrianglesMeshReader.hpp"
 #include "FemlabMeshReader.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
+#include "ColumnDataWriter.hpp"
 
 #define PI M_PI
 
@@ -1114,6 +1117,130 @@ public:
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
+    
+    
+    // heat equation with 2d mesh and initial condition non-zero at centre, 
+    // writing out data (doesn't test anything, being used for investigation)
+    void xTestSimpleDg0ParabolicAssembler2DZeroNeumannNonZeroInCentre( void )
+    {   
+        // read mesh on [0,1]x[0,1]
+        TrianglesMeshReader mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Instantiate PDE object
+        TimeDependentDiffusionEquationPde<2> pde;       
+
+        
+        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        
+        while(surf_iter < mesh.GetLastBoundaryElement())
+        {
+            bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+            surf_iter++;
+        }
+
+        // Linear solver
+        SimpleLinearSolver linearSolver;
+        
+        // Assembler
+        SimpleDg0ParabolicAssembler<2,2> fullSolver;
+        
+        // initial condition;
+        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+  
+        double* initial_condition_array;
+        int ierr = VecGetArray(initial_condition, &initial_condition_array);
+        
+        // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
+        // the heat equation.
+
+        int lo,hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+
+        for(int local_index=0; local_index<hi-lo; local_index++)
+        {
+            initial_condition_array[local_index] = 0;
+            if(local_index+lo == 60)
+            {
+                initial_condition_array[local_index] = 1;
+            }
+        }
+        VecRestoreArray(initial_condition, &initial_condition_array);
+        
+        
+        
+        double time = 0;
+        double t_end = 0.1;
+        double dt = 0.001;
+        fullSolver.SetInitialCondition(initial_condition);
+
+        ColumnDataWriter *p_test_writer;
+           
+        int time_var_id = 0;
+        int heat_var_id = 0;
+
+//        if (mSequential && mOutputFilenamePrefix.length() > 0)
+//       {   
+        std::string output_dir = "testoutput/2DHeatEquation";
+
+        mkdir(output_dir.c_str(), 0777);
+                 
+        p_test_writer = new ColumnDataWriter(output_dir,"2DHeatEquation");
+
+        p_test_writer->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
+        time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
+        
+        heat_var_id = p_test_writer->DefineVariable("T","K");
+        p_test_writer->EndDefineMode();
+//        }
+         
+         
+        p_test_writer->PutVariable(time_var_id, time); 
+        for(int j=0; j<mesh.GetNumNodes(); j++) 
+        {
+            p_test_writer->PutVariable(heat_var_id, initial_condition_array[j], j);    
+        }
+        p_test_writer->AdvanceAlongUnlimitedDimension();
+
+        Vec result;
+        double* p_result;
+
+        while(time < t_end)
+        {
+            time += dt;
+            fullSolver.SetTimes(time, time+dt, dt);
+            
+            result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+
+            fullSolver.SetInitialCondition(result);        
+            
+            
+            VecGetArray(result, &p_result);
+        
+            p_test_writer->PutVariable(time_var_id, time); 
+            for(int j=0; j<mesh.GetNumNodes(); j++) 
+            {
+                p_test_writer->PutVariable(heat_var_id, p_result[j], j);    
+            }
+          
+            VecRestoreArray(result, &p_result); 
+            p_test_writer->AdvanceAlongUnlimitedDimension();
+        }
+ 
+        VecRestoreArray(result, &p_result);
+        VecDestroy(initial_condition);
+        VecDestroy(result); 
+    }
+    
+    
+    
+    
+    
+    
+    
 };
 
 #endif //_TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
