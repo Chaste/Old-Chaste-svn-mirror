@@ -15,6 +15,10 @@ test_summary = ARGUMENTS.get('test_summary', 1)
 # Specify system_name=finarfin to scons to change default paths
 system_name = ARGUMENTS.get('system_name', '')
 
+# Specifying extra run-time flags
+run_time_flags = ARGUMENTS.get('run_time_flags', '')
+Export('run_time_flags')
+
 # To run a single test suite only, give its path (relative to the Chaste
 # root) as the test_suite=<path> argument.
 # This will force the test suite to be run even if the source is unchanged.

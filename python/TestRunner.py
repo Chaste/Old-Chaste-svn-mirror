@@ -7,7 +7,7 @@
 # The test executable should be run and the output captured,
 # and stored to a file.
 
-# This script expects 3 or 4 arguments.
+# This script expects 3 - 5 arguments.
 # The first is the executable to run.
 # The second is the name of the output .log file, in which the output
 #  of the program will be stored.
@@ -17,11 +17,12 @@
 #  BuildTypes module. If not provided then this isn't done.
 #  Files will be stored in a subfolder machine.build_type.
 #  The .log file basename, without extension, will be prepended to the status.
+# The 5th is any extra flags to pass to the executable.
 
 import os, sys, time
 
 def help():
-  print "Usage:",sys.argv[0],"<test exe> <.log file> <build type> [output dir] [--no-stdout]"
+  print "Usage:",sys.argv[0],"<test exe> <.log file> <build type> [output dir] [run time flags] [--no-stdout]"
 
 # Check for valid arguments.
 if len(sys.argv) < 4:
@@ -39,8 +40,13 @@ if len(sys.argv) > 4:
     help()
     sys.exit(1)
   import socket, glob  # These modules only needed if we have an output dir
+  if len(sys.argv) > 5:
+    run_time_flags = sys.argv[5]
+  else:
+    run_time_flags = ''
 else:
   outputdir = None
+  run_time_flags = ''
 
 # Get a build object for this build type
 import BuildTypes
@@ -51,7 +57,7 @@ if exefile in ["python/CheckForOrphanedTests.py",
                "python/CheckForDuplicateFileNames.py"]:
     command = exefile
 else:
-    command = build.GetTestRunnerCommand(exefile + ' 2>&1 ')
+    command = build.GetTestRunnerCommand(exefile + ' 2>&1 ') + ' ' + run_time_flags
 
 # Run the test program and record output & exit code
 log_fp = file(logfile, 'w')

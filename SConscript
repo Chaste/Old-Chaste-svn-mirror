@@ -72,7 +72,8 @@ opt.Replace(CPPPATH = cpppath)
 
 test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
-                   build_type + ' ' + build.GetTestReportDir())
+                   build_type + ' ' + build.GetTestReportDir() + 
+                   ' ' + run_time_flags)
 #runtests = Builder(action = './$SOURCE | tee $TARGET')
 #runparalleltests = Builder(action = mpirun + ' -np 2 ./$SOURCE | tee $TARGET')
 
