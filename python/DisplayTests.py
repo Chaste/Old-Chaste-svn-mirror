@@ -248,10 +248,7 @@ def buildType(req, buildType, revision=None):
     rev_text = ' at revision %s' % revision
   BuildTypes = _importBuildTypesModule(rev)
   build = BuildTypes.GetBuildType(buildType)
-  test_packs = ''
-  for test_pack in build.TestPacks():
-    test_packs = test_packs + test_pack + ', '
-  test_packs = test_packs[:-2]
+  test_packs = ', '.join(build.TestPacks())
   # How test suites are run
   testsuite_exe = "testsuite.exe"
   testsuite_cmd = build.GetTestRunnerCommand(testsuite_exe)

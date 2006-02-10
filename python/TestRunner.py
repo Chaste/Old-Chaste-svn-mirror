@@ -22,31 +22,32 @@
 import os, sys, time
 
 def help():
-  print "Usage:",sys.argv[0],"<test exe> <.log file> <build type> [output dir] [run time flags] [--no-stdout]"
+    print "Usage:",sys.argv[0],\
+        "<test exe> <.log file> <build type> [output dir] [run time flags] [--no-stdout]"
 
 # Check for valid arguments.
 if len(sys.argv) < 4:
-  print "Syntax error: insufficient arguments."
-  help()
-  sys.exit(1)
+    print "Syntax error: insufficient arguments."
+    help()
+    sys.exit(1)
 
 exefile, logfile, build_type = sys.argv[1:4]
 
 # Check the output directory given
 if len(sys.argv) > 4:
-  outputdir = sys.argv[4]
-  if not os.path.isdir(outputdir):
-    print "Output directory",outputdir,"does not exist."
-    help()
-    sys.exit(1)
-  import socket, glob  # These modules only needed if we have an output dir
-  if len(sys.argv) > 5:
-    run_time_flags = sys.argv[5]
-  else:
-    run_time_flags = ''
+    outputdir = sys.argv[4]
+    if not os.path.isdir(outputdir):
+        print "Output directory",outputdir,"does not exist."
+        help()
+        sys.exit(1)
+    import socket, glob  # These modules only needed if we have an output dir
+    if len(sys.argv) > 5:
+        run_time_flags = sys.argv[5]
+    else:
+        run_time_flags = ''
 else:
-  outputdir = None
-  run_time_flags = ''
+    outputdir = None
+    run_time_flags = ''
 
 # Get a build object for this build type
 import BuildTypes
@@ -57,7 +58,7 @@ if exefile in ["python/CheckForOrphanedTests.py",
                "python/CheckForDuplicateFileNames.py"]:
     command = exefile
 else:
-    command = build.GetTestRunnerCommand(exefile + ' 2>&1 ') + ' ' + run_time_flags
+    command = build.GetTestRunnerCommand(exefile, '2>&1 ' + run_time_flags)
 
 # Run the test program and record output & exit code
 log_fp = file(logfile, 'w')

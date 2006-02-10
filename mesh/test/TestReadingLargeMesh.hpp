@@ -12,6 +12,7 @@
 
 class TestConformingTetrahedralMesh : public CxxTest::TestSuite 
 {
+public:
 	// This test is mainly here for performance testing, to check that loading a
 	// (relatively) large mesh doesn't take too long.
 	// It's a nightly test because it takes 10 hours to run under MemoryTesting!

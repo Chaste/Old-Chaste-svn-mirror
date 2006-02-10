@@ -84,7 +84,7 @@ class BuildType:
     else:
       return status.replace('_', '/') + ' tests failed'
 
-  def EncodeStatus(self, exitCode, outputLines):
+  def EncodeStatus(self, exitCode, logFile):
     """
     Encode the output from a test program as a status string.
     If the exit code is zero then all tests passed, and the status
@@ -97,7 +97,7 @@ class BuildType:
       # At least one test failed. Find out how many by parsing the output.
       import re
       failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
-      for line in outputLines:
+      for line in logFile:
         m = failed_tests.match(line)
         if m:
           status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
@@ -122,13 +122,14 @@ class BuildType:
     """
     return 'testoutput/'
   
-  def GetTestRunnerCommand(self, exefile):
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
     """
     Return the command to be used to run a test suite.
     exefile is the filename of the test executable.
+    exeflags are any flags to be passed to the executable.
     The default is just to run the given exectuable.
     """
-    return exefile
+    return exefile + ' ' + exeflags
     
   def ResultsFileName(self, dir, testsuite, status, runtime):
     """
@@ -187,9 +188,9 @@ class Profile(GccDebug):
     self._test_packs = ['Profile']
     self.build_dir = 'profile'
   
-  def GetTestRunnerCommand(self, exefile):
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a profiler and rename gmon.out"
-    return exefile + ' ; gprof ' + exefile
+    return exefile + ' ' + exeflags + ' ; gprof ' + exefile
 
 class ProfileGccOpt(Profile):
   """
@@ -209,14 +210,14 @@ class Parallel(GccDebug):
     self._test_packs = ['Parallel']
     self._num_processes = 2
   
-  def GetTestRunnerCommand(self, exefile):
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a two processor environment"
-    return 'mpirun -np ' + str(self._num_processes) + ' ' + exefile
+    return 'mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
 
-  def EncodeStatus(self, exitCode, outputLines):
+  def EncodeStatus(self, exitCode, logFile):
     """
     Encode the output from a test program as a status string.
-    Parses the output looking for a lines
+    Parses the output looking for a line
     'Failed (\d+) of (\d+) tests?'; if one is found then the
     testsuite failed and the status string is '\1_\2'.
     Otherwise if the output contains at least one line 'OK!'
@@ -232,7 +233,7 @@ class Parallel(GccDebug):
     ok, ok_count = re.compile('OK!'), 0
     infrastructure_ok = re.compile('Infrastructure test passed ok.')
     
-    for line in outputLines:
+    for line in logFile:
       m = failed_tests.match(line)
       if m:
         status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
@@ -270,9 +271,10 @@ class MemoryTesting(GccDebug):
     #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
     self._valgrind_flags = "--tool=memcheck --log-fd=1 --track-fds=yes --leak-check=full"
 
-  def GetTestRunnerCommand(self, exefile):
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run all tests using valgrind to check for memory leaks."
-    return 'valgrind  ' + self._valgrind_flags + ' ' + exefile + ' ' + self._petsc_flags
+    return 'valgrind  ' + self._valgrind_flags + ' ' + \
+      exefile + ' ' + exeflags + ' ' + self._petsc_flags
 
   def DisplayStatus(self, status):
     "Return a (more) human readable version of the given status string."
@@ -283,7 +285,7 @@ class MemoryTesting(GccDebug):
     else:
       return 'Memory leaks found'
 
-  def EncodeStatus(self, exitCode, outputLines):
+  def EncodeStatus(self, exitCode, logFile, outputLines=None):
     """
     Encode the output from a test program as a status string.
     The output from valgrind needs to be parsed to check for a leak summary.
@@ -302,6 +304,8 @@ class MemoryTesting(GccDebug):
     uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
     open_files = re.compile('==\d+== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/workspace|/dev/urandom))(.*)')
     
+    if outputLines is None:
+      outputLines = logFile.readlines()
     for lineno in range(len(outputLines)):
       m = petsc.match(outputLines[lineno])
       if m and int(m.group(1)) > 0:
@@ -312,7 +316,7 @@ class MemoryTesting(GccDebug):
       m = uninit.match(outputLines[lineno])
       if m:
         # Uninitialised values problem
-        status = 'Leaky'
+        status = 'Uninit'
         break
     
       m = invalid.match(outputLines[lineno])
@@ -343,8 +347,10 @@ class MemoryTesting(GccDebug):
         # There's a file open that shouldn't be.
         # Descriptors 0, 1 and 2 are ok, as are names /dev/urandom
         # and /home/bob/eclipse/workspace.
-        status = 'Leaky'
-        break
+        file_name = m.group(2)
+        if not file_name.endswith(logFile.name):
+          status = 'Openfile'
+          break
     else:
       # No leak summary found
       status = 'OK'
@@ -357,11 +363,12 @@ class ParallelMemoryTesting(MemoryTesting, Parallel):
   def __init__(self):
     Parallel.__init__(self)
 
-  def GetTestRunnerCommand(self, exefile):
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test within a two processor environment"
-    return 'mpirun -np ' + str(self._num_processes) + ' -dbg=valgrind ' + exefile + ' ' + self._petsc_flags
+    return 'mpirun -np ' + str(self._num_processes) + ' -dbg=valgrind ' + \
+      exefile + ' ' + exeflags + ' ' + self._petsc_flags
 
-  def EncodeStatus(self, exitCode, outputLines):
+  def EncodeStatus(self, exitCode, logFile):
     """
     Encode the output from a test program as a status string.
     The output is sorted by process ID so that checking context in the valgrind
@@ -387,10 +394,11 @@ class ParallelMemoryTesting(MemoryTesting, Parallel):
       elif pid1 < pid2: return -1
       else: return 1
 
-    outputLines.sort(cmp)
+    output_lines = logFile.readlines()
+    output_lines.sort(cmp)
     
     # Now use the parsing from the superclass
-    return MemoryTesting.EncodeStatus(self, exitCode, outputLines)
+    return MemoryTesting.EncodeStatus(self, exitCode, logFile, outputLines=output_lines)
 
 
 class GccOpt(Gcc):
