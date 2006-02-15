@@ -3,6 +3,7 @@
 
 #include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
+#include <iostream>
 
 class TestMatrixDouble : public CxxTest::TestSuite
 {
@@ -235,8 +236,30 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		}
         
 	}
-	
-	
+    
+    void dontTestMatrixVectorMultiplicationSpeed (void)
+    {
+        MatrixDouble m(3,3);
+        VectorDouble v(3);
+        VectorDouble w(3);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++)
+                m (i, j) = 3 * i + j;
+            v (i) = i;
+        }
+	    
+        
+        for (int k = 0; k < 5E7; k++) {
+            w = m * v;
+            w = v * m;
+        }
+        
+        for (int j = 0; j < 3; ++ j)  std::cout << w(j) << " ";
+        
+        std::cout << std::endl;
+        
+    }
+    
 	void TestTranspose()
 	{
 		MatrixDouble A(3,2), B(2,3);
