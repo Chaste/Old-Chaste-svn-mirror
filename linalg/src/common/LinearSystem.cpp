@@ -24,7 +24,8 @@ LinearSystem::LinearSystem(int lhsVectorSize)
     
     MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
     //MatSetType(mLhsMatrix, MATSEQDENSE);
-    MatSetType(mLhsMatrix, MATMPIDENSE);
+    //MatSetType(mLhsMatrix, MATMPIDENSE);
+    MatSetType(mLhsMatrix, MATMPIAIJ);
     MatSetFromOptions(mLhsMatrix);
     
     ///\todo: Sparsify matrices (and get the allocation rule correct). 
@@ -121,15 +122,54 @@ void LinearSystem::SetMatrixRow(int row, double value)
 {
     if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {    
- 		int rows, cols;
-    	MatGetSize(mLhsMatrix, &rows, &cols);
-    	for (int i=0; i<cols; i++)
-    	{
-        	this->SetMatrixElement(row, i, value);
-    	}
+        int rows, cols;
+        MatGetSize(mLhsMatrix, &rows, &cols);
+        for (int i=0; i<cols; i++)
+        {
+            this->SetMatrixElement(row, i, value);
+        }
     }
 }
 
+
+void LinearSystem::ZeroMatrixRow(int row)
+{
+   if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
+    {    
+        int rows, cols;
+        MatGetSize(mLhsMatrix, &rows, &cols);
+        for (int i=0; i<cols; i++)
+        {
+            this->SetMatrixElement(row, i, 0.0);
+        }
+    }
+ /// \todo This is destroying the sparse structure of the matrix on this row.
+ ///  Code below, ought to do better - if we can make it work.
+    
+//    if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
+//    {    
+//      IS is;
+//      ISCreateGeneral(PETSC_COMM_SELF,1,&row,&is);
+//      double zero=0.0;
+//      MatZeroRows(mLhsMatrix, is, &zero);
+//    }
+}
+
+
+void LinearSystem::ZeroLinearSystem()
+{
+    //MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    //MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    MatZeroEntries(mLhsMatrix);
+    double *p_rhs_vector;
+    VecGetArray(mRhsVector, &p_rhs_vector);
+    for (int local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
+    {   
+        p_rhs_vector[local_index]=0.0;
+    }
+    VecRestoreArray(mRhsVector, &p_rhs_vector);  
+}
+ 
 Vec LinearSystem::Solve(AbstractLinearSolver *solver)
 {
     return solver->Solve(mLhsMatrix,mRhsVector);

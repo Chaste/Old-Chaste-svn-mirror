@@ -39,6 +39,8 @@ public:
     void DisplayMatrix();
     void DisplayRhs() ;
     void SetMatrixRow(int row, double value);
+    void ZeroMatrixRow(int row);
+    void ZeroLinearSystem();
     double GetMatrixElement(int row, int col);
     double GetRhsVectorElement(int index);
     Vec Solve(AbstractLinearSolver *pSolver);

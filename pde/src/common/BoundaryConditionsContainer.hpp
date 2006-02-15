@@ -188,7 +188,8 @@ public:
 
 			for(int i=0; i<mSizeDependentVariable; i++)
 			{
-				rSomeLinearSystem.SetMatrixRow(index + i*mNumNodes,0);
+				//rSomeLinearSystem.SetMatrixRow(index + i*mNumNodes,0);
+                rSomeLinearSystem.ZeroMatrixRow(index + i*mNumNodes);
 				rSomeLinearSystem.SetMatrixElement(index + i*mNumNodes, index + i*mNumNodes, 1);
 				rSomeLinearSystem.SetRhsVectorElement(index + i*mNumNodes, value(i) );	
 			}

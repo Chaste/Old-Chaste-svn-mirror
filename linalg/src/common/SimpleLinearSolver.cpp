@@ -23,12 +23,19 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
      *    VecView(rhsVector,    PETSC_VIEWER_STDOUT_WORLD);
      */
      
-    KSP simple_solver; 
+    KSP simple_solver;
+    PC prec; //Type of pre-conditioner
+     
     KSPCreate(PETSC_COMM_WORLD, &simple_solver);
     
     KSPSetOperators(simple_solver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
     // Default relative tolerance appears to be 1e-5.  This ain't so great.
     KSPSetTolerances(simple_solver, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+    
+    KSPGetPC(simple_solver,&prec);
+    PCSetType(prec,PCNONE);
+    
+    
     KSPSetFromOptions(simple_solver) ;
     KSPSetUp(simple_solver);   
     

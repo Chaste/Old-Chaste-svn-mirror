@@ -81,7 +81,15 @@ public:
                                                "NewMonodomainLR91_3dWithFaceStimulus",
                                                &face_stimulus_3D);
 
+        clock_t start, stop;
+        start=clock();
         monodomainProblem.Solve();
+        stop=clock();
+        double total_time=stop-start;
+        
+        TS_ASSERT_LESS_THAN(total_time/CLOCKS_PER_SEC, 18.0);
+        
+   //     std::cout<<"Total is "<<total_time/CLOCKS_PER_SEC<<"\n";
         
 //        double* voltage_array;
 //    

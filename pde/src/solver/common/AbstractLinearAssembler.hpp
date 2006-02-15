@@ -207,15 +207,28 @@ protected:
 	AbstractLinearAssembler(int numPoints = 2) :
 		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
 	{
+        mpAssembledLinearSystem=NULL;
 	}
 	AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
 									int numPoints = 2) :
 		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
 	{
+       mpAssembledLinearSystem=NULL;
 	}
 	
  	/**
+     * Initialise the LinearSystem class to a given size
+     * @param size The size of the LinearSystem (number of nodes in the mesh)
+     */
+     void InitialiseLinearSystem(int size){
+        
+        // Linear system in n unknowns, where n=#nodes
+        mpAssembledLinearSystem = new LinearSystem(size);
+        
+     }
+    
+    /**
 	 * Assemble the linear system for a linear elliptic PDE and solve it.
 	 * 
 	 * @param rMesh The mesh to solve on.
@@ -240,10 +253,13 @@ protected:
         //std::cout << std::endl;
         // ^ gives the same in parallel
         
-        ///\todo The linear system should be re-used from the previous step
-		// Linear system in n unknowns, where n=#nodes
-		mpAssembledLinearSystem = new LinearSystem(rMesh.GetNumNodes());
-                
+        if (mpAssembledLinearSystem == NULL) 
+        {
+            InitialiseLinearSystem(rMesh.GetNumNodes());
+        } else {
+            mpAssembledLinearSystem->ZeroLinearSystem();
+        }
+            
 		// Get an iterator over the elements of the mesh
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 			rMesh.GetFirstElement();
@@ -312,7 +328,7 @@ protected:
         
         Vec sol = mpAssembledLinearSystem->Solve(pSolver);
         
-        delete mpAssembledLinearSystem;
+        //delete mpAssembledLinearSystem;
         return sol;
 	}
     
