@@ -233,12 +233,6 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		{
 			TS_ASSERT_DELTA( c(i), matlab_calc_c(i), 0.000001);
 		}
-		
-        a.VectorPostMultiply(b,c);
-        for( int i = 0; i < 3; i++)
-        {
-            TS_ASSERT_DELTA( c(i), matlab_calc_c(i), 0.000001);
-        }
         
 	}
 	

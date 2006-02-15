@@ -178,32 +178,6 @@ VectorDouble MatrixDouble::operator*(const VectorDouble& rSomeVector) const
 	return result;
 }
 
-/**
- * Compute the result of post-multiplying the MatrixDouble by a vector.
- * This method can be more efficient than using operator* since
- * the result vector already exists.
- * 
- * (Consider calling this from operator* to remove duplicate code)
- * 
- * @param rOperandVector The vector by which to multiply
- * @param rResultVector The vector in which to store the result
- */
-void MatrixDouble::VectorPostMultiply(const VectorDouble& rOperandVector,
-                                      VectorDouble& rResultVector) const
-{
-    assert(mColumns==rOperandVector.Size());
-    assert(mRows==rResultVector.Size());
-    int index;                                      
-    for(int i = 0; i < mRows; i++)
-    {
-        rResultVector(i)=0;
-        for(int j = 0; j < mColumns; j++)
-        {
-            index = j + mColumns*i;
-            rResultVector(i) += mElementArray[index]*rOperandVector(j);
-        }
-    }
-}
 
 ///
 /// \todo make this more efficient?
