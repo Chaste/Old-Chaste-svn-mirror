@@ -1119,19 +1119,21 @@ public:
     }
     
     
-    // heat equation with 2d mesh and initial condition non-zero at centre, 
-    // writing out data (doesn't test anything, being used for investigation)
-    void xTestSimpleDg0ParabolicAssembler2DZeroNeumannNonZeroInCentre( void )
+    // commented out heat equation with 2d mesh and initial condition non-zero at centre, 
+    // writing out data (doesn't test anything, wanted to see if we get a circular
+    // diffusion pattern on such a small mesh, to compare with monodomain with 
+    // centre stimulus - result doesn't look like a circle)
+    // !Need to change the diffusion coefficient to 0.001 if running this!
+    void DONOT_TestSimpleDg0ParabolicAssembler2DZeroNeumannNonZeroInCentre( void )
     {   
         // read mesh on [0,1]x[0,1]
-        TrianglesMeshReader mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
         TimeDependentDiffusionEquationPde<2> pde;       
 
-        
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
@@ -1150,7 +1152,7 @@ public:
         
         // initial condition;
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
-  
+    
         double* initial_condition_array;
         int ierr = VecGetArray(initial_condition, &initial_condition_array);
         
@@ -1160,12 +1162,30 @@ public:
         int lo,hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
 
+
+        // stimulate 
         for(int local_index=0; local_index<hi-lo; local_index++)
         {
             initial_condition_array[local_index] = 0;
             if(local_index+lo == 60)
             {
-                initial_condition_array[local_index] = 1;
+                initial_condition_array[local_index] = 100;
+            }
+            if(local_index+lo == 165)
+            {
+                initial_condition_array[local_index] = 100;
+            }
+            if(local_index+lo == 166)
+            {
+                initial_condition_array[local_index] = 100;
+            }
+            if(local_index+lo == 175)
+            {
+                initial_condition_array[local_index] = 100;
+            }
+            if(local_index+lo == 176)
+            {
+                initial_condition_array[local_index] = 100;
             }
         }
         VecRestoreArray(initial_condition, &initial_condition_array);

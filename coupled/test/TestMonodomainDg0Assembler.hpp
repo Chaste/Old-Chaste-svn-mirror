@@ -28,7 +28,7 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
-
+#include<time.h>
 class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
 {
 public:
@@ -179,7 +179,8 @@ public:
     {   
         EdgeStimulus2D edge_stimulus_2D;
         
-        MonodomainProblem<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_200_elements",
+        // using the criss-cross mesh so wave propagates properly
+        MonodomainProblem<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
                                                2,   // ms
                                                "testoutput/MonoDg02dWithEdgeStimulus",
                                                "NewMonodomainLR91_2dWithEdgeStimulus",
@@ -243,18 +244,26 @@ public:
                     }
                     else
                     {
-                        // Note that the RHS will be sampled during the upstroke,
-                        // thus varies by about 3mV in 1 timestep.  So this isn't
-                        // quite as bad as it looks.
-                        // A finer mesh should give better results...
-
-                        TS_ASSERT_DELTA(voltage_array[i], voltage, 4.0);
+                        // Tests the final voltages for all the RHS edge nodes
+                        // are close to each other.
+                        // This works as we are using the 'criss-cross' mesh,
+                        // the voltages would vary more with a mesh with all the
+                        // triangles aligned in the same direction.
+                        TS_ASSERT_DELTA(voltage_array[i], voltage, 0.01);
 
                        // std::cout << "y=" << monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
                     
-                    // Check against 1d case
-                    TS_ASSERT_DELTA(voltage_array[i], -35.1363, 35*0.1);
+                    
+                    // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
+                    // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
+                    // TS_ASSERT_DELTA(voltage_array[i], -35.1363, 35*0.1);
+                    
+                    // test the RHS edge voltages
+                    // hardcoded result that looks accurate - this is a test to see
+                    // that nothing has changeed
+                    // assumes endtime = 2ms
+                    TS_ASSERT_DELTA(voltage_array[i], -64.8086, 0.01);
                 }
             }
         }
@@ -360,15 +369,27 @@ public:
     // very centre of the mesh.
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {   
+        // To time the solve
+        time_t start,end;
+        double dif;
+        time (&start);
+        
+        
         PointStimulus2D point_stimulus_2D(60); // Central node
         
         MonodomainProblem<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
-                                               1,   // ms
+                                               1.3, //1,   // ms
                                                "testoutput/MonoDg02dWithPointStimulus",
                                                "NewMonodomainLR91_2dWithPointStimulus",
                                                &point_stimulus_2D);
 
+
         monodomainProblem.Solve();
+        
+        // To time the solve
+        time (&end);
+        dif = difftime (end,start);
+        printf ("\nSolve took %.2lf seconds. \n", dif );
         
         double* voltage_array;
     
@@ -408,13 +429,20 @@ public:
              * this rather difficult, especially since the edges are sampled
              * during the upstroke.
              */
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[10], 0.1);
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[110], 1.0);
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[120], 5.1);
+             
+            // corners
+            TS_ASSERT_DELTA(voltage_array[0], voltage_array[10],  0.1);
+            TS_ASSERT_DELTA(voltage_array[0], voltage_array[110], 0.1);
+            TS_ASSERT_DELTA(voltage_array[0], voltage_array[120], 0.1);
             
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[55], 1.1);
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[65], 10.01);
-            TS_ASSERT_DELTA(voltage_array[65], voltage_array[115], 0.5);
+            // centres of edges
+            TS_ASSERT_DELTA(voltage_array[5], voltage_array[55],  0.1);
+            TS_ASSERT_DELTA(voltage_array[5], voltage_array[65],  0.1);
+            TS_ASSERT_DELTA(voltage_array[5], voltage_array[115], 0.1);
+            
+            // hardcoded result to check nothing has changed
+            // assumes endtime = 1.3
+            TS_ASSERT_DELTA(voltage_array[0], -45.301, 0.1);
                         
         }
         
