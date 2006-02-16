@@ -216,7 +216,18 @@ protected:
 	{
        mpAssembledLinearSystem=NULL;
 	}
-	
+    
+    /**
+     *  Destructor: ensures that the LinearSystem is thrown away.
+     */ 
+	~AbstractLinearAssembler()
+    {
+         if (mpAssembledLinearSystem != NULL)
+         {
+            delete mpAssembledLinearSystem;
+         }
+         mpAssembledLinearSystem=NULL;
+    }
  	/**
      * Initialise the LinearSystem class to a given size
      * @param size The size of the LinearSystem (number of nodes in the mesh)
