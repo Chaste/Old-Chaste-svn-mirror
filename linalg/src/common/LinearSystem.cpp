@@ -10,26 +10,16 @@
 
 LinearSystem::LinearSystem(int lhsVectorSize)
 {
-	//VecCreate(PETSC_COMM_WORLD, &mLhsVector);
-    //VecSetSizes(mLhsVector, PETSC_DECIDE, lhsVectorSize);
-    //VecSetType(mLhsVector, VECSEQ);
-    //VecSetType(mLhsVector, VECMPI);
-    //VecSetFromOptions(mLhsVector);
     
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
-    //VecSetType(mRhsVector, VECSEQ);
-    //VecSetType(mRhsVector, VECMPI);
 	VecSetFromOptions(mRhsVector);
     
     MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
-    //MatSetType(mLhsMatrix, MATSEQDENSE);
-    //MatSetType(mLhsMatrix, MATMPIDENSE);
     MatSetType(mLhsMatrix, MATMPIAIJ);
     MatSetFromOptions(mLhsMatrix);
     
-    ///\todo: Sparsify matrices (and get the allocation rule correct). 
-    //MatSetType(mLhsMatrix, MATMPIAIJ);
+    ///\todo: Sparsify matrices - get the allocation rule correct. 
     //MatMPIAIJSetPreallocation(mLhsMatrix, 5, PETSC_NULL, 5, PETSC_NULL);
     
 	mSize = lhsVectorSize;
@@ -134,32 +124,18 @@ void LinearSystem::SetMatrixRow(int row, double value)
 
 void LinearSystem::ZeroMatrixRow(int row)
 {
-   if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-    {    
-        int rows, cols;
-        MatGetSize(mLhsMatrix, &rows, &cols);
-        for (int i=0; i<cols; i++)
-        {
-            this->SetMatrixElement(row, i, 0.0);
-        }
-    }
- /// \todo This is destroying the sparse structure of the matrix on this row.
- ///  Code below, ought to do better - if we can make it work.
-    
-//    if(row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
-//    {    
-//      IS is;
-//      ISCreateGeneral(PETSC_COMM_SELF,1,&row,&is);
-//      double zero=0.0;
-//      MatZeroRows(mLhsMatrix, is, &zero);
-//    }
+    MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    IS is;
+    ISCreateGeneral(PETSC_COMM_WORLD,1,&row,&is);
+    double zero=0.0;
+    MatZeroRows(mLhsMatrix, is, &zero);
+    ISDestroy(is);
 }
 
 
 void LinearSystem::ZeroLinearSystem()
 {
-    //MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
-    //MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
     MatZeroEntries(mLhsMatrix);
     double *p_rhs_vector;
     VecGetArray(mRhsVector, &p_rhs_vector);
