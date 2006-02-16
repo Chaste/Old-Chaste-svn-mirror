@@ -378,7 +378,7 @@ public:
         PointStimulus2D point_stimulus_2D(60); // Central node
         
         MonodomainProblem<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
-                                               1.3, //1,   // ms
+                                               1.3,   // ms - needs to be 1.3 to pass test
                                                "testoutput/MonoDg02dWithPointStimulus",
                                                "NewMonodomainLR91_2dWithPointStimulus",
                                                &point_stimulus_2D);
@@ -389,7 +389,7 @@ public:
         // To time the solve
         time (&end);
         dif = difftime (end,start);
-        printf ("\nSolve took %.2lf seconds. \n", dif );
+        //printf ("\nSolve took %.2lf seconds. \n", dif );
         
         double* voltage_array;
     
