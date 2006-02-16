@@ -1058,7 +1058,7 @@ public:
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int local_index=0; local_index<hi-lo; local_index++)
         {
-            TS_ASSERT_DELTA(result_array[local_index], -84.5, 0.0001);
+            TS_ASSERT_DELTA(result_array[local_index], -84.5, 0.0002);
         }
         
         VecRestoreArray(result, &result_array);

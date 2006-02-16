@@ -10,7 +10,7 @@ class SimpleLinearSolver : public AbstractLinearSolver
 
 public:
 
-    Vec Solve(Mat lhsMatrix, Vec rhsVector);
+    Vec Solve(Mat lhsMatrix, Vec rhsVector, int size);
 
 };
 

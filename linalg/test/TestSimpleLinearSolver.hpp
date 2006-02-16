@@ -45,7 +45,7 @@ public:
 	   	
 		// Call solver
 		Vec lhs_vector;
-		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
+		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
 		
 		// Check result
 		PetscScalar *lhs_elements;
@@ -100,7 +100,7 @@ public:
 		// Call solver
 		Vec lhs_vector;
 		
-		TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
+		TS_ASSERT_THROWS_ANYTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
 		
 		// Free memory
 		VecDestroy(rhs_vector);
@@ -140,7 +140,7 @@ public:
 	   	
 		// Call solver
 		Vec lhs_vector;
-		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector));
+		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
 		
 		// Check result
 		PetscScalar *lhs_elements;

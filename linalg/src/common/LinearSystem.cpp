@@ -172,7 +172,7 @@ void LinearSystem::ZeroLinearSystem()
  
 Vec LinearSystem::Solve(AbstractLinearSolver *solver)
 {
-    return solver->Solve(mLhsMatrix,mRhsVector);
+    return solver->Solve(mLhsMatrix, mRhsVector, mSize);
 }
 
 int LinearSystem::GetSize()

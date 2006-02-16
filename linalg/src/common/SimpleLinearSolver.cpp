@@ -13,7 +13,7 @@
  * @return The solution Vec x.
  */
 
-Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
+Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
 {
     Vec lhs_vector;
 	VecDuplicate(rhsVector, &lhs_vector);
@@ -32,9 +32,14 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector)
     // Default relative tolerance appears to be 1e-5.  This ain't so great.
     KSPSetTolerances(simple_solver, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
     
+    //Turn off pre-conditioning if the system size is very small
     KSPGetPC(simple_solver,&prec);
-    PCSetType(prec,PCNONE);
-    
+    if (size <= 4)
+    {
+         PCSetType(prec,PCNONE);
+    } else {
+         PCSetType(prec,PCJACOBI);        
+    }
     
     KSPSetFromOptions(simple_solver) ;
     KSPSetUp(simple_solver);   
