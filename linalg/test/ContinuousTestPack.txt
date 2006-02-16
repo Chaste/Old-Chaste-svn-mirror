@@ -5,3 +5,5 @@ TestSimpleLinearSolver.hpp
 TestSimpleNonlinearSolver.hpp
 TestLinearSystem.hpp
 TestUblas.hpp
+TestVectorUblas.hpp
+TestMatrixUblas.hpp

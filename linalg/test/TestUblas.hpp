@@ -17,6 +17,7 @@ public:
                 m (i, j) = 3 * i + j;
         // std::cout << m << std::endl;
         
+        
     }
     
     void TestUblas2( void )
@@ -30,6 +31,8 @@ public:
                 m (i, j) = 3 * i + j;
             v (i) = i;
         }
+
+        TS_ASSERT_EQUALS(v(2),2);
 
         // run for 5E7 times for a sensible benchmark
         for (int k = 0; k < 5E1; k++) {        
