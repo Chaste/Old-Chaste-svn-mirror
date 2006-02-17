@@ -23,20 +23,29 @@
  * Various operations are currently very inefficient - there is certainly cope for
  * optimisation here!
  */
+template<int SPACE_DIM>
+struct LessThanNode
+{
+    bool operator()(const Node<SPACE_DIM> * const &n1, const Node<SPACE_DIM> * const &n2)
+    {
+        return (n1->GetIndex() < n2->GetIndex() );
+    }
+};
+
 template<int ELEM_DIM, int SPACE_DIM>
 class BoundaryConditionsContainer
 {
 private:
-    std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* > 
+    std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> > 
         *mpDirichletMap; /**< List (map) of Dirichlet boundary conditions */
 
-    std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>*> 
+    std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* > 
         *mpNeumannMap; /**< List (map) of Neumann boundary conditions */
     
-    typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>::const_iterator 
+    typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator 
         dirichIterator; /**< Internal iterator over dirichlet boundary conditions */
 
-    typename std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>*>::const_iterator
+    typename std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         neumannIterator; /**< Internal iterator over neumann boundary conditions */
     
     int mSizeDependentVariable; /**< Number of components in the dependent variable */
@@ -52,7 +61,7 @@ public:
 		assert( size > 0 );
 		mSizeDependentVariable = size;
 		mNumNodes = numNodes;
-	   	mpDirichletMap =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >;
+	   	mpDirichletMap =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
     	mpNeumannMap   =  new std::map< const Element<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>; 
 	}
 		
@@ -188,9 +197,9 @@ public:
 
 			for(int i=0; i<mSizeDependentVariable; i++)
 			{
-				//rSomeLinearSystem.SetMatrixRow(index + i*mNumNodes,0);
-                rSomeLinearSystem.ZeroMatrixRow(index + i*mNumNodes);
-				rSomeLinearSystem.SetMatrixElement(index + i*mNumNodes, index + i*mNumNodes, 1);
+               //rSomeLinearSystem.SetMatrixRow(index + i*mNumNodes,0);
+ 				rSomeLinearSystem.ZeroMatrixRow(index + i*mNumNodes);
+                rSomeLinearSystem.SetMatrixElement(index + i*mNumNodes, index + i*mNumNodes, 1);
 				rSomeLinearSystem.SetRhsVectorElement(index + i*mNumNodes, value(i) );	
 			}
 			dirichIterator++;			
@@ -328,7 +337,7 @@ public:
 		//assert(pBoundaryNode->IsBoundaryNode());
 				
 		dirichIterator = mpDirichletMap->find(pBoundaryNode);
-		assert(dirichIterator!=mpDirichletMap->end());
+        assert(dirichIterator!=mpDirichletMap->end());
 
 		return dirichIterator->second->GetValue(pBoundaryNode->GetPoint());	
 	}

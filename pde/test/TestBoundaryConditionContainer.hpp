@@ -42,7 +42,11 @@ public:
 		{
 			VectorDouble value = bcc1.GetDirichletBCValue(nodes[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
-			delete nodes[i];
+        }
+        
+        for(int i=0; i<numNodes; i++)
+        {
+            delete nodes[i];
 		}
 
 		int numElem = 10;
@@ -87,6 +91,10 @@ public:
 		{
 			VectorDouble value = bcc2.GetDirichletBCValue(nodes2[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
+        }
+        
+        for(int i=0; i<numNodes; i++)
+        {
 			delete nodes2[i];
 		}
 
@@ -135,6 +143,9 @@ public:
 		{
 			VectorDouble value = bcc3.GetDirichletBCValue(nodes3[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
+        }
+        for(int i=0; i<numNodes; i++)
+        {
 			delete nodes3[i];
 		}
 
