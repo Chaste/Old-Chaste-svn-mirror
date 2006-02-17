@@ -48,19 +48,23 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(int globalNe
     std::vector<double> near_voltages = mpDataReader->GetValues(mVoltageName, globalNearNodeIndex);
     std::vector<double> far_voltages = mpDataReader->GetValues(mVoltageName, globalFarNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
+    
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
+
     double t_near = near_cell_props.GetTimeAtMaxUpstrokeVelocity();
     double t_far = far_cell_props.GetTimeAtMaxUpstrokeVelocity();
     
     if (t_near < 0)
     {
+        std::cout << "\n\n\nhere\n\n\n";
         std::stringstream error("Action potential did not reach near node (index= ");
         error << globalNearNodeIndex << ") in conduction velocity calculation.";
         throw Exception(error.str());
     }
     if (t_far < 0)
     {
+        std::cout << "\n\n\nhere2\n\n\n";
         std::stringstream error("Action potential did not reach far node (index= ");
         error << globalFarNodeIndex << ") in conduction velocity calculation.";
         throw Exception(error.str());
