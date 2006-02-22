@@ -194,9 +194,7 @@ public:
                     p_test_writer->PutVariable(voltage_var_id, p_initial_condition[j], j);    
                 }
                 p_test_writer->AdvanceAlongUnlimitedDimension();
-            }
-         
-            
+            }            
             
             
             while( current_time < mEndTime )

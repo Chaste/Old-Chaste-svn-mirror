@@ -192,7 +192,7 @@ public:
         FaceStimulus3D face_stimulus_3D;
         
         MonodomainProblem<3> monodomainProblem("mesh/test/data/3D_0_to_1mm_6000_elements",
-                                               2,   // ms
+                                               4,   // ms
                                                "testoutput/MonoDg03dWithFaceStimulus",
                                                "NewMonodomainLR91_3dWithFaceStimulus",
                                                &face_stimulus_3D);
@@ -257,12 +257,13 @@ public:
                     }
                     else
                     {
-                        TS_ASSERT_DELTA(voltage_array[i], voltage, 0.005);
+                        TS_ASSERT_DELTA(voltage_array[i], voltage, 1);
                        // std::cout << "y=" << monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
                     
-                    // Check against 1d case
-                    TS_ASSERT_DELTA(voltage_array[i], 7.24231, 0.01);
+                    // Check against 1d case - if the TestMonodomainDg01D test is run
+                    // for 4ms the voltage at the end node is 21.8820
+                    TS_ASSERT_DELTA(voltage_array[i], 21.88, 0.5);
                 }
             }
         }        
