@@ -15,13 +15,14 @@ class VectorUblas
        int mSize;
        //double *mElementArray;
        
-       c_vector<double,1> *mVectorOf1;
-       c_vector<double,2> *mVectorOf2;
-       c_vector<double,3> *mVectorOf3;
+       c_vector<double,1> *mpVectorOf1;
+       c_vector<double,2> *mpVectorOf2;
+       c_vector<double,3> *mpVectorOf3;
       
     public:
         //VectorUblas(); // For use in alocating a Ublas vector 
         VectorUblas(int Size);
+        ~VectorUblas();
 
 //public:
 //        VectorUblas(); // For use in allocating a std::vector of VectorUblases
