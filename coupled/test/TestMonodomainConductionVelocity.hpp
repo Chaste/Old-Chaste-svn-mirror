@@ -58,7 +58,7 @@ private:
     
 public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
-    void NOTestMonodomainDg01D_100elements()
+    void TestMonodomainDg01D_100elements()
     {
         PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
@@ -126,7 +126,7 @@ public:
     // 0.1mm is the space step from which convergence occurs. In that context, 
     // going for a smaller space step should still the same converging results. 
     // Note though that this requires a smaller time step for the integrator...
-    void NOTestMonodomainDg01D_200elements()
+    void TestMonodomainDg01D_200elements()
     {
         PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_200_elements",
@@ -195,11 +195,11 @@ public:
     {
         PointStimulus1D point_stimulus_1D;
         MonodomainProblem<1> monodomainProblem("mesh/test/data/1D_0_to_1_20_elements",
-                                               3, // ms
+                                               30, // ms
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
-        monodomainProblem.time_step = 0.001; // ms
+        monodomainProblem.time_step = 0.01; // ms
         monodomainProblem.Solve();
         
         double* currentVoltageArray;

@@ -2,6 +2,8 @@
 #include "Exception.hpp"
 #include <cmath>
 
+#include <iostream>
+
 enum APPhases { undefined, upstroke, repolarisation };
 
 void CellProperties::CalculateProperties()
@@ -36,8 +38,19 @@ void CellProperties::CalculateProperties()
     {
         double v = mVoltage[i];
         double t = mTime[i];
-        double upstroke_vel = (v - prev_v) / (t - prev_t);
-        
+
+        double upstroke_vel;
+    
+        if(i==1)
+        {   // artificially set initial upstroke_vel to be zero otherwise
+            // end up dividing by zero
+            upstroke_vel = 0;
+        }
+        else
+        {
+            upstroke_vel = (v - prev_v) / (t - prev_t);
+        }
+                
         switch (ap_phase)
         {
             case undefined:
@@ -63,10 +76,13 @@ void CellProperties::CalculateProperties()
                     
                     // Store maximum upstroke vel from this upstroke
                     mMaxUpstrokeVelocity = max_upstroke_vel;
+                   
                     mTimeAtMaxUpstrokeVelocity = time_at_max_upstroke_vel;
                     
                     ap_phase = repolarisation;
-                } else {
+                }
+                else 
+                {
                     // Update max. upstroke vel
                     if (upstroke_vel > max_upstroke_vel)
                     {
@@ -96,6 +112,7 @@ void CellProperties::CalculateProperties()
                     ap_phase = undefined;
                 }
                 break;
+               
         }
         
         prev_v = v;

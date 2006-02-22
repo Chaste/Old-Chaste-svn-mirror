@@ -150,7 +150,7 @@ public:
             // test final voltages have returned to the resting potential
             for(int i=0; i<num_nodes; i++)
             {
-                TS_ASSERT_DELTA(voltage_array[i], -84.5, 0.1);
+                TS_ASSERT_DELTA(voltage_array[i], -84.5, 1);
             }
                         
         }
