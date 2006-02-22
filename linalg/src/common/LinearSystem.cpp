@@ -133,10 +133,8 @@ void LinearSystem::ZeroMatrixRow(int row)
     ISDestroy(is);
 }
 
-
-void LinearSystem::ZeroLinearSystem()
+void LinearSystem::ZeroRhsVector()
 {
-    MatZeroEntries(mLhsMatrix);
     double *p_rhs_vector;
     VecGetArray(mRhsVector, &p_rhs_vector);
     for (int local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
@@ -144,6 +142,18 @@ void LinearSystem::ZeroLinearSystem()
         p_rhs_vector[local_index]=0.0;
     }
     VecRestoreArray(mRhsVector, &p_rhs_vector);  
+}
+
+
+void LinearSystem::ZeroLhsMatrix()
+{
+    MatZeroEntries(mLhsMatrix);
+}
+
+void LinearSystem::ZeroLinearSystem()
+{
+    ZeroRhsVector();
+    ZeroLhsMatrix();
 }
  
 Vec LinearSystem::Solve(AbstractLinearSolver *solver)

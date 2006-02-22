@@ -24,7 +24,7 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
 {
-    
+
 protected:
 	LinearSystem *mpAssembledLinearSystem;
 
@@ -268,6 +268,12 @@ protected:
         {
             InitialiseLinearSystem(rMesh.GetNumNodes());
         } else {
+//            if (AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mMatrixIsConstant == false)
+//            {
+//                mpAssembledLinearSystem->ZeroLinearSystem();
+//            } else {
+//                mpAssembledLinearSystem->ZeroRhsVector();
+//            }
             mpAssembledLinearSystem->ZeroLinearSystem();
         }
             
@@ -289,11 +295,13 @@ protected:
 			for (int i=0; i<num_nodes; i++)
 			{
 				int node1 = element.GetNodeGlobalIndex(i);
+                
 				for (int j=0; j<num_nodes; j++)
 				{
 					int node2 = element.GetNodeGlobalIndex(j);
 					mpAssembledLinearSystem->AddToMatrixElement(node1,node2,a_elem(i,j));
 				}
+            
 				mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_elem(i));
 			}
 			iter++;

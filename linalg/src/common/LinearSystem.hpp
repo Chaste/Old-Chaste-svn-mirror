@@ -40,6 +40,8 @@ public:
     void DisplayRhs() ;
     void SetMatrixRow(int row, double value);
     void ZeroMatrixRow(int row);
+    void ZeroLhsMatrix();
+    void ZeroRhsVector();
     void ZeroLinearSystem();
     double GetMatrixElement(int row, int col);
     double GetRhsVectorElement(int index);

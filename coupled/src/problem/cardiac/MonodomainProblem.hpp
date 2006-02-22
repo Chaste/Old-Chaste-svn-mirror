@@ -133,6 +133,8 @@ public:
         
             // Assembler
             MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
+            monodomain_assembler.setMatrixIsConstant();
+            
             
             // initial condition;   
             Vec initial_condition;
