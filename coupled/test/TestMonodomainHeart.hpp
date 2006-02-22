@@ -33,7 +33,8 @@
 class PointStimulusHeart: public AbstractMonodomainProblemStimulus<3>
 {
 public:
-    virtual void Apply(MonodomainPde<3> *pPde)
+    virtual void Apply(MonodomainPde<3> *pPde, 
+                       ConformingTetrahedralMesh<3,3> *pMesh)
     {
         static InitialStimulus stimulus(-600.0, 0.5);
         pPde->SetStimulusFunctionAtNode(0, &stimulus);
@@ -56,7 +57,7 @@ private:
     }
     
 public:
-    void DONTTestMonodomainDg0Heart()
+    void NOTestMonodomainDg0Heart()
     {
         PointStimulusHeart point_stimulus_heart;
         MonodomainProblem<3> monodomainProblem("mesh/test/data/heart",

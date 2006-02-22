@@ -193,7 +193,6 @@ public:
                 {
                     p_test_writer->PutVariable(voltage_var_id, p_initial_condition[j], j);    
                 }
-                p_test_writer->AdvanceAlongUnlimitedDimension();
             }            
             
             
@@ -206,23 +205,23 @@ public:
                 
                 // Free old initial condition
                 VecDestroy(initial_condition);
+
                 // Initial condition for next loop is current solution
                 initial_condition = mCurrentVoltage;
                 
-                // Writing data out to the file <mOutputFilenamePrefix>.dat
-                 
+                // Writing data out to the file <mOutputFilenamePrefix>.dat                 
                 if (mSequential)
                 {
+                    p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
+                    
                     VecGetArray(mCurrentVoltage, &p_current_voltage);
         
                     p_test_writer->PutVariable(time_var_id, current_time); 
                     for(int j=0; j<mMesh.GetNumNodes(); j++) 
                     {
                         p_test_writer->PutVariable(voltage_var_id, p_current_voltage[j], j);    
-                    }
-          
+                    }          
                     VecRestoreArray(mCurrentVoltage, &p_current_voltage); 
-                    p_test_writer->AdvanceAlongUnlimitedDimension();
                 }
          
                 mMonodomainPde->ResetAsUnsolvedOdeSystem();
@@ -233,8 +232,7 @@ public:
     
             TS_ASSERT_EQUALS(ode_solver.GetCallCount(), (mHi-mLo)*big_steps);
     
-            // close the file that stores voltage values
-            
+            // close the file that stores voltage values            
             if (mSequential && mOutputFilenamePrefix.length() > 0)
             {
                 p_test_writer->Close();
