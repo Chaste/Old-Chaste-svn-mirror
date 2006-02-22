@@ -16,35 +16,37 @@ class TestVectorUblas : public CxxTest::TestSuite
 	
 	
 	
-//	void TestCopyConstructor()
-//	{
-//		VectorDouble A(3);
-//		double value = 5.0;
-//		A(2) = value;
-//		VectorDouble B(A);
-//		TS_ASSERT_DELTA(B(2), value, 0.0000000001);
-//		
-//		double othervalue = 3.0;
-//		B(2) = othervalue;
-//		TS_ASSERT_DELTA(A(2), value, 0.0000000001);
-//		TS_ASSERT_DELTA(B(2), othervalue, 0.0000000001);
-//	}
+	void TestCopyConstructor()
+	{
+		VectorUblas A(3);
+		double value = 5.0;
+		A(2) = value;
+		TS_ASSERT_DELTA(A(2), 5.0, 0.0000000001);
+        
+        VectorUblas B(A);
+		TS_ASSERT_DELTA(B(2), value, 0.0000000001);
+		
+		double othervalue = 3.0;
+		B(2) = othervalue;
+		TS_ASSERT_DELTA(A(2), value, 0.0000000001);
+		TS_ASSERT_DELTA(B(2), othervalue, 0.0000000001);
+	}
 //	
 //	
 //	
 //	void TestOverloadedEqualsOperator()
 //	{
-//		VectorDouble A(2);
+//		VectorUblas A(2);
 //		double value = 5.0;
 //		A(1) = value;
-//		VectorDouble B(2);
+//		VectorUblas B(2);
 //		B = A;
 //		TS_ASSERT_DELTA(A(1), value, 0.0000000001);
 //		TS_ASSERT_DELTA(B(1), value, 0.0000000001);
 //	}
 //	void TestAddition( void )
 //	{
-//		VectorDouble A(5), B(5), C(5);
+//		VectorUblas A(5), B(5), C(5);
 //		for (int i=0; i<5; i++)
 //		{
 //			A(i) = (double)(i);
@@ -60,7 +62,7 @@ class TestVectorUblas : public CxxTest::TestSuite
 //	
 //	void TestSubtraction( void )
 //	{
-//		VectorDouble A(5), B(5), C(5);
+//		VectorUblas A(5), B(5), C(5);
 //		for (int i=0; i<5; i++)
 //		{
 //			A(i) = (double)(i);
@@ -76,14 +78,14 @@ class TestVectorUblas : public CxxTest::TestSuite
 //	
 //	void TestSize( void )
 //	{
-//		VectorDouble A(12);
+//		VectorUblas A(12);
 //		TS_ASSERT_EQUALS( A.Size(), 12);
 //		
 //	}
 //	
 //	void TestDotProduct( void )
 //	{
-//		VectorDouble A(5), B(5);
+//		VectorUblas A(5), B(5);
 //		for (int i=0; i<5; i++)
 //		{
 //			A(i) = i;
@@ -94,7 +96,7 @@ class TestVectorUblas : public CxxTest::TestSuite
 //	
 //	void TestResetToZero()
 //	{
-//		VectorDouble A(3);
+//		VectorUblas A(3);
 //		A(0)=10; A(1)=10; A(2)=10;
 //		A.ResetToZero();
 //		TS_ASSERT_DELTA(A(0), 0.0, 0.0000000001);
@@ -104,9 +106,9 @@ class TestVectorUblas : public CxxTest::TestSuite
 //	
 //	void TestVectorProduct( void )
 //	{
-//		VectorDouble A(3);
-//		VectorDouble B(3);
-//		VectorDouble C(3);
+//		VectorUblas A(3);
+//		VectorUblas B(3);
+//		VectorUblas C(3);
 //		
 //		A(0)=1; A(1)=2; A(2)=3;
 //		B(0)=2; B(1)=3; B(2)=4;
@@ -121,8 +123,8 @@ class TestVectorUblas : public CxxTest::TestSuite
 //	
 //	void TestScalarVectorAndVectorScalarMultiply()
 //	{
-//		VectorDouble A(3);
-//		VectorDouble B(3);
+//		VectorUblas A(3);
+//		VectorUblas B(3);
 //		A(0)=1; A(1)=2; A(2)=3;
 //		B = 3.0 * A;
 //		
@@ -139,7 +141,7 @@ class TestVectorUblas : public CxxTest::TestSuite
 //	
 //	void TestL2Norm()
 //	{
-//		VectorDouble A(2);
+//		VectorUblas A(2);
 //		A(0)=3; A(1)=4;
 //		TS_ASSERT_DELTA(A.L2Norm(), 5, 0.000001);
 //	}

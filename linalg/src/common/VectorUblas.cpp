@@ -36,6 +36,36 @@ VectorUblas::VectorUblas(int Size)
     }
 }
 
+VectorUblas::VectorUblas(const VectorUblas& rOtherVector)
+{
+    mSize = rOtherVector.mSize;
+    c_vector<double,1> new_1_vector; 
+    c_vector<double,2> new_2_vector;
+    c_vector<double,3> new_3_vector; 
+    
+    switch (mSize)
+    {
+        case 1:
+             mpVectorOf1 = new c_vector<double,1>(*(rOtherVector.mpVectorOf1)); 
+             break;
+        case 2:
+             mpVectorOf2= new c_vector<double,2>(*(rOtherVector.mpVectorOf2)); 
+             break; 
+        case 3:
+           mpVectorOf3 = new c_vector<double,3>(*(rOtherVector.mpVectorOf3)); 
+        
+      //      mpVectorOf3 = new c_vector<double,3> (3); 
+            break; 
+        
+        default:
+        // Vector biger than  3 Throw Exception
+        throw("Vector size larger than 3");
+            break;
+    }
+    
+    
+}
+
 VectorUblas::~VectorUblas()
 {
     switch (mSize)
@@ -56,18 +86,18 @@ VectorUblas::~VectorUblas()
     }        
 }    
     
-double VectorUblas::operator()(int entry) const
+double& VectorUblas::operator()(int entry) const
 {
     assert(entry > -1);
     assert(entry < mSize);
     
     switch(mSize) {
         case 1:
-            return (*mpVectorOf1)(entry);
+            return (*mpVectorOf1) (entry);
         case 2:
-            return (*mpVectorOf2)(entry); 
+            return (*mpVectorOf2) (entry); 
         case 3:
-            return (*mpVectorOf3)(entry);   
+            return (*mpVectorOf3) (entry);   
         default:
             // Vector biger than  3 Throw Exception
             throw("Vector size larger than 3");

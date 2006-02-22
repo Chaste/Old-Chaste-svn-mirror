@@ -27,14 +27,14 @@ class VectorUblas
 //public:
 //        VectorUblas(); // For use in allocating a std::vector of VectorUblases
 //        VectorUblas(int Size);
-//        VectorUblas(const VectorUblas& rOtherVector);
+          VectorUblas(const VectorUblas& rOtherVector);
 //        ~VectorUblas();
 //        VectorUblas& operator=(const VectorUblas& rOtherVector);
 //        VectorUblas operator+(const VectorUblas& rSomeVector1);
 //        VectorUblas operator-(const VectorUblas& rSomeVector1);
 //        VectorUblas operator*(double Scalar);
 
-          double VectorUblas::operator()(int Entry) const;
+          double& VectorUblas::operator()(int Entry) const;
 
 //        int Size( void ) const;
 //        double dot(const VectorUblas& rOtherVector) const;
