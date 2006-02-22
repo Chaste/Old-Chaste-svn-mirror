@@ -43,14 +43,14 @@ class TestVectorDouble : public CxxTest::TestSuite
 	}
 	void TestAddition( void )
 	{
-		VectorDouble A(5), B(5), C(5);
-		for (int i=0; i<5; i++)
+		VectorDouble A(4), B(4), C(4);
+		for (int i=0; i<4; i++)
 		{
 			A(i) = (double)(i);
 			B(i) = 2.0*(double)(i);
 		}
 		C=A+B;
-		for (int i=0; i<5; i++)
+		for (int i=0; i<4; i++)
 		{
 			TS_ASSERT_DELTA(C(i), 3.0*(double)(i), 1e-12);
 		}
@@ -59,14 +59,14 @@ class TestVectorDouble : public CxxTest::TestSuite
 	
 	void TestSubtraction( void )
 	{
-		VectorDouble A(5), B(5), C(5);
-		for (int i=0; i<5; i++)
+		VectorDouble A(4), B(4), C(4);
+		for (int i=0; i<4; i++)
 		{
 			A(i) = (double)(i);
 			B(i) = 2.0*(double)(i);
 		}
 		C=A-B;
-		for (int i=0; i<5; i++)
+		for (int i=0; i<4; i++)
 		{
 			TS_ASSERT_DELTA(C(i), -1.0*(double)(i), 1e-12);
 		}
@@ -75,20 +75,20 @@ class TestVectorDouble : public CxxTest::TestSuite
 	
 	void TestSize( void )
 	{
-		VectorDouble A(12);
-		TS_ASSERT_EQUALS( A.Size(), 12);
+		VectorDouble A(4);
+		TS_ASSERT_EQUALS( A.Size(), 4);
 		
 	}
 	
 	void TestDotProduct( void )
 	{
-		VectorDouble A(5), B(5);
-		for (int i=0; i<5; i++)
+		VectorDouble A(4), B(4);
+		for (int i=0; i<4; i++)
 		{
 			A(i) = i;
 			B(i) = i;
 		}
-		TS_ASSERT_DELTA(A.dot(B), 30.0, 1e-12);
+		TS_ASSERT_DELTA(A.dot(B), 14.0, 1e-12);
 	}
 	
 	void TestResetToZero()

@@ -1,4 +1,5 @@
 #include "VectorDouble.hpp"
+#include "Exception.hpp"
 #include <cassert>
 #include <iostream>
 #include <math.h>
@@ -22,7 +23,22 @@ VectorDouble::VectorDouble()
 
 VectorDouble::VectorDouble(int Size)
 {
-	assert(Size > 0);
+	assert(Size > 0); 
+    
+    switch (Size) {
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            std::cout << "Invalid vector size: " << Size << std::endl;
+            throw Exception("Invalid vector size");
+    }
+    
 	mSize = Size;
 	mElementArray = new double [mSize];
 	
