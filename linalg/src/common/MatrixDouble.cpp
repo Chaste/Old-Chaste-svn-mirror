@@ -1,14 +1,43 @@
 #include "MatrixDouble.hpp"
+#include "Exception.hpp"
 #include <cassert>
 #define TINY 0.00000001
 #include <cmath>
+#include <iostream>
 
 #include <iostream>
+
+/**
+ * Matrix Double Constructor
+ * Please note that only square matrices with between 1 and 4 rows are allowed
+ * 
+ **/
+
 
 MatrixDouble::MatrixDouble(int Rows, int Columns)
 {
 	assert(Rows > 0);
 	assert(Columns > 0);
+    assert(Rows <10);
+    assert(Columns < 10);
+    
+    
+    // Hack to switch on the tuple (Rows, Columnns)
+    int rows_columns = Rows*10 + Columns;
+    switch (rows_columns) {
+        case 11:
+            break;
+        case 22:
+            break;
+        case 33:
+            break;
+        case 44:
+            break;
+        default:
+            std::cout << "Invalid matrix size: " << Rows << "x" << Columns << std::endl;
+            throw Exception("Invalid matrix size");
+    }
+    
 	mRows = Rows;
 	mColumns = Columns;
 	mNumberOfElements = mRows * mColumns;

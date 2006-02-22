@@ -11,7 +11,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestConstructor()
 	{
-		MatrixDouble A(3,2);
+		MatrixDouble A(3,3);
 		TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
 	}
 	
@@ -19,7 +19,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestCopyConstructor()
 	{
-		MatrixDouble A(3,4);
+		MatrixDouble A(3,3);
 		double value = 5.0;
 		A(2,2) = value;
 		MatrixDouble B(A);
@@ -48,11 +48,11 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestScalarMultiplication()
 	{
-		MatrixDouble A(2,3);
+		MatrixDouble A(3,3);
 		A(0,0) = 1.0;
 		A(1,0) = 2.0;
 		A = A * 3.0;
-		for (int i=0; i<2; i++)
+		for (int i=0; i<3; i++)
 		{
 			for (int j=0; j<3; j++)
 			{
@@ -66,11 +66,11 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestScalarMultiplication2()
 	{
-		MatrixDouble A(2,3);
+		MatrixDouble A(3,3);
 		A(0,0) = 1.0;
 		A(1,0) = 2.0;
 		A =  3.0 * A;
-		for (int i=0; i<2; i++)
+		for (int i=0; i<3; i++)
 		{
 			for (int j=0; j<3; j++)
 			{
@@ -86,12 +86,12 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	{
 		MatrixDouble A(3,3);
 		A(1,1)=1;
-		MatrixDouble B(3,2);
+		MatrixDouble B(3,3);
 		B(1,1)=1;
 		
 		TS_ASSERT(A.IsSquare());
 		
-		TS_ASSERT(!(B.IsSquare()));
+		TS_ASSERT((B.IsSquare()));
 	}
 	
 	void TestIdentity()
@@ -115,14 +115,14 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	}
 	void TestRows( void )
 	{
-		MatrixDouble A(33,3);
-		TS_ASSERT_EQUALS( A.Rows(), 33);
+		MatrixDouble A(3,3);
+		TS_ASSERT_EQUALS( A.Rows(), 3);
 		
 	}
 	void TestColumns( void )
 	{
-		MatrixDouble A(3,7);
-		TS_ASSERT_EQUALS( A.Columns(), 7);
+		MatrixDouble A(3,3);
+		TS_ASSERT_EQUALS( A.Columns(), 3);
 		
 	}
 	
@@ -214,8 +214,8 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestMatrixVectorMultiplication( void )
 	{
-		MatrixDouble a(3,2);
-		VectorDouble b(2);
+		MatrixDouble a(3,3);
+		VectorDouble b(3);
 		VectorDouble c(3);
 		VectorDouble matlab_calc_c(3);
 		a(0,0) = 2.4;
@@ -262,7 +262,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
     
 	void TestTranspose()
 	{
-		MatrixDouble A(3,2), B(2,3);
+		MatrixDouble A(3,3), B(3,3);
 		A(0,0) = 2.4;
 		A(0,1) = 5;
 		A(1,0) = 5;
@@ -281,8 +281,8 @@ class TestMatrixDouble : public CxxTest::TestSuite
 
 	void TestVectorMatrixMultiplication( void )
 	{
-		MatrixDouble A(3,2);
-		VectorDouble b(2);
+		MatrixDouble A(3,3);
+		VectorDouble b(3);
 		VectorDouble c(3);
 		VectorDouble matlab_calc_b(3);
 		A(0,0) = 2.4;
@@ -297,7 +297,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		matlab_calc_b(0) = 30.4;
 		matlab_calc_b(1) = 41.0;
 		b = c * A;
-		for( int i = 0; i < 2; i++)
+		for( int i = 0; i < 3; i++)
 		{
 			TS_ASSERT_DELTA( b(i), matlab_calc_b(i), 0.000001);
 		}
@@ -306,7 +306,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestResetToZero( void )
 	{
-		MatrixDouble A(3,2);
+		MatrixDouble A(3,3);
 		A(0,0) = 2.4;
 		A(0,1) = 5;
 		A(1,0) = 5;
@@ -316,7 +316,7 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		A.ResetToZero();
 		for( int i = 0; i < 3; i++)
 		{
-			for( int j = 0; j<2; j++)
+			for( int j = 0; j<3; j++)
 			{
 				TS_ASSERT_DELTA( A(i,j), 0.0, 0.000001);
 			}
@@ -359,8 +359,8 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestMatrixMatrixMultiplication()
 	{
-		MatrixDouble A(3,4);
-		MatrixDouble B(4,2);
+		MatrixDouble A(4,4);
+		MatrixDouble B(4,4);
 	
 		for(int i=0; i<3; i++)
 		{	
@@ -381,8 +381,8 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		MatrixDouble C = A*B;
 
 		
-		TS_ASSERT_EQUALS(C.Rows(), 3);
-		TS_ASSERT_EQUALS(C.Columns(), 2);
+		TS_ASSERT_EQUALS(C.Rows(), 4);
+		TS_ASSERT_EQUALS(C.Columns(), 4);
 		
 		TS_ASSERT_DELTA( C(0,0), 20, 1e-12);
 		TS_ASSERT_DELTA( C(0,1), 40, 1e-12);
@@ -397,8 +397,8 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		int m=3;
 		int n=4;
 		
-		MatrixDouble A(3,4);
-		MatrixDouble B(3,4);
+		MatrixDouble A(4,4);
+		MatrixDouble B(4,4);
 		
 		for(int i=0; i<3; i++)
 		{
