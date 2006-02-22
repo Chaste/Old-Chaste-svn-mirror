@@ -52,16 +52,15 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		A(0,0) = 1.0;
 		A(1,0) = 2.0;
 		A = A * 3.0;
-		for (int i=0; i<3; i++)
+		
+		for (int j=0; j<3; j++)
 		{
-			for (int j=0; j<3; j++)
-			{
 
-				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
-				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
-				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
-			}
+			TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
+			TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
+			if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
 		}
+		
 	}
 	
 	void TestScalarMultiplication2()
@@ -70,16 +69,15 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		A(0,0) = 1.0;
 		A(1,0) = 2.0;
 		A =  3.0 * A;
-		for (int i=0; i<3; i++)
+		
+		for (int j=0; j<3; j++)
 		{
-			for (int j=0; j<3; j++)
-			{
 
-				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
-				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
-				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
-			}
+			TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
+			TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
+			if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
 		}
+		
 	}	
 	
 	void TestIsSquare( void )
