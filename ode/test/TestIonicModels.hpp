@@ -154,8 +154,10 @@ public:
         //read in good data file and compare line by line
         std::ifstream testfile("testoutput/NewDelayedStimLR91.dat",std::ios::in);
         std::ifstream goodfile("ode/test/data/Lr91DelayedStimGood.dat",std::ios::in);
+
         std::string teststring;
         std::string goodstring;
+        
         while(getline(testfile, teststring))
         {
               getline(goodfile,goodstring);
@@ -163,9 +165,26 @@ public:
         }
         testfile.close();
         goodfile.close();                       
+
+        
+        // read data entries for the new file and compare to valid data from 
+        // ????????????        
+        ColumnDataReader data_reader("testoutput","NewDelayedStimLR91");
+        std::vector<double> times = data_reader.GetValues("Time");
+        std::vector<double> voltages = data_reader.GetValues("V");
+
+        ColumnDataReader valid_reader("ode/test/data/","Lr91DelayedStimValidData");
+        std::vector<double> valid_times = valid_reader.GetValues("Time");
+        std::vector<double> valid_voltages = valid_reader.GetValues("V");
+        
+        for(int i=0; i<valid_times.size(); i++)
+        {
+            TS_ASSERT_DELTA(times[i], valid_times[i], 1e-6);
+            // adjust tol to data
+            TS_ASSERT_DELTA(voltages[i], valid_voltages[i], 1e-6);
+        }
     }   
 };
-
 
 
 #endif //_TESTIONICMODELS_HPP_
