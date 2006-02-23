@@ -1,8 +1,8 @@
 #ifndef _TESTMATRIXUBLAS_HPP_
 #define _TESTMATRIXUBLAS_HPP_
 
-#include "MatrixDouble.hpp"
-#include "VectorDouble.hpp"
+#include "MatrixUblas.hpp"
+#include "VectorUblas.hpp"
 #include <iostream>
 
 class TestMatrixUblas : public CxxTest::TestSuite
@@ -14,79 +14,61 @@ class TestMatrixUblas : public CxxTest::TestSuite
         TS_ASSERT_DELTA(0.0, 0.0, 0.0000000001);
     }
     
-//	void TestConstructor()
-//	{
-//		MatrixDouble A(3,2);
-//		TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
-//	}
+	void TestConstructor()
+	{
+		MatrixUblas A(3,3);
+		TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
+	}
 	
 	
 	
-//	void TestCopyConstructor()
-//	{
-//		MatrixDouble A(3,4);
-//		double value = 5.0;
-//		A(2,2) = value;
-//		MatrixDouble B(A);
-//		TS_ASSERT_DELTA(B(2,2), value, 0.0000000001);
-//		
-//		double othervalue = 3.0;
-//		B(2,2) = othervalue;
-//		TS_ASSERT_DELTA(A(2,2), value, 0.0000000001);
-//		TS_ASSERT_DELTA(B(2,2), othervalue, 0.0000000001);
-//	}
+	void TestCopyConstructor()
+	{
+		MatrixUblas A(3,3);
+		double value = 5.0;
+		A(2,2) = value;
+		MatrixUblas B(A);
+		TS_ASSERT_DELTA(B(2,2), value, 0.0000000001);
+		
+		double othervalue = 3.0;
+		B(2,2) = othervalue;
+		TS_ASSERT_DELTA(A(2,2), value, 0.0000000001);
+		TS_ASSERT_DELTA(B(2,2), othervalue, 0.0000000001);
+	}
 	
 	
 	
-//	void TestOverloadedEqualsOperator()
-//	{
-//		MatrixDouble A(2,2);
-//		double value = 5.0;
-//		A(0,1) = value;
-//		MatrixDouble B(2,2);
-//		B = A;
-//		TS_ASSERT_DELTA(A(0,1), value, 0.0000000001);
-//		TS_ASSERT_DELTA(B(0,1), value, 0.0000000001);
-//		// TODO: If you update B now, does A also change?
-//	}
+	void TestOverloadedEqualsOperator()
+	{
+		MatrixUblas A(2,2);
+		double value = 5.0;
+		A(0,1) = value;
+		MatrixUblas B(2,2);
+		B = A;
+		TS_ASSERT_DELTA(A(0,1), value, 0.0000000001);
+		TS_ASSERT_DELTA(B(0,1), value, 0.0000000001);
+		// TODO: If you update B now, does A also change? 
+        // - Does not change value stored in A (23/02/06).
+            
+	}
 	
 	
-//	void TestScalarMultiplication()
-//	{
-//		MatrixDouble A(2,3);
-//		A(0,0) = 1.0;
-//		A(1,0) = 2.0;
-//		A = A * 3.0;
-//		for (int i=0; i<2; i++)
-//		{
-//			for (int j=0; j<3; j++)
-//			{
-//
-//				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
-//				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
-//				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
-//			}
-//		}
-//	}
+	void TestScalarMultiplication()
+	{
+		MatrixUblas A(3,3);
+		A(0,0) = 1.0;
+		A(1,0) = 2.0;
+		A = A * 3.0;
 	
-//	void TestScalarMultiplication2()
-//	{
-//		MatrixDouble A(2,3);
-//		A(0,0) = 1.0;
-//		A(1,0) = 2.0;
-//		A =  3.0 * A;
-//		for (int i=0; i<2; i++)
-//		{
-//			for (int j=0; j<3; j++)
-//			{
-//
-//				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
-//				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
-//				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
-//			}
-//		}
-//	}	
+    	for (int j=0; j<3; j++)
+			{
+				TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
+				TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
+				if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
+			}
+	}
 	
+
 //	void TestIsSquare( void )
 //	{
 //		MatrixDouble A(3,3);
@@ -99,25 +81,25 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //		TS_ASSERT(!(B.IsSquare()));
 //	}
 	
-//	void TestIdentity()
-//	{
-//		MatrixDouble A=MatrixDouble::Identity(3);
-//		
-//		for (int i=0; i<3; i++)
-//		{
-//			for (int j=0; j<3; j++)
-//			{
-//				if (i == j)
-//				{
-//					TS_ASSERT_DELTA(A(i,j), 1.0, 0.0000000001);
-//				}
-//				else
-//				{
-//					TS_ASSERT_DELTA(A(i,j), 0.0, 0.0000000001);
-//				}
-//			}
-//		}
-//	}
+	void TestIdentity()
+	{
+		MatrixUblas A=MatrixUblas::Identity(3);
+		
+		for (int i=0; i<3; i++)
+		{
+			for (int j=0; j<3; j++)
+			{
+				if (i == j)
+				{
+					TS_ASSERT_DELTA(A(i,j), 1.0, 0.0000000001);
+				}
+				else
+				{
+					TS_ASSERT_DELTA(A(i,j), 0.0, 0.0000000001);
+				}
+			}
+		}
+	}
 
 //	void TestRows( void )
 //	{
