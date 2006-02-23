@@ -13,35 +13,31 @@ class VectorUblas
 {
     private:
        int mSize;
-       //double *mElementArray;
        
        c_vector<double,1> *mpVectorOf1;
        c_vector<double,2> *mpVectorOf2;
        c_vector<double,3> *mpVectorOf3;
+       c_vector<double,4> *mpVectorOf4;
       
     public:
         //VectorUblas(); // For use in alocating a Ublas vector 
         VectorUblas(int Size);
         ~VectorUblas();
 
-//public:
-//        VectorUblas(); // For use in allocating a std::vector of VectorUblases
-//        VectorUblas(int Size);
           VectorUblas(const VectorUblas& rOtherVector);
-//        ~VectorUblas();
-//        VectorUblas& operator=(const VectorUblas& rOtherVector);
-//        VectorUblas operator+(const VectorUblas& rSomeVector1);
-//        VectorUblas operator-(const VectorUblas& rSomeVector1);
-//        VectorUblas operator*(double Scalar);
+          VectorUblas& operator=(const VectorUblas& rOtherVector);
+          VectorUblas operator+(const VectorUblas& rSomeVector1);
+          VectorUblas operator-(const VectorUblas& rSomeVector1);
+          VectorUblas operator*(double Scalar);
 
           double& VectorUblas::operator()(int Entry) const;
 
-//        int Size( void ) const;
-//        double dot(const VectorUblas& rOtherVector) const;
-//        void ResetToZero( void );
-//        VectorUblas VectorProduct(const VectorUblas& rOtherVector);
-//        friend VectorUblas operator*(double Scalar, const VectorUblas& rSomeVector);
-//        double L2Norm( void );
+          int Size( void ) const;
+          double dot(const VectorUblas& rOtherVector) const;
+          void ResetToZero( void );
+          VectorUblas VectorProduct(const VectorUblas& rOtherVector);
+          friend VectorUblas operator*(double Scalar, const VectorUblas& rSomeVector);
+          double L2Norm( void );
 
 };
 
