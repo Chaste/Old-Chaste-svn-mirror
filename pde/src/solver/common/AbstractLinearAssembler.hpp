@@ -27,7 +27,16 @@ class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
 
 protected:
 	LinearSystem *mpAssembledLinearSystem;
+    
+    /**
+     * mMatrixIsConstant is a flag to say whether the matrix of the system
+     * needs to be assmbled at each time step
+     * mMatrixIsAssembled is a flag to say whether the matrix has been assembled 
+     * for the current time step
+     */
+    
     bool mMatrixIsConstant;
+    bool mMatrixIsAssembled;
 
 	/**
 	 * Compute the value of the integrand used in computing the LHS matrix of the
@@ -270,6 +279,7 @@ protected:
         if (mpAssembledLinearSystem == NULL) 
         {
             InitialiseLinearSystem(rMesh.GetNumNodes());
+            mMatrixIsAssembled = false;
         } else {
 //            if (AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mMatrixIsConstant == false)
 //            {
@@ -278,6 +288,7 @@ protected:
 //                mpAssembledLinearSystem->ZeroRhsVector();
 //            }
             mpAssembledLinearSystem->ZeroLinearSystem();
+            mMatrixIsAssembled = false;
         }
             
 		// Get an iterator over the elements of the mesh
@@ -346,6 +357,8 @@ protected:
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);
 
+        mMatrixIsAssembled = true;
+        
         mpAssembledLinearSystem->AssembleFinalMatrix();
         
         Vec sol = mpAssembledLinearSystem->Solve(pSolver);
