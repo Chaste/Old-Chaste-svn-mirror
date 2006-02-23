@@ -146,6 +146,8 @@ public:
                                    150.0,
                                    0.01,
                                    "HH52RegResult");
+                                   
+        CheckCellModelResults("HH52RegResult");
     }
 
 
