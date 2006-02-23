@@ -380,8 +380,14 @@ protected:
 		{
 		    const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
-		    AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
-
+            if (mMatrixIsAssembled) 
+            {
+                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+                //AssembleOnElementRhsVectorOnly(element, b_elem, pPde, currentSolution);
+            } else {
+                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+            }
+         
 			for (int i=0; i<num_nodes; i++)
 			{
 				int node1 = element.GetNodeGlobalIndex(i);
