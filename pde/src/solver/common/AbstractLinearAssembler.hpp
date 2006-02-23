@@ -27,6 +27,7 @@ class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
 
 protected:
 	LinearSystem *mpAssembledLinearSystem;
+    bool mMatrixIsConstant;
 
 	/**
 	 * Compute the value of the integrand used in computing the LHS matrix of the
@@ -208,13 +209,15 @@ protected:
 		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
 	{
         mpAssembledLinearSystem=NULL;
+        mMatrixIsConstant = false;
 	}
 	AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
 									int numPoints = 2) :
 		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
 	{
-       mpAssembledLinearSystem=NULL;
+        mpAssembledLinearSystem=NULL;
+        mMatrixIsConstant = false;
 	}
     
     /**
@@ -350,6 +353,15 @@ protected:
         //delete mpAssembledLinearSystem;
         return sol;
 	}
+    
+     /**
+     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
+     */
+
+    void setMatrixIsConstant()
+    {
+        mMatrixIsConstant = true;
+    }
     
     void DebugWithSolution(Vec sol)
     {

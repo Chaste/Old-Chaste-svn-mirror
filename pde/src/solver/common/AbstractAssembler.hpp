@@ -21,7 +21,6 @@ protected:
 
     /*< User calls a method to set this, so that the assembler
      *  knows whether to build the matrix at every step */
-    bool mMatrixIsConstant;
 
 	bool mWeAllocatedBasisFunctionMemory;
 
@@ -52,7 +51,6 @@ public:
 		mpQuadRule = NULL; mpSurfaceQuadRule = NULL;
 		SetNumberOfQuadraturePointsPerDimension(numPoints);
         
-        mMatrixIsConstant = false;
         
 	}
 	
@@ -72,8 +70,6 @@ public:
 		
 		mpQuadRule = NULL; mpSurfaceQuadRule = NULL;
 		SetNumberOfQuadraturePointsPerDimension(numPoints);
-
-        mMatrixIsConstant = false;
 
 	}
 	
@@ -112,15 +108,6 @@ public:
 		if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
 		mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numPoints);
 	}
-
-    /**
-     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
-     */
-
-    void setMatrixIsConstant()
-    {
-        mMatrixIsConstant = true;
-    }
     
    
 	/**
