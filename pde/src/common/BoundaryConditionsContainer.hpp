@@ -185,8 +185,15 @@ public:
 	 *  If the number of unknowns is greater than one, it is assumed the solution vector is
 	 *  of the form (in the case of two unknowns u and v, and N nodes):
 	 *  solnvec = (U_1, U_2, ..., U_N, V_1, V_2, ..., V_N)
+     * 
+     *  @param rSomeLinearSystem Linear system on which to apply boundary conditions
+     * 
+     *  @param MatrixIsAssembled This optional parameter can be set to
+     *  ensure that the matrix of the linear system is not updated. To
+     *  be used when the matrix does not change between time steps.
 	 */
-	void ApplyDirichletToLinearProblem(LinearSystem& rSomeLinearSystem )
+	void ApplyDirichletToLinearProblem(LinearSystem& rSomeLinearSystem,
+                                       bool MatrixIsAssembled = false )
 	{
 		dirichIterator = mpDirichletMap->begin();
 		
@@ -197,10 +204,13 @@ public:
 
 			for(int i=0; i<mSizeDependentVariable; i++)
 			{
-               //rSomeLinearSystem.SetMatrixRow(index + i*mNumNodes,0);
- 				rSomeLinearSystem.ZeroMatrixRow(index + i*mNumNodes);
-                rSomeLinearSystem.SetMatrixElement(index + i*mNumNodes, index + i*mNumNodes, 1);
-				rSomeLinearSystem.SetRhsVectorElement(index + i*mNumNodes, value(i) );	
+
+                if (!MatrixIsAssembled)
+                {
+ 				    rSomeLinearSystem.ZeroMatrixRow(index + i*mNumNodes);
+                    rSomeLinearSystem.SetMatrixElement(index + i*mNumNodes, index + i*mNumNodes, 1);
+                }
+                rSomeLinearSystem.SetRhsVectorElement(index + i*mNumNodes, value(i) );	
 			}
 			dirichIterator++;			
 		}

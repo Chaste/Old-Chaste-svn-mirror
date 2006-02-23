@@ -281,14 +281,13 @@ protected:
             InitialiseLinearSystem(rMesh.GetNumNodes());
             mMatrixIsAssembled = false;
         } else {
-//            if (AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mMatrixIsConstant == false)
-//            {
-//                mpAssembledLinearSystem->ZeroLinearSystem();
-//            } else {
-//                mpAssembledLinearSystem->ZeroRhsVector();
-//            }
-            mpAssembledLinearSystem->ZeroLinearSystem();
-            mMatrixIsAssembled = false;
+            if (mMatrixIsConstant && mMatrixIsAssembled)
+            {
+                mpAssembledLinearSystem->ZeroRhsVector();
+            } else {
+                mpAssembledLinearSystem->ZeroLinearSystem();
+                mMatrixIsAssembled = false;
+            }
         }
             
 		// Get an iterator over the elements of the mesh
@@ -310,11 +309,14 @@ protected:
 			{
 				int node1 = element.GetNodeGlobalIndex(i);
                 
-				for (int j=0; j<num_nodes; j++)
-				{
-					int node2 = element.GetNodeGlobalIndex(j);
-					mpAssembledLinearSystem->AddToMatrixElement(node1,node2,a_elem(i,j));
-				}
+                if (!mMatrixIsAssembled)
+                {
+    				for (int j=0; j<num_nodes; j++)
+    				{
+    					int node2 = element.GetNodeGlobalIndex(j);
+    					mpAssembledLinearSystem->AddToMatrixElement(node1,node2,a_elem(i,j));
+    				}
+                }
             
 				mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_elem(i));
 			}
@@ -355,12 +357,14 @@ protected:
 	
 		// Apply dirichlet boundary conditions
 		mpAssembledLinearSystem->AssembleIntermediateMatrix();
-        rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem);
+        rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
 
-        mMatrixIsAssembled = true;
-        
+        //if (!mMatrixIsAssembled)
+        //{
         mpAssembledLinearSystem->AssembleFinalMatrix();
+        //}
         
+        mMatrixIsAssembled = true;
         Vec sol = mpAssembledLinearSystem->Solve(pSolver);
         
         //delete mpAssembledLinearSystem;
