@@ -36,8 +36,24 @@ public:
     virtual void Apply(MonodomainPde<3> *pPde, 
                        ConformingTetrahedralMesh<3,3> *pMesh)
     {
+        // Nodes to apply stimuus to on apex of heart found from 
+        // Tulane data
         static InitialStimulus stimulus(-600.0, 0.5);
-        pPde->SetStimulusFunctionAtNode(0, &stimulus);
+        pPde->SetStimulusFunctionAtNode(37484-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(37499-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(37777-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(37779-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(38008-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(38332-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(38587-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(38588-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(39312-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(39314-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(39643-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(40588-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(40590-1, &stimulus); 
+        pPde->SetStimulusFunctionAtNode(63885-1, &stimulus); 
+
     }
 };
 
@@ -55,13 +71,14 @@ private:
         VecSetFromOptions(initial_condition);
         return initial_condition;
     }
+
     
 public:
-    void NOTestMonodomainDg0Heart()
+    void TestMonodomainDg0Heart()
     {
         PointStimulusHeart point_stimulus_heart;
         MonodomainProblem<3> monodomainProblem("mesh/test/data/heart",
-                                               0.01, 
+                                               0.1, 
                                                "testoutput/MonoDg0Heart",
                                                "MonodomainLR91_Heart",
                                                &point_stimulus_heart,
