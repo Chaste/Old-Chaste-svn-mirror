@@ -64,18 +64,24 @@ void LinearSystem::AddToMatrixElement(int row, int col, double value)
     }
 }
 
-void LinearSystem::AssembleFinalMatrix()
+void LinearSystem::AssembleFinalLinearSystem()
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
-    VecAssemblyBegin(mRhsVector);
-    VecAssemblyEnd(mRhsVector);
+    AssembleRhsVector();
 }
 
-void LinearSystem::AssembleIntermediateMatrix()
+
+void LinearSystem::AssembleIntermediateLinearSystem()
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FLUSH_ASSEMBLY);
+    AssembleRhsVector();
+}
+
+
+void LinearSystem::AssembleRhsVector()
+{
     VecAssemblyBegin(mRhsVector);
     VecAssemblyEnd(mRhsVector);
 }

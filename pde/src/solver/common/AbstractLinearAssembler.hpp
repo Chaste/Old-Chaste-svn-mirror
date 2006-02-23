@@ -355,14 +355,22 @@ protected:
 			}
 		}
 	
-		// Apply dirichlet boundary conditions
-		mpAssembledLinearSystem->AssembleIntermediateMatrix();
+	    if (mMatrixIsAssembled)
+        {
+            mpAssembledLinearSystem->AssembleRhsVector();
+        } else {
+            mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
+        }
+        
+	    // Apply dirichlet boundary conditions
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
 
-        //if (!mMatrixIsAssembled)
-        //{
-        mpAssembledLinearSystem->AssembleFinalMatrix();
-        //}
+        if (mMatrixIsAssembled)
+        {
+            mpAssembledLinearSystem->AssembleRhsVector();
+        } else {
+            mpAssembledLinearSystem->AssembleFinalLinearSystem();
+        }
         
         mMatrixIsAssembled = true;
         Vec sol = mpAssembledLinearSystem->Solve(pSolver);

@@ -34,8 +34,9 @@ public:
 //    bool IsRhsVectorEqualTo(Vec testVector);
     void SetMatrixElement(int row, int col, double value);
     void AddToMatrixElement(int row, int col, double value);
-    void AssembleFinalMatrix();         // Call before solve
-    void AssembleIntermediateMatrix();  // Should be called before AddToMatrixElement
+    void AssembleFinalLinearSystem();         // Call before solve
+    void AssembleIntermediateLinearSystem();  // Should be called before AddToMatrixElement
+    void AssembleRhsVector();
     void DisplayMatrix();
     void DisplayRhs() ;
     void SetMatrixRow(int row, double value);

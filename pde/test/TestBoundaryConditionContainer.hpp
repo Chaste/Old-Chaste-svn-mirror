@@ -196,7 +196,7 @@ public:
 			some_system.SetRhsVectorElement(i,2);			
 		}
 		
-		some_system.AssembleIntermediateMatrix();
+		some_system.AssembleIntermediateLinearSystem();
 		
 		Node<3>* p3d_nodes[SIZE];
 		BoundaryConditionsContainer<3,3> bcc3(1,SIZE);
@@ -210,7 +210,7 @@ public:
 		}
 		bcc3.ApplyDirichletToLinearProblem(some_system);
 		
-		some_system.AssembleFinalMatrix();
+		some_system.AssembleFinalLinearSystem();
 		
 		SimpleLinearSolver solver;
         Vec solution_vector = some_system.Solve(&solver);
@@ -386,7 +386,7 @@ public:
 			some_system.SetRhsVectorElement(i,2);			
 		}
 		
-		some_system.AssembleIntermediateMatrix();
+		some_system.AssembleIntermediateLinearSystem();
 		
 		Node<3>* p3d_nodes[SIZE];
 		BoundaryConditionsContainer<3,3> bcc32(2,SIZE);
@@ -403,7 +403,7 @@ public:
 		}
 		bcc32.ApplyDirichletToLinearProblem(some_system);
 		
-		some_system.AssembleFinalMatrix();
+		some_system.AssembleFinalLinearSystem();
 		
 		SimpleLinearSolver solver;
         Vec solution_vector = some_system.Solve(&solver);
@@ -453,7 +453,7 @@ public:
 			some_system.SetRhsVectorElement(i,2);			
 		}
 		
-		some_system.AssembleIntermediateMatrix();
+		some_system.AssembleIntermediateLinearSystem();
 		
 		Node<3>* p3d_nodes[SIZE];
 		BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
@@ -471,7 +471,7 @@ public:
 		}
 		bcc33.ApplyDirichletToLinearProblem(some_system);
 		
-		some_system.AssembleFinalMatrix();
+		some_system.AssembleFinalLinearSystem();
 		
 		SimpleLinearSolver solver;
         Vec solution_vector = some_system.Solve(&solver);

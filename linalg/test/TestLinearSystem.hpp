@@ -23,7 +23,7 @@ public:
         		ls.SetMatrixElement(row, col, (double) row*3+col+1);
        	    }
         }
-        ls.AssembleFinalMatrix();
+        ls.AssembleFinalLinearSystem();
         
         ls.SetRhsVectorElement(0, 14.0);
         ls.SetRhsVectorElement(1, 32.0);
@@ -60,11 +60,11 @@ public:
         LinearSystem ls(2);
         ls.SetMatrixRow(0, 1.0);
         ls.SetMatrixRow(1, 3.0);
-        ls.AssembleIntermediateMatrix();
+        ls.AssembleIntermediateLinearSystem();
         
         ls.AddToMatrixElement(0, 1, 1.0);
         ls.AddToMatrixElement(1, 1, 1.0);
-        ls.AssembleFinalMatrix();
+        ls.AssembleFinalLinearSystem();
 
         ls.AddToRhsVectorElement(0, 3.0);
         ls.AddToRhsVectorElement(1, 7.0);
