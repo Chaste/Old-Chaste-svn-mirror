@@ -148,6 +148,82 @@ protected:
 
 	}
 	
+
+    /**
+     * Calculate the contribution of a single element to the Rhs of linear system.
+     * It does not calculate the contribution of the element to the Matrix.
+     * @param rElement The element to assemble on.
+     * @param rBElem The element's contribution to the RHS vector is returned in this
+     *     vector of length n, the no. of nodes in this element. There is no
+     *     need to zero this vector before calling.
+     * @param pPde Pointer to the PDE object specifying the equation to solve.
+     * @param currentSolution For the parabolic case, the solution at the current timestep.
+     */    
+    virtual void AssembleOnElementRhsVectorOnly(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+                                    VectorDouble &rBElem,
+                                    AbstractLinearPde<SPACE_DIM> *pPde,
+                                    Vec currentSolution = NULL)
+    {
+        GaussianQuadratureRule<ELEMENT_DIM> &rQuadRule =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+        AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+        
+        /**
+         * \todo This assumes that the Jacobian is constant on an element.
+         * This is true for linear basis functions, but not for any other type of
+         * basis function.
+         */
+        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        
+        const int num_nodes = rElement.GetNumNodes();
+
+            
+
+        // Initialise element contributions to zero
+        rBElem.ResetToZero();
+
+        for(int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
+        {
+            Point<ELEMENT_DIM> quad_point=rQuadRule.GetQuadPoint(quad_index);
+
+            std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+            
+            // Location of the gauss point in the original element will be stored in x
+            // Where applicable, u will be set to the value of the current solution at x
+            Point<SPACE_DIM> x(0,0,0);
+            double u = 0.0;
+            for(int i=0; i<rElement.GetNumNodes(); i++)
+            {
+                const Point<SPACE_DIM> node_loc = rElement.GetNode(i)->rGetPoint();
+                for(int j=0; j<SPACE_DIM; j++)
+                {
+                    x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
+                }
+                if (currentSolution)
+                {
+                     // If we have a current solution (e.g. this is a parabolic PDE)
+                     // get the value in a usable form.
+                     // NOTE - currentSolution input is actually now redundant at this point,
+                     // the work is done in PrepareForAssembleSystem
+                    u += phi[i]*pPde->inputCacheReplicated[ rElement.GetNodeGlobalIndex(i) ];
+                }
+            }
+            
+            double wJ = jacobian_determinant * rQuadRule.GetWeight(quad_index);
+            
+            for (int row=0; row < num_nodes; row++)
+            {
+
+                // RHS contribution
+                double integrand_value = RhsVectorIntegrand(phi, pPde, row, x, u);
+                
+                rBElem(row) += integrand_value * wJ;
+            }
+        }
+
+    }
+    
 	/**
 	 * Calculate the contribution of a single surface element with Neumann
 	 * boundary condition to the linear system.
@@ -223,7 +299,8 @@ protected:
 	AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
 									int numPoints = 2) :
-		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
 	{
         mpAssembledLinearSystem=NULL;
         mMatrixIsConstant = false;
