@@ -179,11 +179,11 @@ class GccDebug(Gcc):
     
 class Profile(GccDebug):
   """
-  gcc compiler with profiling enabled.
+  gcc compiler with profiling enabled (and optimisation).
   """
   def __init__(self):
     GccDebug.__init__(self)
-    self._cc_flags += ' -pg'
+    self._cc_flags += ' -O3 -pg'
     self._link_flags += ' -pg'
     self._test_packs = ['Profile']
     self.build_dir = 'profile'
@@ -191,15 +191,6 @@ class Profile(GccDebug):
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a profiler and rename gmon.out"
     return exefile + ' ' + exeflags + ' ; gprof ' + exefile
-
-class ProfileGccOpt(Profile):
-  """
-  gcc compiler with profiling and optimization
-  """
-  def __init__(self):
-    Profile.__init__(self)
-    self._cc_flags += ' -O3'
-    self.build_dir = 'profile_optimised'
 
 class Parallel(GccDebug):
   """
