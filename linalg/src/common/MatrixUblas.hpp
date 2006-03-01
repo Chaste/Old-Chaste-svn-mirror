@@ -6,6 +6,7 @@
 #include <cassert>
 #include <iostream>
 #include <math.h>
+#include "VectorUblas.hpp"
 
 using namespace boost::numeric::ublas;
 
@@ -29,10 +30,10 @@ class MatrixUblas
           MatrixUblas& operator=(const MatrixUblas& rOtherMatrix);
           double &operator()(int Row, int Column) const;
           static MatrixUblas Identity(int Size);
-//        int Rows( void ) const;
-//        int Columns( void ) const;
-//        MatrixDouble Inverse( void ) const;
-//        double Determinant( void ) const;
+          int Rows( void ) const;
+          int Columns( void ) const;
+          MatrixUblas Inverse( void ) const;
+          double Determinant( void ) const;
 //        void ResetToZero( void );
 //        
           MatrixUblas operator*(double scalar);
@@ -45,7 +46,7 @@ class MatrixUblas
 //        
 //        
 //        friend VectorDouble operator*(const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix);
-//        VectorDouble operator*(const VectorDouble& rSomeVector) const;
+          VectorUblas operator*(const VectorUblas& rSomeVector) const;
 //        MatrixDouble Transpose() const;
 //        bool IsSquare( void ) const;
 //        double GetTrace() const;

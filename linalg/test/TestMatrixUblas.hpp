@@ -9,11 +9,7 @@ class TestMatrixUblas : public CxxTest::TestSuite
 {
 	public:
 	   
-    void Testempty()
-    {
-        TS_ASSERT_DELTA(0.0, 0.0, 0.0000000001);
-    }
-    
+ 
 	void TestConstructor()
 	{
 		MatrixUblas A(3,3);
@@ -47,10 +43,12 @@ class TestMatrixUblas : public CxxTest::TestSuite
 		B = A;
 		TS_ASSERT_DELTA(A(0,1), value, 0.0000000001);
 		TS_ASSERT_DELTA(B(0,1), value, 0.0000000001);
-		// TODO: If you update B now, does A also change? 
-        // - Does not change value stored in A (23/02/06).
-            
-	}
+
+        double othervalue = 3.0;
+        B(0,1) = othervalue;
+        TS_ASSERT_DELTA(A(0,1), value, 0.0000000001);
+        TS_ASSERT_DELTA(B(0,1), othervalue, 0.0000000001);	
+       	}
 	
 	
 	void TestScalarMultiplication()
@@ -69,17 +67,7 @@ class TestMatrixUblas : public CxxTest::TestSuite
 	}
 	
 
-//	void TestIsSquare( void )
-//	{
-//		MatrixDouble A(3,3);
-//		A(1,1)=1;
-//		MatrixDouble B(3,2);
-//		B(1,1)=1;
-//		
-//		TS_ASSERT(A.IsSquare());
-//		
-//		TS_ASSERT(!(B.IsSquare()));
-//	}
+
 	
 	void TestIdentity()
 	{
@@ -101,135 +89,140 @@ class TestMatrixUblas : public CxxTest::TestSuite
 		}
 	}
 
-//	void TestRows( void )
-//	{
-//		MatrixDouble A(33,3);
-//		TS_ASSERT_EQUALS( A.Rows(), 33);
-//		
-//	}
-//	void TestColumns( void )
-//	{
-//		MatrixDouble A(3,7);
-//		TS_ASSERT_EQUALS( A.Columns(), 7);
-//		
-//	}
-//	
-//	void TestDeterminant()
-//	{
-//		MatrixDouble C(1,1);
-//		double OneOneDeterminant;
-//		C(0,0)=5.6;
-//		OneOneDeterminant = C.Determinant();
-//		TS_ASSERT_DELTA( OneOneDeterminant, 5.6, 0.0000000001);
-//		MatrixDouble A(3,3);
-//		A(0,0) = 2.4;
-//		A(0,1) = 5;
-//		A(0,2) = 5;
-//		A(1,0) = 5;
-//		A(1,1) = 6;
-//		A(1,2) = 7;
-//		A(2,0) = 6;
-//		A(2,1) = 8;
-//		A(2,2) = 9;
-//		double ThreeThreeDeterminant = A.Determinant();
-//		TS_ASSERT_DELTA( ThreeThreeDeterminant, 0.2, 0.0000000001);
-//		MatrixDouble B(2,2);
-//		B(0,0) = 2.4;
-//		B(0,1) = 5;
-//		B(1,0) = 5;
-//		B(1,1) = 6;
-//		double TwoTwoDeterminant = B.Determinant();
-//		TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
-//	}
-//	
-//	void TestInverse( void )
-//	{
-//		MatrixDouble C(1,1);
-//		C(0,0) = 8;
-//		MatrixDouble invC(1,1);
-//		invC = C.Inverse();
-//		TS_ASSERT_DELTA(invC(0,0), 0.125, 0.0000000001);
-//		MatrixDouble A(3,3);
-//		A(0,0) = 2.4;
-//		A(0,1) = 5;
-//		A(0,2) = 5;
-//		A(1,0) = 5;
-//		A(1,1) = 6;
-//		A(1,2) = 7;
-//		A(2,0) = 6;
-//		A(2,1) = 8;
-//		A(2,2) = 9;
-//		MatrixDouble invA(3,3);
-//		MatrixDouble invAMatlab(3,3);		
-//		invAMatlab(0,0) = -10.00;
-//		invAMatlab(0,1) = -25.00;
-//		invAMatlab(0,2) = 25.00;
-//		invAMatlab(1,0) = -15.00;
-//		invAMatlab(1,1) = -42.00;
-//		invAMatlab(1,2) = 41.00;
-//		invAMatlab(2,0) = 20.00;
-//		invAMatlab(2,1) = 54.00;
-//		invAMatlab(2,2) = -53.00;
-//		invA = A.Inverse();
-//		for( int i = 0; i < 3; i++)
-//		{
-//			for( int j = 0; j < 3; j++)
-//			{
-//				TS_ASSERT_DELTA( invA(i,j), invAMatlab(i,j), 0.0000000001);
-//			}
-//		}
-//		MatrixDouble B(2,2);
-//		B(0,0) = 2.4;
-//		B(0,1) = 5;
-//		B(1,0) = 5;
-//		B(1,1) = 6;
-//		MatrixDouble invB(2,2);
-//		invB = B.Inverse();
-//		MatrixDouble invBMatlab(2,2);
-//		invBMatlab(0,0) = -0.5660;
-//		invBMatlab(0,1) = 0.4717;
-//		invBMatlab(1,0) = 0.4717;
-//		invBMatlab(1,1) = -0.2264;
-//		for( int i = 0; i < 2; i++)
-//		{
-//			for( int j = 0; j < 2; j++)
-//			{
-//				TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
-//			}
-//		}
-//			
-//	}
-//	
-//	void TestMatrixVectorMultiplication( void )
-//	{
-//		MatrixDouble a(3,2);
-//		VectorDouble b(2);
-//		VectorDouble c(3);
-//		VectorDouble matlab_calc_c(3);
-//		a(0,0) = 2.4;
-//		a(0,1) = 5;
-//		a(1,0) = 5;
-//		a(1,1) = 6;
-//		a(2,0) = 6;
-//		a(2,1) = 8;
-//		b(0) = 1;
-//		b(1) = 2;
-//		matlab_calc_c(0) = 12.4;
-//		matlab_calc_c(1) = 17.0;
-//		matlab_calc_c(2) = 22.0;
-//		c = a * b;
-//		for( int i = 0; i < 3; i++)
-//		{
-//			TS_ASSERT_DELTA( c(i), matlab_calc_c(i), 0.000001);
-//		}
-//        
-//	}
-//    
+	void TestRows( void )
+	{
+		MatrixUblas A(3,3);
+		TS_ASSERT_EQUALS( A.Rows(), 3);
+		
+	}
+	void TestColumns( void )
+	{
+		MatrixUblas A(4,4);
+		TS_ASSERT_EQUALS( A.Columns(), 4);
+		
+	}
+	
+	void TestDeterminant()
+	{
+		MatrixUblas C(1,1);
+		double OneOneDeterminant;
+		C(0,0)=5.6;
+		OneOneDeterminant = C.Determinant();
+		TS_ASSERT_DELTA( OneOneDeterminant, 5.6, 0.0000000001);
+		
+        
+        MatrixUblas B(2,2);
+        B(0,0) = 2.4;
+        B(0,1) = 5;
+        B(1,0) = 5;
+        B(1,1) = 6;
+        double TwoTwoDeterminant = B.Determinant();
+        TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
+        
+        MatrixUblas A(3,3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(0,2) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(1,2) = 7;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		A(2,2) = 9;
+		double ThreeThreeDeterminant = A.Determinant();
+		TS_ASSERT_DELTA( ThreeThreeDeterminant, 0.2, 0.0000000001);
+		
+	}
+	
+	void TestInverse( void )
+	{
+		MatrixUblas C(1,1);
+		C(0,0) = 8;
+		MatrixUblas invC(1,1);
+		invC = C.Inverse();
+		TS_ASSERT_DELTA(invC(0,0), 0.125, 0.0000000001);
+        
+        MatrixUblas B(2,2);
+        B(0,0) = 2.4;
+        B(0,1) = 5;
+        B(1,0) = 5;
+        B(1,1) = 6;
+        MatrixUblas invB(2,2);
+        invB = B.Inverse();
+        MatrixUblas invBMatlab(2,2);
+        invBMatlab(0,0) = -0.5660;
+        invBMatlab(0,1) = 0.4717;
+        invBMatlab(1,0) = 0.4717;
+        invBMatlab(1,1) = -0.2264;
+        for( int i = 0; i < 2; i++)
+        {
+            for( int j = 0; j < 2; j++)
+            {
+                TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
+            }
+        }
+    
+        
+		MatrixUblas A(3,3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(0,2) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(1,2) = 7;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		A(2,2) = 9;
+		MatrixUblas invA(3,3);
+		MatrixUblas invAMatlab(3,3);		
+		invAMatlab(0,0) = -10.00;
+		invAMatlab(0,1) = -25.00;
+		invAMatlab(0,2) = 25.00;
+		invAMatlab(1,0) = -15.00;
+		invAMatlab(1,1) = -42.00;
+		invAMatlab(1,2) = 41.00;
+		invAMatlab(2,0) = 20.00;
+		invAMatlab(2,1) = 54.00;
+		invAMatlab(2,2) = -53.00;
+		invA = A.Inverse();
+		for( int i = 0; i < 3; i++)
+		{
+			for( int j = 0; j < 3; j++)
+			{
+				TS_ASSERT_DELTA( invA(i,j), invAMatlab(i,j), 0.0000000001);
+			}
+		}		
+	}
+	
+	void TestMatrixVectorMultiplication( void )
+	{
+		MatrixUblas a(2,2);
+		VectorUblas b(2);
+		VectorUblas c(2);
+		VectorUblas mental_arithmetic_c(2);
+		a(0,0) = 2.4;
+		a(0,1) = 5;
+		a(1,0) = 5;
+		a(1,1) = 6;
+		
+		b(0) = 1;
+		b(1) = 2;
+		mental_arithmetic_c(0) = 12.4;
+		mental_arithmetic_c(1) = 17.0;
+		//matlab_calc_c(2) = 22.0;
+		c = a * b;
+		for( int i = 0; i < 2; i++)
+		{
+			TS_ASSERT_DELTA( c(i), mental_arithmetic_c(i), 0.000001);
+		}
+        
+	}
+    
 //    void dontTestMatrixVectorMultiplicationSpeed (void)
 //    {
-//        MatrixDouble m(3,3);
-//        VectorDouble v(3);
-//        VectorDouble w(3);
+//        MatrixUblas m(3,3);
+//        VectorUblas v(3);
+//        VectorUblas w(3);
 //        for (int i = 0; i < 3; i++) {
 //            for (int j = 0; j < 3; j++)
 //                m (i, j) = 3 * i + j;
@@ -250,7 +243,7 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //    
 //	void TestTranspose()
 //	{
-//		MatrixDouble A(3,2), B(2,3);
+//		MatrixUblas A(3,2), B(2,3);
 //		A(0,0) = 2.4;
 //		A(0,1) = 5;
 //		A(1,0) = 5;
@@ -269,10 +262,10 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //
 //	void TestVectorMatrixMultiplication( void )
 //	{
-//		MatrixDouble A(3,2);
-//		VectorDouble b(2);
-//		VectorDouble c(3);
-//		VectorDouble matlab_calc_b(3);
+//		MatrixUblas A(3,2);
+//		VectorUblas b(2);
+//		VectorUblas c(3);
+//		VectorUblas matlab_calc_b(3);
 //		A(0,0) = 2.4;
 //		A(0,1) = 5;
 //		A(1,0) = 5;
@@ -294,7 +287,7 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //	
 //	void TestResetToZero( void )
 //	{
-//		MatrixDouble A(3,2);
+//		MatrixUblas A(3,2);
 //		A(0,0) = 2.4;
 //		A(0,1) = 5;
 //		A(1,0) = 5;
@@ -313,12 +306,12 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //
 //	void TestTraceAndInvariants()
 //	{
-//		MatrixDouble A(1,1);
+//		MatrixUblas A(1,1);
 //		A(0,0) = 10;
 //		TS_ASSERT_DELTA( A.GetTrace(), 10, 1e-12);
 //		TS_ASSERT_DELTA( A.GetFirstInvariant(), 10, 1e-12);
 //
-//		MatrixDouble B(2,2);
+//		MatrixUblas B(2,2);
 //		B(0,0) = 1;
 //		B(0,1) = 2;
 //		B(1,0) = 3;
@@ -328,7 +321,7 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //		TS_ASSERT_DELTA( B.GetFirstInvariant(),   5, 1e-12);
 //		TS_ASSERT_DELTA( B.GetSecondInvariant(), -2, 1e-12);
 //		
-//		MatrixDouble C(3,3);
+//		MatrixUblas C(3,3);
 //		C(0,0) = 1;
 //		C(0,1) = 2;
 //		C(0,2) = 3;
@@ -347,8 +340,8 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //	
 //	void TestMatrixMatrixMultiplication()
 //	{
-//		MatrixDouble A(3,4);
-//		MatrixDouble B(4,2);
+//		MatrixUblas A(3,4);
+//		MatrixUblas B(4,2);
 //	
 //		for(int i=0; i<3; i++)
 //		{	
@@ -366,7 +359,7 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //			}
 //		}
 //
-//		MatrixDouble C = A*B;
+//		MatrixUblas C = A*B;
 //
 //		
 //		TS_ASSERT_EQUALS(C.Rows(), 3);
@@ -385,8 +378,8 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //		int m=3;
 //		int n=4;
 //		
-//		MatrixDouble A(3,4);
-//		MatrixDouble B(3,4);
+//		MatrixUblas A(3,4);
+//		MatrixUblas B(3,4);
 //		
 //		for(int i=0; i<3; i++)
 //		{
@@ -397,8 +390,8 @@ class TestMatrixUblas : public CxxTest::TestSuite
 //			}
 //		}
 //
-//		MatrixDouble C = A+B;
-//		MatrixDouble D = A-B;
+//		MatrixUblas C = A+B;
+//		MatrixUblas D = A-B;
 //
 //
 //		for(int i=0; i<3; i++)

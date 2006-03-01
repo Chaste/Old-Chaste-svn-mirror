@@ -239,6 +239,8 @@ void VectorUblas::ResetToZero( void )
 
 VectorUblas VectorUblas::VectorProduct(const VectorUblas& rSomeVector)
 {
+    //This is a cross-product
+    //only implemented for 3-vectors
     assert(mSize==3);
     assert(rSomeVector.Size()==3);
     

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <math.h>
 
+#define TINY 0.00000001
+
 MatrixUblas::MatrixUblas(int numRows, int numColumns)
 {
     assert(numRows == numColumns );
@@ -163,3 +165,96 @@ MatrixUblas MatrixUblas::Identity(int Size)
     }
     return Eye;
 }
+ 
+ int MatrixUblas::Rows( void ) const
+ {
+    return mSize;
+ }
+ 
+ int MatrixUblas::Columns( void ) const
+ {
+    return mSize;
+ }
+ 
+ double MatrixUblas::Determinant( void ) const
+ {
+    assert( mSize > 0 && mSize < 4);
+    double det = 0.0;
+    switch( mSize )
+    {
+        case 1 :
+            det = (*mpMatrixOf1)(0,0);
+            break;
+        case 2 :
+            det = (*mpMatrixOf2)(0,0)*(*mpMatrixOf2)(1,1) 
+                - (*mpMatrixOf2)(1,0)*(*mpMatrixOf2)(0,1);
+            break;
+        case 3 :
+            det = (*mpMatrixOf3)(0,0) * 
+            ((*mpMatrixOf3)(1,1)*(*mpMatrixOf3)(2,2) - (*mpMatrixOf3)(1,2)*(*mpMatrixOf3)(2,1))
+             - (*mpMatrixOf3)(0,1) * 
+             ((*mpMatrixOf3)(1,0)*(*mpMatrixOf3)(2,2) - (*mpMatrixOf3)(1,2)*(*mpMatrixOf3)(2,0))
+             + (*mpMatrixOf3)(0,2) * 
+             ((*mpMatrixOf3)(1,0)*(*mpMatrixOf3)(2,1) - (*mpMatrixOf3)(1,1)*(*mpMatrixOf3)(2,0));
+    }
+    return det;
+    // If this were to be implemented for 4x4 or larger matrices then
+    // the correct thing to do is to make an LU factorisation (Ublas will
+    // do this for us), and then multiply the diagonal elements
+}
+ 
+
+ MatrixUblas MatrixUblas::Inverse( void ) const
+ {
+    assert( mSize > 0 && mSize < 4);
+    MatrixUblas Inverse(mSize,mSize);
+    double Det = Determinant();
+    assert( fabs(Det) > TINY ); //Else it is a singular matrix
+    switch( mSize )
+    {
+        case 1 :
+            Inverse(0,0) =  1.0/Det;
+            break;
+        case 2 :
+            Inverse(0,0)  =  (*mpMatrixOf2)(1,1)/Det;
+            Inverse(0,1)  = -(*mpMatrixOf2)(0,1)/Det;
+            Inverse(1,0)  = -(*mpMatrixOf2)(1,0)/Det;
+            Inverse(1,1)  =  (*mpMatrixOf2)(0,0)/Det;
+            break;
+        case 3 :
+            Inverse(0,0)  =  ((*mpMatrixOf3)(1,1)*(*mpMatrixOf3)(2,2)-(*mpMatrixOf3)(1,2)*(*mpMatrixOf3)(2,1))/Det;
+            Inverse(1,0)  =  -((*mpMatrixOf3)(1,0)*(*mpMatrixOf3)(2,2)-(*mpMatrixOf3)(1,2)*(*mpMatrixOf3)(2,0))/Det;
+            Inverse(2,0)  =  ((*mpMatrixOf3)(1,0)*(*mpMatrixOf3)(2,1)-(*mpMatrixOf3)(1,1)*(*mpMatrixOf3)(2,0))/Det;
+            Inverse(0,1)  =  -((*mpMatrixOf3)(0,1)*(*mpMatrixOf3)(2,2)-(*mpMatrixOf3)(0,2)*(*mpMatrixOf3)(2,1))/Det;
+            Inverse(1,1)  =  ((*mpMatrixOf3)(0,0)*(*mpMatrixOf3)(2,2)-(*mpMatrixOf3)(0,2)*(*mpMatrixOf3)(2,0))/Det;
+            Inverse(2,1)  =  -((*mpMatrixOf3)(0,0)*(*mpMatrixOf3)(2,1)-(*mpMatrixOf3)(0,1)*(*mpMatrixOf3)(2,0))/Det;
+            Inverse(0,2)  =  ((*mpMatrixOf3)(0,1)*(*mpMatrixOf3)(1,2)-(*mpMatrixOf3)(0,2)*(*mpMatrixOf3)(1,1))/Det;
+            Inverse(1,2)  = - ((*mpMatrixOf3)(0,0)*(*mpMatrixOf3)(1,2)-(*mpMatrixOf3)(0,2)*(*mpMatrixOf3)(1,0))/Det;
+            Inverse(2,2)  =  ((*mpMatrixOf3)(0,0)*(*mpMatrixOf3)(1,1)-(*mpMatrixOf3)(0,1)*(*mpMatrixOf3)(1,0))/Det;
+    }
+    return Inverse;   
+    
+ }
+ 
+ 
+ 
+ VectorUblas MatrixUblas::operator*(const VectorUblas& rSomeVector) const
+{
+    assert(mSize==rSomeVector.Size());
+    VectorUblas result(mSize);
+    
+   
+    
+    for( int i = 0; i < mSize; i++)
+    {
+        for(int j = 0; j < mSize; j++)
+        {
+            result(i) += (*this)(i,j) * rSomeVector(j);
+        }
+    }
+    return result;
+}
+ 
+ 
+ 
+ 
