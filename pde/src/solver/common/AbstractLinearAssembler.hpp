@@ -382,8 +382,8 @@ protected:
 
             if (mMatrixIsAssembled) 
             {
-                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
-                //AssembleOnElementRhsVectorOnly(element, b_elem, pPde, currentSolution);
+                //AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+                AssembleOnElementRhsVectorOnly(element, b_elem, pPde, currentSolution);
             } else {
                 AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
             }
@@ -466,7 +466,7 @@ protected:
      * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
      */
 
-    void setMatrixIsConstant()
+    void SetMatrixIsConstant()
     {
         mMatrixIsConstant = true;
     }

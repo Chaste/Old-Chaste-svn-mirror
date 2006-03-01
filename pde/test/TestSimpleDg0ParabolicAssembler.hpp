@@ -96,6 +96,8 @@ public:
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
+        
+        fullSolver.SetMatrixIsConstant();
 		
 		// Initial condition, u(0,x) = sin(x*pi);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -159,6 +161,7 @@ public:
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
+        fullSolver.SetMatrixIsConstant();
 		
 		// initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
