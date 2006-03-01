@@ -255,6 +255,154 @@ MatrixUblas MatrixUblas::Identity(int Size)
     return result;
 }
  
+ MatrixUblas MatrixUblas::Transpose() const
+{
+    MatrixUblas result(mSize, mSize);
+    for( int i = 0; i < mSize; i++)
+    {
+        for(int j = 0; j < mSize; j++)
+        {
+            result(j,i) = (*this)(i,j);
+        }
+    }
+    return result;
+}
+
+VectorUblas operator* (const VectorUblas& rSomeVector, const MatrixUblas& rSomeMatrix)
+{
+    assert(rSomeVector.Size()==rSomeMatrix.Rows());
+    VectorUblas result(rSomeMatrix.Columns());
+    int index;
+    for( int i = 0; i < rSomeMatrix.Columns(); i++)
+    {
+        for(int j = 0; j < rSomeMatrix.Rows(); j++)
+        {
+            result(i) += rSomeMatrix(j,i)*rSomeVector(j);
+        }
+    }
+    return result;
+}
  
+ void MatrixUblas::ResetToZero( void )
+{
+    for( int i = 0; i < mSize; i++)
+        {
+            for( int j = 0; j < mSize; j++)
+            {
+                (*this)(i,j) = 0.0;
+            }
+        }
+}
+
+double MatrixUblas::GetTrace() const
+{
+    double sum=0;
+    for(int i=0; i<mSize; i++)
+    {
+        sum += (*this)(i,i);
+    }
+    return sum;
+}
+
+
+double MatrixUblas::GetFirstInvariant() const
+{
+    assert(mSize<=3);
+    
+    return GetTrace();
+}
+
+double MatrixUblas::GetSecondInvariant() const
+{
+    assert(mSize<=3);
+    assert(mSize>1);
+    
+    double ret;
+    if(mSize==2)
+    {
+        // second invariant in 2d is the determinant
+        ret = Determinant();
+    }
+    else if(mSize==3)
+    {
+        // second invariant in 3d is 0.5*(tr(C^2)-tr(C)^2;
+        // ie C[0][1]*C[1][0] + C[1][2]*C[2][1] + C[2][0]*C[0][2] - C[0][0]*C[1][1] - C[1][1]*C[2][2] - C[2][2]*C[0][0];
+        
+        ret =   (*mpMatrixOf3)(0,1)*(*mpMatrixOf3)(1,0) + (*mpMatrixOf3)(0,2)*(*mpMatrixOf3)(2,0) 
+              + (*mpMatrixOf3)(1,2)*(*mpMatrixOf3)(2,1) - (*mpMatrixOf3)(0,0)*(*mpMatrixOf3)(1,1)
+              - (*mpMatrixOf3)(1,1)*(*mpMatrixOf3)(2,2) - (*mpMatrixOf3)(2,2)*(*mpMatrixOf3)(0,0);
+    }
+    else
+    {
+        // shouldn't be possible to get here
+        assert(0);
+    }
+    
+    return ret;
+}
+    
+double MatrixUblas::GetThirdInvariant() const
+{
+    assert(mSize==3);
+
+    return Determinant();
+}   
  
- 
+ /// \todo make this more efficient?
+ // We should be using a Ublas function, if there is one available.
+MatrixUblas operator*(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix)
+{
+    assert(rLeftMatrix.Columns()==rRightMatrix.Rows());
+
+    MatrixUblas result(rLeftMatrix.Rows(), rRightMatrix.Columns());
+    
+    for(int i=0; i<rLeftMatrix.Rows(); i++)
+    {
+        for(int j=0; j<rRightMatrix.Columns(); j++)
+        {
+            for(int k=0; k<rLeftMatrix.Columns(); k++)
+            {
+                result(i,j) += rLeftMatrix(i,k)*rRightMatrix(k,j);
+            }
+        }
+    }
+    return result;
+}
+
+MatrixUblas operator+(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix)
+{
+    assert(rLeftMatrix.Rows()==rRightMatrix.Rows());
+    assert(rLeftMatrix.Columns()==rRightMatrix.Columns());
+
+    MatrixUblas result(rLeftMatrix.Rows(), rLeftMatrix.Columns());
+    
+    for(int i=0; i<rLeftMatrix.Rows(); i++)
+    {
+        for(int j=0; j<rLeftMatrix.Columns(); j++)
+        {
+            result(i,j) += rLeftMatrix(i,j) + rRightMatrix(i,j);
+        }
+    }
+    return result;
+}
+
+
+/// \todo make this more efficient?
+MatrixUblas operator-(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix)
+{
+    assert(rLeftMatrix.Rows()==rRightMatrix.Rows());
+    assert(rLeftMatrix.Columns()==rRightMatrix.Columns());
+
+    MatrixUblas result(rLeftMatrix.Rows(), rLeftMatrix.Columns());
+    
+    for(int i=0; i<rLeftMatrix.Rows(); i++)
+    {
+        for(int j=0; j<rLeftMatrix.Columns(); j++)
+        {
+            result(i,j) += rLeftMatrix(i,j) - rRightMatrix(i,j);
+        }
+    }
+    return result;
+}
+
+

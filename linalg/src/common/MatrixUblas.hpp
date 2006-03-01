@@ -34,26 +34,26 @@ class MatrixUblas
           int Columns( void ) const;
           MatrixUblas Inverse( void ) const;
           double Determinant( void ) const;
-//        void ResetToZero( void );
+          void ResetToZero( void );
 //        
           MatrixUblas operator*(double scalar);
 //        friend MatrixDouble operator*(const double scalar, const MatrixDouble& rMatrix);
-//        friend MatrixDouble operator*(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
-//        friend MatrixDouble operator+(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
-//        friend MatrixDouble operator-(const MatrixDouble &rLeftMatrix, const MatrixDouble &rRightMatrix);
+          friend MatrixUblas operator*(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix);
+          friend MatrixUblas operator+(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix);
+          friend MatrixUblas operator-(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix);
 //        
 //        void VectorPostMultiply(const VectorDouble& rOperandVector, VectorDouble& rResultVector) const;
 //        
 //        
-//        friend VectorDouble operator*(const VectorDouble& rSomeVector, const MatrixDouble& rSomeMatrix);
+          friend VectorUblas operator*(const VectorUblas& rSomeVector, const MatrixUblas& rSomeMatrix);
           VectorUblas operator*(const VectorUblas& rSomeVector) const;
-//        MatrixDouble Transpose() const;
+          MatrixUblas Transpose() const;
 //        bool IsSquare( void ) const;
-//        double GetTrace() const;
-//        double GetFirstInvariant() const;
-//        double GetSecondInvariant() const;
-//        double GetThirdInvariant() const;
-//
+          double GetTrace() const;
+          double GetFirstInvariant() const;
+          double GetSecondInvariant() const;
+          double GetThirdInvariant() const;
+
 
 };
 

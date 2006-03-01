@@ -202,13 +202,13 @@ class TestMatrixUblas : public CxxTest::TestSuite
 		VectorUblas mental_arithmetic_c(2);
 		a(0,0) = 2.4;
 		a(0,1) = 5;
-		a(1,0) = 5;
+		a(1,0) = 7;
 		a(1,1) = 6;
 		
 		b(0) = 1;
 		b(1) = 2;
 		mental_arithmetic_c(0) = 12.4;
-		mental_arithmetic_c(1) = 17.0;
+		mental_arithmetic_c(1) = 19.0;
 		//matlab_calc_c(2) = 22.0;
 		c = a * b;
 		for( int i = 0; i < 2; i++)
@@ -218,191 +218,168 @@ class TestMatrixUblas : public CxxTest::TestSuite
         
 	}
     
-//    void dontTestMatrixVectorMultiplicationSpeed (void)
-//    {
-//        MatrixUblas m(3,3);
-//        VectorUblas v(3);
-//        VectorUblas w(3);
-//        for (int i = 0; i < 3; i++) {
-//            for (int j = 0; j < 3; j++)
-//                m (i, j) = 3 * i + j;
-//            v (i) = i;
-//        }
-//	    
-//        
-//        for (int k = 0; k < 5E7; k++) {
-//            w = m * v;
-//            w = v * m;
-//        }
-//        
-//        for (int j = 0; j < 3; ++ j)  std::cout << w(j) << " ";
-//        
-//        std::cout << std::endl;
-//        
-//    }
-//    
-//	void TestTranspose()
-//	{
-//		MatrixUblas A(3,2), B(2,3);
-//		A(0,0) = 2.4;
-//		A(0,1) = 5;
-//		A(1,0) = 5;
-//		A(1,1) = 6;
-//		A(2,0) = 6;
-//		A(2,1) = 8;
-//		B=A.Transpose();
-//		for (int i=0; i<3; i++)
-//		{
-//			for (int j=0; j<2; j++)
-//			{
-//				TS_ASSERT_DELTA(A(i,j), B(j,i), 0.00000001);
-//			}
-//		}
-//	}
-//
-//	void TestVectorMatrixMultiplication( void )
-//	{
-//		MatrixUblas A(3,2);
-//		VectorUblas b(2);
-//		VectorUblas c(3);
-//		VectorUblas matlab_calc_b(3);
-//		A(0,0) = 2.4;
-//		A(0,1) = 5;
-//		A(1,0) = 5;
-//		A(1,1) = 6;
-//		A(2,0) = 6;
-//		A(2,1) = 8;
-//		c(0) = 1;
-//		c(1) = 2;
-//		c(2) = 3;
-//		matlab_calc_b(0) = 30.4;
-//		matlab_calc_b(1) = 41.0;
-//		b = c * A;
-//		for( int i = 0; i < 2; i++)
-//		{
-//			TS_ASSERT_DELTA( b(i), matlab_calc_b(i), 0.000001);
-//		}
-//		
-//	}
-//	
-//	void TestResetToZero( void )
-//	{
-//		MatrixUblas A(3,2);
-//		A(0,0) = 2.4;
-//		A(0,1) = 5;
-//		A(1,0) = 5;
-//		A(1,1) = 6;
-//		A(2,0) = 6;
-//		A(2,1) = 8;
-//		A.ResetToZero();
-//		for( int i = 0; i < 3; i++)
-//		{
-//			for( int j = 0; j<2; j++)
-//			{
-//				TS_ASSERT_DELTA( A(i,j), 0.0, 0.000001);
-//			}
-//		}
-//	}
-//
-//	void TestTraceAndInvariants()
-//	{
-//		MatrixUblas A(1,1);
-//		A(0,0) = 10;
-//		TS_ASSERT_DELTA( A.GetTrace(), 10, 1e-12);
-//		TS_ASSERT_DELTA( A.GetFirstInvariant(), 10, 1e-12);
-//
-//		MatrixUblas B(2,2);
-//		B(0,0) = 1;
-//		B(0,1) = 2;
-//		B(1,0) = 3;
-//		B(1,1) = 4;
-//
-//		TS_ASSERT_DELTA( B.GetTrace(), 5, 1e-12);
-//		TS_ASSERT_DELTA( B.GetFirstInvariant(),   5, 1e-12);
-//		TS_ASSERT_DELTA( B.GetSecondInvariant(), -2, 1e-12);
-//		
-//		MatrixUblas C(3,3);
-//		C(0,0) = 1;
-//		C(0,1) = 2;
-//		C(0,2) = 3;
-//		C(1,0) = 4;
-//		C(1,1) = 5;
-//		C(1,2) = 6;
-//		C(2,0) = 7;
-//		C(2,1) = 8;
-//		C(2,2) = 9;
-//
-//		TS_ASSERT_DELTA( C.GetTrace(),           15, 1e-12);
-//		TS_ASSERT_DELTA( C.GetFirstInvariant(),  15, 1e-12);
-//		TS_ASSERT_DELTA( C.GetSecondInvariant(), 18, 1e-12);
-//		TS_ASSERT_DELTA( C.GetThirdInvariant(),   0, 1e-12);
-//	}
-//	
-//	void TestMatrixMatrixMultiplication()
-//	{
-//		MatrixUblas A(3,4);
-//		MatrixUblas B(4,2);
-//	
-//		for(int i=0; i<3; i++)
-//		{	
-//			for(int j=0; j<4; j++)
-//			{
-//				A(i,j) = i+j;
-//			}
-//		}
-//
-//		for(int i=0; i<4; i++)
-//		{	
-//			for(int j=0; j<2; j++)
-//			{
-//				B(i,j) = (i+1)*(j+1);
-//			}
-//		}
-//
-//		MatrixUblas C = A*B;
-//
-//		
-//		TS_ASSERT_EQUALS(C.Rows(), 3);
-//		TS_ASSERT_EQUALS(C.Columns(), 2);
-//		
-//		TS_ASSERT_DELTA( C(0,0), 20, 1e-12);
-//		TS_ASSERT_DELTA( C(0,1), 40, 1e-12);
-//		TS_ASSERT_DELTA( C(1,0), 30, 1e-12);
-//		TS_ASSERT_DELTA( C(1,1), 60, 1e-12);
-//		TS_ASSERT_DELTA( C(2,0), 40, 1e-12);
-//		TS_ASSERT_DELTA( C(2,1), 80, 1e-12);
-//	}
-//	
-//	void TestMatrixAdditionAndSubtraction()
-//	{
-//		int m=3;
-//		int n=4;
-//		
-//		MatrixUblas A(3,4);
-//		MatrixUblas B(3,4);
-//		
-//		for(int i=0; i<3; i++)
-//		{
-//			for(int j=0; j<4; j++)
-//			{
-//				A(i,j) = i*j + i+j + i*(10-j) + i/(j+1);
-//				B(i,j) = 23 + (i+4)*j + 12*j;
-//			}
-//		}
-//
-//		MatrixUblas C = A+B;
-//		MatrixUblas D = A-B;
-//
-//
-//		for(int i=0; i<3; i++)
-//		{
-//			for(int j=0; j<4; j++)
-//			{
-//				TS_ASSERT_DELTA( C(i,j), i*j + i+j + i*(10-j) + i/(j+1) +  23 + (i+4)*j + 12*j, 1e-12);
-//				TS_ASSERT_DELTA( D(i,j), i*j + i+j + i*(10-j) + i/(j+1) - (23 + (i+4)*j + 12*j), 1e-12);
-//			}
-//		}
-//	}
+
+    
+	void TestTranspose()
+	{
+		MatrixUblas A(3,3), B(3,3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+        A(0,2) = 3;
+		A(1,0) = 5;
+		A(1,1) = 6;
+        A(1,2) = 2;
+		A(2,0) = 6;
+		A(2,1) = 8;
+        A(2,2) = 9;
+		B=A.Transpose();
+		for (int i=0; i<3; i++)
+		{
+			for (int j=0; j<3; j++)
+			{
+				TS_ASSERT_DELTA(A(i,j), B(j,i), 0.00000001);
+			}
+		}
+	}
+
+	void TestVectorMatrixMultiplication( void )
+	{
+		MatrixUblas A(2,2);
+		VectorUblas b(2);
+		VectorUblas c(2);
+		VectorUblas matlab_calc_b(2);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(1,0) = 7;
+		A(1,1) = 6;
+		c(0) = 1;
+		c(1) = 2;
+		matlab_calc_b(0) = 16.4;
+		matlab_calc_b(1) = 17.0;
+		b = c * A;
+		for( int i = 0; i < 2; i++)
+		{
+			TS_ASSERT_DELTA( b(i), matlab_calc_b(i), 0.000001);
+		}
+		
+	}
+	
+	void TestResetToZero( void )
+	{
+		MatrixUblas A(3,3);
+		A(0,0) = 2.4;
+		A(0,1) = 5;
+		A(1,0) = 5;
+		A(1,1) = 6;
+		A(2,0) = 6;
+		A(2,1) = 8;
+		A.ResetToZero();
+		for( int i = 0; i < 3; i++)
+		{
+			for( int j = 0; j<3; j++)
+			{
+				TS_ASSERT_DELTA( A(i,j), 0.0, 0.000001);
+			}
+		}
+	}
+
+	void TestTraceAndInvariants()
+	{
+		MatrixUblas A(1,1);
+		A(0,0) = 10;
+		TS_ASSERT_DELTA( A.GetTrace(), 10, 1e-12);
+		TS_ASSERT_DELTA( A.GetFirstInvariant(), 10, 1e-12);
+
+		MatrixUblas B(2,2);
+		B(0,0) = 1;
+		B(0,1) = 2;
+		B(1,0) = 3;
+		B(1,1) = 4;
+
+		TS_ASSERT_DELTA( B.GetTrace(), 5, 1e-12);
+		TS_ASSERT_DELTA( B.GetFirstInvariant(),   5, 1e-12);
+		TS_ASSERT_DELTA( B.GetSecondInvariant(), -2, 1e-12);
+		
+		MatrixUblas C(3,3);
+		C(0,0) = 1;
+		C(0,1) = 2;
+		C(0,2) = 3;
+		C(1,0) = 4;
+		C(1,1) = 5;
+		C(1,2) = 6;
+		C(2,0) = 7;
+		C(2,1) = 8;
+		C(2,2) = 9;
+
+		TS_ASSERT_DELTA( C.GetTrace(),           15, 1e-12);
+		TS_ASSERT_DELTA( C.GetFirstInvariant(),  15, 1e-12);
+		TS_ASSERT_DELTA( C.GetSecondInvariant(), 18, 1e-12);
+		TS_ASSERT_DELTA( C.GetThirdInvariant(),   0, 1e-12);
+	}
+	
+	void TestMatrixMatrixMultiplication()
+	{
+		MatrixUblas A(3,3);
+		MatrixUblas B(3,3);
+	
+		for(int i=0; i<3; i++)
+		{	
+			for(int j=0; j<3; j++)
+			{
+				A(i,j) = i+j;
+			}
+		}
+
+		for(int i=0; i<3; i++)
+		{	
+			for(int j=0; j<3; j++)
+			{
+				B(i,j) = (i+1)*(j+1);
+			}
+		}
+
+		MatrixUblas C = A*B;
+
+		
+		TS_ASSERT_EQUALS(C.Rows(), 3);
+		TS_ASSERT_EQUALS(C.Columns(), 3);
+		
+		TS_ASSERT_DELTA( C(0,0), 8, 1e-12);
+		TS_ASSERT_DELTA( C(0,1), 16, 1e-12);
+		TS_ASSERT_DELTA( C(1,0), 14, 1e-12);
+		TS_ASSERT_DELTA( C(1,1), 28, 1e-12);
+		TS_ASSERT_DELTA( C(2,0), 20, 1e-12);
+		TS_ASSERT_DELTA( C(2,1), 40, 1e-12);
+	}
+	
+	void TestMatrixAdditionAndSubtraction()
+	{
+		
+		MatrixUblas A(3,3);
+		MatrixUblas B(3,3);
+		
+		for(int i=0; i<3; i++)
+		{
+			for(int j=0; j<3; j++)
+			{
+				A(i,j) = i*j + i+j + i*(10-j) + i/(j+1);
+				B(i,j) = 23 + (i+4)*j + 12*j;
+			}
+		}
+
+		MatrixUblas C = A+B;
+		MatrixUblas D = A-B;
+
+
+		for(int i=0; i<3; i++)
+		{
+			for(int j=0; j<3; j++)
+			{
+				TS_ASSERT_DELTA( C(i,j), i*j + i+j + i*(10-j) + i/(j+1) +  23 + (i+4)*j + 12*j, 1e-12);
+				TS_ASSERT_DELTA( D(i,j), i*j + i+j + i*(10-j) + i/(j+1) - (23 + (i+4)*j + 12*j), 1e-12);
+			}
+		}
+	}
 }; 
 
 #endif //_TESTMATRIXUBLAS_HPP_
