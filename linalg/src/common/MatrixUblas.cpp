@@ -405,4 +405,24 @@ MatrixUblas operator-(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightM
     return result;
 }
 
+MatrixUblas operator*(double scalar, const MatrixUblas &rMatrix)
+{
+    MatrixUblas result(rMatrix.Rows(), rMatrix.Columns());
+    for (int i=0; i<rMatrix.mSize; i++)
+    {
+        for (int j=0; j<rMatrix.mSize; j++)
+        { 
+           result(i,j) = scalar * rMatrix(i,j);
+        }
+    }
+    return result;
+}
+
+bool MatrixUblas::IsSquare() const
+{
+    return true;
+}
+
+
+
 

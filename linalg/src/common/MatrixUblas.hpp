@@ -37,7 +37,7 @@ class MatrixUblas
           void ResetToZero( void );
 //        
           MatrixUblas operator*(double scalar);
-//        friend MatrixDouble operator*(const double scalar, const MatrixDouble& rMatrix);
+          friend MatrixUblas operator*(const double scalar, const MatrixUblas& rMatrix);
           friend MatrixUblas operator*(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix);
           friend MatrixUblas operator+(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix);
           friend MatrixUblas operator-(const MatrixUblas &rLeftMatrix, const MatrixUblas &rRightMatrix);
@@ -48,7 +48,7 @@ class MatrixUblas
           friend VectorUblas operator*(const VectorUblas& rSomeVector, const MatrixUblas& rSomeMatrix);
           VectorUblas operator*(const VectorUblas& rSomeVector) const;
           MatrixUblas Transpose() const;
-//        bool IsSquare( void ) const;
+          bool IsSquare( void ) const;
           double GetTrace() const;
           double GetFirstInvariant() const;
           double GetSecondInvariant() const;

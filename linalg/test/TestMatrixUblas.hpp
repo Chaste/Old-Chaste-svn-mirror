@@ -66,9 +66,35 @@ class TestMatrixUblas : public CxxTest::TestSuite
 			}
 	}
 	
+    void TestScalarMultiplication2()
+    {
+        MatrixUblas A(3,3);
+        A(0,0) = 1.0;
+        A(1,0) = 2.0;
+        A =  3.0 * A;
+        
+        for (int j=0; j<3; j++)
+        {
 
+            TS_ASSERT_DELTA(A(0,0), 3.0, 0.0000000001);
+            TS_ASSERT_DELTA(A(1,0), 6.0, 0.0000000001);
+            if (j>0) TS_ASSERT_DELTA(A(1,1), 0.0, 0.0000000001);
+        }
+        
+    }   
+    
+    void TestIsSquare( void )
+    {
+        MatrixUblas A(3,3);
+        A(1,1)=1;
+        MatrixUblas B(3,3);
+        B(1,1)=1;
+        
+        TS_ASSERT(A.IsSquare());
+        
+        TS_ASSERT((B.IsSquare()));
+    }
 
-	
 	void TestIdentity()
 	{
 		MatrixUblas A=MatrixUblas::Identity(3);
