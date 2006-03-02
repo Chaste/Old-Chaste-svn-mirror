@@ -15,11 +15,11 @@ AbstractOdeSystem()
     * Constants for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     */
 
-   leakage_current_g_L = 0.3;
-   membrane_Cm = 1.0;
-   membrane_E_R = 0.0;
-   potassium_channel_g_K = 36.0;
-   sodium_channel_g_Na = 120.0;
+   leakage_current_g_L = 0.3;   // mS/cm2
+   membrane_Cm = 1.0;   // 1 uF/cm2
+   membrane_E_R = -75.0;   // mV
+   potassium_channel_g_K = 36.0;   // mS/cm2
+   sodium_channel_g_Na = 120.0;   // mS/cm2
 
    /*
     * State variable
@@ -27,19 +27,19 @@ AbstractOdeSystem()
    
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(0.0);
+    mInitialConditions.push_back(-75.0);
     
     mVariableNames.push_back("n");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.31768);
+    mInitialConditions.push_back(0.325);
     
     mVariableNames.push_back("h");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.59612);
+    mInitialConditions.push_back(0.6);
     
     mVariableNames.push_back("m");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.05293);
+    mInitialConditions.push_back(0.05);
 }
 
 /**
@@ -82,24 +82,24 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
     * Compute the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     */
 
-   double leakage_current_E_L = membrane_E_R-10.613;
+   double leakage_current_E_L = membrane_E_R+10.613;
    double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
 
    double membrane_i_Stim = mpStimulus->GetStimulus(time);
    
-   double sodium_channel_E_Na = membrane_E_R-115.0;
-   double sodium_channel_i_Na = sodium_channel_g_Na*pow(sodium_channel_m_gate_m, 3.0)*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
-   double potassium_channel_E_K = membrane_E_R+12.0;
-   double potassium_channel_i_K = potassium_channel_g_K*pow(potassium_channel_n_gate_n, 4.0)*(membrane_V-potassium_channel_E_K);
+   double sodium_channel_E_Na = membrane_E_R+115.0;
+   double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
+   double potassium_channel_E_K = membrane_E_R-12.0;
+   double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
    double membrane_V_prime = -(-membrane_i_Stim+sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L)/membrane_Cm;
-   double potassium_channel_n_gate_alpha_n = 0.01*(membrane_V+10.0)/(exp((membrane_V+10.0)/10.0)-1.0);
-   double potassium_channel_n_gate_beta_n = 0.125*exp(membrane_V/80.0);
+   double potassium_channel_n_gate_alpha_n = -0.01*(membrane_V+65.0)/(exp(-(membrane_V+65.0)/10.0)-1.0);
+   double potassium_channel_n_gate_beta_n = 0.125*exp((membrane_V+75.0)/80.0);
    double potassium_channel_n_gate_n_prime = potassium_channel_n_gate_alpha_n*(1.0-potassium_channel_n_gate_n)-potassium_channel_n_gate_beta_n*potassium_channel_n_gate_n;
-   double sodium_channel_h_gate_alpha_h = 0.07*exp(membrane_V/20.0);
-   double sodium_channel_h_gate_beta_h = 1.0/(exp((membrane_V+30.0)/10.0)+1.0);
+   double sodium_channel_h_gate_alpha_h = 0.07*exp(-(membrane_V+75.0)/20.0);
+   double sodium_channel_h_gate_beta_h = 1.0/(exp(-(membrane_V+45.0)/10.0)+1.0);
    double sodium_channel_h_gate_h_prime = sodium_channel_h_gate_alpha_h*(1.0-sodium_channel_h_gate_h)-sodium_channel_h_gate_beta_h*sodium_channel_h_gate_h;
-   double sodium_channel_m_gate_alpha_m = 0.1*(membrane_V+25.0)/(exp((membrane_V+25.0)/10.0)-1.0);
-   double sodium_channel_m_gate_beta_m = 4.0*exp(membrane_V/18.0);
+   double sodium_channel_m_gate_alpha_m = -0.1*(membrane_V+50.0)/(exp(-(membrane_V+50.0)/10.0)-1.0);
+   double sodium_channel_m_gate_beta_m = 4.0*exp(-(membrane_V+75.0)/18.0);
    double sodium_channel_m_gate_m_prime = sodium_channel_m_gate_alpha_m*(1.0-sodium_channel_m_gate_m)-sodium_channel_m_gate_beta_m*sodium_channel_m_gate_m;
 
    std::vector<double> returnRHS;

@@ -77,7 +77,7 @@ public:
         }        
         writer.Close();        
     }
-   
+
     void CheckCellModelResults(std::string baseResultsFilename)
     {
         /*
@@ -85,36 +85,15 @@ public:
          * and another source e.g. Alan's COR
          */
         
-        //read in good data file and compare line by line
-        
-        std::string test_filename = "testoutput/"+baseResultsFilename+".dat";
-        std::string good_filename = "ode/test/data/"+baseResultsFilename+"Good.dat";
-
-        std::ifstream testfile(test_filename.c_str(),std::ios::in);
-        std::ifstream goodfile(good_filename.c_str(),std::ios::in);
-
-        std::string teststring;
-        std::string goodstring;
-        
-        while(getline(testfile, teststring))
-        {
-              getline(goodfile,goodstring);
-              TS_ASSERT_EQUALS(teststring,goodstring);
-        }
-        testfile.close();
-        goodfile.close();                       
-
-        
         // read data entries for the new file and compare to valid data from 
         // other source        
         ColumnDataReader data_reader("testoutput",baseResultsFilename);
         std::vector<double> times = data_reader.GetValues("Time");
         std::vector<double> voltages = data_reader.GetValues("V");
-
-        ColumnDataReader valid_reader("ode/test/data/",baseResultsFilename+"ValidData");
+        ColumnDataReader valid_reader("ode/test/data",baseResultsFilename+"ValidData");
         std::vector<double> valid_times = valid_reader.GetValues("Time");
         std::vector<double> valid_voltages = valid_reader.GetValues("V");
-        
+       
         for(int i=0; i<valid_times.size(); i++)
         {
             TS_ASSERT_DELTA(times[i], valid_times[i], 1e-6);
@@ -123,19 +102,19 @@ public:
         }
     }
         
-    void testOdeSolverForHH52WithRegularStimulus(void)
+    void xtestOdeSolverForHH52WithRegularStimulus(void)
     {
         /*
          * Set stimulus
          */   
-        double magnitude_of_stimulus = -20.0;  
-        double duration_of_stimulus  = 0.5 ;  // ms                     
-        double frequency = 1.0/50.0;
-        double when = 40.0;                                      
-        RegularStimulus stimulus(magnitude_of_stimulus,
-                                 duration_of_stimulus,
-                                 frequency,
-                                 when);
+        double magnitude_stimulus = -20.0;  // uA/cm2
+        double duration_stimulus = 0.5 ;  // ms
+        double frequency_stimulus = 0.0;   // Only one stimulus
+        double start_stimulus = 10.0;   // ms
+        RegularStimulus stimulus(magnitude_stimulus,
+                                 duration_stimulus,
+                                 frequency_stimulus,
+                                 start_stimulus);
 
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
         
@@ -156,11 +135,14 @@ public:
         /*
          * Set stimulus
          */             
-        double magnitude = 1.0;  
-        double duration  = 0.5 ;  // ms                     
-        double frequency = 1.0/500.0;
-        double start_stimulus = 40.0;                 
-        RegularStimulus stimulus(magnitude, duration, frequency, start_stimulus); 
+        double magnitude_stimulus = -80.0;   // dimensionless
+        double duration_stimulus = 0.5 ;  // ms                     
+        double frequency_stimulus = 0.0;   // Only one stimulus
+        double start_stimulus = 0.0;   // ms
+        RegularStimulus stimulus(magnitude_stimulus,
+                                 duration_stimulus,
+                                 frequency_stimulus,
+                                 start_stimulus); 
 
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&stimulus);
         
