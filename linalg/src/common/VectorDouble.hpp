@@ -38,6 +38,13 @@ class VectorDouble
           VectorDouble VectorProduct(const VectorDouble& rOtherVector);
           friend VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector);
           double L2Norm( void );
+          
+          c_vector<double, 1> GetUblasHandle1( void ) const;
+          c_vector<double, 2> GetUblasHandle2( void ) const;
+          c_vector<double, 3> GetUblasHandle3( void ) const;
+          c_vector<double, 4> GetUblasHandle4( void ) const;
+          
+          
 
 };
 

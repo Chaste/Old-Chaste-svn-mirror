@@ -142,6 +142,43 @@ class TestVectorDouble : public CxxTest::TestSuite
 		A(0)=3; A(1)=4;
 		TS_ASSERT_DELTA(A.L2Norm(), 5, 0.000001);
 	}
+    
+    /**
+     * The following code tests conversion between VectorDouble and
+     * c_vector<double,n> to allow us to use native ublas calls
+     */
+     
+     void TestConvertVectorDoubleToUblas()
+     {
+        VectorDouble z(1);
+        z(0)=3;
+        c_vector<double, 1> z_ublas_vector = z.GetUblasHandle1();
+        TS_ASSERT_EQUALS(z(0), z_ublas_vector(0));
+        
+        VectorDouble a(2);
+        a(0)=3; a(1)=4;
+        c_vector<double, 2> a_ublas_vector = a.GetUblasHandle2();
+        TS_ASSERT_EQUALS(a(0), a_ublas_vector(0));
+        TS_ASSERT_EQUALS(a(1), a_ublas_vector(1));
+        
+        VectorDouble b(3);
+        b(0)=3; b(1)=4; b(2)=10;
+        c_vector<double, 3> b_ublas_vector = b.GetUblasHandle3();
+        TS_ASSERT_EQUALS(b(0), b_ublas_vector(0));
+        TS_ASSERT_EQUALS(b(1), b_ublas_vector(1));
+        TS_ASSERT_EQUALS(b(2), b_ublas_vector(2));
+        
+        VectorDouble c(4);
+        c(0)=3; c(1)=4; c(2)=10; c(3)=6;
+        c_vector<double, 4> c_ublas_vector = c.GetUblasHandle4();
+        TS_ASSERT_EQUALS(c(0), c_ublas_vector(0));
+        TS_ASSERT_EQUALS(c(1), c_ublas_vector(1));
+        TS_ASSERT_EQUALS(c(2), c_ublas_vector(2));
+        TS_ASSERT_EQUALS(c(3), c_ublas_vector(3));
+        
+     }
+        
+    
 }; 
 
 #endif //_TESTVECTORDOUBLE_HPP_
