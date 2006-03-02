@@ -1,6 +1,10 @@
 #ifndef _TESTMONODOMAINDG0ASSEMBLER_HPP_
 #define _TESTMONODOMAINDG0ASSEMBLER_HPP_
 
+// Element.hpp includes the Boost ublas objects - these need to
+// be included early...  We think.  We're not that sure.
+#include "Element.hpp"
+
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include <vector>

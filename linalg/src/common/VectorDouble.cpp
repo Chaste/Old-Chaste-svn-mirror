@@ -1,174 +1,303 @@
 #include "VectorDouble.hpp"
-#include "Exception.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
 #include <cassert>
 #include <iostream>
 #include <math.h>
 
-/**
- * Default constructor.
- * 
- * This constructor exists so that we can allocate a std::vector<VectorDouble>
- * with a given number of elements.
- * 
- * Note that we don't know what size this VectorDouble will be, so we can't
- * allocate any memory for it.  Hence we set our size to -1, to ensure that
- * an error will be given if this object is used as though it were a normal
- * VectorDouble.  It shouldn't be, because default elements of the std::vector
- * will be replaced by 'real' VectorDouble objects.
- */
-VectorDouble::VectorDouble()
-{
-	mSize = -1;
-}
+//VectorDouble::VectorDouble()
+//{
+//    mSize = -1;
+//}
 
 VectorDouble::VectorDouble(int Size)
 {
-	assert(Size > 0); 
+    assert(Size > 0);
+    using namespace boost::numeric::ublas;
     
-    switch (Size) {
+    mSize = Size;
+    
+    switch (Size)
+    {
         case 1:
+            mpVectorOf1 = new c_vector<double,1>(1); 
             break;
         case 2:
-            break;
+            mpVectorOf2 = new c_vector<double,2> (2); 
+            break; 
         case 3:
-            break;
+            mpVectorOf3 = new c_vector<double,3> (3); 
+            break; 
         case 4:
-            break;
+            mpVectorOf4 = new c_vector<double,4> (4); 
+            break; 
+        
         default:
-            std::cout << "Invalid vector size: " << Size << std::endl;
-            throw Exception("Invalid vector size");
+        // Vector biger than  4 Throw Exception
+        throw("Vector size larger than 4");
+            break;
     }
-    
-	mSize = Size;
-	mElementArray = new double [mSize];
-	
-	for (int i=0; i<mSize; i++)
-	{
-		mElementArray[i] = 0.0;
-	}
 }
 
 VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
 {
-	mSize = rOtherVector.mSize;
-	mElementArray = new double [mSize];
-	
-	for (int i=0; i<mSize; i++)
-	{
-		mElementArray[i] = rOtherVector.mElementArray[i];
-	}
+    mSize = rOtherVector.mSize;
+    
+    switch (mSize)
+    {
+        case 1:
+             mpVectorOf1 = new c_vector<double,1>(*(rOtherVector.mpVectorOf1)); 
+             break;
+        case 2:
+             mpVectorOf2= new c_vector<double,2>(*(rOtherVector.mpVectorOf2)); 
+             break; 
+        case 3:
+             mpVectorOf3 = new c_vector<double,3>(*(rOtherVector.mpVectorOf3));         
+             break; 
+        case 4:
+             mpVectorOf4 = new c_vector<double,4>(*(rOtherVector.mpVectorOf4));         
+             break; 
+        
+        default:
+        // Vector biger than  4 Throw Exception
+        throw("Vector size larger than 4");
+            break;
+    }
+    
+    
 }
 
 VectorDouble::~VectorDouble()
 {
-	delete[] mElementArray;
-}
-
-VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
-{
-	assert(mSize == rOtherVector.mSize);
-	for (int i=0; i<mSize; i++)
-	{
-		mElementArray[i] = rOtherVector.mElementArray[i];
-	}
-	return *this;
-}
-
-double VectorDouble::dot(const VectorDouble &rOtherVector) const
-{
-	assert(mSize == rOtherVector.Size());
-	double product = 0.0;
-	for (int i=0; i<mSize; i++)
-	{
-		product += mElementArray[i] * rOtherVector(i);
-	}
-	return product;
-}
-
+    switch (mSize)
+    {
+        case 1:
+            delete (mpVectorOf1);
+            break;
+        case 2:
+            delete (mpVectorOf2);
+            break;
+        case 3:
+            delete (mpVectorOf3);
+            break;
+        case 4:
+            delete (mpVectorOf4);
+            break;
+        default:
+        // Vector biger than  4 Throw Exception
+        throw("Vector size larger than 4");
+            break;
+    }        
+}    
+    
 double& VectorDouble::operator()(int entry) const
 {
-	assert(entry > -1);
-	assert(entry < mSize);
-	return mElementArray[entry];
+    assert(entry > -1);
+    assert(entry < mSize);
+    
+    switch(mSize) {
+        case 1:
+            return (*mpVectorOf1) (entry);
+        case 2:
+            return (*mpVectorOf2) (entry); 
+        case 3:
+            return (*mpVectorOf3) (entry);   
+        case 4:
+            return (*mpVectorOf4) (entry);   
+        default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
+
 }
+
+    
+VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
+{
+    assert( mSize == rOtherVector.mSize);
+    switch(mSize) {
+        case 1:
+            *mpVectorOf1=*(rOtherVector.mpVectorOf1);
+            break;
+        case 2:
+            *mpVectorOf2=*(rOtherVector.mpVectorOf2);
+            break;
+        case 3:
+            *mpVectorOf3=*(rOtherVector.mpVectorOf3);
+            break;
+        case 4:
+            *mpVectorOf4=*(rOtherVector.mpVectorOf4);
+            break;
+        default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
+           
+}
+   
+
+
+VectorDouble VectorDouble::operator+(const VectorDouble& rSomeVector)
+{
+    assert(mSize==rSomeVector.mSize);
+    VectorDouble result(mSize);
+    
+    switch(mSize) {
+        case 1:
+            *(result.mpVectorOf1)=*mpVectorOf1 + *(rSomeVector.mpVectorOf1);
+            break;
+        case 2:
+            *(result.mpVectorOf2)=*mpVectorOf2 + *(rSomeVector.mpVectorOf2);
+            break;
+        case 3:
+            *(result.mpVectorOf3)=*mpVectorOf3 + *(rSomeVector.mpVectorOf3);
+            break;
+        case 4:
+            *(result.mpVectorOf4)=*mpVectorOf4 + *(rSomeVector.mpVectorOf4);
+            break;
+        default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
+    return result;
+}
+
+
+VectorDouble VectorDouble::operator-(const VectorDouble& rSomeVector)
+{
+    assert(mSize==rSomeVector.mSize);
+    VectorDouble result(mSize);
+    
+    switch(mSize) {
+        case 1:
+            *(result.mpVectorOf1)=*mpVectorOf1 - *(rSomeVector.mpVectorOf1);
+            break;
+        case 2:
+            *(result.mpVectorOf2)=*mpVectorOf2 - *(rSomeVector.mpVectorOf2);
+            break;
+        case 3:
+            *(result.mpVectorOf3)=*mpVectorOf3 - *(rSomeVector.mpVectorOf3);
+            break;
+        case 4:
+            *(result.mpVectorOf4)=*mpVectorOf4 - *(rSomeVector.mpVectorOf4);
+            break;
+        default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
+    return result;
+}
+
 
 int VectorDouble::Size(void) const
 {
-	return mSize;
+    return mSize;
 }
 
-void VectorDouble::ResetToZero(void)
+double VectorDouble::dot(const VectorDouble& rSomeVector) const
 {
-	for (int i=0; i<mSize; i++)
-	{
-		mElementArray[i]=0.0;
-	}
+    assert(mSize==rSomeVector.mSize);
+    
+    switch(mSize) {
+        case 1:
+            return inner_prod(*(mpVectorOf1), *rSomeVector.mpVectorOf1);
+        case 2:
+            return inner_prod(*(mpVectorOf2), *rSomeVector.mpVectorOf2);
+        case 3:
+            return inner_prod(*(mpVectorOf3), *rSomeVector.mpVectorOf3);
+        case 4:
+            return inner_prod(*(mpVectorOf4), *rSomeVector.mpVectorOf4);
+        default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
 }
+
+        
+void VectorDouble::ResetToZero( void )
+{
+    switch(mSize) {
+        case 1:
+           *(mpVectorOf1) = zero_vector<double>(1);
+           break;
+        case 2:
+           *(mpVectorOf2) = zero_vector<double>(2);
+           break;
+        case 3:
+           *(mpVectorOf3) = zero_vector<double>(3);
+           break;
+        case 4:
+           *(mpVectorOf4) = zero_vector<double>(4);
+           break;
+        default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
+    
+}
+
 
 VectorDouble VectorDouble::VectorProduct(const VectorDouble& rSomeVector)
 {
-	assert(mSize==3);
-	assert(rSomeVector.Size()==3);
-	
-	VectorDouble result(3);
-	
-	double x1=mElementArray[0];
-	double y1=mElementArray[1];
-	double z1=mElementArray[2];
-	double x2=rSomeVector(0);
-	double y2=rSomeVector(1);
-	double z2=rSomeVector(2);
-	
-	result(0)=y1*z2-z1*y2;
-	result(1)=z1*x2-x1*z2;
-	result(2)=x1*y2-y1*x2;
-	
-	return result;
+    //This is a cross-product
+    //only implemented for 3-vectors
+    assert(mSize==3);
+    assert(rSomeVector.Size()==3);
+    
+    VectorDouble result(3);
+    
+    double x1=(*mpVectorOf3)(0);
+    double y1=(*mpVectorOf3)(1);
+    double z1=(*mpVectorOf3)(2);
+    double x2=rSomeVector(0);
+    double y2=rSomeVector(1);
+    double z2=rSomeVector(2);
+    
+    result(0)=y1*z2-z1*y2;
+    result(1)=z1*x2-x1*z2;
+    result(2)=x1*y2-y1*x2;
+    
+    return result;
 }
+
+
+
 
 VectorDouble VectorDouble::operator*(double scalar)
 {
-	VectorDouble result(mSize);
-	for (int i=0; i<mSize; i++)
-	{
-		result(i)=scalar*mElementArray[i];
-	}
-	return result;
+    VectorDouble result(mSize);
+    for (int i=0; i<mSize; i++)
+    {
+        result(i)=scalar * (*this)(i);
+    }
+    return result;
 }
 
 VectorDouble operator*(double scalar, const VectorDouble& rSomeVector)
 {
-	VectorDouble result(rSomeVector.Size());
-	for (int i=0; i<rSomeVector.Size(); i++)
-	{
-		result(i)=scalar*rSomeVector(i);
-	}
-	return result;
+    VectorDouble result(rSomeVector.Size());
+    for (int i=0; i<rSomeVector.Size(); i++)
+    {
+        result(i)=scalar*rSomeVector(i);
+    }
+    return result;
 }
 
-VectorDouble VectorDouble::operator+(const VectorDouble& rSomeVector1)
-{
-	assert(this->Size()==rSomeVector1.Size());
-	VectorDouble result(this->Size());
-	for (int i=0; i<this->Size(); i++)
-	{
-		result(i)=mElementArray[i]+rSomeVector1(i);
-	}
-	return result;
-}
 
-VectorDouble VectorDouble::operator-(const VectorDouble& rSomeVector1)
+double VectorDouble::L2Norm( void )
 {
-	assert(this->Size()==rSomeVector1.Size());
-	VectorDouble result(this->Size());
-	for (int i=0; i<this->Size(); i++)
-	{
-		result(i)=mElementArray[i]-rSomeVector1(i);
-	}
-	return result;
-}
-
-double VectorDouble::L2Norm(void)
-{
-	return sqrt((*this).dot(*this));
+   switch(mSize) {
+        case 1:
+           return norm_2(*mpVectorOf1);
+        case 2:         
+           return norm_2(*mpVectorOf2);
+        case 3:
+           return norm_2(*mpVectorOf3);
+        case 4:
+           return norm_2(*mpVectorOf4);
+         default:
+            // Vector biger than  4 Throw Exception
+            throw("Vector size larger than 4");
+    }
+    
 }

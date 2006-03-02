@@ -293,7 +293,8 @@ class TestMatrixDouble : public CxxTest::TestSuite
 		c(1) = 2;
 		c(2) = 3;
 		matlab_calc_b(0) = 30.4;
-		matlab_calc_b(1) = 41.0;
+        matlab_calc_b(1) = 41.0;
+        matlab_calc_b(2) = 0.0;
 		b = c * A;
 		for( int i = 0; i < 3; i++)
 		{
