@@ -302,28 +302,28 @@ double VectorDouble::L2Norm( void )
     
 }
 
-c_vector<double, 1> VectorDouble::GetUblasHandle1( void ) const
+c_vector<double, 1>* VectorDouble::GetUblasHandle1( void ) const
 {
        assert (mSize==1);         
-       return *mpVectorOf1;
+       return mpVectorOf1;
 }
 
-c_vector<double, 2> VectorDouble::GetUblasHandle2( void ) const
+c_vector<double, 2>* VectorDouble::GetUblasHandle2( void ) const
 {
        assert (mSize==2);
-       return *mpVectorOf2;
+       return mpVectorOf2;
 }
 
-c_vector<double, 3> VectorDouble::GetUblasHandle3( void ) const
+c_vector<double, 3>* VectorDouble::GetUblasHandle3( void ) const
 {
        assert (mSize==3);
-       return *mpVectorOf3;
+       return mpVectorOf3;
 }
 
-c_vector<double, 4> VectorDouble::GetUblasHandle4( void ) const
+c_vector<double, 4>* VectorDouble::GetUblasHandle4( void ) const
 {
        assert (mSize==4);
-       return *mpVectorOf4;
+       return mpVectorOf4;
 }
 
 

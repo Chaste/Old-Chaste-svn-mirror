@@ -80,7 +80,7 @@ public:
         FaceStimulus3D face_stimulus_3D;
         
         MonodomainProblem<3> monodomainProblem("mesh/test/data/3D_0_to_1mm_6000_elements",
-                                               0.1,   // ms
+                                               5,  //0.1,   // ms
                                                "testoutput/MonoDg03dWithFaceStimulus",
                                                "NewMonodomainLR91_3dWithFaceStimulus",
                                                &face_stimulus_3D);

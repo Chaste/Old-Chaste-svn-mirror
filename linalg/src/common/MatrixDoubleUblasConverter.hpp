@@ -20,21 +20,21 @@ public:
      * Convert a MatrixDouble to c_matrix<double,DIM,DIM>
      * where 1<=DIM<=4.
      ***/
-    c_matrix<double, DIM, DIM> ConvertToUblas(MatrixDouble &matrixDouble)
+    c_matrix<double, DIM, DIM>* ConvertToUblas(MatrixDouble &matrixDouble)
     {
     switch (DIM)
         {
         case 1:
-            return matrixDouble.GetUblasHandle1();
+            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle1();
             break;
         case 2:
-            return matrixDouble.GetUblasHandle2();
+            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle2();
             break;
         case 3:
-            return matrixDouble.GetUblasHandle3();
+            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle3();
             break;      
         case 4:
-            return matrixDouble.GetUblasHandle4();
+            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle4();
             break;
         default:
             assert(0);

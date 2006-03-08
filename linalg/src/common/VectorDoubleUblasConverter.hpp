@@ -21,23 +21,24 @@ public:
      * Convert a VectorDouble to c_vector<double,DIM>
      * where 1<=DIM<=4.
      ***/
-    c_vector<double, DIM> ConvertToUblas(VectorDouble &vectorDouble)
+    c_vector<double, DIM>* ConvertToUblas(VectorDouble &vectorDouble)
     {
     switch (DIM)
         {
         case 1:
-            return vectorDouble.GetUblasHandle1();
+            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle1();
             break;
+        
         case 2:
-            return vectorDouble.GetUblasHandle2();
+            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle2();
             break;
         case 3:
-            return vectorDouble.GetUblasHandle3();
+            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle3();
             break;      
         case 4:
-            return vectorDouble.GetUblasHandle4();
+            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle4();
             break;
-        default:
+       default:
             assert(0);
         }          
     }
