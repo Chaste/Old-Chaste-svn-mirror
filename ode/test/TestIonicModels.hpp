@@ -9,7 +9,6 @@
 
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
-#include "RegularStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
@@ -102,18 +101,16 @@ public:
         }
     }
         
-    void xtestOdeSolverForHH52WithRegularStimulus(void)
+    void testOdeSolverForHH52WithInitialStimulus(void)
     {
         /*
          * Set stimulus
          */   
-        double magnitude_stimulus = -20.0;  // uA/cm2
-        double duration_stimulus = 0.5 ;  // ms
-        double frequency_stimulus = 0.0;   // Only one stimulus
+        double magnitude_stimulus = 20.0;  // uA/cm2
+        double duration_stimulus = 0.5;  // ms
         double start_stimulus = 10.0;   // ms
-        RegularStimulus stimulus(magnitude_stimulus,
+        InitialStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
-                                 frequency_stimulus,
                                  start_stimulus);
 
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
@@ -130,18 +127,16 @@ public:
     }
 
 
-    void testOdeSolverForFHN61WithRegularStimulus(void)
+    void testOdeSolverForFHN61WithInitialStimulus(void)
     {
         /*
          * Set stimulus
          */             
         double magnitude_stimulus = -80.0;   // dimensionless
-        double duration_stimulus = 0.5 ;  // ms                     
-        double frequency_stimulus = 0.0;   // Only one stimulus
+        double duration_stimulus = 0.499999 ;  // ms     //\todo Alan to regenerate                
         double start_stimulus = 0.0;   // ms
-        RegularStimulus stimulus(magnitude_stimulus,
+        InitialStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
-                                 frequency_stimulus,
                                  start_stimulus); 
 
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&stimulus);
@@ -165,7 +160,7 @@ public:
          * Set stimulus
          */
         double magnitude = -80.0;  
-        double duration  = 0.5 ;  // ms                     
+        double duration  = 0.49999  ;  // ms                           
         double when = 100.0; // ms
         InitialStimulus stimulus(magnitude, duration, when); 
         

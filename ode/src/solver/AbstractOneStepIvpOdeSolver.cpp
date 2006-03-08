@@ -71,7 +71,8 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 		
 		solutions.mSolutions.push_back(row);
 		// Push back new time into the time solution vector
-		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
+//		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
+        solutions.mTime.push_back(startTime+(timeindex+1)*timeStep);
 	}
 	
 	// Extra step to get to exactly endTime
