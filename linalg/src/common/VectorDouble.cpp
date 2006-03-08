@@ -304,42 +304,26 @@ double VectorDouble::L2Norm( void )
 
 c_vector<double, 1> VectorDouble::GetUblasHandle1( void ) const
 {
-       if (mSize==1)
-       {         
-           return *mpVectorOf1;
-       } else {
-            throw("GetUblasHandle1 called when vector size was not 1");
-       }
+       assert (mSize==1);         
+       return *mpVectorOf1;
 }
 
 c_vector<double, 2> VectorDouble::GetUblasHandle2( void ) const
 {
-       if (mSize==2)
-       {         
-           return *mpVectorOf2;
-       } else {
-            throw("GetUblasHandle2 called when vector size was not 2");
-       }
+       assert (mSize==2);
+       return *mpVectorOf2;
 }
 
 c_vector<double, 3> VectorDouble::GetUblasHandle3( void ) const
 {
-       if (mSize==3)
-       {         
-           return *mpVectorOf3;
-       } else {
-            throw("GetUblasHandle3 called when vector size was not 3");
-       }
+       assert (mSize==3);
+       return *mpVectorOf3;
 }
 
 c_vector<double, 4> VectorDouble::GetUblasHandle4( void ) const
 {
-       if (mSize==4)
-       {         
-           return *mpVectorOf4;
-       } else {
-            throw("GetUblasHandle4 called when vector size was not 4");
-       }
+       assert (mSize==4);
+       return *mpVectorOf4;
 }
 
 

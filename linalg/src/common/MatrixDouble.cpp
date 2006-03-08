@@ -425,42 +425,26 @@ bool MatrixDouble::IsSquare() const
 
 c_matrix<double, 1,1> MatrixDouble::GetUblasHandle1( void ) const
 {
-       if (mSize==1)
-       {         
-           return *mpMatrixOf1;
-       } else {
-            throw("GetUblasHandle1 called when matrix size was not 1 by 1");
-       }
+       assert (mSize==1);
+       return *mpMatrixOf1;
 }
 
 c_matrix<double, 2,2> MatrixDouble::GetUblasHandle2( void ) const
 {
-       if (mSize==2)
-       {         
-           return *mpMatrixOf2;
-       } else {
-            throw("GetUblasHandle2 called when matrix size was not 2 by 2");
-       }
+       assert (mSize==2);
+       return *mpMatrixOf2;
 }
 
 c_matrix<double, 3,3> MatrixDouble::GetUblasHandle3( void ) const
 {
-       if (mSize==3)
-       {         
-           return *mpMatrixOf3;
-       } else {
-            throw("GetUblasHandle3 called when matrix size was not 3 by 3");
-       }
+       assert (mSize==3);
+       return *mpMatrixOf3;
 }
 
 c_matrix<double, 4,4> MatrixDouble::GetUblasHandle4( void ) const
 {
-       if (mSize==4)
-       {         
-           return *mpMatrixOf4;
-       } else {
-            throw("GetUblasHandle4 called when matrix size was not 4 by 4");
-       }
+       assert (mSize==4);
+       return *mpMatrixOf4;
 }
 
 
