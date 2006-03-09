@@ -94,7 +94,7 @@ public:
     /**
      * Solve the problem
      */
-    void Solve(void)
+    void Solve(const double& rDiffusionCoefficient = 0.0005)
     {
         try
         {
@@ -110,7 +110,11 @@ public:
             // Instantiate PDE object
             MockEulerIvpOdeSolver ode_solver;
             mMonodomainPde = new MonodomainPde<SPACE_DIM>(mMesh.GetNumNodes(), &ode_solver, start_time, big_time_step, small_time_step);
+
+            // Set the diffusion coefficient
         
+            mMonodomainPde->SetDiffusionCoefficient(rDiffusionCoefficient);
+
             // Add initial stim       
             mpStimulus->Apply(mMonodomainPde, &mMesh);
         

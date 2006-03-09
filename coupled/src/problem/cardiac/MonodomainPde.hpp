@@ -16,11 +16,18 @@ const double rMyo = 150;                                // myoplasmic resistance
 const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
 const double RADIUS = 0.00011;                          // radius of cell, cm
 const double LENGTH = 0.01;                             // length of cell, cm
-const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
+//const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
 const double rA = rMyo + rG / LENGTH;//* BETA;
 //const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
 //const double DIFFUSION_CONST = 0.0;
-const double DIFFUSION_CONST = 0.0005;
+//const double DIFFUSION_CONST = 0.0005;
+
+//memfem:
+//const double DIFFUSION_CONST = 0.000019;
+const double BETA = 0.00014;
+
+
+
 /**
  * MonodomainPde class.
  * 
@@ -42,6 +49,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         friend class TestMonodomainPde;
 
         AbstractStimulusFunction* mpZeroStimulus;
+        double mDiffusionCoefficient;
 
         /** The ODE system at each cell. Distributed. */
         std::vector<LuoRudyIModel1991OdeSystem*> mOdeSystemsDistributed;
@@ -56,6 +64,10 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         // Initialise as zero stimulus everywhere.
         mpZeroStimulus = new InitialStimulus(0, 0); 
+
+        // Initialise the diffusion coefficient
+        
+        mDiffusionCoefficient = 0.0005;
 
         // Create all our ODE systems, with a zero stimulus
         int lo=this->mOwnershipRangeLo;
@@ -82,6 +94,14 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     }
     
     /**
+     * Set the diffusion coefficient
+     */
+    void SetDiffusionCoefficient(const double& rDiffusionCoefficient)
+    {
+        mDiffusionCoefficient = rDiffusionCoefficient;
+    }
+    
+    /**
      * This should not be called; use 
      * ComputeLinearSourceTermAtNode instead
      */
@@ -104,7 +124,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         
     MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)
     {
-        return  DIFFUSION_CONST * MatrixDouble::Identity(SPACE_DIM);
+        return  mDiffusionCoefficient * MatrixDouble::Identity(SPACE_DIM);
     }
     
     /** ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
