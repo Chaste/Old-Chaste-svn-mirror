@@ -466,9 +466,10 @@ protected:
      * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
      */
 
-    void SetMatrixIsConstant()
+    void SetMatrixIsConstant(AbstractLinearSolver *pSolver)
     {
         mMatrixIsConstant = true;
+        pSolver->SetMatrixIsConstant();
     }
     
     void DebugWithSolution(Vec sol)

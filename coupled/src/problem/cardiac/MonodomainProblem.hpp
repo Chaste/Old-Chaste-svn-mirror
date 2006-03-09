@@ -133,7 +133,7 @@ public:
         
             // Assembler
             MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
-            monodomain_assembler.SetMatrixIsConstant();
+            monodomain_assembler.SetMatrixIsConstant(&linear_solver);
             
             
             // initial condition;   

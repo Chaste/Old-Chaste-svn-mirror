@@ -25,9 +25,16 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
         PC prec; //Type of pre-conditioner
      
         KSPCreate(PETSC_COMM_WORLD, &mSimpleSolver);
-    
-        KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
-        
+        //See    
+        //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
+        //The preconditioner flag (last argument) in the following calls says
+        //how to reuse the preconditioner on subsequent iterations
+        if (mMatrixIsConstant==true){
+            KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_PRECONDITIONER);
+            
+        } else {
+            KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
+        }
         // Default relative tolerance appears to be 1e-5.  This ain't so great.
         KSPSetTolerances(mSimpleSolver, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         
@@ -58,7 +65,8 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
     	reason_stream << reason;
     	VecDestroy(lhs_vector);    // Delete vec memory, since caller can't do so
     	KSPDestroy(mSimpleSolver); // Likewise for the solver
-    	throw Exception("Linear Solver did not converge. Petsc reason code:"
+    	mLinearSystemKnown=false;  //Start fresh
+        throw Exception("Linear Solver did not converge. Petsc reason code:"
     	                +reason_stream.str()+" .");
     }
    return lhs_vector;

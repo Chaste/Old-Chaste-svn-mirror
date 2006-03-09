@@ -15,6 +15,7 @@ public:
     SimpleLinearSolver()
     {
         mLinearSystemKnown=false;
+        mMatrixIsConstant=false;
     }
     ~SimpleLinearSolver()
     {
@@ -23,10 +24,15 @@ public:
             KSPDestroy(mSimpleSolver);
          }
     }
-        
+    
+    void SetMatrixIsConstant(){
+        mMatrixIsConstant=true;
+    }    
 private:
     bool mLinearSystemKnown;
+    bool mMatrixIsConstant;
     KSP mSimpleSolver;
+    
 };
 
 #endif // _SIMPLELINEARSOLVER_H_

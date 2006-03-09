@@ -95,12 +95,12 @@ public:
    
    
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
         
-        fullSolver.SetMatrixIsConstant();
+        fullSolver.SetMatrixIsConstant(&linear_solver);
 		
 		// Initial condition, u(0,x) = sin(x*pi);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -122,7 +122,7 @@ public:
 		fullSolver.SetTimes(0, t_end, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
 		
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -160,11 +160,11 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), pBoundaryCondition2);
    
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
-        fullSolver.SetMatrixIsConstant();
+        fullSolver.SetMatrixIsConstant(&linear_solver);
 		
 		// initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -184,7 +184,7 @@ public:
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, t_end, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -224,7 +224,7 @@ public:
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
         
     	// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<1,1> fullSolver;
@@ -247,7 +247,7 @@ public:
 
 		fullSolver.SetTimes(0, 0.5, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -280,7 +280,7 @@ public:
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
 
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 		
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -308,7 +308,7 @@ public:
 		fullSolver.SetTimes(0, t_end, 0.001);
 		fullSolver.SetInitialCondition(initial_condition);
 
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -353,7 +353,7 @@ public:
 		}
 	               
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -378,7 +378,7 @@ public:
 		fullSolver.SetTimes(0, t_end, 0.001);
 		fullSolver.SetInitialCondition(initial_condition);
 
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -426,7 +426,7 @@ public:
         }
                    
         // Linear solver
-        SimpleLinearSolver linearSolver;
+        SimpleLinearSolver linear_solver;
     
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -451,7 +451,7 @@ public:
         fullSolver.SetTimes(0, t_end, 0.001);
         fullSolver.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
         
         // Check result 
         double *res;
@@ -518,7 +518,7 @@ public:
 		}
 	           
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -543,7 +543,7 @@ public:
 		fullSolver.SetTimes(0, t_end, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
 
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -613,7 +613,7 @@ public:
 		}
 	           
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -637,7 +637,7 @@ public:
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result
 		double *res;
@@ -720,7 +720,7 @@ public:
 		}
 	           
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -744,7 +744,7 @@ public:
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, t_end, 0.001);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -785,7 +785,7 @@ public:
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
 
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 		
 		// Assembler
 		SimpleDg0ParabolicAssembler<3,3> fullSolver;
@@ -814,7 +814,7 @@ public:
 		double t_end = 0.1;
 		fullSolver.SetTimes(0, t_end, 0.001);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -868,7 +868,7 @@ public:
 		}
 	               
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<3,3> fullSolver;
@@ -893,7 +893,7 @@ public:
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -974,7 +974,7 @@ public:
 		}
 	           
    		// Linear solver
-		SimpleLinearSolver linearSolver;
+		SimpleLinearSolver linear_solver;
 	
 		// Assembler
 		SimpleDg0ParabolicAssembler<3,3> fullSolver;
@@ -1000,7 +1000,7 @@ public:
 		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 		
 		// Check result 
 		double *res;
@@ -1042,7 +1042,7 @@ public:
             iter++;
         }           
         // Linear solver
-        SimpleLinearSolver linearSolver;
+        SimpleLinearSolver linear_solver;
     
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -1054,7 +1054,7 @@ public:
         fullSolver.SetTimes(0, t_end, 0.01);
         fullSolver.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
         
         // Check solution is constant throughout the mesh
         double* result_array;
@@ -1093,7 +1093,7 @@ public:
             iter++;
         }           
         // Linear solver
-        SimpleLinearSolver linearSolver;
+        SimpleLinearSolver linear_solver;
     
         // Assembler
         SimpleDg0ParabolicAssembler<1,1> fullSolver;
@@ -1105,7 +1105,7 @@ public:
         fullSolver.SetTimes(0, t_end, 0.01);
         fullSolver.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 
         // Check solution is constant throughout the mesh
         double* result_array;
@@ -1151,7 +1151,7 @@ public:
         }
 
         // Linear solver
-        SimpleLinearSolver linearSolver;
+        SimpleLinearSolver linear_solver;
         
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> fullSolver;
@@ -1239,7 +1239,7 @@ public:
             time += dt;
             fullSolver.SetTimes(time, time+dt, dt);
             
-            result = fullSolver.Solve(mesh, &pde, bcc, &linearSolver);
+            result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
 
             fullSolver.SetInitialCondition(result);        
             
