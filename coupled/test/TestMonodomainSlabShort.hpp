@@ -91,7 +91,9 @@ public:
         stop=clock();
         double total_time=stop-start;
         
-        TS_ASSERT_LESS_THAN(total_time/CLOCKS_PER_SEC, 18.0);
+   //     TS_ASSERT_LESS_THAN(total_time/CLOCKS_PER_SEC, 18.0);
+     // Change for 5 millisecond simulation time, ought to 2'32''=152 seconds
+        TS_ASSERT_LESS_THAN(total_time/CLOCKS_PER_SEC, 160.0);
         
    //     std::cout<<"Total is "<<total_time/CLOCKS_PER_SEC<<"\n";
         
