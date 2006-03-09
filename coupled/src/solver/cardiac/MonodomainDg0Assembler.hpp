@@ -141,12 +141,15 @@ protected:
         c_vector<double, ELEMENT_DIM+1>* p_b_elem = vector_converter.ConvertToUblas(rBElem);
 
         const int num_nodes = rElement.GetNumNodes();
+        
+        std::vector<double> phi(ELEMENT_DIM+1);
                 
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
-            std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+            rBasisFunction.ComputeBasisFunctionsWithUpdate(quad_point, phi); 
+            //std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
             // std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
             //                                    (quad_point, *inverseJacobian);
 

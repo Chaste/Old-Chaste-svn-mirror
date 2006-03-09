@@ -13,6 +13,7 @@ class QuadraticBasisFunction : public AbstractBasisFunction<ELEM_DIM>
     VectorDouble ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const;
     
     std::vector<double>       ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const;
+    void                      ComputeBasisFunctionsWithUpdate(const Point<ELEM_DIM> &rPoint, std::vector<double> &rBasisValues) const;
     std::vector<VectorDouble> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const;
  
  	std::vector<VectorDouble> ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint,
