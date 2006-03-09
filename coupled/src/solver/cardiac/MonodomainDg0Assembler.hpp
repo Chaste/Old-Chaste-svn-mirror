@@ -135,6 +135,10 @@ protected:
         
         // Initialise element contributions to zero
         rBElem.ResetToZero();
+        
+        // Get ublas handle to rBElem
+        VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter;
+        c_vector<double, ELEMENT_DIM+1>* p_b_elem = vector_converter.ConvertToUblas(rBElem);
 
         const int num_nodes = rElement.GetNumNodes();
                 
@@ -177,10 +181,10 @@ protected:
                 }
                 */ 
                 double vec_integrand_val1 = sourceTerm * phi[row];
-                rBElem(row) += vec_integrand_val1 * wJ;
+                (*p_b_elem)(row) += vec_integrand_val1 * wJ;
 
                 double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi[row];
-                rBElem(row) += vec_integrand_val2 * wJ;
+                (*p_b_elem)(row) += vec_integrand_val2 * wJ;
             }
         }
     }       
