@@ -1,6 +1,8 @@
 #ifndef _TESTMONODOMAINHEART_HPP_
 #define _TESTMONODOMAINHEART_HPP_
 
+#include "Element.hpp"
+
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include <vector>
@@ -9,10 +11,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Node.hpp"
-#include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
@@ -78,7 +80,7 @@ public:
     {
         PointStimulusHeart point_stimulus_heart;
         MonodomainProblem<3> monodomainProblem("mesh/test/data/heart",
-                                               0.1, 
+                                               100, 
                                                "testoutput/MonoDg0Heart",
                                                "MonodomainLR91_Heart",
                                                &point_stimulus_heart,
