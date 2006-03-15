@@ -93,7 +93,7 @@ public:
                                                    "NewMonodomainLR91_1d",
                                                    &point_stimulus_1D);
                                                    
-            monodomainProblem.time_step = time_step;
+            monodomainProblem.SetTimeSteps(time_step, time_step);
             monodomainProblem.Solve();
     
             double* voltage_array;
@@ -220,7 +220,7 @@ public:
                                                    "NewMonodomainLR91_1d",
                                                    &point_stimulus_1D);
                                                    
-            monodomainProblem.time_step = time_step;
+            monodomainProblem.SetTimeSteps( time_step, time_step);
             monodomainProblem.Solve();
     
             double* voltage_array;

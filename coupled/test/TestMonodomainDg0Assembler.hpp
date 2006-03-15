@@ -290,7 +290,7 @@ public:
                                                "testoutput/MonoDg02dWithEdgeStimulus",
                                                "NewMonodomainLR91_2dWithEdgeStimulus",
                                                &edge_stimulus_2D);
-        monodomainProblem.time_step = 0.005;
+        monodomainProblem.SetTimeSteps( 0.005, 0.005);
         monodomainProblem.Solve();
         
         double* voltage_array;

@@ -137,6 +137,15 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
     * Compute the LuoRudyIModel1991OdeSystem model
     */
 
+    /* Hard code the assertions that gating probabilities 
+     * are always in the range [0,1]
+     */
+    assert( 0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0);
+    assert( 0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0);
+    assert( 0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0);
+    
+    
+       
    double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
    double fast_sodium_current_h_gate_alpha_h;

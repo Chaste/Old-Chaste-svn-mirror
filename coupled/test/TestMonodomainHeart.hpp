@@ -88,6 +88,7 @@ public:
                                                true //Debug
                                                );
 
+        monodomainProblem.SetOdeTimeStep(monodomainProblem.GetPdeTimeStep()/2.0);
         monodomainProblem.Solve();
         
         double* currentVoltageArray;

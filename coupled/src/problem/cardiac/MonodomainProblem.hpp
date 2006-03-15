@@ -39,14 +39,15 @@ private:
     AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
     std::string mMeshFilename, mOutputDirectory, mOutputFilenamePrefix;
     bool mContainsInternalFaces;
-
+    double mPdeTimeStep;  //aka big_timestep
+    double mOdeTimeStep;  //aka small_timestep or ickle_timestep(jameso)
+    
 public:
     Vec mCurrentVoltage; // Current solution
     int mLo, mHi;
     MonodomainPde<SPACE_DIM> *mMonodomainPde;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
-    double time_step;
     
     /**
      * Constructor
@@ -78,7 +79,8 @@ public:
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         mSequential = (num_procs == 1);
-        time_step = 0.01; // ms
+        mPdeTimeStep = 0.01; // ms
+        mOdeTimeStep = 0.01; // ms
     }
 
     /**
@@ -103,8 +105,8 @@ public:
         {
             double start_time = 0.0;
         
-            double big_time_step = time_step; 
-            double small_time_step = time_step;
+            //double big_time_step = time_step; 
+            //double small_time_step = time_step/2.0;
         
             // Read mMesh
             TrianglesMeshReader mesh_reader(mMeshFilename, mContainsInternalFaces);
@@ -112,7 +114,7 @@ public:
         
             // Instantiate PDE object
             MockEulerIvpOdeSolver ode_solver;
-            mMonodomainPde = new MonodomainPde<SPACE_DIM>(mMesh.GetNumNodes(), &ode_solver, start_time, big_time_step, small_time_step);
+            mMonodomainPde = new MonodomainPde<SPACE_DIM>(mMesh.GetNumNodes(), &ode_solver, start_time, mPdeTimeStep, mOdeTimeStep);
 
             // Set the diffusion coefficient
         
@@ -205,7 +207,7 @@ public:
             
             while( current_time < mEndTime )
             {
-                monodomain_assembler.SetTimes(current_time, current_time+big_time_step, big_time_step);
+                monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
                 monodomain_assembler.SetInitialCondition( initial_condition );
                 
                 mCurrentVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPde, bcc, &linear_solver);
@@ -268,7 +270,7 @@ public:
                 }
                 
                 mMonodomainPde->ResetAsUnsolvedOdeSystem();
-                current_time += big_time_step;
+                current_time += mPdeTimeStep;
                     
                 big_steps++;
             }
@@ -287,6 +289,36 @@ public:
         {
             std::cout<<e.GetMessage()<<std::endl;   
         }
+    }
+    
+    void SetOdeTimeStep(double odeTimeStep)
+    {
+        assert(0.0 < odeTimeStep && odeTimeStep <= mPdeTimeStep);
+        mOdeTimeStep=odeTimeStep;
+    }
+
+    void SetPdeTimeStep(double pdeTimeStep)
+    {
+        assert(0.0 < pdeTimeStep &&  mOdeTimeStep <= pdeTimeStep);
+        mPdeTimeStep=pdeTimeStep;
+    }
+
+    void SetTimeSteps(double odeTimeStep, double pdeTimeStep)
+    {
+        assert(0.0 < odeTimeStep &&  0.0 < pdeTimeStep &&  odeTimeStep <= pdeTimeStep);
+        mPdeTimeStep=pdeTimeStep;
+        mOdeTimeStep=odeTimeStep;
+    }
+    
+ 
+    double GetOdeTimeStep()
+    {
+        return mOdeTimeStep;   
+    }
+       
+    double GetPdeTimeStep()
+    {
+        return mPdeTimeStep;   
     }
 };
 #endif //_MONODOMAINPROBLEM_HPP_
