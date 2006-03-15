@@ -85,7 +85,7 @@ public:
                                                "MonodomainLR91_Heart",
                                                &point_stimulus_heart,
                                                false, //Internal faces
-                                               true //Debug
+                                               false //Debug
                                                );
 
         monodomainProblem.SetOdeTimeStep(monodomainProblem.GetPdeTimeStep()/2.0);
