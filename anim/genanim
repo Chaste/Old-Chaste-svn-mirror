@@ -23,14 +23,14 @@
 #out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/3D_0_to_1mm
 
 # 3D slab big
-tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/3D_0_to_100mm_6000_elements
-results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg03dSlabBig/NewMonodomainLR91_3dSlabBig
-out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/3D_0_to_100mm
+#tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/3D_0_to_100mm_6000_elements
+#results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg03dSlabBig/NewMonodomainLR91_3dSlabBig
+#out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/3D_0_to_100mm
 
 # heart
-#tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/heart
-#results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg0Heart/MonodomainLR91_Heart
-#out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/heart
+tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/heart
+results_prefix=/home/chaste/eclipse/workspace/Chaste/testoutput/MonoDg0Heart/MonodomainLR91_Heart
+out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/heart
 
 #===========================================================
 

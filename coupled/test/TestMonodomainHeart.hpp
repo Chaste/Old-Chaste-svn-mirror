@@ -40,7 +40,7 @@ public:
     {
         // Nodes to apply stimuus to on apex of heart found from 
         // Tulane data
-        static InitialStimulus stimulus(-600.0, 0.5);
+        static InitialStimulus stimulus(-300.0, 0.5);
         pPde->SetStimulusFunctionAtNode(37484-1, &stimulus); 
         pPde->SetStimulusFunctionAtNode(37499-1, &stimulus); 
         pPde->SetStimulusFunctionAtNode(37777-1, &stimulus); 
