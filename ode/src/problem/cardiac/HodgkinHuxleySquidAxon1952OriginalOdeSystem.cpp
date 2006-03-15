@@ -92,13 +92,28 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
    double potassium_channel_E_K = membrane_E_R-12.0;
    double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
    double membrane_V_prime = -(-membrane_i_Stim+sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L)/membrane_Cm;
-   double potassium_channel_n_gate_alpha_n = -0.01*(membrane_V+65.0)/(exp(-(membrane_V+65.0)/10.0)-1.0);
+   
+   double potassium_channel_n_gate_alpha_n;
+   if (-65.0001<membrane_V && membrane_V<-64.9999)
+   {
+       potassium_channel_n_gate_alpha_n = 0.1;
+   } else {
+       potassium_channel_n_gate_alpha_n = -0.01*(membrane_V+65.0)/(exp(-(membrane_V+65.0)/10.0)-1.0);
+   }
+   
    double potassium_channel_n_gate_beta_n = 0.125*exp((membrane_V+75.0)/80.0);
    double potassium_channel_n_gate_n_prime = potassium_channel_n_gate_alpha_n*(1.0-potassium_channel_n_gate_n)-potassium_channel_n_gate_beta_n*potassium_channel_n_gate_n;
    double sodium_channel_h_gate_alpha_h = 0.07*exp(-(membrane_V+75.0)/20.0);
    double sodium_channel_h_gate_beta_h = 1.0/(exp(-(membrane_V+45.0)/10.0)+1.0);
    double sodium_channel_h_gate_h_prime = sodium_channel_h_gate_alpha_h*(1.0-sodium_channel_h_gate_h)-sodium_channel_h_gate_beta_h*sodium_channel_h_gate_h;
-   double sodium_channel_m_gate_alpha_m = -0.1*(membrane_V+50.0)/(exp(-(membrane_V+50.0)/10.0)-1.0);
+
+   double sodium_channel_m_gate_alpha_m;
+   if (-50.0001<membrane_V && membrane_V<-49.9999)
+   {
+       sodium_channel_m_gate_alpha_m = 1;
+   } else {
+       sodium_channel_m_gate_alpha_m = -0.1*(membrane_V+50.0)/(exp(-(membrane_V+50.0)/10.0)-1.0);
+   }
    double sodium_channel_m_gate_beta_m = 4.0*exp(-(membrane_V+75.0)/18.0);
    double sodium_channel_m_gate_m_prime = sodium_channel_m_gate_alpha_m*(1.0-sodium_channel_m_gate_m)-sodium_channel_m_gate_beta_m*sodium_channel_m_gate_m;
 
