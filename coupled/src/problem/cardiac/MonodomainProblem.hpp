@@ -33,6 +33,7 @@ private:
      * Flag that is true when running on one processor
      */
     bool mSequential; 
+    bool mDebugOn;
     
     double mEndTime;
     AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
@@ -63,14 +64,16 @@ public:
                       const std::string &rOutputDirectory,
                       const std::string &rOutputFilenamePrefix,
                       AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus,
-                      const bool& rContainsInternalFaces = true)
+                      const bool& rContainsInternalFaces = true,
+                      const bool& rDebug = false)
     : mMeshFilename(rMeshFilename),
       mEndTime(rEndTime),
       mOutputDirectory(rOutputDirectory),
       mOutputFilenamePrefix(rOutputFilenamePrefix),
       mpStimulus(rStimulus),
       mMonodomainPde(NULL),
-      mContainsInternalFaces(rContainsInternalFaces)
+      mContainsInternalFaces(rContainsInternalFaces),
+      mDebugOn(rDebug)
     {
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
@@ -221,13 +224,49 @@ public:
                     VecGetArray(mCurrentVoltage, &p_current_voltage);
         
                     p_test_writer->PutVariable(time_var_id, current_time); 
+                    
                     for(int j=0; j<mMesh.GetNumNodes(); j++) 
                     {
                         p_test_writer->PutVariable(voltage_var_id, p_current_voltage[j], j);    
-                    }          
+                    }
+                   
+                   if (mDebugOn==true){
+                       double max_voltage=p_current_voltage[0];
+                       int max_index=0;
+                       for(int j=0; j<mMesh.GetNumNodes(); j++) 
+                        {
+                            if (p_current_voltage[j]>max_voltage){
+                                max_voltage=p_current_voltage[j];
+                                max_index=j;
+                            }
+                        } 
+                        std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";          
+                   }
                     VecRestoreArray(mCurrentVoltage, &p_current_voltage); 
                 }
-         
+                
+                if (mDebugOn==true)
+                {
+                    odeVariablesType ode_vars;
+                    int node_number;
+                    
+                    node_number=37876;
+                    ode_vars = mMonodomainPde->GetOdeVarsAtNode(node_number);
+                    std::cout<<"At time "<<current_time<<" node "<<node_number<<":\t"; 
+                    for (int i=0; i<ode_vars.size(); i++){
+                        std::cout<<"("<<i<<") "<<ode_vars[i]<<"\t";   
+                    }
+                    std::cout<<std::endl;
+                    
+                    node_number=37877;
+                    ode_vars = mMonodomainPde->GetOdeVarsAtNode(node_number);
+                    std::cout<<"At time "<<current_time<<" node "<<node_number<<":\t"; 
+                    for (int i=0; i<ode_vars.size(); i++){
+                        std::cout<<"("<<i<<") "<<ode_vars[i]<<"\t";   
+                    }
+                    std::cout<<std::endl;
+                }
+                
                 mMonodomainPde->ResetAsUnsolvedOdeSystem();
                 current_time += big_time_step;
                     

@@ -84,7 +84,9 @@ public:
                                                "testoutput/MonoDg0Heart",
                                                "MonodomainLR91_Heart",
                                                &point_stimulus_heart,
-                                               false);
+                                               false, //Internal faces
+                                               true //Debug
+                                               );
 
         monodomainProblem.Solve();
         
