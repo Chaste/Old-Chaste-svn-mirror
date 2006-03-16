@@ -71,7 +71,7 @@ public:
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
-        monodomainProblem.time_step = 0.01; // ms
+        monodomainProblem.SetTimeSteps(0.01, 0.01); // ms
         monodomainProblem.Solve();
         
         double* currentVoltageArray;
@@ -139,7 +139,7 @@ public:
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
-        monodomainProblem.time_step = 0.002; // ms
+        monodomainProblem.SetTimeSteps(0.002, 0.002); // ms
         monodomainProblem.Solve();
         
         double* currentVoltageArray;
@@ -204,7 +204,7 @@ public:
                                                "testoutput/MonoDg01d",
                                                "NewMonodomainLR91_1d",
                                                &point_stimulus_1D);
-        monodomainProblem.time_step = 0.01; // ms
+        monodomainProblem.SetTimeSteps(0.01, 0.01); // ms
         monodomainProblem.Solve();
         
         double* currentVoltageArray;
