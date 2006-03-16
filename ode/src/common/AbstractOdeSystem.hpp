@@ -26,6 +26,8 @@ class AbstractOdeSystem
     { 
         return mInitialConditions.size(); 
     };
+    
+    virtual void VerifyVariables(std::vector<double>& odeVars) {}
 };
 
 #endif //_ABSTRACTODESYSTEM_HPP_

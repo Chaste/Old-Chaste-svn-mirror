@@ -30,6 +30,7 @@ class FitzHughNagumo1961OdeSystem : public AbstractOdeSystem
       
       // Compute the RHS of the FitHugh-Nagumo system of ODEs
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+      void VerifyVariables(std::vector<double>& odeVars);
 };
 
 #endif //_FITZHUGHNAGUMO1961ODESYSTEM_HPP_

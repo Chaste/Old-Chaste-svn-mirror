@@ -348,9 +348,12 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
                                          time + big_time_step,
                                          small_time_step,
                                          this->mOdeVarsAtNode[ local_index ]);
- 
-            // extract solution at end time and save in the store 
+                                         
+             // extract solution at end time and save in the store 
             this->mOdeVarsAtNode[ local_index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
+
+            // this tests variables are in the correct range (and maybe resets some if they are)
+            mOdeSystemsDistributed[local_index]->VerifyVariables( this->mOdeVarsAtNode[ local_index ] );                          
   
             double Itotal = pLr91OdeSystem->GetStimulus(time + big_time_step)
                             + GetIIonic( this->mOdeVarsAtNode[ local_index ]);

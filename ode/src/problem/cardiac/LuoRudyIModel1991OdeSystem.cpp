@@ -2,7 +2,7 @@
 #include "AbstractOdeSystem.hpp"
 #include <cmath>
 #include <cassert>
-
+#include <iostream>
 /**
  * Constructor
  */
@@ -139,11 +139,11 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
 
     /* Hard code the assertions that gating probabilities 
      * are always in the range [0,1]
+     * 
      */
     assert( 0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0);
     assert( 0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0);
     assert( 0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0);
-    
     
        
    double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
@@ -256,4 +256,81 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
    returnRHS.push_back(time_dependent_potassium_current_X_gate_X_prime);
 
    return returnRHS;
+}
+
+
+
+void LuoRudyIModel1991OdeSystem::VerifyVariables(std::vector<double>& odeVars)
+{
+    // check h    
+    if(odeVars[0]<0)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nh < 0, reset to 0\n";
+        odeVars[0] = 0;
+    }
+    if(odeVars[0]>1)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nh > 1, reset to 1\n";
+        odeVars[0] = 1;
+    }
+
+    // check j    
+    if(odeVars[1]<0)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nj < 0, reset to 0\n";
+        odeVars[1] = 0;
+    }
+    if(odeVars[1]>1)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nj > 1, reset to 1\n";
+        odeVars[1] = 1;
+    }
+
+    // check h    
+    if(odeVars[2]<0)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nd < 0, reset to 0\n";
+        odeVars[2] = 0;
+    }
+    if(odeVars[2]>1)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nd > 1, reset to 1\n";
+        odeVars[2] = 1;
+    }
+    
+    // check d    
+    if(odeVars[5]<0)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nd < 0, reset to 0\n";
+        odeVars[5] = 0;
+    }
+    if(odeVars[5]>1)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nd > 1, reset to 1\n";
+        odeVars[5] = 1;
+    }
+    
+    // check f    
+    if(odeVars[6]<0)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nf < 0, reset to 0\n";
+        odeVars[6] = 0;
+    }
+    if(odeVars[6]>1)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nf > 1, reset to 1\n";
+        odeVars[6] = 1;
+    }
+    
+    // check X    
+    if(odeVars[7]<0)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nX < 0, reset to 0\n";
+        odeVars[7] = 0;
+    }
+    if(odeVars[7]>1)
+    {
+        std::cout << "\nWARNING: Lr91::VerifyVariables\nX > 1, reset to 1\n";
+        odeVars[7] = 1;
+    }
 }

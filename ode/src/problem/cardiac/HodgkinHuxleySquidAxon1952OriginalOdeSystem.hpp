@@ -29,6 +29,7 @@ class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractOdeSystem
 
       // This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+      void VerifyVariables(std::vector<double>& odeVars);
 };
 
 #endif //_HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_

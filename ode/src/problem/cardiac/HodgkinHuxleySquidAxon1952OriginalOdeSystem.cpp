@@ -126,3 +126,8 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
 
    return returnRHS;
 }
+
+void HodgkinHuxleySquidAxon1952OriginalOdeSystem::VerifyVariables(std::vector<double>& odeVars)
+{
+    //\todo code VerifyVariables in FHN1961OdeSystem
+}
