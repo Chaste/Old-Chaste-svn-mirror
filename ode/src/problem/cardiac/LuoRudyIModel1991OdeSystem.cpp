@@ -141,9 +141,9 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
      * are always in the range [0,1]
      * 
      */
-    assert( 0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0);
-    assert( 0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0);
-    assert( 0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0);
+    //assert( 0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0);
+    //assert( 0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0);
+    //assert( 0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0);
     
        
    double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);

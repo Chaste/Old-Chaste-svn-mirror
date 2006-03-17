@@ -68,6 +68,6 @@ cat ${tetgen_mesh_prefix}.face | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t
 # Create the scalar data
 
 rm -f ${out_prefix}.dat
-for i in ${results_prefix}_*.dat; do
+for i in ${results_prefix}_*0.dat; do
   tail -n +2 $i >> ${out_prefix}.dat
 done
