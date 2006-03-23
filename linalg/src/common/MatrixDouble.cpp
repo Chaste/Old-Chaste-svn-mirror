@@ -34,8 +34,8 @@ MatrixDouble::MatrixDouble(int numRows, int numColumns)
             break; 
         
         default:
-            // Matrix biger than  4 Throw Exception
-            throw("Matrix size larger than 4");
+            // Matrix bigger than  4 Throw Exception
+            throw Exception("Matrix size larger than 4");
             break;
     }
     
@@ -62,8 +62,8 @@ MatrixDouble::MatrixDouble(const MatrixDouble& rOtherMatrix)
              break; 
         
         default:
-            // Matrix biger than  4 Throw Exception
-            throw("Matrix size larger than 4");
+            // Matrix bigger than  4 Throw Exception
+            throw Exception("Matrix size larger than 4");
             break;
     }
     
@@ -88,8 +88,8 @@ MatrixDouble::~MatrixDouble()
             delete (mpMatrixOf4);
             break;
         default:
-            // Matrix biger than  4 Throw Exception
-            throw("Matrix size larger than 4");
+            // Matrix bigger than  4 Throw Exception
+            throw Exception("Matrix size larger than 4");
             break;
     }     
 }
@@ -113,8 +113,8 @@ double& MatrixDouble::operator()(int Row, int Column) const
         case 4:
             return (*mpMatrixOf4) (Row,Column);
         default:
-            // Matrix biger than  4 Throw Exception
-            throw("Matrix size larger than 4");
+            // Matrix bigger than  4 Throw Exception
+            throw Exception("Matrix size larger than 4");
     }
 
 }
@@ -137,8 +137,8 @@ MatrixDouble& MatrixDouble::operator=(const MatrixDouble& rOtherMatrix)
             *mpMatrixOf4=*(rOtherMatrix.mpMatrixOf4);
             break;
       default:
-            // Matrix biger than  4 Throw Exception
-            throw("Matrix size larger than 4");
+            // Matrix bigger than  4 Throw Exception
+            throw Exception("Matrix size larger than 4");
     }
            
 }

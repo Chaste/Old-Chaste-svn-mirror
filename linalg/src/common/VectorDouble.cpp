@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <math.h>
+#include "Exception.hpp"
 
 //VectorDouble::VectorDouble()
 //{
@@ -33,8 +34,8 @@ VectorDouble::VectorDouble(int Size)
             break; 
         
         default:
-        // Vector biger than  4 Throw Exception
-        throw("Vector size larger than 4");
+        // Vector bigger than  4 Throw Exception
+        throw Exception("Vector size larger than 4");
             break;
     }
 }
@@ -59,8 +60,8 @@ VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
              break; 
         
         default:
-        // Vector biger than  4 Throw Exception
-        throw("Vector size larger than 4");
+        // Vector bigger than  4 Throw Exception
+        throw Exception("Vector size larger than 4");
             break;
     }
     
@@ -84,8 +85,8 @@ VectorDouble::~VectorDouble()
             delete (mpVectorOf4);
             break;
         default:
-        // Vector biger than  4 Throw Exception
-        throw("Vector size larger than 4");
+        // Vector bigger than  4 Throw Exception
+        throw Exception("Vector size larger than 4");
             break;
     }        
 }    
@@ -105,8 +106,8 @@ double& VectorDouble::operator()(int entry) const
         case 4:
             return (*mpVectorOf4) (entry);   
         default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
 
 }
@@ -129,8 +130,8 @@ VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
             *mpVectorOf4=*(rOtherVector.mpVectorOf4);
             break;
         default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
            
 }
@@ -156,8 +157,8 @@ VectorDouble VectorDouble::operator+(const VectorDouble& rSomeVector)
             *(result.mpVectorOf4)=*mpVectorOf4 + *(rSomeVector.mpVectorOf4);
             break;
         default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
     return result;
 }
@@ -182,8 +183,8 @@ VectorDouble VectorDouble::operator-(const VectorDouble& rSomeVector)
             *(result.mpVectorOf4)=*mpVectorOf4 - *(rSomeVector.mpVectorOf4);
             break;
         default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
     return result;
 }
@@ -208,8 +209,8 @@ double VectorDouble::dot(const VectorDouble& rSomeVector) const
         case 4:
             return inner_prod(*(mpVectorOf4), *rSomeVector.mpVectorOf4);
         default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
 }
 
@@ -230,8 +231,8 @@ void VectorDouble::ResetToZero( void )
            *(mpVectorOf4) = zero_vector<double>(4);
            break;
         default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
     
 }
@@ -296,8 +297,8 @@ double VectorDouble::L2Norm( void )
         case 4:
            return norm_2(*mpVectorOf4);
          default:
-            // Vector biger than  4 Throw Exception
-            throw("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
     }
     
 }
