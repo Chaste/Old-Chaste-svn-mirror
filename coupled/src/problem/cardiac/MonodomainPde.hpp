@@ -105,7 +105,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
      * This should not be called; use 
      * ComputeLinearSourceTermAtNode instead
      */
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
+    double ComputeLinearSourceTerm(Point<SPACE_DIM> )
     {
         assert(0);
 	    return 0.0;
@@ -115,14 +115,14 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
      * This should not be called; use 
      * ComputeNonlinearSourceTermAtNode instead
      */
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
     {
         assert(0);
 	    return 0.0;
     }
 
         
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)
+    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         return  mDiffusionCoefficient * MatrixDouble::Identity(SPACE_DIM);
     }
@@ -135,20 +135,20 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
      *  the new results for the gating variables, together with the OLD voltage, to calculate and
      *  return the ionic current.
      */
-    double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
+    double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
         return this->solutionCacheReplicated[index];
     }
     
     
-    double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
+    double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& )
     {   
         return 0;
     }
     
     // Capacitance = 1
-    double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
+    double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
         return 1;
     }

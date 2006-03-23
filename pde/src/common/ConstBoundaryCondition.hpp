@@ -38,7 +38,7 @@ public:
      * @param x The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.
      */
-    VectorDouble GetValue( const Point<SPACE_DIM> x) const
+    VectorDouble GetValue( const Point<SPACE_DIM> ) const
     {
         return *mpValue;
     }

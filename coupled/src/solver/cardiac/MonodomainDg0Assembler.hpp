@@ -32,7 +32,7 @@ protected:
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
                            AbstractLinearPde<SPACE_DIM> *pPde,
-                           Vec currentSolution)
+                           Vec )
     {
 		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
 			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
@@ -119,7 +119,7 @@ protected:
     void AssembleOnElementRhsVectorOnly(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                                     VectorDouble &rBElem,
                                     AbstractLinearPde<SPACE_DIM> *pPde,
-                                    Vec currentSolution = NULL)
+                                    Vec )
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);

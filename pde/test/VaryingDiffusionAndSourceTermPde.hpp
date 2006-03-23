@@ -31,7 +31,7 @@ public:
 		return pow(DistanceFromOrigin(x),3);
 	}
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
     {
     	return 0.0;
     }

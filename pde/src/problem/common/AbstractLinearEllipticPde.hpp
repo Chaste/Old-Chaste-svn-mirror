@@ -27,7 +27,7 @@ public:
 	/**
 	 * An elliptic PDE has no time dependence, so the coefficient of du/dt is zero.
 	 */
-	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
+	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
 	{
 		return 0.0;
 	}
