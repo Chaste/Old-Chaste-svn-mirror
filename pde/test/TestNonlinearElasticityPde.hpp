@@ -13,7 +13,7 @@
 #include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "petscvec.h"
+#include <petsc.h>
 
 #include "PetscSetupAndFinalize.hpp"
 

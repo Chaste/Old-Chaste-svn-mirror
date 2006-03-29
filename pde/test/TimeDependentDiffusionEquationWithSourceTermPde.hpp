@@ -14,22 +14,22 @@ class TimeDependentDiffusionEquationWithSourceTermPde : public AbstractLinearPar
 {
 	
 public:
-	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
+	double ComputeLinearSourceTerm(Point<SPACE_DIM> )
 	{
 		return 1.0;
 	}
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
     {
     	return 0.0;
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)
+    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
     	return MatrixDouble::Identity(SPACE_DIM);
     }
     
-	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
+	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
     	return 1;
     }

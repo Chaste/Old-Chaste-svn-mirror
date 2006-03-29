@@ -45,7 +45,7 @@ public:
 
     double operator[] (unsigned i) const
     {
-        assert(i<DIM); 
+        assert((int)i<DIM); 
         return mLocation[i];
     }
     

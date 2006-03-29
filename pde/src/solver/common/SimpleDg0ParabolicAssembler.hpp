@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-#include "petscvec.h"
+#include <petscvec.h>
 
 #include "LinearSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"

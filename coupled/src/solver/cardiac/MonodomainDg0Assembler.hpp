@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include  <vector>
-#include "petscvec.h"
+#include <petscvec.h>
 
 #include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"

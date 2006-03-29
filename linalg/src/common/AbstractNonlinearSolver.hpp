@@ -6,7 +6,7 @@
  * Solve function.
  */
 
-#include "petscsnes.h"
+#include <petscsnes.h>
 
 class AbstractNonlinearSolver
 {

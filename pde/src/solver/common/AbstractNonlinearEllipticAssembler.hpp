@@ -6,8 +6,8 @@
  * for a nonlinear elliptic PDE.
  */ 
   
-#include "petscsnes.h"
-#include "petscvec.h"
+#include <petscsnes.h>
+#include <petscvec.h>
 #include <vector>
 
 #include "AbstractAssembler.hpp"

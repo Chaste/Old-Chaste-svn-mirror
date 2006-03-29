@@ -94,7 +94,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM>
  *     instance) giving the derivative along each axis.
  */
 template <int ELEM_DIM>
-VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const
+VectorDouble LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const Point<ELEM_DIM>&, int basisIndex) const
 {
     VectorDouble gradN(ELEM_DIM);
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);

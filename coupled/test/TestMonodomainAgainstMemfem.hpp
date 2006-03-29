@@ -8,7 +8,7 @@
 #include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petsc.h>
 #include <vector>
 #include <iostream>
 #include <cmath>

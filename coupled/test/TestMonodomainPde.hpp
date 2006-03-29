@@ -22,7 +22,7 @@
 #include "EulerIvpOdeSolver.hpp"
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "petscvec.h"
+#include <petsc.h>
  
 // todo: test Fitzhugh Nagumo PDE 
  

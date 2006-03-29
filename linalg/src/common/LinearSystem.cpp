@@ -4,8 +4,6 @@
 */
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
-#include "petscvec.h"
-#include "petscksp.h"
 #include <iostream>
 
 LinearSystem::LinearSystem(int lhsVectorSize)

@@ -12,7 +12,7 @@ class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 {
 	
 	public:
-	double ComputeLinearSourceTerm(Point<2> p)
+	double ComputeLinearSourceTerm(Point<2> )
 	{
 		return 0;
 	}
@@ -23,18 +23,18 @@ class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
     	return -4*(u*cos(x)*cos(x) + sin(x)*sin(x)*cos(x)*cos(x) + y*y);
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<2> x, double u)
+    MatrixDouble ComputeDiffusionTerm(Point<2> , double u)
     {
     	MatrixDouble I = MatrixDouble::Identity(2);
     	return u*I;
     }
     
-    MatrixDouble ComputeDiffusionTermPrime(Point<2> x, double u)
+    MatrixDouble ComputeDiffusionTermPrime(Point<2> , double )
     {
 		return MatrixDouble::Identity(2);
     }
     
-    double ComputeNonlinearSourceTermPrime(Point<2> p, double u)
+    double ComputeNonlinearSourceTermPrime(Point<2> p, double )
     {
     	return -(cos(p[0])*cos(p[0]));
     }

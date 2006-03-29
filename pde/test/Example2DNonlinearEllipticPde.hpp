@@ -18,23 +18,23 @@ public:
     	return -( 4 + 8*x*x + 8*y*y );
 	}
     
-    double ComputeNonlinearSourceTerm(Point<2> p, double u)
+    double ComputeNonlinearSourceTerm(Point<2> , double )
     {
     	return 0.0;
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<2> x, double u)
+    MatrixDouble ComputeDiffusionTerm(Point<2> , double u)
     {
     	MatrixDouble I = MatrixDouble::Identity(2);
     	return u*I;
     }
     
-    MatrixDouble ComputeDiffusionTermPrime(Point<2> x, double u)
+    MatrixDouble ComputeDiffusionTermPrime(Point<2> , double )
     {
 		return MatrixDouble::Identity(2);
     }
     
-    double ComputeNonlinearSourceTermPrime(Point<2> x, double u)
+    double ComputeNonlinearSourceTermPrime(Point<2> , double )
     {
     	return 0.0;
     }

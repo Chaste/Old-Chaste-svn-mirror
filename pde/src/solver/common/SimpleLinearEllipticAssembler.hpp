@@ -3,7 +3,7 @@
 
 
 #include <vector>
-#include "petscvec.h"
+#include <petscvec.h>
 
 #include "LinearSystem.hpp"
 #include "AbstractLinearEllipticPde.hpp"

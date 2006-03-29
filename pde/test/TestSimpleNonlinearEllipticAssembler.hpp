@@ -7,8 +7,8 @@
 
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
-#include "petscmat.h"
+#include <petsc.h>
+#include <petsc.h>
 #include <vector>
 #include <cmath>
 #include <iostream>
@@ -189,8 +189,7 @@ public:
 	 */
 	void TestComputeJacobianNumerically(void)
 	{	
-		SNES snes;
-		
+				
 		// Set up input vector - not actually used but need to be passed!
 		Vec input;
 		VecCreate(PETSC_COMM_WORLD, &input);
@@ -406,7 +405,7 @@ public:
 		double *ans;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
@@ -460,7 +459,7 @@ public:
 		double *ans;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
@@ -576,7 +575,7 @@ public:
 		double *ans;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
@@ -637,7 +636,7 @@ public:
 		double *ans;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
@@ -692,7 +691,7 @@ public:
 		double *ans;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		int ierr = VecGetArray(answer, &ans);
+ 		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
@@ -747,7 +746,7 @@ public:
 		double *res;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		int ierr = VecGetArray(answer, &res);
+ 		VecGetArray(answer, &res);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			VectorDouble r(2);
@@ -827,7 +826,7 @@ public:
 		double *ans;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		int ierr = VecGetArray(answer, &ans);
+ 		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];

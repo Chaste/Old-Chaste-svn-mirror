@@ -1,8 +1,8 @@
 #ifndef ABSTRACTLINEARSOLVER_H
 #define ABSTRACTLINEARSOLVER_H
 
-#include "petscvec.h"
-#include "petscmat.h"
+#include <petscvec.h>
+#include <petscmat.h>
 
 /**
  * Abstract base class for solvers for linear systems.

@@ -3,8 +3,8 @@
 
 #include "SimpleLinearSolver.hpp"
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
-#include "petscmat.h"
+#include <petsc.h>
+#include <petsc.h>
  
 #include "PetscSetupAndFinalize.hpp"
 

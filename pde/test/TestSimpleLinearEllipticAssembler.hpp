@@ -6,7 +6,7 @@
 #include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petsc.h>
 #include "LinearHeatEquationPde.hpp"
 #include "LinearPdeWithZeroSource.hpp"
 #include "SimpleLinearSolver.hpp"

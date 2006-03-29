@@ -10,7 +10,7 @@
  */
 
 #include <cxxtest/GlobalFixture.h>
-#include "petsc.h"
+#include <petsc.h>
 #include <stdlib.h>
 
 class PetSCSetup : public CxxTest::GlobalFixture

@@ -1,8 +1,9 @@
 #ifndef _LINEARSYSTEM_HPP_
 #define _LINEARSYSTEM_HPP_
 
-#include "petscvec.h"
-#include "petscmat.h"
+#include <petscvec.h>
+#include <petscmat.h>
+#include <petscksp.h>
 class AbstractLinearSolver;
 
 /**

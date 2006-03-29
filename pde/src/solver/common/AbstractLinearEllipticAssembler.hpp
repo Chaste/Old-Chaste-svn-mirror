@@ -8,7 +8,7 @@
  
 
 #include <vector>
-#include "petscvec.h"
+#include <petscvec.h>
 
 #include "AbstractLinearAssembler.hpp"
 #include "AbstractBasisFunction.hpp"

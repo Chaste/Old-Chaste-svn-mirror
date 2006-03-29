@@ -2,9 +2,9 @@
 #define _SIMPLELINEARSOLVER_H_
 
 #include "AbstractLinearSolver.hpp"
-#include "petscvec.h"
-#include "petscmat.h"
-#include "petscksp.h"
+#include <petscvec.h>
+#include <petscmat.h>
+#include <petscksp.h>
 
 class SimpleLinearSolver : public AbstractLinearSolver
 {

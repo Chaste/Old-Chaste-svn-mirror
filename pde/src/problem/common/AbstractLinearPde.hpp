@@ -4,7 +4,7 @@
 #include "MatrixDouble.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
-#include "petscvec.h"
+#include <petscvec.h>
 
 /**
  * AbstractLinearPde class.
@@ -110,6 +110,12 @@ class AbstractLinearPde
                 inputCacheReplicated[global_index]=input_vector_replicated_array[global_index];
             }
         } 
+    }
+    
+    virtual ~AbstractLinearPde() 
+    {
+        
+        
     }
 };
 

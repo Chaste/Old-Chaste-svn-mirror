@@ -7,7 +7,7 @@
 
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petsc.h>
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include <vector>

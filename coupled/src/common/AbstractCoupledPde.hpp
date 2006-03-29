@@ -4,7 +4,7 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include <vector>
-#include "petscvec.h"
+#include <petscvec.h>
 #include <iostream>
 
 typedef std::vector<double> odeVariablesType;

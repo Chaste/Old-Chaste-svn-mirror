@@ -5,7 +5,7 @@
  * Concrete Simple Nonlinear PDE system solver.
  */
 
-#include "petscsnes.h"
+#include <petscsnes.h>
 #include "AbstractNonlinearSolver.hpp"
 
 class SimpleNonlinearSolver : public AbstractNonlinearSolver
