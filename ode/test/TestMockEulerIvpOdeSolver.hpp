@@ -24,7 +24,7 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         OdeSolution solutions;
         
         // Solving the ode problem and writing to solution      
-        solutions = euler_solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.mInitialConditions);
+        solutions = euler_solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.GetInitialConditions());
         
         int last = solutions.GetNumberOfTimeSteps();        
         // Test to see if this worked       
@@ -34,11 +34,11 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         
         TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 1);
         
-        ode_system.mInitialConditions[0] = 0.0;
+        ode_system.SetInitialConditionsComponent(0,0.0);
         
         solutions = euler_solver.Solve(&ode_system, 0.0, 2.0, 0.001, 
-                                       ode_system.mInitialConditions);
-        
+                                       ode_system.GetInitialConditions());
+                                               
         last = solutions.GetNumberOfTimeSteps();        
         // Test to see if this worked       
         testvalue = solutions.mSolutions[last][0];

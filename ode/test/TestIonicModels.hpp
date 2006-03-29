@@ -46,7 +46,7 @@ public:
         int step_per_row = 100;             
                 
         OdeSolution solution = solver.Solve(pOdeSystem, start_time, endTime,
-                                            timeStep, pOdeSystem->mInitialConditions);
+                                            timeStep, pOdeSystem->GetInitialConditions());
         
         /*
          * Write data to a file using ColumnDataWriter

@@ -96,7 +96,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
                                                            start_time,
                                                            start_time + big_time_step,
                                                            small_time_step,
-                                                           ode_system_stimulated.mInitialConditions);  
+                                                           ode_system_stimulated.GetInitialConditions());  
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.mSolutions[ SolutionNewStimulated.mSolutions.size()-1 ];
         
         double value2 = -(-80 + monodomain_pde.GetIIonic(solutionSetStimT_05));
@@ -114,7 +114,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
                                                         start_time,
                                                         start_time + big_time_step,
                                                         small_time_step,
-                                                        ode_system_not_stim.mInitialConditions);  
+                                                        ode_system_not_stim.GetInitialConditions());  
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.mSolutions[ SolutionNewNotStim.mSolutions.size()-1 ];
        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage);

@@ -31,7 +31,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutions;
 		
 	    // Solving the ode problem and writing to solution		
-	    solutions = EulerSolver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.mInitialConditions);
+	    solutions = EulerSolver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.GetInitialConditions());
 		
 		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
@@ -50,7 +50,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutions;
 		
 	    // Solving the ode problem and writing to solution		
-	    solutions = ABSolver.Solve(&ode_system, 0.0, 2.0, 0.01, ode_system.mInitialConditions);
+	    solutions = ABSolver.Solve(&ode_system, 0.0, 2.0, 0.01, ode_system.GetInitialConditions());
 		
 		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
@@ -64,7 +64,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	{
 		TestOde1 ode_system;
 
-        ode_system.mInitialConditions[0] = 2.0;
+        ode_system.SetInitialConditionsComponent(0,2.0);
 	
      	// Initialising the instance of our solver class	
 		RungeKutta2IvpOdeSolver RK2Solver;
@@ -72,7 +72,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutions;
 		
 	    // Solving the ode problem and writing to solution		
-	    solutions = RK2Solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.mInitialConditions);
+	    solutions = RK2Solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.GetInitialConditions());
 		
 		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
@@ -84,8 +84,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	void testRungeKutta4Solver()
 	{
 		TestOde1 ode_system;
-
-        ode_system.mInitialConditions[0] = 2.0;
+        ode_system.SetInitialConditionsComponent(0,2.0);
     
      	// Initialising the instance of our solver class	
 		RungeKutta4IvpOdeSolver RungeKutta4Solver;
@@ -93,7 +92,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutions;
 		
 	    // Solving the ode problem and writing to solution		
-	    solutions = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.mInitialConditions);
+	    solutions = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.GetInitialConditions());
 		
 		int last = solutions.GetNumberOfTimeSteps();		
 	    // Test to see if this worked		
@@ -112,7 +111,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		OdeSolution solutions;
 		
 		// Solving the ode problem and writing to solution
-	    solutions = EulerSolver.Solve(&ode_system, 0.0, 2.0, 0.000037, ode_system.mInitialConditions);
+	    solutions = EulerSolver.Solve(&ode_system, 0.0, 2.0, 0.000037, ode_system.GetInitialConditions());
 		
 		int last = solutions.GetNumberOfTimeSteps();
 		// Test to see if this worked
@@ -131,7 +130,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		EulerIvpOdeSolver euler_solver;
 		OdeSolution solutions_euler;
 
-		solutions_euler = euler_solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutions_euler = euler_solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last = solutions_euler.GetNumberOfTimeSteps();
 		double testvalueEuler = solutions_euler.mSolutions[last][0];
 
@@ -139,7 +138,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta2IvpOdeSolver RungeKutta2Solver;
 		OdeSolution solutionsRungeKutta2;
 
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0];
 
@@ -147,7 +146,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta4IvpOdeSolver RungeKutta4Solver;
 		OdeSolution solutionsRungeKutta4;
 
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last3][0];
 
@@ -155,7 +154,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
 		OdeSolution solutionsAdamsBashforth;
 
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		double testvalueAdamsBashforth = solutionsAdamsBashforth.mSolutions[last4][0];
 
@@ -190,7 +189,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		EulerIvpOdeSolver EulerSolver;
 		OdeSolution solutionsEuler;
 		
-		solutionsEuler = EulerSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsEuler = EulerSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last = solutionsEuler.GetNumberOfTimeSteps();
 		
 		double testvalueEuler[2];
@@ -201,7 +200,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta2IvpOdeSolver RungeKutta2Solver;
 		OdeSolution solutionsRungeKutta2;
 		
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		
 		double testvalueRungeKutta2[2];
@@ -212,7 +211,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta4IvpOdeSolver RungeKutta4Solver;
 		OdeSolution solutionsRungeKutta4;
 		
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		double testvalueRungeKutta4[2];
 		testvalueRungeKutta4[0] = solutionsRungeKutta4.mSolutions[last3][0];
@@ -224,7 +223,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
 		OdeSolution solutionsAdamsBashforth;
 		
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		double testvalueAdamsBashforth[2];
 		testvalueAdamsBashforth[0] = solutionsAdamsBashforth.mSolutions[last4][0];
@@ -269,7 +268,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		EulerIvpOdeSolver EulerSolver;
 		OdeSolution solutionsEuler;
 		
-		solutionsEuler = EulerSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsEuler = EulerSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last = solutionsEuler.GetNumberOfTimeSteps();
 		
 		double testvalueEuler[3];
@@ -281,7 +280,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta2IvpOdeSolver RungeKutta2Solver;
 		OdeSolution solutionsRungeKutta2;
 		
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		
 		double testvalueRungeKutta2[3];
@@ -293,7 +292,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta4IvpOdeSolver RungeKutta4Solver;
 		OdeSolution solutionsRungeKutta4;
 		
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		
 		double testvalueRungeKutta4[3];
@@ -307,7 +306,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
 		OdeSolution solutionsAdamsBashforth;
 		
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		
 		double testvalueAdamsBashforth[3];
@@ -358,7 +357,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		EulerIvpOdeSolver EulerSolver;
 		OdeSolution solutionsEuler;
 		
-		solutionsEuler = EulerSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsEuler = EulerSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last = solutionsEuler.GetNumberOfTimeSteps();
 		double testvalueEuler = solutionsEuler.mSolutions[last][0];
 		
@@ -366,7 +365,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta2IvpOdeSolver RungeKutta2Solver;
 		OdeSolution solutionsRungeKutta2;
 		
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
 		double testvalueRungeKutta2 = solutionsRungeKutta2.mSolutions[last2][0];
 		
@@ -374,7 +373,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		RungeKutta4IvpOdeSolver RungeKutta4Solver;
 		OdeSolution solutionsRungeKutta4;
 		
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
 		double testvalueRungeKutta4 = solutionsRungeKutta4.mSolutions[last3][0];
 		
@@ -382,7 +381,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
 		OdeSolution solutionsAdamsBashforth;
 		
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.mInitialConditions);
+		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, 0.0, 2.0, hValue, ode_system.GetInitialConditions());
 		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
 		double testvalueAdamsBashforth = solutionsAdamsBashforth.mSolutions[last4][0];
 		

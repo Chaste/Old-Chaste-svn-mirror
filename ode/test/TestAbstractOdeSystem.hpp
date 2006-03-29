@@ -24,7 +24,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 		TestOde1 ode1;
 		// Yprime
 		std::vector<double> YPrime;
-        YPrime = ode1.EvaluateYDerivatives(1.0, ode1.mInitialConditions);
+        YPrime = ode1.EvaluateYDerivatives(1.0, ode1.GetInitialConditions());
 		TS_ASSERT_DELTA(YPrime[0],1.0,tol);
 	}
 	
@@ -33,7 +33,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 	{
 		TestOde2 ode2;
 		std::vector<double> YPrime;
-		YPrime = ode2.EvaluateYDerivatives(2.0, ode2.mInitialConditions);
+		YPrime = ode2.EvaluateYDerivatives(2.0, ode2.GetInitialConditions());
 		TS_ASSERT_DELTA(YPrime[0],8.0,tol);
 	}
 	
@@ -41,11 +41,12 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 	{
 		TestOde3 ode3;
 		std::vector<double> YPrime;
-		YPrime = ode3.EvaluateYDerivatives(2.0, ode3.mInitialConditions);
+		YPrime = ode3.EvaluateYDerivatives(2.0, ode3.GetInitialConditions());
 		TS_ASSERT_DELTA(YPrime[0],8.0,tol);
 		TS_ASSERT_DELTA(YPrime[1],16.0,tol);
 	}
 	
+    
 };
 
 

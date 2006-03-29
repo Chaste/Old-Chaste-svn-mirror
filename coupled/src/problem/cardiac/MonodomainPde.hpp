@@ -79,7 +79,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         }
         // Set default initial conditions everywhere
         LuoRudyIModel1991OdeSystem ode_system(mpZeroStimulus);
-        this->SetUniversalInitialConditions(ode_system.mInitialConditions);
+        this->SetUniversalInitialConditions(ode_system.GetInitialConditions());
     }
 
     ~MonodomainPde(void)

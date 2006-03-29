@@ -48,7 +48,7 @@ public:
                                             start_time,
                                             end_time,
                                             time_step,
-                                            lr91_ode_system.mInitialConditions);
+                                            lr91_ode_system.GetInitialConditions());
         
         // Display solution
 //        for (int i=0; i<=solution.GetNumberOfTimeSteps(); i++)
