@@ -1,4 +1,8 @@
 TestMonodomainAgainstMemfem.hpp
+TestMonodomainAgainstMemfemIteration7.hpp
 TestMonodomainConductionVelocity.hpp
+TestMonodomainConductionVelocityIteration7.hpp
 TestMonodomainDg0AssemblerLong.hpp
+TestMonodomainDg0AssemblerLongIteration7.hpp
 TestMonodomainSlab.hpp
+TestMonodomainSlabIteration7.hpp
