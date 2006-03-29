@@ -177,6 +177,22 @@ class GccDebug(Gcc):
     self._cc_flags = '-g'
     self.build_dir = 'debug'
     
+class Coverage(GccDebug):
+  """
+  gcc compiler with options to allow for coverage testing.
+  """
+  def __init__(self):
+    GccDebug.__init__(self)
+    self._cc_flags += ' -fprofile-arcs -ftest-coverage'
+    self._link_flags += ' -fprofile-arcs -ftest-coverage'
+    self.build_dir = 'coverage'
+    self._num_processes = 2
+
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
+    "Run test one 1 processor then on 2 processors"
+    return exefile + ' ' + exeflags + '; mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
+
+
 class Profile(GccDebug):
   """
   gcc compiler with profiling enabled (and optimisation).

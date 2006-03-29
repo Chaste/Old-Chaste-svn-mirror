@@ -137,7 +137,11 @@ if test_summary:
   #for oldfile in os.listdir(output_dir):
   #  os.remove(os.path.join(output_dir, oldfile))
   # Add a summary generator to the list of things for scons to do
-  summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
+  if build_type == 'Coverage':
+    # For a Coverage build, run gcov & summarise instead
+    summary = Builder(action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type)
+  else:
+    summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
   opt = Environment(ENV = {'PATH': os.environ['PATH'],
                            'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
                            'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')})
