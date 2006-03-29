@@ -41,7 +41,7 @@ class AbstractOdeSystem
     
     virtual void VerifyVariables(std::vector<double>& odeVars) {}
     
-    virtual void SetInitialConditions(std::vector<double>& initialConditions) 
+    virtual void SetInitialConditions(std::vector<double> initialConditions) 
     {
         mInitialConditions=initialConditions;
     }
@@ -57,7 +57,11 @@ class AbstractOdeSystem
         return mInitialConditions;
     }
         
-    virtual void SetStateVariables(std::vector<double>& stateVariables) {}
+    void SetStateVariables(std::vector<double> stateVariables) 
+    {
+        assert( mInitialConditions.size() == stateVariables.size() );
+        mStateVariables = stateVariables;
+    }
     
     std::vector<double> GetStateVariables()
     {

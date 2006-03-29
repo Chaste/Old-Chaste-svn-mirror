@@ -22,7 +22,7 @@ AbstractOdeSystem()
    background_current_E_b = -59.87;
    background_current_g_b = 0.03921;
    
-   fast_sodium_current_g_Na = 23.0858;
+   fast_sodium_current_g_Na = 23.0;
    ionic_concentrations_Ki = 145.0;
    ionic_concentrations_Ko = 5.4;
    ionic_concentrations_Nai = 18.0;
