@@ -38,7 +38,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[1], 0.0, 1e-6);
 		
 		// Check first element has the right nodes
-		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetFirstElement();
+		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetElementIteratorBegin();
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 309);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 144);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 310);
@@ -90,7 +90,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(mesh.GetNodeAt(8)->GetPoint()[1], 1.0, 1e-6);
 		
 		// Check all elements have the right nodes
-		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetFirstElement();
+		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetElementIteratorBegin();
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 3);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 0);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 1);
@@ -138,7 +138,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[1], 0.0, 1e-6);
 		
 		// Check first element has the right nodes
-		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetFirstElement();
+		ConformingTetrahedralMesh<DIM,DIM>::MeshIterator it = mesh.GetElementIteratorBegin();
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 309);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 144);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 310);
@@ -216,7 +216,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[2], 0.0, 1e-6);
 		
 		// Check first element has the right nodes
-		ConformingTetrahedralMesh<DIMENSION,DIMENSION>::MeshIterator it = mesh.GetFirstElement();
+		ConformingTetrahedralMesh<DIMENSION,DIMENSION>::MeshIterator it = mesh.GetElementIteratorBegin();
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(0), 17);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(1), 10);
 		TS_ASSERT_EQUALS(it->GetNodeGlobalIndex(2), 16);
@@ -245,8 +245,9 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100);
 		
 		// Check all boundary elements have nodes on the boundary
-		ConformingTetrahedralMesh<DIM,DIM>::BoundaryElementIterator it = mesh.GetFirstBoundaryElement();
-		while (it != mesh.GetLastBoundaryElement())
+		ConformingTetrahedralMesh<DIM,DIM>::BoundaryElementIterator it =
+            mesh.GetBoundaryElementIteratorBegin();
+		while (it != mesh.GetBoundaryElementIteratorEnd())
 		{
 			for (int i=0; i<(*it)->GetNumNodes(); i++)
 			{

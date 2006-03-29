@@ -64,11 +64,13 @@ public:
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
-        iter++;
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+        ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
+        {
+            bcc.AddNeumannBoundaryCondition(*iter, p_zero_condition);
+            iter++;
+        }
 
         // Linear solver
         SimpleLinearSolver linearSolver;
@@ -157,9 +159,8 @@ public:
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-       
-        while(iter < mesh.GetLastBoundaryElement())
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        while(iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
             iter++;

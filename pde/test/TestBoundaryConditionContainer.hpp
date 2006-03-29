@@ -360,7 +360,7 @@ public:
 		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), bc);
 		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), bc);
 		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
-			= mesh.GetLastBoundaryElement();
+			= mesh.GetBoundaryElementIteratorEnd();
 		iter--;
 		bcc.AddNeumannBoundaryCondition(*iter, bc); // 2 to 3
 		iter--;

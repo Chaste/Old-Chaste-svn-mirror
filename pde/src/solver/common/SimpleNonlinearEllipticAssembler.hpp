@@ -372,7 +372,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     
 	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter
-		= mpMesh->GetFirstElement();
+		= mpMesh->GetElementIteratorBegin();
  
 	// Assume all elements have the same number of nodes...
 	const int num_nodes = iter->GetNumNodes();
@@ -380,7 +380,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	VectorDouble b_elem(num_nodes);
  
 	// Iterate over all elements, summing the contribution of each to the residual
-	while (iter != mpMesh->GetLastElement())
+	while (iter != mpMesh->GetElementIteratorEnd())
 	{
 		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
@@ -417,14 +417,14 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	 */
 	// Add the integrals associated with Neumann boundary conditions to the residual
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter
-		= mpMesh->GetFirstBoundaryElement();
+		= mpMesh->GetBoundaryElementIteratorBegin();
 	
-	if (surf_iter != mpMesh->GetLastBoundaryElement())
+	if (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 	{					
 		const int num_surf_nodes = (*surf_iter)->GetNumNodes();
 		VectorDouble b_surf_elem(num_surf_nodes);
 
-		while (surf_iter != mpMesh->GetLastBoundaryElement())
+		while (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 		{
 			const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 			
@@ -675,14 +675,14 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  
  	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
-		mpMesh->GetFirstElement();
+		mpMesh->GetElementIteratorBegin();
 
 	// Assume all elements have the same number of nodes...
 	const int num_nodes = iter->GetNumNodes();
 	// Will hold the contribution to the global jacobian from a single element
 	MatrixDouble a_elem(num_nodes,num_nodes);
 
-	while (iter != mpMesh->GetLastElement())
+	while (iter != mpMesh->GetElementIteratorEnd())
 	{
 		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 

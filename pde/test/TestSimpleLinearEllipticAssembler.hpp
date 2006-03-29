@@ -184,7 +184,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
         // Add Neumann condition to the left hand end
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
         
@@ -230,7 +230,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Note we pass -1 not 1; see comment for AddNeumannBoundaryCondition
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(-1.0);
         // Add Neumann condition to the left hand end
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
         
@@ -312,10 +312,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Boundary conditions
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         // du/dn = -0.5 on r=1
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* pBoundaryCondition;
         pBoundaryCondition = new ConstBoundaryCondition<2>(-0.5);
-        while (iter != mesh.GetLastBoundaryElement())
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
             iter++;
@@ -365,7 +365,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         // Note we need to specify D * du/dx for the Neumann boundary condition
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(7.0*9.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
         
@@ -408,8 +408,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         // u = 0 on r<=1, z=0
         ConstBoundaryCondition<2>* pBoundaryDirichletCondition = new ConstBoundaryCondition<2>(0.0);
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 = mesh.GetFirstBoundaryNode();
-        while (iter1 != mesh.GetLastBoundaryNode())
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 = mesh.GetBoundaryNodeIteratorBegin();
+        while (iter1 != mesh.GetBoundaryNodeIteratorEnd())
         {
             if ((*iter1)->GetPoint()[0] <= 1.0 && fabs((*iter1)->GetPoint()[1]) < 0.0001)
             {
@@ -418,15 +418,15 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             iter1++;
         }
         // du/dn = 0 on r>1, z=0 and on r=0, z>=0
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter2 = mesh.GetFirstBoundaryElement();
-        while (iter2 != mesh.GetLastBoundaryElement())
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter2 = mesh.GetBoundaryElementIteratorBegin();
+        while (iter2 != mesh.GetBoundaryElementIteratorEnd())
         {
             // Condition is zero, so we don't actually have to do anything.
             iter2++;
         }
         // u=1 as r,z->infinity. We replace this by the exact solution on r=2 and on z=2
-        iter1 = mesh.GetFirstBoundaryNode();
-        while (iter1 != mesh.GetLastBoundaryNode())
+        iter1 = mesh.GetBoundaryNodeIteratorBegin();
+        while (iter1 != mesh.GetBoundaryNodeIteratorEnd())
         {
             double r = (*iter1)->GetPoint()[0];
             double z = (*iter1)->GetPoint()[1];
@@ -489,9 +489,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         // Boundary conditions
         BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
@@ -542,9 +542,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         // Boundary conditions
         BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
@@ -563,9 +563,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             iter++;
         }
         
-        ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+        ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(-1.0/3);                                
-        while (surf_iter < mesh.GetLastBoundaryElement())
+        while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNodeAt(node)->GetPoint()[0];

@@ -219,7 +219,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);  
 
         ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
         
@@ -341,9 +341,9 @@ public:
 	
 		// Boundary conditions - zero dirichlet on boundary;
 	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-	    while(iter < mesh.GetLastBoundaryNode())
+	    while(iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
@@ -414,9 +414,9 @@ public:
     
         // Boundary conditions - zero dirichlet on boundary;
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorEnd();
         
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
@@ -485,9 +485,9 @@ public:
 	
 		// Boundary conditions - zero dirichlet on boundary;
 	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
@@ -501,10 +501,10 @@ public:
 			iter++;
 		}
 	    
-	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
         
-        while(surf_iter < mesh.GetLastBoundaryElement())
+        while(surf_iter < mesh.GetBoundaryElementIteratorEnd())
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
@@ -580,9 +580,9 @@ public:
 	
 		// Boundary conditions - zero dirichlet on boundary;
 	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
@@ -596,10 +596,10 @@ public:
 			iter++;
 		}
 	    
-	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
         
-        while(surf_iter < mesh.GetLastBoundaryElement())
+        while(surf_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
@@ -676,9 +676,9 @@ public:
 	
 		// Boundary conditions - zero dirichlet on boundary;
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
 
-		while(iter != mesh.GetLastBoundaryNode())
+		while(iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
@@ -703,10 +703,10 @@ public:
 			iter++;
 		}
 
-		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
 		ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
 
-		while(surf_iter != mesh.GetLastBoundaryElement())
+		while(surf_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
@@ -855,9 +855,9 @@ public:
 	
 		// Boundary conditions - zero dirichlet on boundary;
 	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
-	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-	    while(iter < mesh.GetLastBoundaryNode())
+	    while(iter < mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
@@ -937,9 +937,9 @@ public:
 	
 		// Boundary conditions
 	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
-	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
@@ -957,10 +957,10 @@ public:
 			iter++;
 		}
 	    
-	    ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+	    ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(1.0);
         
-        while(surf_iter < mesh.GetLastBoundaryElement())
+        while(surf_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
@@ -1034,9 +1034,9 @@ public:
     
         // Boundary conditions - non-zero constant dirichlet on boundary;
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         ConstBoundaryCondition<2>* dirichlet_bc = new ConstBoundaryCondition<2>(-84.5);        
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
             iter++;
@@ -1085,9 +1085,9 @@ public:
     
         // Boundary conditions - non-zero constant dirichlet on boundary;
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetFirstBoundaryNode();
+        ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         ConstBoundaryCondition<1>* dirichlet_bc = new ConstBoundaryCondition<1>(-84.5);
-        while(iter < mesh.GetLastBoundaryNode())
+        while(iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
             iter++;
@@ -1141,10 +1141,10 @@ public:
         TimeDependentDiffusionEquationPde<2> pde;       
 
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetFirstBoundaryElement();
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
         
-        while(surf_iter < mesh.GetLastBoundaryElement())
+        while(surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
             surf_iter++;

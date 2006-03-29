@@ -369,14 +369,14 @@ protected:
             
 		// Get an iterator over the elements of the mesh
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
-			rMesh.GetFirstElement();
+			rMesh.GetElementIteratorBegin();
  
 		// Assume all elements have the same number of nodes...
 		const int num_nodes = iter->GetNumNodes();
 		MatrixDouble a_elem(num_nodes, num_nodes);
 		VectorDouble b_elem(num_nodes);
  
-		while (iter != rMesh.GetLastElement())
+		while (iter != rMesh.GetElementIteratorEnd())
 		{
 		    const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
@@ -409,14 +409,14 @@ protected:
         
         
 		// add the integrals associated with Neumann boundary conditions to the linear system
-		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetFirstBoundaryElement();
+		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetBoundaryElementIteratorBegin();
 		
-		if (surf_iter != rMesh.GetLastBoundaryElement())
+		if (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
 		{					
 			const int num_surf_nodes = (*surf_iter)->GetNumNodes();
 			VectorDouble b_surf_elem(num_surf_nodes);
 	
-			while (surf_iter != rMesh.GetLastBoundaryElement())
+			while (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
 			{
 				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 				

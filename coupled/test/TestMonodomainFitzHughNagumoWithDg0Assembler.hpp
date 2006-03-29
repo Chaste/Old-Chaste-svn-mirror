@@ -78,14 +78,13 @@ public:
         
         // Boundary conditions: zero neumann on entire boundary
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition1);
-
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition2 = new ConstBoundaryCondition<1>(0.0);
-        iter = mesh.GetLastBoundaryElement();
-        iter--;
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition2);
+        ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
+        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
+        {
+            bcc.AddNeumannBoundaryCondition(*iter, p_zero_condition);
+            iter++;
+        }
         
         // Linear solver
         SimpleLinearSolver linearSolver;

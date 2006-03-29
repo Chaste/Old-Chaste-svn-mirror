@@ -86,34 +86,56 @@ public:
     long GetNumCornerNodes();
     long GetNumAllNodes();
     
-    MeshIterator GetFirstElement()
+    /**
+     * Return a pointer to the first element in the mesh.
+     */
+    MeshIterator GetElementIteratorBegin()
     {
          mpConstIter = mElements.begin();
          return mpConstIter;
     }
-    MeshIterator GetLastElement()
+    /**
+     * Return a pointer to *one past* the last element in the mesh
+     * (for consistency with STL iterators).
+     */
+    MeshIterator GetElementIteratorEnd()
     {
          mpConstIter = mElements.end();
          return mpConstIter;
     }
     
-    BoundaryElementIterator GetFirstBoundaryElement()
+    /**
+     * Return a pointer to the first boundary element in the mesh.
+     */
+    
+    BoundaryElementIterator GetBoundaryElementIteratorBegin()
     {	
     	mpBoundaryElementIter = mBoundaryElements.begin();
     	return mpBoundaryElementIter;
     }
-    BoundaryElementIterator GetLastBoundaryElement()
+    /**
+     * Return a pointer to *one past* the last boundary element in the mesh
+     * (for consistency with STL iterators).
+     */
+    BoundaryElementIterator GetBoundaryElementIteratorEnd()
     {
     	mpBoundaryElementIter = mBoundaryElements.end();
     	return mpBoundaryElementIter;
     }
 
-    BoundaryNodeIterator GetFirstBoundaryNode()
+    /**
+     * Return a pointer to the first boundary node in the mesh.
+     */
+    BoundaryNodeIterator GetBoundaryNodeIteratorBegin()
     {
     	mpBoundaryNodeIter = mBoundaryNodes.begin();
     	return mpBoundaryNodeIter;
     }
-    BoundaryNodeIterator GetLastBoundaryNode()
+    /**
+     * Return a pointer to *one past* the last boundary node in the mesh
+     * (for consistency with STL iterators).
+     */
+    BoundaryNodeIterator GetBoundaryNodeIteratorEnd()
     {
     	mpBoundaryNodeIter = mBoundaryNodes.end();
     	return mpBoundaryNodeIter;

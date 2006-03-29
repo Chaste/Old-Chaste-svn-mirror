@@ -120,8 +120,8 @@ public:
 		// adding von Neumann BC at the last node
 		double VonNeumannBCValue = 9.0;
 		ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
-		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
-		iter--; // to be consistent with c++ :))), GetLastBoundaryElement points to one element passed it
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
+		iter--; // to be consistent with c++ :))), GetBoundaryElementIteratorEnd points to one element passed it
 		boundary_conditions.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
 
 		// initialize currentSolution_vector
@@ -377,7 +377,7 @@ public:
 		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
 		// u(1)*u'(1) = 1
 		pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetLastBoundaryElement();
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
 		iter--;
 		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
 
@@ -546,7 +546,7 @@ public:
 		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
 		// u(0)^2*u'(0) = 0.0
 		pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
-		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
 		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
@@ -607,7 +607,7 @@ public:
 		// Note that we specify 1 as the value, since figuring out which direction
 		// the normal is in is hard in 1D.
 		pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
 		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
@@ -668,7 +668,7 @@ public:
 		// Note that we specify -2 as the value, since figuring out which direction
 		// the normal is in is hard in 1D.
 		pBoundaryCondition = new ConstBoundaryCondition<1>(-2.0);
-		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
 		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
@@ -717,10 +717,10 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		// du/dn = -0.5 on r=1
-		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
 		ConstBoundaryCondition<2>* pBoundaryCondition;
 		pBoundaryCondition = new ConstBoundaryCondition<2>(-0.5);
-		while (iter != mesh.GetLastBoundaryElement())
+		while (iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
 			iter++;
@@ -775,8 +775,8 @@ public:
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		// u(y=0) = 0
 		ConstBoundaryCondition<2>* zeroBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
-		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetFirstBoundaryNode();
-		while (node_iter != mesh.GetLastBoundaryNode())
+		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
+		while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			if (fabs((*node_iter)->GetPoint()[1]) < 1e-12)
 			{
@@ -785,10 +785,10 @@ public:
 			node_iter++;
 		}
 
-		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetFirstBoundaryElement();
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
 		FunctionalBoundaryCondition<2>* oneBoundaryCondition = new FunctionalBoundaryCondition<2>(&one_bc);
 		AbstractBoundaryCondition<2>* pBoundaryCondition;
-		while (iter != mesh.GetLastBoundaryElement())
+		while (iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			double x = (*iter)->GetNodeLocation(0,0);
 			double y = (*iter)->GetNodeLocation(0,1);
@@ -852,8 +852,8 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		ConstBoundaryCondition<2>* pBoundaryCondition;
-		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetFirstBoundaryNode();
-		while (node_iter != mesh.GetLastBoundaryNode())
+		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
+		while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*node_iter)->GetPoint()[0];
 			double y = (*node_iter)->GetPoint()[1];
@@ -876,8 +876,8 @@ public:
 			node_iter++;
 		}
 		FunctionalBoundaryCondition<2>* pBC;
-		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetFirstBoundaryElement();
-		while (elt_iter != mesh.GetLastBoundaryElement())
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
+		while (elt_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			double x = (*elt_iter)->GetNodeLocation(0,0);
 			double y = (*elt_iter)->GetNodeLocation(0,1);
@@ -966,8 +966,8 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		ConstBoundaryCondition<2>* pBoundaryCondition;
-		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetFirstBoundaryNode();
-		while (node_iter != mesh.GetLastBoundaryNode())
+		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
+		while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*node_iter)->GetPoint()[0];
 			double y = (*node_iter)->GetPoint()[1];
@@ -990,8 +990,8 @@ public:
 			node_iter++;
 		}
 		FunctionalBoundaryCondition<2>* pBC;
-		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetFirstBoundaryElement();
-		while (elt_iter != mesh.GetLastBoundaryElement())
+		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
+		while (elt_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			double x = (*elt_iter)->GetNodeLocation(0,0);
 			double y = (*elt_iter)->GetNodeLocation(0,1);

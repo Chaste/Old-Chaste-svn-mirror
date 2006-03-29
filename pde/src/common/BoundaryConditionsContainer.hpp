@@ -167,8 +167,8 @@ public:
 	void DefineZeroDirichletOnMeshBoundary(ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh)
 	{
 		typename ConformingTetrahedralMesh<ELEM_DIM, SPACE_DIM>::BoundaryNodeIterator iter;
-		iter = pMesh->GetFirstBoundaryNode();
-		while (iter != pMesh->GetLastBoundaryNode()) 
+		iter = pMesh->GetBoundaryNodeIteratorBegin();
+		while (iter != pMesh->GetBoundaryNodeIteratorEnd()) 
 		{
 			VectorDouble zero(mSizeDependentVariable);
 			
@@ -315,8 +315,8 @@ public:
 		
 		// Iterate over surface elements
 		typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
-			= pMesh->GetFirstBoundaryElement();
-		while (valid && elt_iter != pMesh->GetLastBoundaryElement())
+			= pMesh->GetBoundaryElementIteratorBegin();
+		while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
 		{
 			if (!HasNeumannBoundaryCondition(*elt_iter))
 			{
