@@ -86,4 +86,3 @@ void FitzHughNagumo1961OdeSystem::VerifyVariables(std::vector<double>& odeVars)
 {
     //\todo code VerifyVariables in FHN1961OdeSystem
 }
-     

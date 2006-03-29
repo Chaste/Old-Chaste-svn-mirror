@@ -1,3 +1,5 @@
 TestMonodomainDg0Assembler.hpp
+TestMonodomainDg0AssemblerIteration7.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
+TestMonodomainVersusSimpleDg0ParabolicAssemblerIteration7.hpp
 TestMonodomainPde.hpp
