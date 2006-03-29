@@ -21,6 +21,11 @@ class AdamsBashforthIvpOdeSolver : public AbstractIvpOdeSolver
 				      double timeStep,
 				      std::vector<double> initialConditions);
 	
+    void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                double startTime,
+                double endTime,
+                double timeStep);
+    
 };
 
 #endif //_ADAMSBASHFORTHIVPODESOLVER_HPP_

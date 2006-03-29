@@ -9,12 +9,27 @@
 
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
-	public: 
+    public:
+    
+    /**
+     * This version of solve returns an OdeSolution set and takes in initialConditions. 
+     */ 
 	virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
 				              double startTime,
 				              double endTime,
 				              double timeStep,
 				              std::vector<double> initialConditions);
+    
+    /**
+     * This version of solve modifies the StateVariables member of AbstractOdeSystem
+     * instead of returning an OdeSolution set. The StateVariables should be initialised 
+     * as the initial conditions. 
+     */   
+    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                              double startTime,
+                              double endTime,
+                              double timeStep);                        
+                              
 				              
 	virtual std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
 								double timeStep,

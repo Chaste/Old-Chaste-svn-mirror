@@ -125,8 +125,6 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 	// Apply Adams-Bashforth method
     for (int timeindex=3; timeindex<num_timesteps; timeindex++)
     {
-    	
-        
     	dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
         
   		for(int i=0;i<num_equations; i++) 
@@ -156,4 +154,14 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 	
 			
 	return solutions;
+}
+
+
+// this version of Solve for Adams-Bashforth has not been implemented yet..
+void AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                double startTime,
+                double endTime,
+                double timeStep)
+{
+    assert(0);
 }
