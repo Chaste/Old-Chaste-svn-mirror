@@ -16,6 +16,9 @@ public:
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec residual, Vec initialGuess,
                       void *context)=0;
+    virtual ~AbstractNonlinearSolver()
+    {
+    }                  
 };
 
 #endif // _ABSTRACTNONLINEARSOLVER_HPP_

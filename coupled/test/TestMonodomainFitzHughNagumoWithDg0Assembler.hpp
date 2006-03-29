@@ -166,7 +166,7 @@ public:
              */
             if (counter % 20 == 0 && lo==0)    
             {
-                int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+                VecGetArray(currentVoltage, &currentVoltageArray); 
                 writer->PutVariable(time_var_id, tCurrent); 
                 // TS_TRACE("Put out voltage");
                 for(int j=0; j</*mesh.GetNumNodes()*/ hi-lo; j++) 

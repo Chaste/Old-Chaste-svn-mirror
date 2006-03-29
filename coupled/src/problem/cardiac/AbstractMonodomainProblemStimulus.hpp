@@ -26,6 +26,9 @@ public:
      */
     virtual void Apply(MonodomainPde<SPACE_DIM> *pPde,
                        ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh) = 0;
+    virtual ~AbstractMonodomainProblemStimulus()
+    {
+    }
 };
 
 #endif //_ABSTRACTMONODOMAINPROBLEMSTIMULUS_HPP_

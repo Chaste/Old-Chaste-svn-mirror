@@ -23,7 +23,8 @@ public:
          * The cxxtest_argc and cxxtest_argv variables are global, and filled in
          * from the arguments passed to the cxxtest test suite runner.
          */
-		PetscErrorCode ierr = PetscInitialize(&cxxtest_argc, &cxxtest_argv, PETSC_NULL, PETSC_NULL);
+		//PetscErrorCode ierr = 
+        PetscInitialize(&cxxtest_argc, &cxxtest_argv, PETSC_NULL, PETSC_NULL);
 		
 		//std::cout << std::endl << "Petsc init: " << ierr << std::endl;
 		

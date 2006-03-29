@@ -22,7 +22,9 @@ public:
                                               
     virtual double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x,
                                               double u)=0;
-
+    virtual ~AbstractNonlinearEllipticPde()
+    {
+    }
 };
 
 #endif //_ABSTRACTNONLINEARELLIPTICPDE_HPP_

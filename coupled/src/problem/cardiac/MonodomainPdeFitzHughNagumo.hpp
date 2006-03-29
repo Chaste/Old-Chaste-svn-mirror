@@ -78,28 +78,28 @@ public:
     ~MonodomainPdeFitzHughNagumo(void)
     {
 		delete mpZeroStimulus;
-		for (int i=0; i<mOdeSystemsDistributed.size(); i++)
+		for (unsigned i=0; i<mOdeSystemsDistributed.size(); i++)
 		{
 	    	delete mOdeSystemsDistributed[i];
 		}
     }
     
     // This should not be called as it is a virtual function, use ComputeLinearSourceTermAtNode instead
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
+    double ComputeLinearSourceTerm(Point<SPACE_DIM> )
     {
         assert(0);
 	    return 0.0;
     }
     
     // This should not be called as it is a virtual function, use ComputeNonlinearSourceTermAtNode instead
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
     {
         assert(0);
 	    return 0.0; 
     }
 
         
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)
+    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         return 10 * MatrixDouble::Identity(SPACE_DIM);
     }
@@ -111,7 +111,7 @@ public:
      * and uses the new results for the gating variables, together with the
      * OLD voltage, to calculate and return the ionic current.
      */
-    double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
+    double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
        
@@ -120,13 +120,13 @@ public:
     }
     
     
-    double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& node)
+    double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& )
     {   
         return 0;
     }
     
     // Capacitance = 1
-    double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)
+    double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
         return 1;
     }
@@ -188,7 +188,7 @@ public:
   		AbstractCoupledPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
       	
      	double *p_current_solution;
-        int ierr = VecGetArray(currentSolution, &p_current_solution);
+        VecGetArray(currentSolution, &p_current_solution);
      	
         for (int local_index=0; local_index<AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeHi-AbstractCoupledPde<SPACE_DIM>::mOwnershipRangeLo; local_index++)
      	{

@@ -49,10 +49,14 @@ public:
             }
         }
     }
+    virtual ~PointStimulus1D()
+    {
+    }   
 };
 
 class EdgeStimulus2D: public AbstractMonodomainProblemStimulus<2>
 {
+public:
     virtual void Apply(MonodomainPde<2> *pPde,
                        ConformingTetrahedralMesh<2,2> *pMesh)
     {
@@ -65,6 +69,9 @@ class EdgeStimulus2D: public AbstractMonodomainProblemStimulus<2>
                 pPde->SetStimulusFunctionAtNode(i, &stimulus);
             }
         }
+    }
+    virtual ~EdgeStimulus2D()
+    {
     }
 };
 
@@ -80,11 +87,14 @@ public:
     }
     
     virtual void Apply(MonodomainPde<2> *pPde,
-                       ConformingTetrahedralMesh<2,2> *pMesh)
+                       ConformingTetrahedralMesh<2,2> *)
     {
         static InitialStimulus stimulus(-6000.0, 0.5);
 
         pPde->SetStimulusFunctionAtNode(mNode, &stimulus);
+    }
+    virtual ~PointStimulus2D()
+    {
     }
 };
 
@@ -121,7 +131,7 @@ public:
 
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
 
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
@@ -193,7 +203,7 @@ public:
         monodomainProblem.Solve();
         
         double* voltage_array;
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
@@ -294,7 +304,7 @@ public:
         monodomainProblem.Solve();
         
         double* voltage_array;
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
@@ -399,7 +409,7 @@ public:
     
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {

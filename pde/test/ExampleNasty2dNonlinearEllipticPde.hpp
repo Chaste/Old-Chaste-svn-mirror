@@ -38,6 +38,10 @@ class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
     {
     	return -(cos(p[0])*cos(p[0]));
     }
+    
+    virtual ~ExampleNasty2dNonlinearEllipticPde()
+    {
+    }
 };
 
 #endif //_EXAMPLENASTY2DNONLINEARELLIPTICPDE_HPP_

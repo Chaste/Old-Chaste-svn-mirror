@@ -54,6 +54,9 @@ public:
             }
         }
     }
+    virtual ~PointStimulus1D()
+    {
+    }
 };
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
@@ -100,7 +103,7 @@ public:
     
             // test whether voltages and gating variables are in correct ranges
     
-            int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
+            VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
     
             for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
             {
@@ -227,7 +230,7 @@ public:
     
             // test whether voltages and gating variables are in correct ranges
     
-            int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
+            VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
     
             for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
             {

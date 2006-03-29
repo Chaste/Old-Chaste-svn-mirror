@@ -38,6 +38,10 @@ public:
     {
     	return 0.0;
     }
+    
+    virtual ~Example2DNonlinearEllipticPde()
+    {
+    }
 };
 
 #endif //_EXAMPLE2DNONLINEARELLIPTICPDE_HPP_

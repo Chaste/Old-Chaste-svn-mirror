@@ -13,12 +13,12 @@ class EquationForNonnecroticTumour : public AbstractNonlinearEllipticPde<SPACE_D
 {
 public:
 
-    double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
+    double ComputeLinearSourceTerm(Point<SPACE_DIM> )
     {
         return 0.0;
     }
     
-    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double u)
     {
         const double sigma_0 = 1.0;
         const double sigma_1 = 1.0;
@@ -26,17 +26,17 @@ public:
         return sigma_0*u/(1+sigma_1*u);
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x, double u)
+    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> , double )
     {        
         return MatrixDouble::Identity(SPACE_DIM) * 1.0;
     }
     
-    MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> x, double u)
+    MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> , double )
     {
 		return MatrixDouble::Identity(SPACE_DIM) * 0.0;
     }
     
-    double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x, double u)
+    double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> , double u)
     {
     	const double sigma_0 = 1.0;
         const double sigma_1 = 1.0;

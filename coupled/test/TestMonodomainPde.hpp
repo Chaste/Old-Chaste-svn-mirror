@@ -67,7 +67,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		VecSetFromOptions(currentVoltage);
   
 		double* currentVoltageArray;
-		int ierr = VecGetArray(currentVoltage, &currentVoltageArray); 
+		VecGetArray(currentVoltage, &currentVoltageArray); 
         
         int lo, hi;
         VecGetOwnershipRange(currentVoltage,&lo,&hi);
