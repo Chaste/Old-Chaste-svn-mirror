@@ -1,5 +1,6 @@
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include <cassert>
+#include <iostream>
 
 /*
  * Solves a system of ODEs using a specified one-step ODE solver
@@ -28,12 +29,11 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 {	
     bool bUseStateVariable = initialConditions.empty();
     
-    // Assert that the size of initialConditions vector = number of equations.
     if(!bUseStateVariable)
-    {
+    {    // Assert that the size of initialConditions vector = number of equations.
         assert(initialConditions.size()==pAbstractOdeSystem->GetNumberOfStateVariables());	
     }
-    
+
     // Assert that the timestep does not exceed the time interval.
     assert(timeStep < endTime - startTime  + 1e-10);
     
@@ -48,48 +48,47 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     double last_timestep = endTime - ((double) num_timesteps)*timeStep - startTime;
     assert(last_timestep < timeStep + 1e-10); 
     
-
-    OdeSolution solutions;
-    if( !bUseStateVariable )
-	{
-        if (last_timestep > (0.000001 * timeStep))
+	OdeSolution solutions;
+    if(!bUseStateVariable)
+    {
+    	if (last_timestep > (0.000001 * timeStep))
 	    {
-	        // We'll use an extra time step
-	        solutions.SetNumberOfTimeSteps(num_timesteps+1);
+	    // We'll use an extra time step
+	    solutions.SetNumberOfTimeSteps(num_timesteps+1);
 	    }
 	    else
 	    {
 	        solutions.SetNumberOfTimeSteps(num_timesteps);
 	    }
-		
 	    solutions.mSolutions.push_back(initialConditions);
 	    solutions.mTime.push_back(startTime);
-    }	
+    }
 
 	std::vector<double> row; // A vector of current Y values.
 	
     if(!bUseStateVariable)
-	{
-        row = initialConditions;
+    {
+    	row=initialConditions;
     }
     else
     {
-        row = pAbstractOdeSystem->GetStateVariables();
+        row=pAbstractOdeSystem->GetStateVariables();
     }
+
 	
 	for(int time_index=0;time_index<num_timesteps;time_index++)
 	{
 		// Function that calls the appropriate one-step solver
 		row = CalculateNextYValue(pAbstractOdeSystem,
 									timeStep,
-									startTime+time_index*timeStep, //solutions.mTime[timeindex],
+									startTime + time_index*timeStep, //solutions.mTime[timeindex],
 									row);
 		
-		if(!bUseStateVariable)
+        if(!bUseStateVariable)
         {
-            solutions.mSolutions.push_back(row);
-		// Push back new time into the time solution vector
-//		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
+		    solutions.mSolutions.push_back(row);
+		    // Push back new time into the time solution vector
+            //		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
             solutions.mTime.push_back(startTime+(time_index+1)*timeStep);
         }
         else
@@ -97,7 +96,8 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
             pAbstractOdeSystem->SetStateVariables(row);
         }
 	}
-	
+
+
 	// Extra step to get to exactly endTime
 	if(last_timestep > (0.000001 * timeStep))
 	{	
@@ -105,20 +105,22 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
   		
   		row = CalculateNextYValue(pAbstractOdeSystem,
   									last_timestep, 
-  									endTime, //solutions.mTime[num_timesteps],
+  									startTime+num_timesteps*timeStep, //solutions.mTime[num_timesteps],
   									row);
-        if(!bUseStateVariable)
+
+
+  		if(!bUseStateVariable)
         {
-  		    solutions.mSolutions.push_back(row);
-		    solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
+		    solutions.mSolutions.push_back(row);
+            solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
         }
         else
         {
             pAbstractOdeSystem->SetStateVariables(row);
         }
-	
 	}
-				
+	
+    			
 	return solutions;
 }
 
