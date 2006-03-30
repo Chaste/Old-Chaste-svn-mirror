@@ -12,16 +12,18 @@ class AbstractOdeSystem
 { 
     protected:
     
+    int mNumberOfStateVariables;
     std::vector<double> mStateVariables;
     std::vector<double> mInitialConditions;
  
+    
     public:
 	
     std::vector<std::string> mVariableNames;
     std::vector<std::string> mVariableUnits;
 
 
-	AbstractOdeSystem() {}; /**< Constructor*/
+	AbstractOdeSystem() {mNumberOfStateVariables = -1;}; /**< Constructor*/
 	
 	virtual ~AbstractOdeSystem() {}; /**<  Destructor */  
 	
@@ -29,25 +31,28 @@ class AbstractOdeSystem
 	
     int GetNumberOfStateVariables()
     { 
-        if(mInitialConditions.size()>0)
-        {
-            return mInitialConditions.size(); 
-        }
-        else
-        {
-            return mStateVariables.size(); 
-        }
+        return mNumberOfStateVariables;
+//        if(mInitialConditions.size()>0)
+//        {
+//            return mInitialConditions.size(); 
+//        }
+//        else
+//        {
+//            return mStateVariables.size(); 
+//        }
     };
     
     virtual void VerifyVariables(std::vector<double>& odeVars) {}
     
     virtual void SetInitialConditions(std::vector<double> initialConditions) 
     {
+        assert(initialConditions.size() == mNumberOfStateVariables);
         mInitialConditions=initialConditions;
     }
     
     virtual void SetInitialConditionsComponent(int index, double initialCondition) 
     {
+        assert( index < mNumberOfStateVariables); 
         mInitialConditions[index]=initialCondition;
     }
     
@@ -59,7 +64,7 @@ class AbstractOdeSystem
         
     void SetStateVariables(std::vector<double> stateVariables) 
     {
-        assert( mInitialConditions.size() == stateVariables.size() );
+        assert( mNumberOfStateVariables == stateVariables.size() );
         mStateVariables = stateVariables;
     }
     

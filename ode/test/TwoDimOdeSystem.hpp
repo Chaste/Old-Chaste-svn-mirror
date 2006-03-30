@@ -8,6 +8,8 @@ class TwoDimOdeSystem : public AbstractOdeSystem
 public :
     TwoDimOdeSystem()
     {
+        mNumberOfStateVariables=2;
+        
         mInitialConditions.push_back(1);
         mInitialConditions.push_back(2);
         

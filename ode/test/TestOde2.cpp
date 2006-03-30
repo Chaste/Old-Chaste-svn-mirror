@@ -6,7 +6,7 @@
 TestOde2::TestOde2() : AbstractOdeSystem()
 {
 // Use AbstractOdeSystem constructors
-
+    mNumberOfStateVariables=1;
     mInitialConditions.push_back(4.0);
 }
 

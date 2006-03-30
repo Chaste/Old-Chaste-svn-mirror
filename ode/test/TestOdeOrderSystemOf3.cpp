@@ -7,7 +7,7 @@
 TestOdeOrderSystemOf3::TestOdeOrderSystemOf3() : AbstractOdeSystem()
 {
 // Use AbstractOdeSystem constructors
-
+    mNumberOfStateVariables=3;
     mInitialConditions.push_back(0.0);
     mInitialConditions.push_back(1.0);
     mInitialConditions.push_back(0.0);

@@ -6,7 +6,7 @@
 TestOdeOrderSystem::TestOdeOrderSystem() : AbstractOdeSystem()
 {
 // Use AbstractOdeSystem constructors
-
+    mNumberOfStateVariables=2;
     mInitialConditions.push_back(0.0);
     mInitialConditions.push_back(1.0);
 }

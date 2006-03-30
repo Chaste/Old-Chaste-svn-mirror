@@ -8,11 +8,12 @@
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractStimulusFunction *stimulus):
 AbstractOdeSystem()
 {
-   mpStimulus= stimulus;
-   // Initialize model constants
-   mAlpha = -0.08; // Typical values between 0.10 and 0.15
-   mGamma = 3.00; 
-   mEpsilon = 0.005;
+    mNumberOfStateVariables=2;
+    mpStimulus= stimulus;
+    // Initialize model constants
+    mAlpha = -0.08; // Typical values between 0.10 and 0.15
+    mGamma = 3.00; 
+    mEpsilon = 0.005;
 
    /*
     * State variable
@@ -43,25 +44,25 @@ FitzHughNagumo1961OdeSystem::~FitzHughNagumo1961OdeSystem(void)
  */
 std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-   // Throw an exception if the initial vector is larger than the number of equations
-   assert(rY.size() == 2);
+    // Throw an exception if the initial vector is larger than the number of equations
+    assert(rY.size() == 2);
+       
+    double membrane_V = rY[0]; // v
+    double recovery_variable = rY[1]; // w
    
-   double membrane_V = rY[0]; // v
-   double recovery_variable = rY[1]; // w
-   
-   double i_stim = mpStimulus->GetStimulus(time);
+    double i_stim = mpStimulus->GetStimulus(time);
 
-   // dV/dt
-   double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
-   // dw/dt
-   double recovery_variable_prime = mEpsilon*(membrane_V-mGamma*recovery_variable);
+    // dV/dt
+    double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
+    // dw/dt
+    double recovery_variable_prime = mEpsilon*(membrane_V-mGamma*recovery_variable);
  
-   std::vector<double> RHS;
+    std::vector<double> RHS;
 
-   RHS.push_back(membrane_V_prime);
-   RHS.push_back(recovery_variable_prime);
+    RHS.push_back(membrane_V_prime);
+    RHS.push_back(recovery_variable_prime);
 
-   return RHS;
+    return RHS;
 }
 
 /**

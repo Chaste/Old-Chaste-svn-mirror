@@ -9,17 +9,20 @@
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(AbstractStimulusFunction *stimulus):
 AbstractOdeSystem()
 {
-   mpStimulus= stimulus;
+    
+    mNumberOfStateVariables=4;
+    
+    mpStimulus= stimulus;
 
    /*
     * Constants for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     */
 
-   leakage_current_g_L = 0.3;   // mS/cm2
-   membrane_Cm = 1.0;   // 1 uF/cm2
-   membrane_E_R = -75.0;   // mV
-   potassium_channel_g_K = 36.0;   // mS/cm2
-   sodium_channel_g_Na = 120.0;   // mS/cm2
+    leakage_current_g_L = 0.3;   // mS/cm2
+    membrane_Cm = 1.0;   // 1 uF/cm2
+    membrane_E_R = -75.0;   // mV
+    potassium_channel_g_K = 36.0;   // mS/cm2
+    sodium_channel_g_Na = 120.0;   // mS/cm2
 
    /*
     * State variable
@@ -71,60 +74,60 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
     * Throw an exception if the initial vector is larger than the number of equations
     */
 
-   assert(rY.size() == 4);
+    assert(rY.size() == 4);
 
-   double membrane_V = rY[0];
-   double potassium_channel_n_gate_n = rY[1];
-   double sodium_channel_h_gate_h = rY[2];
-   double sodium_channel_m_gate_m = rY[3];
+    double membrane_V = rY[0];
+    double potassium_channel_n_gate_n = rY[1];
+    double sodium_channel_h_gate_h = rY[2];
+    double sodium_channel_m_gate_m = rY[3];
 
    /*
     * Compute the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     */
 
-   double leakage_current_E_L = membrane_E_R+10.613;
-   double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
+    double leakage_current_E_L = membrane_E_R+10.613;
+    double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
 
-   double membrane_i_Stim = mpStimulus->GetStimulus(time);
+    double membrane_i_Stim = mpStimulus->GetStimulus(time);
    
-   double sodium_channel_E_Na = membrane_E_R+115.0;
-   double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
-   double potassium_channel_E_K = membrane_E_R-12.0;
-   double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
-   double membrane_V_prime = -(-membrane_i_Stim+sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L)/membrane_Cm;
+    double sodium_channel_E_Na = membrane_E_R+115.0;
+    double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
+    double potassium_channel_E_K = membrane_E_R-12.0;
+    double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
+    double membrane_V_prime = -(-membrane_i_Stim+sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L)/membrane_Cm;
    
-   double potassium_channel_n_gate_alpha_n;
-   if (-65.0001<membrane_V && membrane_V<-64.9999)
-   {
+    double potassium_channel_n_gate_alpha_n;
+    if (-65.0001<membrane_V && membrane_V<-64.9999)
+    {
        potassium_channel_n_gate_alpha_n = 0.1;
-   } else {
+    } else {
        potassium_channel_n_gate_alpha_n = -0.01*(membrane_V+65.0)/(exp(-(membrane_V+65.0)/10.0)-1.0);
-   }
+    }
    
-   double potassium_channel_n_gate_beta_n = 0.125*exp((membrane_V+75.0)/80.0);
-   double potassium_channel_n_gate_n_prime = potassium_channel_n_gate_alpha_n*(1.0-potassium_channel_n_gate_n)-potassium_channel_n_gate_beta_n*potassium_channel_n_gate_n;
-   double sodium_channel_h_gate_alpha_h = 0.07*exp(-(membrane_V+75.0)/20.0);
-   double sodium_channel_h_gate_beta_h = 1.0/(exp(-(membrane_V+45.0)/10.0)+1.0);
-   double sodium_channel_h_gate_h_prime = sodium_channel_h_gate_alpha_h*(1.0-sodium_channel_h_gate_h)-sodium_channel_h_gate_beta_h*sodium_channel_h_gate_h;
+    double potassium_channel_n_gate_beta_n = 0.125*exp((membrane_V+75.0)/80.0);
+    double potassium_channel_n_gate_n_prime = potassium_channel_n_gate_alpha_n*(1.0-potassium_channel_n_gate_n)-potassium_channel_n_gate_beta_n*potassium_channel_n_gate_n;
+    double sodium_channel_h_gate_alpha_h = 0.07*exp(-(membrane_V+75.0)/20.0);
+    double sodium_channel_h_gate_beta_h = 1.0/(exp(-(membrane_V+45.0)/10.0)+1.0);
+    double sodium_channel_h_gate_h_prime = sodium_channel_h_gate_alpha_h*(1.0-sodium_channel_h_gate_h)-sodium_channel_h_gate_beta_h*sodium_channel_h_gate_h;
 
-   double sodium_channel_m_gate_alpha_m;
-   if (-50.0001<membrane_V && membrane_V<-49.9999)
-   {
+    double sodium_channel_m_gate_alpha_m;
+    if (-50.0001<membrane_V && membrane_V<-49.9999)
+    {
        sodium_channel_m_gate_alpha_m = 1;
-   } else {
+    } else {
        sodium_channel_m_gate_alpha_m = -0.1*(membrane_V+50.0)/(exp(-(membrane_V+50.0)/10.0)-1.0);
-   }
-   double sodium_channel_m_gate_beta_m = 4.0*exp(-(membrane_V+75.0)/18.0);
-   double sodium_channel_m_gate_m_prime = sodium_channel_m_gate_alpha_m*(1.0-sodium_channel_m_gate_m)-sodium_channel_m_gate_beta_m*sodium_channel_m_gate_m;
+    }
+    double sodium_channel_m_gate_beta_m = 4.0*exp(-(membrane_V+75.0)/18.0);
+    double sodium_channel_m_gate_m_prime = sodium_channel_m_gate_alpha_m*(1.0-sodium_channel_m_gate_m)-sodium_channel_m_gate_beta_m*sodium_channel_m_gate_m;
 
-   std::vector<double> returnRHS;
+    std::vector<double> returnRHS;
 
-   returnRHS.push_back(membrane_V_prime);
-   returnRHS.push_back(potassium_channel_n_gate_n_prime);
-   returnRHS.push_back(sodium_channel_h_gate_h_prime);
-   returnRHS.push_back(sodium_channel_m_gate_m_prime);
+    returnRHS.push_back(membrane_V_prime);
+    returnRHS.push_back(potassium_channel_n_gate_n_prime);
+    returnRHS.push_back(sodium_channel_h_gate_h_prime);
+    returnRHS.push_back(sodium_channel_m_gate_m_prime);
 
-   return returnRHS;
+    return returnRHS;
 }
 
 void HodgkinHuxleySquidAxon1952OriginalOdeSystem::VerifyVariables(std::vector<double>& odeVars)

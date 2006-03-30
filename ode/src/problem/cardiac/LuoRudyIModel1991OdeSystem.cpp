@@ -9,6 +9,8 @@
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractStimulusFunction *stimulus):
 AbstractOdeSystem()
 {
+    mNumberOfStateVariables=8;
+    
    mpStimulus= stimulus;
 
    /*
