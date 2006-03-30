@@ -36,17 +36,9 @@ class AbstractOdeSystem
 	
 	virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
 	
-    int GetNumberOfStateVariables()
+    unsigned GetNumberOfStateVariables()
     { 
         return mNumberOfStateVariables;
-//        if(mInitialConditions.size()>0)
-//        {
-//            return mInitialConditions.size(); 
-//        }
-//        else
-//        {
-//            return mStateVariables.size(); 
-//        }
     }
     
     
@@ -57,7 +49,7 @@ class AbstractOdeSystem
         mInitialConditions=initialConditions;
     }
     
-    virtual void SetInitialConditionsComponent(int index, double initialCondition) 
+    virtual void SetInitialConditionsComponent(unsigned index, double initialCondition) 
     {
         assert( index < mNumberOfStateVariables); 
         mInitialConditions[index]=initialCondition;
