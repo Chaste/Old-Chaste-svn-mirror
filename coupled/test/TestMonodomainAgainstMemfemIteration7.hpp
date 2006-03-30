@@ -67,11 +67,14 @@ public:
     {
         FaceStimulus3D face_stimulus_3D;
         
-        MonodomainProblemIteration7<3> monodomainProblem("mesh/test/data/3D_0_to_1mm_6000_elements",
-                                               60,   // ms
-                                               "testoutput/MonoDg03dWithFaceStimulus",
-                                               "NewMonodomainLR91_3dWithFaceStimulus",
-                                               &face_stimulus_3D);
+        MonodomainProblemIteration7<3> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
+        monodomainProblem.SetEndTime(60);   // 60 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg03dWithFaceStimulus");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_3dWithFaceStimulus");
+        monodomainProblem.SetStimulus(&face_stimulus_3D);
+
         monodomainProblem.Solve();     
 
     }  

@@ -87,12 +87,14 @@ public:
 
         do
         {
-            MonodomainProblemIteration7<1> monodomainProblem("mesh/test/data/1D_0_to_1mm_10_elements",
-                                                   2, // ms
-                                                   "testoutput/MonoDg01D",
-                                                   "NewMonodomainLR91_1d",
-                                                   &point_stimulus_1D);
-                                                   
+            MonodomainProblemIteration7<1> monodomainProblem;
+    
+            monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+            monodomainProblem.SetEndTime(2);   // 2 ms
+            monodomainProblem.SetOutputDirectory("testoutput/MonoDg01D");
+            monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+            monodomainProblem.SetStimulus(&point_stimulus_1D);
+    
             monodomainProblem.SetTimeSteps(time_step, time_step);
             monodomainProblem.Solve();
     
@@ -214,12 +216,14 @@ public:
 
             // Solve the problem itself
            
-            MonodomainProblemIteration7<1> monodomainProblem(mesh_filename,
-                                                   2, // ms
-                                                   "testoutput/MonoDg01D",
-                                                   "NewMonodomainLR91_1d",
-                                                   &point_stimulus_1D);
-                                                   
+            MonodomainProblemIteration7<1> monodomainProblem;
+    
+            monodomainProblem.SetMeshFilename(mesh_filename);
+            monodomainProblem.SetEndTime(2);   // 2 ms
+            monodomainProblem.SetOutputDirectory("testoutput/MonoDg01D");
+            monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+            monodomainProblem.SetStimulus(&point_stimulus_1D);
+
             monodomainProblem.SetTimeSteps( time_step, time_step);
             monodomainProblem.Solve();
     

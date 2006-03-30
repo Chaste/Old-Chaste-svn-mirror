@@ -79,14 +79,13 @@ public:
     void TestMonodomainDg0Heart()
     {
         PointStimulusHeart point_stimulus_heart;
-        MonodomainProblemIteration7<3> monodomainProblem("mesh/test/data/heart",
-                                               100, 
-                                               "testoutput/MonoDg0Heart",
-                                               "MonodomainLR91_Heart",
-                                               &point_stimulus_heart,
-                                               false, //Internal faces
-                                               false //Debug
-                                               );
+        MonodomainProblemIteration7<3> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/heart");
+        monodomainProblem.SetEndTime(100);   // 100 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg0Heart");
+        monodomainProblem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
+        monodomainProblem.SetStimulus(&point_stimulus_heart);
 
         monodomainProblem.SetOdeTimeStep(monodomainProblem.GetPdeTimeStep()/2.0);
         monodomainProblem.Solve();

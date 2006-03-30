@@ -66,11 +66,14 @@ public:
     void TestMonodomainDg01D_100elements()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem("mesh/test/data/1D_0_to_1_100_elements",
-                                               30, // ms
-                                               "testoutput/MonoDg01d",
-                                               "NewMonodomainLR91_1d",
-                                               &point_stimulus_1D);
+        MonodomainProblemIteration7<1> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
+        monodomainProblem.SetEndTime(30);   // 30 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg01d");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomainProblem.SetStimulus(&point_stimulus_1D);
+
         monodomainProblem.SetTimeSteps(0.01, 0.01); // ms
         monodomainProblem.Solve();
         
@@ -134,11 +137,14 @@ public:
     void TestMonodomainDg01D_200elements()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem("mesh/test/data/1D_0_to_1_200_elements",
-                                               30, // ms
-                                               "testoutput/MonoDg01d",
-                                               "NewMonodomainLR91_1d",
-                                               &point_stimulus_1D);
+        MonodomainProblemIteration7<1> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1_200_elements");
+        monodomainProblem.SetEndTime(30);   // 30 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg01d");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomainProblem.SetStimulus(&point_stimulus_1D);
+
         monodomainProblem.SetTimeSteps(0.002, 0.002); // ms
         monodomainProblem.Solve();
         
@@ -199,11 +205,14 @@ public:
     void TestMonodomainDg01D_20elements()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem("mesh/test/data/1D_0_to_1_20_elements",
-                                               30, // ms
-                                               "testoutput/MonoDg01d",
-                                               "NewMonodomainLR91_1d",
-                                               &point_stimulus_1D);
+        MonodomainProblemIteration7<1> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
+        monodomainProblem.SetEndTime(30);   // 30 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg01d");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomainProblem.SetStimulus(&point_stimulus_1D);
+
         monodomainProblem.SetTimeSteps(0.01, 0.01); // ms
         monodomainProblem.Solve();
         

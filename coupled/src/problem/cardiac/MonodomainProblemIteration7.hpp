@@ -37,7 +37,6 @@ private:
     double mEndTime;
     AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
     std::string mMeshFilename, mOutputDirectory, mOutputFilenamePrefix;
-    bool mContainsInternalFaces;
     double mPdeTimeStep;  //aka big_timestep
     double mOdeTimeStep;  //aka small_timestep or ickle_timestep(jameso)
     // mOdeTimeStep will have to b removed when ticket 69 has been dealt with.
@@ -60,21 +59,21 @@ public:
      * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
      */
      
-    MonodomainProblemIteration7(const std::string &rMeshFilename,
-                      const double &rEndTime,
-                      const std::string &rOutputDirectory,
-                      const std::string &rOutputFilenamePrefix,
-                      AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus,
-                      const bool& rContainsInternalFaces = true,
-                      const bool& rDebug = false)
-    : mMeshFilename(rMeshFilename),
-      mEndTime(rEndTime),
-      mOutputDirectory(rOutputDirectory),
-      mOutputFilenamePrefix(rOutputFilenamePrefix),
-      mpStimulus(rStimulus),
+//    MonodomainProblemIteration7(const std::string &rMeshFilename,
+//                      const double &rEndTime,
+//                      const std::string &rOutputDirectory,
+//                      const std::string &rOutputFilenamePrefix,
+//                      AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus,
+//                      const bool& rContainsInternalFaces = true,
+//                      const bool& rDebug = false)
+    MonodomainProblemIteration7()
+    : mMeshFilename(""),   // i.e. undefined
+      mEndTime(1000),   // 1,000 ms = 1 second
+      mOutputDirectory(""),   // i.e. undefined
+      mOutputFilenamePrefix(""),   // i.e. undefined
+      mpStimulus(NULL),   // i.e. none
       mMonodomainPde(NULL),
-      mContainsInternalFaces(rContainsInternalFaces),
-      mDebugOn(rDebug)
+      mDebugOn(false)
     {
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
@@ -109,7 +108,7 @@ public:
             //double small_time_step = time_step/2.0;
         
             // Read mMesh
-            TrianglesMeshReader mesh_reader(mMeshFilename, mContainsInternalFaces);
+            TrianglesMeshReader mesh_reader(mMeshFilename);
             mMesh.ConstructFromMeshReader(mesh_reader);
         
             // Instantiate PDE object
@@ -319,6 +318,31 @@ public:
     double GetPdeTimeStep()
     {
         return mPdeTimeStep;   
+    }
+
+    void SetMeshFilename(const std::string &rMeshFilename)
+    {
+        mMeshFilename = rMeshFilename;
+    }
+    
+    void SetEndTime(const double &rEndTime)
+    {
+        mEndTime = rEndTime;
+    }
+        
+    void SetOutputDirectory(const std::string &rOutputDirectory)
+    {
+        mOutputDirectory = rOutputDirectory;
+    }
+        
+    void SetOutputFilenamePrefix(const std::string &rOutputFilenamePrefix)
+    {
+        mOutputFilenamePrefix = rOutputFilenamePrefix;
+    }
+        
+    void SetStimulus(AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus)
+    {
+        mpStimulus = rStimulus;
     }
 };
 

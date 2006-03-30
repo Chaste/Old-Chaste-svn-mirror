@@ -86,13 +86,14 @@ public:
         
         
         PointStimulus2D point_stimulus_2D(60); // Central node
-        
-        MonodomainProblemIteration7<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
-                                               500, // ms
-                                               "testoutput/MonoDg02dWithPointStimulusLong",
-                                               "NewMonodomainLR91_2dWithPointStimulusLong",
-                                               &point_stimulus_2D);
 
+        MonodomainProblemIteration7<2> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
+        monodomainProblem.SetEndTime(500);   // 500 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg02dWithPointStimulusLong");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulusLong");
+        monodomainProblem.SetStimulus(&point_stimulus_2D);
 
         monodomainProblem.Solve();
         

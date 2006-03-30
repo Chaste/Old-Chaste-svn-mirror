@@ -59,11 +59,13 @@ public:
     {
         CornerStimulus corner_stimulus;
         
-        MonodomainProblemIteration7<3> monodomainProblem("mesh/test/data/3D_0_to_100mm_6000_elements",
-                                               10,   // ms
-                                               "testoutput/MonoDg03dSlabBig",
-                                               "NewMonodomainLR91_3dSlabBig",
-                                               &corner_stimulus);
+        MonodomainProblemIteration7<3> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_100mm_6000_elements");
+        monodomainProblem.SetEndTime(10);   // 10 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg03dSlabBig");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_3dSlabBig");
+        monodomainProblem.SetStimulus(&corner_stimulus);
         monodomainProblem.Solve();
     }
 };

@@ -109,11 +109,13 @@ public:
     void TestMonodomainDg01D()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem("mesh/test/data/1D_0_to_1mm_10_elements",
-                                               2, // ms
-                                               "testoutput/MonoDg01d",
-                                               "NewMonodomainLR91_1d",
-                                               &point_stimulus_1D);
+        MonodomainProblemIteration7<1> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        monodomainProblem.SetEndTime(2);   // 2 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg01d");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+        monodomainProblem.SetStimulus(&point_stimulus_1D);
 
         monodomainProblem.Solve();
 
@@ -184,11 +186,13 @@ public:
         EdgeStimulus2D edge_stimulus_2D;
         
         // using the criss-cross mesh so wave propagates properly
-        MonodomainProblemIteration7<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
-                                               2,   // ms
-                                               "testoutput/MonoDg02dWithEdgeStimulus",
-                                               "NewMonodomainLR91_2dWithEdgeStimulus",
-                                               &edge_stimulus_2D);
+        MonodomainProblemIteration7<2> monodomainProblem;
+
+        monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
+        monodomainProblem.SetEndTime(2);   // 2 ms
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg02dWithEdgeStimulus");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithEdgeStimulus");
+        monodomainProblem.SetStimulus(&edge_stimulus_2D);
 
         monodomainProblem.Solve();
         
@@ -278,97 +282,6 @@ public:
         VecDestroy(monodomainProblem.mCurrentVoltage);
     }   
 
-    // Solve on a 2D 1mm by 1mm mesh (space step = 0.05mm), stimulating the left
-    // edge.
-    // Should behave like the 1D case, extrapolated.
-    void xTestMonodomainDg02DWithEdgeStimulusOnFinerMesh( void )
-    {   
-        EdgeStimulus2D edge_stimulus_2D;
-        
-        MonodomainProblemIteration7<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_800_elements",
-                                               2,   // ms
-                                               "testoutput/MonoDg02dWithEdgeStimulus",
-                                               "NewMonodomainLR91_2dWithEdgeStimulus",
-                                               &edge_stimulus_2D);
-        monodomainProblem.SetTimeSteps( 0.005, 0.005);
-        monodomainProblem.Solve();
-        
-        double* voltage_array;
-        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
-    
-        // test whether voltages and gating variables are in correct ranges
-        for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
-        {
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
-                
-            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
-            for(int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
-                }
-            }
-        }
-
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-
-        if (num_procs == 1)
-        {
-            /*
-             * Test the top right node against the right one in the 1D case, 
-             * comparing voltage, and then test all the nodes on the right hand 
-             * side of the square against the top right one, comparing voltage.
-             */
-            bool need_initialisation = true;
-            double voltage;
-
-            need_initialisation = true;
-
-            // Test the RHS of the mesh
-            for (int i = 0; i < monodomainProblem.mMesh.GetNumNodes(); i++)
-            {
-                if (monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[0] == 0.1)
-                {
-                    // x = 0 is where the stimulus has been applied
-                    // x = 0.1cm is the other end of the mesh and where we want to 
-                    //       to test the value of the nodes
-                    
-                    if (need_initialisation)
-                    {
-                        voltage = voltage_array[i];
-                        need_initialisation = false;
-                    }
-                    else
-                    {
-                        // Note that the RHS will be sampled during the upstroke,
-                        // thus varies by about 3mV in 1 timestep.  So this isn't
-                        // quite as bad as it looks.
-                        // A finer mesh should give better results...
-                        TS_ASSERT_DELTA(voltage_array[i], voltage, 4.0);
-                       // std::cout << "y=" << monodomainProblem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
-                    }
-                    
-                    // Check against 1d case
-                    TS_ASSERT_DELTA(voltage_array[i], -35.1363, 3.0);
-                }
-            }
-        }
-        
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
-        VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
-        VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
-        VecDestroy(monodomainProblem.mCurrentVoltage);
-    }
-
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
@@ -381,12 +294,13 @@ public:
         
         PointStimulus2D point_stimulus_2D(60); // Central node
         
-        MonodomainProblemIteration7<2> monodomainProblem("mesh/test/data/2D_0_to_1mm_400_elements",
-                                               1.3,   // ms - needs to be 1.3 to pass test
-                                               "testoutput/MonoDg02dWithPointStimulus",
-                                               "NewMonodomainLR91_2dWithPointStimulus",
-                                               &point_stimulus_2D);
+        MonodomainProblemIteration7<2> monodomainProblem;
 
+        monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
+        monodomainProblem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
+        monodomainProblem.SetOutputDirectory("testoutput/MonoDg02dWithPointStimulus");
+        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulus");
+        monodomainProblem.SetStimulus(&point_stimulus_2D);
 
         monodomainProblem.Solve();
         
