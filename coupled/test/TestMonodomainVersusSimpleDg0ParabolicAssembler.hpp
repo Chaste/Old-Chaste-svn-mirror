@@ -29,7 +29,6 @@
 #include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 

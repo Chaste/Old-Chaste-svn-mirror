@@ -59,13 +59,6 @@ public:
      * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
      */
      
-//    MonodomainProblemIteration7(const std::string &rMeshFilename,
-//                      const double &rEndTime,
-//                      const std::string &rOutputDirectory,
-//                      const std::string &rOutputFilenamePrefix,
-//                      AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus,
-//                      const bool& rContainsInternalFaces = true,
-//                      const bool& rDebug = false)
     MonodomainProblemIteration7()
     : mMeshFilename(""),   // i.e. undefined
       mEndTime(1000),   // 1,000 ms = 1 second
