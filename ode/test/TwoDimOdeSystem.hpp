@@ -20,6 +20,9 @@ public :
     std::vector<double> TwoDimOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
     {   
         // do nothing
+        
+        //Quick fudge to remove warnings:
+        time=0.0;return(rY);
     }
 };
 

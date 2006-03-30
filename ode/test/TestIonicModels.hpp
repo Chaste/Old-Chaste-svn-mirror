@@ -55,21 +55,21 @@ public:
         int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
         
         std::vector<int> var_ids;
-        for (int i=0; i<pOdeSystem->mVariableNames.size(); i++)
+        for (unsigned i=0; i<pOdeSystem->mVariableNames.size(); i++)
         {
             var_ids.push_back(writer.DefineVariable(pOdeSystem->mVariableNames[i],
                                                     pOdeSystem->mVariableUnits[i]));
         }
         writer.EndDefineMode();
                 
-        for (int i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
+        for (unsigned i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
         {
             if (i!=0)
             {
                 writer.AdvanceAlongUnlimitedDimension();
             }
             writer.PutVariable(time_var_id, solution.mTime[i]);
-            for (int j=0; j<var_ids.size(); j++)
+            for (unsigned j=0; j<var_ids.size(); j++)
             {
                 writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
             }
@@ -93,7 +93,7 @@ public:
         std::vector<double> valid_times = valid_reader.GetValues("Time");
         std::vector<double> valid_voltages = valid_reader.GetValues("V");
        
-        for(int i=0; i<valid_times.size(); i++)
+        for(unsigned i=0; i<valid_times.size(); i++)
         {
             TS_ASSERT_DELTA(times[i], valid_times[i], 1e-6);
             // adjust tol to data

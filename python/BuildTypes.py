@@ -175,6 +175,7 @@ class GccDebug(Gcc):
   def __init__(self):
     Gcc.__init__(self)
     self._cc_flags = '-g'
+    #self._cc_flags = '-g -Wall -Wno-system-headers -Wno-unknown-pragmas '
     self.build_dir = 'debug'
     
 class Coverage(GccDebug):
