@@ -165,7 +165,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
             }
             
             //advance counter
-            int underscore_pos = datafile.rfind("_",datafile.length());
+            unsigned underscore_pos = datafile.rfind("_",datafile.length());
             std::stringstream suffix;
             
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << counter;

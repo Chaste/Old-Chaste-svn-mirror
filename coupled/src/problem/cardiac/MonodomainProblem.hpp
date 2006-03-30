@@ -32,20 +32,26 @@ private:
     /**
      * Flag that is true when running on one processor
      */
-    bool mSequential; 
-    bool mDebugOn;
-    
+    std::string mMeshFilename;
     double mEndTime;
+    std::string mOutputDirectory, mOutputFilenamePrefix;
     AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
-    std::string mMeshFilename, mOutputDirectory, mOutputFilenamePrefix;
-    bool mContainsInternalFaces;
+    
+public:
+    MonodomainPde<SPACE_DIM> *mMonodomainPde;
+    
+private:
+    bool mContainsInternalFaces; 
+    bool mDebugOn;
+    bool mSequential;
+
     double mPdeTimeStep;  //aka big_timestep
     double mOdeTimeStep;  //aka small_timestep or ickle_timestep(jameso)
     
 public:
     Vec mCurrentVoltage; // Current solution
     int mLo, mHi;
-    MonodomainPde<SPACE_DIM> *mMonodomainPde;
+    
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
     

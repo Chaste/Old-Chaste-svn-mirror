@@ -74,7 +74,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		    
 			for (int j=0; j < nodes_size; j++)
 			{
-				assert(node_indices[j] < temp_nodes.size());
+				assert(node_indices[j] < (int) temp_nodes.size());
 				nodes.push_back(&temp_nodes[node_indices[j]]);
 			}
 						
@@ -339,7 +339,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> 
 template<int ELEMENT_DIM, int SPACE_DIM>
 Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index)
 {
-	assert(index < mNodes.size());
+	assert(index < (long) mNodes.size());
     return &(mNodes[index]);
 }
 

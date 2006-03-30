@@ -21,6 +21,9 @@ public:
 	 */
     virtual Vec Solve(Mat lhsMatrix, Vec rhsVector, int size) = 0;
     virtual void SetMatrixIsConstant()=0;
+    virtual ~AbstractLinearSolver()
+    {
+    }
 };
 
 #endif

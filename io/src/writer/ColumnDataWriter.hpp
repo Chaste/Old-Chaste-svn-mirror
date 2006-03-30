@@ -72,7 +72,7 @@ protected:
 public:
 
     ColumnDataWriter(std::string directory, std::string baseName);
-    ~ColumnDataWriter();
+    virtual ~ColumnDataWriter();
     int DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits);
     int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
     int DefineVariable(std::string variableName, std::string variableUnits);

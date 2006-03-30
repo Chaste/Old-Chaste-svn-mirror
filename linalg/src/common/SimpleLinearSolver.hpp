@@ -17,7 +17,7 @@ public:
         mLinearSystemKnown=false;
         mMatrixIsConstant=false;
     }
-    ~SimpleLinearSolver()
+    virtual ~SimpleLinearSolver()
     {
          if (mLinearSystemKnown==true)
          {
@@ -27,7 +27,8 @@ public:
     
     void SetMatrixIsConstant(){
         mMatrixIsConstant=true;
-    }    
+    } 
+     
 private:
     bool mLinearSystemKnown;
     bool mMatrixIsConstant;
