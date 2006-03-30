@@ -158,7 +158,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 
 
 // this version of Solve for Adams-Bashforth has not been implemented yet..
-void AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+void AdamsBashforthIvpOdeSolver::Solve2(AbstractOdeSystem* pAbstractOdeSystem, 
                 double startTime,
                 double endTime,
                 double timeStep)
