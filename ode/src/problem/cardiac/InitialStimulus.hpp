@@ -16,7 +16,7 @@ class InitialStimulus : public AbstractStimulusFunction
         double mTimeOfStimulus;
      public: 
          InitialStimulus(double magnitudeOfStimulus, double duration, double timeOfStimulus=0.0);
-        ~InitialStimulus();
+         virtual ~InitialStimulus();
          double GetStimulus(double time);       
 };
 

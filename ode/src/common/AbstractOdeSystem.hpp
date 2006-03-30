@@ -12,7 +12,7 @@ class AbstractOdeSystem
 { 
     protected:
     
-    int mNumberOfStateVariables;
+    unsigned mNumberOfStateVariables;
     std::vector<double> mStateVariables;
     std::vector<double> mInitialConditions;
  
@@ -23,7 +23,7 @@ class AbstractOdeSystem
     std::vector<std::string> mVariableUnits;
 
 
-	AbstractOdeSystem() {mNumberOfStateVariables = -1;}; /**< Constructor*/
+	//AbstractOdeSystem() {mNumberOfStateVariables = -1;}; /**< Constructor*/
 	
 	virtual ~AbstractOdeSystem() {}; /**<  Destructor */  
 	

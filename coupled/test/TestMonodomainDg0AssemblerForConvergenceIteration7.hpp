@@ -6,7 +6,7 @@
 #include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petscvec.h>
 #include <vector>
 #include <iostream>
 #include <fstream>

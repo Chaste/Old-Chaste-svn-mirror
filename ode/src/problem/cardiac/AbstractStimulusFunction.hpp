@@ -11,6 +11,9 @@ class AbstractStimulusFunction
     public:
         //Returns stimulus at time 'time'
         virtual double GetStimulus(double time) = 0;
+        virtual ~AbstractStimulusFunction()
+        {
+        }
 };
 
 #endif //_ABSTRACTSTIMULUSFUNCTION_HPP_

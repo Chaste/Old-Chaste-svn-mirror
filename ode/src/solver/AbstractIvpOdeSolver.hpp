@@ -32,7 +32,11 @@ class AbstractIvpOdeSolver
     virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
                               double startTime,
                               double endTime,
-                              double timeStep) = 0;                             
+                              double timeStep) = 0;  
+                              
+    virtual ~AbstractIvpOdeSolver()
+    {
+    }                                                         
 };
 
 #endif //_ABSTRACTIVPODESOLVER_HPP_

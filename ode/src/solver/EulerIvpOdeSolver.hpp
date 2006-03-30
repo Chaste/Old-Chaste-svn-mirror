@@ -19,6 +19,10 @@ class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 											double timeStep,
 											double time,
 											std::vector<double> currentYValue);
+                                            
+    virtual ~EulerIvpOdeSolver()
+    {
+    }                                            
 	
 };
 

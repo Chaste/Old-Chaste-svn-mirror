@@ -35,6 +35,10 @@ class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 								double timeStep,
 								double time,
 								std::vector<double> currentYValue)=0;
+                                
+    virtual ~AbstractOneStepIvpOdeSolver()
+    {
+    }                                
 };
 
 #endif //_ABSTRACTONESTEPIVPODESOLVER_HPP_

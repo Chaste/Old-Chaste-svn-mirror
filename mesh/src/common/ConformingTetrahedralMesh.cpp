@@ -131,7 +131,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		    
 			for (int j=0; j < nodes_size; j++)
 			{
-				assert(node_indices[j] < mNodes.size());
+				assert(node_indices[j] < (int) mNodes.size());
 				nodes.push_back(&mNodes[node_indices[j]]);
 			}
 						
@@ -178,7 +178,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		int nodes_size = node_indices.size();
 		for (int j=0; j<nodes_size; j++)
 		{
-			assert(node_indices[j] < mNodes.size());
+			assert(node_indices[j] < (int) mNodes.size());
 			nodes.push_back(&mNodes[node_indices[j]]);
 		}
         
@@ -216,9 +216,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         // Determine if this is a boundary face
         std::set<const void *> containing_elements; // Elements that contain this face
 		std::vector<Node<SPACE_DIM>*> nodes;
-		for (int j=0; j<node_indices.size(); j++)
+		for (unsigned j=0; j<node_indices.size(); j++)
 		{
-			assert(node_indices[j] < mNodes.size());
+			assert(node_indices[j] < (int) mNodes.size());
 			// Add Node pointer to list for creating an element
 			nodes.push_back(&mNodes[node_indices[j]]);
             
@@ -260,7 +260,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         {
             // This is a boundary face
             // Ensure all its nodes are marked as boundary nodes
-            for (int j=0; j<nodes.size(); j++)
+            for (unsigned j=0; j<nodes.size(); j++)
             {
                 if (!nodes[j]->IsBoundaryNode())
                 {

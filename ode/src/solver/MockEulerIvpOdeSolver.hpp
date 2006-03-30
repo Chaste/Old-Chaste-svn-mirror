@@ -26,6 +26,10 @@ class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
                           double endTime,
                           double timeStep,
                           std::vector<double> initialConditions);
+                          
+    virtual ~MockEulerIvpOdeSolver()
+    {
+    }                        
 
 };
 

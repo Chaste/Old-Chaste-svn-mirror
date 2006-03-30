@@ -28,7 +28,7 @@ public:
     std::vector<double> GetVariableAtIndex(int index)
     {
         std::vector<double> answer;
-        for (int i=0; i<mSolutions.size(); i++){
+        for (unsigned i=0; i<mSolutions.size(); i++){
             answer.push_back(mSolutions[i][index]);
         }
         return(answer);
