@@ -38,8 +38,15 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 				double startTime,
 				double endTime,
 				double timeStep,
-				std::vector<double> initialConditions)
+				std::vector<double> initialConditions /*default is empty vector*/)
 {
+
+    if( initialConditions.empty() )
+    {
+        // need to implement the version this method which updates the state variable;
+        assert(0);
+    }
+
 
     unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
@@ -157,11 +164,3 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 }
 
 
-// this version of Solve for Adams-Bashforth has not been implemented yet..
-void AdamsBashforthIvpOdeSolver::Solve2(AbstractOdeSystem* pAbstractOdeSystem, 
-                double startTime,
-                double endTime,
-                double timeStep)
-{
-    assert(0);
-}

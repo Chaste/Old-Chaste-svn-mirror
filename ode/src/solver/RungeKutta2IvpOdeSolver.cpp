@@ -24,10 +24,16 @@ std::vector<double> RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
                                         double timeStep,
                                         double time,
                                         std::vector<double> currentYValue)
-{
-
+{  
     int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
-    
+
+    bool bUsingStateVariables = false;
+    if(currentYValue.empty())
+    {
+        bUsingStateVariables = true;
+        currentYValue.reserve(num_equations);
+        currentYValue = pAbstractOdeSystem->mStateVariables;
+    }
     /*Apply Runge-Kutta 2nd Order method for each timestep in AbstractOneStepIvpSolver.  
      * Calculates a vector containing the next Y value from the current one for each 
      * equation in the system.
@@ -49,7 +55,15 @@ std::vector<double> RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
 	for(int i=0;i<num_equations; i++) 
 	{
 		k2[i] = timeStep*dy[i];
-		next_y_value[i]=currentYValue[i]+k2[i];
+        
+        if( !bUsingStateVariables )
+        {
+       		next_y_value[i]=currentYValue[i] + k2[i]; 
+        }
+        else
+        {
+            pAbstractOdeSystem->mStateVariables[i] += k2[i];
+        }
 	}
 	
 	return next_y_value;

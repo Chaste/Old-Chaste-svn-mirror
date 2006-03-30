@@ -10,14 +10,19 @@
 
 class AbstractOdeSystem
 { 
-    protected:
+public:
+    // this is public so that AbstractIvpOdeSolver has direct access
+    //\todo - change this to private/protected and make AbstractIvpOdeSolver a
+    // friend, or whatever.
+    std::vector<double> mStateVariables;
+
+protected:
     
     unsigned int mNumberOfStateVariables;
-    std::vector<double> mStateVariables;
     std::vector<double> mInitialConditions;
  
     
-    public:
+public:
 	
     std::vector<std::string> mVariableNames;
     std::vector<std::string> mVariableUnits;

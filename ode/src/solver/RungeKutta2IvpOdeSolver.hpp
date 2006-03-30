@@ -18,7 +18,7 @@ class RungeKutta2IvpOdeSolver : public AbstractOneStepIvpOdeSolver
     std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                             double timeStep,
                                             double time,
-                                            std::vector<double> currentYValue);
+                                            std::vector<double> currentYValue = std::vector<double>());
 	
 };
 
