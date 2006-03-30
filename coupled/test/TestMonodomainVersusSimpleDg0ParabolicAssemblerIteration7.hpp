@@ -7,7 +7,7 @@
 
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petscvec.h>
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -87,7 +87,7 @@ public:
         double* init_array;
         int lo, hi;
         VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        int ierr = VecGetArray(initial_condition_1, &init_array); 
+        VecGetArray(initial_condition_1, &init_array); 
         for (int global_index=lo; global_index<hi; global_index++)
         {
             double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
@@ -181,7 +181,7 @@ public:
         double* init_array;
         int lo, hi;
         VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        int ierr = VecGetArray(initial_condition_1, &init_array); 
+        VecGetArray(initial_condition_1, &init_array); 
         for (int global_index=lo; global_index<hi; global_index++)
         {
             double x=mesh.GetNodeAt(global_index)->GetPoint()[0];

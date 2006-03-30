@@ -6,7 +6,7 @@
 #include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petscvec.h>
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -121,7 +121,7 @@ public:
 
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
 
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {
@@ -193,7 +193,7 @@ public:
         monodomainProblem.Solve();
         
         double* voltage_array;
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
@@ -294,7 +294,7 @@ public:
         monodomainProblem.Solve();
         
         double* voltage_array;
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
@@ -399,7 +399,7 @@ public:
     
         // test whether voltages and gating variables are in correct ranges
 
-        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
+        VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
         
         for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
         {

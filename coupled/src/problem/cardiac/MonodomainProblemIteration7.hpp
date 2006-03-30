@@ -255,7 +255,7 @@ public:
                     node_number=37876;
                     ode_vars = mMonodomainPde->GetOdeVarsAtNode(node_number);
                     std::cout<<"At time "<<current_time<<" node "<<node_number<<":\t"; 
-                    for (int i=0; i<ode_vars.size(); i++){
+                    for (unsigned i=0; i<ode_vars.size(); i++){
                         std::cout<<"("<<i<<") "<<ode_vars[i]<<"\t";   
                     }
                     std::cout<<std::endl;
@@ -263,7 +263,7 @@ public:
                     node_number=37877;
                     ode_vars = mMonodomainPde->GetOdeVarsAtNode(node_number);
                     std::cout<<"At time "<<current_time<<" node "<<node_number<<":\t"; 
-                    for (int i=0; i<ode_vars.size(); i++){
+                    for (unsigned i=0; i<ode_vars.size(); i++){
                         std::cout<<"("<<i<<") "<<ode_vars[i]<<"\t";   
                     }
                     std::cout<<std::endl;
