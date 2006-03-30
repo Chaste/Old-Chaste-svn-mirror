@@ -37,11 +37,15 @@ do_build ()
 if [ -z "$1" ]; then
 	# Nightly test pack (don't include default tests)
 	do_build GccOpt_onlytests_Nightly
-	# Memory tests[C
+	# Memory tests
 	do_build MemoryTesting
 	do_build ParallelMemoryTesting
+	# Run the Continuous test pack on 2 processors
 	do_build Parallel_Continuous
+	# Run a profiling build
 	do_build Profile
+	# Run coverage testing
+	do_build Coverage
 else
 	do_build $1
 fi

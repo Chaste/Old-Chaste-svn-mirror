@@ -68,7 +68,7 @@ for gcda_file in gcda_files:
                   os.path.join(toplevel, 'src', end, gcda_file['file'][:-4] + 'cpp'))
 
 # Now find all our source files
-src_dirs = glob.glob('*/src/')
+src_dirs = glob.glob('*/src')
 src_files = []
 for src_dir in src_dirs:
     for dirpath, dirnames, filenames in os.walk(src_dir):
@@ -107,7 +107,18 @@ for src_file in src_files:
                 covered_line_count += 1
             out_file.write("%9s:%5s:%s" % (aggregated_count, line_no, src_line))
     # Output a summary
-    if missed_line_count == 0:
+    if not gcov_files:
+        # No gcov files found for this source file.
+        # This may not be an error, if the source file in question is an .hpp file with
+        # an associated .cpp file containing all the code for the class.
+        print src_file
+        if src_file['file'][-4:] == '.hpp' and \
+            os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
+            status = '' # So output file will be deleted
+        else:
+            out_file.write("This source file wasn't used at all!\n\nFailed 1 of 1 test\n")
+            status = "1_1"
+    elif missed_line_count == 0:
         out_file.write('\nOK!\n\n')
         status = 'OK'
     else:
@@ -118,7 +129,10 @@ for src_file in src_files:
     [fp.close() for fp in gcov_fps]
     out_file.close()
     # Alter file name to indicate summary
-    os.rename(out_file_name, out_file_name + '.' + status + '.0')
+    if status:
+        os.rename(out_file_name, out_file_name + '.' + status + '.0')
+    else:
+        os.remove(out_file_name)
     ## For now we concatenate these files into the output_dir
     #os.system('cat ' + ' '.join(gcov_files) + ' > ' +
     #          os.path.join(output_dir, mangled_dir + '#' + src_file['file'] + '.cat'))
