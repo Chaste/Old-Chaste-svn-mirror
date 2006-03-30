@@ -12,7 +12,7 @@ class AbstractOdeSystem
 { 
     protected:
     
-    unsigned mNumberOfStateVariables;
+    unsigned int mNumberOfStateVariables;
     std::vector<double> mStateVariables;
     std::vector<double> mInitialConditions;
  
@@ -22,10 +22,17 @@ class AbstractOdeSystem
     std::vector<std::string> mVariableNames;
     std::vector<std::string> mVariableUnits;
 
+    /**
+     * Constructor for an ODE system.
+     * 
+     * @param numberOfStateVariables  how many ODEs make up the system
+     */
+	AbstractOdeSystem(unsigned numberOfStateVariables = 0)
+    {
+        mNumberOfStateVariables = numberOfStateVariables;
+    }
 
-	//AbstractOdeSystem() {mNumberOfStateVariables = -1;}; /**< Constructor*/
-	
-	virtual ~AbstractOdeSystem() {}; /**<  Destructor */  
+	virtual ~AbstractOdeSystem() {} /**<  Destructor */  
 	
 	virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
 	
@@ -40,9 +47,9 @@ class AbstractOdeSystem
 //        {
 //            return mStateVariables.size(); 
 //        }
-    };
+    }
     
-    virtual void VerifyVariables(std::vector<double>& odeVars) {}
+    
     
     virtual void SetInitialConditions(std::vector<double> initialConditions) 
     {
