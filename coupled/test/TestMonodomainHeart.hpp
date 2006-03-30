@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINHEARTITERATION7_HPP_
-#define _TESTMONODOMAINHEARTITERATION7_HPP_
+#ifndef _TESTMONODOMAINHEART_HPP_
+#define _TESTMONODOMAINHEART_HPP_
 
 #include "Element.hpp"
 
@@ -28,7 +28,7 @@
 #include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -59,7 +59,7 @@ public:
     }
 };
 
-class TestMonodomainHeartIteration7 : public CxxTest::TestSuite 
+class TestMonodomainHeart : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -79,7 +79,7 @@ public:
     void TestMonodomainDg0Heart()
     {
         PointStimulusHeart point_stimulus_heart;
-        MonodomainProblemIteration7<3> monodomainProblem;
+        MonodomainProblem<3> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/heart");
         monodomainProblem.SetEndTime(100);   // 100 ms
@@ -99,4 +99,4 @@ public:
     }
 };
 
-#endif //_TESTMONODOMAINHEARTITERATION7_HPP_
+#endif //_TESTMONODOMAINHEART_HPP_

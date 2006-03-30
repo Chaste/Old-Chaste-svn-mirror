@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINSLABITERATION7_HPP_
-#define _TESTMONODOMAINSLABITERATION7_HPP_
+#ifndef _TESTMONODOMAINSLAB_HPP_
+#define _TESTMONODOMAINSLAB_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -30,7 +30,7 @@
 #include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -62,7 +62,7 @@ class FaceStimulus3D: public AbstractMonodomainProblemStimulus<3>
     }
 };
 
-class TestMonodomainSlabIteration7 : public CxxTest::TestSuite 
+class TestMonodomainSlab : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -89,7 +89,7 @@ public:
     {
         FaceStimulus3D face_stimulus_3D;
         
-        MonodomainProblemIteration7<3> monodomainProblem;
+        MonodomainProblem<3> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomainProblem.SetEndTime(60);   // 60 ms
@@ -172,7 +172,7 @@ public:
     void xTestMonodomainDg0Slab()
     {
         PointStimulusSlab point_stimulus_heart;
-        MonodomainProblemIteration7<2> monodomainProblem;
+        MonodomainProblem<2> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/square_4096_elements");
         monodomainProblem.SetEndTime(250);   // 250 ms
@@ -198,7 +198,7 @@ public:
     {
         FaceStimulus3D face_stimulus_3D;
         
-        MonodomainProblemIteration7<3> monodomainProblem;
+        MonodomainProblem<3> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomainProblem.SetEndTime(4);   // 4 ms
@@ -285,4 +285,4 @@ public:
 };
 
 
-#endif //_TESTMONODOMAINSLABITERATION7_HPP_
+#endif //_TESTMONODOMAINSLAB_HPP_

@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINDG0ASSEMBLERLONGITERATION7_HPP_
-#define _TESTMONODOMAINDG0ASSEMBLERLONGITERATION7_HPP_
+#ifndef _TESTMONODOMAINDG0ASSEMBLERLONG_HPP_
+#define _TESTMONODOMAINDG0ASSEMBLERLONG_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -28,7 +28,7 @@
 #include "MockEulerIvpOdeSolver.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -54,7 +54,7 @@ public:
     }
 };
 
-class TestMonodomainDg0AssemblerLongIteration7 : public CxxTest::TestSuite 
+class TestMonodomainDg0AssemblerLong : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -87,7 +87,7 @@ public:
         
         PointStimulus2D point_stimulus_2D(60); // Central node
 
-        MonodomainProblemIteration7<2> monodomainProblem;
+        MonodomainProblem<2> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomainProblem.SetEndTime(500);   // 500 ms
@@ -166,4 +166,4 @@ public:
         VecDestroy(monodomainProblem.mCurrentVoltage);
     }   
 };
-#endif //_TESTMONODOMAINDG0ASSEMBLERLONGITERATION7_HPP_
+#endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_

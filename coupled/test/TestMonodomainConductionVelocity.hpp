@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINCONDUCTIONVELOCITYITERATION7_HPP_
-#define _TESTMONODOMAINCONDUCTIONVELOCITYITERATION7_HPP_
+#ifndef _TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
+#define _TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -31,7 +31,7 @@
 #include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -46,7 +46,7 @@ public:
     }
 };
 
-class TestMonodomainConductionVelocityIteration7 : public CxxTest::TestSuite 
+class TestMonodomainConductionVelocity : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -66,7 +66,7 @@ public:
     void TestMonodomainDg01D_100elements()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem;
+        MonodomainProblem<1> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomainProblem.SetEndTime(30);   // 30 ms
@@ -137,7 +137,7 @@ public:
     void TestMonodomainDg01D_200elements()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem;
+        MonodomainProblem<1> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1_200_elements");
         monodomainProblem.SetEndTime(30);   // 30 ms
@@ -205,7 +205,7 @@ public:
     void TestMonodomainDg01D_20elements()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem;
+        MonodomainProblem<1> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
         monodomainProblem.SetEndTime(30);   // 30 ms
@@ -267,4 +267,4 @@ public:
         }
     }
 };
-#endif //_TESTMONODOMAINCONDUCTIONVELOCITYITERATION7_HPP_
+#endif //_TESTMONODOMAINCONDUCTIONVELOCITY_HPP_

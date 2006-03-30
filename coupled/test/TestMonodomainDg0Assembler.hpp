@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINDG0ASSEMBLERITERATION7_HPP_
-#define _TESTMONODOMAINDG0ASSEMBLERITERATION7_HPP_
+#ifndef _TESTMONODOMAINDG0ASSEMBLER_HPP_
+#define _TESTMONODOMAINDG0ASSEMBLER_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -28,7 +28,7 @@
 #include "MockEulerIvpOdeSolver.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -88,7 +88,7 @@ public:
     }
 };
 
-class TestMonodomainDg0AssemblerIteration7 : public CxxTest::TestSuite 
+class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -109,7 +109,7 @@ public:
     void TestMonodomainDg01D()
     {
         PointStimulus1D point_stimulus_1D;
-        MonodomainProblemIteration7<1> monodomainProblem;
+        MonodomainProblem<1> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomainProblem.SetEndTime(2);   // 2 ms
@@ -186,7 +186,7 @@ public:
         EdgeStimulus2D edge_stimulus_2D;
         
         // using the criss-cross mesh so wave propagates properly
-        MonodomainProblemIteration7<2> monodomainProblem;
+        MonodomainProblem<2> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomainProblem.SetEndTime(2);   // 2 ms
@@ -294,7 +294,7 @@ public:
         
         PointStimulus2D point_stimulus_2D(60); // Central node
         
-        MonodomainProblemIteration7<2> monodomainProblem;
+        MonodomainProblem<2> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomainProblem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
@@ -371,4 +371,4 @@ public:
     }   
 };
 
-#endif //_TESTMONODOMAINDG0ASSEMBLERITERATION7_HPP_
+#endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

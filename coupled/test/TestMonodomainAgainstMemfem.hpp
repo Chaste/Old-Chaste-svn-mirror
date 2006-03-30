@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINAGAINSTMEMFEMITERATION7_HPP_
-#define _TESTMONODOMAINAGAINSTMEMFEMITERATION7_HPP_
+#ifndef _TESTMONODOMAINAGAINSTMEMFEM_HPP_
+#define _TESTMONODOMAINAGAINSTMEMFEM_HPP_
 
 
 // Element.hpp includes the Boost ublas objects - these need to
@@ -31,7 +31,7 @@
 #include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -54,7 +54,7 @@ class FaceStimulus3D: public AbstractMonodomainProblemStimulus<3>
     }
 };
 
-class TestMonodomainAgainstMemfemIteration7 : public CxxTest::TestSuite 
+class TestMonodomainAgainstMemfem : public CxxTest::TestSuite 
 {   
     
 public:
@@ -67,7 +67,7 @@ public:
     {
         FaceStimulus3D face_stimulus_3D;
         
-        MonodomainProblemIteration7<3> monodomainProblem;
+        MonodomainProblem<3> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomainProblem.SetEndTime(60);   // 60 ms
@@ -81,4 +81,4 @@ public:
 }; 
 
 
-#endif //_TESTMONODOMAINAGAINSTMEMFEMITERATION7_HPP_
+#endif //_TESTMONODOMAINAGAINSTMEMFEM_HPP_

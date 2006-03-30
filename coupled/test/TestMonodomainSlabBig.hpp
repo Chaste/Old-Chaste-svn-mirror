@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINSLABBIGITERATION7_HPP_
-#define _TESTMONODOMAINSLABBIGITERATION7_HPP_
+#ifndef _TESTMONODOMAINSLABBIG_HPP_
+#define _TESTMONODOMAINSLABBIG_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -18,7 +18,7 @@
 //#include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 //#include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 #include "ConformingTetrahedralMesh.cpp"
@@ -38,7 +38,7 @@ class CornerStimulus: public AbstractMonodomainProblemStimulus<3>
 };
 
 
-class TestMonodomainSlabBigIteration7 : public CxxTest::TestSuite 
+class TestMonodomainSlabBig : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -59,7 +59,7 @@ public:
     {
         CornerStimulus corner_stimulus;
         
-        MonodomainProblemIteration7<3> monodomainProblem;
+        MonodomainProblem<3> monodomainProblem;
 
         monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_100mm_6000_elements");
         monodomainProblem.SetEndTime(10);   // 10 ms
@@ -72,4 +72,4 @@ public:
 
 
 
-#endif //_TESTMONODOMAINSLABBIGITERATION7_HPP_
+#endif //_TESTMONODOMAINSLABBIG_HPP_

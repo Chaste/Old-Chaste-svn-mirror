@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCEITERATION7_HPP_
-#define _TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCEITERATION7_HPP_
+#ifndef _TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCE_HPP_
+#define _TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCE_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -29,7 +29,7 @@
 #include "MockEulerIvpOdeSolver.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
@@ -56,7 +56,7 @@ public:
     }
 };
 
-class TestMonodomainDg0AssemblerForConvergenceIteration7 : public CxxTest::TestSuite 
+class TestMonodomainDg0AssemblerForConvergence : public CxxTest::TestSuite 
 {   
 private:
     /**
@@ -87,7 +87,7 @@ public:
 
         do
         {
-            MonodomainProblemIteration7<1> monodomainProblem;
+            MonodomainProblem<1> monodomainProblem;
     
             monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
             monodomainProblem.SetEndTime(2);   // 2 ms
@@ -216,7 +216,7 @@ public:
 
             // Solve the problem itself
            
-            MonodomainProblemIteration7<1> monodomainProblem;
+            MonodomainProblem<1> monodomainProblem;
     
             monodomainProblem.SetMeshFilename(mesh_filename);
             monodomainProblem.SetEndTime(2);   // 2 ms
@@ -302,4 +302,4 @@ public:
 };
 
 
-#endif //_TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCEITERATION7_HPP_
+#endif //_TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCE_HPP_

@@ -1,2 +1,2 @@
-TestMonodomainHeartIteration7.hpp
-TestMonodomainSlabBigIteration7.hpp
+TestMonodomainHeart.hpp
+TestMonodomainSlabBig.hpp

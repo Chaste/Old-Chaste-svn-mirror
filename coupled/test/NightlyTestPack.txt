@@ -1,4 +1,4 @@
-TestMonodomainAgainstMemfemIteration7.hpp
-TestMonodomainConductionVelocityIteration7.hpp
-TestMonodomainDg0AssemblerLongIteration7.hpp
-TestMonodomainSlabIteration7.hpp
+TestMonodomainAgainstMemfem.hpp
+TestMonodomainConductionVelocity.hpp
+TestMonodomainDg0AssemblerLong.hpp
+TestMonodomainSlab.hpp

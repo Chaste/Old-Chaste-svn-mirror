@@ -1,9 +1,9 @@
-#ifndef _MONODOMAINPROBLEMITERATION7_HPP_
-#define _MONODOMAINPROBLEMITERATION7_HPP_
+#ifndef _MONODOMAINPROBLEM_HPP_
+#define _MONODOMAINPROBLEM_HPP_
 
 #include <iostream>
 
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
@@ -25,7 +25,7 @@
  */
 
 template<int SPACE_DIM>
-class MonodomainProblemIteration7
+class MonodomainProblem
 {
 private:
     /**
@@ -59,7 +59,7 @@ public:
      * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
      */
      
-    MonodomainProblemIteration7()
+    MonodomainProblem()
     : mMeshFilename(""),   // i.e. undefined
       mEndTime(1000),   // 1,000 ms = 1 second
       mOutputDirectory(""),   // i.e. undefined
@@ -79,7 +79,7 @@ public:
      * Destructor
      */
      
-    ~MonodomainProblemIteration7()
+    ~MonodomainProblem()
     { 
         if (mMonodomainPde != NULL)
         {
@@ -340,4 +340,4 @@ public:
 };
 
 
-#endif //_MONODOMAINPROBLEMITERATION7_HPP_
+#endif //_MONODOMAINPROBLEM_HPP_
