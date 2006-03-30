@@ -6,7 +6,7 @@
 #include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include <petsc.h>
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -74,7 +74,6 @@ public:
     // This version has a longer duration, and is disabled by default.  The
     // version below has the same duration as the tests in
     // TestMonodomainDg0Assembler.hpp
-#endif //_TESTMONODOMAINSLABSHORT_HPP_
 
     void TestMonodomainDg03DWithFaceStimulus( void )
     {
@@ -103,8 +102,7 @@ public:
 //        // test whether voltages and gating variables are in correct ranges
 //
 //        int ierr = VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array); 
-//      #endif //_TESTMONODOMAINSLABSHORT_HPP_
-  
+//        
 //        for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
 //        {
 //            // assuming LR model has Ena = 54.4 and Ek = -77
@@ -127,8 +125,7 @@ public:
 //        }
 //        
 //        int num_procs;
-//      #endif //_TESTMONODOMAINSLABSHORT_HPP_
-  MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+//        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
 //
 //        if (num_procs == 1)
 //        {
@@ -174,6 +171,5 @@ public:
 //        VecDestroy(monodomainProblem.mCurrentVoltage);
     }   
 };
-
 
 #endif //_TESTMONODOMAINSHORTITERATION7_HPP_
