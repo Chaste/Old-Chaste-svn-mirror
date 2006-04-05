@@ -2,6 +2,7 @@
 #define ABSTRACTCARDIACCELL_HPP_
 
 #include "AbstractOdeSystem.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 #include <vector>
 
 /**
@@ -9,11 +10,9 @@
  */
 class AbstractCardiacCell : public AbstractOdeSystem
 {
-private:
-    unsigned int mVoltageIndex;  /**< The index of the voltage within our state variable vector */
 
 protected:
-    
+    unsigned int mVoltageIndex;  /**< The index of the voltage within our state variable vector */ 
     AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
 
 public:
@@ -24,7 +23,7 @@ public:
         : AbstractOdeSystem(numberOfStateVariables)
     {
         mpOdeSolver = pOdeSolver;
-        asssert(voltageIndex < mNumberOfStateVariables);
+        assert(voltageIndex < mNumberOfStateVariables);
         mVoltageIndex = voltageIndex;
     }
 
@@ -33,14 +32,28 @@ public:
     }
     
     /**
+     * Initialise the cell:
+     *   set our state variables to the initial conditions,
+     *   set model parameters to their default values.
+     */
+    virtual void Init()
+    {
+        mStateVariables = mInitialConditions;
+    }
+    
+    /**
      * Fudge to ensure that gating variables do not go out of bounds.
      */
     virtual void VerifyVariables(std::vector<double>& odeVars) {}
     
     /**
-     * Simulates this cell's behaviour between the time interval [tStart, tEnd].
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep dt.
      */
-    virtual void Compute(double tStart, double tEnd)=0;
+    virtual OdeSolution Compute(double tStart, double tEnd, double dt)
+    {
+        return mpOdeSolver->Solve(this, tStart, tEnd, dt, mStateVariables);
+    }
     
     /**
      * Computes the total current flowing through the cell membrane.

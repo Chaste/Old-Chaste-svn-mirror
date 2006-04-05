@@ -1,14 +1,14 @@
 #ifndef _FITZHUGHNAGUMO1961ODESYSTEM_HPP_
 #define _FITZHUGHNAGUMO1961ODESYSTEM_HPP_
 
-#include "AbstractOdeSystem.hpp"
+#include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
 
 /**
  * Represents the FitzHugh-Nagumo system of ODEs.
  */
-class FitzHughNagumo1961OdeSystem : public AbstractOdeSystem
+class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
 {
    private:
       // Stimulus to be applied to cell
@@ -21,16 +21,21 @@ class FitzHughNagumo1961OdeSystem : public AbstractOdeSystem
       
    public:
       // Constructor
-      FitzHughNagumo1961OdeSystem(AbstractStimulusFunction *stimulus);
+      FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver, 
+                                  AbstractStimulusFunction *stimulus);
+                                  
       // Destructor
       ~FitzHughNagumo1961OdeSystem();
 
+      void Init();
+      
       void SetStimulusFunction(AbstractStimulusFunction *stimulus);
       double GetStimulus(double time);
       
       // Compute the RHS of the FitHugh-Nagumo system of ODEs
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
       void VerifyVariables(std::vector<double>& odeVars);
+      double GetIIonic();
 };
 
 #endif //_FITZHUGHNAGUMO1961ODESYSTEM_HPP_

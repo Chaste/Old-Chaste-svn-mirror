@@ -21,6 +21,7 @@
 #include "ColumnDataReader.hpp"
 
 #include "AbstractOdeSystem.hpp"
+#include "AbstractCardiacCell.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -32,6 +33,48 @@ class TestIonicModels : public CxxTest::TestSuite
 {
 public:
 
+    void runOdeSolverWithIonicModelNew(AbstractCardiacCell *pOdeSystem,
+                                    double endTime,
+                                    double timeStep,
+                                    const char *pFilename)
+    {
+        /*
+         * Solve 
+         */
+        double start_time = 0.0;
+        OdeSolution solution = pOdeSystem->Compute(start_time, endTime, timeStep);
+        
+        /*
+         * Write data to a file using ColumnDataWriter
+         */                                                           
+        int step_per_row = 100;             
+        ColumnDataWriter writer("testoutput",pFilename);
+        int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
+        
+        std::vector<int> var_ids;
+        for (unsigned i=0; i<pOdeSystem->mVariableNames.size(); i++)
+        {
+            var_ids.push_back(writer.DefineVariable(pOdeSystem->mVariableNames[i],
+                                                    pOdeSystem->mVariableUnits[i]));
+        }
+        writer.EndDefineMode();
+                
+        for (unsigned i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
+        {
+            if (i!=0)
+            {
+                writer.AdvanceAlongUnlimitedDimension();
+            }
+            writer.PutVariable(time_var_id, solution.mTime[i]);
+            for (unsigned j=0; j<var_ids.size(); j++)
+            {
+                writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
+            }
+        }        
+        writer.Close();        
+    }
+    
+    
     void runOdeSolverWithIonicModel(AbstractOdeSystem *pOdeSystem,
                                     double endTime,
                                     double timeStep,
@@ -139,12 +182,13 @@ public:
                                  duration_stimulus,
                                  start_stimulus); 
 
-        FitzHughNagumo1961OdeSystem fhn61_ode_system(&stimulus);
+        EulerIvpOdeSolver solver;
+        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, &stimulus);
         
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&fhn61_ode_system,
+        runOdeSolverWithIonicModelNew(&fhn61_ode_system,
                                    500.0,
                                    0.01,
                                    "FHN61RegResult");

@@ -5,15 +5,13 @@
 /**
  * Constructor
  */
-FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractStimulusFunction *stimulus):
-AbstractOdeSystem()
+FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
+                                                         AbstractStimulusFunction *pStimulus)
+    : AbstractCardiacCell(pOdeSolver,2,0)
 {
-    mNumberOfStateVariables=2;
-    mpStimulus= stimulus;
-    // Initialize model constants
-    mAlpha = -0.08; // Typical values between 0.10 and 0.15
-    mGamma = 3.00; 
-    mEpsilon = 0.005;
+    
+    mpStimulus= pStimulus;
+   
 
    /*
     * State variable
@@ -26,6 +24,7 @@ AbstractOdeSystem()
     mVariableNames.push_back("w");
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.0);
+    Init();
 }
 
 /**
@@ -36,6 +35,16 @@ FitzHughNagumo1961OdeSystem::~FitzHughNagumo1961OdeSystem(void)
    // Do nothing
 }
 
+
+void FitzHughNagumo1961OdeSystem::Init()
+{
+    AbstractCardiacCell::Init();
+    // Initialize model constants
+    mAlpha = -0.08; // Typical values between 0.10 and 0.15
+    mGamma = 3.00; 
+    mEpsilon = 0.005;
+}    
+ 
 /**
  * Returns a vector representing the RHS of the FitzHugh-Nagumo system of Odes at each time step, y' = [y1' ... yn'].
  * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
@@ -86,4 +95,12 @@ double FitzHughNagumo1961OdeSystem::GetStimulus(double time)
 void FitzHughNagumo1961OdeSystem::VerifyVariables(std::vector<double>& odeVars)
 {
     //\todo code VerifyVariables in FHN1961OdeSystem
+}
+
+double FitzHughNagumo1961OdeSystem::GetIIonic()
+{
+    double membrane_V = mStateVariables[mVoltageIndex];
+    double recovery_variable = mStateVariables[1];
+    double fake_ionic_current = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable;
+    return fake_ionic_current;
 }
