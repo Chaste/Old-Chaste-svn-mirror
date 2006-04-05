@@ -147,7 +147,7 @@ public:
 		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
-		
+
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationWithSourceTermPde<1> pde;  		
 	

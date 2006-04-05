@@ -178,9 +178,10 @@ private:
 			default:
 			{
 				assert(0);
-				return F; // Avoid compiler warning
+				//return F; // Avoid compiler warning!
 			}	
 		}
+        return F;
 	}
 	
 	FourthOrderTensor<SPACE_DIM> ComputeIsotropic_dTdE(MatrixDouble F)
@@ -202,7 +203,7 @@ private:
 			case 1:
 			{	
 				double I1 = C.GetFirstInvariant();
-				double  dW_by_dI1  = GetdW_by_dI1(I1);	
+				//double  dW_by_dI1  = GetdW_by_dI1(I1);	
 				double  d2W_by_dI1 = Getd2W_by_dI1(I1);
 				
 				for(int M=0; M<SPACE_DIM; M++)
@@ -227,7 +228,7 @@ private:
 				double I1 = C.GetFirstInvariant();
 				double I2 = C.GetSecondInvariant();
 
-				double   dW_by_dI1   =    GetdW_by_dI1(I1,I2);
+				//double   dW_by_dI1   =    GetdW_by_dI1(I1,I2);
 				double   dW_by_dI2   =    GetdW_by_dI2(I1,I2);
 				double  d2W_by_dI1   =   Getd2W_by_dI1(I1,I2);
 				double  d2W_by_dI2   =   Getd2W_by_dI2(I1,I2);
@@ -283,13 +284,13 @@ private:
 				double I2 = C.GetSecondInvariant();
 				double I3 = C.GetThirdInvariant();
 
-				double dW_by_dI1 = GetdW_by_dI1(I1,I2,I3);		
+				//double dW_by_dI1 = GetdW_by_dI1(I1,I2,I3);		
 				double dW_by_dI2 = GetdW_by_dI2(I1,I2,I3);		
-				double dW_by_dI3 = GetdW_by_dI2(I1,I2,I3);		
+				//double dW_by_dI3 = GetdW_by_dI2(I1,I2,I3);		
 
 				double  d2W_by_dI1   =   Getd2W_by_dI1(I1,I2,I3);
 				double  d2W_by_dI2   =   Getd2W_by_dI2(I1,I2,I3);
-				double  d2W_by_dI3   =   Getd2W_by_dI3(I1,I2,I3);
+				//double  d2W_by_dI3   =   Getd2W_by_dI3(I1,I2,I3);
 
 				double  d2W_by_dI1dI2 = Getd2W_by_dI1dI2(I1,I2,I3);
 				double  d2W_by_dI1dI3 = Getd2W_by_dI2dI3(I1,I2,I3);
@@ -337,10 +338,10 @@ private:
 								                        + d2W_by_dI2dI3 * dI2_dE(M,N) * dI3_dE(P,Q)
 								                        + dW_by_dI2     * dI2_dEdE.mVal[M][N][P][Q];
 
-								                        + d2W_by_dI3    * dI3_dE(M,N) * dI3_dE(P,Q)
-								                        + d2W_by_dI1dI3 * dI3_dE(M,N) * dI1_dE(P,Q)
-								                        + d2W_by_dI2dI3 * dI3_dE(M,N) * dI2_dE(P,Q)
-								                        + dW_by_dI3     * dI3_dEdE.mVal[M][N][P][Q];
+								                        //+ d2W_by_dI3    * dI3_dE(M,N) * dI3_dE(P,Q)
+								                        //+ d2W_by_dI1dI3 * dI3_dE(M,N) * dI1_dE(P,Q)
+								                        //+ d2W_by_dI2dI3 * dI3_dE(M,N) * dI2_dE(P,Q)
+								                        //+ dW_by_dI3     * dI3_dEdE.mVal[M][N][P][Q];
 							}
 						}
 					}
