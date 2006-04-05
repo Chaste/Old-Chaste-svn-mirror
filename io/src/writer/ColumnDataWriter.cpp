@@ -82,7 +82,7 @@ void ColumnDataWriter::CheckVariableName(std::string name)
 
 void ColumnDataWriter::CheckUnitsName(std::string name)
 {
-    for (int i=0; i<name.length(); i++)
+    for (unsigned i=0; i<name.length(); i++)
     {
         if (!isalnum(name[i]) && !(name[i]=='_'))
         {
@@ -279,7 +279,7 @@ void ColumnDataWriter::EndDefineMode()
             //Write out header(which may contain several variabls) for output file.
             //In this scope the method "CreateFixedDimensionFile" has not been invoked,
             //because there is no mFixedDimensionSize available.
-            for(int i = 0; i < mVariables.size(); i++)
+            for(unsigned i = 0; i < mVariables.size(); i++)
             {
                 (*mpCurrentOutputFile) << mVariables[i].mVariableName << "(" << mVariables[i].mVariableUnits << ")";
                 if(i < mVariables.size()-1)
@@ -334,7 +334,7 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
                                << "(" << mpFixedDimensionVariable->mVariableUnits << ") ";
     }
     //write out the column headers and spaces for the rest of the file
-    for(int i = 0; i < mVariables.size(); i++)
+    for(unsigned i = 0; i < mVariables.size(); i++)
     {
         (*mpCurrentOutputFile) << mVariables[i].mVariableName << "(" << mVariables[i].mVariableUnits << ")";
         if(i < mVariables.size()-1)

@@ -393,8 +393,6 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	
 	void TestMatrixAdditionAndSubtraction()
 	{
-		int m=3;
-		int n=4;
 		
 		MatrixDouble A(4,4);
 		MatrixDouble B(4,4);

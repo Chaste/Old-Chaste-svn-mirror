@@ -25,30 +25,26 @@ const int FILE_SUFFIX_WIDTH = 6;
 class ColumnDataWriter : public AbstractDataWriter
 {
 protected:
-   
-    bool mIsInDefineMode; /**< Is the DataWriter in define mode or not */
-    bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
-    bool mIsFixedDimensionSet; /**< Is the fixed dimension set */
-
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
-
+    bool mIsInDefineMode; /**< Is the DataWriter in define mode or not */
+    bool mIsFixedDimensionSet; /**< Is the fixed dimension set */
+    bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
+    long mUnlimitedDimensionPosition; /**< The position along the unlimited dimension that writing of variables will take place*/
+    long mFixedDimensionSize; /**< The size of the fixed dimension */
+    std::ofstream *mpCurrentOutputFile; /**< Filestream currently being addressed */
+    std::ofstream *mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
+    DataWriterVariable *mpUnlimitedDimensionVariable; /**< The variable corresponding to the unlimited dimension */
+    DataWriterVariable *mpFixedDimensionVariable; /**< The variable corresponding to the fixed dimension */
+        
     std::string mUnlimitedDimensionName; /**< The name of the unlimited dimension. */
     std::string mUnlimitedDimensionUnits; /**< The physical units of the unlimited dimension. */
 
     std::string mFixedDimensionName; /**< The name of the fixed dimension */
     std::string mFixedDimensionUnits; /**< The units of the fixed dimension */
-    long mFixedDimensionSize; /**< The size of the fixed dimension */
-
+    
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
-    DataWriterVariable *mpUnlimitedDimensionVariable; /**< The variable corresponding to the unlimited dimension */
-    DataWriterVariable *mpFixedDimensionVariable; /**< The variable corresponding to the fixed dimension */
-
-    long mUnlimitedDimensionPosition; /**< The position along the unlimited dimension that writing of variables will take place*/
-
-    std::ofstream *mpCurrentOutputFile; /**< Filestream currently being addressed */
-    std::ofstream *mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
-
+       
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
     static const int FIXED_DIMENSION_VAR_ID = -1; /**< id of fixed dimension variable */
