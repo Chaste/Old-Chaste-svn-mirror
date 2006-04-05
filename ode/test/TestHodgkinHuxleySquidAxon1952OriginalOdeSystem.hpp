@@ -2,25 +2,11 @@
 #define TESTHODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <cmath>
-#include <iostream>
+//#include <iostream>
 #include <vector>
-#include <string>
 
-#include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
 
-#include "EulerIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "AdamsBashforthIvpOdeSolver.hpp"
-
-#include "OdeSolution.hpp"
-
-#include "ColumnDataWriter.hpp"
-#include "ColumnDataReader.hpp"
-
-#include "AbstractOdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 
 
@@ -41,7 +27,7 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
                                  duration_stimulus,
                                  start_stimulus);
 
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, &stimulus);
         
         double v_singularity[2];
         v_singularity[0]=-65;

@@ -155,13 +155,13 @@ public:
         InitialStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
-
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&stimulus);
+        EulerIvpOdeSolver solver;
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, &stimulus);
         
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&hh52_ode_system,
+        runOdeSolverWithIonicModelNew(&hh52_ode_system,
                                    150.0,
                                    0.01,
                                    "HH52RegResult");

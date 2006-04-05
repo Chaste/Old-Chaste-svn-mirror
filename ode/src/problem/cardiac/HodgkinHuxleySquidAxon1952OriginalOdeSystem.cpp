@@ -6,8 +6,9 @@
 /**
  * Constructor
  */
-HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(AbstractStimulusFunction *stimulus):
-AbstractOdeSystem()
+HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem
+                (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *stimulus)
+             :AbstractCardiacCell(pOdeSolver,4,0)
 {
     
     mNumberOfStateVariables=4;
@@ -18,11 +19,7 @@ AbstractOdeSystem()
     * Constants for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
     */
 
-    leakage_current_g_L = 0.3;   // mS/cm2
-    membrane_Cm = 1.0;   // 1 uF/cm2
-    membrane_E_R = -75.0;   // mV
-    potassium_channel_g_K = 36.0;   // mS/cm2
-    sodium_channel_g_Na = 120.0;   // mS/cm2
+    
 
    /*
     * State variable
@@ -43,6 +40,7 @@ AbstractOdeSystem()
     mVariableNames.push_back("m");
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.05);
+    Init();
 }
 
 /**
@@ -130,7 +128,40 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
     return returnRHS;
 }
 
+void HodgkinHuxleySquidAxon1952OriginalOdeSystem::Init()
+{
+    AbstractCardiacCell::Init();
+    leakage_current_g_L = 0.3;   // mS/cm2
+    membrane_Cm = 1.0;   // 1 uF/cm2
+    membrane_E_R = -75.0;   // mV
+    potassium_channel_g_K = 36.0;   // mS/cm2
+    sodium_channel_g_Na = 120.0;   // mS/cm2
+}
+
 void HodgkinHuxleySquidAxon1952OriginalOdeSystem::VerifyVariables(std::vector<double>& odeVars)
 {
     //\todo code VerifyVariables in FHN1961OdeSystem
+}
+
+double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()
+{
+    double membrane_V = mStateVariables[mVoltageIndex];
+    double potassium_channel_n_gate_n = mStateVariables[1];
+    double sodium_channel_h_gate_h = mStateVariables[2];
+    double sodium_channel_m_gate_m = mStateVariables[3];
+
+   /*
+    * Compute the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
+    */
+
+    double leakage_current_E_L = membrane_E_R+10.613;
+    double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
+
+    double sodium_channel_E_Na = membrane_E_R+115.0;
+    double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
+    double potassium_channel_E_K = membrane_E_R-12.0;
+    double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
+    double i_ionic = sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L;
+    return i_ionic;
+  
 }
