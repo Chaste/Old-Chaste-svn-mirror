@@ -1,43 +1,19 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "AbstractOdeSystem.hpp"
 #include <cmath>
 #include <cassert>
 #include <iostream>
 /**
  * Constructor
  */
-LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractStimulusFunction *stimulus):
-AbstractOdeSystem()
+LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
+                                                       AbstractStimulusFunction *pStimulus)
+    : AbstractCardiacCell(pSolver, 8, 4)
 {
-    mNumberOfStateVariables=8;
-    
-   mpStimulus= stimulus;
+    mpStimulus = pStimulus;
+
 
    /*
-    * Constants for the LuoRudyIModel1991OdeSystem model
-    */
-   membrane_C = 1.0;
-   membrane_F = 96485.0;
-   membrane_R = 8314;
-   membrane_T = 310.0;
-   
-   background_current_E_b = -59.87;
-   background_current_g_b = 0.03921;
-   
-   fast_sodium_current_g_Na = 23.0;
-   ionic_concentrations_Ki = 145.0;
-   ionic_concentrations_Ko = 5.4;
-   ionic_concentrations_Nai = 18.0;
-   ionic_concentrations_Nao = 140.0;
-   
-   fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) * 
-                              log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-   
-   plateau_potassium_current_g_Kp = 0.0183;
-   time_dependent_potassium_current_PR_NaK = 0.01833;
-   
-   /*
-    * State variable
+    * State variables
     */
    
     mVariableNames.push_back("h");
@@ -71,6 +47,8 @@ AbstractOdeSystem()
     mVariableNames.push_back("x");
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.0056);
+    
+    Init();
 }
 
 /**
@@ -79,6 +57,33 @@ AbstractOdeSystem()
 LuoRudyIModel1991OdeSystem::~LuoRudyIModel1991OdeSystem(void)
 {
    // Do nothing
+}
+
+void LuoRudyIModel1991OdeSystem::Init()
+{
+    AbstractCardiacCell::Init();
+    /*
+     * Constants for the LuoRudyIModel1991OdeSystem model
+     */
+    membrane_C = 1.0;
+    membrane_F = 96485.0;
+    membrane_R = 8314;
+    membrane_T = 310.0;
+   
+    background_current_E_b = -59.87;
+    background_current_g_b = 0.03921;
+   
+    fast_sodium_current_g_Na = 23.0;
+    ionic_concentrations_Ki = 145.0;
+    ionic_concentrations_Ko = 5.4;
+    ionic_concentrations_Nai = 18.0;
+    ionic_concentrations_Nao = 140.0;
+   
+    fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) * 
+                               log(ionic_concentrations_Nao / ionic_concentrations_Nai);
+   
+    plateau_potassium_current_g_Kp = 0.0183;
+    time_dependent_potassium_current_PR_NaK = 0.01833;
 }
 
 /**
@@ -107,25 +112,6 @@ double LuoRudyIModel1991OdeSystem::GetStimulus(double time)
  */
 std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-   /*
-    * Typical initial conditions for the LuoRudyIModel1991OdeSystem model
-    *
-    * fast_sodium_current_h_gate_h = 0.9833
-    * fast_sodium_current_j_gate_j = 0.9895
-    * fast_sodium_current_m_gate_m = 0.0017
-    * intracellular_calcium_concentration_Cai = 0.0002
-    * membrane_V = -60.0
-    * slow_inward_current_d_gate_d = 0.003
-    * slow_inward_current_f_gate_f = 1.0
-    * time_dependent_potassium_current_X_gate_X = 0.0056
-    */
-
-   /*
-    * Throw an exception if the initial vector is larger than the number of equations
-    */
-
-   assert(rY.size() == 8);
-
    double fast_sodium_current_h_gate_h = rY[0];
    double fast_sodium_current_j_gate_j = rY[1];
    double fast_sodium_current_m_gate_m = rY[2];
@@ -139,15 +125,6 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
     * Compute the LuoRudyIModel1991OdeSystem model
     */
 
-    /* Hard code the assertions that gating probabilities 
-     * are always in the range [0,1]
-     * 
-     */
-    //assert( 0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0);
-    //assert( 0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0);
-    //assert( 0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0);
-    
-       
    double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
    double fast_sodium_current_h_gate_alpha_h;
@@ -260,6 +237,55 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
    return returnRHS;
 }
 
+
+double LuoRudyIModel1991OdeSystem::GetIIonic()
+{
+   double fast_sodium_current_h_gate_h = mStateVariables[0];
+   double fast_sodium_current_j_gate_j = mStateVariables[1];
+   double fast_sodium_current_m_gate_m = mStateVariables[2];
+   double intracellular_calcium_concentration_Cai = mStateVariables[3];
+   double membrane_V = mStateVariables[4];
+   double slow_inward_current_d_gate_d = mStateVariables[5];
+   double slow_inward_current_f_gate_f = mStateVariables[6];
+   double time_dependent_potassium_current_X_gate_X = mStateVariables[7];
+
+   /*
+    * Compute the LuoRudyIModel1991OdeSystem model
+    */
+   double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
+
+   double fast_sodium_current_i_Na = fast_sodium_current_g_Na*pow(fast_sodium_current_m_gate_m, 3.0)*fast_sodium_current_h_gate_h*fast_sodium_current_j_gate_j*(membrane_V-fast_sodium_current_E_Na);
+
+   double slow_inward_current_E_si = 7.7-13.0287*log(intracellular_calcium_concentration_Cai);
+   double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
+
+   double time_dependent_potassium_current_g_K = 0.282*sqrt(ionic_concentrations_Ko/5.4);
+   double time_dependent_potassium_current_Xi_gate_Xi;
+   if (membrane_V > -100.0)
+   {
+      time_dependent_potassium_current_Xi_gate_Xi = 2.837*(exp(0.04*(membrane_V+77.0))-1.0)/((membrane_V+77.0)*exp(0.04*(membrane_V+35.0)));
+   }
+   else
+   {
+      time_dependent_potassium_current_Xi_gate_Xi = 1.0;
+   }
+   double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
+   double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
+
+   double time_independent_potassium_current_g_K1 = 0.6047*sqrt(ionic_concentrations_Ko/5.4);
+   double time_independent_potassium_current_E_K1 =((membrane_R*membrane_T)/membrane_F)*log(ionic_concentrations_Ko/ionic_concentrations_Ki);
+   double time_independent_potassium_current_K1_gate_alpha_K1 = 1.02/(1.0+exp(0.2385*(membrane_V-time_independent_potassium_current_E_K1-59.215)));
+   double time_independent_potassium_current_K1_gate_beta_K1 = (0.49124*exp(0.08032*(membrane_V+5.476-time_independent_potassium_current_E_K1))+exp(0.06175*(membrane_V-(time_independent_potassium_current_E_K1+594.31))))/(1.0+exp(-0.5143*(membrane_V-time_independent_potassium_current_E_K1+4.753)));
+   double time_independent_potassium_current_K1_gate_K1_infinity = time_independent_potassium_current_K1_gate_alpha_K1/(time_independent_potassium_current_K1_gate_alpha_K1+time_independent_potassium_current_K1_gate_beta_K1);
+   double time_independent_potassium_current_i_K1 = time_independent_potassium_current_g_K1*time_independent_potassium_current_K1_gate_K1_infinity*(membrane_V-time_independent_potassium_current_E_K1);
+
+   double plateau_potassium_current_Kp = 1.0/(1.0+exp((7.488-membrane_V)/5.98));
+   double plateau_potassium_current_E_Kp = time_independent_potassium_current_E_K1;
+   double plateau_potassium_current_i_Kp = plateau_potassium_current_g_Kp*plateau_potassium_current_Kp*(membrane_V-plateau_potassium_current_E_Kp);
+
+   double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
+   return i_ionic;
+ }
 
 
 void LuoRudyIModel1991OdeSystem::VerifyVariables(std::vector<double>& odeVars)

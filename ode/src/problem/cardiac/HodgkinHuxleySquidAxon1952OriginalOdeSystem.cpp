@@ -7,24 +7,14 @@
  * Constructor
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem
-                (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *stimulus)
+                (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *pStimulus)
              :AbstractCardiacCell(pOdeSolver,4,0)
 {
-    
-    mNumberOfStateVariables=4;
-    
-    mpStimulus= stimulus;
+    mpStimulus = pStimulus;
 
-   /*
-    * Constants for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
-    */
-
-    
-
-   /*
-    * State variable
-    */
-   
+    /*
+     * State variable
+     */
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
     mInitialConditions.push_back(-75.0);
@@ -40,6 +30,7 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
     mVariableNames.push_back("m");
     mVariableUnits.push_back("");
     mInitialConditions.push_back(0.05);
+    
     Init();
 }
 
@@ -67,12 +58,6 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
     * sodium_channel_h_gate_h = 0.6
     * sodium_channel_m_gate_m = 0.05
     */
-
-   /*
-    * Throw an exception if the initial vector is larger than the number of equations
-    */
-
-    assert(rY.size() == 4);
 
     double membrane_V = rY[0];
     double potassium_channel_n_gate_n = rY[1];

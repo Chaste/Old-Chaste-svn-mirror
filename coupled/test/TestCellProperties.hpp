@@ -33,22 +33,17 @@ public:
                                  frequency,
                                  when);
 
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&stimulus);
-
         EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
         
         /*
          * Solve 
          */
         double start_time = 0.0;   // ms
-        double end_time = 3500.0;   // ms
+        double end_time = 3500.0;  // ms
         double time_step = 0.01;   // ms
                 
-        OdeSolution solution = solver.Solve(&lr91_ode_system,
-                                            start_time,
-                                            end_time,
-                                            time_step,
-                                            lr91_ode_system.GetInitialConditions());
+        OdeSolution solution = lr91_ode_system.Compute(start_time, end_time, time_step);
         
         // Display solution
 //        for (int i=0; i<=solution.GetNumberOfTimeSteps(); i++)

@@ -211,12 +211,13 @@ public:
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds           
         
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&stimulus);
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
         
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&lr91_ode_system,
+        runOdeSolverWithIonicModelNew(&lr91_ode_system,
                                    end_time,
                                    time_step,
                                    "Lr91DelayedStim");

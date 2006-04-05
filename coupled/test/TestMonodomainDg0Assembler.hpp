@@ -8,7 +8,7 @@
 #include <cxxtest/TestSuite.h>
 #include <petscvec.h>
 #include <vector>
-#include <iostream>
+//#include <iostream>
 #include <cmath>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -32,7 +32,8 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include "AbstractMonodomainProblemStimulus.hpp"
 
-#include<time.h>
+#include <time.h>
+
 class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
 {
 public:

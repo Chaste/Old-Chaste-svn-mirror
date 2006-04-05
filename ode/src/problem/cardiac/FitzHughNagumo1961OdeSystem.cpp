@@ -53,9 +53,6 @@ void FitzHughNagumo1961OdeSystem::Init()
  */
 std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-    // Throw an exception if the initial vector is larger than the number of equations
-    assert(rY.size() == 2);
-       
     double membrane_V = rY[0]; // v
     double recovery_variable = rY[1]; // w
    

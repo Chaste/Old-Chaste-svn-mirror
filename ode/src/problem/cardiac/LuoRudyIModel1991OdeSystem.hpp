@@ -1,14 +1,14 @@
 #ifndef _LUORUDYIMODEL1991ODESYSTEM_HPP_
 #define _LUORUDYIMODEL1991ODESYSTEM_HPP_
 
-#include "AbstractOdeSystem.hpp"
+#include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include <vector>
 
 /**
  * This class sets up the LuoRudyIModel1991OdeSystem system of equations.
  */
-class LuoRudyIModel1991OdeSystem : public AbstractOdeSystem
+class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
 {
    private:
       // Current and voltage components (objects) of the LuoRudyIModel1991OdeSystem model
@@ -32,9 +32,12 @@ class LuoRudyIModel1991OdeSystem : public AbstractOdeSystem
 
    public:
       // Constructor
-      LuoRudyIModel1991OdeSystem(AbstractStimulusFunction *stimulus);
+      LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
+                                 AbstractStimulusFunction *pStimulus);
       // Destructor
       ~LuoRudyIModel1991OdeSystem();
+      
+      void Init();
       
       void SetStimulusFunction(AbstractStimulusFunction *stimulus);
       double GetStimulus(double time);
@@ -43,6 +46,7 @@ class LuoRudyIModel1991OdeSystem : public AbstractOdeSystem
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
 
       void VerifyVariables(std::vector<double>& odeVars);
+      double GetIIonic();
 };
 
 #endif //
