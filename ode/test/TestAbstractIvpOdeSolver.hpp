@@ -39,8 +39,8 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		
 		TS_ASSERT_DELTA(testvalue,2.0,0.01);
         
-        std::cout<< "\nv2\n";
         // Test second version of Solve
+
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
         euler_solver.Solve(&ode_system, 0.0, 2.0, 0.001);
         std::vector<double> state_variables = ode_system.GetStateVariables();
