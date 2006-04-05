@@ -46,7 +46,15 @@ private:
     //virtual double GetdW_by_dE(MatrixDouble E, int index1, int index2)=0;
     
     
+    
+    
 public:
+    /**
+     * Virtual destructor
+     */
+    virtual ~AbstractMaterial() {};
+    
+    
 	/** Get the density of this material
 	 */
     double GetDensity()

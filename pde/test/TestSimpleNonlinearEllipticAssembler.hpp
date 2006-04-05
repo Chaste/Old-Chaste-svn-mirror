@@ -789,7 +789,6 @@ public:
 		AbstractBoundaryCondition<2>* pBoundaryCondition;
 		while (iter != mesh.GetBoundaryElementIteratorEnd())
 		{
-			double x = (*iter)->GetNodeLocation(0,0);
 			double y = (*iter)->GetNodeLocation(0,1);
 			if (fabs(y-1.0) < 1e-12)
 			{

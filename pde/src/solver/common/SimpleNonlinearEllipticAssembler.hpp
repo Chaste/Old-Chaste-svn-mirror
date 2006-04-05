@@ -648,7 +648,6 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianAnalytically(
 							const Vec currentSolution, Mat *pGlobalJacobian)
 {
-	PetscErrorCode ierr;
 	// Set all entries of jacobian to 0
 	MatZeroEntries(*pGlobalJacobian);
     

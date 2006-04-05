@@ -634,7 +634,6 @@ public:
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
-		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
@@ -997,7 +996,6 @@ public:
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
-		double t_end = 0.1;	
 		fullSolver.SetTimes(0, 0.1, 0.01);
 		fullSolver.SetInitialCondition(initial_condition);
 		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
@@ -1058,7 +1056,8 @@ public:
         
         // Check solution is constant throughout the mesh
         double* result_array;
-        int ierr = VecGetArray(result, &result_array); 
+        int ierr = VecGetArray(result, &result_array);
+        
  
         int lo,hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);

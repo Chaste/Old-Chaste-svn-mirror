@@ -63,7 +63,7 @@ public:
     	// Sanity checking
     	assert(ELEMENT_DIM <= SPACE_DIM);
     	//added extra 0.5 to ensure in correct interval for floor() function
-    	int total_nodes = (int)floor((ELEMENT_DIM+1)*(1 + 0.5*ELEMENT_DIM*(orderOfBasisFunctions - 1)) + 0.5);
+    	unsigned total_nodes = (unsigned)floor((ELEMENT_DIM+1)*(1 + 0.5*ELEMENT_DIM*(orderOfBasisFunctions - 1)) + 0.5);
 
     	assert(nodes.size() == total_nodes);
     	
@@ -153,7 +153,7 @@ public:
         // in the vector contained in ConformingTetrahedralMesh.
         if (ELEMENT_DIM == SPACE_DIM)
         {
-            for (int i=0; i<mNodes.size(); i++)
+            for (unsigned i=0; i<mNodes.size(); i++)
             {
                 mNodes[i]->AddElement((const void*)this);
             }
@@ -236,19 +236,19 @@ public:
     double GetNodeLocation(int localIndex, int dimension) const
     {
     	assert(dimension < SPACE_DIM);
-    	assert(localIndex < mNodes.size());
+    	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex]->rGetPoint()[dimension];
     }
     
     long GetNodeGlobalIndex(int localIndex) const
     {
-    	assert(localIndex < mNodes.size());
+    	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex]->GetIndex();
     }
     
     const Node<SPACE_DIM>* GetNode(int localIndex) const
     {
-    	assert(localIndex < mNodes.size());
+    	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex];
     }
     
@@ -400,7 +400,7 @@ public:
         // in the vector contained in ConformingTetrahedralMesh.
         if (0 == SPACE_DIM)
         {
-            for (int i=0; i<mNodes.size(); i++)
+            for (unsigned i=0; i<mNodes.size(); i++)
             {
                 mNodes[i]->AddElement((const void*)this);
             }
@@ -440,19 +440,19 @@ public:
     double GetNodeLocation(int localIndex, int dimension) const
     {
     	assert(dimension < SPACE_DIM);
-    	assert(localIndex < mNodes.size());
+    	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex]->GetPoint()[dimension];
     }
     
     long GetNodeGlobalIndex(int localIndex) const
     {
-    	assert(localIndex < mNodes.size());
+    	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex]->GetIndex();
     }
     
     const Node<SPACE_DIM>* GetNode(int localIndex) const
     {
-    	assert(localIndex < mNodes.size());
+    	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex];
     }
 

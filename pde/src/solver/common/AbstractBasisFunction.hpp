@@ -26,6 +26,7 @@ public:
    virtual void                      ComputeBasisFunctionsWithUpdate(const Point<ELEM_DIM> &rPoint, std::vector<double> &rBasisValues) const =0;
    virtual std::vector<VectorDouble> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const =0;
    virtual std::vector<VectorDouble> ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const MatrixDouble &rInverseJacobian) const =0;
+   virtual ~AbstractBasisFunction() { };
 };
 
 

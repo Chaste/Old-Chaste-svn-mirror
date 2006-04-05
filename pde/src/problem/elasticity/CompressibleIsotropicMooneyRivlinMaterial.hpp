@@ -53,6 +53,7 @@ public:
 		}
 	}	
 
+    virtual ~CompressibleIsotropicMooneyRivlinMaterial() {};
 
 private:
 	double mC1;

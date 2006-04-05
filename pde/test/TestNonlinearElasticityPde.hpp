@@ -31,7 +31,6 @@ public:
 		double c1 = 12.23;
 		CompressibleIsotropicMooneyRivlinMaterial<2> material(c1);
 		material.SetDensity(1.5);
-		double density = material.GetDensity();
 	
 		VectorDouble gravity(2);
 		gravity(0) = 1;
@@ -76,7 +75,6 @@ public:
 		double c2 = 13.34;
 		CompressibleIsotropicMooneyRivlinMaterial<3> material(c1,c2);
 		material.SetDensity(1.5);
-		double density = material.GetDensity();
 	
 		VectorDouble gravity(3);
 		gravity(0) = 1;
