@@ -4,75 +4,57 @@
 
 
 OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-                              double startTime,
-                              double endTime,
-                              double timeStep,
-                              std::vector<double> initialConditions /*default is empty vector*/)
-
-{   
-    // if no initial conditions, this method just updates the 
-    // state variable. Set a boolean here
-    bool bUseStateVariable = initialConditions.empty();
+                                               std::vector<double>& rYValues,
+                                               double startTime,
+                                               double endTime,
+                                               double timeStep,
+                                               double timeSampling)
+{
+    // assert the size of the rYValues vector is correct
+    assert(rYValues.size()==pAbstractOdeSystem->GetNumberOfStateVariables());  
     
-    if(!bUseStateVariable)
-    {    // Assert that the size of initialConditions vector = number of equations.
-        assert(initialConditions.size()==pAbstractOdeSystem->GetNumberOfStateVariables());  
-    }
-
     // Assert that we actually have a time interval > 0 .
     assert(endTime > startTime);
     
     // Assert that we  have a timestep > 0 .
     assert(timeStep > 0.0);
     
-    int numberOfTimeSteps;
+    // Assert that we  have a timesampling > 0 and >= timestep
+    assert(timeSampling >= timeStep);
+    
+    int numberOfTimeSamples;
     double currentTime;
 
     // Determine the number of time steps that will be required to solve the
     // ODE system (note that the current algorithm accounts for any potential
     // floating point error)
 
-    numberOfTimeSteps = 0;
+    numberOfTimeSamples = 0;
     
     currentTime = startTime;
 
     while (currentTime < endTime)
     {
-        numberOfTimeSteps++;
+        numberOfTimeSamples++;
         
-        if (startTime+numberOfTimeSteps*timeStep >= endTime)
+        if (startTime+numberOfTimeSamples*timeSampling >= endTime)
         {
             currentTime = endTime;
         }
         else
         {
-            currentTime = startTime+numberOfTimeSteps*timeStep;
+            currentTime = startTime+numberOfTimeSamples*timeSampling;
         }
     }
 
     // setup solutions if output is required
 
     OdeSolution solutions;
-
-    if(!bUseStateVariable)
-    {
-        solutions.SetNumberOfTimeSteps(numberOfTimeSteps);
-        solutions.mSolutions.push_back(initialConditions);
-        solutions.mTime.push_back(startTime);
-    }
-
-    std::vector<double> row; // A vector of current Y values.
-
-    if(!bUseStateVariable)
-    {
-        // use the input parameter
-        row = initialConditions;
-    } 
-    else
-    {
-        // use the state variable as the initial condition
-        row = pAbstractOdeSystem->GetStateVariables();
-    }
+    
+    solutions.SetNumberOfTimeSteps(numberOfTimeSamples);
+    solutions.mSolutions.push_back(rYValues);
+    solutions.mTime.push_back(startTime);
+    
     
     // Solve the ODE system
 
@@ -81,6 +63,47 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     int timeStepNumber = 0;
     
     currentTime = startTime;
+
+    double toTime;
+
+    while (currentTime < endTime)
+    {
+        timeStepNumber++;
+
+        toTime = startTime+timeStepNumber*timeSampling;
+     
+        if (toTime >= endTime)
+        {
+            toTime = endTime;
+        }
+     
+        Solve(pAbstractOdeSystem, rYValues, currentTime, toTime, timeStep);
+
+        currentTime = toTime;
+
+        // write current solution into solutions
+        solutions.mSolutions.push_back(rYValues);
+        // Push back new time into the time solution vector
+        solutions.mTime.push_back(currentTime);
+        
+    }
+
+    return solutions;
+}
+
+void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                                        std::vector<double>& rYValues,
+                                        double startTime,
+                                        double endTime,
+                                        double timeStep)
+{   
+    // Solve the ODE system
+
+    double realTimeStep = timeStep;
+
+    int timeStepNumber = 0;
+    
+    double currentTime = startTime;
 
     while (currentTime < endTime)
     {
@@ -95,20 +118,10 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
 
         // Function that calls the appropriate one-step solver
         
-        if(!bUseStateVariable)
-        {
-            row = CalculateNextYValue(pAbstractOdeSystem,
-                                    realTimeStep,
-                                    currentTime,
-                                    row);
-        }
-        else
-        {
-            CalculateNextYValue(pAbstractOdeSystem,
-                                    timeStep,
-                                    currentTime);
-            //pAbstractOdeSystem->SetStateVariables(row);
-        }
+        rYValues = CalculateNextYValue(pAbstractOdeSystem,
+                                       realTimeStep,
+                                       currentTime,
+                                       rYValues);
 
         // Determine the new current time
     
@@ -120,15 +133,5 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         {
             currentTime = startTime+timeStepNumber*timeStep;
         }
-        
-        if (!bUseStateVariable)
-        {
-            // write current solution into solutions
-            solutions.mSolutions.push_back(row);
-            // Push back new time into the time solution vector
-            solutions.mTime.push_back(currentTime);
-        }
     }
-
-    return solutions;
 }

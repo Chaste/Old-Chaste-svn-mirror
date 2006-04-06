@@ -52,7 +52,7 @@ public:
      */
     virtual OdeSolution Compute(double tStart, double tEnd, double dt)
     {
-        return mpOdeSolver->Solve(this, tStart, tEnd, dt, mStateVariables);
+        return mpOdeSolver->Solve(this, mStateVariables, tStart, tEnd, dt, dt);
     }
     
     /**

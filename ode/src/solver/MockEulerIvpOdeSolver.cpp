@@ -7,18 +7,33 @@ MockEulerIvpOdeSolver::MockEulerIvpOdeSolver() : EulerIvpOdeSolver()
     mCallCount=0;
 }
 
-OdeSolution MockEulerIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+OdeSolution MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
+                          std::vector<double> &rYValues, 
                           double startTime,
                           double endTime,
                           double timeStep,
-                          std::vector<double> initialConditions)
+                          double timeSampling)
+{
+    return EulerIvpOdeSolver::Solve(pAbstractOdeSystem, 
+                                    rYValues,
+                                    startTime,
+                                    endTime,
+                                    timeStep,
+                                    timeSampling);
+}
+
+void MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
+                          std::vector<double> &rYValues, 
+                          double startTime,
+                          double endTime,
+                          double timeStep)
 {
     mCallCount++;
-    return EulerIvpOdeSolver::Solve(pAbstractOdeSystem, 
-                          startTime,
-                          endTime,
-                          timeStep,
-                          initialConditions);
+    EulerIvpOdeSolver::Solve(pAbstractOdeSystem, 
+                                    rYValues,
+                                    startTime,
+                                    endTime,
+                                    timeStep);
 }
 
 int MockEulerIvpOdeSolver::GetCallCount()

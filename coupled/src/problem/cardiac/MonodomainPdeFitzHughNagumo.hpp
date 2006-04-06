@@ -200,17 +200,12 @@ public:
             AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[local_index][0] = p_current_solution[local_index];             
             
 	    	// solve            
-            OdeSolution solution = AbstractCoupledPde<SPACE_DIM>::mpOdeSolver->Solve(
-                        pFitzHughNagumoOdeSystem, AbstractCoupledPde<SPACE_DIM>::mTime, 
-                        AbstractCoupledPde<SPACE_DIM>::mTime+AbstractCoupledPde<SPACE_DIM>::mBigTimeStep, 
-                        AbstractCoupledPde<SPACE_DIM>::mSmallTimeStep, 
-                        AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ]);
-                    
-            // extract solution at end time and save in the store 
-            for(int j=0; j < 2; j++)
-            {
-                AbstractCoupledPde<SPACE_DIM>::mOdeVarsAtNode[ local_index ][j] = solution.mSolutions[ solution.mSolutions.size()-1 ][j];
-            }
+            this->mpOdeSolver->Solve(pFitzHughNagumoOdeSystem,
+                                     this->mOdeVarsAtNode[ local_index ],
+                                     this->mTime, 
+                                     this->mTime+this->mBigTimeStep, 
+                                     this->mSmallTimeStep,
+                                     this->mSmallTimeStep);
             
        		double Itotal = pFitzHughNagumoOdeSystem->GetStimulus(this->mTime+this->mBigTimeStep) +
 	    					GetIIonic( this->mOdeVarsAtNode[ local_index ] );

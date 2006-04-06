@@ -45,7 +45,10 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status, runtim
   testsuite_file = build.ResultsFileName(test_set_dir, testsuite, status, runtime)
   if os.path.isfile(testsuite_file):
     req.write('\n<pre>\n', 0)
-    req.sendfile(testsuite_file)
+    fp = open(testsuite_file)
+    for line in fp:
+      req.write(line.replace('&', '&amp;').replace('<', '&lt;'))
+    fp.close()
     req.write('\n</pre>\n', 0)
   else:
     req.write(_error('The requested test suite was not found.'))

@@ -23,8 +23,9 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         // Initialising the instance of our solution class
         OdeSolution solutions;
         
-        // Solving the ode problem and writing to solution      
-        solutions = euler_solver.Solve(&ode_system, 0.0, 2.0, 0.001, ode_system.GetInitialConditions());
+        // Solving the ode problem and writing to solution
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 2.0);
         
         int last = solutions.GetNumberOfTimeSteps();        
         // Test to see if this worked       
@@ -36,8 +37,8 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         
         ode_system.SetInitialConditionsComponent(0,0.0);
         
-        solutions = euler_solver.Solve(&ode_system, 0.0, 2.0, 0.001, 
-                                       ode_system.GetInitialConditions());
+        state_variables = ode_system.GetInitialConditions();
+        solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 2.0);
                                                
         last = solutions.GetNumberOfTimeSteps();        
         // Test to see if this worked       

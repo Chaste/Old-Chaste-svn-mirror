@@ -13,14 +13,21 @@
 class AdamsBashforthIvpOdeSolver : public AbstractIvpOdeSolver
 {
 	public:
-	AdamsBashforthIvpOdeSolver() {};
+	AdamsBashforthIvpOdeSolver() {}
+    ~AdamsBashforthIvpOdeSolver() {}
 	
 	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                      std::vector<double>& rYValues,
 				      double startTime,
 				      double endTime,
 				      double timeStep,
-				      std::vector<double> initialConditions = std::vector<double>());
+                      double timeSampling);
 	
+    void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+               std::vector<double>& rYValues,
+               double startTime,
+               double endTime,
+               double timeStep);
 
 };
 

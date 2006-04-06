@@ -347,15 +347,11 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
             this->mOdeVarsAtNode[local_index][4] = p_current_solution[local_index]; 
             
             // solve            
-            OdeSolution solution =
-                this->mpOdeSolver->Solve(pLr91OdeSystem,
-                                         time, 
-                                         time + big_time_step,
-                                         small_time_step,
-                                         this->mOdeVarsAtNode[ local_index ]);
-                                         
-             // extract solution at end time and save in the store 
-            this->mOdeVarsAtNode[ local_index ] = solution.mSolutions[ solution.mSolutions.size()-1 ];
+            this->mpOdeSolver->Solve(pLr91OdeSystem,
+                                     this->mOdeVarsAtNode[ local_index ],
+                                     time, 
+                                     time + big_time_step,
+                                     small_time_step);
 
             // this tests variables are in the correct range (and maybe resets some if they are)
             mOdeSystemsDistributed[local_index]->VerifyVariables( this->mOdeVarsAtNode[ local_index ] );                          

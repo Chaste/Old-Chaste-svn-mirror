@@ -14,12 +14,13 @@
  * Solves a system of ODEs using the Adams-Bashforth Method Initial Value Problem Ordinary Differential Equation Solver
  * 
  * @param pAbstractOdeSystem points to the concrete ODE system to be solved
+ * @param rYValues a standard vector specifying the intial condition 
+ * of each solution variable in the system 
  * @param startTime the time at which the initial conditions are specified
  * @param endTime the time to which the system should be solved and the solution 
  * returned
  * @param timeStep the time interval to be used by the solver
- * @param initialConditions a standard vector specifying the intial condition 
- * of each solution variable in the system 
+ * @param timeSampling the time interval for generating the solution
  * 
  * 
  * @return OdeSolution is an object containing an integer of the number of 
@@ -35,23 +36,16 @@
 */
 
 OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				double startTime,
-				double endTime,
-				double timeStep,
-				std::vector<double> initialConditions /*default is empty vector*/)
+                                              std::vector<double>& rYValues,
+				                              double startTime,
+                              				  double endTime,
+				                              double timeStep,
+                                              double timeSampling)
 {
-
-    if( initialConditions.empty() )
-    {
-        // need to implement the version this method which updates the state variable;
-        assert(0);
-    }
-
-
     unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     // Assert that the size of Initial Conditions vector = number of equations.
-    assert(initialConditions.size()==num_equations);	
+    assert(rYValues.size()==num_equations);	
     
     // Assert that the timestep does not exceed the time interval.
     assert(timeStep <= endTime - startTime + 0.000001);
@@ -69,13 +63,13 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 	OdeSolution solutions;
 	solutions.SetNumberOfTimeSteps(num_timesteps);
 		
-	solutions.mSolutions.push_back(initialConditions);
+	solutions.mSolutions.push_back(rYValues);
 	solutions.mTime.push_back(startTime);
 	
 	std::vector<double> row(num_equations);	
 	std::vector<double> dy(num_equations);
 	
-	row=initialConditions;
+	row=rYValues;
 	
 	std::vector<std::vector<double> > temp;
 	
@@ -158,9 +152,21 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 		solutions.mSolutions.push_back(row);
 		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
 	}
-	
-			
+		
 	return solutions;
 }
 
-
+/**
+ * This method is required, since it occurs in the abstract base class.
+ * However, it only makes much sense for the one step solvers.
+ * Hence here it just behaves as the other solve method, and discards the OdeSolution.
+ */
+void AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                                       std::vector<double>& rYValues,
+                                       double startTime,
+                                       double endTime,
+                                       double timeStep)
+{
+    OdeSolution solution = Solve(pAbstractOdeSystem, rYValues, startTime, endTime, timeStep, timeStep);
+    rYValues = solution.mSolutions[solution.GetNumberOfTimeSteps()];
+}

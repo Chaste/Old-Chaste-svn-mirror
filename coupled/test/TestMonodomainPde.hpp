@@ -131,23 +131,26 @@ class TestMonodomainPde : public CxxTest::TestSuite
               
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);
 
-        OdeSolution SolutionNewStimulatedT_1 = solver.Solve(&ode_system_stimulated, start_time + big_time_step, 
-                                                                start_time + 2*big_time_step, small_time_step,
-                                                                solutionSetStimT_05);  
+        std::vector<double> state_variables = solutionSetStimT_05;
+        OdeSolution SolutionNewStimulatedT_1 = solver.Solve(&ode_system_stimulated,
+                                                            state_variables,
+                                                            start_time + big_time_step, 
+                                                            start_time + 2*big_time_step,
+                                                            small_time_step,
+                                                            small_time_step);
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.mSolutions[ SolutionNewStimulatedT_1.mSolutions.size()-1 ];
         
         value2 = -(0 + monodomain_pde.GetIIonic(solutionSetStimT_1));
         
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
-        
-
-
-
-
-        OdeSolution SolutionNewNotStimT_1 = solver.Solve(&ode_system_not_stim, start_time + big_time_step, 
-                                                             start_time + 2*big_time_step, small_time_step, 
-                                                             solutionSetNoStimT_05);
+        state_variables = solutionSetNoStimT_05;
+        OdeSolution SolutionNewNotStimT_1 = solver.Solve(&ode_system_not_stim,
+                                                         state_variables,
+                                                         start_time + big_time_step,
+                                                         start_time + 2*big_time_step,
+                                                         small_time_step,
+                                                         small_time_step);
         
         std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.mSolutions[ SolutionNewNotStimT_1.mSolutions.size()-1 ];
        

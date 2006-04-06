@@ -33,7 +33,7 @@ class TestIonicModels : public CxxTest::TestSuite
 {
 public:
 
-    void runOdeSolverWithIonicModelNew(AbstractCardiacCell *pOdeSystem,
+    void runOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                     double endTime,
                                     double timeStep,
                                     const char *pFilename)
@@ -74,52 +74,6 @@ public:
         writer.Close();        
     }
     
-    
-    void runOdeSolverWithIonicModel(AbstractOdeSystem *pOdeSystem,
-                                    double endTime,
-                                    double timeStep,
-                                    const char *pFilename)
-    {
-        EulerIvpOdeSolver solver;
-        
-        /*
-         * Solve 
-         */
-        double start_time = 0.0;
-        int step_per_row = 100;             
-                
-        OdeSolution solution = solver.Solve(pOdeSystem, start_time, endTime,
-                                            timeStep, pOdeSystem->GetInitialConditions());
-        
-        /*
-         * Write data to a file using ColumnDataWriter
-         */                                                           
-        ColumnDataWriter writer("testoutput",pFilename);
-        int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
-        
-        std::vector<int> var_ids;
-        for (unsigned i=0; i<pOdeSystem->mVariableNames.size(); i++)
-        {
-            var_ids.push_back(writer.DefineVariable(pOdeSystem->mVariableNames[i],
-                                                    pOdeSystem->mVariableUnits[i]));
-        }
-        writer.EndDefineMode();
-                
-        for (unsigned i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
-        {
-            if (i!=0)
-            {
-                writer.AdvanceAlongUnlimitedDimension();
-            }
-            writer.PutVariable(time_var_id, solution.mTime[i]);
-            for (unsigned j=0; j<var_ids.size(); j++)
-            {
-                writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
-            }
-        }        
-        writer.Close();        
-    }
-
     void CheckCellModelResults(std::string baseResultsFilename)
     {
         /*
@@ -161,7 +115,7 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModelNew(&hh52_ode_system,
+        runOdeSolverWithIonicModel(&hh52_ode_system,
                                    150.0,
                                    0.01,
                                    "HH52RegResult");
@@ -188,7 +142,7 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModelNew(&fhn61_ode_system,
+        runOdeSolverWithIonicModel(&fhn61_ode_system,
                                    500.0,
                                    0.01,
                                    "FHN61RegResult");
@@ -217,7 +171,7 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModelNew(&lr91_ode_system,
+        runOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    time_step,
                                    "Lr91DelayedStim");

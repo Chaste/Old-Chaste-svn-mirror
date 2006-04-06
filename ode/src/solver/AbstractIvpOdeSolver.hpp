@@ -38,14 +38,21 @@ class AbstractIvpOdeSolver
     * 
     */
     virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-				              double startTime,
-				              double endTime,
-				              double timeStep,
-				              std::vector<double> initialConditions  = std::vector<double>()) = 0;
+                              std::vector<double>& rYValues,
+                              double startTime,
+                              double endTime,
+                              double timeStep,
+                              double timeSampling)=0;
+    
+    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                              std::vector<double>& rYValues,
+                              double startTime,
+                              double endTime,
+                              double timeStep)=0;
      
     virtual ~AbstractIvpOdeSolver()
     {
-    }                                                         
+    }
 };
 
 #endif //_ABSTRACTIVPODESOLVER_HPP_
