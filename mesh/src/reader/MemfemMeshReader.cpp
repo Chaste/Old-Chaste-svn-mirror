@@ -21,7 +21,7 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 	
 	/* Read single line header which is the number of nodes */
 	std::stringstream node_header_stream(mNodeRawData[0]);
-	int num_nodes;
+	unsigned int num_nodes;
 	node_header_stream >> num_nodes;
 	
 	/* All Memfem data is in 3-d. */
@@ -45,7 +45,7 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 
  	/* Read single line header which is the number of elements	 */
 	std::stringstream element_header_stream(mElementRawData[0]);
-	int num_elements;
+	unsigned int num_elements;
 	element_header_stream >> num_elements;
 	
 

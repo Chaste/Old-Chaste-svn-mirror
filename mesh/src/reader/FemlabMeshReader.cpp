@@ -17,11 +17,7 @@
  */ 
 FemlabMeshReader::FemlabMeshReader(std::string pathBaseName, std::string nodeFileName, std::string elementFileName, std::string edgeFileName)
 {
-	bool indexed_from_zero = false;
-	bool already_checked_indexing = false;
-	
-	int num_attributes, max_marker;
-	
+		
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	nodeFileName=pathBaseName+nodeFileName;
 	mNodeRawData=GetRawDataFromFile(nodeFileName);

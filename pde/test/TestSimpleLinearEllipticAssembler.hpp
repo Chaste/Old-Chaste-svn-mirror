@@ -155,7 +155,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         double *res;
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         // Solution should be u = 0.5*x*(3-x)
         for (int local_index=0; local_index < hi-lo; local_index++)
         {
@@ -199,7 +199,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         for (int local_index=0; local_index < hi-lo; local_index++)
         {
             double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
@@ -245,7 +245,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         for (int local_index=0; local_index < hi-lo; local_index++)
         {
             double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
@@ -289,7 +289,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         // Solution at 4th node should be 0.08
         if (4>=lo && 4<hi)
         {
@@ -335,7 +335,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         for (int local_index=0; local_index < hi-lo; local_index++)
         {
             VectorDouble r(2);
@@ -381,7 +381,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         for (int local_index=0; local_index < hi-lo; local_index++)
         {
             double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0] ;
@@ -450,7 +450,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         // Check result
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         for (int i=0; i < mesh.GetNumNodes(); i++)
         {
             double r = mesh.GetNodeAt(i)->GetPoint()[0];
@@ -514,7 +514,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         
         //Solution should be -1/6*(x^2 + y^2 +z^2)
         for (int local_index=0; local_index < hi-lo; local_index++)
@@ -591,7 +591,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
-        int ierr = VecGetArray(result, &res);
+        VecGetArray(result, &res);
         
         //Solution should be -1/6*(x^2 + y^2 +z^2)
         for (int local_index=0; local_index < hi-lo; local_index++)

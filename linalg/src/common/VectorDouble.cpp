@@ -112,8 +112,11 @@ double& VectorDouble::operator()(int entry) const
 
 }
 
+/**
+ * Note that this method does not copy the rOtherVector, but assigns a pointer.
+ */
     
-VectorDouble& VectorDouble::operator=(const VectorDouble& rOtherVector)
+void VectorDouble::operator=(const VectorDouble& rOtherVector)
 {
     assert( mSize == rOtherVector.mSize);
     switch(mSize) {

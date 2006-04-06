@@ -27,7 +27,7 @@ class MatrixDouble
           MatrixDouble(const MatrixDouble& rOtherMatrix);
           ~MatrixDouble();
         
-          MatrixDouble& operator=(const MatrixDouble& rOtherMatrix);
+          void operator=(const MatrixDouble& rOtherMatrix);
           double &operator()(int Row, int Column) const;
           static MatrixDouble Identity(int Size);
           int Rows( void ) const;

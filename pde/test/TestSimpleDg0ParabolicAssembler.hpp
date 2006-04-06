@@ -1056,7 +1056,7 @@ public:
         
         // Check solution is constant throughout the mesh
         double* result_array;
-        int ierr = VecGetArray(result, &result_array);
+        VecGetArray(result, &result_array);
         
  
         int lo,hi;
@@ -1108,7 +1108,7 @@ public:
 
         // Check solution is constant throughout the mesh
         double* result_array;
-        int ierr = VecGetArray(result, &result_array); 
+        VecGetArray(result, &result_array); 
  
         int lo,hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
@@ -1159,7 +1159,7 @@ public:
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
     
         double* initial_condition_array;
-        int ierr = VecGetArray(initial_condition, &initial_condition_array);
+        VecGetArray(initial_condition, &initial_condition_array);
         
         // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
         // the heat equation.

@@ -20,7 +20,7 @@ class BuildType:
     Here we set member variables for each method to use.
     """
     self._compiler_type = 'gcc'
-    self._cc_flags = ''
+    self._cc_flags = '-Wall -Wno-system-headers -Wno-unknown-pragmas'
     self._link_flags = ''
     self._test_packs = ['Continuous']
     self._revision = ''
@@ -174,8 +174,7 @@ class GccDebug(Gcc):
   """
   def __init__(self):
     Gcc.__init__(self)
-    self._cc_flags = '-g'
-    #self._cc_flags = '-g -Wall -Wno-system-headers -Wno-unknown-pragmas '
+    self._cc_flags += ' -g'
     self.build_dir = 'debug'
     
 class Coverage(GccDebug):

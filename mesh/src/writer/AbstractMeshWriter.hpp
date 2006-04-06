@@ -11,7 +11,7 @@
 class AbstractMeshWriter 
 {
 	protected:
-		int mDimension; /**< Is the dimension the mesh*/
+		unsigned int mDimension; /**< Is the dimension the mesh*/
 				
 		std::string mPathBaseName; /**< Path to the directory where the input files are stored */
 	

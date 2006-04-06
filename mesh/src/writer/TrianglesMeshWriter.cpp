@@ -33,7 +33,7 @@ TrianglesMeshWriter::WriteFiles()
 	{
 		std::vector<double> current_item=mNodeData[item_num];
 		node_file<< item_num;
-		for (int i=0;i<mDimension;i++)
+		for (unsigned int i=0;i<mDimension;i++)
 		{
 			node_file<<"\t"<<current_item[i];
 		}
@@ -102,7 +102,7 @@ TrianglesMeshWriter::WriteFiles()
 	{
 		std::vector<int> current_item=mBoundaryFaceData[item_num];
 		face_file<< item_num;
-		for (int i=0;i<mDimension;i++)
+		for (unsigned int i=0;i<mDimension;i++)
 		{
 			face_file<<"\t"<<current_item[i];
 		}

@@ -12,12 +12,7 @@
  */ 
 TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, 
                                          const bool& rContainsInternalFaces)
-{
-	bool indexed_from_zero = false;
-	bool already_checked_indexing = false;
-	
-	int num_attributes, max_marker;
-	
+{	
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string nodeFileName=pathBaseName+".node";
 	mNodeRawData=GetRawDataFromFile(nodeFileName);
@@ -27,7 +22,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	 * http://www-2.cs.cmu.edu/~quake/triangle.node.html
 	 */
 	std::stringstream node_header_stream(mNodeRawData[0]);
-	int num_nodes;
+	unsigned int num_nodes;
 	node_header_stream >> num_nodes >> mDimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
 	
 	// Read the rest of the node data using TokenizeStringsToDoubles method
@@ -50,7 +45,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	 * http://www-2.cs.cmu.edu/~quake/triangle.ele.html
 	 */
 	std::stringstream element_header_stream(mElementRawData[0]);
-	int num_elements;
+	unsigned int num_elements;
 	element_header_stream >> num_elements >> mNumElementNodes >> mNumElementAttributes;
 	
 	//Only order-1 triangles or tetrahedra are currently supported
@@ -106,7 +101,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	 * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
 	 */
 	std::stringstream face_header_stream(mFaceRawData[0]);
-	int num_faces;
+	unsigned int num_faces;
 	face_header_stream >> num_faces >> mMaxFaceBdyMarker;
 
 	//mNumBoundaryFaces = mNumFaces; //temporary
@@ -149,7 +144,7 @@ std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
      	if (the_iterator!=rawData.begin()) //Ignore the header string
      	{
      		std::vector<double> current_coords;
-     		int item_number;
+     		unsigned int item_number;
      		
      		//Read item index     		
      		line_stream >> item_number;

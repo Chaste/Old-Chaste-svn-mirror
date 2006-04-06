@@ -25,7 +25,7 @@ class VectorDouble
         ~VectorDouble();
 
           VectorDouble(const VectorDouble& rOtherVector);
-          VectorDouble& operator=(const VectorDouble& rOtherVector);
+          void operator=(const VectorDouble& rOtherVector);
           VectorDouble operator+(const VectorDouble& rSomeVector1);
           VectorDouble operator-(const VectorDouble& rSomeVector1);
           VectorDouble operator*(double Scalar);

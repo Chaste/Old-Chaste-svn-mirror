@@ -119,7 +119,12 @@ double& MatrixDouble::operator()(int Row, int Column) const
 
 }
 
-MatrixDouble& MatrixDouble::operator=(const MatrixDouble& rOtherMatrix)
+/**
+ * Overloaded equals operator
+ * Note that this does not copy the matrix, but just assigns a pointer.
+ */
+
+void MatrixDouble::operator=(const MatrixDouble& rOtherMatrix)
 {
     assert( mSize == rOtherMatrix.mSize);
     
@@ -272,7 +277,6 @@ VectorDouble operator* (const VectorDouble& rSomeVector, const MatrixDouble& rSo
 {
     assert(rSomeVector.Size()==rSomeMatrix.Rows());
     VectorDouble result(rSomeMatrix.Columns());
-    int index;
     for( int i = 0; i < rSomeMatrix.Columns(); i++)
     {
         for(int j = 0; j < rSomeMatrix.Rows(); j++)

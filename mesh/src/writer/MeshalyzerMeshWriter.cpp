@@ -35,7 +35,7 @@ MeshalyzerMeshWriter::WriteFiles()
 	for (int item_num=0; item_num<num_nodes; item_num++)
 	{
 		std::vector<double> current_item=mNodeData[item_num];
-		for (int i=0;i<mDimension;i++)
+		for (unsigned int i=0;i<mDimension;i++)
 		{
 			node_file<<current_item[i]<<"\t";
 		}
@@ -93,7 +93,7 @@ MeshalyzerMeshWriter::WriteFiles()
 	for (int item_num=0; item_num<num_faces; item_num++)
 	{
 		std::vector<int> current_item=mBoundaryFaceData[item_num];
-		for (int i=0;i<mDimension;i++)
+		for (unsigned int i=0;i<mDimension;i++)
 		{
 			if (mIndexFromZero)
 			{
