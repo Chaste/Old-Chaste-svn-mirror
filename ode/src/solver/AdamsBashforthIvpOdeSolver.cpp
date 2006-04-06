@@ -5,8 +5,9 @@
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
+#include "Exception.hpp"
 
-#include <iostream>
+//#include <iostream>
 #include <vector>
 #include <cassert>
 
@@ -30,10 +31,16 @@
  * 
  * To be used in the form:
  * 
- * AdamsBashforthIvpOdeSolver mySolver
- * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
+ * AdamsBashforthIvpOdeSolver solver
+ * OdeSolution solution=solver.Solve(pAbstractOdeSystem, rYValues, startTime, endTime, timeStep, timeStep);
  *  
-*/
+ * Note: at this point in time, timeSampling should be EXACTLY the same
+ *       as timeStep or it will NOT work! This should not be too much of
+ *       an issue since we don't really make use of this integrator.
+ *       However, should we need it, we would then need to modify this
+ *       class to account for timeSampling.
+ *  
+ */
 
 OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
                                               std::vector<double>& rYValues,
@@ -47,29 +54,74 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     // Assert that the size of Initial Conditions vector = number of equations.
     assert(rYValues.size()==num_equations);	
     
-    // Assert that the timestep does not exceed the time interval.
-    assert(timeStep <= endTime - startTime + 0.000001);
-    
     // Assert that we actually have a time interval > 0 .
     assert(endTime > startTime);
     
     // Assert that we  have a timestep > 0 .
     assert(timeStep > 0.0);
     
-    int num_timesteps = ((int) ((endTime - startTime)/timeStep));   
-    double last_timestep = endTime - ((double) num_timesteps)*timeStep - startTime;
-    assert(last_timestep<=timeStep);
+    // Assert that we  have a timesampling > 0 and >= timestep
+    assert(timeSampling >= timeStep);
     
-	OdeSolution solutions;
-	solutions.SetNumberOfTimeSteps(num_timesteps);
-		
-	solutions.mSolutions.push_back(rYValues);
-	solutions.mTime.push_back(startTime);
-	
-	std::vector<double> row(num_equations);	
+    // Determine the number of time steps that will be required to solve the
+    // ODE system (note that the current algorithm accounts for any potential
+    // floating point error)
+
+    int numberOfTimeSamples;
+    double currentTime;
+
+    numberOfTimeSamples = 0;
+    
+    currentTime = startTime;
+
+    while (currentTime < endTime)
+    {
+        numberOfTimeSamples++;
+        
+        if (startTime+numberOfTimeSamples*timeSampling >= endTime)
+        {
+            currentTime = endTime;
+        }
+        else
+        {
+            currentTime = startTime+numberOfTimeSamples*timeSampling;
+        }
+    }
+    
+    // setup solutions if output is required
+
+    OdeSolution solutions;
+    
+    solutions.SetNumberOfTimeSteps(numberOfTimeSamples);
+    solutions.mSolutions.push_back(rYValues);
+    solutions.mTime.push_back(startTime);
+
+    // Determine the number of time steps and make sure that we have at least 4 of them
+
+    int numberOfTimeSteps = 0;
+    
+    currentTime = startTime;
+
+    while (currentTime < endTime)
+    {
+        numberOfTimeSteps++;
+        
+        if (startTime+numberOfTimeSteps*timeStep >= endTime)
+        {
+            currentTime = endTime;
+        }
+        else
+        {
+            currentTime = startTime+numberOfTimeSteps*timeStep;
+        }
+    }
+
+    if (numberOfTimeSteps <= 4)
+    {
+        throw Exception("A multi-step solver needs at least 4 time steps.");
+    }
+
 	std::vector<double> dy(num_equations);
-	
-	row=rYValues;
 	
 	std::vector<std::vector<double> > temp;
 	
@@ -88,71 +140,89 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 		// Apply RungeKutta4's method first three timesteps, in order to 
 		// maintain fourth order accuracy of Adams-Bashforth method
 		
-        dy = dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
+        dy = dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],rYValues);
         
         for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k1[i] = timeStep*dyRK4[i];
-			yk2[i] = row[i] + 0.5*k1[i];		
+			yk2[i] = rYValues[i] + 0.5*k1[i];		
 		}
         dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk2);
 		
 		for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k2[i] = timeStep*dyRK4[i];
-			yk3[i] = row[i] + 0.5*k2[i];		
+			yk3[i] = rYValues[i] + 0.5*k2[i];		
 		}
         dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk3);        
 
 		for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k3[i] = timeStep*dyRK4[i];
-			yk4[i] = row[i] + k3[i];		
+			yk4[i] = rYValues[i] + k3[i];		
 		}
         dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep,yk4);                
 		
 		for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k4[i] = timeStep*dyRK4[i];
-			row[i] = row[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
+			rYValues[i] = rYValues[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
 			
 		}
+
+//!!! Think about whether OdeSolutions need updating, based on the value of timeSampling
 		
-		solutions.mSolutions.push_back(row);	
+		solutions.mSolutions.push_back(rYValues);	
 		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
 		temp.push_back(dy);
 	}
-	    
+
+    double realTimeStep = timeStep;
+
+    int timeStepNumber = 2;
+    
+    currentTime = startTime+timeStepNumber*timeStep;
+
 	// Apply Adams-Bashforth method
-    for (int timeindex=3; timeindex<num_timesteps; timeindex++)
+
+    while (currentTime < endTime)
     {
-    	dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],row);
+        timeStepNumber++;
+
+        // Determine what the value time step should really be like
         
-  		for(unsigned int i=0;i<num_equations; i++) 
-		{		
-			row[i] = row[i] + (timeStep/24.0)*(55.0*dy[i] - 59.0*temp[timeindex-1][i] + 37.0*temp[timeindex-2][i] - 9.0*temp[timeindex-3][i]);		
-		}
-		
-		solutions.mSolutions.push_back(row);
-		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
-		temp.push_back(dy);
-	}
+        if (startTime+timeStepNumber*timeStep >= endTime)
+        {
+            realTimeStep = endTime-currentTime;
+        }
+
+        // Function that calls the appropriate one-step solver
+        
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeStepNumber],rYValues);
+
+        for(unsigned int i=0;i<num_equations; i++) 
+        {       
+            rYValues[i] = rYValues[i] + (realTimeStep/24.0)*(55.0*dy[i] - 59.0*temp[timeStepNumber-1][i] + 37.0*temp[timeStepNumber-2][i] - 9.0*temp[timeStepNumber-3][i]);        
+        }
+
+        // Determine the new current time
+    
+        if (realTimeStep < timeStep)
+        {
+            currentTime = endTime;
+        }
+        else
+        {
+            currentTime = startTime+timeStepNumber*timeStep;
+        }
+
+        // Update OdeSolution
+//!!! This does NOT take into account timeSampling
+        solutions.mSolutions.push_back(rYValues);
+        solutions.mTime.push_back(currentTime);
+        temp.push_back(dy);
+    }
 	
-	// Extra step to get to exactly endTime
-	int timeindex = num_timesteps;
-	if(last_timestep > (0.000001 * timeStep))
-	{	
-		solutions.SetNumberOfTimeSteps(num_timesteps+1);
-		dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[num_timesteps],row);
-		for(unsigned int i=0;i<num_equations; i++) 
-		{				
-			row[i] = row[i] + (timeStep/24.0)*(55.0*dy[i] - 59.0*temp[timeindex-1][i] + 37.0*temp[timeindex-2][i] - 9.0*temp[timeindex-3][i]);		
-		}
-		
-		solutions.mSolutions.push_back(row);
-		solutions.mTime.push_back(solutions.mTime[num_timesteps]+last_timestep);
-	}
-		
 	return solutions;
 }
 

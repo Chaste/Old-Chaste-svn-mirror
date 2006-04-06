@@ -27,7 +27,7 @@ class AbstractIvpOdeSolver
     * of each solution variable in the system. The default is the empty std::vector
     * 
     * @return OdeSolution is an object containing an integer of the number of 
-    * equations, a std::vector of times and a std::vector of std::vectors where 
+    * equations, a stdAbstractOdeSystem::vector of times and a std::vector of std::vectors where 
     * each of those vectors contains the solution for one variable of the ODE 
     * system at those times.
     * 

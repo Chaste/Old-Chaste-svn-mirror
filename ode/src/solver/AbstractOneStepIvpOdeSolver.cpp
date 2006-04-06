@@ -1,6 +1,6 @@
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include <cassert>
-#include <iostream>
+//#include <iostream>
 
 
 OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem, 
@@ -22,12 +22,12 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     // Assert that we  have a timesampling > 0 and >= timestep
     assert(timeSampling >= timeStep);
     
-    int numberOfTimeSamples;
-    double currentTime;
-
     // Determine the number of time steps that will be required to solve the
     // ODE system (note that the current algorithm accounts for any potential
     // floating point error)
+
+    int numberOfTimeSamples;
+    double currentTime;
 
     numberOfTimeSamples = 0;
     
@@ -55,10 +55,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     solutions.mSolutions.push_back(rYValues);
     solutions.mTime.push_back(startTime);
     
-    
     // Solve the ODE system
-
-    double realTimeStep = timeStep;
 
     int timeStepNumber = 0;
     
