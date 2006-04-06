@@ -20,7 +20,7 @@ class BuildType:
     Here we set member variables for each method to use.
     """
     self._compiler_type = 'gcc'
-    self._cc_flags = '-Wall -Wno-system-headers -Wno-unknown-pragmas'
+    self._cc_flags = '-Wall'
     self._link_flags = ''
     self._test_packs = ['Continuous']
     self._revision = ''

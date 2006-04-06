@@ -51,7 +51,6 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
     //\todo only reserve m1emory if returning this
 	std::vector<double> next_y_value(num_equations);
     
-#pragma ivdep
 	for(int i=0;i<num_equations; i++) 
 	{
 		if( !bUsingStateVariables )
