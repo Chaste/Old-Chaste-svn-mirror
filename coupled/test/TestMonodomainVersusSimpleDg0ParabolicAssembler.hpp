@@ -60,7 +60,7 @@ public:
         
         // Instantiate PDE object
         FischerPde<1> pde;
-        
+         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
