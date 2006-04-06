@@ -76,18 +76,18 @@ std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double ti
  * 
  * @param stimulus  The stimulus function to use.
  */
-void FitzHughNagumo1961OdeSystem::SetStimulusFunction(AbstractStimulusFunction *stimulus)
-{
-    mpStimulus = stimulus;
-}
+//void FitzHughNagumo1961OdeSystem::SetStimulusFunction(AbstractStimulusFunction *stimulus)
+//{
+//    mpStimulus = stimulus;
+//}
 
 /**
  * Return the value of our stimulus function at the given time.
  */
-double FitzHughNagumo1961OdeSystem::GetStimulus(double time)
-{
-    return mpStimulus->GetStimulus(time);
-}
+//double FitzHughNagumo1961OdeSystem::GetStimulus(double time)
+//{
+//    return mpStimulus->GetStimulus(time);
+//}
 
 void FitzHughNagumo1961OdeSystem::VerifyVariables(std::vector<double>& odeVars)
 {

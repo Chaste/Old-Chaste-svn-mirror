@@ -3,6 +3,7 @@
 
 #include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
+#include "AbstractStimulusFunction.hpp"
 #include <vector>
 
 /**
@@ -14,7 +15,8 @@ class AbstractCardiacCell : public AbstractOdeSystem
 protected:
     unsigned int mVoltageIndex;  /**< The index of the voltage within our state variable vector */ 
     AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
-    double mDt ;
+    double mDt;
+    AbstractStimulusFunction* mpStimulus;
     
 public:
     
@@ -72,6 +74,26 @@ public:
     {
         return mStateVariables[mVoltageIndex];
     }
+    
+    void SetStimulusFunction(AbstractStimulusFunction *stimulus)
+    {
+        mpStimulus = stimulus;
+    }
+     
+    double GetStimulus(double time)
+    {
+        return mpStimulus->GetStimulus(time);
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 };
 

@@ -34,15 +34,26 @@ class TestMonodomainPde : public CxxTest::TestSuite
         double start_time = 0;  
         double big_time_step = 0.5;
         double small_time_step = 0.01; 
-        EulerIvpOdeSolver solver;
         
-        MonodomainPdeIteration7<1> monodomain_pde(num_nodes, &solver, start_time, big_time_step, small_time_step);
-
-        // Stimulus function to use at node 0. Node 1 is not stimulated.
+        AbstractIvpOdeSolver*   solver = new EulerIvpOdeSolver;
+        InitialStimulus*     zero_stim = new InitialStimulus(0,0,0);
+        
+        std::vector<AbstractCardiacCell*> cells(num_nodes);
+        for(int i=0; i<num_nodes;i++)
+        {
+            cells[i] = new LuoRudyIModel1991OdeSystem(solver, zero_stim, small_time_step);
+        }        
+        
+         // Stimulus function to use at node 0. Node 1 is not stimulated.
         double magnitudeOfStimulus = -80.0;  
         double durationOfStimulus  = 0.5 ;  // ms   
-        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
-        monodomain_pde.SetStimulusFunctionAtNode(0, &stimulus);
+        AbstractStimulusFunction* stimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+        
+        cells[0]->SetStimulusFunction(stimulus);
+               
+        MonodomainPdeIteration7<1> monodomain_pde( cells, start_time, big_time_step );
+//        InitialStimulus* stimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+
         
         // voltage that gets passed in solving ode
         double voltage = -84.5;
@@ -61,8 +72,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         VecGetOwnershipRange(currentVoltage,&lo,&hi);
         
 		// initial voltage condition of a constant everywhere on the mesh
-		
-        if (lo<=0 && 0<hi)
+		if (lo<=0 && 0<hi)
         {
             currentVoltageArray[0-lo] = voltage;
         }
@@ -76,33 +86,33 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		VecAssemblyEnd(currentVoltage);
 		 
 	    monodomain_pde.PrepareForAssembleSystem(currentVoltage);
+
+
         double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
    
-        LuoRudyIModel1991OdeSystem ode_system_stimulated(&solver, &stimulus, small_time_step);
+        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, stimulus, small_time_step);
                               
         OdeSolution SolutionNewStimulated = ode_system_stimulated.Compute(
                                                            start_time,
                                                            start_time + big_time_step);
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.mSolutions[ SolutionNewStimulated.mSolutions.size()-1 ];
-        
-        double value2 = -(-80 + monodomain_pde.GetIIonic(solutionSetStimT_05));
-        
+        double value2 = -(-80 + ode_system_stimulated.GetIIonic());
+
         TS_ASSERT_DELTA(value1, value2, 0.000001);
 
         // shouldn't be different when called again as reset not yet been called
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
         TS_ASSERT_DELTA(value1, value2, 0.000001);
   
-        InitialStimulus zeroStimulus(0, 0); 
-        LuoRudyIModel1991OdeSystem ode_system_not_stim(&solver, &zeroStimulus, small_time_step);
+        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, zero_stim, small_time_step);
+
+        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage);
 
         OdeSolution SolutionNewNotStim = ode_system_not_stim.Compute(
                                                         start_time,
                                                         start_time + big_time_step);
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.mSolutions[ SolutionNewNotStim.mSolutions.size()-1 ];
-       
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage);
-        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetNoStimT_05));
+        value2 = -(0 + ode_system_not_stim.GetIIonic());
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
  
@@ -124,41 +134,40 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		VecRestoreArray(currentVoltage, &currentVoltageArray);      
 		VecAssemblyBegin(currentVoltage);
 		VecAssemblyEnd(currentVoltage);
+
 		monodomain_pde.ResetAsUnsolvedOdeSystem();
         monodomain_pde.PrepareForAssembleSystem(currentVoltage);
               
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);
 
         std::vector<double> state_variables = solutionSetStimT_05;
-        OdeSolution SolutionNewStimulatedT_1 = solver.Solve(&ode_system_stimulated,
-                                                            state_variables,
-                                                            start_time + big_time_step, 
-                                                            start_time + 2*big_time_step,
-                                                            small_time_step,
-                                                            small_time_step);
+        ode_system_stimulated.SetStateVariables(state_variables);
+        OdeSolution SolutionNewStimulatedT_1 = ode_system_stimulated.Compute( start_time + big_time_step, start_time + 2*big_time_step );
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.mSolutions[ SolutionNewStimulatedT_1.mSolutions.size()-1 ];
-        
-        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetStimT_1));
-        
+        value2 = -(0 + ode_system_stimulated.GetIIonic());
+                
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         state_variables = solutionSetNoStimT_05;
-        OdeSolution SolutionNewNotStimT_1 = solver.Solve(&ode_system_not_stim,
-                                                         state_variables,
-                                                         start_time + big_time_step,
-                                                         start_time + 2*big_time_step,
-                                                         small_time_step,
-                                                         small_time_step);
-        
+        ode_system_not_stim.SetStateVariables(state_variables);
+        OdeSolution SolutionNewNotStimT_1 = ode_system_not_stim.Compute( start_time + big_time_step, start_time + 2*big_time_step );
         std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.mSolutions[ SolutionNewNotStimT_1.mSolutions.size()-1 ];
        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, solutionSetNoStimT_05[4]);
-        value2 = -(0 + monodomain_pde.GetIIonic(solutionSetNoStimT_1));
-
+        value2 = -(0 + ode_system_not_stim.GetIIonic());
+        
+        
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
      
         VecDestroy(currentVoltage);
+        for(int i=0;i<num_nodes;i++)
+        {
+            delete cells[i];
+        }
+        delete zero_stim;
+        delete stimulus;
+        delete solver;
     }
     
      

@@ -12,7 +12,7 @@ class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
 {
    private:
       // Stimulus to be applied to cell
-      AbstractStimulusFunction *mpStimulus;
+ //     AbstractStimulusFunction *mpStimulus;
 
       // Constants for the FitzHugh-Nagumo model
       double mAlpha;
@@ -29,8 +29,8 @@ class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
 
       void Init();
       
-      void SetStimulusFunction(AbstractStimulusFunction *stimulus);
-      double GetStimulus(double time);
+     // void SetStimulusFunction(AbstractStimulusFunction *stimulus);
+      //double GetStimulus(double time);
       
       // Compute the RHS of the FitHugh-Nagumo system of ODEs
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
