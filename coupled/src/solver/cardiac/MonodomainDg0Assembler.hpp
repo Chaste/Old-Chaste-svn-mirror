@@ -32,6 +32,7 @@ protected:
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
                            AbstractLinearPde<SPACE_DIM> *pPde,
+                           bool assembleRhsOnly,
                            Vec )
     {
 		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =

@@ -74,6 +74,7 @@ protected:
 									MatrixDouble &rAElem,
 									VectorDouble &rBElem,
 									AbstractLinearPde<SPACE_DIM> *pPde,
+                                    bool assembleRhsOnly,
 									Vec currentSolution = NULL)
 	{
 		GaussianQuadratureRule<ELEMENT_DIM> &rQuadRule =
@@ -385,7 +386,7 @@ protected:
                 //AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
                 AssembleOnElementRhsVectorOnly(element, b_elem, pPde, currentSolution);
             } else {
-                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+                AssembleOnElement(element, a_elem, b_elem, pPde, false, currentSolution);
             }
          
 			for (int i=0; i<num_nodes; i++)
