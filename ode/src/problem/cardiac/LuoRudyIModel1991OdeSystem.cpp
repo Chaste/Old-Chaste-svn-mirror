@@ -6,8 +6,8 @@
  * Constructor
  */
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                                       AbstractStimulusFunction *pStimulus)
-    : AbstractCardiacCell(pSolver, 8, 4)
+                                                       AbstractStimulusFunction *pStimulus,double dt)
+    : AbstractCardiacCell(pSolver, 8, 4, dt)
 {
     mpStimulus = pStimulus;
 

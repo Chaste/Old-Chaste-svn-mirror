@@ -7,8 +7,8 @@
  * Constructor
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem
-                (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *pStimulus)
-             :AbstractCardiacCell(pOdeSolver,4,0)
+                (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *pStimulus, double dt)
+             :AbstractCardiacCell(pOdeSolver,4,0,dt)
 {
     mpStimulus = pStimulus;
 

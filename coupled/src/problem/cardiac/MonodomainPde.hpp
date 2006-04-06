@@ -75,11 +75,10 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         mOdeSystemsDistributed.reserve(hi-lo);
         for (int local_index=0; local_index < hi-lo; local_index++)
         {
-            mOdeSystemsDistributed.push_back(new LuoRudyIModel1991OdeSystem(pOdeSolver,
-                                                                            mpZeroStimulus));
+            mOdeSystemsDistributed.push_back(new LuoRudyIModel1991OdeSystem(pOdeSolver, mpZeroStimulus, smallTimeStep));
         }
         // Set default initial conditions everywhere
-        LuoRudyIModel1991OdeSystem ode_system(pOdeSolver, mpZeroStimulus);
+        LuoRudyIModel1991OdeSystem ode_system(pOdeSolver, mpZeroStimulus, smallTimeStep);
         this->SetUniversalInitialConditions(ode_system.GetInitialConditions());
     }
 

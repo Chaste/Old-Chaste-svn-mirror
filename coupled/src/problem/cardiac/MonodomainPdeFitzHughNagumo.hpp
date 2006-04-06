@@ -70,7 +70,7 @@ public:
                         
         for (int i=0; i<numNodes; i++)
         {
-	        mOdeSystemsDistributed.push_back(new FitzHughNagumo1961OdeSystem(pOdeSolver,mpZeroStimulus));
+	        mOdeSystemsDistributed.push_back(new FitzHughNagumo1961OdeSystem(pOdeSolver,mpZeroStimulus, smallTimeStep));
         }        
     }
 

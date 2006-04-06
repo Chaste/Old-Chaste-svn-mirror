@@ -14,17 +14,20 @@ class AbstractCardiacCell : public AbstractOdeSystem
 protected:
     unsigned int mVoltageIndex;  /**< The index of the voltage within our state variable vector */ 
     AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
-
+    double mDt ;
+    
 public:
     
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                         unsigned int numberOfStateVariables,
-                        unsigned int voltageIndex)
+                        unsigned int voltageIndex, double dt)
         : AbstractOdeSystem(numberOfStateVariables)
     {
         mpOdeSolver = pOdeSolver;
         assert(voltageIndex < mNumberOfStateVariables);
         mVoltageIndex = voltageIndex;
+        assert(dt>0);
+        mDt=dt;
     }
 
     virtual ~AbstractCardiacCell()
@@ -50,9 +53,9 @@ public:
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep dt.
      */
-    virtual OdeSolution Compute(double tStart, double tEnd, double dt)
+    virtual OdeSolution Compute(double tStart, double tEnd) 
     {
-        return mpOdeSolver->Solve(this, mStateVariables, tStart, tEnd, dt, dt);
+        return mpOdeSolver->Solve(this, mStateVariables, tStart, tEnd, mDt, mDt);
     }
     
     /**

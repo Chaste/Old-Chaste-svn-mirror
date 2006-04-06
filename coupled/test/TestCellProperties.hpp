@@ -34,16 +34,19 @@ public:
                                  when);
 
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
-        
+
         /*
          * Solve 
          */
         double start_time = 0.0;   // ms
         double end_time = 3500.0;  // ms
         double time_step = 0.01;   // ms
+
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus, time_step);
+        
+      
                 
-        OdeSolution solution = lr91_ode_system.Compute(start_time, end_time, time_step);
+        OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
         
         // Display solution
 //        for (int i=0; i<=solution.GetNumberOfTimeSteps(); i++)

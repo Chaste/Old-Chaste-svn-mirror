@@ -25,7 +25,7 @@ class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractCardiacCell
     public:
         // Constructor
         HodgkinHuxleySquidAxon1952OriginalOdeSystem(AbstractIvpOdeSolver *pOdeSolver, 
-                                                    AbstractStimulusFunction *pStimulus);
+                                                    AbstractStimulusFunction *pStimulus, double dt);
         // Destructor
         ~HodgkinHuxleySquidAxon1952OriginalOdeSystem();
       

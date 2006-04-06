@@ -35,14 +35,14 @@ public:
 
     void runOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                     double endTime,
-                                    double timeStep,
+                                  //  double timeStep,
                                     const char *pFilename)
     {
         /*
          * Solve 
          */
         double start_time = 0.0;
-        OdeSolution solution = pOdeSystem->Compute(start_time, endTime, timeStep);
+        OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
         
         /*
          * Write data to a file using ColumnDataWriter
@@ -110,14 +110,15 @@ public:
                                  duration_stimulus,
                                  start_stimulus);
         EulerIvpOdeSolver solver;
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, &stimulus);
+        double time_step = 0.01;
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, &stimulus, time_step);
         
         /*
          * Solve and write to file
          */
         runOdeSolverWithIonicModel(&hh52_ode_system,
                                    150.0,
-                                   0.01,
+                               //    time_step,
                                    "HH52RegResult");
                                    
         CheckCellModelResults("HH52RegResult");
@@ -137,14 +138,15 @@ public:
                                  start_stimulus); 
 
         EulerIvpOdeSolver solver;
-        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, &stimulus);
+        double time_step = 0.01;
+        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, &stimulus,time_step);
         
         /*
          * Solve and write to file
          */
         runOdeSolverWithIonicModel(&fhn61_ode_system,
                                    500.0,
-                                   0.01,
+                             //      time_step,
                                    "FHN61RegResult");
                                    
          CheckCellModelResults("FHN61RegResult");
@@ -166,14 +168,14 @@ public:
         double time_step = 0.01;  //1e-5 seconds in milliseconds           
         
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus,time_step);
         
         /*
          * Solve and write to file
          */
         runOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
-                                   time_step,
+                           //        time_step,
                                    "Lr91DelayedStim");
 
          CheckCellModelResults("Lr91DelayedStim");

@@ -6,8 +6,8 @@
  * Constructor
  */
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                                         AbstractStimulusFunction *pStimulus)
-    : AbstractCardiacCell(pOdeSolver,2,0)
+                                                         AbstractStimulusFunction *pStimulus, double dt)
+    : AbstractCardiacCell(pOdeSolver,2,0, dt)
 {
     
     mpStimulus= pStimulus;
