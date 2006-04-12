@@ -74,7 +74,6 @@ protected:
 									MatrixDouble &rAElem,
 									VectorDouble &rBElem,
 									AbstractLinearPde<SPACE_DIM> *pPde,
-                                    bool assembleRhsOnly,
 									Vec currentSolution = NULL)
 	{
 		GaussianQuadratureRule<ELEMENT_DIM> &rQuadRule =
@@ -88,7 +87,7 @@ protected:
 		 * basis function.
 		 */
 		const MatrixDouble *inverseJacobian;
-        if (!assembleRhsOnly)
+        if (!mMatrixIsAssembled)
         {
             inverseJacobian = rElement.GetInverseJacobian();
         }
@@ -99,7 +98,7 @@ protected:
 			
 
 		// Initialise element contributions to zero
-        if (!assembleRhsOnly)
+        if (!mMatrixIsAssembled)
         {
 		    rAElem.ResetToZero();
         }
@@ -111,7 +110,7 @@ protected:
 
 			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
 			std::vector<VectorDouble> gradPhi;
-            if (!assembleRhsOnly)
+            if (!mMatrixIsAssembled)
             {
                 gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 			                                    (quad_point, *inverseJacobian);
@@ -142,7 +141,7 @@ protected:
 			
 			for (int row=0; row < num_nodes; row++)
 			{
-				if (!assembleRhsOnly)
+				if (!mMatrixIsAssembled)
                 {
                     // LHS contribution
     				for (int col=0; col < num_nodes; col++)
@@ -164,31 +163,7 @@ protected:
 	}
 	
 
-    /**
-     * Calculate the contribution of a single element to the Rhs of linear system.
-     * It does not calculate the contribution of the element to the Matrix.
-     * @param rElement The element to assemble on.
-     * @param rBElem The element's contribution to the RHS vector is returned in this
-     *     vector of length n, the no. of nodes in this element. There is no
-     *     need to zero this vector before calling.
-     * @param pPde Pointer to the PDE object specifying the equation to solve.
-     * @param currentSolution For the parabolic case, the solution at the current timestep.
-     */    
-    virtual void AssembleOnElementRhsVectorOnly(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                                    VectorDouble &rBElem,
-                                    AbstractLinearPde<SPACE_DIM> *pPde,
-                                    Vec currentSolution = NULL)
-    {
-        MatrixDouble unused_matrix = MatrixDouble(SPACE_DIM, SPACE_DIM);
-        
-        AssembleOnElement(rElement,
-                          unused_matrix,
-                          rBElem, 
-                          pPde, 
-                          true, 
-                          currentSolution);
-    }
-    
+   
 	/**
 	 * Calculate the contribution of a single surface element with Neumann
 	 * boundary condition to the linear system.
@@ -348,9 +323,11 @@ protected:
             if (mMatrixIsAssembled) 
             {
                 //AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
-                AssembleOnElementRhsVectorOnly(element, b_elem, pPde, currentSolution);
-            } else {
-                AssembleOnElement(element, a_elem, b_elem, pPde, false, currentSolution);
+                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+            } 
+            else 
+            {
+                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
             }
          
 			for (int i=0; i<num_nodes; i++)

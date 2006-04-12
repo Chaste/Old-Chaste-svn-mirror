@@ -13,6 +13,7 @@
 #include "Point.hpp"
 #include "Element.hpp"
 #include "AbstractAssembler.hpp"
+#include "AbstractLinearAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
 #include "AbstractLinearPde.hpp"
 #include "AbstractBasisFunction.hpp"
@@ -32,7 +33,6 @@ protected:
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
                            AbstractLinearPde<SPACE_DIM> *pPde,
-                           bool assembleRhsOnly,
                            Vec )
     {
 		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
@@ -48,7 +48,7 @@ protected:
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
 		// Initialise element contributions to zero
-		if (!assembleRhsOnly)
+		if (!this->mMatrixIsAssembled)
         {
             rAElem.ResetToZero();
         }
@@ -73,7 +73,7 @@ protected:
             std::vector< c_vector<double, ELEMENT_DIM>* > grad_phi_ublas(num_nodes);
             for (int i=0; i<num_nodes; i++)
             {
-               if (!assembleRhsOnly)
+               if (!this->mMatrixIsAssembled)
                {
                    grad_phi_ublas[i]=vector_converter.ConvertToUblas(gradPhi[i]);
                }
@@ -104,7 +104,7 @@ protected:
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             for (int row=0; row < num_nodes; row++)
             {
-                if (!assembleRhsOnly)
+                if (!this->mMatrixIsAssembled)
                 {
                     for (int col=0; col < num_nodes; col++)
                     {
@@ -127,19 +127,6 @@ protected:
     }       
     
     
-    void AssembleOnElementRhsVectorOnly(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                                    VectorDouble &rBElem,
-                                    AbstractLinearPde<SPACE_DIM> *pPde,
-                                    Vec currentSolution = NULL)
-    {
-        MatrixDouble unused_matrix = MatrixDouble(SPACE_DIM, SPACE_DIM);
-        AssembleOnElement(rElement,
-                          unused_matrix,
-                          rBElem, 
-                          pPde, 
-                          true, 
-                          currentSolution);
-    }       
 
 public:
 	/**
