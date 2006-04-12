@@ -11,21 +11,80 @@
 
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
+
+#include "AbstractCardiacCellFactory.hpp"
+
 #include <petsc.h>
 
  
 #include <cxxtest/TestSuite.h>
+
+class MyCardiacCellFactory : public AbstractCardiacCellFactory
+{
+
+private:
+    InitialStimulus* mpZeroStimulus;
+    InitialStimulus* mpStimulus;
+    AbstractIvpOdeSolver* mpEuler;
+    
+    double mTimeStep;
+
+public:
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        mTimeStep = 0.01;
+        
+        static bool first_time_called = true;
+        
+        if(first_time_called)
+        {
+            first_time_called = false;
+            
+            mpEuler = new EulerIvpOdeSolver;
+            mpZeroStimulus = new InitialStimulus(0,0,0);
+
+            double magnitudeOfStimulus = -80.0;  
+            double durationOfStimulus  = 0.5 ;  // ms   
+        
+            mpStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+        }
+                    
+        if(node==0)
+        {
+            return new LuoRudyIModel1991OdeSystem(mpEuler, mpStimulus, mTimeStep);
+        }
+        else if(node==1)
+        {
+            return new LuoRudyIModel1991OdeSystem(mpEuler, mpZeroStimulus, mTimeStep);
+        }
+        else
+        {
+            assert(0);
+        }
+
+    }
+    
+    ~MyCardiacCellFactory(void)
+    {
+        delete mpEuler;
+        delete mpZeroStimulus;
+        delete mpStimulus;
+    }
+    
+    int GetNumberOfNodes()
+    {
+        return 2;
+    }
+};
+        
 
 class TestMonodomainPde : public CxxTest::TestSuite
 {
     public:    
     void testMonodomainPde( void )
     {
-        // Test for 2 nodes, check MonodomainPdeIteration7 correctly solves gating variable and ca_i concentration 
-        // dynamics, comparing answers to LuoRudy data (chaste/data/Lr91Good.dat and Lr91NoStimGood.dat)
-        // with no stimulus applied to node 1 and init stimulus applied to node 0. 
-        // BigTimeStep = 1, SmallTimeStep = 0.01       
-        // We really are solving extra ode (the one for voltage as its results are never used)
+
         int num_nodes=2; 
           
         Node<1> node0(0,true,0);
@@ -37,22 +96,17 @@ class TestMonodomainPde : public CxxTest::TestSuite
         
         AbstractIvpOdeSolver*   solver = new EulerIvpOdeSolver;
         InitialStimulus*     zero_stim = new InitialStimulus(0,0,0);
-        
-        std::vector<AbstractCardiacCell*> cells(num_nodes);
-        for(int i=0; i<num_nodes;i++)
-        {
-            cells[i] = new LuoRudyIModel1991OdeSystem(solver, zero_stim, small_time_step);
-        }        
-        
+
          // Stimulus function to use at node 0. Node 1 is not stimulated.
         double magnitudeOfStimulus = -80.0;  
         double durationOfStimulus  = 0.5 ;  // ms   
+
         AbstractStimulusFunction* stimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        
-        cells[0]->SetStimulusFunction(stimulus);
-               
-        MonodomainPdeIteration7<1> monodomain_pde( cells, start_time, big_time_step );
-//        InitialStimulus* stimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
+
+
+        MyCardiacCellFactory cell_factory;
+
+        MonodomainPdeIteration7<1> monodomain_pde( &cell_factory, start_time, big_time_step );
 
         
         // voltage that gets passed in solving ode
@@ -98,11 +152,11 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.mSolutions[ SolutionNewStimulated.mSolutions.size()-1 ];
         double value2 = -(-80 + ode_system_stimulated.GetIIonic());
 
-//        TS_ASSERT_DELTA(value1, value2, 0.000001);
+        TS_ASSERT_DELTA(value1, value2, 0.000001);
 
         // shouldn't be different when called again as reset not yet been called
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
-//        TS_ASSERT_DELTA(value1, value2, 0.000001);
+        TS_ASSERT_DELTA(value1, value2, 0.000001);
   
         LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, zero_stim, small_time_step);
 
@@ -114,11 +168,9 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.mSolutions[ SolutionNewNotStim.mSolutions.size()-1 ];
         value2 = -(0 + ode_system_not_stim.GetIIonic());
 
- //       TS_ASSERT_DELTA(value1, value2, 0.000001);
+        TS_ASSERT_DELTA(value1, value2, 0.000001);
  
 
- 
- 
         // Reset       
        	VecGetArray(currentVoltage, &currentVoltageArray); 
         
@@ -146,7 +198,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.mSolutions[ SolutionNewStimulatedT_1.mSolutions.size()-1 ];
         value2 = -(0 + ode_system_stimulated.GetIIonic());
                 
-//        TS_ASSERT_DELTA(value1, value2, 1e-10);
+        TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         state_variables = solutionSetNoStimT_05;
         ode_system_not_stim.SetStateVariables(state_variables);
@@ -157,20 +209,14 @@ class TestMonodomainPde : public CxxTest::TestSuite
         value2 = -(0 + ode_system_not_stim.GetIIonic());
         
         
-//        TS_ASSERT_DELTA(value1, value2, 1e-10);
+        TS_ASSERT_DELTA(value1, value2, 1e-10);
 
      
         VecDestroy(currentVoltage);
-        for(int i=0;i<num_nodes;i++)
-        {
-            delete cells[i];
-        }
         delete zero_stim;
         delete stimulus;
-        delete solver;
+        delete solver;        
     }
-    
-     
 };
 
 #endif //_TESTMONODOMAINPDE_HPP_

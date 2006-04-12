@@ -9,7 +9,7 @@
 #include "MatrixDouble.hpp"
 #include "AbstractCoupledPdeIteration7.hpp"
 
-
+#include "AbstractCardiacCellFactory.hpp"
 
 const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
 const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
@@ -50,24 +50,40 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
         double mDiffusionCoefficient;
 
         /** The vector of cells. Distributed. */
-        //\todo parallelise cells
-        std::vector< AbstractCardiacCell* > mCells;
+        
+        std::vector< AbstractCardiacCell* > mCellsDistributed;
 
     public:
     
     //Constructor     
-    MonodomainPdeIteration7(std::vector< AbstractCardiacCell* > cells, double tStart, double bigTimeStep) :
-        AbstractCoupledPdeIteration7<SPACE_DIM>(cells.size(), tStart,  bigTimeStep)          
+    MonodomainPdeIteration7(AbstractCardiacCellFactory* cellFactory/*std::vector< AbstractCardiacCell* > cells*/, double tStart, double bigTimeStep) :
+        AbstractCoupledPdeIteration7<SPACE_DIM>(cellFactory->GetNumberOfNodes(), tStart,  bigTimeStep)          
      {
+        int lo=this->mOwnershipRangeLo;
+        int hi=this->mOwnershipRangeHi;
+        
+        mCellsDistributed.resize(hi-lo);
+        
+        for(int global_index=lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            mCellsDistributed[local_index] = cellFactory->CreateCardiacCellForNode(global_index);
+        }
+        
         // Initialise the diffusion coefficient
         mDiffusionCoefficient = 0.0005;
 
-        // store cells        
-        mCells = cells;
      }
 
     ~MonodomainPdeIteration7(void)
     {
+        int lo=this->mOwnershipRangeLo;
+        int hi=this->mOwnershipRangeHi;
+        for(int global_index=lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            delete mCellsDistributed[local_index];
+        }
     }
     
     /**
@@ -165,7 +181,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
             // overwrite the voltage with the input value
 //            this->mOdeVarsAtNode[local_index][4] = p_current_solution[local_index]; 
   
-            mCells[local_index]->SetVoltage( p_current_solution[local_index] );
+            mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
             
             // solve            
 //            this->mpOdeSolver->Solve(pLr91OdeSystem,
@@ -174,7 +190,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
 //                                     time + big_time_step,
 //                                     small_time_step);
 
-            mCells[local_index]->Compute(time, time+big_time_step);
+            mCellsDistributed[local_index]->Compute(time, time+big_time_step);
 
             // this tests variables are in the correct range (and maybe resets some if they are)
 //            mOdeSystemsDistributed[local_index]->VerifyVariables( this->mOdeVarsAtNode[ local_index ] );                          
@@ -182,16 +198,18 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
   
   
   /////// NEED TO BRING THIS BACK
-  //          mCells[local_index]->VerifyVariables( mCells[local_index]->GetStateVariables() );
+  //          mCellsDistributed[local_index]->VerifyVariables( mCellsDistributed[local_index]->GetStateVariables() );
   
 //            double Itotal = pLr91OdeSystem->GetStimulus(time + big_time_step)
 //                            + GetIIonic( this->mOdeVarsAtNode[ local_index ]);
             
-            double Itotal =   mCells[local_index]->GetStimulus(time + big_time_step) 
-                            + mCells[local_index]->GetIIonic();
+            double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
+                            + mCellsDistributed[local_index]->GetIIonic();
           
             this->solutionCacheReplicated[global_index] = - Itotal;
+
         }
+        
         
         AbstractCoupledPdeIteration7 <SPACE_DIM>::ReplicateSolutionCache();
      }
