@@ -44,12 +44,13 @@ protected:
         //double *p_current_solution;
         //int ierr = VecGetArray(currentSolution, &p_current_solution);
         
-        const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
+        const MatrixDouble *inverseJacobian;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
 		// Initialise element contributions to zero
 		if (!this->mMatrixIsAssembled)
         {
+            inverseJacobian = rElement.GetInverseJacobian();
             rAElem.ResetToZero();
         }
         
@@ -66,17 +67,18 @@ protected:
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
             std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-            std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-                                                (quad_point, *inverseJacobian);
+            std::vector<VectorDouble> gradPhi;
             
             // Get ublas handles to gradPhi for later use                                    
             std::vector< c_vector<double, ELEMENT_DIM>* > grad_phi_ublas(num_nodes);
-            for (int i=0; i<num_nodes; i++)
+            if (!this->mMatrixIsAssembled)
             {
-               if (!this->mMatrixIsAssembled)
-               {
+                gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+                                                (quad_point, *inverseJacobian);
+                for (int i=0; i<num_nodes; i++)
+                {
                    grad_phi_ublas[i]=vector_converter.ConvertToUblas(gradPhi[i]);
-               }
+                }
             }
 
             Point<SPACE_DIM> x(0,0,0);
@@ -96,10 +98,17 @@ protected:
             }
 
 			double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
-			MatrixDouble pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
+            MatrixDouble pde_diffusion_term(ELEMENT_DIM, ELEMENT_DIM);
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas;
+            if (!this->mMatrixIsAssembled)
+            {
+			    pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
+                // Get ublas handle for later use
+                pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
+            }
             
             // Get ublas handle for later use
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
+            //c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
             
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             for (int row=0; row < num_nodes; row++)
@@ -116,6 +125,7 @@ protected:
                         rAElem(row,col) += integrand_val2 * wJ;
                     }
                 }
+                
                 
                 double vec_integrand_val1 = sourceTerm * phi[row];
                 rBElem(row) += vec_integrand_val1 * wJ;
