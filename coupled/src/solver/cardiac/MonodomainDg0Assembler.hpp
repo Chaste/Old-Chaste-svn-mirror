@@ -24,21 +24,21 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
-	/**
-	 * We override this method in order to compute the source term by interpolating
-	 * the values of the source term at the nodes on this element, rather than
-	 * computing the source term directly at a point.
-	 */
+    /**
+     * We override this method in order to compute the source term by interpolating
+     * the values of the source term at the nodes on this element, rather than
+     * computing the source term directly at a point.
+     */
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            MatrixDouble &rAElem,
                            VectorDouble &rBElem,
                            AbstractLinearPde<SPACE_DIM> *pPde,
                            Vec )
     {
-		GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
-			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
-		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+        GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+        AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
 
         //std::cout << "In AssembleOnElement." << std::endl << std::flush;
         //double *p_current_solution;
@@ -47,18 +47,21 @@ protected:
         const MatrixDouble *inverseJacobian;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
-		// Initialise element contributions to zero
-		if (!this->mMatrixIsAssembled)
+        // Initialise element contributions to zero
+        if (!this->mMatrixIsAssembled)
         {
             inverseJacobian = rElement.GetInverseJacobian();
             rAElem.ResetToZero();
         }
         
         rBElem.ResetToZero();
+        
 
         // Create converters for use inside loop below
         VectorDoubleUblasConverter<ELEMENT_DIM> vector_converter;
         MatrixDoubleUblasConverter<ELEMENT_DIM> matrix_converter;
+        MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>* p_a_elem = matrix_converter2.ConvertToUblas(rAElem);
 
         const int num_nodes = rElement.GetNumNodes();
                 
@@ -86,8 +89,8 @@ protected:
             double sourceTerm = 0;
             for (int i=0; i<num_nodes; i++)
             {
-            	const Node<SPACE_DIM> *node = rElement.GetNode(i);
-            	const Point<SPACE_DIM> node_loc = node->rGetPoint();
+                const Node<SPACE_DIM> *node = rElement.GetNode(i);
+                const Point<SPACE_DIM> node_loc = node->rGetPoint();
                 for (int j=0; j<SPACE_DIM; j++)
                 {
                     x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
@@ -97,12 +100,12 @@ protected:
                 sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->inputCacheReplicated[node_global_index]);
             }
 
-			double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
+            double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
             MatrixDouble pde_diffusion_term(ELEMENT_DIM, ELEMENT_DIM);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas;
             if (!this->mMatrixIsAssembled)
             {
-			    pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
+                pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
                 // Get ublas handle for later use
                 pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
             }
@@ -110,6 +113,8 @@ protected:
             // Get ublas handle for later use
             //c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
             
+            VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
+            c_vector<double, ELEMENT_DIM+1>* p_b_elem = vector_converter2.ConvertToUblas(rBElem);
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             for (int row=0; row < num_nodes; row++)
             {
@@ -118,20 +123,19 @@ protected:
                     for (int col=0; col < num_nodes; col++)
                     {
                         double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi[row] * phi[col];
-                        rAElem(row,col) += integrand_val1 * wJ;
+                        (*p_a_elem)(row,col) += integrand_val1 * wJ;
 
 //                      double integrand_val2 = gradPhi[row].dot(pde_diffusion_term * gradPhi[col]);
                         double integrand_val2 = inner_prod( *grad_phi_ublas[row], prod( *pde_diffusion_term_ublas, *grad_phi_ublas[col]) );
-                        rAElem(row,col) += integrand_val2 * wJ;
+                        (*p_a_elem)(row,col) += integrand_val2 * wJ;
                     }
                 }
-                
-                
+            
                 double vec_integrand_val1 = sourceTerm * phi[row];
-                rBElem(row) += vec_integrand_val1 * wJ;
-
+                (*p_b_elem)(row) += vec_integrand_val1 * wJ;
+                
                 double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi[row];
-                rBElem(row) += vec_integrand_val2 * wJ;
+                (*p_b_elem)(row) += vec_integrand_val2 * wJ;
             }
         }
     }       
@@ -139,19 +143,19 @@ protected:
     
 
 public:
-	/**
-	 * Constructors just call the base class versions.
-	 */
-	MonodomainDg0Assembler(int numPoints = 2) :
-		SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
-	{
-	}
-	MonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-							AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-							int numPoints = 2) :
-		SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
-	{
-	}
+    /**
+     * Constructors just call the base class versions.
+     */
+    MonodomainDg0Assembler(int numPoints = 2) :
+        SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+    {
+    }
+    MonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+                            AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+                            int numPoints = 2) :
+        SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+    {
+    }
 };
 
 #endif //_MONODOMAINDG0ASSEMBLER_HPP_

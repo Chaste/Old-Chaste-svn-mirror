@@ -320,15 +320,9 @@ protected:
 		{
 		    const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
-            if (mMatrixIsAssembled) 
-            {
-                //AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
-                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
-            } 
-            else 
-            {
-                AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
-            }
+
+            AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+
          
 			for (int i=0; i<num_nodes; i++)
 			{
