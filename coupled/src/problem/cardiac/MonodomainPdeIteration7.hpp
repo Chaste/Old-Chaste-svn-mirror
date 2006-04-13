@@ -11,12 +11,12 @@
 
 #include "AbstractCardiacCellFactory.hpp"
 
-const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
+/*const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
 const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
 const double RADIUS = 0.00011;                          // radius of cell, cm
 const double LENGTH = 0.01;                             // length of cell, cm
 //const double BETA = 2*(RADIUS+LENGTH)/(RADIUS*LENGTH);  // surface to volume ratio
-const double rA = rMyo + rG / LENGTH;//* BETA;
+const double rA = rMyo + rG / LENGTH;// BETA;
 //const double DIFFUSION_CONST = 0.5*RADIUS/(2*rA);
 //const double DIFFUSION_CONST = 0.0;
 //const double DIFFUSION_CONST = 0.0005;
@@ -24,7 +24,7 @@ const double rA = rMyo + rG / LENGTH;//* BETA;
 //memfem:
 //const double DIFFUSION_CONST = 0.000019;
 const double BETA = 0.00014;
-
+*/
 
 
 /**
@@ -56,8 +56,8 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
     public:
     
     //Constructor     
-    MonodomainPdeIteration7(AbstractCardiacCellFactory* cellFactory/*std::vector< AbstractCardiacCell* > cells*/, double tStart, double bigTimeStep) :
-        AbstractCoupledPdeIteration7<SPACE_DIM>(cellFactory->GetNumberOfNodes(), tStart,  bigTimeStep)          
+    MonodomainPdeIteration7(AbstractCardiacCellFactory<SPACE_DIM>* cellFactory, double tStart, double pdeTimeStep) :
+        AbstractCoupledPdeIteration7<SPACE_DIM>(cellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
      {
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
@@ -146,6 +146,8 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
         return 1;
     }
     
+   
+   
    
 
     /**

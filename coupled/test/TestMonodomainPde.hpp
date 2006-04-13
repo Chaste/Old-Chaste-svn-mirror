@@ -19,44 +19,30 @@
  
 #include <cxxtest/TestSuite.h>
 
-class MyCardiacCellFactory : public AbstractCardiacCellFactory
+class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
-
 private:
-    InitialStimulus* mpZeroStimulus;
-    InitialStimulus* mpStimulus;
-    AbstractIvpOdeSolver* mpEuler;
-    
-    double mTimeStep;
+   InitialStimulus* mpStimulus;
 
 public:
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    MyCardiacCellFactory()
     {
         mTimeStep = 0.01;
-        
-        static bool first_time_called = true;
-        
-        if(first_time_called)
-        {
-            first_time_called = false;
-            
-            mpEuler = new EulerIvpOdeSolver;
-            mpZeroStimulus = new InitialStimulus(0,0,0);
-
-            double magnitudeOfStimulus = -80.0;  
-            double durationOfStimulus  = 0.5 ;  // ms   
-        
-            mpStimulus = new InitialStimulus(magnitudeOfStimulus, durationOfStimulus);
-        }
-                    
+        mpSolver = new EulerIvpOdeSolver;
+        mpZeroStimulus = new InitialStimulus(0,0,0);
+        mpStimulus = new InitialStimulus(-80.0, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {                    
         if(node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpEuler, mpStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
         }
         else if(node==1)
         {
-            return new LuoRudyIModel1991OdeSystem(mpEuler, mpZeroStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
         }
         else
         {
@@ -67,7 +53,7 @@ public:
     
     ~MyCardiacCellFactory(void)
     {
-        delete mpEuler;
+        delete mpSolver;
         delete mpZeroStimulus;
         delete mpStimulus;
     }
