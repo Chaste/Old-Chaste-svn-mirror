@@ -91,7 +91,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
         
         // voltage that gets passed in solving ode
-        double voltage = -84.5;
+        double voltage = -83.853;
  
    		// initial condition;   
 		Vec currentVoltage;

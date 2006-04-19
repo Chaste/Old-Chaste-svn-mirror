@@ -18,15 +18,15 @@ LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSo
    
     mVariableNames.push_back("h");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.9833);
+    mInitialConditions.push_back(0.9804713);
      
     mVariableNames.push_back("j");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.9895);
+    mInitialConditions.push_back(0.98767124);
      
     mVariableNames.push_back("m");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.0017);
+    mInitialConditions.push_back(0.00187018);
      
     mVariableNames.push_back("CaI");
     mVariableUnits.push_back("mMol");
@@ -34,19 +34,19 @@ LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSo
      
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
-    mInitialConditions.push_back(-84.5);
+    mInitialConditions.push_back(-83.853);
      
     mVariableNames.push_back("d");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.003);
+    mInitialConditions.push_back(0.00316354);
      
     mVariableNames.push_back("f");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(1);
+    mInitialConditions.push_back(0.99427859);
      
     mVariableNames.push_back("x");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(0.0056);
+    mInitialConditions.push_back(0.16647703);
     
     Init();
 }
@@ -66,7 +66,7 @@ void LuoRudyIModel1991OdeSystem::Init()
      * Constants for the LuoRudyIModel1991OdeSystem model
      */
     membrane_C = 1.0;
-    membrane_F = 96485.0;
+    membrane_F = 96484.6;
     membrane_R = 8314;
     membrane_T = 310.0;
    

@@ -187,27 +187,27 @@ public:
     
             if (global_index==1)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 20.0416, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 19.2790, 0.001);
             }
             if (global_index==3)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 20.7888, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 20.1456, 0.001);
             }
             if (global_index==5)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 22.0786, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 21.6387, 0.001);
             }
             if (global_index==7)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 22.2901, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 22.0046, 0.001);
             }
             if (global_index==9)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], -15.7600, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], -16.6178, 0.001);
             }
             if (global_index==10) // RHS
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], -35.1363, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], -35.9384, 0.001);
             }
         }
 
@@ -313,7 +313,7 @@ public:
                     // hardcoded result that looks accurate - this is a test to see
                     // that nothing has changeed
                     // assumes endtime = 2ms
-                    TS_ASSERT_DELTA(voltage_array[i], -64.8086, 0.01);
+                    TS_ASSERT_DELTA(voltage_array[i], -65.0087, 0.01);
                 }
             }
         }
@@ -401,7 +401,7 @@ public:
             
             // hardcoded result to check nothing has changed
             // assumes endtime = 1.3
-            TS_ASSERT_DELTA(voltage_array[0], -45.301, 0.1);
+            TS_ASSERT_DELTA(voltage_array[0], -45.9221, 0.1);
                         
         }
         

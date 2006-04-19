@@ -131,7 +131,7 @@ public:
          * Set stimulus
          */             
         double magnitude_stimulus = -80.0;   // dimensionless
-        double duration_stimulus = 0.499999 ;  // ms     //\todo Alan to regenerate                
+        double duration_stimulus = 0.5 ;  // ms
         double start_stimulus = 0.0;   // ms
         InitialStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
@@ -159,9 +159,9 @@ public:
         /*
          * Set stimulus
          */
-        double magnitude = -80.0;  
-        double duration  = 0.49999  ;  // ms                           
-        double when = 100.0; // ms
+        double magnitude = -25.5;  
+        double duration  = 2.0  ;  // ms                           
+        double when = 50.0; // ms
         InitialStimulus stimulus(magnitude, duration, when); 
         
         double end_time = 1000.0; //One second in milliseconds

@@ -68,10 +68,10 @@ public:
 //        std::cout << "APD50: " << cell_props.GetActionPotentialDuration(50) << std::endl;
 //        std::cout << "APD90: " << cell_props.GetActionPotentialDuration(90) << std::endl;
        
-        TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocity(), 418.478, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocity(), 418.4795, 0.001);
         TS_ASSERT_DELTA(cell_props.GetCycleLength(), 1000.00, 0.01);
-        TS_ASSERT_DELTA(cell_props.GetMaxPotential(), 43.1664, 0.0001);
-        TS_ASSERT_DELTA(cell_props.GetMinPotential(), -84.4392, 0.0001);
+        TS_ASSERT_DELTA(cell_props.GetMaxPotential(), 43.1665, 0.0001);
+        TS_ASSERT_DELTA(cell_props.GetMinPotential(), -84.4395, 0.0001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitude(), 127.606, 0.001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(20), 6.66416, 0.00001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(50), 271.184, 0.001);
