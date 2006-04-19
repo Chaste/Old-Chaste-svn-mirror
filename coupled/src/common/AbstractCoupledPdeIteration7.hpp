@@ -14,12 +14,13 @@ template <int SPACE_DIM>
 class AbstractCoupledPdeIteration7 : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 
-public:
+protected:
     // timestep used in the ode solvers        
  //   double mSmallTimeStep;
 
     // timestep used by the pde solver
     double mBigTimeStep;
+
 
     // simulation time
     double mTime;   
@@ -28,7 +29,7 @@ public:
 
     // number of nodes in the mesh 
     int mNumNodes;
-        
+       
     // Lowest value of index that this part of the global object stores
     int mOwnershipRangeLo;
         
@@ -45,18 +46,18 @@ public:
 //    std::vector<odeVariablesType>            mOdeVarsAtNode;
     
     
-public:
     /** solutionCache stores the solutions to the ODEs (Icurrent) for
      *  each node in the global system.
      * 
      * This is replicated, i.e. use a global index for access.
      */
-    std::vector<double> solutionCacheReplicated;
+
+    std::vector<double> mSolutionCacheReplicated;
  
     // Replicated
     //std::vector<double>   inputCache;
  
-    
+public:   
     //Constructor
     AbstractCoupledPdeIteration7(int numNodes, /*AbstractIvpOdeSolver *pOdeSolver,*/ double tStart, double bigTimeStep/*, double smallTimeStep*/)
     {
@@ -82,7 +83,7 @@ public:
         
 //        mOdeVarsAtNode.resize(mOwnershipRangeHi-mOwnershipRangeLo);
       
-        solutionCacheReplicated.resize(mNumNodes);
+        mSolutionCacheReplicated.resize(mNumNodes);
 
 
      }
@@ -96,7 +97,7 @@ public:
         {
             if (mOwnershipRangeLo <= global_index && global_index < mOwnershipRangeHi)
             { 
-                solution_cache_local_array[global_index]=solutionCacheReplicated[global_index];
+                solution_cache_local_array[global_index]=mSolutionCacheReplicated[global_index];
             } 
             else 
             {
@@ -112,31 +113,10 @@ public:
         // Could be more efficient if MPI wrote to solutionCacheReplicated above.
         for (int global_index=0; global_index<mNumNodes; global_index++)
         {
-            solutionCacheReplicated[global_index]=solution_cache_replicated_array[global_index];
+            mSolutionCacheReplicated[global_index]=solution_cache_replicated_array[global_index];
         }
     
     }
     
-//    odeVariablesType GetOdeVarsAtNode( int globalIndex )
-//    {
-//        if (!(mOwnershipRangeLo <= globalIndex && globalIndex < mOwnershipRangeHi)) {
-//            std::cout << "i " << globalIndex << " lo " << mOwnershipRangeLo <<
- //               " hi " << mOwnershipRangeHi << std::endl;
- //       }
- //       assert(mOwnershipRangeLo <= globalIndex && globalIndex < mOwnershipRangeHi);
- //       return mOdeVarsAtNode[globalIndex-mOwnershipRangeLo];
- //   }
-    
-    /**
-     * Apply same initial conditions to each node in the mesh
-     */
-//    void SetUniversalInitialConditions(odeVariablesType initialConditions)
-  //  {
-   //     for (int i=0; i<mOwnershipRangeHi-mOwnershipRangeLo; i++)
-     //   {
-       //     mOdeVarsAtNode[i] = initialConditions;
-        //}
-    //}
-
 };        
 #endif /*ABSTRACTCOUPLEDPDEITERATION7_HPP_*/

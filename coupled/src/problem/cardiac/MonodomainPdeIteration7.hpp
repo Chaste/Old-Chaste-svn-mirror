@@ -130,7 +130,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
-        return this->solutionCacheReplicated[index];
+        return this->mSolutionCacheReplicated[index];
     }
     
     
@@ -196,7 +196,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
             double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
                             + mCellsDistributed[local_index]->GetIIonic();
           
-            this->solutionCacheReplicated[global_index] = - Itotal;
+            this->mSolutionCacheReplicated[global_index] = - Itotal;
 
         }
         
