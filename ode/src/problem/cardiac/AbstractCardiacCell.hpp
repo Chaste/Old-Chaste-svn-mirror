@@ -49,7 +49,7 @@ public:
     /**
      * Fudge to ensure that gating variables do not go out of bounds.
      */
-    virtual void VerifyVariables(std::vector<double>& odeVars) {}
+    virtual void VerifyVariables() {}
     
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],

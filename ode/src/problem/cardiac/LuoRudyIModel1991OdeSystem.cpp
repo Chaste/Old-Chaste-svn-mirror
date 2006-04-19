@@ -288,77 +288,77 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
  }
 
 
-void LuoRudyIModel1991OdeSystem::VerifyVariables(std::vector<double>& odeVars)
+void LuoRudyIModel1991OdeSystem::VerifyVariables()
 {
     // check h    
-    if(odeVars[0]<0)
+    if(mStateVariables[0]<0)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nh < 0, reset to 0\n";
-        odeVars[0] = 0;
+        mStateVariables[0] = 0;
     }
-    if(odeVars[0]>1)
+    if(mStateVariables[0]>1)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nh > 1, reset to 1\n";
-        odeVars[0] = 1;
+        mStateVariables[0] = 1;
     }
 
     // check j    
-    if(odeVars[1]<0)
+    if(mStateVariables[1]<0)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nj < 0, reset to 0\n";
-        odeVars[1] = 0;
+        mStateVariables[1] = 0;
     }
-    if(odeVars[1]>1)
+    if(mStateVariables[1]>1)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nj > 1, reset to 1\n";
-        odeVars[1] = 1;
+        mStateVariables[1] = 1;
     }
 
     // check h    
-    if(odeVars[2]<0)
+    if(mStateVariables[2]<0)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nd < 0, reset to 0\n";
-        odeVars[2] = 0;
+        mStateVariables[2] = 0;
     }
-    if(odeVars[2]>1)
+    if(mStateVariables[2]>1)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nd > 1, reset to 1\n";
-        odeVars[2] = 1;
+        mStateVariables[2] = 1;
     }
     
     // check d    
-    if(odeVars[5]<0)
+    if(mStateVariables[5]<0)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nd < 0, reset to 0\n";
-        odeVars[5] = 0;
+        mStateVariables[5] = 0;
     }
-    if(odeVars[5]>1)
+    if(mStateVariables[5]>1)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nd > 1, reset to 1\n";
-        odeVars[5] = 1;
+        mStateVariables[5] = 1;
     }
     
     // check f    
-    if(odeVars[6]<0)
+    if(mStateVariables[6]<0)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nf < 0, reset to 0\n";
-        odeVars[6] = 0;
+        mStateVariables[6] = 0;
     }
-    if(odeVars[6]>1)
+    if(mStateVariables[6]>1)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nf > 1, reset to 1\n";
-        odeVars[6] = 1;
+        mStateVariables[6] = 1;
     }
     
     // check X    
-    if(odeVars[7]<0)
+    if(mStateVariables[7]<0)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nX < 0, reset to 0\n";
-        odeVars[7] = 0;
+        mStateVariables[7] = 0;
     }
-    if(odeVars[7]>1)
+    if(mStateVariables[7]>1)
     {
         std::cout << "\nWARNING: Lr91::VerifyVariables\nX > 1, reset to 1\n";
-        odeVars[7] = 1;
+        mStateVariables[7] = 1;
     }
 }

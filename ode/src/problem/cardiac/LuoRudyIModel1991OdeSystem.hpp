@@ -45,7 +45,7 @@ class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
       // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
 
-      void VerifyVariables(std::vector<double>& odeVars);
+      void VerifyVariables();
       double GetIIonic();
 };
 

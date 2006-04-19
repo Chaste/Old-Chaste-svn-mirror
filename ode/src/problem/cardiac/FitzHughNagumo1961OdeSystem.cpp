@@ -89,9 +89,9 @@ std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double ti
 //    return mpStimulus->GetStimulus(time);
 //}
 
-void FitzHughNagumo1961OdeSystem::VerifyVariables(std::vector<double>& odeVars)
+void FitzHughNagumo1961OdeSystem::VerifyVariables()
 {
-    //\todo code VerifyVariables in FHN1961OdeSystem
+    //\todo code VerifyVariables in FitzHughNagumo1961OdeSystem
 }
 
 double FitzHughNagumo1961OdeSystem::GetIIonic()

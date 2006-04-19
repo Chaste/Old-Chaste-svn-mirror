@@ -123,9 +123,9 @@ void HodgkinHuxleySquidAxon1952OriginalOdeSystem::Init()
     sodium_channel_g_Na = 120.0;   // mS/cm2
 }
 
-void HodgkinHuxleySquidAxon1952OriginalOdeSystem::VerifyVariables(std::vector<double>& odeVars)
+void HodgkinHuxleySquidAxon1952OriginalOdeSystem::VerifyVariables()
 {
-    //\todo code VerifyVariables in FHN1961OdeSystem
+    //\todo code VerifyVariables in HodgkinHuxleySquidAxon1952OriginalOdeSystem
 }
 
 double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()

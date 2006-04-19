@@ -191,10 +191,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
             // solve            
             mCellsDistributed[local_index]->Compute(time, time+big_time_step);
 
-    
-  /////// NEED TO BRING THIS BACK
-  //          mCellsDistributed[local_index]->VerifyVariables( mCellsDistributed[local_index]->GetStateVariables() );
-  
+            mCellsDistributed[local_index]->VerifyVariables();
 
             double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
                             + mCellsDistributed[local_index]->GetIIonic();
