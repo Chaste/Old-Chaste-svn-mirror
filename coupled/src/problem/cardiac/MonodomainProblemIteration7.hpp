@@ -1,8 +1,11 @@
 #ifndef MONODOMAINPROBLEMITERATION7_HPP_
 #define MONODOMAINPROBLEMITERATION7_HPP_
 
-#include <iostream>
+//#include <iostream>
 
+// For mkdir()
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
@@ -92,7 +95,7 @@ public:
     }
     
     
-    void CreateMonodomainPde()
+    void Initialise()
     {
         assert( mMeshFilename!="" );
 

@@ -10,75 +10,58 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <cmath>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-#include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
-#include "Element.hpp"
-#include "BoundaryConditionsContainer.hpp"
-#include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "ColumnDataWriter.hpp"
-#include "ColumnDataReader.hpp"
-#include "PropagationPropertiesCalculator.hpp"
-
-#include "MonodomainPde.hpp"
-#include "MockEulerIvpOdeSolver.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblem.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-#include "AbstractMonodomainProblemStimulus.hpp"
+#include "MonodomainProblemIteration7.hpp"
+#include "AbstractCardiacCellFactory.hpp"
 
-class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
+
+class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {
+private:
+    // define a new stimulus
+    InitialStimulus* mpStimulus;
+    
 public:
-    virtual void Apply(MonodomainPde<1> *pPde, 
-                       ConformingTetrahedralMesh<1,1> *pMesh)
+    PointStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<1>(timeStep)
     {
-//        static InitialStimulus stimulus(-600.0, 0.5);
+        // set the new stimulus
+        //mpStimulus = new InitialStimulus(-600, 0.5);
 // Note: the above stimulus used to be the original one and the one used in 
 //       other test series. It, however, doesn't allow for small space steps,
 //       hence we have increased its amplitude (but not too much, as otherwise
 //       the cell model will blow up).
-        static InitialStimulus stimulus(-1500.0, 0.5);
-
-        for (int i = 0; i < pMesh->GetNumNodes(); i++)
+        mpStimulus = new InitialStimulus(-1500, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
-            if (pMesh->GetNodeAt(i)->GetPoint()[0] == 0.0)
-            {
-                pPde->SetStimulusFunctionAtNode(i, &stimulus);
-            }
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
         }
+        else
+        {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+        }
+    }
+    
+    ~PointStimulusCellFactory(void)
+    {
+        delete mpStimulus;
     }
 };
 
+
 class TestMonodomainDg0AssemblerForConvergence : public CxxTest::TestSuite 
-{   
-private:
-    /**
-     * Refactor code to set up a PETSc vector holding the initial condition.
-     */
-    Vec CreateInitialConditionVec(int size)
-    {
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_condition);
-        return initial_condition;
-    }
-    
+{
 public:
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm and a
     // time step that starts at 0.01ms and gets halved until we get convergence.
     void TestMonodomainDg01D()
     {
-        PointStimulus1D point_stimulus_1D;
-
         bool converging = false;
         double prev_voltage = -999;   // To ensure that the first test fails
         double time_step = 0.01;   // ms
@@ -87,33 +70,33 @@ public:
 
         do
         {
-            MonodomainProblem<1> monodomainProblem;
+            PointStimulusCellFactory cell_factory(time_step);
+            MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
     
-            monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-            monodomainProblem.SetEndTime(2);   // 2 ms
-            monodomainProblem.SetOutputDirectory("testoutput/MonoDg01D");
-            monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
-            monodomainProblem.SetStimulus(&point_stimulus_1D);
-    
-            monodomainProblem.SetTimeSteps(time_step, time_step);
-            monodomainProblem.Solve();
+            monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+            monodomain_problem.SetEndTime(2);   // 2 ms
+            monodomain_problem.SetOutputDirectory("testoutput/MonoDg01D");
+            monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+            monodomain_problem.SetPdeTimeStep(time_step);
+            monodomain_problem.Initialise();
+            monodomain_problem.Solve();
     
             double* voltage_array;
     
             // test whether voltages and gating variables are in correct ranges
     
-            VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
+            VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array);
     
-            for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
+            for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
             {
                 // assuming LR model has Ena = 54.4 and Ek = -77
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
     
-                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
-                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
+                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
     
-                std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);
+                std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
                 for(int j=0; j<8; j++)
                 {
                     // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -126,9 +109,9 @@ public:
             }
 
             double my_voltage = 0.0;
-            if ((monodomainProblem.mLo <= 5) && (monodomainProblem.mHi > 5))
+            if ((monodomain_problem.mLo <= 5) && (monodomain_problem.mHi > 5))
             {
-                my_voltage = voltage_array[5-monodomainProblem.mLo];
+                my_voltage = voltage_array[5-monodomain_problem.mLo];
             }
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
@@ -136,14 +119,14 @@ public:
             double relerr = fabs ((probe_voltage - prev_voltage) / prev_voltage);
 // Note: the first time around this iteration, the relative error will be wrong
 //       because of the initial value of prev_voltage
-//            std::cout << "Testing for dt = " << monodomainProblem.time_step
+//            std::cout << "Testing for dt = " << monodomain_problem.time_step
 //                << "ms (dx = 0.01cm) err = " << relerr << " V = " << voltage_array[5] << "mV"
 //                << std::endl << std::flush;
 
             if (relerr < 1e-2)
             {
                 converging = true;
-//                std::cout << "Converged at dt = " << monodomainProblem.time_step << "ms" << std::endl;
+//                std::cout << "Converged at dt = " << monodomain_problem.time_step << "ms" << std::endl;
             }
             else
             {
@@ -154,10 +137,10 @@ public:
 
             prev_voltage = probe_voltage;
     
-            VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
-            VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
-            VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
-            VecDestroy(monodomainProblem.mCurrentVoltage);
+            VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
+            VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
+            VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
+            VecDestroy(monodomain_problem.mCurrentVoltage);
         } while(!converging);
                 
         // Do we end up with the expected time step?
@@ -172,6 +155,8 @@ public:
         converging = false;
         prev_voltage = -999;   // To ensure that the first test fails
         const std::string mesh_filename = "testoutput/1D_0_to_1mm";
+        
+        PointStimulusCellFactory cell_factory(time_step);
 
         do
         {
@@ -216,33 +201,32 @@ public:
 
             // Solve the problem itself
            
-            MonodomainProblem<1> monodomainProblem;
+            MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
     
-            monodomainProblem.SetMeshFilename(mesh_filename);
-            monodomainProblem.SetEndTime(2);   // 2 ms
-            monodomainProblem.SetOutputDirectory("testoutput/MonoDg01D");
-            monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
-            monodomainProblem.SetStimulus(&point_stimulus_1D);
-
-            monodomainProblem.SetTimeSteps( time_step, time_step);
-            monodomainProblem.Solve();
+            monodomain_problem.SetMeshFilename(mesh_filename);
+            monodomain_problem.SetEndTime(2);   // 2 ms
+            monodomain_problem.SetOutputDirectory("testoutput/MonoDg01D");
+            monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
+            monodomain_problem.SetPdeTimeStep(time_step);
+            monodomain_problem.Initialise();
+            monodomain_problem.Solve();
     
             double* voltage_array;
     
             // test whether voltages and gating variables are in correct ranges
     
-            VecGetArray(monodomainProblem.mCurrentVoltage, &voltage_array);
+            VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array);
     
-            for(int global_index=monodomainProblem.mLo; global_index<monodomainProblem.mHi; global_index++)
+            for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
             {
                 // assuming LR model has Ena = 54.4 and Ek = -77
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
     
-                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
-                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
+                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
+                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
     
-                std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);
+                std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
                 for(int j=0; j<8; j++)
                 {
                     // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -255,9 +239,9 @@ public:
             }
 
             double my_voltage = 0.0;
-            if ((monodomainProblem.mLo <= middle_node) && (monodomainProblem.mHi > middle_node))
+            if ((monodomain_problem.mLo <= middle_node) && (monodomain_problem.mHi > middle_node))
             {
-                my_voltage = voltage_array[middle_node-monodomainProblem.mLo];
+                my_voltage = voltage_array[middle_node-monodomain_problem.mLo];
             }
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
@@ -285,10 +269,10 @@ public:
                 middle_node *= 2;
             }
     
-            VecRestoreArray(monodomainProblem.mCurrentVoltage, &voltage_array);      
-            VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
-            VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
-            VecDestroy(monodomainProblem.mCurrentVoltage);
+            VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
+            VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
+            VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
+            VecDestroy(monodomain_problem.mCurrentVoltage);
         } while(!converging);
         
         // Conclusion

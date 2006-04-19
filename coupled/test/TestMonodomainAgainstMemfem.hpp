@@ -8,49 +8,40 @@
 
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
-#include <vector>
-#include <iostream>
-#include <cmath>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-#include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
-#include "Element.hpp"
-#include "BoundaryConditionsContainer.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"  
-#include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "ColumnDataWriter.hpp"
-#include "ColumnDataReader.hpp"
-#include "PropagationPropertiesCalculator.hpp"
-
-#include "MonodomainPde.hpp"
-#include "MockEulerIvpOdeSolver.hpp"
-#include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblem.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-#include "AbstractMonodomainProblemStimulus.hpp"
+#include "MonodomainProblemIteration7.hpp"
+#include "AbstractCardiacCellFactory.hpp"
 
 
 
-class FaceStimulus3D: public AbstractMonodomainProblemStimulus<3>
+class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
-    virtual void Apply(MonodomainPde<3> *pPde,
-                       ConformingTetrahedralMesh<3,3> *pMesh)
+private:
+    InitialStimulus *mpStimulus;
+public:
+    FaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
-        static InitialStimulus stimulus(-600.0, 0.5);
-
-        for (int i = 0; i < pMesh->GetNumNodes(); i++)
+        mpStimulus = new InitialStimulus(-600.0, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
-            if (pMesh->GetNodeAt(i)->GetPoint()[0] == 0.0)
-            {
-                pPde->SetStimulusFunctionAtNode(i, &stimulus);
-            }
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
         }
+        else
+        {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+        }
+    }
+    
+    ~FaceStimulusCellFactory(void)
+    {
+        delete mpStimulus;
     }
 };
 
@@ -65,18 +56,16 @@ public:
 
     void TestMonodomainDg03DWithFaceStimulus( void )
     {
-        FaceStimulus3D face_stimulus_3D;
+        FaceStimulusCellFactory cell_factory;
         
-        MonodomainProblem<3> monodomainProblem;
+        MonodomainProblemIteration7<3> monodomain_problem(&cell_factory);
 
-        monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
-        monodomainProblem.SetEndTime(60);   // 60 ms
-        monodomainProblem.SetOutputDirectory("testoutput/MonoDg03dWithFaceStimulus");
-        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_3dWithFaceStimulus");
-        monodomainProblem.SetStimulus(&face_stimulus_3D);
-
-        monodomainProblem.Solve();     
-
+        monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
+        monodomain_problem.SetEndTime(60);   // 60 ms
+        monodomain_problem.SetOutputDirectory("testoutput/MonoDg03dWithFaceStimulus");
+        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dWithFaceStimulus");
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();     
     }  
 }; 
 
