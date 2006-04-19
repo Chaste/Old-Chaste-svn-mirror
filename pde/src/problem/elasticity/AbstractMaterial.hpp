@@ -214,7 +214,7 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dTdE.mVal[M][N][P][Q] = 4*d2W_by_dI1*IdentityCrossIdentity.mVal[M][N][P][Q];
+								dTdE.rGetVal()[M][N][P][Q] = 4*d2W_by_dI1*IdentityCrossIdentity.rGetVal()[M][N][P][Q];
 							}
 						}
 					}
@@ -248,7 +248,7 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dI2_dEdE.mVal[M][N][P][Q] = -4*I2*invC(M,P)*invC(Q,N) + 2*invC(M,N)*dI2_dE(P,Q);
+								dI2_dEdE.rGetVal()[M][N][P][Q] = -4*I2*invC(M,P)*invC(Q,N) + 2*invC(M,N)*dI2_dE(P,Q);
 							}
 						}
 					}
@@ -263,13 +263,13 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dTdE.mVal[M][N][P][Q] =   d2W_by_dI1    * dI1_dE(M,N) * dI1_dE(P,Q)
+								dTdE.rGetVal()[M][N][P][Q] =   d2W_by_dI1    * dI1_dE(M,N) * dI1_dE(P,Q)
 								                        + d2W_by_dI1dI2 * dI1_dE(M,N) * dI2_dE(P,Q)
 								                        + 0 // dW_by_dI1 * dI1_dEdE
 								                        
 								                        + d2W_by_dI2    * dI2_dE(M,N) * dI2_dE(P,Q)
 								                        + d2W_by_dI1dI2 * dI2_dE(M,N) * dI1_dE(P,Q)
-								                        + dW_by_dI2     * dI2_dEdE.mVal[M][N][P][Q];
+								                        + dW_by_dI2     * dI2_dEdE.rGetVal()[M][N][P][Q];
 							}
 						}
 					}
@@ -312,8 +312,8 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dI2_dEdE.mVal[M][N][P][Q] =  4*(M==N)*(P==Q) - 4*(M==P)*(N==Q);
-								dI3_dEdE.mVal[M][N][P][Q] = -4*I3*invC(M,P)*invC(Q,N) + 2*invC(M,N)*dI3_dE(P,Q);
+								dI2_dEdE.rGetVal()[M][N][P][Q] =  4*(M==N)*(P==Q) - 4*(M==P)*(N==Q);
+								dI3_dEdE.rGetVal()[M][N][P][Q] = -4*I3*invC(M,P)*invC(Q,N) + 2*invC(M,N)*dI3_dE(P,Q);
 							}
 						}
 					}
@@ -328,7 +328,7 @@ private:
 						{
 							for(int Q=0; Q<SPACE_DIM; Q++)
 							{
-								dTdE.mVal[M][N][P][Q] =   d2W_by_dI1    * dI1_dE(M,N) * dI1_dE(P,Q)
+								dTdE.rGetVal()[M][N][P][Q] =   d2W_by_dI1    * dI1_dE(M,N) * dI1_dE(P,Q)
 								                        + d2W_by_dI1dI2 * dI1_dE(M,N) * dI2_dE(P,Q)
 								                        + d2W_by_dI1dI3 * dI1_dE(M,N) * dI3_dE(P,Q)
 								                        + 0 // dW_by_dI1 * dI1_dEdE
@@ -336,12 +336,12 @@ private:
 								                        + d2W_by_dI2    * dI2_dE(M,N) * dI2_dE(P,Q)
 								                        + d2W_by_dI1dI2 * dI2_dE(M,N) * dI1_dE(P,Q)
 								                        + d2W_by_dI2dI3 * dI2_dE(M,N) * dI3_dE(P,Q)
-								                        + dW_by_dI2     * dI2_dEdE.mVal[M][N][P][Q];
+								                        + dW_by_dI2     * dI2_dEdE.rGetVal()[M][N][P][Q];
 
 								                        //+ d2W_by_dI3    * dI3_dE(M,N) * dI3_dE(P,Q)
 								                        //+ d2W_by_dI1dI3 * dI3_dE(M,N) * dI1_dE(P,Q)
 								                        //+ d2W_by_dI2dI3 * dI3_dE(M,N) * dI2_dE(P,Q)
-								                        //+ dW_by_dI3     * dI3_dEdE.mVal[M][N][P][Q];
+								                        //+ dW_by_dI3     * dI3_dEdE.rGetVal()[M][N][P][Q];
 							}
 						}
 					}

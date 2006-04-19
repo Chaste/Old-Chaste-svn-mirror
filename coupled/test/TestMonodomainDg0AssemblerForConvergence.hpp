@@ -82,12 +82,11 @@ public:
             monodomain_problem.Solve();
     
             double* voltage_array;
+            int lo, hi;
+            monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
             // test whether voltages and gating variables are in correct ranges
-    
-            VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array);
-    
-            for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
+            for(int global_index=lo; global_index<hi; global_index++) 
             {
                 // assuming LR model has Ena = 54.4 and Ek = -77
                 double Ena   =  54.4;   // mV
@@ -96,7 +95,7 @@ public:
                 TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
                 TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
     
-                std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->rGetStateVariables();
+                std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
                 for(int j=0; j<8; j++)
                 {
                     // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -137,11 +136,8 @@ public:
 
             prev_voltage = probe_voltage;
     
-            VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
-            VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
-            VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
-            VecDestroy(monodomain_problem.mCurrentVoltage);
-        } while(!converging);
+            monodomain_problem.RestoreVoltageArray(&voltage_array);
+          } while(!converging);
                 
         // Do we end up with the expected time step?
         
@@ -212,12 +208,11 @@ public:
             monodomain_problem.Solve();
     
             double* voltage_array;
+            int lo, hi;
+            monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
             // test whether voltages and gating variables are in correct ranges
-    
-            VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array);
-    
-            for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
+            for(int global_index=lo; global_index<hi; global_index++)
             {
                 // assuming LR model has Ena = 54.4 and Ek = -77
                 double Ena   =  54.4;   // mV
@@ -226,7 +221,7 @@ public:
                 TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
                 TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
     
-                std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->rGetStateVariables();
+                std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
                 for(int j=0; j<8; j++)
                 {
                     // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -269,10 +264,7 @@ public:
                 middle_node *= 2;
             }
     
-            VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
-            VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
-            VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
-            VecDestroy(monodomain_problem.mCurrentVoltage);
+             monodomain_problem.RestoreVoltageArray(&voltage_array);
         } while(!converging);
         
         // Conclusion

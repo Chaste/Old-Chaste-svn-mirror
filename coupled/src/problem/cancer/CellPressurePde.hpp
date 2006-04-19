@@ -6,10 +6,10 @@
 template <int SPACE_DIM>
 class CellPressurePde:public AbstractLinearEllipticPde<SPACE_DIM>
 {
-	public:
-    
+private:    
     double mXalpha;
        
+public:
 	double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
 	{
         

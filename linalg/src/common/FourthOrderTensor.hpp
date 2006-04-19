@@ -17,9 +17,10 @@ template <int SPACE_DIM>
 class FourthOrderTensor
 {
 	
-public:
+private:
 	std::vector< std::vector < std::vector< std::vector<double> > > >   mVal;
 	
+public:
 	FourthOrderTensor()
 	{
 		// check dim>0 but <4, we don't want to create fourth order tensors over hyperspace
@@ -58,7 +59,11 @@ public:
 			}
 		}			
 	}	
-	
+    std::vector< std::vector < std::vector< std::vector<double> > > > 
+        & rGetVal()
+    {
+        return mVal;
+    }	
 };
 
 

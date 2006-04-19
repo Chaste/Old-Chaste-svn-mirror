@@ -48,20 +48,20 @@ public:
 		
 		FourthOrderTensor<2> dTdE = material2.Compute_dTdE(H);
 		int dim = 2;
-		TS_ASSERT_EQUALS( dTdE.mVal.size(), dim );		
+		TS_ASSERT_EQUALS( dTdE.rGetVal().size(), dim );		
 		for(int M=0; M<dim; M++)
 		{
-			TS_ASSERT_EQUALS( dTdE.mVal[M].size(), dim );		
+			TS_ASSERT_EQUALS( dTdE.rGetVal()[M].size(), dim );		
 			for(int N=0; N<dim; N++)
 			{	
-				TS_ASSERT_EQUALS( dTdE.mVal[M][N].size(), dim );		
+				TS_ASSERT_EQUALS( dTdE.rGetVal()[M][N].size(), dim );		
 				for(int P=0; P<dim; P++)
 				{
-					TS_ASSERT_EQUALS( dTdE.mVal[M][N][P].size(), dim );		
+					TS_ASSERT_EQUALS( dTdE.rGetVal()[M][N][P].size(), dim );		
 					for(int Q=0; Q<dim; Q++)
 					{
 						 //\todo: test values of dTdE
-						//TS_ASSERT_DELTA( dTdE.mVal[M][N][P][Q], ??, 1e-12 );		
+						//TS_ASSERT_DELTA( dTdE.rGetVal()[M][N][P][Q], ??, 1e-12 );		
 					}
 				}
 			}
@@ -117,20 +117,20 @@ public:
 		
 		FourthOrderTensor<3> dTdE3 = material3.Compute_dTdE(F);
 		dim = 3;
-		TS_ASSERT_EQUALS( dTdE3.mVal.size(), dim );		
+		TS_ASSERT_EQUALS( dTdE3.rGetVal().size(), dim );		
 		for(int M=0; M<dim; M++)
 		{
-			TS_ASSERT_EQUALS( dTdE3.mVal[M].size(), dim );		
+			TS_ASSERT_EQUALS( dTdE3.rGetVal()[M].size(), dim );		
 			for(int N=0; N<dim; N++)
 			{	
-				TS_ASSERT_EQUALS( dTdE3.mVal[M][N].size(), dim );		
+				TS_ASSERT_EQUALS( dTdE3.rGetVal()[M][N].size(), dim );		
 				for(int P=0; P<dim; P++)
 				{
-					TS_ASSERT_EQUALS( dTdE3.mVal[M][N][P].size(), dim );		
+					TS_ASSERT_EQUALS( dTdE3.rGetVal()[M][N][P].size(), dim );		
 					for(int Q=0; Q<dim; Q++)
 					{
 						// \todo: test values of dTdE
-						//TS_ASSERT_DELTA( dTdE3.mVal[M][N][P][Q], ??, 1e-12 );		
+						//TS_ASSERT_DELTA( dTdE3.rGetVal()[M][N][P][Q], ??, 1e-12 );		
 					}
 				}
 			}

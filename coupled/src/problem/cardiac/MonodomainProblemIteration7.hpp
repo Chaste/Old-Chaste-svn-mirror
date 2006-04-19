@@ -37,17 +37,15 @@ private:
     double mEndTime;
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
-public:
     MonodomainPdeIteration7<SPACE_DIM> *mMonodomainPde;
-private:    
     bool mDebugOn;
     bool mSequential; 
     double mPdeTimeStep;  //aka big_timestep
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
-public:
     Vec mCurrentVoltage; // Current solution
+public:
     int mLo, mHi;
    
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
@@ -301,6 +299,27 @@ public:
     {
         mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
+    
+    AbstractCardiacCell* GetCardiacCell( int globalIndex )
+    {
+        return mMonodomainPde->GetCardiacCell(globalIndex);
+    }
+    
+    void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
+    {
+        VecGetArray(mCurrentVoltage, pVoltageArray);
+        lo=mLo;
+        hi=mHi; 
+    }
+    
+    void RestoreVoltageArray(double **pVoltageArray)
+    {
+       VecRestoreArray(mCurrentVoltage, pVoltageArray);      
+       VecAssemblyBegin(mCurrentVoltage);
+       VecAssemblyEnd(mCurrentVoltage);
+       VecDestroy(mCurrentVoltage);
+    }
+    
 };
 
 
