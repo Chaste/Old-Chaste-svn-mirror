@@ -24,14 +24,11 @@
 #include "ColumnDataReader.hpp"
 #include "PropagationPropertiesCalculator.hpp"
 
-#include "MonodomainPde.hpp"
 #include "MockEulerIvpOdeSolver.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblemIteration7.hpp"
-#include "MonodomainProblem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
-#include "AbstractMonodomainProblemStimulus.hpp"
 
 #include <time.h>
 
@@ -44,14 +41,10 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    PointStimulusCellFactory() 
+    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)
     {
-        // set the timestep, solver, and zero stimulus (from the parent class)
-        mTimeStep = 0.01;
-        mpSolver = new EulerIvpOdeSolver;
-        mpZeroStimulus = new InitialStimulus(0,0,0);
         // set the new stimulus
-        mpStimulus = new InitialStimulus(-600,0.5);   
+        mpStimulus = new InitialStimulus(-600, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)
@@ -69,80 +62,71 @@ public:
     
     ~PointStimulusCellFactory(void)
     {
-        delete mpSolver;
-        delete mpZeroStimulus;
         delete mpStimulus;
-    }  
-    
-    int GetNumberOfNodes()
-    {
-        return mpMesh->GetNumNodes();
     }
 };
 
 
-
-
-
-
-
-
-
-
-class PointStimulus1D: public AbstractMonodomainProblemStimulus<1>
-{
-public:
-    virtual void Apply(MonodomainPde<1> *pPde, 
-                       ConformingTetrahedralMesh<1,1> *pMesh)
-    {
-        static InitialStimulus stimulus(-600.0, 0.5);
-
-        for (int i = 0; i < pMesh->GetNumNodes(); i++)
-        {
-            if (pMesh->GetNodeAt(i)->GetPoint()[0] == 0.0)
-            {
-                pPde->SetStimulusFunctionAtNode(i, &stimulus);
-            }
-        }
-    }
-};
-
-class EdgeStimulus2D: public AbstractMonodomainProblemStimulus<2>
-{
-    virtual void Apply(MonodomainPde<2> *pPde,
-                       ConformingTetrahedralMesh<2,2> *pMesh)
-    {
-        static InitialStimulus stimulus(-600.0, 0.5);
-        
-        for (int i = 0; i < pMesh->GetNumNodes(); i++)
-        {
-            if (pMesh->GetNodeAt(i)->GetPoint()[0] == 0.0)
-            {
-                pPde->SetStimulusFunctionAtNode(i, &stimulus);
-            }
-        }
-    }
-};
-
-class PointStimulus2D: public AbstractMonodomainProblemStimulus<2>
+class EdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
-    int mNode;
-    
+    InitialStimulus *mpStimulus;
 public:
-    PointStimulus2D(const int node = 0)
+    EdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
-        mNode = node;
+        mpStimulus = new InitialStimulus(-600.0, 0.5);
     }
     
-    virtual void Apply(MonodomainPde<2> *pPde,
-                       ConformingTetrahedralMesh<2,2> *pMesh)
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
     {
-        static InitialStimulus stimulus(-6000.0, 0.5);
-
-        pPde->SetStimulusFunctionAtNode(mNode, &stimulus);
+        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+        }
+        else
+        {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+        }
+    }
+    
+    ~EdgeStimulusCellFactory(void)
+    {
+        delete mpStimulus;
     }
 };
+
+
+class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
+{
+private:
+    InitialStimulus *mpStimulus;
+    int mNodeNum;
+public:
+    PointStimulus2dCellFactory(int nodeNum) : AbstractCardiacCellFactory<2>(0.01)
+    {
+        mpStimulus = new InitialStimulus(-6000.0, 0.5);
+        mNodeNum = nodeNum;
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        if (node == mNodeNum)
+        {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+        }
+        else
+        {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+        }
+    }
+    
+    ~PointStimulus2dCellFactory(void)
+    {
+        delete mpStimulus;
+    }
+};
+
+
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
@@ -164,20 +148,15 @@ public:
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainDg01D()
     {
-        //PointStimulus1D point_stimulus_1D;
-        
         PointStimulusCellFactory cell_factory;
-        
         MonodomainProblemIteration7<1> monodomainProblem( &cell_factory );
 
         monodomainProblem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomainProblem.SetEndTime(2);   // 2 ms
         monodomainProblem.SetOutputDirectory("testoutput/MonoDg01d");
         monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
- // //      monodomainProblem.SetStimulus(&point_stimulus_1D);
 
         monodomainProblem.CreateMonodomainPde();
-
         monodomainProblem.Solve();
 
         double* voltage_array;
@@ -195,17 +174,17 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
 
-     //       std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);
-     //       for(int j=0; j<8; j++)
-     //       {
-     //           // if not voltage or calcium ion conc, test whether between 0 and 1
-     //           if((j!=4) && (j!=3))
-     //           {
-     //               TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-     //               TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-     //           }
-     //       }
-
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
+            for(int j=0; j<8; j++)
+            {
+                // if not voltage or calcium ion conc, test whether between 0 and 1
+                if((j!=4) && (j!=3))
+                {
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
+                }
+            }
+    
             if (global_index==1)
             {
                 TS_ASSERT_DELTA(voltage_array[global_index-monodomainProblem.mLo], 20.0416, 0.001);
@@ -236,7 +215,6 @@ public:
         VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
         VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
         VecDestroy(monodomainProblem.mCurrentVoltage);
-
     }
 
 
@@ -246,17 +224,18 @@ public:
     // Should behave like the 1D case, extrapolated.
     void TestMonodomainDg02DWithEdgeStimulus( void )
     {   
-        EdgeStimulus2D edge_stimulus_2D;
+        EdgeStimulusCellFactory cell_factory;
         
         // using the criss-cross mesh so wave propagates properly
-        MonodomainProblem<2> monodomainProblem;
+        MonodomainProblemIteration7<2> monodomainProblem( &cell_factory );
 
         monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomainProblem.SetEndTime(2);   // 2 ms
         monodomainProblem.SetOutputDirectory("testoutput/MonoDg02dWithEdgeStimulus");
         monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithEdgeStimulus");
-        monodomainProblem.SetStimulus(&edge_stimulus_2D);
 
+        monodomainProblem.CreateMonodomainPde();
+        
         monodomainProblem.Solve();
         
         double* voltage_array;
@@ -272,7 +251,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -354,17 +333,16 @@ public:
         double dif;
         time (&start);
         
+        PointStimulus2dCellFactory cell_factory(60); // Central node
         
-        PointStimulus2D point_stimulus_2D(60); // Central node
-        
-        MonodomainProblem<2> monodomainProblem;
+        MonodomainProblemIteration7<2> monodomainProblem( &cell_factory );
 
         monodomainProblem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomainProblem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test
         monodomainProblem.SetOutputDirectory("testoutput/MonoDg02dWithPointStimulus");
         monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulus");
-        monodomainProblem.SetStimulus(&point_stimulus_2D);
 
+        monodomainProblem.CreateMonodomainPde();
         monodomainProblem.Solve();
         
         // To time the solve
@@ -387,7 +365,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomainProblem.mLo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomainProblem.mLo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetOdeVarsAtNode(global_index);           
+            std::vector<double> odeVars = monodomainProblem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 

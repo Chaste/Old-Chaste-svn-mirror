@@ -8,10 +8,10 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MatrixDouble.hpp"
 #include "AbstractCoupledPdeIteration7.hpp"
-
 #include "AbstractCardiacCellFactory.hpp"
 
-/*const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
+
+const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
 const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
 const double RADIUS = 0.00011;                          // radius of cell, cm
 const double LENGTH = 0.01;                             // length of cell, cm
@@ -24,7 +24,7 @@ const double rA = rMyo + rG / LENGTH;// BETA;
 //memfem:
 //const double DIFFUSION_CONST = 0.000019;
 const double BETA = 0.00014;
-*/
+
 
 
 /**
@@ -50,14 +50,13 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
         double mDiffusionCoefficient;
 
         /** The vector of cells. Distributed. */
-        
         std::vector< AbstractCardiacCell* > mCellsDistributed;
 
     public:
     
     //Constructor     
-    MonodomainPdeIteration7(AbstractCardiacCellFactory<SPACE_DIM>* cellFactory, double tStart, double pdeTimeStep) :
-        AbstractCoupledPdeIteration7<SPACE_DIM>(cellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
+    MonodomainPdeIteration7(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) :
+        AbstractCoupledPdeIteration7<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
      {
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
@@ -67,7 +66,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
         for(int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index - lo;
-            mCellsDistributed[local_index] = cellFactory->CreateCardiacCellForNode(global_index);
+            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
         }
         
         // Initialise the diffusion coefficient
@@ -147,8 +146,16 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
     }
     
    
-   
-   
+    AbstractCardiacCell* GetCardiacCell( int globalIndex )
+    {
+        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi)) {
+            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
+                " hi " << this->mOwnershipRangeHi << std::endl;
+        }
+        assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
+        return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
+    }
+       
 
     /**
      * This function informs the class that the current pde timestep is over,
@@ -178,33 +185,17 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
         {
             int global_index = local_index + lo;
             
-//            LuoRudyIModel1991OdeSystem* pLr91OdeSystem = mOdeSystemsDistributed[local_index];
-            
             // overwrite the voltage with the input value
-//            this->mOdeVarsAtNode[local_index][4] = p_current_solution[local_index]; 
-  
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
             
             // solve            
-//            this->mpOdeSolver->Solve(pLr91OdeSystem,
-//                                     this->mOdeVarsAtNode[ local_index ],
-//                                     time, 
-//                                     time + big_time_step,
-//                                     small_time_step);
-
             mCellsDistributed[local_index]->Compute(time, time+big_time_step);
 
-            // this tests variables are in the correct range (and maybe resets some if they are)
-//            mOdeSystemsDistributed[local_index]->VerifyVariables( this->mOdeVarsAtNode[ local_index ] );                          
-  
-  
-  
+    
   /////// NEED TO BRING THIS BACK
   //          mCellsDistributed[local_index]->VerifyVariables( mCellsDistributed[local_index]->GetStateVariables() );
   
-//            double Itotal = pLr91OdeSystem->GetStimulus(time + big_time_step)
-//                            + GetIIonic( this->mOdeVarsAtNode[ local_index ]);
-            
+
             double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
                             + mCellsDistributed[local_index]->GetIIonic();
           

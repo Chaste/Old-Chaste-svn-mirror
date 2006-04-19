@@ -26,11 +26,8 @@ private:
 
 public:
     
-    MyCardiacCellFactory()
+    MyCardiacCellFactory() : AbstractCardiacCellFactory<1>(0.01)
     {
-        mTimeStep = 0.01;
-        mpSolver = new EulerIvpOdeSolver;
-        mpZeroStimulus = new InitialStimulus(0,0,0);
         mpStimulus = new InitialStimulus(-80.0, 0.5);
     }
     
@@ -53,8 +50,6 @@ public:
     
     ~MyCardiacCellFactory(void)
     {
-        delete mpSolver;
-        delete mpZeroStimulus;
         delete mpStimulus;
     }
     
@@ -203,6 +198,41 @@ class TestMonodomainPde : public CxxTest::TestSuite
         delete stimulus;
         delete solver;        
     }
+    
+    
+    void testMonodomainPdeGetCardiacCell( void )
+    {
+        int num_nodes = 2;
+        MyCardiacCellFactory cell_factory;
+        MonodomainPdeIteration7<1> monodomain_pde( &cell_factory, 0, 0.1 );
+        
+        // initial condition;   
+        Vec currentVoltage;
+        VecCreate(PETSC_COMM_WORLD, &currentVoltage);
+        VecSetSizes(currentVoltage, PETSC_DECIDE, num_nodes);
+        //VecSetType(initialCondition, VECSEQ);
+        VecSetFromOptions(currentVoltage);
+  
+        double* currentVoltageArray;
+        VecGetArray(currentVoltage, &currentVoltageArray); 
+        
+        int lo, hi;
+        VecGetOwnershipRange(currentVoltage,&lo,&hi);
+
+        if(lo<=0 && 0<hi)
+        {
+            AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(0);
+            TS_ASSERT_DELTA(cell->GetStimulus(0.001),-80,1e-10);
+        }
+    
+        if(lo<=1 && 1<hi)
+        {
+            AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(1);
+            TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
+        }
+    }
 };
+
+
 
 #endif //_TESTMONODOMAINPDE_HPP_

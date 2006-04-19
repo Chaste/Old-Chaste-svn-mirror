@@ -9,7 +9,6 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ColumnDataWriter.hpp"
@@ -18,7 +17,6 @@
 #include "MockEulerIvpOdeSolver.hpp"
 
 #include "AbstractCardiacCellFactory.hpp"
-#include "AbstractMonodomainProblemStimulus.hpp"
 
 /**
  * Class which specifies and solves a monodomain problem.
@@ -35,15 +33,13 @@ private:
     double mStartTime;
     double mEndTime;
     std::string  mOutputDirectory, mOutputFilenamePrefix;
- //   AbstractMonodomainProblemStimulus<SPACE_DIM> *mpStimulus;
+
 public:
-    MonodomainPdeIteration7<SPACE_DIM> *mMonodomainPdeIteration7;
+    MonodomainPdeIteration7<SPACE_DIM> *mMonodomainPde;
 private:    
     bool mDebugOn;
     bool mSequential; 
     double mPdeTimeStep;  //aka big_timestep
-    double mOdeTimeStep;  //aka small_timestep or ickle_timestep(jameso)
-    // mOdeTimeStep will have to b removed when ticket 69 has been dealt with.
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
@@ -70,8 +66,7 @@ public:
       mEndTime(1000),   // 1,000 ms = 1 second
       mOutputDirectory(""),   // i.e. undefined
       mOutputFilenamePrefix(""),   // i.e. undefined
-      //mpStimulus(NULL),   // i.e. none
-      mMonodomainPdeIteration7(NULL),
+      mMonodomainPde(NULL),
       mDebugOn(false)
     {
         mpCellFactory = pCellFactory;
@@ -79,8 +74,9 @@ public:
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
         mSequential = (num_procs == 1);
+        
+        mStartTime   = 0.0;  // ms
         mPdeTimeStep = 0.01; // ms
-        mOdeTimeStep = 0.01; // ms
     }
 
     /**
@@ -89,21 +85,23 @@ public:
      
     ~MonodomainProblemIteration7()
     { 
-        if (mMonodomainPdeIteration7 != NULL)
+        if (mMonodomainPde != NULL)
         {
-            delete mMonodomainPdeIteration7;
+            delete mMonodomainPde;
         }
     }
     
     
     void CreateMonodomainPde()
     {
+        assert( mMeshFilename!="" );
+
         TrianglesMeshReader mesh_reader(mMeshFilename);
         mMesh.ConstructFromMeshReader(mesh_reader);
         
         mpCellFactory->SetMesh( &mMesh );
         
-        mMonodomainPdeIteration7 = new MonodomainPdeIteration7<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
+        mMonodomainPde = new MonodomainPdeIteration7<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
     }
      
     /**
@@ -111,30 +109,13 @@ public:
      */
     void Solve(const double& rDiffusionCoefficient = 0.0005)
     {
-        assert( mMonodomainPdeIteration7 != NULL );
+        assert( mMonodomainPde != NULL );
                 
         try
         {
-//            double start_time = 0.0;
-        
-            //double big_time_step = time_step; 
-            //double small_time_step = time_step/2.0;
-        
-            // Read mMesh
-            //TrianglesMeshReader mesh_reader(mMeshFilename);
-            //mMesh.ConstructFromMeshReader(mesh_reader);
-        
-            // Instantiate PDE object
-  //          MockEulerIvpOdeSolver ode_solver;
-  //          mMonodomainPde = new MonodomainPde<SPACE_DIM>(mMesh.GetNumNodes(), &ode_solver, start_time, mPdeTimeStep, mOdeTimeStep);
-
             // Set the diffusion coefficient
-        
-            mMonodomainPdeIteration7->SetDiffusionCoefficient(rDiffusionCoefficient);
+            mMonodomainPde->SetDiffusionCoefficient(rDiffusionCoefficient);
 
-            // Add initial stim       
-  //          mpStimulus->Apply(mMonodomainPde, &mMesh);
-        
             // Boundary conditions, zero neumann everywhere
             BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
            
@@ -155,7 +136,6 @@ public:
             // Assembler
             MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
             monodomain_assembler.SetMatrixIsConstant(&linear_solver);
-            
             
             // initial condition;   
             Vec initial_condition;
@@ -222,7 +202,7 @@ public:
                 monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
                 monodomain_assembler.SetInitialCondition( initial_condition );
                 
-                mCurrentVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPdeIteration7, bcc, &linear_solver);
+                mCurrentVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPde, bcc, &linear_solver);
                 
                 // Free old initial condition
                 VecDestroy(initial_condition);
@@ -259,29 +239,7 @@ public:
                     VecRestoreArray(mCurrentVoltage, &p_current_voltage); 
                 }
                 
-         /*       if (mDebugOn==true)
-                {
-                    odeVariablesType ode_vars;
-                    int node_number;
-                    
-                    node_number=37876;
-                    ode_vars = mMonodomainPdeIteration7->GetOdeVarsAtNode(node_number);
-                    std::cout<<"At time "<<current_time<<" node "<<node_number<<":\t"; 
-                    for (unsigned i=0; i<ode_vars.size(); i++){
-                        std::cout<<"("<<i<<") "<<ode_vars[i]<<"\t";   
-                    }
-                    std::cout<<std::endl;
-                    
-                    node_number=37877;
-                    ode_vars = mMonodomainPde->GetOdeVarsAtNode(node_number);
-                    std::cout<<"At time "<<current_time<<" node "<<node_number<<":\t"; 
-                    for (unsigned i=0; i<ode_vars.size(); i++){
-                        std::cout<<"("<<i<<") "<<ode_vars[i]<<"\t";   
-                    }
-                    std::cout<<std::endl;
-                }
-           */     
-                mMonodomainPdeIteration7->ResetAsUnsolvedOdeSystem();
+                mMonodomainPde->ResetAsUnsolvedOdeSystem();
                 current_time += mPdeTimeStep;
                     
                 big_steps++;
@@ -303,31 +261,24 @@ public:
         }
     }
     
-    void SetOdeTimeStep(double odeTimeStep)
+
+
+    void SetStartTime(const double &rStartTime)
     {
-        assert(0.0 < odeTimeStep && odeTimeStep <= mPdeTimeStep);
-        mOdeTimeStep=odeTimeStep;
+        mStartTime = rStartTime;
+    }
+
+    void SetEndTime(const double &rEndTime)
+    {
+        mEndTime = rEndTime;
     }
 
     void SetPdeTimeStep(double pdeTimeStep)
     {
-        assert(0.0 < pdeTimeStep &&  mOdeTimeStep <= pdeTimeStep);
+        assert(0.0 < pdeTimeStep);
         mPdeTimeStep=pdeTimeStep;
-    }
-
-    void SetTimeSteps(double odeTimeStep, double pdeTimeStep)
-    {
-        assert(0.0 < odeTimeStep &&  0.0 < pdeTimeStep &&  odeTimeStep <= pdeTimeStep);
-        mPdeTimeStep=pdeTimeStep;
-        mOdeTimeStep=odeTimeStep;
     }
     
- 
-    double GetOdeTimeStep()
-    {
-        return mOdeTimeStep;   
-    }
-       
     double GetPdeTimeStep()
     {
         return mPdeTimeStep;   
@@ -336,11 +287,6 @@ public:
     void SetMeshFilename(const std::string &rMeshFilename)
     {
         mMeshFilename = rMeshFilename;
-    }
-    
-    void SetEndTime(const double &rEndTime)
-    {
-        mEndTime = rEndTime;
     }
         
     void SetOutputDirectory(const std::string &rOutputDirectory)
@@ -352,11 +298,6 @@ public:
     {
         mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
-        
-   // void SetStimulus(AbstractMonodomainProblemStimulus<SPACE_DIM> *rStimulus)
-    //{
-      //  mpStimulus = rStimulus;
-    //}
 };
 
 

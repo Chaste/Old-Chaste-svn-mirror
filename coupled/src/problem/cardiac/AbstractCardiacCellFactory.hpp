@@ -2,7 +2,9 @@
 #define ABSTRACTCARDIACCELLFACTORY_HPP_
 
 #include "AbstractCardiacCell.hpp"
-#include "ConformingTetrahedralMesh.hpp"
+#include "ConformingTetrahedralMesh.cpp"
+#include "InitialStimulus.hpp"
+#include "EulerIvpOdeSolver.hpp"
 
 /**
  * Class which returns cardiac cells (which may have been stimulated).
@@ -24,9 +26,25 @@ protected:
 
 public:
     virtual AbstractCardiacCell* CreateCardiacCellForNode(int)=0;
-    virtual int GetNumberOfNodes()=0;
-    virtual ~AbstractCardiacCellFactory() {}
-    void SetMesh( ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+    virtual int GetNumberOfNodes()
+    {
+        assert(mpMesh != NULL);
+        return mpMesh->GetNumNodes();
+    }
+    AbstractCardiacCellFactory(double timeStep,
+                               AbstractIvpOdeSolver* pSolver = new EulerIvpOdeSolver)
+    {
+        mTimeStep = timeStep;
+        mpMesh = NULL;
+        mpSolver = pSolver;
+        mpZeroStimulus = new InitialStimulus(0,0,0);
+    }
+    virtual ~AbstractCardiacCellFactory()
+    {
+        delete mpSolver;
+        delete mpZeroStimulus;
+    }
+    void SetMesh(ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
     {
         mpMesh = pMesh;
     }
