@@ -32,6 +32,7 @@ class TestMonodomainFitzHughNagumoWithDg0Assembler : public CxxTest::TestSuite
 public:
     
     /** \todo Not yet fully working...
+     * May not be necessary any more, since the Luo-Rudy model seems to work.
      */
     void TestVisualFHN1D()
     {  

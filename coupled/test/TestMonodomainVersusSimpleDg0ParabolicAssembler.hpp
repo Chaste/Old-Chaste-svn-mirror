@@ -5,31 +5,20 @@
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
 
-
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
 #include <vector>
-#include <iostream>
-#include <cmath>
-#include <sys/stat.h>
-#include <sys/types.h>
+//#include <iostream>
 
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
-#include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "ColumnDataWriter.hpp"
-
-#include "MonodomainPde.hpp"
-#include "MockEulerIvpOdeSolver.hpp"
 #include "FischerPde.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "AbstractLinearParabolicPde.hpp"
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   
