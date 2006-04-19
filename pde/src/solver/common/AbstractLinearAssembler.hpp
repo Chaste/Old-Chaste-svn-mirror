@@ -87,6 +87,7 @@ protected:
 		 * basis function.
 		 */
 		const MatrixDouble *inverseJacobian;
+       
         if (!mMatrixIsAssembled)
         {
             inverseJacobian = rElement.GetInverseJacobian();
@@ -235,6 +236,7 @@ protected:
 	{
         mpAssembledLinearSystem=NULL;
         mMatrixIsConstant = false;
+        mMatrixIsAssembled = false;
 	}
 	AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
@@ -244,6 +246,7 @@ protected:
 	{
         mpAssembledLinearSystem=NULL;
         mMatrixIsConstant = false;
+        mMatrixIsAssembled = false;       
 	}
     
     /**
@@ -306,7 +309,7 @@ protected:
                 mMatrixIsAssembled = false;
             }
         }
-            
+
 		// Get an iterator over the elements of the mesh
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 			rMesh.GetElementIteratorBegin();
