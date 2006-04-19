@@ -52,10 +52,10 @@ public:
         int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
         
         std::vector<int> var_ids;
-        for (unsigned i=0; i<pOdeSystem->mVariableNames.size(); i++)
+        for (unsigned i=0; i<pOdeSystem->rGetVariableNames().size(); i++)
         {
-            var_ids.push_back(writer.DefineVariable(pOdeSystem->mVariableNames[i],
-                                                    pOdeSystem->mVariableUnits[i]));
+            var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
+                                                    pOdeSystem->rGetVariableUnits()[i]));
         }
         writer.EndDefineMode();
                 

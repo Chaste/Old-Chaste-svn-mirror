@@ -41,7 +41,7 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
     {
         bUsingStateVariables = true;
         currentYValue.reserve(num_equations);
-        currentYValue = pAbstractOdeSystem->mStateVariables;
+        currentYValue = pAbstractOdeSystem->rGetStateVariables();
     }
 
 	std::vector<double> dy(num_equations);
@@ -59,7 +59,7 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
         }
         else
         {
-            pAbstractOdeSystem->mStateVariables[i] += timeStep*dy[i]; 
+            pAbstractOdeSystem->rGetStateVariables()[i] += timeStep*dy[i]; 
         }
 	}
 	return next_y_value;

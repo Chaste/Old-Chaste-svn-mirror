@@ -43,7 +43,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
         // Test second version of Solve
 
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
-        state_variables = ode_system.GetStateVariables();
+        state_variables = ode_system.rGetStateVariables();
         euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001);
         TS_ASSERT_DELTA(state_variables[0],2.0,0.01);       
    	}
@@ -92,7 +92,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
         
         // test second version of Solve
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
-        state_variables = ode_system.GetStateVariables();
+        state_variables = ode_system.rGetStateVariables();
         RK2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001);
         TS_ASSERT_DELTA(state_variables[0], 4.0, 0.0001);
 	}
@@ -120,7 +120,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
         
         // test second version of Solve
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
-        state_variables = ode_system.GetStateVariables();
+        state_variables = ode_system.rGetStateVariables();
         RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001);
         TS_ASSERT_DELTA(state_variables[0], 4.0, 0.000001);
 	}

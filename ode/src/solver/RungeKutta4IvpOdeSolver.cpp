@@ -37,7 +37,7 @@ std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
     {
         bUsingStateVariables = true; 
         currentYValue.reserve(num_equations);
-        currentYValue = pAbstractOdeSystem->mStateVariables;
+        currentYValue = pAbstractOdeSystem->rGetStateVariables();
     }
     
     std::vector<double> k1(num_equations);
@@ -84,7 +84,7 @@ std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
         }
         else
         {
-            pAbstractOdeSystem->mStateVariables[i] +=  (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
+            pAbstractOdeSystem->rGetStateVariables()[i] +=  (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
         }
 	}
 		

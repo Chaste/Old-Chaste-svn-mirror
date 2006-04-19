@@ -14,6 +14,10 @@ private:
 	int mNumberOfTimeSteps;	/**< Variable for the number of timesteps */
 	
 public:
+    std::vector<double> mTime; /**< A vector of times at each timestep. */
+    std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
+
+
 	int GetNumberOfTimeSteps(void)
 	{
 		return mNumberOfTimeSteps;
@@ -34,8 +38,6 @@ public:
         return(answer);
     }
     
-	std::vector<double> mTime; /**< A vector of times at each timestep. */
-	std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
 	
 };
 

@@ -43,7 +43,7 @@ public:
      */
     virtual void Init()
     {
-        mStateVariables = mInitialConditions;
+        rGetStateVariables() = mInitialConditions;
     }
     
     /**
@@ -57,7 +57,7 @@ public:
      */
     virtual OdeSolution Compute(double tStart, double tEnd) 
     {
-        return mpOdeSolver->Solve(this, mStateVariables, tStart, tEnd, mDt, mDt);
+        return mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);
     }
     
     /**
@@ -67,12 +67,12 @@ public:
     
     void SetVoltage(double voltage)
     {
-        mStateVariables[mVoltageIndex] = voltage;
+        rGetStateVariables()[mVoltageIndex] = voltage;
     }
     
     double GetVoltage()
     {
-        return mStateVariables[mVoltageIndex];
+        return rGetStateVariables()[mVoltageIndex];
     }
     
     void SetStimulusFunction(AbstractStimulusFunction *stimulus)

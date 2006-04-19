@@ -55,7 +55,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
         TwoDimOdeSystem ode;
 
         std::vector<double> initial_conditions = ode.GetInitialConditions();
-        std::vector<double> state_variables = ode.GetStateVariables();
+        std::vector<double> state_variables = ode.rGetStateVariables();
         
         TS_ASSERT_DELTA( initial_conditions[0], 1.0, 1e-12 );
         TS_ASSERT_DELTA( initial_conditions[1], 2.0, 1e-12 );
@@ -74,7 +74,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
         ode.SetStateVariables(new_state_variables);
         
         initial_conditions = ode.GetInitialConditions();
-        state_variables = ode.GetStateVariables();
+        state_variables = ode.rGetStateVariables();
         
         TS_ASSERT_DELTA( initial_conditions[0], 5.0, 1e-12 );
         TS_ASSERT_DELTA( initial_conditions[1], 6.0, 1e-12 );
