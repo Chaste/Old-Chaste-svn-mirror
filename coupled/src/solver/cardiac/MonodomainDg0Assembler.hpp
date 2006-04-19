@@ -96,8 +96,8 @@ protected:
                     x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
                 }
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
-                u  += phi[i]*pPde->inputCacheReplicated[node_global_index];
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->inputCacheReplicated[node_global_index]);
+                u  += phi[i]*pPde->GetInputCacheMember( node_global_index );
+                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
 
             double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);

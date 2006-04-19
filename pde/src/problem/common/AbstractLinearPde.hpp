@@ -18,10 +18,11 @@
 template <int SPACE_DIM>
 class AbstractLinearPde
 {
-  public:
+private:
     // Kludge to make parallel stuff work...
-    std::vector<double> inputCacheReplicated;
+    std::vector<double> mInputCacheReplicated;
     
+public:
 
 	/**
 	 * Compute Linear Source Term.
@@ -103,15 +104,20 @@ class AbstractLinearPde
             MPI_Allreduce(input_vector_local_array,input_vector_replicated_array, num_nodes, MPI_DOUBLE, 
                          MPI_SUM, PETSC_COMM_WORLD); 
             
-            // Could be more efficient if MPI wrote to inputCacheReplicated above.
-            inputCacheReplicated.resize(num_nodes);    
+            // Could be more efficient if MPI wrote to mInputCacheReplicated above.
+            mInputCacheReplicated.resize(num_nodes);    
             for (int global_index=0; global_index<num_nodes; global_index++)
             {
-                inputCacheReplicated[global_index]=input_vector_replicated_array[global_index];
+                mInputCacheReplicated[global_index]=input_vector_replicated_array[global_index];
             }
         } 
     }
     
+    double GetInputCacheMember(unsigned int i)
+    {
+        assert(i<mInputCacheReplicated.size());
+        return(mInputCacheReplicated[i]);
+    }
     virtual ~AbstractLinearPde() 
     {
         
