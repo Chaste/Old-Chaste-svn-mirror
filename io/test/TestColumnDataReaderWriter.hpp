@@ -177,7 +177,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         
-        for (int i=0; i<10; i++)
+        for (int i=0; i<=10; i++)
         {
         	mpTestWriter->PutVariable(time_var_id, (double)(i)/10);
         	mpTestWriter->PutVariable(ina_var_id, 12.0);
@@ -185,12 +185,6 @@ public:
         	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0);
         	mpTestWriter->AdvanceAlongUnlimitedDimension();
         }
-        
-        int i = 10;
-        mpTestWriter->PutVariable(time_var_id, (double)(i)/10);
-    	mpTestWriter->PutVariable(ina_var_id, 12.0);
-    	mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0);
-    	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0);
         
 		delete mpTestWriter;
 
@@ -319,7 +313,10 @@ public:
         mpTestWriter->PutVariable(ina_var_id, (double) -i,1);
         mpTestWriter->PutVariable(ica_var_id, -33.124,3);
         mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
-        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
+        mpTestWriter->AdvanceAlongUnlimitedDimension();
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(ica_var_id, -63.124,2));
+        // Note: the above call to PutVariable will, in effect, execute AdvanceAlongUnlimitedDimension and
+        //       therefore throw an exception, hence we have to repeat that call to PutVariable below
         mpTestWriter->PutVariable(ica_var_id, -63.124,2);
         mpTestWriter->PutVariable(node_var_id, 1,0);
         mpTestWriter->PutVariable(node_var_id, -4,3);

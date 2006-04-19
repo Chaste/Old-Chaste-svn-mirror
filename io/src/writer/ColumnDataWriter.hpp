@@ -58,6 +58,9 @@ protected:
     int mAncillaryRowStartPosition; /**< The position of the ancillary file pointer when it's at the beginning of the current row*/
     int mAncillaryRowWidth; /**< The width in characters of a row in the ancillary file */
 
+    bool mHasPutVariable;
+    bool mNeedAdvanceAlongUnlimitedDimension;
+
     void CreateFixedDimensionFile(std::string filepath);
     
     void CreateInfoFile(std::string filepath);
@@ -73,6 +76,7 @@ public:
     int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
     int DefineVariable(std::string variableName, std::string variableUnits);
     void EndDefineMode();
+    void DoAdvanceAlongUnlimitedDimension();
     virtual void AdvanceAlongUnlimitedDimension();
 
     void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);

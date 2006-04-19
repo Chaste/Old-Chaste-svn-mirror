@@ -61,15 +61,12 @@ public:
                 
         for (unsigned i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
         {
-            if (i!=0)
-            {
-                writer.AdvanceAlongUnlimitedDimension();
-            }
             writer.PutVariable(time_var_id, solution.mTime[i]);
             for (unsigned j=0; j<var_ids.size(); j++)
             {
                 writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
             }
+            writer.AdvanceAlongUnlimitedDimension();
         }        
         writer.Close();        
     }

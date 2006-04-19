@@ -25,7 +25,9 @@ ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
                              mpCurrentOutputFile(NULL),
                              mpCurrentAncillaryFile(NULL),
                              mpUnlimitedDimensionVariable(NULL),
-                             mpFixedDimensionVariable(NULL)
+                             mpFixedDimensionVariable(NULL),
+                             mHasPutVariable(false),
+                             mNeedAdvanceAlongUnlimitedDimension(false)
 {
     //we have initialized the variables in the initializer list
 }
@@ -378,8 +380,11 @@ void ColumnDataWriter::CreateInfoFile(std::string filepath)
 *  when all variables in a row have been Put.
 *
 */
-void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
+void ColumnDataWriter::DoAdvanceAlongUnlimitedDimension()
 {
+    mHasPutVariable = false;
+    mNeedAdvanceAlongUnlimitedDimension = false;    
+
     if(mIsUnlimitedDimensionSet)
     {
         if(mIsFixedDimensionSet)
@@ -417,6 +422,17 @@ void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
 }
 
 
+/**
+*  Dummy function for DoAdvanceAlongUnlimitedDimension.
+*
+*/
+void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
+{
+    if (mHasPutVariable)
+       mNeedAdvanceAlongUnlimitedDimension = true;
+}
+
+
 //dimensionPosition is required if there is a fixed dimension, and will be the position along that dimension
 /**
  * Each time we have to input the variable value to the output file or ancillary file
@@ -424,6 +440,9 @@ void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
  */
 void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
 {
+    if (mNeedAdvanceAlongUnlimitedDimension)
+        DoAdvanceAlongUnlimitedDimension();
+    
     //check that we are not in define mode
     if(mIsInDefineMode)
     {
@@ -552,4 +571,6 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dim
         (*mpCurrentOutputFile) << variableValue;
 
     }
+
+    mHasPutVariable = true;        
 }
