@@ -8,21 +8,50 @@
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include <vector>
-#include <iostream>
-#include <cmath>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#include "MonodomainPde.hpp"
-//#include "MockEulerIvpOdeSolver.hpp"
-//#include "FischerPde.hpp"
+//#include <iostream>
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblem.hpp"
-//#include "AbstractLinearParabolicPde.hpp"
-#include "AbstractMonodomainProblemStimulus.hpp"
+#include "MonodomainProblemIteration7.hpp"
+#include "AbstractCardiacCellFactory.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 
+
+class CornerStimulusCellFactory : public AbstractCardiacCellFactory<3>
+{
+private:
+    InitialStimulus *mpStimulus;
+public:
+    CornerStimulusCellFactory(double timeStep = 0.01) : AbstractCardiacCellFactory<3>(timeStep)
+    {
+        mpStimulus = new InitialStimulus(-600.0, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+    }
+    
+    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
+    {
+        int stimulated_cells[] = { 0, 1, 11, 121 };
+
+        for(int i=0; i<4; i++)
+        {
+            if((stimulated_cells[i]>=lo) && (stimulated_cells[i]<hi))
+            {
+                (*pCellsDistributed)[ stimulated_cells[i] - lo ]->SetStimulusFunction(mpStimulus);
+            }
+        }
+    }
+    
+    ~CornerStimulusCellFactory(void)
+    {
+        delete mpStimulus;
+    }
+};
+
+
+/*
 class CornerStimulus: public AbstractMonodomainProblemStimulus<3>
 {
     virtual void Apply(MonodomainPde<3> *pPde,
@@ -37,36 +66,23 @@ class CornerStimulus: public AbstractMonodomainProblemStimulus<3>
     }
 };
 
-
+*/
 class TestMonodomainSlabBig : public CxxTest::TestSuite 
 {   
-private:
-    /**
-     * Refactor code to set up a PETSc vector holding the initial condition.
-     */
-    Vec CreateInitialConditionVec(int size)
-    {
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_condition);
-        return initial_condition;
-    }
-    
 public:
-
     void TestMonodomainSlabBigWithCornerNodesStimulated( void )
     {
-        CornerStimulus corner_stimulus;
+        CornerStimulusCellFactory cell_factory;
         
-        MonodomainProblem<3> monodomainProblem;
+        MonodomainProblemIteration7<3> monodomain_problem( &cell_factory );
 
-        monodomainProblem.SetMeshFilename("mesh/test/data/3D_0_to_100mm_6000_elements");
-        monodomainProblem.SetEndTime(10);   // 10 ms
-        monodomainProblem.SetOutputDirectory("testoutput/MonoDg03dSlabBig");
-        monodomainProblem.SetOutputFilenamePrefix("NewMonodomainLR91_3dSlabBig");
-        monodomainProblem.SetStimulus(&corner_stimulus);
-        monodomainProblem.Solve();
+        monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_100mm_6000_elements");
+        monodomain_problem.SetEndTime(10);   // 10 ms
+        monodomain_problem.SetOutputDirectory("testoutput/MonoDg03dSlabBig");
+        monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dSlabBig");
+
+        monodomain_problem.Initialise();
+        monodomain_problem.Solve();
     }
 };
 

@@ -26,6 +26,8 @@ protected:
 
 public:
     virtual AbstractCardiacCell* CreateCardiacCellForNode(int)=0;
+    virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, int lo, int hi) {}
+
     virtual int GetNumberOfNodes()
     {
         assert(mpMesh != NULL);

@@ -67,8 +67,8 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
         {
             int local_index = global_index - lo;
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
-        }
-        
+        }        
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);
         // Initialise the diffusion coefficient
         mDiffusionCoefficient = 0.0005;
 

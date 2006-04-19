@@ -6,32 +6,64 @@
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include <vector>
-#include <iostream>
-#include <cmath>
-#include <sys/stat.h>
-#include <sys/types.h>
+//#include <iostream>
 
-
-#include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
-#include "BoundaryConditionsContainer.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"  
-#include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "ColumnDataWriter.hpp"
-#include "ColumnDataReader.hpp"
-#include "PropagationPropertiesCalculator.hpp"
-
-#include "MonodomainPde.hpp"
-#include "MockEulerIvpOdeSolver.hpp"
-#include "FischerPde.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblem.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-#include "AbstractMonodomainProblemStimulus.hpp"
+#include "MonodomainPdeIteration7.hpp"
+#include "MonodomainProblemIteration7.hpp"
+#include "AbstractCardiacCellFactory.hpp"
 
+
+class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
+{
+private:
+    InitialStimulus *mpStimulus;
+public:
+    PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
+    {
+        mpStimulus = new InitialStimulus(-300.0, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+    }
+    
+    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
+    {
+        int stimulated_cells[] = {  37484-1,        
+                                    37499-1, 
+                                    37777-1, 
+                                    37779-1, 
+                                    38008-1, 
+                                    38332-1, 
+                                    38587-1, 
+                                    38588-1, 
+                                    39312-1, 
+                                    39314-1, 
+                                    39643-1, 
+                                    40588-1, 
+                                    40590-1, 
+                                    63885-1 
+                                 };
+
+        for(int i=0; i<14; i++)
+        {
+            if((stimulated_cells[i]>=lo) && (stimulated_cells[i]<hi))
+            {
+                (*pCellsDistributed)[ stimulated_cells[i] - lo ]->SetStimulusFunction(mpStimulus);
+            }
+        }
+    }
+    
+    ~PointStimulusHeartCellFactory(void)
+    {
+        delete mpStimulus;
+    }
+};
+
+/*
 class PointStimulusHeart: public AbstractMonodomainProblemStimulus<3>
 {
 public:
@@ -58,44 +90,32 @@ public:
 
     }
 };
-
+*/
 class TestMonodomainHeart : public CxxTest::TestSuite 
 {   
-private:
-    /**
-     * Refactor code to set up a PETSc vector holding the initial condition.
-     */
-    Vec CreateInitialConditionVec(int size)
-    {
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_condition);
-        return initial_condition;
-    }
 
     
 public:
     void TestMonodomainDg0Heart()
     {
-        PointStimulusHeart point_stimulus_heart;
-        MonodomainProblem<3> monodomainProblem;
+        PointStimulusHeartCellFactory cell_factory(0.005);
+        MonodomainProblemIteration7<3> monodomain_problem(&cell_factory);
 
-        monodomainProblem.SetMeshFilename("mesh/test/data/heart");
-        monodomainProblem.SetEndTime(100);   // 100 ms
-        monodomainProblem.SetOutputDirectory("testoutput/MonoDg0Heart");
-        monodomainProblem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
-        monodomainProblem.SetStimulus(&point_stimulus_heart);
+        monodomain_problem.SetMeshFilename("mesh/test/data/heart");
+        monodomain_problem.SetEndTime(100);   // 100 ms
+        monodomain_problem.SetOutputDirectory("testoutput/MonoDg0Heart");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
+        monodomain_problem.SetPdeTimeStep(0.01);
+        monodomain_problem.Initialise();        
 
-        monodomainProblem.SetOdeTimeStep(monodomainProblem.GetPdeTimeStep()/2.0);
-        monodomainProblem.Solve();
+        monodomain_problem.Solve();
         
-        double* currentVoltageArray;
+        double* voltage_array;
     
-        VecRestoreArray(monodomainProblem.mCurrentVoltage, &currentVoltageArray);      
-        VecAssemblyBegin(monodomainProblem.mCurrentVoltage);
-        VecAssemblyEnd(monodomainProblem.mCurrentVoltage);
-        VecDestroy(monodomainProblem.mCurrentVoltage);
+        VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
+        VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
+        VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
+        VecDestroy(monodomain_problem.mCurrentVoltage);
     }
 };
 
