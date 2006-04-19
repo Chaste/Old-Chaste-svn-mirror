@@ -44,12 +44,13 @@ private:
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
-    Vec mCurrentVoltage; // Current solution
-public:
+    Vec mVoltage; // Current solution
     int mLo, mHi;
+
    
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
+public:
     
     /**
      * Constructor
@@ -203,20 +204,20 @@ public:
                 monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
                 monodomain_assembler.SetInitialCondition( initial_condition );
                 
-                mCurrentVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPde, bcc, &linear_solver);
+                mVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPde, bcc, &linear_solver);
                 
                 // Free old initial condition
                 VecDestroy(initial_condition);
 
                 // Initial condition for next loop is current solution
-                initial_condition = mCurrentVoltage;
+                initial_condition = mVoltage;
                 
                 // Writing data out to the file <mOutputFilenamePrefix>.dat                 
                 if (mSequential)
                 {
                     p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
                     
-                    VecGetArray(mCurrentVoltage, &p_current_voltage);
+                    VecGetArray(mVoltage, &p_current_voltage);
         
                     p_test_writer->PutVariable(time_var_id, current_time); 
                     
@@ -237,7 +238,7 @@ public:
                         } 
                         std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";          
                    }
-                    VecRestoreArray(mCurrentVoltage, &p_current_voltage); 
+                    VecRestoreArray(mVoltage, &p_current_voltage); 
                 }
                 
                 mMonodomainPde->ResetAsUnsolvedOdeSystem();
@@ -307,19 +308,22 @@ public:
     
     void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
     {
-        VecGetArray(mCurrentVoltage, pVoltageArray);
+        VecGetArray(mVoltage, pVoltageArray);
         lo=mLo;
         hi=mHi; 
     }
     
     void RestoreVoltageArray(double **pVoltageArray)
     {
-       VecRestoreArray(mCurrentVoltage, pVoltageArray);      
-       VecAssemblyBegin(mCurrentVoltage);
-       VecAssemblyEnd(mCurrentVoltage);
-       VecDestroy(mCurrentVoltage);
+       VecRestoreArray(mVoltage, pVoltageArray);      
+       VecAssemblyBegin(mVoltage);
+       VecAssemblyEnd(mVoltage);
+       VecDestroy(mVoltage);
     }
     
+    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh(){
+        return mMesh;   
+    }
 };
 
 

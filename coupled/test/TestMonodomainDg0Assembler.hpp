@@ -141,8 +141,8 @@ public:
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
 
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
 
             std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
@@ -157,27 +157,27 @@ public:
     
             if (global_index==1)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomain_problem.mLo], 19.2790, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-lo], 19.2790, 0.001);
             }
             if (global_index==3)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomain_problem.mLo], 20.1456, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-lo], 20.1456, 0.001);
             }
             if (global_index==5)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomain_problem.mLo], 21.6387, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-lo], 21.6387, 0.001);
             }
             if (global_index==7)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomain_problem.mLo], 22.0046, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-lo], 22.0046, 0.001);
             }
             if (global_index==9)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomain_problem.mLo], -16.6178, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-lo], -16.6178, 0.001);
             }
             if (global_index==10) // RHS
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-monodomain_problem.mLo], -35.9384, 0.001);
+                TS_ASSERT_DELTA(voltage_array[global_index-lo], -35.9384, 0.001);
             }
         }
 
@@ -216,8 +216,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
@@ -247,9 +247,9 @@ public:
             need_initialisation = true;
 
             // Test the RHS of the mesh
-            for (int i = 0; i < monodomain_problem.mMesh.GetNumNodes(); i++)
+            for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
             {
-                if (monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[0] == 0.1)
+                if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
                 {
                     // x = 0 is where the stimulus has been applied
                     // x = 0.1cm is the other end of the mesh and where we want to 
@@ -327,8 +327,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)

@@ -92,8 +92,8 @@ public:
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
     
-                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
     
                 std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
                 for(int j=0; j<8; j++)
@@ -108,9 +108,9 @@ public:
             }
 
             double my_voltage = 0.0;
-            if ((monodomain_problem.mLo <= 5) && (monodomain_problem.mHi > 5))
+            if ((lo <= 5) && (hi > 5))
             {
-                my_voltage = voltage_array[5-monodomain_problem.mLo];
+                my_voltage = voltage_array[5-lo];
             }
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
@@ -218,8 +218,8 @@ public:
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
     
-                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+                TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+                TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
     
                 std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
                 for(int j=0; j<8; j++)
@@ -234,9 +234,9 @@ public:
             }
 
             double my_voltage = 0.0;
-            if ((monodomain_problem.mLo <= middle_node) && (monodomain_problem.mHi > middle_node))
+            if ((lo <= middle_node) && (hi > middle_node))
             {
-                my_voltage = voltage_array[middle_node-monodomain_problem.mLo];
+                my_voltage = voltage_array[middle_node-lo];
             }
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
