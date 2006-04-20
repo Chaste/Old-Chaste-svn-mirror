@@ -14,6 +14,8 @@ HOME=/
 */5 * * * * root /root/run-doxygen.py >/dev/null
 # Nightly builds. Currently Sun-Fri 10.30pm.
 30 22 * * 0-5 svn /home/svn/nightly-build.sh
+# Run the Weekly test pack once a week (on Sat)
+30 22 * * 6 svn /home/svn/nightly-build.sh build=GccOpt_onlytests_Weekly
 # Backup the repository locally every morning.
 22 0 * * * svn rm -rf /home/svn/chaste.bak; svnadmin hotcopy /var/svn/chaste /home/svn/chaste.bak --clean-logs
 
