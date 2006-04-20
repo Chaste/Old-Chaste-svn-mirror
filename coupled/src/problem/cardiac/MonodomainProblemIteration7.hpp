@@ -37,7 +37,7 @@ private:
     double mEndTime;
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
-    MonodomainPdeIteration7<SPACE_DIM> *mMonodomainPde;
+    MonodomainPdeIteration7<SPACE_DIM> *mpMonodomainPde;
     bool mDebugOn;
     bool mSequential; 
     double mPdeTimeStep;  //aka big_timestep
@@ -68,7 +68,7 @@ public:
       mEndTime(1000),   // 1,000 ms = 1 second
       mOutputDirectory(""),   // i.e. undefined
       mOutputFilenamePrefix(""),   // i.e. undefined
-      mMonodomainPde(NULL),
+      mpMonodomainPde(NULL),
       mDebugOn(false)
     {
         mpCellFactory = pCellFactory;
@@ -87,9 +87,9 @@ public:
      
     ~MonodomainProblemIteration7()
     { 
-        if (mMonodomainPde != NULL)
+        if (mpMonodomainPde != NULL)
         {
-            delete mMonodomainPde;
+            delete mpMonodomainPde;
         }
     }
     
@@ -103,21 +103,19 @@ public:
         
         mpCellFactory->SetMesh( &mMesh );
         
-        mMonodomainPde = new MonodomainPdeIteration7<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
+        mpMonodomainPde = new MonodomainPdeIteration7<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
     }
      
     /**
      * Solve the problem
      */
-    void Solve(const double& rDiffusionCoefficient = 0.0005)
+    void Solve()
     {
-        assert( mMonodomainPde != NULL );
+        assert( mpMonodomainPde != NULL );
                 
         try
         {
-            // Set the diffusion coefficient
-            mMonodomainPde->SetDiffusionCoefficient(rDiffusionCoefficient);
-
+            
             // Boundary conditions, zero neumann everywhere
             BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
            
@@ -204,7 +202,7 @@ public:
                 monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
                 monodomain_assembler.SetInitialCondition( initial_condition );
                 
-                mVoltage = monodomain_assembler.Solve(mMesh, mMonodomainPde, bcc, &linear_solver);
+                mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc, &linear_solver);
                 
                 // Free old initial condition
                 VecDestroy(initial_condition);
@@ -241,7 +239,7 @@ public:
                     VecRestoreArray(mVoltage, &p_current_voltage); 
                 }
                 
-                mMonodomainPde->ResetAsUnsolvedOdeSystem();
+                mpMonodomainPde->ResetAsUnsolvedOdeSystem();
                 current_time += mPdeTimeStep;
                     
                 big_steps++;
@@ -301,11 +299,7 @@ public:
         mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
     
-    AbstractCardiacCell* GetCardiacCell( int globalIndex )
-    {
-        return mMonodomainPde->GetCardiacCell(globalIndex);
-    }
-    
+ 
     void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
     {
         VecGetArray(mVoltage, pVoltageArray);
@@ -323,6 +317,11 @@ public:
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh(){
         return mMesh;   
+    }
+    
+    MonodomainPdeIteration7<SPACE_DIM> * GetMonodomainPde() 
+    {
+        return mpMonodomainPde;  
     }
 };
 

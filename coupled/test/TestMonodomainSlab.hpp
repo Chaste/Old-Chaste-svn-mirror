@@ -73,22 +73,23 @@ public:
 
         monodomain_problem.Solve();
         
+
         double* voltage_array;
+        int lo, hi;
+        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-
-        VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array); 
-        
-        for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
+            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
+                                           GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -115,9 +116,9 @@ public:
             need_initialisation = true;
 
             // Test the RHF of the mesh
-            for (int i = 0; i < monodomain_problem.mMesh.GetNumNodes(); i++)
+            for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
             {
-                if (monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[0] == 0.1)
+                if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
                 {
                     // x = 0 is where the stimulus has been applied
                     // x = 0.1cm is the other end of the mesh and where we want to 
@@ -135,11 +136,7 @@ public:
                 }
             }
         }        
-        
-        VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
-        VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
-        VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
-        VecDestroy(monodomain_problem.mCurrentVoltage);
+        monodomain_problem.RestoreVoltageArray( &voltage_array );
     }   
 
 
@@ -162,21 +159,21 @@ public:
         monodomain_problem.Solve();
         
         double* voltage_array;
+        int lo, hi;
+        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-
-        VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array); 
-        
-        for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
+        for(int global_index=lo; global_index<hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
+            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
+                                           GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -204,9 +201,9 @@ public:
             need_initialisation = true;
 
             // Test the RHF of the mesh
-            for (int i = 0; i < monodomain_problem.mMesh.GetNumNodes(); i++)
+            for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
             {
-                if (monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[0] == 0.1)
+                if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
                 {
                     // x = 0 is where the stimulus has been applied
                     // x = 0.1cm is the other end of the mesh and where we want to 
@@ -233,11 +230,7 @@ public:
                 }
             }
         }        
-        
-        VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
-        VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
-        VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
-        VecDestroy(monodomain_problem.mCurrentVoltage);
+        monodomain_problem.RestoreVoltageArray( &voltage_array );
     }   
 };
 

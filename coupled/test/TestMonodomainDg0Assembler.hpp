@@ -144,7 +144,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
 
-            std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
+            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -219,7 +219,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
+            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -316,13 +316,13 @@ public:
         dif = difftime (end,start);
         //printf ("\nSolve took %.2lf seconds. \n", dif );
         
-       double* voltage_array;
+        double* voltage_array;
         int lo, hi;
         monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=lo; global_index<hi; global_index++)
-             {
+        {
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
@@ -330,7 +330,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_problem.GetCardiacCell(global_index)->rGetStateVariables();
+            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 

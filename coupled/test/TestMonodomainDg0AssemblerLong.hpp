@@ -81,21 +81,21 @@ public:
  //       printf ("\nSolve took %.2lf seconds. \n", dif );
         
         double* voltage_array;
+        int lo, hi;
+        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-
-        VecGetArray(monodomain_problem.mCurrentVoltage, &voltage_array); 
-        
-        for(int global_index=monodomain_problem.mLo; global_index<monodomain_problem.mHi; global_index++)
-        {
+        for(int global_index=lo; global_index<hi; global_index++)
+         {
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-monodomain_problem.mLo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-monodomain_problem.mLo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
                 
-            std::vector<double> odeVars = monodomain_problem.mMonodomainPde->GetCardiacCell(global_index)->GetStateVariables();
+            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
+                                           GetCardiacCell(global_index)->rGetStateVariables();
             for(int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
@@ -129,7 +129,7 @@ public:
             TS_ASSERT_DELTA(voltage_array[5], voltage_array[65],  0.1);
             TS_ASSERT_DELTA(voltage_array[5], voltage_array[115], 0.1);
             
-            int num_nodes = monodomain_problem.mMesh.GetNumNodes();
+            int num_nodes = monodomain_problem.rGetMesh().GetNumNodes();
             // test final voltages have returned to the resting potential
             for(int i=0; i<num_nodes; i++)
             {
@@ -137,11 +137,7 @@ public:
             }
                         
         }
-        
-        VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
-        VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
-        VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
-        VecDestroy(monodomain_problem.mCurrentVoltage);
+        monodomain_problem.RestoreVoltageArray(&voltage_array);
     }   
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_
