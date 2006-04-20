@@ -76,6 +76,12 @@ def _recent(req, type=None):
   if not os.path.isdir(dir):
     return _error(type+' is not a valid type of test.')
   
+  try:
+    import gc
+    gc.disable()
+  except ImportError:
+    return _error("Failed to disable garbage collector.")
+
   # Parse the directory structure within dir into a list of builds
   builds = []
   revisions = os.listdir(dir)
@@ -131,11 +137,11 @@ def _recent(req, type=None):
     del module
   for build in builds:
     del build
-  try:
-    import gc
-    gc.collect()
-  except ImportError:
-    output = output + "<p>Error doing garbage collection</p>"
+#  try:
+#    import gc
+#    output = output + "<!-- " + str(gc.collect()) + " -->"
+#  except ImportError:
+#    output = output + "<p>Error doing garbage collection</p>"
   
   return output
 
