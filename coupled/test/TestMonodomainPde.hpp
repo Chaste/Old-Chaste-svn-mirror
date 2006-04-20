@@ -7,7 +7,7 @@
 #include "EulerIvpOdeSolver.hpp"
 
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "MonodomainPdeIteration7.hpp"
+#include "MonodomainPde.hpp"
 
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -87,7 +87,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
         MyCardiacCellFactory cell_factory;
 
-        MonodomainPdeIteration7<1> monodomain_pde( &cell_factory, start_time, big_time_step );
+        MonodomainPde<1> monodomain_pde( &cell_factory, start_time, big_time_step );
 
         
         // voltage that gets passed in solving ode
@@ -204,7 +204,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
     {
         int num_nodes = 2;
         MyCardiacCellFactory cell_factory;
-        MonodomainPdeIteration7<1> monodomain_pde( &cell_factory, 0, 0.1 );
+        MonodomainPde<1> monodomain_pde( &cell_factory, 0, 0.1 );
         
         // initial condition;   
         Vec voltage;

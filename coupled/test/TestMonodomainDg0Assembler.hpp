@@ -12,7 +12,7 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 #include <time.h>
@@ -120,7 +120,7 @@ public:
     void TestMonodomainDg01D()
     {
         PointStimulusCellFactory cell_factory;
-        MonodomainProblemIteration7<1> monodomain_problem( &cell_factory );
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         monodomain_problem.SetEndTime(2);   // 2 ms
@@ -194,7 +194,7 @@ public:
         EdgeStimulusCellFactory cell_factory;
         
         // using the criss-cross mesh so wave propagates properly
-        MonodomainProblemIteration7<2> monodomain_problem( &cell_factory );
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(2);   // 2 ms
@@ -301,7 +301,7 @@ public:
         
         PointStimulus2dCellFactory cell_factory(60); // Central node
         
-        MonodomainProblemIteration7<2> monodomain_problem( &cell_factory );
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(1.3);   // 1.3 ms - needs to be 1.3 ms to pass test

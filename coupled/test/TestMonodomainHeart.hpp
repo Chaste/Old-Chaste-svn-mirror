@@ -10,8 +10,8 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainPdeIteration7.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainPde.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 
@@ -99,7 +99,7 @@ public:
     void TestMonodomainDg0Heart()
     {
         PointStimulusHeartCellFactory cell_factory(0.005);
-        MonodomainProblemIteration7<3> monodomain_problem(&cell_factory);
+        MonodomainProblem<3> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/heart");
         monodomain_problem.SetEndTime(100);   // 100 ms

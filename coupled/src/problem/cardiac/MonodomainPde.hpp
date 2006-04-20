@@ -1,5 +1,5 @@
-#ifndef MONODOMAINPDEITERATION7_HPP_
-#define MONODOMAINPDEITERATION7_HPP_
+#ifndef MONODOMAINPDE_HPP_
+#define MONODOMAINPDE_HPP_
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
@@ -28,7 +28,7 @@ const double BETA = 0.00014;
 
 
 /**
- * MonodomainPdeIteration7 class.
+ * MonodomainPde class.
  * 
  * A monodomain PDE which deals with some single cell model (e.g. Luo-Rudy) 
  * 
@@ -42,7 +42,7 @@ typedef std::vector<double> odeVariablesType;
 
 
 template <int SPACE_DIM>
-class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
+class MonodomainPde : public AbstractCoupledPdeIteration7<SPACE_DIM>
 {
     private:
         friend class TestMonodomainPde;
@@ -55,7 +55,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
     public:
     
     //Constructor     
-    MonodomainPdeIteration7(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) :
+    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) :
         AbstractCoupledPdeIteration7<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
      {
         int lo=this->mOwnershipRangeLo;
@@ -74,7 +74,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
 
      }
 
-    ~MonodomainPdeIteration7(void)
+    ~MonodomainPde(void)
     {
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
@@ -171,7 +171,7 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
     virtual void PrepareForAssembleSystem(Vec currentSolution)
     {
         AbstractCoupledPdeIteration7 <SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
-        //std::cout<<"MonodomainPdeIteration7::PrepareForAssembleSystem\n";
+        //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
 
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);
@@ -205,4 +205,4 @@ class MonodomainPdeIteration7 : public AbstractCoupledPdeIteration7<SPACE_DIM>
      }
 };
 
-#endif /*MONODOMAINPDEITERATION7_HPP_*/
+#endif /*MONODOMAINPDE_HPP_*/

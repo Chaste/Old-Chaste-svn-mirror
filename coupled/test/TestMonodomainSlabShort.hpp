@@ -12,7 +12,7 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 
@@ -63,7 +63,7 @@ public:
     {
         FaceStimulusCellFactory cell_factory;
         
-        MonodomainProblemIteration7<3> monodomain_problem(&cell_factory);
+        MonodomainProblem<3> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetEndTime(5);   // 5 ms

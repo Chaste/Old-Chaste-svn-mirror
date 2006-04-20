@@ -18,14 +18,44 @@
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "TrianglesMeshReader.hpp"
 
-#include "MonodomainPdeFitzHughNagumo.hpp"
+//#include "MonodomainPdeFitzHughNagumo.hpp"
+#include "MonodomainPde.hpp"
+#include "MonodomainProblem.hpp"
 
 #include "MonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
 #include <cmath>
 #include "EulerIvpOdeSolver.hpp"
-
+#include "FitzHughNagumo1961OdeSystem.hpp"
 #include "PetscSetupAndFinalize.hpp"
+
+class FhnEdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
+{
+private:
+    InitialStimulus *mpStimulus;
+public:
+    FhnEdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>(0.01)
+    {
+        mpStimulus = new InitialStimulus(-600.0, 0.5);
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    {
+        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        {
+            return new FitzHughNagumo1961OdeSystem(mpSolver, mpStimulus, mTimeStep);
+        }
+        else
+        {
+            return new FitzHughNagumo1961OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+        }
+    }
+    
+    ~FhnEdgeStimulusCellFactory(void)
+    {
+        delete mpStimulus;
+    }
+};
 
 class TestMonodomainFitzHughNagumoWithDg0Assembler : public CxxTest::TestSuite 
 {   
@@ -34,173 +64,88 @@ public:
     /** \todo Not yet fully working...
      * May not be necessary any more, since the Luo-Rudy model seems to work.
      */
-    void TestVisualFHN1D()
-    {  
-        
-        double tStart = 0.0; 
-        double tFinal = 10;//400;//0.1;
-        
-        // use big time step (the pde timestep) is the same as the small time step (the ode timestep)
-        double tBigStep = 0.01; 
-        double tSmallStep  = 0.01;
-        // Create mesh from mesh reader
-        //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/practical1_1d_mesh");
-        TrianglesMeshReader mesh_reader("mesh/test/data/heart_FHN_mesh");
-        //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/trivial_1d_mesh");
-  
-        //TrianglesMeshReader mesh_reader("pdes/tests/meshdata/1D_0_to_1_10_elements");
-        ConformingTetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        // Instantiate PDE object
-        EulerIvpOdeSolver mySolver;
-        MonodomainPdeFitzHughNagumo<1> monodomain_pde(mesh.GetNumNodes(), &mySolver, tStart, tBigStep, tSmallStep);
-        
-        // sets FHN system with initial conditions passed on
-        double voltage = -9999; // This voltage will be ignored
-        double w = 0.0;         // recovery variable
-        
-        double magnitudeOfStimulus = 1.0;  
-        double durationOfStimulus  = 0.5 ;
-                  
-        // bad 
-        std::vector<double> initialConditions;
-        initialConditions.push_back(voltage);
-        initialConditions.push_back(w);
 
-        // set this as the initial condition of the gating vars at each node in the mesh        
-        monodomain_pde.SetUniversalInitialConditions(initialConditions);
+
+   // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
+    // edge.
+    void TestMonodomainFitzHughNagumoWithEdgeStimulus( void )
+    {   
+        FhnEdgeStimulusCellFactory cell_factory;
         
-        // add initial stim to node 0 only
-        InitialStimulus stimulus(magnitudeOfStimulus, durationOfStimulus);
-        // NO stimulus applied
-        //        monodomain_pde.SetStimulusFunctionAtNode(5, pStimulus);
-                
+        // using the criss-cross mesh so wave propagates properly
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+
+        monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
+        monodomain_problem.SetEndTime(2);   // 2 ms
+        monodomain_problem.SetOutputDirectory("testoutput/FhnWithEdgeStimulus");
+        monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
+
+        monodomain_problem.Initialise();
         
-        // Boundary conditions: zero neumann on entire boundary
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
-        ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        while (iter != mesh.GetBoundaryElementIteratorEnd())
-        {
-            bcc.AddNeumannBoundaryCondition(*iter, p_zero_condition);
-            iter++;
-        }
+        monodomain_problem.Solve();
         
-        // Linear solver
-        SimpleLinearSolver linearSolver;
-    
-        // Assembler
-        MonodomainDg0Assembler<1,1> monodomainAssembler;
-        
-        // initial condition;   
-        Vec initial_condition; 
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-      
-        VecSetSizes(initial_condition, PETSC_DECIDE, mesh.GetNumNodes() );
-        //VecSetType(initial_condition, VECSEQ);
-        VecSetFromOptions(initial_condition);
-  
-        double* initial_condition_array;
+        double* voltage_array;
         int lo, hi;
-        VecGetOwnershipRange(initial_condition, &lo, &hi);
-        int ierr = VecGetArray(initial_condition, &initial_condition_array); 
-        
-        // initial voltage condition of a constant everywhere on the mesh
-        // ALREADY CHECKED
-        for (int global_index=lo; global_index<hi; global_index++)
+        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+    
+ 
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+
+        if (num_procs == 1)
         {
-            // change intiial conditions to exp(-x^2/10)
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            //std::cout << i << " " << x << std::endl;
-            initial_condition_array[global_index-lo] = exp(-(x*x)/10);
-        }
-        VecRestoreArray(initial_condition, &initial_condition_array);      
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-
-        /*
-         * Write data to a file NewMonodomainFHN_1d_xx.dat, 'xx' refers to nth time step
-         *  using ColumnDataWriter 
-         */                                                                            
-        
-        // Uncomment all column writer related lines to write data
-        ColumnDataWriter *writer;
-        writer = new ColumnDataWriter("testoutput","NewMonodomainFHN_1d");
-       
-        int time_var_id = 0;
-        int voltage_var_id = 0;
-
-        writer->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
-        time_var_id = writer->DefineUnlimitedDimension("Time","msecs");
-
-        voltage_var_id = writer->DefineVariable("V","mV");
-        writer->EndDefineMode();
-           
-        double tCurrent = tStart;  
-        int counter = 0;      
-        Vec currentVoltage;
-        double *currentVoltageArray;
-        
-        while( tCurrent < tFinal )
-        {
-
-            monodomainAssembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            monodomainAssembler.SetInitialCondition( initial_condition );
-            try {
-                currentVoltage = monodomainAssembler.Solve(mesh, &monodomain_pde, bcc, &linearSolver);
-             } catch (Exception e) {
-                TS_TRACE(e.GetMessage());
-                TS_ASSERT(0);
-            }
-            
-            // Free old initial condition
-            VecDestroy(initial_condition);
-            // Initial condition for next loop is current solution
-            initial_condition = currentVoltage;
-
-            // Writing data out to the file NewMonodomainLR91_1d.dat
-            /** \todo 
-             * Here's a simple hack to make sure that the
-             * data writers don't fall over in parallel.
-             * It does *not* make them work!
+            /*
+             * Test the top right node against the right one in the 1D case, 
+             * comparing voltage, and then test all the nodes on the right hand 
+             * side of the square against the top right one, comparing voltage.
              */
-            if (counter % 20 == 0 && lo==0)    
-            {
-                VecGetArray(currentVoltage, &currentVoltageArray); 
-                writer->PutVariable(time_var_id, tCurrent); 
-                // TS_TRACE("Put out voltage");
-                for(int j=0; j</*mesh.GetNumNodes()*/ hi-lo; j++) 
-                {
-                    writer->PutVariable(voltage_var_id, currentVoltageArray[j], j);    
-                    //std::cout << currentVoltageArray[j] << "\n" ;
-                }
-                
-                VecRestoreArray(currentVoltage, &currentVoltageArray); 
-                writer->AdvanceAlongUnlimitedDimension();
-            } //end if currentTime
-            
-            monodomain_pde.ResetAsUnsolvedOdeSystem();
-            tCurrent += tBigStep;
-            counter++;
-        }
-        
-        // close the file that stores voltage values
-        writer->Close();
-        delete writer;
-        
-        // test whether voltage is in correct range
-        ierr = VecGetArray(currentVoltage, &currentVoltageArray);
-        
-        for(int local_index=0; local_index<hi-lo; local_index++)
-        {
-            TS_ASSERT_LESS_THAN_EQUALS(currentVoltageArray[local_index], 50);
-            TS_ASSERT_LESS_THAN_EQUALS(-100, currentVoltageArray[local_index]);
-        }
-        VecRestoreArray(currentVoltage, &currentVoltageArray);
+            bool need_initialisation = true;
+            double voltage;
 
-        VecDestroy(currentVoltage);
-    }
+            need_initialisation = true;
+
+            // Test the RHS of the mesh
+            for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
+            {
+                if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
+                {
+                    // x = 0 is where the stimulus has been applied
+                    // x = 0.1cm is the other end of the mesh and where we want to 
+                    //       to test the value of the nodes
+                    
+                    if (need_initialisation)
+                    {
+                        voltage = voltage_array[i];
+                        need_initialisation = false;
+                    }
+                    else
+                    {
+                        // Tests the final voltages for all the RHS edge nodes
+                        // are close to each other.
+                        // This works as we are using the 'criss-cross' mesh,
+                        // the voltages would vary more with a mesh with all the
+                        // triangles aligned in the same direction.
+      //
+        //\todo  - Make this test something sensible
+                       //   TS_ASSERT_DELTA(voltage_array[i], voltage, 0.01);
+
+                       // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
+                    }
+                    
+                    
+                  
+        //
+        //\todo  - Make this test something sensible
+                //    TS_ASSERT_DELTA(voltage_array[i], -65.0087, 0.01);
+                }
+            }
+        }
+        monodomain_problem.RestoreVoltageArray(&voltage_array);
+        
+     
+    }   
+
+
 
 }; 
 #endif //_TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_

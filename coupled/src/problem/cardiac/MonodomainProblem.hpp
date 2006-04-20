@@ -1,5 +1,5 @@
-#ifndef MONODOMAINPROBLEMITERATION7_HPP_
-#define MONODOMAINPROBLEMITERATION7_HPP_
+#ifndef MONODOMAINPROBLEM_HPP_
+#define MONODOMAINPROBLEM_HPP_
 
 //#include <iostream>
 
@@ -16,7 +16,7 @@
 #include "TrianglesMeshReader.hpp"
 #include "ColumnDataWriter.hpp"
 
-#include "MonodomainPdeIteration7.hpp"
+#include "MonodomainPde.hpp"
 #include "MockEulerIvpOdeSolver.hpp"
 
 #include "AbstractCardiacCellFactory.hpp"
@@ -26,7 +26,7 @@
  */
 
 template<int SPACE_DIM>
-class MonodomainProblemIteration7
+class MonodomainProblem
 {
 private:
     /**
@@ -37,7 +37,7 @@ private:
     double mEndTime;
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
-    MonodomainPdeIteration7<SPACE_DIM> *mpMonodomainPde;
+    MonodomainPde<SPACE_DIM> *mpMonodomainPde;
     bool mDebugOn;
     bool mSequential; 
     double mPdeTimeStep;  //aka big_timestep
@@ -63,7 +63,7 @@ public:
      * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
      */
      
-    MonodomainProblemIteration7(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+    MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
     : mMeshFilename(""),   // i.e. undefined
       mEndTime(1000),   // 1,000 ms = 1 second
       mOutputDirectory(""),   // i.e. undefined
@@ -85,7 +85,7 @@ public:
      * Destructor
      */
      
-    ~MonodomainProblemIteration7()
+    ~MonodomainProblem()
     { 
         if (mpMonodomainPde != NULL)
         {
@@ -103,7 +103,7 @@ public:
         
         mpCellFactory->SetMesh( &mMesh );
         
-        mpMonodomainPde = new MonodomainPdeIteration7<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
+        mpMonodomainPde = new MonodomainPde<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
     }
      
     /**
@@ -319,7 +319,7 @@ public:
         return mMesh;   
     }
     
-    MonodomainPdeIteration7<SPACE_DIM> * GetMonodomainPde() 
+    MonodomainPde<SPACE_DIM> * GetMonodomainPde() 
     {
         return mpMonodomainPde;  
     }
@@ -327,4 +327,4 @@ public:
 
 
 
-#endif /*MONODOMAINPROBLEMITERATION7_HPP_*/
+#endif /*MONODOMAINPROBLEM_HPP_*/

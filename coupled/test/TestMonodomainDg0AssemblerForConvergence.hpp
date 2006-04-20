@@ -13,7 +13,7 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 
@@ -71,7 +71,7 @@ public:
         do
         {
             PointStimulusCellFactory cell_factory(time_step);
-            MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
+            MonodomainProblem<1> monodomain_problem(&cell_factory);
     
             monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
             monodomain_problem.SetEndTime(2);   // 2 ms
@@ -197,7 +197,7 @@ public:
 
             // Solve the problem itself
            
-            MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
+            MonodomainProblem<1> monodomain_problem(&cell_factory);
     
             monodomain_problem.SetMeshFilename(mesh_filename);
             monodomain_problem.SetEndTime(2);   // 2 ms

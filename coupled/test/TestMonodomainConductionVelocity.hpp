@@ -16,7 +16,7 @@
 #include "ColumnDataReader.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
-#include "MonodomainProblemIteration7.hpp"
+#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 
@@ -59,7 +59,7 @@ public:
     void TestMonodomainDg01D_100elements()
     {
         PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
-        MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
+        MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
@@ -126,7 +126,7 @@ public:
     void TestMonodomainDg01D_200elements()
     {
         PointStimulusCellFactory cell_factory(0.002);  // ODE time step (ms)
-        MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
+        MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_200_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
@@ -191,7 +191,7 @@ public:
     void TestMonodomainDg01D_20elements()
     {
         PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
-        MonodomainProblemIteration7<1> monodomain_problem(&cell_factory);
+        MonodomainProblem<1> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
