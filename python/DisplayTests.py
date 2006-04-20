@@ -7,6 +7,7 @@ import os, time
 import pysvn
 
 _standalone = False
+_svn_client = None
 
 #####################################################################
 ##                          Webpages                               ##
@@ -80,14 +81,12 @@ def _recent(req, type=None):
 
   # Parse the directory structure within dir into a list of builds
   builds = []
-  revisions = os.listdir(dir)
-  for revision in revisions:
-    machinesAndBuildTypes = os.listdir(os.path.join(dir, revision))
-    for machineAndBuildType in machinesAndBuildTypes:
+  for revision in os.listdir(dir):
+    for machineAndBuildType in os.listdir(os.path.join(dir, revision)):
       st = os.stat(os.path.join(dir, revision, machineAndBuildType))
       mod_time = st.st_mtime
       machine, buildType = _extractDotSeparatedPair(machineAndBuildType)
-      builds.append([mod_time, int(revision), buildType, machine])
+      builds.append([mod_time, revision, buildType, machine])
   # Sort the list to be most recent first
   builds.sort()
   builds.reverse()
@@ -102,19 +101,20 @@ def _recent(req, type=None):
       <th>Status</th>
     </tr>
 """]
-  buildTypesModules = {}
+  old_revision = -1
   for build in builds:
     if type == 'nightly':
       date = time.strftime('%d/%m/%Y', time.localtime(build[0]))
     else:
       date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(build[0]))
-    revision, machine, buildType = build[1], build[3], build[2]
-    if not buildTypesModules.has_key(revision):
-      buildTypesModules[revision] = _importBuildTypesModule(revision)
-    build = buildTypesModules[revision].GetBuildType(buildType)
+    revision, machine, buildType = int(build[1]), build[3], build[2]
+    if revision != old_revision:
+      buildTypesModule = _importBuildTypesModule(revision)
+      old_revision = revision
+    build = buildTypesModule.GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
-    testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
-    del testsuite_status, runtime
+    overall_status, colour = _getTestStatus(test_set_dir, build, summary=True)
+    #overall_status, colour = 'Fake', 'green'
     
     output.append("""\
     <tr>
@@ -129,10 +129,7 @@ def _recent(req, type=None):
                                      machine, buildType)))
   output.append("  </table>\n")
 
-  for module in buildTypesModules:
-    del module
-  for build in builds:
-    del build
+  del builds
   
   return ''.join(output)
 
@@ -293,9 +290,11 @@ def _importModuleFromSvn(module_name, module_filepath,
   By default import the latest version.
   Return the module object.
   """
+  global _svn_client
   filepath = _svn_repos + module_filepath
-  client = _svnClient()
-  module_text = client.cat(filepath, revision)
+  if not _svn_client:
+    _svn_client = _svnClient()
+  module_text = _svn_client.cat(filepath, revision)
   return _importCode(module_text, module_name)
 
 def _importBuildTypesModule(revision=pysvn.Revision(pysvn.opt_revision_kind.head)):
@@ -369,14 +368,16 @@ def _testResultsDir(type, revision, machine, buildType):
   """
   return os.path.join(_tests_dir, type, str(revision), machine+'.'+buildType)
 
-def _getTestStatus(test_set_dir, build):
+def _getTestStatus(test_set_dir, build, summary=False):
   """
   Return the status for all tests in the given directory, and compute
   a summary status given the build type.
-  Return a triple (dict, string, string) where the first entry maps
+  Return a tuple (dict, string, string, dict) where the first entry maps
   test suite names to a string describing their status, the second is
-  the overall status, and the third is the colour in which to display
-  the overall status.
+  the overall status, the third is the colour in which to display
+  the overall status, and the fourth is a dictionary of run times.
+  
+  If summary is given as True, don't generate or return the dictionaries.
   """
   ignores = ['index.html', '.sconsign', 'build.log']
   result_files = os.listdir(test_set_dir)
@@ -386,7 +387,8 @@ def _getTestStatus(test_set_dir, build):
       d = build.GetInfoFromResultsFileName(filename)
       testsuite = d['testsuite']
       testsuite_status[testsuite] = d['status']
-      runtime[testsuite] = d['runtime']
+      if not summary:
+        runtime[testsuite] = d['runtime']
   overall_status, colour = _overallStatus(testsuite_status.values(),
                                           build)
 
@@ -406,7 +408,10 @@ def _getTestStatus(test_set_dir, build):
     # Build log may not exists for old builds
     pass
   
-  return testsuite_status, overall_status, colour, runtime
+  if summary:
+    return overall_status, colour
+  else:
+    return testsuite_status, overall_status, colour, runtime
 
 def _overallStatus(statuses, build):
   """
