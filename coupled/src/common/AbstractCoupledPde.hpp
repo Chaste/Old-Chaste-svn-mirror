@@ -1,5 +1,5 @@
-#ifndef ABSTRACTCOUPLEDPDEITERATION7_HPP_
-#define ABSTRACTCOUPLEDPDEITERATION7_HPP_
+#ifndef ABSTRACTCOUPLEDPDE_HPP_
+#define ABSTRACTCOUPLEDPDE_HPP_
 
 #include "AbstractLinearParabolicPde.hpp"
 #include <vector>
@@ -9,7 +9,7 @@
 typedef std::vector<double> odeVariablesType;
 
 template <int SPACE_DIM>
-class AbstractCoupledPdeIteration7 : public AbstractLinearParabolicPde<SPACE_DIM>
+class AbstractCoupledPde : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 protected:
     // timestep used by the pde solver
@@ -36,7 +36,7 @@ protected:
  
 public:   
     //Constructor
-    AbstractCoupledPdeIteration7(int numNodes, double tStart, double bigTimeStep)
+    AbstractCoupledPde(int numNodes, double tStart, double bigTimeStep)
     {
         assert(numNodes > 0);
         
@@ -83,4 +83,4 @@ public:
         }
     }
 };        
-#endif /*ABSTRACTCOUPLEDPDEITERATION7_HPP_*/
+#endif /*ABSTRACTCOUPLEDPDE_HPP_*/

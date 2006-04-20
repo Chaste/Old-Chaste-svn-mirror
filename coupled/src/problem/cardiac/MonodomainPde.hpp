@@ -7,7 +7,7 @@
 #include "OdeSolution.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MatrixDouble.hpp"
-#include "AbstractCoupledPdeIteration7.hpp"
+#include "AbstractCoupledPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 
@@ -42,7 +42,7 @@ typedef std::vector<double> odeVariablesType;
 
 
 template <int SPACE_DIM>
-class MonodomainPde : public AbstractCoupledPdeIteration7<SPACE_DIM>
+class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
 {
     private:
         friend class TestMonodomainPde;
@@ -56,7 +56,7 @@ class MonodomainPde : public AbstractCoupledPdeIteration7<SPACE_DIM>
     
     //Constructor     
     MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) :
-        AbstractCoupledPdeIteration7<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
+        AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
      {
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
@@ -170,7 +170,7 @@ class MonodomainPde : public AbstractCoupledPdeIteration7<SPACE_DIM>
 
     virtual void PrepareForAssembleSystem(Vec currentSolution)
     {
-        AbstractCoupledPdeIteration7 <SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
+        AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
         //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
 
         double *p_current_solution;
@@ -201,7 +201,7 @@ class MonodomainPde : public AbstractCoupledPdeIteration7<SPACE_DIM>
         }
         
         
-        AbstractCoupledPdeIteration7 <SPACE_DIM>::ReplicateSolutionCache();
+        AbstractCoupledPde <SPACE_DIM>::ReplicateSolutionCache();
      }
 };
 
