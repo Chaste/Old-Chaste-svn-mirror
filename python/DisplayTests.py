@@ -125,6 +125,11 @@ def _recent(req, type=None):
        machine, colour, _linkSummary(overall_status, type, revision,
                                      machine, buildType))
   output = output + "  </table>\n"
+
+  for module in buildTypesModules:
+    del module
+  for build in builds:
+    del build
   
   return output
 
