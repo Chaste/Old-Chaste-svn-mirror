@@ -91,39 +91,39 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
         
         // voltage that gets passed in solving ode
-        double voltage = -83.853;
+        double initial_voltage = -83.853;
  
    		// initial condition;   
-		Vec currentVoltage;
-		VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-		VecSetSizes(currentVoltage, PETSC_DECIDE, num_nodes);
+		Vec voltage;
+		VecCreate(PETSC_COMM_WORLD, &voltage);
+		VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
 		//VecSetType(initialCondition, VECSEQ);
-		VecSetFromOptions(currentVoltage);
+		VecSetFromOptions(voltage);
   
-		double* currentVoltageArray;
-		VecGetArray(currentVoltage, &currentVoltageArray); 
+		double* voltage_array;
+		VecGetArray(voltage, &voltage_array); 
         
         int lo, hi;
-        VecGetOwnershipRange(currentVoltage,&lo,&hi);
+        VecGetOwnershipRange(voltage,&lo,&hi);
         
 		// initial voltage condition of a constant everywhere on the mesh
 		if (lo<=0 && 0<hi)
         {
-            currentVoltageArray[0-lo] = voltage;
+            voltage_array[0-lo] = initial_voltage;
         }
         if (lo<=1 && 1<hi)
         {
-		  currentVoltageArray[1-lo] = voltage;
+		    voltage_array[1-lo] = initial_voltage;
         }
 		
-		VecRestoreArray(currentVoltage, &currentVoltageArray);      
-		VecAssemblyBegin(currentVoltage);
-		VecAssemblyEnd(currentVoltage);
+		VecRestoreArray(voltage, &voltage_array);      
+		VecAssemblyBegin(voltage);
+		VecAssemblyEnd(voltage);
 		 
-	    monodomain_pde.PrepareForAssembleSystem(currentVoltage);
+	    monodomain_pde.PrepareForAssembleSystem(voltage);
 
 
-        double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
+        double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, initial_voltage);
    
         LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, stimulus, small_time_step);
                               
@@ -136,12 +136,12 @@ class TestMonodomainPde : public CxxTest::TestSuite
         TS_ASSERT_DELTA(value1, value2, 0.000001);
 
         // shouldn't be different when called again as reset not yet been called
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, voltage);
+        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, initial_voltage);
         TS_ASSERT_DELTA(value1, value2, 0.000001);
   
         LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, zero_stim, small_time_step);
 
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, voltage);
+        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, initial_voltage);
 
         OdeSolution SolutionNewNotStim = ode_system_not_stim.Compute(
                                                         start_time,
@@ -153,23 +153,23 @@ class TestMonodomainPde : public CxxTest::TestSuite
  
 
         // Reset       
-       	VecGetArray(currentVoltage, &currentVoltageArray); 
+       	VecGetArray(voltage, &voltage_array); 
         
         if (lo<=0 && 0<hi)
         {
-    		currentVoltageArray[0-lo] = solutionSetStimT_05[4];
+    		voltage_array[0-lo] = solutionSetStimT_05[4];
         }
         if (lo<=1 && 1<hi)
         {
-    		currentVoltageArray[1-lo] = solutionSetNoStimT_05[4];
+    		voltage_array[1-lo] = solutionSetNoStimT_05[4];
         }
 		
-		VecRestoreArray(currentVoltage, &currentVoltageArray);      
-		VecAssemblyBegin(currentVoltage);
-		VecAssemblyEnd(currentVoltage);
+		VecRestoreArray(voltage, &voltage_array);      
+		VecAssemblyBegin(voltage);
+		VecAssemblyEnd(voltage);
 
 		monodomain_pde.ResetAsUnsolvedOdeSystem();
-        monodomain_pde.PrepareForAssembleSystem(currentVoltage);
+        monodomain_pde.PrepareForAssembleSystem(voltage);
               
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);
 
@@ -193,7 +193,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         TS_ASSERT_DELTA(value1, value2, 1e-10);
 
      
-        VecDestroy(currentVoltage);
+        VecDestroy(voltage);
         delete zero_stim;
         delete stimulus;
         delete solver;        
@@ -207,17 +207,17 @@ class TestMonodomainPde : public CxxTest::TestSuite
         MonodomainPdeIteration7<1> monodomain_pde( &cell_factory, 0, 0.1 );
         
         // initial condition;   
-        Vec currentVoltage;
-        VecCreate(PETSC_COMM_WORLD, &currentVoltage);
-        VecSetSizes(currentVoltage, PETSC_DECIDE, num_nodes);
+        Vec voltage;
+        VecCreate(PETSC_COMM_WORLD, &voltage);
+        VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
         //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(currentVoltage);
+        VecSetFromOptions(voltage);
   
-        double* currentVoltageArray;
-        VecGetArray(currentVoltage, &currentVoltageArray); 
+        double* voltage_array;
+        VecGetArray(voltage, &voltage_array); 
         
         int lo, hi;
-        VecGetOwnershipRange(currentVoltage,&lo,&hi);
+        VecGetOwnershipRange(voltage,&lo,&hi);
 
         if(lo<=0 && 0<hi)
         {
@@ -230,6 +230,8 @@ class TestMonodomainPde : public CxxTest::TestSuite
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(1);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
         }
+        
+        VecDestroy(voltage);
     }
 };
 

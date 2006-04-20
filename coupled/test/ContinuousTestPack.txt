@@ -4,5 +4,4 @@ TestMonodomainDg0AssemblerForConvergence.hpp
 TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestPropagationPropertiesCalculator.hpp
-TestNonnecroticTumourNonlinearEllipticEquation.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp

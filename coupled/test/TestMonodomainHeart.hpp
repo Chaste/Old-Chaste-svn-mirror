@@ -109,13 +109,6 @@ public:
         monodomain_problem.Initialise();        
 
         monodomain_problem.Solve();
-        
-        double* voltage_array;
-    
-        VecRestoreArray(monodomain_problem.mCurrentVoltage, &voltage_array);      
-        VecAssemblyBegin(monodomain_problem.mCurrentVoltage);
-        VecAssemblyEnd(monodomain_problem.mCurrentVoltage);
-        VecDestroy(monodomain_problem.mCurrentVoltage);
     }
 };
 
