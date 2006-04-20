@@ -27,9 +27,11 @@ def index(req):
     <li><a href="%s/recent?type=nightly">Recent nightly builds.</a></li>
   </ul>
   <h2>Latest continuous build</h2>
-""" % (_our_url, _our_url) + _summary(req, type='continuous', revision='last')
+""" % (_our_url, _our_url)
   
-  return _header() + page_body + _footer()
+  return ''.join([_header(), page_body,
+                  _summary(req, type='continuous', revision='last'),
+                  _footer()])
 
 
 def testsuite(req, type, revision, machine, buildType, testsuite, status, runtime):
@@ -75,12 +77,6 @@ def _recent(req, type=None):
   dir = os.path.join(_tests_dir, type)
   if not os.path.isdir(dir):
     return _error(type+' is not a valid type of test.')
-  
-  try:
-    import gc
-    gc.disable()
-  except ImportError:
-    return _error("Failed to disable garbage collector.")
 
   # Parse the directory structure within dir into a list of builds
   builds = []
@@ -96,7 +92,7 @@ def _recent(req, type=None):
   builds.sort()
   builds.reverse()
 
-  output = """\
+  output = ["""\
   <table border="1">
     <tr>
       <th>Date</th>
@@ -105,7 +101,7 @@ def _recent(req, type=None):
       <th>Machine</th>
       <th>Status</th>
     </tr>
-"""
+"""]
   buildTypesModules = {}
   for build in builds:
     if type == 'nightly':
@@ -120,7 +116,7 @@ def _recent(req, type=None):
     testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
     del testsuite_status, runtime
     
-    output = output + """\
+    output.append("""\
     <tr>
       <td>%s</td>
       <td>%s</td>
@@ -130,20 +126,15 @@ def _recent(req, type=None):
     </tr>
 """ % (date, _linkRevision(revision), _linkBuildType(buildType, revision),
        machine, colour, _linkSummary(overall_status, type, revision,
-                                     machine, buildType))
-  output = output + "  </table>\n"
+                                     machine, buildType)))
+  output.append("  </table>\n")
 
   for module in buildTypesModules:
     del module
   for build in builds:
     del build
-#  try:
-#    import gc
-#    output = output + "<!-- " + str(gc.collect()) + " -->"
-#  except ImportError:
-#    output = output + "<p>Error doing garbage collection</p>"
   
-  return output
+  return ''.join(output)
 
 
 
@@ -159,7 +150,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   
   Returns a string representing part of a webpage.
   """
-  output = ""
+  output = []
   if not (type and revision):
     return _error('No test set to summarise specified.')
   
@@ -213,7 +204,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
     build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logname)
   
   # Produce output HTML
-  output = output + """\
+  output.append("""\
   <p>
   Revision: %s<br />
   Date and time: %s<br />
@@ -229,13 +220,13 @@ def _summary(req, type, revision, machine=None, buildType=None):
       <th>Run Time</th>
     </tr>
 """ % (_linkRevision(revision), date, _colourText(overall_status, colour),
-       _linkBuildType(buildType, revision), machine, build_log)
+       _linkBuildType(buildType, revision), machine, build_log))
   
   # Display the status of each test suite, in alphabetical order
   testsuites = testsuite_status.keys()
   testsuites.sort()
   for testsuite in testsuites:
-    output = output + """\
+    output.append("""\
     <tr>
       <td>%s</td>
       <td style="background-color: %s;">%s</td>
@@ -244,11 +235,11 @@ def _summary(req, type, revision, machine=None, buildType=None):
 """ % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
                       testsuite_status[testsuite], runtime[testsuite], build),
-       _formatRunTime(runtime[testsuite]))
+       _formatRunTime(runtime[testsuite])))
 
-  output = output + "  </table>\n"
+  output.append("  </table>\n")
   
-  return output
+  return ''.join(output)
 
 
 def buildType(req, buildType, revision=None):
