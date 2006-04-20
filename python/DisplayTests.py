@@ -112,6 +112,7 @@ def _recent(req, type=None):
     build = buildTypesModules[revision].GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
     testsuite_status, overall_status, colour, runtime = _getTestStatus(test_set_dir, build)
+    del testsuite_status, runtime
     
     output = output + """\
     <tr>
@@ -130,6 +131,11 @@ def _recent(req, type=None):
     del module
   for build in builds:
     del build
+  try:
+    import gc
+    gc.collect()
+  except ImportError:
+    output = output + "<p>Error doing garbage collection</p>"
   
   return output
 
