@@ -22,7 +22,7 @@ os.chdir(curdir)
 # A list of test suites to run will be found in a test/<name>TestPack.txt
 # file, one per line.
 # Alternatively, a single test suite may have been specified on the command
-# line
+# line.
 testfiles = []
 if single_test_suite:
   if single_test_suite_dir == toplevel_dir:
@@ -92,7 +92,8 @@ for testfile in testfiles:
   opt.Program(testfile[:-4]+'Runner', [prefix+'Runner.cpp'],
               LIBS = all_libs,
               LIBPATH = ['../../../lib', '.', petsc_libpath])
-  opt.RunTests(prefix+'.log', prefix+'Runner')
+  if not compile_only:
+    opt.RunTests(prefix+'.log', prefix+'Runner')
 
 
 # Parallel tests

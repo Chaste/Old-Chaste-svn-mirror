@@ -19,6 +19,10 @@ system_name = ARGUMENTS.get('system_name', '')
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
 Export('run_time_flags')
 
+# Specify compile_only=1 to not run any tests.
+compile_only = ARGUMENTS.get('compile_only', 0)
+Export('compile_only')
+
 # To run a single test suite only, give its path (relative to the Chaste
 # root) as the test_suite=<path> argument.
 # This will force the test suite to be run even if the source is unchanged.
@@ -123,7 +127,7 @@ Clean('.', test_output_files)
 
 
 # Test summary generation
-if test_summary:
+if test_summary and not compile_only:
   import socket, time
   # Touch a file, which we use as source for the summary target, so the summary
   # is done on every build.
