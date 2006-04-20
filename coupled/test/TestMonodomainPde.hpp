@@ -130,7 +130,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         OdeSolution SolutionNewStimulated = ode_system_stimulated.Compute(
                                                            start_time,
                                                            start_time + big_time_step);
-        std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.mSolutions[ SolutionNewStimulated.mSolutions.size()-1 ];
+        std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.rGetSolutions()[ SolutionNewStimulated.rGetSolutions().size()-1 ];
         double value2 = -(-80 + ode_system_stimulated.GetIIonic());
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
@@ -146,7 +146,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         OdeSolution SolutionNewNotStim = ode_system_not_stim.Compute(
                                                         start_time,
                                                         start_time + big_time_step);
-        std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.mSolutions[ SolutionNewNotStim.mSolutions.size()-1 ];
+        std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.rGetSolutions()[ SolutionNewNotStim.rGetSolutions().size()-1 ];
         value2 = -(0 + ode_system_not_stim.GetIIonic());
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
@@ -176,7 +176,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> state_variables = solutionSetStimT_05;
         ode_system_stimulated.SetStateVariables(state_variables);
         OdeSolution SolutionNewStimulatedT_1 = ode_system_stimulated.Compute( start_time + big_time_step, start_time + 2*big_time_step );
-        std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.mSolutions[ SolutionNewStimulatedT_1.mSolutions.size()-1 ];
+        std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.rGetSolutions()[ SolutionNewStimulatedT_1.rGetSolutions().size()-1 ];
         value2 = -(0 + ode_system_stimulated.GetIIonic());
                 
         TS_ASSERT_DELTA(value1, value2, 1e-10);
@@ -184,7 +184,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         state_variables = solutionSetNoStimT_05;
         ode_system_not_stim.SetStateVariables(state_variables);
         OdeSolution SolutionNewNotStimT_1 = ode_system_not_stim.Compute( start_time + big_time_step, start_time + 2*big_time_step );
-        std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.mSolutions[ SolutionNewNotStimT_1.mSolutions.size()-1 ];
+        std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.rGetSolutions()[ SolutionNewNotStimT_1.rGetSolutions().size()-1 ];
        
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, solutionSetNoStimT_05[4]);
         value2 = -(0 + ode_system_not_stim.GetIIonic());

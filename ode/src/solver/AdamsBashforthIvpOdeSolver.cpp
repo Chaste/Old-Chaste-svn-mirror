@@ -93,8 +93,8 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     OdeSolution solutions;
     
     solutions.SetNumberOfTimeSteps(numberOfTimeSamples);
-    solutions.mSolutions.push_back(rYValues);
-    solutions.mTime.push_back(startTime);
+    solutions.rGetSolutions().push_back(rYValues);
+    solutions.rGetTimes().push_back(startTime);
 
     // Determine the number of time steps and make sure that we have at least 4 of them
 
@@ -140,28 +140,28 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 		// Apply RungeKutta4's method first three timesteps, in order to 
 		// maintain fourth order accuracy of Adams-Bashforth method
 		
-        dy = dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex],rYValues);
+        dy = dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.rGetTimes()[timeindex],rYValues);
         
         for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k1[i] = timeStep*dyRK4[i];
 			yk2[i] = rYValues[i] + 0.5*k1[i];		
 		}
-        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk2);
+        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.rGetTimes()[timeindex]+0.5*timeStep,yk2);
 		
 		for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k2[i] = timeStep*dyRK4[i];
 			yk3[i] = rYValues[i] + 0.5*k2[i];		
 		}
-        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+0.5*timeStep,yk3);        
+        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.rGetTimes()[timeindex]+0.5*timeStep,yk3);        
 
 		for(unsigned int i=0;i<num_equations; i++) 
 		{
 			k3[i] = timeStep*dyRK4[i];
 			yk4[i] = rYValues[i] + k3[i];		
 		}
-        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeindex]+timeStep,yk4);                
+        dyRK4 = pAbstractOdeSystem->EvaluateYDerivatives(solutions.rGetTimes()[timeindex]+timeStep,yk4);                
 		
 		for(unsigned int i=0;i<num_equations; i++) 
 		{
@@ -172,8 +172,8 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 
 //!!! Think about whether OdeSolutions need updating, based on the value of timeSampling
 		
-		solutions.mSolutions.push_back(rYValues);	
-		solutions.mTime.push_back(solutions.mTime[timeindex]+timeStep);
+		solutions.rGetSolutions().push_back(rYValues);	
+		solutions.rGetTimes().push_back(solutions.rGetTimes()[timeindex]+timeStep);
 		temp.push_back(dy);
 	}
 
@@ -198,7 +198,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 
         // Function that calls the appropriate one-step solver
         
-        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.mTime[timeStepNumber],rYValues);
+        dy = pAbstractOdeSystem->EvaluateYDerivatives(solutions.rGetTimes()[timeStepNumber],rYValues);
 
         for(unsigned int i=0;i<num_equations; i++) 
         {       
@@ -218,8 +218,8 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 
         // Update OdeSolution
 //!!! This does NOT take into account timeSampling
-        solutions.mSolutions.push_back(rYValues);
-        solutions.mTime.push_back(currentTime);
+        solutions.rGetSolutions().push_back(rYValues);
+        solutions.rGetTimes().push_back(currentTime);
         temp.push_back(dy);
     }
 	
@@ -238,5 +238,5 @@ void AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
                                        double timeStep)
 {
     OdeSolution solution = Solve(pAbstractOdeSystem, rYValues, startTime, endTime, timeStep, timeStep);
-    rYValues = solution.mSolutions[solution.GetNumberOfTimeSteps()];
+    rYValues = solution.rGetSolutions()[solution.GetNumberOfTimeSteps()];
 }

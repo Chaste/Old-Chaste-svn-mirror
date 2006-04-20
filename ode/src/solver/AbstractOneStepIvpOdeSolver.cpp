@@ -52,8 +52,8 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     OdeSolution solutions;
     
     solutions.SetNumberOfTimeSteps(numberOfTimeSamples);
-    solutions.mSolutions.push_back(rYValues);
-    solutions.mTime.push_back(startTime);
+    solutions.rGetSolutions().push_back(rYValues);
+    solutions.rGetTimes().push_back(startTime);
     
     // Solve the ODE system
 
@@ -79,9 +79,9 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         currentTime = toTime;
 
         // write current solution into solutions
-        solutions.mSolutions.push_back(rYValues);
+        solutions.rGetSolutions().push_back(rYValues);
         // Push back new time into the time solution vector
-        solutions.mTime.push_back(currentTime);
+        solutions.rGetTimes().push_back(currentTime);
         
     }
 

@@ -59,12 +59,12 @@ public:
         }
         writer.EndDefineMode();
                 
-        for (unsigned i = 0; i < solution.mSolutions.size(); i+=step_per_row) 
+        for (unsigned i = 0; i < solution.rGetSolutions().size(); i+=step_per_row) 
         {
-            writer.PutVariable(time_var_id, solution.mTime[i]);
+            writer.PutVariable(time_var_id, solution.rGetTimes()[i]);
             for (unsigned j=0; j<var_ids.size(); j++)
             {
-                writer.PutVariable(var_ids[j], solution.mSolutions[i][j]);
+                writer.PutVariable(var_ids[j], solution.rGetSolutions()[i][j]);
             }
             writer.AdvanceAlongUnlimitedDimension();
         }        

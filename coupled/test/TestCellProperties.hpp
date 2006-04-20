@@ -57,7 +57,7 @@ public:
         
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
-        CellProperties  cell_props(voltage, solution.mTime); // Use default threshold
+        CellProperties  cell_props(voltage, solution.rGetTimes()); // Use default threshold
 
 //        std::cout << "Max upstroke vel: " << cell_props.GetMaxUpstrokeVelocity() << std::endl;
 //        std::cout << "Cycle length: " << cell_props.GetCycleLength() << std::endl;

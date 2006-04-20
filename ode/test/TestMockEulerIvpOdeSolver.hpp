@@ -29,7 +29,7 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         
         int last = solutions.GetNumberOfTimeSteps();        
         // Test to see if this worked       
-        double testvalue = solutions.mSolutions[last][0];
+        double testvalue = solutions.rGetSolutions()[last][0];
         
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
         
@@ -42,7 +42,7 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
                                                
         last = solutions.GetNumberOfTimeSteps();        
         // Test to see if this worked       
-        testvalue = solutions.mSolutions[last][0];
+        testvalue = solutions.rGetSolutions()[last][0];
         
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
         
