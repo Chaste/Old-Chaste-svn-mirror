@@ -19,8 +19,8 @@ class TestParallelColumnDataReaderWriter : public CxxTest::TestSuite
 
 private: 
 	ParallelColumnDataWriter *mpParallelWriter;
-	ColumnDataWriter *mpWriter;
-    ColumnDataReader *mpReader;
+	//ColumnDataWriter *mpWriter;
+    //ColumnDataReader *mpReader;
 	
     const static int num_nodes=10;
 	
@@ -29,14 +29,14 @@ public:
 
   
     
-    void testCreateParallelColumnWriter(void)
+    void testParallelColumnWriter(void)
     {
         
         int time_var_id, var1_id, var2_id;
         
         //Make a parallel data writer
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter = new ParallelColumnDataWriter("testoutput","ParallelColumnWriter"));
-        TS_ASSERT_THROWS_NOTHING(mpParallelWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpParallelWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->DefineFixedDimension("Node","dimensionless", num_nodes));
         
         TS_ASSERT_THROWS_NOTHING(var1_id = mpParallelWriter->DefineVariable("Var1","LightYears"));
@@ -44,7 +44,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->EndDefineMode());
  
         //Make a conventional data writer
-        TS_ASSERT_THROWS_NOTHING(mpWriter = new ColumnDataWriter("testoutput","ColumnWriter"));
+        /*TS_ASSERT_THROWS_NOTHING(mpWriter = new ColumnDataWriter("testoutput","ColumnWriter"));
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(mpWriter->DefineFixedDimension("Node","dimensionless", num_nodes));
  
@@ -52,7 +52,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(var1_id = mpWriter->DefineVariable("Var1","LightYears"));
         TS_ASSERT_THROWS_NOTHING(var2_id = mpWriter->DefineVariable("Var2","Angstroms"));
         TS_ASSERT_THROWS_NOTHING(mpWriter->EndDefineMode());
-        
+        */        
 
         //Set up some data in PETSc vectors
         Vec var1, var2;
@@ -83,7 +83,7 @@ public:
         VecAssemblyEnd(var2);
         
         //Write out the data (Conventional)
-        VecGetArray(var1, &var1_array); 
+        /*VecGetArray(var1, &var1_array); 
         VecGetArray(var2, &var2_array); 
         mpWriter->PutVariable(time_var_id, 0); 
         for (int global_index=lo ; global_index<hi ; global_index++)
@@ -94,7 +94,8 @@ public:
         mpWriter->AdvanceAlongUnlimitedDimension();
         VecRestoreArray(var1, &var1_array); 
         VecRestoreArray(var2, &var2_array);
- 
+        */
+  
         //Write out the data (Parallel)  
         mpParallelWriter->PutVariable(time_var_id, 0); 
         mpParallelWriter->PutVector(var1_id, var1);
@@ -106,6 +107,7 @@ public:
         VecSqrt(var2);
         
         //Write out the data again (Conventional)
+        /*
         VecGetArray(var1, &var1_array); 
         VecGetArray(var2, &var2_array); 
         mpWriter->PutVariable(time_var_id, 1); 
@@ -114,17 +116,37 @@ public:
             mpWriter->PutVariable(var1_id, var1_array[global_index - lo], global_index);
             mpWriter->PutVariable(var2_id, var2_array[global_index - lo], global_index);
         }
+        */
         
         //Write out the data (Parallel)  
         mpParallelWriter->PutVariable(time_var_id, 1); 
         mpParallelWriter->PutVector(var1_id, var1);
         mpParallelWriter->PutVector(var2_id, var2);
         mpParallelWriter->AdvanceAlongUnlimitedDimension();
-                        
+        
+        //delete mpWriter;      
+        delete mpParallelWriter;      
+        
+        
+        TS_ASSERT_EQUALS(system(
+          "diff testoutput/ParallelColumnWriter.info io/test/data/ColumnWriter.info"),
+          0);
+       
+        TS_ASSERT_EQUALS(system(
+          "diff testoutput/ParallelColumnWriter_000000.dat io/test/data/ColumnWriter_000000.dat"),
+          0); 
+                
+        TS_ASSERT_EQUALS(system(
+          "diff testoutput/ParallelColumnWriter_000001.dat io/test/data/ColumnWriter_000001.dat"),
+          0);      
+        
+        TS_ASSERT_EQUALS(system(
+          "diff testoutput/ParallelColumnWriter_unlimited.dat io/test/data/ColumnWriter_unlimited.dat"),
+          0);
+       
+               
         VecDestroy(var1);
         VecDestroy(var2);
-        delete mpWriter;      
-        delete mpParallelWriter;      
         
     }
     
