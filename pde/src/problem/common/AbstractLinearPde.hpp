@@ -22,6 +22,47 @@ private:
     // Kludge to make parallel stuff work...
     std::vector<double> mInputCacheReplicated;
     
+protected:
+
+    /**
+     * Replicate a vector over all processes.
+     * 
+     * Each process knows its local part of the vector.  This method shares that knowledge
+     * across all the processes.
+     * 
+     * @param lo  The start of our ownership range
+     * @param hi  One past the end of our ownership range
+     * @param size  The size of the vector to be replicated
+     * @param input_array  The local portion of the array to be replicated.  Should
+     *    contain hi-lo entries.  (If your input vector is larger, just pass the address
+     *    of the first entry in your ownership range.)
+     * @param output_array  The array to store replicated data in.  May be the same as
+     *    input_array.  Memory for size entries should have been allocated already.
+     */
+    void ReplicateVector(unsigned lo, unsigned hi, unsigned size,
+                         double *input_array,
+                         double *output_array)
+    {
+        // Set up an array for MPI replication to use
+        double input_vector_local_array[size];
+        for (unsigned global_index=0; global_index<size; global_index++)
+        {
+            if (lo <= global_index && global_index < hi)
+            { 
+                unsigned local_index = global_index - lo;
+                input_vector_local_array[global_index] = input_array[local_index]; 
+            } 
+            else 
+            {
+                input_vector_local_array[global_index] = 0.0;
+            }
+        }
+        
+        // Replicate
+        MPI_Allreduce(input_vector_local_array, output_array, size,
+                      MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+    }
+    
 public:
 
 	/**
@@ -73,43 +114,18 @@ public:
     */ 
     virtual void PrepareForAssembleSystem(Vec currentSolution)
     {
-        ReplicateInputCache(currentSolution);
-    }
- 
-    void ReplicateInputCache(Vec inputVector)
-    {
-        if (inputVector != NULL) 
+        if (currentSolution != NULL) 
         {
             int lo, hi, num_nodes;  
-            VecGetOwnershipRange(inputVector, &lo, &hi);
-            VecGetSize(inputVector,&num_nodes);       
-            double *p_input_vector;
-            VecGetArray(inputVector, &p_input_vector);
-            double input_vector_local_array[num_nodes];
-            for (int global_index=0; global_index<num_nodes; global_index++)
-            {
-                if (lo <= global_index && global_index < hi)
-                { 
-                	int local_index = global_index - lo;
-                    input_vector_local_array[global_index]=p_input_vector[local_index]; 
-                } 
-                else 
-                {
-                    input_vector_local_array[global_index]=0.0;
-                }
-                
-            }
-     
-            double input_vector_replicated_array[num_nodes];
-            MPI_Allreduce(input_vector_local_array,input_vector_replicated_array, num_nodes, MPI_DOUBLE, 
-                         MPI_SUM, PETSC_COMM_WORLD); 
+            VecGetOwnershipRange(currentSolution, &lo, &hi);
+            VecGetSize(currentSolution, &num_nodes);       
+            double *input_array;
+            VecGetArray(currentSolution, &input_array);
             
-            // Could be more efficient if MPI wrote to mInputCacheReplicated above.
-            mInputCacheReplicated.resize(num_nodes);    
-            for (int global_index=0; global_index<num_nodes; global_index++)
-            {
-                mInputCacheReplicated[global_index]=input_vector_replicated_array[global_index];
-            }
+            mInputCacheReplicated.resize(num_nodes);
+            ReplicateVector(lo, hi, num_nodes, input_array, &(mInputCacheReplicated[0]));
+            
+            VecRestoreArray(currentSolution, &input_array);
         } 
     }
     

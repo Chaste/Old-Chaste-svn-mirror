@@ -56,31 +56,5 @@ public:
         
         mSolutionCacheReplicated.resize(mNumNodes);
     }
- 
-    virtual void ReplicateSolutionCache(void)
-    {
-        double solution_cache_local_array[mNumNodes];
-        for (int global_index=0; global_index<mNumNodes; global_index++)
-        {
-            if (mOwnershipRangeLo <= global_index && global_index < mOwnershipRangeHi)
-            { 
-                solution_cache_local_array[global_index]=mSolutionCacheReplicated[global_index];
-            } 
-            else 
-            {
-                solution_cache_local_array[global_index] =0.0;
-            }
-        }
- 
-        double solution_cache_replicated_array[mNumNodes];
-        MPI_Allreduce(solution_cache_local_array, solution_cache_replicated_array, mNumNodes, MPI_DOUBLE, 
-                     MPI_SUM, PETSC_COMM_WORLD); 
-        
-        // Could be more efficient if MPI wrote to solutionCacheReplicated above.
-        for (int global_index=0; global_index<mNumNodes; global_index++)
-        {
-            mSolutionCacheReplicated[global_index]=solution_cache_replicated_array[global_index];
-        }
-    }
 };        
 #endif /*ABSTRACTCOUPLEDPDE_HPP_*/

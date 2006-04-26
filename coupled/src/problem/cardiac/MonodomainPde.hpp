@@ -175,15 +175,15 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
 
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);
-        int lo=this->mOwnershipRangeLo;
-        int hi=this->mOwnershipRangeHi;
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
         double time=this->mTime;
 
         double big_time_step=this->mBigTimeStep;
         
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (unsigned local_index=0; local_index < hi-lo; local_index++)
         {
-            int global_index = local_index + lo;
+            unsigned global_index = local_index + lo;
             
             // overwrite the voltage with the input value
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
@@ -200,8 +200,9 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
 
         }
         
-        
-        AbstractCoupledPde <SPACE_DIM>::ReplicateSolutionCache();
+        this->ReplicateVector(lo, hi, this->mNumNodes,
+                              &(this->mSolutionCacheReplicated[lo]),
+                              &(this->mSolutionCacheReplicated[0]));
      }
 };
 
