@@ -6,6 +6,9 @@
 #include <petscvec.h>
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
+private:
+    bool is_parallel;        
+    bool am_master;
 public:
 	ParallelColumnDataWriter(std::string directory, std::string baseName);
     virtual ~ParallelColumnDataWriter();
