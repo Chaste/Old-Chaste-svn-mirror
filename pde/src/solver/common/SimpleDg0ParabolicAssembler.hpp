@@ -65,16 +65,17 @@ public:
 	 * Constructors call the base class versions, and note we're not fully ready
 	 * for work.
 	 */
-	SimpleDg0ParabolicAssembler(int numPoints = 2) :
-		AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	SimpleDg0ParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+		AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
 	{
 		mTimesSet = false;
 		mInitialConditionSet = false;
 	}
 	SimpleDg0ParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 								AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-								int numPoints = 2) :
-		AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+                                AbstractLinearSolver *pSolver,
+                                int numQuadPoints = 2) :
+		AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
 	{
 		mTimesSet = false;
 		mInitialConditionSet = false;
@@ -102,8 +103,7 @@ public:
 
 	Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
               AbstractLinearParabolicPde<SPACE_DIM> *pPde, 
-              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-              AbstractLinearSolver *solver)
+              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
 	{
 		assert(mTimesSet);
 		assert(mInitialConditionSet);
@@ -116,7 +116,7 @@ public:
 		while( t < mTend - 1e-10 )
 		{
 			//std::cout << "t = " << t << std::endl << std::flush;
-			nextSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, solver, currentSolution);
+			nextSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, currentSolution);
 			//std::cout << "Done AssembleSystem." << std::endl << std::flush;
             t += mDt;
 			// Avoid memory leaks

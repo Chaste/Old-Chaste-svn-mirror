@@ -28,14 +28,15 @@ public:
 	/**
 	 * Constructors just call the base class versions.
 	 */
-	AbstractLinearEllipticAssembler(int numPoints = 2) :
-		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	AbstractLinearEllipticAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
 	{
 	}
 	AbstractLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-									int numPoints = 2) :
-		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+									AbstractLinearSolver *pSolver,
+                                    int numQuadPoints = 2) :
+		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
 	{
 	}
 	
@@ -50,11 +51,10 @@ public:
 	 */
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                                AbstractLinearEllipticPde<SPACE_DIM> *pPde, 
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                               AbstractLinearSolver *pSolver)
+                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
 	{
 		return AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
-			rMesh, pPde, rBoundaryConditions, pSolver);
+			rMesh, pPde, rBoundaryConditions);
 	}
 	
 	/**
@@ -63,8 +63,7 @@ public:
 	Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                        AbstractLinearPde<SPACE_DIM> *pPde, 
                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       AbstractLinearSolver *pSolver,
-					   Vec currentSolution = NULL)
+                       Vec currentSolution = NULL)
 	{
 		assert(false);
 		return NULL; // Avoid compiler warning

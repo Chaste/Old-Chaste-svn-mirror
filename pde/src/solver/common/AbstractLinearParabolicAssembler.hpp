@@ -27,14 +27,15 @@ public:
 	/**
 	 * Constructors just call the base class versions.
 	 */
-	AbstractLinearParabolicAssembler(int numPoints = 2) :
-		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	AbstractLinearParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
 	{
 	}
 	AbstractLinearParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-										AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-										int numPoints = 2) :
-		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+									 AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+									 AbstractLinearSolver *pSolver,
+                                     int numQuadPoints = 2) :
+		AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
 	{
 	}
 	
@@ -86,8 +87,7 @@ public:
 	 */
     virtual Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> & rMesh,
                       AbstractLinearParabolicPde<SPACE_DIM> * pPde, 
-                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> & rBoundaryConditions,
-                      AbstractLinearSolver *pSolver)=0;   
+                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> & rBoundaryConditions)=0;   
                       
 };
 

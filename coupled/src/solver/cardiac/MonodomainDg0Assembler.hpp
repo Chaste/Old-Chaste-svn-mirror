@@ -146,14 +146,15 @@ public:
     /**
      * Constructors just call the base class versions.
      */
-    MonodomainDg0Assembler(int numPoints = 2) :
-        SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+    MonodomainDg0Assembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+        SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
     {
     }
     MonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                             AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                            int numPoints = 2) :
-        SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+                            AbstractLinearSolver *pSolver,
+                            int numQuadPoints = 2) :
+        SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {
     }
 };

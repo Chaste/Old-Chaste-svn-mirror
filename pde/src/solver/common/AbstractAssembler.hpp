@@ -38,9 +38,9 @@ public:
 	/**
 	 * Default constructor. Uses linear basis functions.
 	 * 
-	 * @param numPoints Number of quadrature points to use per dimension.
+	 * @param numQuadPoints Number of quadrature points to use per dimension.
 	 */
-	AbstractAssembler(int numPoints = 2)
+	AbstractAssembler(int numQuadPoints = 2)
 	{
 		mWeAllocatedBasisFunctionMemory = false;
 		LinearBasisFunction<ELEMENT_DIM> *pBasisFunction = new LinearBasisFunction<ELEMENT_DIM>();
@@ -49,7 +49,7 @@ public:
 		mWeAllocatedBasisFunctionMemory = true;
 		
 		mpQuadRule = NULL; mpSurfaceQuadRule = NULL;
-		SetNumberOfQuadraturePointsPerDimension(numPoints);
+		SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
         
         
 	}
@@ -59,17 +59,17 @@ public:
 	 * 
 	 * @param pBasisFunction Basis function to use for normal elements.
 	 * @param pSurfaceBasisFunction Basis function to use for boundary elements.
-	 * @param numPoints Number of quadrature points to use per dimension.
+	 * @param numQuadPoints Number of quadrature points to use per dimension.
 	 */
 	AbstractAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
 					  AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-					  int numPoints = 2)
+					  int numQuadPoints = 2)
 	{
 		mWeAllocatedBasisFunctionMemory = false;
 		SetBasisFunctions(pBasisFunction, pSurfaceBasisFunction);
 		
 		mpQuadRule = NULL; mpSurfaceQuadRule = NULL;
-		SetNumberOfQuadraturePointsPerDimension(numPoints);
+		SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
 
 	}
 	
@@ -99,14 +99,14 @@ public:
 	 * points is not supported. (TODO: There may be a small memory leak if this
 	 * occurs.)
 	 * 
-	 * @param numPoints Number of quadrature points to use per dimension.
+	 * @param numQuadPoints Number of quadrature points to use per dimension.
 	 */
-	void SetNumberOfQuadraturePointsPerDimension(int numPoints)
+	void SetNumberOfQuadraturePointsPerDimension(int numQuadPoints)
 	{
 		if (mpQuadRule) delete mpQuadRule;
-		mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numPoints);
+		mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numQuadPoints);
 		if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
-		mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numPoints);
+		mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numQuadPoints);
 	}
     
    

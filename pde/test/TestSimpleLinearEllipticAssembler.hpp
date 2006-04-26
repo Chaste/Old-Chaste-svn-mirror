@@ -37,7 +37,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         LinearBasisFunction<1> basis_function;
         MatrixDouble ael(2,2);
         VectorDouble bel(2);
-        SimpleLinearEllipticAssembler<1,1> assembler;
+        SimpleLinearEllipticAssembler<1,1> assembler(NULL);
         
         assembler.AssembleOnElement(element, ael, bel, &pde, false);
         
@@ -66,7 +66,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         MatrixDouble ael(3,3);
         VectorDouble bel(3);
         
-        SimpleLinearEllipticAssembler<2,2> assembler;
+        SimpleLinearEllipticAssembler<2,2> assembler(NULL);
         assembler.AssembleOnElement(element, ael, bel,  &pde, false);
         
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
@@ -103,7 +103,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         MatrixDouble ael(3,3);
         VectorDouble bel(3);
         
-        SimpleLinearEllipticAssembler<2,2> assembler;
+        SimpleLinearEllipticAssembler<2,2> assembler(NULL);
         assembler.AssembleOnElement(element, ael, bel, &pde, false);
         
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
@@ -147,9 +147,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler;
+        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         // Check result
         double *res;
@@ -192,9 +192,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler 
-        SimpleLinearEllipticAssembler<1,1> assembler;   
+        SimpleLinearEllipticAssembler<1,1> assembler(&solver);   
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);        
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);        
         
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
@@ -238,9 +238,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler 
-        SimpleLinearEllipticAssembler<1,1> assembler;
+        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);       
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);       
         
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
@@ -281,9 +281,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler;
+        SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         // Check result
         int lo,hi;
@@ -328,9 +328,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler 
-        SimpleLinearEllipticAssembler<2,2> assembler;
+        SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);       
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);       
 
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
@@ -373,9 +373,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler;
+        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         // Check result
         int lo,hi;
@@ -444,9 +444,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler;
+        SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         // Check result
         double *res;
@@ -506,9 +506,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler;
+        SimpleLinearEllipticAssembler<3,3> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         // Check result
         int lo,hi;
@@ -583,9 +583,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         SimpleLinearSolver solver;
         
         // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler;
+        SimpleLinearEllipticAssembler<3,3> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc, &solver);
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         // Check result
         int lo,hi;

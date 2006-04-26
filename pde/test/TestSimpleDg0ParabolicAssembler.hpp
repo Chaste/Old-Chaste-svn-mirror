@@ -19,22 +19,22 @@
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
 #include <vector>
-#include <iostream>
+//#include <iostream>
 #include <cmath>
 
 #include <sys/stat.h> // for mkdir
 
-#include "TimeDependentDiffusionEquationPde.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Node.hpp"
-#include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp" 
+#include "ColumnDataWriter.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "FemlabMeshReader.hpp"
+
+#include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
-#include "ColumnDataWriter.hpp"
 
 #define PI M_PI
 
@@ -98,9 +98,9 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<1,1> fullSolver;
+		SimpleDg0ParabolicAssembler<1,1> assembler(&linear_solver);
         
-        fullSolver.SetMatrixIsConstant(&linear_solver);
+        assembler.SetMatrixIsConstant();
 		
 		// Initial condition, u(0,x) = sin(x*pi);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -119,10 +119,10 @@ public:
     	VecAssemblyEnd(initial_condition);
 
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, t_end, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
+		assembler.SetTimes(0, t_end, 0.01);
+		assembler.SetInitialCondition(initial_condition);
 		
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -163,8 +163,8 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<1,1> fullSolver;
-        fullSolver.SetMatrixIsConstant(&linear_solver);
+		SimpleDg0ParabolicAssembler<1,1> assembler(&linear_solver);
+        assembler.SetMatrixIsConstant();
 		
 		// initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -182,9 +182,9 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, t_end, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, t_end, 0.01);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -227,7 +227,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<1,1> fullSolver;
+		SimpleDg0ParabolicAssembler<1,1> assembler(&linear_solver);
 		
 		// initial condition;   
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -245,9 +245,9 @@ public:
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 
-		fullSolver.SetTimes(0, 0.5, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, 0.5, 0.01);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -283,7 +283,7 @@ public:
 		SimpleLinearSolver linear_solver;
 		
 		// Assembler
-		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
 		// initial condition;
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -305,10 +305,10 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;
-		fullSolver.SetTimes(0, t_end, 0.001);
-		fullSolver.SetInitialCondition(initial_condition);
+		assembler.SetTimes(0, t_end, 0.001);
+		assembler.SetInitialCondition(initial_condition);
 
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -356,7 +356,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
 		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -375,10 +375,10 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, t_end, 0.001);
-		fullSolver.SetInitialCondition(initial_condition);
+		assembler.SetTimes(0, t_end, 0.001);
+		assembler.SetInitialCondition(initial_condition);
 
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -429,7 +429,7 @@ public:
         SimpleLinearSolver linear_solver;
     
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> fullSolver;
+        SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
         
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -448,10 +448,10 @@ public:
         VecRestoreArray(initial_condition, &initial_condition_array);
         
         double t_end = 0.1; 
-        fullSolver.SetTimes(0, t_end, 0.001);
-        fullSolver.SetInitialCondition(initial_condition);
+        assembler.SetTimes(0, t_end, 0.001);
+        assembler.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result 
         double *res;
@@ -521,7 +521,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -540,10 +540,10 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, t_end, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
+		assembler.SetTimes(0, t_end, 0.01);
+		assembler.SetInitialCondition(initial_condition);
 
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -616,7 +616,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -634,9 +634,9 @@ public:
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, 0.1, 0.01);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result
 		double *res;
@@ -722,7 +722,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<2,2> fullSolver;
+		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -741,9 +741,9 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, t_end, 0.001);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, t_end, 0.001);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -787,7 +787,7 @@ public:
 		SimpleLinearSolver linear_solver;
 		
 		// Assembler
-		SimpleDg0ParabolicAssembler<3,3> fullSolver;
+		SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
 		
 		// initial condition;
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -811,9 +811,9 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;
-		fullSolver.SetTimes(0, t_end, 0.001);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, t_end, 0.001);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -870,7 +870,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<3,3> fullSolver;
+		SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
 		
 		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -890,9 +890,9 @@ public:
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
 		double t_end = 0.1;	
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, 0.1, 0.01);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -976,7 +976,7 @@ public:
 		SimpleLinearSolver linear_solver;
 	
 		// Assembler
-		SimpleDg0ParabolicAssembler<3,3> fullSolver;
+		SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
 		
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -996,9 +996,9 @@ public:
 		}
 		VecRestoreArray(initial_condition, &initial_condition_array);
 		
-		fullSolver.SetTimes(0, 0.1, 0.01);
-		fullSolver.SetInitialCondition(initial_condition);
-		Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+		assembler.SetTimes(0, 0.1, 0.01);
+		assembler.SetInitialCondition(initial_condition);
+		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
 		double *res;
@@ -1043,16 +1043,16 @@ public:
         SimpleLinearSolver linear_solver;
     
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> fullSolver;
+        SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
         
         // initial condition;   
         Vec initial_condition = CreateConstantConditionVec(mesh.GetNumNodes(), -84.5);
               
         double t_end = 1.0;
-        fullSolver.SetTimes(0, t_end, 0.01);
-        fullSolver.SetInitialCondition(initial_condition);
+        assembler.SetTimes(0, t_end, 0.01);
+        assembler.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check solution is constant throughout the mesh
         double* result_array;
@@ -1095,16 +1095,16 @@ public:
         SimpleLinearSolver linear_solver;
     
         // Assembler
-        SimpleDg0ParabolicAssembler<1,1> fullSolver;
+        SimpleDg0ParabolicAssembler<1,1> assembler(&linear_solver);
         
         // initial condition;   
         Vec initial_condition = CreateConstantConditionVec(mesh.GetNumNodes(), -84.5);
               
         double t_end = 1;
-        fullSolver.SetTimes(0, t_end, 0.01);
-        fullSolver.SetInitialCondition(initial_condition);
+        assembler.SetTimes(0, t_end, 0.01);
+        assembler.SetInitialCondition(initial_condition);
 
-        Vec result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
 
         // Check solution is constant throughout the mesh
         double* result_array;
@@ -1153,7 +1153,7 @@ public:
         SimpleLinearSolver linear_solver;
         
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> fullSolver;
+        SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
         
         // initial condition;
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -1200,7 +1200,7 @@ public:
         double time = 0;
         double t_end = 0.1;
         double dt = 0.001;
-        fullSolver.SetInitialCondition(initial_condition);
+        assembler.SetInitialCondition(initial_condition);
 
         ColumnDataWriter *p_test_writer;
            
@@ -1236,11 +1236,11 @@ public:
         while(time < t_end)
         {
             time += dt;
-            fullSolver.SetTimes(time, time+dt, dt);
+            assembler.SetTimes(time, time+dt, dt);
             
-            result = fullSolver.Solve(mesh, &pde, bcc, &linear_solver);
+            result = assembler.Solve(mesh, &pde, bcc);
 
-            fullSolver.SetInitialCondition(result);        
+            assembler.SetInitialCondition(result);        
             
             
             VecGetArray(result, &p_result);

@@ -134,8 +134,8 @@ public:
             SimpleLinearSolver linear_solver;
         
             // Assembler
-            MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
-            monodomain_assembler.SetMatrixIsConstant(&linear_solver);
+            MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&linear_solver);
+            monodomain_assembler.SetMatrixIsConstant();
             
             // initial condition;   
             Vec initial_condition;
@@ -202,7 +202,7 @@ public:
                 monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
                 monodomain_assembler.SetInitialCondition( initial_condition );
                 
-                mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc, &linear_solver);
+                mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc);
                 
                 // Free old initial condition
                 VecDestroy(initial_condition);

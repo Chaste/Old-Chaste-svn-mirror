@@ -30,13 +30,19 @@ protected:
     
     /**
      * mMatrixIsConstant is a flag to say whether the matrix of the system
-     * needs to be assmbled at each time step
-     * mMatrixIsAssembled is a flag to say whether the matrix has been assembled 
-     * for the current time step
+     * needs to be assmbled at each time step.
      */
-    
     bool mMatrixIsConstant;
+    /**
+     * mMatrixIsAssembled is a flag to say whether the matrix has been assembled 
+     * for the current time step.
+     */
     bool mMatrixIsAssembled;
+
+    /**
+     * The linear solver used to solve the linear system at each time step.
+     */
+    AbstractLinearSolver *mpSolver;
 
 	/**
 	 * Compute the value of the integrand used in computing the LHS matrix of the
@@ -231,20 +237,23 @@ protected:
  	/**
 	 * Constructors just call the base class versions.
 	 */
-	AbstractLinearAssembler(int numPoints = 2) :
-		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
+	AbstractLinearAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
 	{
-        mpAssembledLinearSystem=NULL;
+        mpSolver = pSolver;
+        mpAssembledLinearSystem = NULL;
         mMatrixIsConstant = false;
         mMatrixIsAssembled = false;
 	}
 	AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-									AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-									int numPoints = 2) :
+							AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+                            AbstractLinearSolver *pSolver,
+                            int numQuadPoints = 2) :
 
-        AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
 	{
-        mpAssembledLinearSystem=NULL;
+        mpSolver = pSolver;
+        mpAssembledLinearSystem = NULL;
         mMatrixIsConstant = false;
         mMatrixIsAssembled = false;       
 	}
@@ -260,6 +269,15 @@ protected:
          }
          mpAssembledLinearSystem=NULL;
     }
+    
+    /**
+     * Set the linear solver to use.
+     */
+    void SetLinearSolver(AbstractLinearSolver *pSolver)
+    {
+        mpSolver = pSolver;
+    }
+    
  	/**
      * Initialise the LinearSystem class to a given size
      * @param size The size of the LinearSystem (number of nodes in the mesh)
@@ -282,9 +300,8 @@ protected:
 	 * @return A PETSc vector giving the solution at each node in the mesh.
 	 */
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-								AbstractLinearPde<SPACE_DIM> *pPde, 
+								AbstractLinearPde<SPACE_DIM> *pPde,
 								BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-								AbstractLinearSolver *pSolver,
 								Vec currentSolution = NULL)
 	{
 		/* Allow the PDE to set up anything necessary for the assembly of the
@@ -395,7 +412,7 @@ protected:
         }
         
         mMatrixIsAssembled = true;
-        Vec sol = mpAssembledLinearSystem->Solve(pSolver);
+        Vec sol = mpAssembledLinearSystem->Solve(mpSolver);
         
         //delete mpAssembledLinearSystem;
         return sol;
@@ -405,10 +422,10 @@ protected:
      * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
      */
 
-    void SetMatrixIsConstant(AbstractLinearSolver *pSolver)
+    void SetMatrixIsConstant()
     {
         mMatrixIsConstant = true;
-        pSolver->SetMatrixIsConstant();
+        mpSolver->SetMatrixIsConstant();
     }
     
     void DebugWithSolution(Vec sol)
