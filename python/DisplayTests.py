@@ -291,7 +291,7 @@ def _importModuleFromSvn(module_name, module_filepath,
   if revision is not None:
     command.extend(["-r", str(revision)])
   command.extend(["--config-dir", "/home/svn/.subversion", filepath])
-  stdin, stdout, stderr = os.popen3(command, 'r')
+  stdin, stdout, stderr = os.popen3(command)
   module_text = ''.join(stdout.readlines())
   stdin.close()
   stderr.close()
