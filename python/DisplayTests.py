@@ -4,10 +4,8 @@
 # repository by a wrapper script.
 
 import os, time
-import pysvn
 
 _standalone = False
-_svn_client = None
 
 #####################################################################
 ##                          Webpages                               ##
@@ -249,12 +247,10 @@ def buildType(req, buildType, revision=None):
   definition of buildType has changed since.
   """
   if revision is None:
-    rev = pysvn.Revision(pysvn.opt_revision_kind.head)
     rev_text = ' at the latest revision'
   else:
-    rev = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
     rev_text = ' at revision %s' % revision
-  BuildTypes = _importBuildTypesModule(rev)
+  BuildTypes = _importBuildTypesModule(revision)
   build = BuildTypes.GetBuildType(buildType)
   test_packs = ', '.join(build.TestPacks())
   # How test suites are run
@@ -280,9 +276,9 @@ def buildType(req, buildType, revision=None):
 #####################################################################
 
 def _importModuleFromSvn(module_name, module_filepath,
-                         revision=pysvn.Revision(pysvn.opt_revision_kind.head)):
+                         revision=None):
   """
-  Use pysvn and imp to import the requested revision of the given
+  Use svn and imp to import the requested revision of the given
     module from the repository.
   module_name is the name to give the module.
   module_filepath is the path to the module file within the trunk
@@ -290,35 +286,23 @@ def _importModuleFromSvn(module_name, module_filepath,
   By default import the latest version.
   Return the module object.
   """
-  global _svn_client
-  filepath = _svn_repos + module_filepath
-  if not _svn_client:
-    _svn_client = _svnClient()
-  module_text = _svn_client.cat(filepath, revision)
+  filepath = _conf._svn_repos + module_filepath
+  command = "svn cat"
+  if revision is not None:
+    command = command + " -r " + str(revision)
+  command = command + " " + filepath
+  fp = os.popen(command, 'r')
+  module_text = ''.join(fp.readlines())
+  fp.close()
   return _importCode(module_text, module_name)
 
-def _importBuildTypesModule(revision=pysvn.Revision(pysvn.opt_revision_kind.head)):
+def _importBuildTypesModule(revision=None):
   """
-  Use pysvn and imp to import the requested revision of the BuildTypes.py
+  Use svn and imp to import the requested revision of the BuildTypes.py
   module from the repository.
   By default import the latest version.
   """
-  if type(revision) in [type(""), type(1)]:
-    revision = pysvn.Revision(pysvn.opt_revision_kind.number, int(revision))
   return _importModuleFromSvn('BuildTypes', '/python/BuildTypes.py', revision)
-
-def _svnClient():
-  "Return a pysvn.Client object for communicating with the svn repository."
-  client = pysvn.Client()
-  def get_login(realm, username, may_save):
-    return True, _svn_user, _svn_pass, True
-  client.callback_get_login = get_login
-  # We trust our server even though it has a dodgy certificate
-  # Might want to make this a bit more secure?
-  def ssl_server_trust_prompt(trust_dict):
-    return True, trust_dict['failures'], True
-  client.callback_ssl_server_trust_prompt = ssl_server_trust_prompt
-  return client
 
 def _importCode(code, name, add_to_sys_modules=0):
   """
