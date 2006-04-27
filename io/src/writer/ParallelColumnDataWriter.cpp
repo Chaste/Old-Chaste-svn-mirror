@@ -44,36 +44,86 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
         throw Exception("Size of vector does not match FixedDimensionSize.");
     }
       
-    for (int i=0; i< mNumProcs; i++)
-    { 
-        if (mMyRank == i)
-        {   
-            for (int global_index=lo ; global_index<hi ; global_index++)
-            {
-                 PutVariable(variableID, petsc_vector_array[global_index - lo], global_index);
-            }
+           
+    if (mAmMaster)
+    {
+        for (int global_index=lo ; global_index<hi ; global_index++)
+        {
+            PutVariable(variableID, petsc_vector_array[global_index - lo], global_index);
         }
-        MPI_Barrier(PETSC_COMM_WORLD);
     }
     
-     VecRestoreArray(petscVector, &petsc_vector_array);      
+    VecRestoreArray(petscVector, &petsc_vector_array);      
 }
 
-ParallelColumnDataWriter::~ParallelColumnDataWriter()
-{
-    //\todo Doesn't work in parallel 
 
-    //Concatenate files...
-}
 
 void ParallelColumnDataWriter::EndDefineMode()
 {
-//    if(mAmMaster)
-//    {
+   //std::cout<<"In EndDefineMode mMyRank="<< mMyRank<<
+   //   " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n";
+     if(mAmMaster)
+    {
         ColumnDataWriter::EndDefineMode();
-//    }
-//    else
-//    {
-//        mIsInDefineMode = false;
-//    }
+    }
+    else
+    {
+        mIsInDefineMode = false;
+    }
 }
+
+void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
+{
+    //std::cout<<"In PutVariable mMyRank="<< mMyRank<<
+    //  " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n";
+    if (mMyRank == 0) 
+    {
+       //Master process is allowed to write
+       ColumnDataWriter::PutVariable(variableID,  variableValue, dimensionPosition);
+    } else {
+       if(variableID == UNLIMITED_DIMENSION_VAR_ID)
+       {
+            //The unlimited dimension is written to the ancillary file by the master
+            return;
+       }
+       
+        assert(0);
+        // We're not going to let individual bits of data be written by
+        // slave processes    
+    }     
+}
+
+
+ParallelColumnDataWriter::~ParallelColumnDataWriter()
+{
+}
+
+
+
+void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
+{
+    //Make sure that everyone has queued their messages
+    MPI_Barrier(PETSC_COMM_WORLD);
+    
+    //std::cout<<"In AdvanceAlongUnlimitedDimension mMyRank="<< mMyRank<<
+    //  " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n";
+    
+    if (mAmMaster){
+        //\todo
+        //This is where the master is going to take messages from the 
+        //slaves and write them
+        ColumnDataWriter::DoAdvanceAlongUnlimitedDimension(); 
+    }
+}
+
+void ParallelColumnDataWriter::Close()
+{
+    //std::cout<<"In Close mMyRank="<< mMyRank<<"\n";
+    
+    //\todo.. we may still have queued messages at this point.
+    if (mAmMaster){
+        ColumnDataWriter::Close();
+    }
+}
+
+
