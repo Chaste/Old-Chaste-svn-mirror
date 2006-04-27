@@ -5,6 +5,7 @@
 #include "Point.hpp"
 #include "Node.hpp"
 #include <petscvec.h>
+#include "ReplicatableVector.hpp"
 
 /**
  * AbstractLinearPde class.
@@ -20,48 +21,7 @@ class AbstractLinearPde
 {
 private:
     // Kludge to make parallel stuff work...
-    std::vector<double> mInputCacheReplicated;
-    
-protected:
-
-    /**
-     * Replicate a vector over all processes.
-     * 
-     * Each process knows its local part of the vector.  This method shares that knowledge
-     * across all the processes.
-     * 
-     * @param lo  The start of our ownership range
-     * @param hi  One past the end of our ownership range
-     * @param size  The size of the vector to be replicated
-     * @param input_array  The local portion of the array to be replicated.  Should
-     *    contain hi-lo entries.  (If your input vector is larger, just pass the address
-     *    of the first entry in your ownership range.)
-     * @param output_array  The array to store replicated data in.  May be the same as
-     *    input_array.  Memory for size entries should have been allocated already.
-     */
-    void ReplicateVector(unsigned lo, unsigned hi, unsigned size,
-                         double *input_array,
-                         double *output_array)
-    {
-        // Set up an array for MPI replication to use
-        double input_vector_local_array[size];
-        for (unsigned global_index=0; global_index<size; global_index++)
-        {
-            if (lo <= global_index && global_index < hi)
-            { 
-                unsigned local_index = global_index - lo;
-                input_vector_local_array[global_index] = input_array[local_index]; 
-            } 
-            else 
-            {
-                input_vector_local_array[global_index] = 0.0;
-            }
-        }
-        
-        // Replicate
-        MPI_Allreduce(input_vector_local_array, output_array, size,
-                      MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-    }
+    ReplicatableVector mInputCacheReplicated;
     
 public:
 
@@ -116,16 +76,7 @@ public:
     {
         if (currentSolution != NULL) 
         {
-            int lo, hi, num_nodes;  
-            VecGetOwnershipRange(currentSolution, &lo, &hi);
-            VecGetSize(currentSolution, &num_nodes);       
-            double *input_array;
-            VecGetArray(currentSolution, &input_array);
-            
-            mInputCacheReplicated.resize(num_nodes);
-            ReplicateVector(lo, hi, num_nodes, input_array, &(mInputCacheReplicated[0]));
-            
-            VecRestoreArray(currentSolution, &input_array);
+            mInputCacheReplicated.ReplicatePetscVector(currentSolution);
         } 
     }
     

@@ -563,7 +563,7 @@ if __name__ == '__main__':
 
   _fp = file(os.path.join(_dir, 'index.html'), 'w')
 
-  print >>_fp,_header('Test Summary For Local Build')
+  print >>_fp,_header('Test Summary For Local ' + _build_type + ' Build')
   print >>_fp,'<h1>Test Summary For Local Build</h1>'
   print >>_fp,'<p>Displaying info for tests with output stored in',_dir,'</p>'
   print >>_fp,_summary(None, 'standalone', 'working copy', _machine, _build_type)

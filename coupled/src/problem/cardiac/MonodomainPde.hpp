@@ -201,9 +201,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
 
         }
         
-        this->ReplicateVector(lo, hi, this->mNumNodes,
-                              &(this->mSolutionCacheReplicated[lo]),
-                              &(this->mSolutionCacheReplicated[0]));
+        this->mSolutionCacheReplicated.Replicate(lo, hi);
      }
 };
 

@@ -15,6 +15,7 @@
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
+#include "ReplicatableVector.hpp"
 
 
 
@@ -348,27 +349,13 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	PetscScalar zero = 0.0;
 	ierr = VecSet(&zero, residualVector); CHKERRQ(ierr);
     
-    //Replicate the currentSolution data
-    int lo, hi, size;
-    VecGetOwnershipRange(currentSolution, &lo, &hi);
-    VecGetSize(currentSolution, &size);
-    double current_solution_local_array[size], current_solution_replicated_array[size];
-    double *p_current_solution;
-    VecGetArray(currentSolution, &p_current_solution);
-    for (int global_index=0;global_index<size;global_index++)
-    {
-    	if (lo<=global_index && global_index<hi)
-        {
-            int local_index = global_index - lo;
-            current_solution_local_array[global_index]=p_current_solution[local_index];
-        } else {
-            current_solution_local_array[global_index]=0.0;
-        } 
-    }
-    VecRestoreArray(currentSolution, &p_current_solution);
-    MPI_Allreduce(current_solution_local_array, current_solution_replicated_array, size, MPI_DOUBLE,
-                             MPI_SUM, PETSC_COMM_WORLD);
+    // Replicate the currentSolution data
+    ReplicatableVector current_solution_replicated_array;
+    current_solution_replicated_array.ReplicatePetscVector(currentSolution);
     
+    // Get our ownership range
+    int lo, hi;
+    VecGetOwnershipRange(currentSolution, &lo, &hi);
     
 	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter
@@ -651,27 +638,14 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	// Set all entries of jacobian to 0
 	MatZeroEntries(*pGlobalJacobian);
     
-   //Replicate the currentSolution data
-    int lo, hi, size;
+    // Replicate the currentSolution data
+    ReplicatableVector current_solution_replicated_array;
+    current_solution_replicated_array.ReplicatePetscVector(currentSolution);
+    
+    // Get our ownership range
+    int lo, hi;
     VecGetOwnershipRange(currentSolution, &lo, &hi);
-    VecGetSize(currentSolution, &size);
-    double current_solution_local_array[size], current_solution_replicated_array[size];
-    double *p_current_solution;
-    VecGetArray(currentSolution, &p_current_solution);
-    for (int global_index=0;global_index<size;global_index++)
-    {
-        if (lo<=global_index && global_index<hi)
-        {
-        	int local_index = global_index - lo;
-            current_solution_local_array[global_index]=p_current_solution[local_index];
-        } else {
-            current_solution_local_array[global_index]=0.0;
-        } 
-    }
-    VecRestoreArray(currentSolution, &p_current_solution);
-    MPI_Allreduce(current_solution_local_array, current_solution_replicated_array, size, MPI_DOUBLE,
-                             MPI_SUM, PETSC_COMM_WORLD);
- 
+    
  	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 		mpMesh->GetElementIteratorBegin();

@@ -1,1 +1,2 @@
 TestPetSCSetup.hpp
+TestReplicatableVector.hpp

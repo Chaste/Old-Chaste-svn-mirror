@@ -4,6 +4,7 @@
 #include "AbstractLinearParabolicPde.hpp"
 #include <vector>
 #include <petscvec.h>
+#include "ReplicatableVector.hpp"
 //#include <iostream>
 
 typedef std::vector<double> odeVariablesType;
@@ -27,12 +28,12 @@ protected:
     // One more than the local highest index
     int mOwnershipRangeHi;
     
-    /** solutionCache stores the solutions to the ODEs (Icurrent) for
+    /** mSolutionCacheReplicated stores the solutions to the ODEs (Icurrent) for
      *  each node in the global system.
      * 
      * This is replicated, i.e. use a global index for access.
      */
-    std::vector<double> mSolutionCacheReplicated;
+    ReplicatableVector mSolutionCacheReplicated;
  
 public:   
     //Constructor
