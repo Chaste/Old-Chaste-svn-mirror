@@ -151,7 +151,7 @@ public:
             // Set a constant initial voltage throughout the mMesh
             for(int local_index=0; local_index<mHi - mLo; local_index++)
             {               
-                p_initial_condition[local_index] = -84.5;
+                p_initial_condition[local_index] = mpMonodomainPde->GetCardiacCell(local_index+mLo)->GetVoltage();
             }
             VecRestoreArray(initial_condition, &p_initial_condition);      
             VecAssemblyBegin(initial_condition);
