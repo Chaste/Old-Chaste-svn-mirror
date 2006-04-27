@@ -210,7 +210,6 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
 }
 
 
-//Need a close files method, which is called by the destructor
 /**
  * End the define mode of the DataWriter
  *

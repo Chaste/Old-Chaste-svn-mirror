@@ -32,7 +32,9 @@ public:
     void testParallelColumnWriter(void)
     {
         
-        int time_var_id, var1_id, var2_id;
+        system("rm -f testoutput/ParallelColumnWriter*");
+        
+        int time_var_id, var1_id, var2_id; 
         
         //Make a parallel data writer
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter = new ParallelColumnDataWriter("testoutput","ParallelColumnWriter"));
@@ -55,13 +57,16 @@ public:
         */        
 
         //Set up some data in PETSc vectors
-        Vec var1, var2;
+        Vec var1, var2, var3;
         VecCreate(PETSC_COMM_WORLD, &var1);
         VecCreate(PETSC_COMM_WORLD, &var2);
+        VecCreate(PETSC_COMM_WORLD, &var3);
         VecSetSizes(var1, PETSC_DECIDE, num_nodes); 
         VecSetSizes(var2, PETSC_DECIDE, num_nodes);
+        VecSetSizes(var3, PETSC_DECIDE, num_nodes+1);
         VecSetFromOptions(var1);
         VecSetFromOptions(var2);
+        VecSetFromOptions(var3);
   
         double* var1_array,* var2_array;
         VecGetArray(var1, &var1_array); 
@@ -97,9 +102,10 @@ public:
         */
   
         //Write out the data (Parallel)  
-        mpParallelWriter->PutVariable(time_var_id, 0); 
-        mpParallelWriter->PutVector(var1_id, var1);
-        mpParallelWriter->PutVector(var2_id, var2);
+        mpParallelWriter->PutVariable(time_var_id, 0.1); 
+        TS_ASSERT_THROWS_NOTHING( mpParallelWriter->PutVector(var1_id, var1) );
+        TS_ASSERT_THROWS_NOTHING( mpParallelWriter->PutVector(var2_id, var2) );
+        TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVector(var1_id, var3));
         mpParallelWriter->AdvanceAlongUnlimitedDimension();
         
         //Change the data
@@ -119,7 +125,7 @@ public:
         */
         
         //Write out the data (Parallel)  
-        mpParallelWriter->PutVariable(time_var_id, 1); 
+        mpParallelWriter->PutVariable(time_var_id, 0.2); 
         mpParallelWriter->PutVector(var1_id, var1);
         mpParallelWriter->PutVector(var2_id, var2);
         mpParallelWriter->AdvanceAlongUnlimitedDimension();

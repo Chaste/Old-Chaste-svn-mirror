@@ -7,12 +7,16 @@
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
 private:
-    bool is_parallel;        
-    bool am_master;
+    bool mIsParallel;        
+    bool mAmMaster;
+    int mNumProcs;
+    int mMyRank;
 public:
 	ParallelColumnDataWriter(std::string directory, std::string baseName);
     virtual ~ParallelColumnDataWriter();
     void PutVector(int variableID, Vec PetscVector);
+    
+    void EndDefineMode();
 };
 
 #endif /*PARALLELCOLUMNDATAWRITER_HPP_*/
