@@ -286,7 +286,7 @@ def _importModuleFromSvn(module_name, module_filepath,
   By default import the latest version.
   Return the module object.
   """
-  filepath = _conf._svn_repos + module_filepath
+  filepath = _svn_repos + module_filepath
   command = "svn cat"
   if revision is not None:
     command = command + " -r " + str(revision)
