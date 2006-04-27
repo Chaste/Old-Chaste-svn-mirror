@@ -37,18 +37,16 @@ public:
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-        if (0>=lo && 0<hi)
+    
+        for(int global_index=0; global_index<3; global_index++)
         {
-            TS_ASSERT_DELTA(solution_elements[0-lo], 1.0, 0.000001);
+            int local_index = global_index-lo;
+            if(lo<=global_index && global_index<hi)
+            {    
+                TS_ASSERT_DELTA(solution_elements[local_index], global_index+1.0, 0.000001);
+            }
         }
-        if (1>=lo && 1<hi)
-        {
-            TS_ASSERT_DELTA(solution_elements[1-lo], 2.0, 0.000001);
-        }
-        if (2>=lo && 2<hi)
-        {
-            TS_ASSERT_DELTA(solution_elements[2-lo], 3.0, 0.000001);
-        }
+
         VecRestoreArray(solution_vector, &solution_elements);
         
         VecDestroy(solution_vector);
@@ -77,14 +75,17 @@ public:
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         PetscScalar *solution_elements;
         VecGetArray(solution_vector, &solution_elements);
-        if (0>=lo && 0<hi)
+
+
+        for(int global_index=0; global_index<2; global_index++)
         {
-            TS_ASSERT_DELTA(solution_elements[0-lo], 1.0, 0.000001);
+            int local_index = global_index-lo;
+            if(lo<=global_index && global_index<hi)
+            {    
+                TS_ASSERT_DELTA(solution_elements[local_index], 1.0, 0.000001);
+            }
         }
-        if (1>=lo && 1<hi)
-        {
-            TS_ASSERT_DELTA(solution_elements[1-lo], 1.0, 0.000001);
-        }
+
         VecRestoreArray(solution_vector, &solution_elements);
         
         VecDestroy(solution_vector);

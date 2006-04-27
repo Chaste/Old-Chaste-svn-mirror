@@ -53,14 +53,15 @@ public:
         int lo, hi;
         VecGetOwnershipRange(lhs_vector, &lo, &hi);
         
-        if (lo<=0 && 0<hi)
+        for(int global_index=0; global_index<2; global_index++)
         {
-		  TS_ASSERT_DELTA(lhs_elements[0-lo], 1.0, 0.000001);
+            int local_index = global_index-lo;
+            if(lo<=global_index && global_index<hi)
+            {    
+                TS_ASSERT_DELTA(lhs_elements[local_index], 1.0, 0.000001);
+            }
         }
-        if (lo<=1 && 1<hi)
-        {
-            TS_ASSERT_DELTA(lhs_elements[1-lo], 1.0, 0.000001);
-        }
+
 		// Free memory
 		VecDestroy(rhs_vector);
 		VecDestroy(lhs_vector);
@@ -147,14 +148,18 @@ public:
 		VecGetArray(lhs_vector, &lhs_elements);
         int lo, hi;
         VecGetOwnershipRange(lhs_vector, &lo, &hi);
-        if (lo<=0 && 0<hi)
-		{
-            TS_ASSERT_DELTA(lhs_elements[0-lo], 5.0, 0.000001);
-        }
-        if (lo<=1 && 1<hi)
+
+
+        // lhs_elements should be equal to [5,6]
+        for(int global_index=0; global_index<2; global_index++)
         {
-            TS_ASSERT_DELTA(lhs_elements[1-lo], 6.0, 0.000001);
+            int local_index = global_index-lo;
+            if(lo<=global_index && global_index<hi)
+            {    
+                TS_ASSERT_DELTA(lhs_elements[local_index], global_index+5.0, 0.000001);
+            }
         }
+
 		// Free memory
 		VecDestroy(rhs_vector);
 		VecDestroy(lhs_vector);

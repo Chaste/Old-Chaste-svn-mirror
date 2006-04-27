@@ -106,16 +106,15 @@ class TestMonodomainPde : public CxxTest::TestSuite
         int lo, hi;
         VecGetOwnershipRange(voltage,&lo,&hi);
         
-		// initial voltage condition of a constant everywhere on the mesh
-		if (lo<=0 && 0<hi)
+        for (int global_index = 0; global_index < num_nodes; global_index++ )
         {
-            voltage_array[0-lo] = initial_voltage;
+            int local_index = global_index - lo;
+    		// initial voltage condition of a constant everywhere on the mesh
+    		if (lo<=global_index && global_index<hi)
+            {
+                voltage_array[local_index] = initial_voltage;
+            }
         }
-        if (lo<=1 && 1<hi)
-        {
-		    voltage_array[1-lo] = initial_voltage;
-        }
-		
 		VecRestoreArray(voltage, &voltage_array);      
 		VecAssemblyBegin(voltage);
 		VecAssemblyEnd(voltage);
@@ -155,13 +154,16 @@ class TestMonodomainPde : public CxxTest::TestSuite
         // Reset       
        	VecGetArray(voltage, &voltage_array); 
         
+
         if (lo<=0 && 0<hi)
         {
-    		voltage_array[0-lo] = solutionSetStimT_05[4];
+            int local_index = 0 - lo;
+    		voltage_array[local_index] = solutionSetStimT_05[4];
         }
         if (lo<=1 && 1<hi)
         {
-    		voltage_array[1-lo] = solutionSetNoStimT_05[4];
+            int local_index = 1 - lo;
+    		voltage_array[local_index] = solutionSetNoStimT_05[4];
         }
 		
 		VecRestoreArray(voltage, &voltage_array);      

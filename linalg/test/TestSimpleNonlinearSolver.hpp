@@ -10,9 +10,9 @@
 
 #include "PetscSetupAndFinalize.hpp"
 
-PetscErrorCode ComputeTestResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext);  
+PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void *pContext);  
 PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
-PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solutionGuess,Vec residual,void *pContext);  
+PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext);  
 PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
   
 class TestSimpleNonlinearSolver : public CxxTest::TestSuite 
@@ -27,44 +27,54 @@ public:
     	int length=2;
 		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	//VecSetType(initialGuess, VECSEQ);
-    	VecSetFromOptions(initialGuess);
-    	VecSetValue(initialGuess, 0, 1.0 ,INSERT_VALUES);
-		VecSetValue(initialGuess, 1, 1.0 ,INSERT_VALUES);
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess);
+    	Vec initial_guess;
+    	VecCreate(PETSC_COMM_WORLD, &initial_guess);
+    	VecSetSizes(initial_guess, PETSC_DECIDE,length);
+    	//VecSetType(initial_guess, VECSEQ);
+    	VecSetFromOptions(initial_guess);
+    	VecSetValue(initial_guess, 0, 1.0 ,INSERT_VALUES);
+		VecSetValue(initial_guess, 1, 1.0 ,INSERT_VALUES);
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess);
 		
     	Vec answer;
     	Vec residual;
-    	VecDuplicate(initialGuess, &residual);
+    	VecDuplicate(initial_guess, &residual);
     	 
            	
  		answer = solver.Solve(&ComputeTestResidual, &ComputeTestJacobian,
- 							  residual, initialGuess, NULL);
+ 							  residual, initial_guess, NULL);
                               
     	
-    	PetscScalar *answerElements;
-		VecGetArray(answer, &answerElements);
+    	PetscScalar *answer_elements;
+		VecGetArray(answer, &answer_elements);
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
         
 	    double tol = 1e-6;
-    	if (lo<=0 && 0<hi)
+
+        for(int global_index=0; global_index<2; global_index++)
         {
-          double x = answerElements[0-lo];
-	      TS_ASSERT_DELTA(x,1/sqrt(2),tol);
+            int local_index = global_index-lo;
+            if(lo<=global_index && global_index<hi)
+            {    
+                double x = answer_elements[local_index];
+                TS_ASSERT_DELTA(x,1/sqrt(2),tol);                
+            }
         }
-        if (lo<=1 && 1<hi)
-        {
-        	double y = answerElements[1-lo];	
-        	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
-        }
-        VecRestoreArray(answer,&answerElements);
+//    	if (lo<=0 && 0<hi)
+//        {
+//          double x = answer_elements[0-lo];
+//	      TS_ASSERT_DELTA(x,1/sqrt(2),tol);
+//        }
+//        if (lo<=1 && 1<hi)
+//        {
+//        	double y = answer_elements[1-lo];	
+//        	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
+//        }
+        VecRestoreArray(answer,&answer_elements);
     	
-    	VecDestroy(initialGuess);
+    	VecDestroy(initial_guess);
     	VecDestroy(residual);
     	VecDestroy(answer);
     }
@@ -77,77 +87,77 @@ public:
     	int length=3;
 		    	
     	// Set up initial Guess
-    	Vec initialGuess;
-    	VecCreate(PETSC_COMM_WORLD, &initialGuess);
-    	VecSetSizes(initialGuess, PETSC_DECIDE,length);
-    	//VecSetType(initialGuess, VECSEQ);
-    	VecSetFromOptions(initialGuess);
-    	VecSetValue(initialGuess, 0, 1.0 ,INSERT_VALUES);
-		VecSetValue(initialGuess, 1, 1.0 ,INSERT_VALUES);
-		VecSetValue(initialGuess, 2, 1.0 ,INSERT_VALUES);
-    	VecAssemblyBegin(initialGuess);
-		VecAssemblyEnd(initialGuess);
+    	Vec initial_guess;
+    	VecCreate(PETSC_COMM_WORLD, &initial_guess);
+    	VecSetSizes(initial_guess, PETSC_DECIDE,length);
+    	//VecSetType(initial_guess, VECSEQ);
+    	VecSetFromOptions(initial_guess);
+    	VecSetValue(initial_guess, 0, 1.0 ,INSERT_VALUES);
+		VecSetValue(initial_guess, 1, 1.0 ,INSERT_VALUES);
+		VecSetValue(initial_guess, 2, 1.0 ,INSERT_VALUES);
+    	VecAssemblyBegin(initial_guess);
+		VecAssemblyEnd(initial_guess);
 		
     	Vec answer;
     	Vec residual;
-    	VecDuplicate(initialGuess,&residual);
+    	VecDuplicate(initial_guess,&residual);
     	    	
  		answer = solver.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
- 							  residual, initialGuess, NULL);
+ 							  residual, initial_guess, NULL);
     	
-    	PetscScalar *answerElements;
-		VecGetArray(answer, &answerElements);
+    	PetscScalar *answer_elements;
+		VecGetArray(answer, &answer_elements);
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
         
         double tol = 1e-6;
-        if (lo<=0 && 0<hi)
+        
+        for(int global_index=0; global_index<3; global_index++)
         {
-    		double x = answerElements[0-lo];
-            TS_ASSERT_DELTA(x,1/sqrt(3),tol);
-        }
-       if (lo<=1 && 1<hi)
-       {
- 		    double y = answerElements[1-lo];
-            TS_ASSERT_DELTA(y,1/sqrt(3),tol);
-       }
-       if (lo<=2 && 2<hi)
-       {
- 		    double z = answerElements[2-lo];
-        	TS_ASSERT_DELTA(z,1/sqrt(3),tol);
-       }
-        VecRestoreArray(answer,&answerElements);
+            int local_index = global_index-lo;
+            if(lo<=global_index && global_index<hi)
+            {    
+                double x = answer_elements[local_index];
+                TS_ASSERT_DELTA(x,1/sqrt(3),tol);                
+            }
+        }        
+        
+        VecRestoreArray(answer,&answer_elements);
     	
-    	VecDestroy(initialGuess);
+    	VecDestroy(initial_guess);
     	VecDestroy(residual);
     	VecDestroy(answer);
 	}
 
 };
 
-PetscErrorCode ComputeTestResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext)
+PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void *pContext)
 {
 	double x,y;
 	
-	PetscScalar *solutionGuessElements;
-	VecGetArray(solutionGuess, &solutionGuessElements);
+	PetscScalar *solution_guess_elements;
+	VecGetArray(solution_guess, &solution_guess_elements);
     
     int lo, hi;
-	VecGetOwnershipRange(solutionGuess, &lo, &hi);
+	VecGetOwnershipRange(solution_guess, &lo, &hi);
     
     double all_solution_guess[2], all_solution_guess_replicated[2];
     all_solution_guess[0]=0.0;
     all_solution_guess[1]=0.0;
-    
-    if (lo<=0 && 0< hi)
+        
+        
+    for(int global_index=0; global_index<2; global_index++)
     {
-        all_solution_guess[0]=solutionGuessElements[0-lo];
+        int local_index = global_index-lo;
+        if(lo<=global_index && global_index<hi)
+        { 
+            all_solution_guess[global_index]=solution_guess_elements[local_index];
+        }
     } 
-    if (lo<=1 && 1< hi)
-    {
-        all_solution_guess[1]=solutionGuessElements[1-lo];
-    } 
-    VecRestoreArray(solutionGuess,&solutionGuessElements);
+
+
+
+    VecRestoreArray(solution_guess,&solution_guess_elements);
     
     MPI_Allreduce(all_solution_guess, all_solution_guess_replicated, 2, MPI_DOUBLE,
                              MPI_SUM, PETSC_COMM_WORLD);
@@ -166,8 +176,8 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
 {
 	double x, y;
 		
-	PetscScalar *inputElements;
-	VecGetArray(input, &inputElements);
+	PetscScalar *input_elements;
+	VecGetArray(input, &input_elements);
 	int lo, hi;
     VecGetOwnershipRange(input, &lo, &hi);
     
@@ -175,16 +185,17 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
     all_input[0]=0.0;
     all_input[1]=0.0;
     
-    if (lo<=0 && 0< hi)
+    for(int global_index=0; global_index<2; global_index++)
     {
-        all_input[0]=inputElements[0-lo];
-    } 
-    if (lo<=1 && 1< hi)
-    {
-        all_input[1]=inputElements[1-lo];
-    } 
+        int local_index = global_index-lo;
+        if(lo<=global_index && global_index<hi)
+        {    
+            all_input[global_index]=input_elements[local_index];
+        }
+    }    
     
-    VecRestoreArray(input,&inputElements);
+    
+    VecRestoreArray(input,&input_elements);
     MPI_Allreduce(all_input, all_input_replicated, 2, MPI_DOUBLE,
                              MPI_SUM, PETSC_COMM_WORLD);
     x = all_input_replicated[0];
@@ -200,33 +211,31 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
 	return 0;
 }
 
-PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solutionGuess,Vec residual,void *pContext)
+PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext)
 {
 	double x,y,z;
 	
-	PetscScalar *solutionGuessElements;
-	VecGetArray(solutionGuess, &solutionGuessElements);
+	PetscScalar *solution_guess_elements;
+	VecGetArray(solution_guess, &solution_guess_elements);
     int lo, hi;
-    VecGetOwnershipRange(solutionGuess, &lo, &hi);
+    VecGetOwnershipRange(solution_guess, &lo, &hi);
     
     double all_solution_guess[3], all_solution_guess_replicated[3];
     all_solution_guess[0]=0.0;
     all_solution_guess[1]=0.0;
     all_solution_guess[2]=0.0;
     
-    if (lo<=0 && 0< hi)
+
+    for(int global_index=0; global_index<3; global_index++)
     {
-        all_solution_guess[0]=solutionGuessElements[0-lo];
-    } 
-    if (lo<=1 && 1< hi)
-    {
-        all_solution_guess[1]=solutionGuessElements[1-lo];
-    } 
-    if (lo<=2 && 2< hi)
-    {
-        all_solution_guess[2]=solutionGuessElements[2-lo];
-    } 
-    VecRestoreArray(solutionGuess,&solutionGuessElements);
+        int local_index = global_index-lo;
+        if(lo<=global_index && global_index<hi)
+        {    
+            all_solution_guess[global_index]=solution_guess_elements[local_index];
+        }
+    }  
+
+    VecRestoreArray(solution_guess,&solution_guess_elements);
     
     MPI_Allreduce(all_solution_guess, all_solution_guess_replicated, 3, MPI_DOUBLE,
                              MPI_SUM, PETSC_COMM_WORLD);
@@ -247,8 +256,8 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
 {
 	double x, y, z;
 		
-	PetscScalar *inputElements;
-	VecGetArray(input, &inputElements);
+	PetscScalar *input_elements;
+	VecGetArray(input, &input_elements);
     int lo, hi;
     VecGetOwnershipRange(input, &lo, &hi);
     
@@ -257,20 +266,18 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
     all_input[1]=0.0;
     all_input[2]=0.0;
     
-    if (lo<=0 && 0< hi)
+
+    for(int global_index=0; global_index<3; global_index++)
     {
-        all_input[0]=inputElements[0-lo];
-    } 
-    if (lo<=1 && 1< hi)
-    {
-        all_input[1]=inputElements[1-lo];
-    } 
-    if (lo<=2 && 2< hi)
-    {
-        all_input[2]=inputElements[2-lo];
-    } 
+        int local_index = global_index-lo;
+        if(lo<=global_index && global_index<hi)
+        {    
+            all_input[global_index]=input_elements[local_index];
+        }
+    }  
+
     
-    VecRestoreArray(input,&inputElements);
+    VecRestoreArray(input,&input_elements);
     MPI_Allreduce(all_input, all_input_replicated, 3, MPI_DOUBLE,
                              MPI_SUM, PETSC_COMM_WORLD);
     x = all_input_replicated[0];
