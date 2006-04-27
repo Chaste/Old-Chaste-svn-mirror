@@ -287,13 +287,15 @@ def _importModuleFromSvn(module_name, module_filepath,
   Return the module object.
   """
   filepath = _svn_repos + module_filepath
-  command = "svn cat"
+  command = ["svn", "cat"]
   if revision is not None:
-    command = command + " -r " + str(revision)
-  command = command + " " + filepath
-  fp = os.popen(command, 'r')
-  module_text = ''.join(fp.readlines())
-  fp.close()
+    command.extend(["-r", str(revision)])
+  command.extend(["--config-dir", "/home/svn/.subversion", filepath])
+  stdin, stdout, stderr = os.popen3(command, 'r')
+  module_text = ''.join(stdout.readlines())
+  stdin.close()
+  stderr.close()
+  stdout.close()
   return _importCode(module_text, module_name)
 
 def _importBuildTypesModule(revision=None):
