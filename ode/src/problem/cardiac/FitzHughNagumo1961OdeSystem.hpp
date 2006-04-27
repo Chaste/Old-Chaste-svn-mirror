@@ -34,7 +34,6 @@ class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
       
       // Compute the RHS of the FitHugh-Nagumo system of ODEs
       std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
-      void VerifyVariables();
       double GetIIonic();
 };
 

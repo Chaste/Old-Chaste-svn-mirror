@@ -98,7 +98,7 @@ class TestMonodomainHeart : public CxxTest::TestSuite
 public:
     void TestMonodomainDg0Heart()
     {
-        PointStimulusHeartCellFactory cell_factory(0.005);
+        PointStimulusHeartCellFactory cell_factory(0.01);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
         monodomain_problem.SetMeshFilename("mesh/test/data/heart");

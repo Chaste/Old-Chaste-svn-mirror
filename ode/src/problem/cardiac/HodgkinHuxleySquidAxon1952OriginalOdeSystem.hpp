@@ -33,7 +33,6 @@ class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractCardiacCell
       
         // This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
         std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
-        void VerifyVariables();
         double GetIIonic();
 };
 

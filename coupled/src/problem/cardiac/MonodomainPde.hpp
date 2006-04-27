@@ -192,8 +192,6 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
             
             mCellsDistributed[local_index]->Compute(time, time+big_time_step);
 
-            mCellsDistributed[local_index]->VerifyVariables();
-
             double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
                             + mCellsDistributed[local_index]->GetIIonic();
           

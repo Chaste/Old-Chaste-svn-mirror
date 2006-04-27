@@ -125,6 +125,13 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
     * Compute the LuoRudyIModel1991OdeSystem model
     */
 
+    assert( 0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0);
+    assert( 0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0);
+    assert( 0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0);
+    assert( 0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0);
+    assert( 0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0);
+    assert( 0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0);
+
    double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
    double fast_sodium_current_h_gate_alpha_h;
@@ -287,78 +294,3 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
    return i_ionic;
  }
 
-
-void LuoRudyIModel1991OdeSystem::VerifyVariables()
-{
-    // check h    
-    if(mStateVariables[0]<0)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nh < 0, reset to 0\n";
-        mStateVariables[0] = 0;
-    }
-    if(mStateVariables[0]>1)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nh > 1, reset to 1\n";
-        mStateVariables[0] = 1;
-    }
-
-    // check j    
-    if(mStateVariables[1]<0)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nj < 0, reset to 0\n";
-        mStateVariables[1] = 0;
-    }
-    if(mStateVariables[1]>1)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nj > 1, reset to 1\n";
-        mStateVariables[1] = 1;
-    }
-
-    // check h    
-    if(mStateVariables[2]<0)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nd < 0, reset to 0\n";
-        mStateVariables[2] = 0;
-    }
-    if(mStateVariables[2]>1)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nd > 1, reset to 1\n";
-        mStateVariables[2] = 1;
-    }
-    
-    // check d    
-    if(mStateVariables[5]<0)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nd < 0, reset to 0\n";
-        mStateVariables[5] = 0;
-    }
-    if(mStateVariables[5]>1)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nd > 1, reset to 1\n";
-        mStateVariables[5] = 1;
-    }
-    
-    // check f    
-    if(mStateVariables[6]<0)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nf < 0, reset to 0\n";
-        mStateVariables[6] = 0;
-    }
-    if(mStateVariables[6]>1)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nf > 1, reset to 1\n";
-        mStateVariables[6] = 1;
-    }
-    
-    // check X    
-    if(mStateVariables[7]<0)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nX < 0, reset to 0\n";
-        mStateVariables[7] = 0;
-    }
-    if(mStateVariables[7]>1)
-    {
-        std::cout << "\nWARNING: Lr91::VerifyVariables\nX > 1, reset to 1\n";
-        mStateVariables[7] = 1;
-    }
-}

@@ -123,11 +123,6 @@ void HodgkinHuxleySquidAxon1952OriginalOdeSystem::Init()
     sodium_channel_g_Na = 120.0;   // mS/cm2
 }
 
-void HodgkinHuxleySquidAxon1952OriginalOdeSystem::VerifyVariables()
-{
-    //\todo code VerifyVariables in HodgkinHuxleySquidAxon1952OriginalOdeSystem
-}
-
 double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()
 {
     double membrane_V = mStateVariables[mVoltageIndex];

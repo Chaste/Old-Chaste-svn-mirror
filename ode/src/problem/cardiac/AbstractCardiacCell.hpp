@@ -46,11 +46,7 @@ public:
         rGetStateVariables() = mInitialConditions;
     }
     
-    /**
-     * Fudge to ensure that gating variables do not go out of bounds.
-     */
-    virtual void VerifyVariables() {}
-    
+  
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep dt.
