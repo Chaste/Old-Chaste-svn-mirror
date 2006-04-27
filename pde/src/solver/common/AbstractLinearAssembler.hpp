@@ -92,7 +92,7 @@ protected:
 		 * This is true for linear basis functions, but not for any other type of
 		 * basis function.
 		 */
-		const MatrixDouble *inverseJacobian;
+		const MatrixDouble *inverseJacobian = NULL;
        
         if (!mMatrixIsAssembled)
         {

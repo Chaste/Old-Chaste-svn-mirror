@@ -162,7 +162,7 @@ public:
              *  'xx'th time step using ColumnDataWriter 
              */         
             
-            ColumnDataWriter *p_test_writer;
+            ColumnDataWriter *p_test_writer = NULL;
            
             int time_var_id = 0;
             int voltage_var_id = 0;

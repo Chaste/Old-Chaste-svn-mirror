@@ -22,7 +22,7 @@ public:
      ***/
     c_matrix<double, DIM, DIM>* ConvertToUblas(MatrixDouble &matrixDouble)
     {
-    switch (DIM)
+        switch (DIM)
         {
         case 1:
             return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle1();
@@ -38,7 +38,8 @@ public:
             break;
         default:
             assert(0);
-        }          
+        }
+        return NULL;
     }
 };
 

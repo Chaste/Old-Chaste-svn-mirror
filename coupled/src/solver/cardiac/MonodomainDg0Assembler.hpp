@@ -44,7 +44,7 @@ protected:
         //double *p_current_solution;
         //int ierr = VecGetArray(currentSolution, &p_current_solution);
         
-        const MatrixDouble *inverseJacobian;
+        const MatrixDouble *inverseJacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
@@ -102,7 +102,7 @@ protected:
 
             double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
             MatrixDouble pde_diffusion_term(ELEMENT_DIM, ELEMENT_DIM);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas;
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas = NULL;
             if (!this->mMatrixIsAssembled)
             {
                 pde_diffusion_term = pPde->ComputeDiffusionTerm(x);

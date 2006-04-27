@@ -23,12 +23,11 @@ public:
      ***/
     c_vector<double, DIM>* ConvertToUblas(VectorDouble &vectorDouble)
     {
-    switch (DIM)
+        switch (DIM)
         {
         case 1:
             return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle1();
             break;
-        
         case 2:
             return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle2();
             break;
@@ -38,9 +37,10 @@ public:
         case 4:
             return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle4();
             break;
-       default:
+        default:
             assert(0);
-        }          
+        }
+        return NULL;
     }
 };
 
