@@ -5,20 +5,15 @@
 
 // For mkdir()
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
-#include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ColumnDataWriter.hpp"
 
 #include "MonodomainPde.hpp"
-#include "MockEulerIvpOdeSolver.hpp"
-
 #include "AbstractCardiacCellFactory.hpp"
 
 /**
@@ -149,9 +144,10 @@ public:
             VecGetOwnershipRange(initial_condition, &mLo, &mHi);
             
             // Set a constant initial voltage throughout the mMesh
-            for(int local_index=0; local_index<mHi - mLo; local_index++)
-            {               
-                p_initial_condition[local_index] = mpMonodomainPde->GetCardiacCell(local_index+mLo)->GetVoltage();
+            for (int global_index=mLo; global_index<mHi; global_index++)
+            {
+                int local_index = global_index - mLo;
+                p_initial_condition[local_index] = mpMonodomainPde->GetCardiacCell(global_index)->GetVoltage();
             }
             VecRestoreArray(initial_condition, &p_initial_condition);      
             VecAssemblyBegin(initial_condition);
@@ -180,22 +176,17 @@ public:
                 p_test_writer->EndDefineMode();
             }
             
-            double* p_current_voltage;
-            
             double current_time = mStartTime;        
-    
             int big_steps = 0;
-            
             
             if (mSequential)
             {
                 p_test_writer->PutVariable(time_var_id, current_time); 
-                for(int j=0; j<mMesh.GetNumNodes(); j++) 
+                for (int j=0; j<mMesh.GetNumNodes(); j++) 
                 {
-                    p_test_writer->PutVariable(voltage_var_id, p_initial_condition[j], j);    
+                    p_test_writer->PutVariable(voltage_var_id, p_initial_condition[j], j);
                 }
-            }            
-            
+            }
             
             while( current_time < mEndTime )
             {
@@ -215,28 +206,30 @@ public:
                 {
                     p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
                     
-                    VecGetArray(mVoltage, &p_current_voltage);
+                    double *p_voltage;
+                    VecGetArray(mVoltage, &p_voltage);
         
                     p_test_writer->PutVariable(time_var_id, current_time); 
                     
                     for(int j=0; j<mMesh.GetNumNodes(); j++) 
                     {
-                        p_test_writer->PutVariable(voltage_var_id, p_current_voltage[j], j);    
+                        p_test_writer->PutVariable(voltage_var_id, p_voltage[j], j);    
                     }
                    
-                   if (mDebugOn==true){
-                       double max_voltage=p_current_voltage[0];
-                       int max_index=0;
-                       for(int j=0; j<mMesh.GetNumNodes(); j++) 
+                    if (mDebugOn==true)
+                    {
+                        double max_voltage = p_voltage[0];
+                        int max_index = 0;
+                        for(int j=0; j<mMesh.GetNumNodes(); j++) 
                         {
-                            if (p_current_voltage[j]>max_voltage){
-                                max_voltage=p_current_voltage[j];
-                                max_index=j;
+                            if (p_voltage[j] > max_voltage){
+                                max_voltage = p_voltage[j];
+                                max_index = j;
                             }
-                        } 
-                        std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";          
-                   }
-                    VecRestoreArray(mVoltage, &p_current_voltage); 
+                        }
+                        std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";
+                    }
+                    VecRestoreArray(mVoltage, &p_voltage); 
                 }
                 
                 mpMonodomainPde->ResetAsUnsolvedOdeSystem();
@@ -245,13 +238,12 @@ public:
                 big_steps++;
             }
     
-      //      TS_ASSERT_EQUALS(ode_solver.GetCallCount(), (mHi-mLo)*big_steps);
+            //TS_ASSERT_EQUALS(ode_solver.GetCallCount(), (mHi-mLo)*big_steps);
     
             // close the file that stores voltage values            
             if (mSequential && mOutputFilenamePrefix.length() > 0)
             {
                 p_test_writer->Close();
-            
                 delete p_test_writer;
             }
         }
@@ -261,8 +253,6 @@ public:
         }
     }
     
-
-
     void SetStartTime(const double &rStartTime)
     {
         mStartTime = rStartTime;
@@ -324,7 +314,5 @@ public:
         return mpMonodomainPde;  
     }
 };
-
-
 
 #endif /*MONODOMAINPROBLEM_HPP_*/

@@ -39,20 +39,20 @@ public:
             VecDestroy(temp_vec); // vector no longer needed
             
             ReplicatableVector rep_vector(vec_size);
-            for (int i=0; i<vec_size; i++)
+            for (int global_index=0; global_index<vec_size; global_index++)
             {
-                rep_vector[i]=lo;
+                rep_vector[global_index]=lo;
             }
             
             rep_vector.Replicate(lo, hi);
             
-            for (int i=0; i<vec_size; i++)
+            for (int global_index=0; global_index<vec_size; global_index++)
             {
-                if (lo<=i && i<hi)
+                if (lo<=global_index && global_index<hi)
                 {
-                    TS_ASSERT_EQUALS(rep_vector[i], lo);
+                    TS_ASSERT_EQUALS(rep_vector[global_index], lo);
                 } else {
-                    TS_ASSERT_DIFFERS(rep_vector[i], lo);
+                    TS_ASSERT_DIFFERS(rep_vector[global_index], lo);
                 }
             }
         }
@@ -70,9 +70,10 @@ public:
         double *p_petsc_vec;
         
         VecGetArray(petsc_vec, &p_petsc_vec);
-        for (int i=lo; i<hi; i++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
-            p_petsc_vec[i-lo]=lo;
+            int local_index = global_index - lo;
+            p_petsc_vec[local_index]=lo;
         }
         VecRestoreArray(petsc_vec, &p_petsc_vec);
         VecAssemblyBegin(petsc_vec);
@@ -81,13 +82,13 @@ public:
         ReplicatableVector rep_vec;
         rep_vec.ReplicatePetscVector(petsc_vec);    
             
-        for (int i=0; i<VEC_SIZE; i++)
+        for (int global_index=0; global_index<VEC_SIZE; global_index++)
         {
-            if (lo<=i && i<hi)
+            if (lo<=global_index && global_index<hi)
             {
-                TS_ASSERT_EQUALS(rep_vec[i], lo);
+                TS_ASSERT_EQUALS(rep_vec[global_index], lo);
             } else {
-                TS_ASSERT_DIFFERS(rep_vec[i], lo);
+                TS_ASSERT_DIFFERS(rep_vec[global_index], lo);
             }
         }
         

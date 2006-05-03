@@ -63,7 +63,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         
         mCellsDistributed.resize(hi-lo);
         
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index - lo;
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
@@ -78,7 +78,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index - lo;
             delete mCellsDistributed[local_index];
@@ -181,9 +181,9 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
 
         double big_time_step=this->mBigTimeStep;
         
-        for (unsigned local_index=0; local_index < hi-lo; local_index++)
+        for (unsigned global_index=lo; global_index < hi; global_index++)
         {
-            unsigned global_index = local_index + lo;
+            unsigned local_index = global_index - lo;
             
             // overwrite the voltage with the input value
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );

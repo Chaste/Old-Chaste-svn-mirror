@@ -154,7 +154,7 @@ public:
         Vec result;
 		VecDuplicate(currentSolution_vector, &result);
 
-      assembler.ComputeResidual(currentSolution_vector, result);
+        assembler.ComputeResidual(currentSolution_vector, result);
 		
  		PetscScalar *answerElements;
 		VecGetArray(result, &answerElements);
@@ -164,17 +164,20 @@ public:
   
         if (lo<=0 && 0<hi)
         {
-		    double value1 = answerElements[0-lo];
+            int local_index = 0-lo;
+		    double value1 = answerElements[local_index];
             TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
         }
         if (lo<=1 && 1<hi)
 		{
-            double value2 = answerElements[1-lo];
+            int local_index = 1-lo;
+            double value2 = answerElements[local_index];
             TS_ASSERT(fabs(value2 + h) < 0.001);
         }
         if (lo<=mesh.GetNumNodes()-1 && mesh.GetNumNodes()-1<hi)
 		{
-            double valueLast = answerElements[mesh.GetNumNodes()-1-lo];
+            int local_index = mesh.GetNumNodes()-1-lo;
+            double valueLast = answerElements[local_index];
 		    TS_ASSERT(fabs(valueLast + VonNeumannBCValue + h/2) < 0.001);
         }
         VecRestoreArray(result, &answerElements);   
@@ -274,14 +277,16 @@ public:
 //		MatView(numerical_jacobian, 0);
 //		TS_TRACE("Analytical:");
 //		MatView(analytic_jacobian, 0);
-			
-		PetscScalar numerical[11*11], analytic[11*11];
-		PetscInt row_ids[11], col_ids[11], n=11;
+
+        PetscInt n = 11;
+		PetscScalar numerical[n*n], analytic[n*n];
+		PetscInt row_ids[n], col_ids[n];
         int lo, hi;
         MatGetOwnershipRange(numerical_jacobian,&lo,&hi);
-		for (int i=0; i<hi-lo; i++)
+		for (int global_index = lo; global_index < hi; global_index++)
         {
-            row_ids[i] = i+lo;
+            int local_index = global_index - lo;
+            row_ids[local_index] = global_index;
         }
         for (int i=0; i<n; i++)
         {
@@ -293,11 +298,11 @@ public:
 		MatGetValues(analytic_jacobian,hi-lo,row_ids,n,col_ids,analytic);
         
         
-		for (int i=0; i<hi-lo; i++)
+		for (int local_index=0; local_index<hi-lo; local_index++)
 		{
 			for (int j=0; j<n; j++)
 			{
-				TS_ASSERT_DELTA(numerical[i*n+j], analytic[i*n+j], 0.001);
+				TS_ASSERT_DELTA(numerical[local_index*n+j], analytic[local_index*n+j], 0.001);
 			}
 		}
 
@@ -350,9 +355,10 @@ public:
 		int ierr = VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(x*(1-x));
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.001); 
+			TS_ASSERT_DELTA(ans[local_index], u, 0.001); 
 		} 
 		ierr = VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -408,9 +414,10 @@ public:
 		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(x*(4-x));
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.001);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.001);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -462,10 +469,11 @@ public:
 		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = exp(0.5*(3.0*x-x*x));
 			//std::cout << x << "\t" << u << std::endl;
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.001); 
+			TS_ASSERT_DELTA(ans[local_index], u, 0.001); 
 		}
 		
 		VecRestoreArray(answer, &ans);
@@ -519,9 +527,10 @@ public:
 		int ierr = VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(2.0*(exp(-x)-x*exp(-1.0)));
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.001); 
+			TS_ASSERT_DELTA(ans[local_index], u, 0.001); 
 		} 
 		ierr = VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -578,9 +587,10 @@ public:
 		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = x*exp(-x);
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.01); 
+			TS_ASSERT_DELTA(ans[local_index], u, 0.01); 
 		} 
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -639,9 +649,10 @@ public:
 		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = exp(-x);
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.01); 
+			TS_ASSERT_DELTA(ans[local_index], u, 0.01); 
 		} 
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -694,9 +705,10 @@ public:
  		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(x*(4-x));
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.001);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.001);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -749,11 +761,12 @@ public:
  		VecGetArray(answer, &res);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			VectorDouble r(2);
 			r(0) = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			r(1) = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = -0.25 * r.L2Norm() * r.L2Norm() + 2.25;
-			TS_ASSERT_DELTA(res[global_index-lo], u, 0.01);
+			TS_ASSERT_DELTA(res[local_index], u, 0.01);
 		}
 		VecRestoreArray(answer, &res);
 		VecDestroy(initial_guess);
@@ -828,9 +841,10 @@ public:
  		VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = sqrt(y*(4-y));
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.15);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.15);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -921,10 +935,11 @@ public:
  		int ierr = VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.01);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(answer);
@@ -941,10 +956,11 @@ public:
 		ierr = VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.01);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);
@@ -1035,10 +1051,11 @@ public:
 		int ierr = VecGetArray(answer, &ans);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + sin(x)*sin(x) + y*y;
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.01);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(answer);
@@ -1055,10 +1072,11 @@ public:
 		ierr = VecGetArray(answer, &ans);
  		for (int global_index=lo; global_index < hi; global_index++)
 		{
+            int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + sin(x)*sin(x) + y*y;
-			TS_ASSERT_DELTA(ans[global_index-lo], u, 0.01);
+			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
 		}
 		VecRestoreArray(answer, &ans);
 		VecDestroy(initial_guess);

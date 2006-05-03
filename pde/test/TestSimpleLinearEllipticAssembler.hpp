@@ -157,9 +157,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetOwnershipRange(result,&lo,&hi);
         VecGetArray(result, &res);
         // Solution should be u = 0.5*x*(3-x)
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
-            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+            int local_index = global_index - lo;
+            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double u = 0.5*x*(3-x);
             TS_ASSERT_DELTA(res[local_index], u, 0.001);
         }
@@ -200,9 +201,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
         VecGetArray(result, &res);
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
-            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+            int local_index = global_index - lo;
+            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double u = 1 - 0.5*(x+1)*(5+x);
             TS_ASSERT_DELTA(res[local_index], u, 0.001);
         }
@@ -246,9 +248,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
         VecGetArray(result, &res);
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
-            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
+            int local_index = global_index - lo;
+            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double u = -0.5*x*x - 2*x - 0.5;
             TS_ASSERT_DELTA(res[local_index], u, 0.001);
         }
@@ -336,11 +339,12 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
         VecGetArray(result, &res);
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
+            int local_index = global_index - lo;        
             VectorDouble r(2);
-            r(0) = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
-            r(1) = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
+            r(0) = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            r(1) = mesh.GetNodeAt(global_index)->GetPoint()[1];
             double u = -0.25 * r.L2Norm() * r.L2Norm() + 2.25;
             TS_ASSERT_DELTA(res[local_index], u, 0.01);
         }
@@ -382,9 +386,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetOwnershipRange(result,&lo,&hi);
         double *res;
         VecGetArray(result, &res);
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
-            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0] ;
+            int local_index = global_index - lo;   
+            double x = mesh.GetNodeAt(global_index)->GetPoint()[0] ;
             double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
             TS_ASSERT_DELTA(res[local_index], u, 0.2);
         }
@@ -517,11 +522,12 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetArray(result, &res);
         
         //Solution should be -1/6*(x^2 + y^2 +z^2)
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
-            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
-            double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
-            double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];            
+            int local_index = global_index - lo;
+            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];            
             double u = -1.0/6 * (x*x+y*y+z*z);
             TS_ASSERT_DELTA(res[local_index], u, 0.01);
         }
@@ -594,11 +600,12 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetArray(result, &res);
         
         //Solution should be -1/6*(x^2 + y^2 +z^2)
-        for (int local_index=0; local_index < hi-lo; local_index++)
+        for (int global_index = lo; global_index < hi; global_index++)
         {
-            double x = mesh.GetNodeAt(local_index+lo)->GetPoint()[0];
-            double y = mesh.GetNodeAt(local_index+lo)->GetPoint()[1];
-            double z = mesh.GetNodeAt(local_index+lo)->GetPoint()[2];            
+            int local_index = global_index - lo;
+            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];            
             double u = -1.0/6 * (x*x+y*y+z*z);
             TS_ASSERT_DELTA(res[local_index], u, 0.1);
         }

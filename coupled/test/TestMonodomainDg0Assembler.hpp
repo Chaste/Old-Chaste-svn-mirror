@@ -130,59 +130,60 @@ public:
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
 
-       double* voltage_array;
+        double* voltage_array;
         int lo, hi;
         monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for(int global_index=lo; global_index<hi; global_index++)
-             {
+        for (int global_index=lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
 
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for(int j=0; j<8; j++)
+            for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1
-                if((j!=4) && (j!=3))
+                if ((j!=4) && (j!=3))
                 {
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
                 }
             }
-    
+
             if (global_index==1)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-lo], 19.4178, 0.001);
+                TS_ASSERT_DELTA(voltage_array[local_index], 19.4178, 0.001);
             }
             if (global_index==3)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-lo], 20.2563, 0.001);
+                TS_ASSERT_DELTA(voltage_array[local_index], 20.2563, 0.001);
             }
             if (global_index==5)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-lo], 21.7166, 0.001);
+                TS_ASSERT_DELTA(voltage_array[local_index], 21.7166, 0.001);
             }
             if (global_index==7)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-lo], 22.3258, 0.001);
+                TS_ASSERT_DELTA(voltage_array[local_index], 22.3258, 0.001);
             }
             if (global_index==9)
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-lo], -12.2253, 0.001);
+                TS_ASSERT_DELTA(voltage_array[local_index], -12.2253, 0.001);
             }
             if (global_index==10) // RHS
             {
-                TS_ASSERT_DELTA(voltage_array[global_index-lo], -31.4838, 0.001);
+                TS_ASSERT_DELTA(voltage_array[local_index], -31.4838, 0.001);
             }
         }
 
-       monodomain_problem.RestoreVoltageArray(&voltage_array);
-     }
+        monodomain_problem.RestoreVoltageArray(&voltage_array);
+    }
 
 
     
@@ -210,20 +211,21 @@ public:
         monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
+            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for(int j=0; j<8; j++)
+            for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
+                if ((j!=4) && (j!=3))
                 {
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
@@ -321,20 +323,21 @@ public:
         monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
+            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for(int j=0; j<8; j++)
+            for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
+                if ((j!=4) && (j!=3))
                 {
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
