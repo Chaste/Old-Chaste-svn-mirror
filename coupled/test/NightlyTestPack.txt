@@ -1,4 +1,5 @@
 TestMonodomainAgainstMemfem.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0AssemblerLong.hpp
+TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
