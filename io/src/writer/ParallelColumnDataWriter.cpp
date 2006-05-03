@@ -5,6 +5,8 @@
 ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName)
 : ColumnDataWriter::ColumnDataWriter(directory, baseName)
 {    
+    mConcentrated=NULL;
+    
     
     MPI_Comm_size(PETSC_COMM_WORLD, &mNumProcs);
     if (mNumProcs==1){
@@ -21,21 +23,13 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
         mAmMaster=false;
     } 
     
-//    if (mIsParallel)
-//    {
-//        std::stringstream suffix;
-//        suffix << std::setfill('0') << std::setw(3) << my_rank;
-//        mBaseName = mBaseName+suffix.str(); 
-//    }    
+
 }
 
 void
 ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 {
-    int lo, hi, size;
-    double *petsc_vector_array;
-    VecGetArray(petscVector, &petsc_vector_array); 
-    VecGetOwnershipRange(petscVector,&lo,&hi);
+    int size;
     VecGetSize(petscVector,&size);
     
     if(size != mFixedDimensionSize)
@@ -43,26 +37,33 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
         //std::cout << "fixed_dim: " << mFixedDimensionSize << ", vec_size " << size << "\n";
         throw Exception("Size of vector does not match FixedDimensionSize.");
     }
-      
+    
+    //Construct the appropriate "scatter" object to concentrate the vector on the master
+    if (mConcentrated==NULL){
+        VecScatterCreateToZero(petscVector, &mToMaster, &mConcentrated);
+    }  
+    
+    VecScatterBegin(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
+    VecScatterEnd(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
            
     if (mAmMaster)
     {
-        for (int global_index=lo ; global_index<hi ; global_index++)
+        double *concentrated_vector;
+        VecGetArray(mConcentrated, &concentrated_vector); 
+        for (int i=0 ; i<size; i++)
         {
-            PutVariable(variableID, petsc_vector_array[global_index - lo], global_index);
+            PutVariable(variableID, concentrated_vector[i], i);
         }
+        VecRestoreArray(mConcentrated, &concentrated_vector);      
     }
     
-    VecRestoreArray(petscVector, &petsc_vector_array);      
 }
 
 
 
 void ParallelColumnDataWriter::EndDefineMode()
 {
-   //std::cout<<"In EndDefineMode mMyRank="<< mMyRank<<
-   //   " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n";
-     if(mAmMaster)
+      if(mAmMaster)
     {
         ColumnDataWriter::EndDefineMode();
     }
@@ -72,11 +73,19 @@ void ParallelColumnDataWriter::EndDefineMode()
     }
 }
 
+/***
+ * There are two ways of calling PutVariable
+ * 1) All processes call it as a collective operation from the user's code.
+ *    This only makes sense if they are writing the unlimited dimension (time) variable.
+ *    It is an error if any non-master process writes anything other than
+ *      unlimited dimension 
+ * 2) The master calls it after concentrating the data into a single Vec (ie. from 
+ *    the method PutVector() above).
+ */
 void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
 {
-    //std::cout<<"In PutVariable mMyRank="<< mMyRank<<
-    //  " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n";
-    if (mMyRank == 0) 
+    
+    if (mAmMaster) 
     {
        //Master process is allowed to write
        ColumnDataWriter::PutVariable(variableID,  variableValue, dimensionPosition);
@@ -86,16 +95,21 @@ void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,
             //The unlimited dimension is written to the ancillary file by the master
             return;
        }
-       
-        assert(0);
-        // We're not going to let individual bits of data be written by
-        // slave processes    
+       // We're not going to let individual bits of data be written by
+       // slave processes
+       throw Exception("Non-master processes cannot write to disk.");
+            
     }     
 }
 
 
 ParallelColumnDataWriter::~ParallelColumnDataWriter()
 {
+    if (mConcentrated != NULL) {
+        VecScatterDestroy(mToMaster);
+        VecDestroy(mConcentrated);
+    }
+        
 }
 
 

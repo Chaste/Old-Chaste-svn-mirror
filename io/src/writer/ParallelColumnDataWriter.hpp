@@ -9,7 +9,9 @@ class ParallelColumnDataWriter  : public ColumnDataWriter
 private:
     bool mIsParallel;        
     bool mAmMaster;
-    int mNumProcs;
+    Vec mConcentrated;
+    VecScatter mToMaster;
+    int mNumProcs; //\todo remove
     int mMyRank;
 public:
 	ParallelColumnDataWriter(std::string directory, std::string baseName);
