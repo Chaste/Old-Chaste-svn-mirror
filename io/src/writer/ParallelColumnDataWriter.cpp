@@ -7,17 +7,16 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
 {    
     mConcentrated=NULL;
     
-    
-    MPI_Comm_size(PETSC_COMM_WORLD, &mNumProcs);
-    if (mNumProcs==1){
+    int num_procs, my_rank;
+    MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+    if (num_procs==1){
         mIsParallel=false;
     } else {
         mIsParallel=true;
     } 
     
-    
-    MPI_Comm_rank(PETSC_COMM_WORLD, &mMyRank);
-    if (mMyRank==0){
+    MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+    if (my_rank==0){
         mAmMaster=true;
     } else {
         mAmMaster=false;
@@ -52,7 +51,7 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
         VecGetArray(mConcentrated, &concentrated_vector); 
         for (int i=0 ; i<size; i++)
         {
-            PutVariable(variableID, concentrated_vector[i], i);
+            ColumnDataWriter::PutVariable(variableID, concentrated_vector[i], i);
         }
         VecRestoreArray(mConcentrated, &concentrated_vector);      
     }
@@ -63,7 +62,7 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 
 void ParallelColumnDataWriter::EndDefineMode()
 {
-      if(mAmMaster)
+    if(mAmMaster)
     {
         ColumnDataWriter::EndDefineMode();
     }
@@ -71,35 +70,43 @@ void ParallelColumnDataWriter::EndDefineMode()
     {
         mIsInDefineMode = false;
     }
+    
+/*    int num_procs, my_rank;
+    MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+    MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+    for (int i=0; i<num_procs; i++)
+    {
+        if (i==my_rank)
+        {
+            std::cerr<<"On "<<my_rank<<":\n";
+            system("ls -l testoutput/ParallelColumnWriter.info");
+        }
+        MPI_Barrier(PETSC_COMM_WORLD);
+    }
+*/    
 }
 
-/***
+/**
  * There are two ways of calling PutVariable
  * 1) All processes call it as a collective operation from the user's code.
  *    This only makes sense if they are writing the unlimited dimension (time) variable.
  *    It is an error if any non-master process writes anything other than
  *      unlimited dimension 
- * 2) The master calls it after concentrating the data into a single Vec (ie. from 
- *    the method PutVector() above).
+ * 2) The master calls the equivalent method in the parent class after concentrating 
+ *      the data into a single Vec (ie. from the method PutVector() above).
  */
 void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
 {
+    if(variableID != UNLIMITED_DIMENSION_VAR_ID)
+    {
+       throw Exception("Non-master processes cannot write to disk.");
+    }
     
     if (mAmMaster) 
     {
        //Master process is allowed to write
        ColumnDataWriter::PutVariable(variableID,  variableValue, dimensionPosition);
-    } else {
-       if(variableID == UNLIMITED_DIMENSION_VAR_ID)
-       {
-            //The unlimited dimension is written to the ancillary file by the master
-            return;
-       }
-       // We're not going to let individual bits of data be written by
-       // slave processes
-       throw Exception("Non-master processes cannot write to disk.");
-            
-    }     
+    }
 }
 
 
@@ -119,8 +126,8 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
     //Make sure that everyone has queued their messages
     MPI_Barrier(PETSC_COMM_WORLD);
     
-    //std::cout<<"In AdvanceAlongUnlimitedDimension mMyRank="<< mMyRank<<
-    //  " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n";
+//    std::cout<<"In AdvanceAlongUnlimitedDimension mAmMaster="<< mAmMaster<<
+//     " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n"<<std::flush;
     
     if (mAmMaster){
         //\todo

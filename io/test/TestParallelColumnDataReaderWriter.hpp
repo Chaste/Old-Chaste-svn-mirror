@@ -43,7 +43,12 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(var1_id = mpParallelWriter->DefineVariable("Var1","LightYears"));
         TS_ASSERT_THROWS_NOTHING(var2_id = mpParallelWriter->DefineVariable("Var2","Angstroms"));
+
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->EndDefineMode());
+
+
+        TS_ASSERT_EQUALS(system("test -f testoutput/ParallelColumnWriter.info"), 0);
+ 
  
         //Make a conventional data writer
         /*TS_ASSERT_THROWS_NOTHING(mpWriter = new ColumnDataWriter("testoutput","ColumnWriter"));
@@ -105,8 +110,10 @@ public:
         mpParallelWriter->PutVariable(time_var_id, 0.1); 
         TS_ASSERT_THROWS_NOTHING( mpParallelWriter->PutVector(var1_id, var1) );
         TS_ASSERT_THROWS_NOTHING( mpParallelWriter->PutVector(var2_id, var2) );
-        TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVector(var1_id, var3));
-        mpParallelWriter->AdvanceAlongUnlimitedDimension();
+        TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVector(var1_id, var3) );
+        TS_ASSERT_THROWS_ANYTHING(mpParallelWriter->PutVariable(var1_id, 0.0, 0));
+
+        TS_ASSERT_THROWS_NOTHING( mpParallelWriter->AdvanceAlongUnlimitedDimension() );
         
         //Change the data
         VecSqrt(var1);
@@ -153,6 +160,7 @@ public:
                
         VecDestroy(var1);
         VecDestroy(var2);
+        VecDestroy(var3);
         
     }
     

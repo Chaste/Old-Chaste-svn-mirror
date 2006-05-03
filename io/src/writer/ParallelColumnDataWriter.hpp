@@ -7,12 +7,10 @@
 class ParallelColumnDataWriter  : public ColumnDataWriter
 {
 private:
-    bool mIsParallel;        
-    bool mAmMaster;
-    Vec mConcentrated;
-    VecScatter mToMaster;
-    int mNumProcs; //\todo remove
-    int mMyRank;
+    bool mIsParallel;        /**< set to true in constructor if running in parallel*/
+    bool mAmMaster;          /**< set to true in constructor for process is the rank 0 process*/
+    Vec mConcentrated;       /**< Vector to hold concentrated copy of distributed vector on the master process*/
+    VecScatter mToMaster;    /**< variable holding information for concentrating a vector*/
 public:
 	ParallelColumnDataWriter(std::string directory, std::string baseName);
     virtual ~ParallelColumnDataWriter();

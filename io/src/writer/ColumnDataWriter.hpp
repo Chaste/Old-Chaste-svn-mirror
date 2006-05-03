@@ -67,6 +67,7 @@ protected:
     
     void CheckVariableName(std::string name); /**< Check variable name is allowed, i.e. contains only alphanumeric & _, and isn't blank */
     void CheckUnitsName(std::string name); /**< Check units name is allowed, i.e. contains only alphanumeric & _ */
+    void DoAdvanceAlongUnlimitedDimension();
     
 public:
 
@@ -75,12 +76,11 @@ public:
     int DefineUnlimitedDimension(std::string dimensionName, std::string dimensionUnits);
     int DefineFixedDimension(std::string dimensionName, std::string dimensionUnits, long dimensionSize);
     int DefineVariable(std::string variableName, std::string variableUnits);
-    void EndDefineMode();
-    void DoAdvanceAlongUnlimitedDimension();
+    virtual void EndDefineMode();
     virtual void AdvanceAlongUnlimitedDimension();
 
-    void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
-    void Close();
+    virtual void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
+    virtual void Close();
 };
 
 #endif
