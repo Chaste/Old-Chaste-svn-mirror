@@ -1,21 +1,16 @@
 #ifndef _TESTMONODOMAINAGAINSTMEMFEM_HPP_
 #define _TESTMONODOMAINAGAINSTMEMFEM_HPP_
 
-
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
 
 #include "ConformingTetrahedralMesh.cpp"
-
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
-
 
 class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {

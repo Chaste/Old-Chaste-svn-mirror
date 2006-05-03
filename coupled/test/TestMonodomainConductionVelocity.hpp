@@ -5,16 +5,13 @@
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
 
-
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
 #include <vector>
 //#include <iostream>
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PropagationPropertiesCalculator.hpp"
 #include "ColumnDataReader.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -43,7 +40,6 @@ public:
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
         }
-        
     }
     
     ~PointStimulusCellFactory(void)
@@ -69,33 +65,34 @@ public:
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
         
-        double* voltage_array;
+        double* p_voltage;
         int lo, hi;
         // test whether voltages and gating variables are in correct ranges
 
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage, lo, hi); 
         
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
+            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for(int j=0; j<8; j++)
+            for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
+                if ((j!=4) && (j!=3))
                 {
                     TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
                 }   
             }
         }
-        monodomain_problem.RestoreVoltageArray(&voltage_array);      
+        monodomain_problem.RestoreVoltageArray(&p_voltage);      
         
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
@@ -137,33 +134,34 @@ public:
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
         
-        double* voltage_array;
+        double* p_voltage;
         int lo, hi;
         // test whether voltages and gating variables are in correct ranges
 
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage, lo, hi); 
         
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
+            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for(int j=0; j<8; j++)
+            for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
+                if ((j!=4) && (j!=3))
                 {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS(-odeVars[j], 0.0);        
                 }   
             }
         }
-        monodomain_problem.RestoreVoltageArray(&voltage_array);      
+        monodomain_problem.RestoreVoltageArray(&p_voltage);      
         
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
@@ -200,33 +198,34 @@ public:
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
         
-        double* voltage_array;
+        double* p_voltage;
         int lo, hi;
         // test whether voltages and gating variables are in correct ranges
 
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage, lo, hi); 
         
         for(int global_index=lo; global_index<hi; global_index++)
-       {
+        {
+            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS(   voltage_array[global_index-lo] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(  -voltage_array[global_index-lo] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for(int j=0; j<8; j++)
+            for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1 
-                if((j!=4) && (j!=3))
+                if ((j!=4) && (j!=3))
                 {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS( odeVars[j], 1.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS(-odeVars[j], 0.0);        
                 }   
             }
         }
-        monodomain_problem.RestoreVoltageArray(&voltage_array);      
+        monodomain_problem.RestoreVoltageArray(&p_voltage);      
         
         int num_procs;
         MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);

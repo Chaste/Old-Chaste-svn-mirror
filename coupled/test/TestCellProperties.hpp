@@ -2,17 +2,12 @@
 #define _TESTCELLPROPERTIES_HPP_
 
 #include <cxxtest/TestSuite.h>
-
-#include <iostream>
+//#include <iostream>
 
 #include "OdeSolution.hpp"
 #include "CellProperties.hpp"
-
 #include "RegularStimulus.hpp"
-
 #include "EulerIvpOdeSolver.hpp"
-
-#include "AbstractOdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 class TestPhysiologicalProperties : public CxxTest::TestSuite
@@ -44,8 +39,6 @@ public:
 
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus, time_step);
         
-      
-                
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
         
         // Display solution
