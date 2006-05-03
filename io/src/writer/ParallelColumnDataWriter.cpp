@@ -116,6 +116,7 @@ ParallelColumnDataWriter::~ParallelColumnDataWriter()
         VecScatterDestroy(mToMaster);
         VecDestroy(mConcentrated);
     }
+    MPI_Barrier(PETSC_COMM_WORLD);
         
 }
 
@@ -140,6 +141,7 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 void ParallelColumnDataWriter::Close()
 {
     //std::cout<<"In Close mMyRank="<< mMyRank<<"\n";
+    MPI_Barrier(PETSC_COMM_WORLD);
     
     //\todo.. we may still have queued messages at this point.
     if (mAmMaster){

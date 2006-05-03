@@ -32,7 +32,12 @@ public:
     void testParallelColumnWriter(void)
     {
         
-        system("rm -f testoutput/ParallelColumnWriter*");
+        int my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0)
+        {
+            system("rm -f testoutput/ParallelColumnWriter*");
+        }
         
         int time_var_id, var1_id, var2_id; 
         
@@ -46,6 +51,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->EndDefineMode());
 
+        MPI_Barrier(PETSC_COMM_WORLD);
 
         TS_ASSERT_EQUALS(system("test -f testoutput/ParallelColumnWriter.info"), 0);
  
@@ -135,12 +141,13 @@ public:
         mpParallelWriter->PutVariable(time_var_id, 0.2); 
         mpParallelWriter->PutVector(var1_id, var1);
         mpParallelWriter->PutVector(var2_id, var2);
-        mpParallelWriter->AdvanceAlongUnlimitedDimension();
+        //mpParallelWriter->AdvanceAlongUnlimitedDimension();
         
         //delete mpWriter;      
         delete mpParallelWriter;      
         
         
+        MPI_Barrier(PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(system(
           "diff testoutput/ParallelColumnWriter.info io/test/data/ColumnWriter.info"),
           0);
