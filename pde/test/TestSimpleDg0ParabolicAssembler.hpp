@@ -1237,8 +1237,6 @@ public:
         int time_var_id = 0;
         int heat_var_id = 0;
 
-//        if (mSequential && mOutputFilenamePrefix.length() > 0)
-//       {   
         std::string output_dir = "testoutput/2DHeatEquation";
 
         mkdir(output_dir.c_str(), 0777);
@@ -1250,7 +1248,6 @@ public:
         
         heat_var_id = p_test_writer->DefineVariable("T","K");
         p_test_writer->EndDefineMode();
-//        }
          
          
         p_test_writer->PutVariable(time_var_id, time); 

@@ -11,7 +11,7 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "ColumnDataWriter.hpp"
+#include "ParallelColumnDataWriter.hpp"
 
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -24,9 +24,6 @@ template<int SPACE_DIM>
 class MonodomainProblem
 {
 private:
-    /**
-     * Flag that is true when running on one processor
-     */
     std::string mMeshFilename;
     double mStartTime;
     double mEndTime;
@@ -34,7 +31,6 @@ private:
 
     MonodomainPde<SPACE_DIM> *mpMonodomainPde;
     bool mDebugOn;
-    bool mSequential; 
     double mPdeTimeStep;  //aka big_timestep
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
@@ -67,11 +63,7 @@ public:
       mDebugOn(false)
     {
         mpCellFactory = pCellFactory;
-        
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-        mSequential = (num_procs == 1);
-        
+                
         mStartTime   = 0.0;  // ms
         mPdeTimeStep = 0.01; // ms
     }
@@ -158,16 +150,16 @@ public:
              *  'xx'th time step using ColumnDataWriter 
              */         
             
-            ColumnDataWriter *p_test_writer = NULL;
+            ParallelColumnDataWriter *p_test_writer = NULL;
            
             int time_var_id = 0;
             int voltage_var_id = 0;
 
-            if (mSequential && mOutputFilenamePrefix.length() > 0)
+            if (mOutputFilenamePrefix.length() > 0)
             {        
                 mkdir(mOutputDirectory.c_str(), 0777);
                      
-                p_test_writer = new ColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
+                p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
     
                 p_test_writer->DefineFixedDimension("Node", "dimensionless", mMesh.GetNumNodes() );
                 time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
@@ -175,18 +167,17 @@ public:
                 voltage_var_id = p_test_writer->DefineVariable("V","mV");
                 p_test_writer->EndDefineMode();
             }
+            else
+            {
+                throw ("mOutputFilenamePrefix should not be the empty string");
+            }
             
             double current_time = mStartTime;        
             int big_steps = 0;
             
-            if (mSequential)
-            {
-                p_test_writer->PutVariable(time_var_id, current_time); 
-                for (int j=0; j<mMesh.GetNumNodes(); j++) 
-                {
-                    p_test_writer->PutVariable(voltage_var_id, p_initial_condition[j], j);
-                }
-            }
+            p_test_writer->PutVariable(time_var_id, current_time); 
+            p_test_writer->PutVector(voltage_var_id, initial_condition);
+                            
             
             while( current_time < mEndTime )
             {
@@ -202,35 +193,32 @@ public:
                 initial_condition = mVoltage;
                 
                 // Writing data out to the file <mOutputFilenamePrefix>.dat                 
-                if (mSequential)
+                p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
+                p_test_writer->PutVariable(time_var_id, current_time); 
+                p_test_writer->PutVector(voltage_var_id, mVoltage);
+
+
+                /* //WARNING: won't run in parallel                   
+                if (mDebugOn==true)
                 {
-                    p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
-                    
-                    double *p_voltage;
-                    VecGetArray(mVoltage, &p_voltage);
-        
-                    p_test_writer->PutVariable(time_var_id, current_time); 
-                    
+                    double* p_voltage;
+                    VecGetArray(mVoltage, &p_voltage);                    
+
+                    double max_voltage=p_voltage[0];
+                    int max_index=0;
+
                     for(int j=0; j<mMesh.GetNumNodes(); j++) 
                     {
-                        p_test_writer->PutVariable(voltage_var_id, p_voltage[j], j);    
-                    }
-                   
-                    if (mDebugOn==true)
-                    {
-                        double max_voltage = p_voltage[0];
-                        int max_index = 0;
-                        for(int j=0; j<mMesh.GetNumNodes(); j++) 
+                        if (p_voltage[j]>max_voltage)
                         {
-                            if (p_voltage[j] > max_voltage){
-                                max_voltage = p_voltage[j];
-                                max_index = j;
-                            }
+                            max_voltage=p_voltage[j];
+                            max_index=j;
                         }
-                        std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";
-                    }
+                    } 
+                    std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";          
                     VecRestoreArray(mVoltage, &p_voltage); 
                 }
+                */
                 
                 mpMonodomainPde->ResetAsUnsolvedOdeSystem();
                 current_time += mPdeTimeStep;
@@ -238,14 +226,10 @@ public:
                 big_steps++;
             }
     
-            //TS_ASSERT_EQUALS(ode_solver.GetCallCount(), (mHi-mLo)*big_steps);
     
             // close the file that stores voltage values            
-            if (mSequential && mOutputFilenamePrefix.length() > 0)
-            {
-                p_test_writer->Close();
-                delete p_test_writer;
-            }
+            p_test_writer->Close();
+            delete p_test_writer;
         }
         catch (Exception &e)
         {
