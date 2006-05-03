@@ -221,9 +221,10 @@ public:
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         
-        for( int local_index = 0; local_index < hi-lo; local_index++)
+        for (int local_index = 0; local_index < hi-lo; local_index++)
 		{
-            if (local_index+lo < SIZE-1)
+            int global_index = local_index + lo;
+            if (global_index < SIZE-1)
             {
     	        TS_ASSERT_DELTA(solution_elements[local_index], -1.0, 0.000001);
             }
@@ -232,7 +233,7 @@ public:
                 TS_ASSERT_DELTA(solution_elements[local_index], 11.0, 0.000001);
             }
         }
-        for ( int i = 0; i < SIZE-1; i++)
+        for (int i = 0; i < SIZE-1; i++)
         {
 	        delete p3d_nodes[i];
 		}
@@ -270,8 +271,9 @@ public:
 	
 		for(int local_index=0;local_index<hi-lo;local_index++)
 		{
-			currentSolutionArray[local_index] = local_index+lo;
-			residualArray[local_index] = SIZE+local_index+lo;
+            int global_index = local_index + lo;
+			currentSolutionArray[local_index] = global_index;
+			residualArray[local_index] = SIZE+global_index;
 		}
 
 		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);
@@ -297,10 +299,11 @@ public:
         
         for(int local_index=0;local_index<hi-lo;local_index++)
 		{
-            if (local_index+lo < SIZE-1)
+            int global_index = local_index + lo;
+            if (global_index < SIZE-1)
             {
-                TS_ASSERT_DELTA(currentSolutionArrayPostMod[local_index], local_index+lo,   1e-12);
-        		TS_ASSERT_DELTA(       residualArrayPostMod[local_index], local_index+lo+1, 1e-12);
+                TS_ASSERT_DELTA(currentSolutionArrayPostMod[local_index], global_index,   1e-12);
+        		TS_ASSERT_DELTA(       residualArrayPostMod[local_index], global_index+1, 1e-12);
             }
             else
             {
@@ -414,21 +417,20 @@ public:
         int lo, hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
         
-	    //for(int local_index=0;local_index<hi-lo;local_index++)
-    	for( int i = 0; i < SIZE-1; i++)
+	
+    	for (int global_index = lo; global_index < hi; global_index++)
 		{
-            int local_index_1 = i-lo;
-            if(0<=local_index_1 && local_index_1<hi-lo)
+            int local_index = global_index - lo;
+            if (global_index < SIZE-1)
             {
-	           TS_ASSERT_DELTA(solution_elements[local_index_1], -1.0, 0.000001);
+	            TS_ASSERT_DELTA(solution_elements[local_index], -1.0, 0.000001);
             }
-            int local_index_2 = i-lo+SIZE;
-            if(0<=local_index_2 && local_index_2<hi-lo)
+            if (global_index >= SIZE && global_index < SIZE-1)
             {
-	           TS_ASSERT_DELTA(solution_elements[local_index_2], -2.0, 0.000001);
+	            TS_ASSERT_DELTA(solution_elements[local_index], -2.0, 0.000001);
             }
         }
-        for( int i = 0; i < SIZE-1; i++)
+        for (int i = 0; i < SIZE-1; i++)
         {
 	        delete p3d_nodes[i];
 		}
@@ -482,26 +484,26 @@ public:
         int lo, hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);
 
-		for( int i = 0; i < SIZE-1; i++)
+		for (int global_index = lo; global_index < hi; global_index++)
 		{
-            int local_index_1 = i-lo;
-            if(0<=local_index_1 && local_index_1<hi-lo)
+            int local_index = global_index-lo;
+            if (global_index < SIZE - 1)
             {
-	           TS_ASSERT_DELTA(solution_elements[local_index_1], -1.0, 0.000001);
+	            TS_ASSERT_DELTA(solution_elements[local_index], -1.0, 0.000001);
             }
-            int local_index_2 = i-lo+SIZE;
-            if(0<=local_index_2 && local_index_2<hi-lo)
+            if (SIZE <=global_index && global_index < 2*SIZE - 1)
             {
-	           TS_ASSERT_DELTA(solution_elements[local_index_2], -2.0, 0.000001);
+	            TS_ASSERT_DELTA(solution_elements[local_index], -2.0, 0.000001);
             }
-            int local_index_3 = i-lo+2*SIZE;
-            if(0<=local_index_3 && local_index_3<hi-lo)
+            if (2*SIZE <= global_index && global_index < 3*SIZE-1)
             {
-	           TS_ASSERT_DELTA(solution_elements[local_index_3],  0, 0.000001);
+	            TS_ASSERT_DELTA(solution_elements[local_index],  0, 0.000001);
             }
-	        delete p3d_nodes[i];
-		}
-         
+        }
+        for (int i = 0; i < SIZE-1; i++)
+        {
+            delete p3d_nodes[i];
+        }
         VecRestoreArray(solution_vector, &solution_elements);
         VecDestroy(solution_vector);
 	}
@@ -531,10 +533,11 @@ public:
         int lo,hi;
         VecGetOwnershipRange(current_solution,&lo,&hi);
 	
-		for(int global_index=lo; global_index<hi; global_index++)
+		for (int global_index=lo; global_index<hi; global_index++)
 		{
-			current_solution_array[global_index-lo] = global_index;
-			residual_array[global_index-lo]         = 100;
+            int local_index = global_index - lo;
+			current_solution_array[local_index] = global_index;
+			residual_array[local_index]         = 100;
 		}
 
 		ierr = VecRestoreArray(current_solution, &current_solution_array);
@@ -543,7 +546,7 @@ public:
 		Node<3>* p3dNode[SIZE];
 		BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
 				
-		for(int i = 0; i < SIZE; i++)
+		for (int i = 0; i < SIZE; i++)
 		{
 			p3dNode[i] = new Node<3>(i,true);
 			
@@ -564,37 +567,35 @@ public:
 		double *residual_array_post_mod;
 		ierr = VecGetArray(residual, &residual_array_post_mod);
 	
-		for(int i=0;i<SIZE-1;i++)
+		for (int global_index = lo; global_index < hi; global_index++)
 		{
-            int global_index_1 = i;
-            if(lo<=global_index_1 && global_index_1<hi)
+            int local_index = global_index - lo;
+            if (global_index < SIZE-1)
             {
-    			TS_ASSERT_DELTA(current_solution_array_post_mod[global_index_1-lo], 
-                  global_index_1,   1e-12);
-    			TS_ASSERT_DELTA(        residual_array_post_mod[global_index_1-lo], 
-                  global_index_1+1, 1e-12);
+    			TS_ASSERT_DELTA(current_solution_array_post_mod[local_index], 
+                  global_index,   1e-12);
+    			TS_ASSERT_DELTA(        residual_array_post_mod[local_index], 
+                  global_index+1, 1e-12);
             }
-            
-            int global_index_2 = i+SIZE;
-            if(lo<=global_index_2 && global_index_2<hi)
+            if (SIZE <=global_index && global_index < 2*SIZE - 1)
             {
-    			TS_ASSERT_DELTA(current_solution_array_post_mod[global_index_2-lo], 
-                  global_index_2,   1e-12);
-                TS_ASSERT_DELTA(        residual_array_post_mod[global_index_2-lo], 
-                  global_index_2+2, 1e-12);
+    			TS_ASSERT_DELTA(current_solution_array_post_mod[local_index], 
+                  global_index,   1e-12);
+                TS_ASSERT_DELTA(        residual_array_post_mod[local_index], 
+                  global_index+2, 1e-12);
             }
-            
-            int global_index_3 = i+2*SIZE;
-            if(lo<=global_index_3 && global_index_3<hi)
+            if ( 2*SIZE <= global_index && global_index< 3*SIZE - 1)
             {
-    			TS_ASSERT_DELTA(current_solution_array_post_mod[global_index_3-lo], 
-                  global_index_3,   1e-12);
-                TS_ASSERT_DELTA(        residual_array_post_mod[global_index_3-lo], 
-                  global_index_3+3, 1e-12);
+    			TS_ASSERT_DELTA(current_solution_array_post_mod[local_index], 
+                  global_index,   1e-12);
+                TS_ASSERT_DELTA(        residual_array_post_mod[local_index], 
+                  global_index+3, 1e-12);
             }
-
-			delete p3dNode[i];
 		}
+        for (int i = 0; i < SIZE; i++)
+        {
+            delete p3dNode[i];
+        }
 		 
 		ierr = VecRestoreArray(current_solution, &current_solution_array_post_mod);
 		ierr = VecRestoreArray(residual, &residual_array_post_mod);
