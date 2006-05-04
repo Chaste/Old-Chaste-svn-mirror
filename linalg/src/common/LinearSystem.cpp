@@ -125,7 +125,6 @@ void LinearSystem::SetMatrixRow(int row, double value)
     }
 }
 
-
 void LinearSystem::ZeroMatrixRow(int row)
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
@@ -139,13 +138,13 @@ void LinearSystem::ZeroMatrixRow(int row)
 
 void LinearSystem::ZeroRhsVector()
 {
-    double *p_rhs_vector;
-    VecGetArray(mRhsVector, &p_rhs_vector);
+    double *p_rhs_vector_array;
+    VecGetArray(mRhsVector, &p_rhs_vector_array);
     for (int local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
     {   
-        p_rhs_vector[local_index]=0.0;
+        p_rhs_vector_array[local_index]=0.0;
     }
-    VecRestoreArray(mRhsVector, &p_rhs_vector);  
+    VecRestoreArray(mRhsVector, &p_rhs_vector_array);  
 }
 
 

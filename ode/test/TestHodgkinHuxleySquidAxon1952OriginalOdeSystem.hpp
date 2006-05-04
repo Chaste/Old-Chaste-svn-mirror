@@ -6,15 +6,12 @@
 #include <vector>
 
 #include "InitialStimulus.hpp"
-
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
-
-
 
 class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
 {
     public:
-    
+   
     void testHHModelAtSingularities()
     {
          /*

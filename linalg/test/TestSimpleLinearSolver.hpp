@@ -48,8 +48,8 @@ public:
 		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
 		
 		// Check result
-		PetscScalar *lhs_elements;
-		VecGetArray(lhs_vector, &lhs_elements);
+		PetscScalar *p_lhs_elements_array;
+		VecGetArray(lhs_vector, &p_lhs_elements_array);
         int lo, hi;
         VecGetOwnershipRange(lhs_vector, &lo, &hi);
         
@@ -58,7 +58,7 @@ public:
             int local_index = global_index-lo;
             if(lo<=global_index && global_index<hi)
             {    
-                TS_ASSERT_DELTA(lhs_elements[local_index], 1.0, 0.000001);
+                TS_ASSERT_DELTA(p_lhs_elements_array[local_index], 1.0, 0.000001);
             }
         }
 
@@ -144,19 +144,19 @@ public:
 		TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 2));
 		
 		// Check result
-		PetscScalar *lhs_elements;
-		VecGetArray(lhs_vector, &lhs_elements);
+		PetscScalar *p_lhs_elements_array;
+		VecGetArray(lhs_vector, &p_lhs_elements_array);
         int lo, hi;
         VecGetOwnershipRange(lhs_vector, &lo, &hi);
 
 
-        // lhs_elements should be equal to [5,6]
+        // p_lhs_elements_array should be equal to [5,6]
         for(int global_index=0; global_index<2; global_index++)
         {
             int local_index = global_index-lo;
             if(lo<=global_index && global_index<hi)
             {    
-                TS_ASSERT_DELTA(lhs_elements[local_index], global_index+5.0, 0.000001);
+                TS_ASSERT_DELTA(p_lhs_elements_array[local_index], global_index+5.0, 0.000001);
             }
         }
 
