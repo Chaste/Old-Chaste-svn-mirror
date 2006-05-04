@@ -9,14 +9,10 @@
 #include "petscvec.h"
 #include <vector>
 //#include <iostream>
-
 #include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
-
-
 
 class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -74,9 +70,9 @@ public:
         monodomain_problem.Solve();
         
 
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=lo; global_index<hi; global_index++)
@@ -86,8 +82,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
                                            GetCardiacCell(global_index)->rGetStateVariables();
@@ -126,18 +122,18 @@ public:
                     //       to test the value of the nodes
                     if (need_initialisation)
                     {
-                        voltage = voltage_array[i];
+                        voltage = p_voltage_array[i];
                         need_initialisation = false;
                     }
                     else
                     {
-                        TS_ASSERT_DELTA(voltage_array[i], voltage, 0.005);
+                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 0.005);
                        // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
                 }
             }
         }        
-        monodomain_problem.RestoreVoltageArray( &voltage_array );
+        monodomain_problem.RestoreVoltageArray( &p_voltage_array );
     }   
 
 
@@ -159,9 +155,9 @@ public:
 
         monodomain_problem.Solve();
         
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for(int global_index=lo; global_index<hi; global_index++)
@@ -171,8 +167,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
                                            GetCardiacCell(global_index)->rGetStateVariables();
@@ -213,26 +209,26 @@ public:
                     
                     if (need_initialisation)
                     {
-                        voltage = voltage_array[i];
+                        voltage = p_voltage_array[i];
                         need_initialisation = false;
                     }
                     else
                     {
-                        TS_ASSERT_DELTA(voltage_array[i], voltage, 1);
+                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 1);
                        // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
                     
                     // Check against 1d case - if the TestMonodomainDg01D test is run
                     // for 4ms the voltage at the end node is 21.8820
-                    //TS_ASSERT_DELTA(voltage_array[i], 21.88, 0.5);
+                    //TS_ASSERT_DELTA(p_voltage_array[i], 21.88, 0.5);
                     //
                     // This has now been changed as the initial conditions for Lr91 have been altered
-                    TS_ASSERT_DELTA(voltage_array[i], 20.5, 0.5);
+                    TS_ASSERT_DELTA(p_voltage_array[i], 20.5, 0.5);
                     
                 }
             }
         }        
-        monodomain_problem.RestoreVoltageArray( &voltage_array );
+        monodomain_problem.RestoreVoltageArray( &p_voltage_array );
     }   
 };
 

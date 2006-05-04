@@ -4,20 +4,16 @@
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
-
 #include <cxxtest/TestSuite.h>
 #include <petscvec.h>
 #include <vector>
 //#include <iostream>
-
-#include "ConformingTetrahedralMesh.cpp"
+//#include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 #include <time.h>
-
-
 
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -130,9 +126,9 @@ public:
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
 
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for (int global_index=lo; global_index<hi; global_index++)
@@ -142,8 +138,8 @@ public:
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
 
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for (int j=0; j<8; j++)
@@ -158,31 +154,31 @@ public:
 
             if (global_index==1)
             {
-                TS_ASSERT_DELTA(voltage_array[local_index], 19.4178, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 19.4178, 0.001);
             }
             if (global_index==3)
             {
-                TS_ASSERT_DELTA(voltage_array[local_index], 20.2563, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 20.2563, 0.001);
             }
             if (global_index==5)
             {
-                TS_ASSERT_DELTA(voltage_array[local_index], 21.7166, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 21.7166, 0.001);
             }
             if (global_index==7)
             {
-                TS_ASSERT_DELTA(voltage_array[local_index], 22.3258, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 22.3258, 0.001);
             }
             if (global_index==9)
             {
-                TS_ASSERT_DELTA(voltage_array[local_index], -12.2253, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], -12.2253, 0.001);
             }
             if (global_index==10) // RHS
             {
-                TS_ASSERT_DELTA(voltage_array[local_index], -31.4838, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], -31.4838, 0.001);
             }
         }
 
-        monodomain_problem.RestoreVoltageArray(&voltage_array);
+        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
 
 
@@ -206,9 +202,9 @@ public:
         
         monodomain_problem.Solve();
         
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for (int global_index=lo; global_index<hi; global_index++)
@@ -218,8 +214,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for (int j=0; j<8; j++)
@@ -259,7 +255,7 @@ public:
                     
                     if (need_initialisation)
                     {
-                        voltage = voltage_array[i];
+                        voltage = p_voltage_array[i];
                         need_initialisation = false;
                     }
                     else
@@ -269,7 +265,7 @@ public:
                         // This works as we are using the 'criss-cross' mesh,
                         // the voltages would vary more with a mesh with all the
                         // triangles aligned in the same direction.
-                        TS_ASSERT_DELTA(voltage_array[i], voltage, 0.01);
+                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 0.01);
 
                        // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
@@ -277,17 +273,17 @@ public:
                     
                     // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
                     // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
-                    // TS_ASSERT_DELTA(voltage_array[i], -35.1363, 35*0.1);
+                    // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
                     
                     // test the RHS edge voltages
                     // hardcoded result that looks accurate - this is a test to see
                     // that nothing has changeed
                     // assumes endtime = 2ms
-                    TS_ASSERT_DELTA(voltage_array[i], -63.1852, 0.01);
+                    TS_ASSERT_DELTA(p_voltage_array[i], -63.1852, 0.01);
                 }
             }
         }
-        monodomain_problem.RestoreVoltageArray(&voltage_array);
+        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
         
      
     }   
@@ -318,9 +314,9 @@ public:
         dif = difftime (end,start);
         //printf ("\nSolve took %.2lf seconds. \n", dif );
         
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for (int global_index=lo; global_index<hi; global_index++)
@@ -330,8 +326,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for (int j=0; j<8; j++)
@@ -358,22 +354,22 @@ public:
              */
              
             // corners
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[10],  0.1);
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[110], 0.1);
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[120], 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[10],  0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[110], 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[120], 0.1);
             
             // centres of edges
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[55],  0.1);
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[65],  0.1);
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[115], 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[55],  0.1);
+            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[65],  0.1);
+            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[115], 0.1);
             
             // hardcoded result to check nothing has changed
             // assumes endtime = 1.3
-            TS_ASSERT_DELTA(voltage_array[0], -43.1522, 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], -43.1522, 0.1);
                         
         }
         
-      monodomain_problem.RestoreVoltageArray(&voltage_array);
+      monodomain_problem.RestoreVoltageArray(&p_voltage_array);
      }   
 };
 

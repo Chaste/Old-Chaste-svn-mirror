@@ -9,8 +9,6 @@ PropagationPropertiesCalculator::PropagationPropertiesCalculator(ColumnDataReade
 {
 }
 
-
-
 PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
 {
     // We don't own the data reader, so we don't destroy it.

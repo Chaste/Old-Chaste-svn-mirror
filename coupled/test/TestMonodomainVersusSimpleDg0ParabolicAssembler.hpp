@@ -72,17 +72,17 @@ public:
         initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
         VecDuplicate(initial_condition_1, &initial_condition_2);
   
-        double* init_array;
+        double* p_init_array;
         int lo, hi;
         VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        VecGetArray(initial_condition_1, &init_array); 
+        VecGetArray(initial_condition_1, &p_init_array); 
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
             double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
-            init_array[local_index] = exp(-(x*x)/100);
+            p_init_array[local_index] = exp(-(x*x)/100);
         }
-        VecRestoreArray(initial_condition_1, &init_array);      
+        VecRestoreArray(initial_condition_1, &p_init_array);      
         VecAssemblyBegin(initial_condition_1);
         VecAssemblyEnd(initial_condition_1);
         
@@ -114,22 +114,22 @@ public:
         }
         
         // Compare the results
-        double *res1, *res2;
-        VecGetArray(current_solution_1, &res1);
-        VecGetArray(current_solution_2, &res2);
+        double *p_current_solution1_array, *p_current_solution2_array;
+        VecGetArray(current_solution_1, &p_current_solution1_array);
+        VecGetArray(current_solution_2, &p_current_solution2_array);
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
-            TS_ASSERT_DELTA(res1[global_index-lo], res2[local_index], 1e-3);
-            if (global_index==10) TS_ASSERT_DELTA(res1[local_index], 5.8028e-07, 1e-9);
-            if (global_index==25) TS_ASSERT_DELTA(res1[local_index], 0.00648079, 1e-5);
-            if (global_index==50) TS_ASSERT_DELTA(res1[local_index], 0.992718, 1e-5);
-            if (global_index==75) TS_ASSERT_DELTA(res1[local_index], 0.00648079, 1e-5);
+            TS_ASSERT_DELTA(p_current_solution1_array[global_index-lo], p_current_solution2_array[local_index], 1e-3);
+            if (global_index==10) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 5.8028e-07, 1e-9);
+            if (global_index==25) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.00648079, 1e-5);
+            if (global_index==50) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.992718, 1e-5);
+            if (global_index==75) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.00648079, 1e-5);
         }
   
   
-        VecRestoreArray(current_solution_1, &res1);
-        VecRestoreArray(current_solution_2, &res2);
+        VecRestoreArray(current_solution_1, &p_current_solution1_array);
+        VecRestoreArray(current_solution_2, &p_current_solution2_array);
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
     }
@@ -168,17 +168,17 @@ public:
         initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
         VecDuplicate(initial_condition_1, &initial_condition_2);
   
-        double* init_array;
+        double* p_init_array;
         int lo, hi;
         VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        VecGetArray(initial_condition_1, &init_array); 
+        VecGetArray(initial_condition_1, &p_init_array); 
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
             double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
-            init_array[local_index] = exp(-(x*x)/100);
+            p_init_array[local_index] = exp(-(x*x)/100);
         }
-        VecRestoreArray(initial_condition_1, &init_array);      
+        VecRestoreArray(initial_condition_1, &p_init_array);      
         VecAssemblyBegin(initial_condition_1);
         VecAssemblyEnd(initial_condition_1);
         
@@ -210,20 +210,20 @@ public:
         }
         
         // Compare the results
-        double *res1, *res2;
-        VecGetArray(current_solution_1, &res1);
-        VecGetArray(current_solution_2, &res2);
+        double *p_current_solution1_array, *p_current_solution2_array;
+        VecGetArray(current_solution_1, &p_current_solution1_array);
+        VecGetArray(current_solution_2, &p_current_solution2_array);
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
-            TS_ASSERT_DELTA(res1[local_index], res2[local_index], 1e-3);
-//            if (global_index==10) TS_ASSERT_DELTA(res1[local_index], 2.8951e-7, 1e-9);
-//            if (global_index==25) TS_ASSERT_DELTA(res1[local_index], 0.0060696, 1e-5);
-//            if (global_index==50) TS_ASSERT_DELTA(res1[local_index], 0.992834, 1e-5);
-//            if (global_index==75) TS_ASSERT_DELTA(res1[local_index], 0.0060696, 1e-5);
+            TS_ASSERT_DELTA(p_current_solution1_array[local_index], p_current_solution2_array[local_index], 1e-3);
+//            if (global_index==10) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 2.8951e-7, 1e-9);
+//            if (global_index==25) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.0060696, 1e-5);
+//            if (global_index==50) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.992834, 1e-5);
+//            if (global_index==75) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.0060696, 1e-5);
         }
-        VecRestoreArray(current_solution_1, &res1);
-        VecRestoreArray(current_solution_2, &res2);
+        VecRestoreArray(current_solution_1, &p_current_solution1_array);
+        VecRestoreArray(current_solution_2, &p_current_solution2_array);
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
     }

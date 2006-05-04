@@ -15,9 +15,6 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
-
-
-
 class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:

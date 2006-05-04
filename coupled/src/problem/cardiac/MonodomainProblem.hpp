@@ -2,17 +2,14 @@
 #define MONODOMAINPROBLEM_HPP_
 
 //#include <iostream>
-
 // For mkdir()
 #include <sys/stat.h>
-
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ParallelColumnDataWriter.hpp"
-
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 

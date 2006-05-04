@@ -3,20 +3,15 @@
 
 //#include <iostream>
 #include <vector>
+
 #include "InitialStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
-
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MonodomainPde.hpp"
-
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
-
 #include "AbstractCardiacCellFactory.hpp"
-
 #include <petsc.h>
-
- 
 #include <cxxtest/TestSuite.h>
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
@@ -100,8 +95,8 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		//VecSetType(initialCondition, VECSEQ);
 		VecSetFromOptions(voltage);
   
-		double* voltage_array;
-		VecGetArray(voltage, &voltage_array); 
+		double* p_voltage_array;
+		VecGetArray(voltage, &p_voltage_array); 
         
         int lo, hi;
         VecGetOwnershipRange(voltage,&lo,&hi);
@@ -112,10 +107,10 @@ class TestMonodomainPde : public CxxTest::TestSuite
     		// initial voltage condition of a constant everywhere on the mesh
     		if (lo<=global_index && global_index<hi)
             {
-                voltage_array[local_index] = initial_voltage;
+                p_voltage_array[local_index] = initial_voltage;
             }
         }
-		VecRestoreArray(voltage, &voltage_array);      
+		VecRestoreArray(voltage, &p_voltage_array);      
 		VecAssemblyBegin(voltage);
 		VecAssemblyEnd(voltage);
 		 
@@ -152,21 +147,21 @@ class TestMonodomainPde : public CxxTest::TestSuite
  
 
         // Reset       
-       	VecGetArray(voltage, &voltage_array); 
+       	VecGetArray(voltage, &p_voltage_array); 
         
 
         if (lo<=0 && 0<hi)
         {
             int local_index = 0 - lo;
-    		voltage_array[local_index] = solutionSetStimT_05[4];
+    		p_voltage_array[local_index] = solutionSetStimT_05[4];
         }
         if (lo<=1 && 1<hi)
         {
             int local_index = 1 - lo;
-    		voltage_array[local_index] = solutionSetNoStimT_05[4];
+    		p_voltage_array[local_index] = solutionSetNoStimT_05[4];
         }
 		
-		VecRestoreArray(voltage, &voltage_array);      
+		VecRestoreArray(voltage, &p_voltage_array);      
 		VecAssemblyBegin(voltage);
 		VecAssemblyEnd(voltage);
 
@@ -215,8 +210,8 @@ class TestMonodomainPde : public CxxTest::TestSuite
         //VecSetType(initialCondition, VECSEQ);
         VecSetFromOptions(voltage);
   
-        double* voltage_array;
-        VecGetArray(voltage, &voltage_array); 
+        double* p_voltage_array;
+        VecGetArray(voltage, &p_voltage_array); 
         
         int lo, hi;
         VecGetOwnershipRange(voltage,&lo,&hi);

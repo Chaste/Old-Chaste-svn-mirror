@@ -2,7 +2,6 @@
 #define _TESTMONODOMAINHEART_HPP_
 
 #include "Element.hpp"
-
 #include <cxxtest/TestSuite.h>
 #include "petscvec.h"
 #include <vector>
@@ -13,7 +12,6 @@
 #include "MonodomainPde.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -93,8 +91,7 @@ public:
 */
 class TestMonodomainHeart : public CxxTest::TestSuite 
 {   
-
-    
+ 
 public:
     void TestMonodomainDg0Heart()
     {

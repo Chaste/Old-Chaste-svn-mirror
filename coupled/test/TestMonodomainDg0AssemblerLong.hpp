@@ -80,9 +80,9 @@ public:
         dif = difftime (end,start);
  //       printf ("\nSolve took %.2lf seconds. \n", dif );
         
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
         for (int global_index=lo; global_index<hi; global_index++)
@@ -92,8 +92,8 @@ public:
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
                                            GetCardiacCell(global_index)->rGetStateVariables();
@@ -121,24 +121,24 @@ public:
              */
              
             // corners
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[10],  0.1);
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[110], 0.1);
-            TS_ASSERT_DELTA(voltage_array[0], voltage_array[120], 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[10],  0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[110], 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[120], 0.1);
             
             // centres of edges
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[55],  0.1);
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[65],  0.1);
-            TS_ASSERT_DELTA(voltage_array[5], voltage_array[115], 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[55],  0.1);
+            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[65],  0.1);
+            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[115], 0.1);
             
             int num_nodes = monodomain_problem.rGetMesh().GetNumNodes();
             // test final voltages have returned to the resting potential
             for (int i=0; i<num_nodes; i++)
             {
-                TS_ASSERT_DELTA(voltage_array[i], -84.5, 1);
+                TS_ASSERT_DELTA(p_voltage_array[i], -84.5, 1);
             }
                         
         }
-        monodomain_problem.RestoreVoltageArray(&voltage_array);
+        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }   
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_

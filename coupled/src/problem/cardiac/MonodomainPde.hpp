@@ -4,7 +4,6 @@
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
-#include "OdeSolution.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MatrixDouble.hpp"
 #include "AbstractCoupledPde.hpp"
@@ -24,8 +23,6 @@ const double rA = rMyo + rG / LENGTH;// BETA;
 //memfem:
 //const double DIFFUSION_CONST = 0.000019;
 const double BETA = 0.00014;
-
-
 
 /**
  * MonodomainPde class.
@@ -112,8 +109,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         assert(0);
         return 0.0;
     }
-
-        
+ 
     MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         return  mDiffusionCoefficient * MatrixDouble::Identity(SPACE_DIM);
@@ -165,9 +161,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         this->mTime += this->mBigTimeStep;
     }
-    
-
-
+  
     virtual void PrepareForAssembleSystem(Vec currentSolution)
     {
         AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution);

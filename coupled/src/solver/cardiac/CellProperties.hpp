@@ -27,9 +27,7 @@ private:
      */
     std::vector<double> mTime;
     std::vector<double> mVoltage;
-    
-    
-   
+ 
     /**
      * Threshold for determining what counts as an action potential.
      * This is a value part way between the min & max potential, to avoid

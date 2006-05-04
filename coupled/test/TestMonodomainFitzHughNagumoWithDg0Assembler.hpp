@@ -4,24 +4,19 @@
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
-
-
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
-#include "SimpleLinearSolver.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include <vector>
 #include <iostream>
+#include "SimpleLinearSolver.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 #include "Node.hpp"
-#include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "TrianglesMeshReader.hpp"
-
 //#include "MonodomainPdeFitzHughNagumo.hpp"
 #include "MonodomainPde.hpp"
 #include "MonodomainProblem.hpp"
-
 #include "MonodomainDg0Assembler.hpp"
 #include "ColumnDataWriter.hpp"
 #include <cmath>
@@ -84,9 +79,9 @@ public:
         
         monodomain_problem.Solve();
         
-        double* voltage_array;
+        double* p_voltage_array;
         int lo, hi;
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
  
         int num_procs;
@@ -115,7 +110,7 @@ public:
                     
                     if (need_initialisation)
                     {
-                        voltage = voltage_array[i];
+                        voltage = p_voltage_array[i];
                         need_initialisation = false;
                     }
                     else
@@ -126,16 +121,16 @@ public:
                         // the voltages would vary more with a mesh with all the
                         // triangles aligned in the same direction.
 
-                         TS_ASSERT_DELTA(voltage_array[i], voltage, 0.01);
+                         TS_ASSERT_DELTA(p_voltage_array[i], voltage, 0.01);
 
                          // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
 
-                    TS_ASSERT_DELTA(voltage_array[i], 1.5656, 0.01);
+                    TS_ASSERT_DELTA(p_voltage_array[i], 1.5656, 0.01);
                 }
             }
         }
-        monodomain_problem.RestoreVoltageArray(&voltage_array);
+        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
         
      
     }   

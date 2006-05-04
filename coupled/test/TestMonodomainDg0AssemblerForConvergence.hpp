@@ -81,9 +81,9 @@ public:
             monodomain_problem.Initialise();
             monodomain_problem.Solve();
     
-            double* voltage_array;
+            double* p_voltage_array;
             int lo, hi;
-            monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+            monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
             // test whether voltages and gating variables are in correct ranges
             for (int global_index=lo; global_index<hi; global_index++) 
@@ -93,8 +93,8 @@ public:
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
     
-                TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-                TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+                TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+                TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
     
                 std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
                 for (int j=0; j<8; j++)
@@ -112,7 +112,7 @@ public:
             if ((lo <= 5) && (hi > 5))
             {
                 int local_index = 5-lo;
-                my_voltage = voltage_array[local_index];
+                my_voltage = p_voltage_array[local_index];
             }
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
@@ -121,7 +121,7 @@ public:
 // Note: the first time around this iteration, the relative error will be wrong
 //       because of the initial value of prev_voltage
 //            std::cout << "Testing for dt = " << monodomain_problem.time_step
-//                << "ms (dx = 0.01cm) err = " << relerr << " V = " << voltage_array[5] << "mV"
+//                << "ms (dx = 0.01cm) err = " << relerr << " V = " << p_voltage_array[5] << "mV"
 //                << std::endl << std::flush;
 
             if (relerr < 1e-2)
@@ -138,7 +138,7 @@ public:
 
             prev_voltage = probe_voltage;
     
-            monodomain_problem.RestoreVoltageArray(&voltage_array);
+            monodomain_problem.RestoreVoltageArray(&p_voltage_array);
           } while(!converging);
                 
         // Do we end up with the expected time step?
@@ -209,9 +209,9 @@ public:
             monodomain_problem.Initialise();
             monodomain_problem.Solve();
     
-            double* voltage_array;
+            double* p_voltage_array;
             int lo, hi;
-            monodomain_problem.GetVoltageArray(&voltage_array, lo, hi); 
+            monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
             // test whether voltages and gating variables are in correct ranges
             for (int global_index=lo; global_index<hi; global_index++)
@@ -221,8 +221,8 @@ public:
                 double Ena   =  54.4;   // mV
                 double Ek    = -77.0;   // mV
     
-                TS_ASSERT_LESS_THAN_EQUALS( voltage_array[local_index] , Ena +  30);
-                TS_ASSERT_LESS_THAN_EQUALS(-voltage_array[local_index] + (Ek-30), 0);
+                TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
+                TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
     
                 std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
                 for (int j=0; j<8; j++)
@@ -240,7 +240,7 @@ public:
             if ((lo <= middle_node) && (hi > middle_node))
             {
                 int local_index = middle_node - lo;
-                my_voltage = voltage_array[local_index];
+                my_voltage = p_voltage_array[local_index];
             }
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
@@ -250,7 +250,7 @@ public:
 //       because of the initial value of prev_voltage
 //            std::cout << "Testing for dx = " << space_step
 //                << "cm (dt = " << time_step << "ms) err = " << relerr << " V = " 
-//                << voltage_array[middle_node] << "mV" << std::endl << std::flush;
+//                << p_voltage_array[middle_node] << "mV" << std::endl << std::flush;
             
             prev_voltage = probe_voltage;
 
@@ -268,7 +268,7 @@ public:
                 middle_node *= 2;
             }
     
-             monodomain_problem.RestoreVoltageArray(&voltage_array);
+             monodomain_problem.RestoreVoltageArray(&p_voltage_array);
         } while(!converging);
         
         // Conclusion
