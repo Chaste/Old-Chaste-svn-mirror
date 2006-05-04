@@ -5,19 +5,16 @@
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
 
-
 #include <cxxtest/TestSuite.h>
-#include <petsc.h>
 #include <petsc.h>
 #include <vector>
 #include <cmath>
-#include <iostream>
+//#include <iostream>
 
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "SimpleNonlinearSolver.hpp"
 
-#include "Node.hpp" 
-#include "Element.hpp"
+#include "Node.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 
 #include "BoundaryConditionsContainer.hpp"
@@ -124,14 +121,11 @@ public:
 		iter--; // to be consistent with c++ :))), GetBoundaryElementIteratorEnd points to one element passed it
 		boundary_conditions.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
 
-		// initialize currentSolution_vector
-		Vec currentSolution_vector;
-		VecCreate(PETSC_COMM_WORLD, &currentSolution_vector);
-		VecSetSizes(currentSolution_vector,PETSC_DECIDE,mesh.GetNumNodes());
-		VecSetFromOptions(currentSolution_vector);
-		
-		Vec res_vector;
-		VecDuplicate(currentSolution_vector,&res_vector);
+		// initialize 'solution' vector
+		Vec solution;
+		VecCreate(PETSC_COMM_WORLD, &solution);
+		VecSetSizes(solution, PETSC_DECIDE, mesh.GetNumNodes());
+		VecSetFromOptions(solution);
 		
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 		
@@ -139,90 +133,59 @@ public:
 		NonlinearHeatEquationPde<1> pde;
 		assembler.mpPde = &pde;
 		assembler.mpBoundaryConditions = &boundary_conditions;
-	
-		assembler.ComputeResidual(currentSolution_vector, res_vector);
-	
-		// Set current solution to 1 and compute residual
+
+		// Set 'solution' to 1 and compute residual
 		double h = 0.01;
 		for (int global_index = 0; global_index<mesh.GetNumNodes(); global_index++)
 		{
-			VecSetValue(currentSolution_vector, global_index, (PetscReal) 1, INSERT_VALUES);
+			VecSetValue(solution, global_index, (PetscReal) 1, INSERT_VALUES);
 		}
-		double InitialGuess = 1.0;
-		VecAssemblyBegin(currentSolution_vector);
-        VecAssemblyEnd(currentSolution_vector);
-        Vec result;
-		VecDuplicate(currentSolution_vector, &result);
+		double initial_guess = 1.0;
+		VecAssemblyBegin(solution);
+        VecAssemblyEnd(solution);
+        Vec residual;
+		VecDuplicate(solution, &residual);
 
-        assembler.ComputeResidual(currentSolution_vector, result);
+        assembler.ComputeResidual(solution, residual);
 		
- 		PetscScalar *answerElements;
-		VecGetArray(result, &answerElements);
+ 		PetscScalar *p_residual;
+		VecGetArray(residual, &p_residual);
 
         int lo, hi;
-        VecGetOwnershipRange(result,&lo,&hi);
+        VecGetOwnershipRange(residual, &lo, &hi);
   
         if (lo<=0 && 0<hi)
         {
             int local_index = 0-lo;
-		    double value1 = answerElements[local_index];
-            TS_ASSERT(fabs(value1 + DirichletBCValue - InitialGuess) < 0.001);
+		    double value1 = p_residual[local_index];
+            TS_ASSERT(fabs(value1 + DirichletBCValue - initial_guess) < 0.001);
         }
         if (lo<=1 && 1<hi)
 		{
             int local_index = 1-lo;
-            double value2 = answerElements[local_index];
+            double value2 = p_residual[local_index];
             TS_ASSERT(fabs(value2 + h) < 0.001);
         }
         if (lo<=mesh.GetNumNodes()-1 && mesh.GetNumNodes()-1<hi)
 		{
             int local_index = mesh.GetNumNodes()-1-lo;
-            double valueLast = answerElements[local_index];
+            double valueLast = p_residual[local_index];
 		    TS_ASSERT(fabs(valueLast + VonNeumannBCValue + h/2) < 0.001);
         }
-        VecRestoreArray(result, &answerElements);   
-		VecDestroy(result);
-		VecDestroy(res_vector);
-		VecDestroy(currentSolution_vector);
-	}
-
-	/**
-	 * \todo This should be made into a proper test that the jacobian calculation
-	 * is correct, for some test cases.
-	 */
-	void TestComputeJacobianNumerically(void)
-	{	
-				
-		// Set up input vector - not actually used but need to be passed!
-		Vec input;
-		VecCreate(PETSC_COMM_WORLD, &input);
-		VecSetSizes(input,PETSC_DECIDE,2);
-		VecSetFromOptions(input);
-		VecSetValue(input, 0, (PetscReal) 0, INSERT_VALUES);
-		VecSetValue(input, 1, (PetscReal) 0, INSERT_VALUES);
-		   
-		// Set up Jacobian matrix - results written into this Mat object
-		Mat jacobian;
-		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, 2, 2, &jacobian);
-		MatSetFromOptions(jacobian);
-
-		//int errcode = ComputeJacobianPetsc(snes, input, &jacobian, NULL, NULL, NULL);
-
-		//std::cout << "Our J matrix: " << std::endl;
-		//MatView(jacobian,0);
-		
-		VecDestroy(input);
-		MatDestroy(jacobian);
+        VecRestoreArray(residual, &p_residual);   
+		VecDestroy(residual);
+		VecDestroy(solution);
 	}
 	
 	void TestNumericalAgainstAnalyticJacobian()
 	{
+        PetscInt n = 11;  // Mesh size
 		Mat numerical_jacobian;
-		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, 11, 11, &numerical_jacobian);
+		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &numerical_jacobian);
 		//MatSetType(numerical_jacobian, MATSEQDENSE);
 	    MatSetFromOptions(numerical_jacobian);
 		Mat analytic_jacobian;
-		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, 11, 11, &analytic_jacobian);
+		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &analytic_jacobian);
 		//MatSetType(analytic_jacobian, MATSEQDENSE);
         MatSetFromOptions(analytic_jacobian);
 	
@@ -235,10 +198,9 @@ public:
 		
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
-		//pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 			
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 			
@@ -250,8 +212,6 @@ public:
 		VecSetFromOptions(initial_guess);
 		for(int i=0; i<length ; i++)
 		{
-			//VecSetValue(initial_guess, i, sqrt(0.1*i*(1-0.1*i)), INSERT_VALUES);
-			//VecSetValue(initial_guess, i, 0.25, INSERT_VALUES);
 			VecSetValue(initial_guess, i, (-0.01*i*i), INSERT_VALUES);
 		}
 		VecAssemblyBegin(initial_guess);
@@ -268,21 +228,20 @@ public:
 		errcode = assembler.ComputeJacobianAnalytically(initial_guess, &analytic_jacobian);
 		TS_ASSERT_EQUALS(errcode, 0);
 	
-		MatAssemblyBegin(numerical_jacobian,MAT_FINAL_ASSEMBLY);
-		MatAssemblyEnd(numerical_jacobian,MAT_FINAL_ASSEMBLY);
-		MatAssemblyBegin(analytic_jacobian,MAT_FINAL_ASSEMBLY);
-		MatAssemblyEnd(analytic_jacobian,MAT_FINAL_ASSEMBLY);
+		MatAssemblyBegin(numerical_jacobian, MAT_FINAL_ASSEMBLY);
+		MatAssemblyEnd(numerical_jacobian, MAT_FINAL_ASSEMBLY);
+		MatAssemblyBegin(analytic_jacobian, MAT_FINAL_ASSEMBLY);
+		MatAssemblyEnd(analytic_jacobian, MAT_FINAL_ASSEMBLY);
 	
 //		TS_TRACE("Numerical:");
 //		MatView(numerical_jacobian, 0);
 //		TS_TRACE("Analytical:");
 //		MatView(analytic_jacobian, 0);
 
-        PetscInt n = 11;
-		PetscScalar numerical[n*n], analytic[n*n];
+		PetscScalar numerical_array[n*n], analytic_array[n*n];
 		PetscInt row_ids[n], col_ids[n];
         int lo, hi;
-        MatGetOwnershipRange(numerical_jacobian,&lo,&hi);
+        MatGetOwnershipRange(numerical_jacobian, &lo, &hi);
 		for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
@@ -294,15 +253,15 @@ public:
         }
         
 		// Check matrices are the same, to within numerical error tolerance
-  		MatGetValues(numerical_jacobian,hi-lo,row_ids,n,col_ids,numerical);
-		MatGetValues(analytic_jacobian,hi-lo,row_ids,n,col_ids,analytic);
-        
+  		MatGetValues(numerical_jacobian, hi-lo, row_ids, n, col_ids, numerical_array);
+		MatGetValues(analytic_jacobian, hi-lo, row_ids, n, col_ids, analytic_array);
         
 		for (int local_index=0; local_index<hi-lo; local_index++)
 		{
 			for (int j=0; j<n; j++)
 			{
-				TS_ASSERT_DELTA(numerical[local_index*n+j], analytic[local_index*n+j], 0.001);
+				TS_ASSERT_DELTA(numerical_array[local_index*n+j],
+                                analytic_array[local_index*n+j], 0.001);
 			}
 		}
 
@@ -323,9 +282,9 @@ public:
 		
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 		
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 		SimpleNonlinearSolver solver;
@@ -340,27 +299,21 @@ public:
 		VecAssemblyEnd(initial_guess); 
 
 		Vec answer;
-
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+        answer = assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 			 
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(x*(1-x));
-			TS_ASSERT_DELTA(ans[local_index], u, 0.001); 
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.001); 
 		} 
-		ierr = VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -378,13 +331,13 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		// u(0) = 0
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
 		// u(1)*u'(1) = 1
-		pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+		p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
 		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
 		iter--;
-		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+		bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
 		// Nonlinear solver to use
 		SimpleNonlinearSolver solver;
@@ -400,26 +353,21 @@ public:
 
 		// Solve the PDE
 		Vec answer;
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 				
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(x*(4-x));
-			TS_ASSERT_DELTA(ans[local_index], u, 0.001);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.001);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -436,10 +384,10 @@ public:
 		
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
-		ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(exp(1.0));
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition1);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+		p_boundary_condition = new ConstBoundaryCondition<1>(exp(1.0));
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 		
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 		SimpleNonlinearSolver solver;
@@ -455,28 +403,22 @@ public:
 				
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = exp(0.5*(3.0*x-x*x));
-			//std::cout << x << "\t" << u << std::endl;
-			TS_ASSERT_DELTA(ans[local_index], u, 0.001); 
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.001); 
 		}
 		
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -493,10 +435,10 @@ public:
 		
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(sqrt(2.0));
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
-		ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0); 
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition1);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(2.0));
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+		p_boundary_condition = new ConstBoundaryCondition<1>(0.0); 
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 		
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler(3);
@@ -513,26 +455,21 @@ public:
 
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 				
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(2.0*(exp(-x)-x*exp(-1.0)));
-			TS_ASSERT_DELTA(ans[local_index], u, 0.001); 
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.001); 
 		} 
-		ierr = VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -550,12 +487,12 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		// u(1) = exp(1.0)
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(exp(-1.0));
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 		// u(0)^2*u'(0) = 0.0
-		pBoundaryCondition = new ConstBoundaryCondition<1>(0.0);
+		p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
 		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+		bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 		SimpleNonlinearSolver solver;
@@ -573,26 +510,21 @@ public:
 
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 				
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = x*exp(-x);
-			TS_ASSERT_DELTA(ans[local_index], u, 0.01); 
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01); 
 		} 
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -610,14 +542,14 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		// u(1) = exp(-1.0)
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(exp(-1.0));
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 		// u(0)^2*u'(0) = -1.0
 		// Note that we specify 1 as the value, since figuring out which direction
 		// the normal is in is hard in 1D.
-		pBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+		p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
 		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+		bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 		SimpleNonlinearSolver solver;
@@ -635,26 +567,21 @@ public:
 
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 				
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = exp(-x);
-			TS_ASSERT_DELTA(ans[local_index], u, 0.01); 
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01); 
 		} 
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -672,14 +599,14 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		// u(1) = sqrt(3)
-		ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(sqrt(3));
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), pBoundaryCondition);
+		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(3));
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
 		// u(0)*u'(0) = 2
 		// Note that we specify -2 as the value, since figuring out which direction
 		// the normal is in is hard in 1D.
-		pBoundaryCondition = new ConstBoundaryCondition<1>(-2.0);
+		p_boundary_condition = new ConstBoundaryCondition<1>(-2.0);
 		ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-		bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+		bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
 		SimpleNonlinearSolver solver;
@@ -691,26 +618,21 @@ public:
 		
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 				
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		VecGetArray(answer, &ans);
+ 		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = sqrt(x*(4-x));
-			TS_ASSERT_DELTA(ans[local_index], u, 0.001);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.001);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -729,16 +651,16 @@ public:
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		// du/dn = -0.5 on r=1
 		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-		ConstBoundaryCondition<2>* pBoundaryCondition;
-		pBoundaryCondition = new ConstBoundaryCondition<2>(-0.5);
+		ConstBoundaryCondition<2>* p_boundary_condition;
+		p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
 		while (iter != mesh.GetBoundaryElementIteratorEnd())
 		{
-			bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+			bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 			iter++;
 		}
 		// u = 2 at some point on the boundary, say node 1
-		pBoundaryCondition = new ConstBoundaryCondition<2>(2.0);
-		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), pBoundaryCondition);
+		p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
+		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
 		
 		SimpleNonlinearEllipticAssembler<2,2> assembler;
 		SimpleNonlinearSolver solver;
@@ -748,17 +670,12 @@ public:
 		
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
-		
-		double *res;
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+	
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		VecGetArray(answer, &res);
+ 		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
@@ -766,9 +683,9 @@ public:
 			r(0) = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			r(1) = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = -0.25 * r.L2Norm() * r.L2Norm() + 2.25;
-			TS_ASSERT_DELTA(res[local_index], u, 0.01);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01);
 		}
-		VecRestoreArray(answer, &res);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -786,35 +703,35 @@ public:
 		// Boundary conditions
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		// u(y=0) = 0
-		ConstBoundaryCondition<2>* zeroBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+		ConstBoundaryCondition<2>* zero_boundary_condition = new ConstBoundaryCondition<2>(0.0);
 		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
 		while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			if (fabs((*node_iter)->GetPoint()[1]) < 1e-12)
 			{
-				bcc.AddDirichletBoundaryCondition(*node_iter, zeroBoundaryCondition);
+				bcc.AddDirichletBoundaryCondition(*node_iter, zero_boundary_condition);
 			}
 			node_iter++;
 		}
 
 		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-		FunctionalBoundaryCondition<2>* oneBoundaryCondition = new FunctionalBoundaryCondition<2>(&one_bc);
-		AbstractBoundaryCondition<2>* pBoundaryCondition;
+		FunctionalBoundaryCondition<2>* one_boundary_condition = new FunctionalBoundaryCondition<2>(&one_bc);
+		AbstractBoundaryCondition<2>* p_boundary_condition;
 		while (iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			double y = (*iter)->GetNodeLocation(0,1);
 			if (fabs(y-1.0) < 1e-12)
 			{
 				// u(y=1)*u'(y=1) = 1
-				pBoundaryCondition = oneBoundaryCondition;
+				p_boundary_condition = one_boundary_condition;
 			}
 			else
 			{
 				// No flux across left & right
-				pBoundaryCondition = zeroBoundaryCondition;
+				p_boundary_condition = zero_boundary_condition;
 			}
 				
-			bcc.AddNeumannBoundaryCondition(*iter, pBoundaryCondition);
+			bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 				
 			iter++;
 		}
@@ -827,26 +744,21 @@ public:
 		
 		Vec answer;
 		
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 				
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		VecGetArray(answer, &ans);
+ 		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = sqrt(y*(4-y));
-			TS_ASSERT_DELTA(ans[local_index], u, 0.15);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.15);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -863,50 +775,50 @@ public:
 
 		// Boundary conditions
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<2>* pBoundaryCondition;
+		ConstBoundaryCondition<2>* p_boundary_condition;
 		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
 		while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*node_iter)->GetPoint()[0];
 			double y = (*node_iter)->GetPoint()[1];
-			pBoundaryCondition = NULL;
+			p_boundary_condition = NULL;
 			if (fabs(x) < 1e-12)
 			{
 				// On x=0, u=1+y^2
-				pBoundaryCondition = new ConstBoundaryCondition<2>(1 + y*y);
+				p_boundary_condition = new ConstBoundaryCondition<2>(1 + y*y);
 			}
 			else if (fabs(y) < 1e-12)
 			{
 				// On y=0, u=1+x^2
-				pBoundaryCondition = new ConstBoundaryCondition<2>(1 + x*x);
+				p_boundary_condition = new ConstBoundaryCondition<2>(1 + x*x);
 			}
-			if (pBoundaryCondition)
+			if (p_boundary_condition)
 			{
-				bcc.AddDirichletBoundaryCondition(*node_iter, pBoundaryCondition);
+				bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
 			}
 				
 			node_iter++;
 		}
-		FunctionalBoundaryCondition<2>* pBC;
+		FunctionalBoundaryCondition<2>* p_functional_bc;
 		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
 		while (elt_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			double x = (*elt_iter)->GetNodeLocation(0,0);
 			double y = (*elt_iter)->GetNodeLocation(0,1);
-			pBC = NULL;
+			p_functional_bc = NULL;
 			if (fabs(y-1.0) < 1e-12)
 			{
 				// On y=1, Dgradu_dot_n = 2(2+x^2)
-				pBC = new FunctionalBoundaryCondition<2>(&bc_y1_func);
+				p_functional_bc = new FunctionalBoundaryCondition<2>(&bc_y1_func);
 			}
 			else if (fabs(x-1.0) < 1e-12)
 			{
 				// On x=1, Dgradu_dot_n = 2(2+y^2)
-				pBC = new FunctionalBoundaryCondition<2>(&bc_x1_func);
+				p_functional_bc = new FunctionalBoundaryCondition<2>(&bc_x1_func);
 			}
-			if (pBC)
+			if (p_functional_bc)
 			{
-				bcc.AddNeumannBoundaryCondition(*elt_iter, pBC);
+				bcc.AddNeumannBoundaryCondition(*elt_iter, p_functional_bc);
 			}
 			
 			elt_iter++;
@@ -921,48 +833,38 @@ public:
 		Vec answer;
 		
 		// Numerical Jacobian
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
 		
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
- 		int ierr = VecGetArray(answer, &ans);
+ 		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(answer);
 		
 		// Analytical Jacobian
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		
 		// Check result
-		ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + x*x + y*y;
-			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}
@@ -979,50 +881,50 @@ public:
 
 		// Boundary conditions
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
-		ConstBoundaryCondition<2>* pBoundaryCondition;
+		ConstBoundaryCondition<2>* p_boundary_condition;
 		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
 		while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*node_iter)->GetPoint()[0];
 			double y = (*node_iter)->GetPoint()[1];
-			pBoundaryCondition = NULL;
+			p_boundary_condition = NULL;
 			if (fabs(x) < 1e-12)
 			{
 				// On x=0, u=1+y^2
-				pBoundaryCondition = new ConstBoundaryCondition<2>(1 + y*y);
+				p_boundary_condition = new ConstBoundaryCondition<2>(1 + y*y);
 			}
 			else if (fabs(y) < 1e-12)
 			{
 				// On y=0, u=1+sin^2(x)
-				pBoundaryCondition = new ConstBoundaryCondition<2>(1 + sin(x)*sin(x));
+				p_boundary_condition = new ConstBoundaryCondition<2>(1 + sin(x)*sin(x));
 			}
-			if (pBoundaryCondition)
+			if (p_boundary_condition)
 			{
-				bcc.AddDirichletBoundaryCondition(*node_iter, pBoundaryCondition);
+				bcc.AddDirichletBoundaryCondition(*node_iter, p_boundary_condition);
 			}
 			
 			node_iter++;
 		}
-		FunctionalBoundaryCondition<2>* pBC;
+		FunctionalBoundaryCondition<2>* p_functional_bc;
 		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elt_iter = mesh.GetBoundaryElementIteratorBegin();
 		while (elt_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			double x = (*elt_iter)->GetNodeLocation(0,0);
 			double y = (*elt_iter)->GetNodeLocation(0,1);
-			pBC = NULL;
+			p_functional_bc = NULL;
 			if (fabs(y-1.0) < 1e-12)
 			{
 				// On y=1, Dgradu_dot_n = 2(2+sin^2(x))
-				pBC = new FunctionalBoundaryCondition<2>(&bc_y1_func2);
+				p_functional_bc = new FunctionalBoundaryCondition<2>(&bc_y1_func2);
 			}
 			else if (fabs(x-1.0) < 1e-12)
 			{
 				// On x=1, Dgradu_dot_n = sin(2)(sin^2(1)+1+y^2)
-				pBC = new FunctionalBoundaryCondition<2>(&bc_x1_func2);
+				p_functional_bc = new FunctionalBoundaryCondition<2>(&bc_x1_func2);
 			}
-			if (pBC)
+			if (p_functional_bc)
 			{
-				bcc.AddNeumannBoundaryCondition(*elt_iter, pBC);
+				bcc.AddNeumannBoundaryCondition(*elt_iter, p_functional_bc);
 			}
 			
 			elt_iter++;
@@ -1037,48 +939,38 @@ public:
 		Vec answer;
 		
 		// Numerical Jacobian
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
 		
 		// Check result
-		double *ans;
+		double *p_answer;
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
-		int ierr = VecGetArray(answer, &ans);
+		VecGetArray(answer, &p_answer);
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + sin(x)*sin(x) + y*y;
-			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(answer);
 		
 		// Analytical Jacobian
-		try {
-			answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
-		} catch (Exception e) {
-			TS_TRACE(e.GetMessage());
-			TS_ASSERT(0);
-		}
+		answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
 		
 		// Check result
-		ierr = VecGetArray(answer, &ans);
+        VecGetArray(answer, &p_answer);
  		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double u = 1 + sin(x)*sin(x) + y*y;
-			TS_ASSERT_DELTA(ans[local_index], u, 0.01);
+			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01);
 		}
-		VecRestoreArray(answer, &ans);
+		VecRestoreArray(answer, &p_answer);
 		VecDestroy(initial_guess);
 		VecDestroy(answer);
 	}

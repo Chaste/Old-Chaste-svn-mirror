@@ -11,7 +11,6 @@
  *   
  */
 
-
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
@@ -29,19 +28,14 @@
 #include "Node.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp" 
-#include "ColumnDataWriter.hpp"
+#include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "FemlabMeshReader.hpp"
 
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
 
-#define PI M_PI
-
-
 #include "PetscSetupAndFinalize.hpp"
-
-
 
 class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {	
@@ -72,11 +66,6 @@ public:
     /// test 1D problem
 	void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
 	{
-		
-		PetscTruth is_there;
-        PetscInitialized(&is_there);
-        TS_ASSERT( is_there == PETSC_TRUE );
-        
         // Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
@@ -87,13 +76,11 @@ public:
 	
 		// Boundary conditions - zero dirichlet at first and last node;
 	    BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition1);
+        ConstBoundaryCondition<1>* p_boundary_condition =
+          new ConstBoundaryCondition<1>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), p_boundary_condition);
 
-        ConstBoundaryCondition<1>* pBoundaryCondition2 = new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), pBoundaryCondition2);
-   
-   
    		// Linear solver
 		SimpleLinearSolver linear_solver;
 	
@@ -104,18 +91,18 @@ public:
 		
 		// Initial condition, u(0,x) = sin(x*pi);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
-  		double *initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
-        int lo,hi;
+  		double *p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         
 		for ( int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
             double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-			initial_condition_array[local_index] = sin(x*PI);
+			p_initial_condition[local_index] = sin(x*M_PI);
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		VecAssemblyBegin(initial_condition);
     	VecAssemblyEnd(initial_condition);
 
@@ -126,18 +113,18 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
 		// Solution should be u = e^{-t*pi*pi} sin(x*pi), t=1
         for (int global_index = lo; global_index<hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-			double u = exp(-0.1*PI*PI)*sin(x*PI);
-			TS_ASSERT_DELTA(res[local_index], u, 0.1);
+			double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI);
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
 		}
-		VecRestoreArray(result, &res);
+		VecRestoreArray(result, &p_result);
 		VecDestroy(initial_condition);
 		VecDestroy(result);
 	}
@@ -153,13 +140,13 @@ public:
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationWithSourceTermPde<1> pde;  		
 	
-		// Boundary conditions - zero dirichlet at first and last node;
+		// Boundary conditions
 	    BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition1);
-
-        ConstBoundaryCondition<1>* pBoundaryCondition2 = new ConstBoundaryCondition<1>(-0.5);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), pBoundaryCondition2);
+        ConstBoundaryCondition<1>* p_boundary_condition =
+          new ConstBoundaryCondition<1>(0.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+        p_boundary_condition = new ConstBoundaryCondition<1>(-0.5);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), p_boundary_condition);
    
    		// Linear solver
 		SimpleLinearSolver linear_solver;
@@ -171,18 +158,18 @@ public:
 		// initial condition, u(0,x) = sin(x*pi)+0.5*x*x;
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-			initial_condition_array[local_index] = sin(x*PI)-0.5*x*x;
+			p_initial_condition[local_index] = sin(x*M_PI)-0.5*x*x;
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		double t_end = 0.1;	
 		assembler.SetTimes(0, t_end, 0.01);
@@ -190,22 +177,21 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
 		// Solution should be u = e^{-t*pi*pi} sin(x*pi) + 0.5*x^2, t=1
         for (int global_index = lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-			double u = exp(-0.1*PI*PI)*sin(x*PI)-0.5*x*x;
-			TS_ASSERT_DELTA(res[local_index], u, 0.1);
+			double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI)-0.5*x*x;
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
 		}
-		VecRestoreArray(result, &res);	
+		VecRestoreArray(result, &p_result);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
-	}	
-	
+	}
 	
 	void TestSimpleDg0ParabolicAssemblerNonzeroNeumannCondition()
     {
@@ -219,13 +205,14 @@ public:
 	    
         // Boundary conditions  u(0)=0, u'(1)=1 
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);  
+        ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);  
 
-        ConstBoundaryCondition<1>* pNeumannBoundaryCondition = new ConstBoundaryCondition<1>(1.0);
+        ConstBoundaryCondition<1>* p_neumann_boundary_condition =
+          new ConstBoundaryCondition<1>(1.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
-        bcc.AddNeumannBoundaryCondition(*iter, pNeumannBoundaryCondition);
+        bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
     	// Linear solver
 		SimpleLinearSolver linear_solver;
@@ -236,37 +223,37 @@ public:
 		// initial condition;   
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-		const double PI_over_2 = PI/2.0;
-        int lo,hi;
+		const double PI_over_2 = M_PI/2.0;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-			initial_condition_array[local_index] = x + sin(PI_over_2 * x);
+			p_initial_condition[local_index] = x + sin(PI_over_2 * x);
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 
 		assembler.SetTimes(0, 0.5, 0.01);
 		assembler.SetInitialCondition(initial_condition);
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;       
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double u = x + exp(-0.5*PI_over_2*PI_over_2)*sin(x*PI_over_2); 
-			TS_ASSERT_DELTA(res[local_index], u, 0.01);
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
 		} 
-		VecRestoreArray(result, &res);	
+		VecRestoreArray(result, &p_result);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
     }
@@ -293,15 +280,14 @@ public:
 		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
 		// initial condition;
-		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+        // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
+        // the heat equation.
+ 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-		// choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
-		// the heat equation.
-
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
 
         for (int global_index = lo; global_index < hi; global_index++)
@@ -309,10 +295,11 @@ public:
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI);
+			p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI);
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
+        // Solve
 		double t_end = 0.1;
 		assembler.SetTimes(0, t_end, 0.001);
 		assembler.SetInitialCondition(initial_condition);
@@ -320,8 +307,8 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
 		// Solution should be u = e^{-2*t*pi*pi} sin(x*pi)*sin(y*pi), t=1
         for (int global_index = lo; global_index < hi; global_index++)
@@ -329,10 +316,10 @@ public:
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			double u = exp(-2*t_end*PI*PI)*sin(x*PI)*sin(y*PI);
-			TS_ASSERT_DELTA(res[local_index], u, 0.01);
+			double u = exp(-2*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI);
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
 		}
-		VecRestoreArray(result, &res);
+		VecRestoreArray(result, &p_result);
 		VecDestroy(initial_condition);
 		VecDestroy(result);	
 	}
@@ -349,7 +336,7 @@ public:
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationWithSourceTermPde<2> pde;  		
 	
-		// Boundary conditions - zero dirichlet on boundary;
+		// Boundary conditions
 	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
@@ -357,8 +344,9 @@ public:
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
-			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(-0.25*(x*x+y*y));
-			bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			ConstBoundaryCondition<2>* p_dirichlet_boundary_condition =
+              new ConstBoundaryCondition<2>(-0.25*(x*x+y*y));
+			bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			iter++;
 		}
 	               
@@ -371,10 +359,10 @@ public:
 		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
 
         for (int global_index = lo; global_index < hi; global_index++)
@@ -382,9 +370,9 @@ public:
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
+			p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		double t_end = 0.1;	
 		assembler.SetTimes(0, t_end, 0.001);
@@ -393,8 +381,8 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
 		// Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
@@ -402,39 +390,40 @@ public:
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
-			TS_ASSERT_DELTA(res[local_index], u, 0.05);
+			double u = exp(-0.1*2*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.05);
 		}
-		VecRestoreArray(result, &res);	
+		VecRestoreArray(result, &p_result);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
     }
 	
     // test 2D problem
-    ///todo - This test fails with current tolerance.
+    /// \todo - This test fails with current tolerance.
     void xTestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTermOnFineMeshWithSmallDt( void )
     {       
         // Create mesh from mesh reader
         FemlabMeshReader mesh_reader("mesh/test/data/",
-                          "femlab_square_nodes.dat",
-                          "femlab_square_elements.dat",
-                          "femlab_square_edges.dat");
+                                     "femlab_square_nodes.dat",
+                                     "femlab_square_elements.dat",
+                                     "femlab_square_edges.dat");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
         TimeDependentDiffusionEquationWithSourceTermPde<2> pde;         
     
-        // Boundary conditions - zero dirichlet on boundary;
+        // Boundary conditions
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorEnd();
         
-        while(iter != mesh.GetBoundaryNodeIteratorEnd())
+        while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
-            ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(-0.25*(x*x+y*y));
-            bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+            ConstBoundaryCondition<2>* p_dirichlet_boundary_condition =
+              new ConstBoundaryCondition<2>(-0.25*(x*x+y*y));
+            bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             iter++;
         }
                    
@@ -447,19 +436,19 @@ public:
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)-0.25*(x^2+y^2);
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-        double* initial_condition_array;
-        int ierr = VecGetArray(initial_condition, &initial_condition_array);
+        double* p_initial_condition;
+        VecGetArray(initial_condition, &p_initial_condition);
         
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
             double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
+            p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
-        VecRestoreArray(initial_condition, &initial_condition_array);
+        VecRestoreArray(initial_condition, &p_initial_condition);
         
         double t_end = 0.1; 
         assembler.SetTimes(0, t_end, 0.001);
@@ -468,8 +457,8 @@ public:
         Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result 
-        double *res;
-        ierr = VecGetArray(result, &res);
+        double *p_result;
+        VecGetArray(result, &p_result);
 
         // Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) - 0.25(x^2+y^2), t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
@@ -477,14 +466,13 @@ public:
             int local_index = global_index - lo;
             double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double u = exp(-0.1*2*PI*PI)*sin(x*PI)*sin(y*PI)-0.25*(x*x+y*y);
-              TS_ASSERT_DELTA(res[local_index], u, 0.001);
+            double u = exp(-0.1*2*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
+            TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
-        VecRestoreArray(result, &res);  
+        VecRestoreArray(result, &p_result);  
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
     
 	// test 2D problem
 	void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
@@ -498,7 +486,7 @@ public:
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationPde<2> pde;  		
 	
-		// Boundary conditions - zero dirichlet on boundary;
+		// Boundary conditions
 	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
@@ -509,15 +497,17 @@ public:
 			
 			if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
 			{
-				ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+				ConstBoundaryCondition<2>* p_dirichlet_boundary_condition
+                  = new ConstBoundaryCondition<2>(x);
+				bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			}
 			
 			iter++;
 		}
 	    
 	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
+        ConstBoundaryCondition<2>* p_neumann_boundary_condition =
+          new ConstBoundaryCondition<2>(1.0);
         
         while(surf_iter < mesh.GetBoundaryElementIteratorEnd())
 		{
@@ -526,7 +516,7 @@ public:
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
-				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+				bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
 			}
 			
 			surf_iter++;
@@ -538,22 +528,22 @@ public:
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
-		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
+		// initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
   
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)+x;
+			p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		double t_end = 0.1;	
 		assembler.SetTimes(0, t_end, 0.01);
@@ -562,24 +552,23 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
-		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
+		// Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) +x; 
-			TS_ASSERT_DELTA(res[local_index], u, u*0.15);
+			double u = exp((-5/4)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y) +x; 
+			TS_ASSERT_DELTA(p_result[local_index], u, u*0.15);
 		}
-		VecRestoreArray(result, &res);
+		VecRestoreArray(result, &p_result);
 		VecDestroy(initial_condition);
 		VecDestroy(result);	
 	}
 	
-
 	// test 2D problem
 	void TestSimpleDg0ParabolicAssembler2DNeumann( void )
 	{		
@@ -595,7 +584,7 @@ public:
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationPde<2> pde;  		
 	
-		// Boundary conditions - zero dirichlet on boundary;
+		// Boundary conditions
 	    BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
@@ -606,15 +595,17 @@ public:
 			
 			if ((fabs(y) < 0.01) || (fabs(y - 1.0) < 0.01) || (fabs(x) < 0.01))
 			{
-				ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+				ConstBoundaryCondition<2>* p_dirichlet_boundary_condition =
+                  new ConstBoundaryCondition<2>(x);
+				bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			}
 			
 			iter++;
 		}
 	    
 	    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
+        ConstBoundaryCondition<2>* p_neumann_boundary_condition =
+          new ConstBoundaryCondition<2>(1.0);
         
         while(surf_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
@@ -623,7 +614,7 @@ public:
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
-				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+				bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
 			}
 			
 			surf_iter++;
@@ -635,13 +626,13 @@ public:
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
-		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
+		// initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
 	  
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         
         for (int global_index = lo; global_index < hi; global_index++)
@@ -649,33 +640,31 @@ public:
             int local_index = global_index - lo;
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];			
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];			
-			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)+x;
+			p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		assembler.SetTimes(0, 0.1, 0.01);
 		assembler.SetInitialCondition(initial_condition);
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
-		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
+		// Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			double u = exp((-5/4)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y) + x; 
-			TS_ASSERT_DELTA(res[local_index], u, u*0.1);
+			double u = exp((-5/4)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y) + x; 
+			TS_ASSERT_DELTA(p_result[local_index], u, u*0.1);
 		}
-		VecRestoreArray(result, &res);
+		VecRestoreArray(result, &p_result);
 		VecDestroy(initial_condition);
 		VecDestroy(result);	
 	}
-	
-
 	
 	// test 2D problem - takes a long time to run.
 	// solution is incorrect to specified tolerance.
@@ -683,9 +672,9 @@ public:
 	{		
 		// Create mesh from mesh reader
 		FemlabMeshReader mesh_reader("mesh/test/data/",
-		                  "femlab_fine_square_nodes.dat",
-		                  "femlab_fine_square_elements.dat",
-		                  "femlab_fine_square_edges.dat");
+		                             "femlab_fine_square_nodes.dat",
+		                             "femlab_fine_square_elements.dat",
+		                             "femlab_fine_square_edges.dat");
 
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
@@ -697,42 +686,44 @@ public:
 		BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
 		ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
 
-		while(iter != mesh.GetBoundaryNodeIteratorEnd())
+		while (iter != mesh.GetBoundaryNodeIteratorEnd())
 		{
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
 			
-			ConstBoundaryCondition<2>* pDirichletBoundaryCondition = new ConstBoundaryCondition<2>(x);
+			ConstBoundaryCondition<2>* p_dirichlet_boundary_condition =
+              new ConstBoundaryCondition<2>(x);
 			
 			if (fabs(y) < 0.01)
 			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+				bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			}
 			
 			if (fabs(y - 1.0) < 0.01)
 			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+				bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			}
 			
 			if (fabs(x) < 0.01)
 			{
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+				bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			}
 			
 			iter++;
 		}
 
 		ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-		ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(1.0);
+		ConstBoundaryCondition<2>* p_neumann_boundary_condition =
+          new ConstBoundaryCondition<2>(1.0);
 
-		while(surf_iter != mesh.GetBoundaryElementIteratorEnd())
+		while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
 			int node = (*surf_iter)->GetNodeGlobalIndex(0);
 			double x = mesh.GetNodeAt(node)->GetPoint()[0];
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
-				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+				bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
 			}
 			
 			surf_iter++;
@@ -744,22 +735,22 @@ public:
 		// Assembler
 		SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
 		
-		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
+		// initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
 	  
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];			
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];			
-			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)+x;
+			p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		double t_end = 0.1;	
 		assembler.SetTimes(0, t_end, 0.001);
@@ -767,19 +758,19 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-		ierr = VecGetArray(result, &res);
+		double *p_result;
+		VecGetArray(result, &p_result);
 
-		// Solution should be u = e^{-5/4*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)+x, t=0.1
+		// Solution should be u = e^{-5/4*M_PI*M_PI*t} sin(0.5*M_PI*x)*sin(M_PI*y)+x, t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			double u = exp((-5/4)*PI*PI*t_end) * sin(0.5*PI*x) * sin(PI*y) + x; 
-			TS_ASSERT_DELTA(res[local_index], u, 0.001);
+			double u = exp((-5/4)*M_PI*M_PI*t_end) * sin(0.5*M_PI*x) * sin(M_PI*y) + x; 
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
 		}
-		VecRestoreArray(result, &res);
+		VecRestoreArray(result, &p_result);
 		VecDestroy(result);
 		VecDestroy(initial_condition);
 	}
@@ -812,15 +803,14 @@ public:
 		SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
 		
 		// initial condition;
+        // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an 
+        // eigenfunction of the heat equation.
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
 	  
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-		// choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an 
-		//eigenfunction of the heat equation.
-
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
         {
@@ -828,10 +818,9 @@ public:
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double z = mesh.GetNodeAt(global_index)->GetPoint()[2];			
-			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)*sin(z*PI);
+			p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
 		}
-
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		double t_end = 0.1;
 		assembler.SetTimes(0, t_end, 0.001);
@@ -839,8 +828,8 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
 		// Solution should be u = e^{-3*t*pi*pi} sin(x*pi)*sin(y*pi)*sin(z*pi), t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
@@ -849,10 +838,10 @@ public:
         	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double z = mesh.GetNodeAt(global_index)->GetPoint()[2];			
-			double u = exp(-3*t_end*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI);
-			TS_ASSERT_DELTA(res[local_index], u, 0.1);
+			double u = exp(-3*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
 		}
-		VecRestoreArray(result, &res);	
+		VecRestoreArray(result, &p_result);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
 	}	
@@ -876,7 +865,7 @@ public:
 		// Instantiate PDE object
 		TimeDependentDiffusionEquationWithSourceTermPde<3> pde;  		
 	
-		// Boundary conditions - zero dirichlet on boundary;
+		// Boundary conditions
 	    BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
 	    ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
@@ -885,8 +874,9 @@ public:
 			double x = (*iter)->GetPoint()[0];
 			double y = (*iter)->GetPoint()[1];
 			double z = (*iter)->GetPoint()[2];			
-			ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
-			bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+			ConstBoundaryCondition<3>* p_dirichlet_boundary_condition =
+              new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
+			bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			iter++;
 		}
 	               
@@ -899,10 +889,10 @@ public:
 		// initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
 	  
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
         {
@@ -910,9 +900,9 @@ public:
 			double x = mesh.GetNodeAt(global_index)->GetPoint()[0];			
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double z = mesh.GetNodeAt(global_index)->GetPoint()[2];			
-			initial_condition_array[local_index] = sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z);
+			p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI)-1.0/6*(x*x+y*y+z*z);
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		double t_end = 0.1;	
 		assembler.SetTimes(0, 0.1, 0.01);
@@ -920,8 +910,8 @@ public:
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res);
+		double *p_result;
+	    VecGetArray(result, &p_result);
 
 		// Solution should be u = e^{-t*2*pi*pi} sin(x*pi) sin(y*pi) sin(z*pi) - 1/6(x^2+y^2+z^2), t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
@@ -930,10 +920,10 @@ public:
          	double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double z = mesh.GetNodeAt(global_index)->GetPoint()[2];			
-			double u = exp(-t_end*3*PI*PI)*sin(x*PI)*sin(y*PI)*sin(z*PI)-1.0/6*(x*x+y*y+z*z); 
-			TS_ASSERT_DELTA(res[local_index], u, 0.1);
+			double u = exp(-t_end*3*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI)-1.0/6*(x*x+y*y+z*z); 
+			TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
 		}
-		VecRestoreArray(result, &res);	
+		VecRestoreArray(result, &p_result);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
 	}	
@@ -975,15 +965,17 @@ public:
 				(fabs(x) < 0.01) ||
 				(fabs(z) < 0.01) || (fabs(z - 1.0) < 0.01) )
 			{
-				ConstBoundaryCondition<3>* pDirichletBoundaryCondition = new ConstBoundaryCondition<3>(x);
-				bcc.AddDirichletBoundaryCondition(*iter, pDirichletBoundaryCondition);
+				ConstBoundaryCondition<3>* p_dirichlet_boundary_condition = 
+                  new ConstBoundaryCondition<3>(x);
+				bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
 			}
 						
 			iter++;
 		}
 	    
 	    ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<3>* pNeumannBoundaryCondition = new ConstBoundaryCondition<3>(1.0);
+        ConstBoundaryCondition<3>* p_neumann_boundary_condition = 
+          new ConstBoundaryCondition<3>(1.0);
         
         while(surf_iter != mesh.GetBoundaryElementIteratorEnd())
 		{
@@ -992,7 +984,7 @@ public:
 						
 			if (fabs(x - 1.0) < 0.01)
 			{
-				bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+				bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
 			}
 			
 			surf_iter++;
@@ -1007,10 +999,10 @@ public:
 		// initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
 		Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
 	  
-  		double* initial_condition_array;
- 		int ierr = VecGetArray(initial_condition, &initial_condition_array);
+  		double* p_initial_condition;
+ 		VecGetArray(initial_condition, &p_initial_condition);
 		
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int global_index = lo; global_index < hi; global_index++)
         {
@@ -1019,17 +1011,17 @@ public:
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
 			
-			initial_condition_array[local_index] = sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x;
+			p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)*sin(M_PI*z)+x;
 		}
-		VecRestoreArray(initial_condition, &initial_condition_array);
+		VecRestoreArray(initial_condition, &p_initial_condition);
 		
 		assembler.SetTimes(0, 0.1, 0.01);
 		assembler.SetInitialCondition(initial_condition);
 		Vec result = assembler.Solve(mesh, &pde, bcc);
 		
 		// Check result 
-		double *res;
-	    ierr = VecGetArray(result, &res); 
+		double *p_result;
+	    VecGetArray(result, &p_result); 
 
 		// Solution should be u = e^{-5/2*PI*PI*t} sin(0.5*PI*x)*sin(PI*y)*sin(PI*z)+x, t=0.1
         for (int global_index = lo; global_index < hi; global_index++)
@@ -1039,14 +1031,13 @@ public:
 			double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
 			double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
 			
-			double u = exp((-5/2)*PI*PI*0.1) * sin(0.5*PI*x) * sin(PI*y)* sin(PI*z) + x; 
-			TS_ASSERT_DELTA(res[local_index], u, u*0.15);
+			double u = exp((-5/2)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y)* sin(M_PI*z) + x; 
+			TS_ASSERT_DELTA(p_result[local_index], u, u*0.15);
 		}
-		VecRestoreArray(result, &res);	
+		VecRestoreArray(result, &p_result);	
 		VecDestroy(initial_condition);
 		VecDestroy(result);
 	}
-    
     
     void TestHeatEquationSolutionDoesntDrift2D( void )
     {       
@@ -1058,11 +1049,11 @@ public:
         // Instantiate PDE object
         TimeDependentDiffusionEquationPde<2> pde;         
     
-        // Boundary conditions - non-zero constant dirichlet on boundary;
+        // Boundary conditions - non-zero constant dirichlet on boundary
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         ConstBoundaryCondition<2>* dirichlet_bc = new ConstBoundaryCondition<2>(-84.5);        
-        while(iter < mesh.GetBoundaryNodeIteratorEnd())
+        while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
             iter++;
@@ -1083,19 +1074,18 @@ public:
         Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check solution is constant throughout the mesh
-        double* result_array;
-        VecGetArray(result, &result_array);
+        double* p_result;
+        VecGetArray(result, &p_result);
         
- 
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         
         for (int local_index=0; local_index<hi-lo; local_index++)
         {
-            TS_ASSERT_DELTA(result_array[local_index], -84.5, 0.0002);
+            TS_ASSERT_DELTA(p_result[local_index], -84.5, 0.0002);
         }
         
-        VecRestoreArray(result, &result_array);
+        VecRestoreArray(result, &p_result);
         
         VecDestroy(initial_condition);
         VecDestroy(result);
@@ -1111,11 +1101,11 @@ public:
         // Instantiate PDE object
         TimeDependentDiffusionEquationPde<1> pde;
     
-        // Boundary conditions - non-zero constant dirichlet on boundary;
+        // Boundary conditions - non-zero constant dirichlet on boundary
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         ConstBoundaryCondition<1>* dirichlet_bc = new ConstBoundaryCondition<1>(-84.5);
-        while(iter < mesh.GetBoundaryNodeIteratorEnd())
+        while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             bcc.AddDirichletBoundaryCondition(*iter, dirichlet_bc);
             iter++;
@@ -1136,22 +1126,20 @@ public:
         Vec result = assembler.Solve(mesh, &pde, bcc);
 
         // Check solution is constant throughout the mesh
-        double* result_array;
-        VecGetArray(result, &result_array); 
+        double* p_result;
+        VecGetArray(result, &p_result); 
  
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
         for (int local_index=0; local_index<hi-lo; local_index++)
         {
-            TS_ASSERT_DELTA(result_array[local_index], -84.5, 0.0001);
+            TS_ASSERT_DELTA(p_result[local_index], -84.5, 0.0001);
         }
-        
-        VecRestoreArray(result, &result_array);
+        VecRestoreArray(result, &p_result);
         
         VecDestroy(initial_condition);
         VecDestroy(result);
     }
-    
     
     // commented out heat equation with 2d mesh and initial condition non-zero at centre, 
     // writing out data (doesn't test anything, wanted to see if we get a circular
@@ -1170,11 +1158,12 @@ public:
 
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<2>* pNeumannBoundaryCondition = new ConstBoundaryCondition<2>(0.0);
+        ConstBoundaryCondition<2>* p_neumann_boundary_condition =
+          new ConstBoundaryCondition<2>(0.0);
         
         while(surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
-            bcc.AddNeumannBoundaryCondition(*surf_iter, pNeumannBoundaryCondition);
+            bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
             surf_iter++;
         }
 
@@ -1185,55 +1174,39 @@ public:
         SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
         
         // initial condition;
-        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
-    
-        double* initial_condition_array;
-        VecGetArray(initial_condition, &initial_condition_array);
-        
         // choose initial condition sin(x*pi)*sin(y*pi) as this is an eigenfunction of
         // the heat equation.
+        Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
+    
+        double* p_initial_condition;
+        VecGetArray(initial_condition, &p_initial_condition);
 
-        int lo,hi;
+        int lo, hi;
         VecGetOwnershipRange(initial_condition, &lo, &hi);
-
 
         // stimulate 
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            initial_condition_array[local_index] = 0;
-            if(global_index == 60)
+            p_initial_condition[local_index] = 0;
+            switch (global_index)
             {
-                initial_condition_array[local_index] = 100;
-            }
-            if(global_index == 165)
-            {
-                initial_condition_array[local_index] = 100;
-            }
-            if(global_index == 166)
-            {
-                initial_condition_array[local_index] = 100;
-            }
-            if(global_index == 175)
-            {
-                initial_condition_array[local_index] = 100;
-            }
-            if(global_index == 176)
-            {
-                initial_condition_array[local_index] = 100;
+                case 60:
+                case 165:
+                case 166:
+                case 175:
+                case 176:
+                    p_initial_condition[local_index] = 100;
+                    break;
             }
         }
-        VecRestoreArray(initial_condition, &initial_condition_array);
-        
-        
+        VecRestoreArray(initial_condition, &p_initial_condition);
         
         double time = 0;
         double t_end = 0.1;
         double dt = 0.001;
         assembler.SetInitialCondition(initial_condition);
 
-        ColumnDataWriter *p_test_writer;
-           
         int time_var_id = 0;
         int heat_var_id = 0;
 
@@ -1241,26 +1214,22 @@ public:
 
         mkdir(output_dir.c_str(), 0777);
                  
-        p_test_writer = new ColumnDataWriter(output_dir,"2DHeatEquation");
+        ParallelColumnDataWriter *p_test_writer;
+        p_test_writer = new ParallelColumnDataWriter(output_dir,"2DHeatEquation");
 
         p_test_writer->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
         time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");
         
         heat_var_id = p_test_writer->DefineVariable("T","K");
         p_test_writer->EndDefineMode();
-         
-         
+        
         p_test_writer->PutVariable(time_var_id, time); 
-        for(int j=0; j<mesh.GetNumNodes(); j++) 
-        {
-            p_test_writer->PutVariable(heat_var_id, initial_condition_array[j], j);    
-        }
+        p_test_writer->PutVector(heat_var_id, initial_condition);    
         p_test_writer->AdvanceAlongUnlimitedDimension();
 
         Vec result;
-        double* p_result;
 
-        while(time < t_end)
+        while (time < t_end)
         {
             time += dt;
             assembler.SetTimes(time, time+dt, dt);
@@ -1269,30 +1238,13 @@ public:
 
             assembler.SetInitialCondition(result);        
             
-            
-            VecGetArray(result, &p_result);
-        
-            p_test_writer->PutVariable(time_var_id, time); 
-            for(int j=0; j<mesh.GetNumNodes(); j++) 
-            {
-                p_test_writer->PutVariable(heat_var_id, p_result[j], j);    
-            }
-          
-            VecRestoreArray(result, &p_result); 
+            p_test_writer->PutVariable(time_var_id, time);
+            p_test_writer->PutVector(heat_var_id, result);
             p_test_writer->AdvanceAlongUnlimitedDimension();
         }
- 
-        VecRestoreArray(result, &p_result);
         VecDestroy(initial_condition);
         VecDestroy(result); 
     }
-    
-    
-    
-    
-    
-    
-    
 };
 
 #endif //_TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
