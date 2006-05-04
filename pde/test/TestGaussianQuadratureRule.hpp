@@ -15,7 +15,7 @@ public :
 	 * Check points and weights are in the right ranges
 	 */
 	 
-	 void TestTheGaussianQuadratureRule()
+	void TestTheGaussianQuadratureRule()
 	{
 		// 0d
 		GaussianQuadratureRule<0> quadRule01(1);
@@ -120,12 +120,8 @@ public :
 				
 				delete nodes2[0];
 				delete nodes2[1];
-				
 			}
-			
-			
 		}
-			
 	}
 
 	/**

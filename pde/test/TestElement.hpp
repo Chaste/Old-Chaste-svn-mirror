@@ -5,7 +5,7 @@
 #include "Node.hpp"
 #include "Element.hpp"
 #include <cxxtest/TestSuite.h>
-#include <iostream>
+//#include <iostream>
 
 #include <vector>
 
@@ -29,10 +29,6 @@ public:
 	void TestConstructionForQuadraticBasisFunctions()
 	{
 		std::vector<Node<3>*> nodes;
-//		for (int i=0; i<4; i++)
-//		{
-//			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
-//		}
 		nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
 		nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
 		nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
@@ -44,13 +40,12 @@ public:
 		nodes.push_back(new Node<3>(8, false, 0.5, 0.0, 0.5));
 		nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
 		Element<3,3> element(nodes, 2,true);
+        
 		// Check nodes on the new element have the right indices
 		for (int i=0; i<10; i++)
 		{
 			TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
 		}
-		
-		
 		// Check lower order elements are created with the expected nodes.
 		// Not sure if we really want to specify this, but it ensures nothing
 		// has changed from the earlier code, just in case.
@@ -73,22 +68,11 @@ public:
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(1),3);
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(1)->GetNodeGlobalIndex(1),1);
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(0),3);
-
-
-		// Test AddNode method
-		//Node<3>* node2 = CreateZeroPointNode(10);
-		//element.AddNode(node2);
-	
-		//TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(4), 10);
 	}
 	
 	void TestConstructionForLinearBasisFunctions()
 	{
 		std::vector<Node<3>*> cornerNodes;
-//		for (int i=0; i<4; i++)
-//		{
-//			nodes2d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0)); //nodes.push_back(CreateZeroPointNode(i)); // TODO: Will need to be changed
-//		}
 		cornerNodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
 		cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
 		cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
@@ -100,17 +84,16 @@ public:
 		{
 			TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
 		}
-		
-		
+        
 		// Check lower order elements are created with the expected nodes.
 		// Not sure if we really want to specify this, but it ensures nothing
 		// has changed from the earlier code, just in case.
 		for (int i=0; i < 4; i++)
         {
-            for(int j=0; j < 3; j++)
+            for (int j=0; j < 3; j++)
             {
                TS_ASSERT_EQUALS(element.GetLowerOrderElement(i)->GetNodeGlobalIndex(j),(i+j+1) % 4);
-               if((i==0 && j==0) || (i==2 && j==2) || (i==3 && j==1))
+               if ((i==0 && j==0) || (i==2 && j==2) || (i==3 && j==1))
                {
                		TS_ASSERT_DELTA(element.GetLowerOrderElement(i)->GetNodeLocation(j, 0), 1.0, 1e-12);
                }
@@ -124,16 +107,8 @@ public:
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(1),3);
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(1)->GetNodeGlobalIndex(1),1);
         TS_ASSERT_EQUALS(element.GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetLowerOrderElement(0)->GetNodeGlobalIndex(0),3);
+    }
 
-
-		// Test AddNode method
-		//Node<3>* node2 = CreateZeroPointNode(10);
-		//element.AddNode(node2);
-	
-		//TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(4), 10);
-	}
-
-	
 	void TestJacobian()
 	{
 		// 1d

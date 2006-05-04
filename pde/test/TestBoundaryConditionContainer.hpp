@@ -16,11 +16,7 @@
 
 class TestBoundaryConditionContainer : public CxxTest::TestSuite 
 {
-private:
-			
 public:
-
-    
 	void TestSetGet()
 	{
 		//////////////////////////////////////////////////////////////
@@ -31,27 +27,28 @@ public:
 		BoundaryConditionsContainer<1,1> bcc1(1,numNodes);
 
 		Node<1>* nodes[numNodes];
-		for(int i=0; i<numNodes; i++)
+		for (int i=0; i<numNodes; i++)
 		{
 			nodes[i] = new Node<1>(i,true,0);
-			ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>((double)i);
-			bcc1.AddDirichletBoundaryCondition(nodes[i], pBoundaryCondition);						
+			ConstBoundaryCondition<1>* p_boundary_condition =
+               new ConstBoundaryCondition<1>((double)i);
+			bcc1.AddDirichletBoundaryCondition(nodes[i], p_boundary_condition);						
 		}
 
-		for(int i=0; i<numNodes; i++)
+		for (int i=0; i<numNodes; i++)
 		{
 			VectorDouble value = bcc1.GetDirichletBCValue(nodes[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
         }
         
-        for(int i=0; i<numNodes; i++)
+        for (int i=0; i<numNodes; i++)
         {
             delete nodes[i];
 		}
 
 		int numElem = 10;
 		std::vector<Element<0,1> > elements;
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
 			std::vector<Node<1>* > nodes;
 			Node<1>* node = new Node<1>(i,true,0);
@@ -60,13 +57,14 @@ public:
 			Element<0,1> element(nodes);
 			elements.push_back(element);
 		}
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
-			ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>((double)i);
-			bcc1.AddNeumannBoundaryCondition(&elements[i], pBoundaryCondition);						
+			ConstBoundaryCondition<1>* p_boundary_condition =
+              new ConstBoundaryCondition<1>((double)i);
+			bcc1.AddNeumannBoundaryCondition(&elements[i], p_boundary_condition);						
 		}
 		
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
 			VectorDouble value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
@@ -80,27 +78,28 @@ public:
 		BoundaryConditionsContainer<2,2> bcc2(1,numNodes);
 	
 		Node<2>* nodes2[numNodes];
-		for(int i=0; i<numNodes; i++)
+		for (int i=0; i<numNodes; i++)
 		{
 			nodes2[i] = new Node<2>(i,true,0,0);
-			ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>((double)i);
-			bcc2.AddDirichletBoundaryCondition(nodes2[i], pBoundaryCondition);						
+			ConstBoundaryCondition<2>* p_boundary_condition =
+              new ConstBoundaryCondition<2>((double)i);
+			bcc2.AddDirichletBoundaryCondition(nodes2[i], p_boundary_condition);						
 		}
 
-		for(int i=0; i<numNodes; i++)
+		for (int i=0; i<numNodes; i++)
 		{
 			VectorDouble value = bcc2.GetDirichletBCValue(nodes2[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
         }
         
-        for(int i=0; i<numNodes; i++)
+        for (int i=0; i<numNodes; i++)
         {
 			delete nodes2[i];
 		}
 
 		numElem = 10;
 		std::vector<Element<1,2> > elements2;
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
 			std::vector<Node<2>* > nodes;
 			Node<2>* node0 = new Node<2>(i,true,0,0);
@@ -111,13 +110,14 @@ public:
 			
 			elements2.push_back(element);
 		}
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
-			ConstBoundaryCondition<2>* pBoundaryCondition = new ConstBoundaryCondition<2>((double)i);
-			bcc2.AddNeumannBoundaryCondition(&elements2[i], pBoundaryCondition);						
+			ConstBoundaryCondition<2>* p_boundary_condition =
+              new ConstBoundaryCondition<2>((double)i);
+			bcc2.AddNeumannBoundaryCondition(&elements2[i], p_boundary_condition);						
 		}
 		
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
 			VectorDouble value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
@@ -132,26 +132,27 @@ public:
 		BoundaryConditionsContainer<3,3> bcc3(1,numNodes);
 	
 		Node<3>* nodes3[numNodes];
-		for(int i=0; i<numNodes; i++)
+		for (int i=0; i<numNodes; i++)
 		{
 			nodes3[i] = new Node<3>(i,true,0,0);
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>((double)i);
-			bcc3.AddDirichletBoundaryCondition(nodes3[i], pBoundaryCondition);						
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>((double)i);
+			bcc3.AddDirichletBoundaryCondition(nodes3[i], p_boundary_condition);						
 		}
 
-		for(int i=0; i<numNodes; i++)
+		for (int i=0; i<numNodes; i++)
 		{
 			VectorDouble value = bcc3.GetDirichletBCValue(nodes3[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
         }
-        for(int i=0; i<numNodes; i++)
+        for (int i=0; i<numNodes; i++)
         {
 			delete nodes3[i];
 		}
 
 		numElem = 10;
 		std::vector<Element<2,3> > elements3;
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
 			std::vector<Node<3>* > nodes;
 			Node<3>* node0 = new Node<3>(i,true,0,0,0);
@@ -164,13 +165,14 @@ public:
 			
 			elements3.push_back(element);
 		}
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>((double)i);
-			bcc3.AddNeumannBoundaryCondition(&elements3[i], pBoundaryCondition);						
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>((double)i);
+			bcc3.AddNeumannBoundaryCondition(&elements3[i], p_boundary_condition);						
 		}
 		
-		for(int i=0; i<numElem; i++)
+		for (int i=0; i<numElem; i++)
 		{
 			VectorDouble value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
@@ -179,15 +181,14 @@ public:
 			delete elements3[i].GetNode(2);
 		}		
 	}
-
-	
+    
 	void TestApplyToLinearSystem( void )
 	{
 		const int SIZE = 10;
 		LinearSystem some_system(SIZE);
-		for(int i = 0; i < SIZE; i++)
+		for (int i = 0; i < SIZE; i++)
 		{
-			for(int j = 0; j < SIZE; j++)
+			for (int j = 0; j < SIZE; j++)
 			{
 				// LHS matrix is all 1s
 				some_system.SetMatrixElement(i,j,1);
@@ -198,129 +199,123 @@ public:
 		
 		some_system.AssembleIntermediateLinearSystem();
 		
-		Node<3>* p3d_nodes[SIZE];
+		Node<3>* nodes_array[SIZE];
 		BoundaryConditionsContainer<3,3> bcc3(1,SIZE);
 		
 		// Apply dirichlet boundary conditions to all but last node
-		for(int i = 0; i < SIZE-1; i++)
+		for (int i = 0; i < SIZE-1; i++)
 		{
-			p3d_nodes[i] = new Node<3>(i,true);
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
-			bcc3.AddDirichletBoundaryCondition(p3d_nodes[i], pBoundaryCondition);
+			nodes_array[i] = new Node<3>(i,true);
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>(-1);
+			bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
 		}
 		bcc3.ApplyDirichletToLinearProblem(some_system);
 		
 		some_system.AssembleFinalLinearSystem();
 		
 		SimpleLinearSolver solver;
-        Vec solution_vector = some_system.Solve(&solver);
+        Vec solution = some_system.Solve(&solver);
         
-        PetscScalar *solution_elements;
-        VecGetArray(solution_vector, &solution_elements);
+        PetscScalar *p_solution;
+        VecGetArray(solution, &p_solution);
         
-        int lo,hi;
-        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        int lo, hi;
+        VecGetOwnershipRange(solution, &lo, &hi);
         
         for (int local_index = 0; local_index < hi-lo; local_index++)
 		{
             int global_index = local_index + lo;
             if (global_index < SIZE-1)
             {
-    	        TS_ASSERT_DELTA(solution_elements[local_index], -1.0, 0.000001);
+    	        TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
             }
             else
             {
-                TS_ASSERT_DELTA(solution_elements[local_index], 11.0, 0.000001);
+                TS_ASSERT_DELTA(p_solution[local_index], 11.0, 0.000001);
             }
         }
         for (int i = 0; i < SIZE-1; i++)
         {
-	        delete p3d_nodes[i];
+	        delete nodes_array[i];
 		}
-        
-        
-        VecRestoreArray(solution_vector, &solution_elements);
-        VecDestroy(solution_vector);
+        VecRestoreArray(solution, &p_solution);
+        VecDestroy(solution);
 	}
-	
-	
 	
 	void TestApplyToNonlinearSystem( void )
 	{
 		const int SIZE = 10;
-		Vec currentSolution;
-
-		VecCreate(PETSC_COMM_WORLD, &currentSolution);
-    	VecSetSizes(currentSolution, PETSC_DECIDE, SIZE);
-    	VecSetFromOptions(currentSolution);
+        
+		Vec solution;
+		VecCreate(PETSC_COMM_WORLD, &solution);
+    	VecSetSizes(solution, PETSC_DECIDE, SIZE);
+    	VecSetFromOptions(solution);
 
 		Vec residual;
-
 		VecCreate(PETSC_COMM_WORLD, &residual);
     	VecSetSizes(residual, PETSC_DECIDE, SIZE);
     	VecSetFromOptions(residual);
 
-		double *currentSolutionArray;
-		int ierr = VecGetArray(currentSolution, &currentSolutionArray);
+		double *p_solution;
+		VecGetArray(solution, &p_solution);
 			
-        int lo,hi;
-        VecGetOwnershipRange(currentSolution,&lo,&hi);
+        int lo, hi;
+        VecGetOwnershipRange(solution, &lo, &hi);
                 
-		double *residualArray;
-		ierr = VecGetArray(residual, &residualArray);
+		double *p_residual;
+		VecGetArray(residual, &p_residual);
 	
-		for(int local_index=0;local_index<hi-lo;local_index++)
+		for (int local_index=0; local_index<hi-lo; local_index++)
 		{
             int global_index = local_index + lo;
-			currentSolutionArray[local_index] = global_index;
-			residualArray[local_index] = SIZE+global_index;
+			p_solution[local_index] = global_index;
+			p_residual[local_index] = SIZE+global_index;
 		}
 
-		ierr = VecRestoreArray(currentSolution, &currentSolutionArray);
-		ierr = VecRestoreArray(residual, &residualArray);
+		VecRestoreArray(solution, &p_solution);
+		VecRestoreArray(residual, &p_residual);
 
-		Node<3>* p3dNode[SIZE];
+		Node<3>* nodes_array[SIZE];
 		BoundaryConditionsContainer<3,3> bcc3(1,SIZE);
 				
-		for(int i = 0; i < SIZE-1; i++)
+		for (int i = 0; i < SIZE-1; i++)
 		{
-			p3dNode[i] = new Node<3>(i,true);
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(-1);
-			bcc3.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
+			nodes_array[i] = new Node<3>(i, true);
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>(-1);
+			bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
 		}
 		
-		bcc3.ApplyDirichletToNonlinearResidual(currentSolution, residual);
+		bcc3.ApplyDirichletToNonlinearResidual(solution, residual);
 
-		double *currentSolutionArrayPostMod;
-		ierr = VecGetArray(currentSolution, &currentSolutionArrayPostMod);
-			
-		double *residualArrayPostMod;
-		ierr = VecGetArray(residual, &residualArrayPostMod);
+		VecGetArray(solution, &p_solution);
+		VecGetArray(residual, &p_residual);
         
-        for(int local_index=0;local_index<hi-lo;local_index++)
+        for (int local_index=0; local_index<hi-lo; local_index++)
 		{
             int global_index = local_index + lo;
             if (global_index < SIZE-1)
             {
-                TS_ASSERT_DELTA(currentSolutionArrayPostMod[local_index], global_index,   1e-12);
-        		TS_ASSERT_DELTA(       residualArrayPostMod[local_index], global_index+1, 1e-12);
+                TS_ASSERT_DELTA(p_solution[local_index], global_index,   1e-12);
+        		TS_ASSERT_DELTA(p_residual[local_index], global_index+1, 1e-12);
             }
             else
             {
-                TS_ASSERT_DELTA(currentSolutionArrayPostMod[local_index], 9,   1e-12);
-                TS_ASSERT_DELTA(       residualArrayPostMod[local_index], 19,  1e-12);
+                TS_ASSERT_DELTA(p_solution[local_index], 9,   1e-12);
+                TS_ASSERT_DELTA(p_residual[local_index], 19,  1e-12);
             }
         }
         
-		for(int i=0; i < SIZE-1; i++)
+		for (int i=0; i < SIZE-1; i++)
         {
-        	delete p3dNode[i];
+        	delete nodes_array[i];
 		}
 		 
-		ierr = VecRestoreArray(currentSolution, &currentSolutionArrayPostMod);
-		ierr = VecRestoreArray(residual, &residualArrayPostMod);
+		VecRestoreArray(solution, &p_solution);
+		VecRestoreArray(residual, &p_residual);
 		
-		VecDestroy(currentSolution);
+		VecDestroy(solution);
 		VecDestroy(residual);
 	}
 	
@@ -372,15 +367,13 @@ public:
 		TS_ASSERT(bcc.Validate(&mesh));
 	}
     
-    
-    
     void TestApplyToLinearSystem2Unknowns( void )
 	{
 		const int SIZE = 10;
 		LinearSystem some_system(2*SIZE);
-		for(int i = 0; i < 2*SIZE; i++)
+		for (int i = 0; i < 2*SIZE; i++)
 		{
-			for(int j = 0; j < 2*SIZE; j++)
+			for (int j = 0; j < 2*SIZE; j++)
 			{
 				// LHS matrix is all 1s
 				some_system.SetMatrixElement(i,j,1);
@@ -391,52 +384,52 @@ public:
 		
 		some_system.AssembleIntermediateLinearSystem();
 		
-		Node<3>* p3d_nodes[SIZE];
+		Node<3>* nodes_array[SIZE];
 		BoundaryConditionsContainer<3,3> bcc32(2,SIZE);
 		
 		// Apply dirichlet boundary conditions to all but last node
-		for(int i = 0; i < SIZE-1; i++)
+		for (int i = 0; i < SIZE-1; i++)
 		{
-			p3d_nodes[i] = new Node<3>(i,true);
+			nodes_array[i] = new Node<3>(i,true);
 			VectorDouble vec(2);
 			vec(0) = -1;
 			vec(1) = -2;
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(vec);
-			bcc32.AddDirichletBoundaryCondition(p3d_nodes[i], pBoundaryCondition);
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>(vec);
+			bcc32.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
 		}
 		bcc32.ApplyDirichletToLinearProblem(some_system);
 		
 		some_system.AssembleFinalLinearSystem();
 		
 		SimpleLinearSolver solver;
-        Vec solution_vector = some_system.Solve(&solver);
+        Vec solution = some_system.Solve(&solver);
         
-        PetscScalar *solution_elements;
-        VecGetArray(solution_vector, &solution_elements);
+        PetscScalar *p_solution;
+        VecGetArray(solution, &p_solution);
  
         int lo, hi;
-        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        VecGetOwnershipRange(solution, &lo, &hi);
         
-	
     	for (int global_index = lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
             if (global_index < SIZE-1)
             {
-	            TS_ASSERT_DELTA(solution_elements[local_index], -1.0, 0.000001);
+	            TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
             }
             if (global_index >= SIZE && global_index < SIZE-1)
             {
-	            TS_ASSERT_DELTA(solution_elements[local_index], -2.0, 0.000001);
+	            TS_ASSERT_DELTA(p_solution[local_index], -2.0, 0.000001);
             }
         }
         for (int i = 0; i < SIZE-1; i++)
         {
-	        delete p3d_nodes[i];
+	        delete nodes_array[i];
 		}
        
-        VecRestoreArray(solution_vector, &solution_elements);
-        VecDestroy(solution_vector);
+        VecRestoreArray(solution, &p_solution);
+        VecDestroy(solution);
 	}
 	
 	
@@ -444,9 +437,9 @@ public:
 	{
 		const int SIZE = 10;
 		LinearSystem some_system(3*SIZE);
-		for(int i = 0; i < 3*SIZE; i++)
+		for (int i = 0; i < 3*SIZE; i++)
 		{
-			for(int j = 0; j < 3*SIZE; j++)
+			for (int j = 0; j < 3*SIZE; j++)
 			{
 				// LHS matrix is all 1s
 				some_system.SetMatrixElement(i,j,1);
@@ -457,150 +450,141 @@ public:
 		
 		some_system.AssembleIntermediateLinearSystem();
 		
-		Node<3>* p3d_nodes[SIZE];
+		Node<3>* nodes_array[SIZE];
 		BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
 		
 		// Apply dirichlet boundary conditions to all but last node
-		for(int i = 0; i < SIZE-1; i++)
+		for (int i = 0; i < SIZE-1; i++)
 		{
-			p3d_nodes[i] = new Node<3>(i,true);
+			nodes_array[i] = new Node<3>(i,true);
 			VectorDouble vec(3);
 			vec(0) = -1;
 			vec(1) = -2;
 			vec(2) =  0;
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(vec);
-			bcc33.AddDirichletBoundaryCondition(p3d_nodes[i], pBoundaryCondition);
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>(vec);
+			bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
 		}
 		bcc33.ApplyDirichletToLinearProblem(some_system);
 		
 		some_system.AssembleFinalLinearSystem();
 		
 		SimpleLinearSolver solver;
-        Vec solution_vector = some_system.Solve(&solver);
+        Vec solution = some_system.Solve(&solver);
         
-        PetscScalar *solution_elements;
-        VecGetArray(solution_vector, &solution_elements);
+        PetscScalar *p_solution;
+        VecGetArray(solution, &p_solution);
         
         int lo, hi;
-        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        VecGetOwnershipRange(solution, &lo, &hi);
 
 		for (int global_index = lo; global_index < hi; global_index++)
 		{
             int local_index = global_index-lo;
             if (global_index < SIZE - 1)
             {
-	            TS_ASSERT_DELTA(solution_elements[local_index], -1.0, 0.000001);
+	            TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
             }
             if (SIZE <=global_index && global_index < 2*SIZE - 1)
             {
-	            TS_ASSERT_DELTA(solution_elements[local_index], -2.0, 0.000001);
+	            TS_ASSERT_DELTA(p_solution[local_index], -2.0, 0.000001);
             }
             if (2*SIZE <= global_index && global_index < 3*SIZE-1)
             {
-	            TS_ASSERT_DELTA(solution_elements[local_index],  0, 0.000001);
+	            TS_ASSERT_DELTA(p_solution[local_index],  0, 0.000001);
             }
         }
         for (int i = 0; i < SIZE-1; i++)
         {
-            delete p3d_nodes[i];
+            delete nodes_array[i];
         }
-        VecRestoreArray(solution_vector, &solution_elements);
-        VecDestroy(solution_vector);
+        VecRestoreArray(solution, &p_solution);
+        VecDestroy(solution);
 	}
-	
 
 	void TestApplyToNonlinearSystem3Unknowns( void )
 	{
 		const int SIZE = 10;
-		Vec current_solution;
-
-		VecCreate(PETSC_COMM_WORLD, &current_solution);
-    	VecSetSizes(current_solution, PETSC_DECIDE, 3*SIZE);
-    	VecSetFromOptions(current_solution);
+        
+		Vec solution;
+		VecCreate(PETSC_COMM_WORLD, &solution);
+    	VecSetSizes(solution, PETSC_DECIDE, 3*SIZE);
+    	VecSetFromOptions(solution);
 
 		Vec residual;
-
 		VecCreate(PETSC_COMM_WORLD, &residual);
     	VecSetSizes(residual, PETSC_DECIDE, 3*SIZE);
     	VecSetFromOptions(residual);
 
-		double *current_solution_array;
-		int ierr = VecGetArray(current_solution, &current_solution_array);
+		double *p_solution;
+		VecGetArray(solution, &p_solution);
 			
-		double *residual_array;
-		ierr = VecGetArray(residual, &residual_array);
+		double *p_residual;
+		VecGetArray(residual, &p_residual);
         
-        int lo,hi;
-        VecGetOwnershipRange(current_solution,&lo,&hi);
+        int lo, hi;
+        VecGetOwnershipRange(solution, &lo, &hi);
 	
 		for (int global_index=lo; global_index<hi; global_index++)
 		{
             int local_index = global_index - lo;
-			current_solution_array[local_index] = global_index;
-			residual_array[local_index]         = 100;
+			p_solution[local_index] = global_index;
+			p_residual[local_index] = 100;
 		}
 
-		ierr = VecRestoreArray(current_solution, &current_solution_array);
-		ierr = VecRestoreArray(residual, &residual_array);
+		VecRestoreArray(solution, &p_solution);
+		VecRestoreArray(residual, &p_residual);
 
-		Node<3>* p3dNode[SIZE];
+		Node<3>* nodes_array[SIZE];
 		BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
 				
 		for (int i = 0; i < SIZE; i++)
 		{
-			p3dNode[i] = new Node<3>(i,true);
+			nodes_array[i] = new Node<3>(i,true);
 			
 			VectorDouble vec(3);
 			vec(0) = -1;
 			vec(1) = -2;
 			vec(2) = -3;
 			
-			ConstBoundaryCondition<3>* pBoundaryCondition = new ConstBoundaryCondition<3>(vec);
-			bcc33.AddDirichletBoundaryCondition(p3dNode[i], pBoundaryCondition);
+			ConstBoundaryCondition<3>* p_boundary_condition =
+              new ConstBoundaryCondition<3>(vec);
+			bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
 		}
 		
-        bcc33.ApplyDirichletToNonlinearResidual(current_solution, residual);
+        bcc33.ApplyDirichletToNonlinearResidual(solution, residual);
         
-		double *current_solution_array_post_mod;
-		ierr = VecGetArray(current_solution, &current_solution_array_post_mod);
-			
-		double *residual_array_post_mod;
-		ierr = VecGetArray(residual, &residual_array_post_mod);
+		VecGetArray(solution, &p_solution);
+		VecGetArray(residual, &p_residual);
 	
 		for (int global_index = lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
             if (global_index < SIZE-1)
             {
-    			TS_ASSERT_DELTA(current_solution_array_post_mod[local_index], 
-                  global_index,   1e-12);
-    			TS_ASSERT_DELTA(        residual_array_post_mod[local_index], 
-                  global_index+1, 1e-12);
+    			TS_ASSERT_DELTA(p_solution[local_index], global_index, 1e-12);
+    			TS_ASSERT_DELTA(p_residual[local_index], global_index+1, 1e-12);
             }
             if (SIZE <=global_index && global_index < 2*SIZE - 1)
             {
-    			TS_ASSERT_DELTA(current_solution_array_post_mod[local_index], 
-                  global_index,   1e-12);
-                TS_ASSERT_DELTA(        residual_array_post_mod[local_index], 
-                  global_index+2, 1e-12);
+    			TS_ASSERT_DELTA(p_solution[local_index], global_index, 1e-12);
+                TS_ASSERT_DELTA(p_residual[local_index], global_index+2, 1e-12);
             }
             if ( 2*SIZE <= global_index && global_index< 3*SIZE - 1)
             {
-    			TS_ASSERT_DELTA(current_solution_array_post_mod[local_index], 
-                  global_index,   1e-12);
-                TS_ASSERT_DELTA(        residual_array_post_mod[local_index], 
-                  global_index+3, 1e-12);
+    			TS_ASSERT_DELTA(p_solution[local_index], global_index,   1e-12);
+                TS_ASSERT_DELTA(p_residual[local_index], global_index+3, 1e-12);
             }
 		}
         for (int i = 0; i < SIZE; i++)
         {
-            delete p3dNode[i];
+            delete nodes_array[i];
         }
 		 
-		ierr = VecRestoreArray(current_solution, &current_solution_array_post_mod);
-		ierr = VecRestoreArray(residual, &residual_array_post_mod);
+		VecRestoreArray(solution, &p_solution);
+		VecRestoreArray(residual, &p_residual);
 		
-		VecDestroy(current_solution);
+		VecDestroy(solution);
 		VecDestroy(residual);
 	}
     

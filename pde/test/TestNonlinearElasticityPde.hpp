@@ -2,26 +2,16 @@
 #define _TESTNONLINEARELASTICPDE_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
-#include <vector>
-#include <iostream>
-#include "Node.hpp"
-#include "Element.hpp"
-#include "math.h"
-#include "NonlinearElasticityPde.hpp"
-#include "AbstractMaterial.hpp"
-#include "CompressibleIsotropicMooneyRivlinMaterial.hpp"
-#include "MatrixDouble.hpp"
-#include "VectorDouble.hpp"
 #include "TrianglesMeshReader.hpp"
-#include <petsc.h>
 
-#include "PetscSetupAndFinalize.hpp"
+#include "CompressibleIsotropicMooneyRivlinMaterial.hpp"
+#include "NonlinearElasticityPde.hpp"
+#include "VectorDouble.hpp"
+#include "MatrixDouble.hpp"
 
 class TestNonlinearElasticPde : public CxxTest::TestSuite 
 {
 public:
-    
-    
 	void testNonlinearElasticityPde2D()
 	{
 		TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
@@ -37,14 +27,12 @@ public:
 		gravity(1) = 2;
 		NonlinearElasticityPde<2,2> pde(gravity);
 
-
-		for(int i=0; i<mesh.GetNumElements(); i++)		 
+		for (int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			mesh.SetMaterialToElement(i, &material);		
 		}
 
-	
-		for(int i=0; i<mesh.GetNumElements(); i++)		 
+		for (int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			MatrixDouble I = MatrixDouble::Identity(2);						 
 			MatrixDouble T = pde.ComputeStress( mesh.GetElement(i), I);
@@ -64,7 +52,6 @@ public:
 		}
 	}
 
-
 	void testNonlinearElasticityPde3D()
 	{
 		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
@@ -82,14 +69,12 @@ public:
 		gravity(2) = 3;
 		NonlinearElasticityPde<3,3> pde(gravity);
 
-
-		for(int i=0; i<mesh.GetNumElements(); i++)		 
+		for (int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			mesh.SetMaterialToElement(i, &material);		
 		}
 
-	
-		for(int i=0; i<mesh.GetNumElements(); i++)		 
+		for (int i=0; i<mesh.GetNumElements(); i++)		 
 		{
 			MatrixDouble I = MatrixDouble::Identity(3);						 
 			MatrixDouble T = pde.ComputeStress( mesh.GetElement(i), I);
@@ -114,13 +99,6 @@ public:
 			TS_ASSERT_DELTA( rhoG(2), 4.5, 1e-12);							
 		}
 	}
-
-
-
-
-
-
-	
 };
 
 #endif //_TESTNONLINEARELASTICPDE_HPP_

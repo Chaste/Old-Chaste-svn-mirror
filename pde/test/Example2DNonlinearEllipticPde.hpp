@@ -2,7 +2,6 @@
 #define _EXAMPLE2DNONLINEARELLIPTICPDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
-#include <cmath>
 
 /**
  * A relatively simple PDE for testing the nonlinear elliptic assembler in 2D.
