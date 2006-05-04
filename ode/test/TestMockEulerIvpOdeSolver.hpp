@@ -3,12 +3,11 @@
 #include <cxxtest/TestSuite.h>
 
 #include <vector>
-#include <iostream>
 
 #include "AbstractIvpOdeSolver.hpp"
 #include "MockEulerIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
-#include "TestOde1.hpp"
+#include "Ode1.hpp"
 
 class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -16,7 +15,7 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
     
     void testMockEulerSolver()
     {
-        TestOde1 ode_system;
+        Ode1 ode_system;
         
         // Initialising the instance of our solver class    
         MockEulerIvpOdeSolver euler_solver;

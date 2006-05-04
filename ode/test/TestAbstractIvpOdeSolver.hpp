@@ -11,11 +11,11 @@
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
-#include "TestOde1.hpp"
-#include "TestOdeOrder.hpp"
-#include "TestOdeOrderSystem.hpp"
-#include "TestOdeOrderSystemOf3.hpp"
-#include "TestOde4.hpp"
+#include "Ode1.hpp"
+#include "OdeOrder.hpp"
+#include "OdeOrderSystem.hpp"
+#include "OdeOrderSystemOf3.hpp"
+#include "Ode4.hpp"
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -23,7 +23,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testEulerSolver()
 	{
-        TestOde1 ode_system;
+        Ode1 ode_system;
         
      	// Initialising the instance of our solver class	
 		EulerIvpOdeSolver euler_solver;
@@ -50,7 +50,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testAdamsBashforthSolver()
 	{
-		TestOde1 ode_system;
+		Ode1 ode_system;
 	
      	// Initialising the instance of our solver class	
 		AdamsBashforthIvpOdeSolver ABSolver;
@@ -71,7 +71,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testRungeKutta2Solver()
 	{
-		TestOde1 ode_system;
+		Ode1 ode_system;
 
         ode_system.SetInitialConditionsComponent(0,2.0);
 	
@@ -99,7 +99,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testRungeKutta4Solver()
 	{
-		TestOde1 ode_system;
+		Ode1 ode_system;
         ode_system.SetInitialConditionsComponent(0,2.0);
     
      	// Initialising the instance of our solver class	
@@ -127,7 +127,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testLastTimeStep()
 	{
-		TestOde1 ode_system;
+		Ode1 ode_system;
 		
 		// Initialising the instance of our solver class
 		EulerIvpOdeSolver EulerSolver;
@@ -147,7 +147,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testGlobalError()
 	{
-		TestOdeOrder ode_system;
+		OdeOrder ode_system;
 
 		double hValue=0.01;
 	
@@ -210,7 +210,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
     		
 	void testGlobalErrorSystemOf2Equations()
 	{
-		TestOdeOrderSystem ode_system;
+		OdeOrderSystem ode_system;
 		
 		double hValue=0.01;
 	
@@ -293,7 +293,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testGlobalErrorSystemOf3Equations()
 	{
-		TestOdeOrderSystemOf3 ode_system;
+		OdeOrderSystemOf3 ode_system;
 		
 		double hValue=0.01;
 	
@@ -386,7 +386,7 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 	
 	void testGlobalError2()
 	{
-		TestOde4 ode_system;
+		Ode4 ode_system;
 		
 		double hValue=0.001;
 	

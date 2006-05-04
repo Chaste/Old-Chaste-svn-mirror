@@ -7,9 +7,9 @@
 #include <iostream>
 #include <vector>
 #include "AbstractOdeSystem.hpp"
-#include "TestOde1.hpp"
-#include "TestOde2.hpp"
-#include "TestOde3.hpp"
+#include "Ode1.hpp"
+#include "Ode2.hpp"
+#include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
 
 // Tolerance for tests
@@ -23,7 +23,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 	void TestOdeSystemOne(void)
 	{
 		// pointer to TestOde1 class		
-		TestOde1 ode1;
+		Ode1 ode1;
 		// Yprime
 		std::vector<double> YPrime;
         YPrime = ode1.EvaluateYDerivatives(1.0, ode1.GetInitialConditions());
@@ -33,7 +33,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 	
 	void TestOdeSystemTwo(void)
 	{
-		TestOde2 ode2;
+		Ode2 ode2;
 		std::vector<double> YPrime;
 		YPrime = ode2.EvaluateYDerivatives(2.0, ode2.GetInitialConditions());
 		TS_ASSERT_DELTA(YPrime[0],8.0,tol);
@@ -42,7 +42,7 @@ class TestAbstractOdeSystem : public CxxTest::TestSuite
 	
 	void TestOdeSystemThree(void)
 	{
-		TestOde3 ode3;
+		Ode3 ode3;
 		std::vector<double> YPrime;
 		YPrime = ode3.EvaluateYDerivatives(2.0, ode3.GetInitialConditions());
 		TS_ASSERT_DELTA(YPrime[0],8.0,tol);
