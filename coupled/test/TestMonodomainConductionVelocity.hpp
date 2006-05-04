@@ -196,8 +196,15 @@ public:
         monodomain_problem.SetOutputDirectory("testoutput/MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
         monodomain_problem.Initialise();
-        monodomain_problem.Solve();
-        
+
+        // the mesh is too coarse, and this simulation will result in cell gating
+        // variables going out of range. An exception should be thrown in the 
+        // EvaluateYDerivatives() method of the cell model
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+
+
+
+        /*
         double* p_voltage;
         int lo, hi;
         // test whether voltages and gating variables are in correct ranges
@@ -245,6 +252,9 @@ public:
             // i.e. 0.05 cm/msec (which is the units of the simulation)
             TS_ASSERT(fabs(velocity-0.05) > 0.003);
         }
+        */
     }
+    
+    
 };
 #endif //_TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
