@@ -50,7 +50,9 @@ for build_dir in build_dirs:
 for gcda_file in gcda_files:
     # For added interest, the source file to process is in different locations
     # depending on whether it is a test or not.
-    if gcda_file['file'][:4] == 'Test':
+    if gcda_file['file'][:4] == 'Test' or \
+           gcda_file['dir'][-5:] == '/test':
+        #gcda_file['dir'].find('/test/') != -1:
         # .cpp file is in the same folder
         os.system('gcov -o ' + gcda_file['dir'] + gcov_flags +
                   os.path.join(gcda_file['dir'], gcda_file['file'][:-4] + 'cpp'))
@@ -58,7 +60,11 @@ for gcda_file in gcda_files:
         # .cpp file is contained within the Chaste source tree
         # gcda_file['dir'] should look something like mesh/build/coverage/src/reader
         # We then want to look in mesh/src/reader
-        start, end = gcda_file['dir'].split('src')
+        try:
+            start, end = gcda_file['dir'].split('src')
+        except:
+            print gcda_file
+            raise
         toplevel, junk = start.split('build')
         # Get rid of slashes (or system equivalent)
         toplevel = os.path.dirname(toplevel)
@@ -111,7 +117,7 @@ for src_file in src_files:
         # No gcov files found for this source file.
         # This may not be an error, if the source file in question is an .hpp file with
         # an associated .cpp file containing all the code for the class.
-        print src_file
+        ##print src_file
         if src_file['file'][-4:] == '.hpp' and \
             os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
             status = '' # So output file will be deleted
@@ -133,9 +139,6 @@ for src_file in src_files:
         os.rename(out_file_name, out_file_name + '.' + status + '.0')
     else:
         os.remove(out_file_name)
-    ## For now we concatenate these files into the output_dir
-    #os.system('cat ' + ' '.join(gcov_files) + ' > ' +
-    #          os.path.join(output_dir, mangled_dir + '#' + src_file['file'] + '.cat'))
 
 # Now remove .gcov files from the Chaste root directory
 for filename in os.listdir('.'):
