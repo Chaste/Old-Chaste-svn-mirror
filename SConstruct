@@ -49,16 +49,17 @@ if system_name == 'finarfin':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 else:
   # Default
-  petsc_base = '../../../petsc-2.2.1-with-mpi/'
+  petsc_base = '../../../petsc-2.3.1-p13/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
   petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
+  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
   
-  petsc_libpath = '#'+petsc_base+'lib/libg_c++/linux-gnu/'
+  petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'
 
-Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath")
+Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath", "blas_libpath")
 
 
 ## C++ build tools & MPI runner
