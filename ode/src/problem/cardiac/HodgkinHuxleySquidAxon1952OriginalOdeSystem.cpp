@@ -8,10 +8,8 @@
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem
                 (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *pStimulus, double dt)
-             :AbstractCardiacCell(pOdeSolver,4,0,dt)
+             :AbstractCardiacCell(pOdeSolver,4,0,dt,pStimulus)
 {
-    mpStimulus = pStimulus;
-
     /*
      * State variable
      */
@@ -71,7 +69,7 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
     double leakage_current_E_L = membrane_E_R+10.613;
     double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
 
-    double membrane_i_Stim = mpStimulus->GetStimulus(time);
+    double membrane_i_Stim = GetStimulus(time);
    
     double sodium_channel_E_Na = membrane_E_R+115.0;
     double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);

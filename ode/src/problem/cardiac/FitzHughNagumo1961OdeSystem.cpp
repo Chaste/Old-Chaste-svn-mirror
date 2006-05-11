@@ -7,12 +7,8 @@
  */
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
                                                          AbstractStimulusFunction *pStimulus, double dt)
-    : AbstractCardiacCell(pOdeSolver,2,0, dt)
+    : AbstractCardiacCell(pOdeSolver,2,0, dt,pStimulus)
 {
-    
-    mpStimulus= pStimulus;
-   
-
    /*
     * State variable
     */
@@ -56,7 +52,7 @@ std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double ti
     double membrane_V = rY[0]; // v
     double recovery_variable = rY[1]; // w
    
-    double i_stim = mpStimulus->GetStimulus(time);
+    double i_stim = GetStimulus(time);
 
     // dV/dt
     double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;

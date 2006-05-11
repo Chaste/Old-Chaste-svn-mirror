@@ -12,9 +12,6 @@
 class HodgkinHuxleySquidAxon1952OriginalOdeSystem : public AbstractCardiacCell
 {
     private:
-        // Current and voltage components (objects) of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
-        AbstractStimulusFunction *mpStimulus;
-
         // Constants for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
         double leakage_current_g_L;
         double membrane_Cm;

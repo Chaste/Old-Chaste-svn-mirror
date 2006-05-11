@@ -9,11 +9,8 @@
  */
 LuoRudyIModel1991OdeSystem::LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
                                                        AbstractStimulusFunction *pStimulus,double dt)
-    : AbstractCardiacCell(pSolver, 8, 4, dt)
+    : AbstractCardiacCell(pSolver, 8, 4, dt, pStimulus)
 {
-    mpStimulus = pStimulus;
-
-
    /*
     * State variables
     */
@@ -252,7 +249,7 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
    double plateau_potassium_current_Kp = 1.0/(1.0+exp((7.488-membrane_V)/5.98));
    double plateau_potassium_current_E_Kp = time_independent_potassium_current_E_K1;
    double plateau_potassium_current_i_Kp = plateau_potassium_current_g_Kp*plateau_potassium_current_Kp*(membrane_V-plateau_potassium_current_E_Kp);
-   double i_stim = mpStimulus->GetStimulus(time);
+   double i_stim = GetStimulus(time);
    
    //calculate dV
    double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);

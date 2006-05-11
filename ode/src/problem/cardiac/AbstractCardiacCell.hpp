@@ -16,13 +16,17 @@ protected:
     unsigned int mVoltageIndex;  /**< The index of the voltage within our state variable vector */ 
     AbstractIvpOdeSolver *mpOdeSolver;   /**< Pointer to the solver used to simulate currents for this cell. */
     double mDt;
-    AbstractStimulusFunction* mpStimulus;
+    AbstractStimulusFunction* mpIntracellularStimulus;
+    AbstractStimulusFunction* mpExtracellularStimulus;
     
 public:
     
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
                         unsigned int numberOfStateVariables,
-                        unsigned int voltageIndex, double dt)
+                        unsigned int voltageIndex,
+                        double dt,
+                        AbstractStimulusFunction* intracellularStimulus,
+                        AbstractStimulusFunction* extracellularStimulus = NULL)
         : AbstractOdeSystem(numberOfStateVariables)
     {
         mpOdeSolver = pOdeSolver;
@@ -30,6 +34,8 @@ public:
         mVoltageIndex = voltageIndex;
         assert(dt>0);
         mDt=dt;
+        mpIntracellularStimulus = intracellularStimulus;
+        mpExtracellularStimulus = extracellularStimulus;
     }
 
     virtual ~AbstractCardiacCell()
@@ -73,24 +79,35 @@ public:
     
     void SetStimulusFunction(AbstractStimulusFunction *stimulus)
     {
-        mpStimulus = stimulus;
+        SetIntracellularStimulusFunction(stimulus);
     }
      
     double GetStimulus(double time)
     {
-        return mpStimulus->GetStimulus(time);
+        return GetIntracellularStimulus(time);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    void SetIntracellularStimulusFunction(AbstractStimulusFunction *stimulus)
+    {
+        mpIntracellularStimulus = stimulus;
+    }
+     
+    double GetIntracellularStimulus(double time)
+    {
+        return mpIntracellularStimulus->GetStimulus(time);
+    }
+
+    void SetExtracellularStimulusFunction(AbstractStimulusFunction *stimulus)
+    {
+        mpExtracellularStimulus = stimulus;
+    }
+     
+    double GetExtracellularStimulus(double time)
+    {
+        assert (mpExtracellularStimulus != NULL);
+        
+        return mpExtracellularStimulus->GetStimulus(time);
+    }
 };
 
 #endif /*ABSTRACTCARDIACCELL_HPP_*/
