@@ -74,7 +74,7 @@ public:
             MonodomainProblem<1> monodomain_problem(&cell_factory);
     
             monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-            monodomain_problem.SetEndTime(200);   // 2 ms
+            monodomain_problem.SetEndTime(200);   // 200 ms
             monodomain_problem.SetOutputDirectory("testoutput/MonoDg01D");
             monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
             monodomain_problem.SetPdeTimeStep(time_step);
@@ -145,7 +145,6 @@ public:
         
         TS_ASSERT_DELTA(time_step, 0.005, 0.0);
 
-
         // Determine a converging space step, using the converging time step 
         // above
 
@@ -154,7 +153,8 @@ public:
         converging = false;
         prev_voltage = -999;   // To ensure that the first test fails
         const std::string mesh_filename = "testoutput/1D_0_to_1mm";
-        
+        //const std::string mesh_filename = "testoutput/1D_0_to_10_100_elements";
+              
         PointStimulusCellFactory cell_factory(time_step);
 
         do
@@ -165,7 +165,7 @@ public:
             // Nodes file
 
             std::ofstream node_file((mesh_filename+".node").c_str());
-
+    
             node_file << std::scientific;
 
             node_file << nb_of_nodes << "\t1\t0\t1" << std::endl;
@@ -246,19 +246,20 @@ public:
             double probe_voltage;
             MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
 
-            double relerr = fabs ((probe_voltage - prev_voltage) / prev_voltage);
+           double relerr = fabs ((probe_voltage - prev_voltage) / prev_voltage);
+           
 // Note: the first time around this iteration, the relative error will be wrong
-//       because of the initial value of prev_voltage
-//            std::cout << "Testing for dx = " << space_step
-//                << "cm (dt = " << time_step << "ms) err = " << relerr << " V = " 
-//                << p_voltage_array[middle_node] << "mV" << std::endl << std::flush;
+// because of the initial value of prev_voltage
+// std::cout << "Testing for dx = " << space_step
+// << "cm (dt = " << time_step << "ms) err = " << relerr << " V = " 
+// << p_voltage_array[middle_node] << "mV" << std::endl << std::flush;
             
             prev_voltage = probe_voltage;
 
             if (relerr < 1e-2)
             {
                 converging = true;
-//                std::cout << "Converged at dx = " << space_step << "cm" << std::endl;
+                // std::cout << "Converged at dx = " << space_step << "cm" << std::endl;
             }
             else
             {
@@ -274,12 +275,13 @@ public:
         
         // Conclusion
         
-//        std::cout << "In conclusion, the 'NewMonodomainLR91_1d' model converges for dx = " << space_step << "cm and dt = " << time_step << "ms" << std::endl;
+        // std::cout << "In conclusion, the 'NewMonodomainLR91_1d' model converges for dx = " << space_step << "cm and dt = " << time_step << "ms" << std::endl;
         
         // Do we end up with the expected space step?
         
         TS_ASSERT_DELTA(space_step, 0.0025, 0.0);
     }
+    
 };
 
 
