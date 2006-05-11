@@ -12,36 +12,85 @@
  * directly
  **/
 
-template<int DIM> 
+template <int DIM>
 class MatrixDoubleUblasConverter
+{
+    // This default case has no methods, since it should never be used.
+};
+
+template <>
+class MatrixDoubleUblasConverter<1>
 {
 public:
     /***
      * Convert a MatrixDouble to c_matrix<double,DIM,DIM>
-     * where 1<=DIM<=4.
+     * where DIM==1.
      ***/
-    c_matrix<double, DIM, DIM>* ConvertToUblas(MatrixDouble &matrixDouble)
+    c_matrix<double, 1, 1>* ConvertToUblas(MatrixDouble &matrixDouble)
     {
-        switch (DIM)
-        {
-        case 1:
-            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle1();
-            break;
-        case 2:
-            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle2();
-            break;
-        case 3:
-            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle3();
-            break;      
-        case 4:
-            return (c_matrix<double,DIM,DIM>*) matrixDouble.GetUblasHandle4();
-            break;
-        default:
-            assert(0);
-        }
-        return NULL;
+        return matrixDouble.GetUblasHandle1();
+    }
+    
+    c_matrix<double, 1, 1>& rConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.rGetUblasHandle1();
     }
 };
 
+template <>
+class MatrixDoubleUblasConverter<2>
+{
+public:
+    /***
+     * Convert a MatrixDouble to c_matrix<double,DIM,DIM>
+     * where DIM==2.
+     ***/
+    c_matrix<double, 2, 2>* ConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.GetUblasHandle2();
+    }
+    
+    c_matrix<double, 2, 2>& rConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.rGetUblasHandle2();
+    }
+};
 
+template <>
+class MatrixDoubleUblasConverter<3>
+{
+public:
+    /***
+     * Convert a MatrixDouble to c_matrix<double,DIM,DIM>
+     * where DIM==3.
+     ***/
+    c_matrix<double, 3, 3>* ConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.GetUblasHandle3();
+    }
+    
+    c_matrix<double, 3, 3>& rConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.rGetUblasHandle3();
+    }
+};
+
+template <>
+class MatrixDoubleUblasConverter<4>
+{
+public:
+    /***
+     * Convert a MatrixDouble to c_matrix<double,DIM,DIM>
+     * where DIM==4.
+     ***/
+    c_matrix<double, 4, 4>* ConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.GetUblasHandle4();
+    }
+    
+    c_matrix<double, 4, 4>& rConvertToUblas(MatrixDouble &matrixDouble)
+    {
+        return matrixDouble.rGetUblasHandle4();
+    }
+};
 #endif /*MATRIXDOUBLEUBLASCONVERTER_HPP_*/

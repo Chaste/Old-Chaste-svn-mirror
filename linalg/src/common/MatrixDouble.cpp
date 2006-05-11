@@ -30,7 +30,7 @@ MatrixDouble::MatrixDouble(int numRows, int numColumns)
             mpMatrixOf3 = new c_matrix<double,3,3>(3,3); 
             break; 
         case 4:
-            mpMatrixOf4 = new c_matrix<double,4,4>(4,4); 
+            mpMatrixOf4 = new c_matrix<double,4,4>(4,4);
             break; 
         
         default:
@@ -451,6 +451,26 @@ c_matrix<double, 4,4>* MatrixDouble::GetUblasHandle4( void ) const
        return mpMatrixOf4;
 }
 
+c_matrix<double, 1,1>& MatrixDouble::rGetUblasHandle1( void )
+{
+       assert (mSize==1);
+       return *mpMatrixOf1;
+}
 
+c_matrix<double, 2,2>& MatrixDouble::rGetUblasHandle2( void )
+{
+       assert (mSize==2);
+       return *mpMatrixOf2;
+}
 
+c_matrix<double, 3,3>& MatrixDouble::rGetUblasHandle3( void )
+{
+       assert (mSize==3);
+       return *mpMatrixOf3;
+}
 
+c_matrix<double, 4,4>& MatrixDouble::rGetUblasHandle4( void )
+{
+       assert (mSize==4);
+       return *mpMatrixOf4;
+}

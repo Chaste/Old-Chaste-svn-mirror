@@ -3,7 +3,6 @@
 
 #include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
-#include <iostream>
 
 class TestMatrixDouble : public CxxTest::TestSuite
 {
@@ -421,34 +420,36 @@ class TestMatrixDouble : public CxxTest::TestSuite
 	}
     
     void TestConvertMatrixDoubleToUblas()
-     {
+    {
         MatrixDouble z(1,1);
         z(0,0)=3;
-        c_matrix<double, 1,1>* z_ublas_matrix = z.GetUblasHandle1();
-        TS_ASSERT_EQUALS(z(0,0), (*z_ublas_matrix)(0,0));
+        c_matrix<double, 1,1>& z_ublas_matrix = z.rGetUblasHandle1();
+        TS_ASSERT_EQUALS(z(0,0), z_ublas_matrix(0,0));
         
         MatrixDouble a(2,2);
         a(0,0)=3; a(0,1)=4; a(1,0)=2; a(1,1)=5; 
-        c_matrix<double, 2,2>* a_ublas_matrix = a.GetUblasHandle2();
-        TS_ASSERT_EQUALS(a(0,0), (*a_ublas_matrix)(0,0));
-        TS_ASSERT_EQUALS(a(0,1), (*a_ublas_matrix)(0,1));
-        TS_ASSERT_EQUALS(a(1,0), (*a_ublas_matrix)(1,0));
-        TS_ASSERT_EQUALS(a(1,1), (*a_ublas_matrix)(1,1));
+        c_matrix<double, 2,2>& a_ublas_matrix = a.rGetUblasHandle2();
+        TS_ASSERT_EQUALS(a(0,0), a_ublas_matrix(0,0));
+        TS_ASSERT_EQUALS(a(0,1), a_ublas_matrix(0,1));
+        TS_ASSERT_EQUALS(a(1,0), a_ublas_matrix(1,0));
+        TS_ASSERT_EQUALS(a(1,1), a_ublas_matrix(1,1));
         
         MatrixDouble b(3,3);
         b(0,0)=3; b(2,1)=4; b(1,2)=2; 
-        c_matrix<double, 3,3>* b_ublas_matrix = b.GetUblasHandle3();
-        TS_ASSERT_EQUALS(b(0,0), (*b_ublas_matrix)(0,0));
-        TS_ASSERT_EQUALS(b(2,1), (*b_ublas_matrix)(2,1));
-        TS_ASSERT_EQUALS(b(1,2), (*b_ublas_matrix)(1,2));
+        c_matrix<double, 3,3>& b_ublas_matrix = b.rGetUblasHandle3();
+        TS_ASSERT_EQUALS(b(0,0), b_ublas_matrix(0,0));
+        TS_ASSERT_EQUALS(b(2,1), b_ublas_matrix(2,1));
+        TS_ASSERT_EQUALS(b(1,2), b_ublas_matrix(1,2));
         
         MatrixDouble c(4,4);
         c(0,0)=3; c(3,1)=4; c(2,3)=2; 
-        c_matrix<double, 4,4>* c_ublas_matrix = c.GetUblasHandle4();
-        TS_ASSERT_EQUALS(c(0,0), (*c_ublas_matrix)(0,0));
-        TS_ASSERT_EQUALS(c(3,1), (*c_ublas_matrix)(3,1));
-        TS_ASSERT_EQUALS(c(2,3), (*c_ublas_matrix)(2,3));
+        c_matrix<double, 4,4>& c_ublas_matrix = c.rGetUblasHandle4();
+        TS_ASSERT_EQUALS(c(0,0), c_ublas_matrix(0,0));
+        TS_ASSERT_EQUALS(c(3,1), c_ublas_matrix(3,1));
+        TS_ASSERT_EQUALS(c(2,3), c_ublas_matrix(2,3));
         
+        c_ublas_matrix(1,1) = 10;
+        TS_ASSERT_EQUALS(c(1,1), 10);
      }
     
     

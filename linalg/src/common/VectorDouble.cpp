@@ -331,3 +331,26 @@ c_vector<double, 4>* VectorDouble::GetUblasHandle4( void ) const
 }
 
 
+c_vector<double, 1>& VectorDouble::rGetUblasHandle1( void )
+{
+       assert (mSize==1);         
+       return *mpVectorOf1;
+}
+
+c_vector<double, 2>& VectorDouble::rGetUblasHandle2( void )
+{
+       assert (mSize==2);
+       return *mpVectorOf2;
+}
+
+c_vector<double, 3>& VectorDouble::rGetUblasHandle3( void )
+{
+       assert (mSize==3);
+       return *mpVectorOf3;
+}
+
+c_vector<double, 4>& VectorDouble::rGetUblasHandle4( void )
+{
+       assert (mSize==4);
+       return *mpVectorOf4;
+}

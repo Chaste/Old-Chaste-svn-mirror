@@ -44,8 +44,10 @@ class VectorDouble
           c_vector<double, 3>* GetUblasHandle3( void ) const;
           c_vector<double, 4>* GetUblasHandle4( void ) const;
           
-          
-
+          c_vector<double, 1>& rGetUblasHandle1( void );
+          c_vector<double, 2>& rGetUblasHandle2( void );
+          c_vector<double, 3>& rGetUblasHandle3( void );
+          c_vector<double, 4>& rGetUblasHandle4( void );
 };
 
 

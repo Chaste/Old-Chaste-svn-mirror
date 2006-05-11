@@ -15,10 +15,14 @@ class MatrixDouble
     private:
         int mSize; //Only square matrices =>  mRows == mColumns
      
+        /**
+         * MatrixDouble is implemented using ublas matrices.
+         */
         c_matrix<double,1,1> *mpMatrixOf1;
         c_matrix<double,2,2> *mpMatrixOf2;
         c_matrix<double,3,3> *mpMatrixOf3;
         c_matrix<double,4,4> *mpMatrixOf4;
+        
         int mNumberOfElements;
                 
     public:
@@ -59,7 +63,10 @@ class MatrixDouble
           c_matrix<double, 3,3>* GetUblasHandle3( void ) const;
           c_matrix<double, 4,4>* GetUblasHandle4( void ) const;
 
-
+          c_matrix<double, 1,1>& rGetUblasHandle1( void );
+          c_matrix<double, 2,2>& rGetUblasHandle2( void );
+          c_matrix<double, 3,3>& rGetUblasHandle3( void );
+          c_matrix<double, 4,4>& rGetUblasHandle4( void );
 
 };
 
