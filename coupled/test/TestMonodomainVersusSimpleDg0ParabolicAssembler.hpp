@@ -17,8 +17,8 @@
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "FischerPde.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   

@@ -18,7 +18,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 class ZeroStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {

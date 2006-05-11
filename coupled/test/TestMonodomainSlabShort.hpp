@@ -14,6 +14,8 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+
 
 class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {

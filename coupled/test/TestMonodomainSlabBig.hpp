@@ -14,7 +14,7 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "ConformingTetrahedralMesh.cpp"
-
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 class CornerStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {

@@ -13,6 +13,8 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
+#include "LuoRudyIModel1991OdeSystem.hpp"
+
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:

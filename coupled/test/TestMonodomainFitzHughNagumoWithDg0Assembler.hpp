@@ -4,25 +4,19 @@
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
 #include "Element.hpp"
+
 #include <cxxtest/TestSuite.h>
-#include <petsc.h>
+#include "petscvec.h"
 #include <vector>
-#include <iostream>
-#include "SimpleLinearSolver.hpp"
+//#include <iostream>
+
 #include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
-#include "BoundaryConditionsContainer.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"  
-#include "TrianglesMeshReader.hpp"
-//#include "MonodomainPdeFitzHughNagumo.hpp"
-#include "MonodomainPde.hpp"
-#include "MonodomainProblem.hpp"
-#include "MonodomainDg0Assembler.hpp"
-#include "ColumnDataWriter.hpp"
-#include <cmath>
-#include "EulerIvpOdeSolver.hpp"
-#include "FitzHughNagumo1961OdeSystem.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "MonodomainProblem.hpp"
+#include "AbstractCardiacCellFactory.hpp"
+
+#include "FitzHughNagumo1961OdeSystem.hpp"
+
 
 class FhnEdgeStimulusCellFactory : public AbstractCardiacCellFactory<2>
 {

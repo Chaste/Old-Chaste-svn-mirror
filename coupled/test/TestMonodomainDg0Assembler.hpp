@@ -12,6 +12,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include <time.h>
 

@@ -3,13 +3,10 @@
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
-#include "InitialStimulus.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MatrixDouble.hpp"
-#include "AbstractCoupledPde.hpp"
-#include "AbstractCardiacCellFactory.hpp"
+#include "AbstractCardiacPde.hpp"
 
-
+/*
 const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
 const double rG = 1.5;                                  // gap junction resistance, ohm*cm^2
 const double RADIUS = 0.00011;                          // radius of cell, cm
@@ -23,6 +20,8 @@ const double rA = rMyo + rG / LENGTH;// BETA;
 //memfem:
 //const double DIFFUSION_CONST = 0.000019;
 const double BETA = 0.00014;
+*/
+
 
 /**
  * MonodomainPde class.
@@ -34,53 +33,27 @@ const double BETA = 0.00014;
  * 
  */
 
-typedef std::vector<double> odeVariablesType;
 
 
 
 template <int SPACE_DIM>
-class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
+class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
-    private:
-        friend class TestMonodomainPde;
+private:
+    friend class TestMonodomainPde;
 
-        double mDiffusionCoefficient;
+    double mDiffusionCoefficient;
 
-        /** The vector of cells. Distributed. */
-        std::vector< AbstractCardiacCell* > mCellsDistributed;
-
-    public:
+public:
     
     //Constructor     
-    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) :
-        AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)          
-     {
-        int lo=this->mOwnershipRangeLo;
-        int hi=this->mOwnershipRangeHi;
-        
-        mCellsDistributed.resize(hi-lo);
-        
-        for (int global_index=lo; global_index<hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
-        }        
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);
+    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
+       :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, tStart, pdeTimeStep)          
+    {
         // Initialise the diffusion coefficient
         mDiffusionCoefficient = 0.0005;
-
-     }
-
-    ~MonodomainPde(void)
-    {
-        int lo=this->mOwnershipRangeLo;
-        int hi=this->mOwnershipRangeHi;
-        for (int global_index=lo; global_index<hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            delete mCellsDistributed[local_index];
-        }
     }
+
     
     /**
      * Set the diffusion coefficient
@@ -89,6 +62,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     {
         mDiffusionCoefficient = rDiffusionCoefficient;
     }
+
     
     /**
      * This should not be called; use 
@@ -99,6 +73,7 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
         assert(0);
         return 0.0;
     }
+    
     
     /**
      * This should not be called; use 
@@ -142,59 +117,6 @@ class MonodomainPde : public AbstractCoupledPde<SPACE_DIM>
     }
     
    
-    AbstractCardiacCell* GetCardiacCell( int globalIndex )
-    {
-        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi)) {
-            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
-                " hi " << this->mOwnershipRangeHi << std::endl;
-        }
-        assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
-        return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
-    }
-       
-
-    /**
-     * This function informs the class that the current pde timestep is over,
-     * so time is advanced.
-     */
-    void ResetAsUnsolvedOdeSystem()
-    {
-        this->mTime += this->mBigTimeStep;
-    }
-  
-    virtual void PrepareForAssembleSystem(Vec currentSolution)
-    {
-        AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
-        //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
-
-        double *p_current_solution;
-        VecGetArray(currentSolution, &p_current_solution);
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        double time=this->mTime;
-
-        double big_time_step=this->mBigTimeStep;
-        
-        for (unsigned global_index=lo; global_index < hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            
-            // overwrite the voltage with the input value
-            mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
-            
-            // solve            
-            
-            mCellsDistributed[local_index]->Compute(time, time+big_time_step);
-
-            double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
-                            + mCellsDistributed[local_index]->GetIIonic();
-          
-            this->mSolutionCacheReplicated[global_index] = - Itotal;
-
-        }
-        
-        this->mSolutionCacheReplicated.Replicate(lo, hi);
-     }
 };
 
 #endif /*MONODOMAINPDE_HPP_*/
