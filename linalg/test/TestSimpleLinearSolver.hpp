@@ -1,6 +1,9 @@
 #ifndef _TESTSIMPLELINEARSOLVER_HPP_
 #define _TESTSIMPLELINEARSOLVER_HPP_
 
+
+
+
 #include "SimpleLinearSolver.hpp"
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
@@ -29,7 +32,12 @@ public:
 	   	
 	   	//Set Matrix
 	   	Mat lhs_matrix;
+#if (PETSC_VERSION_MINOR == 2) //Old API
 	   	MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+#else
+        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
+        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
+#endif
 	   	//MatSetType(lhs_matrix, MATSEQDENSE);
 	   	MatSetType(lhs_matrix, MATMPIDENSE);
 	   	
@@ -84,8 +92,13 @@ public:
 	   	
 	   	//Set Matrix
 	   	Mat lhs_matrix;
-	   	MatCreate(PETSC_COMM_WORLD,  PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
-	   	//MatSetType(lhs_matrix, MATSEQDENSE);
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+#else
+        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
+        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
+#endif	   	
+    //MatSetType(lhs_matrix, MATSEQDENSE);
 	   	MatSetType(lhs_matrix, MATMPIDENSE);
 	   	
 	   	// Set Matrix to Zero matrix
@@ -125,7 +138,12 @@ public:
 	   	
 	   	//Set Matrix
 	   	Mat lhs_matrix;
-	   	MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &lhs_matrix);
+#else
+        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
+        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,2,2);
+#endif
 	   	//MatSetType(lhs_matrix, MATSEQDENSE);
 	   	MatSetType(lhs_matrix, MATMPIDENSE);
 	   	

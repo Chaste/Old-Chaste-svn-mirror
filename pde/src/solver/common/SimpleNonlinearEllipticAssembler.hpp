@@ -18,7 +18,6 @@
 #include "ReplicatableVector.hpp"
 
 
-
 /*
  * Since we need to pass function pointers to the PETSc SNES routines, we can't
  * make these functions below methods. This is a pain, since it also means we
@@ -347,7 +346,12 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	PetscErrorCode ierr;
 	// Set residual vector to zero
 	PetscScalar zero = 0.0;
-	ierr = VecSet(&zero, residualVector); CHKERRQ(ierr);
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
+    ierr = VecSet(&zero, residualVector); CHKERRQ(ierr);
+#else
+    VecSet(residualVector, zero); 
+#endif
     
     // Replicate the currentSolution data
     ReplicatableVector current_solution_replicated_array;
@@ -761,8 +765,13 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
         ComputeResidual(inputcopy, perturbed_residual);
         
         // result = (perturbed_residual - residual) / h
+#if (PETSC_VERSION_MINOR == 2) //Old API
         ierr = VecWAXPY(&subtract, residual, perturbed_residual, result); CHKERRQ(ierr);
         ierr = VecScale(&one_over_h, result); CHKERRQ(ierr);
+#else
+        VecWAXPY(result, subtract, residual, perturbed_residual);
+        VecScale(result, one_over_h);
+#endif
     
         double *p_result;
 		ierr = VecGetArray(result, &p_result); CHKERRQ(ierr);

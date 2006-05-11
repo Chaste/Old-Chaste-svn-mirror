@@ -37,6 +37,7 @@
 
 #include "PetscSetupAndFinalize.hpp"
 
+
 class TestSimpleDg0ParabolicAssembler : public CxxTest::TestSuite
 {	
 private:
@@ -55,7 +56,13 @@ private:
 	Vec CreateConstantConditionVec(int size, double value)
 	{
 		Vec initial_condition = CreateInitialConditionVec(size);
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
    		VecSet(&value, initial_condition);
+#else
+        VecSet(initial_condition, value);
+#endif
+
     	VecAssemblyBegin(initial_condition);
 		VecAssemblyEnd(initial_condition);
 		return initial_condition;

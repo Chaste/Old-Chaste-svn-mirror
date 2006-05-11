@@ -6,14 +6,24 @@
 #include "AbstractLinearSolver.hpp"
 #include <iostream>
 
+
+
+
 LinearSystem::LinearSystem(int lhsVectorSize)
 {
     
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
     VecSetSizes(mRhsVector, PETSC_DECIDE, lhsVectorSize);
 	VecSetFromOptions(mRhsVector);
-    
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
     MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize,&mLhsMatrix);
+#else //New API
+    MatCreate(PETSC_COMM_WORLD,&mLhsMatrix);
+    MatSetSizes(mLhsMatrix,PETSC_DECIDE,PETSC_DECIDE,lhsVectorSize,lhsVectorSize);
+#endif
+
+
     MatSetType(mLhsMatrix, MATMPIAIJ);
     MatSetFromOptions(mLhsMatrix);
     
@@ -129,11 +139,20 @@ void LinearSystem::ZeroMatrixRow(int row)
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
+    double diag_zero=0.0;
+    // MatZeroRows allows a non-zero value to be placed on the diagonal
+    // diag_zero is the value to put in the diagonal
+    
+#if (PETSC_VERSION_MINOR == 2) //Old API
     IS is;
     ISCreateGeneral(PETSC_COMM_WORLD,1,&row,&is);
-    double zero=0.0;
-    MatZeroRows(mLhsMatrix, is, &zero);
+    MatZeroRows(mLhsMatrix, is, &diag_zero);
     ISDestroy(is);
+#else
+    
+    MatZeroRows(mLhsMatrix, 1, &row, diag_zero);
+#endif
+
 }
 
 void LinearSystem::ZeroRhsVector()

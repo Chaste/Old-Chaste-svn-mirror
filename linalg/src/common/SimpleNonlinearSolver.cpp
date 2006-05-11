@@ -1,9 +1,12 @@
 /**
  * Concrete Simple Nonlinear PDE system solver.
  */
+ 
+ 
 
 #include "SimpleNonlinearSolver.hpp"
 #include "global/src/Exception.hpp"
+#include "petscsnes.h"
 #include <sstream>
 
 
@@ -50,7 +53,16 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     int N; //number of elements
     //get the size of the jacobian from the residual
     VecGetSize(residual,&N);
+
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
     MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,N,N,&J);
+#else
+    MatCreate(PETSC_COMM_WORLD,&J);
+    MatSetSizes(J,PETSC_DECIDE,PETSC_DECIDE,N,N);
+#endif
+
+
     MatSetFromOptions(J);
 
     SNESCreate(PETSC_COMM_WORLD, &snes);
@@ -62,8 +74,14 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     Vec x;
     VecDuplicate(initialGuess, &x);
     VecCopy(initialGuess, x);
+
     
-    SNESSolve(snes, x);
+#if (PETSC_VERSION_MINOR == 2) //Old API
+   SNESSolve(snes, x);
+#else
+    SNESSolve(snes, PETSC_NULL, x);
+#endif
+
     
     MatDestroy(J); // Free Jacobian
     

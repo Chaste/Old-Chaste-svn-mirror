@@ -34,6 +34,10 @@
 #include "PetscSetupAndFinalize.hpp"
 
 
+
+
+
+
 /**
  * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
  */
@@ -92,7 +96,13 @@ private:
 	Vec CreateConstantInitialGuessVec(int size, double value)
 	{
 		Vec initial_guess = CreateInitialGuessVec(size);
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
 		VecSet(&value, initial_guess);
+#else
+        VecSet(initial_guess, value);
+#endif
+
 		VecAssemblyBegin(initial_guess);
 		VecAssemblyEnd(initial_guess);
 		return initial_guess;
@@ -181,11 +191,23 @@ public:
 	{
         PetscInt n = 11;  // Mesh size
 		Mat numerical_jacobian;
-		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &numerical_jacobian);
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &numerical_jacobian);
+#else
+        MatCreate(PETSC_COMM_WORLD, &numerical_jacobian);
+        MatSetSizes(numerical_jacobian, PETSC_DETERMINE, PETSC_DETERMINE, n, n);
+#endif
 		//MatSetType(numerical_jacobian, MATSEQDENSE);
 	    MatSetFromOptions(numerical_jacobian);
 		Mat analytic_jacobian;
-		MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &analytic_jacobian);
+		
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &analytic_jacobian);
+#else
+        MatCreate(PETSC_COMM_WORLD, &analytic_jacobian);
+        MatSetSizes(analytic_jacobian, PETSC_DETERMINE, PETSC_DETERMINE, n, n);
+#endif
 		//MatSetType(analytic_jacobian, MATSEQDENSE);
         MatSetFromOptions(analytic_jacobian);
 	
