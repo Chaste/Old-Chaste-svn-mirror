@@ -74,7 +74,7 @@ public:
             MonodomainProblem<1> monodomain_problem(&cell_factory);
     
             monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-            monodomain_problem.SetEndTime(2);   // 2 ms
+            monodomain_problem.SetEndTime(200);   // 2 ms
             monodomain_problem.SetOutputDirectory("testoutput/MonoDg01D");
             monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
             monodomain_problem.SetPdeTimeStep(time_step);
@@ -127,7 +127,7 @@ public:
             if (relerr < 1e-2)
             {
                 converging = true;
-//                std::cout << "Converged at dt = " << monodomain_problem.time_step << "ms" << std::endl;
+                //std::cout << "Converged at dt = " << monodomain_problem.time_step << "ms" << std::endl;
             }
             else
             {
@@ -143,7 +143,8 @@ public:
                 
         // Do we end up with the expected time step?
         
-        TS_ASSERT_DELTA(time_step, 0.00125, 0.0);
+        TS_ASSERT_DELTA(time_step, 0.005, 0.0);
+
 
         // Determine a converging space step, using the converging time step 
         // above
