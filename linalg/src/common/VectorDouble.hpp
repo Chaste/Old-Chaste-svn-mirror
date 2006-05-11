@@ -12,42 +12,42 @@ using namespace boost::numeric::ublas;
 class VectorDouble
 {
     private:
-       int mSize;
-       
-       c_vector<double,1> *mpVectorOf1;
-       c_vector<double,2> *mpVectorOf2;
-       c_vector<double,3> *mpVectorOf3;
-       c_vector<double,4> *mpVectorOf4;
+        int mSize;
+        
+        c_vector<double,1> *mpVectorOf1;
+        c_vector<double,2> *mpVectorOf2;
+        c_vector<double,3> *mpVectorOf3;
+        c_vector<double,4> *mpVectorOf4;
+        bool mDontDeleteUblasVectors;
       
     public:
         //VectorDouble(); // For use in alocating a Double vector 
         VectorDouble(int Size);
+        VectorDouble(c_vector<double, 1> &);
+        VectorDouble(c_vector<double, 2> &);
+        VectorDouble(c_vector<double, 3> &);
+        VectorDouble(c_vector<double, 4> &);
         ~VectorDouble();
 
-          VectorDouble(const VectorDouble& rOtherVector);
-          void operator=(const VectorDouble& rOtherVector);
-          VectorDouble operator+(const VectorDouble& rSomeVector1);
-          VectorDouble operator-(const VectorDouble& rSomeVector1);
-          VectorDouble operator*(double Scalar);
+        VectorDouble(const VectorDouble& rOtherVector);
+        void operator=(const VectorDouble& rOtherVector);
+        VectorDouble operator+(const VectorDouble& rSomeVector1);
+        VectorDouble operator-(const VectorDouble& rSomeVector1);
+        VectorDouble operator*(double Scalar);
 
-          double& VectorDouble::operator()(int Entry) const;
+        double& VectorDouble::operator()(int Entry) const;
 
-          int Size( void ) const;
-          double dot(const VectorDouble& rOtherVector) const;
-          void ResetToZero( void );
-          VectorDouble VectorProduct(const VectorDouble& rOtherVector);
-          friend VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector);
-          double L2Norm( void );
+        int Size( void ) const;
+        double dot(const VectorDouble& rOtherVector) const;
+        void ResetToZero( void );
+        VectorDouble VectorProduct(const VectorDouble& rOtherVector);
+        friend VectorDouble operator*(double Scalar, const VectorDouble& rSomeVector);
+        double L2Norm( void );
           
-          c_vector<double, 1>* GetUblasHandle1( void ) const;
-          c_vector<double, 2>* GetUblasHandle2( void ) const;
-          c_vector<double, 3>* GetUblasHandle3( void ) const;
-          c_vector<double, 4>* GetUblasHandle4( void ) const;
-          
-          c_vector<double, 1>& rGetUblasHandle1( void );
-          c_vector<double, 2>& rGetUblasHandle2( void );
-          c_vector<double, 3>& rGetUblasHandle3( void );
-          c_vector<double, 4>& rGetUblasHandle4( void );
+        c_vector<double, 1>& rGetUblasHandle1( void ) const;
+        c_vector<double, 2>& rGetUblasHandle2( void ) const;
+        c_vector<double, 3>& rGetUblasHandle3( void ) const;
+        c_vector<double, 4>& rGetUblasHandle4( void ) const;
 };
 
 

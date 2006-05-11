@@ -38,6 +38,35 @@ VectorDouble::VectorDouble(int Size)
         throw Exception("Vector size larger than 4");
             break;
     }
+    mDontDeleteUblasVectors = false;
+}
+
+VectorDouble::VectorDouble(c_vector<double, 1> &rUblasVector)
+{
+    mSize = 1;
+    mDontDeleteUblasVectors = true;
+    mpVectorOf1 = &rUblasVector;
+}
+
+VectorDouble::VectorDouble(c_vector<double, 2> &rUblasVector)
+{
+    mSize = 2;
+    mDontDeleteUblasVectors = true;
+    mpVectorOf2 = &rUblasVector;
+}
+
+VectorDouble::VectorDouble(c_vector<double, 3> &rUblasVector)
+{
+    mSize = 3;
+    mDontDeleteUblasVectors = true;
+    mpVectorOf3 = &rUblasVector;
+}
+
+VectorDouble::VectorDouble(c_vector<double, 4> &rUblasVector)
+{
+    mSize = 4;
+    mDontDeleteUblasVectors = true;
+    mpVectorOf4 = &rUblasVector;
 }
 
 VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
@@ -70,25 +99,27 @@ VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
 
 VectorDouble::~VectorDouble()
 {
-    switch (mSize)
-    {
-        case 1:
-            delete (mpVectorOf1);
-            break;
-        case 2:
-            delete (mpVectorOf2);
-            break;
-        case 3:
-            delete (mpVectorOf3);
-            break;
-        case 4:
-            delete (mpVectorOf4);
-            break;
-        default:
-        // Vector bigger than  4 Throw Exception
-        throw Exception("Vector size larger than 4");
-            break;
-    }        
+    if (!mDontDeleteUblasVectors) {
+        switch (mSize)
+        {
+            case 1:
+                delete (mpVectorOf1);
+                break;
+            case 2:
+                delete (mpVectorOf2);
+                break;
+            case 3:
+                delete (mpVectorOf3);
+                break;
+            case 4:
+                delete (mpVectorOf4);
+                break;
+            default:
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
+                break;
+        }
+    }
 }    
     
 double& VectorDouble::operator()(int entry) const
@@ -306,50 +337,26 @@ double VectorDouble::L2Norm( void )
     
 }
 
-c_vector<double, 1>* VectorDouble::GetUblasHandle1( void ) const
-{
-       assert (mSize==1);         
-       return mpVectorOf1;
-}
 
-c_vector<double, 2>* VectorDouble::GetUblasHandle2( void ) const
-{
-       assert (mSize==2);
-       return mpVectorOf2;
-}
-
-c_vector<double, 3>* VectorDouble::GetUblasHandle3( void ) const
-{
-       assert (mSize==3);
-       return mpVectorOf3;
-}
-
-c_vector<double, 4>* VectorDouble::GetUblasHandle4( void ) const
-{
-       assert (mSize==4);
-       return mpVectorOf4;
-}
-
-
-c_vector<double, 1>& VectorDouble::rGetUblasHandle1( void )
+c_vector<double, 1>& VectorDouble::rGetUblasHandle1( void ) const
 {
        assert (mSize==1);         
        return *mpVectorOf1;
 }
 
-c_vector<double, 2>& VectorDouble::rGetUblasHandle2( void )
+c_vector<double, 2>& VectorDouble::rGetUblasHandle2( void ) const
 {
        assert (mSize==2);
        return *mpVectorOf2;
 }
 
-c_vector<double, 3>& VectorDouble::rGetUblasHandle3( void )
+c_vector<double, 3>& VectorDouble::rGetUblasHandle3( void ) const
 {
        assert (mSize==3);
        return *mpVectorOf3;
 }
 
-c_vector<double, 4>& VectorDouble::rGetUblasHandle4( void )
+c_vector<double, 4>& VectorDouble::rGetUblasHandle4( void ) const
 {
        assert (mSize==4);
        return *mpVectorOf4;

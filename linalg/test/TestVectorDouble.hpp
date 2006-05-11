@@ -5,16 +5,42 @@
 
 class TestVectorDouble : public CxxTest::TestSuite
 {
-	public:
+public:
 	
 	void TestConstructor()
 	{
 		VectorDouble A(3);
 		TS_ASSERT_DELTA(A(1), 0.0, 0.0000000001);
+        
+        c_vector<double, 1> ublas1(1);
+        ublas1(0)=99;
+        VectorDouble vec1(ublas1);
+        TS_ASSERT_EQUALS(vec1(0), 99);
+        vec1(0)=33;
+        TS_ASSERT_EQUALS(ublas1(0), 33);
+        
+        c_vector<double, 2> ublas2(2);
+        ublas2(0)=99;
+        VectorDouble vec2(ublas2);
+        TS_ASSERT_EQUALS(vec2(0), 99);
+        vec2(0)=33;
+        TS_ASSERT_EQUALS(ublas2(0), 33);
+        
+        c_vector<double, 3> ublas3(3);
+        ublas3(0)=99;
+        VectorDouble vec3(ublas3);
+        TS_ASSERT_EQUALS(vec3(0), 99);
+        vec3(0)=33;
+        TS_ASSERT_EQUALS(ublas3(0), 33);
+        
+        c_vector<double, 4> ublas4(4);
+        ublas4(0)=99;
+        VectorDouble vec4(ublas4);
+        TS_ASSERT_EQUALS(vec4(0), 99);
+        vec4(0)=33;
+        TS_ASSERT_EQUALS(ublas4(0), 33);
 	}
-	
-	
-	
+    
 	void TestCopyConstructor()
 	{
 		VectorDouble A(3);

@@ -58,15 +58,10 @@ class MatrixDouble
           double GetSecondInvariant() const;
           double GetThirdInvariant() const;
 
-          c_matrix<double, 1,1>* GetUblasHandle1( void ) const;
-          c_matrix<double, 2,2>* GetUblasHandle2( void ) const;
-          c_matrix<double, 3,3>* GetUblasHandle3( void ) const;
-          c_matrix<double, 4,4>* GetUblasHandle4( void ) const;
-
-          c_matrix<double, 1,1>& rGetUblasHandle1( void );
-          c_matrix<double, 2,2>& rGetUblasHandle2( void );
-          c_matrix<double, 3,3>& rGetUblasHandle3( void );
-          c_matrix<double, 4,4>& rGetUblasHandle4( void );
+          c_matrix<double, 1,1>& rGetUblasHandle1( void ) const;
+          c_matrix<double, 2,2>& rGetUblasHandle2( void ) const;
+          c_matrix<double, 3,3>& rGetUblasHandle3( void ) const;
+          c_matrix<double, 4,4>& rGetUblasHandle4( void ) const;
 
 };
 

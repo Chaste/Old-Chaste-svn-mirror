@@ -2,8 +2,8 @@
 #define _MONODOMAINDG0ASSEMBLER_HPP_
 
 
-#include <iostream>
-#include  <vector>
+//#include <iostream>
+#include <vector>
 #include <petscvec.h>
 
 #include "MatrixDouble.hpp"
@@ -39,10 +39,6 @@ protected:
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
-
-        //std::cout << "In AssembleOnElement." << std::endl << std::flush;
-        //double *p_current_solution;
-        //int ierr = VecGetArray(currentSolution, &p_current_solution);
         
         const MatrixDouble *inverseJacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
@@ -55,10 +51,8 @@ protected:
         }
         
         rBElem.ResetToZero();
-        
 
         // Create converters for use inside loop below
-        VectorDoubleUblasConverter<ELEMENT_DIM> vector_converter;
         MatrixDoubleUblasConverter<ELEMENT_DIM> matrix_converter;
         MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>& a_elem = matrix_converter2.rConvertToUblas(rAElem);
@@ -69,19 +63,13 @@ protected:
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
-            std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-            std::vector<VectorDouble> gradPhi;
+            std::vector<double> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            std::vector<c_vector<double, ELEMENT_DIM> > gradPhi;
             
-            // Get ublas handles to gradPhi for later use                                    
-            std::vector< c_vector<double, ELEMENT_DIM> > grad_phi_ublas(num_nodes);
             if (!this->mMatrixIsAssembled)
             {
                 gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
                                                 (quad_point, *inverseJacobian);
-                for (int i=0; i<num_nodes; i++)
-                {
-                   grad_phi_ublas[i]=vector_converter.rConvertToUblas(gradPhi[i]);
-                }
             }
 
             Point<SPACE_DIM> x(0,0,0);
@@ -117,7 +105,7 @@ protected:
                         a_elem(row,col) += integrand_val1 * wJ;
 
 //                      double integrand_val2 = gradPhi[row].dot(pde_diffusion_term * gradPhi[col]);
-                        double integrand_val2 = inner_prod( grad_phi_ublas[row], prod( pde_diffusion_term_ublas, grad_phi_ublas[col]) );
+                        double integrand_val2 = inner_prod( gradPhi[row], prod( pde_diffusion_term_ublas, gradPhi[col]) );
                         a_elem(row,col) += integrand_val2 * wJ;
                     }
                 }

@@ -5,6 +5,8 @@
 #include "LinearBasisFunction.hpp"
 #include "Point.hpp"
 #include "MatrixDouble.hpp"
+#include "VectorDoubleUblasConverter.hpp"
+#include "MatrixDoubleUblasConverter.hpp"
 #include <cassert>
 
 
@@ -20,14 +22,9 @@
 template <int ELEM_DIM>
 double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const
 {
-	assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
+	assert(ELEM_DIM < 4 && ELEM_DIM > 0);
 	switch(ELEM_DIM)
 	{
-	case 0:
-		assert(basisIndex == 0);
-		return 1.0;
-		break;			
-
 	case 1:
 		switch (basisIndex)
 		{
@@ -82,6 +79,20 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM>
 	return 0.0; // Avoid compiler warning
 }
 
+/**
+ * Compute a basis function at a point within an element.
+ * 
+ * @param point The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ */
+double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const
+{
+    assert(basisIndex == 0);
+    return 1.0;
+}
 
 /**
  * Compute the derivative of a basis function at a point within an canonical element.
@@ -191,6 +202,20 @@ std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const P
  * 
  * @param point The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
+ * @return The values of the basis functions, in local index order.
+ */
+std::vector<double> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0> &rPoint) const
+{
+    std::vector<double> basisValues(1);
+    basisValues[0] = ComputeBasisFunction(rPoint, 0);
+    return basisValues;
+}
+
+/**
+ * Compute all basis functions at a point within an element.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
  * @param basisValues Standard vector in which to store the values of the basis functions,
  * in local index order
  */
@@ -206,6 +231,20 @@ void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionsWithUpdate(const Point<
     }
 }
 
+/**
+ * Compute all basis functions at a point within an element.
+ * 
+ * @param point The point at which to compute the basis functions. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisValues Standard vector in which to store the values of the basis functions,
+ * in local index order
+ */
+void LinearBasisFunction<0>::ComputeBasisFunctionsWithUpdate(const Point<0> &rPoint,
+                                                          std::vector<double> &rBasisValues) const
+{
+    assert(rBasisValues.size()==1);
+    rBasisValues[0] = ComputeBasisFunction(rPoint, 0);
+}
 
 /**
  * Compute the derivatives of all basis functions at a point within an element.
@@ -245,17 +284,23 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<VectorDouble> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const MatrixDouble &rInverseJacobian) const
+std::vector<c_vector<double, ELEM_DIM> > LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const MatrixDouble &rInverseJacobian) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     assert(rInverseJacobian.Rows() == rInverseJacobian.Columns());
     std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
-  	std::vector<VectorDouble> transformedGradValues;
+  	std::vector<c_vector<double, ELEM_DIM> > transformedGradValues;
   	transformedGradValues.reserve(ELEM_DIM+1);
     
-    for(int i=0;i<ELEM_DIM+1;i++)
+    VectorDoubleUblasConverter<ELEM_DIM> vector_converter;
+    MatrixDoubleUblasConverter<ELEM_DIM> matrix_converter; 
+    
+    c_matrix<double, ELEM_DIM, ELEM_DIM>& inverse_jacobian_ublas = matrix_converter.rConvertToUblas(rInverseJacobian);
+    
+    for (int i=0;i<ELEM_DIM+1;i++)
     {
-        transformedGradValues.push_back(basisGradValues[i] * rInverseJacobian);
+        c_vector<double, ELEM_DIM> &basis_grad_value = vector_converter.rConvertToUblas(basisGradValues[i]);
+        transformedGradValues.push_back(prod(basis_grad_value, inverse_jacobian_ublas));
     }
 
     return transformedGradValues;    	

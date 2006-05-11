@@ -11,7 +11,7 @@
 
 class TestLinearBasisFunction : public CxxTest::TestSuite 
 {
-	public:
+public:
 	
 	void TestLinearBasisFunction0d() 
 	{
@@ -125,7 +125,8 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		MatrixDouble invJ(1,1);
 		invJ(0,0)=0.5;
 
-		std::vector<VectorDouble> transDeriv = basis_func.ComputeTransformedBasisFunctionDerivatives(one,invJ);
+		std::vector<c_vector<double,1> > transDeriv =
+            basis_func.ComputeTransformedBasisFunctionDerivatives(one, invJ);
 
 		TS_ASSERT_EQUALS(transDeriv.size(), 2);
 		TS_ASSERT_DELTA(transDeriv[0](0), -0.5, 1e-12);
@@ -139,7 +140,8 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		invJ2(0,0)=0.5;
 		invJ2(1,1)=0.5;
 
-		std::vector<VectorDouble> transDeriv2 = basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone,invJ2);
+		std::vector<c_vector<double,2> > transDeriv2 =
+            basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone, invJ2);
 		
 		TS_ASSERT_EQUALS(transDeriv2.size(), 3);
 		TS_ASSERT_DELTA(transDeriv2[0](0), -0.5, 1e-12);
@@ -156,7 +158,8 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		invJ3(1,1)=0.5;
 		invJ3(2,2)=0.5;
 		
-		std::vector<VectorDouble> transDeriv3 = basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,invJ3);
+		std::vector<c_vector<double,3> > transDeriv3 =
+            basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,invJ3);
 
 		TS_ASSERT_EQUALS(transDeriv3.size(), 4);
 		TS_ASSERT_DELTA(transDeriv3[0](0), -0.5, 1e-12);
@@ -179,7 +182,7 @@ class TestLinearBasisFunction : public CxxTest::TestSuite
 		
 		const MatrixDouble *inverseJacobian = element.GetInverseJacobian();
 		Point<2> evaluation_point(1,1); 
-		std::vector<VectorDouble> trans_deriv =
+		std::vector<c_vector<double,2> > trans_deriv =
 			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
 																		*inverseJacobian);
 		

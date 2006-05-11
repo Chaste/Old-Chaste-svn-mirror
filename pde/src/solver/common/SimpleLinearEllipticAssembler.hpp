@@ -32,12 +32,14 @@ protected:
 	 * linear system.
 	 */
 	virtual double LhsMatrixIntegrand(std::vector<double> &rPhi,
-									  std::vector<VectorDouble> &rGradPhi,
+									  std::vector<c_vector<double, ELEMENT_DIM> > &rGradPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row, int col,
 									  Point<SPACE_DIM> &rX)
 	{
-		return rGradPhi[row].dot(pPde->ComputeDiffusionTerm(rX) * rGradPhi[col]);
+        VectorDouble grad_phi_row(rGradPhi[row]);
+        VectorDouble grad_phi_col(rGradPhi[col]);
+		return grad_phi_row.dot(pPde->ComputeDiffusionTerm(rX) * grad_phi_col);
 	}
 	
 	/**

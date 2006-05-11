@@ -266,7 +266,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
 		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-		std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		std::vector<c_vector<double, ELEMENT_DIM> > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 		                                    (quad_point, *inverseJacobian);
 
 		Point<SPACE_DIM> x(0,0,0);
@@ -295,7 +295,8 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 			// d/dx [f(U,x) du/dx ] = -g
 			// where g(x,U) is the forcing term
 			MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
-			double  integrand_value1 = ((FOfU*gradU).dot(gradPhi[i]));
+            VectorDouble grad_phi_i(gradPhi[i]);
+			double  integrand_value1 = ((FOfU*gradU).dot(grad_phi_i));
 			//make RHS general: consists of linear and nonlinear source terms
 			double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
 			ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
@@ -571,7 +572,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
 		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-		std::vector<VectorDouble> gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		std::vector<c_vector<double, ELEMENT_DIM> > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 		                                    (quad_point, *inverseJacobian);
 
 		Point<SPACE_DIM> x(0,0,0);
@@ -608,8 +609,10 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 				//LinearSourceTerm(x)	not needed as it is a constant wrt U_i
 				double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
 				
-				double integrand_value1 = (((FOfU_prime *gradU )* phi[j]).dot(gradPhi[i]));
-				double integrand_value2 = (FOfU * gradPhi[j] ).dot(gradPhi[i]);
+                VectorDouble grad_phi_i(gradPhi[i]);
+				double integrand_value1 = (((FOfU_prime *gradU )* phi[j]).dot(grad_phi_i));
+                VectorDouble grad_phi_j(gradPhi[j]);
+				double integrand_value2 = (FOfU * grad_phi_j).dot(grad_phi_i);
 				double integrand_value3 = ForcingTermPrime * phi[i];
 				
 				//double integrand_value4 = integrand_value1 + integrand_value2 + integrand_value3;

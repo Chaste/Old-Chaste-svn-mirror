@@ -25,12 +25,7 @@ public:
     /**
      * Convert a VectorDouble to c_vector<double,1>
      **/
-    c_vector<double, 1>* ConvertToUblas(VectorDouble &vectorDouble)
-    {
-        return vectorDouble.GetUblasHandle1();
-    }
-
-    c_vector<double, 1>& rConvertToUblas(VectorDouble &vectorDouble)
+    c_vector<double, 1>& rConvertToUblas(const VectorDouble &vectorDouble)
     {
         return vectorDouble.rGetUblasHandle1();
     }
@@ -44,12 +39,7 @@ public:
     /**
      * Convert a VectorDouble to c_vector<double,2>
      **/
-    c_vector<double, 2>* ConvertToUblas(VectorDouble &vectorDouble)
-    {
-        return vectorDouble.GetUblasHandle2();
-    }
-
-    c_vector<double, 2>& rConvertToUblas(VectorDouble &vectorDouble)
+    c_vector<double, 2>& rConvertToUblas(const VectorDouble &vectorDouble)
     {
         return vectorDouble.rGetUblasHandle2();
     }
@@ -63,12 +53,7 @@ public:
     /**
      * Convert a VectorDouble to c_vector<double,3>
      **/
-    c_vector<double, 3>* ConvertToUblas(VectorDouble &vectorDouble)
-    {
-        return vectorDouble.GetUblasHandle3();
-    }
-
-    c_vector<double, 3>& rConvertToUblas(VectorDouble &vectorDouble)
+    c_vector<double, 3>& rConvertToUblas(const VectorDouble &vectorDouble)
     {
         return vectorDouble.rGetUblasHandle3();
     }
@@ -82,12 +67,7 @@ public:
     /**
      * Convert a VectorDouble to c_vector<double,4>
      **/
-    c_vector<double, 4>* ConvertToUblas(VectorDouble &vectorDouble)
-    {
-        return vectorDouble.GetUblasHandle4();
-    }
-
-    c_vector<double, 4>& rConvertToUblas(VectorDouble &vectorDouble)
+    c_vector<double, 4>& rConvertToUblas(const VectorDouble &vectorDouble)
     {
         return vectorDouble.rGetUblasHandle4();
     }

@@ -427,49 +427,26 @@ bool MatrixDouble::IsSquare() const
     return true;
 }
 
-c_matrix<double, 1,1>* MatrixDouble::GetUblasHandle1( void ) const
-{
-       assert (mSize==1);
-       return mpMatrixOf1;
-}
 
-c_matrix<double, 2,2>* MatrixDouble::GetUblasHandle2( void ) const
-{
-       assert (mSize==2);
-       return mpMatrixOf2;
-}
-
-c_matrix<double, 3,3>* MatrixDouble::GetUblasHandle3( void ) const
-{
-       assert (mSize==3);
-       return mpMatrixOf3;
-}
-
-c_matrix<double, 4,4>* MatrixDouble::GetUblasHandle4( void ) const
-{
-       assert (mSize==4);
-       return mpMatrixOf4;
-}
-
-c_matrix<double, 1,1>& MatrixDouble::rGetUblasHandle1( void )
+c_matrix<double, 1,1>& MatrixDouble::rGetUblasHandle1( void ) const
 {
        assert (mSize==1);
        return *mpMatrixOf1;
 }
 
-c_matrix<double, 2,2>& MatrixDouble::rGetUblasHandle2( void )
+c_matrix<double, 2,2>& MatrixDouble::rGetUblasHandle2( void ) const
 {
        assert (mSize==2);
        return *mpMatrixOf2;
 }
 
-c_matrix<double, 3,3>& MatrixDouble::rGetUblasHandle3( void )
+c_matrix<double, 3,3>& MatrixDouble::rGetUblasHandle3( void ) const
 {
        assert (mSize==3);
        return *mpMatrixOf3;
 }
 
-c_matrix<double, 4,4>& MatrixDouble::rGetUblasHandle4( void )
+c_matrix<double, 4,4>& MatrixDouble::rGetUblasHandle4( void ) const
 {
        assert (mSize==4);
        return *mpMatrixOf4;
