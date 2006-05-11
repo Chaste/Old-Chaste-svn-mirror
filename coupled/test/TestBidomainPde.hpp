@@ -17,7 +17,8 @@
 #include <cxxtest/TestSuite.h>
 
 
-
+// cell factory for creating 2 cells, one with initial (intracellular) stimulus,
+// second node without any stimulus
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
@@ -44,7 +45,6 @@ public:
         {
             assert(0);
         }
-
     }
     
     ~MyCardiacCellFactory(void)
@@ -59,6 +59,42 @@ public:
 };
 
 
+// 
+class MyBidomainCellFactory : public MyCardiacCellFactory
+{
+private:
+    AbstractStimulusFunction* mpExtracellularStimulus1;
+    AbstractStimulusFunction* mpExtracellularStimulus2;
+    
+public:
+    ~MyBidomainCellFactory()
+    {
+        delete mpExtracellularStimulus1;
+        delete mpExtracellularStimulus2;
+    }
+
+    void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
+    {
+        mpExtracellularStimulus1 = new InitialStimulus(-150,0.5);
+        mpExtracellularStimulus2 = new InitialStimulus(-250,0.5);
+
+        int global_index = 0;
+        if((global_index>=lo) && (global_index<hi))
+        {
+            int local_index = global_index - lo;        
+            (*pCellsDistributed)[local_index]->SetExtracellularStimulusFunction( mpExtracellularStimulus1 );
+        }
+
+        global_index = 1;
+        if((global_index>=lo) && (global_index<hi))
+        {
+            int local_index = global_index - lo;        
+            (*pCellsDistributed)[local_index]->SetExtracellularStimulusFunction( mpExtracellularStimulus2 );
+        }
+    }    
+};
+
+
 
 class TestBidomainPde : public CxxTest::TestSuite
 {
@@ -68,9 +104,10 @@ class TestBidomainPde : public CxxTest::TestSuite
         double start_time = 0;  
         double big_time_step = 0.5;        
         MyCardiacCellFactory cell_factory;
+        MyBidomainCellFactory bidomain_cell_factory; // same as cell factory but with extracell stimuli
 
         MonodomainPde<1> monodomain_pde( &cell_factory, start_time, big_time_step );        
-        BidomainPde<1>   bidomain_pde( &cell_factory, start_time, big_time_step );   
+        BidomainPde<1>   bidomain_pde( &bidomain_cell_factory, start_time, big_time_step );   
         
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -120,11 +157,6 @@ class TestBidomainPde : public CxxTest::TestSuite
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[1], 0);
 
-        // TODO: check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
-        // NOTE: this will involve creating a new "MyCardiacCellFactory" that has both 
-        //       an intracellular and an extracellular stimulus. The monodomain PDE
-        //       would use the "MyCardiacCellFactory", while the bidomain PDE would use
-        //       the new one
     }
 };        
 

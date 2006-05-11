@@ -50,9 +50,11 @@ public:
 
         for(int i=0; i<14; i++)
         {
-            if((stimulated_cells[i]>=lo) && (stimulated_cells[i]<hi))
+            int global_index = stimulated_cells[i];
+            if((global_index>=lo) && (global_index<hi))
             {
-                (*pCellsDistributed)[ stimulated_cells[i] - lo ]->SetStimulusFunction(mpStimulus);
+                int local_index = global_index - lo;
+                (*pCellsDistributed)[ local_index ]->SetStimulusFunction(mpStimulus);
             }
         }
     }

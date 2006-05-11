@@ -137,5 +137,10 @@ public:
     {
         return mIntracellularStimulusCacheReplicated;
     }
+
+    ReplicatableVector& GetExtracellularStimulusCacheReplicated()
+    {
+        return mExtracellularStimulusCacheReplicated;
+    }
 };
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
