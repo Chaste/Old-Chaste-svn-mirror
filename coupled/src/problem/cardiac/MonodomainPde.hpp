@@ -26,16 +26,10 @@ const double BETA = 0.00014;
 /**
  * MonodomainPde class.
  * 
- * A monodomain PDE which deals with some single cell model (e.g. Luo-Rudy) 
- * 
- * Monodmain equation is of the form:
+ * Monodomain equation is of the form:
  * c(x) du/dt = a/(2*Rm) *Grad.(Grad(u))  +  LinearSourceTerm(x)  +  NonlinearSourceTerm(x, u)
  * 
  */
-
-
-
-
 template <int SPACE_DIM>
 class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
@@ -101,7 +95,9 @@ public:
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
-        return this->mSolutionCacheReplicated[index];
+//        return this->mSolutionCacheReplicated[index];
+        return -this->mIionicCacheReplicated[index] - this->mIntracellularStimulusCacheReplicated[index];
+
     }
     
     

@@ -36,7 +36,7 @@ protected:
     ReplicatableVector mSolutionCacheReplicated;
  
 public:   
-    //Constructor
+    //ConstructormIionicCacheReplicated
     AbstractCoupledPde(int numNodes, double tStart, double bigTimeStep)
     {
         assert(numNodes > 0);
@@ -44,7 +44,6 @@ public:
         mNumNodes = numNodes;
         mBigTimeStep = bigTimeStep;
         mTime = tStart; /// \todo FIXME?: Is this overridden elsewhere?
-
         // Resize vectors to the appropriate size for each process:
         // Create a PETSc vector and use the ownership range of the PETSc vector
         // to size our C++ vectors

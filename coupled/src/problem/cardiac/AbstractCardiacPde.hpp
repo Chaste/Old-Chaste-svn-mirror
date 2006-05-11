@@ -13,10 +13,15 @@
 template <int SPACE_DIM>
 class AbstractCardiacPde : public AbstractCoupledPde<SPACE_DIM>
 {
-private:
+protected:
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
+    ReplicatableVector mIionicCacheReplicated;
+    ReplicatableVector mIntracellularStimulusCacheReplicated;
+    ReplicatableVector mExtracellularStimulusCacheReplicated;
+
+    bool mIsBidomain;
 
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
@@ -24,15 +29,25 @@ public:
     {
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
-        
+
         mCellsDistributed.resize(hi-lo);
-        
+
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index - lo;
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
         }        
         pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);        
+
+        mIsBidomain = mCellsDistributed[0]->HasExtracellularStimulus();
+
+        mIionicCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
+        mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
+
+        if (mIsBidomain)
+        {
+            mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
+        }
     }
 
 
@@ -93,16 +108,34 @@ public:
             
             mCellsDistributed[local_index]->Compute(time, time+big_time_step);
 
-            double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
+/*            double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
                             + mCellsDistributed[local_index]->GetIIonic();
           
             this->mSolutionCacheReplicated[global_index] = - Itotal;
-
+*/
+            mIionicCacheReplicated[global_index] = mCellsDistributed[local_index]->GetIIonic();
+            mIntracellularStimulusCacheReplicated[global_index] = mCellsDistributed[local_index]->GetIntracellularStimulus(time + big_time_step);
+            
+            if (mIsBidomain)
+            {
+                mExtracellularStimulusCacheReplicated[global_index] = mCellsDistributed[local_index]->GetExtracellularStimulus(time + big_time_step);
+            }
         }
         
-        this->mSolutionCacheReplicated.Replicate(lo, hi);
+        //this->mSolutionCacheReplicated.Replicate(lo, hi);
+        mIionicCacheReplicated.Replicate(lo, hi);
+        mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
+        mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
      }
 
+    ReplicatableVector& GetIionicCacheReplicated()
+    {
+        return mIionicCacheReplicated;
+    }
 
+    ReplicatableVector& GetIntracellularStimulusCacheReplicated()
+    {
+        return mIntracellularStimulusCacheReplicated;
+    }
 };
 #endif /*ABSTRACTCARDIACPDE_HPP_*/

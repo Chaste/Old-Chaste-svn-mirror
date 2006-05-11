@@ -104,9 +104,14 @@ public:
      
     double GetExtracellularStimulus(double time)
     {
-        assert (mpExtracellularStimulus != NULL);
+        assert (HasExtracellularStimulus());
         
         return mpExtracellularStimulus->GetStimulus(time);
+    }
+    
+    bool HasExtracellularStimulus()
+    {
+        return mpExtracellularStimulus != NULL;
     }
 };
 
