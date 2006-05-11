@@ -16,32 +16,81 @@
 template<int DIM> 
 class VectorDoubleUblasConverter
 {
-public:
-    /***
-     * Convert a VectorDouble to c_vector<double,DIM>
-     * where 1<=DIM<=4.
-     ***/
-    c_vector<double, DIM>* ConvertToUblas(VectorDouble &vectorDouble)
-    {
-        switch (DIM)
-        {
-        case 1:
-            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle1();
-            break;
-        case 2:
-            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle2();
-            break;
-        case 3:
-            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle3();
-            break;      
-        case 4:
-            return (c_vector<double,DIM>*) vectorDouble.GetUblasHandle4();
-            break;
-        default:
-            assert(0);
-        }
-        return NULL;
-    }
 };
 
+template<> 
+class VectorDoubleUblasConverter<1>
+{
+public:
+    /**
+     * Convert a VectorDouble to c_vector<double,1>
+     **/
+    c_vector<double, 1>* ConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.GetUblasHandle1();
+    }
+
+    c_vector<double, 1>& rConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.rGetUblasHandle1();
+    }
+
+};
+
+template<> 
+class VectorDoubleUblasConverter<2>
+{
+public:
+    /**
+     * Convert a VectorDouble to c_vector<double,2>
+     **/
+    c_vector<double, 2>* ConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.GetUblasHandle2();
+    }
+
+    c_vector<double, 2>& rConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.rGetUblasHandle2();
+    }
+
+};
+
+template<> 
+class VectorDoubleUblasConverter<3>
+{
+public:
+    /**
+     * Convert a VectorDouble to c_vector<double,3>
+     **/
+    c_vector<double, 3>* ConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.GetUblasHandle3();
+    }
+
+    c_vector<double, 3>& rConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.rGetUblasHandle3();
+    }
+
+};
+
+template<> 
+class VectorDoubleUblasConverter<4>
+{
+public:
+    /**
+     * Convert a VectorDouble to c_vector<double,4>
+     **/
+    c_vector<double, 4>* ConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.GetUblasHandle4();
+    }
+
+    c_vector<double, 4>& rConvertToUblas(VectorDouble &vectorDouble)
+    {
+        return vectorDouble.rGetUblasHandle4();
+    }
+
+};
 #endif /*VECTORDOUBLEUBLASCONVERTER_HPP_*/

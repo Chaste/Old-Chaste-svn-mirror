@@ -61,7 +61,7 @@ protected:
         VectorDoubleUblasConverter<ELEMENT_DIM> vector_converter;
         MatrixDoubleUblasConverter<ELEMENT_DIM> matrix_converter;
         MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>* p_a_elem = matrix_converter2.ConvertToUblas(rAElem);
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>& a_elem = matrix_converter2.rConvertToUblas(rAElem);
 
         const int num_nodes = rElement.GetNumNodes();
                 
@@ -73,14 +73,14 @@ protected:
             std::vector<VectorDouble> gradPhi;
             
             // Get ublas handles to gradPhi for later use                                    
-            std::vector< c_vector<double, ELEMENT_DIM>* > grad_phi_ublas(num_nodes);
+            std::vector< c_vector<double, ELEMENT_DIM> > grad_phi_ublas(num_nodes);
             if (!this->mMatrixIsAssembled)
             {
                 gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
                                                 (quad_point, *inverseJacobian);
                 for (int i=0; i<num_nodes; i++)
                 {
-                   grad_phi_ublas[i]=vector_converter.ConvertToUblas(gradPhi[i]);
+                   grad_phi_ublas[i]=vector_converter.rConvertToUblas(gradPhi[i]);
                 }
             }
 
@@ -100,42 +100,38 @@ protected:
                 sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
 
+            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
             MatrixDouble pde_diffusion_term(ELEMENT_DIM, ELEMENT_DIM);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas = NULL;
             if (!this->mMatrixIsAssembled)
             {
                 pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
                 // Get ublas handle for later use
-                pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
-            }
-            
-            // Get ublas handle for later use
-            //c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>* pde_diffusion_term_ublas = matrix_converter.ConvertToUblas(pde_diffusion_term);
-            
-            VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
-            c_vector<double, ELEMENT_DIM+1>* p_b_elem = vector_converter2.ConvertToUblas(rBElem);
-            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
-            for (int row=0; row < num_nodes; row++)
-            {
-                if (!this->mMatrixIsAssembled)
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& pde_diffusion_term_ublas = matrix_converter.rConvertToUblas(pde_diffusion_term);
+                
+                for (int row=0; row < num_nodes; row++)
                 {
                     for (int col=0; col < num_nodes; col++)
                     {
                         double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi[row] * phi[col];
-                        (*p_a_elem)(row,col) += integrand_val1 * wJ;
+                        a_elem(row,col) += integrand_val1 * wJ;
 
 //                      double integrand_val2 = gradPhi[row].dot(pde_diffusion_term * gradPhi[col]);
-                        double integrand_val2 = inner_prod( *grad_phi_ublas[row], prod( *pde_diffusion_term_ublas, *grad_phi_ublas[col]) );
-                        (*p_a_elem)(row,col) += integrand_val2 * wJ;
+                        double integrand_val2 = inner_prod( grad_phi_ublas[row], prod( pde_diffusion_term_ublas, grad_phi_ublas[col]) );
+                        a_elem(row,col) += integrand_val2 * wJ;
                     }
                 }
+            }
             
+            VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
+            c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
+            for (int row=0; row < num_nodes; row++)
+            {
                 double vec_integrand_val1 = sourceTerm * phi[row];
-                (*p_b_elem)(row) += vec_integrand_val1 * wJ;
+                b_elem(row) += vec_integrand_val1 * wJ;
                 
                 double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi[row];
-                (*p_b_elem)(row) += vec_integrand_val2 * wJ;
+                b_elem(row) += vec_integrand_val2 * wJ;
             }
         }
     }       
