@@ -2,8 +2,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <cassert>
-#include <iostream>
-#include <math.h>
+//#include <iostream>
+#include <cmath>
 #include "Exception.hpp"
 
 //VectorDouble::VectorDouble()
@@ -34,8 +34,8 @@ VectorDouble::VectorDouble(int Size)
             break; 
         
         default:
-        // Vector bigger than  4 Throw Exception
-        throw Exception("Vector size larger than 4");
+            // Vector bigger than  4 Throw Exception
+            throw Exception("Vector size larger than 4");
             break;
     }
     mDontDeleteUblasVectors = false;
@@ -79,7 +79,7 @@ VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
              mpVectorOf1 = new c_vector<double,1>(*(rOtherVector.mpVectorOf1)); 
              break;
         case 2:
-             mpVectorOf2= new c_vector<double,2>(*(rOtherVector.mpVectorOf2)); 
+             mpVectorOf2 = new c_vector<double,2>(*(rOtherVector.mpVectorOf2)); 
              break; 
         case 3:
              mpVectorOf3 = new c_vector<double,3>(*(rOtherVector.mpVectorOf3));         
@@ -89,12 +89,11 @@ VectorDouble::VectorDouble(const VectorDouble& rOtherVector)
              break; 
         
         default:
-        // Vector bigger than  4 Throw Exception
-        throw Exception("Vector size larger than 4");
+            // Vector bigger than 4 Throw Exception
+            throw Exception("Vector size larger than 4");
             break;
     }
-    
-    
+    mDontDeleteUblasVectors = false;
 }
 
 VectorDouble::~VectorDouble()
@@ -115,8 +114,8 @@ VectorDouble::~VectorDouble()
                 delete (mpVectorOf4);
                 break;
             default:
-            // Vector bigger than  4 Throw Exception
-            throw Exception("Vector size larger than 4");
+                // Vector bigger than  4 Throw Exception
+                throw Exception("Vector size larger than 4");
                 break;
         }
     }
