@@ -44,7 +44,7 @@ public:
 	 * @param x The point in space at which the Diffusion Term is computed.
 	 * @return A matrix. 
 	 */
-	virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
+	virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
     
     /**
      * Compute the coefficient c(x) of du/dt

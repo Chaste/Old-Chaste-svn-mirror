@@ -37,9 +37,8 @@ protected:
 									  int row, int col,
 									  Point<SPACE_DIM> &rX)
 	{
-        VectorDouble grad_phi_row(rGradPhi[row]);
-        VectorDouble grad_phi_col(rGradPhi[col]);
-		return grad_phi_row.dot(pPde->ComputeDiffusionTerm(rX) * grad_phi_col);
+		return inner_prod(rGradPhi[row],
+                          prod(pPde->ComputeDiffusionTerm(rX), rGradPhi[col]));
 	}
 	
 	/**

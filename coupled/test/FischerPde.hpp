@@ -25,9 +25,9 @@ public:
     	return u*(1-u);
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
-    	return MatrixDouble::Identity(SPACE_DIM);
+        return identity_matrix<double>(SPACE_DIM);
     }
     
 	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )

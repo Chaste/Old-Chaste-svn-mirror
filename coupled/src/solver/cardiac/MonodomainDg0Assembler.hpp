@@ -53,7 +53,6 @@ protected:
         rBElem.ResetToZero();
 
         // Create converters for use inside loop below
-        MatrixDoubleUblasConverter<ELEMENT_DIM> matrix_converter;
         MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>& a_elem = matrix_converter2.rConvertToUblas(rAElem);
 
@@ -90,12 +89,10 @@ protected:
 
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
-            MatrixDouble pde_diffusion_term(ELEMENT_DIM, ELEMENT_DIM);
+
             if (!this->mMatrixIsAssembled)
             {
-                pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
-                // Get ublas handle for later use
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM>& pde_diffusion_term_ublas = matrix_converter.rConvertToUblas(pde_diffusion_term);
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term_ublas = pPde->ComputeDiffusionTerm(x);
                 
                 for (int row=0; row < num_nodes; row++)
                 {
@@ -104,7 +101,7 @@ protected:
                         double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi[row] * phi[col];
                         a_elem(row,col) += integrand_val1 * wJ;
 
-//                      double integrand_val2 = gradPhi[row].dot(pde_diffusion_term * gradPhi[col]);
+
                         double integrand_val2 = inner_prod( gradPhi[row], prod( pde_diffusion_term_ublas, gradPhi[col]) );
                         a_elem(row,col) += integrand_val2 * wJ;
                     }

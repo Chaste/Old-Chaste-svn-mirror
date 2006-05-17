@@ -36,9 +36,9 @@ public:
     	return 0.0;
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x)
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)
     {
-    	return pow(DistanceFromOrigin(x),2)*MatrixDouble::Identity(SPACE_DIM);
+    	return pow(DistanceFromOrigin(x),2)*identity_matrix<double>(SPACE_DIM);
     }
 };
 

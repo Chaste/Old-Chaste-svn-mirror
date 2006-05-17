@@ -162,10 +162,11 @@ public:
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
      */
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         assert(0);
-        return 0 * MatrixDouble::Identity(SPACE_DIM);
+        identity_matrix<double> id(SPACE_DIM);
+        return 0 * id;
     }
    
 };

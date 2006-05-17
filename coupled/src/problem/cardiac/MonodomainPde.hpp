@@ -79,9 +79,10 @@ public:
         return 0.0;
     }
  
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
-        return  mDiffusionCoefficient * MatrixDouble::Identity(SPACE_DIM);
+        identity_matrix<double> id(SPACE_DIM);
+        return  mDiffusionCoefficient * id;
     }
     
     /** ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)

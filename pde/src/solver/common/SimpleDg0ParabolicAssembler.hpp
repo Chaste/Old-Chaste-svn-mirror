@@ -36,13 +36,10 @@ protected:
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row, int col,
 									  Point<SPACE_DIM> &rX)
-	{
-        VectorDouble grad_phi_row(rGradPhi[row]);
-        VectorDouble grad_phi_col(rGradPhi[col]);
-        
+	{                      
 		double integrand =
 			(1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
-			+ grad_phi_row.dot(pPde->ComputeDiffusionTerm(rX) * grad_phi_col);
+			+ inner_prod(rGradPhi[row],prod(pPde->ComputeDiffusionTerm(rX), rGradPhi[col]));
 		return integrand;
 	}
 	
