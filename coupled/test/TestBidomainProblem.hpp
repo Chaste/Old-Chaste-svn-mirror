@@ -83,7 +83,14 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
         bidomain_problem.Initialise();
-        bidomain_problem.Solve();
+        try
+        {
+            bidomain_problem.Solve();
+        }
+        catch(Exception e)
+        {
+            TS_TRACE(e.GetMessage());
+        }
             
         double* p_voltage_array;
         int lo, hi;
@@ -95,7 +102,7 @@ public:
         {
             int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;   // mV
+            double Ena   =  54.4;   // mV 
             double Ek    = -77.0;   // mV
 
             TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
@@ -111,6 +118,14 @@ public:
                     TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
                 }
             }
+        }
+        
+        int num_procs;
+        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        if (num_procs == 1)
+        {
+            /// \todo This is work in progress
+            //TS_ASSERT_DELTA(p_voltage_array[0], 28.2462, 1e-3);
         }
 
         bidomain_problem.RestoreVoltageArray(&p_voltage_array);       

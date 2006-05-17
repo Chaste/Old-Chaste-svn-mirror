@@ -31,11 +31,8 @@
 template <int SPACE_DIM>
 class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
-    double mSurfaceAreaToVolumeRatio;
-    double mCapacitance;
-
-    c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mExtracellularConductivityTensor;
+    ReplicatableVector mExtracellularStimulusCacheReplicated;
 
 
 public:    
@@ -43,32 +40,54 @@ public:
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
        :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, tStart, pdeTimeStep)          
     {
-        //\todo: pick good default values;
-        mSurfaceAreaToVolumeRatio = 1;
-        mCapacitance = 1; 
-        
-        double const_intra_conductivity = 0.0005;
         double const_extra_conductivity = 0.0005;
-        
-        //\todo: this loop needed? if so, is there a Zero() type call for ublas
-        for(int i=0;i<SPACE_DIM;i++)
-        {
-            for(int j=0; j<SPACE_DIM; j++)
-            {
-                mIntracellularConductivityTensor(i,j) = 0;
-                mExtracellularConductivityTensor(i,j) = 0;
-            }
-        }
+
+        mExtracellularConductivityTensor.clear();
 
         for(int i=0;i<SPACE_DIM;i++)
         {
-            mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
             mExtracellularConductivityTensor(i,i) = const_extra_conductivity;
         }
+ 
+        mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
     }
 
     ~BidomainPde()
     {
+    }
+
+    void SetExtracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> extracellularConductivity)
+    {
+        mExtracellularConductivityTensor = extracellularConductivity;
+    } 
+
+    c_matrix<double, SPACE_DIM, SPACE_DIM> GetExtracellularConductivityTensor()
+    {
+        return mExtracellularConductivityTensor;
+    }
+
+    /** The bidomain Pde also updates the extracellular stimulus cache
+     */
+    void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
+    {
+        AbstractCardiacPde<SPACE_DIM>::UpdateCaches(globalIndex, localIndex, nextTime);
+        mExtracellularStimulusCacheReplicated[globalIndex] = this->mCellsDistributed[localIndex]->GetExtracellularStimulus(nextTime);
+    }
+  
+    /** The bidomain Pde also replicates the extracellular stimulus cache
+     */
+    void ReplicateCaches()
+    {
+        AbstractCardiacPde<SPACE_DIM>::ReplicateCaches();
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
+        
+        mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
+    }
+
+    ReplicatableVector& GetExtracellularStimulusCacheReplicated()
+    {
+        return mExtracellularStimulusCacheReplicated;
     }
 
     /**
@@ -81,51 +100,6 @@ public:
         return 0.0;
     }
     
-
-    void SetSurfaceAreaToVolumeRatio(double surfaceAreaToVolumeRatio)
-    {
-        assert(surfaceAreaToVolumeRatio > 0);
-        mSurfaceAreaToVolumeRatio = surfaceAreaToVolumeRatio;
-    }
-     
-    void SetCapacitance(double capacitance)
-    {
-        assert(capacitance > 0);
-        mCapacitance = capacitance;
-    }     
-
-    void SetIntracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> intracellularConductivity)
-    {
-        mIntracellularConductivityTensor = intracellularConductivity;
-    } 
-
-    void SetExtracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> extracellularConductivity)
-    {
-        mExtracellularConductivityTensor = extracellularConductivity;
-    } 
-
-    double GetSurfaceAreaToVolumeRatio()
-    {
-        return mSurfaceAreaToVolumeRatio;
-    }
-
-    double GetCapacitance()
-    {
-        return mCapacitance;
-    }
-
-    c_matrix<double, SPACE_DIM, SPACE_DIM> GetIntracellularConductivityTensor()
-    {
-        return mIntracellularConductivityTensor;
-    }
-
-    c_matrix<double, SPACE_DIM, SPACE_DIM> GetExtracellularConductivityTensor()
-    {
-        return mExtracellularConductivityTensor;
-    }
-
-
-    
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
@@ -135,8 +109,7 @@ public:
         assert(0);
         return 0.0;
     }
- 
-    
+
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
@@ -157,7 +130,6 @@ public:
         return 1;
     }
     
-    
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
@@ -168,7 +140,6 @@ public:
         identity_matrix<double> id(SPACE_DIM);
         return 0 * id;
     }
-   
 };
 
 

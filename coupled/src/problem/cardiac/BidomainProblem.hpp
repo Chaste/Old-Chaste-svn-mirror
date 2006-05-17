@@ -101,20 +101,6 @@ public:
     {
         assert( mpBidomainPde != NULL );
         assert( mStartTime < mEndTime );
-
-        // Boundary conditions, zero neumann everywhere
-//        BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
-       
-        // The 'typename' keyword is required otherwise the compiler complains
-        // Not totally sure why!
-//        typename ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>::BoundaryElementIterator iter = mMesh.GetBoundaryElementIteratorBegin();
-//        ConstBoundaryCondition<SPACE_DIM>* p_neumann_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-        
-//        while(iter != mMesh.GetBoundaryElementIteratorEnd())
-//        {
-//            bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
-//            iter++;
-//        }
         
         // Linear solver
         SimpleLinearSolver linear_solver;
@@ -122,30 +108,28 @@ public:
         // Assembler
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(mpBidomainPde, &mMesh, &linear_solver);
         
-
-//        Bidomain_assembler.SetMatrixIsConstant();
-        
         // initial condition;   
         Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
+ //       VecCreate(PETSC_COMM_WORLD, &initial_condition);
 
         // 2 * numNodes
-        VecSetSizes(initial_condition, PETSC_DECIDE, 2*mMesh.GetNumNodes() );
-        VecSetFromOptions(initial_condition);
-  
+   //     VecSetSizes(initial_condition, PETSC_DECIDE, 2*mMesh.GetNumNodes() );
+    //    VecSetFromOptions(initial_condition);
+    
+        int lo, hi;
+        mpBidomainPde->GetOwnershipRange(lo, hi);
+        VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*mMesh.GetNumNodes(), &initial_condition);  
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition); 
-
 
         //\todo: parallelise:
         //  - ie define mLo, mHi properly, here and in pde - this isn't consistent?
         VecGetOwnershipRange(initial_condition, &mLo, &mHi);
 
-
         for(int i=0;i<mMesh.GetNumNodes(); i++)
         {
-            p_initial_condition[i]                    = mpBidomainPde->GetCardiacCell(i)->GetVoltage();
-            p_initial_condition[i+mMesh.GetNumNodes()]= 0;
+            p_initial_condition[2*i]   = mpBidomainPde->GetCardiacCell(i)->GetVoltage();
+            p_initial_condition[2*i+1] = 0;
         }
 
 //        for (int global_index=mLo; global_index<mHi; global_index++)

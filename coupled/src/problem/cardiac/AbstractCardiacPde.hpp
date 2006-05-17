@@ -19,14 +19,30 @@ protected:
 
     ReplicatableVector mIionicCacheReplicated;
     ReplicatableVector mIntracellularStimulusCacheReplicated;
-    ReplicatableVector mExtracellularStimulusCacheReplicated;
-
-    bool mIsBidomain;
+ 
+    /** The following are currently only used in Bidomain.
+     * PLEASE change this comment when it's no longer true.
+     */
+    double mSurfaceAreaToVolumeRatio;
+    double mCapacitance;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
 
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
       :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)
     {
+        /// \todo: pick good default values;
+        mSurfaceAreaToVolumeRatio = 1;
+        mCapacitance = 1; 
+        double const_intra_conductivity=0.0005;
+ 
+        mIntracellularConductivityTensor.clear();
+                
+        for(int i=0;i<SPACE_DIM;i++)
+        {
+            mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
+        }
+  
         int lo=this->mOwnershipRangeLo;
         int hi=this->mOwnershipRangeHi;
 
@@ -39,15 +55,9 @@ public:
         }        
         pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);        
 
-        mIsBidomain = mCellsDistributed[0]->HasExtracellularStimulus();
 
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
-
-        if (mIsBidomain)
-        {
-            mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
-        }
     }
 
 
@@ -62,6 +72,38 @@ public:
         }
      }
 
+
+    void SetSurfaceAreaToVolumeRatio(double surfaceAreaToVolumeRatio)
+    {
+        assert(surfaceAreaToVolumeRatio > 0);
+        mSurfaceAreaToVolumeRatio = surfaceAreaToVolumeRatio;
+    }
+     
+    void SetCapacitance(double capacitance)
+    {
+        assert(capacitance > 0);
+        mCapacitance = capacitance;
+    }     
+
+    void SetIntracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> intracellularConductivity)
+    {
+        mIntracellularConductivityTensor = intracellularConductivity;
+    } 
+
+    double GetSurfaceAreaToVolumeRatio()
+    {
+        return mSurfaceAreaToVolumeRatio;
+    }
+
+    double GetCapacitance()
+    {
+        return mCapacitance;
+    }
+
+    c_matrix<double, SPACE_DIM, SPACE_DIM> GetIntracellularConductivityTensor()
+    {
+        return mIntracellularConductivityTensor;
+    }
 
     /** 
      *  Get a pointer to a cell, indexed by the global node index. Should only called by the process
@@ -99,7 +141,7 @@ public:
         unsigned hi=this->mOwnershipRangeHi;
         double time=this->mTime;
 
-        double big_time_step=this->mBigTimeStep;
+        double big_timestep=this->mBigTimeStep;
         
         for (unsigned global_index=lo; global_index < hi; global_index++)
         {
@@ -109,27 +151,14 @@ public:
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
             
             // solve            
-            mCellsDistributed[local_index]->Compute(time, time+big_time_step);
+            mCellsDistributed[local_index]->Compute(time, time+big_timestep);
 
-/*            double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
-                            + mCellsDistributed[local_index]->GetIIonic();
-          
-            this->mSolutionCacheReplicated[global_index] = - Itotal;
-*/
-            mIionicCacheReplicated[global_index] = mCellsDistributed[local_index]->GetIIonic();
-            mIntracellularStimulusCacheReplicated[global_index] = mCellsDistributed[local_index]->GetIntracellularStimulus(time + big_time_step);
-            
-            if (mIsBidomain)
-            {
-                mExtracellularStimulusCacheReplicated[global_index] = mCellsDistributed[local_index]->GetExtracellularStimulus(time + big_time_step);
-            }
+            // update the Iionic and stimulus caches
+            UpdateCaches(global_index, local_index, time+big_timestep);
         }
         
-        //this->mSolutionCacheReplicated.Replicate(lo, hi);
-        mIionicCacheReplicated.Replicate(lo, hi);
-        mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
-        mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
-     }
+        ReplicateCaches();
+    }
 
     ReplicatableVector& GetIionicCacheReplicated()
     {
@@ -141,10 +170,30 @@ public:
         return mIntracellularStimulusCacheReplicated;
     }
 
-    ReplicatableVector& GetExtracellularStimulusCacheReplicated()
+ 
+    /** 
+     *  Update the Iionic and intracellular stimulus caches.
+     *  The method is overridden in the BidomainPde to also update the
+     *  extracellular stimulus.
+     */
+    virtual void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
     {
-        assert(mIsBidomain);
-        return mExtracellularStimulusCacheReplicated;
+        mIionicCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIIonic();
+        mIntracellularStimulusCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIntracellularStimulus(nextTime);
+    }
+
+    /** 
+     *  Replicate the Iionic and intracellular stimulus caches.
+     *  The method is overridden in the BidomainPde to also replicate the
+     *  extracellular stimulus.
+     */
+    virtual void ReplicateCaches()
+    {
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
+        
+        mIionicCacheReplicated.Replicate(lo, hi);
+        mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
     }
 };
 #endif /*ABSTRACTCARDIACPDE_HPP_*/

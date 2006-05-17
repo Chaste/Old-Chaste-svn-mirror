@@ -51,5 +51,12 @@ public:
         
         //mSolutionCacheReplicated.resize(mNumNodes);
     }
+    
+    void GetOwnershipRange(int &rLo, int &rHi)
+    {
+        rLo=mOwnershipRangeLo;
+        rHi=mOwnershipRangeHi;
+    }
+        
 };        
 #endif /*ABSTRACTCOUPLEDPDE_HPP_*/

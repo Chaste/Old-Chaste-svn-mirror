@@ -189,7 +189,7 @@ class TestBidomainPde : public CxxTest::TestSuite
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[1], 0);
 
-        // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
+        // Check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[0], -150);
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[1], -250);
     }
