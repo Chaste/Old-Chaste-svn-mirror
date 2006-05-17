@@ -1,3 +1,4 @@
+TestBidomain3D.hpp
 TestMonodomainAgainstMemfem.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0AssemblerLong.hpp

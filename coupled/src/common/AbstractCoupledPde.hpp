@@ -7,7 +7,7 @@
 #include "ReplicatableVector.hpp"
 //#include <iostream>
 
-typedef std::vector<double> odeVariablesType;
+
 
 template <int SPACE_DIM>
 class AbstractCoupledPde : public AbstractLinearParabolicPde<SPACE_DIM>
@@ -28,15 +28,10 @@ protected:
     // One more than the local highest index
     int mOwnershipRangeHi;
     
-    /** mSolutionCacheReplicated stores the solutions to the ODEs (Icurrent) for
-     *  each node in the global system.
-     * 
-     * This is replicated, i.e. use a global index for access.
-     */
-    ReplicatableVector mSolutionCacheReplicated;
+    // no longer used:
+    //ReplicatableVector mSolutionCacheReplicated;
  
 public:   
-    //ConstructormIionicCacheReplicated
     AbstractCoupledPde(int numNodes, double tStart, double bigTimeStep)
     {
         assert(numNodes > 0);
@@ -54,7 +49,7 @@ public:
         VecGetOwnershipRange(tempVec,&mOwnershipRangeLo,&mOwnershipRangeHi);
         VecDestroy(tempVec); // vector no longer needed
         
-        mSolutionCacheReplicated.resize(mNumNodes);
+        //mSolutionCacheReplicated.resize(mNumNodes);
     }
 };        
 #endif /*ABSTRACTCOUPLEDPDE_HPP_*/

@@ -28,20 +28,49 @@
  *       I_e is the external stimulus (a shock)
  */
 
-
-
-
 template <int SPACE_DIM>
 class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
+    double mSurfaceAreaToVolumeRatio;
+    double mCapacitance;
+
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mExtracellularConductivityTensor;
+
+
 public:    
     //Constructor     
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
        :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, tStart, pdeTimeStep)          
     {
+        //\todo: pick good default values;
+        mSurfaceAreaToVolumeRatio = 1;
+        mCapacitance = 1; 
+        
+        double const_intra_conductivity = 0.0005;
+        double const_extra_conductivity = 0.0005;
+        
+        //\todo: this loop needed? if so, is there a Zero() type call for ublas
+        for(int i=0;i<SPACE_DIM;i++)
+        {
+            for(int j=0; j<SPACE_DIM; j++)
+            {
+                mIntracellularConductivityTensor(i,j) = 0;
+                mExtracellularConductivityTensor(i,j) = 0;
+            }
+        }
+
+        for(int i=0;i<SPACE_DIM;i++)
+        {
+            mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
+            mExtracellularConductivityTensor(i,i) = const_extra_conductivity;
+        }
     }
 
-    
+    ~BidomainPde()
+    {
+    }
+
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
@@ -52,6 +81,50 @@ public:
         return 0.0;
     }
     
+
+    void SetSurfaceAreaToVolumeRatio(double surfaceAreaToVolumeRatio)
+    {
+        assert(surfaceAreaToVolumeRatio > 0);
+        mSurfaceAreaToVolumeRatio = surfaceAreaToVolumeRatio;
+    }
+     
+    void SetCapacitance(double capacitance)
+    {
+        assert(capacitance > 0);
+        mCapacitance = capacitance;
+    }     
+
+    void SetIntracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> intracellularConductivity)
+    {
+        mIntracellularConductivityTensor = intracellularConductivity;
+    } 
+
+    void SetExtracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> extracellularConductivity)
+    {
+        mExtracellularConductivityTensor = extracellularConductivity;
+    } 
+
+    double GetSurfaceAreaToVolumeRatio()
+    {
+        return mSurfaceAreaToVolumeRatio;
+    }
+
+    double GetCapacitance()
+    {
+        return mCapacitance;
+    }
+
+    c_matrix<double, SPACE_DIM, SPACE_DIM> GetIntracellularConductivityTensor()
+    {
+        return mIntracellularConductivityTensor;
+    }
+
+    c_matrix<double, SPACE_DIM, SPACE_DIM> GetExtracellularConductivityTensor()
+    {
+        return mExtracellularConductivityTensor;
+    }
+
+
     
     /**
      * This should not be called, as the bidomain is not of the form

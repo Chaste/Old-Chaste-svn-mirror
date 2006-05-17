@@ -63,6 +63,10 @@ public:
      }
 
 
+    /** 
+     *  Get a pointer to a cell, indexed by the global node index. Should only called by the process
+     *  owning the cell though.
+     */
     AbstractCardiacCell* GetCardiacCell( int globalIndex )
     {
         if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi)) {
@@ -105,7 +109,6 @@ public:
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
             
             // solve            
-            
             mCellsDistributed[local_index]->Compute(time, time+big_time_step);
 
 /*            double Itotal =   mCellsDistributed[local_index]->GetStimulus(time + big_time_step) 
@@ -140,6 +143,7 @@ public:
 
     ReplicatableVector& GetExtracellularStimulusCacheReplicated()
     {
+        assert(mIsBidomain);
         return mExtracellularStimulusCacheReplicated;
     }
 };

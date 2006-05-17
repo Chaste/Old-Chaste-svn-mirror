@@ -99,7 +99,41 @@ public:
 class TestBidomainPde : public CxxTest::TestSuite
 {
     public:    
-    void testBidomainPde( void )
+    
+    void testBidomainPdeGetSet( void )
+    {
+        double start_time = 0;  
+        double big_time_step = 0.5;        
+        MyBidomainCellFactory bidomain_cell_factory; // same as cell factory but with extracell stimuli
+
+        BidomainPde<1>   bidomain_pde( &bidomain_cell_factory, start_time, big_time_step );   
+        
+        bidomain_pde.SetSurfaceAreaToVolumeRatio(3.14);
+        TS_ASSERT_DELTA( bidomain_pde.GetSurfaceAreaToVolumeRatio(), 3.14, 1e-10);
+        
+        bidomain_pde.SetCapacitance(2.718);
+        TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
+
+        c_matrix<double, 1,1> sigma_i;
+        c_matrix<double, 1,1> sigma_e;
+
+//        MatrixDouble sigma_i(1,1);
+        sigma_i(0,0) = 314;
+        bidomain_pde.SetIntracellularConductivityTensor(sigma_i);
+
+//        MatrixDouble sigma_e(1,1);
+        sigma_e(0,0) = 218;
+        bidomain_pde.SetExtracellularConductivityTensor(sigma_e);
+        
+//        MatrixDouble*
+        c_matrix<double, 1,1> sigma = bidomain_pde.GetIntracellularConductivityTensor();
+        TS_ASSERT_DELTA( sigma(0,0), 314, 1e-10);
+
+        sigma = bidomain_pde.GetExtracellularConductivityTensor();
+        TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
+    }
+    
+    void testBidomainPde_PrepareForAssembleSolution( void )
     {   
         double start_time = 0;  
         double big_time_step = 0.5;        
@@ -146,17 +180,18 @@ class TestBidomainPde : public CxxTest::TestSuite
         bidomain_pde.PrepareForAssembleSystem(voltage);         
 
         // Check that both the monodomain and bidomain PDE have the same ionic cache
-
         for (int global_index=lo; global_index < hi; global_index++)
         {
             TS_ASSERT_EQUALS(monodomain_pde.GetIionicCacheReplicated()[global_index], bidomain_pde.GetIionicCacheReplicated()[global_index]);
         }
 
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
-
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[1], 0);
 
+        // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
+        TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[0], -150);
+        TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[1], -250);
     }
 };        
 

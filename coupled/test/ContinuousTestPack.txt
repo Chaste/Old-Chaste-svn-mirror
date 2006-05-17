@@ -1,4 +1,5 @@
 TestBidomainPde.hpp
+TestBidomainProblem.hpp
 TestCellProperties.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainDg0AssemblerForConvergence.hpp
