@@ -146,38 +146,43 @@ class TestBidomainPde : public CxxTest::TestSuite
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
  
-        // initial condition;   
-        Vec voltage;
-        VecCreate(PETSC_COMM_WORLD, &voltage);
-        
         int num_nodes = 2;
-        
-        VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
-        //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(voltage);
-  
-        double* p_voltage_array;
-        VecGetArray(voltage, &p_voltage_array); 
+        // initial condition;   
+        Vec monodomain_voltage, bidomain_voltage;
+        VecCreate(PETSC_COMM_WORLD, &monodomain_voltage);
+        VecSetSizes(monodomain_voltage, PETSC_DECIDE, num_nodes);
+        VecSetFromOptions(monodomain_voltage);
         
         int lo, hi;
-        VecGetOwnershipRange(voltage,&lo,&hi);
+        VecGetOwnershipRange(monodomain_voltage,&lo,&hi);
+
+        VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo), 2*num_nodes, &bidomain_voltage);
         
+        double *p_monodomain_voltage, *p_bidomain_voltage;
+        VecGetArray(monodomain_voltage, &p_monodomain_voltage);
+        VecGetArray(bidomain_voltage, &p_bidomain_voltage);
         for (int global_index = 0; global_index < num_nodes; global_index++ )
         {
             int local_index = global_index - lo;
             // initial voltage condition of a constant everywhere on the mesh
             if (lo<=global_index && global_index<hi)
             {
-                p_voltage_array[local_index] = initial_voltage;
+                p_monodomain_voltage[local_index] = initial_voltage;
+                p_bidomain_voltage[2*local_index] = initial_voltage;
             }
         }
-        VecRestoreArray(voltage, &p_voltage_array);      
-        VecAssemblyBegin(voltage);
-        VecAssemblyEnd(voltage);
-         
-       
-        monodomain_pde.PrepareForAssembleSystem(voltage);
-        bidomain_pde.PrepareForAssembleSystem(voltage);         
+        VecRestoreArray(monodomain_voltage, &p_monodomain_voltage);
+        VecRestoreArray(bidomain_voltage, &p_bidomain_voltage);
+        VecAssemblyBegin(monodomain_voltage);
+        VecAssemblyEnd(monodomain_voltage);
+        VecAssemblyBegin(bidomain_voltage);
+        VecAssemblyEnd(bidomain_voltage);
+        
+        //VecView(monodomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
+        //VecView(bidomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
+        
+        monodomain_pde.PrepareForAssembleSystem(monodomain_voltage);
+        bidomain_pde.PrepareForAssembleSystem(bidomain_voltage);         
 
         // Check that both the monodomain and bidomain PDE have the same ionic cache
         for (int global_index=lo; global_index < hi; global_index++)
@@ -192,6 +197,9 @@ class TestBidomainPde : public CxxTest::TestSuite
         // Check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[0], -150);
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[1], -250);
+        
+        VecDestroy(monodomain_voltage);
+        VecDestroy(bidomain_voltage);
     }
 };        
 

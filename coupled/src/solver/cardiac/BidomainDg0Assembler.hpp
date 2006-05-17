@@ -105,12 +105,10 @@ private:
                 
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 
-                Vm           += basis_func[i]*mpBidomainPde->GetInputCacheMember( node_global_index );
+                Vm           += basis_func[i]*mpBidomainPde->GetInputCacheMember( 2*node_global_index );
                 I_ionic      += basis_func[i]*mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
                 I_intra_stim += basis_func[i]*mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
                 I_extra_stim += basis_func[i]*mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
-                //u          += phi[i]*pPde->GetInputCacheMember( node_global_index );
-                //sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
             
 

@@ -125,7 +125,7 @@ public:
         if (num_procs == 1)
         {
             /// \todo This is work in progress
-            //TS_ASSERT_DELTA(p_voltage_array[0], 28.2462, 1e-3);
+            TS_ASSERT_DELTA(p_voltage_array[0], 28.2462, 1e-3);
         }
 
         bidomain_problem.RestoreVoltageArray(&p_voltage_array);       

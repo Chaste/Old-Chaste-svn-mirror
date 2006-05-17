@@ -28,9 +28,6 @@ protected:
     // One more than the local highest index
     int mOwnershipRangeHi;
     
-    // no longer used:
-    //ReplicatableVector mSolutionCacheReplicated;
- 
 public:   
     AbstractCoupledPde(int numNodes, double tStart, double bigTimeStep)
     {
@@ -48,8 +45,6 @@ public:
         VecSetFromOptions(tempVec);
         VecGetOwnershipRange(tempVec,&mOwnershipRangeLo,&mOwnershipRangeHi);
         VecDestroy(tempVec); // vector no longer needed
-        
-        //mSolutionCacheReplicated.resize(mNumNodes);
     }
     
     void GetOwnershipRange(int &rLo, int &rHi)

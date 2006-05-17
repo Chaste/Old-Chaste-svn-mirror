@@ -20,6 +20,8 @@ protected:
     ReplicatableVector mIionicCacheReplicated;
     ReplicatableVector mIntracellularStimulusCacheReplicated;
  
+    const int mStride;
+ 
     /** The following are currently only used in Bidomain.
      * PLEASE change this comment when it's no longer true.
      */
@@ -28,8 +30,9 @@ protected:
     c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
 
 public:
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
-      :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep)
+    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep, const int stride=1)
+      :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep),
+         mStride(stride)
     {
         /// \todo: pick good default values;
         mSurfaceAreaToVolumeRatio = 1;
@@ -148,7 +151,7 @@ public:
             unsigned local_index = global_index - lo;
             
             // overwrite the voltage with the input value
-            mCellsDistributed[local_index]->SetVoltage( p_current_solution[local_index] );
+            mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
             
             // solve            
             mCellsDistributed[local_index]->Compute(time, time+big_timestep);
