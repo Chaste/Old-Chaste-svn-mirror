@@ -153,7 +153,7 @@ public:
         converging = false;
         prev_voltage = -999;   // To ensure that the first test fails
         const std::string mesh_filename = "testoutput/1D_0_to_1mm";
-        //const std::string mesh_filename = "testoutput/1D_0_to_10_100_elements";
+        //const std::string mesh_filename = "mesh/test/data/1D_0_to_1_20_elements";
               
         PointStimulusCellFactory cell_factory(time_step);
 

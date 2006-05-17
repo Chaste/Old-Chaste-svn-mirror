@@ -2,7 +2,6 @@ TestBidomainPde.hpp
 TestBidomainProblem.hpp
 TestCellProperties.hpp
 TestMonodomainDg0Assembler.hpp
-TestMonodomainDg0AssemblerForConvergence.hpp
 TestMonodomainPde.hpp
 TestMonodomainVersusSimpleDg0ParabolicAssembler.hpp
 TestPropagationPropertiesCalculator.hpp

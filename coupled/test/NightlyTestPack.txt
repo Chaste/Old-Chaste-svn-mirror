@@ -1,6 +1,7 @@
 TestBidomain3D.hpp
 TestMonodomainAgainstMemfem.hpp
 TestMonodomainConductionVelocity.hpp
+TestMonodomainDg0AssemblerForConvergence.hpp
 TestMonodomainDg0AssemblerLong.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
