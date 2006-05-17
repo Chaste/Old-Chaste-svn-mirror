@@ -6,4 +6,5 @@ TestFourthOrderTensor.hpp
 TestSimpleLinearSolver.hpp
 TestSimpleNonlinearSolver.hpp
 TestLinearSystem.hpp
-TestUblas.hpp
+TestUblasCustomFunctions.hpp
+
