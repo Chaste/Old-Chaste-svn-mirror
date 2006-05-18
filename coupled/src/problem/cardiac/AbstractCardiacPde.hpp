@@ -1,7 +1,7 @@
 #ifndef ABSTRACTCARDIACPDE_HPP_
 #define ABSTRACTCARDIACPDE_HPP_
 
-
+#include <iostream>
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
@@ -159,6 +159,7 @@ public:
             // update the Iionic and stimulus caches
             UpdateCaches(global_index, local_index, time+big_timestep);
         }
+        VecRestoreArray(currentSolution, &p_current_solution);
         
         ReplicateCaches();
     }

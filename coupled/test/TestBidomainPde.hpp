@@ -2,7 +2,7 @@
 #define TESTBIDOMAINPDE_HPP_
 
 
-//#include <iostream>
+#include <iostream>
 #include <vector>
 
 #include "InitialStimulus.hpp"
@@ -184,10 +184,21 @@ class TestBidomainPde : public CxxTest::TestSuite
         monodomain_pde.PrepareForAssembleSystem(monodomain_voltage);
         bidomain_pde.PrepareForAssembleSystem(bidomain_voltage);         
 
+        int rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+        
         // Check that both the monodomain and bidomain PDE have the same ionic cache
         for (int global_index=lo; global_index < hi; global_index++)
         {
             TS_ASSERT_EQUALS(monodomain_pde.GetIionicCacheReplicated()[global_index], bidomain_pde.GetIionicCacheReplicated()[global_index]);
+            
+            // Look at caches for debugging purposes
+            std::cout << "Process " << rank << ": V phi I_ionic I_i_stim I_e_stim\n";
+            std::cout << bidomain_pde.GetInputCacheMember( 2*global_index ) << " " <<
+                         bidomain_pde.GetInputCacheMember( 2*global_index+1 ) << " " <<
+                         bidomain_pde.GetIionicCacheReplicated()[global_index] << " " <<
+                         bidomain_pde.GetIntracellularStimulusCacheReplicated()[global_index] << " " <<
+                         bidomain_pde.GetExtracellularStimulusCacheReplicated()[global_index] << "\n";
         }
 
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1

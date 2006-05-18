@@ -2,7 +2,6 @@
 #define BIDOMAINPROBLEM_HPP_
 
 
-//#include <iostream>
 // For mkdir()
 #include <sys/stat.h>
 #include "SimpleLinearSolver.hpp"
@@ -34,7 +33,7 @@ private:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
     Vec mVoltage; // Current solution
-    int mLo, mHi;
+    int mLo, mHi; // Ownership range for the double size potential vector mVoltage
 
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
@@ -110,38 +109,25 @@ public:
         
         // initial condition;   
         Vec initial_condition;
- //       VecCreate(PETSC_COMM_WORLD, &initial_condition);
-
-        // 2 * numNodes
-   //     VecSetSizes(initial_condition, PETSC_DECIDE, 2*mMesh.GetNumNodes() );
-    //    VecSetFromOptions(initial_condition);
-    
         int lo, hi;
         mpBidomainPde->GetOwnershipRange(lo, hi);
         VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*mMesh.GetNumNodes(), &initial_condition);  
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition); 
 
-        //\todo: parallelise:
-        //  - ie define mLo, mHi properly, here and in pde - this isn't consistent?
         VecGetOwnershipRange(initial_condition, &mLo, &mHi);
-
-        for(int i=0;i<mMesh.GetNumNodes(); i++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
-            p_initial_condition[2*i]   = mpBidomainPde->GetCardiacCell(i)->GetVoltage();
-            p_initial_condition[2*i+1] = 0;
+            int local_index = global_index - lo;
+            p_initial_condition[2*local_index  ] = mpBidomainPde->GetCardiacCell(global_index)->GetVoltage();
+            p_initial_condition[2*local_index+1] = 0;
         }
-
-//        for (int global_index=mLo; global_index<mHi; global_index++)
-//        {
-//            int local_index = global_index - mLo;
-//            p_initial_condition[local_index] = mpBidomainPde->GetCardiacCell(global_index)->GetVoltage();
-//        }
 
 
         VecRestoreArray(initial_condition, &p_initial_condition);      
         VecAssemblyBegin(initial_condition);
         VecAssemblyEnd(initial_condition);
+        //VecView(initial_condition, PETSC_VIEWER_STDOUT_WORLD);
     
         /*
          *  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
@@ -167,7 +153,7 @@ public:
         }
         else
         {
-            throw ("mOutputFilenamePrefix should not be the empty string");
+            throw Exception("mOutputFilenamePrefix should not be the empty string");
         }
 
         double current_time = mStartTime;        

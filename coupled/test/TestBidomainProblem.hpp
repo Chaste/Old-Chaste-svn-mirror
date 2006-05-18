@@ -87,26 +87,25 @@ public:
         {
             bidomain_problem.Solve();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             TS_TRACE(e.GetMessage());
         }
             
         double* p_voltage_array;
-        int lo, hi;
-        bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
+        int v_lo, v_hi, lo, hi;
+        bidomain_problem.GetVoltageArray(&p_voltage_array, v_lo, v_hi);
+        bidomain_problem.GetBidomainPde()->GetOwnershipRange(lo, hi);
 
-        //lo and hi not set correctly in problem
-//        for (int global_index=lo; global_index<hi; global_index++)
-        for(int global_index=0; global_index<11; global_index++)
+        for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV 
             double Ek    = -77.0;   // mV
 
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[2*local_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[2*local_index] + (Ek-30), 0);
 
             std::vector<double> odeVars = bidomain_problem.GetBidomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for (int j=0; j<8; j++)
@@ -114,15 +113,13 @@ public:
                 // if not voltage or calcium ion conc, test whether between 0 and 1
                 if ((j!=4) && (j!=3))
                 {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
+                    TS_ASSERT_LESS_THAN_EQUALS( odeVars[j], 1.0);
+                    TS_ASSERT_LESS_THAN_EQUALS(-odeVars[j], 0.0);
                 }
             }
         }
         
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-        if (num_procs == 1)
+        if (lo <= 0 && 0 < hi)
         {
             /// \todo This is work in progress
             TS_ASSERT_DELTA(p_voltage_array[0], 28.2462, 1e-3);
@@ -161,12 +158,12 @@ public:
         
         double* p_mono_voltage_array;
         double* p_bi_voltage_array;
-        int lo, hi;
+        int bi_lo, bi_hi, mono_lo, mono_hi;
 
-        bidomain_problem.GetVoltageArray(&p_bi_voltage_array, lo, hi); 
-        monodomain_problem.GetVoltageArray(&p_mono_voltage_array, lo, hi); 
+        bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi); 
+        monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi); 
         
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (int global_index=mono_lo; global_index<mono_hi; global_index++)
         {
             //int local_index = global_index - lo;
             

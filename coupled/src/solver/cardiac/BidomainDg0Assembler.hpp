@@ -48,8 +48,7 @@ private:
     
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2>& rAElem,
-                           c_vector<double, 2*ELEMENT_DIM+2>& rBElem,
-                           Vec currentSolution)
+                           c_vector<double, 2*ELEMENT_DIM+2>& rBElem)
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
@@ -140,17 +139,11 @@ private:
                 }
             }
             
-            
             for (int row=0; row < num_elem_nodes; row++)
             {
                 /// \todo: check the signs on I_ionic and I_intra_stim
                 rBElem(2*row)   += wJ*(  (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func[row]   );
                 rBElem(2*row+1) += wJ*(  -I_extra_stim * basis_func[row] );
-                
-//                double vec_integrand_val1 = sourceTerm * phi[row];
-//                b_elem(row) += vec_integrand_val1 * wJ;
-//                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi[row];
-//                b_elem(row) += vec_integrand_val2 * wJ;
             }            
         }
     } 
@@ -170,7 +163,6 @@ private:
         else 
         {
             mpAssembledLinearSystem->ZeroLinearSystem();
-            mMatrixIsAssembled = false;
         }
      
         // Get an iterator over the elements of the mesh
@@ -185,12 +177,12 @@ private:
 //        vector<double> b_elem(2*num_elem_nodes);
         c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> a_elem;
         c_vector<double, 2*ELEMENT_DIM+2> b_elem;
-
+        
         while (iter != mpMesh->GetElementIteratorEnd())
         {
             const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
-            AssembleOnElement(element, a_elem, b_elem, currentSolution);
+            AssembleOnElement(element, a_elem, b_elem);
          
             for (int i=0; i<num_elem_nodes; i++)
             {
@@ -208,7 +200,7 @@ private:
                         mpAssembledLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
                     }
                 }
-            
+                
                 mpAssembledLinearSystem->AddToRhsVectorElement(2*node1,   b_elem(2*i));
                 mpAssembledLinearSystem->AddToRhsVectorElement(2*node1+1, b_elem(2*i+1));
             }
@@ -255,10 +247,9 @@ private:
         }
         
         mMatrixIsAssembled = true;
+
     }
-        
-        
-    
+   
     
 public:
     BidomainDg0Assembler(BidomainPde<SPACE_DIM>* pBidomainPde, 
@@ -318,23 +309,23 @@ public:
         
         double t = mTstart;
  
-        Vec currentSolution = mInitialCondition;
-        Vec nextSolution;
+        Vec current_solution = mInitialCondition;
+        Vec next_solution;
         while( t < mTend - 1e-10 )
         {
-            AssembleSystem(currentSolution);
-            nextSolution = mpAssembledLinearSystem->Solve(mpSolver);
+            AssembleSystem(current_solution);
+            next_solution = mpAssembledLinearSystem->Solve(mpSolver);
                     
             t += mDt;
 
-            if (currentSolution != mInitialCondition)
+            if (current_solution != mInitialCondition)
             {
-                VecDestroy(currentSolution);
+                VecDestroy(current_solution);
             }
-            currentSolution = nextSolution;
+            current_solution = next_solution;
         }   
         
-        return currentSolution;
+        return current_solution;
     }      
 };
 
