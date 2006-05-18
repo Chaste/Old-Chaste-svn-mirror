@@ -48,7 +48,7 @@ class TestMonodomainNoStimulus : public CxxTest::TestSuite
 {
 public:
     
-    void Test1()
+    void TestZeroStimulus()
     {
         ZeroStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
         MonodomainProblem<1> monodomain_problem(&cell_factory);

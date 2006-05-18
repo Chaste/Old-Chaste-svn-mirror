@@ -50,12 +50,7 @@ class TestMonodomainFitzHughNagumoWithDg0Assembler : public CxxTest::TestSuite
 {   
 public:
     
-    /** \todo Not yet fully working...
-     * May not be necessary any more, since the Luo-Rudy model seems to work.
-     */
-
-
-   // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
+    // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
     // edge.
     void TestMonodomainFitzHughNagumoWithEdgeStimulus( void )
     {   

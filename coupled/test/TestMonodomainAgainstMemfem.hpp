@@ -42,6 +42,10 @@ public:
     }
 };
 
+    // THIS CURRENTLY DOES NOT HAVE AN ASSERT. 
+    // MEMFEM NEEDS TO BE USED TO GET THE CORRECT VALUES TO TEST AGAINST.
+    // THIS REFERS TO TICKET #89.
+    
 class TestMonodomainAgainstMemfem : public CxxTest::TestSuite 
 {   
     
