@@ -122,7 +122,7 @@ public:
 		LinearBasisFunction<1> basis_func;
 		Point<1> one(1);
 		
-		MatrixDouble invJ(1,1);
+		c_matrix<double, 1, 1> invJ;
 		invJ(0,0)=0.5;
 
 		std::vector<c_vector<double,1> > transDeriv =
@@ -136,7 +136,7 @@ public:
 		LinearBasisFunction<2> basis_func2;
 		Point<2> oneone(1,1);
 		
-		MatrixDouble invJ2(2,2);
+		c_matrix<double, 2, 2> invJ2;
 		invJ2(0,0)=0.5;
 		invJ2(1,1)=0.5;
 
@@ -153,7 +153,7 @@ public:
 		LinearBasisFunction<3> basis_func3;
 		Point<3> oneoneone(1,1,1);
 		
-		MatrixDouble invJ3(3,3);
+		c_matrix<double, 3, 3> invJ3;
 		invJ3(0,0)=0.5;
 		invJ3(1,1)=0.5;
 		invJ3(2,2)=0.5;
@@ -180,7 +180,7 @@ public:
 		Element<2,2> element(nodes);
 		LinearBasisFunction<2> basis_function;
 		
-		const MatrixDouble *inverseJacobian = element.GetInverseJacobian();
+		const c_matrix<double, 2, 2> *inverseJacobian = element.GetInverseJacobian();
 		Point<2> evaluation_point(1,1); 
 		std::vector<c_vector<double,2> > trans_deriv =
 			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,

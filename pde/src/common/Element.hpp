@@ -10,8 +10,9 @@
 
 #include "Node.hpp"
 #include "Point.hpp"
-#include "MatrixDouble.hpp"
-#include "VectorDouble.hpp"
+#include "UblasCustomFunctions.hpp"
+//#include "MatrixDouble.hpp"
+//#include "VectorDouble.hpp"
 #include "LinearBasisFunction.cpp"
 #include "AbstractMaterial.hpp"
 
@@ -30,8 +31,8 @@ private:
     const Element<ELEMENT_DIM-1,SPACE_DIM>* mLowerOrderElements[ELEMENT_DIM+1];
     bool mHasLowerOrderElements;
 
-    MatrixDouble *mpJacobian;
-    MatrixDouble *mpInverseJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> *mpJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> *mpInverseJacobian;
 
     double mJacobianDeterminant;
 	
@@ -87,19 +88,19 @@ public:
     	{
     		if (ELEMENT_DIM == SPACE_DIM)
     		{
-    			mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
-    			mpInverseJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
+    			mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
+    			mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
     			
-		        for(int i=0; i<SPACE_DIM; i++)
+		        for(int i=0; i<ELEMENT_DIM; i++)
 		        {
-		            for(int j=0; j<SPACE_DIM; j++)
+		            for(int j=0; j<ELEMENT_DIM; j++)
 		            {		                
 	                    (*mpJacobian)(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
 		            }
 		        }
 		       
-		        *mpInverseJacobian   = mpJacobian->Inverse();
-		        mJacobianDeterminant = mpJacobian->Determinant();
+		        *mpInverseJacobian   = Inverse(*mpJacobian);
+		        mJacobianDeterminant = Determinant(*mpJacobian);
                 // If determinant < 0 then element nodes are listed clockwise.
                 // We want them anticlockwise.
                 assert(mJacobianDeterminant > 0.0);
@@ -174,13 +175,13 @@ public:
 		mpJacobian = NULL;
 		if (element.mpJacobian != NULL)
 		{
-			mpJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
 			*mpJacobian = *(element.mpJacobian);
 		}
 		mpInverseJacobian = NULL;
 		if (element.mpInverseJacobian != NULL)
 		{
-			mpInverseJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
 			*mpInverseJacobian = *(element.mpInverseJacobian);
 		}
     }
@@ -269,11 +270,11 @@ public:
 		mNodes.push_back(node);
 	}
 	
-	const MatrixDouble *GetJacobian(void) const
+	const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobian(void) const
 	{
 		return mpJacobian;
 	}
-	const MatrixDouble *GetInverseJacobian(void) const
+	const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobian(void) const
 	{
 		return mpInverseJacobian;
 	}
@@ -311,8 +312,8 @@ class Element<0, SPACE_DIM>
 private:
     std::vector<Node<SPACE_DIM>*> mNodes;
 
-    MatrixDouble *mpJacobian;
-    MatrixDouble *mpInverseJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> *mpJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> *mpInverseJacobian;
 
     double mJacobianDeterminant;
 
@@ -345,8 +346,8 @@ public:
     	mpInverseJacobian = NULL;
     	if (createJacobian)
     	{
-    		mpJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
-    		mpInverseJacobian = new MatrixDouble(SPACE_DIM,SPACE_DIM);
+    		mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
+    		mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
     		for (int i=0; i<SPACE_DIM; i++)
     		{
     			for (int j=0; j<SPACE_DIM; j++)
@@ -378,8 +379,10 @@ public:
         mpInverseJacobian = NULL;
         if (createJacobian)
         {
-            mpJacobian = new MatrixDouble(1,1);
-            mpInverseJacobian = new MatrixDouble(1,1);
+            // Note: this might be a source of errors for simulations
+            // with space dim not equal to elem dim
+            mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
+            mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
             (*mpJacobian)(0,0) = 1.0;
             (*mpInverseJacobian)(0,0) = 1.0;
             mJacobianDeterminant = 1.0;
@@ -410,13 +413,13 @@ public:
 		mpJacobian = NULL;
 		if (element.mpJacobian != NULL)
 		{
-			mpJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
 			*mpJacobian = *(element.mpJacobian);
 		}
 		mpInverseJacobian = NULL;
 		if (element.mpInverseJacobian != NULL)
 		{
-			mpInverseJacobian = new MatrixDouble(SPACE_DIM, SPACE_DIM);
+			mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
 			*mpInverseJacobian = *(element.mpInverseJacobian);
 		}
     }
@@ -461,11 +464,11 @@ public:
     	return mNodes.size(); // Will be 1
     }
     
-	const MatrixDouble *GetJacobian(void) const
+	const c_matrix<double, SPACE_DIM, SPACE_DIM> *GetJacobian(void) const
 	{
 		return mpJacobian;
 	}
-	const MatrixDouble *GetInverseJacobian(void) const
+	const c_matrix<double, SPACE_DIM, SPACE_DIM> *GetInverseJacobian(void) const
 	{
 		return mpInverseJacobian;
 	}

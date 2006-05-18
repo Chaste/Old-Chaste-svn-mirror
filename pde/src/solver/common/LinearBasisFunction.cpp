@@ -284,23 +284,19 @@ std::vector<VectorDouble>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
  *     each axis.
  */
 template <int ELEM_DIM>
-std::vector<c_vector<double, ELEM_DIM> > LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const MatrixDouble &rInverseJacobian) const
+std::vector<c_vector<double, ELEM_DIM> > LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    assert(rInverseJacobian.Rows() == rInverseJacobian.Columns());
     std::vector<VectorDouble> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
   	std::vector<c_vector<double, ELEM_DIM> > transformedGradValues;
   	transformedGradValues.reserve(ELEM_DIM+1);
     
     VectorDoubleUblasConverter<ELEM_DIM> vector_converter;
-    MatrixDoubleUblasConverter<ELEM_DIM> matrix_converter; 
-    
-    c_matrix<double, ELEM_DIM, ELEM_DIM>& inverse_jacobian_ublas = matrix_converter.rConvertToUblas(rInverseJacobian);
     
     for (int i=0;i<ELEM_DIM+1;i++)
     {
         c_vector<double, ELEM_DIM> &basis_grad_value = vector_converter.rConvertToUblas(basisGradValues[i]);
-        transformedGradValues.push_back(prod(basis_grad_value, inverse_jacobian_ublas));
+        transformedGradValues.push_back(prod(basis_grad_value, rInverseJacobian));
     }
 
     return transformedGradValues;    	

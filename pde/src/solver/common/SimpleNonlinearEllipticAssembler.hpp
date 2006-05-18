@@ -256,7 +256,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 	GaussianQuadratureRule<ELEMENT_DIM> *pQuadRule =
 		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule;
 	
-	const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
+	const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = rElement.GetInverseJacobian();
 	double jacobian_determinant = rElement.GetJacobianDeterminant();
 	
 	const int num_nodes = rElement.GetNumNodes();
@@ -561,7 +561,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 	GaussianQuadratureRule<ELEMENT_DIM> *pQuadRule =
 		AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule;
 
-	const MatrixDouble *inverseJacobian = rElement.GetInverseJacobian();
+	const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = rElement.GetInverseJacobian();
 	double jacobian_determinant = rElement.GetJacobianDeterminant();
 	
 	// Initialise element contributions to zero

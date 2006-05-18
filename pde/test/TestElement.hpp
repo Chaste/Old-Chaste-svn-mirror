@@ -116,12 +116,12 @@ public:
 		nodes1d.push_back(new Node<1>(0, false, 2.0));
 		nodes1d.push_back(new Node<1>(1, false, 2.5));
 		Element<1,1> element1d(nodes1d);
-		const MatrixDouble *J1d = element1d.GetJacobian();
+		const c_matrix<double, 1, 1> *J1d = element1d.GetJacobian();
 		TS_ASSERT_DELTA((*J1d)(0,0), 0.5, 1e-12);
 		
 		double Det1d = element1d.GetJacobianDeterminant();
 		TS_ASSERT_DELTA(Det1d, 0.5, 1e-12);
-		const MatrixDouble *J1dinv = element1d.GetInverseJacobian();
+		const c_matrix<double, 1, 1> *J1dinv = element1d.GetInverseJacobian();
 		TS_ASSERT_DELTA((*J1dinv)(0,0), 2.0, 1e-12);
 				
 		delete nodes1d[0];
@@ -133,7 +133,7 @@ public:
 		nodes2d.push_back(new Node<2>(1, false, 1.0, 0.0));
 		nodes2d.push_back(new Node<2>(2, false, 0.0, 1.0));
 		Element<2,2> element2d(nodes2d);
-		const MatrixDouble *J2d = element2d.GetJacobian();
+		const c_matrix<double, 2, 2> *J2d = element2d.GetJacobian();
 		TS_ASSERT_DELTA((*J2d)(0,0), 1.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d)(0,1), 0.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d)(1,0), 0.0, 1e-12);
@@ -149,7 +149,7 @@ public:
 		nodes2d2.push_back(new Node<2>(1, false, 4.0, -3.0));
 		nodes2d2.push_back(new Node<2>(2, false, 2.0, -1.0));
 		Element<2,2> element2d2(nodes2d2);
-		const MatrixDouble *J2d2 = element2d2.GetJacobian();
+		const c_matrix<double, 2, 2> *J2d2 = element2d2.GetJacobian();
 		TS_ASSERT_DELTA((*J2d2)(0,0), 3.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d2)(0,1), 1.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d2)(1,0), -1.0, 1e-12);
@@ -157,7 +157,7 @@ public:
 		
 		double Det2d = element2d2.GetJacobianDeterminant();
 		TS_ASSERT_DELTA(Det2d, 4.0, 1e-12);
-		const MatrixDouble *J2d2inv = element2d2.GetInverseJacobian();
+		const c_matrix<double, 2, 2> *J2d2inv = element2d2.GetInverseJacobian();
 		TS_ASSERT_DELTA((*J2d2inv)(0,0), 0.25, 1e-12);
 		TS_ASSERT_DELTA((*J2d2inv)(0,1), -0.25, 1e-12);
 		TS_ASSERT_DELTA((*J2d2inv)(1,0), 0.25, 1e-12);
@@ -175,7 +175,7 @@ public:
 		nodes3d.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
 		nodes3d.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
 		Element<3,3> element3d(nodes3d, true);
-		const MatrixDouble *J3d = element3d.GetJacobian();
+		const c_matrix<double, 3, 3> *J3d = element3d.GetJacobian();
 		TS_ASSERT_DELTA((*J3d)(0,0), 1.0, 1e-12);
 		TS_ASSERT_DELTA((*J3d)(0,1), 0.0, 1e-12);
 		TS_ASSERT_DELTA((*J3d)(0,2), 0.0, 1e-12);
@@ -199,7 +199,7 @@ public:
 		nodes3d2.push_back(new Node<3>(2, false, 5.0, 5.0, 5.0));
 		nodes3d2.push_back(new Node<3>(3, false, 0.0, 3.0, 4.0));
 		Element<3,3> element3d2(nodes3d2, true);
-		const MatrixDouble *J3d2 = element3d2.GetJacobian();
+		const c_matrix<double, 3, 3> *J3d2 = element3d2.GetJacobian();
 		TS_ASSERT_DELTA((*J3d2)(0,0), 1.0, 1e-4);
 		TS_ASSERT_DELTA((*J3d2)(0,1), 4.0, 1e-4);
 		TS_ASSERT_DELTA((*J3d2)(0,2), -1.0, 1e-4);
@@ -212,7 +212,7 @@ public:
 		
 		double Det3d2 = element3d2.GetJacobianDeterminant();
 		TS_ASSERT_DELTA(Det3d2, 7.0, 1e-4);
-		const MatrixDouble *J3d2inv = element3d2.GetInverseJacobian();
+		const c_matrix<double, 3, 3> *J3d2inv = element3d2.GetInverseJacobian();
 		TS_ASSERT_DELTA((*J3d2inv)(0,0), 1.0/7.0, 1e-4);
 		TS_ASSERT_DELTA((*J3d2inv)(0,1), -6.0/7.0, 1e-4);
 		TS_ASSERT_DELTA((*J3d2inv)(0,2), 1.0, 1e-4);

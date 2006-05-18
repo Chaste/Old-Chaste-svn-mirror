@@ -16,7 +16,7 @@ public:
     std::vector<VectorDouble> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const;
  
  	std::vector<c_vector<double, ELEM_DIM> > ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint,
- 	                                                                     const MatrixDouble &rInverseJacobian) const;
+ 	                                                                     const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const;
 };
 
 /**

@@ -56,7 +56,7 @@ private:
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
         
-        const MatrixDouble *inverseJacobian = NULL;
+        const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
