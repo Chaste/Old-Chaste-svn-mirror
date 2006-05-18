@@ -30,6 +30,7 @@ private:
 	
 public:
     LinearSystem(int lhsVectorSize);
+    LinearSystem(Vec templateVector);
     ~LinearSystem();
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);

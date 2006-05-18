@@ -260,13 +260,13 @@ public:
                          ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh, 
                          AbstractLinearSolver* pLinearSolver,
                          int numQuadPoints = 2)
-     : AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
+      : AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints),
+	mpAssembledLinearSystem(NULL)
     {
         mpBidomainPde = pBidomainPde;
         mpMesh = pMesh;
         mpSolver = pLinearSolver;
 
-        mpAssembledLinearSystem = new LinearSystem(2*mpMesh->GetNumNodes());
         mMatrixIsAssembled = false;
     }
     
@@ -276,8 +276,8 @@ public:
         if (mpAssembledLinearSystem != NULL)
         {
             delete mpAssembledLinearSystem;
+            mpAssembledLinearSystem = NULL;
         }
-        mpAssembledLinearSystem = NULL;
     }
    
     
@@ -302,6 +302,11 @@ public:
         /// \todo: check initCondition is the correct size, & do the same in other assemblers
         mInitialCondition = initCondition;
         mInitialConditionSet = true;
+
+        if (mpAssembledLinearSystem == NULL)
+        {
+            mpAssembledLinearSystem = new LinearSystem(initCondition);
+        }
     }
     
 

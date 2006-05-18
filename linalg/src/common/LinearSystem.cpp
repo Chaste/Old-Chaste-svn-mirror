@@ -4,7 +4,7 @@
 */
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
-#include <iostream>
+//#include <iostream>
 
 
 
@@ -34,6 +34,31 @@ LinearSystem::LinearSystem(int lhsVectorSize)
     
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 }
+
+/**
+ * Create a linear system, where the size is based on the size of a given
+ * PETSc vec.
+ * The LHS & RHS vectors will be created by duplicating this vector's
+ * settings.  This should avoid problems with using VecScatter on
+ * bidomain simulation results.
+ */
+LinearSystem::LinearSystem(Vec templateVector)
+{
+    VecDuplicate(templateVector, &mRhsVector);
+    VecGetSize(mRhsVector, &mSize);
+    VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
+    int local_size = mOwnershipRangeHi - mOwnershipRangeLo;
+
+#if (PETSC_VERSION_MINOR == 2) //Old API
+    MatCreate(PETSC_COMM_WORLD,local_size,local_size,mSize,mSize,&mLhsMatrix);
+#else //New API
+    MatCreate(PETSC_COMM_WORLD,&mLhsMatrix);
+    MatSetSizes(mLhsMatrix,local_size,local_size,mSize,mSize);
+#endif 
+    MatSetType(mLhsMatrix, MATMPIAIJ);
+    MatSetFromOptions(mLhsMatrix);
+}
+
 
 LinearSystem::~LinearSystem()
 {
