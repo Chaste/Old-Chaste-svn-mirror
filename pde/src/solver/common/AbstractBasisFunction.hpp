@@ -21,11 +21,11 @@ class AbstractBasisFunction
 
 public:
    virtual double ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const =0;
-   virtual VectorDouble ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const =0;
+   virtual c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const =0;
    virtual std::vector<double>       ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const =0;
    virtual void                      ComputeBasisFunctionsWithUpdate(const Point<ELEM_DIM> &rPoint, std::vector<double> &rBasisValues) const =0;
-   virtual std::vector<VectorDouble> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const =0;
-   virtual std::vector<c_vector<double, ELEM_DIM> > ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const =0;
+   virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const =0;
+   virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const =0;
    virtual ~AbstractBasisFunction() { };
 };
 

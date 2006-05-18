@@ -17,7 +17,7 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 
-
+#include "MatrixDoubleUblasConverter.hpp"
 /*
  * Since we need to pass function pointers to the PETSc SNES routines, we can't
  * make these functions below methods. This is a pain, since it also means we
@@ -214,7 +214,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 		
 		double U = 0;  
 		
-		for(int i=0; i<rSurfaceElement.GetNumNodes(); i++)
+		for(int i=0; i<rSurfaceElement.GetNumNodes(); i++) 
 		{
 			U+= phi[i]*Ui(i);
 						
@@ -266,13 +266,13 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
 		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-		std::vector<c_vector<double, ELEMENT_DIM> > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-		                                    (quad_point, *inverseJacobian);
+		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		                                                              (quad_point, *inverseJacobian);
 
 		Point<SPACE_DIM> x(0,0,0);
 		double U = 0;
-		VectorDouble gradU(SPACE_DIM);
-		gradU.ResetToZero();
+		c_vector<double, SPACE_DIM> gradU;
+		gradU.clear();
 		
 		for(int i=0; i<num_nodes; i++)
 		{
@@ -284,7 +284,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 			{
 				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				gradU(j)+= gradPhi[i](j)*Ui(i);
+				gradU(j)+= gradPhi(j,i)*Ui(i);
 			}
 		}
 				
@@ -295,8 +295,14 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 			// d/dx [f(U,x) du/dx ] = -g
 			// where g(x,U) is the forcing term
 			MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
-            VectorDouble grad_phi_i(gradPhi[i]);
-			double  integrand_value1 = ((FOfU*gradU).dot(grad_phi_i));
+            MatrixDoubleUblasConverter<ELEMENT_DIM> converter;
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = converter.rConvertToUblas(FOfU);
+
+            matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(gradPhi,i);
+//            VectorDouble grad_phi_i(gradPhi[i]);
+//			double  integrand_value1 = ((FOfU*gradU).dot(grad_phi_i));
+            double  integrand_value1 = inner_prod(prod(FOfU_ublas,gradU),grad_phi_i);
+
 			//make RHS general: consists of linear and nonlinear source terms
 			double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
 			ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
@@ -572,25 +578,25 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
 		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-		std::vector<c_vector<double, ELEMENT_DIM> > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-		                                    (quad_point, *inverseJacobian);
+		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		                                                           (quad_point, *inverseJacobian);
 
 		Point<SPACE_DIM> x(0,0,0);
 		double U = 0;
-		VectorDouble gradU(SPACE_DIM);
-		//gradU.ResetToZero(); // Vector is initialised to zero at creation.
+		c_vector<double, SPACE_DIM> gradU;
+		gradU.clear();
 		
 		for(int i=0; i<num_nodes; i++)
 		{
 			//Need to compute add U as double and gradU as vector double
 			// get U =sum(Ui phi_i)
-			U+= phi[i]*Ui(i);
+			U += phi[i]*Ui(i);
 			
 			for(int j=0; j<SPACE_DIM; j++)
 			{
 				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				gradU(j)+= gradPhi[i](j)*Ui(i);
+				gradU(j)+= gradPhi(j,i)*Ui(i);
 			}
 		}
 		
@@ -606,13 +612,24 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 				
 				MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
 				MatrixDouble FOfU_prime = pPde->ComputeDiffusionTermPrime(x,U);
+                
+                MatrixDoubleUblasConverter<ELEMENT_DIM> converter;
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = converter.rConvertToUblas(FOfU);
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_prime_ublas = converter.rConvertToUblas(FOfU_prime);
+                
+                
 				//LinearSourceTerm(x)	not needed as it is a constant wrt U_i
 				double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
 				
-                VectorDouble grad_phi_i(gradPhi[i]);
-				double integrand_value1 = (((FOfU_prime *gradU )* phi[j]).dot(grad_phi_i));
-                VectorDouble grad_phi_j(gradPhi[j]);
-				double integrand_value2 = (FOfU * grad_phi_j).dot(grad_phi_i);
+                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(gradPhi,i);
+                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_j(gradPhi,j);
+
+//				double integrand_value1 = (((FOfU_prime *gradU )* phi[j]).dot(grad_phi_i));
+                double integrand_value1 = inner_prod(prod(FOfU_prime_ublas,gradU),grad_phi_i)*phi[j];
+
+//				double integrand_value2 = (FOfU * grad_phi_j).dot(grad_phi_i);
+                double integrand_value2 = inner_prod(prod(FOfU_ublas, grad_phi_j), grad_phi_i);
+
 				double integrand_value3 = ForcingTermPrime * phi[i];
 				
 				//double integrand_value4 = integrand_value1 + integrand_value2 + integrand_value3;

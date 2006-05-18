@@ -20,6 +20,9 @@
 #include "GaussianQuadratureRule.hpp"
 
 
+//delete this
+#include <boost/numeric/ublas/io.hpp>
+
 template<int ELEMENT_DIM, int SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
@@ -63,7 +66,7 @@ protected:
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
             std::vector<double> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
-            std::vector<c_vector<double, ELEMENT_DIM> > gradPhi;
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
             
             if (!this->mMatrixIsAssembled)
             {
@@ -92,17 +95,19 @@ protected:
 
             if (!this->mMatrixIsAssembled)
             {
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term_ublas = pPde->ComputeDiffusionTerm(x);
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
                 
                 for (int row=0; row < num_nodes; row++)
                 {
                     for (int col=0; col < num_nodes; col++)
                     {
+                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(gradPhi, col);
+                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(gradPhi, row);         
+                        
                         double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi[row] * phi[col];
                         a_elem(row,col) += integrand_val1 * wJ;
 
-
-                        double integrand_val2 = inner_prod( gradPhi[row], prod( pde_diffusion_term_ublas, gradPhi[col]) );
+                        double integrand_val2 = inner_prod( grad_phi_row, prod( pde_diffusion_term, grad_phi_col) );
                         a_elem(row,col) += integrand_val2 * wJ;
                     }
                 }

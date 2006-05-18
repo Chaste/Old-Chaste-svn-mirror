@@ -54,11 +54,10 @@ public:
 		checker.checkBasisFunctions(&basis_func, evaluation_points);
 		
 		// Derivatives
-		std::vector<VectorDouble> derivatives;
+		c_matrix<double, 1, 2> derivatives;
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(one);
-		TS_ASSERT_EQUALS(derivatives.size(), 2);
-		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,0), -1, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,1),  1, 1e-12);
 	}
 	
 	void TestLinearBasisFunction2d()
@@ -78,12 +77,11 @@ public:
 		checker.checkBasisFunctions(&basis_func, evaluation_points);
 		
 		// Derivatives
-		std::vector<VectorDouble> derivatives;
+		c_matrix<double, 2, 3> derivatives;
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezero);
-		TS_ASSERT_EQUALS(derivatives.size(), 3);
-		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[2](0),  0, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,0), -1, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,1),  1, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,2),  0, 1e-12);
 	}
 
 
@@ -106,13 +104,12 @@ public:
 		checker.checkBasisFunctions(&basis_func, evaluation_points);
 		
 		// Derivatives
-		std::vector<VectorDouble> derivatives;
+		c_matrix<double, 3, 4> derivatives;
 		derivatives = basis_func.ComputeBasisFunctionDerivatives(onezerozero);
-		TS_ASSERT_EQUALS(derivatives.size(), 4);
-		TS_ASSERT_DELTA(derivatives[0](0), -1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[1](0),  1, 1e-12);
-		TS_ASSERT_DELTA(derivatives[2](0),  0, 1e-12);
-		TS_ASSERT_DELTA(derivatives[3](0),  0, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,0), -1, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,1),  1, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,2),  0, 1e-12);
+		TS_ASSERT_DELTA(derivatives(0,3),  0, 1e-12);
 	}
 	
 	
@@ -125,12 +122,11 @@ public:
 		c_matrix<double, 1, 1> invJ;
 		invJ(0,0)=0.5;
 
-		std::vector<c_vector<double,1> > transDeriv =
+		c_matrix<double, 1, 2> transDeriv =
             basis_func.ComputeTransformedBasisFunctionDerivatives(one, invJ);
 
-		TS_ASSERT_EQUALS(transDeriv.size(), 2);
-		TS_ASSERT_DELTA(transDeriv[0](0), -0.5, 1e-12);
-		TS_ASSERT_DELTA(transDeriv[1](0),  0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv(0,0), -0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv(0,1),  0.5, 1e-12);
 		
 		// 2D
 		LinearBasisFunction<2> basis_func2;
@@ -140,13 +136,12 @@ public:
 		invJ2(0,0)=0.5;
 		invJ2(1,1)=0.5;
 
-		std::vector<c_vector<double,2> > transDeriv2 =
+		c_matrix<double, 2, 3> transDeriv2 =
             basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone, invJ2);
 		
-		TS_ASSERT_EQUALS(transDeriv2.size(), 3);
-		TS_ASSERT_DELTA(transDeriv2[0](0), -0.5, 1e-12);
-		TS_ASSERT_DELTA(transDeriv2[1](0),  0.5, 1e-12);
-		TS_ASSERT_DELTA(transDeriv2[2](0),    0, 1e-12);
+		TS_ASSERT_DELTA(transDeriv2(0,0), -0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv2(0,1),  0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv2(0,2),    0, 1e-12);
 
 		
 		//3D
@@ -158,14 +153,13 @@ public:
 		invJ3(1,1)=0.5;
 		invJ3(2,2)=0.5;
 		
-		std::vector<c_vector<double,3> > transDeriv3 =
+		c_matrix<double, 3, 4> transDeriv3 =
             basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,invJ3);
 
-		TS_ASSERT_EQUALS(transDeriv3.size(), 4);
-		TS_ASSERT_DELTA(transDeriv3[0](0), -0.5, 1e-12);
-		TS_ASSERT_DELTA(transDeriv3[1](0),  0.5, 1e-12);
-		TS_ASSERT_DELTA(transDeriv3[2](0),    0, 1e-12);
-		TS_ASSERT_DELTA(transDeriv3[3](0),    0, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3(0,0), -0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3(0,1),  0.5, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3(0,2),    0, 1e-12);
+		TS_ASSERT_DELTA(transDeriv3(0,3),    0, 1e-12);
 			//TS_TRACE("here lin basis\n");	
 	}
 	
@@ -182,16 +176,16 @@ public:
 		
 		const c_matrix<double, 2, 2> *inverseJacobian = element.GetInverseJacobian();
 		Point<2> evaluation_point(1,1); 
-		std::vector<c_vector<double,2> > trans_deriv =
+		c_matrix<double, 2, 3> trans_deriv =
 			basis_function.ComputeTransformedBasisFunctionDerivatives(evaluation_point,
 																		*inverseJacobian);
 		
-		TS_ASSERT_DELTA(trans_deriv[0](0),-0.2, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[0](1),-0.6, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[1](0),0.4, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[1](1),0.2, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[2](0),-0.2, 1e-12);
-		TS_ASSERT_DELTA(trans_deriv[2](1),0.4, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv(0,0),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv(1,0),-0.6, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv(0,1),0.4, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv(1,1),0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv(0,2),-0.2, 1e-12);
+		TS_ASSERT_DELTA(trans_deriv(1,2),0.4, 1e-12);
 		
 	}
 };

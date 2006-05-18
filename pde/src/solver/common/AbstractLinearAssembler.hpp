@@ -49,7 +49,7 @@ protected:
 	 * linear system.
 	 */
 	virtual double LhsMatrixIntegrand(std::vector<double> &rPhi,
-									  std::vector<c_vector<double, ELEMENT_DIM> > &rGradPhi,
+									  c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row, int col,
 									  Point<SPACE_DIM> &rX)=0;
@@ -115,8 +115,8 @@ protected:
 		{
 			Point<ELEMENT_DIM> quad_point=rQuadRule.GetQuadPoint(quad_index);
 
-			std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-			std::vector<c_vector<double, ELEMENT_DIM> > gradPhi;
+			std::vector<double> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+			c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
             if (!mMatrixIsAssembled)
             {
                 gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives

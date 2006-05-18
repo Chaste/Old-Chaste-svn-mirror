@@ -74,7 +74,7 @@ private:
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
             std::vector<double> basis_func = rBasisFunction.ComputeBasisFunctions(quad_point);
-            std::vector<c_vector<double, ELEMENT_DIM> > grad_basis;
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>  grad_basis;
             
             if (!mMatrixIsAssembled)
             {
@@ -126,15 +126,19 @@ private:
                 {
                     for (int col=0; col < num_elem_nodes; col++)
                     {
+                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_basis_col(grad_basis, col);
+                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_basis_row(grad_basis, row);         
+                        
+                        
                         // Components of the element stiffness matrix are:   
-                        // (1,1) block:            ACV/dt + (Di grad_basis[col])dot(grad_basis[row])
-                        // (1,2) and (2,1) blocks: (Di grad_basis[col])dot(grad_basis[row])
-                        // (2,2) block:           ( ((Di+De)grad_basis[col] )dot(grad_basis[row]) 
+                        // (1,1) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
+                        // (1,2) and (2,1) blocks: (Di grad_basis_col)dot(grad_basis_row)
+                        // (2,2) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row) 
 
-                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func[col]*basis_func[row]   +  inner_prod( grad_basis[row], prod( sigma_i, grad_basis[col] )) );
-                        rAElem(2*row+1,2*col)   += wJ*(  inner_prod( grad_basis[row], prod( sigma_i, grad_basis[col] ))   );
-                        rAElem(2*row,  2*col+1) += wJ*(  inner_prod( grad_basis[row], prod( sigma_i, grad_basis[col] ))  );
-                        rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis[row], prod( sigma_i, grad_basis[col] ))   +   inner_prod( grad_basis[row], prod( sigma_e, grad_basis[col] )));
+                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func[col]*basis_func[row]   +  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col )) );
+                        rAElem(2*row+1,2*col)   += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   );
+                        rAElem(2*row,  2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))  );
+                        rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   +   inner_prod( grad_basis_row, prod( sigma_e, grad_basis_col )));
                     }
                 }
             }

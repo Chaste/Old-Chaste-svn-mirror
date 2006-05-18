@@ -9,13 +9,13 @@ class LinearBasisFunction : public AbstractBasisFunction<ELEM_DIM>
 {
 public:
     double ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const;
-    VectorDouble ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const;
+    c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const;
     
     std::vector<double>       ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const;
     void                      ComputeBasisFunctionsWithUpdate(const Point<ELEM_DIM> &rPoint, std::vector<double> &rBasisValues) const;
-    std::vector<VectorDouble> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const;
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const;
  
- 	std::vector<c_vector<double, ELEM_DIM> > ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint,
+ 	c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint,
  	                                                                     const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const;
 };
 
