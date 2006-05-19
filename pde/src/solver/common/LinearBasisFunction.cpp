@@ -186,13 +186,13 @@ c_vector<double, ELEM_DIM> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
  * @return The values of the basis functions, in local index order.
  */
 template <int ELEM_DIM>
-std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const
+c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const
 {
-    std::vector<double> basisValues(ELEM_DIM+1);
+    c_vector<double, ELEM_DIM+1> basisValues;
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
     for(int i=0;i<ELEM_DIM+1;i++)
     {
-        basisValues[i] = ComputeBasisFunction(rPoint, i);
+        basisValues(i) = ComputeBasisFunction(rPoint, i);
     }
     return basisValues;
 }
@@ -204,46 +204,11 @@ std::vector<double> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const P
  *     are undefined if this is not within the canonical element.
  * @return The values of the basis functions, in local index order.
  */
-std::vector<double> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0> &rPoint) const
+c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0> &rPoint) const
 {
-    std::vector<double> basisValues(1);
-    basisValues[0] = ComputeBasisFunction(rPoint, 0);
+    c_vector<double, 1> basisValues;
+    basisValues(0) = ComputeBasisFunction(rPoint, 0);
     return basisValues;
-}
-
-/**
- * Compute all basis functions at a point within an element.
- * 
- * @param point The point at which to compute the basis functions. The results
- *     are undefined if this is not within the canonical element.
- * @param basisValues Standard vector in which to store the values of the basis functions,
- * in local index order
- */
-template <int ELEM_DIM>
-void LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionsWithUpdate(const Point<ELEM_DIM> &rPoint,
-                                                          std::vector<double> &rBasisValues) const
-{
-    assert(rBasisValues.size()==ELEM_DIM+1);
-    assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
-    for(int i=0;i<ELEM_DIM+1;i++)
-    {
-        rBasisValues[i] = ComputeBasisFunction(rPoint, i);
-    }
-}
-
-/**
- * Compute all basis functions at a point within an element.
- * 
- * @param point The point at which to compute the basis functions. The results
- *     are undefined if this is not within the canonical element.
- * @param basisValues Standard vector in which to store the values of the basis functions,
- * in local index order
- */
-void LinearBasisFunction<0>::ComputeBasisFunctionsWithUpdate(const Point<0> &rPoint,
-                                                          std::vector<double> &rBasisValues) const
-{
-    assert(rBasisValues.size()==1);
-    rBasisValues[0] = ComputeBasisFunction(rPoint, 0);
 }
 
 /**

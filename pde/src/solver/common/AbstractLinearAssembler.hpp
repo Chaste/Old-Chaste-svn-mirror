@@ -48,7 +48,7 @@ protected:
 	 * Compute the value of the integrand used in computing the LHS matrix of the
 	 * linear system.
 	 */
-	virtual double LhsMatrixIntegrand(std::vector<double> &rPhi,
+	virtual double LhsMatrixIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row, int col,
@@ -57,7 +57,7 @@ protected:
 	 * Compute the value of the integrand used in computing the RHS vector of the
 	 * linear system.
 	 */
-	virtual double RhsVectorIntegrand(std::vector<double> &rPhi,
+	virtual double RhsVectorIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row,
 									  Point<SPACE_DIM> &rX,
@@ -115,7 +115,7 @@ protected:
 		{
 			Point<ELEMENT_DIM> quad_point=rQuadRule.GetQuadPoint(quad_index);
 
-			std::vector<double> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+			c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 			c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
             if (!mMatrixIsAssembled)
             {
@@ -132,7 +132,7 @@ protected:
 				const Point<SPACE_DIM> node_loc = rElement.GetNode(i)->rGetPoint();
 				for(int j=0; j<SPACE_DIM; j++)
 				{
-					x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
+					x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
 				}
 				if (currentSolution)
 				{
@@ -204,7 +204,7 @@ protected:
 		{
 			Point<ELEMENT_DIM-1> quad_point=rQuadRule.GetQuadPoint(quad_index);
 
-			std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+			c_vector<double, ELEMENT_DIM+1>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 
             // Location of the gauss point in the original element will be stored in x
 			Point<SPACE_DIM> x(0,0,0);
@@ -213,7 +213,7 @@ protected:
 				const Point<SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetPoint();
 				for(int j=0; j<SPACE_DIM; j++)
 				{
-					x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
+					x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
 				}
 			}
 			
@@ -225,7 +225,7 @@ protected:
 
 			for (int row=0; row < num_nodes; row++)
 			{
-				double integrand_value = phi[row] * Dgradu_dot_n(0);
+				double integrand_value = phi(row) * Dgradu_dot_n(0);
 				rBsubElem(row) += integrand_value * jW;
 			}
 		}		

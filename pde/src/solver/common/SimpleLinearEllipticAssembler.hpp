@@ -31,7 +31,7 @@ protected:
 	 * Compute the value of the integrand used in computing the LHS matrix of the
 	 * linear system.
 	 */
-	virtual double LhsMatrixIntegrand(std::vector<double> &rPhi,
+	virtual double LhsMatrixIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > &rGradPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row, int col,
@@ -49,7 +49,7 @@ protected:
 	 * Compute the value of the integrand used in computing the RHS vector of the
 	 * linear system.
 	 */
-	virtual double RhsVectorIntegrand(std::vector<double> &rPhi,
+	virtual double RhsVectorIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row,
 									  Point<SPACE_DIM> &rX,

@@ -19,22 +19,16 @@ public:
 		LinearBasisFunction<0> basis_function;
 		TS_ASSERT_DELTA(basis_function.ComputeBasisFunction(zero, 0), 1.0, 1e-12);
 
-		std::vector<double> basis_function_vector;
+		c_vector<double, 1> basis_function_vector;
 		basis_function_vector = basis_function.ComputeBasisFunctions(zero);
 		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
 		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
         
-        // additional method to compute basis functions
-        std::vector<double> basis_function_vector_other(1);
-        basis_function.ComputeBasisFunctionsWithUpdate(zero, basis_function_vector_other);
-        TS_ASSERT_EQUALS(basis_function_vector_other.size(), 1);
-        TS_ASSERT_DELTA(basis_function_vector_other[0], 1.0, 1e-12);
-		
-		// check link with 0d quad rule works ok 
+			// check link with 0d quad rule works ok 
 		GaussianQuadratureRule<0>  quad_rule(1);
 		Point<0>   quad_point = quad_rule.GetQuadPoint(0);
 
-		std::vector<double> basis_function_vector2;
+		c_vector<double, 1> basis_function_vector2;
 		basis_function_vector2 = basis_function.ComputeBasisFunctions(quad_point);
 		TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
 		TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);	

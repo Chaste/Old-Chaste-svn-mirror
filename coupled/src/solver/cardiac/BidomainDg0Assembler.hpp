@@ -73,7 +73,7 @@ private:
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
-            std::vector<double> basis_func = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_vector<double, ELEMENT_DIM+1> basis_func = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>  grad_basis;
             
             if (!mMatrixIsAssembled)
@@ -99,15 +99,15 @@ private:
                 const Point<SPACE_DIM> node_loc = node->rGetPoint();
                 for (int j=0; j<SPACE_DIM; j++)
                 {
-                    x.SetCoordinate(j, x[j] + basis_func[i]*node_loc[j]);
+                    x.SetCoordinate(j, x[j] + basis_func(i)*node_loc[j]);
                 }
                 
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 
-                Vm           += basis_func[i]*mpBidomainPde->GetInputCacheMember( 2*node_global_index );
-                I_ionic      += basis_func[i]*mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
-                I_intra_stim += basis_func[i]*mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
-                I_extra_stim += basis_func[i]*mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
+                Vm           += basis_func(i)*mpBidomainPde->GetInputCacheMember( 2*node_global_index );
+                I_ionic      += basis_func(i)*mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
+                I_intra_stim += basis_func(i)*mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
+                I_extra_stim += basis_func(i)*mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
             }
             
 
@@ -135,7 +135,7 @@ private:
                         // (1,2) and (2,1) blocks: (Di grad_basis_col)dot(grad_basis_row)
                         // (2,2) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row) 
 
-                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func[col]*basis_func[row]   +  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col )) );
+                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func(col)*basis_func(row)   +  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col )) );
                         rAElem(2*row+1,2*col)   += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   );
                         rAElem(2*row,  2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))  );
                         rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   +   inner_prod( grad_basis_row, prod( sigma_e, grad_basis_col )));
@@ -146,8 +146,8 @@ private:
             for (int row=0; row < num_elem_nodes; row++)
             {
                 /// \todo: check the signs on I_ionic and I_intra_stim
-                rBElem(2*row)   += wJ*(  (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func[row]   );
-                rBElem(2*row+1) += wJ*(  -I_extra_stim * basis_func[row] );
+                rBElem(2*row)   += wJ*(  (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func(row)   );
+                rBElem(2*row+1) += wJ*(  -I_extra_stim * basis_func(row) );
             }            
         }
     } 

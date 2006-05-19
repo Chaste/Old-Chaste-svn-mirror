@@ -65,7 +65,7 @@ protected:
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
 
-            std::vector<double> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
             
             if (!this->mMatrixIsAssembled)
@@ -83,11 +83,11 @@ protected:
                 const Point<SPACE_DIM> node_loc = node->rGetPoint();
                 for (int j=0; j<SPACE_DIM; j++)
                 {
-                    x.SetCoordinate(j, x[j] + phi[i]*node_loc[j]);
+                    x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
                 }
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
-                u  += phi[i]*pPde->GetInputCacheMember( node_global_index );
-                sourceTerm += phi[i]*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
+                u  += phi(i)*pPde->GetInputCacheMember( node_global_index );
+                sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
 
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
@@ -104,7 +104,7 @@ protected:
                         matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(gradPhi, col);
                         matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(gradPhi, row);         
                         
-                        double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi[row] * phi[col];
+                        double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi(row) * phi(col);
                         a_elem(row,col) += integrand_val1 * wJ;
 
                         double integrand_val2 = inner_prod( grad_phi_row, prod( pde_diffusion_term, grad_phi_col) );
@@ -117,10 +117,10 @@ protected:
             c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
             for (int row=0; row < num_nodes; row++)
             {
-                double vec_integrand_val1 = sourceTerm * phi[row];
+                double vec_integrand_val1 = sourceTerm * phi(row);
                 b_elem(row) += vec_integrand_val1 * wJ;
                 
-                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi[row];
+                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi(row);
                 b_elem(row) += vec_integrand_val2 * wJ;
             }
         }

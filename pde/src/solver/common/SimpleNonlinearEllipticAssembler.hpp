@@ -207,7 +207,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 	{
 		Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
 
-		std::vector<double>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+		c_vector<double, ELEMENT_DIM+1>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 
         // location of the gauss point in the original element will be stored in x
 		Point<SPACE_DIM> x(0,0,0);
@@ -265,7 +265,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 	{
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
-		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+		c_vector<double, ELEMENT_DIM+1> phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
 		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 		                                                              (quad_point, *inverseJacobian);
 
@@ -577,7 +577,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 	{
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
-		std::vector<double>       phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
+		c_vector<double, ELEMENT_DIM+1> phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
 		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 		                                                           (quad_point, *inverseJacobian);
 

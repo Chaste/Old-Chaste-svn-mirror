@@ -11,8 +11,7 @@ public:
     double ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const;
     c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const Point<ELEM_DIM> &rPoint, int basisIndex) const;
     
-    std::vector<double>       ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const;
-    void                      ComputeBasisFunctionsWithUpdate(const Point<ELEM_DIM> &rPoint, std::vector<double> &rBasisValues) const;
+    c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const;
     c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const;
  
  	c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint,
@@ -27,8 +26,7 @@ class LinearBasisFunction<0> : public AbstractBasisFunction<0>
 {
 public:
     double ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const;
-    std::vector<double>       ComputeBasisFunctions(const Point<0> &rPoint) const;
-    void                      ComputeBasisFunctionsWithUpdate(const Point<0> &rPoint, std::vector<double> &rBasisValues) const;
+    c_vector<double, 1>       ComputeBasisFunctions(const Point<0> &rPoint) const;
 };
 
 #endif //_LINEARBASISFUNCTION_HPP_
