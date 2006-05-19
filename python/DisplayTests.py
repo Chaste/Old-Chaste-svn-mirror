@@ -155,7 +155,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   # look for the latest revision present.
   if type == 'continuous' and revision == 'last':
     revisions = os.listdir(os.path.join(_tests_dir, type))
-    revision = max(itertools.imap(int, revisions))
+    revision = str(max(itertools.imap(int, revisions)))
     # When getting the latest continuous build, pick the first result
     # set found to determine machine & buildType.
     test_set_dir = os.path.join(_tests_dir, type, revision)
