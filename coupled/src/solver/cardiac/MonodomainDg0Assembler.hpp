@@ -97,32 +97,18 @@ protected:
             {
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
                 
-                for (int row=0; row < num_nodes; row++)
-                {
-                    for (int col=0; col < num_nodes; col++)
-                    {
-                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(gradPhi, col);
-                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(gradPhi, row);         
-                        
-                        double integrand_val1 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * phi(row) * phi(col);
-                        a_elem(row,col) += integrand_val1 * wJ;
-
-                        double integrand_val2 = inner_prod( grad_phi_row, prod( pde_diffusion_term, grad_phi_col) );
-                        a_elem(row,col) += integrand_val2 * wJ;
-                    }
-                }
+                noalias(a_elem) += outer_prod(phi, phi)
+                                    * (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient *wJ;
+                
+                noalias(a_elem) += prod( trans(gradPhi), 
+                                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, gradPhi)) )* wJ; 
             }
             
             VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
             c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
-            for (int row=0; row < num_nodes; row++)
-            {
-                double vec_integrand_val1 = sourceTerm * phi(row);
-                b_elem(row) += vec_integrand_val1 * wJ;
-                
-                double vec_integrand_val2 = (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u * phi(row);
-                b_elem(row) += vec_integrand_val2 * wJ;
-            }
+
+            noalias(b_elem) += phi * (sourceTerm
+                                      +(1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u) * wJ;
         }
     }       
     
