@@ -3,7 +3,9 @@
 # This module contains most of the functionality, and is loaded from the
 # repository by a wrapper script.
 
-import os, time
+import os
+import time
+import itertools
 
 _standalone = False
 
@@ -153,7 +155,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
   # look for the latest revision present.
   if type == 'continuous' and revision == 'last':
     revisions = os.listdir(os.path.join(_tests_dir, type))
-    revision = max(revisions)
+    revision = max(itertools.imap(int, revisions))
     # When getting the latest continuous build, pick the first result
     # set found to determine machine & buildType.
     test_set_dir = os.path.join(_tests_dir, type, revision)
