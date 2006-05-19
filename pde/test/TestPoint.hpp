@@ -15,7 +15,9 @@ public:
 	void TestSetAndGetCoordinate(void)
 	{
 		// check doesnt crash if a 0-dimensional point.
-		Point<0> point0;
+		//Point<0> point0;
+	        // (Causes  unused variable warnings on some compilers)
+
 		Point<1> point1;
 		
 		double value = 12.0;

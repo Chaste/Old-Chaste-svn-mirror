@@ -47,6 +47,20 @@ if system_name == 'finarfin':
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
+  blas_libs = ['f2clapack', 'f2cblas']
+elif system_name == 'zuse':
+  petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
+  petsc_inc = '-I'+petsc_base+'include '
+  petsc_bmake = '-I'+petsc_base+'bmake/linux-mpich-gnu-mkl '
+  #petsc_mpi = '-I'+petsc_base+'include/mpiuni '
+  petsc_mpi = ' '
+  boost = '-I/home/zuse/system/joe '
+  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi+boost
+  
+  petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
+  blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
+  blas_libs = ['']
+
 else:
   # Default
   petsc_base = '../../../petsc-2.3.1-p13/'
@@ -55,11 +69,12 @@ else:
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
   petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
-  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
+  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/'
+  blas_libs = ['f2clapack', 'f2cblas']
   
   petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'
 
-Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath", "blas_libpath")
+Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath", "blas_libpath", "blas_libs")
 
 
 ## C++ build tools & MPI runner
@@ -75,6 +90,12 @@ if system_name == 'finarfin':
     mpicxx = '/usr/bin/mpicxx'
     cxx    = '/usr/bin/g++'
     ar     = '/usr/bin/ar'
+elif system_name == 'zuse':
+   mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
+   mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
+   cxx = '/usr/bin/g++'
+   ar = '/usr/bin/ar'
+   
 else:
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'

@@ -59,7 +59,6 @@ del _testsource
 petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
               'petscmat', 'petscvec', 'petsc']
 chaste_libs = ['global', 'io', 'ode', 'pde', 'coupled', 'linalg', 'mesh']
-blas_libs = ['f2clapack', 'f2cblas']
 
 all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir]
 
@@ -82,7 +81,7 @@ opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
 #opt['BUILDERS']['RunParallelTests'] = runparalleltests
 
-opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
+opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
 opt.Library(toplevel_dir, files)
 opt.Install('../../../lib', 'lib'+toplevel_dir+'.a')
 opt.Library('test'+toplevel_dir, testsource)
