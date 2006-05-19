@@ -69,7 +69,7 @@ else:
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
   petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
-  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/'
+  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/linux-gnu'
   blas_libs = ['f2clapack', 'f2cblas']
   
   petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'

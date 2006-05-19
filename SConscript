@@ -81,7 +81,7 @@ opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
 #opt['BUILDERS']['RunParallelTests'] = runparalleltests
 
-opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
+opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 opt.Library(toplevel_dir, files)
 opt.Install('../../../lib', 'lib'+toplevel_dir+'.a')
 opt.Library('test'+toplevel_dir, testsource)
