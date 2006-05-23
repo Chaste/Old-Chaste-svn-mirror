@@ -33,11 +33,11 @@ public:
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
     
@@ -62,11 +62,11 @@ public:
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
     
@@ -93,11 +93,11 @@ public:
     {
         if (node == mNodeNum)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
     

@@ -7,8 +7,11 @@
  * Constructor
  */
 HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem
-                (AbstractIvpOdeSolver *pOdeSolver, AbstractStimulusFunction *pStimulus, double dt)
-             :AbstractCardiacCell(pOdeSolver,4,0,dt,pStimulus)
+                                                (AbstractIvpOdeSolver *pOdeSolver,  
+                                                 double dt, 
+                                                 AbstractStimulusFunction *pIntracellularStimulus,
+                                                 AbstractStimulusFunction *pExtracellularStimulus)
+             :AbstractCardiacCell(pOdeSolver,4,0,dt,pIntracellularStimulus,pExtracellularStimulus)
 {
     /*
      * State variable

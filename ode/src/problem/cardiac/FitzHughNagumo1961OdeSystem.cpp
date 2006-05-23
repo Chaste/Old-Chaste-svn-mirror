@@ -6,13 +6,15 @@
  * Constructor
  */
 FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
-                                                         AbstractStimulusFunction *pStimulus, double dt)
-    : AbstractCardiacCell(pOdeSolver,2,0, dt,pStimulus)
+                                                         double dt,
+                                                         AbstractStimulusFunction *pIntracellularStimulus,
+                                                         AbstractStimulusFunction *pExtracellularStimulus
+                                                         )
+    : AbstractCardiacCell(pOdeSolver,2,0,dt,pIntracellularStimulus,pExtracellularStimulus)
 {
    /*
     * State variable
     */
-   
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
     mInitialConditions.push_back(0.0);
@@ -22,6 +24,7 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *p
     mInitialConditions.push_back(0.0);
     Init();
 }
+
 
 /**
  * Destructor

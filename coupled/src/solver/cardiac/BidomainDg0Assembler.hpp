@@ -69,6 +69,7 @@ private:
                         
         const int num_elem_nodes = rElement.GetNumNodes();
                 
+        // loop over guass points
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
@@ -83,6 +84,7 @@ private:
             }
             Point<SPACE_DIM> x(0,0,0);
 
+
             // Vm is the trans-membrane voltage interpolated onto the gauss point
             // I_ionic is the ionic current (per unit AREA) interpolated onto gauss point
             // I_intra_stim, I_extra_stim are the stimuli (per unit VOLUME) interpolated 
@@ -91,6 +93,7 @@ private:
             double I_ionic = 0;
             double I_intra_stim = 0;
             double I_extra_stim = 0;
+
 
             // interpolate x, Vm, and currents
             for (int i=0; i<num_elem_nodes; i++)
@@ -120,6 +123,7 @@ private:
             c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = mpBidomainPde->GetIntracellularConductivityTensor();
             c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = mpBidomainPde->GetExtracellularConductivityTensor();
             
+            // assemble element stiffness matrix
             if (!mMatrixIsAssembled)
             {
                 for (int row=0; row < num_elem_nodes; row++)
@@ -143,11 +147,12 @@ private:
                 }
             }
             
+            // assemble element stiffness vector
             for (int row=0; row < num_elem_nodes; row++)
             {
                 /// \todo: check the signs on I_ionic and I_intra_stim
-                rBElem(2*row)   += wJ*(  (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func(row)   );
-                rBElem(2*row+1) += wJ*(  -I_extra_stim * basis_func(row) );
+                rBElem(2*row)   += wJ*( (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func[row] );
+                rBElem(2*row+1) += wJ*( -I_extra_stim * basis_func[row] );
             }            
         }
     } 
@@ -157,7 +162,7 @@ private:
     void AssembleSystem(Vec currentSolution)
     {
         // Allow the PDE to set up anything necessary for the assembly of the
-        // solution (eg. if it's a coupled system, then solve the ODEs)
+        // solution (ie solve the ODEs)
         mpBidomainPde->PrepareForAssembleSystem(currentSolution);
                 
         if (mMatrixIsAssembled)
@@ -177,8 +182,7 @@ private:
         // assumes elements all have same number of nodes
         const int num_elem_nodes = iter->GetNumNodes();
         
-//        matrix<double> a_elem(2*num_elem_nodes,2*num_elem_nodes);
-//        vector<double> b_elem(2*num_elem_nodes);
+
         c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> a_elem;
         c_vector<double, 2*ELEMENT_DIM+2> b_elem;
         
@@ -230,7 +234,7 @@ private:
         // Note: CANNOT specify phi_e on more than one node (ie cannot loop over boundary nodes)
         // as spurious results will occur at the boundary.
         //
-        //just do the 0th node
+        // just do the 0th node
         int node_num = 0;
         if(!mMatrixIsAssembled)
         {
@@ -310,7 +314,10 @@ public:
     }
     
 
-    // very similar to Solve in SimpleDg0ParabolicAssembler    
+    // very similar to Solve in SimpleDg0ParabolicAssembler.    
+    // (this doesn't take in any arguments however, and also the AssembleSystem
+    // method in this assembler class does not call Solve() on the linear system,
+    // instead it is done here).
     Vec Solve()
     {
         assert(mTimesSet);

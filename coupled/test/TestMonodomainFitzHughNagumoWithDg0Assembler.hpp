@@ -32,11 +32,11 @@ public:
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
-            return new FitzHughNagumo1961OdeSystem(mpSolver, mpStimulus, mTimeStep);
+            return new FitzHughNagumo1961OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
         else
         {
-            return new FitzHughNagumo1961OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+            return new FitzHughNagumo1961OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
     

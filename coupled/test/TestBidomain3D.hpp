@@ -30,23 +30,14 @@ public:
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-    
-    void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
-    {
-        for(int global_index=lo; global_index<hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            (*pCellsDistributed)[local_index]->SetExtracellularStimulusFunction(mpZeroStimulus);
-        }
-    }
-    
+        
     ~BidomainFaceStimulusCellFactory(void)
     {
         delete mpStimulus;

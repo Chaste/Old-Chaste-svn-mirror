@@ -33,7 +33,10 @@ class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
    public:
       // Constructor
       LuoRudyIModel1991OdeSystem(AbstractIvpOdeSolver *pSolver,
-                                 AbstractStimulusFunction *pStimulus, double dt);
+                                 double dt,
+                                 AbstractStimulusFunction *pIntracellularStimulus,
+                                 AbstractStimulusFunction *pExtracellularStimulus = NULL);
+
       // Destructor
       ~LuoRudyIModel1991OdeSystem();
       

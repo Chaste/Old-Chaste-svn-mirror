@@ -30,11 +30,11 @@ public:
     {                    
         if(node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
         else if(node==1)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
         else
         {
@@ -119,7 +119,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
         double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, initial_voltage);
    
-        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, stimulus, small_time_step);
+        LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
                               
         OdeSolution SolutionNewStimulated = ode_system_stimulated.Compute(
                                                            start_time,
@@ -133,7 +133,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, initial_voltage);
         TS_ASSERT_DELTA(value1, value2, 0.000001);
   
-        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, zero_stim, small_time_step);
+        LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, small_time_step, zero_stim);
 
         value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, initial_voltage);
 

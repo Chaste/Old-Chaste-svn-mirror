@@ -108,7 +108,7 @@ public:
                                  start_stimulus);
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, &stimulus, time_step);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, time_step, &stimulus);
         
         /*
          * Solve and write to file
@@ -136,7 +136,7 @@ public:
 
         EulerIvpOdeSolver solver;
         double time_step = 0.01;
-        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, &stimulus,time_step);
+        FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
         
         /*
          * Solve and write to file
@@ -165,7 +165,7 @@ public:
         double time_step = 0.01;  //1e-5 seconds in milliseconds           
         
         EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus,time_step);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
         /*
          * Solve and write to file

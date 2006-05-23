@@ -133,7 +133,7 @@ public:
          *  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
          *  'xx'th time step using ColumnDataWriter 
          */          
-        //\todo: get writer to write V_m and \phi_e seperately?
+        ///\todo: get writer to write V_m and \phi_e seperately?
         ParallelColumnDataWriter *p_test_writer = NULL;
        
         int time_var_id = 0;

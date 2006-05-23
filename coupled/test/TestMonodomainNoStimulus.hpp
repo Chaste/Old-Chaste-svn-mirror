@@ -29,7 +29,7 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)
     {      
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus, mTimeStep);
+        return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
  
     }
 };

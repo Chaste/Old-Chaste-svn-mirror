@@ -37,7 +37,7 @@ public:
         double end_time = 3500.0;  // ms
         double time_step = 0.01;   // ms
 
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, &stimulus, time_step);
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
         

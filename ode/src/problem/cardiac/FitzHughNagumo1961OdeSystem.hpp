@@ -22,7 +22,9 @@ class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
    public:
       // Constructor
       FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver, 
-                                  AbstractStimulusFunction *stimulus, double dt);
+                                  double dt,
+                                  AbstractStimulusFunction *pIntracelullarStimulus, 
+                                  AbstractStimulusFunction *pExtracelullarStimulus=NULL);
                                   
       // Destructor
       ~FitzHughNagumo1961OdeSystem();

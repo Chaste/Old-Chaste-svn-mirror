@@ -24,7 +24,7 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
                                  duration_stimulus,
                                  start_stimulus);
 
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, &stimulus, 0.01);
+        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, 0.01, &stimulus);
         
         double v_singularity[2];
         v_singularity[0]=-65;

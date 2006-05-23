@@ -13,13 +13,14 @@
  * 
  * The bidmain equation is of the form:
  * 
- * \chi ( C_m d(V_m)/dt + I_ion ) = div ( \sigma_i grad( V_m + \phi_e ) + I_i
- * div ( (\sigma_i + \sigma_e) \grad phi_e     +    \sigma_i V_m )  + I_e
+ * A_m ( C_m d(V_m)/dt + I_ion ) = div ( \sigma_i grad( V_m + \phi_e ) ) + I_i
+ *   and 
+ * div ( (\sigma_i + \sigma_e) \grad phi_e    +   \sigma_i V_m )  + I_e
  * 
  * where V_m is the trans-membrane potential = \phi_i - \phi_e
  *       \phi_i is the intracellular potential
  *       \phi_e is the intracellular potential
- * and   \chi is the surface area to volume ratio of the cell membrane
+ * and   A_m is the surface area to volume ratio of the cell membrane
  *       C_m is the membrane capacitance
  *       \sigma_i is the intracellular conductivity tensor
  *       \sigma_e is the intracellular conductivity tensor
@@ -66,7 +67,8 @@ public:
         return mExtracellularConductivityTensor;
     }
 
-    /** The bidomain Pde also updates the extracellular stimulus cache
+    /** 
+     * The bidomain Pde also updates the extracellular stimulus cache
      */
     void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
     {
@@ -74,7 +76,8 @@ public:
         mExtracellularStimulusCacheReplicated[globalIndex] = this->mCellsDistributed[localIndex]->GetExtracellularStimulus(nextTime);
     }
   
-    /** The bidomain Pde also replicates the extracellular stimulus cache
+    /** 
+     * The bidomain Pde also replicates the extracellular stimulus cache
      */
     void ReplicateCaches()
     {
