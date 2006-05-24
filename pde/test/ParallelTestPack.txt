@@ -1,4 +1,3 @@
 TestBoundaryConditionContainer.hpp
-TestNonlinearElasticityPde.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp

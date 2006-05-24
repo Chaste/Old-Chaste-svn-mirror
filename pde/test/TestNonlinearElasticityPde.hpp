@@ -9,7 +9,7 @@
 #include "VectorDouble.hpp"
 #include "MatrixDouble.hpp"
 
-class TestNonlinearElasticPde : public CxxTest::TestSuite 
+class TestNonlinearElasticityPde : public CxxTest::TestSuite 
 {
 public:
 	void testNonlinearElasticityPde2D()
