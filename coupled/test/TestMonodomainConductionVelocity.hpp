@@ -38,6 +38,7 @@ public:
         }
         else
         {
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
         }
     }
     
