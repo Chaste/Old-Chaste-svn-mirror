@@ -62,7 +62,7 @@ protected:
 									  Point<SPACE_DIM> &rX,
 									  double u)=0;
 
-	/**
+    /**
 	 * Calculate the contribution of a single element to the linear system.
 	 * 
 	 * @param rElement The element to assemble on.
@@ -75,108 +75,101 @@ protected:
 	 * @param pPde Pointer to the PDE object specifying the equation to solve.
 	 * @param currentSolution For the parabolic case, the solution at the current timestep.
 	 */
-	virtual void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-									MatrixDouble &rAElem,
-									VectorDouble &rBElem,
-									AbstractLinearPde<SPACE_DIM> *pPde,
-									Vec currentSolution = NULL)
-	{
-		GaussianQuadratureRule<ELEMENT_DIM> &rQuadRule =
-			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
-		AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-			*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
-		
-		/**
+    void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+                           MatrixDouble &rAElem,
+                           VectorDouble &rBElem,
+                           AbstractLinearPde<SPACE_DIM> *pPde,
+                           Vec currentSolution)
+    {
+        GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+        AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+ 
+        /**
 		 * \todo This assumes that the Jacobian is constant on an element.
 		 * This is true for linear basis functions, but not for any other type of
 		 * basis function.
 		 */
 		const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = NULL;
-       
-        if (!mMatrixIsAssembled)
+        double jacobian_determinant = rElement.GetJacobianDeterminant();
+        
+        // Initialise element contributions to zero
+        if (!this->mMatrixIsAssembled)
         {
             inverseJacobian = rElement.GetInverseJacobian();
+            rAElem.ResetToZero();
         }
-		double jacobian_determinant = rElement.GetJacobianDeterminant();
-		
-		const int num_nodes = rElement.GetNumNodes();
-
-			
-
-		// Initialise element contributions to zero
-        if (!mMatrixIsAssembled)
-        {
-		    rAElem.ResetToZero();
-        }
+        
         rBElem.ResetToZero();
+        
+        
 
-		for(int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
-		{
-			Point<ELEMENT_DIM> quad_point=rQuadRule.GetQuadPoint(quad_index);
+        // Create converters for use inside loop below
+        MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>& a_elem = matrix_converter2.rConvertToUblas(rAElem);
 
-			c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
-			c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
-            if (!mMatrixIsAssembled)
+        const int num_nodes = rElement.GetNumNodes();
+                
+        for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
+        {
+            Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
+
+            c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
+            
+            if (!this->mMatrixIsAssembled)
             {
                 gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-			                                    (quad_point, *inverseJacobian);
+                                                (quad_point, *inverseJacobian);
             }
 
 			// Location of the gauss point in the original element will be stored in x
 			// Where applicable, u will be set to the value of the current solution at x
-			Point<SPACE_DIM> x(0,0,0);
-			double u = 0.0;
-			for(int i=0; i<rElement.GetNumNodes(); i++)
-			{
-				const Point<SPACE_DIM> node_loc = rElement.GetNode(i)->rGetPoint();
-				for(int j=0; j<SPACE_DIM; j++)
-				{
-					x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
-				}
-				if (currentSolution)
+            Point<SPACE_DIM> x(0,0,0);
+            double u=0;
+            ResetSourceTerm();
+            for (int i=0; i<num_nodes; i++)
+            {
+                const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
+                const Point<SPACE_DIM> node_loc = p_node->rGetPoint();
+                for (int j=0; j<SPACE_DIM; j++)
+                {
+                    x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
+                }
+                
+                int node_global_index = rElement.GetNodeGlobalIndex(i);
+                if (currentSolution)
 				{
                      // If we have a current solution (e.g. this is a parabolic PDE)
                      // get the value in a usable form.
                      // NOTE - currentSolution input is actually now redundant at this point,
                      // the work is done in PrepareForAssembleSystem
-					u += phi[i]*pPde->GetInputCacheMember( rElement.GetNodeGlobalIndex(i) );
+					 u  += phi(i)*pPde->GetInputCacheMember( node_global_index );
 				}
-			}
-			
-			double wJ = jacobian_determinant * rQuadRule.GetWeight(quad_index);
-			
-			c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> extra_lhs_term = ComputeExtraLhsTerm(phi, pPde, x);
-			c_vector<double,ELEMENT_DIM+1> extra_rhs_term = ComputeExtraRhsTerm(phi, pPde, x, u);
-			
-			for (int row=0; row < num_nodes; row++)
-			{
-				if (!mMatrixIsAssembled)
-                {
-                    // LHS contribution
-    				for (int col=0; col < num_nodes; col++)
-    				{
-    					
-    					matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(gradPhi, col);
-        				matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(gradPhi, row);
-    					
-    					double integrand_value =
-    						extra_lhs_term(row,col)
-    						+ inner_prod(grad_phi_row, 
-                                         prod(pPde->ComputeDiffusionTerm(x),grad_phi_col));
-    					
-    					
-    					rAElem(row,col) += integrand_value * wJ;
-    				}
-                }
+                IncrementSourceTerm(phi(i), pPde, p_node, node_global_index);
+                //sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
+            }
 
-				// RHS contribution
-				double integrand_value =  extra_rhs_term(row);
-				
-				rBElem(row) += integrand_value * wJ;
-			}
-		}
-	}
-	
+            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
+
+            if (!this->mMatrixIsAssembled)
+            {
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
+                
+                noalias(a_elem) += 	ComputeExtraLhsTerm(phi, pPde, x)*wJ;
+                
+                noalias(a_elem) += prod( trans(gradPhi), 
+                                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, gradPhi)) )* wJ; 
+            }
+            
+            VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
+            c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
+
+            noalias(b_elem) += ComputeExtraRhsTerm(phi, pPde, x,  u) * wJ;
+        }
+    }       
+    	
 
    
 	/**
@@ -239,7 +232,19 @@ protected:
 		}		
 	}
 	
-
+    virtual void ResetSourceTerm( void )
+    {
+    	
+    }
+    
+    
+    virtual void IncrementSourceTerm(double phi_i,
+    						 AbstractLinearPde<SPACE_DIM>* pPde,
+    						 const Node<SPACE_DIM> *pNode,
+    						 int nodeGlobalIndex)
+    {
+ 
+    }
 
  public:
  	/**
