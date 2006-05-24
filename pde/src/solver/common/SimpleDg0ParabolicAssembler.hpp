@@ -20,48 +20,39 @@ class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEM
 protected:
 	double mTstart;
 	double mTend;
-	double mDt;
+	double mDt, mDtInverse;
 	
 	bool   mTimesSet;
 	bool   mInitialConditionSet;
 	
 	Vec    mInitialCondition;
 	
-    /**
-	 * Compute the value of the integrand used in computing the LHS matrix of the
-	 * linear system.
-	 */
-	virtual double LhsMatrixIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
-									  c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>  &rGradPhi,
-									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row, int col,
-									  Point<SPACE_DIM> &rX)
-	{             
-        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(rGradPhi, col);
-        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(rGradPhi, row);         
-		double integrand =
-        
-			(1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
-			+ inner_prod(grad_phi_row,prod(pPde->ComputeDiffusionTerm(rX), grad_phi_col));
-		return integrand;
-	}
-	
 	/**
-	 * Compute the value of the integrand used in computing the RHS vector of the
-	 * linear system.
-	 */
-	virtual double RhsVectorIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
-									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row,
-									  Point<SPACE_DIM> &rX,
-									  double u)
+	 * Compute the factor depending on the DuDtCoefficient ie: 
+	 * (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
+	 **/
+	 
+	virtual double ComputeExtraLhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+									   AbstractLinearPde<SPACE_DIM> *pPde,
+									   int row, int col,
+									   Point<SPACE_DIM> &rX)
 	{
-		double integrand =
-			(pPde->ComputeLinearSourceTerm(rX) + pPde->ComputeNonlinearSourceTerm(rX, u)) * rPhi[row]
-			+ (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * u * rPhi[row];
-		return integrand;
+		return mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col];
 	}
 	
+	 /**
+	 * Compute extra RHS term
+	 * because pde is parabolic
+	 */
+	virtual double ComputeExtraRhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+									   AbstractLinearPde<SPACE_DIM> *pPde,
+									   int row,
+									   Point<SPACE_DIM> &rX,
+									   double u)
+	{
+		return (pPde->ComputeNonlinearSourceTerm(rX, u)
+		        + mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi[row];
+	}
 	
 public:
 	/**
@@ -89,6 +80,7 @@ public:
 		mTstart = Tstart;
 		mTend   = Tend;
 		mDt     = dT;
+		mDtInverse = 1/dT;
 		
 		assert(mTstart < mTend);
 		assert(mDt > 0);

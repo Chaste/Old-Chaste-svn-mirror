@@ -108,7 +108,8 @@ protected:
             c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
 
             noalias(b_elem) += phi * (sourceTerm
-                                      +(1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient * u) * wJ;
+                                      + this->mDtInverse * pde_du_dt_coefficient * u)
+                                   * wJ;
         }
     }       
     

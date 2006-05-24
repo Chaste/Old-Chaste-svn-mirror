@@ -46,6 +46,30 @@ protected:
 	}
 	
 	/**
+	 * In the case of an elliptic pde, this is zero.
+	 */
+	virtual double ComputeExtraLhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+									   AbstractLinearPde<SPACE_DIM> *pPde,
+									   int row, int col,
+									   Point<SPACE_DIM> &rX)
+	{
+		return 0;
+	}
+	
+    /**
+	 * Compute extra RHS term:
+	 * 0 if pde is elliptic.
+	 */
+	virtual double ComputeExtraRhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+									  AbstractLinearPde<SPACE_DIM> *pPde,
+									  int row,
+									  Point<SPACE_DIM> &rX,
+									  double u)
+	{
+		return 0;
+	}
+	
+	/**
 	 * Compute the value of the integrand used in computing the RHS vector of the
 	 * linear system.
 	 */

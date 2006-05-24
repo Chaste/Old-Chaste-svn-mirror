@@ -45,19 +45,18 @@ protected:
     AbstractLinearSolver *mpSolver;
 
 	/**
-	 * Compute the value of the integrand used in computing the LHS matrix of the
-	 * linear system.
+	 * Compute the factor on the LHS of the linear system that depends on the type
+	 * of PDE.
 	 */
-	virtual double LhsMatrixIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
-									  c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row, int col,
-									  Point<SPACE_DIM> &rX)=0;
-	/**
-	 * Compute the value of the integrand used in computing the RHS vector of the
-	 * linear system.
+	virtual double ComputeExtraLhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+									   AbstractLinearPde<SPACE_DIM> *pPde,
+									   int row, int col,
+									   Point<SPACE_DIM> &rX)=0;
+
+    /**
+	 * Compute the part of the RHS of the linear system that depends on the type of PDE.
 	 */
-	virtual double RhsVectorIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual double ComputeExtraRhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
 									  int row,
 									  Point<SPACE_DIM> &rX,
@@ -153,15 +152,23 @@ protected:
                     // LHS contribution
     				for (int col=0; col < num_nodes; col++)
     				{
+    					
+    					matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(gradPhi, col);
+        				matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(gradPhi, row);
+    					
     					double integrand_value =
-    						LhsMatrixIntegrand(phi, gradPhi, pPde, row, col, x);
+    						ComputeExtraLhsTerm(phi, pPde, row, col, x)
+    						+ inner_prod(grad_phi_row, 
+                                         prod(pPde->ComputeDiffusionTerm(x),grad_phi_col));
+    					
     					
     					rAElem(row,col) += integrand_value * wJ;
     				}
                 }
 
 				// RHS contribution
-				double integrand_value = RhsVectorIntegrand(phi, pPde, row, x, u);
+				double integrand_value = pPde->ComputeLinearSourceTerm(x) * phi[row]
+				                         + ComputeExtraRhsTerm(phi, pPde, row, x, u);
 				
 				rBElem(row) += integrand_value * wJ;
 			}
