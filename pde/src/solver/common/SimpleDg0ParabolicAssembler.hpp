@@ -51,10 +51,10 @@ protected:
 									   Point<SPACE_DIM> &rX,
 									   double u)
 	{
-		return (pPde->ComputeNonlinearSourceTerm(rX, u)
+		return (pPde->ComputeNonlinearSourceTerm(rX, u) + pPde->ComputeLinearSourceTerm(rX)
 		        + mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi;
 	}
-	
+					                       
 public:
 	/**
 	 * Constructors call the base class versions, and note we're not fully ready

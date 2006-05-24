@@ -26,7 +26,28 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
+private:
+	double mSourceTerm;
+	
 protected:
+
+	
+	/**
+	 * Compute extra RHS term
+	 * because pde is parabolic
+	 */
+	virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
+									   c_vector<double, ELEMENT_DIM+1> &rPhi,
+									   AbstractLinearPde<SPACE_DIM> *pPde,
+									   Point<SPACE_DIM> &rX,
+									   double u)
+	{
+		return  rPhi * (mSourceTerm + this->mDtInverse * 
+			    pPde->ComputeDuDtCoefficientFunction(rX) * u);
+	}
+
+
+
     /**
      * We override this method in order to compute the source term by interpolating
      * the values of the source term at the nodes on this element, rather than
@@ -42,7 +63,7 @@ protected:
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
-        
+ 
         const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
@@ -54,6 +75,8 @@ protected:
         }
         
         rBElem.ResetToZero();
+        
+        
 
         // Create converters for use inside loop below
         MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
@@ -76,7 +99,7 @@ protected:
 
             Point<SPACE_DIM> x(0,0,0);
             double u=0;
-            double sourceTerm = 0;
+            ResetSourceTerm();
             for (int i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *node = rElement.GetNode(i);
@@ -87,18 +110,17 @@ protected:
                 }
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 u  += phi(i)*pPde->GetInputCacheMember( node_global_index );
-                sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
+                IncrementSourceTerm(phi(i), pPde, node, node_global_index);
+                //sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
 
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
-            double pde_du_dt_coefficient = pPde->ComputeDuDtCoefficientFunction(x);
 
             if (!this->mMatrixIsAssembled)
             {
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
                 
-                noalias(a_elem) += outer_prod(phi, phi)
-                                    * (1.0/SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>::mDt) * pde_du_dt_coefficient *wJ;
+                noalias(a_elem) += 	ComputeExtraLhsTerm(phi, pPde, x)*wJ;
                 
                 noalias(a_elem) += prod( trans(gradPhi), 
                                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, gradPhi)) )* wJ; 
@@ -107,12 +129,26 @@ protected:
             VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
             c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
 
-            noalias(b_elem) += phi * (sourceTerm
-                                      + this->mDtInverse * pde_du_dt_coefficient * u)
-                                   * wJ;
+            noalias(b_elem) += ComputeExtraRhsTerm(phi, pPde, x,  u) * wJ;
         }
     }       
     
+    
+    void ResetSourceTerm( void )
+    {
+    	mSourceTerm=0;
+    }
+    
+    
+    void IncrementSourceTerm(double phi_i,
+    						 AbstractLinearPde<SPACE_DIM>* pPde,
+    						 const Node<SPACE_DIM> *pNode,
+    						 int nodeGlobalIndex)
+    {
+    	mSourceTerm += phi_i*pPde->ComputeNonlinearSourceTermAtNode(*pNode, pPde->GetInputCacheMember( nodeGlobalIndex ) );
+    }
+    	
+    						 
     
 
 public:

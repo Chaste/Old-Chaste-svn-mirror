@@ -170,8 +170,7 @@ protected:
                 }
 
 				// RHS contribution
-				double integrand_value = pPde->ComputeLinearSourceTerm(x) * phi[row]
-				                         + extra_rhs_term(row);
+				double integrand_value =  extra_rhs_term(row);
 				
 				rBElem(row) += integrand_value * wJ;
 			}

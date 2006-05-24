@@ -66,7 +66,7 @@ protected:
 									  Point<SPACE_DIM> &rX,
 									  double u)
 	{
-		return zero_vector<double>(ELEMENT_DIM+1);
+		return pPde->ComputeLinearSourceTerm(rX) * rPhi;
 	}
 	
 	/**
