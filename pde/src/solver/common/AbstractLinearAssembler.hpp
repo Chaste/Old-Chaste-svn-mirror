@@ -48,17 +48,17 @@ protected:
 	 * Compute the factor on the LHS of the linear system that depends on the type
 	 * of PDE.
 	 */
-	virtual double ComputeExtraLhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
+									   c_vector<double, ELEMENT_DIM+1> &rPhi,
 									   AbstractLinearPde<SPACE_DIM> *pPde,
-									   int row, int col,
 									   Point<SPACE_DIM> &rX)=0;
 
     /**
 	 * Compute the part of the RHS of the linear system that depends on the type of PDE.
 	 */
-	virtual double ComputeExtraRhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
+									  c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row,
 									  Point<SPACE_DIM> &rX,
 									  double u)=0;
 
@@ -145,6 +145,9 @@ protected:
 			
 			double wJ = jacobian_determinant * rQuadRule.GetWeight(quad_index);
 			
+			c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> extra_lhs_term = ComputeExtraLhsTerm(phi, pPde, x);
+			c_vector<double,ELEMENT_DIM+1> extra_rhs_term = ComputeExtraRhsTerm(phi, pPde, x, u);
+			
 			for (int row=0; row < num_nodes; row++)
 			{
 				if (!mMatrixIsAssembled)
@@ -157,7 +160,7 @@ protected:
         				matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(gradPhi, row);
     					
     					double integrand_value =
-    						ComputeExtraLhsTerm(phi, pPde, row, col, x)
+    						extra_lhs_term(row,col)
     						+ inner_prod(grad_phi_row, 
                                          prod(pPde->ComputeDiffusionTerm(x),grad_phi_col));
     					
@@ -168,12 +171,11 @@ protected:
 
 				// RHS contribution
 				double integrand_value = pPde->ComputeLinearSourceTerm(x) * phi[row]
-				                         + ComputeExtraRhsTerm(phi, pPde, row, x, u);
+				                         + extra_rhs_term(row);
 				
 				rBElem(row) += integrand_value * wJ;
 			}
 		}
-
 	}
 	
 

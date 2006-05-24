@@ -32,26 +32,27 @@ protected:
 	 * (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
 	 **/
 	 
-	virtual double ComputeExtraLhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
+									   c_vector<double, ELEMENT_DIM+1> &rPhi,
 									   AbstractLinearPde<SPACE_DIM> *pPde,
-									   int row, int col,
 									   Point<SPACE_DIM> &rX)
 	{
-		return mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col];
+		return mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * 
+			outer_prod(rPhi, rPhi);
 	}
 	
 	 /**
 	 * Compute extra RHS term
 	 * because pde is parabolic
 	 */
-	virtual double ComputeExtraRhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
+									   c_vector<double, ELEMENT_DIM+1> &rPhi,
 									   AbstractLinearPde<SPACE_DIM> *pPde,
-									   int row,
 									   Point<SPACE_DIM> &rX,
 									   double u)
 	{
 		return (pPde->ComputeNonlinearSourceTerm(rX, u)
-		        + mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi[row];
+		        + mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi;
 	}
 	
 public:

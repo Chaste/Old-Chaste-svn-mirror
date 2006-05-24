@@ -48,25 +48,25 @@ protected:
 	/**
 	 * In the case of an elliptic pde, this is zero.
 	 */
-	virtual double ComputeExtraLhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
+									   c_vector<double, ELEMENT_DIM+1> &rPhi,
 									   AbstractLinearPde<SPACE_DIM> *pPde,
-									   int row, int col,
 									   Point<SPACE_DIM> &rX)
 	{
-		return 0;
+		return zero_matrix<double>(ELEMENT_DIM+1,ELEMENT_DIM+1);
 	}
 	
     /**
 	 * Compute extra RHS term:
 	 * 0 if pde is elliptic.
 	 */
-	virtual double ComputeExtraRhsTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+	virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
+									  c_vector<double, ELEMENT_DIM+1> &rPhi,
 									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row,
 									  Point<SPACE_DIM> &rX,
 									  double u)
 	{
-		return 0;
+		return zero_vector<double>(ELEMENT_DIM+1);
 	}
 	
 	/**
