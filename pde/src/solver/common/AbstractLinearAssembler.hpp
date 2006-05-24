@@ -321,9 +321,8 @@ protected:
 		 * solution (eg. if it's a coupled system, then solve the ODEs)
 		 */
 		pPde->PrepareForAssembleSystem(currentSolution);
-        
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
-        //std::cout << std::endl;
+        // << std::endl;
         // ^ gives the same in parallel
         
         if (mpAssembledLinearSystem == NULL) 
@@ -339,11 +338,9 @@ protected:
                 mMatrixIsAssembled = false;
             }
         }
-
 		// Get an iterator over the elements of the mesh
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 			rMesh.GetElementIteratorBegin();
- 
 		// Assume all elements have the same number of nodes...
 		const int num_nodes = iter->GetNumNodes();
 		MatrixDouble a_elem(num_nodes, num_nodes);
@@ -374,9 +371,6 @@ protected:
 			}
 			iter++;
 		}
-        
-        
-        
 		// add the integrals associated with Neumann boundary conditions to the linear system
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetBoundaryElementIteratorBegin();
 		
@@ -406,24 +400,20 @@ protected:
 				surf_iter++;
 			}
 		}
-	
 	    if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
         } else {
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
-        
 	    // Apply dirichlet boundary conditions
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
-
         if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
         } else {
             mpAssembledLinearSystem->AssembleFinalLinearSystem();
         }
-        
         mMatrixIsAssembled = true;
         Vec sol = mpAssembledLinearSystem->Solve(mpSolver);
         

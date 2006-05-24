@@ -38,13 +38,20 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
     }
     
     //Construct the appropriate "scatter" object to concentrate the vector on the master
-    if (mConcentrated==NULL){
+    if (mConcentrated==NULL)
+    {
         VecScatterCreateToZero(petscVector, &mToMaster, &mConcentrated);
     }  
+
+//    int size2;
+//    VecGetSize(mConcentrated, &size2);
+//    std::cout << "Vector size=" << size << "," << size2 << std::endl << std::flush;
     
     VecScatterBegin(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
     VecScatterEnd(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
-           
+    
+//    std::cout << "Done scatter" << std::endl << std::flush;
+    
     if (mAmMaster)
     {
         double *concentrated_vector;

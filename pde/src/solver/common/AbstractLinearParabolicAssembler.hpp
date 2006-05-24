@@ -24,7 +24,7 @@ class AbstractLinearParabolicAssembler : public AbstractLinearAssembler<ELEMENT_
  
 public:
 
-	/**
+	/**AbstractLinearParabolicAssembler
 	 * Constructors just call the base class versions.
 	 */
 	AbstractLinearParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
@@ -44,7 +44,7 @@ public:
 
 //	/**
 //	 * Assemble the linear system for a linear parabolic PDE and solve it.
-//	 * 
+//	 * AssembleSystem
 //	 * @param rMesh The mesh to solve on.
 //	 * @param pPde A pointer to a PDE object specifying the equation to solve.
 //	 * @param rBoundaryConditions A collection of boundary conditions for this problem.

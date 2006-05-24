@@ -92,6 +92,7 @@ public:
                 }   
             }
         }
+        
         monodomain_problem.RestoreVoltageArray(&p_voltage);      
         
         int num_procs;
@@ -132,10 +133,6 @@ public:
         // variables going out of range. An exception should be thrown in the 
         // EvaluateYDerivatives() method of the cell model
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
-
-
     }
-    
-    
 };
 #endif //_TESTMONODOMAINCONDUCTIONVELOCITY_HPP_

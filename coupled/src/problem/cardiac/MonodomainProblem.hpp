@@ -148,7 +148,6 @@ public:
        
         int time_var_id = 0;
         int voltage_var_id = 0;
-
         if (mOutputFilenamePrefix.length() > 0)
         {        
             mkdir(mOutputDirectory.c_str(), 0777);
@@ -165,7 +164,6 @@ public:
         {
             throw ("mOutputFilenamePrefix should not be the empty string");
         }
-        
         double current_time = mStartTime;        
         int big_steps = 0;
         
@@ -215,6 +213,7 @@ public:
             */
             
             mpMonodomainPde->ResetAsUnsolvedOdeSystem();
+
             current_time += mPdeTimeStep;
                 
             big_steps++;
