@@ -103,7 +103,7 @@ public:
             }
             
             // final voltages for nodes 0 to 5
-            double test_values[6]={28.2458, 26.7368, 17.781, -9.3599, -60.0304, -80.0106};
+            double test_values[6]={28.2458, 26.7370, 17.781, -9.3599, -60.0305, -80.0106};
             
             for(int node=0; node<=5; node++)
             {
