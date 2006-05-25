@@ -1,5 +1,4 @@
 TestBidomain3D.hpp
-TestMonodomainAgainstMemfem.hpp
 TestMonodomainDg0AssemblerForConvergence.hpp
 TestMonodomainDg0AssemblerLong.hpp
 TestMonodomainNoStimulus.hpp

@@ -13,20 +13,20 @@
  * 
  * The bidmain equation is of the form:
  * 
- * A_m ( C_m d(V_m)/dt + I_ion ) = div ( \sigma_i grad( V_m + \phi_e ) ) + I_intra_stim
+ * A_m ( C_m d(V_m)/dt + I_ion ) = div ( sigma_i grad( V_m + phi_e ) ) + I_intra_stim
  *   and 
- * div ( (\sigma_i + \sigma_e) \grad phi_e    +   \sigma_i V_m )  + I_extra_stim
+ * div ( (sigma_i + sigma_e) grad phi_e    +   sigma_i (grad V_m) )  + I_extra_stim
  * 
- * where V_m is the trans-membrane potential = \phi_i - \phi_e            (mV)
- *       \phi_i is the intracellular potential                            (mV)
- *       \phi_e is the intracellular potential                            (mV)
- * and   A_m is the surface area to volume ratio of the cell membrane     (1/cm)
- *       C_m is the membrane capacitance                                  (uF/cm^2)
- *       \sigma_i is the intracellular conductivity tensor                (mS/cm)
- *       \sigma_e is the intracellular conductivity tensor                (mS/cm)
- * and   I_ion is the ionic current                                       (uA/cm^2)
- *       I_intra_stim is the internal stimulus                            (uA/cm^3)
- *       I_extra_stim is the external stimulus (a shock)                  (uA/cm^3)
+ * where V_m is the trans-membrane potential = phi_i - phi_e            (mV),
+ *       phi_i is the intracellular potential                           (mV),
+ *       phi_e is the intracellular potential                           (mV),
+ * and   A_m is the surface area to volume ratio of the cell membrane   (1/cm),
+ *       C_m is the membrane capacitance                                (uF/cm^2),
+ *       sigma_i is the intracellular conductivity tensor               (mS/cm),
+ *       sigma_e is the intracellular conductivity tensor               (mS/cm),
+ * and   I_ion is the ionic current                                     (uA/cm^2),
+ *       I_intra_stim is the internal stimulus                          (uA/cm^3),
+ *       I_extra_stim is the external stimulus (a shock)                (uA/cm^3).
  */
 template <int SPACE_DIM>
 class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
@@ -42,11 +42,11 @@ public:
         
         /**
           *  Parameters used in mono and bidomain simulations
-          *  UNITS: surface area to volume ratio: 1/cm
-          *         capacitance                 : uF/cm^2
-          *         conductivity                : mS/cm
+          *  UNITS: surface area to volume ratio: 1/cm,
+          *         capacitance                 : uF/cm^2,
+          *         conductivity                : mS/cm.
           * 
-          *  Extracellular conductivity set 7.0 mS/cm (Ref: Trayanova (2002 - "Look inside the heart")
+          *  Extracellular conductivity set 7.0 mS/cm (Ref: Trayanova 2002 - "Look inside the heart")
           */
         double const_extra_conductivity = 7.0;
 

@@ -16,9 +16,47 @@
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "FischerPde.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "AbstractLinearParabolicPde.hpp"
+#include "Point.hpp"
+
+
+/**
+ * A simple parabolic PDE used in this test.
+ */
+template <int SPACE_DIM>
+class FischerPde : public AbstractLinearParabolicPde<SPACE_DIM>
+{
+public:
+    double ComputeLinearSourceTerm(Point<SPACE_DIM> )
+    {
+        return 0.0;
+    }
+    
+    double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double u)
+    {
+        return u*(1-u);
+    }
+
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
+    {
+        return identity_matrix<double>(SPACE_DIM);
+    }
+    
+    double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
+    {
+        return 1;
+    }
+};
+
+
+
+
+
+
+
+
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
 {   

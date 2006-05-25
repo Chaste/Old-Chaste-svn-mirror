@@ -48,6 +48,7 @@ public:
 class TestBidomain3D :  public CxxTest::TestSuite 
 {
 public:
+    
     void noTestBidomain3d()
     {
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
@@ -64,6 +65,12 @@ public:
         bidomain_problem.Solve();
     }
     
+    
+    
+    
+    ////////////////////////////////////////////////////////////
+    // Compare Mono and Bidomain Simulations
+    ////////////////////////////////////////////////////////////
     void TestCompareBidomainProblemWithMonodomain3D()
     {
         ///////////////////////////////////////////////////////////////////
@@ -78,10 +85,6 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("monodomain3d");
         
         monodomain_problem.Initialise();
-
-        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
        
         // now solve       
         monodomain_problem.Solve();
@@ -99,10 +102,8 @@ public:
 
         bidomain_problem.Initialise();
  
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);        
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(1*identity_matrix<double>(1));
+        c_matrix<double,3,3> sigma_i = bidomain_problem.GetBidomainPde()->GetIntracellularConductivityTensor();
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(10000*sigma_i);
                 
         // now solve
         bidomain_problem.Solve();
@@ -128,10 +129,10 @@ public:
             // std::cout << p_mono_voltage_array[local_index] << " " << p_bi_voltage_array[2*local_index] << "\n";
 
             // the mono and bidomains should agree closely 
-            TS_ASSERT_DELTA(monodomain_voltage, bidomain_voltage, 0.1);
+            TS_ASSERT_DELTA(monodomain_voltage, bidomain_voltage, 0.5);
             
             // the extracellular potential should be uniform 
-            TS_ASSERT_DELTA(extracellular_potential, 0, 0.05);
+            TS_ASSERT_DELTA(extracellular_potential, 0, 0.1);
         } 
     }
     
