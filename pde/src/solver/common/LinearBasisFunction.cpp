@@ -4,7 +4,7 @@
 
 #include "LinearBasisFunction.hpp"
 #include "Point.hpp"
-#include "MatrixDouble.hpp"
+//#include "MatrixDouble.hpp"
 #include "VectorDoubleUblasConverter.hpp"
 #include "MatrixDoubleUblasConverter.hpp"
 #include <cassert>

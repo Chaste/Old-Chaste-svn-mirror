@@ -1,10 +1,11 @@
 #ifndef _ABSTRACTBASISFUNCTION_HPP_
 #define _ABSTRACTBASISFUNCTION_HPP_
 
+#include "UblasCustomFunctions.hpp"
 #include "Point.hpp"
 #include <vector>
-#include "VectorDouble.hpp"
-#include "MatrixDouble.hpp"
+
+
 
 /**
  * Abstract base class for basis functions. There are methods to compute

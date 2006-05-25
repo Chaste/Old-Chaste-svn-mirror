@@ -2,6 +2,8 @@
 #define UBLASCUSTOMFUNCTIONS_HPP_
 
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix_expression.hpp>
@@ -12,6 +14,7 @@
 
 #define TINY 1E-13
 
+using namespace boost::numeric::ublas;
 /**
  * Get the determinant of a ublas matrix
  * N.B. Do not call with non-square matrix
