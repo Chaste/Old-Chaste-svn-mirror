@@ -121,12 +121,11 @@ class TestMonodomainPde : public CxxTest::TestSuite
    
         LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
                               
-        OdeSolution SolutionNewStimulated = ode_system_stimulated.Compute(
+        OdeSolution SolutionNewStimulated = ode_system_stimulated.ComputeExceptVoltage(
                                                            start_time,
                                                            start_time + big_time_step);
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.rGetSolutions()[ SolutionNewStimulated.rGetSolutions().size()-1 ];
         
-        ode_system_stimulated.SetVoltage(initial_voltage);
         double value2 = ode_system_stimulated.GetIIonic();
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
@@ -139,11 +138,10 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
         value1 = monodomain_pde.GetIionicCacheReplicated()[1];
 
-        OdeSolution SolutionNewNotStim = ode_system_not_stim.Compute(
+        OdeSolution SolutionNewNotStim = ode_system_not_stim.ComputeExceptVoltage(
                                                         start_time,
                                                         start_time + big_time_step);
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.rGetSolutions()[ SolutionNewNotStim.rGetSolutions().size()-1 ];
-        ode_system_not_stim.SetVoltage(initial_voltage);
         value2 = ode_system_not_stim.GetIIonic();
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
@@ -176,9 +174,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         std::vector<double> state_variables = solutionSetStimT_05;
         ode_system_stimulated.SetStateVariables(state_variables);
         
-        double voltage_before_compute = ode_system_stimulated.GetVoltage();
-        OdeSolution SolutionNewStimulatedT_1 = ode_system_stimulated.Compute( start_time + big_time_step, start_time + 2*big_time_step );
-        ode_system_stimulated.SetVoltage(voltage_before_compute);
+        OdeSolution SolutionNewStimulatedT_1 = ode_system_stimulated.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
 
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.rGetSolutions()[ SolutionNewStimulatedT_1.rGetSolutions().size()-1 ];
         value2 = ode_system_stimulated.GetIIonic();
@@ -188,10 +184,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         state_variables = solutionSetNoStimT_05;
         ode_system_not_stim.SetStateVariables(state_variables);
         
-        voltage_before_compute = ode_system_not_stim.GetVoltage();
-        OdeSolution SolutionNewNotStimT_1 = ode_system_not_stim.Compute( start_time + big_time_step, start_time + 2*big_time_step );
-        ode_system_not_stim.SetVoltage(voltage_before_compute);
-        
+        OdeSolution SolutionNewNotStimT_1 = ode_system_not_stim.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
         
         std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.rGetSolutions()[ SolutionNewNotStimT_1.rGetSolutions().size()-1 ];
        

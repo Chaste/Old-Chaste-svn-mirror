@@ -167,15 +167,10 @@ public:
             // overwrite the voltage with the input value
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
             
-            // solve            
-            mCellsDistributed[local_index]->Compute(time, time+big_timestep);
-
-            // IMPORTANT: need to overwrite the voltage again before 
-            // calling GetIIonic() (which is called in UpdateCaches(), 
-            // because the cell would have solved for the voltage which
-            // may be completely wrong (since the stimulus here is a 
-            // current density not a current
-            mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
+            // solve
+            // Note: Voltage should not be updated. GetIIonic will be called later
+            // and needs the old voltage. The voltage will be updated from the pde.            
+            mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+big_timestep);
 
             // update the Iionic and stimulus caches
             UpdateCaches(global_index, local_index, time+big_timestep);

@@ -63,6 +63,19 @@ public:
     }
     
     /**
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep dt, but does not update the voltage.
+     */
+    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd) 
+    {
+        double saved_voltage=GetVoltage();
+        OdeSolution ode_solution=mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);
+        SetVoltage(saved_voltage);
+        return ode_solution;
+    }
+     
+    
+    /**
      * Computes the total current flowing through the cell membrane.
      */
     virtual double GetIIonic() = 0;
