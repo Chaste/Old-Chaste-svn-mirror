@@ -203,9 +203,13 @@ protected:
 		
 		const int num_nodes = rSurfaceElement.GetNumNodes();
 
+        //VectorDoubleUblasConverter<ELEMENT_DIM> vector_converter;
+        //c_vector<double, ELEMENT_DIM>& b_sub_elem = vector_converter.rConvertToUblas(rBsubElem);
 		// Initialise element contribution to zero
-		rBsubElem.ResetToZero();
+		//b_sub_elem  = zero_vector<double, ELEMENT_DIM>;
 
+        rBsubElem.ResetToZero();
+        
 		for(int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
 		{
 			Point<ELEMENT_DIM-1> quad_point=rQuadRule.GetQuadPoint(quad_index);
