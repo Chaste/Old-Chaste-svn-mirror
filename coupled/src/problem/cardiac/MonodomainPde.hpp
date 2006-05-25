@@ -26,9 +26,16 @@ const double BETA = 0.00014;
 /**
  * MonodomainPde class.
  * 
- * Monodomain equation is of the form:
- * c(x) du/dt = a/(2*Rm) *Grad.(Grad(u))  +  LinearSourceTerm(x)  +  NonlinearSourceTerm(x, u)
+ * The monodomain equation is of the form:
+ * A (C dV/dt + Iionic) +Istim = Div( sigma_i Grad(V) ) 
  * 
+ * where A is the surface area to volume ratio (1/cm)
+ *       C is the capacitance                  (uF/cm^2) 
+ *       sigma_i is the intracellular conductivity (mS/cm)
+ *       I_ionic is the ionic current          (uA/cm^2)
+ *       I_stim is the intracellular stimulus current (uA/cm^3) 
+ * 
+ * Note that default values of A, C and sigma_i are stored in the parent class
  */
 template <int SPACE_DIM>
 class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>
@@ -36,28 +43,15 @@ class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>
 private:
     friend class TestMonodomainPde;
 
-    double mDiffusionCoefficient;
-
 public:
     
     //Constructor     
     MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
        :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, tStart, pdeTimeStep)          
     {
-        // Initialise the diffusion coefficient
-        mDiffusionCoefficient = 0.0005;
     }
 
-    
-    /**
-     * Set the diffusion coefficient
-     */
-    void SetDiffusionCoefficient(const double& rDiffusionCoefficient)
-    {
-        mDiffusionCoefficient = rDiffusionCoefficient;
-    }
-
-    
+        
     /**
      * This should not be called; use 
      * ComputeLinearSourceTermAtNode instead
@@ -79,25 +73,16 @@ public:
         return 0.0;
     }
  
+ 
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
-        //identity_matrix<double> id(SPACE_DIM);
-        //return  mDiffusionCoefficient * id;
         return this->mIntracellularConductivityTensor;
     }
     
-    /** ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
-     * 
-     *  Main function is this class:
-     *  computeNonlinearSourceTerm first checks to see if the ode set of equations have been
-     *  solved for in this timestep. If not, it integrates the odes over the timestep, and uses
-     *  the new results for the gating variables, together with the OLD voltage, to calculate and
-     *  return the ionic current.
-     */
+ 
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
-        //return -this->mIionicCacheReplicated[index] - this->mIntracellularStimulusCacheReplicated[index];
         return  -(this->mSurfaceAreaToVolumeRatio)*(this->mIionicCacheReplicated[index]) 
                 - this->mIntracellularStimulusCacheReplicated[index];
     }
@@ -107,11 +92,10 @@ public:
     {   
         return 0;
     }
+  
     
-    // Capacitance = 1
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
-        //return 1;
         return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);    
     }
     

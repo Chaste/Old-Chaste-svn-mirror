@@ -13,28 +13,26 @@
  * 
  * The bidmain equation is of the form:
  * 
- * A_m ( C_m d(V_m)/dt + I_ion ) = div ( \sigma_i grad( V_m + \phi_e ) ) + I_i
+ * A_m ( C_m d(V_m)/dt + I_ion ) = div ( \sigma_i grad( V_m + \phi_e ) ) + I_intra_stim
  *   and 
- * div ( (\sigma_i + \sigma_e) \grad phi_e    +   \sigma_i V_m )  + I_e
+ * div ( (\sigma_i + \sigma_e) \grad phi_e    +   \sigma_i V_m )  + I_extra_stim
  * 
- * where V_m is the trans-membrane potential = \phi_i - \phi_e
- *       \phi_i is the intracellular potential
- *       \phi_e is the intracellular potential
- * and   A_m is the surface area to volume ratio of the cell membrane
- *       C_m is the membrane capacitance
- *       \sigma_i is the intracellular conductivity tensor
- *       \sigma_e is the intracellular conductivity tensor
- * and   I_ion is the ionic current
- *       I_i is the internal stimulus 
- *       I_e is the external stimulus (a shock)
+ * where V_m is the trans-membrane potential = \phi_i - \phi_e            (mV)
+ *       \phi_i is the intracellular potential                            (mV)
+ *       \phi_e is the intracellular potential                            (mV)
+ * and   A_m is the surface area to volume ratio of the cell membrane     (1/cm)
+ *       C_m is the membrane capacitance                                  (uF/cm^2)
+ *       \sigma_i is the intracellular conductivity tensor                (mS/cm)
+ *       \sigma_e is the intracellular conductivity tensor                (mS/cm)
+ * and   I_ion is the ionic current                                       (uA/cm^2)
+ *       I_intra_stim is the internal stimulus                            (uA/cm^3)
+ *       I_extra_stim is the external stimulus (a shock)                  (uA/cm^3)
  */
-
 template <int SPACE_DIM>
 class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
     c_matrix<double, SPACE_DIM, SPACE_DIM> mExtracellularConductivityTensor;
     ReplicatableVector mExtracellularStimulusCacheReplicated;
-
 
 public:    
     //Constructor     
@@ -53,13 +51,12 @@ public:
         double const_extra_conductivity = 7.0;
 
         mExtracellularConductivityTensor.clear();
-
         for(int i=0;i<SPACE_DIM;i++)
         {
             mExtracellularConductivityTensor(i,i) = const_extra_conductivity;
         }
  
-        mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
+        mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
 
     ~BidomainPde()
@@ -77,7 +74,7 @@ public:
     }
 
     /** 
-     * The bidomain Pde also updates the extracellular stimulus cache
+     * The bidomain pde also updates the extracellular stimulus cache
      */
     void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
     {

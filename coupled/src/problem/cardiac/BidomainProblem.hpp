@@ -14,19 +14,30 @@
 
 /**
  * Class which specifies and solves a bidomain problem.
+ * 
+ * The solution vector is of the form:
+ * (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N), 
+ * where V_j is the voltage at node j and phi_j is the 
+ * extracellular potential at node j.
  */
 template<int SPACE_DIM>
 class BidomainProblem
 {
 private:
     std::string mMeshFilename;
+
+    /** 
+     *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
+     *  end time is not defaulted and must be set
+     */
     double mStartTime;
     double mEndTime;
-    std::string  mOutputDirectory, mOutputFilenamePrefix;
+    double mPdeTimeStep;
+
+    /** data is not written if output directory or output file prefix are not set*/ 
+    std::string  mOutputDirectory, mOutputFilenamePrefix;  
 
     BidomainPde<SPACE_DIM>* mpBidomainPde;
-    bool mDebugOn;
-    double mPdeTimeStep;
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
@@ -39,27 +50,20 @@ public:
     
     /**
      * Constructor
-     * @param rMeshFilename Name of mesh used in simulation.  Note that the space
-     *     step is measured in cm.
-     * @param rEndTime Duration of simulation, in milliseconds.
-     * @param rOutputDirectory Directory where voltage for each time step is written.
-     * @param rOutputFilePrefix Filename prefix for above. "_nnnnnn.dat" is appended where nnnnnn is the time step.
-     * @param rStimulus Object specifying the stimulus information.
-     * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
+     * @param pCellFactory User defined cell factory which shows how the pde should 
+     * create cells.
      */
-     
     BidomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
     : mMeshFilename(""),     // i.e. undefined
-      mEndTime(1000),        // 1,000 ms = 1 second
       mOutputDirectory(""),  // i.e. undefined
       mOutputFilenamePrefix(""),   // i.e. undefined
-      mpBidomainPde(NULL),
-      mDebugOn(false)
+      mpBidomainPde(NULL)
     {
         mpCellFactory = pCellFactory;
                 
         mStartTime   = 0.0;  // ms
         mPdeTimeStep = 0.01; // ms
+        mEndTime     = -1;   // so can check has been set
         
         //initialise these to -1
         mLo = -1;
@@ -71,13 +75,11 @@ public:
      */
     ~BidomainProblem()
     { 
-        if (mpBidomainPde != NULL)
-        {
-            delete mpBidomainPde;
-        }
+        delete mpBidomainPde;
     }
     
     
+    /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
         assert( mMeshFilename!="" );
@@ -96,7 +98,7 @@ public:
      */
     void Solve()
     {
-        assert( mpBidomainPde != NULL );
+        assert( mpBidomainPde != NULL );  // if pde is NULL, Initialise() probably hasn't been called
         assert( mStartTime < mEndTime );
         
         // Linear solver
@@ -127,10 +129,8 @@ public:
         VecAssemblyEnd(initial_condition);
         //VecView(initial_condition, PETSC_VIEWER_STDOUT_WORLD);
     
-        /*
-         *  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
-         *  'xx'th time step using ColumnDataWriter 
-         */          
+        //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
+        //  'xx'th time step using ColumnDataWriter         
         ///\todo: get writer to write V_m and \phi_e seperately?
         ParallelColumnDataWriter *p_test_writer = NULL;
        
@@ -234,6 +234,14 @@ public:
     }
     
  
+    /** Get the final solution vector. This is of length 2*numNodes, and of the form
+     *  (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N). 
+     *  where V_j is the voltage at node j and phi_j is the
+     *  extracellular potential at node j.
+     * 
+     *  This vector is distributed over all processes,
+     *  with the current process owning the [lo, ..., hi-1] components of the vector.
+     */
     void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
     {
         //check these have been set
@@ -244,6 +252,7 @@ public:
         hi=mHi; 
     }
     
+    /** call this after GetVoltageArray to avoid memory leaks*/
     void RestoreVoltageArray(double **pVoltageArray)
     {
        VecRestoreArray(mVoltage, pVoltageArray);      
@@ -257,8 +266,12 @@ public:
         return mMesh;   
     }
     
+    /** 
+     *  Get the pde. Can only be called after Initialise()
+     */
     BidomainPde<SPACE_DIM>* GetBidomainPde() 
     {
+        assert(mpBidomainPde!=NULL);
         return mpBidomainPde;  
     }
 };

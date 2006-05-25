@@ -10,6 +10,9 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
 
+/** 
+ *  Pde containing common functionality to mono and bidomain pdes.
+ */
 template <int SPACE_DIM>
 class AbstractCardiacPde : public AbstractCoupledPde<SPACE_DIM>
 {
@@ -32,15 +35,25 @@ protected:
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
+    /** 
+     *  Caches containing all the ionic and stimulus currents for each node, 
+     *  replicated over all processes
+     */
     ReplicatableVector mIionicCacheReplicated;
     ReplicatableVector mIntracellularStimulusCacheReplicated;
  
+    /** 
+     *  Constant set to 1 in monodomain and 2 in bidomain. Used when accessing
+     *  the voltage components in the solution vector (because the solution vector
+     *  is of the form (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N), where V_j is 
+     *  the voltage at node j and phi_j is the extracellular potential at node j.
+     */  
     const int mStride;
  
 
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep, const int stride=1)
-      :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep),
+      :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfCells(), tStart, pdeTimeStep),
          mStride(stride)
     {
         // Reference: Trayanova (2002 - "Look inside the heart")
@@ -73,8 +86,8 @@ public:
         pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);        
 
 
-        mIionicCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
-        mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfNodes() );
+        mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
+        mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
 
 

@@ -48,7 +48,7 @@ public:
         delete mpStimulus;
     }
     
-    int GetNumberOfNodes()
+    int GetNumberOfCells()
     {
         return 2;
     }

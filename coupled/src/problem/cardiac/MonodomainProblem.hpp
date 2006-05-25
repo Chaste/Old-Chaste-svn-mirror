@@ -13,19 +13,24 @@
 /**
  * Class which specifies and solves a monodomain problem.
  */
-
 template<int SPACE_DIM>
 class MonodomainProblem
 {
 private:
     std::string mMeshFilename;
+
+    /** 
+     *  Start time defaults to 0, pde timestep defaults to 0.01 (ms), the
+     *  end time is not defaulted and must be set
+     */
     double mStartTime;
     double mEndTime;
+    double mPdeTimeStep;  
+
+    /** data is not written if output directory or output file prefix are not set*/ 
     std::string  mOutputDirectory, mOutputFilenamePrefix;
 
     MonodomainPde<SPACE_DIM> *mpMonodomainPde;
-    bool mDebugOn;
-    double mPdeTimeStep;  //aka big_timestep
 
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
@@ -39,42 +44,31 @@ public:
     
     /**
      * Constructor
-     * @param rMeshFilename Name of mesh used in simulation.  Note that the space
-     *     step is measured in cm.
-     * @param rEndTime Duration of simulation, in milliseconds.
-     * @param rOutputDirectory Directory where voltage for each time step is written.
-     * @param rOutputFilePrefix Filename prefix for above. "_nnnnnn.dat" is appended where nnnnnn is the time step.
-     * @param rStimulus Object specifying the stimulus information.
-     * @param rContainsInternalFaces Optional parameter specifying whether the mesh contains internal faces. Default is true.
+     * @param pCellFactory User defined cell factory which shows how the pde should 
+     * create cells.
      */
-     
     MonodomainProblem(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-    : mMeshFilename(""),   // i.e. undefined
-      mEndTime(1000),   // 1,000 ms = 1 second
+    : mMeshFilename(""),      // i.e. undefined
       mOutputDirectory(""),   // i.e. undefined
       mOutputFilenamePrefix(""),   // i.e. undefined
-      mpMonodomainPde(NULL),
-      mDebugOn(false)
+      mpMonodomainPde(NULL)
     {
         mpCellFactory = pCellFactory;
                 
         mStartTime   = 0.0;  // ms
         mPdeTimeStep = 0.01; // ms
+        mEndTime     = -1;   // so can check has been set
     }
 
     /**
      * Destructor
      */
-     
     ~MonodomainProblem()
     { 
-        if (mpMonodomainPde != NULL)
-        {
-            delete mpMonodomainPde;
-        }
+        delete mpMonodomainPde;
     }
     
-    
+    /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
         assert( mMeshFilename!="" );
@@ -92,8 +86,9 @@ public:
      */
     void Solve()
     {
-        assert( mpMonodomainPde != NULL );
-
+        assert( mpMonodomainPde != NULL ); // if pde is NULL, Initialise() probably hasn't been called
+        assert( mStartTime < mEndTime );
+        
         // Boundary conditions, zero neumann everywhere
         BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
        
@@ -136,11 +131,8 @@ public:
         VecAssemblyBegin(initial_condition);
         VecAssemblyEnd(initial_condition);
     
-        /*
-         *  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
-         *  'xx'th time step using ColumnDataWriter 
-         */         
-        
+        //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
+        //  'xx'th time step using ColumnDataWriter 
         ParallelColumnDataWriter *p_test_writer = NULL;
        
         int time_var_id = 0;
@@ -253,7 +245,10 @@ public:
         mOutputFilenamePrefix = rOutputFilenamePrefix;
     }
     
- 
+     /** 
+      * Get the final solution vector. This vector is distributed over all processes,
+     *  with the current process owning the [lo, ..., hi-1] components of the vector.
+     */
     void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
     {
         VecGetArray(mVoltage, pVoltageArray);
@@ -261,6 +256,7 @@ public:
         hi=mHi; 
     }
     
+    /** call this after GetVoltageArray to avoid memory leaks*/
     void RestoreVoltageArray(double **pVoltageArray)
     {
        VecRestoreArray(mVoltage, pVoltageArray);      

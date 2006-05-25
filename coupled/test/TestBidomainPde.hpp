@@ -56,7 +56,7 @@ public:
         delete mpExtracellularStimulus2;
     }
     
-    int GetNumberOfNodes()        
+    int GetNumberOfCells()        
     { 
         return 2; 
     }
