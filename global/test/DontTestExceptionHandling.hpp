@@ -9,7 +9,7 @@
  */
  
  
-class TestPetSCSetup : public CxxTest::TestSuite
+class TestExceptionHandling : public CxxTest::TestSuite
 {
 public:
     void TestThrowingAnExceptionInATest()

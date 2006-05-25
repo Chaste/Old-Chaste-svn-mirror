@@ -164,6 +164,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
       return _error('No test set found for revision '+revision+
                     '. Probably the build is still in progress.')
     else:
+      builds.sort()
       machine, buildType = _extractDotSeparatedPair(builds[0])
   else:
     if not (machine and buildType):
