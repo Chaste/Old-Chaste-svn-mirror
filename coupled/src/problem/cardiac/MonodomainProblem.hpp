@@ -176,8 +176,16 @@ public:
             monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
             monodomain_assembler.SetInitialCondition( initial_condition );
             
-            mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc);
-            
+            try
+            { 
+            	mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc);
+            } 
+            catch(Exception &e) 
+ 	        { 
+		        p_test_writer->Close();
+		        delete p_test_writer;
+ 	            throw e;
+            }
             // Free old initial condition
             VecDestroy(initial_condition);
 
@@ -224,6 +232,8 @@ public:
         p_test_writer->Close();
         delete p_test_writer;
     }
+    
+    
     
     void SetStartTime(const double &rStartTime)
     {
