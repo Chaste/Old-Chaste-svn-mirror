@@ -48,7 +48,7 @@ public:
          * Write data to a file using ColumnDataWriter
          */                                                           
         int step_per_row = 100;             
-        ColumnDataWriter writer("testoutput",pFilename);
+        ColumnDataWriter writer("/tmp/testoutput",pFilename);
         int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
         
         std::vector<int> var_ids;
@@ -80,7 +80,7 @@ public:
         
         // read data entries for the new file and compare to valid data from 
         // other source        
-        ColumnDataReader data_reader("testoutput",baseResultsFilename);
+        ColumnDataReader data_reader("/tmp/testoutput",baseResultsFilename);
         std::vector<double> times = data_reader.GetValues("Time");
         std::vector<double> voltages = data_reader.GetValues("V");
         ColumnDataReader valid_reader("ode/test/data",baseResultsFilename+"ValidData");

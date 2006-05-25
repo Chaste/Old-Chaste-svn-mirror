@@ -36,6 +36,11 @@ ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
     } else {
         mMakeFilesWorldWritable = false;
     }
+    system(("mkdir -p "+mDirectory).c_str());
+    if (mMakeFilesWorldWritable)
+    {
+        chmod(mDirectory.c_str(), 0777);
+    }
 }
 /**
 * Destructor for ColumnDataWriter objects. Closes any open files.

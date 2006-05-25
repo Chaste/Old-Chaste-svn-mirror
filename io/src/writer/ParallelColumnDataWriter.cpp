@@ -86,7 +86,7 @@ void ParallelColumnDataWriter::EndDefineMode()
         if (i==my_rank)
         {
             std::cerr<<"On "<<my_rank<<":\n";
-            system("ls -l testoutput/ParallelColumnWriter.info");
+            system("ls -l /tmp/testoutput/ParallelColumnWriter.info");
         }
         MPI_Barrier(PETSC_COMM_WORLD);
     }

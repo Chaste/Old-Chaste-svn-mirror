@@ -110,8 +110,8 @@ public:
     
     void TestMonodomainDg01DSpaceAndTime()
     {
-//       const std::string mesh_filename = "testoutput/1D_0_to_1mm";
-       const std::string mesh_filename = "/tmp/1D_0_to_0.8mm";
+//       const std::string mesh_filename = "/tmp/testoutput/1D_0_to_1mm";
+       const std::string mesh_filename = "/tmp/testoutput/1D_0_to_0.8mm";
        //Invariant: middle_node*space_step = 0.04 cm
 //       double space_step=0.01;   // cm
        //Loop over the space stepif (space_step < 0.0016)

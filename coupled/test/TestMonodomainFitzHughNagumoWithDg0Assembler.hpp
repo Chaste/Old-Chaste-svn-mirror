@@ -61,7 +61,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(1.2);   // 1.2 ms
-        monodomain_problem.SetOutputDirectory("testoutput/FhnWithEdgeStimulus");
+        monodomain_problem.SetOutputDirectory("/tmp/testoutput/FhnWithEdgeStimulus");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
 
         monodomain_problem.Initialise();

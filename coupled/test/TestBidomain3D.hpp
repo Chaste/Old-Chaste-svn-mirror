@@ -56,7 +56,7 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
-        bidomain_problem.SetOutputDirectory("testoutput/Bidomain3d");
+        bidomain_problem.SetOutputDirectory("/tmp/testoutput/Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
 
         bidomain_problem.Initialise();
@@ -74,7 +74,7 @@ public:
         
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetEndTime(1);   // 1 ms
-        monodomain_problem.SetOutputDirectory("testoutput/Monodomain3d");
+        monodomain_problem.SetOutputDirectory("/tmp/testoutput/Monodomain3d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain3d");
         
         monodomain_problem.Initialise();
@@ -94,7 +94,7 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
-        bidomain_problem.SetOutputDirectory("testoutput/Bidomain3d");
+        bidomain_problem.SetOutputDirectory("/tmp/testoutput/Bidomain3d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
 
         bidomain_problem.Initialise();

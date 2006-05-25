@@ -78,7 +78,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_100mm_6000_elements");
         monodomain_problem.SetEndTime(10);   // 10 ms
-        monodomain_problem.SetOutputDirectory("testoutput/MonoDg03dSlabBig");
+        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg03dSlabBig");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dSlabBig");
 
         monodomain_problem.Initialise();

@@ -66,7 +66,7 @@ public:
     void testCreateColumnWriter(void)
     {
         //create a new csvdata writer
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
         //check that the output directory exists
         //use the Boost libraries for this check
         
@@ -75,14 +75,14 @@ public:
     
     void testCreateColumnReader(void)
     {
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("testoutput","testdoesnotexist"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testdoesnotexist"));
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data","testbad"));
         delete mpTestReader; 
     }
     
     void testDefineUnlimitedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
 
@@ -97,7 +97,7 @@ public:
  
     void testDefineFixedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
  
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
@@ -109,7 +109,7 @@ public:
     
     void testDefineVariable( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -132,7 +132,7 @@ public:
 
     void testEndDefineMode( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testdefine"));
         //ending define mode without having defined a dimension and a variable should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
         
@@ -151,13 +151,13 @@ public:
         
         delete mpTestWriter;
 
-		TS_ASSERT(filesMatch("testoutput/testdefine.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testdefine.dat", 
 		                     "io/test/data/testdefine_good.dat"));
 		                     
-		TS_ASSERT(filesMatch("testoutput/testdefine.info", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testdefine.info", 
 		                     "io/test/data/testdefine_good.info"));
 		                     
-		TS_ASSERT(!filesMatch("testoutput/testdefine.info", 
+		TS_ASSERT(!filesMatch("/tmp/testoutput/testdefine.info", 
 		                      "io/test/data/testdefine_bad.info"));
         
         
@@ -165,7 +165,7 @@ public:
 
     void testPutVariableInUnlimitedFile( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testunlimited"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -188,10 +188,10 @@ public:
         
 		delete mpTestWriter;
 
-		TS_ASSERT(filesMatch("testoutput/testunlimited.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testunlimited.dat", 
 		                     "io/test/data/testunlimited_good.dat"));
 		                     
-		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testunlimited"));
+		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testunlimited"));
 		
 		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K",3));
 
@@ -214,7 +214,7 @@ public:
     
     void testPutVariableInUnlimitedNegativeFile( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testunlimitednegative"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testunlimitednegative"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -237,7 +237,7 @@ public:
     
     	delete mpTestWriter; 
 
-		TS_ASSERT(filesMatch("testoutput/testunlimitednegative.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testunlimitednegative.dat", 
 		                     "io/test/data/testunlimitednegative_good.dat"));
 		                      
     }
@@ -245,7 +245,7 @@ public:
     void testPutVariableInFixedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixed"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testfixed"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -272,13 +272,13 @@ public:
 
 		delete mpTestWriter;
 
-		TS_ASSERT(filesMatch("testoutput/testfixed.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testfixed.dat", 
 		                     "io/test/data/testfixed_good.dat"));
 		                     
-		TS_ASSERT(filesMatch("testoutput/testfixed.info", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testfixed.info", 
 		                     "io/test/data/testfixed_good.info"));
 		                     
-		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testfixed"));
+		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testfixed"));
 		
 		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K"));
 		
@@ -296,7 +296,7 @@ public:
     void testPutNegativeVariableInFixedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixed_negatives"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testfixed_negatives"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -323,7 +323,7 @@ public:
     
     	delete mpTestWriter;
     	
-		TS_ASSERT(filesMatch("testoutput/testfixed_negatives.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testfixed_negatives.dat", 
 		                     "io/test/data/testfixed_negatives_good.dat"));
 
     }
@@ -331,7 +331,7 @@ public:
     void testPutVariableInFixedandUnlimitedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("testoutput","testfixedandunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testfixedandunlimited"));
         int time_var_id = 0;
         int node_var_id = 0;
         int ina_var_id = 0;
@@ -359,13 +359,13 @@ public:
 
 		delete mpTestWriter;
 		
-		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_unlimited.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testfixedandunlimited_unlimited.dat", 
 		                     "io/test/data/testfixedandunlimited_unlimited_good.dat"));
 
-		TS_ASSERT(filesMatch("testoutput/testfixedandunlimited_000001.dat", 
+		TS_ASSERT(filesMatch("/tmp/testoutput/testfixedandunlimited_000001.dat", 
 		                     "io/test/data/testfixedandunlimited_000001_good.dat"));
                              
-        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("testoutput","testfixedandunlimited"));                             
+        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testfixedandunlimited"));                             
 
         std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
         std::vector<double> ica_values = mpTestReader->GetValues("I_Ca",3);

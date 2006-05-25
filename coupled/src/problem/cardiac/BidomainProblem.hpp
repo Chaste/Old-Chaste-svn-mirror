@@ -2,8 +2,6 @@
 #define BIDOMAINPROBLEM_HPP_
 
 
-// For mkdir()
-#include <sys/stat.h>
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -138,11 +136,12 @@ public:
        
         int time_var_id = 0;
         int voltage_var_id = 0;
+        bool write_files = false;
 
         if (mOutputFilenamePrefix.length() > 0)
         {
-            mkdir(mOutputDirectory.c_str(), 0777);
-                 
+            write_files = true;
+
             p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
 
             p_test_writer->DefineFixedDimension("Node", "dimensionless", 2*mMesh.GetNumNodes() );
@@ -151,17 +150,15 @@ public:
             voltage_var_id = p_test_writer->DefineVariable("Vm_And_Phi_e","mV");
             p_test_writer->EndDefineMode();
         }
-        else
-        {
-            throw Exception("mOutputFilenamePrefix should not be the empty string");
-        }
 
         double current_time = mStartTime;        
         int big_steps = 0; 
-        
-        p_test_writer->PutVariable(time_var_id, current_time); 
-        p_test_writer->PutVector(voltage_var_id, initial_condition);
-                        
+
+        if (write_files)
+        {        
+            p_test_writer->PutVariable(time_var_id, current_time); 
+            p_test_writer->PutVector(voltage_var_id, initial_condition);
+        }                        
                         
         while( current_time < mEndTime )
         {
@@ -177,9 +174,12 @@ public:
             initial_condition = mVoltage;
             
             // Writing data out to the file <mOutputFilenamePrefix>.dat                 
-            p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
-            p_test_writer->PutVariable(time_var_id, current_time); 
-            p_test_writer->PutVector(voltage_var_id, mVoltage);
+            if (write_files)
+            {
+                p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
+                p_test_writer->PutVariable(time_var_id, current_time); 
+                p_test_writer->PutVector(voltage_var_id, mVoltage);
+            }
 
             mpBidomainPde->ResetAsUnsolvedOdeSystem();
 
@@ -189,8 +189,11 @@ public:
         }
 
         // close the file that stores voltage values            
-        p_test_writer->Close();
-        delete p_test_writer;
+        if (write_files)
+        {
+            p_test_writer->Close();
+            delete p_test_writer;
+        }
     }
     
     

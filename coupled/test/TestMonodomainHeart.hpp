@@ -76,7 +76,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/heart");
         monodomain_problem.SetEndTime(100);   // 100 ms
-        monodomain_problem.SetOutputDirectory("testoutput/MonoDg0Heart");
+        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg0Heart");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
         monodomain_problem.SetPdeTimeStep(0.01);
         monodomain_problem.Initialise();        

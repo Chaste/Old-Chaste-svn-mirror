@@ -844,7 +844,7 @@ public:
         int time_var_id = 0;
         int heat_var_id = 0;
 
-        std::string output_dir = "testoutput/2DHeatEquation";
+        std::string output_dir = "/tmp/testoutput/2DHeatEquation";
 
         mkdir(output_dir.c_str(), 0777);
                  

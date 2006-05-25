@@ -63,7 +63,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetEndTime(60);   // 60 ms
-        monodomain_problem.SetOutputDirectory("testoutput/MonoDg03dWithFaceStimulus");
+        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg03dWithFaceStimulus");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dWithFaceStimulus");
         monodomain_problem.Initialise();
         monodomain_problem.Solve();     

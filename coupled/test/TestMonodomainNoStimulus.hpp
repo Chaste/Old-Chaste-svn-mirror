@@ -55,7 +55,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
-        monodomain_problem.SetOutputDirectory("testoutput/MonoNoStim");
+        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoNoStim");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainNoStimLR91_1d");
         monodomain_problem.Initialise();
         monodomain_problem.Solve();

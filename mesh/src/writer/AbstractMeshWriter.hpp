@@ -7,6 +7,9 @@
 #include <iostream>
 #include <sstream>
 
+#include "Exception.hpp"
+#include <sys/stat.h>
+
 
 class AbstractMeshWriter 
 {
@@ -14,6 +17,7 @@ class AbstractMeshWriter
 		unsigned int mDimension; /**< Is the dimension the mesh*/
 				
 		std::string mPathBaseName; /**< Path to the directory where the input files are stored */
+        bool mMakeFilesWorldWritable; /**< Avoid problems in the automatic builds */
 	
 		std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
 		std::vector< std::vector<int> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */

@@ -1,9 +1,6 @@
 #ifndef MONODOMAINPROBLEM_HPP_
 #define MONODOMAINPROBLEM_HPP_
 
-//#include <iostream>
-// For mkdir()
-#include <sys/stat.h>
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -152,12 +149,6 @@ public:
         if (mOutputFilenamePrefix.length() > 0)
         {
             write_files = true;
-            mkdir(mOutputDirectory.c_str(), 0777); // NB: Mode modified by umask
-            if (mOutputDirectory.compare(0, 5, "/tmp/") == 0)
-            {
-                // Make files in /tmp world-writable so automatic builds don't fail
-                chmod(mOutputDirectory.c_str(), 0777);
-            }
                  
             p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
 
