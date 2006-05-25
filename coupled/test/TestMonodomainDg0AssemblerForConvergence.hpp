@@ -17,6 +17,11 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
+// For chmod()
+#include <sys/types.h>
+#include <sys/stat.h>
+
+
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
@@ -97,6 +102,10 @@ public:
             }
 
             ele_file.close();
+            
+            // Make files world-writable so nightly build doesn't break
+            chmod((meshFilename+".node").c_str(), 0666);
+            chmod((meshFilename+".ele").c_str(), 0666);
         }
     
     void TestMonodomainDg01DSpaceAndTime()
@@ -137,8 +146,6 @@ public:
                 monodomain_problem.SetEndTime(200);   // 200 ms
 //                monodomain_problem.SetEndTime(10);   // 10 ms  < --- Delete this!
                 
-                monodomain_problem.SetOutputDirectory("/tmp/MonoDg01D");
-                monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
                 monodomain_problem.SetPdeTimeStep(time_step);
                 monodomain_problem.Initialise();
 
@@ -182,31 +189,30 @@ public:
                 }
                 catch (Exception e)
                 {
-                    // An exception has been caught, meaning that the time step is too big, so half it
-                
-                    std::cout << "   >>> Convergence test: the time step is too big and, as a result, an exception has been thrown" << std::endl;
+                    // An exception has been caught, meaning that the time step is too big, so halve it
+                    std::cout << "   >>> Convergence test: an exception was thrown (" << e.GetMessage() << ")" << std::endl;
+                    std::cout << "   >>>                   We assume that the time step was too big" << std::endl;
                 
                     time_step *= 0.5;
                 }               
-              } while(!converging_in_time);    //do while: time_step   
+            } while(!converging_in_time);    //do while: time_step   
 
-              double relerr = fabs ((probe_voltage - prev_voltage_for_space) / prev_voltage_for_space);
-              std::cout<<">>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_space = "<<prev_voltage_for_space
-                <<" mV | relerr = "<<relerr<<std::endl;
-                      
-              if (relerr < 1e-2)
-              {
-                  converging_in_space = true;
-              }
-              else
-              {
-                  // Get ready for the next test by halving the space step (done by doubling the index of the middle node)
-        
-                  middle_node*=2;
-              }
+            double relerr = fabs ((probe_voltage - prev_voltage_for_space) / prev_voltage_for_space);
+            std::cout<<">>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_space = "<<prev_voltage_for_space
+                     <<" mV | relerr = "<<relerr<<std::endl;
 
-              prev_voltage_for_space = probe_voltage;
-        } while(!converging_in_space);   //do while: space_step
+            if (relerr < 1e-2)
+            {
+                converging_in_space = true;
+            }
+            else
+            {
+                // Get ready for the next test by halving the space step (done by doubling the index of the middle node)
+                middle_node*=2;
+            }
+
+            prev_voltage_for_space = probe_voltage;
+        } while (!converging_in_space);   //do while: space_step
         
         std::cout<<"================================================================================"<<std::endl;
 

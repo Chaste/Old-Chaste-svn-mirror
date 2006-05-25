@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <cassert>
 #include <ctype.h>
+#include <sys/stat.h> // For chmod()
 
 const int FILE_SUFFIX_WIDTH = 6;
 
@@ -25,6 +26,8 @@ const int FILE_SUFFIX_WIDTH = 6;
 class ColumnDataWriter : public AbstractDataWriter
 {
 protected:
+    bool mMakeFilesWorldWritable; /**< Avoid problems when files stored in /tmp */
+
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
     bool mIsInDefineMode; /**< Is the DataWriter in define mode or not */

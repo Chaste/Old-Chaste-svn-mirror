@@ -148,9 +148,16 @@ public:
        
         int time_var_id = 0;
         int voltage_var_id = 0;
+        bool write_files = false;
         if (mOutputFilenamePrefix.length() > 0)
-        {        
-            mkdir(mOutputDirectory.c_str(), 0777);
+        {
+            write_files = true;
+            mkdir(mOutputDirectory.c_str(), 0777); // NB: Mode modified by umask
+            if (mOutputDirectory.compare(0, 5, "/tmp/") == 0)
+            {
+                // Make files in /tmp world-writable so automatic builds don't fail
+                chmod(mOutputDirectory.c_str(), 0777);
+            }
                  
             p_test_writer = new ParallelColumnDataWriter(mOutputDirectory,mOutputFilenamePrefix);
 
@@ -160,16 +167,15 @@ public:
             voltage_var_id = p_test_writer->DefineVariable("V","mV");
             p_test_writer->EndDefineMode();
         }
-        else
-        {
-            throw ("mOutputFilenamePrefix should not be the empty string");
-        }
+        
         double current_time = mStartTime;        
         int big_steps = 0;
         
-        p_test_writer->PutVariable(time_var_id, current_time); 
-        p_test_writer->PutVector(voltage_var_id, initial_condition);
-                        
+        if (write_files)
+        {
+            p_test_writer->PutVariable(time_var_id, current_time); 
+            p_test_writer->PutVector(voltage_var_id, initial_condition);
+        }               
         
         while( current_time < mEndTime )
         {
@@ -180,10 +186,13 @@ public:
             { 
             	mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc);
             } 
-            catch(Exception &e) 
- 	        { 
-		        p_test_writer->Close();
-		        delete p_test_writer;
+            catch (Exception &e) 
+            {
+                if (write_files)
+                {
+    	            p_test_writer->Close();
+    	            delete p_test_writer;
+                }
  	            throw e;
             }
             // Free old initial condition
@@ -192,34 +201,14 @@ public:
             // Initial condition for next loop is current solution
             initial_condition = mVoltage;
             
-            // Writing data out to the file <mOutputFilenamePrefix>.dat                 
-            p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
-            p_test_writer->PutVariable(time_var_id, current_time); 
-            p_test_writer->PutVector(voltage_var_id, mVoltage);
-
-
-            /* //WARNING: won't run in parallel                   
-            if (mDebugOn==true)
+            // Writing data out to the file <mOutputFilenamePrefix>.dat
+            if (write_files)
             {
-                double* p_voltage;
-                VecGetArray(mVoltage, &p_voltage);                    
-
-                double max_voltage=p_voltage[0];
-                int max_index=0;
-
-                for(int j=0; j<mMesh.GetNumNodes(); j++) 
-                {
-                    if (p_voltage[j]>max_voltage)
-                    {
-                        max_voltage=p_voltage[j];
-                        max_index=j;
-                    }
-                } 
-                std::cout<<"At time "<< current_time <<" max voltage is "<<max_voltage<<" at "<<max_index<<"\n";          
-                VecRestoreArray(mVoltage, &p_voltage); 
+                p_test_writer->AdvanceAlongUnlimitedDimension(); // creates a new file
+                p_test_writer->PutVariable(time_var_id, current_time); 
+                p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
-            */
-            
+
             mpMonodomainPde->ResetAsUnsolvedOdeSystem();
 
             current_time += mPdeTimeStep;
@@ -227,10 +216,12 @@ public:
             big_steps++;
         }
 
-
-        // close the file that stores voltage values            
-        p_test_writer->Close();
-        delete p_test_writer;
+        // close the file that stores voltage values
+        if (write_files)
+        {
+            p_test_writer->Close();
+            delete p_test_writer;
+        }
     }
     
     

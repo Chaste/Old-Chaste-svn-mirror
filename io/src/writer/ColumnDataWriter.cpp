@@ -29,7 +29,13 @@ ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
                              mHasPutVariable(false),
                              mNeedAdvanceAlongUnlimitedDimension(false)
 {
-    //we have initialized the variables in the initializer list
+    if (mDirectory.compare(0, 5, "/tmp/") == 0)
+    {
+        // Make files in /tmp world-writable so automatic builds don't fail
+        mMakeFilesWorldWritable = true;
+    } else {
+        mMakeFilesWorldWritable = false;
+    }
 }
 /**
 * Destructor for ColumnDataWriter objects. Closes any open files.
@@ -249,6 +255,10 @@ void ColumnDataWriter::EndDefineMode()
                 {
                     throw Exception("Could not open file: " + ancillary_filepath);
                 }
+                if (mMakeFilesWorldWritable)
+                {
+                    chmod(ancillary_filepath.c_str(), 0666);
+                }
                 (*mpCurrentAncillaryFile) << std::setiosflags(std::ios::scientific);
                 (*mpCurrentAncillaryFile) << std::setprecision(FIELD_WIDTH-6);
                 if(mpUnlimitedDimensionVariable != NULL)
@@ -270,6 +280,10 @@ void ColumnDataWriter::EndDefineMode()
             {
                 throw Exception("Could not open file: " + filepath);
             }
+            if (mMakeFilesWorldWritable)
+                {
+                    chmod(filepath.c_str(), 0666);
+                }
             (*mpCurrentOutputFile) << std::setiosflags(std::ios::scientific);
             (*mpCurrentOutputFile) << std::setprecision(FIELD_WIDTH-6);
             if(mpUnlimitedDimensionVariable != NULL)
@@ -327,6 +341,10 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
     {
         throw Exception("Could not open file: " + filepath);
     }
+    if (mMakeFilesWorldWritable)
+    {
+        chmod(filepath.c_str(), 0666);
+    }
     (*mpCurrentOutputFile) << std::setiosflags(std::ios::scientific);
     (*mpCurrentOutputFile) << std::setprecision(FIELD_WIDTH-6);
     if(mpFixedDimensionVariable != NULL)
@@ -365,6 +383,11 @@ void ColumnDataWriter::CreateInfoFile(std::string filepath)
     if(!info_file.is_open())
     {
         throw Exception("Could not open file: " + filepath);
+    }
+    
+    if (mMakeFilesWorldWritable)
+    {
+        chmod(filepath.c_str(), 0666);
     }
 
     info_file << "FIXED " << mFixedDimensionSize << std::endl;
