@@ -24,7 +24,7 @@ private:
 public:
     FaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
-        mpStimulus = new InitialStimulus(-600.0, 0.5);
+        mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)

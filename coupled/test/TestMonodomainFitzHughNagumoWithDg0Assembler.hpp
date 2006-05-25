@@ -25,7 +25,7 @@ private:
 public:
     FhnEdgeStimulusCellFactory() : AbstractCardiacCellFactory<2>(0.01)
     {
-        mpStimulus = new InitialStimulus(-80.0, 0.5);
+        mpStimulus = new InitialStimulus(-10.0, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)
@@ -65,6 +65,10 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("MonodomainFhn_2dWithEdgeStimulus");
 
         monodomain_problem.Initialise();
+        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.01*identity_matrix<double>(2));
         
         monodomain_problem.Solve();
         
@@ -115,7 +119,7 @@ public:
                          // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
 
-                    TS_ASSERT_DELTA(p_voltage_array[i], 1.5656, 0.01);
+                    TS_ASSERT_DELTA(p_voltage_array[i], 0.1367, 0.01);
                 }
             }
         }

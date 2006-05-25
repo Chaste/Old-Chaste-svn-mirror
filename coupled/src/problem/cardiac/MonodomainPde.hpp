@@ -81,8 +81,9 @@ public:
  
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
-        identity_matrix<double> id(SPACE_DIM);
-        return  mDiffusionCoefficient * id;
+        //identity_matrix<double> id(SPACE_DIM);
+        //return  mDiffusionCoefficient * id;
+        return this->mIntracellularConductivityTensor;
     }
     
     /** ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double voltage)
@@ -96,9 +97,9 @@ public:
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
-//        return this->mSolutionCacheReplicated[index];
-        return -this->mIionicCacheReplicated[index] - this->mIntracellularStimulusCacheReplicated[index];
-
+        //return -this->mIionicCacheReplicated[index] - this->mIntracellularStimulusCacheReplicated[index];
+        return  -(this->mSurfaceAreaToVolumeRatio)*(this->mIionicCacheReplicated[index]) 
+                - this->mIntracellularStimulusCacheReplicated[index];
     }
     
     
@@ -110,7 +111,8 @@ public:
     // Capacitance = 1
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
-        return 1;
+        //return 1;
+        return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);    
     }
     
    

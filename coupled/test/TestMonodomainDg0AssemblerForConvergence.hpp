@@ -110,8 +110,8 @@ public:
     
     void TestMonodomainDg01DSpaceAndTime()
     {
-//       const std::string mesh_filename = "/tmp/testoutput/1D_0_to_1mm";
        const std::string mesh_filename = "/tmp/testoutput/1D_0_to_0.8mm";
+
        //Invariant: middle_node*space_step = 0.04 cm
 //       double space_step=0.01;   // cm
        //Loop over the space stepif (space_step < 0.0016)
@@ -148,6 +148,11 @@ public:
                 
                 monodomain_problem.SetPdeTimeStep(time_step);
                 monodomain_problem.Initialise();
+                
+                monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+                monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+                monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+         
 
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl;
 
@@ -220,7 +225,7 @@ public:
 
         TS_ASSERT_DELTA(space_step, 0.005, 0.0);
         TS_ASSERT_DELTA(time_step, 0.005, 0.0);
-        TS_ASSERT_DELTA(probe_voltage, -10.339, 0.0001);
+        TS_ASSERT_DELTA(probe_voltage, -10.3395, 0.0001);
         // Note: the delta is because of floating point issues (!!)
     }    
 };

@@ -14,6 +14,21 @@ template <int SPACE_DIM>
 class AbstractCardiacPde : public AbstractCoupledPde<SPACE_DIM>
 {
 protected:
+
+    /**
+     *  Parameters used in mono and bidomain simulations
+     *  UNITS: surface area to volume ratio: 1/cm
+     *         capacitance                 : uF/cm^2
+     *         conductivity                : mS/cm
+     *  
+     *  which means the units of these should be
+     *         Iionic                      : uA/cm^2   
+     *         Istimuli                    : uA/cm^3   
+     */
+    double mSurfaceAreaToVolumeRatio;
+    double mCapacitance;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
+
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
@@ -22,23 +37,22 @@ protected:
  
     const int mStride;
  
-    /** The following are currently only used in Bidomain.
-     * PLEASE change this comment when it's no longer true.
-     */
-    double mSurfaceAreaToVolumeRatio;
-    double mCapacitance;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> mIntracellularConductivityTensor;
 
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep, const int stride=1)
       :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfNodes(), tStart, pdeTimeStep),
          mStride(stride)
     {
-        /// \todo: pick good default values;
-        mSurfaceAreaToVolumeRatio = 1;
-        mCapacitance = 1; 
-        double const_intra_conductivity=0.0005;
+        // Reference: Trayanova (2002 - "Look inside the heart")
+        mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
+        mCapacitance = 1.0;                          // uF/cm^2   
+        double const_intra_conductivity = 1.75;      // mS/cm (Averaged)
  
+        // Old parameter values used:
+        //mSurfaceAreaToVolumeRatio = 1;   
+        //mCapacitance = 1;                
+        //double const_intra_conductivity = 0.0005;    
+
         mIntracellularConductivityTensor.clear();
                 
         for(int i=0;i<SPACE_DIM;i++)
@@ -156,6 +170,13 @@ public:
             // solve            
             mCellsDistributed[local_index]->Compute(time, time+big_timestep);
 
+            // IMPORTANT: need to overwrite the voltage again before 
+            // calling GetIIonic() (which is called in UpdateCaches(), 
+            // because the cell would have solved for the voltage which
+            // may be completely wrong (since the stimulus here is a 
+            // current density not a current
+            mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
+
             // update the Iionic and stimulus caches
             UpdateCaches(global_index, local_index, time+big_timestep);
         }
@@ -198,6 +219,6 @@ public:
         
         mIionicCacheReplicated.Replicate(lo, hi);
         mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
-    }
+     }
 };
 #endif /*ABSTRACTCARDIACPDE_HPP_*/

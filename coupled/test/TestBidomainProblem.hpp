@@ -65,6 +65,11 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
         bidomain_problem.Initialise();
+        
+        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);        
+        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
 
         bidomain_problem.Solve();
         
@@ -103,7 +108,7 @@ public:
             }
             
             // final voltages for nodes 0 to 5
-            double test_values[6]={28.2458, 26.7370, 17.781, -9.3599, -60.0305, -80.0106};
+            double test_values[6]={30.2144, 28.3387, 19.8323, -3.9856, -57.9515, -79.7747};
             
             for(int node=0; node<=5; node++)
             {
@@ -140,9 +145,9 @@ public:
         
         monodomain_problem.Initialise();
 
-        // set the intra conductivity
-        c_matrix<double,1,1> sigma_i = 0.0005*identity_matrix<double>(1);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(sigma_i);
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         // now solve       
         monodomain_problem.Solve();
@@ -163,8 +168,11 @@ public:
         // set the intra conductivity to be the same as monodomain
         // and the extra conductivity to be very large in comparison
         c_matrix<double,1,1> sigma_e = 1*identity_matrix<double>(1);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(sigma_i);
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e);
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e); 
+        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);        
+        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        
         
         // now solve
         bidomain_problem.Solve();
@@ -188,6 +196,13 @@ public:
             double   bidomain_voltage      =   p_bi_voltage_array  [2*local_index];
             double extracellular_potential =   p_bi_voltage_array  [2*local_index+1];
             // std::cout << p_mono_voltage_array[local_index] << " " << p_bi_voltage_array[2*local_index] << "\n";
+
+            // the stimulus should be sufficient to ensure that cell 0 has
+            // a positive voltage
+            if (global_index==0)
+            {
+                TS_ASSERT_LESS_THAN(0, monodomain_voltage);
+            }
 
             // the mono and bidomains should agree closely 
             TS_ASSERT_DELTA(monodomain_voltage, bidomain_voltage, 0.1);

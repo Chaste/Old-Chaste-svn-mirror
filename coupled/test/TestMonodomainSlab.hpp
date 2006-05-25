@@ -22,7 +22,7 @@ private:
 public:
     FaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
-        mpStimulus = new InitialStimulus(-600.0, 0.5);
+        mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)
@@ -215,16 +215,14 @@ public:
                     }
                     else
                     {
-                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 1);
+                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 1.1);
                        // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
                     }
                     
                     // Check against 1d case - if the TestMonodomainDg01D test is run
-                    // for 4ms the voltage at the end node is 21.8820
-                    //TS_ASSERT_DELTA(p_voltage_array[i], 21.88, 0.5);
-                    //
-                    // This has now been changed as the initial conditions for Lr91 have been altered
-                    TS_ASSERT_DELTA(p_voltage_array[i], 20.5, 0.5);
+                    // for 4ms the voltage at the end node(10) is 22.7190
+                    
+                    TS_ASSERT_DELTA(p_voltage_array[i], 22.7190, 1);
                     
                 }
             }

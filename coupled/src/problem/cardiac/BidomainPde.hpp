@@ -41,7 +41,16 @@ public:
     BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
        :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, tStart, pdeTimeStep, 2)
     {
-        double const_extra_conductivity = 0.0005;
+        
+        /**
+          *  Parameters used in mono and bidomain simulations
+          *  UNITS: surface area to volume ratio: 1/cm
+          *         capacitance                 : uF/cm^2
+          *         conductivity                : mS/cm
+          * 
+          *  Extracellular conductivity set 7.0 mS/cm (Ref: Trayanova (2002 - "Look inside the heart")
+          */
+        double const_extra_conductivity = 7.0;
 
         mExtracellularConductivityTensor.clear();
 

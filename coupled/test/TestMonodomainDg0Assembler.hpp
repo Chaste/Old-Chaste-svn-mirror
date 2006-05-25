@@ -120,11 +120,16 @@ public:
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        monodomain_problem.SetEndTime(2);   // 2 ms
+        monodomain_problem.SetEndTime(2);   // ms
         monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
 
         monodomain_problem.Initialise();
+        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        
         monodomain_problem.Solve();
 
         double* p_voltage_array;
@@ -155,27 +160,27 @@ public:
 
             if (global_index==1)
             {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 19.4178, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 20.6690, 0.001);
             }
             if (global_index==3)
             {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 20.2563, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 21.4655, 0.001);
             }
             if (global_index==5)
             {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 21.7166, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 22.9016, 0.001);
             }
             if (global_index==7)
             {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 22.3258, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], 24.0518, 0.001);
             }
             if (global_index==9)
             {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], -12.2253, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], -0.9282, 0.001);
             }
             if (global_index==10) // RHS
             {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], -31.4838, 0.001);
+                TS_ASSERT_DELTA(p_voltage_array[local_index], -19.4217, 0.001);
             }
         }
 
@@ -200,6 +205,10 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithEdgeStimulus");
 
         monodomain_problem.Initialise();
+        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(2));
         
         monodomain_problem.Solve();
         
@@ -280,7 +289,7 @@ public:
                     // hardcoded result that looks accurate - this is a test to see
                     // that nothing has changeed
                     // assumes endtime = 2ms
-                    TS_ASSERT_DELTA(p_voltage_array[i], -63.1852, 0.01);
+                    TS_ASSERT_DELTA(p_voltage_array[i], -59.7978, 0.01);
                 }
             }
         }
@@ -307,7 +316,12 @@ public:
         monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg02dWithPointStimulus");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulus");
 
-        monodomain_problem.Initialise();
+        monodomain_problem.Initialise();        
+        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(2));
+        
         monodomain_problem.Solve();
         
         // To time the solve
@@ -366,7 +380,7 @@ public:
             
             // hardcoded result to check nothing has changed
             // assumes endtime = 1.3
-            TS_ASSERT_DELTA(p_voltage_array[0], -43.1522, 0.1);
+            TS_ASSERT_DELTA(p_voltage_array[0], -34.7497, 0.1);
                         
         }
         

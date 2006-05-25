@@ -58,6 +58,8 @@ public:
         monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoNoStim");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainNoStimLR91_1d");
         monodomain_problem.Initialise();
+        
+        
         monodomain_problem.Solve();
         
         double* voltage_array;

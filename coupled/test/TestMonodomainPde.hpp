@@ -117,7 +117,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 	    monodomain_pde.PrepareForAssembleSystem(voltage);
 
 
-        double value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, initial_voltage);
+        double value1 = monodomain_pde.GetIionicCacheReplicated()[0];
    
         LuoRudyIModel1991OdeSystem ode_system_stimulated(solver, small_time_step, stimulus);
                               
@@ -125,23 +125,26 @@ class TestMonodomainPde : public CxxTest::TestSuite
                                                            start_time,
                                                            start_time + big_time_step);
         std::vector<double> solutionSetStimT_05 = SolutionNewStimulated.rGetSolutions()[ SolutionNewStimulated.rGetSolutions().size()-1 ];
-        double value2 = -(-80 + ode_system_stimulated.GetIIonic());
+        
+        ode_system_stimulated.SetVoltage(initial_voltage);
+        double value2 = ode_system_stimulated.GetIIonic();
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
 
         // shouldn't be different when called again as reset not yet been called
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, initial_voltage);
+        value1 = monodomain_pde.GetIionicCacheReplicated()[0];
         TS_ASSERT_DELTA(value1, value2, 0.000001);
   
         LuoRudyIModel1991OdeSystem ode_system_not_stim(solver, small_time_step, zero_stim);
 
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, initial_voltage);
+        value1 = monodomain_pde.GetIionicCacheReplicated()[1];
 
         OdeSolution SolutionNewNotStim = ode_system_not_stim.Compute(
                                                         start_time,
                                                         start_time + big_time_step);
         std::vector<double> solutionSetNoStimT_05 = SolutionNewNotStim.rGetSolutions()[ SolutionNewNotStim.rGetSolutions().size()-1 ];
-        value2 = -(0 + ode_system_not_stim.GetIIonic());
+        ode_system_not_stim.SetVoltage(initial_voltage);
+        value2 = ode_system_not_stim.GetIIonic();
 
         TS_ASSERT_DELTA(value1, value2, 0.000001);
  
@@ -168,23 +171,32 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		monodomain_pde.ResetAsUnsolvedOdeSystem();
         monodomain_pde.PrepareForAssembleSystem(voltage);
               
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node0, solutionSetStimT_05[4]);
+        value1 = monodomain_pde.GetIionicCacheReplicated()[0];
 
         std::vector<double> state_variables = solutionSetStimT_05;
         ode_system_stimulated.SetStateVariables(state_variables);
+        
+        double voltage_before_compute = ode_system_stimulated.GetVoltage();
         OdeSolution SolutionNewStimulatedT_1 = ode_system_stimulated.Compute( start_time + big_time_step, start_time + 2*big_time_step );
+        ode_system_stimulated.SetVoltage(voltage_before_compute);
+
         std::vector<double> solutionSetStimT_1 = SolutionNewStimulatedT_1.rGetSolutions()[ SolutionNewStimulatedT_1.rGetSolutions().size()-1 ];
-        value2 = -(0 + ode_system_stimulated.GetIIonic());
+        value2 = ode_system_stimulated.GetIIonic();
                 
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         state_variables = solutionSetNoStimT_05;
         ode_system_not_stim.SetStateVariables(state_variables);
+        
+        voltage_before_compute = ode_system_not_stim.GetVoltage();
         OdeSolution SolutionNewNotStimT_1 = ode_system_not_stim.Compute( start_time + big_time_step, start_time + 2*big_time_step );
+        ode_system_not_stim.SetVoltage(voltage_before_compute);
+        
+        
         std::vector<double> solutionSetNoStimT_1 = SolutionNewNotStimT_1.rGetSolutions()[ SolutionNewNotStimT_1.rGetSolutions().size()-1 ];
        
-        value1 = monodomain_pde.ComputeNonlinearSourceTermAtNode(node1, solutionSetNoStimT_05[4]);
-        value2 = -(0 + ode_system_not_stim.GetIIonic());
+        value1 = monodomain_pde.GetIionicCacheReplicated()[1];
+        value2 = ode_system_not_stim.GetIIonic();
         
         
         TS_ASSERT_DELTA(value1, value2, 1e-10);
@@ -208,7 +220,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
         VecCreate(PETSC_COMM_WORLD, &voltage);
         VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
         //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(voltage);
+        VecSetFromOptions(voltage); 
   
         double* p_voltage_array;
         VecGetArray(voltage, &p_voltage_array); 

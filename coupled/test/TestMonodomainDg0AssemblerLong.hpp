@@ -75,6 +75,12 @@ public:
         monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg02dWithPointStimulusLong");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulusLong");
         monodomain_problem.Initialise();
+        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(2));
+        
+        
         monodomain_problem.Solve();
         
         // To time the solve

@@ -23,7 +23,7 @@ private:
 public:
     BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
-        mpStimulus = new InitialStimulus(-600.0, 0.5);
+        mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)
@@ -79,10 +79,10 @@ public:
         
         monodomain_problem.Initialise();
 
-        // set the intra conductivity
-        c_matrix<double,3,3> sigma_i = 0.0005*identity_matrix<double>(3);
-        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(sigma_i);
-        
+        monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+       
         // now solve       
         monodomain_problem.Solve();
 
@@ -98,13 +98,12 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
 
         bidomain_problem.Initialise();
-        
-        // set the intra conductivity to be the same as monodomain
-        // and the extra conductivity to be very large in comparison
-        c_matrix<double,3,3> sigma_e = 1*identity_matrix<double>(3);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(sigma_i);
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e);
-        
+ 
+        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);        
+        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(1*identity_matrix<double>(1));
+                
         // now solve
         bidomain_problem.Solve();
         
