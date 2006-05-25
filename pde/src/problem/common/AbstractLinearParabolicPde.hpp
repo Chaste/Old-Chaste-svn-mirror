@@ -2,7 +2,6 @@
 #define _ABSTRACTLINEARPARABOLICPDE_HPP_
 
 #include "AbstractLinearPde.hpp"
-#include "MatrixDouble.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
 

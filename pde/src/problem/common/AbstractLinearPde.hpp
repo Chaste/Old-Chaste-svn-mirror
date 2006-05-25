@@ -1,7 +1,8 @@
 #ifndef _ABSTRACTLINEARPDE_HPP_
 #define _ABSTRACTLINEARPDE_HPP_
 
-#include "MatrixDouble.hpp"
+//#include "MatrixDouble.hpp"
+#include "UblasCustomFunctions.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
 #include <petscvec.h>

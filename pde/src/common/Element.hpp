@@ -11,8 +11,6 @@
 #include "Node.hpp"
 #include "Point.hpp"
 #include "UblasCustomFunctions.hpp"
-//#include "MatrixDouble.hpp"
-//#include "VectorDouble.hpp"
 #include "LinearBasisFunction.cpp"
 #include "AbstractMaterial.hpp"
 
@@ -108,9 +106,9 @@ public:
             else if (ELEMENT_DIM == SPACE_DIM-1)
             {
                 // For boundary elements we only need to know the determinant
-                VectorDouble twod_r1_minus_r0(2);
-                VectorDouble r1_minus_r0(3);
-                VectorDouble r2_minus_r0(3);
+                c_vector<double, 2> twod_r1_minus_r0;
+                c_vector<double, 3> r1_minus_r0;
+                c_vector<double, 3> r2_minus_r0;
                 switch (ELEMENT_DIM)
                 {
                     case 0:
@@ -121,7 +119,7 @@ public:
                         // Linear edge in a plane
                         twod_r1_minus_r0(0) = GetNodeLocation(1,0) - GetNodeLocation(0,0); // x1-x0
                         twod_r1_minus_r0(1) = GetNodeLocation(1,1) - GetNodeLocation(0,1); // y1-y0
-                        mJacobianDeterminant = twod_r1_minus_r0.L2Norm();
+                        mJacobianDeterminant = norm_2(twod_r1_minus_r0);
                         break;
                     case 2:
                         // Surface triangle in a 3d mesh
@@ -131,7 +129,7 @@ public:
                         r2_minus_r0(0) = GetNodeLocation(2,0) - GetNodeLocation(0,0); // x2-x0
                         r2_minus_r0(1) = GetNodeLocation(2,1) - GetNodeLocation(0,1); // y2-y0
                         r2_minus_r0(2) = GetNodeLocation(2,2) - GetNodeLocation(0,2); // z2-z0
-                        mJacobianDeterminant = (r1_minus_r0.VectorProduct(r2_minus_r0)).L2Norm();
+                        mJacobianDeterminant = norm_2( VectorProduct(r1_minus_r0, r2_minus_r0) );
                         break;
                     default:
                         assert(0); // TODO? Might want to change this

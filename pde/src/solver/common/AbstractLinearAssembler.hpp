@@ -15,6 +15,11 @@
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractBasisFunction.hpp"
 
+// Need to change this to use Ublas matrices and vectors
+#include "MatrixDouble.hpp"
+#include "VectorDouble.hpp"
+#include "MatrixDoubleUblasConverter.hpp"
+#include "VectorDoubleUblasConverter.hpp"
 
 /**
  * Base class from which all solvers for linear PDEs inherit. It defines a common
@@ -30,7 +35,7 @@ protected:
     
     /**
      * mMatrixIsConstant is a flag to say whether the matrix of the system
-     * needs to be assmbled at each time step.
+     * needs to be assembled at each time step.
      */
     bool mMatrixIsConstant;
     /**

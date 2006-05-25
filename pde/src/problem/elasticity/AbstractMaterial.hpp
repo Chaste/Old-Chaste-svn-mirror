@@ -75,7 +75,7 @@ public:
 		mDensitySet = true;
 	}
     
-    
+ //\todo:  Ticket 96: we need to use ublas here (and compile-time mumble)    
     /** Compute this stress in this material at a given value of deformation gradient
      * 	NOTE: The input parameter is deformation gradient F, not strain E
      */

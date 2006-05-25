@@ -4,9 +4,6 @@
 
 #include "LinearBasisFunction.hpp"
 #include "Point.hpp"
-//#include "MatrixDouble.hpp"
-#include "VectorDoubleUblasConverter.hpp"
-#include "MatrixDoubleUblasConverter.hpp"
 #include <cassert>
 
 
@@ -82,7 +79,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM>
 /**
  * Compute a basis function at a point within an element.
  * 
- * @param point The point at which to compute the basis function. The results
+ * @param pincludeoint The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
  *     within a canonical element.
