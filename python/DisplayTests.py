@@ -30,9 +30,26 @@ def index(req):
   <h2>Latest continuous build</h2>
 """ % (_our_url, _our_url)
   
-  return ''.join([_header(), page_body,
-                  _summary(req, type='continuous', revision='last'),
-                  _footer()])
+  output = [_header(), page_body]
+
+  # Look for the latest revision present.
+  type = 'continuous'
+  revisions = os.listdir(os.path.join(_tests_dir, type))
+  revision = str(max(itertools.imap(int, revisions)))
+  # Display summary of each machine & build type combination for this revision
+  test_set_dir = os.path.join(_tests_dir, type, revision)
+  builds = os.listdir(test_set_dir)
+  if len(builds) < 1:
+    output.append(_error('No test set found for revision '+revision+
+                         '. Probably the build is still in progress.'))
+  else:
+    for build in builds:
+      machine, buildType = _extractDotSeparatedPair(build)
+      output.append(_summary(req, type, revision, machine, buildType))
+
+  output.append(_footer())
+
+  return ''.join(output)
 
 
 def testsuite(req, type, revision, machine, buildType, testsuite, status, runtime):
@@ -150,25 +167,8 @@ def _summary(req, type, revision, machine=None, buildType=None):
   output = []
   if not (type and revision):
     return _error('No test set to summarise specified.')
-  
-  # If type=='continuous' and the magic revision 'last' is passed,
-  # look for the latest revision present.
-  if type == 'continuous' and revision == 'last':
-    revisions = os.listdir(os.path.join(_tests_dir, type))
-    revision = str(max(itertools.imap(int, revisions)))
-    # When getting the latest continuous build, pick the first result
-    # set found to determine machine & buildType.
-    test_set_dir = os.path.join(_tests_dir, type, revision)
-    builds = os.listdir(test_set_dir)
-    if len(builds) < 1:
-      return _error('No test set found for revision '+revision+
-                    '. Probably the build is still in progress.')
-    else:
-      builds.sort()
-      machine, buildType = _extractDotSeparatedPair(builds[0])
-  else:
-    if not (machine and buildType):
-      return _error('No test set to summarise specified.')
+  if not (machine and buildType):
+    return _error('No test set to summarise specified.')
   # Find the directory with appropriate test results
   if type == 'standalone':
     test_set_dir = _dir
