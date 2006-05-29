@@ -2,7 +2,6 @@ TestBidomainPde.hpp
 TestBidomainProblem.hpp
 TestBidomainWithShocks.hpp
 TestCellProperties.hpp
-TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0Assembler.hpp
 TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 TestMonodomainPde.hpp
