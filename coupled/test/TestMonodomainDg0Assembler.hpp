@@ -76,7 +76,6 @@ public:
     }
 };
 
-
 class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
@@ -183,15 +182,13 @@ public:
                 TS_ASSERT_DELTA(p_voltage_array[local_index], -19.4217, 0.001);
             }
         }
-
         monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
-
-
     
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
     // edge.
     // Should behave like the 1D case, extrapolated.
+    // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
     void TestMonodomainDg02DWithEdgeStimulus( void )
     {   
         EdgeStimulusCellFactory cell_factory;
@@ -294,9 +291,8 @@ public:
             }
         }
         monodomain_problem.RestoreVoltageArray(&p_voltage_array);
-        
-     
     }   
+
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
@@ -383,9 +379,8 @@ public:
             TS_ASSERT_DELTA(p_voltage_array[0], -34.7497, 0.1);
                         
         }
-        
-      monodomain_problem.RestoreVoltageArray(&p_voltage_array);
-     }   
+        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
+     } 
 };
 
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

@@ -1,5 +1,5 @@
-#ifndef _TESTMONODOMAINSLABBIG_HPP_
-#define _TESTMONODOMAINSLABBIG_HPP_
+#ifndef _TESTMONODOMAINSLABLONG_HPP_
+#define _TESTMONODOMAINSLABLONG_HPP_
 
 // Element.hpp includes the Boost ublas objects - these need to
 // be included early...  We think.  We're not that sure.
@@ -51,33 +51,17 @@ public:
 };
 
 
-/*
-class CornerStimulus: public AbstractMonodomainProblemStimulus<3>
-{
-    virtual void Apply(MonodomainPde<3> *pPde,
-                       ConformingTetrahedralMesh<3,3> *pMesh)
-    {
-        static InitialStimulus stimulus(-600.0, 0.5);
-
-        pPde->SetStimulusFunctionAtNode(0,   &stimulus);
-        pPde->SetStimulusFunctionAtNode(1,   &stimulus);
-        pPde->SetStimulusFunctionAtNode(11,  &stimulus);
-        pPde->SetStimulusFunctionAtNode(121, &stimulus);
-    }
-};
-
-*/
-class TestMonodomainSlabBig : public CxxTest::TestSuite 
+class TestMonodomainSlabLong : public CxxTest::TestSuite 
 {   
 public:
-    void TestMonodomainSlabBigWithCornerNodesStimulated( void )
+    void TestMonodomainSlabLongWithCornerNodesStimulated( void )
     {
         CornerStimulusCellFactory cell_factory;
         
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_100mm_6000_elements");
-        monodomain_problem.SetEndTime(10);   // 10 ms
+        monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
+        monodomain_problem.SetEndTime(200);   // 200 ms
         monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg03dSlabBig");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dSlabBig");
 
@@ -88,4 +72,4 @@ public:
 
 
 
-#endif //_TESTMONODOMAINSLABBIG_HPP_
+#endif //_TESTMONODOMAINSLABLONG_HPP_

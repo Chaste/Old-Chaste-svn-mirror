@@ -1,2 +1,2 @@
 TestMonodomainHeart.hpp
-TestMonodomainSlabBig.hpp
+TestMonodomainSlabLong.hpp
