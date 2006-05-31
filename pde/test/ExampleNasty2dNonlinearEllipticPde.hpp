@@ -23,15 +23,14 @@ class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
     	return -4*(u*cos(x)*cos(x) + sin(x)*sin(x)*cos(x)*cos(x) + y*y);
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<2> , double u)
+    c_matrix<double, 2, 2> ComputeDiffusionTerm(Point<2> , double u)
     {
-    	MatrixDouble I = MatrixDouble::Identity(2);
-    	return u*I;
+        return identity_matrix<double>(2)*u;
     }
     
-    MatrixDouble ComputeDiffusionTermPrime(Point<2> , double )
+    c_matrix<double, 2, 2> ComputeDiffusionTermPrime(Point<2> , double )
     {
-		return MatrixDouble::Identity(2);
+        return identity_matrix<double>(2);
     }
     
     double ComputeNonlinearSourceTermPrime(Point<2> p, double )

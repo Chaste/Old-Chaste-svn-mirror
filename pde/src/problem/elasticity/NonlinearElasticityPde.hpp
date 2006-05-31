@@ -3,7 +3,6 @@
 
 #include "AbstractMaterial.hpp"
 #include "Element.hpp"
-#include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
 #include "FourthOrderTensor.hpp"
 
@@ -30,16 +29,16 @@ public:
 		delete mpGravity;
 	}
 
+ //\todo:  Ticket 96: we need to use ublas here (and compile-time mumble)    
+//	MatrixDouble ComputeStress(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
+//	{
+//		return rElement.GetMaterial()->ComputeStress(F);
+//	}
 
-	MatrixDouble ComputeStress(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
-	{
-		return rElement.GetMaterial()->ComputeStress(F);
-	}
-
-	FourthOrderTensor<SPACE_DIM> Compute_dTdE(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
-	{
-		return rElement.GetMaterial().Compute_dTdE(F);
-	}	
+//	FourthOrderTensor<SPACE_DIM> Compute_dTdE(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
+//	{
+//		return rElement.GetMaterial().Compute_dTdE(F);
+//	}	
 	
 	VectorDouble ComputeGravityForceTerm(const Element<ELEM_DIM, SPACE_DIM> & rElement)
 	{

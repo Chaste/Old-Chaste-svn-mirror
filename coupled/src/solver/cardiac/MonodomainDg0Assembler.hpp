@@ -6,9 +6,7 @@
 #include <vector>
 #include <petscvec.h>
 
-#include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
-#include "MatrixDoubleUblasConverter.hpp"
 #include "VectorDoubleUblasConverter.hpp"
 #include "Point.hpp"
 #include "Element.hpp"

@@ -23,9 +23,9 @@ public:
 		TS_ASSERT_DELTA(heat_equation3.ComputeNonlinearSourceTerm(zero3,u),0.0,1e-12);
 
 		// diffusion matrices should be equal to identity * u;	
-		MatrixDouble diff1 = heat_equation1.ComputeDiffusionTerm(zero1,u);
-		MatrixDouble diff2 = heat_equation2.ComputeDiffusionTerm(zero2,u);
-		MatrixDouble diff3 = heat_equation3.ComputeDiffusionTerm(zero3,u);
+		c_matrix<double, 1, 1> diff1 = heat_equation1.ComputeDiffusionTerm(zero1,u);
+		c_matrix<double, 2, 2> diff2 = heat_equation2.ComputeDiffusionTerm(zero2,u);
+		c_matrix<double, 3, 3> diff3 = heat_equation3.ComputeDiffusionTerm(zero3,u);
 
 		TS_ASSERT_DELTA(diff1(0,0),u,1e-12);
 

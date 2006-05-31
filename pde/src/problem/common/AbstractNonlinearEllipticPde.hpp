@@ -1,7 +1,7 @@
 #ifndef _ABSTRACTNONLINEARELLIPTICPDE_HPP_
 #define _ABSTRACTNONLINEARELLIPTICPDE_HPP_
 
-#include "MatrixDouble.hpp"
+#include "UblasCustomFunctions.hpp"
 #include "Point.hpp"
 
 template <int SPACE_DIM>
@@ -14,11 +14,11 @@ public:
     virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
                                               double u)=0;
 
-    virtual MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> x,
-                                              double u)=0;
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x,
+                                                                        double u)=0;
                                               
-	virtual MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> x,
-                                              double u)=0;
+	virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(Point<SPACE_DIM> x,
+                                                                             double u)=0;
                                               
     virtual double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x,
                                               double u)=0;

@@ -5,7 +5,6 @@
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
-#include "MatrixDouble.hpp"
 #include "AbstractCoupledPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"

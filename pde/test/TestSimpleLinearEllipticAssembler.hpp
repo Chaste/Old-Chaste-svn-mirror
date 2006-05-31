@@ -34,8 +34,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         nodes.push_back(new Node<1>(1, false, 3));
         Element<1,1> element(nodes);
         LinearBasisFunction<1> basis_function;
-        MatrixDouble ael(2,2);
-        VectorDouble bel(2);
+        c_matrix<double, 2, 2> ael;
+        c_vector<double, 2> bel;
         SimpleLinearEllipticAssembler<1,1> assembler(NULL);
         
         assembler.AssembleOnElement(element, ael, bel, &pde, false);
@@ -62,8 +62,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
         Element<2,2> element(nodes);
         LinearBasisFunction<2> basis_function;
-        MatrixDouble ael(3,3);
-        VectorDouble bel(3);
+        c_matrix<double, 3, 3> ael;
+        c_vector<double, 3> bel;
         
         SimpleLinearEllipticAssembler<2,2> assembler(NULL);
         assembler.AssembleOnElement(element, ael, bel,  &pde, false);
@@ -99,8 +99,8 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
         Element<2,2> element(nodes);
         LinearBasisFunction<2> basis_function;
-        MatrixDouble ael(3,3);
-        VectorDouble bel(3);
+        c_matrix<double, 3, 3> ael;
+        c_vector<double, 3> bel;
         
         SimpleLinearEllipticAssembler<2,2> assembler(NULL);
         assembler.AssembleOnElement(element, ael, bel, &pde, false);

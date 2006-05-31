@@ -191,7 +191,6 @@ public:
 	{
         PetscInt n = 11;  // Mesh size
 		Mat numerical_jacobian;
-
 #if (PETSC_VERSION_MINOR == 2) //Old API
         MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &numerical_jacobian);
 #else
@@ -201,7 +200,6 @@ public:
 		//MatSetType(numerical_jacobian, MATSEQDENSE);
 	    MatSetFromOptions(numerical_jacobian);
 		Mat analytic_jacobian;
-		
 #if (PETSC_VERSION_MINOR == 2) //Old API
         MatCreate(PETSC_COMM_WORLD, PETSC_DETERMINE, PETSC_DETERMINE, n, n, &analytic_jacobian);
 #else
@@ -210,22 +208,18 @@ public:
 #endif
 		//MatSetType(analytic_jacobian, MATSEQDENSE);
         MatSetFromOptions(analytic_jacobian);
-	
 		// Create mesh from mesh reader
 		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		// Instantiate PDE object
 		NonlinearHeatEquationPde<1> pde;  
-		
 		// Boundary conditions
 		BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
 		ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
 		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
 		bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
-			
 		SimpleNonlinearEllipticAssembler<1,1> assembler;
-			
 		// Set up initial solution guess for residuals
 		int length=mesh.GetNumNodes();
 		Vec initial_guess;
@@ -238,23 +232,18 @@ public:
 		}
 		VecAssemblyBegin(initial_guess);
 		VecAssemblyEnd(initial_guess); 
-			
 		// Store data structures as object members
 		assembler.mpMesh = &mesh;
 		assembler.mpPde = &pde;
 		assembler.mpBoundaryConditions = &bcc;
-		
 		int errcode = assembler.ComputeJacobianNumerically(initial_guess, &numerical_jacobian);
 		TS_ASSERT_EQUALS(errcode, 0);
-									
 		errcode = assembler.ComputeJacobianAnalytically(initial_guess, &analytic_jacobian);
 		TS_ASSERT_EQUALS(errcode, 0);
-	
 		MatAssemblyBegin(numerical_jacobian, MAT_FINAL_ASSEMBLY);
 		MatAssemblyEnd(numerical_jacobian, MAT_FINAL_ASSEMBLY);
 		MatAssemblyBegin(analytic_jacobian, MAT_FINAL_ASSEMBLY);
 		MatAssemblyEnd(analytic_jacobian, MAT_FINAL_ASSEMBLY);
-	
 //		TS_TRACE("Numerical:");
 //		MatView(numerical_jacobian, 0);
 //		TS_TRACE("Analytical:");
@@ -277,7 +266,6 @@ public:
 		// Check matrices are the same, to within numerical error tolerance
   		MatGetValues(numerical_jacobian, hi-lo, row_ids, n, col_ids, numerical_array);
 		MatGetValues(analytic_jacobian, hi-lo, row_ids, n, col_ids, analytic_array);
-        
 		for (int local_index=0; local_index<hi-lo; local_index++)
 		{
 			for (int j=0; j<n; j++)
@@ -286,7 +274,6 @@ public:
                                 analytic_array[local_index*n+j], 0.001);
 			}
 		}
-
 		VecDestroy(initial_guess);
 		MatDestroy(numerical_jacobian);
 		MatDestroy(analytic_jacobian);

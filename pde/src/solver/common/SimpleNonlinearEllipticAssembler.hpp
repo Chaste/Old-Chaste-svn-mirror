@@ -17,7 +17,6 @@
 #include "AbstractNonlinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 
-#include "MatrixDoubleUblasConverter.hpp"
 /*
  * Since we need to pass function pointers to the PETSc SNES routines, we can't
  * make these functions below methods. This is a pain, since it also means we
@@ -79,7 +78,7 @@ private:
 							VectorDouble Ui);
 	void ComputeJacobianOnElement(
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-							MatrixDouble &rAElem,
+							c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							VectorDouble Ui);
 	
@@ -294,13 +293,9 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 			// which should be defined in/by NonlinearEllipticEquation.hpp:
 			// d/dx [f(U,x) du/dx ] = -g
 			// where g(x,U) is the forcing term
-			MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
-            MatrixDoubleUblasConverter<ELEMENT_DIM> converter;
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = converter.rConvertToUblas(FOfU);
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = pPde->ComputeDiffusionTerm(x,U);
 
             matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(gradPhi,i);
-//            VectorDouble grad_phi_i(gradPhi[i]);
-//			double  integrand_value1 = ((FOfU*gradU).dot(grad_phi_i));
             double  integrand_value1 = inner_prod(prod(FOfU_ublas,gradU),grad_phi_i);
 
 			//make RHS general: consists of linear and nonlinear source terms
@@ -558,7 +553,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 template<int ELEMENT_DIM, int SPACE_DIM>
 void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOnElement(
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-							MatrixDouble &rAElem,
+							c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							VectorDouble Ui)
 {
@@ -610,13 +605,8 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 				// d/dx [f(U,x) du/dx ] = -g
 				// where g(x,U) is the forcing term
 				
-				MatrixDouble FOfU = pPde->ComputeDiffusionTerm(x,U);
-				MatrixDouble FOfU_prime = pPde->ComputeDiffusionTermPrime(x,U);
-                
-                MatrixDoubleUblasConverter<ELEMENT_DIM> converter;
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = converter.rConvertToUblas(FOfU);
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_prime_ublas = converter.rConvertToUblas(FOfU_prime);
-                
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = pPde->ComputeDiffusionTerm(x,U);
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_prime_ublas = pPde->ComputeDiffusionTermPrime(x,U);
                 
 				//LinearSourceTerm(x)	not needed as it is a constant wrt U_i
 				double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
@@ -661,29 +651,23 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 {
 	// Set all entries of jacobian to 0
 	MatZeroEntries(*pGlobalJacobian);
-    
     // Replicate the currentSolution data
     ReplicatableVector current_solution_replicated_array;
     current_solution_replicated_array.ReplicatePetscVector(currentSolution);
-    
     // Get our ownership range
     int lo, hi;
     VecGetOwnershipRange(currentSolution, &lo, &hi);
-    
  	// Get an iterator over the elements of the mesh
 	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 		mpMesh->GetElementIteratorBegin();
-
 	// Assume all elements have the same number of nodes...
 	const int num_nodes = iter->GetNumNodes();
 	// Will hold the contribution to the global jacobian from a single element
-	MatrixDouble a_elem(num_nodes,num_nodes);
-
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> a_elem;
 	while (iter != mpMesh->GetElementIteratorEnd())
 	{
 		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
-
-		a_elem.ResetToZero();
+		a_elem.clear();
 
 		// Ui contains the values of the current solution at the nodes of this element
         VectorDouble Ui(num_nodes);
@@ -692,9 +676,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 			int node = element.GetNodeGlobalIndex(i);
 			Ui(i) = current_solution_replicated_array[node];
 		}
-
 		ComputeJacobianOnElement(element, a_elem, mpPde, Ui);
-
         // Update global jacobian matrix with this element's contribution
 		for (int i=0; i<num_nodes; i++)
 		{
@@ -708,19 +690,15 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     			}
             }
 		}
-
 		iter++;
 	}
-
 	MatAssemblyBegin(*pGlobalJacobian, MAT_FLUSH_ASSEMBLY);
 	MatAssemblyEnd(*pGlobalJacobian, MAT_FLUSH_ASSEMBLY);
-
 	// Apply dirichlet boundary conditions 
 	mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pGlobalJacobian);
-    
     MatAssemblyBegin(*pGlobalJacobian, MAT_FINAL_ASSEMBLY);
 	MatAssemblyEnd(*pGlobalJacobian, MAT_FINAL_ASSEMBLY);
-	
+
 	return 0; // No error
 }
 

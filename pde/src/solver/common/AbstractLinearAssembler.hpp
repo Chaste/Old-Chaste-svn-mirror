@@ -16,9 +16,7 @@
 #include "AbstractBasisFunction.hpp"
 
 // Need to change this to use Ublas matrices and vectors
-#include "MatrixDouble.hpp"
 #include "VectorDouble.hpp"
-#include "MatrixDoubleUblasConverter.hpp"
 #include "VectorDoubleUblasConverter.hpp"
 
 /**
@@ -81,8 +79,8 @@ protected:
 	 * @param currentSolution For the parabolic case, the solution at the current timestep.
 	 */
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                           MatrixDouble &rAElem,
-                           VectorDouble &rBElem,
+                           c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1 > &rAElem,
+                           c_vector<double, ELEMENT_DIM+1> &rBElem,
                            AbstractLinearPde<SPACE_DIM> *pPde,
                            Vec currentSolution)
     {
@@ -103,17 +101,14 @@ protected:
         if (!this->mMatrixIsAssembled)
         {
             inverseJacobian = rElement.GetInverseJacobian();
-            rAElem.ResetToZero();
+            rAElem.clear();
         }
         
-        rBElem.ResetToZero();
+        rBElem.clear();
         
         
 
         // Create converters for use inside loop below
-        MatrixDoubleUblasConverter<ELEMENT_DIM+1> matrix_converter2;
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1>& a_elem = matrix_converter2.rConvertToUblas(rAElem);
-
         const int num_nodes = rElement.GetNumNodes();
                 
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
@@ -162,16 +157,13 @@ protected:
             {
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
                 
-                noalias(a_elem) += 	ComputeExtraLhsTerm(phi, pPde, x)*wJ;
+                noalias(rAElem) += 	ComputeExtraLhsTerm(phi, pPde, x)*wJ;
                 
-                noalias(a_elem) += prod( trans(gradPhi), 
+                noalias(rAElem) += prod( trans(gradPhi), 
                                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, gradPhi)) )* wJ; 
             }
             
-            VectorDoubleUblasConverter<ELEMENT_DIM+1> vector_converter2;
-            c_vector<double, ELEMENT_DIM+1>& b_elem = vector_converter2.rConvertToUblas(rBElem);
-
-            noalias(b_elem) += ComputeExtraRhsTerm(phi, pPde, x,  u) * wJ;
+            noalias(rBElem) += ComputeExtraRhsTerm(phi, pPde, x,  u) * wJ;
         }
     }       
     	
@@ -190,7 +182,7 @@ protected:
 	 *     problem.
 	 */
 	virtual void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-								 VectorDouble &rBsubElem,
+								 c_vector<double, ELEMENT_DIM> &rBsubElem,
 								 AbstractLinearPde<SPACE_DIM> *pPde,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
 	{		
@@ -208,7 +200,7 @@ protected:
 		// Initialise element contribution to zero
 		//b_sub_elem  = zero_vector<double, ELEMENT_DIM>;
 
-        rBsubElem.ResetToZero();
+        rBsubElem.clear();
         
 		for(int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
 		{
@@ -331,7 +323,7 @@ protected:
 		 */
 		pPde->PrepareForAssembleSystem(currentSolution);
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
-        // << std::endl;
+        // << std::endl;elem
         // ^ gives the same in parallel
         
         if (mpAssembledLinearSystem == NULL) 
@@ -352,15 +344,15 @@ protected:
 			rMesh.GetElementIteratorBegin();
 		// Assume all elements have the same number of nodes...
 		const int num_nodes = iter->GetNumNodes();
-		MatrixDouble a_elem(num_nodes, num_nodes);
-		VectorDouble b_elem(num_nodes);
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> rAElem;
+        c_vector<double, ELEMENT_DIM+1> rBElem;
  
 		while (iter != rMesh.GetElementIteratorEnd())
 		{
 		    const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
 
-            AssembleOnElement(element, a_elem, b_elem, pPde, currentSolution);
+            AssembleOnElement(element, rAElem, rBElem, pPde, currentSolution);
 
          
 			for (int i=0; i<num_nodes; i++)
@@ -372,11 +364,11 @@ protected:
     				for (int j=0; j<num_nodes; j++)
     				{
     					int node2 = element.GetNodeGlobalIndex(j);
-    					mpAssembledLinearSystem->AddToMatrixElement(node1,node2,a_elem(i,j));
+    					mpAssembledLinearSystem->AddToMatrixElement(node1,node2,rAElem(i,j));
     				}
                 }
             
-				mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_elem(i));
+				mpAssembledLinearSystem->AddToRhsVectorElement(node1,rBElem(i));
 			}
 			iter++;
 		}
@@ -386,8 +378,9 @@ protected:
 		if (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
 		{					
 			const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-			VectorDouble b_surf_elem(num_surf_nodes);
-	
+//			VectorDouble b_surf_elem(num_surf_nodes);
+	        c_vector<double, ELEMENT_DIM> b_surf_elem;
+
 			while (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
 			{
 				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;

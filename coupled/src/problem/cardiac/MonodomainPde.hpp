@@ -3,7 +3,6 @@
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
-#include "MatrixDouble.hpp"
 #include "AbstractCardiacPde.hpp"
 
 /*

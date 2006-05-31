@@ -22,14 +22,14 @@ public:
     	return 0.0;
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<SPACE_DIM> , double )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> , double u)
     {
-		return MatrixDouble::Identity(SPACE_DIM);
+        return identity_matrix<double>(SPACE_DIM);
     }
     
-    MatrixDouble ComputeDiffusionTermPrime(Point<SPACE_DIM> , double )
+    c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(Point<SPACE_DIM> , double )
     {
-		return MatrixDouble::Identity(SPACE_DIM) * 0.0;
+        return identity_matrix<double>(SPACE_DIM)*0.0;
     }
     
     double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> , double )

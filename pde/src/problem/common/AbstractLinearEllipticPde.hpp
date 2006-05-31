@@ -1,7 +1,6 @@
 #ifndef _ABSTRACTLINEARELLIPTICPDE_HPP_
 #define _ABSTRACTLINEARELLIPTICPDE_HPP_
 
-#include "MatrixDouble.hpp"
 #include "Point.hpp"
 #include "AbstractLinearPde.hpp"
 

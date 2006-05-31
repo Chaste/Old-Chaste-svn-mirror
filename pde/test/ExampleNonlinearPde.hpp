@@ -2,7 +2,6 @@
 #define _EXAMPLENONLINEARPDE_HPP_
 
 #include "AbstractNonlinearEllipticPde.hpp"
-#include "MatrixDouble.hpp"
 /**
  * An example 1D PDE: d/dx (u*du/dx) = -1
  */
@@ -20,15 +19,14 @@ public:
     	return 0.0;
     }
 
-    MatrixDouble ComputeDiffusionTerm(Point<1> x, double u)
+    c_matrix<double, 1, 1> ComputeDiffusionTerm(Point<1> , double u)
     {
-    	MatrixDouble I = MatrixDouble::Identity(1);
-    	return u*I;
+        return identity_matrix<double>(1)*u;
     }
     
-    MatrixDouble ComputeDiffusionTermPrime(Point<1> x, double u)
+    c_matrix<double, 1, 1> ComputeDiffusionTermPrime(Point<1> , double )
     {
-		return MatrixDouble::Identity(1) * 0.0;
+        return identity_matrix<double>(1)*0.0;
     }
     
     double ComputeNonlinearSourceTermPrime(Point<1> x, double u)
