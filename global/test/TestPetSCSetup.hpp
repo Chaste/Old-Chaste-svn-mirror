@@ -21,6 +21,22 @@ public:
         PetscInitialized(&is_there);
         TS_ASSERT( is_there == PETSC_TRUE );
     }
+    
+    void testPetscExceptions()
+    {
+        int err=0;
+        TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
+       
+        Vec v;     
+        err = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v);
+        //#define PETSC_ERR_ARG_WRONGSTATE   73   /* object in argument is in wrong */
+        TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
+        
+        err=65;
+        //#define PETSC_ERR_FILE_OPEN        65   /* unable to open file */
+        TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
+        
+    }
 };
 
 
