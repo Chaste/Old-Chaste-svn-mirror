@@ -74,7 +74,7 @@ public:
         PointStimulusHeartCellFactory cell_factory(0.01);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/heart");
+        monodomain_problem.SetMeshFilename("mesh/test/data/heart_fifth");
         monodomain_problem.SetEndTime(100);   // 100 ms
         monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg0Heart");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
