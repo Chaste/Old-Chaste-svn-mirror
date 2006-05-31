@@ -180,16 +180,27 @@ public:
             // overwrite the voltage with the input value
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
             
-            // solve
-            // Note: Voltage should not be updated. GetIIonic will be called later
-            // and needs the old voltage. The voltage will be updated from the pde.            
-            mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+big_timestep);
+            
+            try
+            {
+                
+                // solve
+                // Note: Voltage should not be updated. GetIIonic will be called later
+                // and needs the old voltage. The voltage will be updated from the pde.            
+                mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+big_timestep);
+            } catch (Exception &e)
+            {
+               ReplicateException(true);
+               throw e;
+            }
 
             // update the Iionic and stimulus caches
             UpdateCaches(global_index, local_index, time+big_timestep);
         }
         VecRestoreArray(currentSolution, &p_current_solution);
         
+        ReplicateException(false);
+         
         ReplicateCaches();
     }
 
@@ -227,6 +238,22 @@ public:
         
         mIionicCacheReplicated.Replicate(lo, hi);
         mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
+     }
+     
+     void ReplicateException(bool flag)
+     {
+        int my_error = (int) flag;
+        int anyones_error;
+        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+        if (flag)
+        {
+            // Return control to exception thrower
+            return;
+        }
+        if (anyones_error)
+        {
+            throw Exception("Another process threw an exception in PrepareForAssembleSystem");
+        }
      }
 };
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
