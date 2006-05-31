@@ -62,7 +62,8 @@ chaste_libs = ['global', 'io', 'ode', 'pde', 'coupled', 'linalg', 'mesh']
 
 all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir]
 
-opt = Environment(ENV = {'PATH' : os.environ['PATH']})
+opt = Environment(ENV = {'PATH': os.environ['PATH'],
+                         'USER': os.environ['USER']})
 opt.Append(CCFLAGS = petsc_incs+extra_flags)
 opt.Append(LINKFLAGS = link_flags)
 opt.Append(BOPT = 'g_c++')
