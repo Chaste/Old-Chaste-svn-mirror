@@ -18,7 +18,7 @@ public:
 		std::string dir = "testhandler";
 		OutputFileHandler handler2(dir);
 		std::string full_dir = handler2.GetTestOutputDirectory(dir);
-		TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()), dir);
+		TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()-1), dir+"/");
 		
 		std::ofstream *p_file_stream;
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",

@@ -82,7 +82,7 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(3);   // 1 ms
-        bidomain_problem.SetOutputDirectory("/tmp/testoutput/bidomain1d_with_shock");
+        bidomain_problem.SetOutputDirectory("bidomain1d_with_shock");
         bidomain_problem.SetOutputFilenamePrefix("Bidomain1d_with_shock");
 
         bidomain_problem.Initialise();

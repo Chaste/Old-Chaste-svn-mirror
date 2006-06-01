@@ -31,7 +31,7 @@ private:
         
         if (!testfile.is_open() || !goodfile.is_open())
         {
-        	throw new Exception("Files not present.");
+        	TS_FAIL("Files not present.");
         }
         
         while(getline(testfile, teststring))
@@ -148,16 +148,17 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes")); 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
-        
+
+        std::string output_dir = mpTestWriter->GetOutputDirectory();
         delete mpTestWriter;
 
-		TS_ASSERT(filesMatch("/tmp/testoutput/testdefine.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testdefine.dat", 
 		                     "io/test/data/testdefine_good.dat"));
 		                     
-		TS_ASSERT(filesMatch("/tmp/testoutput/testdefine.info", 
+		TS_ASSERT(filesMatch(output_dir + "testdefine.info", 
 		                     "io/test/data/testdefine_good.info"));
 		                     
-		TS_ASSERT(!filesMatch("/tmp/testoutput/testdefine.info", 
+		TS_ASSERT(!filesMatch(output_dir + "testdefine.info", 
 		                      "io/test/data/testdefine_bad.info"));
         
         
@@ -186,9 +187,10 @@ public:
         	mpTestWriter->AdvanceAlongUnlimitedDimension();
         }
         
+        std::string output_dir = mpTestWriter->GetOutputDirectory();
 		delete mpTestWriter;
 
-		TS_ASSERT(filesMatch("/tmp/testoutput/testunlimited.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testunlimited.dat", 
 		                     "io/test/data/testunlimited_good.dat"));
 		                     
 		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testunlimited"));
@@ -235,9 +237,10 @@ public:
         mpTestWriter->AdvanceAlongUnlimitedDimension();
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
     
+        std::string output_dir = mpTestWriter->GetOutputDirectory();
     	delete mpTestWriter; 
 
-		TS_ASSERT(filesMatch("/tmp/testoutput/testunlimitednegative.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testunlimitednegative.dat", 
 		                     "io/test/data/testunlimitednegative_good.dat"));
 		                      
     }
@@ -270,12 +273,13 @@ public:
 //        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
 //        mpTestWriter->PutVariable(ica_var_id, 63.124,2);
 
+        std::string output_dir = mpTestWriter->GetOutputDirectory();
 		delete mpTestWriter;
 
-		TS_ASSERT(filesMatch("/tmp/testoutput/testfixed.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testfixed.dat", 
 		                     "io/test/data/testfixed_good.dat"));
 		                     
-		TS_ASSERT(filesMatch("/tmp/testoutput/testfixed.info", 
+		TS_ASSERT(filesMatch(output_dir + "testfixed.info", 
 		                     "io/test/data/testfixed_good.info"));
 		                     
 		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testfixed"));
@@ -321,9 +325,10 @@ public:
         mpTestWriter->PutVariable(node_var_id, 1,0);
         mpTestWriter->PutVariable(node_var_id, -4,3);
     
+        std::string output_dir = mpTestWriter->GetOutputDirectory();
     	delete mpTestWriter;
     	
-		TS_ASSERT(filesMatch("/tmp/testoutput/testfixed_negatives.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testfixed_negatives.dat", 
 		                     "io/test/data/testfixed_negatives_good.dat"));
 
     }
@@ -357,12 +362,13 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(time_var_id, 0.2,3));
 
+        std::string output_dir = mpTestWriter->GetOutputDirectory();
 		delete mpTestWriter;
 		
-		TS_ASSERT(filesMatch("/tmp/testoutput/testfixedandunlimited_unlimited.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testfixedandunlimited_unlimited.dat", 
 		                     "io/test/data/testfixedandunlimited_unlimited_good.dat"));
 
-		TS_ASSERT(filesMatch("/tmp/testoutput/testfixedandunlimited_000001.dat", 
+		TS_ASSERT(filesMatch(output_dir + "testfixedandunlimited_000001.dat", 
 		                     "io/test/data/testfixedandunlimited_000001_good.dat"));
                              
         TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testfixedandunlimited"));                             

@@ -59,7 +59,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
-        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg01d");
+        monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
 
         monodomain_problem.Initialise();
@@ -107,7 +107,7 @@ public:
         if (num_procs == 1)
         {
             // Calculate the conduction velocity
-            ColumnDataReader simulation_data("/tmp/testoutput/MonoDg01d",
+            ColumnDataReader simulation_data("MonoDg01d",
                                              "NewMonodomainLR91_1d");
             PropagationPropertiesCalculator ppc(&simulation_data);
             double velocity;
@@ -131,7 +131,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
         monodomain_problem.SetEndTime(30);   // 30 ms
-        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg01d");
+        monodomain_problem.SetOutputDirectory("MonoDg01d");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
         monodomain_problem.Initialise();
 

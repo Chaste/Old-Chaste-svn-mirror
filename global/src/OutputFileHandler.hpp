@@ -31,12 +31,6 @@ public:
     OutputFileHandler(std::string directory)
     {
         mDirectory = GetTestOutputDirectory(directory);
-        
-        // Add a trailing slash if not already there
-        if (! ( *(mDirectory.end()-1) == '/'))
-        {
-            mDirectory = mDirectory + "/";
-        }
     }
     
     /**
@@ -56,6 +50,13 @@ public:
         directory = "/tmp/" + username + "/testoutput/" + directory;
         // Make sure it exists (ish)
         system(("mkdir -p " + directory).c_str());
+        
+        // Add a trailing slash if not already there
+        if (! ( *(directory.end()-1) == '/'))
+        {
+            directory = directory + "/";
+        }
+        
         return directory;
     }
     

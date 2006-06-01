@@ -34,15 +34,15 @@ public:
         
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0)
-        {
-            system("rm -f /tmp/testoutput/ParallelColumnWriter*");
-        }
+//        if (my_rank==0)
+//        {
+//            system("rm -f /tmp/testoutput/ParallelColumnWriter*");
+//        }
         
         int time_var_id, var1_id, var2_id; 
         
         //Make a parallel data writer
-        TS_ASSERT_THROWS_NOTHING(mpParallelWriter = new ParallelColumnDataWriter("/tmp/testoutput","ParallelColumnWriter"));
+        TS_ASSERT_THROWS_NOTHING(mpParallelWriter = new ParallelColumnDataWriter("TestParallelColumnDataWriter","ParallelColumnWriter"));
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpParallelWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->DefineFixedDimension("Node","dimensionless", num_nodes));
         
@@ -52,8 +52,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->EndDefineMode());
 
         MPI_Barrier(PETSC_COMM_WORLD);
+        
+        std::string output_dir = mpParallelWriter->GetOutputDirectory();
 
-        TS_ASSERT_EQUALS(system("test -f /tmp/testoutput/ParallelColumnWriter.info"), 0);
+        TS_ASSERT_EQUALS(system(("test -f " + output_dir + "ParallelColumnWriter.info").c_str()), 0);
  
  
         //Make a conventional data writer
@@ -149,19 +151,19 @@ public:
         
         MPI_Barrier(PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(system(
-          "diff /tmp/testoutput/ParallelColumnWriter.info io/test/data/ColumnWriter.info"),
+          ("diff "+output_dir+"ParallelColumnWriter.info io/test/data/ColumnWriter.info").c_str()),
           0);
        
         TS_ASSERT_EQUALS(system(
-          "diff /tmp/testoutput/ParallelColumnWriter_000000.dat io/test/data/ColumnWriter_000000.dat"),
+          ("diff "+output_dir+"ParallelColumnWriter_000000.dat io/test/data/ColumnWriter_000000.dat").c_str()),
           0); 
                 
         TS_ASSERT_EQUALS(system(
-          "diff /tmp/testoutput/ParallelColumnWriter_000001.dat io/test/data/ColumnWriter_000001.dat"),
+          ("diff "+output_dir+"ParallelColumnWriter_000001.dat io/test/data/ColumnWriter_000001.dat").c_str()),
           0);      
         
         TS_ASSERT_EQUALS(system(
-          "diff /tmp/testoutput/ParallelColumnWriter_unlimited.dat io/test/data/ColumnWriter_unlimited.dat"),
+          ("diff "+output_dir+"ParallelColumnWriter_unlimited.dat io/test/data/ColumnWriter_unlimited.dat").c_str()),
           0);
        
                

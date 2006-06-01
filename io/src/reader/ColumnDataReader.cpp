@@ -10,7 +10,8 @@
 #include <iomanip>
 #include <assert.h>
 #include "ColumnDataReader.hpp"
-#include "global/src/Exception.hpp"
+#include "OutputFileHandler.hpp"
+#include "Exception.hpp"
 
 /**
  * Variables read in from the data file are initialised to the
@@ -18,15 +19,36 @@
  */
 const int NOT_READ = -999;
 
-ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
+/**
+ * Read data from the given files into memory.
+ * 
+ * @param directory  The directory the files are stored in
+ * @param basename  The base name of the files to read (i.e. without the extensions)
+ * @param make_absolute  Whether to convert directory to an absolute path using the
+ *      OutputFileHandler
+ */
+ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
+                                   bool make_absolute)
 {
-	//Read in info file
-	std::string mInfoFilename = filepath + "/" + basename + ".info";
-	std::ifstream infofile(mInfoFilename.c_str(),std::ios::in);
-	//If it doesn't exist - throw exception
-	if(!infofile.is_open())
+    // Find out where files are really stored
+    if (make_absolute)
+    {
+        OutputFileHandler output_file_handler(directory);
+        directory = output_file_handler.GetTestOutputDirectory(directory);
+    } else {
+        // Add a trailing slash if needed
+        if ( !(*(directory.end()-1) == '/'))
+        {
+            directory = directory + "/";
+        }
+    }
+    // Read in info file
+	mInfoFilename = directory + basename + ".info";
+	std::ifstream infofile(mInfoFilename.c_str(), std::ios::in);
+	// If it doesn't exist - throw exception
+	if (!infofile.is_open())
 	{
-		throw Exception("Couldn't open info file");
+		throw Exception("Couldn't open info file: " + mInfoFilename);
 	}
 	std::string junk;
 	mNumFixedDimensions = NOT_READ;
@@ -50,17 +72,17 @@ ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 	{			
 		if(mNumFixedDimensions < 1)
 		{
-		   	mDataFilename = filepath + "/" + basename + ".dat";
+		   	mDataFilename = directory + basename + ".dat";
 		}
 		else
 		{
             std::stringstream suffix;
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << 0;
 
-			mDataFilename = filepath + "/" + basename + "_" + suffix.str() + ".dat";            		
+			mDataFilename = directory + basename + "_" + suffix.str() + ".dat";            		
             //the ancillary path needs to come from a single place that is 
             //used by both the reader & writer, otherwise all will be bad.
-            mAncillaryFilename = filepath + "/" + basename + "_unlimited.dat"; 
+            mAncillaryFilename = directory + basename + "_unlimited.dat"; 
             //Extract the units and place into map
             std::ifstream ancillaryfile(mAncillaryFilename.c_str(),std::ios::in);                      
             //If it doesn't exist - throw exception
@@ -86,7 +108,7 @@ ColumnDataReader::ColumnDataReader(std::string filepath, std::string basename)
 	}
 	else
 	{
-	    mDataFilename = filepath + "/" + basename + ".dat";	    	
+	    mDataFilename = directory + basename + ".dat";	    	
 	}
 	
 	std::ifstream datafile(mDataFilename.c_str(),std::ios::in);

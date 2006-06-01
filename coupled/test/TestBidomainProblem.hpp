@@ -51,7 +51,7 @@ public:
   
     
 
-class TestBidomainDg0Assembler : public CxxTest::TestSuite 
+class TestBidomainProblem : public CxxTest::TestSuite 
 {
 public:
     void TestBidomainDg01D()
@@ -61,7 +61,7 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
-        bidomain_problem.SetOutputDirectory("/tmp/testoutput/bidomainDg01d");
+        bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
 
         bidomain_problem.Initialise();
@@ -140,7 +140,7 @@ public:
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         monodomain_problem.SetEndTime(1);   // 1 ms
-        monodomain_problem.SetOutputDirectory("/tmp/testoutput/Monodomain1d");
+        monodomain_problem.SetOutputDirectory("Monodomain1d");
         monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
         
         monodomain_problem.Initialise();
@@ -160,7 +160,7 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
-        bidomain_problem.SetOutputDirectory("/tmp/testoutput/Bidomain1d");
+        bidomain_problem.SetOutputDirectory("Bidomain1d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
 
         bidomain_problem.Initialise();

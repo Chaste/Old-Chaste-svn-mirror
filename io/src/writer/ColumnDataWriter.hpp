@@ -9,6 +9,7 @@
 #include <fstream>
 #include "AbstractDataWriter.hpp"
 #include "DataWriterVariable.hpp"
+#include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 
 #include <string>
@@ -26,7 +27,7 @@ const int FILE_SUFFIX_WIDTH = 6;
 class ColumnDataWriter : public AbstractDataWriter
 {
 protected:
-    bool mMakeFilesWorldWritable; /**< Avoid problems when files stored in /tmp */
+    OutputFileHandler mOutputFileHandler; ///< For opening data files.
 
     std::string mDirectory; /**< Directory output files will be stored in. */
     std::string mBaseName; /**< The base name for the output data files. */
@@ -84,6 +85,8 @@ public:
 
     virtual void PutVariable(int variableID, double variableValue, long dimensionPosition = -1);
     virtual void Close();
+    
+    std::string GetOutputDirectory(void);
 };
 
 #endif

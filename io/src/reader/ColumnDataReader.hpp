@@ -30,7 +30,8 @@ private:
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
 public:
     
-    ColumnDataReader(std::string filepath, std::string basename);
+    ColumnDataReader(std::string filepath, std::string basename,
+                     bool make_absolute=true);
     std::vector<double> GetValues(std::string variableName);
     std::vector<double> GetValues(std::string variableName, int fixedDimension);
     std::vector<double> GetUnlimitedDimensionValues();

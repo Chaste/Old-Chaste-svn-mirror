@@ -15,7 +15,8 @@ using std::string;
 *
 */
 ColumnDataWriter::ColumnDataWriter(string directory, string baseName) : 
-                             mDirectory(directory), 
+                             mOutputFileHandler(directory),
+                             mDirectory(directory),
                              mBaseName(baseName), 
                              mIsInDefineMode(true), 
                              mIsFixedDimensionSet(false),
@@ -28,19 +29,7 @@ ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
                              mpFixedDimensionVariable(NULL),
                              mHasPutVariable(false),
                              mNeedAdvanceAlongUnlimitedDimension(false)
-{
-    if (mDirectory.compare(0, 5, "/tmp/") == 0)
-    {
-        // Make files in /tmp world-writable so automatic builds don't fail
-        mMakeFilesWorldWritable = true;
-    } else {
-        mMakeFilesWorldWritable = false;
-    }
-    system(("mkdir -p "+mDirectory).c_str());
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(mDirectory.c_str(), 0777);
-    }
+{   
 }
 /**
 * Destructor for ColumnDataWriter objects. Closes any open files.
@@ -60,6 +49,14 @@ ColumnDataWriter::~ColumnDataWriter()
 	{
 		delete mpFixedDimensionVariable;
 	}
+}
+
+/**
+ * Return the full pathname of the directory where we're writing files.
+ */
+std::string ColumnDataWriter::GetOutputDirectory(void)
+{
+    return mOutputFileHandler.GetTestOutputDirectory(mDirectory);
 }
 
 /**
@@ -250,20 +247,11 @@ void ColumnDataWriter::EndDefineMode()
             std::stringstream suffix;
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << mUnlimitedDimensionPosition;
             
-            // filepath is the name for the output file.
-            std::string filepath = mDirectory + "/" + mBaseName + "_" + suffix.str() + ".dat";
             if(mpUnlimitedDimensionVariable != NULL)
             {
-                std::string ancillary_filepath = mDirectory + "/" + mBaseName + "_unlimited.dat";
-                mpCurrentAncillaryFile = new std::ofstream(ancillary_filepath.c_str(),std::ios::out);
-                if(!mpCurrentAncillaryFile->is_open())
-                {
-                    throw Exception("Could not open file: " + ancillary_filepath);
-                }
-                if (mMakeFilesWorldWritable)
-                {
-                    chmod(ancillary_filepath.c_str(), 0666);
-                }
+                std::string ancillary_filename = mBaseName + "_unlimited.dat";
+                mpCurrentAncillaryFile = mOutputFileHandler.OpenOutputFile(
+                    ancillary_filename, std::ios::out);
                 (*mpCurrentAncillaryFile) << std::setiosflags(std::ios::scientific);
                 (*mpCurrentAncillaryFile) << std::setprecision(FIELD_WIDTH-6);
                 if(mpUnlimitedDimensionVariable != NULL)
@@ -273,22 +261,15 @@ void ColumnDataWriter::EndDefineMode()
                 }                
             }
             mAncillaryRowStartPosition = mpCurrentAncillaryFile->tellp();
-            this->CreateFixedDimensionFile(filepath);
+            std::string filename = mBaseName + "_" + suffix.str() + ".dat";
+            this->CreateFixedDimensionFile(filename);
         }
         else
         {
             mRowWidth = (mVariables.size() + unlimited_dimension_variable)  * (FIELD_WIDTH + SPACING); 
             //write out the column headers
-            std::string filepath = mDirectory + "/" + mBaseName + ".dat";
-            mpCurrentOutputFile = new std::ofstream(filepath.c_str(), std::ios::out);
-            if(!mpCurrentOutputFile->is_open())
-            {
-                throw Exception("Could not open file: " + filepath);
-            }
-            if (mMakeFilesWorldWritable)
-                {
-                    chmod(filepath.c_str(), 0666);
-                }
+            std::string filename = mBaseName + ".dat";
+            mpCurrentOutputFile = mOutputFileHandler.OpenOutputFile(filename, std::ios::out);
             (*mpCurrentOutputFile) << std::setiosflags(std::ios::scientific);
             (*mpCurrentOutputFile) << std::setprecision(FIELD_WIDTH-6);
             if(mpUnlimitedDimensionVariable != NULL)
@@ -318,13 +299,13 @@ void ColumnDataWriter::EndDefineMode()
     {
         assert(mIsFixedDimensionSet);
         mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + SPACING); 
-        std::string filepath = mDirectory + "/" + mBaseName + ".dat";
-        this->CreateFixedDimensionFile(filepath);
+        std::string filename = mBaseName + ".dat";
+        this->CreateFixedDimensionFile(filename);
     }
     
     // Write info file
-    std::string infopath = mDirectory + "/" + mBaseName + ".info";
-    this->CreateInfoFile(infopath);
+    std::string infoname = mBaseName + ".info";
+    this->CreateInfoFile(infoname);
     
     mIsInDefineMode = false;
 }
@@ -333,7 +314,7 @@ void ColumnDataWriter::EndDefineMode()
  * CreateFixedDimensionFile created the file for output and write out 
  * the header for it.
  */
-void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
+void ColumnDataWriter::CreateFixedDimensionFile(std::string filename)
 {
 	// Delete old data file object, if any
 	if (mpCurrentOutputFile != NULL)
@@ -341,15 +322,7 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
 		delete mpCurrentOutputFile;
 	}
     //create new data file
-    mpCurrentOutputFile = new std::ofstream(filepath.c_str(), std::ios::out);
-    if(!mpCurrentOutputFile->is_open())
-    {
-        throw Exception("Could not open file: " + filepath);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(filepath.c_str(), 0666);
-    }
+    mpCurrentOutputFile = mOutputFileHandler.OpenOutputFile(filename, std::ios::out);
     (*mpCurrentOutputFile) << std::setiosflags(std::ios::scientific);
     (*mpCurrentOutputFile) << std::setprecision(FIELD_WIDTH-6);
     if(mpFixedDimensionVariable != NULL)
@@ -381,24 +354,15 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filepath)
 /**
  * CreateInfoFile created the info file.
  */
-void ColumnDataWriter::CreateInfoFile(std::string filepath)
+void ColumnDataWriter::CreateInfoFile(std::string filename)
 {
 	//create new info file
-    std::ofstream info_file(filepath.c_str(), std::ios::out);
-    if(!info_file.is_open())
-    {
-        throw Exception("Could not open file: " + filepath);
-    }
-    
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(filepath.c_str(), 0666);
-    }
-
-    info_file << "FIXED " << mFixedDimensionSize << std::endl;
-    info_file << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
-    info_file << "VARIABLES " << mVariables.size() << std::endl;    
-
+    std::ofstream *p_info_file = mOutputFileHandler.OpenOutputFile(filename, std::ios::out);
+    (*p_info_file) << "FIXED " << mFixedDimensionSize << std::endl;
+    (*p_info_file) << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
+    (*p_info_file) << "VARIABLES " << mVariables.size() << std::endl;    
+    p_info_file->close();
+    delete p_info_file;
 }
 
 
@@ -428,8 +392,8 @@ void ColumnDataWriter::DoAdvanceAlongUnlimitedDimension()
 //                suffix = "0" + suffix;   
 //            }
             
-            std::string filepath = mDirectory + "/" + mBaseName + "_" + suffix.str() + ".dat";
-            this->CreateFixedDimensionFile(filepath);
+            std::string filename = mBaseName + "_" + suffix.str() + ".dat";
+            this->CreateFixedDimensionFile(filename);
         }
         else
         {
