@@ -5,8 +5,6 @@
 #include <vector>
 #include <petscvec.h>
 
-#include "VectorDouble.hpp"
-#include "VectorDoubleUblasConverter.hpp"
 #include "Point.hpp"
 #include "Element.hpp"
 #include "LinearSystem.hpp"

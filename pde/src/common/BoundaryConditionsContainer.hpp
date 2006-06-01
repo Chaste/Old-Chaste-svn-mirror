@@ -48,7 +48,7 @@ private:
     typename std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         neumannIterator; /**< Internal iterator over neumann boundary conditions */
     
-    int mSizeDependentVariable; /**< Number of components in the dependent variable */
+    unsigned int mSizeDependentVariable; /**< Number of components in the dependent variable */
     int mNumNodes; /**< Number of nodes in the mesh */
 public:
 	/**
@@ -116,8 +116,8 @@ public:
         assert( pBoundaryNode->IsBoundaryNode() );
         
         // check the size of the vector the BC returns is consistent with the number of dependent variables
-        VectorDouble bc = pBoundaryCondition->GetValue(pBoundaryNode->GetPoint());
-        assert(bc.Size() == mSizeDependentVariable);
+        vector<double> bc = pBoundaryCondition->GetValue(pBoundaryNode->GetPoint());
+        assert(bc.size() == mSizeDependentVariable);
         
         
 		//std::pair<  const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryNode, pBoundaryCondition);     
@@ -147,8 +147,8 @@ public:
                                       const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
     {
     	// check the size of the vector the BC returns is consistent with the number of dependent variables
-    	VectorDouble bc = pBoundaryCondition->GetValue(pBoundaryElement->GetNode(0)->GetPoint());
-        assert(bc.Size() == mSizeDependentVariable);
+    	c_vector<double, SPACE_DIM> bc = pBoundaryCondition->GetValue(pBoundaryElement->GetNode(0)->GetPoint());
+        assert(bc.size() == mSizeDependentVariable);
    
     	//assert(boundaryElement->IsBoundaryElement());
    		    	
@@ -170,7 +170,7 @@ public:
 		iter = pMesh->GetBoundaryNodeIteratorBegin();
 		while (iter != pMesh->GetBoundaryNodeIteratorEnd()) 
 		{
-			VectorDouble zero(mSizeDependentVariable);
+            zero_vector<double> zero(mSizeDependentVariable);
 			
 			ConstBoundaryCondition<SPACE_DIM>* pZeroBoundaryCondition =
 				new ConstBoundaryCondition<SPACE_DIM>( zero );
@@ -200,9 +200,9 @@ public:
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
 			long index = dirichIterator->first->GetIndex();
-			VectorDouble value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+			c_vector<double, SPACE_DIM> value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
 
-			for(int i=0; i<mSizeDependentVariable; i++)
+			for(unsigned int i=0; i<mSizeDependentVariable; i++)
 			{
 
                 if (!MatrixIsAssembled)
@@ -243,9 +243,9 @@ public:
 		{
 			long node_index = dirichIterator->first->GetIndex();
 
-            VectorDouble value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+            c_vector<double, SPACE_DIM> value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
             
-            for(int i=0; i<mSizeDependentVariable; i++)
+            for(unsigned int i=0; i<mSizeDependentVariable; i++)
             {
                 int global_index = node_index  + i*mNumNodes;
                 
@@ -269,7 +269,7 @@ public:
 	 * 
 	 * If the number of unknowns is greater than one, it is assumed the solution vector is
 	 * of the form (in the case of two unknowns u and v, and N nodes):
-	 * solnvec = (U_1, U_2, ..., U_N, V_1, V_2, ..., V_N)
+	 * solnvec = (U_1, U_2, ...,c_vector<double, SPACE_DIM>  U_N, V_1, V_2, ..., V_N)
 	 * 
 	 */
 	void ApplyDirichletToNonlinearJacobian(Mat jacobian)
@@ -285,7 +285,7 @@ public:
 			
 			for (int col=0; col<cols; col++)
 			{
-				for(int i=0; i<mSizeDependentVariable; i++)
+				for(int i=0; i<(int)mSizeDependentVariable; i++)
 				{			
 					value = (col == (index+i*mNumNodes)) ? 1.0 : 0.0;
 					MatSetValue(jacobian, index, col, value, INSERT_VALUES);
@@ -342,7 +342,7 @@ public:
 	 * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions 
 	 * at the same time 
 	 */
-	VectorDouble GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode)
+	c_vector<double, SPACE_DIM> GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode)
 	{		
 		//assert(pBoundaryNode->IsBoundaryNode());
 				
@@ -368,7 +368,7 @@ public:
 	 * 
 	 * It is up to the user to ensure that the point x is contained in the surface element.
 	 */
-	VectorDouble GetNeumannBCValue(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement, Point<SPACE_DIM> x)
+	c_vector<double, SPACE_DIM> GetNeumannBCValue(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement, Point<SPACE_DIM> x)
 	{		
 		neumannIterator = mpNeumannMap->find(pSurfaceElement);
 		assert(neumannIterator!=mpNeumannMap->end());

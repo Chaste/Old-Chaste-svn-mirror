@@ -16,8 +16,6 @@
 #include "AbstractBasisFunction.hpp"
 
 // Need to change this to use Ublas matrices and vectors
-#include "VectorDouble.hpp"
-#include "VectorDoubleUblasConverter.hpp"
 
 /**
  * Base class from which all solvers for linear PDEs inherit. It defines a common
@@ -195,11 +193,6 @@ protected:
 		
 		const int num_nodes = rSurfaceElement.GetNumNodes();
 
-        //VectorDoubleUblasConverter<ELEMENT_DIM> vector_converter;
-        //c_vector<double, ELEMENT_DIM>& b_sub_elem = vector_converter.rConvertToUblas(rBsubElem);
-		// Initialise element contribution to zero
-		//b_sub_elem  = zero_vector<double, ELEMENT_DIM>;
-
         rBsubElem.clear();
         
 		for(int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
@@ -223,7 +216,7 @@ protected:
 			/**
 			 * \todo Improve efficiency of Neumann BC implementation.
 			 */
-			VectorDouble Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+			c_vector<double, SPACE_DIM> Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 
 			for (int row=0; row < num_nodes; row++)
 			{
@@ -378,7 +371,6 @@ protected:
 		if (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
 		{					
 			const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-//			VectorDouble b_surf_elem(num_surf_nodes);
 	        c_vector<double, ELEMENT_DIM> b_surf_elem;
 
 			while (surf_iter != rMesh.GetBoundaryElementIteratorEnd())

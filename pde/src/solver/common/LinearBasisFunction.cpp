@@ -98,7 +98,7 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int 
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
  *     within a canonical element.
- * @return The derivative of the basis function. This is a vector (VectorDouble
+ * @return The derivative of the basis function. This is a vector (c_vector<double, SPACE_DIM>
  *     instance) giving the derivative along each axis.
  */
 template <int ELEM_DIM>
@@ -243,8 +243,8 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBa
  * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
  *     element into the canonical element.
  * @return The derivatives of the basis functions, in local index order. Each
- *     entry is a vector (VectorDouble instance) giving the derivative along
- *     each axis.
+ *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the 
+ *     derivative along each axis.
  */
 template <int ELEM_DIM>
 c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const

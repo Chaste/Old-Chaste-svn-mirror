@@ -3,32 +3,21 @@
 
 #include "AbstractMaterial.hpp"
 #include "Element.hpp"
-#include "VectorDouble.hpp"
 #include "FourthOrderTensor.hpp"
 
 template <int ELEM_DIM, int SPACE_DIM>
 class NonlinearElasticityPde
 {
 private:
-	VectorDouble* mpGravity;
+	c_vector<double, SPACE_DIM> mpGravity;
 
 public:
-	NonlinearElasticityPde(VectorDouble gravity)
+	NonlinearElasticityPde(c_vector<double, SPACE_DIM> gravity)
 	{
-		assert(gravity.Size()==SPACE_DIM);
-		mpGravity = new VectorDouble(SPACE_DIM);
-		
-		for(int i=0;i<SPACE_DIM;i++)
-		{
-			(*mpGravity)(i) = gravity(i);
-		}
+		assert(gravity.size()==SPACE_DIM);
+		mpGravity = gravity;
 	}
 	
-	~NonlinearElasticityPde()
-	{
-		delete mpGravity;
-	}
-
  //\todo:  Ticket 96: we need to use ublas here (and compile-time mumble)    
 //	MatrixDouble ComputeStress(const Element<ELEM_DIM, SPACE_DIM> & rElement, const MatrixDouble F)
 //	{
@@ -40,9 +29,9 @@ public:
 //		return rElement.GetMaterial().Compute_dTdE(F);
 //	}	
 	
-	VectorDouble ComputeGravityForceTerm(const Element<ELEM_DIM, SPACE_DIM> & rElement)
+	c_vector<double, SPACE_DIM> ComputeGravityForceTerm(const Element<ELEM_DIM, SPACE_DIM> & rElement)
 	{
-		return rElement.GetMaterial()->GetDensity() * (*mpGravity);
+		return rElement.GetMaterial()->GetDensity() * mpGravity;
 	}
 };
 

@@ -24,9 +24,9 @@ public :
 	 */
     FunctionalBoundaryCondition(double (*func)(const Point<SPACE_DIM> x)) : mFunction(func) {};
     
-    VectorDouble GetValue( const Point<SPACE_DIM> x) const
+    vector<double> GetValue( const Point<SPACE_DIM> x) const
     {
-        VectorDouble ret(1);
+        vector<double> ret(1);
         ret(0) = mFunction(x);
         
         return ret;

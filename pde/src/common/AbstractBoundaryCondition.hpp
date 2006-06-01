@@ -2,7 +2,7 @@
 #define _ABSTRACTBOUNDARYCONDITION_HPP_
 
 #include "Point.hpp"
-#include "VectorDouble.hpp"
+#include "UblasCustomFunctions.hpp"
 
 /**
  * Abstract base class for boundary conditions.
@@ -16,7 +16,7 @@ public:
 	 * 
 	 * @param x The point at which to evaluate the boundary condition.
 	 */
-	virtual VectorDouble GetValue(const Point<SPACE_DIM> x) const = 0;
+	virtual vector<double> GetValue(const Point<SPACE_DIM> x) const = 0;
 	
 	// Make derived classes work
 	AbstractBoundaryCondition() {}

@@ -1,5 +1,3 @@
-TestVectorDouble.hpp
-TestVectorDoubleUblasConverter.hpp
 TestFourthOrderTensor.hpp
 TestSimpleLinearSolver.hpp
 TestSimpleNonlinearSolver.hpp

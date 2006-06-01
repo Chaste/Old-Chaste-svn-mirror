@@ -3,7 +3,6 @@
 
 #include <cxxtest/TestSuite.h>
 #include "ConstBoundaryCondition.hpp"
-#include "VectorDouble.hpp"
 
 class TestConstDirichletBoundaryCondition : public CxxTest::TestSuite 
 {
@@ -12,7 +11,7 @@ public:
 	{
 		Point<1> zero(0);
 		ConstBoundaryCondition<1> const_dirich1(1.0);
-		VectorDouble value = const_dirich1.GetValue(zero);
+		c_vector<double, 1> value = const_dirich1.GetValue(zero);
 		TS_ASSERT_DELTA(value(0),1.0,1e-12);		
 	}
 };

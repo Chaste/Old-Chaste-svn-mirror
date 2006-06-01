@@ -10,7 +10,6 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.hpp"
 #include "SimpleLinearSolver.hpp"
-#include "VectorDouble.hpp" 
  
 #include "PetscSetupAndFinalize.hpp"
 
@@ -37,7 +36,7 @@ public:
 
 		for (int i=0; i<numNodes; i++)
 		{
-			VectorDouble value = bcc1.GetDirichletBCValue(nodes[i]);
+			c_vector<double, 1> value = bcc1.GetDirichletBCValue(nodes[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
         }
         
@@ -66,7 +65,7 @@ public:
 		
 		for (int i=0; i<numElem; i++)
 		{
-			VectorDouble value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
+			c_vector<double, 1> value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
 			delete elements[i].GetNode(0);
 		}		
@@ -88,7 +87,7 @@ public:
 
 		for (int i=0; i<numNodes; i++)
 		{
-			VectorDouble value = bcc2.GetDirichletBCValue(nodes2[i]);
+			c_vector<double, 2> value = bcc2.GetDirichletBCValue(nodes2[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
         }
         
@@ -119,7 +118,7 @@ public:
 		
 		for (int i=0; i<numElem; i++)
 		{
-			VectorDouble value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
+			c_vector<double, 2> value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
 			delete elements2[i].GetNode(0);
 			delete elements2[i].GetNode(1);
@@ -142,7 +141,7 @@ public:
 
 		for (int i=0; i<numNodes; i++)
 		{
-			VectorDouble value = bcc3.GetDirichletBCValue(nodes3[i]);
+			c_vector<double, 3> value = bcc3.GetDirichletBCValue(nodes3[i]);
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
         }
         for (int i=0; i<numNodes; i++)
@@ -174,7 +173,7 @@ public:
 		
 		for (int i=0; i<numElem; i++)
 		{
-			VectorDouble value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
+			c_vector<double, 3> value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
 			TS_ASSERT_DELTA( value(0), i, 1e-12 );
 			delete elements3[i].GetNode(0);
 			delete elements3[i].GetNode(1);
@@ -333,7 +332,7 @@ public:
 		// Check boundary nodes have the right condition
 		for (int i=0; i<4; i++)
 		{
-			VectorDouble value = bcc.GetDirichletBCValue(mesh.GetNodeAt(i));
+			c_vector<double, 2> value = bcc.GetDirichletBCValue(mesh.GetNodeAt(i));
 			TS_ASSERT_DELTA(value(0), 0.0, 1e-12);
 		}
 		// Check non-boundary node has no condition
@@ -391,7 +390,7 @@ public:
 		for (int i = 0; i < SIZE-1; i++)
 		{
 			nodes_array[i] = new Node<3>(i,true);
-			VectorDouble vec(2);
+			c_vector<double, 2> vec;
 			vec(0) = -1;
 			vec(1) = -2;
 			ConstBoundaryCondition<3>* p_boundary_condition =
@@ -457,7 +456,7 @@ public:
 		for (int i = 0; i < SIZE-1; i++)
 		{
 			nodes_array[i] = new Node<3>(i,true);
-			VectorDouble vec(3);
+			c_vector<double, 3> vec;
 			vec(0) = -1;
 			vec(1) = -2;
 			vec(2) =  0;
@@ -542,7 +541,7 @@ public:
 		{
 			nodes_array[i] = new Node<3>(i,true);
 			
-			VectorDouble vec(3);
+			c_vector<double, 3> vec;
 			vec(0) = -1;
 			vec(1) = -2;
 			vec(2) = -3;

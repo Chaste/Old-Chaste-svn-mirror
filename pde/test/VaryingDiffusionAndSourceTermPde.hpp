@@ -2,7 +2,6 @@
 #define _VARYINGDIFFUSIONANDSOURCETERMPDE_
 
 #include "AbstractLinearEllipticPde.hpp"
-#include "VectorDouble.hpp"
 #include "Point.hpp"
 #include <cmath>
 

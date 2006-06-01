@@ -6,7 +6,6 @@
 
 #include "CompressibleIsotropicMooneyRivlinMaterial.hpp"
 #include "NonlinearElasticityPde.hpp"
-#include "VectorDouble.hpp"
 
 class TestNonlinearElasticityPde : public CxxTest::TestSuite 
 {
@@ -21,7 +20,7 @@ public:
 		CompressibleIsotropicMooneyRivlinMaterial<2> material(c1);
 		material.SetDensity(1.5);
 	
-		VectorDouble gravity(2);
+		c_vector<double, 2> gravity;
 		gravity(0) = 1;
 		gravity(1) = 2;
 		NonlinearElasticityPde<2,2> pde(gravity);
@@ -36,7 +35,7 @@ public:
 //			MatrixDouble I = MatrixDouble::Identity(2);						 
 //			MatrixDouble T = pde.ComputeStress( mesh.GetElement(i), I);
 //
-//			VectorDouble rhoG = pde.ComputeGravityForceTerm(  mesh.GetElement(i) );
+//			c_vector<double, SPACE_DIM> rhoG = pde.ComputeGravityForceTerm(  mesh.GetElement(i) );
 //			
 //			TS_ASSERT_EQUALS( T.Rows()   ,2);
 //			TS_ASSERT_EQUALS( T.Columns(),2);
@@ -62,7 +61,7 @@ public:
 		CompressibleIsotropicMooneyRivlinMaterial<3> material(c1,c2);
 		material.SetDensity(1.5);
 	
-		VectorDouble gravity(3);
+		c_vector<double, 3> gravity;
 		gravity(0) = 1;
 		gravity(1) = 2;
 		gravity(2) = 3;
@@ -78,7 +77,7 @@ public:
 //			MatrixDouble I = MatrixDouble::Identity(3);						 
 //			MatrixDouble T = pde.ComputeStress( mesh.GetElement(i), I);
 //
-//			VectorDouble rhoG = pde.ComputeGravityForceTerm(  mesh.GetElement(i) );
+//			c_vector<double, SPACE_DIM> rhoG = pde.ComputeGravityForceTerm(  mesh.GetElement(i) );
 //			
 //			TS_ASSERT_EQUALS( T.Rows()   ,3);
 //			TS_ASSERT_EQUALS( T.Columns(),3);

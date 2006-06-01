@@ -688,10 +688,10 @@ public:
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
             int local_index = global_index - lo;
-			VectorDouble r(2);
+			c_vector<double, 2> r;
 			r(0) = mesh.GetNodeAt(global_index)->GetPoint()[0];
 			r(1) = mesh.GetNodeAt(global_index)->GetPoint()[1];
-			double u = -0.25 * r.L2Norm() * r.L2Norm() + 2.25;
+			double u = -0.25 * inner_prod(r, r) + 2.25;
 			TS_ASSERT_DELTA(p_answer[local_index], u, 0.01);
 		}
 		VecRestoreArray(answer, &p_answer);

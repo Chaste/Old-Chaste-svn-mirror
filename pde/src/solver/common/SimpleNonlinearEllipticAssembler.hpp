@@ -67,20 +67,20 @@ public:
 private:
 	void ComputeResidualOnElement(
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-							VectorDouble &rBElem,
+							c_vector<double, ELEMENT_DIM+1> &rBElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-							VectorDouble Ui);
+							vector<double> Ui);
 	void ComputeResidualOnSurfaceElement(
  							const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-							VectorDouble &rBsubElem,
+							c_vector<double, ELEMENT_DIM+1> &rBsubElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
-							VectorDouble Ui);
+							vector<double> Ui);
 	void ComputeJacobianOnElement(
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-							VectorDouble Ui);
+							vector<double> Ui);
 	
 public:
 	/**
@@ -188,10 +188,10 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
  template<int ELEMENT_DIM, int SPACE_DIM>
  void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOnSurfaceElement(
  								const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-								VectorDouble &rBsubElem,
+								c_vector<double, ELEMENT_DIM+1> &rBsubElem,
 								AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 								BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
-								VectorDouble Ui)
+								vector<double> Ui)
 {
 	AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
 		*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceBasisFunction);
@@ -226,7 +226,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 		/**
 		 * \todo Neumann BC value depends on u?
 		 */
-		VectorDouble Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+		c_vector<double, SPACE_DIM> Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 		//std::cout << "Dgradu.n = " << Dgradu_dot_n << std::endl << std::flush;
 
 		for (int i=0; i < num_nodes; i++)
@@ -246,9 +246,9 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 template<int ELEMENT_DIM, int SPACE_DIM>
 void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOnElement(
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-							VectorDouble &rBElem,
+							c_vector<double, ELEMENT_DIM+1> &rBElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-							VectorDouble Ui)
+							vector<double> Ui)
 {
 	AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
 		*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
@@ -370,17 +370,17 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	// Assume all elements have the same number of nodes...
 	const int num_nodes = iter->GetNumNodes();
 	// Will contain the contribution of a single element to the residual
-	VectorDouble b_elem(num_nodes);
+    c_vector<double, ELEMENT_DIM+1> b_elem;
  
 	// Iterate over all elements, summing the contribution of each to the residual
 	while (iter != mpMesh->GetElementIteratorEnd())
 	{
 		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
-		b_elem.ResetToZero();            
+		b_elem.clear();            
 
 		// Ui contains the values of the current solution at the nodes of this element
-		VectorDouble Ui(num_nodes);
+        vector<double> Ui(num_nodes);
 		for (int i=0; i<num_nodes; i++)
 		{
 			int node_index = element.GetNodeGlobalIndex(i);
@@ -415,14 +415,14 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	if (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 	{					
 		const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-		VectorDouble b_surf_elem(num_surf_nodes);
+		c_vector<double, ELEMENT_DIM+1> b_surf_elem;
 
 		while (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 		{
 			const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 			
 			// UiSurf contains the values of the current solution at the nodes of this surface element
-			VectorDouble UiSurf(num_surf_nodes);
+			vector<double> UiSurf(num_surf_nodes);
 			for (int i=0; i<num_surf_nodes; i++)
             {
             	int node = surf_element.GetNodeGlobalIndex(i);
@@ -435,7 +435,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 			 */
 			if (mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
 			{
-				b_surf_elem.ResetToZero();
+				b_surf_elem.clear();
 				ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, mpPde, *mpBoundaryConditions, UiSurf);
 
 				for (int i=0; i<num_surf_nodes; i++)
@@ -555,7 +555,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-							VectorDouble Ui)
+							vector<double> Ui)
 {
 	AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
 		*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
@@ -670,7 +670,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 		a_elem.clear();
 
 		// Ui contains the values of the current solution at the nodes of this element
-        VectorDouble Ui(num_nodes);
+        vector<double> Ui(num_nodes);
         for (int i=0; i<num_nodes; i++)
 		{
 			int node = element.GetNodeGlobalIndex(i);
