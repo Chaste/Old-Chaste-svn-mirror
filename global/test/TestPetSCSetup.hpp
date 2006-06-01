@@ -36,6 +36,9 @@ public:
         //#define PETSC_ERR_FILE_OPEN        65   /* unable to open file */
         TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
         
+        //See if we can do it without a temporary
+        TS_ASSERT_THROWS_ANYTHING(
+            PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)));
     }
 };
 
