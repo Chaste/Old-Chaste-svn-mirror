@@ -191,9 +191,7 @@ protected:
 
 		double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 		
-		const int num_nodes = rSurfaceElement.GetNumNodes();
-
-        rBsubElem.clear();
+		rBsubElem.clear();
         
 		for(int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
 		{
@@ -218,11 +216,7 @@ protected:
 			 */
 			c_vector<double, SPACE_DIM> Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
 
-			for (int row=0; row < num_nodes; row++)
-			{
-				double integrand_value = phi(row) * Dgradu_dot_n(0);
-				rBsubElem(row) += integrand_value * jW;
-			}
+            noalias(rBsubElem) += phi * Dgradu_dot_n(0) *jW;
 		}		
 	}
 	
