@@ -66,28 +66,28 @@ public:
     void testCreateColumnWriter(void)
     {
         //create a new csvdata writer
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         //check that the output directory exists
         //use the Boost libraries for this check
+        //or stat()
         
         delete mpTestWriter; 
     }
     
     void testCreateColumnReader(void)
     {
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testdoesnotexist"));
-        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data","testbad"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("", "testdoesnotexist"));
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "testbad",
+                                                                      false));
         delete mpTestReader; 
     }
     
     void testDefineUnlimitedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
 
-        
-        
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","m secs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("T,i,m,e","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("","msecs"));
@@ -97,7 +97,7 @@ public:
  
     void testDefineFixedDimension( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
  
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node ","dimensionless", 5000));
@@ -109,7 +109,7 @@ public:
     
     void testDefineVariable( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","test"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "test"));
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -132,7 +132,7 @@ public:
 
     void testEndDefineMode( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testdefine"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
         //ending define mode without having defined a dimension and a variable should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
         
@@ -157,16 +157,15 @@ public:
 		                     
 		TS_ASSERT(filesMatch(output_dir + "testdefine.info", 
 		                     "io/test/data/testdefine_good.info"));
-		                     
-		TS_ASSERT(!filesMatch(output_dir + "testdefine.info", 
-		                      "io/test/data/testdefine_bad.info"));
-        
-        
+		
+        // This seems to be redundant given the above check
+//		TS_ASSERT(!filesMatch(output_dir + "testdefine.info", 
+//		                      "io/test/data/testdefine_bad.info"));
     }
 
     void testPutVariableInUnlimitedFile( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimited"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -177,7 +176,6 @@ public:
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
-        
         for (int i=0; i<=10; i++)
         {
         	mpTestWriter->PutVariable(time_var_id, (double)(i)/10);
@@ -192,8 +190,8 @@ public:
 
 		TS_ASSERT(filesMatch(output_dir + "testunlimited.dat", 
 		                     "io/test/data/testunlimited_good.dat"));
-		                     
-		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testunlimited"));
+		
+		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testunlimited"));
 		
 		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K",3));
 
@@ -213,10 +211,9 @@ public:
 		                     
     }
     
-    
     void testPutVariableInUnlimitedNegativeFile( void )
     {
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testunlimitednegative"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative"));
         int time_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -226,7 +223,6 @@ public:
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
         TS_ASSERT_THROWS_ANYTHING(time_var_id = mpTestWriter->DefineVariable("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
-        //TS_TRACE("Here");
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
         int i = 12;
 
@@ -248,7 +244,7 @@ public:
     void testPutVariableInFixedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testfixed"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -282,7 +278,7 @@ public:
 		TS_ASSERT(filesMatch(output_dir + "testfixed.info", 
 		                     "io/test/data/testfixed_good.info"));
 		                     
-		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testfixed"));
+		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("", "testfixed"));
 		
 		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K"));
 		
@@ -296,11 +292,10 @@ public:
         delete mpTestReader;
     }
     
-    
     void testPutNegativeVariableInFixedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testfixed_negatives"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testfixed_negatives"));
         int node_var_id = 0;
         int ina_var_id = 0;
         int ik_var_id = 0;
@@ -330,13 +325,12 @@ public:
     	
 		TS_ASSERT(filesMatch(output_dir + "testfixed_negatives.dat", 
 		                     "io/test/data/testfixed_negatives_good.dat"));
-
     }
     
     void testPutVariableInFixedandUnlimitedFile( void )
     {
 
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("/tmp/testoutput","testfixedandunlimited"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("","testfixedandunlimited"));
         int time_var_id = 0;
         int node_var_id = 0;
         int ina_var_id = 0;
@@ -371,7 +365,7 @@ public:
 		TS_ASSERT(filesMatch(output_dir + "testfixedandunlimited_000001.dat", 
 		                     "io/test/data/testfixedandunlimited_000001_good.dat"));
                              
-        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("/tmp/testoutput","testfixedandunlimited"));                             
+        TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testfixedandunlimited"));                             
 
         std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
         std::vector<double> ica_values = mpTestReader->GetValues("I_Ca",3);
@@ -379,11 +373,8 @@ public:
         {
             TS_ASSERT_DELTA(time_values[i],(i+1)*0.1,1e-3);   
             TS_ASSERT_DELTA(ica_values[i],-33.124 - i * 2,1e-3);   
-        }
-        
-                                     
+        }                          
     }
-    
 };
 
 #endif //_TESTCOLUMNDATAREADERWRITER_HPP_

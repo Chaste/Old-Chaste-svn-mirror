@@ -72,7 +72,7 @@ public:
 
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(500);   // 500 ms
-        monodomain_problem.SetOutputDirectory("/tmp/testoutput/MonoDg02dWithPointStimulusLong");
+        monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulusLong");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_2dWithPointStimulusLong");
         monodomain_problem.Initialise();
         

@@ -21,8 +21,6 @@
 //#include <iostream>
 #include <cmath>
 
-#include <sys/stat.h> // for mkdir
-
 #include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "Node.hpp"
@@ -844,12 +842,8 @@ public:
         int time_var_id = 0;
         int heat_var_id = 0;
 
-        std::string output_dir = "/tmp/testoutput/2DHeatEquation";
-
-        mkdir(output_dir.c_str(), 0777);
-                 
         ParallelColumnDataWriter *p_test_writer;
-        p_test_writer = new ParallelColumnDataWriter(output_dir,"2DHeatEquation");
+        p_test_writer = new ParallelColumnDataWriter("2DHeatEquation", "2DHeatEquation");
 
         p_test_writer->DefineFixedDimension("Node", "dimensionless", mesh.GetNumNodes() );
         time_var_id = p_test_writer->DefineUnlimitedDimension("Time","msecs");

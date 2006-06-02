@@ -36,7 +36,7 @@ public:
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
 //        if (my_rank==0)
 //        {
-//            system("rm -f /tmp/testoutput/ParallelColumnWriter*");
+//            system("rm -f <...>/ParallelColumnWriter*");
 //        }
         
         int time_var_id, var1_id, var2_id; 
@@ -59,7 +59,7 @@ public:
  
  
         //Make a conventional data writer
-        /*TS_ASSERT_THROWS_NOTHING(mpWriter = new ColumnDataWriter("/tmp/testoutput","ColumnWriter"));
+        /*TS_ASSERT_THROWS_NOTHING(mpWriter = new ColumnDataWriter("TestParallelColumnDataWriter","ColumnWriter"));
         TS_ASSERT_THROWS_NOTHING(time_var_id = mpWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_NOTHING(mpWriter->DefineFixedDimension("Node","dimensionless", num_nodes));
  
@@ -148,7 +148,6 @@ public:
         //delete mpWriter;      
         delete mpParallelWriter;      
         
-        
         MPI_Barrier(PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(system(
           ("diff "+output_dir+"ParallelColumnWriter.info io/test/data/ColumnWriter.info").c_str()),
@@ -166,13 +165,10 @@ public:
           ("diff "+output_dir+"ParallelColumnWriter_unlimited.dat io/test/data/ColumnWriter_unlimited.dat").c_str()),
           0);
        
-               
         VecDestroy(var1);
         VecDestroy(var2);
         VecDestroy(var3);
-        
     }
-    
 };
 
 #endif //_TESTCOLUMNDATAREADERWRITER_HPP_

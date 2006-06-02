@@ -16,10 +16,7 @@
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-
-// For chmod()
-#include <sys/types.h>
-#include <sys/stat.h>
+#include "OutputFileHandler.hpp"
 
 
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
@@ -55,6 +52,8 @@ public:
 
 class TestBidomainForConvergence1d : public CxxTest::TestSuite 
 {
+private:
+    OutputFileHandler *mpOutputFileHandler;
 public:
 
     void WriteTemporaryMeshFiles(std::string meshFilename, int middleNode)
@@ -63,12 +62,10 @@ public:
         int nb_of_nodes = nb_of_eles+1;
 
         // Nodes file
+        std::ofstream *p_node_file = mpOutputFileHandler->OpenOutputFile(meshFilename+".node");
+        (*p_node_file) << std::scientific;
 
-        std::ofstream node_file((meshFilename+".node").c_str());
-        node_file << std::scientific;
-
-        node_file << nb_of_nodes << "\t1\t0\t1" << std::endl;
-        
+        (*p_node_file) << nb_of_nodes << "\t1\t0\t1" << std::endl;
         for (int i = 0; i < nb_of_nodes; i++)
         {
             int b = 0;
@@ -76,36 +73,30 @@ public:
             {
                 b = 1;
             }
-
-            node_file << i << "\t" << 0.08*i/nb_of_eles << "\t" << b << std::endl;
+            (*p_node_file) << i << "\t" << 0.08*i/nb_of_eles << "\t" << b << std::endl;
         }
-
-        node_file.close();
+        p_node_file->close();
+        delete p_node_file;
 
         // Elements file
+        std::ofstream *p_ele_file = mpOutputFileHandler->OpenOutputFile(meshFilename+".ele");
+        (*p_ele_file) << std::scientific;
 
-        std::ofstream ele_file((meshFilename+".ele").c_str());
-
-        ele_file << std::scientific;
-
-        ele_file << nb_of_eles << "\t2\t0" << std::endl;
-        
+        (*p_ele_file) << nb_of_eles << "\t2\t0" << std::endl;
         for (int i = 0; i < nb_of_eles; i++)
         {
-            ele_file << i << "\t" << i << "\t" << i+1 << std::endl;
+            (*p_ele_file) << i << "\t" << i << "\t" << i+1 << std::endl;
         }
-
-        ele_file.close();
-        
-        // Make files world-writable so nightly build doesn't break
-        chmod((meshFilename+".node").c_str(), 0666);
-        chmod((meshFilename+".ele").c_str(), 0666);
+        p_ele_file->close();
+        delete p_ele_file;
     }
     
     
     void TestBidomain1DSpaceAndTime()
     {
-       const std::string mesh_filename = "/tmp/testoutput/1D_0_to_0.8mm";
+       const std::string mesh_filename = "1D_0_to_0.8mm";
+       OutputFileHandler output_file_handler("BidomainConvergenceMesh");
+       mpOutputFileHandler = &output_file_handler;
 
        //Invariant: middle_node*space_step = 0.04 cm
 //       double space_step=0.01;   // cm
