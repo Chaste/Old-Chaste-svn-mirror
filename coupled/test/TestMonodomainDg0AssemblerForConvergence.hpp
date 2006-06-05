@@ -104,6 +104,8 @@ public:
     {
        const std::string mesh_filename = "1D_0_to_0.8mm";
        OutputFileHandler output_file_handler("MonodomainConvergenceMesh");
+       std::string mesh_pathname = output_file_handler.GetTestOutputDirectory("MonodomainConvergenceMesh")
+            + mesh_filename;
        mpOutputFileHandler = &output_file_handler;
 
        //Invariant: middle_node*space_step = 0.04 cm
@@ -136,7 +138,7 @@ public:
                 PointStimulusCellFactory cell_factory(time_step);
                 MonodomainProblem<1> monodomain_problem(&cell_factory);
         
-                monodomain_problem.SetMeshFilename(mesh_filename);
+                monodomain_problem.SetMeshFilename(mesh_pathname);
                 monodomain_problem.SetEndTime(200);   // 200 ms
 //                monodomain_problem.SetEndTime(10);   // 10 ms  < --- Delete this!
                 

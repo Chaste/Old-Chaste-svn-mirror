@@ -94,24 +94,26 @@ public:
     
     void TestBidomain1DSpaceAndTime()
     {
-       const std::string mesh_filename = "1D_0_to_0.8mm";
-       OutputFileHandler output_file_handler("BidomainConvergenceMesh");
-       mpOutputFileHandler = &output_file_handler;
+        const std::string mesh_filename = "1D_0_to_0.8mm";
+        OutputFileHandler output_file_handler("BidomainConvergenceMesh");
+        std::string mesh_pathname = output_file_handler.GetTestOutputDirectory("BidomainConvergenceMesh")
+            + mesh_filename;
+        mpOutputFileHandler = &output_file_handler;
 
        //Invariant: middle_node*space_step = 0.04 cm
 //       double space_step=0.01;   // cm
        //Loop over the space stepif (space_step < 0.0016)
-       double prev_voltage_for_space = -999;   // To ensure that the first test fails
-       bool converging_in_space = false;
-       double space_step;   // cm
-       double time_step;   // ms
-       double probe_voltage;
+        double prev_voltage_for_space = -999;   // To ensure that the first test fails
+        bool converging_in_space = false;
+        double space_step;   // cm
+        double time_step;   // ms
+        double probe_voltage;
 
-       int middle_node = 4;
+        int middle_node = 4;
 
-       do
+        do
 //       for (int middle_node=1; middle_node<100; middle_node*=2){
-       {
+        {
             bool converging_in_time = false;
             double prev_voltage_for_time = -999;   // To ensure that the first test fails
 
@@ -129,7 +131,7 @@ public:
                 PointStimulusCellFactory cell_factory(time_step);
                 BidomainProblem<1> bidomain_problem(&cell_factory);
         
-                bidomain_problem.SetMeshFilename(mesh_filename);
+                bidomain_problem.SetMeshFilename(mesh_pathname);
                 bidomain_problem.SetEndTime(200);   // 200 ms
                 
                 bidomain_problem.SetPdeTimeStep(time_step);
