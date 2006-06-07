@@ -259,14 +259,10 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
 		c_vector<double, ELEMENT_DIM+1> phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 		                                                              (quad_point, *inverseJacobian);
 
 		Point<SPACE_DIM> x(0,0,0);
-		double U = 0;
-		c_vector<double, SPACE_DIM> gradU;
-		
-        
 		for(int i=0; i<num_nodes; i++)
 		{
 			for(int j=0; j<SPACE_DIM; j++)
@@ -278,8 +274,8 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
         
         // Need to compute add U as double and gradU as vector double
         // U = sum(Ui phi_i)
-        U = inner_prod(phi, Ui);
-        noalias(gradU) = prod(gradPhi, Ui);
+        double U = inner_prod(phi, Ui);
+        c_vector<double, SPACE_DIM> gradU = prod(grad_phi, Ui);
         
         // For solving NonlinearEllipticEquation 
         // which should be defined in/by NonlinearEllipticEquation.hpp:
@@ -292,7 +288,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = pPde->ComputeDiffusionTerm(x,U);
         
         c_vector<double, ELEMENT_DIM+1> integrand_values1 =
-            prod(c_vector<double, ELEMENT_DIM>(prod(gradU, FOfU)), gradPhi);
+            prod(c_vector<double, ELEMENT_DIM>(prod(gradU, FOfU)), grad_phi);
 
         noalias(rBElem) += (jacobian_determinant*pQuadRule->GetWeight(quad_index))
                     * (integrand_values1-(ForcingTerm * phi)) ;
@@ -356,15 +352,12 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  
 	// Assume all elements have the same number of nodes...
 	const int num_nodes = iter->GetNumNodes();
-	// Will contain the contribution of a single element to the residual
-    c_vector<double, ELEMENT_DIM+1> b_elem;
  
 	// Iterate over all elements, summing the contribution of each to the residual
 	while (iter != mpMesh->GetElementIteratorEnd())
 	{
 		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
 
-		b_elem.clear();            
 
 		// Ui contains the values of the current solution at the nodes of this element
         c_vector<double, ELEMENT_DIM+1> Ui;
@@ -374,6 +367,9 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 			Ui(i) = current_solution_replicated_array[node_index];
         }
         
+       // Will contain the contribution of a single element to the residual
+        c_vector<double, ELEMENT_DIM+1> b_elem;
+        b_elem.clear();            
 		ComputeResidualOnElement(element, b_elem, mpPde, Ui);
 
 		// Update the residual vector for this element
@@ -403,14 +399,13 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	{					
 		const int num_surf_nodes = (*surf_iter)->GetNumNodes();
 		
-        c_vector<double, ELEMENT_DIM> b_surf_elem;
-
+ 
 		while (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 		{
 			const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 			
 			// UiSurf contains the values of the current solution at the nodes of this surface element
-			vector<double> UiSurf(num_surf_nodes);
+			c_vector<double,ELEMENT_DIM> UiSurf;
 			for (int i=0; i<num_surf_nodes; i++)
             {
             	int node = surf_element.GetNodeGlobalIndex(i);
@@ -423,6 +418,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 			 */
 			if (mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
 			{
+                c_vector<double, ELEMENT_DIM> b_surf_elem;
 				b_surf_elem.clear();
 				ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, mpPde, *mpBoundaryConditions, UiSurf);
 
@@ -443,10 +439,6 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	// Apply Dirichlet boundary conditions for nonlinear problem
 	mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolution, residualVector);
 
-//	std::cout << "Residual:" << std::endl;
-//	VecView(res_vector, 0); std::cout << std::endl;
-//	std::cout << "Current solution:" << std::endl;
-//	VecView(CurrentSolution, 0);
 
 	VecAssemblyBegin(residualVector);
 	VecAssemblyEnd(residualVector);
@@ -561,51 +553,53 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
 		Point<ELEMENT_DIM> quad_point=pQuadRule->GetQuadPoint(quad_index);
 
 		c_vector<double, ELEMENT_DIM+1> phi     = rBasisFunction.ComputeBasisFunctions(quad_point);
-		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+		c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
 		                                                           (quad_point, *inverseJacobian);
 
 		Point<SPACE_DIM> x(0,0,0);
-		double U = 0;
-		c_vector<double, SPACE_DIM> gradU;
-		gradU.clear();
-		
+        //Need to compute add U as double and gradU as vector double
+        // get U =sum(Ui phi_i)
+		double U = inner_prod(phi, Ui);
+		c_vector<double, SPACE_DIM> gradU=prod(grad_phi, Ui);
+        
 		for(int i=0; i<num_nodes; i++)
 		{
-			//Need to compute add U as double and gradU as vector double
-			// get U =sum(Ui phi_i)
-			U += phi[i]*Ui(i);
-			
 			for(int j=0; j<SPACE_DIM; j++)
 			{
 				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				gradU(j)+= gradPhi(j,i)*Ui(i);
 			}
 		}
 		
-				
+        // For solving NonlinearEllipticEquation 
+        // which should be defined in/by NonlinearEllipticEquation.hpp:
+        // d/dx [f(U,x) du/dx ] = -g
+        // where g(x,U) is the forcing term
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = pPde->ComputeDiffusionTerm(x,U);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_prime_ublas = pPde->ComputeDiffusionTermPrime(x,U);
+                
+        //LinearSourceTerm(x)   not needed as it is a constant wrt U_i
+        double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
+        c_vector<double, ELEMENT_DIM> temp1 = prod(FOfU_prime_ublas,gradU);
+        c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, grad_phi);
+    	
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, phi);
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2;
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values3;
+        		
 		for (int i=0; i < num_nodes; i++)
 		{
 			for (int j=0; j< num_nodes; j++)
 			{
-				// For solving NonlinearEllipticEquation 
-				// which should be defined in/by NonlinearEllipticEquation.hpp:
-				// d/dx [f(U,x) du/dx ] = -g
-				// where g(x,U) is the forcing term
 				
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = pPde->ComputeDiffusionTerm(x,U);
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_prime_ublas = pPde->ComputeDiffusionTermPrime(x,U);
-                
-				//LinearSourceTerm(x)	not needed as it is a constant wrt U_i
-				double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
-				
-                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(gradPhi,i);
-                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_j(gradPhi,j);
+   			
+                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(grad_phi,i);
+                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_j(grad_phi,j);
 
-//				double integrand_value1 = (((FOfU_prime *gradU )* phi[j]).dot(grad_phi_i));
-                double integrand_value1 = inner_prod(prod(FOfU_prime_ublas,gradU),grad_phi_i)*phi[j];
+                //double integrand_value1 = inner_prod(temp1 ,grad_phi_i)*phi[j];
+                double integrand_value1 = (prod(temp1, grad_phi))(i)*phi[j];
+                assert(integrand_value1 == integrand_values1(i,j));
 
-//				double integrand_value2 = (FOfU * grad_phi_j).dot(grad_phi_i);
                 double integrand_value2 = inner_prod(prod(FOfU_ublas, grad_phi_j), grad_phi_i);
 
 				double integrand_value3 = ForcingTermPrime * phi[i];
