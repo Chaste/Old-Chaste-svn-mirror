@@ -8,7 +8,7 @@
 
 # 1D
 tetgen_mesh_prefix=/home/chaste/eclipse/workspace/Chaste/mesh/test/data/1D_0_to_1_100_elements
-results_prefix=/tmp/testoutput/Bidomain1d_with_shock/bidomain1d_with_shock
+results_prefix=/tmp/chaste/testoutput/bidomain1d_with_shock/Bidomain1d_with_shock
 out_prefix=/home/chaste/eclipse/workspace/Chaste/anim/1D_0_to_1mm_bidomain
 
 # 2D

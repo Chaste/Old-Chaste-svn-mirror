@@ -6,7 +6,7 @@
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractCardiacPde.hpp"
 
-
+ 
 /**
  * BidomainPde class.
  * 

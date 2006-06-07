@@ -220,26 +220,10 @@ private:
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
         
-        // no need to loop over surface elems to apply neumann bcs here, because the neumann bcs are zero
+        // no need to loop over surface elems to apply neumann bcs here, because the 
+        // neumann bcs are zero
                 
-        
-        // apply dirichlet boundary conditions (phi_e = 0 on any one nodes) 
-        // Doesn't matter which node is chosen, or what the value of phi_e specified is,
-        // because the bidomain equations only determine phi_e up to a constant
-        //
-        // Note: CANNOT specify phi_e on more than one node (ie cannot loop over boundary nodes)
-        // as spurious results will occur at the boundary.
-        //
-        // just do the 0th node
-        int node_num = 0;
-        if(!mMatrixIsAssembled)
-        {
-            mpAssembledLinearSystem->ZeroMatrixRow   ( 2*node_num + 1 );
-            mpAssembledLinearSystem->SetMatrixElement( 2*node_num + 1, 2*node_num + 1, 1);
-        }
-        mpAssembledLinearSystem->SetRhsVectorElement( 2*node_num + 1, 0);
-
-
+        // no need to apply dirichlet boundary conditions for phi either (?-check with Jon) 
         
         if (mMatrixIsAssembled)
         {
@@ -326,6 +310,9 @@ public:
         while( t < mTend - 1e-10 )
         {
             AssembleSystem(current_solution);
+
+
+           // std::cout << "solving at t="<< t << "\n" <<std::flush;
             next_solution = mpAssembledLinearSystem->Solve(mpSolver);
                     
             t += mDt;

@@ -120,7 +120,7 @@ public:
         {
             int local_index = global_index - lo;
             p_initial_condition[2*local_index  ] = mpBidomainPde->GetCardiacCell(global_index)->GetVoltage();
-            p_initial_condition[2*local_index+1] = 0;
+            p_initial_condition[2*local_index+1] = 1;
         }
 
 
