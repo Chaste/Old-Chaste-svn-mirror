@@ -69,7 +69,7 @@ private:
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							c_vector<double, ELEMENT_DIM+1> &rBElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-							vector<double> Ui);
+							c_vector<double, ELEMENT_DIM+1> Ui);
 	void ComputeResidualOnSurfaceElement(
  							const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 							c_vector<double, ELEMENT_DIM> &rBsubElem,
@@ -242,7 +242,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 							const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
 							c_vector<double, ELEMENT_DIM+1> &rBElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-							vector<double> Ui)
+							c_vector<double, ELEMENT_DIM+1> Ui)
 {
 	AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
 		*(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
@@ -265,46 +265,39 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
 		Point<SPACE_DIM> x(0,0,0);
 		double U = 0;
 		c_vector<double, SPACE_DIM> gradU;
-		gradU.clear();
 		
+        
 		for(int i=0; i<num_nodes; i++)
 		{
-			// Need to compute add U as double and gradU as vector double
-			// U = sum(Ui phi_i)
-			U += phi[i]*Ui(i);
-			
 			for(int j=0; j<SPACE_DIM; j++)
 			{
 				x.SetCoordinate(j, x[j] + phi[i]*rElement.GetNodeLocation(i,j));
 				
-				gradU(j)+= gradPhi(j,i)*Ui(i);
 			}
 		}
-				
-		for (int i=0; i < num_nodes; i++)
-		{
-			// For solving NonlinearEllipticEquation 
-			// which should be defined in/by NonlinearEllipticEquation.hpp:
-			// d/dx [f(U,x) du/dx ] = -g
-			// where g(x,U) is the forcing term
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = pPde->ComputeDiffusionTerm(x,U);
+        
+        // Need to compute add U as double and gradU as vector double
+        // U = sum(Ui phi_i)
+        U = inner_prod(phi, Ui);
+        noalias(gradU) = prod(gradPhi, Ui);
+        
+        // For solving NonlinearEllipticEquation 
+        // which should be defined in/by NonlinearEllipticEquation.hpp:
+        // d/dx [f(U,x) du/dx ] = -g
+        // where g(x,U) is the forcing term				
+        double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
+        ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
+        //make RHS general: consists of linear and nonlinear source terms
 
-            matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(gradPhi,i);
-            double  integrand_value1 = inner_prod(prod(FOfU_ublas,gradU),grad_phi_i);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = pPde->ComputeDiffusionTerm(x,U);
+        
+        c_vector<double, ELEMENT_DIM+1> integrand_values1 =
+            prod(c_vector<double, ELEMENT_DIM>(prod(gradU, FOfU)), gradPhi);
 
-			//make RHS general: consists of linear and nonlinear source terms
-			double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
-			ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
-			double integrand_value2 = ForcingTerm * phi[i];
-			
-			rBElem(i) += integrand_value1 * jacobian_determinant 
-			               * pQuadRule->GetWeight(quad_index)
-			               - integrand_value2 * jacobian_determinant 
-			               * pQuadRule->GetWeight(quad_index);
-		}
+        noalias(rBElem) += (jacobian_determinant*pQuadRule->GetWeight(quad_index))
+                    * (integrand_values1-(ForcingTerm * phi)) ;
 	}
 }
-
 
 /**
  * Function called by PETSc to compute the residual vector given the current solution guess.
@@ -374,7 +367,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 		b_elem.clear();            
 
 		// Ui contains the values of the current solution at the nodes of this element
-        vector<double> Ui(num_nodes);
+        c_vector<double, ELEMENT_DIM+1> Ui;
 		for (int i=0; i<num_nodes; i++)
 		{
 			int node_index = element.GetNodeGlobalIndex(i);
