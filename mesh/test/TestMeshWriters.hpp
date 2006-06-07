@@ -12,6 +12,7 @@
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
+#include "OutputFileHandler.hpp"
 #include <cmath>
 #include <sys/stat.h>
 
@@ -28,7 +29,8 @@ class TestMeshWriters : public CxxTest::TestSuite
 		pImportMeshReader=new MemfemMeshReader(
 							"mesh/test/data/Memfem_slab");
 		pMeshWriter=new TrianglesMeshWriter(
-							"/tmp/testoutput/MeshFromMemfem",3);
+                            "", "MeshFromMemfem",3);
+//                            "/tmp/testoutput/MeshFromMemfem",3);
 	
 		int i;
 		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
@@ -64,7 +66,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		                  	"femlab_lshape_elements.dat",
 		                  	"femlab_lshape_edges.dat");
 		pMeshWriter=new TrianglesMeshWriter(
-							"/tmp/testoutput/MeshFromFemlab",2);
+							"","MeshFromFemlab",2);
 		int i;
 		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
 		{
@@ -94,7 +96,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 		pImportMeshReader=new TrianglesMeshReader(
 							"mesh/test/data/slab_138_elements");
 		pMeshWriter=new MeshalyzerMeshWriter(
-							"/tmp/testoutput/MeshFromTetgen");
+							"", "MeshFromTetgen");
 	
 		int i;
 		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
@@ -138,11 +140,11 @@ class TestMeshWriters : public CxxTest::TestSuite
 							"mesh/test/data/slab_138_elements");
 		bool set_CG_format=true;
 
-        std::string output_directory = "/tmp/testoutput/CGFromTetgen/";
-        system(("mkdir -p "+output_directory).c_str());
-        chmod(output_directory.c_str(), 0777);
+//        std::string output_directory = "/tmp/testoutput/CGFromTetgen/";
+//        system(("mkdir -p "+output_directory).c_str());
+//        chmod(output_directory.c_str(), 0777);
             
-		pMeshWriter=new MeshalyzerMeshWriter(output_directory+"CGFromTetgen", set_CG_format);
+		pMeshWriter=new MeshalyzerMeshWriter("CGFromTetgen", "CGFromTetgen", set_CG_format);
 	
 		int i;
 		for (i=0; i<pImportMeshReader->GetNumNodes();i++)
@@ -162,20 +164,24 @@ class TestMeshWriters : public CxxTest::TestSuite
 				
 		int num_tsteps=500;
 		int num_nodes = pImportMeshReader->GetNumNodes();
+
+        OutputFileHandler output_file_handler("CGFromTetgen");
 		for(int t= 0; t<num_tsteps ;t++)
 		{
 			char fake_data_name[100];
-			sprintf(fake_data_name, (output_directory+"CGFromTetgen.t%i").c_str(), t);
-			std::ofstream fake_data(fake_data_name) ;
-            TS_ASSERT(fake_data.is_open());
-            chmod(fake_data_name, 0666);
-			fake_data << "t = "<<t<<"\n";
+			sprintf(fake_data_name, std::string("CGFromTetgen.t%i").c_str(), t);
+            std::ofstream *p_fake_data = output_file_handler.OpenOutputFile(fake_data_name);
+//			std::ofstream fake_data(fake_data_name) ;
+//            TS_ASSERT(fake_data->is_open());
+//            chmod(fake_data_name, 0666);
+			*p_fake_data << "t = "<<t<<"\n";
 			for(int n=0 ; n<num_nodes ; n++)
 			{
-				fake_data<<0.0<<"\t"<<0.0<<"\t"<<sin((t*M_PI)/num_tsteps) <<"\n";
+				*p_fake_data<<0.0<<"\t"<<0.0<<"\t"<<sin((t*M_PI)/num_tsteps) <<"\n";
 			}
 		 
-			fake_data.close() ;
+			p_fake_data->close() ;
+            delete p_fake_data;
 		}
 		
 		delete pImportMeshReader;

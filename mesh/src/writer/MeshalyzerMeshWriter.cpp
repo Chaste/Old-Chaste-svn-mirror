@@ -1,21 +1,24 @@
 #include "MeshalyzerMeshWriter.hpp"
 
-MeshalyzerMeshWriter::MeshalyzerMeshWriter(std::string pathBaseName, bool setCoolGraphics)
+MeshalyzerMeshWriter::MeshalyzerMeshWriter(const std::string &rDirectory, 
+                                           const std::string &rBaseName, 
+                                           const bool &rSetCoolGraphics)
+    : AbstractMeshWriter(rDirectory, rBaseName, 3)
 {
 	
 	//Copy path and base name of files to private data
-	mPathBaseName=pathBaseName;
-	mDimension=3;
+//	mPathBaseName=pathBaseName;
+//	mDimension=3;
 
-    if (mPathBaseName.compare(0, 5, "/tmp/") == 0)
-    {
-        // Make files in /tmp world-writable so automatic builds don't fail
-        mMakeFilesWorldWritable = true;
-    } else {
-        mMakeFilesWorldWritable = false;
-    }
-    	
-	if (setCoolGraphics) {
+//    if (mPathBaseName.compare(0, 5, "/tmp/") == 0)
+//    {
+//        // Make files in /tmp world-writable so automatic builds don't fail
+//        mMakeFilesWorldWritable = true;
+//    } else {
+//        mMakeFilesWorldWritable = false;
+//    }
+//    	
+	if (rSetCoolGraphics) {
 		mIndexFromZero=false;
 		mWriteMetaFile=true;
 	} else {
@@ -32,20 +35,22 @@ MeshalyzerMeshWriter::WriteFiles()
 	
 	
     //Write node file
-	std::string node_file_name=mPathBaseName+".pts";
-	std::ofstream node_file(node_file_name.c_str());
-    if (!node_file.is_open())
-    {
-        throw Exception("Could not open file: " + node_file_name);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(node_file_name.c_str(), 0666);
-    }
+	std::string node_file_name=mBaseName+".pts";
+    std::ofstream *p_node_file = mpOutputFileHandler->OpenOutputFile(node_file_name);
+
+//	std::ofstream node_file(node_file_name.c_str());
+//    if (!node_file.is_open())
+//    {
+//        throw Exception("Could not open file: " + node_file_name);
+//    }
+//    if (mMakeFilesWorldWritable)
+//    {
+//        chmod(node_file_name.c_str(), 0666);
+//    }
 	
 	//Write the node header
 	int num_nodes=GetNumNodes();
-	node_file<< num_nodes << "\n";
+	*p_node_file<< num_nodes << "\n";
 	
 	//Write each node's data
 	for (int item_num=0; item_num<num_nodes; item_num++)
@@ -53,32 +58,33 @@ MeshalyzerMeshWriter::WriteFiles()
 		std::vector<double> current_item=mNodeData[item_num];
 		for (unsigned int i=0;i<mDimension;i++)
 		{
-			node_file<<current_item[i]<<"\t";
+			*p_node_file<<current_item[i]<<"\t";
 		}
-		node_file<<"\n";
+		*p_node_file<<"\n";
 		
 	}
-	//node_file<<comment<<"\n";
-	node_file.close();
-	
+	//*p_node_file<<comment<<"\n";
+	p_node_file->close();
+	delete p_node_file;
 	
 	
     //Write Element file
-	std::string element_file_name=mPathBaseName+".tetras";
-	std::ofstream element_file(element_file_name.c_str());
-    if (!element_file.is_open())
-    {
-        throw Exception("Could not open file: " + element_file_name);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(element_file_name.c_str(), 0666);
-    }
-	
+	std::string element_file_name=mBaseName+".tetras";
+	std::ofstream *p_element_file = mpOutputFileHandler->OpenOutputFile(element_file_name);
+ // std::ofstream element_file(element_file_name.c_str());
+//    if (!element_file.is_open())
+//    {
+//        throw Exception("Could not open file: " + element_file_name);
+//    }
+//    if (mMakeFilesWorldWritable)
+//    {
+//        chmod(element_file_name.c_str(), 0666);
+//    }
+//	
 	//Write the element header
 	int num_elements=GetNumElements();
 	
-	element_file<< num_elements << "\n";
+	*p_element_file<< num_elements << "\n";
 		
 	//Write each element's data
 	int nodes_per_element = 4;
@@ -89,36 +95,37 @@ MeshalyzerMeshWriter::WriteFiles()
 		{
 			if (mIndexFromZero)
 			{
-				element_file<<current_item[i]<<"\t";
+				*p_element_file<<current_item[i]<<"\t";
 			} 
 			else
 			{
-				element_file<<current_item[i]+1<<"\t";
+				*p_element_file<<current_item[i]+1<<"\t";
 			}
 		}
-		element_file<<"\n";
+		*p_element_file<<"\n";
 		
 	}
-	//element_file<<comment<<"\n";
-	element_file.close();
-	
+	//*p_element_file<<comment<<"\n";
+	p_element_file->close();
+	delete p_element_file;
 	
 	//Write boundary face file
-	std::string face_file_name=mPathBaseName+".tris";
-	std::ofstream face_file(face_file_name.c_str());
-    if (!face_file.is_open())
-    {
-        throw Exception("Could not open file: " + face_file_name);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(face_file_name.c_str(), 0666);
-    }
-	
+	std::string face_file_name=mBaseName+".tris";
+    std::ofstream *p_face_file = mpOutputFileHandler->OpenOutputFile(face_file_name);
+//	std::ofstream face_file(face_file_name.c_str());
+//    if (!face_file.is_open())
+//    {
+//        throw Exception("Could not open file: " + face_file_name);
+//    }
+//    if (mMakeFilesWorldWritable)
+//    {
+//        chmod(face_file_name.c_str(), 0666);
+//    }
+//	
 	//Write the boundary face header
 	int num_faces=GetNumBoundaryFaces();
 	
-	face_file<< num_faces << "\n";
+	*p_face_file<< num_faces << "\n";
 		
 	//Write each face's data
 	double material_property= 0.0;
@@ -129,33 +136,37 @@ MeshalyzerMeshWriter::WriteFiles()
 		{
 			if (mIndexFromZero)
 			{
-				face_file<<current_item[i]<<"\t";
+				*p_face_file<<current_item[i]<<"\t";
 			} 
 			else
 			{
-				face_file<<current_item[i]+1<<"\t";
+				*p_face_file<<current_item[i]+1<<"\t";
 			}
 		}
-		face_file<<material_property<<"\n";
+		*p_face_file<<material_property<<"\n";
 		
 	}
-	//face_file<<comment<<"\n";
-	face_file.close();
+	//*p_face_file<<comment<<"\n";
+	p_face_file->close();
+    delete p_face_file;
 
 	if (mWriteMetaFile) {
-		std::string meta_file_name=mPathBaseName+".cg_in";
-		std::ofstream meta_file(meta_file_name.c_str());
-        if (!meta_file.is_open())
-        {
-            throw Exception("Could not open file: " + meta_file_name);
-        }
-        if (mMakeFilesWorldWritable)
-        {
-            chmod(meta_file_name.c_str(), 0666);
-        }
-		meta_file<< "1\n"<< "0\n";
-		meta_file<< face_file_name<<"\n";
-		meta_file.close();
+		std::string meta_file_name=mBaseName+".cg_in";
+        std::ofstream *p_meta_file = mpOutputFileHandler->OpenOutputFile(meta_file_name);
+        
+//	    std::ofstream meta_file(meta_file_name.c_str());
+//        if (!meta_file.is_open())
+//        {
+//            throw Exception("Could not open file: " + meta_file_name);
+//        }
+//        if (mMakeFilesWorldWritable)
+//        {
+//            chmod(meta_file_name.c_str(), 0666);
+//        }
+		*p_meta_file<< "1\n"<< "0\n";
+		*p_meta_file<< face_file_name<<"\n";
+		p_meta_file->close();
+        delete p_meta_file;
 	}
 	
 

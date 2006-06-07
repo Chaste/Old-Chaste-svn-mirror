@@ -1,19 +1,15 @@
 #include "TrianglesMeshWriter.hpp"
 
-TrianglesMeshWriter::TrianglesMeshWriter(std::string pathBaseName, int dimension)
+TrianglesMeshWriter::TrianglesMeshWriter(const std::string &rDirectory, const std::string &rBaseName, const int &rDimension)
+    : AbstractMeshWriter(rDirectory, rBaseName, rDimension)
 {
-	
-	//Copy path and base name of files to private data
-	mPathBaseName=pathBaseName;
-	mDimension=dimension;
-
-    if (mPathBaseName.compare(0, 5, "/tmp/") == 0)
-    {
-        // Make files in /tmp world-writable so automatic builds don't fail
-        mMakeFilesWorldWritable = true;
-    } else {
-        mMakeFilesWorldWritable = false;
-    }
+//    if (mPathBaseName.compare(0, 5, "/tmp/") == 0)
+//    {
+//        // Make files in /tmp world-writable so automatic builds don't fail
+//        mMakeFilesWorldWritable = true;
+//    } else {
+//        mMakeFilesWorldWritable = false;
+//    }
 }
 
 void
@@ -23,82 +19,91 @@ TrianglesMeshWriter::WriteFiles()
 	
 	
     //Write node file
-	std::string node_file_name=mPathBaseName+".node";
-	std::ofstream node_file(node_file_name.c_str());
-    if (!node_file.is_open())
-    {
-        throw Exception("Could not open file: " + node_file_name);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(node_file_name.c_str(), 0666);
-    }
+//    std::string node_file_name=mPathBaseName+".node";
+    std::string node_file_name=mBaseName+".node";
+
+    std::ofstream *p_node_file = mpOutputFileHandler->OpenOutputFile(node_file_name);
+
+//	std::ofstream node_file(node_file_name.c_str());
+//    if (!node_file.is_open())
+//    {
+//        throw Exception("Could not open file: " + node_file_name);
+//    }
+//    if (mMakeFilesWorldWritable)
+//    {
+//        chmod(node_file_name.c_str(), 0666);
+//    }
 	
 	//Write the node header
 	int num_attr=0;
 	int max_bdy_marker=0;
 	int num_nodes=GetNumNodes();
-	node_file<< num_nodes << "\t";
-	node_file<< mDimension << "\t";
-	node_file<< num_attr << "\t";
-	node_file<<max_bdy_marker <<"\n";
+	*p_node_file<< num_nodes << "\t";
+	*p_node_file<< mDimension << "\t";
+	*p_node_file<< num_attr << "\t";
+	*p_node_file<<max_bdy_marker <<"\n";
 	
 	//Write each node's data
 	int default_marker=0;
 	for (int item_num=0; item_num<num_nodes; item_num++)
 	{
 		std::vector<double> current_item=mNodeData[item_num];
-		node_file<< item_num;
+		*p_node_file<< item_num;
 		for (unsigned int i=0;i<mDimension;i++)
 		{
-			node_file<<"\t"<<current_item[i];
+			*p_node_file<<"\t"<<current_item[i];
 		}
-		node_file<<"\t"<< default_marker <<"\n";
+		*p_node_file<<"\t"<< default_marker <<"\n";
 		
 	}
-	node_file<<comment<<"\n";
-	node_file.close();
-	
+	*p_node_file<<comment<<"\n";
+	p_node_file->close();
+    delete p_node_file;
 	
 	
     //Write Element file
-	std::string element_file_name=mPathBaseName+".ele";
-	std::ofstream element_file(element_file_name.c_str());
-    if (!element_file.is_open())
-    {
-        throw Exception("Could not open file: " + element_file_name);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(element_file_name.c_str(), 0666);
-    }
+//    std::string element_file_name=mPathBaseName+".ele";
+    std::string element_file_name=mBaseName+".ele";
+    std::ofstream *p_element_file = mpOutputFileHandler->OpenOutputFile(element_file_name);
+
+//	std::ofstream element_file(element_file_name.c_str());
+//    if (!element_file.is_open())
+//    {
+//        throw Exception("Could not open file: " + element_file_name);
+//    }
+//    if (mMakeFilesWorldWritable)
+//    {
+//        chmod(element_file_name.c_str(), 0666);
+//    }
 	
 	//Write the element header
 	int num_elements=GetNumElements();
 	int nodes_per_element=mDimension+1;
 	
-	element_file<< num_elements << "\t";
-	element_file<< nodes_per_element << "\t";
-	element_file<< num_attr << "\n";
+	*p_element_file<< num_elements << "\t";
+	*p_element_file<< nodes_per_element << "\t";
+	*p_element_file<< num_attr << "\n";
 	
 	//Write each element's data
 	for (int item_num=0; item_num<num_elements; item_num++)
 	{
 		std::vector<int> current_item=mElementData[item_num];
-		element_file<< item_num;
+		*p_element_file<< item_num;
 		for (int i=0;i<nodes_per_element;i++)
 		{
-			element_file<<"\t"<<current_item[i];
+			*p_element_file<<"\t"<<current_item[i];
 		}
-		element_file<<"\n";
+		*p_element_file<<"\n";
 		
 	}
-	element_file<<comment<<"\n";
-	element_file.close();
-	
+	*p_element_file<<comment<<"\n";
+	p_element_file->close();
+	delete p_element_file;
 	
 	//Write boundary face file
-	std::string face_file_name=mPathBaseName;
+//    std::string face_file_name=mPathBaseName;
+    std::string face_file_name=mBaseName;
+    
 	if (mDimension == 1)
 	{
 		/** In 1-D there is no boundary file.  It's trivial to calculate*/
@@ -112,37 +117,39 @@ TrianglesMeshWriter::WriteFiles()
 	{
 		face_file_name=face_file_name+".face";
 	}
-	
-	std::ofstream face_file(face_file_name.c_str());
-    if (!face_file.is_open())
-    {
-        throw Exception("Could not open file: " + face_file_name);
-    }
-    if (mMakeFilesWorldWritable)
-    {
-        chmod(face_file_name.c_str(), 0666);
-    }
+	std::ofstream *p_face_file = mpOutputFileHandler->OpenOutputFile(face_file_name);
+    
+//	std::ofstream face_file(face_file_name.c_str());
+//    if (!face_file.is_open())
+//    {
+//        throw Exception("Could not open file: " + face_file_name);
+//    }
+//    if (mMakeFilesWorldWritable)
+//    {
+//        chmod(face_file_name.c_str(), 0666);
+//    }
 	
 	//Write the boundary face header
 	int num_faces=GetNumBoundaryFaces();
 	
-	face_file<< num_faces << "\t";
-	face_file<< max_bdy_marker<< "\n";
+	*p_face_file<< num_faces << "\t";
+	*p_face_file<< max_bdy_marker<< "\n";
 	
 	//Write each face's data
 	for (int item_num=0; item_num<num_faces; item_num++)
 	{
 		std::vector<int> current_item=mBoundaryFaceData[item_num];
-		face_file<< item_num;
+		*p_face_file<< item_num;
 		for (unsigned int i=0;i<mDimension;i++)
 		{
-			face_file<<"\t"<<current_item[i];
+			*p_face_file<<"\t"<<current_item[i];
 		}
-		face_file<<"\t"<<default_marker<<"\n";
+		*p_face_file<<"\t"<<default_marker<<"\n";
 		
 	}
-	face_file<<comment<<"\n";
-	face_file.close();
+	*p_face_file<<comment<<"\n";
+	p_face_file->close();
+    delete p_face_file;
 }
 
 

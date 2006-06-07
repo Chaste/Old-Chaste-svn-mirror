@@ -33,7 +33,3 @@ void AbstractMeshWriter::SetNextBoundaryEdge(std::vector<int> nextEdge)
 {
 	SetNextBoundaryFace(nextEdge);
 }
-
-AbstractMeshWriter::~AbstractMeshWriter()
-{
-}

@@ -8,16 +8,17 @@
 #include <sstream>
 
 #include "Exception.hpp"
-#include <sys/stat.h>
-
+//#include <sys/stat.h>
+#include "OutputFileHandler.hpp"
 
 class AbstractMeshWriter 
 {
 	protected:
 		unsigned int mDimension; /**< Is the dimension the mesh*/
 				
-		std::string mPathBaseName; /**< Path to the directory where the input files are stored */
-        bool mMakeFilesWorldWritable; /**< Avoid problems in the automatic builds */
+        OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
+        std::string mBaseName; /**< Base name for the input files */
+//        bool mMakeFilesWorldWritable; /**< Avoid problems in the automatic builds */
 	
 		std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
 		std::vector< std::vector<int> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
@@ -30,12 +31,20 @@ class AbstractMeshWriter
 		bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
 		bool mWriteMetaFile; 
 	public:	
-		AbstractMeshWriter() /**< Constructor */
+        /** Constructor */
+		AbstractMeshWriter(const std::string &rDirectory, 
+                           const std::string &rBaseName, 
+                           const unsigned int &rDimension)
+            : mDimension(rDimension), 
+              mBaseName(rBaseName)
 		{
-			mDimension = 0;
-			mPathBaseName = "";
+            mpOutputFileHandler = new OutputFileHandler(rDirectory);
 		}
-
+        /** Destructor */
+        virtual ~AbstractMeshWriter()
+        {
+            delete mpOutputFileHandler;
+        }
 	
 	void SetNextNode(std::vector<double> nextNode);
 	void SetNextElement(std::vector<int> nextElement);
@@ -46,8 +55,6 @@ class AbstractMeshWriter
 	int GetNumElements(){return mElementData.size();}
 	int GetNumBoundaryFaces(){return mBoundaryFaceData.size();}
 	int GetNumBoundaryEdges(){return mBoundaryFaceData.size();}
-	
-	virtual ~AbstractMeshWriter();
 };
 
 #endif //_ABSTRACTMESHWRITER_HPP_

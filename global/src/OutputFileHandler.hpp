@@ -6,6 +6,7 @@
 #include <cstdlib>
 
 #include "Exception.hpp"
+#include <petsc.h>
 
 /**
  * This file abstracts stuff that needs to be done when creating output files for tests.
@@ -16,6 +17,7 @@ class OutputFileHandler
 {
 private:
 	std::string mDirectory; ///< The directory to store output files in
+    bool mAmMaster; ///< Are we the master process?
 	
 public:
 	/**
@@ -30,6 +32,22 @@ public:
      */
     OutputFileHandler(std::string directory)
     {
+        // Are we the master process?  Only the master should do any writing to disk
+        PetscTruth is_there;
+        PetscInitialized(&is_there);
+        if (is_there == PETSC_TRUE)
+        {
+            int my_rank;
+            MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+            if (my_rank==0) {
+                mAmMaster=true;
+            } else {
+                mAmMaster=false;
+            }
+        } else {
+            // Not using PETSc, so we're definitely the only process
+            mAmMaster = true;
+        }
         mDirectory = GetTestOutputDirectory(directory);
     }
     
@@ -49,7 +67,10 @@ public:
         // Use it to have a separate output dir for each user
         directory = "/tmp/" + username + "/testoutput/" + directory;
         // Make sure it exists (ish)
-        system(("mkdir -p " + directory).c_str());
+        if (mAmMaster)
+        {
+            system(("mkdir -p " + directory).c_str());
+        }
         
         // Add a trailing slash if not already there
         if (! ( *(directory.end()-1) == '/'))
