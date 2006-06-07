@@ -21,19 +21,13 @@ public:
 		TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()-1), dir+"/");
         TS_ASSERT_EQUALS(full_dir, handler2.GetTestOutputDirectory());
 		
-		std::ofstream *p_file_stream;
+		out_stream p_file_stream;
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
                                                                         std::ios::out));
-        p_file_stream->close();
-        delete p_file_stream;
         
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file"));
-        p_file_stream->close();
-        delete p_file_stream;
         
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler2.OpenOutputFile("test_file"));
-        p_file_stream->close();
-        delete p_file_stream;
         
         // This should try to write files to /, which isn't allowed (we hope!)
         OutputFileHandler handler3("../../../../../../../../../../../../../../../");

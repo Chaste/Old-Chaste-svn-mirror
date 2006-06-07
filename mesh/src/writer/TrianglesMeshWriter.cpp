@@ -14,7 +14,7 @@ TrianglesMeshWriter::WriteFiles()
 	
     //Write node file
     std::string node_file_name=mBaseName+".node";
-    std::ofstream *p_node_file = mpOutputFileHandler->OpenOutputFile(node_file_name);
+    out_stream p_node_file = mpOutputFileHandler->OpenOutputFile(node_file_name);
 	
 	//Write the node header
 	int num_attr=0;
@@ -40,11 +40,10 @@ TrianglesMeshWriter::WriteFiles()
 	}
 	*p_node_file<<comment<<"\n";
 	p_node_file->close();
-    delete p_node_file;
 	
     //Write Element file
     std::string element_file_name=mBaseName+".ele";
-    std::ofstream *p_element_file = mpOutputFileHandler->OpenOutputFile(element_file_name);
+    out_stream p_element_file = mpOutputFileHandler->OpenOutputFile(element_file_name);
 	
 	//Write the element header
 	int num_elements=GetNumElements();
@@ -68,7 +67,6 @@ TrianglesMeshWriter::WriteFiles()
 	}
 	*p_element_file<<comment<<"\n";
 	p_element_file->close();
-	delete p_element_file;
 	
 	//Write boundary face file
     std::string face_file_name=mBaseName;
@@ -86,7 +84,7 @@ TrianglesMeshWriter::WriteFiles()
 	{
 		face_file_name=face_file_name+".face";
 	}
-	std::ofstream *p_face_file = mpOutputFileHandler->OpenOutputFile(face_file_name);
+	out_stream p_face_file = mpOutputFileHandler->OpenOutputFile(face_file_name);
 	
 	//Write the boundary face header
 	int num_faces=GetNumBoundaryFaces();
@@ -108,7 +106,6 @@ TrianglesMeshWriter::WriteFiles()
 	}
 	*p_face_file<<comment<<"\n";
 	p_face_file->close();
-    delete p_face_file;
 }
 
 TrianglesMeshWriter::~TrianglesMeshWriter()

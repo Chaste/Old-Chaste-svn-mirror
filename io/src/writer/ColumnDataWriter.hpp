@@ -19,7 +19,7 @@
 #include <iomanip>
 #include <cassert>
 #include <ctype.h>
-#include <sys/stat.h> // For chmod()
+//#include <sys/stat.h> // For chmod()
 
 const int FILE_SUFFIX_WIDTH = 6;
 
@@ -36,8 +36,8 @@ protected:
     bool mIsUnlimitedDimensionSet; /**< Is the unlimited dimension set */
     long mUnlimitedDimensionPosition; /**< The position along the unlimited dimension that writing of variables will take place*/
     long mFixedDimensionSize; /**< The size of the fixed dimension */
-    std::ofstream *mpCurrentOutputFile; /**< Filestream currently being addressed */
-    std::ofstream *mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
+    out_stream mpCurrentOutputFile; /**< Filestream currently being addressed */
+    out_stream mpCurrentAncillaryFile; /**< Ancillary filestream currently being addressed (required for two dimensional output) eg. time file*/
     DataWriterVariable *mpUnlimitedDimensionVariable; /**< The variable corresponding to the unlimited dimension */
     DataWriterVariable *mpFixedDimensionVariable; /**< The variable corresponding to the fixed dimension */
         

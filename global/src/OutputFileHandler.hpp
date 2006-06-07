@@ -4,9 +4,12 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <memory>
 
 #include "Exception.hpp"
 #include <petsc.h>
+
+typedef std::auto_ptr<std::ofstream> out_stream;
 
 /**
  * This file abstracts stuff that needs to be done when creating output files for tests.
@@ -95,15 +98,14 @@ public:
      * @param filename  the name of the file to open, relative to the output directory.
      * @param mode  optionally, flags to use when opening the file (defaults are as for
      *         std::ofstream).
-     * @return  a pointer to the opened file stream.
+     * @return  a managed pointer to the opened file stream.
      */
-    std::ofstream* OpenOutputFile(std::string filename,
-                                  std::ios_base::openmode mode=std::ios::out | std::ios::trunc)
+    out_stream OpenOutputFile(std::string filename,
+                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc)
     {
-        std::ofstream *p_output_file = new std::ofstream((mDirectory+filename).c_str(), mode);
+        out_stream p_output_file(new std::ofstream((mDirectory+filename).c_str(), mode));
         if (!p_output_file->is_open())
         {
-            delete p_output_file;
             throw Exception("Could not open file " + filename + " in " +
                             mDirectory);
         }

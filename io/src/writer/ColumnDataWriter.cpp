@@ -64,19 +64,16 @@ std::string ColumnDataWriter::GetOutputDirectory(void)
  */
 void ColumnDataWriter::Close()
 {
-	if (mpCurrentOutputFile != NULL)
+	if (mpCurrentOutputFile.get() != NULL)
 	{
-//		std::cout << "closing output file." << std::endl;
 		mpCurrentOutputFile->close();
-		delete mpCurrentOutputFile;
-		mpCurrentOutputFile = NULL;
+		mpCurrentOutputFile = out_stream(NULL);
 	}
 
-	if (mpCurrentAncillaryFile != NULL)
+	if (mpCurrentAncillaryFile.get() != NULL)
 	{
 		mpCurrentAncillaryFile->close();
-		delete mpCurrentAncillaryFile;
-		mpCurrentAncillaryFile = NULL;
+		mpCurrentAncillaryFile = out_stream(NULL);
 	}
 }
 
@@ -316,11 +313,6 @@ void ColumnDataWriter::EndDefineMode()
  */
 void ColumnDataWriter::CreateFixedDimensionFile(std::string filename)
 {
-	// Delete old data file object, if any
-	if (mpCurrentOutputFile != NULL)
-	{
-		delete mpCurrentOutputFile;
-	}
     //create new data file
     mpCurrentOutputFile = mOutputFileHandler.OpenOutputFile(filename, std::ios::out);
     (*mpCurrentOutputFile) << std::setiosflags(std::ios::scientific);
@@ -357,12 +349,11 @@ void ColumnDataWriter::CreateFixedDimensionFile(std::string filename)
 void ColumnDataWriter::CreateInfoFile(std::string filename)
 {
 	//create new info file
-    std::ofstream *p_info_file = mOutputFileHandler.OpenOutputFile(filename, std::ios::out);
+    out_stream p_info_file = mOutputFileHandler.OpenOutputFile(filename, std::ios::out);
     (*p_info_file) << "FIXED " << mFixedDimensionSize << std::endl;
     (*p_info_file) << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
     (*p_info_file) << "VARIABLES " << mVariables.size() << std::endl;    
     p_info_file->close();
-    delete p_info_file;
 }
 
 

@@ -22,7 +22,7 @@ MeshalyzerMeshWriter::WriteFiles()
 	
     //Write node file
 	std::string node_file_name=mBaseName+".pts";
-    std::ofstream *p_node_file = mpOutputFileHandler->OpenOutputFile(node_file_name);
+    out_stream p_node_file = mpOutputFileHandler->OpenOutputFile(node_file_name);
 	
 	//Write the node header
 	int num_nodes=GetNumNodes();
@@ -40,12 +40,10 @@ MeshalyzerMeshWriter::WriteFiles()
 		
 	}
 	p_node_file->close();
-	delete p_node_file;
-	
 	
     //Write Element file
 	std::string element_file_name=mBaseName+".tetras";
-	std::ofstream *p_element_file = mpOutputFileHandler->OpenOutputFile(element_file_name);
+	out_stream p_element_file = mpOutputFileHandler->OpenOutputFile(element_file_name);
 
 	//Write the element header
 	int num_elements=GetNumElements();
@@ -72,11 +70,10 @@ MeshalyzerMeshWriter::WriteFiles()
 		
 	}
 	p_element_file->close();
-	delete p_element_file;
-	
+
 	//Write boundary face file
 	std::string face_file_name=mBaseName+".tris";
-    std::ofstream *p_face_file = mpOutputFileHandler->OpenOutputFile(face_file_name);
+    out_stream p_face_file = mpOutputFileHandler->OpenOutputFile(face_file_name);
 
 	//Write the boundary face header
 	int num_faces=GetNumBoundaryFaces();
@@ -103,16 +100,15 @@ MeshalyzerMeshWriter::WriteFiles()
 		
 	}
 	p_face_file->close();
-    delete p_face_file;
 
-	if (mWriteMetaFile) {
+	if (mWriteMetaFile)
+    {
 		std::string meta_file_name=mBaseName+".cg_in";
-        std::ofstream *p_meta_file = mpOutputFileHandler->OpenOutputFile(meta_file_name);
+        out_stream p_meta_file = mpOutputFileHandler->OpenOutputFile(meta_file_name);
         
 		*p_meta_file<< "1\n"<< "0\n";
 		*p_meta_file<< face_file_name<<"\n";
 		p_meta_file->close();
-        delete p_meta_file;
 	}
 }
 
