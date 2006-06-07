@@ -72,7 +72,7 @@ private:
 							vector<double> Ui);
 	void ComputeResidualOnSurfaceElement(
  							const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-							c_vector<double, ELEMENT_DIM+1> &rBsubElem,
+							c_vector<double, ELEMENT_DIM> &rBsubElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 							vector<double> Ui);
@@ -188,7 +188,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
  template<int ELEMENT_DIM, int SPACE_DIM>
  void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOnSurfaceElement(
  								const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-								c_vector<double, ELEMENT_DIM+1> &rBsubElem,
+								c_vector<double, ELEMENT_DIM> &rBsubElem,
 								AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 								BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
 								vector<double> Ui)
@@ -200,22 +200,19 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 	
 	double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
 	
-	const int num_nodes = rSurfaceElement.GetNumNodes();
+	//const int num_nodes = rSurfaceElement.GetNumNodes();
 
 	for(int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
 	{
 		Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
-
-		c_vector<double, ELEMENT_DIM+1>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+       
+		c_vector<double, ELEMENT_DIM>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
 
         // location of the gauss point in the original element will be stored in x
 		Point<SPACE_DIM> x(0,0,0);
-		
-		double U = 0;  
-		
+	
 		for(int i=0; i<rSurfaceElement.GetNumNodes(); i++) 
 		{
-			U+= phi[i]*Ui(i);
 						
 			for(int j=0; j<SPACE_DIM; j++)
 			{
@@ -226,15 +223,12 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
 		/**
 		 * \todo Neumann BC value depends on u?
 		 */
+        //double U = inner_prod(phi,Ui); 
 		c_vector<double, SPACE_DIM> Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
-		//std::cout << "Dgradu.n = " << Dgradu_dot_n << std::endl << std::flush;
+		
+		// I'm not sure why we want -phi, but it seems to work:)
 
-		for (int i=0; i < num_nodes; i++)
-		{
-			// I'm not sure why we want -phi, but it seems to work:)
-			double integrand_value = -phi[i] * Dgradu_dot_n(0);
-			rBsubElem(i) += integrand_value * jacobian_determinant * quad_rule.GetWeight(quad_index);
-		}
+		noalias(rBsubElem) += (Dgradu_dot_n(0) * jacobian_determinant * quad_rule.GetWeight(quad_index) * -1) * phi ;
 	}
 }
  
@@ -415,7 +409,8 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 	if (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 	{					
 		const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-		c_vector<double, ELEMENT_DIM+1> b_surf_elem;
+		
+        c_vector<double, ELEMENT_DIM> b_surf_elem;
 
 		while (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 		{
