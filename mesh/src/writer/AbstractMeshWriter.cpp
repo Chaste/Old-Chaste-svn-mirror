@@ -1,6 +1,13 @@
 #include "AbstractMeshWriter.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
+/**
+ * Return the full path to the directory where meshes will be written.
+ */
+std::string AbstractMeshWriter::GetOutputDirectory(void)
+{
+    return mpOutputFileHandler->GetTestOutputDirectory();
+}
 
 void AbstractMeshWriter::SetNextNode(std::vector<double> nextNode)
 {

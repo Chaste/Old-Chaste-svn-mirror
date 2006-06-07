@@ -77,20 +77,6 @@ void ParallelColumnDataWriter::EndDefineMode()
     {
         mIsInDefineMode = false;
     }
-    
-/*    int num_procs, my_rank;
-    MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-    MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-    for (int i=0; i<num_procs; i++)
-    {
-        if (i==my_rank)
-        {
-            std::cerr<<"On "<<my_rank<<":\n";
-            system("ls -l /tmp/testoutput/ParallelColumnWriter.info");
-        }
-        MPI_Barrier(PETSC_COMM_WORLD);
-    }
-*/    
 }
 
 /**

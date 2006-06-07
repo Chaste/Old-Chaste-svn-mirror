@@ -7,7 +7,9 @@
 class TrianglesMeshWriter : public AbstractMeshWriter
 {
 public:
-	TrianglesMeshWriter(const std::string &rDirectory, const std::string &rBbaseName, const int &rDimension);
+	TrianglesMeshWriter(const std::string &rDirectory,
+                        const std::string &rBbaseName,
+                        const int &rDimension);
 	void WriteFiles();
 	virtual ~TrianglesMeshWriter();
 };

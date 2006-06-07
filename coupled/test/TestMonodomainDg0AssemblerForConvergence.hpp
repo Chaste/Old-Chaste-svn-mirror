@@ -104,7 +104,7 @@ public:
     {
        const std::string mesh_filename = "1D_0_to_0.8mm";
        OutputFileHandler output_file_handler("MonodomainConvergenceMesh");
-       std::string mesh_pathname = output_file_handler.GetTestOutputDirectory("MonodomainConvergenceMesh")
+       std::string mesh_pathname = output_file_handler.GetTestOutputDirectory()
             + mesh_filename;
        mpOutputFileHandler = &output_file_handler;
 

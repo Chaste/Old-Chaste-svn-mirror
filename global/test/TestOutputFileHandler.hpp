@@ -19,6 +19,7 @@ public:
 		OutputFileHandler handler2(dir);
 		std::string full_dir = handler2.GetTestOutputDirectory(dir);
 		TS_ASSERT_EQUALS(full_dir.substr(full_dir.length()-dir.length()-1), dir+"/");
+        TS_ASSERT_EQUALS(full_dir, handler2.GetTestOutputDirectory());
 		
 		std::ofstream *p_file_stream;
         TS_ASSERT_THROWS_NOTHING(p_file_stream = handler.OpenOutputFile("test_file",
@@ -34,6 +35,7 @@ public:
         p_file_stream->close();
         delete p_file_stream;
         
+        // This should try to write files to /, which isn't allowed (we hope!)
         OutputFileHandler handler3("../../../../../../../../../../../../../../../");
         TS_ASSERT_THROWS_ANYTHING(p_file_stream = handler3.OpenOutputFile("test_file"));
         

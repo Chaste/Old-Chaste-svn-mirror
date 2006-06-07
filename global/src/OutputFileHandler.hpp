@@ -57,7 +57,7 @@ public:
      * Return the full pathname of the output directory.
      * 
      * @param directory  pathname of the output directory, relative to where Chaste
-     *         output will be stored (user shouldn't care about this)
+     *         output will be stored (user shouldn't care about this).
      * @return  full pathname to the output directory
      */
     std::string GetTestOutputDirectory(std::string directory)
@@ -77,8 +77,15 @@ public:
         {
             directory = directory + "/";
         }
-        
         return directory;
+    }
+    /**
+     * Return the full pathname to the directory this object will create files
+     * in.
+     */
+    std::string GetTestOutputDirectory()
+    {
+        return mDirectory;
     }
     
     /**
