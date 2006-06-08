@@ -10,7 +10,7 @@
 #include "Element.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "LinearSystem.hpp"
-
+#include "PetscException.hpp"
 
 /**
  * Boundary Conditions Container
@@ -234,10 +234,10 @@ public:
         VecGetOwnershipRange(currentSolution, &lo, &hi);
         
         double *p_current_solution;
-		int ierr = VecGetArray(currentSolution, &p_current_solution);
+		PETSCEXCEPT(VecGetArray(currentSolution, &p_current_solution));
 			
 		double *p_residual;
-		ierr = VecGetArray(residual, &p_residual);
+		PETSCEXCEPT(VecGetArray(residual, &p_residual));
 		
 		while(dirichIterator != mpDirichletMap->end() )			
 		{
@@ -259,8 +259,8 @@ public:
 			dirichIterator++;
 		}
 		
-		ierr = VecRestoreArray(currentSolution, &p_current_solution);	
-		ierr = VecRestoreArray(residual, &p_residual);	
+		PETSCEXCEPT(VecRestoreArray(currentSolution, &p_current_solution));	
+		PETSCEXCEPT(VecRestoreArray(residual, &p_residual));	
 	}
 	
 	/**

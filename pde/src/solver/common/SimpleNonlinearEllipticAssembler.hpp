@@ -328,14 +328,13 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 							const Vec currentSolution,
 							Vec residualVector)
 {
-	PetscErrorCode ierr;
 	// Set residual vector to zero
 	PetscScalar zero = 0.0;
 
 #if (PETSC_VERSION_MINOR == 2) //Old API
-    ierr = VecSet(&zero, residualVector); CHKERRQ(ierr);
+    PETSCEXCEPT( VecSet(&zero, residualVector) );
 #else
-    VecSet(residualVector, zero); 
+    PETSCEXCEPT( VecSet(residualVector, zero) ); 
 #endif
     
     // Replicate the currentSolution data
@@ -380,7 +379,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
             if (lo<=node_index && node_index<hi)
             {
 			     PetscScalar value = b_elem(i);
-			     ierr = VecSetValue(residualVector,node_index,value,ADD_VALUES); CHKERRQ(ierr);
+			     PETSCEXCEPT( VecSetValue(residualVector,node_index,value,ADD_VALUES) );
             }
         }
         iter++;
@@ -428,7 +427,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 					PetscScalar value = b_surf_elem(i);
                     if (lo<=node && node<hi) 
                     {
-					   ierr = VecSetValue(residualVector, node, value, ADD_VALUES); CHKERRQ(ierr);
+					   PETSCEXCEPT( VecSetValue(residualVector, node, value, ADD_VALUES) );
                     }
 				}
 			}
@@ -674,7 +673,6 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianNumerically(
 							const Vec input, Mat *pJacobian)
 {
-	PetscErrorCode ierr;
     
 	int num_nodes = mpMesh->GetNumNodes();
 
@@ -697,8 +695,8 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     
     // Copy the input vector; we perturb the copy
 	Vec inputcopy;
-	ierr = VecDuplicate(input, &inputcopy); CHKERRQ(ierr);
-	ierr = VecCopy(input, inputcopy); CHKERRQ(ierr);
+	PETSCEXCEPT( VecDuplicate(input, &inputcopy) );
+	PETSCEXCEPT( VecCopy(input, inputcopy) );
 
 	// Compute the current residual
 	ComputeResidual(input, residual);
@@ -716,32 +714,32 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 		//Only perturb if we own it
         if (lo<=global_index_outer && global_index_outer<hi)
         {
-            ierr = VecSetValue(inputcopy, global_index_outer,h, ADD_VALUES); CHKERRQ(ierr);
+            PETSCEXCEPT( VecSetValue(inputcopy, global_index_outer,h, ADD_VALUES) );
         }
         ComputeResidual(inputcopy, perturbed_residual);
         
         // result = (perturbed_residual - residual) / h
 #if (PETSC_VERSION_MINOR == 2) //Old API
-        ierr = VecWAXPY(&subtract, residual, perturbed_residual, result); CHKERRQ(ierr);
-        ierr = VecScale(&one_over_h, result); CHKERRQ(ierr);
+        PETSCEXCEPT( VecWAXPY(&subtract, residual, perturbed_residual, result) );
+        PETSCEXCEPT( VecScale(&one_over_h, result) );
 #else
-        VecWAXPY(result, subtract, residual, perturbed_residual);
-        VecScale(result, one_over_h);
+        PETSCEXCEPT( VecWAXPY(result, subtract, residual, perturbed_residual) );
+        PETSCEXCEPT( VecScale(result, one_over_h) );
 #endif
     
         double *p_result;
-		ierr = VecGetArray(result, &p_result); CHKERRQ(ierr);
+		PETSCEXCEPT( VecGetArray(result, &p_result) );
 		for (int global_index=lo; global_index < hi; global_index++)
 		{
 			int local_index = global_index - lo;
-			ierr = MatSetValue(*pJacobian, global_index, global_index_outer, 
-                   p_result[local_index], INSERT_VALUES); CHKERRQ(ierr);
+			PETSCEXCEPT( MatSetValue(*pJacobian, global_index, global_index_outer, 
+                   p_result[local_index], INSERT_VALUES) );
 	 	}
-		ierr = VecRestoreArray(result, &p_result); CHKERRQ(ierr);
+		PETSCEXCEPT( VecRestoreArray(result, &p_result) );
 	    
 	    if (lo<=global_index_outer && global_index_outer<hi)
         {
-    	   ierr = VecSetValue(inputcopy, global_index_outer, -h, ADD_VALUES); CHKERRQ(ierr);
+    	   PETSCEXCEPT( VecSetValue(inputcopy, global_index_outer, -h, ADD_VALUES) );
         }
 	}
     
