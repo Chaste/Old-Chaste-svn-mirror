@@ -11,7 +11,7 @@ class SimpleLinearSolver : public AbstractLinearSolver
 
 public:
 
-    Vec Solve(Mat lhsMatrix, Vec rhsVector, int size);
+    Vec Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace matNullSpace=NULL);
     SimpleLinearSolver()
     {
         mLinearSystemKnown=false;

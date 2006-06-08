@@ -13,7 +13,7 @@
  * @return The solution Vec x.
  */
 
-Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
+Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace matNullSpace)
 {
     Vec lhs_vector;
 	VecDuplicate(rhsVector, &lhs_vector);
@@ -22,7 +22,8 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
      *    MatView(lhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
      *    VecView(rhsVector,    PETSC_VIEWER_STDOUT_WORLD);
      */
-    if (mLinearSystemKnown==false){
+    if (mLinearSystemKnown==false)
+    {
         PC prec; //Type of pre-conditioner
      
         KSPCreate(PETSC_COMM_WORLD, &mSimpleSolver);
@@ -30,10 +31,13 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
         //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
         //The preconditioner flag (last argument) in the following calls says
         //how to reuse the preconditioner on subsequent iterations
-        if (mMatrixIsConstant==true){
+        if (mMatrixIsConstant==true)
+        {
             KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_PRECONDITIONER);
             
-        } else {
+        } 
+        else 
+        {
             KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
         }
         
@@ -45,8 +49,15 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
         if (size <= 4)
         {
              PCSetType(prec,PCNONE);
-        } else {
+        } 
+        else 
+        {
              PCSetType(prec,PCJACOBI);        
+        }
+        
+        if(matNullSpace)
+        {
+            PETSCEXCEPT( KSPSetNullSpace(mSimpleSolver, matNullSpace) );
         }
         
         KSPSetFromOptions(mSimpleSolver) ;

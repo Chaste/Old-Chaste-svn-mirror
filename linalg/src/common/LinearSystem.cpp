@@ -4,6 +4,7 @@
 */
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
+#include "PetscException.hpp"
 //#include <iostream>
 
 
@@ -33,6 +34,8 @@ LinearSystem::LinearSystem(int lhsVectorSize)
 	mSize = lhsVectorSize;
     
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
+    
+    mMatNullSpace = NULL;
 }
 
 /**
@@ -57,6 +60,8 @@ LinearSystem::LinearSystem(Vec templateVector)
 #endif 
     MatSetType(mLhsMatrix, MATMPIAIJ);
     MatSetFromOptions(mLhsMatrix);
+    
+    mMatNullSpace = NULL;
 }
 
 
@@ -205,13 +210,19 @@ void LinearSystem::ZeroLinearSystem()
  
 Vec LinearSystem::Solve(AbstractLinearSolver *solver)
 {
-    return solver->Solve(mLhsMatrix, mRhsVector, mSize);
+    return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace);
 }
 
 int LinearSystem::GetSize()
 {
 	return mSize;
 }
+
+void LinearSystem::SetNullBasis(Vec nullbasis[], unsigned numberOfBases)
+{
+    PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullbasis, &mMatNullSpace) );
+}
+
 
 
 // this function has been grandfathered because it deadset wrong

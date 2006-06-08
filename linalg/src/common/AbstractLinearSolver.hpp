@@ -19,7 +19,7 @@ public:
 	 * @param rhsVector The right hand side vector
 	 * @return The solution x.
 	 */
-    virtual Vec Solve(Mat lhsMatrix, Vec rhsVector, int size) = 0;
+    virtual Vec Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace=NULL) = 0;
     virtual void SetMatrixIsConstant()=0;
     virtual ~AbstractLinearSolver()
     {
