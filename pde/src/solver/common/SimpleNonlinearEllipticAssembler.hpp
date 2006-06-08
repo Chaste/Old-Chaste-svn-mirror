@@ -575,51 +575,26 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
         // which should be defined in/by NonlinearEllipticEquation.hpp:
         // d/dx [f(U,x) du/dx ] = -g
         // where g(x,U) is the forcing term
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_ublas = pPde->ComputeDiffusionTerm(x,U);
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU_prime_ublas = pPde->ComputeDiffusionTermPrime(x,U);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = pPde->ComputeDiffusionTerm(x,U);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = pPde->ComputeDiffusionTermPrime(x,U);
                 
         //LinearSourceTerm(x)   not needed as it is a constant wrt U_i
-        double ForcingTermPrime = pPde->ComputeNonlinearSourceTermPrime(x, U);
-        c_vector<double, ELEMENT_DIM> temp1 = prod(FOfU_prime_ublas,gradU);
+        double forcing_term_prime = pPde->ComputeNonlinearSourceTermPrime(x, U);
+        c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,gradU);
         c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, grad_phi);
     	
         //DUMMY : This is where we are up to.
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, phi);
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2;
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values3;
-        		
-		for (int i=0; i < num_nodes; i++)
-		{
-			for (int j=0; j< num_nodes; j++)
-			{
-				
-   			
-                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_i(grad_phi,i);
-                matrix_column<c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> > grad_phi_j(grad_phi,j);
-
-                //double integrand_value1 = inner_prod(temp1 ,grad_phi_i)*phi[j];
-                double integrand_value1 = (prod(temp1, grad_phi))(i)*phi[j];
-                assert(integrand_value1 == integrand_values1(i,j));
-
-                double integrand_value2 = inner_prod(prod(FOfU_ublas, grad_phi_j), grad_phi_i);
-
-				double integrand_value3 = ForcingTermPrime * phi[i];
-				
-				//double integrand_value4 = integrand_value1 + integrand_value2 + integrand_value3;
-				
-				rAElem(i,j) += integrand_value1 * jacobian_determinant 
-				               * pQuadRule->GetWeight(quad_index)
-				               + integrand_value2 * jacobian_determinant 
-				               * pQuadRule->GetWeight(quad_index)
-				               - integrand_value3 * jacobian_determinant 
-				               * pQuadRule->GetWeight(quad_index);
-			}
-		}
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, grad_phi);
+        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2 = prod(trans(grad_phi), temp2);
+        c_vector<double, ELEMENT_DIM+1> integrand_values3 = forcing_term_prime * phi;
+        
+        rAElem +=  jacobian_determinant*pQuadRule->GetWeight(quad_index)*
+                   (integrand_values1 + integrand_values2 -
+                    outer_prod( scalar_vector<double>(ELEMENT_DIM+1), integrand_values3));  		
+                   
 	}
 }
-
-
-
 
 /**
  * Compute the jacobian matrix given the current solution guess.
