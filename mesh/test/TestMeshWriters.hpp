@@ -116,7 +116,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 //        int num_tsteps=500;
 //        int num_nodes = pImportMeshReader->GetNumNodes();
 //        OutputFileHandler output_file_handler("");
-//        std::ofstream *p_fake_data = output_file_handler.OpenOutputFile(
+//        out_stream p_fake_data = output_file_handler.OpenOutputFile(
 //            "MeshFromTetgen.tdat");
 //        for (int t= 0; t<num_tsteps ;t++)
 //        {
@@ -126,7 +126,6 @@ class TestMeshWriters : public CxxTest::TestSuite
 //            }
 //        } 
 //        p_fake_data->close();
-//        delete p_fake_data;
         
         delete pImportMeshReader;
         delete pMeshWriter;
@@ -165,7 +164,7 @@ class TestMeshWriters : public CxxTest::TestSuite
 //        {
 //            char fake_data_name[100];
 //            sprintf(fake_data_name, std::string("CGFromTetgen.t%i").c_str(), t);
-//            std::ofstream *p_fake_data = output_file_handler.OpenOutputFile(fake_data_name);
+//            out_stream p_fake_data = output_file_handler.OpenOutputFile(fake_data_name);
 //            *p_fake_data << "t = "<<t<<"\n";
 //            for(int n=0 ; n<num_nodes ; n++)
 //            {
@@ -173,7 +172,6 @@ class TestMeshWriters : public CxxTest::TestSuite
 //            }
 //         
 //            p_fake_data->close() ;
-//            delete p_fake_data;
 //        }
         
         delete pImportMeshReader;

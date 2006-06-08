@@ -71,7 +71,7 @@ public:
         int nb_of_nodes = nb_of_eles+1;
 
         // Nodes file
-        std::ofstream *p_node_file = mpOutputFileHandler->OpenOutputFile(meshFilename+".node");
+        out_stream p_node_file = mpOutputFileHandler->OpenOutputFile(meshFilename+".node");
         (*p_node_file) << std::scientific;
 
         (*p_node_file) << nb_of_nodes << "\t1\t0\t1" << std::endl;
@@ -85,10 +85,9 @@ public:
             (*p_node_file) << i << "\t" << 0.08*i/nb_of_eles << "\t" << b << std::endl;
         }
         p_node_file->close();
-        delete p_node_file;
 
         // Elements file
-        std::ofstream *p_ele_file = mpOutputFileHandler->OpenOutputFile(meshFilename+".ele");
+        out_stream p_ele_file = mpOutputFileHandler->OpenOutputFile(meshFilename+".ele");
         (*p_ele_file) << std::scientific;
 
         (*p_ele_file) << nb_of_eles << "\t2\t0" << std::endl;
@@ -97,7 +96,6 @@ public:
             (*p_ele_file) << i << "\t" << i << "\t" << i+1 << std::endl;
         }
         p_ele_file->close();
-        delete p_ele_file;
     }
     
     void TestMonodomainDg01DSpaceAndTime()
