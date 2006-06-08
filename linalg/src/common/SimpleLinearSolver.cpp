@@ -1,5 +1,6 @@
 #include "SimpleLinearSolver.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
+#include "PetscException.hpp"
 #include <sstream>
 
 /**
@@ -35,6 +36,7 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
         } else {
             KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
         }
+        
         // Default relative tolerance appears to be 1e-5.  This ain't so great.
         KSPSetTolerances(mSimpleSolver, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         
@@ -53,22 +55,14 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size)
         mLinearSystemKnown=true;
     }    
    
-    
-    KSPSolve(mSimpleSolver, rhsVector, lhs_vector);
+    PETSCEXCEPT(KSPSolve(mSimpleSolver, rhsVector, lhs_vector));
     
     // Check that solver converged and throw if not
     KSPConvergedReason reason;
     KSPGetConvergedReason(mSimpleSolver, &reason);
-    if (reason<0)
-    {
-    	std::stringstream reason_stream;
-    	reason_stream << reason;
-    	VecDestroy(lhs_vector);    // Delete vec memory, since caller can't do so
-    	KSPDestroy(mSimpleSolver); // Likewise for the solver
-    	mLinearSystemKnown=false;  //Start fresh
-        throw Exception("Linear Solver did not converge. Petsc reason code:"
-    	                +reason_stream.str()+" .");
-    }
+    
+    KSPEXCEPT(reason);
+
    return lhs_vector;
 }
 

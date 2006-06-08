@@ -13,31 +13,6 @@
 #include <petsc.h>
 #include <stdlib.h>
 
-
-#define PETSCEXCEPT(n) if (n) PetscException(n, __LINE__, __FUNCT__,__FILE__);
-
-void PetscException(int petscError,
-                    int line,
-                    const char* funct, 
-                    const char* file)
-{
-    const char*  text;
- 
-    PetscErrorMessage(petscError,  &text, NULL);
-    
-    std::string err_string;
-    err_string=text;
-    err_string+= " in function ";
-    err_string+= funct;
-    err_string+= " on line " ;
-    err_string+= line;
-    err_string+= " of file ";
-    err_string+= file;
-    
-    Exception e(err_string);
-    throw(e);
-}
-
 class PetSCSetup : public CxxTest::GlobalFixture
 {
 public:

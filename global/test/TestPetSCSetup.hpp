@@ -6,6 +6,7 @@
 #include <petscmat.h>
 
 #include "PetscSetupAndFinalize.hpp"
+#include "PetscException.hpp"
 
 /**
  * This tests that the initialisation of PETSc does something.
@@ -32,13 +33,16 @@ public:
         //#define PETSC_ERR_ARG_WRONGSTATE   73   /* object in argument is in wrong */
         TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
         
-        err=65;
+        err=PETSC_ERR_FILE_OPEN;
         //#define PETSC_ERR_FILE_OPEN        65   /* unable to open file */
         TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
         
         //See if we can do it without a temporary
         TS_ASSERT_THROWS_ANYTHING(
             PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)));
+        
+        //This test give back an "unknown error" message
+        TS_ASSERT_THROWS_ANYTHING( PETSCEXCEPT(-3));    
     }
 };
 

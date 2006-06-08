@@ -60,7 +60,9 @@ petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm',
               'petscmat', 'petscvec', 'petsc']
 chaste_libs = ['global', 'io', 'ode', 'pde', 'coupled', 'linalg', 'mesh']
 
-all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir]
+#all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir]
+all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir] + ['global']
+# Note: dirty trick (with ['global']) to get PetscException to work fine...
 
 opt = Environment(ENV = {'PATH': os.environ['PATH'],
                          'USER': os.environ['USER']})
