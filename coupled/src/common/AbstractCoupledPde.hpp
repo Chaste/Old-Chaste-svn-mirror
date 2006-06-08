@@ -16,9 +16,6 @@ protected:
     // timestep used by the pde solver
     double mBigTimeStep;
 
-    // simulation time
-    double mTime;   
-
     // number of nodes in the mesh 
     int mNumNodes;
        
@@ -29,13 +26,13 @@ protected:
     int mOwnershipRangeHi;
     
 public:   
-    AbstractCoupledPde(int numNodes, double tStart, double bigTimeStep)
+    AbstractCoupledPde(int numNodes, double bigTimeStep)
     {
         assert(numNodes > 0);
         
         mNumNodes = numNodes;
         mBigTimeStep = bigTimeStep;
-        mTime = tStart; /// \todo FIXME?: Is this overridden elsewhere?
+        
         // Resize vectors to the appropriate size for each process:
         // Create a PETSc vector and use the ownership range of the PETSc vector
         // to size our C++ vectors

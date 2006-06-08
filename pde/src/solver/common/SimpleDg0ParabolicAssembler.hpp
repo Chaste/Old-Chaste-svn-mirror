@@ -85,7 +85,9 @@ public:
 		
 		assert(mTstart < mTend);
 		assert(mDt > 0);
-		assert(mDt <= mTend - mTstart + 1e-12);
+        
+        std::cout.precision(20);
+		assert(mDt <= mTend - mTstart + 1e-10);
 	
 		mTimesSet = true;
 	}

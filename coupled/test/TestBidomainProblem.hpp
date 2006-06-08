@@ -14,6 +14,7 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "ColumnDataReader.hpp"
 
 
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
@@ -211,6 +212,68 @@ public:
             TS_ASSERT_DELTA(extracellular_potential, 0, 0.05);
         } 
     }
+
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Solve a simple simulation and check the output was only
+    // printed out at the correct times
+    ///////////////////////////////////////////////////////////////////
+    void TestBidomainProblemPrintsOnlyAtRequestedTimes()
+    {
+        // run testing PrintingTimeSteps
+        PointStimulusCellFactory cell_factory;
+        BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
+
+        p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+
+        p_bidomain_problem->SetEndTime(0.24);          // ms
+        p_bidomain_problem->SetPdeTimeStep(0.01);      // ms
+        p_bidomain_problem->SetPrintingTimeStep(0.1);  // every 0.1ms 
+
+        p_bidomain_problem->SetOutputDirectory("Bidomain1d");
+        p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
+
+        p_bidomain_problem->Initialise();
+        p_bidomain_problem->Solve();
+        
+        delete p_bidomain_problem;
+        
+        // read data entries for the time file and check correct
+        ColumnDataReader data_reader1("Bidomain1d", "bidomain_testPrintTimes");
+        std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
+        
+        TS_ASSERT_EQUALS( times.size(), 4);
+        TS_ASSERT_DELTA( times[0], 0.00, 1e-12);
+        TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
+        TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
+        TS_ASSERT_DELTA( times[3], 0.24, 1e-12);
+        
+        
+        // run testing PrintEveryNthTimeStep
+        p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
+
+        p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        p_bidomain_problem->SetEndTime(0.45);   // ms
+        p_bidomain_problem->SetOutputDirectory("Bidomain1d");
+        p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
+
+        p_bidomain_problem->SetPdeTimeStep(0.01);
+        p_bidomain_problem->PrintEveryNthTimeStep(17);  // every 17 timesteps
+
+        p_bidomain_problem->Initialise();
+        p_bidomain_problem->Solve(); 
+  
+        // read data entries for the time file and check correct
+        ColumnDataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");
+        times = data_reader2.GetUnlimitedDimensionValues();
+                  
+        TS_ASSERT_EQUALS( times.size(), 4);
+        TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
+        TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
+        TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.45,  1e-12);
+    } 
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

@@ -26,6 +26,7 @@ private:
     double mStartTime;
     double mEndTime;
     double mPdeTimeStep;  
+    double mPrintingTimeStep;
 
     /** data is not written if output directory or output file prefix are not set*/ 
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -55,9 +56,10 @@ public:
     {
         mpCellFactory = pCellFactory;
                 
-        mStartTime   = 0.0;  // ms
-        mPdeTimeStep = 0.01; // ms
-        mEndTime     = -1;   // so can check has been set
+        mStartTime        = 0.0;  // ms
+        mPdeTimeStep      = 0.01; // ms
+        mEndTime          = -1;   // negative so can check has been set
+        mPrintingTimeStep = -1;   // negative so can check has been set
     }
 
     /**
@@ -78,7 +80,7 @@ public:
         
         mpCellFactory->SetMesh( &mMesh );
         
-        mpMonodomainPde = new MonodomainPde<SPACE_DIM>( mpCellFactory, mStartTime, mPdeTimeStep);
+        mpMonodomainPde = new MonodomainPde<SPACE_DIM>( mpCellFactory, mPdeTimeStep);
     }
      
     /**
@@ -150,9 +152,8 @@ public:
             voltage_var_id = p_test_writer->DefineVariable("V","mV");
             p_test_writer->EndDefineMode();
         }
-        
+ 
         double current_time = mStartTime;        
-        int big_steps = 0;
         
         if (write_files)
         {
@@ -160,9 +161,27 @@ public:
             p_test_writer->PutVector(voltage_var_id, initial_condition);
         }               
         
+           
+        if( mPrintingTimeStep < 0) //ie if it hasn't been set
+        {
+            mPrintingTimeStep = mPdeTimeStep; ///\todo: pick good default
+        }    
+
+        // check the printing time step is a multiple of the pde timestep.
+        assert(  fabs( (mPrintingTimeStep/mPdeTimeStep)
+                        -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );        
+        
         while( current_time < mEndTime )
         {
-            monodomain_assembler.SetTimes(current_time, current_time+mPdeTimeStep, mPdeTimeStep);
+            // compute the next printing time
+            double next_printing_time = current_time + mPrintingTimeStep;
+            if(next_printing_time > mEndTime)
+            {
+                next_printing_time = mEndTime;
+            }
+            
+            // solve from now up to the next printing time
+            monodomain_assembler.SetTimes(current_time, next_printing_time, mPdeTimeStep);
             monodomain_assembler.SetInitialCondition( initial_condition );
             
             try
@@ -183,7 +202,10 @@ public:
 
             // Initial condition for next loop is current solution
             initial_condition = mVoltage;
-            
+          
+            // update the current time
+            current_time = next_printing_time; 
+          
             // Writing data out to the file <mOutputFilenamePrefix>.dat
             if (write_files)
             {
@@ -191,12 +213,6 @@ public:
                 p_test_writer->PutVariable(time_var_id, current_time); 
                 p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
-
-            //mpMonodomainPde->ResetAsUnsolvedOdeSystem();
-
-            current_time += mPdeTimeStep;
-                
-            big_steps++;
         }
 
         // close the file that stores voltage values
@@ -222,8 +238,26 @@ public:
     void SetPdeTimeStep(double pdeTimeStep)
     {
         assert(0.0 < pdeTimeStep);
-        mPdeTimeStep=pdeTimeStep;
+        mPdeTimeStep = pdeTimeStep;
     }
+    
+    /** Set the times to print output. The printing time step must be 
+     *  a multiple of the pde timestep 
+     */
+    void SetPrintingTimeStep(double printingTimeStep)
+    {
+        assert(0.0 < printingTimeStep);
+        mPrintingTimeStep = printingTimeStep;
+    }
+    
+    /** Set the simulation to print every n timesteps. Only set this
+     *  AFTER setting the pde timestep
+     */
+    void PrintEveryNthTimeStep(unsigned n)
+    {
+        mPrintingTimeStep = n*mPdeTimeStep;
+    }
+    
     
     double GetPdeTimeStep()
     {

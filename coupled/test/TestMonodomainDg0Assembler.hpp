@@ -13,6 +13,8 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "ColumnDataReader.hpp"
+
 
 #include <time.h>
 
@@ -380,7 +382,67 @@ public:
                         
         }
         monodomain_problem.RestoreVoltageArray(&p_voltage_array);
-     } 
+    }
+    
+    
+    ///////////////////////////////////////////////////////////////////
+    // Solve a simple simulation and check the output was only
+    // printed out at the correct times
+    ///////////////////////////////////////////////////////////////////
+    void TestMonodomainProblemPrintsOnlyAtRequestedTimes()
+    {
+        // run testing PrintingTimeSteps
+        PointStimulusCellFactory cell_factory;
+        MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
+
+        p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+
+        p_monodomain_problem->SetEndTime(0.24);          // ms
+        p_monodomain_problem->SetPdeTimeStep(0.01);      // ms
+        p_monodomain_problem->SetPrintingTimeStep(0.1);  // every 0.1ms 
+
+        p_monodomain_problem->SetOutputDirectory("MonoDg01d");
+        p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
+
+        p_monodomain_problem->Initialise();
+        p_monodomain_problem->Solve();
+        
+        delete p_monodomain_problem;
+        
+         // read data entries for the time file and check correct
+        ColumnDataReader data_reader1("MonoDg01d", "mono_testPrintTimes");
+        std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
+        
+        TS_ASSERT_EQUALS( times.size(), 4);
+        TS_ASSERT_DELTA( times[0], 0.00, 1e-12);
+        TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
+        TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
+        TS_ASSERT_DELTA( times[3], 0.24, 1e-12);
+
+        // run testing PrintEveryNthTimeStep
+        p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
+
+        p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        p_monodomain_problem->SetEndTime(0.45);   // ms
+        p_monodomain_problem->SetOutputDirectory("MonoDg01d");
+        p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
+
+        p_monodomain_problem->SetPdeTimeStep(0.01);
+        p_monodomain_problem->PrintEveryNthTimeStep(17);  // every 17 timesteps
+
+        p_monodomain_problem->Initialise();
+        p_monodomain_problem->Solve(); 
+
+        // read data entries for the time file and check correct
+        ColumnDataReader data_reader2("MonoDg01d", "mono_testPrintTimes");
+        times = data_reader2.GetUnlimitedDimensionValues();
+                  
+        TS_ASSERT_EQUALS( times.size(), 4);
+        TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
+        TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
+        TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.45,  1e-12);
+    }        
 };
 
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

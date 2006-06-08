@@ -72,11 +72,10 @@ class TestBidomainPde : public CxxTest::TestSuite
     
     void testBidomainPdeGetSet( void )
     {
-        double start_time = 0;  
         double big_time_step = 0.5;        
         MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
 
-        BidomainPde<1>   bidomain_pde( &cell_factory, start_time, big_time_step );   
+        BidomainPde<1>   bidomain_pde( &cell_factory, big_time_step );   
         
         bidomain_pde.SetSurfaceAreaToVolumeRatio(3.14);
         TS_ASSERT_DELTA( bidomain_pde.GetSurfaceAreaToVolumeRatio(), 3.14, 1e-10);
@@ -101,13 +100,12 @@ class TestBidomainPde : public CxxTest::TestSuite
     }
     
     void testBidomainPde_PrepareForAssembleSolution( void )
-    {   
-        double start_time = 0;  
+    {
         double big_time_step = 0.5;        
         MyCardiacCellFactory cell_factory;
 
-        MonodomainPde<1> monodomain_pde( &cell_factory, start_time, big_time_step );        
-        BidomainPde<1>     bidomain_pde( &cell_factory, start_time, big_time_step );   
+        MonodomainPde<1> monodomain_pde( &cell_factory, big_time_step );        
+        BidomainPde<1>     bidomain_pde( &cell_factory, big_time_step );   
         
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -159,12 +157,14 @@ class TestBidomainPde : public CxxTest::TestSuite
             TS_ASSERT_EQUALS(monodomain_pde.GetIionicCacheReplicated()[global_index], bidomain_pde.GetIionicCacheReplicated()[global_index]);
             
             // Look at caches for debugging purposes
+            /*
             std::cout << "Process " << rank << ": V phi I_ionic I_i_stim I_e_stim\n";
             std::cout << bidomain_pde.GetInputCacheMember( 2*global_index ) << " " <<
                          bidomain_pde.GetInputCacheMember( 2*global_index+1 ) << " " <<
                          bidomain_pde.GetIionicCacheReplicated()[global_index] << " " <<
                          bidomain_pde.GetIntracellularStimulusCacheReplicated()[global_index] << " " <<
                          bidomain_pde.GetExtracellularStimulusCacheReplicated()[global_index] << "\n";
+            */            
         }
 
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1

@@ -45,8 +45,8 @@ private:
 public:
     
     //Constructor     
-    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep) 
-       :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, tStart, pdeTimeStep)          
+    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep) 
+       :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep)          
     {
     }
 

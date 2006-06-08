@@ -51,8 +51,8 @@ protected:
  
 
 public:
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double tStart, double pdeTimeStep, const int stride=1)
-      :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfCells(), tStart, pdeTimeStep),
+    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep, const int stride=1)
+      :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfCells(), pdeTimeStep),
          mStride(stride)
     {
         // Reference: Trayanova (2002 - "Look inside the heart")
@@ -148,16 +148,6 @@ public:
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
        
-
-    /**
-     * This function informs the class that the current pde timestep is over,
-     * so time is advanced.
-     */
-//    void ResetAsUnsolvedOdeSystem()
-//    {
-//        this->mTime += this->mBigTimeStep;
-//    }
-//  
   
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
