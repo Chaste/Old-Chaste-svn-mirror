@@ -181,7 +181,7 @@ public:
                 p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
 
-            mpBidomainPde->ResetAsUnsolvedOdeSystem();
+//            mpBidomainPde->ResetAsUnsolvedOdeSystem();
 
             current_time += mPdeTimeStep;
                 

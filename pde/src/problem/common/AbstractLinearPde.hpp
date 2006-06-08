@@ -72,7 +72,7 @@ public:
     * system will want to solve the ODE systems and distribute the answers 
     * before anything else happens.
     */ 
-    virtual void PrepareForAssembleSystem(Vec currentSolution)
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double /*time - not used here*/)
     {
         if (currentSolution != NULL) 
         {

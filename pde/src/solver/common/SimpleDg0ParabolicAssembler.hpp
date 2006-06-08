@@ -41,7 +41,7 @@ protected:
 			outer_prod(rPhi, rPhi);
 	}
 	
-	 /**
+	/**
 	 * Compute extra RHS term
 	 * because pde is parabolic
 	 */
@@ -112,7 +112,7 @@ public:
 		while( t < mTend - 1e-10 )
 		{
 			//std::cout << "t = " << t << std::endl << std::flush;
-			nextSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, currentSolution);
+			nextSolution = AssembleSystem(rMesh, pPde, rBoundaryConditions, currentSolution, t);
 			//std::cout << "Done AssembleSystem." << std::endl << std::flush;
             t += mDt;
 			// Avoid memory leaks

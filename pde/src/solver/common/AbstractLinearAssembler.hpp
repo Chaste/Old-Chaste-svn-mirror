@@ -303,12 +303,12 @@ protected:
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
 								AbstractLinearPde<SPACE_DIM> *pPde,
 								BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-								Vec currentSolution = NULL)
+								Vec currentSolution = NULL, double currentTime=0.0)
 	{
 		/* Allow the PDE to set up anything necessary for the assembly of the
 		 * solution (eg. if it's a coupled system, then solve the ODEs)
 		 */
-		pPde->PrepareForAssembleSystem(currentSolution);
+		pPde->PrepareForAssembleSystem(currentSolution, currentTime);
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
         // << std::endl;elem
         // ^ gives the same in parallel
@@ -317,15 +317,20 @@ protected:
         {
             InitialiseLinearSystem(rMesh.GetNumNodes());
             mMatrixIsAssembled = false;
-        } else {
+        } 
+        else 
+        {
             if (mMatrixIsConstant && mMatrixIsAssembled)
             {
                 mpAssembledLinearSystem->ZeroRhsVector();
-            } else {
+            } 
+            else 
+            {
                 mpAssembledLinearSystem->ZeroLinearSystem();
                 mMatrixIsAssembled = false;
             }
         }
+        
 		// Get an iterator over the elements of the mesh
 		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
 			rMesh.GetElementIteratorBegin();
@@ -391,17 +396,23 @@ protected:
 	    if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
-        } else {
+        } 
+        else 
+        {
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
 	    // Apply dirichlet boundary conditions
         rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
+        
         if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
-        } else {
+        } 
+        else 
+        {
             mpAssembledLinearSystem->AssembleFinalLinearSystem();
         }
+        
         mMatrixIsAssembled = true;
         Vec sol = mpAssembledLinearSystem->Solve(mpSolver);
         

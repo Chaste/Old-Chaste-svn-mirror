@@ -147,8 +147,8 @@ class TestBidomainPde : public CxxTest::TestSuite
         //VecView(monodomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
         //VecView(bidomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
         
-        monodomain_pde.PrepareForAssembleSystem(monodomain_voltage);
-        bidomain_pde.PrepareForAssembleSystem(bidomain_voltage);         
+        monodomain_pde.PrepareForAssembleSystem(monodomain_voltage,0);
+        bidomain_pde.PrepareForAssembleSystem(bidomain_voltage,0);         
 
         int rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &rank);

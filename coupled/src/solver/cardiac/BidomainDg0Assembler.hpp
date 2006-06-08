@@ -162,11 +162,11 @@ private:
     
     
     
-    void AssembleSystem(Vec currentSolution)
+    void AssembleSystem(Vec currentSolution, double currentTime)
     {
         // Allow the PDE to set up anything necessary for the assembly of the
         // solution (ie solve the ODEs)
-        mpBidomainPde->PrepareForAssembleSystem(currentSolution);
+        mpBidomainPde->PrepareForAssembleSystem(currentSolution, currentTime);
                 
         if (mMatrixIsAssembled)
         {
@@ -345,10 +345,9 @@ public:
         Vec next_solution;
         while( t < mTend - 1e-10 )
         {
-            AssembleSystem(current_solution);
+            AssembleSystem(current_solution, t);
 
-
-           // std::cout << "solving at t="<< t << "\n" <<std::flush;
+            // std::cout << "solving at t="<< t << "\n" <<std::flush;
             next_solution = mpAssembledLinearSystem->Solve(mpSolver);
                     
             t += mDt;

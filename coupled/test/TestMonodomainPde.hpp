@@ -114,7 +114,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		VecAssemblyBegin(voltage);
 		VecAssemblyEnd(voltage);
 		 
-	    monodomain_pde.PrepareForAssembleSystem(voltage);
+	    monodomain_pde.PrepareForAssembleSystem(voltage, start_time);
 
 
         double value1 = monodomain_pde.GetIionicCacheReplicated()[0];
@@ -166,8 +166,8 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		VecAssemblyBegin(voltage);
 		VecAssemblyEnd(voltage);
 
-		monodomain_pde.ResetAsUnsolvedOdeSystem();
-        monodomain_pde.PrepareForAssembleSystem(voltage);
+	//	monodomain_pde.ResetAsUnsolvedOdeSystem();
+        monodomain_pde.PrepareForAssembleSystem(voltage, start_time + big_time_step);
               
         value1 = monodomain_pde.GetIionicCacheReplicated()[0];
 

@@ -153,22 +153,23 @@ public:
      * This function informs the class that the current pde timestep is over,
      * so time is advanced.
      */
-    void ResetAsUnsolvedOdeSystem()
-    {
-        this->mTime += this->mBigTimeStep;
-    }
+//    void ResetAsUnsolvedOdeSystem()
+//    {
+//        this->mTime += this->mBigTimeStep;
+//    }
+//  
   
-  
-    virtual void PrepareForAssembleSystem(Vec currentSolution)
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
-        AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution);
+        AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
         //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
 
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);
         unsigned lo=this->mOwnershipRangeLo;
         unsigned hi=this->mOwnershipRangeHi;
-        double time=this->mTime;
+        
+//        double time=this->mTime;
 
         double big_timestep=this->mBigTimeStep;
         
