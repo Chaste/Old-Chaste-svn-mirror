@@ -582,7 +582,6 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
         c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,gradU);
         c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, grad_phi);
     	
-        //DUMMY : This is where we are up to.
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, phi);
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, grad_phi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2 = prod(trans(grad_phi), temp2);

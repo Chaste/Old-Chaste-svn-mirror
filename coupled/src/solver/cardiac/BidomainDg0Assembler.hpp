@@ -122,23 +122,30 @@ private:
             // assemble element stiffness matrix
             if (!mMatrixIsAssembled)
             {
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, grad_basis);
+                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> sigma_i_matrix = 
+                    prod(trans(grad_basis), temp);
+                                                     
+                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> temp2 =
+                    outer_prod(basis_func, basis_func);
+                
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp3 = prod(sigma_e, grad_basis);
+                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> sigma_e_matrix = 
+                    prod(trans(grad_basis), temp3);
+                                                       
                 for (int row=0; row < num_elem_nodes; row++)
                 {
                     for (int col=0; col < num_elem_nodes; col++)
                     {
-                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_basis_col(grad_basis, col);
-                        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_basis_row(grad_basis, row);         
-                        
-                        
                         // Components of the element stiffness matrix are:   
                         // (1,1) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
                         // (1,2) and (2,1) blocks: (Di grad_basis_col)dot(grad_basis_row)
                         // (2,2) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row) 
 
-                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func(col)*basis_func(row)   +  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col )) );
-                        rAElem(2*row+1,2*col)   += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   );
-                        rAElem(2*row,  2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))  );
-                        rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   +   inner_prod( grad_basis_row, prod( sigma_e, grad_basis_col )));
+                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*temp2(row, col) + sigma_i_matrix(row,col) );
+                        rAElem(2*row+1,2*col)   += wJ * sigma_i_matrix(row,col);
+                        rAElem(2*row,  2*col+1) += wJ * sigma_i_matrix(row,col);
+                        rAElem(2*row+1,2*col+1) += wJ*( sigma_i_matrix(row,col) + sigma_e_matrix(row, col));
                     }
                 }
             }
