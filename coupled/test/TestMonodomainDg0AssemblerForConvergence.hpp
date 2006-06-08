@@ -37,7 +37,7 @@ public:
 //       other test series. It, however, doesn't allow for small space steps,
 //       hence we have increased its amplitude (but not too much, as otherwise
 //       the cell model will blow up).
-        mpStimulus = new InitialStimulus(-1500, 0.5);
+        mpStimulus = new InitialStimulus(-1500*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(int node)
@@ -138,16 +138,10 @@ public:
         
                 monodomain_problem.SetMeshFilename(mesh_pathname);
                 monodomain_problem.SetEndTime(200);   // 200 ms
-//                monodomain_problem.SetEndTime(10);   // 10 ms  < --- Delete this!
                 
                 monodomain_problem.SetPdeTimeStep(time_step);
                 monodomain_problem.Initialise();
-                
-                monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-                monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
-                monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-         
-
+       
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl;
 
                 try
@@ -217,9 +211,9 @@ public:
 
         std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< time_step << " ms)" << std::endl;
 
-        TS_ASSERT_DELTA(space_step, 0.005, 0.0);
+        TS_ASSERT_DELTA(space_step, 0.01, 0.0);
         TS_ASSERT_DELTA(time_step, 0.005, 0.0);
-        TS_ASSERT_DELTA(probe_voltage, -10.3395, 0.0001);
+        TS_ASSERT_DELTA(probe_voltage, -10.3983, 0.0001);
         // Note: the delta is because of floating point issues (!!)
     }    
 };
