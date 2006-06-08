@@ -13,6 +13,7 @@
 
 
 MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
+    : AbstractMeshReader()
 {
 	
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
@@ -70,9 +71,6 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
 	// Read the face/edge data using TokenizeStringsToInts method
 	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension,false);
 	mpFaceIterator = mFaceData.begin();
-	
-	
-	
 }
 
 
@@ -94,6 +92,7 @@ std::vector<std::vector<double> > MemfemMeshReader::TokenizeStringsToDoubles(
    	for( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
    	{
      	std::string line_of_data=*the_iterator;
+        //std::cout << line_of_data << std::endl;
      	std::stringstream line_stream(line_of_data);
      	
      	if (the_iterator!=rawData.begin()) //Ignore the header string

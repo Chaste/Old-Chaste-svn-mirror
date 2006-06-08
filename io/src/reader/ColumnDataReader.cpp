@@ -33,8 +33,8 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
     // Find out where files are really stored
     if (make_absolute)
     {
-        OutputFileHandler output_file_handler(directory);
-        directory = output_file_handler.GetTestOutputDirectory(directory);
+        OutputFileHandler output_file_handler(directory, false);
+        directory = output_file_handler.GetTestOutputDirectory();
     } else {
         // Add a trailing slash if needed
         if ( !(*(directory.end()-1) == '/'))

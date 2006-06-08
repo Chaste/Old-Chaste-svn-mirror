@@ -14,6 +14,7 @@
 #include "MeshalyzerMeshWriter.hpp"
 #include "OutputFileHandler.hpp"
 #include <cmath>
+//#include <iostream>
 
 AbstractMeshReader *pImportMeshReader;
 AbstractMeshReader *pNewMeshReader;
@@ -24,21 +25,20 @@ class TestMeshWriters : public CxxTest::TestSuite
     public:
         
     void TestMemfemtoTetgen(void)
-    {    
+    {
         pImportMeshReader=new MemfemMeshReader("mesh/test/data/Memfem_slab");
         pMeshWriter = new TrianglesMeshWriter("", "MeshFromMemfem",3);
     
-        int i;
-        for (i=0; i<pImportMeshReader->GetNumNodes();i++)
+        for (int i=0; i<pImportMeshReader->GetNumNodes();i++)
         {
             pMeshWriter->SetNextNode(pImportMeshReader->GetNextNode());
         }
-        for (i=0; i<pImportMeshReader->GetNumElements();i++)
+        for (int i=0; i<pImportMeshReader->GetNumElements();i++)
         {
             pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
         }
         // Note: the results of this may not be as expected!
-        for (i=0; i<pImportMeshReader->GetNumFaces();i++)
+        for (int i=0; i<pImportMeshReader->GetNumFaces();i++)
         {
             pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextFace());
         }

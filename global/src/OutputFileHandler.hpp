@@ -31,9 +31,11 @@ public:
      * 
      * Will check that the directory exists and create it if needed.
      * 
-     * @param directory  the directory to put output files in.
+     * @param rDirectory  the directory to put output files in.
+     * @param rCleanOutputDirectory  whether to remove any existing files in the output directory
      */
-    OutputFileHandler(std::string directory)
+    OutputFileHandler(const std::string &rDirectory,
+                      bool rCleanOutputDirectory = true)
     {
         // Are we the master process?  Only the master should do any writing to disk
         PetscTruth is_there;
@@ -51,7 +53,14 @@ public:
             // Not using PETSc, so we're definitely the only process
             mAmMaster = true;
         }
-        mDirectory = GetTestOutputDirectory(directory);
+        mDirectory = GetTestOutputDirectory(rDirectory);
+        
+        // Clean the output dir?
+        if (rCleanOutputDirectory && mAmMaster &&
+            rDirectory != "" && rDirectory.find("..") == std::string::npos)
+        {
+            system(("rm -rf " + mDirectory + "*").c_str());
+        }
     }
     
     /**
