@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <memory>
+#include <sys/stat.h>
 
 #include "Exception.hpp"
 #include <petsc.h>
@@ -19,11 +20,11 @@ typedef std::auto_ptr<std::ofstream> out_stream;
 class OutputFileHandler
 {
 private:
-	std::string mDirectory; ///< The directory to store output files in
+    std::string mDirectory; ///< The directory to store output files in
     bool mAmMaster; ///< Are we the master process?
-	
+    
 public:
-	/**
+    /**
      * Create an OutputFileHandler that will create output files in the given directory.
      * The directory name should be relative to the place where Chaste test output is
      * stored.  If the user needs to know where this is, use the GetTestOutputDirectory
@@ -59,7 +60,11 @@ public:
         if (rCleanOutputDirectory && mAmMaster &&
             rDirectory != "" && rDirectory.find("..") == std::string::npos)
         {
-            system(("rm -rf " + mDirectory + "*").c_str());
+            // Remove the directory itself rather than contents, to avoid
+            // problems with too long command lines
+            system(("rm -rf " + mDirectory).c_str());
+            // Re-create the directory
+            mkdir(mDirectory.c_str(), 0775);
         }
     }
     

@@ -68,7 +68,7 @@ for gcda_file in gcda_files:
         toplevel, junk = start.split('build')
         # Get rid of slashes (or system equivalent)
         toplevel = os.path.dirname(toplevel)
-        end = end.split(os.path.sep, 1)[1]
+        if end: end = end.split(os.path.sep, 1)[1]
         # Run gcov
         os.system('gcov -o ' + gcda_file['dir'] + gcov_flags +
                   os.path.join(toplevel, 'src', end, gcda_file['file'][:-4] + 'cpp'))
