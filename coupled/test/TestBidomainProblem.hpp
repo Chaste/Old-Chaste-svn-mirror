@@ -227,7 +227,7 @@ public:
 
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
 
-        p_bidomain_problem->SetEndTime(0.24);          // ms
+        p_bidomain_problem->SetEndTime(0.3);          // ms
         p_bidomain_problem->SetPdeTimeStep(0.01);      // ms
         p_bidomain_problem->SetPrintingTimeStep(0.1);  // every 0.1ms 
 
@@ -247,14 +247,14 @@ public:
         TS_ASSERT_DELTA( times[0], 0.00, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
-        TS_ASSERT_DELTA( times[3], 0.24, 1e-12);
+        TS_ASSERT_DELTA( times[3], 0.30, 1e-12);
         
         
         // run testing PrintEveryNthTimeStep
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
 
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        p_bidomain_problem->SetEndTime(0.45);   // ms
+        p_bidomain_problem->SetEndTime(0.51);   // ms
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
 
@@ -272,7 +272,9 @@ public:
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.45,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
+        
+        delete p_bidomain_problem;
     } 
 };
 
