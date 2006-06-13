@@ -166,9 +166,17 @@ public:
             mPrintingTimeStep = mPdeTimeStep; ///\todo: pick good default
         }    
         
+        
+// at the moment the tend-tstart must be a multiple of the printing timestep 
+// because the 'next_printing_time = mEndTime' line below has been commented
+// out (see comment below). remove this assert when this is sorted out
+        assert( fabs(        ( (mEndTime-mStartTime)/mPrintingTimeStep )
+                      - round( (mEndTime-mStartTime)/mPrintingTimeStep ) ) < 1e-10 );     
+        
+        
         // check the printing time step is a multiple of the pde timestep.
-        assert(  fabs( (mPrintingTimeStep/mPdeTimeStep)
-                        -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );   
+        assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
+                       -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );   
  
                         
         while( current_time < mEndTime )
