@@ -28,24 +28,6 @@ private:
 
 protected:
 	/**
-	 * Compute the value of the integrand used in computing the LHS matrix of the
-	 * linear system.
-	 */
-	virtual double LhsMatrixIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
-									  c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1 > &rGradPhi,
-									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row, int col,
-									  Point<SPACE_DIM> &rX)
-	{
-        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_col(rGradPhi, col);
-        matrix_column<c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> > grad_phi_row(rGradPhi, row);         
-        
-		return inner_prod(grad_phi_row, 
-                          prod(pPde->ComputeDiffusionTerm(rX),grad_phi_col) 
-                          );
-	}
-	
-	/**
 	 * In the case of an elliptic pde, this is zero.
 	 */
 	virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
@@ -57,8 +39,7 @@ protected:
 	}
 	
     /**
-	 * Compute extra RHS term:
-	 * 0 if pde is elliptic.
+	 * Compute extra RHS term.
 	 */
 	virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
 									  c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -67,20 +48,6 @@ protected:
 									  double u)
 	{
 		return pPde->ComputeLinearSourceTerm(rX) * rPhi;
-	}
-	
-	/**
-	 * Compute the value of the integrand used in computing the RHS vector of the
-	 * linear system.
-	 */
-	virtual double RhsVectorIntegrand(c_vector<double, ELEMENT_DIM+1> &rPhi,
-									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  int row,
-									  Point<SPACE_DIM> &rX,
-									  double u)
-	{
-		// Note we can't use the nonlinear source term here; it should be zero.
-		return pPde->ComputeLinearSourceTerm(rX) * rPhi[row];
 	}
 	
 public:

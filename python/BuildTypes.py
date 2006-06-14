@@ -189,7 +189,7 @@ class Coverage(GccDebug):
     self._num_processes = 2
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
-    "Run test one 1 processor then on 2 processors"
+    "Run test on 1 processor then on 2 processors"
     return exefile + ' ' + exeflags + '; mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
 
 

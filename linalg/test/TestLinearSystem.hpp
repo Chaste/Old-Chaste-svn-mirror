@@ -16,6 +16,9 @@ public:
     {
         
         LinearSystem ls(3);
+        
+        TS_ASSERT_EQUALS(ls.GetSize(),3);
+        
         for (int row=0; row<3; row++)
         {
       	    for(int col=0; col<3; col++)
@@ -70,6 +73,9 @@ public:
         SimpleLinearSolver solver;
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
+        
+        ls.DisplayMatrix();
+        ls.DisplayRhs();
         
         int lo,hi;
         VecGetOwnershipRange(solution_vector,&lo,&hi);

@@ -14,6 +14,13 @@ class TestPhysiologicalProperties : public CxxTest::TestSuite
 {
 public:
     
+    void TestExceptionalBehaviour(void)
+    {
+        // Check throws an exception if no data given
+        std::vector<double> empty;
+        TS_ASSERT_THROWS_ANYTHING(CellProperties cell_props(empty, empty));
+    }
+    
     void TestPhysiologicalPropertiesForRegularLr91(void)
     {
         /*
@@ -34,7 +41,7 @@ public:
          * Solve 
          */
         double start_time = 0.0;   // ms
-        double end_time = 3500.0;  // ms
+        double end_time = 3450.0;  // ms
         double time_step = 0.01;   // ms
 
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
@@ -68,7 +75,7 @@ public:
         TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitude(), 127.606, 0.001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(20), 6.66416, 0.00001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(50), 271.184, 0.001);
-        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(90), 361.544, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetActionPotentialDuration(90), 361.544, 0.001); // Should use penultimate AP
         TS_ASSERT_DELTA(cell_props.GetTimeAtMaxUpstrokeVelocity(), 3100.7300, 0.001);
     }
 };

@@ -29,6 +29,12 @@ public:
         
         // Should throw because AP does not propagate far enough in simulation time
         TS_ASSERT_THROWS_ANYTHING(ppc.CalculateConductionVelocity(90,100,0.1));
+        
+        TS_ASSERT_DELTA(ppc.CalculateMaximumUpstrokeVelocity(1),223.0999,0.001);
+        
+        TS_ASSERT_DELTA(ppc.CalculatePeakMembranePotential(5),22.2500,0.001);
+        
+        TS_ASSERT_DELTA(ppc.CalculateActionPotentialDuration(50,5),0,0.001);
     }
 };
 

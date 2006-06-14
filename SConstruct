@@ -164,6 +164,16 @@ if test_summary and not compile_only:
   #  os.remove(os.path.join(output_dir, oldfile))
   # Add a summary generator to the list of things for scons to do
   if build_type == 'Coverage':
+    # Remove old .gcda files before running more tests
+    # First, find appropriate build directories
+    build_dirs = glob.glob('*/build/' + build.build_dir)
+    # Now find & remove .gcda files within there.
+    # Also remove .log files so tests are re-run
+    for build_dir in build_dirs:
+      for dirpath, dirnames, filenames in os.walk(build_dir):
+        for filename in filenames:
+          if filename[-5:] == '.gcda' or filename[-4:] == '.log':
+            os.remove(os.path.join(dirpath, filename))
     # For a Coverage build, run gcov & summarise instead
     summary = Builder(action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type)
   else:

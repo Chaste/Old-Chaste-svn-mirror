@@ -72,9 +72,9 @@ class TestMeshWriters : public CxxTest::TestSuite
         {
             pMeshWriter->SetNextElement(pImportMeshReader->GetNextElement());
         }
-        for (i=0; i<pImportMeshReader->GetNumFaces();i++)
+        for (i=0; i<pImportMeshReader->GetNumEdges();i++)
         {
-            pMeshWriter->SetNextBoundaryFace(pImportMeshReader->GetNextFace());
+            pMeshWriter->SetNextBoundaryEdge(pImportMeshReader->GetNextEdge());
         }
         
         pMeshWriter->WriteFiles();
