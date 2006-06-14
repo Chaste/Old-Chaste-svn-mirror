@@ -133,30 +133,30 @@ private:
                 c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> sigma_e_matrix = 
                     prod(trans(grad_basis), temp3);
                                                        
-                for (int row=0; row < num_elem_nodes; row++)
-                {
-                    for (int col=0; col < num_elem_nodes; col++)
-                    {
-                        // Components of the element stiffness matrix are:   
-                        // (1,1) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
-                        // (1,2) and (2,1) blocks: (Di grad_basis_col)dot(grad_basis_row)
-                        // (2,2) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row) 
-
-                        rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*temp2(row, col) + sigma_i_matrix(row,col) );
-                        rAElem(2*row+1,2*col)   += wJ * sigma_i_matrix(row,col);
-                        rAElem(2*row,  2*col+1) += wJ * sigma_i_matrix(row,col);
-                        rAElem(2*row+1,2*col+1) += wJ*( sigma_i_matrix(row,col) + sigma_e_matrix(row, col));
-                    }
-                }
+                // Components of the element stiffness matrix are:   
+                // (0,0) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
+                // (0,1) and (1,0) blocks: (Di grad_basis_col)dot(grad_basis_row)
+                // (1,1) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row) 
+                matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+                    rAElem_slice00(rAElem, slice (0, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
+                rAElem_slice00 += wJ*( (Am*Cm/mDt)*temp2 + sigma_i_matrix );
+                matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+                    rAElem_slice10(rAElem, slice (1, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
+                rAElem_slice10 += wJ * sigma_i_matrix;
+                matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+                    rAElem_slice01(rAElem, slice (0, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
+                rAElem_slice01 += wJ * sigma_i_matrix;
+                matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+                    rAElem_slice11(rAElem, slice (1, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
+                rAElem_slice11 += wJ*( sigma_i_matrix + sigma_e_matrix);
             }
             
             // assemble element stiffness vector
-            for (int row=0; row < num_elem_nodes; row++)
-            {
-                /// \todo: check the signs on I_ionic and I_intra_stim
-                rBElem(2*row)   += wJ*( (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func[row] );
-                rBElem(2*row+1) += wJ*( -I_extra_stim * basis_func[row] );
-            }            
+            vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_V(rBElem, slice (0, 2, num_elem_nodes));
+            vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_Phi(rBElem, slice (1, 2, num_elem_nodes));
+            
+            rBElem_slice_V += wJ*( (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func );
+            rBElem_slice_Phi += wJ*( -I_extra_stim * basis_func );
         }
     } 
     

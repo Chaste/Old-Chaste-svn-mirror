@@ -72,7 +72,11 @@ public:
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
 
-        bidomain_problem.Solve();
+        try {
+            bidomain_problem.Solve();
+        } catch (Exception e) {
+            TS_FAIL(e.GetMessage());
+        }
         
             
         double* p_voltage_array;
