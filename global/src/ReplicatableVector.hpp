@@ -11,14 +11,33 @@ private:
      * The wrapped vector.
      */
     std::vector<double> mData;
+    VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector*/
+    Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector*/
+ 
+    void RemovePetscContext()
+    {
+        if (mToAll != NULL)
+        {
+            VecScatterDestroy(mToAll);
+            mToAll=NULL;
+        }
 
-public:
+        if (mReplicated != NULL)
+        {
+            VecDestroy(mReplicated);
+            mReplicated=NULL;
+        }
+    }
+
+ public:
     /**
      * Default constructor.
      * Note that the vector will need to be resized before it can be used.
      */
     ReplicatableVector()
-    {
+    {   
+        mToAll=NULL;
+        mReplicated=NULL;
     }
 
     /**
@@ -44,6 +63,8 @@ public:
      */
     void resize(unsigned size)
     {
+        //PETSc stuff will be out of date
+        RemovePetscContext();
         mData.resize(size);
     }
     
@@ -119,15 +140,25 @@ public:
      */
     void ReplicatePetscVector(Vec vec)
     {
-        int lo, hi, size;  
-        VecGetOwnershipRange(vec, &lo, &hi);
+        int size;
         VecGetSize(vec, &size);       
-        double *input_array;
-        VecGetArray(vec, &input_array);
-        resize(size);
-        ReplicateVector(lo, hi, input_array);
-        VecRestoreArray(vec, &input_array);
+        if ((int) this->size() != size) 
+        {
+            resize(size);
+            VecScatterCreateToAll(vec, &mToAll, &mReplicated); //This creates mReplicated
+        }
+        VecScatterBegin(vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
+        VecScatterEnd(vec,   mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
+        //Information is now in mReplicated PETSc vector
+        //Copy into mData
+        double *p_replicated;
+        VecGetArray(mReplicated, &p_replicated);
+        for (int i=0; i<size; i++)
+        {
+            mData[i]=p_replicated[i];
+        }          
     }
+   
 };
 
 #endif /*REPLICATABLEVECTOR_HPP_*/
