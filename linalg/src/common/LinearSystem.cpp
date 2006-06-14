@@ -218,9 +218,14 @@ int LinearSystem::GetSize()
 	return mSize;
 }
 
-void LinearSystem::SetNullBasis(Vec nullbasis[], unsigned numberOfBases)
+void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
 {
-    PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullbasis, &mMatNullSpace) );
+    PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullBasis, &mMatNullSpace) );
+    
+    // uncomment following to test null basis is correct:
+    //AssembleIntermediateLinearSystem();
+    //AssembleFinalLinearSystem();
+    //PETSCEXCEPT( MatNullSpaceTest(mMatNullSpace, mLhsMatrix) );
 }
 
 

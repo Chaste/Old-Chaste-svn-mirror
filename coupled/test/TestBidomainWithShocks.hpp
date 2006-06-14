@@ -89,7 +89,7 @@ public:
 
         // commented out because this currently crashes when the extracellular
         // stimulus kicks in
-        //bidomain_problem.Solve();
+        bidomain_problem.Solve();
     }
 };
 #endif /*TESTBIDOMAINWITHSHOCKS_HPP_*/
