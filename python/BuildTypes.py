@@ -525,6 +525,9 @@ def GetBuildType(buildType):
         obj.SetReporting(vec=3)
     elif extra == 'onlytests':
       obj.ClearTestPacks()
+    elif extra == 'ndebug':
+      obj._cc_flags += ' -DNDEBUG'
+      obj.build_dir += '_ndebug'
     else:
       # Assume it's a test pack
       obj.AddTestPacks(extra)
