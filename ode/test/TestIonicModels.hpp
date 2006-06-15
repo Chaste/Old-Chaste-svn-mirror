@@ -118,6 +118,15 @@ public:
                                    "HH52RegResult");
 
         CheckCellModelResults("HH52RegResult");
+        
+        // test GetIionic: (the GetIionic method was first manually tested
+        // by changing the EvaluateYDerivatives() code to call it, this verified
+        // that GetIionic has no errors, therefore we can test here against 
+        // a hardcoded result
+        runOdeSolverWithIonicModel(&hh52_ode_system,
+                                   15.0,
+                                   "HH52RegResult");
+        TS_ASSERT_DELTA( hh52_ode_system.GetIIonic(), 40.6341, 1e-3);
     }
 
 
@@ -145,6 +154,12 @@ public:
                                    "FHN61RegResult");
                                    
         CheckCellModelResults("FHN61RegResult");
+
+        // test GetIionic ('fake' ionic current) (the GetIionic method was first 
+        // manually tested by changing the EvaluateYDerivatives() code to call it, 
+        // this verified that GetIionic has no errors, therefore we can test here 
+        // against a hardcoded result
+        TS_ASSERT_DELTA( fhn61_ode_system.GetIIonic(), -0.0058, 1e-3);
     }
     
         
@@ -172,7 +187,16 @@ public:
                                    "Lr91DelayedStim");
 
         CheckCellModelResults("Lr91DelayedStim");
-    }   
+
+        // test GetIionic: (the GetIionic method was first manually tested
+        // by changing the EvaluateYDerivatives() code to call it, this verified
+        // that GetIionic has no errors, therefore we can test here against 
+        // a hardcoded result
+        runOdeSolverWithIonicModel(&lr91_ode_system,
+                                   60.0,
+                                   "HH52RegResult");
+        TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);    
+    }
 };
 
 
