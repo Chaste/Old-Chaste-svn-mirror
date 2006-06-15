@@ -134,19 +134,22 @@ double CellProperties::CalculateActionPotentialDuration(
     
     APPhases ap_phase = undefined;
     int time_steps = mTime.size();
-    for (int i=0; i<=time_steps; i++)
+    for (int i=0; i<time_steps; i++)
     {
         double t = mTime[i];
 
         if (ap_phase == undefined && t >= onset)
         {
             ap_phase = upstroke;
-        } else {
+        }
+        else
+        {
             double v = mVoltage[i];
             if (ap_phase == upstroke && fabs(v - maxPotential) < 1e-12)
             {
                 ap_phase = repolarisation;
-            } else if (ap_phase == repolarisation && maxPotential-v >= target_v)
+            }
+            else if (ap_phase == repolarisation && maxPotential-v >= target_v)
             {
                 // We've found the appropriate end time
                 apd = t - onset;

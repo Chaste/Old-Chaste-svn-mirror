@@ -10,7 +10,7 @@
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
-class TestPhysiologicalProperties : public CxxTest::TestSuite
+class TestCellProperties : public CxxTest::TestSuite
 {
 public:
     
@@ -21,7 +21,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(CellProperties cell_props(empty, empty));
     }
     
-    void TestPhysiologicalPropertiesForRegularLr91(void)
+    void TestCellPhysiologicalPropertiesForRegularLr91(void)
     {
         /*
          * Set stimulus
