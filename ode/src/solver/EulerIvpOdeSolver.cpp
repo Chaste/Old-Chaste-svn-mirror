@@ -6,15 +6,13 @@
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
-#include <iostream>
+//#include <iostream>
 #include <vector>
 #include <cassert>
 
 /**
  * Solves a system of ODEs using the Forward Euler method
  * 
- * If @currentYValue isn't given, will update the mStateVariables member of pAbstractOdeSystem
- *   
  * To be used in the form:
  * 
  * EulerIvpOdeSolver mySolver;
@@ -34,16 +32,6 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
 
 	int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
 
-    //\todo this isn't necessary for euler, should have
-    //some kind of EvaluateYDerivativesAtStateVariableFunction
-    bool bUsingStateVariables = false;
-    if(currentYValue.empty())
-    {
-        bUsingStateVariables = true;
-        currentYValue.reserve(num_equations);
-        currentYValue = pAbstractOdeSystem->rGetStateVariables();
-    }
-
 	std::vector<double> dy(num_equations);
     dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValue);
     
@@ -53,14 +41,7 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
     
 	for(int i=0;i<num_equations; i++) 
 	{
-		if( !bUsingStateVariables )
-        {
-            next_y_value[i] = currentYValue[i] + timeStep*dy[i];		
-        }
-        else
-        {
-            pAbstractOdeSystem->rGetStateVariables()[i] += timeStep*dy[i]; 
-        }
+        next_y_value[i] = currentYValue[i] + timeStep*dy[i];		
 	}
 	return next_y_value;
 }

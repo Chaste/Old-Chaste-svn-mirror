@@ -6,7 +6,7 @@
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 
-#include <iostream>
+//#include <iostream>
 #include <vector>
 #include <cassert>
 
@@ -25,21 +25,13 @@ std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
                                         double time,
                                         std::vector<double> currentYValue)
 {
-	/*Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.  
+	/* Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.  
      * Calculates a vector containing the next Y value from the current one for each 
      * equation in the system.
 	 */
 	 
     int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
-    
-    bool bUsingStateVariables = false;
-    if(currentYValue.empty())
-    {
-        bUsingStateVariables = true; 
-        currentYValue.reserve(num_equations);
-        currentYValue = pAbstractOdeSystem->rGetStateVariables();
-    }
-    
+        
     std::vector<double> k1(num_equations);
     std::vector<double> k2(num_equations);
     std::vector<double> k3(num_equations);
@@ -78,16 +70,8 @@ std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
 	{
 		k4[i]=timeStep*dy[i];
         
-        if( !bUsingStateVariables )
-        {
-    		next_y_value[i] = currentYValue[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
-        }
-        else
-        {
-            pAbstractOdeSystem->rGetStateVariables()[i] +=  (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
-        }
-	}
-		
+       	next_y_value[i] = currentYValue[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;		
+    }
 					
 	return next_y_value;
 }

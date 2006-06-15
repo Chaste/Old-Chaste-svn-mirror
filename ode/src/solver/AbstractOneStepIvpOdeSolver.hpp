@@ -20,18 +20,12 @@ class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
     * returned
     * @param timeStep the time interval to be used by the solver
     * @param initialConditions a standard vector specifying the intial condition 
-    * of each solution variable in the system. The default is the empty std::vector
+    * of each solution variable in the system.
     * 
     * @return OdeSolution is an object containing an integer of the number of 
     * equations, a std::vector of times and a std::vector of std::vectors where 
     * each of those vectors contains the solution for one variable of the ODE 
     * system at those times.
-    * 
-    * If @param initi    }
-    * alConditions is not given, Solve works with the mStateVariable member
-    * of the pAbstractOdeSystem. It uses the current value of mStateVariable as the
-    * initial condition, and updates mStateVariable to be the solution at time @param endTime.
-    * In this case no output is written to @param OdeSolution
     * 
     */	
     virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
@@ -49,7 +43,7 @@ class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 	virtual std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
 								double timeStep,
 								double time,
-								std::vector<double> currentYValue = std::vector<double>())=0;
+								std::vector<double> currentYValue)=0;
                                 
     virtual ~AbstractOneStepIvpOdeSolver()
     {
