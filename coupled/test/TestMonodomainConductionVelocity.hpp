@@ -100,25 +100,19 @@ public:
         }
         
         monodomain_problem.RestoreVoltageArray(&p_voltage);      
+    
+         // Calculate the conduction velocity
+        ColumnDataReader simulation_data("MonoDg01d",
+                                         "NewMonodomainLR91_1d");
+        PropagationPropertiesCalculator ppc(&simulation_data);
+        double velocity;
         
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-
-        if (num_procs == 1)
-        {
-            // Calculate the conduction velocity
-            ColumnDataReader simulation_data("MonoDg01d",
-                                             "NewMonodomainLR91_1d");
-            PropagationPropertiesCalculator ppc(&simulation_data);
-            double velocity;
-            
-            // Check action potential propagated to node 95
-            TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,95,0.9));
-            
-            // The value should be approximately 50cm/sec
-            // i.e. 0.05 cm/msec (which is the units of the simulation)
-            TS_ASSERT_DELTA(velocity, 0.05, 0.003);
-        }
+        // Check action potential propagated to node 95
+        TS_ASSERT_THROWS_NOTHING(velocity=ppc.CalculateConductionVelocity(5,95,0.9));
+        
+        // The value should be approximately 50cm/sec
+        // i.e. 0.05 cm/msec (which is the units of the simulation)
+        TS_ASSERT_DELTA(velocity, 0.05, 0.003);
     }
 
     // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.

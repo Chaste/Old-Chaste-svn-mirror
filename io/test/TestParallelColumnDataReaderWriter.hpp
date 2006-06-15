@@ -19,26 +19,18 @@ class TestParallelColumnDataReaderWriter : public CxxTest::TestSuite
 
 private: 
 	ParallelColumnDataWriter *mpParallelWriter;
-	//ColumnDataWriter *mpWriter;
-    //ColumnDataReader *mpReader;
+    ColumnDataReader *mpReader;
+	
 	
     const static int num_nodes=10;
 	
 	 
 public:
-
-  
     
     void testParallelColumnWriter(void)
     {
         
-        int my_rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-//        if (my_rank==0)
-//        {
-//            system("rm -f <...>/ParallelColumnWriter*");
-//        }
-        
+
         int time_var_id, var1_id, var2_id; 
         
         //Make a parallel data writer
@@ -55,19 +47,9 @@ public:
         
         std::string output_dir = mpParallelWriter->GetOutputDirectory();
 
+        // Test that the ouput directory and the .info file was created
         TS_ASSERT_EQUALS(system(("test -f " + output_dir + "ParallelColumnWriter.info").c_str()), 0);
  
- 
-        //Make a conventional data writer
-        /*TS_ASSERT_THROWS_NOTHING(mpWriter = new ColumnDataWriter("TestParallelColumnDataWriter","ColumnWriter"));
-        TS_ASSERT_THROWS_NOTHING(time_var_id = mpWriter->DefineUnlimitedDimension("Time","msecs"));
-        TS_ASSERT_THROWS_NOTHING(mpWriter->DefineFixedDimension("Node","dimensionless", num_nodes));
- 
-        
-        TS_ASSERT_THROWS_NOTHING(var1_id = mpWriter->DefineVariable("Var1","LightYears"));
-        TS_ASSERT_THROWS_NOTHING(var2_id = mpWriter->DefineVariable("Var2","Angstroms"));
-        TS_ASSERT_THROWS_NOTHING(mpWriter->EndDefineMode());
-        */        
 
         //Set up some data in PETSc vectors
         Vec var1, var2, var3;
@@ -169,6 +151,37 @@ public:
         VecDestroy(var2);
         VecDestroy(var3);
     }
+
+    // Read back the data written in the test above
+    void testColumnReader(void)
+    {
+        //There is no *Parallel* ColumnDataReader.  Since everyone might
+        //need to know everything there's no point in only one processor opening the
+        //file
+        
+        //Make a parallel data writer
+        TS_ASSERT_THROWS_NOTHING(mpReader = new ColumnDataReader("TestParallelColumnDataWriter","ParallelColumnWriter"));
+
+        //Check that there's the correct number of files
+        std::vector<double> time_stamps;
+        time_stamps=mpReader->GetUnlimitedDimensionValues();
+        TS_ASSERT_EQUALS(time_stamps[0],0.1);
+        TS_ASSERT_EQUALS(time_stamps[1],0.2);
+        TS_ASSERT_EQUALS(time_stamps.size(),2);
+
+        //Check that some of the data is correct
+        std::vector<double> var1_node4;
+        var1_node4 = mpReader->GetValues("Var1",4);
+        TS_ASSERT_EQUALS(var1_node4[0],4.0); //First time step      
+        TS_ASSERT_EQUALS(var1_node4[1],2.0); //Second time step     
+        std::vector<double> var2_node4;
+        var2_node4 = mpReader->GetValues("Var2",4);
+        TS_ASSERT_EQUALS(var2_node4[0],104.0); //First time step      
+        TS_ASSERT_DELTA(var2_node4[1],sqrt(104.0),1e-4); //Second time step     
+        
+        TS_ASSERT_THROWS_ANYTHING(mpReader->GetValues("LifeSigns",4));
+        TS_ASSERT_THROWS_ANYTHING(mpReader->GetValues("Var1",10));
+      }
 };
 
 #endif //_TESTCOLUMNDATAREADERWRITER_HPP_
