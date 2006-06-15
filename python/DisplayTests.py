@@ -410,13 +410,23 @@ def _overallStatus(statuses, build):
   the number of failing test suites, and the second a colour name.
   """
   total = len(statuses)
-  failed = 0
+  failed, warnings = 0, 0
   for status in statuses:
-    if not build.IsGoodStatus(status):
-      failed = failed + 1
+    colour = build.StatusColour(status)
+    if colour == 'red':
+      failed += 1
+    elif colour == 'orange':
+      warnings += 1
   if failed > 0:
-    result = "Failed %d out of %d test suites" % (failed, total)
+    if warnings:
+      warnstr = " (with %d warnings)" % warnings
+    else:
+      warnstr = ""
+    result = "Failed %d out of %d test suites%s" % (failed, total, warnstr)
     colour = "red"
+  elif warnings > 0:
+    result = "Warnings on %d out of %d test suites" % (warnings, total)
+    colour = "orange"
   else:
     result = "All tests (that ran) passed"
     colour = "green"
@@ -427,11 +437,7 @@ def _statusColour(status, build):
   Return the name of the colour in which this status string should be
   displayed, given that the build type was build.
   """
-  if build.IsGoodStatus(status):
-    colour = "green"
-  else:
-    colour = "red"
-  return colour
+  return build.StatusColour(status)
 
 #####################################################################
 ##                   HTML helper functions.                        ##

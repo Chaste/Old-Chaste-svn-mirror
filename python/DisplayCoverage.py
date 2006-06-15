@@ -94,7 +94,7 @@ for src_file in src_files:
     out_file = open(out_file_name, 'w')
     # Now go through them line by line in lock-step,
     # aggregating line execution counts
-    covered_line_count, missed_line_count = 0, 0
+    covered_line_count, missed_line_count, warn = 0, 0, True
     for lines in itertools.izip(*gcov_fps):
         aggregated_count = 0
         for line in lines:
@@ -107,6 +107,10 @@ for src_file in src_files:
                 aggregated_count += int(count)
         else:
             if aggregated_count == 0:
+                src_line_stripped = src_line.strip()
+                if not (src_line_stripped == '}' or
+                        (src_line_stripped.startswith('return') and src_line_stripped[6] in [';', ' '])):
+                    warn = False
                 aggregated_count = '#####'
                 missed_line_count += 1
             else:
@@ -131,6 +135,8 @@ for src_file in src_files:
         counts = (missed_line_count, missed_line_count+covered_line_count)
         out_file.write('\nFailed %d of %d tests\n\n' % counts)
         status = "%d_%d" % counts
+        if warn:
+            status = 'warn_' + status
     # Close all files
     [fp.close() for fp in gcov_fps]
     out_file.close()

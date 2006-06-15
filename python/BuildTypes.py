@@ -65,13 +65,16 @@ class BuildType:
     "Empty the list of test packs to be run."
     self._test_packs = []
 
-  def IsGoodStatus(self, status):
+  def StatusColour(self, status):
     """
-    Check the given status string to see if it represents a 'successful'
-    test suite under this build type. Return True if so.
+    Return a colour string indicating whether the given status string
+    represents a 'successful' test suite under this build type.
     """
     # By default, 'OK' is ok and anything else isn't.
-    return status == 'OK'
+    if status == 'OK':
+      return 'green'
+    else:
+      return 'red'
     
   def DisplayStatus(self, status):
     """
@@ -192,6 +195,32 @@ class Coverage(GccDebug):
     "Run test on 1 processor then on 2 processors"
     return exefile + ' ' + exeflags + '; mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
 
+  def DisplayStatus(self, status):
+    """
+    Return a (more) human readable version of the given status string.
+    """
+    if status == 'OK':
+      return 'All tests passed'
+    elif status == 'Unknown':
+      return 'Test output unrecognised'
+    else:
+      if status.startswith('warn_'):
+        return status[5:].replace('_', '/') + ' spurious failures'
+      else:
+        return status.replace('_', '/') + ' tests failed'
+
+  def StatusColour(self, status):
+    """
+    Return a colour string indicating whether the given status string
+    represents a 'successful' test suite under this build type.
+    """
+    # 'OK' is green, warnings are orange, otherwise red
+    if status == 'OK':
+      return 'green'
+    elif status.startswith('warn_'):
+      return 'orange'
+    else:
+      return 'red'
 
 class Profile(GccDebug):
   """
@@ -413,7 +442,7 @@ class GccOpt(Gcc):
   gcc compiler with some optimisations enabled.
   """
   def __init__(self):
-    BuildType.__init__(self)
+    Gcc.__init__(self)
     self._cc_flags = '-O3'
     self.build_dir = 'optimised'
 
