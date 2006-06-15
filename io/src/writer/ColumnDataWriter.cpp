@@ -420,7 +420,7 @@ void ColumnDataWriter::AdvanceAlongUnlimitedDimension()
  * Each time we have to input the variable value to the output file or ancillary file
  * \param dimensionPosition the position in column
  */
-void ColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
+void ColumnDataWriter::PutVariable(int variableID, double variableValue, long dimensionPosition)
 {
     if (mNeedAdvanceAlongUnlimitedDimension)
         DoAdvanceAlongUnlimitedDimension();

@@ -178,7 +178,7 @@ public:
 
         for (int i=0; i<=10; i++)
         {
-        	mpTestWriter->PutVariable(time_var_id, (double)(i)/10);
+        	mpTestWriter->PutVariable(time_var_id, (double)(i)/10 - 0.1);
         	mpTestWriter->PutVariable(ina_var_id, 12.0);
         	mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0);
         	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0);
@@ -187,9 +187,6 @@ public:
         
         std::string output_dir = mpTestWriter->GetOutputDirectory();
 		delete mpTestWriter;
-
-		TS_ASSERT(filesMatch(output_dir + "testunlimited.dat", 
-		                     "io/test/data/testunlimited_good.dat"));
 		
 		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testunlimited"));
 		
@@ -205,13 +202,13 @@ public:
         std::vector<double> time_values = mpTestReader->GetUnlimitedDimensionValues();
         for(int i=0; i < 10; i++)
         {
-            TS_ASSERT_DELTA(time_values[i],i*0.1,1e-3);   
+            TS_ASSERT_DELTA(time_values[i],i*0.1-0.1,1e-3);   
         }
         delete mpTestReader;		                     
 		                     
     }
     
-    void testPutVariableInUnlimitedNegativeFile( void )
+    void testPutNegativeVariable( void )
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative"));
         int time_var_id = 0;
@@ -346,11 +343,14 @@ public:
         int i = 12;
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.1));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(node_var_id, 0, 0));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i,0));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) i,1));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
+        
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(node_var_id, 0, 0));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 63.124,2));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -35.124,3));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));

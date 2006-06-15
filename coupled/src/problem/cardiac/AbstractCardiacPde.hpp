@@ -140,10 +140,13 @@ public:
      */
     AbstractCardiacCell* GetCardiacCell( int globalIndex )
     {
-        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi)) {
-            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
-                " hi " << this->mOwnershipRangeHi << std::endl;
-        }
+        #ifndef NDEBUG
+            if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi)) 
+            {
+                std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
+                    " hi " << this->mOwnershipRangeHi << std::endl;
+            }
+        #endif
         assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
@@ -152,7 +155,6 @@ public:
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
         AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
-        //std::cout<<"MonodomainPde::PrepareForAssembleSystem\n";
 
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);
