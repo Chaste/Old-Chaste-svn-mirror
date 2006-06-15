@@ -15,6 +15,7 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "ReplicatableVector.hpp"
 
 
 #include <time.h>
@@ -88,20 +89,23 @@ public:
         dif = difftime (end,start);
  //       printf ("\nSolve took %.2lf seconds. \n", dif );
         
-        double* p_voltage_array;
+        Vec voltage=monodomain_problem.GetVoltage();
+        ReplicatableVector voltage_replicated;
+        voltage_replicated.ReplicatePetscVector(voltage);
+        
+    
+        double* p_voltage_array;//We don't actually use this
         int lo, hi;
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
-    
         // test whether voltages and gating variables are in correct ranges
         for (int global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
             
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( voltage_replicated[global_index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage_replicated[global_index] + (Ek-30), 0);
                 
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
                                            GetCardiacCell(global_index)->rGetStateVariables();
@@ -116,37 +120,30 @@ public:
             }
         }
         
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-
-        if (num_procs == 1)
+         /*
+         * Test that corners are 'equal', and centres of sides.
+         * Irregularities in which way the triangles are oriented make
+         * this rather difficult, especially since the edges are sampled
+         * during the upstroke.
+         */
+         
+        // corners
+        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  0.1);
+        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[110], 0.1);
+        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[120], 0.1);
+        
+        // centres of edges
+        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[55],  0.1);
+        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[65],  0.1);
+        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[115], 0.1);
+        
+        int num_nodes = monodomain_problem.rGetMesh().GetNumNodes();
+        // test final voltages have returned to the resting potential
+        for (int i=0; i<num_nodes; i++)
         {
-            /*
-             * Test that corners are 'equal', and centres of sides.
-             * Irregularities in which way the triangles are oriented make
-             * this rather difficult, especially since the edges are sampled
-             * during the upstroke.
-             */
-             
-            // corners
-            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[10],  0.1);
-            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[110], 0.1);
-            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[120], 0.1);
-            
-            // centres of edges
-            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[55],  0.1);
-            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[65],  0.1);
-            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[115], 0.1);
-            
-            int num_nodes = monodomain_problem.rGetMesh().GetNumNodes();
-            // test final voltages have returned to the resting potential
-            for (int i=0; i<num_nodes; i++)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[i], -84.5, 1);
-            }
-                        
+            TS_ASSERT_DELTA(voltage_replicated[i], -84.5, 1);
         }
-        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
+                    
     }   
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_

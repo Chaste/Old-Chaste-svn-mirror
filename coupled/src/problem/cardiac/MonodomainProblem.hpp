@@ -303,6 +303,12 @@ public:
         hi=mHi; 
     }
     
+    Vec GetVoltage()
+    {
+        //Use with caution since we don't want to alter the state of the PETSc vector
+        return mVoltage;
+    }
+    
     /** call this after GetVoltageArray to avoid memory leaks*/
     void RestoreVoltageArray(double **pVoltageArray)
     {
