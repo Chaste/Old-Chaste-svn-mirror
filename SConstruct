@@ -48,6 +48,8 @@ if system_name == 'finarfin':
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
   blas_libs = ['f2clapack', 'f2cblas']
+  other_libpaths = ['']
+  other_libs = ['']
 elif system_name == 'zuse':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
   petsc_inc = '-I'+petsc_base+'include '
@@ -60,6 +62,13 @@ elif system_name == 'zuse':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
   blas_libs = ['']
+  other_libpaths = ['/opt/intel/mkl/8.0/lib/em64t/',
+                      '/home/zuse/system/software/opt/opt/lib/static/',
+                      '/home/zuse/system/software/opt/opt-deps/gsoap/lib/',
+                      '/home/zuse/system/software/opt/opt-deps/papi/lib/',
+                      '/home/zuse/system/software/opt/opt-deps/libunwind/lib',
+                      '/home/zuse/system/software/opt/opt-deps/papi/lib64']
+  other_libs = ['opt', 'loggerwebservice', 'gsoapclient', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind']
 
 else:
   # Default
@@ -71,10 +80,12 @@ else:
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
   blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/linux-gnu'
   blas_libs = ['f2clapack', 'f2cblas']
-  
+  other_libpaths = ['']
+  other_libs = ['']
   petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'
 
-Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath", "blas_libpath", "blas_libs")
+Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", 
+		"petsc_libpath", "blas_libpath", "blas_libs", "other_libpaths", "other_libs")
 
 
 ## C++ build tools & MPI runner

@@ -60,9 +60,7 @@ petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm',
               'petscmat', 'petscvec', 'petsc']
 chaste_libs = ['io', 'ode', 'pde', 'coupled', 'linalg', 'mesh', 'global']
 
-all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir]
-#all_libs = chaste_libs + petsc_libs + blas_libs + ['test'+toplevel_dir] + ['global']
-# Note: dirty trick (with ['global']) to get PetscException to work fine...
+all_libs = chaste_libs + petsc_libs + blas_libs + other_libs + ['test'+toplevel_dir]
 
 opt = Environment(ENV = {'PATH': os.environ['PATH'],
                          'USER': os.environ['USER']})
@@ -94,7 +92,7 @@ for testfile in testfiles:
   opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
   opt.Program(testfile[:-4]+'Runner', [prefix+'Runner.cpp'],
               LIBS = all_libs,
-              LIBPATH = ['../../../lib', '.', petsc_libpath, blas_libpath])
+              LIBPATH = ['../../../lib', '.', petsc_libpath, blas_libpath] + other_libpaths)
   if not compile_only:
     opt.RunTests(prefix+'.log', prefix+'Runner')
 
