@@ -412,7 +412,14 @@ def _overallStatus(statuses, build):
   total = len(statuses)
   failed, warnings = 0, 0
   for status in statuses:
-    colour = build.StatusColour(status)
+    try:
+      colour = build.StatusColour(status)
+    except AttributeError:
+      # Backwards compatibility
+      if build.IsGoodStatus(status):
+        colour = 'green'
+      else:
+        colour = 'red'
     if colour == 'red':
       failed += 1
     elif colour == 'orange':
@@ -437,7 +444,14 @@ def _statusColour(status, build):
   Return the name of the colour in which this status string should be
   displayed, given that the build type was build.
   """
-  return build.StatusColour(status)
+  try:
+    return build.StatusColour(status)
+  except AttributeError:
+    # Backwards compatibility
+    if build.IsGoodStatus(status):
+      return 'green'
+    else:
+      return 'red'
 
 #####################################################################
 ##                   HTML helper functions.                        ##
