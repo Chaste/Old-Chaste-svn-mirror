@@ -68,7 +68,7 @@ elif system_name == 'zuse':
                       '/home/zuse/system/software/opt/opt-deps/papi/lib/',
                       '/home/zuse/system/software/opt/opt-deps/libunwind/lib',
                       '/home/zuse/system/software/opt/opt-deps/papi/lib64']
-  other_libs = ['opt', 'loggerwebservice', 'gsoapclient', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind']
+  other_libs = ['opt', 'loggerwebservice', 'gsoapclient', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
 
 else:
   # Default
