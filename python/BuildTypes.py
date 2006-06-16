@@ -200,14 +200,14 @@ class Coverage(GccDebug):
     Return a (more) human readable version of the given status string.
     """
     if status == 'OK':
-      return 'All tests passed'
+      return 'All lines covered'
     elif status == 'Unknown':
-      return 'Test output unrecognised'
+      return 'Output unrecognised'
     else:
       if status.startswith('warn_'):
-        return status[5:].replace('_', '/') + ' spurious failures'
+        return status[5:].replace('_', '/') + " 'spurious' failures"
       else:
-        return status.replace('_', '/') + ' tests failed'
+        return status.replace('_', '/') + ' lines uncovered'
 
   def StatusColour(self, status):
     """
