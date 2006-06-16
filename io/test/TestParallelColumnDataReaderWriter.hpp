@@ -127,7 +127,7 @@ public:
         mpParallelWriter->PutVector(var2_id, var2);
         //mpParallelWriter->AdvanceAlongUnlimitedDimension();
         
-        //delete mpWriter;      
+        //delete mpParallelWriter;      
         delete mpParallelWriter;      
         
         MPI_Barrier(PETSC_COMM_WORLD);
@@ -181,6 +181,9 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(mpReader->GetValues("LifeSigns",4));
         TS_ASSERT_THROWS_ANYTHING(mpReader->GetValues("Var1",10));
+        
+        //Delete the reader: makes sure that files are closed
+        delete mpReader;
       }
 };
 
