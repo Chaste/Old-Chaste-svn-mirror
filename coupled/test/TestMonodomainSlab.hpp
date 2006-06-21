@@ -96,49 +96,46 @@ public:
             }
         }
         
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        /*
+         * Test the top right node against the right one in the 1D case, 
+         * comparing voltage, and then test all the nodes on the right hand 
+         * face of the cube against the top right one, comparing voltage.
+         */
+        bool need_initialisation = true;
+        double probe_voltage;
+        Vec voltage=monodomain_problem.GetVoltage();   
+        ReplicatableVector voltage_replicated;   
+        voltage_replicated.ReplicatePetscVector(voltage);   
+        need_initialisation = true;
 
-        if (num_procs == 1)
+        // Test the RHF of the mesh
+        for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
-            /*
-             * Test the top right node against the right one in the 1D case, 
-             * comparing voltage, and then test all the nodes on the right hand 
-             * face of the cube against the top right one, comparing voltage.
-             */
-            bool need_initialisation = true;
-            double voltage;
-
-            need_initialisation = true;
-
-            // Test the RHF of the mesh
-            for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
+            if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
             {
-                if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
+                // x = 0 is where the stimulus has been applied
+                // x = 0.1cm is the other end of the mesh and where we want to 
+                //       to test the value of the nodes
+                
+                if (need_initialisation)
                 {
-                    // x = 0 is where the stimulus has been applied
-                    // x = 0.1cm is the other end of the mesh and where we want to 
-                    //       to test the value of the nodes
-                    
-                    if (need_initialisation)
-                    {
-                        voltage = p_voltage_array[i];
-                        need_initialisation = false;
-                    }
-                    else
-                    {
-                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 1.1);
-                       // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
-                    }
-                    
-                    // Check against 1d case - if the TestMonodomainDg01D test is run
-                    // for 4ms the voltage at the end node(10) is 22.7190
-                    
-                    TS_ASSERT_DELTA(p_voltage_array[i], 22.7190, 1);
-                    
+                    probe_voltage = voltage_replicated[i];
+                    need_initialisation = false;
                 }
+                else
+                {
+                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 1.1);
+                   // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
+                }
+                
+                // Check against 1d case - if the TestMonodomainDg01D test is run
+                // for 4ms the voltage at the end node(10) is 22.7190
+                
+                TS_ASSERT_DELTA(voltage_replicated[i], 22.7190, 1);
+                
             }
-        }        
+        }
+ 
         monodomain_problem.RestoreVoltageArray( &p_voltage_array );
     }   
 };
