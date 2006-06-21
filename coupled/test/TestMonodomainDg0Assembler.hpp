@@ -14,7 +14,7 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ColumnDataReader.hpp"
-
+#include "ReplicatableVector.hpp" 
 
 #include <time.h>
 
@@ -193,6 +193,7 @@ public:
     // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
     void TestMonodomainDg02DWithEdgeStimulus( void )
     {   
+        static double test_tolerance=1e-10;
         EdgeStimulusCellFactory cell_factory;
         
         // using the criss-cross mesh so wave propagates properly
@@ -237,62 +238,62 @@ public:
                 }
             }
         }
+        
 
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        //Since we are going to compare voltages that may be owned by
+        //various processes it makes sense to replicate the data.
+        Vec voltage=monodomain_problem.GetVoltage(); 
+        ReplicatableVector voltage_replicated; 
+        voltage_replicated.ReplicatePetscVector(voltage); 
+        /*
+         * Test the top right node against the right one in the 1D case, 
+         * comparing voltage, and then test all the nodes on the right hand 
+         * side of the square against the top right one, comparing voltage.
+         */
+        bool need_initialisation = true;
+        double probe_voltage;
 
-        if (num_procs == 1)
+        need_initialisation = true;
+
+        // Test the RHS of the mesh
+        for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
-            /*
-             * Test the top right node against the right one in the 1D case, 
-             * comparing voltage, and then test all the nodes on the right hand 
-             * side of the square against the top right one, comparing voltage.
-             */
-            bool need_initialisation = true;
-            double voltage;
-
-            need_initialisation = true;
-
-            // Test the RHS of the mesh
-            for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
+            if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
             {
-                if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
+                // x = 0 is where the stimulus has been applied
+                // x = 0.1cm is the other end of the mesh and where we want to 
+                //       to test the value of the nodes
+                
+                if (need_initialisation)
                 {
-                    // x = 0 is where the stimulus has been applied
-                    // x = 0.1cm is the other end of the mesh and where we want to 
-                    //       to test the value of the nodes
-                    
-                    if (need_initialisation)
-                    {
-                        voltage = p_voltage_array[i];
-                        need_initialisation = false;
-                    }
-                    else
-                    {
-                        // Tests the final voltages for all the RHS edge nodes
-                        // are close to each other.
-                        // This works as we are using the 'criss-cross' mesh,
-                        // the voltages would vary more with a mesh with all the
-                        // triangles aligned in the same direction.
-                        TS_ASSERT_DELTA(p_voltage_array[i], voltage, 0.01);
-
-                       // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
-                    }
-                    
-                    
-                    // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
-                    // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
-                    // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
-                    
-                    // test the RHS edge voltages
-                    // hardcoded result that looks accurate - this is a test to see
-                    // that nothing has changeed
-                    // assumes endtime = 2ms
-                    TS_ASSERT_DELTA(p_voltage_array[i], -59.7978, 0.01);
+                    probe_voltage = voltage_replicated[i];
+                    need_initialisation = false;
                 }
+                else
+                {
+                    // Tests the final voltages for all the RHS edge nodes
+                    // are close to each other.
+                    // This works as we are using the 'criss-cross' mesh,
+                    // the voltages would vary more with a mesh with all the
+                    // triangles aligned in the same direction.
+                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, test_tolerance);
+                }
+                
+                
+                // Check against 1d case - THIS TEST HAS BEEN REMOVED AS THE MESH
+                // IS FINER THAN THE 1D MESH SO WE DONT EXPECT THE RESULTS TO BE THE SAME
+                // TS_ASSERT_DELTA(p_voltage_array[i], -35.1363, 35*0.1);
+                
+                // test the RHS edge voltages
+                // hardcoded result that looks accurate - this is a test to see
+                // that nothing has changeed
+                // assumes endtime = 2ms
+                TS_ASSERT_DELTA(voltage_replicated[i], -59.7978, 1e-4);
             }
         }
+        
         monodomain_problem.RestoreVoltageArray(&p_voltage_array);
+        
     }   
 
 
@@ -304,6 +305,7 @@ public:
         time_t start,end;
         double dif;
         time (&start);
+        static double test_tolerance=1e-10;
         
         PointStimulus2dCellFactory cell_factory(60); // Central node
         
@@ -354,33 +356,32 @@ public:
             }
         }
         
-        int num_procs;
-        MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
+        
 
-        if (num_procs == 1)
-        {
-            /*
-             * Test that corners are 'equal', and centres of sides.
-             * Irregularities in which way the triangles are oriented make
-             * this rather difficult, especially since the edges are sampled
-             * during the upstroke.
-             */
-             
-            // corners
-            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[10],  0.1);
-            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[110], 0.1);
-            TS_ASSERT_DELTA(p_voltage_array[0], p_voltage_array[120], 0.1);
-            
-            // centres of edges
-            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[55],  0.1);
-            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[65],  0.1);
-            TS_ASSERT_DELTA(p_voltage_array[5], p_voltage_array[115], 0.1);
-            
-            // hardcoded result to check nothing has changed
-            // assumes endtime = 1.3
-            TS_ASSERT_DELTA(p_voltage_array[0], -34.7497, 0.1);
+        /*
+         * Test that corners are 'equal', and centres of sides.
+         * Irregularities in which way the triangles are oriented make
+         * this rather difficult, especially since the edges are sampled
+         * during the upstroke.
+         */
+        Vec voltage=monodomain_problem.GetVoltage(); 
+        ReplicatableVector voltage_replicated; 
+        voltage_replicated.ReplicatePetscVector(voltage); 
+          
+        // corners
+        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[110], test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[120], test_tolerance);
+        
+        // centres of edges
+        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[55],  test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[65],  test_tolerance);
+        TS_ASSERT_DELTA(voltage_replicated[5], voltage_replicated[115], test_tolerance);
+        
+        // hardcoded result to check nothing has changed
+        // assumes endtime = 1.3
+        TS_ASSERT_DELTA(voltage_replicated[0], -34.7497, 1e-4);
                         
-        }
         monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
