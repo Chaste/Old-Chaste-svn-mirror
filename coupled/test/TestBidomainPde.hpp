@@ -148,8 +148,6 @@ class TestBidomainPde : public CxxTest::TestSuite
         monodomain_pde.PrepareForAssembleSystem(monodomain_voltage,0);
         bidomain_pde.PrepareForAssembleSystem(bidomain_voltage,0);         
 
-        int rank;
-        MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
         
         // Check that both the monodomain and bidomain PDE have the same ionic cache
         for (int global_index=lo; global_index < hi; global_index++)
