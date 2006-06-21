@@ -294,6 +294,9 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
 
     double time_dependent_potassium_current_g_K = 0.282*sqrt(ionic_concentrations_Ko/5.4);
     double time_dependent_potassium_current_Xi_gate_Xi;
+    
+    // Although the equation below looks strange (particularly the arguments of the 
+    // exponentials, it is in fact correct.
     if (membrane_V > -100.0)
     {
         time_dependent_potassium_current_Xi_gate_Xi = 2.837*(exp(0.04*(membrane_V+77.0))-1.0)/((membrane_V+77.0)*exp(0.04*(membrane_V+35.0)));

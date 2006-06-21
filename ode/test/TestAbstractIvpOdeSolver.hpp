@@ -66,6 +66,13 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 		double testvalue = solutions.rGetSolutions()[last][0];
 		
 		TS_ASSERT_DELTA(testvalue,2.0,0.01);
+        
+        // Run again with second version of solve. This version updates the second 
+        // parameter of Solve.
+        state_variables = ode_system.GetInitialConditions();
+        ABSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01);
+        testvalue = state_variables[0];
+        TS_ASSERT_DELTA(testvalue,2.0,0.01);
 	}
 	
 	

@@ -748,6 +748,11 @@ public:
         // Assembler
         SimpleDg0ParabolicAssembler<1,1> assembler(&linear_solver);
         
+        // These three lines are just to cover SetBasisFunction
+        LinearBasisFunction<1> basis_function;
+        LinearBasisFunction<0> surface_basis_function;
+        assembler.SetBasisFunctions(&basis_function, &surface_basis_function);
+        
         // initial condition;   
         Vec initial_condition = CreateConstantConditionVec(mesh.GetNumNodes(), -84.5);
               
