@@ -224,6 +224,7 @@ public:
         int i = 12;
 
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, 0.2));
+               
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ina_var_id, (double) -i));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, 33.124));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
@@ -375,6 +376,34 @@ public:
             TS_ASSERT_DELTA(ica_values[i],-33.124 - i * 2,1e-3);   
         }                          
     }
+
+
+    // this test is just to cover the line in ColumnDataWriter::PutVariable where
+    // the fixed and unlimited dimensions are both set and the unlimited parameter 
+    // (ie time) is passed in negative
+    void testNegativeWithFixedAndUnlimitedDefined( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testunlimitednegative2"));
+
+        int time_var_id = 0;
+        int node_var_id = 0;
+        int ica_var_id = 0;
+        TS_ASSERT_THROWS_NOTHING(time_var_id = mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        TS_ASSERT_THROWS_NOTHING(node_var_id = mpTestWriter->DefineFixedDimension("Node","dimensionless", 4));
+        TS_ASSERT_THROWS_NOTHING( ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes") );
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(time_var_id, -0.2));
+        
+        // remember to delete - this closes the writer cleanly and means any data left 
+        // unwritten will be written to the datafile
+        delete mpTestWriter;
+    }
+
+
+
+
+
 };
 
 #endif //_TESTCOLUMNDATAREADERWRITER_HPP_
