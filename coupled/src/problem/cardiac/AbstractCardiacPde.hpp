@@ -47,11 +47,11 @@ protected:
      *  is of the form (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N), where V_j is 
      *  the voltage at node j and phi_j is the extracellular potential at node j.
      */  
-    const int mStride;
+    const unsigned mStride;
  
 
 public:
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep, const int stride=1)
+    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep, const unsigned stride=1)
       :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfCells(), pdeTimeStep),
          mStride(stride)
     {
@@ -72,14 +72,14 @@ public:
             mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
         }
   
-        int lo=this->mOwnershipRangeLo;
-        int hi=this->mOwnershipRangeHi;
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
 
         mCellsDistributed.resize(hi-lo);
 
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
         }        
         pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);        
@@ -92,11 +92,11 @@ public:
 
     ~AbstractCardiacPde()
      {
-        int lo=this->mOwnershipRangeLo;
-        int hi=this->mOwnershipRangeHi;
-        for (int global_index=lo; global_index<hi; global_index++)
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             delete mCellsDistributed[local_index];
         }
      }
@@ -138,7 +138,7 @@ public:
      *  Get a pointer to a cell, indexed by the global node index. Should only called by the process
      *  owning the cell though.
      */
-    AbstractCardiacCell* GetCardiacCell( int globalIndex )
+    AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
     {
         #ifndef NDEBUG
             if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi)) 

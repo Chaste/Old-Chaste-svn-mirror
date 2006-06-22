@@ -26,7 +26,7 @@ public:
         mpStimulus = new InitialStimulus(-80.0, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {                    
         if(node==0)
         {
@@ -48,7 +48,7 @@ public:
         delete mpStimulus;
     }
     
-    int GetNumberOfCells()
+    unsigned GetNumberOfCells()
     {
         return 2;
     }
@@ -61,7 +61,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
     void testMonodomainPde( void )
     {
 
-        int num_nodes=2; 
+        unsigned num_nodes=2; 
           
         Node<1> node0(0,true,0);
         Node<1> node1(1,true,0);
@@ -98,12 +98,15 @@ class TestMonodomainPde : public CxxTest::TestSuite
 		double* p_voltage_array;
 		VecGetArray(voltage, &p_voltage_array); 
         
-        int lo, hi;
-        VecGetOwnershipRange(voltage,&lo,&hi);
+        unsigned lo, hi;
+        PetscInt temp_lo, temp_hi;
+        VecGetOwnershipRange(voltage,&temp_lo,&temp_hi);
+        lo=(unsigned) temp_lo;
+        hi=(unsigned) temp_hi;
         
-        for (int global_index = 0; global_index < num_nodes; global_index++ )
+        for (unsigned global_index = 0; global_index < num_nodes; global_index++ )
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
     		// initial voltage condition of a constant everywhere on the mesh
     		if (lo<=global_index && global_index<hi)
             {
@@ -153,12 +156,12 @@ class TestMonodomainPde : public CxxTest::TestSuite
 
         if (lo<=0 && 0<hi)
         {
-            int local_index = 0 - lo;
+            unsigned local_index = 0 - lo;
     		p_voltage_array[local_index] = solutionSetStimT_05[4];
         }
         if (lo<=1 && 1<hi)
         {
-            int local_index = 1 - lo;
+            unsigned local_index = 1 - lo;
     		p_voltage_array[local_index] = solutionSetNoStimT_05[4];
         }
 		
@@ -204,7 +207,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
     
     void testMonodomainPdeGetCardiacCell( void )
     {
-        int num_nodes = 2;
+        unsigned num_nodes = 2;
         MyCardiacCellFactory cell_factory;
         MonodomainPde<1> monodomain_pde( &cell_factory, 0.1 );
         

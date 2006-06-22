@@ -30,7 +30,7 @@ public:
         mpStimulus = new InitialStimulus(-600, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node == 0)
         {
@@ -72,14 +72,14 @@ public:
         monodomain_problem.Solve();
         
         double* p_voltage;
-        int lo, hi;
+        unsigned lo, hi;
         // test whether voltages and gating variables are in correct ranges
 
         monodomain_problem.GetVoltageArray(&p_voltage, lo, hi); 
         
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;

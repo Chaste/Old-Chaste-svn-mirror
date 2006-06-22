@@ -222,15 +222,15 @@ private:
         {
             //create null space for matrix and pass to linear system
             Vec nullbasis[1];  
-            int lo, hi;
+            unsigned lo, hi;
             mpBidomainPde->GetOwnershipRange(lo, hi);
             VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*mpMesh->GetNumNodes(), &nullbasis[0]);  
             double* p_nullbasis;
             VecGetArray(nullbasis[0], &p_nullbasis); 
 
-            for (int global_index=lo; global_index<hi; global_index++)
+            for (unsigned global_index=lo; global_index<hi; global_index++)
             {
-                int local_index = global_index - lo;
+                unsigned local_index = global_index - lo;
                 p_nullbasis[2*local_index  ] = 0;
                 p_nullbasis[2*local_index+1] = 1;
             }

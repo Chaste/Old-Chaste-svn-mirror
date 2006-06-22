@@ -33,7 +33,7 @@ public:
         mpExtracellularStimulus2 = new InitialStimulus(-250,0.5);        
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {                    
         if(node==0)
         {
@@ -56,7 +56,7 @@ public:
         delete mpExtracellularStimulus2;
     }
     
-    int GetNumberOfCells()        
+    unsigned GetNumberOfCells()        
     { 
         return 2; 
     }
@@ -110,14 +110,14 @@ class TestBidomainPde : public CxxTest::TestSuite
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
  
-        int num_nodes = 2;
+        unsigned num_nodes = 2;
         // initial condition;   
         Vec monodomain_voltage, bidomain_voltage;
         VecCreate(PETSC_COMM_WORLD, &monodomain_voltage);
         VecSetSizes(monodomain_voltage, PETSC_DECIDE, num_nodes);
         VecSetFromOptions(monodomain_voltage);
         
-        int lo, hi;
+        PetscInt lo, hi;
         VecGetOwnershipRange(monodomain_voltage,&lo,&hi);
 
         VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo), 2*num_nodes, &bidomain_voltage);
@@ -125,7 +125,7 @@ class TestBidomainPde : public CxxTest::TestSuite
         double *p_monodomain_voltage, *p_bidomain_voltage;
         VecGetArray(monodomain_voltage, &p_monodomain_voltage);
         VecGetArray(bidomain_voltage, &p_bidomain_voltage);
-        for (int global_index = 0; global_index < num_nodes; global_index++ )
+        for (int global_index = 0; global_index < (int) num_nodes; global_index++ )
         {
             int local_index = global_index - lo;
             // initial voltage condition of a constant everywhere on the mesh

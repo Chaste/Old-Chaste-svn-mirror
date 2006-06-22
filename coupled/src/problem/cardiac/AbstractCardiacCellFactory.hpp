@@ -11,7 +11,7 @@
  * For use with MonodomainPde and BidomainPdes.
  * 
  * The user should implement their own concrete class, in particular implementing
- * CreateCardiacCellForNode(int), which should return the cell corresponding to a 
+ * CreateCardiacCellForNode(unsigned), which should return the cell corresponding to a 
  * given node. The user should also implement GetNumberOfCells() if this isn't equal 
  * to the number of nodes. FinaliseCellCreation() can be used to (eg) add stimuli to 
  * certain cells after they have been created.
@@ -32,10 +32,10 @@ protected:
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
 
 public:
-    virtual AbstractCardiacCell* CreateCardiacCellForNode(int)=0;
-    virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, int lo, int hi) {}
+    virtual AbstractCardiacCell* CreateCardiacCellForNode(unsigned)=0;
+    virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi) {}
 
-    virtual int GetNumberOfCells()
+    virtual unsigned GetNumberOfCells()
     {
         assert(mpMesh != NULL);
         return mpMesh->GetNumNodes();

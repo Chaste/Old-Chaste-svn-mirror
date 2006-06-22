@@ -29,7 +29,7 @@ public:
         mpStimulus = new InitialStimulus(-10.0, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {

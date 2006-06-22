@@ -30,7 +30,7 @@ public:
         mpStimulus = new InitialStimulus(-600, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
@@ -80,13 +80,13 @@ public:
         
             
         double* p_voltage_array;
-        int v_lo, v_hi, lo, hi;
+        unsigned v_lo, v_hi, lo, hi;
         bidomain_problem.GetVoltageArray(&p_voltage_array, v_lo, v_hi);
         bidomain_problem.GetBidomainPde()->GetOwnershipRange(lo, hi);
 
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV 
             double Ek    = -77.0;   // mV
@@ -115,7 +115,7 @@ public:
             // final voltages for nodes 0 to 5
             double test_values[6]={30.2636, 28.3578, 19.8386, -3.9738, -57.9465, -79.7750};
             
-            for(int node=0; node<=5; node++)
+            for(unsigned node=0; node<=5; node++)
             {
                 if(global_index == node)
                 {
@@ -188,14 +188,14 @@ public:
         ///////////////////////////////////////////////////////////////////
         double* p_mono_voltage_array;
         double* p_bi_voltage_array;
-        int bi_lo, bi_hi, mono_lo, mono_hi;
+        unsigned bi_lo, bi_hi, mono_lo, mono_hi;
 
         bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi); 
         monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi); 
         
-        for (int global_index=mono_lo; global_index<mono_hi; global_index++)
+        for (unsigned global_index=mono_lo; global_index<mono_hi; global_index++)
         {
-            int local_index = global_index - mono_lo;
+            unsigned local_index = global_index - mono_lo;
             
             double monodomain_voltage      =   p_mono_voltage_array[local_index];
             double   bidomain_voltage      =   p_bi_voltage_array  [2*local_index];

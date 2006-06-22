@@ -17,18 +17,18 @@ protected:
     double mBigTimeStep;
 
     // number of nodes in the mesh 
-    int mNumNodes;
+    unsigned mNumNodes;
        
     // Lowest value of index that this part of the global object stores
-    int mOwnershipRangeLo;
+    unsigned mOwnershipRangeLo;
         
     // One more than the local highest index
-    int mOwnershipRangeHi;
+    unsigned mOwnershipRangeHi;
     
 public:   
-    AbstractCoupledPde(int numNodes, double bigTimeStep)
+    AbstractCoupledPde(unsigned numNodes, double bigTimeStep)
     {
-        assert(numNodes > 0);
+        //assert(numNodes > 0);
         
         mNumNodes = numNodes;
         mBigTimeStep = bigTimeStep;
@@ -40,11 +40,14 @@ public:
         VecCreate(PETSC_COMM_WORLD, &tempVec);
         VecSetSizes(tempVec, PETSC_DECIDE, numNodes);
         VecSetFromOptions(tempVec);
-        VecGetOwnershipRange(tempVec,&mOwnershipRangeLo,&mOwnershipRangeHi);
+        PetscInt temp_lo, temp_hi;
+        VecGetOwnershipRange(tempVec, &temp_lo, &temp_hi);
+        mOwnershipRangeLo=(unsigned) temp_lo;
+        mOwnershipRangeHi=(unsigned) temp_hi;
         VecDestroy(tempVec); // vector no longer needed
     }
     
-    void GetOwnershipRange(int &rLo, int &rHi)
+    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
     {
         rLo=mOwnershipRangeLo;
         rHi=mOwnershipRangeHi;

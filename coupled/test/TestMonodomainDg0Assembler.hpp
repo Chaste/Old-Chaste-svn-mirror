@@ -31,7 +31,7 @@ public:
         mpStimulus = new InitialStimulus(-600, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
@@ -60,7 +60,7 @@ public:
         mpStimulus = new InitialStimulus(-600.0, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
@@ -82,7 +82,7 @@ class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
     InitialStimulus *mpStimulus;
-    int mNodeNum;
+    unsigned mNodeNum;
 public:
     PointStimulus2dCellFactory(int nodeNum) : AbstractCardiacCellFactory<2>(0.01)
     {
@@ -90,7 +90,7 @@ public:
         mNodeNum = nodeNum;
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node == mNodeNum)
         {
@@ -134,13 +134,13 @@ public:
         monodomain_problem.Solve();
 
         double* p_voltage_array;
-        int lo, hi;
+        unsigned lo, hi;
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
@@ -213,13 +213,13 @@ public:
         monodomain_problem.Solve();
         
         double* p_voltage_array;
-        int lo, hi;
+        unsigned lo, hi;
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;
@@ -330,13 +330,13 @@ public:
         //printf ("\nSolve took %.2lf seconds. \n", dif );
         
         double* p_voltage_array;
-        int lo, hi;
+        unsigned lo, hi;
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;

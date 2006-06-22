@@ -36,7 +36,7 @@ private:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
     Vec mVoltage; // Current solution
-    int mLo, mHi;
+    unsigned mLo, mHi;
 
    
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
@@ -121,12 +121,15 @@ public:
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition); 
         
-        VecGetOwnershipRange(initial_condition, &mLo, &mHi);
+        PetscInt temp_lo, temp_hi;
+        VecGetOwnershipRange(initial_condition, &temp_lo, &temp_hi);
+        mLo=(unsigned) temp_lo;
+        mHi=(unsigned) temp_hi;
         
         // Set a constant initial voltage throughout the mMesh
-        for (int global_index=mLo; global_index<mHi; global_index++)
+        for (unsigned global_index=mLo; global_index<mHi; global_index++)
         {
-            int local_index = global_index - mLo;
+            unsigned local_index = global_index - mLo;
             p_initial_condition[local_index] = mpMonodomainPde->GetCardiacCell(global_index)->GetVoltage();
         }
         VecRestoreArray(initial_condition, &p_initial_condition);      
@@ -137,8 +140,8 @@ public:
         //  'xx'th time step using ColumnDataWriter 
         ParallelColumnDataWriter *p_test_writer = NULL;
        
-        int time_var_id = 0;
-        int voltage_var_id = 0;
+        unsigned time_var_id = 0;
+        unsigned voltage_var_id = 0;
         bool write_files = false;
         if (mOutputFilenamePrefix.length() > 0)
         {
@@ -296,7 +299,7 @@ public:
       * Get the final solution vector. This vector is distributed over all processes,
      *  with the current process owning the [lo, ..., hi-1] components of the vector.
      */
-    void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
+    void GetVoltageArray(double **pVoltageArray, unsigned &lo, unsigned &hi)
     {
         VecGetArray(mVoltage, pVoltageArray);
         lo=mLo;

@@ -43,7 +43,7 @@ private:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
     Vec mVoltage; // Current solution
-    int mLo, mHi; // Ownership range for the double size potential vector mVoltage
+    unsigned mLo, mHi; // Ownership range for the double size potential vector mVoltage
 
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
@@ -67,9 +67,9 @@ public:
         mEndTime          = -1;   // negative so can check has been set
         mPrintingTimeStep = -1;   // negative so can check has been set
 
-        //initialise these to -1
-        mLo = -1;
-        mHi = -1; 
+        //initialise these to 0
+        mLo = 0;
+        mHi = 0; 
     }
 
     /**
@@ -111,16 +111,22 @@ public:
         
         // initial condition;   
         Vec initial_condition;
-        int lo, hi;
-        mpBidomainPde->GetOwnershipRange(lo, hi);
-        VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*mMesh.GetNumNodes(), &initial_condition);  
+        
+        unsigned big_lo, big_hi;
+        mpBidomainPde->GetOwnershipRange(big_lo, big_hi);
+
+        VecCreateMPI(PETSC_COMM_WORLD, 2*(big_hi-big_lo) , 2*mMesh.GetNumNodes(), &initial_condition);  
         double* p_initial_condition;
         VecGetArray(initial_condition, &p_initial_condition); 
 
-        VecGetOwnershipRange(initial_condition, &mLo, &mHi);
-        for (int global_index=lo; global_index<hi; global_index++)
+        PetscInt temp_lo, temp_hi;
+        VecGetOwnershipRange(initial_condition, &temp_lo, &temp_hi);
+        mLo=(unsigned) temp_lo;
+        mHi=(unsigned) temp_hi;
+        
+        for (unsigned global_index=big_lo; global_index<big_hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - big_lo;
             p_initial_condition[2*local_index  ] = mpBidomainPde->GetCardiacCell(global_index)->GetVoltage();
             p_initial_condition[2*local_index+1] = 1;
         }
@@ -136,8 +142,8 @@ public:
         ///\todo: get writer to write V_m and \phi_e seperately?
         ParallelColumnDataWriter *p_test_writer = NULL;
        
-        int time_var_id = 0;
-        int voltage_var_id = 0;
+        unsigned time_var_id = 0;
+        unsigned voltage_var_id = 0;
         bool write_files = false;
 
         if (mOutputFilenamePrefix.length() > 0)
@@ -289,11 +295,10 @@ public:
      *  This vector is distributed over all processes,
      *  with the current process owning the [lo, ..., hi-1] components of the vector.
      */
-    void GetVoltageArray(double **pVoltageArray, int &lo, int &hi)
+    void GetVoltageArray(double **pVoltageArray, unsigned &lo, unsigned &hi)
     {
         //check these have been set
-        assert(mLo > -1);
-        assert(mHi > -1);        
+        assert(mHi > 0);        
         VecGetArray(mVoltage, pVoltageArray);
         lo=mLo;
         hi=mHi; 
