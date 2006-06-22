@@ -1,1 +1,2 @@
 TestBidomainWithShocks.hpp
+TestBidomainCompareWithMemfem.hpp
