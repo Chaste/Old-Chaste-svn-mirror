@@ -16,16 +16,16 @@ private:
  
 public:
     /** Construct an exception with a message string */
-    Exception(std::string message):mMessage(message)
+    Exception(std::string message) : mMessage(message)
     {   
-      //nothing to do here
+        //nothing to do here
     }
     
     /** Get the message associated with the exception 
      *
      * @return The message set when the exception was thrown.
      **/
-    std::string GetMessage()
+    std::string GetMessage() const
     {
         return mMessage;
     }
