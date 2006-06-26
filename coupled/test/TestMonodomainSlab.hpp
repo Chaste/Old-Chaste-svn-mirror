@@ -25,7 +25,7 @@ public:
         mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
@@ -69,7 +69,7 @@ public:
         monodomain_problem.Solve();
         
         double* p_voltage_array;
-        int lo, hi;
+        unsigned lo, hi;
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges

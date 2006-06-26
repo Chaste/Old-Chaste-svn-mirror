@@ -26,7 +26,7 @@ public:
         mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
@@ -157,7 +157,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         double* p_mono_voltage_array;
         double* p_bi_voltage_array;
-        int bi_lo, bi_hi, mono_lo, mono_hi;
+        unsigned bi_lo, bi_hi, mono_lo, mono_hi;
 
         bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi); 
         monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi); 

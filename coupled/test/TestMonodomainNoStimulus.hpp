@@ -27,7 +27,7 @@ public:
     {
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {      
         return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
  
@@ -63,7 +63,7 @@ public:
         monodomain_problem.Solve();
         
         double* voltage_array;
-        int lo, hi;
+        unsigned lo, hi;
         // voltages are no less than -85.0 and equal to each other
         
 

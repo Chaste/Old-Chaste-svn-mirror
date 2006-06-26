@@ -7,6 +7,7 @@
 #include <petsc.h>
 #include <iostream>
 #include <cmath>
+#include "ReplicatableVector.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -135,35 +136,10 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,voi
 {
 	double x,y;
 	
-	PetscScalar *p_solution_guess_elements_array;
-	VecGetArray(solution_guess, &p_solution_guess_elements_array);
-    
-    int lo, hi;
-	VecGetOwnershipRange(solution_guess, &lo, &hi);
-    
-    double all_solution_guess[2], all_solution_guess_replicated[2];
-    all_solution_guess[0]=0.0;
-    all_solution_guess[1]=0.0;
-        
-        
-    for(int global_index=0; global_index<2; global_index++)
-    {
-        int local_index = global_index-lo;
-        if(lo<=global_index && global_index<hi)
-        { 
-            all_solution_guess[global_index]=p_solution_guess_elements_array[local_index];
-        }
-    } 
-
-
-
-    VecRestoreArray(solution_guess,&p_solution_guess_elements_array);
-    
-    MPI_Allreduce(all_solution_guess, all_solution_guess_replicated, 2, MPI_DOUBLE,
-                             MPI_SUM, PETSC_COMM_WORLD);
-    
-    x = all_solution_guess_replicated[0];
-	y = all_solution_guess_replicated[1];
+	ReplicatableVector solution_guess_replicated;
+    solution_guess_replicated.ReplicatePetscVector(solution_guess);
+    x = solution_guess_replicated[0];
+	y = solution_guess_replicated[1];
 	
 	VecSetValue(residual,0,x*x+y*y-1,INSERT_VALUES);
 	VecSetValue(residual,1,x-y,INSERT_VALUES);
@@ -176,30 +152,10 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
 {
 	double x, y;
 		
-	PetscScalar *p_input_elements_array;
-	VecGetArray(input, &p_input_elements_array);
-	int lo, hi;
-    VecGetOwnershipRange(input, &lo, &hi);
-    
-    double all_input[2], all_input_replicated[2];
-    all_input[0]=0.0;
-    all_input[1]=0.0;
-    
-    for(int global_index=0; global_index<2; global_index++)
-    {
-        int local_index = global_index-lo;
-        if(lo<=global_index && global_index<hi)
-        {    
-            all_input[global_index]=p_input_elements_array[local_index];
-        }
-    }    
-    
-    
-    VecRestoreArray(input,&p_input_elements_array);
-    MPI_Allreduce(all_input, all_input_replicated, 2, MPI_DOUBLE,
-                             MPI_SUM, PETSC_COMM_WORLD);
-    x = all_input_replicated[0];
-	y = all_input_replicated[1];
+    ReplicatableVector input_replicated;
+    input_replicated.ReplicatePetscVector(input);
+	x = input_replicated[0];
+	y = input_replicated[1];
 		
 	MatSetValue(*pJacobian, 0 , 0 , 2.0*x , INSERT_VALUES);
 	MatSetValue(*pJacobian, 0 , 1 , 2.0*y, INSERT_VALUES);
@@ -215,34 +171,12 @@ PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,v
 {
 	double x,y,z;
 	
-	PetscScalar *p_solution_guess_elements_array;
-	VecGetArray(solution_guess, &p_solution_guess_elements_array);
-    int lo, hi;
-    VecGetOwnershipRange(solution_guess, &lo, &hi);
-    
-    double all_solution_guess[3], all_solution_guess_replicated[3];
-    all_solution_guess[0]=0.0;
-    all_solution_guess[1]=0.0;
-    all_solution_guess[2]=0.0;
-    
-
-    for(int global_index=0; global_index<3; global_index++)
-    {
-        int local_index = global_index-lo;
-        if(lo<=global_index && global_index<hi)
-        {    
-            all_solution_guess[global_index]=p_solution_guess_elements_array[local_index];
-        }
-    }  
-
-    VecRestoreArray(solution_guess,&p_solution_guess_elements_array);
-    
-    MPI_Allreduce(all_solution_guess, all_solution_guess_replicated, 3, MPI_DOUBLE,
-                             MPI_SUM, PETSC_COMM_WORLD);
-    
-    x = all_solution_guess_replicated[0];
-    y = all_solution_guess_replicated[1];
-    z = all_solution_guess_replicated[2];
+	ReplicatableVector solution_guess_replicated;
+    solution_guess_replicated.ReplicatePetscVector(solution_guess);
+        
+    x = solution_guess_replicated[0];
+    y = solution_guess_replicated[1];
+    z = solution_guess_replicated[2];
 	
 	VecSetValue(residual,0,x*x+y*y+z*z-1,INSERT_VALUES);
 	VecSetValue(residual,1,x-y,INSERT_VALUES);
@@ -256,33 +190,12 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
 {
 	double x, y, z;
 		
-	PetscScalar *p_input_elements_array;
-	VecGetArray(input, &p_input_elements_array);
-    int lo, hi;
-    VecGetOwnershipRange(input, &lo, &hi);
-    
-    double all_input[3], all_input_replicated[3];
-    all_input[0]=0.0;
-    all_input[1]=0.0;
-    all_input[2]=0.0;
-    
+    ReplicatableVector input_replicated;
+    input_replicated.ReplicatePetscVector(input);
 
-    for(int global_index=0; global_index<3; global_index++)
-    {
-        int local_index = global_index-lo;
-        if(lo<=global_index && global_index<hi)
-        {    
-            all_input[global_index]=p_input_elements_array[local_index];
-        }
-    }  
-
-    
-    VecRestoreArray(input,&p_input_elements_array);
-    MPI_Allreduce(all_input, all_input_replicated, 3, MPI_DOUBLE,
-                             MPI_SUM, PETSC_COMM_WORLD);
-    x = all_input_replicated[0];
-    y = all_input_replicated[1];
-    z = all_input_replicated[2];
+    x = input_replicated[0];
+    y = input_replicated[1];
+    z = input_replicated[2];
 		
 	MatSetValue(*pJacobian, 0 , 0 , 2.0*x , INSERT_VALUES);
 	MatSetValue(*pJacobian, 0 , 1 , 2.0*y, INSERT_VALUES);

@@ -31,7 +31,7 @@ public:
         mpStimulus = new InitialStimulus(-1500000, 0.5);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
         {
@@ -106,6 +106,7 @@ public:
         double space_step;   // cm
         double time_step;   // ms
         double probe_voltage;
+        ReplicatableVector voltage_replicated;
 
         int middle_node = 4;
 
@@ -141,21 +142,11 @@ public:
                 {                
                     bidomain_problem.Solve();
                     
- 
-    
-                    double* p_voltage_array;
-                    int lo, hi;
-                    bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
-            
-            
-                    double my_voltage = 0.0;
-                    if ((lo <= middle_node) && (middle_node < hi))
-                    {
-                        int local_index = middle_node-lo;
-                        my_voltage = p_voltage_array[local_index];
-                    }
-                    MPI_Allreduce(&my_voltage, &probe_voltage, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-        
+                    Vec voltage=bidomain_problem.GetVoltage();
+                    voltage_replicated.ReplicatePetscVector(voltage);
+                    
+                    probe_voltage=voltage_replicated[middle_node];
+                    
                     double relerr = fabs ((probe_voltage - prev_voltage_for_time) / prev_voltage_for_time);
                     std::cout<<"   >>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_time = "<<prev_voltage_for_time
                       <<" mV | relerr = "<<relerr<<std::endl  << std::flush;
@@ -173,8 +164,7 @@ public:
         
                     prev_voltage_for_time = probe_voltage;
             
-                    bidomain_problem.RestoreVoltageArray(&p_voltage_array);
-                }
+                 }
                 catch (Exception e)
                 {
                     // An exception has been caught, meaning that the time step is too big, so halve it

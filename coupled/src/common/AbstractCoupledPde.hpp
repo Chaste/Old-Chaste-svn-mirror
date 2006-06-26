@@ -28,7 +28,7 @@ protected:
 public:   
     AbstractCoupledPde(unsigned numNodes, double bigTimeStep)
     {
-        //assert(numNodes > 0);
+        assert(numNodes > 0);  
         
         mNumNodes = numNodes;
         mBigTimeStep = bigTimeStep;
