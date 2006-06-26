@@ -33,7 +33,7 @@ public:
         mpExtraStimulus = new InitialStimulus(-60000, 0.5, 1.0); // switches on at 1ms
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         AbstractStimulusFunction* intra_stim;
         AbstractStimulusFunction* extra_stim;

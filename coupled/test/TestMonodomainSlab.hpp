@@ -73,9 +73,9 @@ public:
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
     
         // test whether voltages and gating variables are in correct ranges
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            int local_index = global_index - lo;
+            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;
             double Ek    = -77.0;

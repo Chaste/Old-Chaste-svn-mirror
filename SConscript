@@ -23,35 +23,46 @@ os.chdir(curdir)
 # file, one per line.
 # Alternatively, a single test suite may have been specified on the command
 # line.
-testfiles = []
+testfiles = set()
 if single_test_suite:
   if single_test_suite_dir == toplevel_dir:
-    testfiles = [single_test_suite]
+    testfiles.add(single_test_suite)
     # Remove any old test output file to force a re-run
     try:
       os.remove(single_test_suite[:-4] + '.log')
     except OSError:
       pass
 else:
-  for testpack in build.TestPacks():
+  packfiles = []
+  if all_tests:
+    for packfile in glob.glob('../../test/*TestPack.txt'):
+      try:
+        packfiles.append(file(packfile, 'r'))
+      except IOError:
+        pass
+  else:
+    for testpack in build.TestPacks():
+      try:
+        packfile = '../../test/'+testpack+'TestPack.txt'
+        packfiles.append(file(packfile, 'r'))
+      except IOError:
+        pass
+  for packfile in packfiles:
     try:
-      packfile = file('../../test/'+testpack+'TestPack.txt', 'r')
       for testfile in map(lambda s: s.strip(), packfile.readlines()):
         # Ignore blank lines and repeated tests.
         if testfile and not testfile in testfiles:
-          testfiles.append(testfile)
+          testfiles.add(testfile)
       packfile.close()
     except IOError:
       pass
 
 
 # Look for source files that tests depend on in test/.
-_testsource = os.listdir('../../test')
 testsource = []
-for file in _testsource:
+for file in os.listdir('../../test'):
   if file[-4:] == '.cpp':
     testsource.append('test/' + file)
-del _testsource
 
 #print files, testfiles, testsource
 
@@ -75,12 +86,9 @@ test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURC
 runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
                    build_type + ' ' + build.GetTestReportDir() + 
                    ' ' + run_time_flags)
-#runtests = Builder(action = './$SOURCE | tee $TARGET')
-#runparalleltests = Builder(action = mpirun + ' -np 2 ./$SOURCE | tee $TARGET')
 
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
-#opt['BUILDERS']['RunParallelTests'] = runparalleltests
 
 opt['ENV']['LD_LIBRARY_PATH'] = petsc_base+'lib/libg_c++/linux-gnu/'
 opt.Library(toplevel_dir, files)
@@ -95,13 +103,4 @@ for testfile in testfiles:
               LIBPATH = ['../../../lib', '.', petsc_libpath, blas_libpath] + other_libpaths)
   if not compile_only:
     opt.RunTests(prefix+'.log', prefix+'Runner')
-
-
-# Parallel tests
-#if not ARGUMENTS.get('no_parallel', 0):
-#  opt.Test('parallelrunner.cpp', paralleltestfiles)
-#  opt.Program('paralleltestrunner', ['parallelrunner.cpp'],
-#              LIBS=all_libs,
-#              LIBPATH=['../../datawriters/build', '.', petsc_libpath])
-#  opt.RunParallelTests('parbuild.log', 'paralleltestrunner')
 

@@ -24,12 +24,13 @@ class PointStimulus2dCellFactory : public AbstractCardiacCellFactory<2>
 {
 private:
     InitialStimulus *mpStimulus;
-    int mNodeNum;
+    unsigned mNodeNum;
 public:
-    PointStimulus2dCellFactory(int nodeNum) : AbstractCardiacCellFactory<2>(0.01)
+    PointStimulus2dCellFactory(unsigned nodeNum)
+      : AbstractCardiacCellFactory<2>(0.01),
+	mNodeNum(nodeNum)
     {
         mpStimulus = new InitialStimulus(-6000.0, 0.5);
-        mNodeNum = nodeNum;
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -98,7 +99,7 @@ public:
         unsigned lo, hi;
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
         // test whether voltages and gating variables are in correct ranges
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;

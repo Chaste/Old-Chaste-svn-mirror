@@ -162,9 +162,9 @@ public:
         bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi); 
         monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi); 
         
-        for (int global_index=mono_lo; global_index<mono_hi; global_index++)
+        for (unsigned global_index=mono_lo; global_index<mono_hi; global_index++)
         {
-            int local_index = global_index - mono_lo;
+            unsigned local_index = global_index - mono_lo;
             
             double monodomain_voltage      =   p_mono_voltage_array[local_index];
             double   bidomain_voltage      =   p_bi_voltage_array  [2*local_index];

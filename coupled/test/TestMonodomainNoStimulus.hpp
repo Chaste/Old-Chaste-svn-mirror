@@ -72,7 +72,7 @@ public:
         double constant_voltage=voltage_array[lo];
         TS_ASSERT_LESS_THAN(-85.0, constant_voltage);
         
-        for(int global_index=lo; global_index<hi; global_index++)
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {          
             TS_ASSERT_DELTA(voltage_array[global_index-lo] , constant_voltage, 1E-5);   
         }

@@ -26,7 +26,7 @@ public:
         mpStimulus = new InitialStimulus(-600.0*1000, 3, 50);
     }
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node==19)
         {

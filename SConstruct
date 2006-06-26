@@ -19,7 +19,12 @@ system_name = ARGUMENTS.get('system_name', '')
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
 Export('run_time_flags')
 
-# Specify compile_only=1 to not run any tests.
+# Specify all_tests=1 to select all tests for running (useful with
+# compile_only=1)
+all_tests = ARGUMENTS.get('all_tests', 0)
+Export('all_tests')
+
+# Specify compile_only=1 to not run any tests
 compile_only = ARGUMENTS.get('compile_only', 0)
 Export('compile_only')
 
