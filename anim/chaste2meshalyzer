@@ -17,8 +17,8 @@
 #           	  edit these if necessary!!!!               #
 #          (remember to include trailing slashes '/')       #
 #############################################################
-CHASTE_DIR="/home/scratch/pras/eclipse/workspace/Chaste/"
-TESTOUTPUT_DIR="/tmp/pras/testoutput/"
+CHASTE_DIR="/home/chaste/eclipse/workspace/Chaste/"
+TESTOUTPUT_DIR="/tmp/chaste/testoutput/"
 OUTPUT_DIR=$CHASTE_DIR"anim/"
 
 
