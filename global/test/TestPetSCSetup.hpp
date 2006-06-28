@@ -44,6 +44,22 @@ public:
         //This test give back an "unknown error" message
         TS_ASSERT_THROWS_ANYTHING( PETSCEXCEPT(-3));    
     }
+    
+    
+    void testKspExceptionsForCoverage()
+    {
+        TS_ASSERT_THROWS_NOTHING(  KSPEXCEPT(2) );
+        //These next few lines are designed to force the coverage test to pass.
+        //Some are hard to throw in normal circumstances --
+        //"Unknown KSP error code" ought never to be thrown.
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_ITS) );
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_DTOL) );
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN) );
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_BREAKDOWN_BICG) );
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_NONSYMMETRIC) );
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(KSP_DIVERGED_INDEFINITE_PC) );
+        TS_ASSERT_THROWS_ANYTHING( KSPEXCEPT(-735827) );
+    }
 };
 
 
