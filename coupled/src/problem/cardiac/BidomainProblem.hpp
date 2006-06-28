@@ -33,7 +33,9 @@ private:
     double mStartTime;
     double mEndTime;
     double mPdeTimeStep;
-    double mPrintingTimeStep;        
+    double mPrintingTimeStep;       
+    
+    bool mWriteInfo; 
 
     /** data is not written if output directory or output file prefix are not set*/ 
     std::string  mOutputDirectory, mOutputFilenamePrefix;  
@@ -70,6 +72,8 @@ public:
         //initialise these to 0
         mLo = 0;
         mHi = 0; 
+        
+        mWriteInfo = false;
     }
 
     /**
@@ -128,7 +132,7 @@ public:
         {
             unsigned local_index = global_index - big_lo;
             p_initial_condition[2*local_index  ] = mpBidomainPde->GetCardiacCell(global_index)->GetVoltage();
-            p_initial_condition[2*local_index+1] = 1;
+            p_initial_condition[2*local_index+1] = 0;
         }
 
 
@@ -139,7 +143,6 @@ public:
     
         //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to 
         //  'xx'th time step using ColumnDataWriter         
-        ///\todo: get writer to write V_m and \phi_e seperately?
         ParallelColumnDataWriter *p_test_writer = NULL;
        
         unsigned time_var_id = 0;
@@ -202,8 +205,20 @@ public:
             // solve from now up to the next printing time
             bidomain_assembler.SetTimes(current_time, next_printing_time, mPdeTimeStep);
             bidomain_assembler.SetInitialCondition( initial_condition );
-            
-            mVoltage = bidomain_assembler.Solve(); //(mMesh, mpBidomainPde, bcc);
+           
+            try
+            { 
+                mVoltage = bidomain_assembler.Solve();
+            } 
+            catch (Exception &e) 
+            {
+                if (write_files)
+                {
+                    p_test_writer->Close();
+                    delete p_test_writer;
+                }
+                throw e;
+            }
                                     
             // Free old initial condition
             VecDestroy(initial_condition);
@@ -213,6 +228,12 @@ public:
             
             // update the current time
             current_time = next_printing_time; 
+            
+            // print out details at current time if asked for
+            if(mWriteInfo)
+            {
+                WriteInfo(current_time);
+            } 
             
             // Writing data out to the file <mOutputFilenamePrefix>.dat                 
             if (write_files)
@@ -229,6 +250,23 @@ public:
             p_test_writer->Close();
             delete p_test_writer;
         }
+        
+        
+        // call shell script which converts the data to meshalyzer format
+        std::string chaste_2_meshalyzer;
+        std::stringstream space_dim;
+        space_dim << SPACE_DIM;
+        chaste_2_meshalyzer = "anim/chaste2meshalyzer "         // the executable.
+                                  + space_dim.str() + " "       // argument 1 is the dimension.
+                                  + mMeshFilename + " "         // arg 2 is mesh prefix, path relative to 
+                                                                // the main chaste directory.
+                                  + mOutputDirectory + "/" 
+                                  + mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix, 
+                                                                // relative to the testoutput folder. 
+                                  + "last_simulation";          // arg 4 is the output prefix, relative to 
+                                                                // anim folder.
+                                        
+        system(chaste_2_meshalyzer.c_str());
     }
     
     
@@ -248,7 +286,8 @@ public:
         mPdeTimeStep = pdeTimeStep;
     }
     
-    /** Set the times to print output. The printing time step must be 
+    /** 
+     *  Set the times to print output. The printing time step must be 
      *  a multiple of the pde timestep 
      */
     void SetPrintingTimeStep(double printingTimeStep)
@@ -257,7 +296,8 @@ public:
         mPrintingTimeStep = printingTimeStep;
     }
     
-    /** Set the simulation to print every n timesteps. Only set this
+    /** 
+     *  Set the simulation to print every n timesteps. Only set this
      *  AFTER setting the pde timestep
      */
     void PrintEveryNthTimeStep(unsigned n)
@@ -331,6 +371,55 @@ public:
     {
         assert(mpBidomainPde!=NULL);
         return mpBidomainPde;  
+    }
+    
+    /** 
+     *  Set info to be printed during computation. 
+     */
+    void SetWriteInfo(bool writeInfo = true)
+    {
+        mWriteInfo = writeInfo;
+    }
+    
+    
+    /**
+     *  Print out time and max/min voltage/phi_e values at current time.
+     *  WON'T WORK IN PARALLEL
+     */
+    void WriteInfo(double time)
+    {
+        std::cout << "Solved to time " << time << "\n" << std::flush;
+                 
+        double* p_voltage_array;
+        VecGetArray(mVoltage, &p_voltage_array);
+        
+        double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
+        for(int i=0; i<mMesh.GetNumNodes(); i++)
+        {
+            if( p_voltage_array[2*i] > v_max)
+            {
+                v_max = p_voltage_array[2*i];
+            }
+            if( p_voltage_array[2*i] < v_min)
+            {
+               v_min = p_voltage_array[2*i];
+            }
+            if( p_voltage_array[2*i+1] > phi_max)
+            {
+                phi_max = p_voltage_array[2*i+1];
+            }
+            if( p_voltage_array[2*i+1] < phi_min)                    
+            {
+                phi_min = p_voltage_array[2*i+1];
+            }
+
+        }
+        VecRestoreArray(mVoltage, &p_voltage_array);
+        std::cout << " max/min V, phi_e = " 
+                  << v_max << " "  
+                  << v_min << " "  
+                  << phi_max << " "  
+                  << phi_min << "\n" << std::flush;  
     }
 };
 

@@ -6,6 +6,9 @@
 #include <petscksp.h>
 class AbstractLinearSolver;
 
+
+#include <string>
+
 /**
  * Linear System class. Stores and solves a linear equation of the form Ax=b,
  * where A is a square matrix and x and b are column vectors.
@@ -48,13 +51,17 @@ public:
     void ZeroLhsMatrix();
     void ZeroRhsVector();
     void ZeroLinearSystem();
-    double GetMatrixElement(int row, int col);
-    double GetRhsVectorElement(int index);
     Vec Solve(AbstractLinearSolver *pSolver);
     void SetRhsVectorElement(int row, double value); 
     void AddToRhsVectorElement(int row, double value);
 	int GetSize();
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
+
+    // DEBUGGING CODE:
+    //double GetMatrixElement(int row, int col);
+    //double GetRhsVectorElement(int row);
+    //void WriteLinearSystem(std::string matrixFile, std::string rhsVectorFile);
+    
 };
 
 #endif //_LINEARSYSTEM_HPP_

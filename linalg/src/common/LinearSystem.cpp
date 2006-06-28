@@ -8,6 +8,11 @@
 //#include <iostream>
 
 
+#include "OutputFileHandler.hpp"
+
+
+
+
 
 
 LinearSystem::LinearSystem(int lhsVectorSize)
@@ -230,8 +235,12 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
 
 
 
-// this function has been grandfathered because it deadset wrong
-/*double LinearSystem::GetMatrixElement(int row, int col)
+
+/*
+ *  DEBUGGING CODE: comment out for commits as not tested and probably
+ *  crashes in parallel
+
+double LinearSystem::GetMatrixElement(int row, int col)
 {
 	int row_as_array[1]; row_as_array[0] = row;
 	int col_as_array[1]; col_as_array[0] = col;
@@ -242,4 +251,32 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
 
 	return ret_array[0];
 }
+
+double LinearSystem::GetRhsVectorElement(int row)
+{
+    int row_as_array[1]; row_as_array[0] = row;
+    
+    double ret_array[0];
+    
+    VecGetValues(mRhsVector, 1, row_as_array, ret_array);
+    return ret_array[0];
+}
+
+
+void LinearSystem::WriteLinearSystem(std::string matFile, std::string rhsVectorFile)
+{
+    OutputFileHandler output_file_handler("");
+    out_stream matrix_file = output_file_handler.OpenOutputFile(matFile);
+    out_stream vector_file = output_file_handler.OpenOutputFile(rhsVectorFile);
+ 
+    for(int i=0; i<mSize; i++)
+    {   
+        for(int j=0; j<mSize; j++)
+        {
+            (*matrix_file) << GetMatrixElement(i,j) << " ";
+        }
+        (*matrix_file) << "\n";
+        (*vector_file) << GetRhsVectorElement(i) << "\n";
+    }
+}; 
 */

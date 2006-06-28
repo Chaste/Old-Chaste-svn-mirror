@@ -28,11 +28,11 @@ const double BETA = 0.00014;
  * The monodomain equation is of the form:
  * A (C dV/dt + Iionic) +Istim = Div( sigma_i Grad(V) ) 
  * 
- * where A is the surface area to volume ratio (1/cm),
- *       C is the capacitance                  (uF/cm^2),
- *       sigma_i is the intracellular conductivity (mS/cm),
- *       I_ionic is the ionic current          (uA/cm^2),
- *       I_stim is the intracellular stimulus current (uA/cm^3).
+ * where A is the surface area to volume ratio         (1/cm),
+ *       C is the capacitance                          (uF/cm^2),
+ *       sigma_i is the intracellular conductivity     (mS/cm),
+ *       I_ionic is the ionic current                  (uA/cm^2),
+ *       I_stim is the intracellular stimulus current  (uA/cm^3).
  * 
  * Note that default values of A, C and sigma_i are stored in the parent class
  */

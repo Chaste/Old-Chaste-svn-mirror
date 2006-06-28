@@ -11,30 +11,29 @@
 //#include <iostream>
 #include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
-#include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-
+#include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
     InitialStimulus *mpStimulus;
 public:
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
+    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.0001)
     {
-        mpStimulus = new InitialStimulus(-600.0*1000, 3, 50);
+        mpStimulus = new InitialStimulus(-1200.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         if (node==19)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, 0.001, mpStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, 0.001, mpZeroStimulus, mpZeroStimulus);
         }
     }
         
@@ -59,12 +58,21 @@ public:
         bidomain_problem.SetEndTime(300);   // ms
         bidomain_problem.SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
+//        bidomain_problem.SetPrintingTimeStep(1);
+        //bidomain_problem.SetWriteInfo();
 
         bidomain_problem.Initialise();
  
         // not set condutivities to agree with memfem, or grounded any nodes
- 
-        bidomain_problem.Solve();
+        
+        try
+        {
+            bidomain_problem.Solve();
+        }
+        catch(Exception e)
+        {
+            std::cout << e.GetMessage() << "\n";
+        }               
     }
 };
 

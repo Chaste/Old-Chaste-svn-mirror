@@ -1,0 +1,130 @@
+# Shell script to create animation following a simulation run
+# It will create both a PoinTS and TRIangles file that can be read by Meshalyzer
+# 
+# Similar to genanim except takes in arguments
+#
+# arguments are:
+#   1. dimension (must be 1,2 or 3)
+#   2. the mesh path and prefix (relative to chaste directory (see arg 5))
+#   3. the results path and prefix (relative to /tmp/<username>/testoutput (see arg 5))
+#   4. the output prefix (relative to <chaste_dir>/anim (see arg 5))
+#   5. if this argument is "-f" the paths are taken to be full paths, not relative to
+#         the defaults
+#
+
+
+#############################################################
+#           	  edit these if necessary!!!!               #
+#          (remember to include trailing slashes '/')       #
+#############################################################
+CHASTE_DIR="/home/scratch/pras/eclipse/workspace/Chaste/"
+TESTOUTPUT_DIR="/tmp/pras/testoutput/"
+OUTPUT_DIR=$CHASTE_DIR"anim/"
+
+
+echo ""
+echo "Running chaste2meshalzer:"
+
+DIMENSION=$1              
+MESH_PATH=$2
+RESULTS_PREFIX=$3
+OUTPUT_PREFIX=$4
+
+FULL_PATHS_GIVEN=0
+if [ $# -gt 4 ] ; then
+	if [ $5 == "-f" ] ; then
+		FULL_PATHS_GIVEN=1
+	else
+		FULL_PATHS_GIVEN=0
+	fi
+fi
+	
+
+#######################################################################################
+#  error handling
+#######################################################################################
+if [ -z "${DIMENSION}" ] || [ ${DIMENSION} -lt 1 ] || [ ${DIMENSION} -gt 3 ] ; then
+	echo "ERROR: expected first argument (dimension) to be 1, 2 or 3"
+	exit 1
+fi
+
+## Note: the quotes around the variables in the lines below are important
+if [ -z "${MESH_PATH}" ] ; then
+	echo "ERROR: mesh prefix is empty string"
+	exit 2
+fi
+
+if [ -z "${RESULTS_PREFIX}" ] ; then
+	echo "ERROR: results file prefix is empty string"
+	exit 2
+fi
+
+if [ -z "${OUTPUT_PREFIX}" ] ; then
+	echo "ERROR: output file prefix is empty string"
+	exit 2
+fi
+
+
+#######################################################################################
+#  set up paths
+#######################################################################################
+if [ ${FULL_PATHS_GIVEN} -eq 1 ] ; then
+	FULL_MESH_PATH=${MESH_PATH}
+else
+	FULL_MESH_PATH=${CHASTE_DIR}${MESH_PATH}
+fi
+
+echo "  Mesh path is "${FULL_MESH_PATH}
+
+if [ ${FULL_PATHS_GIVEN} -eq 1 ] ; then
+	FULL_RESULTS_PATH=${RESULTS_PREFIX}
+else
+	FULL_RESULTS_PATH=${TESTOUTPUT_DIR}${RESULTS_PREFIX}
+fi
+
+echo "  Results path is "${FULL_RESULTS_PATH}
+
+if [ ${FULL_PATHS_GIVEN} -eq 1 ] ; then
+	FULL_OUTPUT_PATH=${OUTPUT_PREFIX}
+else
+	FULL_OUTPUT_PATH=${OUTPUT_DIR}${OUTPUT_PREFIX}
+fi
+
+echo "  Output file path is "${FULL_OUTPUT_PATH}
+
+
+#######################################################################################
+#  create mesh files
+#######################################################################################
+cat ${FULL_MESH_PATH}.node | head -n 1 | awk '{print $1}' > ${FULL_OUTPUT_PATH}.pts
+
+if [ ${DIMENSION} -eq 1 ] ; then
+ 	cat ${FULL_MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" 0 "\t" 0}' >> ${FULL_OUTPUT_PATH}.pts
+fi
+
+if [ ${DIMENSION} -eq 2 ] ; then
+	cat ${FULL_MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" 0}' >> ${FULL_OUTPUT_PATH}.pts
+	cat ${FULL_MESH_PATH}.ele  | head -n 1  | awk '{print $1}' > ${FULL_OUTPUT_PATH}.tri
+	cat ${FULL_MESH_PATH}.ele  | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${FULL_OUTPUT_PATH}.tri
+fi
+
+if [ ${DIMENSION} -eq 3 ] ; then
+	cat ${FULL_MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4}' >> ${FULL_OUTPUT_PATH}.pts
+	cat ${FULL_MESH_PATH}.face | head -n 1  | awk '{print $1}' > ${FULL_OUTPUT_PATH}.tri
+	cat ${FULL_MESH_PATH}.face | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${FULL_OUTPUT_PATH}.tri
+fi
+
+
+
+#######################################################################################
+#  create data files
+#######################################################################################
+rm -f ${FULL_OUTPUT_PATH}_voltage.dat
+rm -f ${FULL_OUTPUT_PATH}_extracell.dat
+for i in ${FULL_RESULTS_PATH}_0*.dat; do
+ 	tail -n +2 $i | awk '{if (NR%2==1) print $1}' >> ${FULL_OUTPUT_PATH}_voltage.dat
+  	tail -n +2 $i | awk '{if (NR%2==0) print $1}' >> ${FULL_OUTPUT_PATH}_extracell.dat
+done
+
+echo "  ..done!"
+echo ""

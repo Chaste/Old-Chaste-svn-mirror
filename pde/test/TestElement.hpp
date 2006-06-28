@@ -245,7 +245,89 @@ public:
         TS_ASSERT_EQUALS(element2.GetNode(0)->GetPoint()[0], point2[0]);
         TS_ASSERT_EQUALS(element2.GetNode(0)->GetPoint()[1], point2[1]);
     }
+    
+    void TestElementSwapsNodesIfJacobianIsNegative()
+    {
+        Point<1> a0(0),    a1(1);
+        Point<2> b0(0,0),  b1(1,0)  ,b2(0,1);
+        Point<3> c0(0,0,0),c1(1,0,0),c2(0,1,0),c3(0,0,1);
+        
+        Node<1>  na0(0,a0), na1(1,a1);
+        Node<2>  nb0(0,b0), nb1(1,b1), nb2(2,b2);
+        Node<3>  nc0(0,c0), nc1(1,c1), nc2(2,c2), nc3(3,c3);
 
+
+        ////////////////////////////////////////////
+        // 1d
+        ////////////////////////////////////////////        
+        std::vector<Node<1>*> nodes_1d_correct;
+        nodes_1d_correct.push_back(&na0);
+        nodes_1d_correct.push_back(&na1);
+
+        std::vector<Node<1>*> nodes_1d_incorrect;
+        nodes_1d_incorrect.push_back(&na1);
+        nodes_1d_incorrect.push_back(&na0);
+
+        Element<1,1>   e_1d_correct_orientation(nodes_1d_correct);
+        Element<1,1> e_1d_incorrect_orientation(nodes_1d_incorrect); 
+
+        // index of second node should be 1
+        TS_ASSERT_EQUALS( e_1d_correct_orientation.GetNode(1)->GetIndex(), 1);
+        // index of second node for incorrect orientation element should also be 1 
+        // because the element should have swapped the nodes around
+        TS_ASSERT_EQUALS( e_1d_incorrect_orientation.GetNode(1)->GetIndex(), 1);
+
+
+        ////////////////////////////////////////////
+        // 2d
+        ////////////////////////////////////////////        
+        std::vector<Node<2>*> nodes_2d_correct;
+        nodes_2d_correct.push_back(&nb0);
+        nodes_2d_correct.push_back(&nb1);
+        nodes_2d_correct.push_back(&nb2);
+
+        std::vector<Node<2>*> nodes_2d_incorrect;
+        nodes_2d_incorrect.push_back(&nb1);
+        nodes_2d_incorrect.push_back(&nb0);
+        nodes_2d_incorrect.push_back(&nb2);
+
+        Element<2,2>   e_2d_correct_orientation(nodes_2d_correct);
+        Element<2,2> e_2d_incorrect_orientation(nodes_2d_incorrect); 
+
+        // index of last node should be 2
+        TS_ASSERT_EQUALS( e_2d_correct_orientation.GetNode(2)->GetIndex(), 2);
+
+        // index of last node for incorrect orientation element should be 0 
+        // because the element should have swapped the last two nodes around
+        TS_ASSERT_EQUALS( e_2d_incorrect_orientation.GetNode(2)->GetIndex(), 0);
+
+
+        ////////////////////////////////////////////
+        // 3d
+        ////////////////////////////////////////////        
+        std::vector<Node<3>*> nodes_3d_correct;
+        nodes_3d_correct.push_back(&nc0);
+        nodes_3d_correct.push_back(&nc1);
+        nodes_3d_correct.push_back(&nc2);
+        nodes_3d_correct.push_back(&nc3);
+
+        std::vector<Node<3>*> nodes_3d_incorrect;
+        nodes_3d_incorrect.push_back(&nc0);
+        nodes_3d_incorrect.push_back(&nc1);
+        nodes_3d_incorrect.push_back(&nc3);
+        nodes_3d_incorrect.push_back(&nc2);
+
+        Element<3,3>   e_3d_correct_orientation(nodes_3d_correct);
+        Element<3,3> e_3d_incorrect_orientation(nodes_3d_incorrect); 
+
+        // index of last node should be 3
+        TS_ASSERT_EQUALS( e_3d_correct_orientation.GetNode(3)->GetIndex(), 3);
+
+        // index of last node for incorrect orientation element should be 3 
+        // because the element should have swapped the last two nodes around
+        TS_ASSERT_EQUALS( e_3d_incorrect_orientation.GetNode(3)->GetIndex(), 3);
+
+    }
 };
 
 #endif //_TESTELEMENT_HPP_

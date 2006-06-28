@@ -137,25 +137,36 @@ private:
                 // (0,0) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
                 // (0,1) and (1,0) blocks: (Di grad_basis_col)dot(grad_basis_row)
                 // (1,1) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row) 
+                
+                /* old version:
+                rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func(col)*basis_func(row)  +  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col )) );
+                rAElem(2*row+1,2*col)   += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   );
+                rAElem(2*row,  2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))  );
+                rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   +   inner_prod( grad_basis_row, prod( sigma_e, grad_basis_col )));
+                */
+                
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice00(rAElem, slice (0, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
                 rAElem_slice00 += wJ*( (Am*Cm/mDt)*temp2 + sigma_i_matrix );
+                
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice10(rAElem, slice (1, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
                 rAElem_slice10 += wJ * sigma_i_matrix;
+                
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice01(rAElem, slice (0, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
                 rAElem_slice01 += wJ * sigma_i_matrix;
+                
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice11(rAElem, slice (1, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
                 rAElem_slice11 += wJ*( sigma_i_matrix + sigma_e_matrix);
             }
             
             // assemble element stiffness vector
-            vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_V(rBElem, slice (0, 2, num_elem_nodes));
+            vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_V  (rBElem, slice (0, 2, num_elem_nodes));
             vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_Phi(rBElem, slice (1, 2, num_elem_nodes));
             
-            rBElem_slice_V += wJ*( (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func );
+            rBElem_slice_V   += wJ*( (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func );
             rBElem_slice_Phi += wJ*( -I_extra_stim * basis_func );
         }
     } 
@@ -217,6 +228,7 @@ private:
             }
             iter++;
         }
+
         
         if (!mMatrixIsAssembled)
         {
@@ -243,7 +255,7 @@ private:
             
             VecDestroy(nullbasis[0]);
         }
-
+    
 
 
 
@@ -260,6 +272,18 @@ private:
         // neumann bcs are zero
                 
         // no need to apply dirichlet boundary conditions for phi either (?-check with Jon) 
+        // (code left here for debugging/comparison)
+         
+ /*       int node_num = 0;
+        {
+            if(!mMatrixIsAssembled)
+            {
+                mpAssembledLinearSystem->ZeroMatrixRow   ( 2*node_num + 1 );
+                mpAssembledLinearSystem->SetMatrixElement( 2*node_num + 1, 2*node_num + 1,1);
+            }
+            mpAssembledLinearSystem->SetRhsVectorElement( 2*node_num + 1, 0);
+        }
+*/
         
         if (mMatrixIsAssembled)
         {
@@ -272,6 +296,9 @@ private:
         
         mMatrixIsAssembled = true;
 
+
+        // write matrix and rhs vector
+        //mpAssembledLinearSystem->WriteLinearSystem("mat.txt", "rhs.txt");       
     }
    
     

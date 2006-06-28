@@ -27,6 +27,8 @@ private:
     double mEndTime;
     double mPdeTimeStep;  
     double mPrintingTimeStep;
+        
+    bool mWriteInfo; 
 
     /** data is not written if output directory or output file prefix are not set*/ 
     std::string  mOutputDirectory, mOutputFilenamePrefix;
@@ -38,7 +40,6 @@ private:
     Vec mVoltage; // Current solution
     unsigned mLo, mHi;
 
-   
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
 public:
@@ -60,6 +61,8 @@ public:
         mPdeTimeStep      = 0.01; // ms
         mEndTime          = -1;   // negative so can check has been set
         mPrintingTimeStep = -1;   // negative so can check has been set
+        
+        mWriteInfo = false;
     }
 
     /**
@@ -213,6 +216,9 @@ public:
                 }
  	            throw e;
             }
+            
+            
+            
             // Free old initial condition
             VecDestroy(initial_condition);
 
@@ -220,7 +226,13 @@ public:
             initial_condition = mVoltage;
           
             // update the current time
-            current_time = next_printing_time; 
+            current_time = next_printing_time;
+            
+            // print out details at current time if asked for
+            if(mWriteInfo)
+            {
+                WriteInfo(current_time);
+            } 
           
             // Writing data out to the file <mOutputFilenamePrefix>.dat
             if (write_files)
@@ -328,6 +340,44 @@ public:
     MonodomainPde<SPACE_DIM> * GetMonodomainPde() 
     {
         return mpMonodomainPde;  
+    }
+    
+    /** 
+     *  Set info to be printed during computation. 
+     */
+    void SetWriteInfo(bool writeInfo = true)
+    {
+        mWriteInfo = writeInfo;
+    }
+    
+    
+    /**
+     *  Print out time and max/min voltage values at current time.
+     *  WON'T WORK IN PARALLEL
+     */
+    void WriteInfo(double time)
+    { 
+        std::cout << "Solved to time " << time << "\n" << std::flush;
+                
+        double* p_voltage_array;
+        VecGetArray(mVoltage, &p_voltage_array);
+        
+        double v_max = -1e5, v_min = 1e5;
+        for(int i=0; i<mMesh.GetNumNodes(); i++)
+        {
+            if( p_voltage_array[i] > v_max)
+            {
+                v_max = p_voltage_array[i];
+            }
+            if( p_voltage_array[i] < v_min)
+            {
+               v_min = p_voltage_array[i];
+            }
+        }
+        VecRestoreArray(mVoltage, &p_voltage_array);
+        std::cout << " max/min V = " 
+                  <<   v_max << " "  
+                  <<   v_min << "\n" << std::flush;  
     }
 };
 
