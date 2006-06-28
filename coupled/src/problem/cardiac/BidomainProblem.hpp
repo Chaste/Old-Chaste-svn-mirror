@@ -252,6 +252,7 @@ public:
         }
         
         
+        /*        
         // call shell script which converts the data to meshalyzer format
         std::string chaste_2_meshalyzer;
         std::stringstream space_dim;
@@ -267,6 +268,7 @@ public:
                                                                 // anim folder.
                                         
         system(chaste_2_meshalyzer.c_str());
+        */
     }
     
     
