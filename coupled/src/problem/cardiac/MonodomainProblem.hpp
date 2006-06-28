@@ -53,9 +53,9 @@ public:
     : mMeshFilename(""),      // i.e. undefined
       mOutputDirectory(""),   // i.e. undefined
       mOutputFilenamePrefix(""),   // i.e. undefined
-      mpMonodomainPde(NULL)
+      mpMonodomainPde(NULL),
+      mpCellFactory(pCellFactory)
     {
-        mpCellFactory = pCellFactory;
                 
         mStartTime        = 0.0;  // ms
         mPdeTimeStep      = 0.01; // ms

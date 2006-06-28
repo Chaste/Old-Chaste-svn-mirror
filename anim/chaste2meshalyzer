@@ -19,7 +19,7 @@
 #############################################################
 CHASTE_DIR="/home/chaste/eclipse/workspace/Chaste/"
 TESTOUTPUT_DIR="/tmp/chaste/testoutput/"
-OUTPUT_DIR=$CHASTE_DIR"anim/"
+OUTPUT_DIR=${TESTOUTPUT_DIR}"anim/"
 
 
 echo ""

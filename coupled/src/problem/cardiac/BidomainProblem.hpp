@@ -60,7 +60,8 @@ public:
     : mMeshFilename(""),     // i.e. undefined
       mOutputDirectory(""),  // i.e. undefined
       mOutputFilenamePrefix(""),   // i.e. undefined
-      mpBidomainPde(NULL)
+      mpBidomainPde(NULL),
+      mpCellFactory(pCellFactory)
     {
         mpCellFactory = pCellFactory;
                 
