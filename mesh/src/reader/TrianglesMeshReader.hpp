@@ -20,10 +20,13 @@ private:
 											
 	std::vector<std::vector<int> > TokenizeStringsToInts(
 											std::vector<std::string> rawData,
-											int dimensionOfObject);											
+	   										int dimensionOfObject);											
+    void ReadFacesAsElements(std::string pathBaseName);
+    
 public:
-	TrianglesMeshReader(std::string pathBaseName, const bool& rContainsInternalFaces = true);
-	virtual ~TrianglesMeshReader();
+	TrianglesMeshReader(std::string pathBaseName, const bool MeshDimLessThanSpaceDim = false);
+	
+    virtual ~TrianglesMeshReader();
 }; 
 
 #endif //_TRIANGLESMESHREADER_H_

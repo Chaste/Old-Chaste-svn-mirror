@@ -10,8 +10,7 @@
  *		                  "pdes/tests/meshdata/disk_522_elements");
  * Also calls the superclass AbstractMeshReader's constructor
  */ 
-TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, 
-                                         const bool& rContainsInternalFaces)
+TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, bool MeshDimLessThanSpaceDim)
 {	
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string nodeFileName=pathBaseName+".node";
@@ -35,7 +34,16 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	{
 		throw Exception("Number of nodes does not match expected number declared in header");
 	}
-	
+ 
+    if (MeshDimLessThanSpaceDim==true)
+    {
+        
+        ReadFacesAsElements(pathBaseName);
+        
+        return;
+    }
+    // the default is to read the element file
+    
 	//Open element file and store the lines as a vector of strings (minus the comments) 	
 	std::string elementFileName=pathBaseName+".ele";
 	mElementRawData=GetRawDataFromFile(elementFileName);
@@ -48,7 +56,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	unsigned int num_elements;
 	element_header_stream >> num_elements >> mNumElementNodes >> mNumElementAttributes;
 	
-	//Only order-1 triangles or tetrahedra are currently supported
+	//Only order 1 triangles or tetrahedra are currently supported
 	if (mNumElementNodes != mDimension+1)
 	{
 		throw Exception("Number of nodes per element is not supported");
@@ -70,31 +78,32 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
 	 * provides a GetNextEdge method which queries this data.
 	 */
 
-	std::string faceFileName;
+	std::string face_file_name;
 
-	if (mDimension == 2)
-	{
-		faceFileName=pathBaseName+".edge";
-	}
-	else if (mDimension == 3)
-	{
-		faceFileName=pathBaseName+".face";
-	}
-	else if (mDimension == 1)
-	{
-		//There is no file
-		//Set the mFaceData as all the nodes.
-		int num_faces = GetNumNodes();
-		for (int i=0; i<num_faces; i++)
-		{
-			std::vector<int> current_item;
-			current_item.push_back(i);
-			mFaceData.push_back(current_item);
-		}
-		mpFaceIterator = mFaceData.begin();
-		return;
-	}
-	mFaceRawData=GetRawDataFromFile(faceFileName);
+    if (mDimension == 2)
+    {
+        face_file_name=pathBaseName+".edge";
+    }
+    else if (mDimension == 3)
+    {
+        face_file_name=pathBaseName+".face";
+    }
+    else if (mDimension == 1)
+    {
+        //There is no file
+        //Set the mFaceData as all the nodes.
+        int num_faces = GetNumNodes();
+        for (int i=0; i<num_faces; i++)
+        {
+            std::vector<int> current_item;
+            current_item.push_back(i);
+            mFaceData.push_back(current_item);
+        }
+        mpFaceIterator = mFaceData.begin();
+        return;
+    }
+    
+	mFaceRawData=GetRawDataFromFile(face_file_name);
 
 	/* Read single line header as at:
 	 * http://tetgen.berlios.de/fformats.face.html
@@ -125,7 +134,7 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName,
  *  Each string is expected to be an index number, 2 or 3 doubles (representing x,y,z)
  *  an optional list of attributes and an optional boundary marker
  * 	NB: Attributes and boundary markers are currently ignored.
- * Return value is a vector where each item is a vector of double which represents 
+ * Return value is a vector where each item is a vector of doubles which represents 
  * position.  Indices are implicit in the vector.
  */
 	
@@ -250,6 +259,39 @@ std::vector<std::vector<int> > TrianglesMeshReader::TokenizeStringsToInts(
     return tokenized_data;
 }
 
+void TrianglesMeshReader::ReadFacesAsElements(std::string pathBaseName)
+{
+    std::string face_file_name;
+
+    if (mDimension == 2)
+    {
+        face_file_name=pathBaseName+".edge";
+    }
+    else if (mDimension == 3)
+    {
+        face_file_name=pathBaseName+".face";
+    }
+    else if (mDimension == 1)
+    {
+        throw Exception("Can't have a zero-dimensional mesh in a one-dimensional space");
+    }
+    
+    mElementRawData=GetRawDataFromFile(face_file_name);
+    
+    std::stringstream face_header_stream(mElementRawData[0]);
+    unsigned int num_elements;
+    face_header_stream >> num_elements >> mMaxFaceBdyMarker;
+    
+    // Read the rest of the element data using TokenizeStringsToInts method
+    mElementData = TokenizeStringsToInts(mElementRawData,mDimension);
+    mpElementIterator = mElementData.begin();
+    //Check that the size of the data matches the information in the header
+    
+    if (num_elements != mElementData.size())
+    {
+        throw Exception("Number of elements does not match expected number declared in header");
+    }
+}
 
 /**
  * Destructor

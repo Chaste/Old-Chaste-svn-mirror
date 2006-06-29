@@ -35,23 +35,7 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
 	
 	
 	
-	/**
-	 * Check that large data files can be opened without problems. This
-	 * currently causes the whole system to slow down.
-	 * 
-	 */
-	
-	//void testTulaneFilesOpen(void)
-	//{
-        //AbstractMeshReader *pMeshReader;
-		//TS_ASSERT_THROWS_NOTHING(
-		//                  pMeshReader=new TrianglesMeshReader(
-		//                 "pdes/tests/meshdata/tulane_data_about_400k_elements"));
-        //delete pMeshReader;
-		
-	//}
-	
-	
+
 	/**
 	 * Check that the nodes are read correctly. Checks that the output vector
 	 * for a given input file is the correct length and that if the input file
@@ -333,7 +317,58 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         delete pMeshReader;
        
 	}
+    
+    
+    void Test0DMeshIn1DSpaceFails()
+    {
+        
+        AbstractMeshReader *pMeshReader;
+        
+        bool mesh_dim_less_than_space_dim=true;
+        TS_ASSERT_THROWS_ANYTHING(  pMeshReader=new TrianglesMeshReader(
+                          "mesh/test/data/trivial_1d_mesh",
+                          mesh_dim_less_than_space_dim)
+                          );
+    }         
 
+    void Test1DMeshIn2DSpace()
+    {
+        
+        AbstractMeshReader *pMeshReader;
+        
+        bool mesh_dim_less_than_space_dim=true;
+        pMeshReader=new TrianglesMeshReader(
+                          "mesh/test/data/circle_outline",
+                          mesh_dim_less_than_space_dim);
+        
+ 
+        TS_ASSERT( pMeshReader->GetNumNodes() == 100); 
+        
+        TS_ASSERT( pMeshReader->GetNumElements() == 100); 
+        
+        TS_ASSERT( pMeshReader->GetNumFaces() == 0);
+        
+    }         
+ 
+    void Test2DMeshIn3DSpace()
+    {
+        
+        AbstractMeshReader *pMeshReader;
+        
+        bool mesh_dim_less_than_space_dim=true;
+        pMeshReader=new TrianglesMeshReader(
+                          "mesh/test/data/slab_395_elements",
+                          mesh_dim_less_than_space_dim);
+        
+ 
+        TS_ASSERT( pMeshReader->GetNumNodes() == 132); 
+        
+        TS_ASSERT( pMeshReader->GetNumElements() == 224); 
+        
+        TS_ASSERT( pMeshReader->GetNumFaces() == 0);
+        
+    }         
+        
 };
 
 #endif //_TESTTRIANGLESMESHREADER_HPP_
