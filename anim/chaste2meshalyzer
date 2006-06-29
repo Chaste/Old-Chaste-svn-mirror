@@ -14,21 +14,24 @@
 
 
 #############################################################
-#           	  edit these if necessary!!!!               #
-#          (remember to include trailing slashes '/')       #
+#           	Set Directories                             #
+#  (May break if ${HOME} != /home/${USER}         )         #
 #############################################################
-CHASTE_DIR="/home/chaste/eclipse/workspace/Chaste/"
-TESTOUTPUT_DIR="/tmp/chaste/testoutput/"
+CHASTE_DIR="/home/"${USER}"/eclipse/workspace/Chaste/"
+TESTOUTPUT_DIR="/tmp/"${USER}"/testoutput/"
 OUTPUT_DIR=${TESTOUTPUT_DIR}"anim/"
 
 
 echo ""
 echo "Running chaste2meshalzer:"
 
+mkdir -p ${OUTPUT_DIR}
+
 DIMENSION=$1              
 MESH_PATH=$2
 RESULTS_PREFIX=$3
 OUTPUT_PREFIX=$4
+
 
 FULL_PATHS_GIVEN=0
 if [ $# -gt 4 ] ; then
@@ -92,6 +95,14 @@ fi
 
 echo "  Output file path is "${FULL_OUTPUT_PATH}
 
+############################################
+# Decide if monodomain or bidomain
+######################################
+# test if the number of lines in the node file is the same as the data file (=> monodomain)
+IS_MONODOMAIN=0
+if [ `wc -l ${FULL_MESH_PATH}.node | cut -f 1 -d ' '` -eq `wc -l ${FULL_RESULTS_PATH}_000000.dat | cut -f 1 -d ' '` ]; then  
+    IS_MONODOMAIN=1
+fi
 
 #######################################################################################
 #  create mesh files
@@ -119,12 +130,19 @@ fi
 #######################################################################################
 #  create data files
 #######################################################################################
+rm -f ${FULL_OUTPUT_PATH}.dat
 rm -f ${FULL_OUTPUT_PATH}_voltage.dat
 rm -f ${FULL_OUTPUT_PATH}_extracell.dat
-for i in ${FULL_RESULTS_PATH}_0*.dat; do
- 	tail -n +2 $i | awk '{if (NR%2==1) print $1}' >> ${FULL_OUTPUT_PATH}_voltage.dat
-  	tail -n +2 $i | awk '{if (NR%2==0) print $1}' >> ${FULL_OUTPUT_PATH}_extracell.dat
-done
+if [ ${IS_MONODOMAIN} -eq 1 ]; then
+	for i in ${FULL_RESULTS_PATH}_0*.dat; do
+ 		tail -n +2 $i >> ${FULL_OUTPUT_PATH}.dat
+	done
+else
+	for i in ${FULL_RESULTS_PATH}_0*.dat; do
+ 		tail -n +2 $i | awk '{if (NR%2==1) print $1}' >> ${FULL_OUTPUT_PATH}_voltage.dat
+	  	tail -n +2 $i | awk '{if (NR%2==0) print $1}' >> ${FULL_OUTPUT_PATH}_extracell.dat
+	done
+fi
 
 echo "  ..done!"
 echo ""
