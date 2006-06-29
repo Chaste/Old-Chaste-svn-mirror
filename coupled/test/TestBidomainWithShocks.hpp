@@ -75,7 +75,7 @@ public:
     }
     
     
-    AbstractCardiacCell* CreateCardiacCellForNode(int node)
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         AbstractStimulusFunction* intra_stim;
         AbstractStimulusFunction* extra_stim;
