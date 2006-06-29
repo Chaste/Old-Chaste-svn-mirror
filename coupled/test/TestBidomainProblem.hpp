@@ -138,7 +138,7 @@ public:
      * sigma_i) in a bidomain simulation it should agree with a monodomain 
      * simulation with the same parameters. 
      */
-    void NOOTestCompareBidomainProblemWithMonodomain()
+    void TestCompareBidomainProblemWithMonodomain()
     {
         ///////////////////////////////////////////////////////////////////
         // monodomain
