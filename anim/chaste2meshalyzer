@@ -12,6 +12,9 @@
 #         the defaults
 #
 
+if [ ${USER} == "bob" ] ; then
+    exit
+fi
 
 #############################################################
 #           	Set Directories                             #
