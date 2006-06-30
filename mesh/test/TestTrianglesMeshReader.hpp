@@ -347,6 +347,8 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         TS_ASSERT( pMeshReader->GetNumElements() == 100); 
         
         TS_ASSERT( pMeshReader->GetNumFaces() == 0);
+  
+        delete pMeshReader;
         
     }         
  
@@ -366,6 +368,8 @@ class TestTrianglesMeshReaders : public CxxTest::TestSuite
         TS_ASSERT( pMeshReader->GetNumElements() == 224); 
         
         TS_ASSERT( pMeshReader->GetNumFaces() == 0);
+  
+        delete pMeshReader;
         
     }         
         

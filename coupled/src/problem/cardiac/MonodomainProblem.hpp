@@ -374,28 +374,28 @@ public:
     
     /**
      *  Print out time and max/min voltage values at current time.
-     *  WON'T WORK IN PARALLEL
+     
      */
     void WriteInfo(double time)
     { 
         std::cout << "Solved to time " << time << "\n" << std::flush;
                 
-        double* p_voltage_array;
-        VecGetArray(mVoltage, &p_voltage_array);
+        ReplicatableVector voltage_replicated;
+        voltage_replicated.ReplicatePetscVector(mVoltage);
         
         double v_max = -1e5, v_min = 1e5;
         for(int i=0; i<mMesh.GetNumNodes(); i++)
         {
-            if( p_voltage_array[i] > v_max)
+            if( voltage_replicated[i] > v_max)
             {
-                v_max = p_voltage_array[i];
+                v_max = voltage_replicated[i];
             }
-            if( p_voltage_array[i] < v_min)
+            if( voltage_replicated[i] < v_min)
             {
-               v_min = p_voltage_array[i];
+               v_min = voltage_replicated[i];
             }
         }
-        VecRestoreArray(mVoltage, &p_voltage_array);
+       
         std::cout << " max/min V = " 
                   <<   v_max << " "  
                   <<   v_min << "\n" << std::flush;  

@@ -101,6 +101,10 @@ private:
                     nodes[nodes.size()-1] = nodes[nodes.size()-2];
                     nodes[nodes.size()-2] = p_temp_node;
                     
+                    //Clean up the Jacobian matrices
+                    delete mpJacobian;
+                    delete mpInverseJacobian;
+                    
                     Create(nodes, orderOfBasisFunctions, createLowerOrderElements, createJacobian);
                     return;
                 }
