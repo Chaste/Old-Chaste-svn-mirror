@@ -57,8 +57,16 @@ std::vector<double> FitzHughNagumo1961OdeSystem::EvaluateYDerivatives (double ti
    
     double i_stim = GetStimulus(time);
 
+
     // dV/dt
     double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
+    // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
+    if(mSetVoltageDerivativeToZero)
+    {
+        membrane_V_prime = 0;
+    }
+
+    
     // dw/dt
     double recovery_variable_prime = mEpsilon*(membrane_V-mGamma*recovery_variable);
  

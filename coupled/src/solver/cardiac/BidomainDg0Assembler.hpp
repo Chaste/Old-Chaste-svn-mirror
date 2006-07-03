@@ -80,7 +80,6 @@ private:
             }
             Point<SPACE_DIM> x(0,0,0);
 
-
             // Vm is the trans-membrane voltage interpolated onto the gauss point
             // I_ionic is the ionic current (per unit AREA) interpolated onto gauss point
             // I_intra_stim, I_extra_stim are the stimuli (per unit VOLUME) interpolated 
@@ -89,7 +88,6 @@ private:
             double I_ionic = 0;
             double I_intra_stim = 0;
             double I_extra_stim = 0;
-
 
             // interpolate x, Vm, and currents
             for (int i=0; i<num_elem_nodes; i++)
@@ -108,7 +106,6 @@ private:
                 I_intra_stim += basis_func(i)*mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
                 I_extra_stim += basis_func(i)*mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
             }
-            
 
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
 
@@ -119,20 +116,21 @@ private:
             c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = mpBidomainPde->GetIntracellularConductivityTensor();
             c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = mpBidomainPde->GetExtracellularConductivityTensor();
             
+
             // assemble element stiffness matrix
             if (!mMatrixIsAssembled)
             {
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, grad_basis);
-                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> sigma_i_matrix = 
+                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi = 
                     prod(trans(grad_basis), temp);
                                                      
-                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> temp2 =
+                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
                     outer_prod(basis_func, basis_func);
                 
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp3 = prod(sigma_e, grad_basis);
-                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> sigma_e_matrix = 
-                    prod(trans(grad_basis), temp3);
-                                                       
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(sigma_e, grad_basis);
+                c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_e_grad_phi = 
+                    prod(trans(grad_basis), temp2);
+                                           
                 // Components of the element stiffness matrix are:   
                 // (0,0) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
                 // (0,1) and (1,0) blocks: (Di grad_basis_col)dot(grad_basis_row)
@@ -145,21 +143,27 @@ private:
                 rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   +   inner_prod( grad_basis_row, prod( sigma_e, grad_basis_col )));
                 */
                 
+                // a matrix slice is a submatrix
+                
+                // even rows, even columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice00(rAElem, slice (0, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
-                rAElem_slice00 += wJ*( (Am*Cm/mDt)*temp2 + sigma_i_matrix );
+                rAElem_slice00 += wJ*( (Am*Cm/mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi );
                 
+                // odd rows, even columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice10(rAElem, slice (1, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
-                rAElem_slice10 += wJ * sigma_i_matrix;
-                
+                rAElem_slice10 += wJ * grad_phi_sigma_i_grad_phi;
+
+                // even rows, odd columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice01(rAElem, slice (0, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
-                rAElem_slice01 += wJ * sigma_i_matrix;
+                rAElem_slice01 += wJ * grad_phi_sigma_i_grad_phi;
                 
+                // odd rows, odd columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                     rAElem_slice11(rAElem, slice (1, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
-                rAElem_slice11 += wJ*( sigma_i_matrix + sigma_e_matrix);
+                rAElem_slice11 += wJ*( grad_phi_sigma_i_grad_phi + grad_phi_sigma_e_grad_phi);
             }
             
             // assemble element stiffness vector
@@ -272,9 +276,10 @@ private:
         // neumann bcs are zero
                 
         // no need to apply dirichlet boundary conditions for phi either (?-check with Jon) 
-        // (code left here for debugging/comparison)
-         
- /*       int node_num = 0;
+        // (code left here for debugging/comparison) - 
+        /*
+        //       for(int node_num = 468; node_num<507; node_num++)       
+        int node_num = 0;
         {
             if(!mMatrixIsAssembled)
             {
@@ -283,7 +288,7 @@ private:
             }
             mpAssembledLinearSystem->SetRhsVectorElement( 2*node_num + 1, 0);
         }
-*/
+        */
         
         if (mMatrixIsAssembled)
         {

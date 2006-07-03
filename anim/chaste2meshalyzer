@@ -17,16 +17,16 @@ if [ ${USER} == "bob" ] ; then
 fi
 
 #############################################################
-#           	Set Directories                             #
-#  (May break if ${HOME} != /home/${USER}         )         #
+#           	Set Directories                             
+#     (May break if ${HOME} != /home/${USER})         
 #############################################################
-CHASTE_DIR="/home/"${USER}"/eclipse/workspace/Chaste/"
+CHASTE_DIR="/home/scratch/"${USER}"/eclipse/workspace/Chaste/"
 TESTOUTPUT_DIR="/tmp/"${USER}"/testoutput/"
 OUTPUT_DIR=${TESTOUTPUT_DIR}"anim/"
 
 
 echo ""
-echo "Running chaste2meshalzer:"
+echo "Running chaste2meshalyzer:"
 
 mkdir -p ${OUTPUT_DIR}
 
@@ -98,14 +98,16 @@ fi
 
 echo "  Output file path is "${FULL_OUTPUT_PATH}
 
-############################################
+
+#######################################################################################
 # Decide if monodomain or bidomain
-######################################
+#######################################################################################
 # test if the number of lines in the node file is the same as the data file (=> monodomain)
 IS_MONODOMAIN=0
 if [ `wc -l ${FULL_MESH_PATH}.node | cut -f 1 -d ' '` -eq `wc -l ${FULL_RESULTS_PATH}_000000.dat | cut -f 1 -d ' '` ]; then  
-    IS_MONODOMAIN=1
+   	IS_MONODOMAIN=1
 fi
+
 
 #######################################################################################
 #  create mesh files

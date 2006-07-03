@@ -19,6 +19,9 @@ protected:
     AbstractStimulusFunction* mpIntracellularStimulus;
     AbstractStimulusFunction* mpExtracellularStimulus;
     
+    // flag set to true if ComputeExceptDerivative is called
+    bool mSetVoltageDerivativeToZero;
+    
 public:
     
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
@@ -30,12 +33,17 @@ public:
         : AbstractOdeSystem(numberOfStateVariables)
     {
         mpOdeSolver = pOdeSolver;
+
         assert(voltageIndex < mNumberOfStateVariables);
         mVoltageIndex = voltageIndex;
+
         assert(dt>0);
         mDt=dt;
+
         mpIntracellularStimulus = intracellularStimulus;
         mpExtracellularStimulus = extracellularStimulus;
+
+        mSetVoltageDerivativeToZero = false;
     }
 
     virtual ~AbstractCardiacCell()
@@ -69,7 +77,11 @@ public:
     virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd) 
     {
         double saved_voltage=GetVoltage();
+        
+        mSetVoltageDerivativeToZero = true;
         OdeSolution ode_solution=mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);
+        mSetVoltageDerivativeToZero = false;
+
         SetVoltage(saved_voltage);
         return ode_solution;
     }

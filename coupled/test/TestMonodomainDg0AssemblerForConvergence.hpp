@@ -208,6 +208,70 @@ public:
         TS_ASSERT_DELTA(probe_voltage, -10.3983, 0.0001);
         // Note: the delta is because of floating point issues (!!)
     }    
+    
+    
+    // here we keep pde_time_step constant (=0.01) and half the ode
+    // timestep until we get convergence. Turns out we need the ode 
+    // timestep to be 10 times smaller than the pde timestep. Note
+    // that ComputeExceptVoltage() method in the cell classes now
+    // forces the voltage to remain constant using the mSetVoltageDerivativeToZero
+    // flag - without it this test would fail and exception would even 
+    // be thrown.
+    void TestMonodomainForConvergenceInOdeTimestep()
+    {                
+        double pde_time_step = 0.01;
+        double ode_time_step = 2*pde_time_step; // this is twice pde_time_step because ode_time_step 
+                                                // is halved at beginning to 'do' loop
+        
+        double rel_error = 999;
+        double previous_voltage = -999;
+        double probe_voltage = -999;
+        
+        double TOL = 1e-2;
+        std::cout << "Tolerance for relative error is " << TOL << "\n\n";
+        while( rel_error > TOL )
+        {
+            ode_time_step *= 0.5; 
+            std::cout << "Ode timestep is " << ode_time_step << "\n\n";
+
+            PointStimulusCellFactory cell_factory(ode_time_step);
+            MonodomainProblem<1> monodomain_problem(&cell_factory);
+        
+            monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");        
+            int end_node = 100; //101st node
+        
+            monodomain_problem.SetEndTime(16);   // ms - just long enough for AP to reach end node
+            monodomain_problem.SetPdeTimeStep(pde_time_step);
+            monodomain_problem.Initialise();
+        
+            TS_ASSERT_THROWS_NOTHING(monodomain_problem.Solve());
+        
+            Vec voltage = monodomain_problem.GetVoltage();
+            ReplicatableVector voltage_replicated;
+            voltage_replicated.ReplicatePetscVector(voltage);
+            
+            probe_voltage = voltage_replicated[end_node];
+            rel_error = fabs ((probe_voltage - previous_voltage) / previous_voltage);
+            std::cout << "voltage at end node is: " << probe_voltage    << "\n" 
+                      << "previous voltage was  : " << previous_voltage << "\n" 
+                      << "relative error is     : " << rel_error << "\n\n";
+
+            previous_voltage = probe_voltage;
+
+                       
+            // force quit if ode_time_step gets very small, to avoid infinite loop
+            if(ode_time_step<1e-4)
+            {
+                TS_FAIL("");
+            }
+        }
+        
+        /* !!-- note that 0.001 (ie pde_timestep/10) would also have worked --!! */
+        TS_ASSERT_DELTA(ode_time_step, 0.000625, 0.0) 
+        
+        // finally, verify the AP has reaching the end node
+        TS_ASSERT_LESS_THAN(0.0, probe_voltage);
+    }
 };
 
 #endif //_TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCE_HPP_

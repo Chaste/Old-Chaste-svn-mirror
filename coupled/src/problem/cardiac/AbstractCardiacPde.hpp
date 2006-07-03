@@ -180,7 +180,8 @@ public:
                 // Note: Voltage should not be updated. GetIIonic will be called later
                 // and needs the old voltage. The voltage will be updated from the pde.            
                 mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+big_timestep);
-            } catch (Exception &e)
+            } 
+            catch (Exception &e)
             {
                ReplicateException(true);
                throw e;

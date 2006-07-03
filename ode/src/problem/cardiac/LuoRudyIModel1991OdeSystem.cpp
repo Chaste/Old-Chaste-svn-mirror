@@ -255,7 +255,12 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
        
     //calculate dV
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
-     
+     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
+    if(mSetVoltageDerivativeToZero)
+    {
+        membrane_V_prime = 0;
+    }   
+       
     std::vector<double> returnRHS;
     
     returnRHS.push_back(fast_sodium_current_h_gate_h_prime);

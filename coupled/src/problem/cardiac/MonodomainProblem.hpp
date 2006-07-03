@@ -252,7 +252,7 @@ public:
         
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0)
+        if ((my_rank==0) && (write_files)) // ie only if master process and results files were written
         {             
             // call shell script which converts the data to meshalyzer format
             std::string chaste_2_meshalyzer;

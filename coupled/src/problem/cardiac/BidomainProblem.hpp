@@ -254,7 +254,7 @@ public:
         
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-        if (my_rank==0)
+        if ((my_rank==0) && (write_files)) // ie only if master process and results files were written
         {
             // call shell script which converts the data to meshalyzer format
             std::string chaste_2_meshalyzer;
@@ -389,37 +389,36 @@ public:
     
     /**
      *  Print out time and max/min voltage/phi_e values at current time.
-     *  WON'T WORK IN PARALLEL
      */
     void WriteInfo(double time)
     {
         std::cout << "Solved to time " << time << "\n" << std::flush;
                  
-        double* p_voltage_array;
-        VecGetArray(mVoltage, &p_voltage_array);
+        ReplicatableVector voltage_replicated;
+        voltage_replicated.ReplicatePetscVector(mVoltage);
         
         double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
         for(int i=0; i<mMesh.GetNumNodes(); i++)
         {
-            if( p_voltage_array[2*i] > v_max)
+            if( voltage_replicated[2*i] > v_max)
             {
-                v_max = p_voltage_array[2*i];
+                v_max = voltage_replicated[2*i];
             }
-            if( p_voltage_array[2*i] < v_min)
+            if( voltage_replicated[2*i] < v_min)
             {
-               v_min = p_voltage_array[2*i];
+               v_min = voltage_replicated[2*i];
             }
-            if( p_voltage_array[2*i+1] > phi_max)
+            if( voltage_replicated[2*i+1] > phi_max)
             {
-                phi_max = p_voltage_array[2*i+1];
+                phi_max = voltage_replicated[2*i+1];
             }
-            if( p_voltage_array[2*i+1] < phi_min)                    
+            if( voltage_replicated[2*i+1] < phi_min)                    
             {
-                phi_min = p_voltage_array[2*i+1];
+                phi_min = voltage_replicated[2*i+1];
             }
 
         }
-        VecRestoreArray(mVoltage, &p_voltage_array);
+        
         std::cout << " max/min V, phi_e = " 
                   << v_max << " "  
                   << v_min << " "  

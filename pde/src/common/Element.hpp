@@ -39,7 +39,7 @@ private:
     
     // This method sets up the element, and is called from the first constructor. 
     // If the determinant of the jacobian is negative (ie the orientation of the
-    // element is wrong, the last two nodes will be 
+    // element is wrong), the last two nodes will be swapped around
     void Create(std::vector<Node<SPACE_DIM>*> nodes,
             int orderOfBasisFunctions=1,
             bool createLowerOrderElements=false, bool createJacobian=true)
