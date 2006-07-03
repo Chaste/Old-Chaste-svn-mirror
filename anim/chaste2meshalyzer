@@ -20,7 +20,7 @@ fi
 #           	Set Directories                             
 #     (May break if ${HOME} != /home/${USER})         
 #############################################################
-CHASTE_DIR="/home/scratch/"${USER}"/eclipse/workspace/Chaste/"
+CHASTE_DIR="/home/"${USER}"/eclipse/workspace/Chaste/"
 TESTOUTPUT_DIR="/tmp/"${USER}"/testoutput/"
 OUTPUT_DIR=${TESTOUTPUT_DIR}"anim/"
 
