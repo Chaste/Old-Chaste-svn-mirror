@@ -55,8 +55,7 @@ public:
       mOutputFilenamePrefix(""),   // i.e. undefined
       mpMonodomainPde(NULL),
       mpCellFactory(pCellFactory)
-    {
-                
+    {     
         mStartTime        = 0.0;  // ms
         mPdeTimeStep      = 0.01; // ms
         mEndTime          = -1;   // negative so can check has been set
