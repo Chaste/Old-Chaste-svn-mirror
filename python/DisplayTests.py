@@ -25,7 +25,9 @@ def index(req):
   This is the funky new interface to Chaste's testing suite.
   </p>
   <ul>""")
-  for tests_type in os.listdir(_tests_dir):
+  tests_types = os.listdir(_tests_dir)
+  tests_types.sort()
+  for tests_type in tests_types:
     if tests_type[0] != '.':
       output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
                     (_our_url, tests_type, tests_type))
