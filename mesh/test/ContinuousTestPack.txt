@@ -3,3 +3,6 @@ TestFemlabMeshReader.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestTrianglesMeshReader.hpp
+TestElement.hpp
+TestNode.hpp
+TestPoint.hpp

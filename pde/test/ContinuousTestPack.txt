@@ -1,14 +1,11 @@
 TestBoundaryConditionContainer.hpp
 TestConstBoundaryCondition.hpp
-TestElement.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestMaterials.hpp
-TestNode.hpp
 TestNonlinearElasticityPde.hpp
 TestNonlinearHeatEquationPde.hpp
-TestPoint.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp

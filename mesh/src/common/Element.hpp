@@ -14,10 +14,10 @@
 #include "LinearBasisFunction.cpp"
 #include "AbstractMaterial.hpp"
 
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 #include <vector>
-#include <iostream>
+//#include <iostream>
 #include <cmath>
 
 template <int ELEMENT_DIM, int SPACE_DIM>
@@ -90,11 +90,11 @@ private:
                 if(mJacobianDeterminant < 0.0)
                 {
                     static bool first=true;
-                    if(first)
-                    {
-                        std::cout << "WARNING (Element.hpp): (at least one) element has negative Jacobian, " 
-                                  << "swapping the last two nodes around.\n" << std::flush;
-                    }
+//                    if(first)
+//                    {
+//                        std::cout << "WARNING (Element.hpp): (at least one) element has negative Jacobian, " 
+//                                  << "swapping the last two nodes around.\n" << std::flush;
+//                    }
                     first = false;                    
                     Node<SPACE_DIM>* p_temp_node;
                     p_temp_node = nodes[nodes.size()-1];
