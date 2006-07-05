@@ -193,13 +193,11 @@ def _summary(req, type, revision, machine=None, buildType=None):
   date = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(mod_time))
 
   # Work out the URL of the build log file
+  # i.e. find out where test_set_dir/build.log points to
   build_log = ""
-  if type == 'continuous':
-    logname = str(revision)
-  elif type == 'nightly':
-    logname = "nightly_%s.%s.%s" % (str(revision), machine, buildType)
-  else:
-    logname = ""
+  logname = os.path.realpath(test_set_dir + "/build.log")
+  # Remove the '/var/www/html' part
+  logname = logname[13:]
   if logname:
     logurl = "/out/" + logname
     build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logname)
