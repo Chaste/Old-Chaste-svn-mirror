@@ -29,8 +29,8 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp" 
 #include "ParallelColumnDataWriter.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "FemlabMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "FemlabMeshReader.cpp"
 
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
@@ -76,7 +76,7 @@ public:
 	void xTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh( void )
 	{		
 		// Create mesh from mesh reader
-		FemlabMeshReader mesh_reader("mesh/test/data/",
+		FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
 		                             "femlab_fine_square_nodes.dat",
 		                             "femlab_fine_square_elements.dat",
 		                             "femlab_fine_square_edges.dat");
@@ -190,7 +190,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler3DZeroDirich( void )
 	{	
 		// read mesh on [0,1]x[0,1]x[0,1]
-		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
+		TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -263,7 +263,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
+		TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -347,7 +347,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
+		TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);

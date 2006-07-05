@@ -15,7 +15,7 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
@@ -81,7 +81,7 @@ public:
         double tFinal = 1;
         double tBigStep = 0.01;
         // Create mesh from mesh reader 
-        TrianglesMeshReader mesh_reader("mesh/test/data/heart_FHN_mesh");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/heart_FHN_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -177,7 +177,7 @@ public:
         double tFinal = 1;
         double tBigStep = 0.01;
         // Create mesh from mesh reader 
-        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

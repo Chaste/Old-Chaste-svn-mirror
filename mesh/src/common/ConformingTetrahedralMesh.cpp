@@ -23,7 +23,8 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(lon
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader &rMeshReader, int orderOfBasisFunctions)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
+                                                AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader, int orderOfBasisFunctions)
 {
 	// Check dimension matches the data	
 	if (SPACE_DIM != rMeshReader.GetDimension())

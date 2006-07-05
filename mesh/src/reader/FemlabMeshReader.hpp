@@ -8,9 +8,11 @@
 #ifndef _FEMLABMESHREADER_H_
 #define _FEMLABMESHREADER_H_
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractMeshReader.cpp"
 
-class FemlabMeshReader : public AbstractMeshReader
+template <int ELEMENT_DIM, int SPACE_DIM>
+class FemlabMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
+
 {
 private:
 	std::vector<std::vector<double> > TokenizeStringsToDoubles(

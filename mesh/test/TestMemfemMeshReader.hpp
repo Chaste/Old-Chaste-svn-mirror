@@ -9,7 +9,9 @@
 #define _TESTMEMFEMMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "MemfemMeshReader.hpp"
+#include "MemfemMeshReader.cpp"
+
+typedef MemfemMeshReader<3,3> READER_3D;
 
 class TestMemfemMeshReaders : public CxxTest::TestSuite
 {
@@ -21,9 +23,9 @@ class TestMemfemMeshReaders : public CxxTest::TestSuite
 	 */
 	void TestFilesOpen(void)
 	{
-		MemfemMeshReader *pMeshReader;
+		MemfemMeshReader<3,3> *pMeshReader;
 		TS_ASSERT_THROWS_NOTHING(
-		                  pMeshReader = new MemfemMeshReader(
+		                  pMeshReader = new READER_3D(
 		                  "mesh/test/data/Memfem_slab"));		                  
 		             
 		TS_ASSERT(pMeshReader->GetNumNodes() == 381);

@@ -1,3 +1,7 @@
+
+#ifndef _TRIANGLESMESHREADER_CPP_
+#define _TRIANGLESMESHREADER_CPP_
+
 /** Implementation file for the TrianglesMeshReader class.*/
 
 #include "TrianglesMeshReader.hpp"
@@ -10,27 +14,28 @@
  *		                  "pdes/tests/meshdata/disk_522_elements");
  * Also calls the superclass AbstractMeshReader's constructor
  */ 
-TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, bool MeshDimLessThanSpaceDim)
+template <int ELEMENT_DIM, int SPACE_DIM>
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName, bool MeshDimLessThanSpaceDim)
 {	
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string nodeFileName=pathBaseName+".node";
-	mNodeRawData=GetRawDataFromFile(nodeFileName);
+	this->mNodeRawData=this->GetRawDataFromFile(nodeFileName);
 	
 	/* Read single line header as at:
 	 * http://tetgen.berlios.de/fformats.node.html
 	 * http://www-2.cs.cmu.edu/~quake/triangle.node.html
 	 */
-	std::stringstream node_header_stream(mNodeRawData[0]);
+	std::stringstream node_header_stream(this->mNodeRawData[0]);
 	unsigned int num_nodes;
-	node_header_stream >> num_nodes >> mDimension >> mNumNodeAttributes >> mMaxNodeBdyMarker;
+	node_header_stream >> num_nodes >> this->mDimension >> this->mNumNodeAttributes >> this->mMaxNodeBdyMarker;
 	
 	// Read the rest of the node data using TokenizeStringsToDoubles method
-	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
+	this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
 	//Initialise iterator for public GetNextNode method
-	mpNodeIterator = mNodeData.begin();
+	this->mpNodeIterator = this->mNodeData.begin();
 
 	//Check that the size of the data matches the information in the header
-	if (num_nodes != mNodeData.size())
+	if (num_nodes != this->mNodeData.size())
 	{
 		throw Exception("Number of nodes does not match expected number declared in header");
 	}
@@ -46,28 +51,28 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, bool MeshDimL
     
 	//Open element file and store the lines as a vector of strings (minus the comments) 	
 	std::string elementFileName=pathBaseName+".ele";
-	mElementRawData=GetRawDataFromFile(elementFileName);
+	this->mElementRawData=this->GetRawDataFromFile(elementFileName);
 
  	/* Read single line header as at:
 	 * http://tetgen.berlios.de/fformats.ele.html
 	 * http://www-2.cs.cmu.edu/~quake/triangle.ele.html
 	 */
-	std::stringstream element_header_stream(mElementRawData[0]);
+	std::stringstream element_header_stream(this->mElementRawData[0]);
 	unsigned int num_elements;
-	element_header_stream >> num_elements >> mNumElementNodes >> mNumElementAttributes;
+	element_header_stream >> num_elements >> this->mNumElementNodes >> this->mNumElementAttributes;
 	
 	//Only order 1 triangles or tetrahedra are currently supported
-	if (mNumElementNodes != mDimension+1)
+	if (this->mNumElementNodes != this->mDimension+1)
 	{
 		throw Exception("Number of nodes per element is not supported");
 	}
 
 	// Read the rest of the element data using TokenizeStringsToInts method
-	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1);
- 	mpElementIterator = mElementData.begin();
+	this->mElementData = TokenizeStringsToInts(this->mElementRawData,this->mDimension+1);
+ 	this->mpElementIterator = this->mElementData.begin();
  	
  	//Check that the size of the data matches the information in the header
- 	if (num_elements != mElementData.size())
+ 	if (num_elements != this->mElementData.size())
 	{
 		throw Exception("Number of elements does not match expected number declared in header");
 	}
@@ -80,47 +85,47 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, bool MeshDimL
 
 	std::string face_file_name;
 
-    if (mDimension == 2)
+    if (this->mDimension == 2)
     {
         face_file_name=pathBaseName+".edge";
     }
-    else if (mDimension == 3)
+    else if (this->mDimension == 3)
     {
         face_file_name=pathBaseName+".face";
     }
-    else if (mDimension == 1)
+    else if (this->mDimension == 1)
     {
         //There is no file
         //Set the mFaceData as all the nodes.
-        int num_faces = GetNumNodes();
+        int num_faces = this->GetNumNodes();
         for (int i=0; i<num_faces; i++)
         {
             std::vector<int> current_item;
             current_item.push_back(i);
-            mFaceData.push_back(current_item);
+            this->mFaceData.push_back(current_item);
         }
-        mpFaceIterator = mFaceData.begin();
+        this->mpFaceIterator = this->mFaceData.begin();
         return;
     }
     
-	mFaceRawData=GetRawDataFromFile(face_file_name);
+	this->mFaceRawData=this->GetRawDataFromFile(face_file_name);
 
 	/* Read single line header as at:
 	 * http://tetgen.berlios.de/fformats.face.html
 	 * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
 	 */
-	std::stringstream face_header_stream(mFaceRawData[0]);
+	std::stringstream face_header_stream(this->mFaceRawData[0]);
 	unsigned int num_faces;
-	face_header_stream >> num_faces >> mMaxFaceBdyMarker;
+	face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
 
 	//mNumBoundaryFaces = mNumFaces; //temporary
 
 	// Read the rest of the face/edge data using TokenizeStringsToInts method
-	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension);
-	mpFaceIterator = mFaceData.begin();
+	this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,this->mDimension);
+	this->mpFaceIterator = this->mFaceData.begin();
 	
 	//Check that the size of the data matches the information in the header
-	if (num_faces != mFaceData.size())
+	if (num_faces != this->mFaceData.size())
 	{
 		throw Exception("Number of faces does not match expected number declared in header");
 	}
@@ -138,7 +143,8 @@ TrianglesMeshReader::TrianglesMeshReader(std::string pathBaseName, bool MeshDimL
  * position.  Indices are implicit in the vector.
  */
 	
-std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
+template <int ELEMENT_DIM, int SPACE_DIM>
+std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
 												std::vector<std::string> rawData)
 {
 	std::vector<std::vector<double> > tokenized_data; // Output
@@ -161,11 +167,11 @@ std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
      		//Watch for item zero (this will only happen at most once!)
      		if (item_number == 0)
      		{
-     			mIndexFromZero = true;
+     			this->mIndexFromZero = true;
      		}
      		
      		//Throw an error if the item numbers are out of order
-     		if (mIndexFromZero == true)
+     		if (this->mIndexFromZero == true)
      		{
      			if (item_number != tokenized_data.size())
      			{
@@ -185,7 +191,7 @@ std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
      		}
      		
      		//Form the vector which represents the position of this item
-     		for (int i = 0; i < mDimension; i++)
+     		for (int i = 0; i < this->mDimension; i++)
      		{
      			double item_coord; 
      			line_stream >> item_coord;
@@ -220,11 +226,12 @@ std::vector<std::vector<double> > TrianglesMeshReader::TokenizeStringsToDoubles(
  * Return value is a vector where each item is a vector of ints which represents 
  * indices of nodes.  
  */
-std::vector<std::vector<int> > TrianglesMeshReader::TokenizeStringsToInts(
+template <int ELEMENT_DIM, int SPACE_DIM>
+std::vector<std::vector<int> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
 												std::vector<std::string> rawData,
 												int dimensionOfObject)
 {
-	std::vector<std::vector<int> > tokenized_data;
+	std::vector< std::vector<int> > tokenized_data;
 	
 	std::vector<std::string>::iterator the_iterator;
    	for( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
@@ -244,7 +251,7 @@ std::vector<std::vector<int> > TrianglesMeshReader::TokenizeStringsToInts(
      			int item_index; 
      			line_stream >> item_index;
      			//If the nodes have been indexed from one then we need to shift the indices
-     			if (mIndexFromZero == false)
+     			if (this->mIndexFromZero == false)
      			{
      				item_index -= 1;
      			}
@@ -259,35 +266,36 @@ std::vector<std::vector<int> > TrianglesMeshReader::TokenizeStringsToInts(
     return tokenized_data;
 }
 
-void TrianglesMeshReader::ReadFacesAsElements(std::string pathBaseName)
+template <int ELEMENT_DIM, int SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::string pathBaseName)
 {
     std::string face_file_name;
 
-    if (mDimension == 2)
+    if (this->mDimension == 2)
     {
         face_file_name=pathBaseName+".edge";
     }
-    else if (mDimension == 3)
+    else if (this->mDimension == 3)
     {
         face_file_name=pathBaseName+".face";
     }
-    else if (mDimension == 1)
+    else if (this->mDimension == 1)
     {
         throw Exception("Can't have a zero-dimensional mesh in a one-dimensional space");
     }
     
-    mElementRawData=GetRawDataFromFile(face_file_name);
+    this->mElementRawData=this->GetRawDataFromFile(face_file_name);
     
-    std::stringstream face_header_stream(mElementRawData[0]);
+    std::stringstream face_header_stream(this->mElementRawData[0]);
     unsigned int num_elements;
-    face_header_stream >> num_elements >> mMaxFaceBdyMarker;
+    face_header_stream >> num_elements >> this->mMaxFaceBdyMarker;
     
     // Read the rest of the element data using TokenizeStringsToInts method
-    mElementData = TokenizeStringsToInts(mElementRawData,mDimension);
-    mpElementIterator = mElementData.begin();
+    this->mElementData = TokenizeStringsToInts(this->mElementRawData,this->mDimension);
+    this->mpElementIterator = this->mElementData.begin();
     //Check that the size of the data matches the information in the header
     
-    if (num_elements != mElementData.size())
+    if (num_elements != this->mElementData.size())
     {
         throw Exception("Number of elements does not match expected number declared in header");
     }
@@ -296,6 +304,9 @@ void TrianglesMeshReader::ReadFacesAsElements(std::string pathBaseName)
 /**
  * Destructor
  */
-TrianglesMeshReader::~TrianglesMeshReader()
+template <int ELEMENT_DIM, int SPACE_DIM>
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::~TrianglesMeshReader()
 {
 }
+
+#endif // _TRIANGLESMESHREADER_CPP_

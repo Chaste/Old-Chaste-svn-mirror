@@ -73,7 +73,7 @@ public:
     
     ~ConformingTetrahedralMesh();
     
-    void ConstructFromMeshReader(AbstractMeshReader &rMeshReader, int orderOfBasisFunctions=1);
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader, int orderOfBasisFunctions=1);
     
     void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex);
             

@@ -18,7 +18,7 @@
 #include "Node.hpp" 
 #include "BoundaryConditionsContainer.hpp"
 #include "VaryingDiffusionAndSourceTermPde.hpp"
-#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -130,7 +130,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestWithHeatEquationAndMeshReader()   
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/trivial_1d_mesh");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/trivial_1d_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -170,7 +170,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestWithHeatEquation2()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/1D_mesh_5_elements");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -215,7 +215,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/1D_mesh_5_elements");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -261,7 +261,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void Test2dHeatEquationOnUnitSquare()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -301,7 +301,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestHeatEquationWithNeumannOnUnitDisc( void )
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/disk_522_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -351,7 +351,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void TestVaryingPdeAndMeshReader1D()   
     {
         /// Create mesh from mesh reader \todo set to correct mesh file?
-        TrianglesMeshReader mesh_reader("mesh/test/data/1D_mesh_1_to_3");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_1_to_3");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -401,7 +401,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
      */
     void longTestKathrynHarrimanPage67EqFourPointOne()
     {
-        TrianglesMeshReader mesh_reader("mesh/test/data/square_4096_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -488,7 +488,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void Test3dEllipticEquationDirichletCondition()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -542,7 +542,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
     void Test3dEllipticEquationNeumannCondition()
     {
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

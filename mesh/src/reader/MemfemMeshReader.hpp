@@ -10,12 +10,12 @@
  * data
  */
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractMeshReader.cpp"
 #include "global/src/Exception.hpp"
 
-class MemfemMeshReader : public AbstractMeshReader
+template<int ELEMENT_DIM, int SPACE_DIM>
+class MemfemMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
-	
 	private:
 	std::vector<std::vector<double> > TokenizeStringsToDoubles(
 											std::vector<std::string> rawData);

@@ -1,4 +1,6 @@
 /** Implementation file for the MemfemMeshReader class.*/
+#ifndef _MEMFEMMESHREADER_CPP_
+#define _MEMFEMMESHREADER_CPP_
 
 #include "MemfemMeshReader.hpp"
 /**
@@ -11,66 +13,66 @@
  * Also calls the superclass AbstractMeshReader's constructor
  */ 
 
-
-MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
-    : AbstractMeshReader()
+template<int ELEMENT_DIM, int SPACE_DIM>
+MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseName)
+    : AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>()
 {
 	
 	//Open node file and store the lines as a vector of strings (minus the comments) 	
 	std::string nodeFileName=pathBaseName+".pts";
-	mNodeRawData=GetRawDataFromFile(nodeFileName);
+	this->mNodeRawData=this->GetRawDataFromFile(nodeFileName);
 	
 	/* Read single line header which is the number of nodes */
-	std::stringstream node_header_stream(mNodeRawData[0]);
+	std::stringstream node_header_stream(this->mNodeRawData[0]);
 	unsigned int num_nodes;
 	node_header_stream >> num_nodes;
 	
 	/* All Memfem data is in 3-d. */
-	mDimension = 3; 
+	this->mDimension = 3; 
 	
 	// Read the rest of the node data using TokenizeStringsToDoubles method
-	mNodeData = TokenizeStringsToDoubles(mNodeRawData);
+	this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
 	//Initialise iterator for public GetNextNode method
-	mpNodeIterator = mNodeData.begin();
+	this->mpNodeIterator = this->mNodeData.begin();
 	
 	//Check that the size of the data matches the information in the header
 	
-	if (num_nodes != mNodeData.size())
+	if (num_nodes != this->mNodeData.size())
 	{
 		throw Exception("Number of nodes does not match expected number declared in header");
 	}
 	
 	//Open element file and store the lines as a vector of strings (minus the comments) 	
 	std::string elementFileName=pathBaseName+".tetras";
-	mElementRawData=GetRawDataFromFile(elementFileName);
+	this->mElementRawData=this->GetRawDataFromFile(elementFileName);
 
  	/* Read single line header which is the number of elements	 */
-	std::stringstream element_header_stream(mElementRawData[0]);
+	std::stringstream element_header_stream(this->mElementRawData[0]);
 	unsigned int num_elements;
 	element_header_stream >> num_elements;
 	
 
 	// Read the rest of the element data using TokenizeStringsToInts method
-	mElementData = TokenizeStringsToInts(mElementRawData,mDimension+1, true);
- 	mpElementIterator = mElementData.begin();
+	this->mElementData = TokenizeStringsToInts(this->mElementRawData,this->mDimension+1, true);
+ 	this->mpElementIterator = this->mElementData.begin();
  	
  	
  	//Check that the size of the data matches the information in the header
-  	if (num_elements != mElementData.size())
+  	if (num_elements != this->mElementData.size())
 	{
 		throw Exception("Number of elements does not match expected number declared in header");
 	}
 
 	//Open boundary face file and store the lines as a vector of strings (minus the comments) 	
 	std::string faceFileName=pathBaseName+".tri";
-	mFaceRawData=GetRawDataFromFile(faceFileName);
+	this->mFaceRawData=this->GetRawDataFromFile(faceFileName);
 	
 	/* There is no header.
 	 */
 	
 	// Read the face/edge data using TokenizeStringsToInts method
-	mFaceData = TokenizeStringsToInts(mFaceRawData,mDimension,false);
-	mpFaceIterator = mFaceData.begin();
+	this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,this->mDimension,false);
+	this->mpFaceIterator = this->mFaceData.begin();
 }
 
 
@@ -82,7 +84,8 @@ MemfemMeshReader::MemfemMeshReader(std::string pathBaseName)
  * position.  Indices are implicit in the vector.
  */
 	
-std::vector<std::vector<double> > MemfemMeshReader::TokenizeStringsToDoubles(
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
 												std::vector<std::string> rawData)
 {
 	std::vector<std::vector<double> > tokenized_data; // Output
@@ -100,7 +103,7 @@ std::vector<std::vector<double> > MemfemMeshReader::TokenizeStringsToDoubles(
      		std::vector<double> current_coords;
      		
      		//Form the vector which represents the position of this item
-     		for (int i = 0; i < mDimension; i++)
+     		for (int i = 0; i < this->mDimension; i++)
      		{
      			double item_coord; 
      			line_stream >> item_coord;
@@ -128,7 +131,9 @@ std::vector<std::vector<double> > MemfemMeshReader::TokenizeStringsToDoubles(
  * Return value is a vector where each item is a vector of ints which represents 
  * indices of nodes.  
  */
-std::vector<std::vector<int> > MemfemMeshReader::TokenizeStringsToInts(
+ 
+template <int ELEMENT_DIM, int SPACE_DIM> 
+std::vector<std::vector<int> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
 												std::vector<std::string> rawData,
 												int dimensionOfObject,
 												bool readHeader)
@@ -164,7 +169,8 @@ std::vector<std::vector<int> > MemfemMeshReader::TokenizeStringsToInts(
 }
 
 
-
-MemfemMeshReader::~MemfemMeshReader()
+template <int ELEMENT_DIM, int SPACE_DIM>
+MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::~MemfemMeshReader()
 {
 }
+#endif //_MEMFEMMESHREADER_CPP_

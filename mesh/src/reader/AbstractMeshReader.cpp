@@ -1,3 +1,5 @@
+#ifndef _ABSTRACTMESHREADER_CPP_
+#define _ABSTRACTMESHREADER_CPP_
 #include "AbstractMeshReader.hpp"
 #include "Exception.hpp"
 
@@ -12,7 +14,9 @@
  * 
  */
 
-std::vector<std::string> AbstractMeshReader::GetRawDataFromFile(std::string fileName)
+
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataFromFile(std::string fileName)
 {
 	// Open raw data file
 	
@@ -78,7 +82,8 @@ std::vector<std::string> AbstractMeshReader::GetRawDataFromFile(std::string file
  * 
  */
 
-int AbstractMeshReader::GetMaxNodeIndex()
+template<int ELEMENT_DIM, int SPACE_DIM>
+int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
 {
 	//Initialize an interator for the vector of nodes
 	std::vector<std::vector<int> >::iterator the_iterator;
@@ -109,7 +114,8 @@ int AbstractMeshReader::GetMaxNodeIndex()
  * 
  */
 
-int AbstractMeshReader::GetMinNodeIndex()
+template<int ELEMENT_DIM, int SPACE_DIM>
+int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
 {
 	//Initialize an interator for the vector of nodes
 	std::vector<std::vector<int> >::iterator the_iterator;
@@ -140,7 +146,8 @@ int AbstractMeshReader::GetMinNodeIndex()
  * 
  */
 
-std::vector<double> AbstractMeshReader::GetNextNode()
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
 	/**
 	 * Checks that there are still some nodes left to read. If not throws an
@@ -169,7 +176,8 @@ std::vector<double> AbstractMeshReader::GetNextNode()
  * 
  */
 
-std::vector<int> AbstractMeshReader::GetNextElement()
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 {
 	/**
 	 * Checks that there are still some elements left to read. If not throws an
@@ -193,7 +201,8 @@ std::vector<int> AbstractMeshReader::GetNextElement()
  * 
  */
 
-void AbstractMeshReader::Reset()
+template<int ELEMENT_DIM, int SPACE_DIM>
+void AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {	
 	mpElementIterator = mElementData.begin();
     mpFaceIterator = mFaceData.begin();
@@ -210,7 +219,8 @@ void AbstractMeshReader::Reset()
  * 
  */
 
-std::vector<int> AbstractMeshReader::GetNextFace()
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
 {
 	/**
 	 * Checks that there are still some faces left to read. If not throws an
@@ -236,13 +246,16 @@ std::vector<int> AbstractMeshReader::GetNextFace()
  * Returns a vector of the nodes of each edge in turn, starting with edge 0 the 
  * first time it is called followed by edges 1, 2, ... , mNumFaces-1.
  * 
- * Is a synonum of GetNextFace(). The two functions can be used interchangeably,
+ * Is a synonym of GetNextFace(). The two functions can be used interchangeably,
  * i.e. they use the same iterator.
  * 
  */
 
-std::vector<int> AbstractMeshReader::GetNextEdge()
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
 {
 	// Call GetNextFace()
 	return GetNextFace();
 }
+#endif //_ABSTRACTMESHREADER_CPP_
+

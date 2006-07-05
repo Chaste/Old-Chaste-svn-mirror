@@ -5,7 +5,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "MonodomainDg0Assembler.hpp"
-#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -77,7 +77,7 @@ public:
     {
         assert( mMeshFilename!="" );
 
-        TrianglesMeshReader mesh_reader(mMeshFilename);
+        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
         mMesh.ConstructFromMeshReader(mesh_reader);
         
         mpCellFactory->SetMesh( &mMesh );

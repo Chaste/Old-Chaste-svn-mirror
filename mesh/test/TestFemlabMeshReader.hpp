@@ -9,14 +9,15 @@
 #define _TESTFEMLABMESHREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include "FemlabMeshReader.hpp"
+#include "FemlabMeshReader.cpp"
 
+typedef FemlabMeshReader<2,2> READER_2D;
 
 class TestFemlabMeshReaders : public CxxTest::TestSuite
 {
 	public:
      
-    AbstractMeshReader *pFemlabMeshReader;	
+    AbstractMeshReader<2,2> *pFemlabMeshReader;	
 	/**
 	 * Check that input files are opened correctly.
 	 * 
@@ -24,7 +25,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	
 	void TestFilesOpen(void)
 	{
-		TS_ASSERT_THROWS_NOTHING(pFemlabMeshReader=new FemlabMeshReader(
+		TS_ASSERT_THROWS_NOTHING(pFemlabMeshReader=new READER_2D(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
@@ -42,7 +43,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 
 	void TestNodesDataRead(void)
 	{
-		pFemlabMeshReader=new FemlabMeshReader(
+		pFemlabMeshReader=new FemlabMeshReader<2,2>(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
@@ -53,18 +54,6 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		delete pFemlabMeshReader;
 	}
 	
-	void TestDimension(void)
-	{
-		pFemlabMeshReader=new FemlabMeshReader(
-		                  "mesh/test/data/",
-		                  "femlab_lshape_nodes.dat",
-		                  "femlab_lshape_elements.dat",
-		                  "femlab_lshape_edges.dat");
-		
-		TS_ASSERT( pFemlabMeshReader->GetDimension() == 2); 
-		
-		delete pFemlabMeshReader;
-	}
 	
 	/**
 	 * Check that the elements are read correctly. Checks that the output vector
@@ -75,7 +64,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 
 	void TestElementsDataRead(void)
 	{
-		pFemlabMeshReader=new FemlabMeshReader(
+		pFemlabMeshReader=new FemlabMeshReader<2,2>(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
@@ -96,7 +85,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 
 	void TestFacesDataRead(void)
 	{
-		pFemlabMeshReader=new FemlabMeshReader(
+		pFemlabMeshReader=new FemlabMeshReader<2,2>(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
@@ -118,7 +107,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 
 	void TestGetNextNode(void)
 	{
-		pFemlabMeshReader=new FemlabMeshReader(
+		pFemlabMeshReader=new FemlabMeshReader<2,2>(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
@@ -158,7 +147,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 
 	void TestGetNextElement(void)
 	{
-		pFemlabMeshReader=new FemlabMeshReader(
+		pFemlabMeshReader=new FemlabMeshReader<2,2>(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",
@@ -200,7 +189,7 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 	 
 	void TestGetNextFace(void)
 	{
-		pFemlabMeshReader=new FemlabMeshReader(
+		pFemlabMeshReader=new FemlabMeshReader<2,2>(
 		                  "mesh/test/data/",
 		                  "femlab_lshape_nodes.dat",
 		                  "femlab_lshape_elements.dat",

@@ -2,7 +2,7 @@
 #define _TESTNONLINEARELASTICPDE_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
-#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
 
 #include "CompressibleIsotropicMooneyRivlinMaterial.hpp"
 #include "NonlinearElasticityPde.hpp"
@@ -12,7 +12,7 @@ class TestNonlinearElasticityPde : public CxxTest::TestSuite
 public:
 	void testNonlinearElasticityPde2D()
 	{
-		TrianglesMeshReader mesh_reader("mesh/test/data/square_4_elements");
+		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -52,7 +52,7 @@ public:
 
 	void testNonlinearElasticityPde3D()
 	{
-		TrianglesMeshReader mesh_reader("mesh/test/data/cube_136_elements");
+		TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
 		ConformingTetrahedralMesh<3,3> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		

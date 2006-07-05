@@ -27,8 +27,8 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp" 
 #include "ParallelColumnDataWriter.hpp"
-#include "TrianglesMeshReader.hpp"
-#include "FemlabMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "FemlabMeshReader.cpp"
 
 #include "TimeDependentDiffusionEquationPde.hpp"
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
@@ -72,7 +72,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
 	{
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+		TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -138,7 +138,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler1DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+		TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -201,7 +201,7 @@ public:
 	void TestSimpleDg0ParabolicAssemblerNonzeroNeumannCondition()
     {
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+		TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 		ConformingTetrahedralMesh<1,1> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -267,7 +267,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DZeroDirich( void )
 	{	
 		// read mesh on [0,1]x[0,1]
-		TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
+		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -334,7 +334,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTerm( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
+		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
 		
@@ -408,7 +408,7 @@ public:
     void xTestSimpleDg0ParabolicAssembler2DZeroDirichWithSourceTermOnFineMeshWithSmallDt( void )
     {       
         // Create mesh from mesh reader
-        FemlabMeshReader mesh_reader("mesh/test/data/",
+        FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
                                      "femlab_square_nodes.dat",
                                      "femlab_square_elements.dat",
                                      "femlab_square_edges.dat");
@@ -483,7 +483,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DNeumannOnCoarseMesh( void )
 	{		
         // Create mesh from mesh reader
-		TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
+		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
 
 		ConformingTetrahedralMesh<2,2> mesh;
 		mesh.ConstructFromMeshReader(mesh_reader);
@@ -578,7 +578,7 @@ public:
 	void TestSimpleDg0ParabolicAssembler2DNeumann( void )
 	{		
         // Create mesh from mesh reader
-		FemlabMeshReader mesh_reader("mesh/test/data/",
+		FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
 		                  "femlab_square_nodes.dat",
 		                  "femlab_square_elements.dat",
 		                  "femlab_square_edges.dat");
@@ -674,7 +674,7 @@ public:
     void TestHeatEquationSolutionDoesntDrift2D( void )
     {       
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/square_128_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -726,7 +726,7 @@ public:
     void TestHeatEquationSolutionDoesntDrift1D( void )
     {       
         // Create mesh from mesh reader
-        TrianglesMeshReader mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -786,7 +786,7 @@ public:
     void DONOT_TestSimpleDg0ParabolicAssembler2DZeroNeumannNonZeroInCentre( void )
     {   
         // read mesh on [0,1]x[0,1]
-        TrianglesMeshReader mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

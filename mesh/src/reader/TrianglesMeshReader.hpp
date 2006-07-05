@@ -9,10 +9,11 @@
 #ifndef _TRIANGLESMESHREADER_H_
 #define _TRIANGLESMESHREADER_H_
 
-#include "AbstractMeshReader.hpp"
+#include "AbstractMeshReader.cpp"
 #include "global/src/Exception.hpp"
 
-class TrianglesMeshReader : public AbstractMeshReader
+template <int ELEMENT_DIM, int SPACE_DIM>
+class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 	std::vector<std::vector<double> > TokenizeStringsToDoubles(

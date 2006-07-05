@@ -22,8 +22,8 @@
 #include <iostream>
 #include <sstream>
 
-
-class AbstractMeshReader 
+template<int ELEMENT_DIM, int SPACE_DIM>
+class AbstractMeshReader
 {
 	protected:
 		int mDimension; /**< Is the dimension the mesh*/
@@ -66,7 +66,7 @@ class AbstractMeshReader
 			
 			mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
 		}
-        virtual ~AbstractMeshReader(){}
+        virtual ~AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>(){}
 
 		
 		int GetNumElements() const {return mElementData.size();} /**< Returns the number of elements in the mesh */
