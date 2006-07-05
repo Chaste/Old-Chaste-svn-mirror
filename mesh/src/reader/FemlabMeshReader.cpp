@@ -40,7 +40,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mElementRawData = this->GetRawDataFromFile (elementFileName);
 
     // Read the rest of the element data using TokenizeStringsToInts method
-    this->mElementData = TokenizeStringsToInts (this->mElementRawData, this->mDimension + 1);
+    this->mElementData = TokenizeStringsToInts (this->mElementRawData, SPACE_DIM + 1);
     this->mpElementIterator = this->mElementData.begin ();
 
 
@@ -53,7 +53,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
     this->mFaceRawData = this->GetRawDataFromFile (edgeFileName);
 
     // Read the rest of the face/edge data using TokenizeStringsToInts method
-    this->mFaceData = TokenizeStringsToInts (this->mFaceRawData, this->mDimension);
+    this->mFaceData = TokenizeStringsToInts (this->mFaceRawData, SPACE_DIM);
     this->mpFaceIterator = this->mFaceData.begin ();
 }
 
@@ -113,7 +113,11 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
 
     }
 
-    this->mDimension = dimension_count;
+    if (SPACE_DIM != dimension_count)
+    {
+        std::string mesg="FemlabMeshReader(): SPACE_DIM  != dimension read from file";
+        throw Exception(mesg);
+    }
     return (tokenized_data);
 }
 

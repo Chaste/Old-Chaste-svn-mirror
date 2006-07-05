@@ -330,10 +330,8 @@ public:
         
         AbstractMeshReader<0,1> *pMeshReader;
         
-        bool mesh_dim_less_than_space_dim=true;
         TS_ASSERT_THROWS_ANYTHING(  pMeshReader=new READER_0D_IN_1D(
-                          "mesh/test/data/trivial_1d_mesh",
-                          mesh_dim_less_than_space_dim)
+                          "mesh/test/data/trivial_1d_mesh")
                           );
     }         
 
@@ -342,10 +340,8 @@ public:
         
         AbstractMeshReader<1,2> *pMeshReader;
         
-        bool mesh_dim_less_than_space_dim=true;
         pMeshReader=new TrianglesMeshReader<1,2>(
-                          "mesh/test/data/circle_outline",
-                          mesh_dim_less_than_space_dim);
+                          "mesh/test/data/circle_outline");
         
  
         TS_ASSERT( pMeshReader->GetNumNodes() == 100); 
@@ -363,10 +359,8 @@ public:
         
         AbstractMeshReader<2,3> *pMeshReader;
         
-        bool mesh_dim_less_than_space_dim=true;
         pMeshReader=new TrianglesMeshReader<2,3>(
-                          "mesh/test/data/slab_395_elements",
-                          mesh_dim_less_than_space_dim);
+                          "mesh/test/data/slab_395_elements");
         
  
         TS_ASSERT( pMeshReader->GetNumNodes() == 132); 

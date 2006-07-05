@@ -25,7 +25,7 @@ private:
     void ReadFacesAsElements(std::string pathBaseName);
     
 public:
-	TrianglesMeshReader(std::string pathBaseName, const bool MeshDimLessThanSpaceDim = false);
+	TrianglesMeshReader(std::string pathBaseName);
 	
     virtual ~TrianglesMeshReader();
 }; 

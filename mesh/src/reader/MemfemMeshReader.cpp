@@ -28,7 +28,10 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
 	node_header_stream >> num_nodes;
 	
 	/* All Memfem data is in 3-d. */
-	this->mDimension = 3; 
+	if (SPACE_DIM != 3  || ELEMENT_DIM != 3)
+    {
+        throw Exception("You have asked to read non-3D data. All Memfem data is in 3D.");  
+    } 
 	
 	// Read the rest of the node data using TokenizeStringsToDoubles method
 	this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
@@ -53,7 +56,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
 	
 
 	// Read the rest of the element data using TokenizeStringsToInts method
-	this->mElementData = TokenizeStringsToInts(this->mElementRawData,this->mDimension+1, true);
+	this->mElementData = TokenizeStringsToInts(this->mElementRawData,SPACE_DIM+1, true);
  	this->mpElementIterator = this->mElementData.begin();
  	
  	
@@ -71,7 +74,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
 	 */
 	
 	// Read the face/edge data using TokenizeStringsToInts method
-	this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,this->mDimension,false);
+	this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,SPACE_DIM,false);
 	this->mpFaceIterator = this->mFaceData.begin();
 }
 
@@ -103,7 +106,7 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
      		std::vector<double> current_coords;
      		
      		//Form the vector which represents the position of this item
-     		for (int i = 0; i < this->mDimension; i++)
+     		for (int i = 0; i < SPACE_DIM; i++)
      		{
      			double item_coord; 
      			line_stream >> item_coord;

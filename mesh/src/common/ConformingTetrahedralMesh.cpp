@@ -26,11 +26,6 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                                                 AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader, int orderOfBasisFunctions)
 {
-	// Check dimension matches the data	
-	if (SPACE_DIM != rMeshReader.GetDimension())
-	{		
-		throw Exception("Mesh and MeshReader dimensions do not agree.");
-	}
 	
 	// We only use linear or quadratic basis functions
 	assert(orderOfBasisFunctions == 1 || orderOfBasisFunctions == 2);

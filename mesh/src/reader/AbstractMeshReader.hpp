@@ -26,8 +26,6 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractMeshReader
 {
 	protected:
-		int mDimension; /**< Is the dimension the mesh*/
-		
 		int mNumNodeAttributes; /**< Is the number of attributes stored at each node */
 		int mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
 		int mNumElementNodes; /** Is the number of nodes per element*/
@@ -54,8 +52,6 @@ class AbstractMeshReader
 	public:	
 		AbstractMeshReader() /**< Constructor */
 		{
-			mDimension = 0;
-			
 			mNumNodeAttributes = 0;
 			mMaxNodeBdyMarker = 0;
 			mNumElementNodes = 0;
@@ -73,7 +69,6 @@ class AbstractMeshReader
 		int GetNumNodes() const {return mNodeData.size();} /**< Returns the number of nodes in the mesh */
 		int GetNumFaces() const {return mFaceData.size();} /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
 		int GetNumEdges() const {return mFaceData.size();}	/**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
-		int GetDimension() const {return mDimension;} /**< Returns the dimension of the system */
 		
 		int GetMaxNodeIndex(); /**< Returns the maximum node index */
 		int GetMinNodeIndex(); /**< Returns the minimum node index */

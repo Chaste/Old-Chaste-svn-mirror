@@ -94,7 +94,7 @@ int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
 	{
 		std::vector<int> indices = *the_iterator; // the_iterator points at each line in turn
 		
-		for(int i = 0; i < mDimension+1; i++)
+		for(int i = 0; i < ELEMENT_DIM+1; i++)
 		{
 			if(indices[i] > max_node_index)
 			{
@@ -126,7 +126,7 @@ int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
 	{
 		std::vector<int> indices = *the_iterator; // the_iterator points at each line in turn
 		
-		for(int i = 0; i < mDimension+1; i++)
+		for(int i = 0; i < ELEMENT_DIM+1; i++)
 		{
 			if(indices[i] < min_node_index)
 			{

@@ -267,7 +267,29 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
             TS_ASSERT_DELTA(mesh.GetNodeAt(i)->GetPoint()[0], 1.5*(i/10.0) , 0.001);
         }
     }
-
+    
+    void Test1DMeshIn2DSpace()
+    {        
+        TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");;
+        ConformingTetrahedralMesh<1,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT( mesh.GetNumNodes() == 100); 
+        TS_ASSERT( mesh.GetNumElements() == 100); 
+        TS_ASSERT( mesh.GetNumBoundaryElements() == 0);
+    }         
+ 
+ 
+    void Test2DMeshIn3DSpace()
+    {
+        TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
+        ConformingTetrahedralMesh<2,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT( mesh.GetNumNodes() == 132); 
+        TS_ASSERT( mesh.GetNumElements() == 224); 
+        TS_ASSERT( mesh.GetNumBoundaryElements() == 0);
+    }                 
 };
 
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
