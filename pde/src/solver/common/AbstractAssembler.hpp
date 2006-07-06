@@ -2,7 +2,7 @@
 #define _ABSTRACTASSEMBLER_HPP_
 
 #include "AbstractBasisFunction.hpp"
-#include "LinearBasisFunction.hpp"
+#include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 
 

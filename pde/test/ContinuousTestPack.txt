@@ -3,7 +3,6 @@ TestConstBoundaryCondition.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
-TestMaterials.hpp
 TestNonlinearElasticityPde.hpp
 TestNonlinearHeatEquationPde.hpp
 TestSimpleDg0ParabolicAssembler.hpp

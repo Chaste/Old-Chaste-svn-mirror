@@ -11,7 +11,6 @@
 #include "Node.hpp"
 #include "Point.hpp"
 #include "UblasCustomFunctions.hpp"
-#include "LinearBasisFunction.cpp"
 #include "AbstractMaterial.hpp"
 
 #include "Exception.hpp"
