@@ -1,10 +1,11 @@
 #ifndef _TRIANGLESMESHWRITER_HPP_
 #define _TRIANGLESMESHWRITER_HPP_
 
-#include "AbstractMeshWriter.hpp"
+#include "AbstractMeshWriter.cpp"
 #include "OutputFileHandler.hpp"
 
-class TrianglesMeshWriter : public AbstractMeshWriter
+template<int ELEMENT_DIM, int SPACE_DIM>
+class TrianglesMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
 	TrianglesMeshWriter(const std::string &rDirectory,

@@ -43,7 +43,8 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
 	std::string RawLineFromFile;
 	getline(dataFile, RawLineFromFile);
 	
-	while(dataFile){
+	while(dataFile)
+    {
 		
 		// Remove comments
 		

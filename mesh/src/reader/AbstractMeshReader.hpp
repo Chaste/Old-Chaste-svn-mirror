@@ -62,7 +62,7 @@ class AbstractMeshReader
 			
 			mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
 		}
-        virtual ~AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>(){}
+        virtual ~AbstractMeshReader(){}
 
 		
 		int GetNumElements() const {return mElementData.size();} /**< Returns the number of elements in the mesh */

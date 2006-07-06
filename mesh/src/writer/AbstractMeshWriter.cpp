@@ -1,15 +1,20 @@
+#ifndef _ABSTRACTMESHWRITER_CPP_
+#define _ABSTRACTMESHWRITER_CPP_
+
 #include "AbstractMeshWriter.hpp"
 #include "Exception.hpp"
 
 /**
  * Return the full path to the directory where meshes will be written.
  */
-std::string AbstractMeshWriter::GetOutputDirectory(void)
+template<int ELEMENT_DIM, int SPACE_DIM>
+std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory(void)
 {
     return mpOutputFileHandler->GetTestOutputDirectory();
 }
 
-void AbstractMeshWriter::SetNextNode(std::vector<double> nextNode)
+template<int ELEMENT_DIM, int SPACE_DIM>
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double> nextNode)
 {
 	if (nextNode.size() != mDimension)
 	{
@@ -18,7 +23,8 @@ void AbstractMeshWriter::SetNextNode(std::vector<double> nextNode)
 	mNodeData.push_back(nextNode);
 }
 
-void AbstractMeshWriter::SetNextElement(std::vector<int> nextElement)
+template<int ELEMENT_DIM, int SPACE_DIM>
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<int> nextElement)
 {
 	if (nextElement.size() != mDimension+1)
 	{
@@ -27,7 +33,8 @@ void AbstractMeshWriter::SetNextElement(std::vector<int> nextElement)
 	mElementData.push_back(nextElement);
 }
 
-void AbstractMeshWriter::SetNextBoundaryFace(std::vector<int> nextFace)
+template<int ELEMENT_DIM, int SPACE_DIM>
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<int> nextFace)
 {
 	if (nextFace.size() != mDimension)
 	{
@@ -36,7 +43,11 @@ void AbstractMeshWriter::SetNextBoundaryFace(std::vector<int> nextFace)
 	mBoundaryFaceData.push_back(nextFace);
 }
 
-void AbstractMeshWriter::SetNextBoundaryEdge(std::vector<int> nextEdge)
+template<int ELEMENT_DIM, int SPACE_DIM>
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryEdge(std::vector<int> nextEdge)
 {
 	SetNextBoundaryFace(nextEdge);
 }
+
+#endif //_ABSTRACTMESHWRITER_CPP_
+
