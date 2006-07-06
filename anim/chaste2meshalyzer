@@ -5,12 +5,9 @@
 #
 # arguments are:
 #   1. dimension (must be 1,2 or 3)
-#   2. the mesh path and prefix (relative to chaste directory (see arg 5))
-#   3. the results path and prefix (relative to /tmp/<username>/testoutput (see arg 5))
-#   4. the output prefix (relative to <chaste_dir>/anim (see arg 5))
-#   5. if this argument is "-f" the paths are taken to be full paths, not relative to
-#         the defaults
-#
+#   2. the mesh path and prefix (relative to current directory, or absolute)
+#   3. the results path and prefix (relative to CHASTE_TEST_OUTPUT or /tmp/<username>/testoutput)
+#   4. the output prefix (relative to anim in the current directory)
 
 if [ ${USER} == "bob" ] ; then
     exit
@@ -20,10 +17,9 @@ fi
 #           	Set Directories                             
 #     (May break if ${HOME} != /home/${USER})         
 #############################################################
-CHASTE_DIR="/home/"${USER}"/eclipse/workspace/Chaste/"
 # Use the value of $CHASTE_TEST_OUTPUT if set, or a default if not
 TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"/tmp/"${USER}"/testoutput/"}
-OUTPUT_DIR=${TESTOUTPUT_DIR}"anim/"
+OUTPUT_DIR=${TESTOUTPUT_DIR}"/anim/"
 
 
 echo ""
@@ -36,16 +32,6 @@ MESH_PATH=$2
 RESULTS_PREFIX=$3
 OUTPUT_PREFIX=$4
 
-
-FULL_PATHS_GIVEN=0
-if [ $# -gt 4 ] ; then
-	if [ $5 == "-f" ] ; then
-		FULL_PATHS_GIVEN=1
-	else
-		FULL_PATHS_GIVEN=0
-	fi
-fi
-	
 
 #######################################################################################
 #  error handling
@@ -75,29 +61,14 @@ fi
 #######################################################################################
 #  set up paths
 #######################################################################################
-if [ ${FULL_PATHS_GIVEN} -eq 1 ] ; then
-	FULL_MESH_PATH=${MESH_PATH}
-else
-	FULL_MESH_PATH=${CHASTE_DIR}${MESH_PATH}
-fi
 
-echo "  Mesh path is "${FULL_MESH_PATH}
+echo "  Mesh path is "${MESH_PATH}
 
-if [ ${FULL_PATHS_GIVEN} -eq 1 ] ; then
-	FULL_RESULTS_PATH=${RESULTS_PREFIX}
-else
-	FULL_RESULTS_PATH=${TESTOUTPUT_DIR}${RESULTS_PREFIX}
-fi
+RESULTS_PATH=${TESTOUTPUT_DIR}${RESULTS_PREFIX}
+echo "  Results path is "${RESULTS_PATH}
 
-echo "  Results path is "${FULL_RESULTS_PATH}
-
-if [ ${FULL_PATHS_GIVEN} -eq 1 ] ; then
-	FULL_OUTPUT_PATH=${OUTPUT_PREFIX}
-else
-	FULL_OUTPUT_PATH=${OUTPUT_DIR}${OUTPUT_PREFIX}
-fi
-
-echo "  Output file path is "${FULL_OUTPUT_PATH}
+OUTPUT_PATH=${OUTPUT_DIR}${OUTPUT_PREFIX}
+echo "  Output file path is "${OUTPUT_PATH}
 
 
 #######################################################################################
@@ -105,7 +76,7 @@ echo "  Output file path is "${FULL_OUTPUT_PATH}
 #######################################################################################
 # test if the number of lines in the node file is the same as the data file (=> monodomain)
 IS_MONODOMAIN=0
-if [ `wc -l ${FULL_MESH_PATH}.node | cut -f 1 -d ' '` -eq `wc -l ${FULL_RESULTS_PATH}_000000.dat | cut -f 1 -d ' '` ]; then  
+if [ `wc -l ${MESH_PATH}.node | cut -f 1 -d ' '` -eq `wc -l ${RESULTS_PATH}_000000.dat | cut -f 1 -d ' '` ]; then  
    	IS_MONODOMAIN=1
 fi
 
@@ -113,22 +84,22 @@ fi
 #######################################################################################
 #  create mesh files
 #######################################################################################
-cat ${FULL_MESH_PATH}.node | head -n 1 | awk '{print $1}' > ${FULL_OUTPUT_PATH}.pts
+cat ${MESH_PATH}.node | head -n 1 | awk '{print $1}' > ${OUTPUT_PATH}.pts
 
 if [ ${DIMENSION} -eq 1 ] ; then
- 	cat ${FULL_MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" 0 "\t" 0}' >> ${FULL_OUTPUT_PATH}.pts
+ 	cat ${MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" 0 "\t" 0}' >> ${OUTPUT_PATH}.pts
 fi
 
 if [ ${DIMENSION} -eq 2 ] ; then
-	cat ${FULL_MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" 0}' >> ${FULL_OUTPUT_PATH}.pts
-	cat ${FULL_MESH_PATH}.ele  | head -n 1  | awk '{print $1}' > ${FULL_OUTPUT_PATH}.tri
-	cat ${FULL_MESH_PATH}.ele  | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${FULL_OUTPUT_PATH}.tri
+	cat ${MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" 0}' >> ${OUTPUT_PATH}.pts
+	cat ${MESH_PATH}.ele  | head -n 1  | awk '{print $1}' > ${OUTPUT_PATH}.tri
+	cat ${MESH_PATH}.ele  | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${OUTPUT_PATH}.tri
 fi
 
 if [ ${DIMENSION} -eq 3 ] ; then
-	cat ${FULL_MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4}' >> ${FULL_OUTPUT_PATH}.pts
-	cat ${FULL_MESH_PATH}.face | head -n 1  | awk '{print $1}' > ${FULL_OUTPUT_PATH}.tri
-	cat ${FULL_MESH_PATH}.face | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${FULL_OUTPUT_PATH}.tri
+	cat ${MESH_PATH}.node | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4}' >> ${OUTPUT_PATH}.pts
+	cat ${MESH_PATH}.face | head -n 1  | awk '{print $1}' > ${OUTPUT_PATH}.tri
+	cat ${MESH_PATH}.face | tail -n +2 | awk '{print $2 "\t" $3 "\t" $4 "\t" 1}' >> ${OUTPUT_PATH}.tri
 fi
 
 
@@ -136,17 +107,17 @@ fi
 #######################################################################################
 #  create data files
 #######################################################################################
-rm -f ${FULL_OUTPUT_PATH}.dat
-rm -f ${FULL_OUTPUT_PATH}_voltage.dat
-rm -f ${FULL_OUTPUT_PATH}_extracell.dat
+rm -f ${OUTPUT_PATH}.dat
+rm -f ${OUTPUT_PATH}_voltage.dat
+rm -f ${OUTPUT_PATH}_extracell.dat
 if [ ${IS_MONODOMAIN} -eq 1 ]; then
-	for i in ${FULL_RESULTS_PATH}_0*.dat; do
- 		tail -n +2 $i >> ${FULL_OUTPUT_PATH}.dat
+	for i in ${RESULTS_PATH}_0*.dat; do
+ 		tail -n +2 $i >> ${OUTPUT_PATH}.dat
 	done
 else
-	for i in ${FULL_RESULTS_PATH}_0*.dat; do
- 		tail -n +2 $i | awk '{if (NR%2==1) print $1}' >> ${FULL_OUTPUT_PATH}_voltage.dat
-	  	tail -n +2 $i | awk '{if (NR%2==0) print $1}' >> ${FULL_OUTPUT_PATH}_extracell.dat
+	for i in ${RESULTS_PATH}_0*.dat; do
+ 		tail -n +2 $i | awk '{if (NR%2==1) print $1}' >> ${OUTPUT_PATH}_voltage.dat
+	  	tail -n +2 $i | awk '{if (NR%2==0) print $1}' >> ${OUTPUT_PATH}_extracell.dat
 	done
 fi
 
