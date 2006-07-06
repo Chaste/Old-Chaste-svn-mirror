@@ -9,9 +9,9 @@ class TrianglesMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
 	TrianglesMeshWriter(const std::string &rDirectory,
-                        const std::string &rBbaseName,
-                        const int &rDimension);
+                        const std::string &rBbaseName);
 	void WriteFiles();
+    void WriteFacesAsElements();
 	virtual ~TrianglesMeshWriter();
 };
 

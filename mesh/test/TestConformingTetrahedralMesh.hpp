@@ -18,7 +18,6 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
 	{
 		TrianglesMeshReader<2,2> meshReader("mesh/test/data/disk_984_elements");
 		                  
-		//const int DIM = pMeshReader->GetDimension();
 		ConformingTetrahedralMesh<2,2> mesh;
 		
 		mesh.ConstructFromMeshReader(meshReader,1);
@@ -274,9 +273,9 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT( mesh.GetNumNodes() == 100); 
-        TS_ASSERT( mesh.GetNumElements() == 100); 
-        TS_ASSERT( mesh.GetNumBoundaryElements() == 0);
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100); 
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 100); 
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
     }         
  
  
@@ -286,9 +285,9 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         ConformingTetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT( mesh.GetNumNodes() == 132); 
-        TS_ASSERT( mesh.GetNumElements() == 224); 
-        TS_ASSERT( mesh.GetNumBoundaryElements() == 0);
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 132); 
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 224); 
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
     }                 
 };
 

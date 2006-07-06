@@ -55,7 +55,7 @@ public:
 		pMeshReader=new TrianglesMeshReader<2,2>(
 		                  "mesh/test/data/disk_984_elements_indexed_from_1");
 		
-		TS_ASSERT( pMeshReader->GetNumNodes() == 543); 
+		TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 543); 
         delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
@@ -78,7 +78,7 @@ public:
 		pMeshReader=new TrianglesMeshReader<2,2>(
 		                  "mesh/test/data/disk_984_elements_indexed_from_1");
 		
-		TS_ASSERT( pMeshReader->GetNumElements() == 984); 
+		TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 984); 
         delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
@@ -102,7 +102,7 @@ public:
 		pMeshReader=new TrianglesMeshReader<2,2>(
 		                  "mesh/test/data/disk_984_elements_indexed_from_1");
 		
-		TS_ASSERT( pMeshReader->GetNumFaces() == 1526); 
+		TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 1526); 
 		delete pMeshReader;
 		
 		TS_ASSERT_THROWS_ANYTHING(
@@ -126,7 +126,7 @@ public:
 		                  pMeshReader=new READER_3D(
 		                  "mesh/test/data/slab_138_elements"));
 			
-		TS_ASSERT (pMeshReader->GetNumElements() == 138);
+		TS_ASSERT_EQUALS (pMeshReader->GetNumElements(), 138);
 		delete pMeshReader;
 	}
 	
@@ -145,9 +145,9 @@ public:
 		                  pMeshReader=new READER_2D(
 		                  "mesh/test/data/disk_522_elements"));
 		
-		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
+		TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), pMeshReader->GetNumNodes() - 1);
 		
-		TS_ASSERT(pMeshReader->GetMinNodeIndex() == 0);
+		TS_ASSERT_EQUALS(pMeshReader->GetMinNodeIndex(), 0);
 		delete pMeshReader;
 	}
 	
@@ -167,9 +167,9 @@ public:
 		                  pMeshReader=new READER_2D(
 		                  "mesh/test/data/disk_522_elements_indexed_from_1"));
 		
-		TS_ASSERT(pMeshReader->GetMaxNodeIndex() == pMeshReader->GetNumNodes() - 1);
+		TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), pMeshReader->GetNumNodes() - 1);
 		
-		TS_ASSERT(pMeshReader->GetMinNodeIndex() == 0);
+		TS_ASSERT_EQUALS(pMeshReader->GetMinNodeIndex(), 0);
 		delete pMeshReader;
 	}
 	
@@ -311,14 +311,14 @@ public:
 		pMeshReader=new TrianglesMeshReader<1,1>(
 		                  "mesh/test/data/trivial_1d_mesh");
 		
-		TS_ASSERT( pMeshReader->GetNumNodes() == 11); 
+		TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 11); 
 		
-		TS_ASSERT( pMeshReader->GetNumElements() == 10); 
+		TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 10); 
 		
-		TS_ASSERT( pMeshReader->GetNumFaces() == 11); 		
+		TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 11); 		
 		
         // Determining boundary faces is no longer done by the MeshReader
-		//TS_ASSERT( pMeshReader->GetNumBoundaryFaces() == 2); 		
+		//TS_ASSERT_EQUALS( pMeshReader->GetNumBoundaryFaces(), 2); 		
 	    
         delete pMeshReader;
        
@@ -344,11 +344,11 @@ public:
                           "mesh/test/data/circle_outline");
         
  
-        TS_ASSERT( pMeshReader->GetNumNodes() == 100); 
+        TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 100); 
         
-        TS_ASSERT( pMeshReader->GetNumElements() == 100); 
+        TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 100); 
         
-        TS_ASSERT( pMeshReader->GetNumFaces() == 0);
+        TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 0);
   
         delete pMeshReader;
         
@@ -363,11 +363,11 @@ public:
                           "mesh/test/data/slab_395_elements");
         
  
-        TS_ASSERT( pMeshReader->GetNumNodes() == 132); 
+        TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 132); 
         
-        TS_ASSERT( pMeshReader->GetNumElements() == 224); 
+        TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 224); 
         
-        TS_ASSERT( pMeshReader->GetNumFaces() == 0);
+        TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 0);
   
         delete pMeshReader;
         

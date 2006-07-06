@@ -1,6 +1,7 @@
 #ifndef _ABSTRACTMESHWRITER_HPP_
 #define _ABSTRACTMESHWRITER_HPP_
 
+#include "ConformingTetrahedralMesh.cpp"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -9,6 +10,8 @@
 
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
+#include "AbstractMeshReader.cpp"
+
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractMeshWriter 
@@ -16,8 +19,6 @@ class AbstractMeshWriter
 protected:
     OutputFileHandler *mpOutputFileHandler; /**< Output file handler */
     std::string mBaseName; /**< Base name for the input files */
-
-    unsigned int mDimension; /**< Is the dimension the mesh*/
 	
     std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
     std::vector< std::vector<int> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
@@ -32,10 +33,8 @@ protected:
 public:	
     /** Constructor */
     AbstractMeshWriter(const std::string &rDirectory, 
-                       const std::string &rBaseName, 
-                       const unsigned int &rDimension)
-                 : mBaseName(rBaseName),
-                   mDimension(rDimension)
+                       const std::string &rBaseName)
+                 : mBaseName(rBaseName)
     {
         mpOutputFileHandler = new OutputFileHandler(rDirectory);
 	}
@@ -55,6 +54,8 @@ public:
     int GetNumElements(){return mElementData.size();}
     int GetNumBoundaryFaces(){return mBoundaryFaceData.size();}
     int GetNumBoundaryEdges(){return mBoundaryFaceData.size();}
+    void WriteFilesUsingMesh(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    void WriteFilesUsingMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader);
 };
 
 #endif //_ABSTRACTMESHWRITER_HPP_

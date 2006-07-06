@@ -25,24 +25,10 @@ class TestMeshWriters : public CxxTest::TestSuite
         
     void TestMemfemtoTetgen(void)
     {
-        TrianglesMeshWriter<3,3> mesh_writer("", "MeshFromMemfem",3);
+        TrianglesMeshWriter<3,3> mesh_writer("", "MeshFromMemfem");
         MemfemMeshReader<3,3> import_mesh_reader("mesh/test/data/Memfem_slab");
-    
-        for (int i=0; i<import_mesh_reader.GetNumNodes();i++)
-        {
-            mesh_writer.SetNextNode(import_mesh_reader.GetNextNode());
-        }
-        for (int i=0; i<import_mesh_reader.GetNumElements();i++)
-        {
-            mesh_writer.SetNextElement(import_mesh_reader.GetNextElement());
-        }
-        // Note: the results of this may not be as expected!
-        for (int i=0; i<import_mesh_reader.GetNumFaces();i++)
-        {
-            mesh_writer.SetNextBoundaryFace(import_mesh_reader.GetNextFace());
-        }
-        
-        mesh_writer.WriteFiles();
+            
+        mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TRI_READ_3 *p_new_mesh_reader;
         TS_ASSERT_THROWS_NOTHING(p_new_mesh_reader = 
@@ -53,28 +39,15 @@ class TestMeshWriters : public CxxTest::TestSuite
 
     void TestFemlabtoTriangles(void)
     {   
-        TrianglesMeshWriter<2,2> mesh_writer("","MeshFromFemlab",2);
+        TrianglesMeshWriter<2,2> mesh_writer("","MeshFromFemlab");
 
         FemlabMeshReader<2,2> import_mesh_reader(
                               "mesh/test/data/",
                               "femlab_lshape_nodes.dat",
                               "femlab_lshape_elements.dat",
                               "femlab_lshape_edges.dat");
-        int i;
-        for (i=0; i<import_mesh_reader.GetNumNodes();i++)
-        {
-            mesh_writer.SetNextNode(import_mesh_reader.GetNextNode());
-        }
-        for (i=0; i<import_mesh_reader.GetNumElements();i++)
-        {
-            mesh_writer.SetNextElement(import_mesh_reader.GetNextElement());
-        }
-        for (i=0; i<import_mesh_reader.GetNumEdges();i++)
-        {
-            mesh_writer.SetNextBoundaryEdge(import_mesh_reader.GetNextEdge());
-        }
         
-        mesh_writer.WriteFiles();
+        mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader);
         std::string output_dir = mesh_writer.GetOutputDirectory();
 
         TRI_READ_2 *p_new_mesh_reader;
@@ -89,21 +62,7 @@ class TestMeshWriters : public CxxTest::TestSuite
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         MeshalyzerMeshWriter<3,3> mesh_writer("", "MeshFromTetgen");
     
-        int i;
-        for (i=0; i<import_mesh_reader.GetNumNodes();i++)
-        {
-            mesh_writer.SetNextNode(import_mesh_reader.GetNextNode());
-        }
-        for (i=0; i<import_mesh_reader.GetNumElements();i++)
-        {
-            mesh_writer.SetNextElement(import_mesh_reader.GetNextElement());
-        }
-        for (i=0; i<import_mesh_reader.GetNumFaces();i++)
-        {
-            mesh_writer.SetNextBoundaryFace(import_mesh_reader.GetNextFace());
-        }
-                
-        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFiles());
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
 
     void TestTrianglesToCoolGraphics(void)
@@ -113,22 +72,106 @@ class TestMeshWriters : public CxxTest::TestSuite
             
         MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgen", "CGFromTetgen", set_CG_format);
     
-        int i;
-        for (i=0; i<import_mesh_reader.GetNumNodes();i++)
-        {
-            mesh_writer.SetNextNode(import_mesh_reader.GetNextNode());
-        }
-        for (i=0; i<import_mesh_reader.GetNumElements();i++)
-        {
-            mesh_writer.SetNextElement(import_mesh_reader.GetNextElement());
-        }
-        for (i=0; i<import_mesh_reader.GetNumFaces();i++)
-        {
-            mesh_writer.SetNextBoundaryFace(import_mesh_reader.GetNextFace());
-        }                
-        
-        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFiles());
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
+    
+    
+    void TestFemlabtoTrianglesViaMesh(void)
+    {   
+        TrianglesMeshWriter<2,2> mesh_writer("","MeshFromFemlabViaMesh");
+
+        FemlabMeshReader<2,2> import_mesh_reader(
+                              "mesh/test/data/",
+                              "femlab_lshape_nodes.dat",
+                              "femlab_lshape_elements.dat",
+                              "femlab_lshape_edges.dat");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(import_mesh_reader);
+
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+
+        TRI_READ_2 *p_new_mesh_reader;
+        TS_ASSERT_THROWS_NOTHING(p_new_mesh_reader = 
+            new TRI_READ_2(output_dir + "MeshFromFemlabViaMesh"));
+                            
+        delete p_new_mesh_reader;                            
+    }
+    
+    void TestTrianglesToMeshalyzerViaMesh(void)
+    {    
+        TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
+        MeshalyzerMeshWriter<3,3> mesh_writer("", "MeshFromTetgenViaMesh");
+    
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(import_mesh_reader);
+        
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+    }
+
+    void TestTrianglesToCoolGraphicsViaMesh(void)
+    {    
+        TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
+        bool set_CG_format=true;            
+        MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgenViaMesh", "CGFromTetgenViaMesh", set_CG_format);
+
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(import_mesh_reader);
+    
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+    }
+    
+    
+    void TestTriangles1DMeshIn2DSpace()
+    {        
+        TrianglesMeshReader<1,2> mesh_reader(
+                          "mesh/test/data/circle_outline");
+        ConformingTetrahedralMesh<1,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);         
+
+        TrianglesMeshWriter<1,2> mesh_writer("","1dMeshIn2dSpace");
+
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        
+        TrianglesMeshReader<1,2> mesh_reader2(
+                          output_dir+"1dMeshIn2dSpace");
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(),100); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0);
+                          
+        
+    }         
+ 
+    void Test2DMeshIn3DSpace()
+    {
+        
+        TrianglesMeshReader<2,3> mesh_reader(
+                          "mesh/test/data/slab_395_elements");   
+                          
+        ConformingTetrahedralMesh<2,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TrianglesMeshWriter<2,3> mesh_writer("","2dMeshIn3dSpace");
+
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,3> mesh_reader2(
+                          output_dir+"2dMeshIn3dSpace");
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 132); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 224); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0);
+
+
+    }             
+   
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_
