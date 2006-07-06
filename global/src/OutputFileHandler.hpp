@@ -73,16 +73,33 @@ public:
      * Create it if needed.
      * Return the full pathname of the output directory.
      * 
+     * The environment variable CHASTE_TEST_OUTPUT will be examined.  If it is set
+     * and non-empty it is taken to be a directory where test output should be stored.
+     * Otherwise a default location of testoutput/ within the current directory is used.
+     * 
      * @param directory  pathname of the output directory, relative to where Chaste
      *         output will be stored (user shouldn't care about this).
      * @return  full pathname to the output directory
      */
     std::string GetTestOutputDirectory(std::string directory)
     {
-        // Find the current user's name
-        std::string username = std::string(getenv("USER"));
-        // Use it to have a separate output dir for each user
-        directory = "/tmp/" + username + "/testoutput/" + directory;
+        char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");
+        std::string directory_root;
+        if (chaste_test_output == NULL || *chaste_test_output == 0)
+        {
+            // Default to within the Chaste directory
+            directory_root = "testoutput/";
+        }
+        else
+        {
+            directory_root = std::string(chaste_test_output);
+            // Add a trailing slash if not already there
+            if (! ( *(directory_root.end()-1) == '/'))
+            {
+                directory_root = directory_root + "/";
+            }
+        }
+        directory = directory_root + directory;
         // Make sure it exists (ish)
         if (mAmMaster)
         {

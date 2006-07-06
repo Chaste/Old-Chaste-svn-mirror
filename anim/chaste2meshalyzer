@@ -21,7 +21,8 @@ fi
 #     (May break if ${HOME} != /home/${USER})         
 #############################################################
 CHASTE_DIR="/home/"${USER}"/eclipse/workspace/Chaste/"
-TESTOUTPUT_DIR="/tmp/"${USER}"/testoutput/"
+# Use the value of $CHASTE_TEST_OUTPUT if set, or a default if not
+TESTOUTPUT_DIR=${CHASTE_TEST_OUTPUT:-"/tmp/"${USER}"/testoutput/"}
 OUTPUT_DIR=${TESTOUTPUT_DIR}"anim/"
 
 
