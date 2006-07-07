@@ -7,7 +7,7 @@
 #   1. dimension (must be 1,2 or 3)
 #   2. the mesh path and prefix (relative to current directory, or absolute)
 #   3. the results path and prefix (relative to CHASTE_TEST_OUTPUT or /tmp/<username>/testoutput)
-#   4. the output prefix (relative to anim in the current directory)
+#   4. the output prefix (relative to CHASTE_TEST_OUTPUT/anim or /tmp/<username>/testoutput/anim)
 
 if [ ${USER} == "bob" ] ; then
     exit

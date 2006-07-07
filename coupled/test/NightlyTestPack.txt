@@ -1,5 +1,6 @@
 TestBidomain3D.hpp
 TestBidomainForConvergence.hpp
+TestBidomainWithShocks.hpp
 TestMonodomainDg0AssemblerForConvergence.hpp
 TestMonodomainDg0AssemblerLong.hpp
 TestMonodomainNoStimulus.hpp

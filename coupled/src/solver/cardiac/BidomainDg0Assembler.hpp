@@ -41,6 +41,8 @@ private:
     Vec  mInitialCondition;
     bool mInitialConditionSet;
     
+    std::vector<int> mFixedExtracellularPotentialNodes;
+    
     
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2>& rAElem,
@@ -234,7 +236,9 @@ private:
         }
 
         
-        if (!mMatrixIsAssembled)
+        // if there are no fixed nodes, and the matrix is not assembled, then set up the null
+        // basis.
+        if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mMatrixIsAssembled) )
         {
             //create null space for matrix and pass to linear system
             Vec nullbasis[1];  
@@ -260,9 +264,6 @@ private:
             VecDestroy(nullbasis[0]);
         }
     
-
-
-
         if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
@@ -272,24 +273,25 @@ private:
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
         
-        // no need to loop over surface elems to apply neumann bcs here, because the 
-        // neumann bcs are zero
-                
-        // no need to apply dirichlet boundary conditions for phi either (?-check with Jon) 
-        // (code left here for debugging/comparison) - 
-        /*
-        //       for(int node_num = 468; node_num<507; node_num++)       
-        int node_num = 0;
+        // NOTE: no need to loop over surface elems to apply neumann bcs here, because 
+        // the neumann bcs are zero
+
+        // apply dirichlet boundary conditions (phi_e at these nodes fixed to zero)
+        // if any fixed nodes have been set
+        if(mFixedExtracellularPotentialNodes.size() > 0)
         {
-            if(!mMatrixIsAssembled)
+            for(unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
             {
-                mpAssembledLinearSystem->ZeroMatrixRow   ( 2*node_num + 1 );
-                mpAssembledLinearSystem->SetMatrixElement( 2*node_num + 1, 2*node_num + 1,1);
+                int node_num = mFixedExtracellularPotentialNodes[i];
+                if(!mMatrixIsAssembled)
+                {
+                    mpAssembledLinearSystem->ZeroMatrixRow   ( 2*node_num + 1 );
+                    mpAssembledLinearSystem->SetMatrixElement( 2*node_num + 1, 2*node_num + 1, 1);
+                }
+                mpAssembledLinearSystem->SetRhsVectorElement ( 2*node_num + 1, 0);
             }
-            mpAssembledLinearSystem->SetRhsVectorElement( 2*node_num + 1, 0);
         }
-        */
-        
+
         if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
@@ -301,9 +303,8 @@ private:
         
         mMatrixIsAssembled = true;
 
-
         // write matrix and rhs vector
-        //mpAssembledLinearSystem->WriteLinearSystem("mat.txt", "rhs.txt");       
+        // mpAssembledLinearSystem->WriteLinearSystem("mat.txt", "rhs.txt");       
     }
    
     
@@ -320,6 +321,8 @@ public:
         mpSolver = pLinearSolver;
 
         mMatrixIsAssembled = false;
+
+        mFixedExtracellularPotentialNodes.resize(0);
     }
     
     
@@ -332,6 +335,26 @@ public:
         }
     }
    
+   
+    /** 
+     *  Set the nodes at which phi_e (the extracellular potential) is fixed to 
+     *  zero. This does not necessarily have to be called. If it is not, phi_e 
+     *  is only defined up to a constant.
+     * 
+     *  @param the nodes to be fixed.
+     * 
+     *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
+     *  anything other than zero.
+     */
+    void SetFixedExtracellularPotentialNodes(std::vector<int> fixedExtracellularPotentialNodes)
+    {
+        assert(fixedExtracellularPotentialNodes.size() > 0);
+        for(unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)
+        {
+            assert( fixedExtracellularPotentialNodes[i] < mpMesh->GetNumNodes() );
+        }
+        mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
+    }
     
     // identical to SetTimes in SimpleDg0ParabolicAssembler
     void SetTimes(double Tstart, double Tend, double dT)

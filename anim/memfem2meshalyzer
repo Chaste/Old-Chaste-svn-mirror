@@ -1,8 +1,8 @@
 # Shell script to create meshalyzer input files from the memfem output (which 
-# are in CoolGraphics format
+# are in CoolGraphics format)
 # 
 # arguments are:
-#   1. the input files path and prefix. file are assumed to start at <prefix>0, increment 1
+#   1. the input files path and prefix. Files are assumed to start at <prefix>0, with increment 1
 #   2. number of final file  
 #   3. the output prefix 
 

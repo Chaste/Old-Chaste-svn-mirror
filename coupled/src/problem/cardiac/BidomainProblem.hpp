@@ -49,6 +49,8 @@ private:
 
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
+    std::vector<int> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
+    
 public:
     
     /**
@@ -73,6 +75,8 @@ public:
         mHi = 0; 
         
         mWriteInfo = false;
+        
+        mFixedExtracellularPotentialNodes.resize(0);
     }
 
     /**
@@ -111,6 +115,12 @@ public:
     
         // Assembler
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(mpBidomainPde, &mMesh, &linear_solver);
+        if(mFixedExtracellularPotentialNodes.size()>0)
+        {
+            bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+        }    
+            
+        
         
         // initial condition;   
         Vec initial_condition;
@@ -185,7 +195,7 @@ public:
         // check the printing time step is a multiple of the pde timestep.
         assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
                        -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );   
- 
+
                         
         while( current_time < mEndTime )
         {
@@ -216,6 +226,7 @@ public:
                     p_test_writer->Close();
                     delete p_test_writer;
                 }
+                
                 throw e;
             }
                                     
@@ -271,6 +282,32 @@ public:
             system(chaste_2_meshalyzer.c_str());
         } 
     }
+    
+    
+    /** 
+     *  Set the nodes at which phi_e (the extracellular potential) is fixed to 
+     *  zero. This does not necessarily have to be called. If it is not, phi_e 
+     *  is only defined up to a constant.
+     * 
+     *  @param the nodes to be fixed.
+     * 
+     *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
+     *  anything other than zero.
+     */
+    void SetFixedExtracellularPotentialNodes(std::vector<int> nodes)
+    {
+        assert(nodes.size() > 0);
+        mFixedExtracellularPotentialNodes.resize(nodes.size());
+        for(unsigned i=0; i<nodes.size(); i++)
+        {
+            // the assembler checks that the nodes[i] is less than
+            // the number of nodes in the mesh so this is not done here
+            mFixedExtracellularPotentialNodes[i] = nodes[i];
+        }
+    }
+        
+    
+    
     
     
     void SetStartTime(const double &rStartTime)
@@ -330,7 +367,8 @@ public:
     }
     
  
-    /** Get the final solution vector. This is of length 2*numNodes, and of the form
+    /** 
+     *  Get the final solution vector. This is of length 2*numNodes, and of the form
      *  (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N). 
      *  where V_j is the voltage at node j and phi_j is the
      *  extracellular potential at node j.
@@ -353,7 +391,7 @@ public:
         return mVoltage;
     }
     
-    /** call this after GetVoltageArray to avoid memory leaks*/
+    /** call this after GetVoltageArray to avoid memory leaks */
     void RestoreVoltageArray(double **pVoltageArray)
     {
        VecRestoreArray(mVoltage, pVoltageArray);      

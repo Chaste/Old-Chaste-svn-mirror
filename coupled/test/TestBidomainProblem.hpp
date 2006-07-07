@@ -49,9 +49,6 @@ public:
 };  
 
 
-  
-    
-
 class TestBidomainProblem : public CxxTest::TestSuite 
 {
 public:
@@ -285,6 +282,38 @@ public:
         
         delete p_bidomain_problem;
     } 
+    
+    
+    void testFixedNodesInBidomainProblem()
+    {
+        PointStimulusCellFactory cell_factory;
+        BidomainProblem<1> bidomain_problem( &cell_factory );
+
+        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        
+        std::vector<int> fixed_nodes;
+        for(int i=0; i<1; i++) // 11 nodes in this mesh
+        {
+            fixed_nodes.push_back(i);
+        }
+        bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
+
+        bidomain_problem.SetEndTime(1);  // ms
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();
+    
+        double* p_voltage_array;
+        unsigned lo,hi;
+
+        bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
+        for(unsigned global_index=lo; global_index<hi; global_index++)
+        {
+            unsigned local_index = global_index - lo;
+            
+            // node was fixed, phi_e should be almost exactly zero
+            TS_ASSERT_DELTA( p_voltage_array[2*local_index + 1], 0, 1e-10);
+        }
+    }            
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

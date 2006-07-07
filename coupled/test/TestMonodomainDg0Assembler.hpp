@@ -430,6 +430,8 @@ public:
 
         p_monodomain_problem->SetPdeTimeStep(0.01);
         p_monodomain_problem->PrintEveryNthTimeStep(17);  // every 17 timesteps
+ 
+        p_monodomain_problem->SetWriteInfo(); // just to have SetWriteInfo() covered in the tests
 
         p_monodomain_problem->Initialise();
         p_monodomain_problem->Solve(); 
