@@ -4,10 +4,12 @@
 # Test*.hpp files that aren't listed in a test pack.
 # It expects to be run from the trunk of the Chaste distribution.
 
+import os, glob
+
 chaste_dir = '.'
 
 def IsTestFile(test_dir, test_file):
-  "Does the given file define a test suite?"
+  """Does the given file define a test suite?"""
   is_test = False
   if test_file[-4:] == '.hpp' and test_file[:4] == 'Test':
     fp = open(os.path.join(test_dir, test_file))
@@ -18,16 +20,12 @@ def IsTestFile(test_dir, test_file):
     fp.close()
   return is_test
 
-
-import os, glob
-
 test_packs  = []  # Names of test packs found
 orphans     = []  # Names of any orphaned test files
 found_tests = []  # Names of tests found in test packs
 
-# First get a list of all tests in test packs
+# First get a list of all tests in all test packs
 test_pack_files = glob.glob('*/test/*TestPack.txt')
-
 for test_pack_file in test_pack_files:
   # Add to list of test packs?
   test_pack = os.path.basename(test_pack_file)[:-12]
@@ -41,7 +39,8 @@ for test_pack_file in test_pack_files:
       found_tests.append(line)
   fp.close()
 
-# Now check for orphaned tests
+
+# Now check for orphaned tests in each top-level dir
 test_dirs = glob.glob('*/test/')
 
 local_found_tests = {} # Names of tests found in test packs in each folder
@@ -72,12 +71,13 @@ if test_packs:
     print " ", test_pack
   print
 
-# Output any orphaned tests found
+# Compute a list of tests listed in test packs without .hpp files
 not_found = []
 for test_dir in local_found_tests.keys():
   for test_file in local_found_tests[test_dir]:
     not_found.append(test_dir + test_file)
 
+# Display results
 if orphans or not_found:
   if orphans:
     print "Orphaned tests found:"
@@ -93,9 +93,9 @@ if orphans or not_found:
   n_orphans, n_found = len(orphans), len(found_tests)
   print "Failed",n_orphans,"of",n_orphans+n_found,"tests"
 
-  # Return a non-zero exit code if orphans were found
+  # Return a non-zero exit code if problems were found
   import sys
-  sys.exit(n_orphans)
+  sys.exit(n_orphans + len(not_found))
 else:
   print "Infrastructure test passed ok."
   
