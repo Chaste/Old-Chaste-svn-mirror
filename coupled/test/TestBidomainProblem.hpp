@@ -214,7 +214,9 @@ public:
             
             // the extracellular potential should be uniform 
             TS_ASSERT_DELTA(extracellular_potential, 0, 0.05);
-        } 
+        }
+        monodomain_problem.RestoreVoltageArray(&p_mono_voltage_array); 
+        bidomain_problem.RestoreVoltageArray(&p_bi_voltage_array); 
     }
 
 
@@ -310,9 +312,13 @@ public:
         {
             unsigned local_index = global_index - lo;
             
-            // node was fixed, phi_e should be almost exactly zero
-            TS_ASSERT_DELTA( p_voltage_array[2*local_index + 1], 0, 1e-10);
+            if((global_index%2)==1) // ie if index mod 2 == 1, ie every odd index, ie corresponding to phi_e
+            {
+                // node was fixed, phi_e should be almost exactly zero
+                TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
+            }
         }
+        bidomain_problem.RestoreVoltageArray(&p_voltage_array);
     }            
 };
 
