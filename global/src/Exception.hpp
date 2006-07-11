@@ -1,6 +1,7 @@
 #ifndef _EXCEPTION_HPP_
 #define _EXCEPTION_HPP_
 
+#include <iostream>
 #include <string>
 
 /**
@@ -18,7 +19,7 @@ public:
     /** Construct an exception with a message string */
     Exception(std::string message) : mMessage(message)
     {   
-        //nothing to do here
+        //std::cout << mMessage << "\n" << std::flush;
     }
     
     /** Get the message associated with the exception 

@@ -1,2 +1,3 @@
 TestColumnDataReaderWriter.hpp
+TestInputFileReader.hpp
 TestParallelColumnDataReaderWriter.hpp

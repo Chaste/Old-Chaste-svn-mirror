@@ -1,0 +1,37 @@
+# some data, all of which can be read
+ a double            : 343.435
+ another double      : 2.4e-4
+ a vector of doubles : 1 2.3 4.2 1e-3    # comment here
+ a vector of ints    : 3 4 5 2 77
+ a vector of strings : string1 string2
+
+# can read this
+ My Integer: 88    # this is also a comment
+
+# exception thrown when we try to read this
+ NoColon; 88
+
+# exception thrown here too, if we try to read value corresponding 
+# to MyNewString 
+ blah : 435,  MyNewString : wontberead
+
+# won't be read because of the hash...
+# MyString : dontreadme
+
+# ..this will be read, even with the empty lines before it
+
+MyString: readmeinstead#comment here
+
+
+# this can be also read despite the whitespace
+     Another String      :  hello
+
+
+# if we try to read the value corresponding to 'repeated_field_name' or
+# 'another_repeated_field_name', we will get an error because the string
+# will be found more than once
+ repeated_field_name : stuff
+ repeated_field_name : differentstuff
+
+ another_repeated_field_name : morestuff
+ another_repeated_field_name : finalstuff

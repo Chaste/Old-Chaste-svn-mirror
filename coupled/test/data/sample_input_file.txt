@@ -1,0 +1,29 @@
+
+## the model - should be either "Monodomain" or "Bidomain"
+ CardiacModel              : Bidomain
+
+
+## conductivity tensors in mS/cm. Since they are symmetric only specify the
+## upper triangular components (like memfem), ie 6 numbers in 3D representing
+## sigma_xx, sigma_xy, sigma_xz, sigma_yy, sigma_yz, sigma_zz, 3 numbers in 2d
+## and one in 1d
+ IntracellularConductivity : 1.1  0.1  0.2  1.2   0.3   1.3     
+ ExtracellularConductivity : 2.1  0.4  0.5  2.2   0.6   2.3    
+ SurfaceAreaToVolumeRatio  : 1500              # 1/cm, default used in memfem (I think)
+ Capacitance               : 1.1               # uF/cm^2
+
+
+## numerical time parameters, in ms
+ PdeTimeStep               : 0.01            # the usual
+ OdeTimeStep               : 0.001           # usually avoid gating vars going
+                                             # out of range with these choice of 
+                                             # timesteps
+ PrintingTimeStep          : 0.1
+ EndTime                   : 1
+
+
+## mesh prefix and output file info
+ MeshFilename              : some_mesh
+ OutputDirectory           : some_dir
+ OutputFilenamePrefix      : some_prefix
+    

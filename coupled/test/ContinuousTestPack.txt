@@ -1,5 +1,6 @@
 TestBidomainPde.hpp
 TestBidomainProblem.hpp
+TestCardiacProblemInputFileReader.hpp
 TestCellProperties.hpp
 TestMonodomainConductionVelocity.hpp
 TestMonodomainDg0Assembler.hpp
