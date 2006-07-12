@@ -57,7 +57,7 @@ public:
         bidomain_problem.SetMeshFilename("coupled/test/data/memfem_mesh/simple");
 
         // set the back face (nodes 468-506) to have phi_e fixed to zero
-        std::vector<int> fixed_nodes;
+        std::vector<unsigned> fixed_nodes;
         for(unsigned i=468;i<507;i++)
         {
             fixed_nodes.push_back(i);

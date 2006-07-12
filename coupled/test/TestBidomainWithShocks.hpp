@@ -238,7 +238,7 @@ public:
 
         // as we are applying an extracellular stimulus we need to have a dirichlet 
         // boundary condition. Fix phi_e to be zero at a boundary node
-        std::vector<int> fixed;
+        std::vector<unsigned> fixed;
         fixed.push_back(120);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed);
 
@@ -309,7 +309,7 @@ public:
         bidomain_problem.SetMeshFilename("coupled/test/data/memfem_mesh/simple"); // the memfem mesh
 
         // set the back face (nodes 468-506) to have phi_e fixed to zero
-        std::vector<int> fixed_nodes;
+        std::vector<unsigned> fixed_nodes;
         for(unsigned i=468;i<507;i++)
         {
             fixed_nodes.push_back(i);
