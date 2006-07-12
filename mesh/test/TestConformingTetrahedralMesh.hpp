@@ -307,6 +307,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
                    
  
         Node<1> *p_node2=mesh.GetNodeAt(1);
@@ -320,6 +321,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         p_element = (Element<1,1> *) p_node2-> GetNextContainingElement();
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
         
         // This should wrap back to 1st element
         p_element = (Element<1,1> *) p_node2-> GetNextContainingElement();
@@ -406,7 +408,40 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10);     
-    }              
+    }
+    
+    void Test1DSetPoint(){
+        TrianglesMeshReader<1,1> meshReader("mesh/test/data/1D_0_to_1_10_elements");
+                          
+        ConformingTetrahedralMesh<1,1> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+        
+        Node<1> *p_node=mesh.GetNodeAt(1);
+ 
+        Point<1> point=p_node->GetPoint();
+        TS_ASSERT_DELTA(point[0],0.1,1e-7);
+ 
+        Element<1,1> *p_element;
+        p_node ->ResetContainingElementsIterator();
+        p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
+        p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
+        
+        
+        point.SetCoordinate(0,0.05);
+        p_node->SetPoint(point);
+        p_node ->ResetContainingElementsIterator();
+        p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
+        //\todo TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.05, 1e-7);
+        p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
+        //\todo TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.15, 1e-7);
+         
+        
+    }
+                  
 };
 
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
