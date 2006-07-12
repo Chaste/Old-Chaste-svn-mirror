@@ -76,10 +76,17 @@ public:
     
     void testCreateColumnReader(void)
     {
+        // file does not exist
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("", "testdoesnotexist"));
+        // file contains corrupt data
         TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "testbad",
                                                                       false));
+        // .info file exists (unlimited) but _unlimited.dat file does not
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "UnlimitedMissing", false));
+        // .info file exists (fixed dim) but .dat file does not
+        TS_ASSERT_THROWS_ANYTHING(mpTestReader = new ColumnDataReader("io/test/data", "DatMissing", false));
         delete mpTestReader; 
+        
     }
     
     void testDefineUnlimitedDimension( void )
@@ -287,6 +294,10 @@ public:
 		}
         
 		TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_dodgy = mpTestReader->GetValues("non-existent_variable",1));
+        
+        // check that get unlimited dimension values throws
+        TS_ASSERT_THROWS_ANYTHING(std::vector<double> unlimited_values = mpTestReader->GetUnlimitedDimensionValues());
+        
         delete mpTestReader;
     }
     
@@ -374,7 +385,10 @@ public:
         {
             TS_ASSERT_DELTA(time_values[i],(i+1)*0.1,1e-3);   
             TS_ASSERT_DELTA(ica_values[i],-33.124 - i * 2,1e-3);   
-        }                          
+        }
+        
+        //check exception thrown if dimension is not given
+        TS_ASSERT_THROWS_ANYTHING(ica_values = mpTestReader->GetValues("I_Ca"));                       
     }
 
 
@@ -398,11 +412,7 @@ public:
         // remember to delete - this closes the writer cleanly and means any data left 
         // unwritten will be written to the datafile
         delete mpTestWriter;
-    }
-
-
-
-
+    }   
 
 };
 

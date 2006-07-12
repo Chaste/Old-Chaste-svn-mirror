@@ -259,11 +259,8 @@ void ColumnDataReader::ReadColumnFromFile(std::string filename, int col)
     //read in from the ancillary file   
     std::ifstream datafile(filename.c_str(),std::ios::in);                      
     std::string value;
-    //If it doesn't exist - throw exception
-    if(!datafile.is_open())
-    {
-        throw Exception("Couldn't open data file");
-    }
+    //we should have already checked that this file can be opened.
+    assert(datafile.is_open());
     // the current variable becomes true just after reading the last line
     bool end_of_file_reached=false;
     
