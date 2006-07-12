@@ -1,14 +1,17 @@
 #ifndef _POINT_HPP_
 #define _POINT_HPP_
 
+
+#include <boost/numeric/ublas/vector.hpp>
 #include <cassert>
 #include <vector>
+using namespace boost::numeric::ublas;
 
 template<int DIM> 
 class Point
 {
 private:
-    double mLocation[DIM?DIM:1]; // Bodge to allow zero dimensional points
+    c_vector<double, DIM> mLocation;
 
 public:
 
@@ -16,10 +19,18 @@ public:
 	 * Create a Point object.
 	 * There are 3 optional arguments, which can be used to specify the values
 	 * of the first 3 dimensions, if present.
+     * 
+     * Point now uses a ublas vector to store its location. The
+     * rGetLocation method returns a reference to this vector.
+     * Use of this method together with ublas operations
+     * is the perfered way to use this class.
 	 */
 	Point(double v1=0, double v2=0, double v3=0)
 	{
-		mLocation[0] = v1;
+		if (DIM>0)
+        {
+            mLocation[0] = v1;
+        }
 		if (DIM>1)
 		{
 			mLocation[1] = v2;
@@ -39,32 +50,34 @@ public:
 	{
 		for (int i=0; i<DIM; i++)
 		{
-			mLocation[i] = coords.at(i);
+			mLocation(i) = coords.at(i);
 		}
 	}
+    
+    c_vector<double, DIM>& rGetLocation(void)
+    {
+        return mLocation;
+    }
 
     double operator[] (unsigned i) const
     {
         assert((int)i<DIM); 
-        return mLocation[i];
+        return mLocation(i);
     }
     
     void SetCoordinate(unsigned i, double value)
     {
          assert(i<DIM);
-         mLocation[i] = value;   
+         mLocation(i) = value;   
     }
-    
+
     Point<DIM> MidPoint(Point<DIM> otherPoint)
     {
-    	Point<DIM> new_point;
-    	for (int i=0; i<DIM; i++)
-    	{
-    		new_point.SetCoordinate(i, 0.5*(this->mLocation[i] + otherPoint.mLocation[i]));
-    	}
-    	return new_point;
-    } 
-    
+    	Point<DIM> mid_point;
+        c_vector<double, DIM>& mid_point_location = mid_point.rGetLocation();
+        mid_point_location = 0.5 * (mLocation + otherPoint.rGetLocation());
+    	return mid_point;
+    }     
 };
 
 #endif //_POINT_HPP_

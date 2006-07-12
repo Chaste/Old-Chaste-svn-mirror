@@ -1,8 +1,8 @@
 #ifndef _TESTPOINT_HPP_
 #define _TESTPOINT_HPP_
 
-#include "Point.hpp"
 #include <cxxtest/TestSuite.h>
+#include "Point.hpp"
 
 class TestPoint : public CxxTest::TestSuite 
 {
@@ -59,7 +59,7 @@ public:
 		TS_ASSERT_DELTA(point7[0], 0, 1e-12);
 	}
 	
-	void TestMidPoint(void)
+void TestMidPoint(void)
 	{
 		Point<3> point1(1.0,2.0,3.0);
 		Point<3> point2(0.0,0.0,0.0);
@@ -70,6 +70,23 @@ public:
 		TS_ASSERT_DELTA(point3[1], 1.0, 1e-12);
 		TS_ASSERT_DELTA(point3[2], 1.5, 1e-12);
 	}
+	
+    void TestGetLocation(void)
+    
+    {
+        Point<3> point1(1.0,2.0,3.0);
+        
+        c_vector<double, 3> &point_location = point1.rGetLocation();
+        
+        TS_ASSERT_EQUALS(point_location(1), 2.0);
+        
+        point_location(0) = 0;
+    }
+    
+    void TestZeroDimPoint(void)
+    {
+        Point<0> zero_dim_point;
+    }
 };
 
 #endif //_TESTPOINT_HPP_
