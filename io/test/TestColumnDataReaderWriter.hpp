@@ -130,6 +130,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milli amperes"));
         TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I   K","milliamperes"));
         TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("I.K","milliamperes"));
+        TS_ASSERT_THROWS_ANYTHING(ik_var_id = mpTestWriter->DefineVariable("","milliamperes"));
         
         TS_ASSERT_EQUALS(ina_var_id, 0);
         TS_ASSERT_EQUALS(ik_var_id, 1);
@@ -165,9 +166,22 @@ public:
 		TS_ASSERT(filesMatch(output_dir + "testdefine.info", 
 		                     "io/test/data/testdefine_good.info"));
 		
-        // This seems to be redundant given the above check
-//		TS_ASSERT(!filesMatch(output_dir + "testdefine.info", 
-//		                      "io/test/data/testdefine_bad.info"));
+    }
+    
+    void TestCantAddUnlimitedAfterEndDefine ( void )
+    {
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
+        int ina_var_id = 0;
+        int ik_var_id = 0;
+
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 0));
+        mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000);
+
+        TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
     }
 
     void testPutVariableInUnlimitedFile( void )
@@ -237,6 +251,10 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ik_var_id, 7124.12355553));
         mpTestWriter->AdvanceAlongUnlimitedDimension();
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->PutVariable(ica_var_id, -33.124));
+        
+        
+        //check that an incorrect var id causes an exception:
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(234, -33.124));
     
         std::string output_dir = mpTestWriter->GetOutputDirectory();
     	delete mpTestWriter; 
@@ -268,11 +286,6 @@ public:
         	mpTestWriter->PutVariable(ica_var_id, ((double)((i+1)*(i+1)))/3.0, i);
         	mpTestWriter->PutVariable(ik_var_id, 7124.12355553*((double)(i+1))/12.0, i);
         }
-
-//        mpTestWriter->PutVariable(ica_var_id, 33.124,3);
-//        mpTestWriter->PutVariable(ik_var_id, 7124.12355553,3);
-//        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->AdvanceAlongUnlimitedDimension());
-//        mpTestWriter->PutVariable(ica_var_id, 63.124,2);
 
         std::string output_dir = mpTestWriter->GetOutputDirectory();
 		delete mpTestWriter;
