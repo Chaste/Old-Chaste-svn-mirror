@@ -15,7 +15,7 @@ private:
 
     // Set of pointers to elements containing this node as a vertex
     std::set<const void *> mElements;
-
+    std::set<const void *>::const_iterator mIter;
 	//TODO:
 	//bool mIsDirichletNode;
 	Node() {}
@@ -90,6 +90,27 @@ public:
     std::set<const void *> &rGetContainingElements()
     {
         return mElements;
+    }
+    
+    const int GetNumContainingElements()
+    {
+        return mElements.size();
+    }
+    
+    void ResetContainingElementsIterator()
+    {
+        mIter=mElements.begin();
+    }
+    const void *GetNextContainingElement()
+    {
+        const void *p_current_containing_element = *mIter; 
+        mIter++;
+        
+        if (mIter == mElements.end())
+        {
+           mIter = mElements.begin();
+        }
+        return p_current_containing_element;
     }
 
 };

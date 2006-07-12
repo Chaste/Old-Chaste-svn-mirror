@@ -288,7 +288,125 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 132); 
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 224); 
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
-    }                 
+    }
+    
+    
+    void Test1DMeshCrossReference()
+    {
+        TrianglesMeshReader<1,1> meshReader("mesh/test/data/1D_0_to_1_10_elements");
+                          
+        ConformingTetrahedralMesh<1,1> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+        Node<1> *p_node=mesh.GetNodeAt(0);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1);
+        p_node ->ResetContainingElementsIterator();
+        Element<1,1> *p_element;
+        
+        p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);
+                   
+ 
+        Node<1> *p_node2=mesh.GetNodeAt(1);
+        TS_ASSERT_EQUALS(p_node2->GetNumContainingElements(), 2);
+        p_node2 ->ResetContainingElementsIterator();
+               
+        p_element = (Element<1,1> *) p_node2-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);  
+        
+        p_element = (Element<1,1> *) p_node2-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2);
+        
+        // This should wrap back to 1st element
+        p_element = (Element<1,1> *) p_node2-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);    
+    }              
+    void Test2DMeshCrossReference()
+    {
+        TrianglesMeshReader<2,2> meshReader("mesh/test/data/disk_984_elements");
+                          
+        ConformingTetrahedralMesh<2,2> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+        Node<2> *p_node=mesh.GetNodeAt(234);
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 5);
+        p_node ->ResetContainingElementsIterator();
+        Element<2,2> *p_element;
+        
+        p_element = (Element<2,2> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),474);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),290);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+ 
+        p_element = (Element<2,2> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),234);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),460);
+        
+         p_element = (Element<2,2> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),290);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),459);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+        
+         p_element = (Element<2,2> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),459);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+        
+         p_element = (Element<2,2> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),460);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),474);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+            
+    }              
+    void Test3DMeshCrossReference()
+    {
+        TrianglesMeshReader<3,3> meshReader("mesh/test/data/cube_136_elements");
+                          
+        ConformingTetrahedralMesh<3,3> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+         
+        Node<3> *p_node=mesh.GetNodeAt(34);
+ 
+        TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 10);
+        p_node ->ResetContainingElementsIterator();
+        Element<3,3> *p_element;
+        
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10);     
+        
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),35);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),34);
+        
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+         
+        p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10);     
+    }              
 };
 
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
