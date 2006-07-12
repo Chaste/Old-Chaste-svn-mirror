@@ -10,7 +10,7 @@
 #define _TRIANGLESMESHREADER_H_
 
 #include "AbstractMeshReader.cpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 class TrianglesMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>

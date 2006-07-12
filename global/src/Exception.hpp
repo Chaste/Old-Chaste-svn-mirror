@@ -1,8 +1,9 @@
 #ifndef _EXCEPTION_HPP_
 #define _EXCEPTION_HPP_
 
-#include <iostream>
-//#include <string>
+#include <ostream>
+#include <string>
+#include <sstream>
 
 /**
  * Exception class.
@@ -17,8 +18,14 @@ private:
  
 public:
     /** Construct an exception with a message string */
-    Exception(std::string message) : mMessage(message)
+    Exception(std::string message, std::string filename, const int& rLineNumber)
     {   
+       std::stringstream line_number;
+    
+       line_number << rLineNumber;
+       
+       mMessage = std::string("Error in file '")+filename+"' at line "+line_number.str()+" - "+message;
+
         //std::cout << mMessage << "\n" << std::flush;
     }
     
@@ -31,5 +38,7 @@ public:
         return mMessage;
     }
 };
+
+#define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
 #endif // _EXCEPTION_HPP_

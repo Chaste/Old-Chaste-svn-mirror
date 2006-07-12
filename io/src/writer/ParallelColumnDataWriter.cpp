@@ -1,5 +1,5 @@
 #include "ParallelColumnDataWriter.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 #include <iostream>
 
 ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName)
@@ -34,7 +34,7 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
     if(size != mFixedDimensionSize)
     {
         //std::cout << "fixed_dim: " << mFixedDimensionSize << ", vec_size " << size << "\n";
-        throw Exception("Size of vector does not match FixedDimensionSize.");
+        EXCEPTION("Size of vector does not match FixedDimensionSize.");
     }
     
     //Construct the appropriate "scatter" object to concentrate the vector on the master
@@ -92,7 +92,7 @@ void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,
 {
     if(variableID != UNLIMITED_DIMENSION_VAR_ID)
     {
-       throw Exception("Non-master processes cannot write to disk.");
+       EXCEPTION("Non-master processes cannot write to disk.");
     }
     
     if (mAmMaster) 

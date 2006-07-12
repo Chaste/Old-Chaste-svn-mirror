@@ -137,8 +137,7 @@ public:
         out_stream p_output_file(new std::ofstream((mDirectory+filename).c_str(), mode));
         if (!p_output_file->is_open())
         {
-            throw Exception("Could not open file " + filename + " in " +
-                            mDirectory);
+            EXCEPTION("Could not open file " + filename + " in " + mDirectory);
         }
         return p_output_file;
     }

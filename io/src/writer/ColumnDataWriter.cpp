@@ -82,7 +82,7 @@ void ColumnDataWriter::CheckVariableName(std::string name)
 {
     if (name.length() == 0)
     {
-        throw Exception("Variable name not allowed: may not be blank.");
+        EXCEPTION("Variable name not allowed: may not be blank.");
     }
     CheckUnitsName(name);
 }
@@ -94,7 +94,7 @@ void ColumnDataWriter::CheckUnitsName(std::string name)
         if (!isalnum(name[i]) && !(name[i]=='_'))
         {
             std::string error = "Variable name/units '" + name + "' not allowed: may only contain alphanumeric characters or '_'.";
-            throw Exception(error);
+            EXCEPTION(error);
         }
     }
 }
@@ -111,12 +111,12 @@ int ColumnDataWriter::DefineUnlimitedDimension(string dimensionName, string dime
 {
     if(mIsUnlimitedDimensionSet)
     {
-        throw Exception("Unlimited dimension already set. Cannot be defined twice");
+        EXCEPTION("Unlimited dimension already set. Cannot be defined twice");
     }
     
     if(!mIsInDefineMode)
     {
-        throw Exception("Cannot define variables when not in Define mode");
+        EXCEPTION("Cannot define variables when not in Define mode");
     }
     
     CheckVariableName(dimensionName);
@@ -147,11 +147,11 @@ int ColumnDataWriter::DefineFixedDimension(string dimensionName, string dimensio
 {
     if(!mIsInDefineMode)
     {
-        throw Exception("Cannot define variables when not in Define mode");
+        EXCEPTION("Cannot define variables when not in Define mode");
     }
     if(dimensionSize < 1)
     {
-        throw Exception("Fixed dimension must be at least 1 long");
+        EXCEPTION("Fixed dimension must be at least 1 long");
     }
 
     CheckVariableName(dimensionName);
@@ -183,7 +183,7 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
 {
     if(!mIsInDefineMode)
     {
-        throw Exception("Cannot define variables when not in Define mode");
+        EXCEPTION("Cannot define variables when not in Define mode");
     }
     
     CheckVariableName(variableName);
@@ -196,11 +196,11 @@ int ColumnDataWriter::DefineVariable(string variableName, string variableUnits)
 
     if(variableName == mUnlimitedDimensionName)
     {
-        throw Exception("Variable name: " + variableName + " already in use as unlimited dimension");
+        EXCEPTION("Variable name: " + variableName + " already in use as unlimited dimension");
     }
     else if(variableName == mFixedDimensionName)
     {
-        throw Exception("Variable name: " + variableName + " already in use as fixed dimension");
+        EXCEPTION("Variable name: " + variableName + " already in use as fixed dimension");
     }
     else //ordinary variable
     {
@@ -224,12 +224,12 @@ void ColumnDataWriter::EndDefineMode()
     //Check that a dimension has been defined
     if(mIsFixedDimensionSet == false && mIsUnlimitedDimensionSet == false)
     {
-        throw Exception("Cannot end define mode. No dimensions have been defined.");
+        EXCEPTION("Cannot end define mode. No dimensions have been defined.");
     }
     //Check that at least one variable has been defined
     if(mVariables.size() < 1)
     {
-        throw Exception("Cannot end define mode. No variables have been defined.");
+        EXCEPTION("Cannot end define mode. No variables have been defined.");
     }   
     //Calculate the width of each row
     int unlimited_dimension_variable = (mpUnlimitedDimensionVariable != NULL);
@@ -398,7 +398,7 @@ void ColumnDataWriter::DoAdvanceAlongUnlimitedDimension()
     }
     else
     {
-        throw Exception("Cannot advance along unlimited dimension if it is not defined");
+        EXCEPTION("Cannot advance along unlimited dimension if it is not defined");
     }
     mUnlimitedDimensionPosition++;
 }
@@ -428,7 +428,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
     //check that we are not in define mode
     if(mIsInDefineMode)
     {
-        throw Exception("Cannot put variables when in Define mode");
+        EXCEPTION("Cannot put variables when in Define mode");
     }
     //Check that variableID is in range (assert)
     if(variableID > (int)mVariables.size() || 
@@ -436,21 +436,21 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
         variableID != FIXED_DIMENSION_VAR_ID && 
         variableID < 0))
     {
-    	 throw Exception("variableID unknown");
+    	 EXCEPTION("variableID unknown");
     }
     if(mIsFixedDimensionSet)
     {
     	if(dimensionPosition == -1 && variableID != UNLIMITED_DIMENSION_VAR_ID)
     	{
-    		throw Exception("Dimension position not supplied");
+    		EXCEPTION("Dimension position not supplied");
     	}
     	if(dimensionPosition < -1 || dimensionPosition >= mFixedDimensionSize)
     	{
-    		throw Exception("Dimension position out of range");
+    		EXCEPTION("Dimension position out of range");
     	}
     	if(dimensionPosition != -1 && variableID == UNLIMITED_DIMENSION_VAR_ID)
     	{
-    		throw Exception("Dimension position supplied, but not required");
+    		EXCEPTION("Dimension position supplied, but not required");
     	}
     }
     	    

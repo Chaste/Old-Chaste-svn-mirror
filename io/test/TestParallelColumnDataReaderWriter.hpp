@@ -9,7 +9,7 @@
 #include "ColumnDataWriter.hpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "ColumnDataReader.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 #include <petsc.h>
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"

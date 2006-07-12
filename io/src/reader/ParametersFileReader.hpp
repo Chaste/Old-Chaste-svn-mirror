@@ -7,7 +7,6 @@
 
 #include "Exception.hpp"
 
-
 class ParametersFileReader
 {
 private:
@@ -60,14 +59,14 @@ private:
     {
         if(fieldName.size()==0)
         {
-            throw Exception("ParametersFileReader.hpp: error, asked to find empty string");
+            EXCEPTION("error, asked to find empty string");
         }
  
         std::ifstream file(mFileName.c_str(), std::ios::in);
         // throw exception if file can't be opened
         if (!file.is_open())
         {
-            throw Exception("ParametersFileReader.hpp: Couldn't open file " + mFileName);
+            EXCEPTION("Couldn't open file " + mFileName);
         }
 
         foundFieldName = false;
@@ -95,9 +94,9 @@ private:
             {
                 if(foundFieldName)
                 {
-                    // appears we have found the name twice, throw Exception
+                    // appears we have found the name twice, EXCEPTION
                     file.close();
-                    throw Exception("ParametersFileReader.hpp: error, found '" + fieldName +
+                    EXCEPTION("error, found '" + fieldName +
                                     "'twice in file " + mFileName);
                 }
                     
@@ -111,7 +110,7 @@ private:
                 if(return_string.substr(0,1)!=":")
                 {
                     file.close();
-                    throw Exception("ParametersFileReader.hpp: error, found '"+fieldName+"' in file "
+                    EXCEPTION("error, found '"+fieldName+"' in file "
                                     +mFileName+", but it was not followed by a colon");
                 }
                 
@@ -126,12 +125,12 @@ private:
                 file.close();
                 if(foundFieldName)
                 {
-                    // appears we have found the name twice, throw Exception
-                    throw Exception("ParametersFileReader.hpp: error, found '" + fieldName +
+                    // appears we have found the name twice, EXCEPTION
+                    EXCEPTION("error, found '" + fieldName +
                                     "'twice in file " + mFileName);
                 }
 
-                throw Exception("ParametersFileReader.hpp: error, found '"+fieldName+"' in file "
+                EXCEPTION("error, found '"+fieldName+"' in file "
                                     +mFileName+", but it was not at the beginning of a line, "
                                     +"or commented out");
             }
@@ -141,7 +140,7 @@ private:
         if( (!foundFieldName) && (quitIfNotFound) )
         {
             // unable to find name, and have been asked to quit if so, so throw
-            throw Exception("ParametersFileReader.hpp: error, unable to find '"
+            EXCEPTION("error, unable to find '"
                             + fieldName + "' in file " + mFileName);
         }
         return return_string;  // will be the empty string if found = false          
@@ -172,7 +171,7 @@ public :
      *  @param fieldName the name of the field being searched for.
      *  @param numberOfEntries the number of data entries after the field name to be read  
      *  @param found a boolean which will be set to true if the field was found, and false otherwise
-     *  @param quitIfNotFound optional boolean saying whether to quit (throw Exception) if the string is not found. Defaults to true.
+     *  @param quitIfNotFound optional boolean saying whether to quit (EXCEPTION) if the string is not found. Defaults to true.
      * 
      *  @return std::vector of the type specified containing the data read. If the field was not found but
      *     quitIfNotFound was passed in as false, the empty vector is returned.
@@ -209,10 +208,10 @@ public :
                 if(line_stream.fail())
                 {
                     std::stringstream ss;
-                    ss << "ParametersFileReader.hpp, error while attempting to read " << numberOfEntries
+                    ss << "error while attempting to read " << numberOfEntries
                        << " data entries corresponding to '" << fieldName << "' in file "
                        << mFileName;
-                    throw Exception(ss.str());
+                    EXCEPTION(ss.str());
                 }
                 ret.push_back(value);
             }
@@ -260,7 +259,7 @@ public :
                 }
                 else if(!line_stream.eof())
                 {
-                    throw Exception("ParametersFileReader::ReadVectorOfUnknownSize(), error while attempting to read data entries corresponding to '" 
+                    EXCEPTION("error while attempting to read data entries corresponding to '" 
                                      + fieldName + "' in file " + mFileName);
                 }
             }

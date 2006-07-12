@@ -245,7 +245,7 @@ public:
         }
         if (anyones_error)
         {
-            throw Exception("Another process threw an exception in PrepareForAssembleSystem");
+            EXCEPTION("Another process threw an exception in PrepareForAssembleSystem");
         }
      }
 };

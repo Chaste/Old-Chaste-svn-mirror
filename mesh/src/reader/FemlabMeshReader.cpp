@@ -3,7 +3,7 @@
 #define _FEMLABMESHREADER_CPP_
 
 #include "FemlabMeshReader.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 /**
  * The constructor takes the path to and names of a set of Femlab mesh files 
@@ -115,8 +115,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
 
     if (SPACE_DIM != dimension_count)
     {
-        std::string mesg="FemlabMeshReader(): SPACE_DIM  != dimension read from file";
-        throw Exception(mesg);
+        EXCEPTION("SPACE_DIM  != dimension read from file");
     }
     return (tokenized_data);
 }

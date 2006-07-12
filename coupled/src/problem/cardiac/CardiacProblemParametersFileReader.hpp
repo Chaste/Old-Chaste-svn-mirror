@@ -55,7 +55,7 @@ public :
         }
         else
         {
-            throw Exception("CardiacProblemParametersFileReader.hpp: error, expected either 'Monodomain' or 'Bidomain' after 'CardiacModel:'");
+            EXCEPTION("Expected either 'Monodomain' or 'Bidomain' after 'CardiacModel:'");
         }
 
         unsigned number_of_vars = SPACE_DIM*(SPACE_DIM+1)/2; //ie 6 in 3d, 3 in 2d, 1 in 1d
@@ -213,7 +213,7 @@ private :
         }
         else
         {
-            throw Exception("CardiacProblemParametersFileReader.hpp: error, dimension should be 1, 2 or 3!");
+            EXCEPTION("Dimension should be 1, 2 or 3!");
         }
         return ret;                
     }

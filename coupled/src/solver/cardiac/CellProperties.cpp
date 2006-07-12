@@ -11,7 +11,7 @@ void CellProperties::CalculateProperties()
     // Check we have some suitable data to process
     if (mTime.size() < 1)
     {
-        throw Exception("Insufficient time steps to calculate physiological properties.");
+        EXCEPTION("Insufficient time steps to calculate physiological properties.");
     }
     
     // Reset cached properties

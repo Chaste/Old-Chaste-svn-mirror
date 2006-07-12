@@ -11,7 +11,7 @@ MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::st
 {
 	if ( ELEMENT_DIM != 3 || SPACE_DIM !=3 )
     {
-        throw Exception("MeshalyzerMeshWriter(): Can only write 3D data");
+        EXCEPTION("Can only write 3D data");
     }
     
     if (rSetCoolGraphics) 

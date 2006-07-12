@@ -137,7 +137,7 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsElements()
     } 
     else 
     {
-       throw Exception("TrianglesMeshWriter::WriteFacesAsElements : Can only write 1D/2D elements in 2D/3D space."); 
+       EXCEPTION("Can only write 1D/2D elements in 2D/3D space."); 
     }   
     
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);

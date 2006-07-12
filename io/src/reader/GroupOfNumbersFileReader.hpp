@@ -20,7 +20,7 @@ public :
         // throw exception if file can't be opened
         if (!file.is_open())
         {
-            throw Exception("GroupOfNumbersFileReader.hpp: Couldn't open file " + fileName);
+            EXCEPTION("Couldn't open file " + fileName);
         }
         
         // read data
@@ -36,8 +36,7 @@ public :
             else if (!file.eof())
             {
                 // failed but no because reached end of file => error
-                throw Exception("GroupOfNumbersFileReader.hpp, error reading data from " 
-                                 + fileName);
+                EXCEPTION("error reading data from " + fileName);
             }
         }
     }

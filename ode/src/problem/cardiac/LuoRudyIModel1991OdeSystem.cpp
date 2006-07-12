@@ -128,32 +128,32 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
     #ifndef NDEBUG
         if(!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
         {
-            throw Exception("Lr91: h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
         }
 
         if(!(0.0<=fast_sodium_current_j_gate_j && fast_sodium_current_j_gate_j<=1.0))
         {
-            throw Exception("Lr91: j gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION("j gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
         }
 
         if(!(0.0<=fast_sodium_current_m_gate_m && fast_sodium_current_m_gate_m<=1.0))
         {
-            throw Exception("Lr91: m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION("m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
         }
         
         if(!(0.0<=slow_inward_current_d_gate_d && slow_inward_current_d_gate_d<=1.0))
         {
-            throw Exception("Lr91: d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION("d gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize");
         }
         
         if(!(0.0<=slow_inward_current_f_gate_f && slow_inward_current_f_gate_f<=1.0))
         {
-            throw Exception("Lr91: f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION("f gate for slow inward current has gone out of range. Check model parameters, for example spatial stepsize");
         }
         
         if(!(0.0<=time_dependent_potassium_current_X_gate_X && time_dependent_potassium_current_X_gate_X<=1.0))
         {
-            throw Exception("Lr91: X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize");
+            EXCEPTION("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize");
         }
     #endif
     

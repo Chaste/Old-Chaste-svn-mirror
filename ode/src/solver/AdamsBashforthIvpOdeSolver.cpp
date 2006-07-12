@@ -118,7 +118,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 
     if (numberOfTimeSteps <= 4)
     {
-        throw Exception("A multi-step solver needs at least 4 time steps.");
+        EXCEPTION("A multi-step solver needs at least 4 time steps.");
     }
 
 	std::vector<double> dy(num_equations);

@@ -57,13 +57,13 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(int globalNe
     {
         std::stringstream error("Action potential did not reach near node (index= ");
         error << globalNearNodeIndex << ") in conduction velocity calculation.";
-        throw Exception(error.str());
+        EXCEPTION(error.str());
     }
     if (t_far < 0)
     {
         std::stringstream error("Action potential did not reach far node (index= ");
         error << globalFarNodeIndex << ") in conduction velocity calculation.";
-        throw Exception(error.str());
+        EXCEPTION(error.str());
     }
     return euclideanDistance / (t_far - t_near);
 }

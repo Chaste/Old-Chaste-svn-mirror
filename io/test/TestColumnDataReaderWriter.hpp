@@ -9,7 +9,7 @@
 #include <sstream>
 #include "ColumnDataWriter.hpp"
 #include "ColumnDataReader.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 using namespace std;
           

@@ -33,7 +33,7 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
 	
 	if (!dataFile.is_open())
 	{
-		throw Exception("Could not open data file "+fileName+" .");
+		EXCEPTION("Could not open data file "+fileName+" .");
 	}
 	
 	
@@ -158,7 +158,7 @@ std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 	
 	if (mpNodeIterator == mNodeData.end())
 	{
-		throw Exception("All nodes already got");
+		EXCEPTION("All nodes already got");
 	}
 
 	std::vector<double> next_node = *mpNodeIterator;
@@ -188,7 +188,7 @@ std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 	
 	if (mpElementIterator == mElementData.end())
 	{
-		throw Exception("All elements already got");
+		EXCEPTION("All elements already got");
 	}
 
 	std::vector<int> next_element = *mpElementIterator;
@@ -231,7 +231,7 @@ std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
 	
 	if (mpFaceIterator == mFaceData.end())
 	{
-		throw Exception("All faces (or edges) already got");
+		EXCEPTION("All faces (or edges) already got");
 	}
 
 	std::vector<int> next_face = *mpFaceIterator;

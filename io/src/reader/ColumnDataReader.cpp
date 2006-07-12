@@ -48,7 +48,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
 	// If it doesn't exist - throw exception
 	if (!infofile.is_open())
 	{
-		throw Exception("Couldn't open info file: " + mInfoFilename);
+		EXCEPTION("Couldn't open info file: " + mInfoFilename);
 	}
 	std::string junk;
 	mNumFixedDimensions = NOT_READ;
@@ -63,7 +63,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
 	if(mNumFixedDimensions == NOT_READ || mNumVariables == NOT_READ)
 	{
 		infofile.close();
-		throw Exception("Couldn't read info file correctly");
+		EXCEPTION("Couldn't read info file correctly");
 	}
 	//Read in variables and associated them with a column number
 	std::string variables;
@@ -88,7 +88,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
             //If it doesn't exist - throw exception
             if(!ancillaryfile.is_open())
             {
-                throw Exception("Couldn't open ancillary data file");
+                EXCEPTION("Couldn't open ancillary data file");
             }
             std::string dimension;        
             std::getline(ancillaryfile, dimension);
@@ -115,7 +115,7 @@ ColumnDataReader::ColumnDataReader(std::string directory, std::string basename,
 	//If it doesn't exist - throw exception
 	if(!datafile.is_open())
 	{
-        throw Exception("Couldn't open data file");
+        EXCEPTION("Couldn't open data file");
 	}
 			
   	std::getline(datafile, variables);
@@ -147,7 +147,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName)
 
 	if (mNumFixedDimensions > 0)
 	{
-		throw Exception("Data file has fixed dimension which must be specified");
+		EXCEPTION("Data file has fixed dimension which must be specified");
 	}
     int column = mVariablesToColumns[variableName];	
     ReadColumnFromFile(mDataFilename, column);
@@ -161,7 +161,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
 {
 	if (mNumFixedDimensions < 1)
 	{
-		throw Exception("Data file has no fixed dimension");
+		EXCEPTION("Data file has no fixed dimension");
 	}
 	
 	mValues.clear();
@@ -172,7 +172,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
 
         if(0 == column)
         {
-            throw Exception("Unknown variable");
+            EXCEPTION("Unknown variable");
         }
         int counter = 1;
         while(true)
@@ -204,7 +204,7 @@ std::vector<double> ColumnDataReader::GetValues(std::string variableName,
 		int column = mVariablesToColumns[variableName];
         if(0 == column)
         {
-            throw Exception("Unknown variable");
+            EXCEPTION("Unknown variable");
         }
 	   	ReadValueFromFile(mDataFilename,column,fixedDimension);
 	}
@@ -217,7 +217,7 @@ std::vector<double> ColumnDataReader::GetUnlimitedDimensionValues()
     mValues.clear();
     if (!mHasUnlimitedDimension)
     {
-        throw Exception("Data file has no unlimited dimension");
+        EXCEPTION("Data file has no unlimited dimension");
     }
     if (mNumFixedDimensions > 0)
     {
@@ -238,7 +238,7 @@ void ColumnDataReader::ReadValueFromFile(std::string filename, int col, int row)
     //If it doesn't exist - throw exception
     if(!datafile.is_open())
     {
-        throw Exception("Couldn't open data file");
+        EXCEPTION("Couldn't open data file");
     }        
     std::string variable_values;
     for (int i=0; i < row+1; i++)

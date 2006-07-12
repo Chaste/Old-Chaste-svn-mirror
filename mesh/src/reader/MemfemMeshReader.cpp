@@ -30,7 +30,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
 	/* All Memfem data is in 3-d. */
 	if (SPACE_DIM != 3  || ELEMENT_DIM != 3)
     {
-        throw Exception("You have asked to read non-3D data. All Memfem data is in 3D.");  
+        EXCEPTION("You have asked to read non-3D data. All Memfem data is in 3D.");  
     } 
 	
 	// Read the rest of the node data using TokenizeStringsToDoubles method
@@ -42,7 +42,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
 	
 	if (num_nodes != this->mNodeData.size())
 	{
-		throw Exception("Number of nodes does not match expected number declared in header");
+		EXCEPTION("Number of nodes does not match expected number declared in header");
 	}
 	
 	//Open element file and store the lines as a vector of strings (minus the comments) 	
@@ -63,7 +63,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
  	//Check that the size of the data matches the information in the header
   	if (num_elements != this->mElementData.size())
 	{
-		throw Exception("Number of elements does not match expected number declared in header");
+		EXCEPTION("Number of elements does not match expected number declared in header");
 	}
 
 	//Open boundary face file and store the lines as a vector of strings (minus the comments) 	

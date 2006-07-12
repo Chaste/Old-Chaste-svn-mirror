@@ -18,7 +18,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double>
 {
 	if (nextNode.size() != SPACE_DIM)
 	{
-		throw Exception("Size of node does not match dimension.");
+		EXCEPTION("Size of node does not match dimension.");
 	}
 	mNodeData.push_back(nextNode);
 }
@@ -28,7 +28,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<int>
 {
 	if (nextElement.size() != ELEMENT_DIM+1)
 	{
-		throw Exception("Size of element does not match dimension.");
+		EXCEPTION("Size of element does not match dimension.");
 	}
 	mElementData.push_back(nextElement);
 }
@@ -38,7 +38,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector
 {
 	if (nextFace.size() != ELEMENT_DIM)
 	{
-		throw Exception("Size of face or edge does not match dimension.");
+		EXCEPTION("Size of face or edge does not match dimension.");
 	}
 	mBoundaryFaceData.push_back(nextFace);
 }

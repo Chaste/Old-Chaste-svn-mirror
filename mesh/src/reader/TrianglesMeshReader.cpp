@@ -32,8 +32,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 	
     if (SPACE_DIM != dimension)
     {
-        std::string mesg="TrianglesMeshReader(): SPACE_DIM  != dimension read from file ";
-        throw Exception(mesg);
+        EXCEPTION("SPACE_DIM  != dimension read from file ");
     }
 	// Read the rest of the node data using TokenizeStringsToDoubles method
 	this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
@@ -43,7 +42,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 	//Check that the size of the data matches the information in the header
 	if (num_nodes != this->mNodeData.size())
 	{
-		throw Exception("Number of nodes does not match expected number declared in header");
+		EXCEPTION("Number of nodes does not match expected number declared in header");
 	}
  
     if (ELEMENT_DIM < SPACE_DIM)
@@ -70,7 +69,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 	//Only order 1 triangles or tetrahedra are currently supported
 	if (this->mNumElementNodes != ELEMENT_DIM+1)
 	{
-		throw Exception("Number of nodes per element is not supported");
+		EXCEPTION("Number of nodes per element is not supported");
 	}
 
 	// Read the rest of the element data using TokenizeStringsToInts method
@@ -80,7 +79,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
  	//Check that the size of the data matches the information in the header
  	if (num_elements != this->mElementData.size())
 	{
-		throw Exception("Number of elements does not match expected number declared in header");
+		EXCEPTION("Number of elements does not match expected number declared in header");
 	}
 
 	/*Open face file and store the lines as a vector of strings (minus the comments) 	
@@ -133,7 +132,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 	//Check that the size of the data matches the information in the header
 	if (num_faces != this->mFaceData.size())
 	{
-		throw Exception("Number of faces does not match expected number declared in header");
+		EXCEPTION("Number of faces does not match expected number declared in header");
 	}
 }
 
@@ -183,7 +182,7 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
      			{
      				std::stringstream item_number_as_string;
 					item_number_as_string << item_number;
-     				throw Exception("Node number " + item_number_as_string.str() + " is out of order in input file.");
+     				EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
      			}
      		}
      		else
@@ -192,7 +191,7 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
      			{
      				std::stringstream item_number_as_string;
 					item_number_as_string << item_number;
-     				throw Exception("Node number " + item_number_as_string.str() + " is out of order in input file.");
+     				EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
      			}
      		}
      		
@@ -287,7 +286,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
     }
     else 
     {
-        throw Exception("Can't have a zero-dimensional mesh in a one-dimensional space or a one-dimensional mesh in a three-dimensional space");
+        EXCEPTION("Can't have a zero-dimensional mesh in a one-dimensional space or a one-dimensional mesh in a three-dimensional space");
     }
     
     this->mElementRawData=this->GetRawDataFromFile(face_file_name);
@@ -303,7 +302,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
     
     if (num_elements != this->mElementData.size())
     {
-        throw Exception("Number of elements does not match expected number declared in header");
+        EXCEPTION("Number of elements does not match expected number declared in header");
     }
 }
 

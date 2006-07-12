@@ -25,8 +25,7 @@ void PetscException(int petscError,
     err_string+= " of file ";
     err_string+= file;
     
-    Exception e(err_string);
-    throw(e);
+    EXCEPTION(err_string);
 }
 
 void KspException(int kspError,
@@ -73,6 +72,5 @@ void KspException(int kspError,
     err_string+= " of file ";
     err_string+= file;
     
-    Exception e(err_string);
-    throw(e);
+    EXCEPTION(err_string);
 }

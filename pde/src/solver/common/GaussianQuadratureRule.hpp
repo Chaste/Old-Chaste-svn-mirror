@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include "Point.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 /**
  * This class encapsulates tables of gaussian quadrature points and the
@@ -76,7 +76,7 @@ public:
 					break;
 					
 					default:
-					throw Exception("Number of gauss points per dimension not supported.");
+					EXCEPTION("Number of gauss points per dimension not supported.");
 				}
 			}
 			break;
@@ -124,7 +124,7 @@ public:
 					break;
 					
 					default:
-					throw Exception("Number of gauss points per dimension not supported.");
+					EXCEPTION("Number of gauss points per dimension not supported.");
 				}
 				
 			}
@@ -349,13 +349,13 @@ public:
 					break;
 					
 					default:
-					throw Exception("Number of gauss points per dimension not supported.");
+					EXCEPTION("Number of gauss points per dimension not supported.");
 				}
 			}
 			break;
 			
 			default:
-				throw Exception("Gauss points not available for this dimension.");
+				EXCEPTION("Gauss points not available for this dimension.");
 		}
 
 	}

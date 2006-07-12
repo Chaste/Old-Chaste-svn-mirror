@@ -26,23 +26,23 @@ public:
         VecAssemblyBegin(test_vec);
         VecAssemblyEnd(test_vec);
         
-        throw Exception("Will cxxtest be nice if we do PETSc things?");
+        EXCEPTION("Will cxxtest be nice if we do PETSc things?");
     }
     
     void ThrowExceptionMethod()
     {
-        throw Exception("Exception thrown from method.");
+        EXCEPTION("Exception thrown from method.");
     }
 
     void TestThrowingAnExceptionInATest()
     {
-        throw Exception("Will cxxtest be nice I wonder?");
+        EXCEPTION("Will cxxtest be nice I wonder?");
     }
 
     void TestCatchingExceptionWithCxxtest()
     {
-        TS_ASSERT_THROWS_ANYTHING(throw Exception("Will cxxtest be nice I wonder?"));
-        TS_ASSERT_THROWS_NOTHING(throw Exception("Will cxxtest be nice I wonder?"));
+        TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Will cxxtest be nice I wonder?"));
+        TS_ASSERT_THROWS_NOTHING(EXCEPTION("Will cxxtest be nice I wonder?"));
     }
 };
 

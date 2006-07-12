@@ -33,7 +33,6 @@ public:
         OutputFileHandler handler3("../../../../../../../../../../../../../../../",
                                    false);
         TS_ASSERT_THROWS_ANYTHING(p_file_stream = handler3.OpenOutputFile("test_file"));
-        
     }
 };
 

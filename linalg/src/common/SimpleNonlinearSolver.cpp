@@ -5,7 +5,7 @@
  
 
 #include "SimpleNonlinearSolver.hpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 #include "petscsnes.h"
 #include <sstream>
 
@@ -93,8 +93,8 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     	reason_stream << reason;
     	VecDestroy(x); // Since caller can't free the memory in this case
     	SNESDestroy(snes);
-    	throw Exception("Nonlinear Solver did not converge. Petsc reason code:"
-    	                +reason_stream.str()+" .");
+    	EXCEPTION("Nonlinear Solver did not converge. Petsc reason code:"
+    	          +reason_stream.str()+" .");
     }
 
 	SNESDestroy(snes);

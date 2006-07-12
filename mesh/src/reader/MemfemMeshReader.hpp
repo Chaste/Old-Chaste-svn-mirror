@@ -11,7 +11,7 @@
  */
 
 #include "AbstractMeshReader.cpp"
-#include "global/src/Exception.hpp"
+#include "Exception.hpp"
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class MemfemMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
