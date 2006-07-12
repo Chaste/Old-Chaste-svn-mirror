@@ -351,7 +351,7 @@ public:
         assert(fixedExtracellularPotentialNodes.size() > 0);
         for(unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)
         {
-            assert( fixedExtracellularPotentialNodes[i] < mpMesh->GetNumNodes() );
+            assert( (int) fixedExtracellularPotentialNodes[i] < mpMesh->GetNumNodes() );
         }
         mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
     }
