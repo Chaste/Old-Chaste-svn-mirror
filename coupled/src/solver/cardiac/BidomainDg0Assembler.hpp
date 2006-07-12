@@ -41,7 +41,7 @@ private:
     Vec  mInitialCondition;
     bool mInitialConditionSet;
     
-    std::vector<int> mFixedExtracellularPotentialNodes;
+    std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
     
     void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
@@ -346,7 +346,7 @@ public:
      *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
-    void SetFixedExtracellularPotentialNodes(std::vector<int> fixedExtracellularPotentialNodes)
+    void SetFixedExtracellularPotentialNodes(std::vector<unsigned> fixedExtracellularPotentialNodes)
     {
         assert(fixedExtracellularPotentialNodes.size() > 0);
         for(unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)

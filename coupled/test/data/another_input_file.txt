@@ -7,11 +7,12 @@
 ## upper triangular components (like memfem), ie 6 numbers in 3D representing
 ## sigma_xx, sigma_xy, sigma_xz, sigma_yy, sigma_yz, sigma_zz, 3 numbers in 2d
 ## and one in 1d
-## NOTE: these are optional, if they are not included the defaults will be used.
- IntracellularConductivity : 1.1  0.1  0.2  1.2   0.3   1.3     
- ExtracellularConductivity : 2.1  0.4  0.5  2.2   0.6   2.3    
- SurfaceAreaToVolumeRatio  : 1500            # 1/cm, default used in memfem (I think)
- Capacitance               : 1.1             # uF/cm^2
+
+## following are commented out and won't be read: no error as these are optional
+ #IntracellularConductivity : 1.1  0.1  0.2  1.2   0.3   1.3     
+ #ExtracellularConductivity : 2.1  0.4  0.5  2.2   0.6   2.3    
+ #SurfaceAreaToVolumeRatio  : 1500            # 1/cm, default used in memfem (I think)
+ #Capacitance               : 1.1             # uF/cm^2
 
 
 ## numerical time parameters, in ms
@@ -23,7 +24,8 @@
  EndTime                   : 1
 
 ## bidomain: node which are fixed in phi_e
- FixedNodes				   : NONE            # should be either "NONE" or a filename,
+ FixedNodes				   : coupled/test/data/fixed_nodes.txt
+ 										     # should be either "NONE" or a filename,
  											 # in which case the file should contain the
  											 # the numbers of all the fixed nodes (indexed 
  											 # from 0)

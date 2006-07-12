@@ -1,5 +1,5 @@
-#ifndef INPUTFILEREADER_HPP_
-#define INPUTFILEREADER_HPP_
+#ifndef PARAMETERSFILEREADER_HPP_
+#define PARAMETERSFILEREADER_HPP_
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "Exception.hpp"
 
 
-class InputFileReader
+class ParametersFileReader
 {
 private:
     std::string mFileName;  
@@ -49,9 +49,9 @@ private:
      *  are not true, or if the field is found twice. If the field name is not found, 
      *  an exception is only thrown if the final argument is passed as true.
      * 
-     *  @param the name of the field being searched for. 
-     *  @param a boolean which will be set to true if the field was found, and false otherwise
-     *  @param a boolean saying whether to quit (throw Exception) if the string is not found
+     *  @param fieldName the name of the field being searched for. 
+     *  @param foundFieldName a boolean which will be set to true if the field was found, and false otherwise
+     *  @param quitIfNotFound a boolean saying whether to quit (throw Exception) if the string is not found
      * 
      *  @return everything else in the line in the file containing that string, excluding the colon 
      *  and anything following a hash (taken to represent a comment) 
@@ -60,14 +60,14 @@ private:
     {
         if(fieldName.size()==0)
         {
-            throw Exception("InputFileReader.hpp: error, asked to find empty string");
+            throw Exception("ParametersFileReader.hpp: error, asked to find empty string");
         }
  
         std::ifstream file(mFileName.c_str(), std::ios::in);
         // throw exception if file can't be opened
         if (!file.is_open())
         {
-            throw Exception("InputFileReader.hpp: Couldn't open file " + mFileName);
+            throw Exception("ParametersFileReader.hpp: Couldn't open file " + mFileName);
         }
 
         foundFieldName = false;
@@ -97,7 +97,7 @@ private:
                 {
                     // appears we have found the name twice, throw Exception
                     file.close();
-                    throw Exception("InputFileReader.hpp: error, found '" + fieldName +
+                    throw Exception("ParametersFileReader.hpp: error, found '" + fieldName +
                                     "'twice in file " + mFileName);
                 }
                     
@@ -111,7 +111,7 @@ private:
                 if(return_string.substr(0,1)!=":")
                 {
                     file.close();
-                    throw Exception("InputFileReader.hpp: error, found '"+fieldName+"' in file "
+                    throw Exception("ParametersFileReader.hpp: error, found '"+fieldName+"' in file "
                                     +mFileName+", but it was not followed by a colon");
                 }
                 
@@ -127,11 +127,11 @@ private:
                 if(foundFieldName)
                 {
                     // appears we have found the name twice, throw Exception
-                    throw Exception("InputFileReader.hpp: error, found '" + fieldName +
+                    throw Exception("ParametersFileReader.hpp: error, found '" + fieldName +
                                     "'twice in file " + mFileName);
                 }
 
-                throw Exception("InputFileReader.hpp: error, found '"+fieldName+"' in file "
+                throw Exception("ParametersFileReader.hpp: error, found '"+fieldName+"' in file "
                                     +mFileName+", but it was not at the beginning of a line, "
                                     +"or commented out");
             }
@@ -141,7 +141,7 @@ private:
         if( (!foundFieldName) && (quitIfNotFound) )
         {
             // unable to find name, and have been asked to quit if so, so throw
-            throw Exception("InputFileReader.hpp: error, unable to find '"
+            throw Exception("ParametersFileReader.hpp: error, unable to find '"
                             + fieldName + "' in file " + mFileName);
         }
         return return_string;  // will be the empty string if found = false          
@@ -154,7 +154,7 @@ public :
      * 
      *  @param The name of the file to be read. 
      */
-    InputFileReader(std::string fileName)
+    ParametersFileReader(std::string fileName)
      : mFileName(fileName) // save the file name
     {
     }
@@ -169,18 +169,24 @@ public :
      *  thrown if either of these are not true, or if the field is found twice. The method reads 
      *  and returns the data after the field name and the colon.
      *  
-     *  @param the name of the field being searched for.
-     *  @param the number of data entries after the field name to be read  
-     *  @param a boolean which will be set to true if the field was found, and false otherwise
-     *  @param optional boolean saying whether to quit (throw Exception) if the string is not found. Defaults to true.
+     *  @param fieldName the name of the field being searched for.
+     *  @param numberOfEntries the number of data entries after the field name to be read  
+     *  @param found a boolean which will be set to true if the field was found, and false otherwise
+     *  @param quitIfNotFound optional boolean saying whether to quit (throw Exception) if the string is not found. Defaults to true.
      * 
      *  @return std::vector of the type specified containing the data read. If the field was not found but
-     *   quitIfNotFound was passed in as false, the empty vector is returned.
+     *     quitIfNotFound was passed in as false, the empty vector is returned.
      * 
-     *  Method should be called using one of
+     *  Method should be called using one of:
+     * 
      *    data = ReadVector<int>   ("MyField", 4, found)
+     * 
      *    data = ReadVector<double>("MyField", 4, found)
+     * 
      *    data = ReadVector<string>("MyField", 4, found)
+     * 
+     *  Note - doesn't throw exception if there are more data entries found than asked for, the extra entries are
+     *  just not read.
      */
     template <class T>
     std::vector<T> ReadVector(std::string fieldName, unsigned numberOfEntries, bool& found, bool quitIfNotFound = true)
@@ -203,7 +209,7 @@ public :
                 if(line_stream.fail())
                 {
                     std::stringstream ss;
-                    ss << "InputFileReader.hpp, error while attempting to read " << numberOfEntries
+                    ss << "ParametersFileReader.hpp, error while attempting to read " << numberOfEntries
                        << " data entries corresponding to '" << fieldName << "' in file "
                        << mFileName;
                     throw Exception(ss.str());
@@ -214,6 +220,53 @@ public :
         return ret;  // empty vector if the name wasn't found in the file
     }
     
+
+
+
+    /** 
+     *  Read a vector of variables from the file.
+     * 
+     *  Same as ReadVector except the number of entries does not have to be specified. The reader continues reading
+     *   until it gets to the end of the line (or a comment)
+     *  
+     *  @param fieldName the name of the field being searched for.
+     *  @param found a boolean which will be set to true if the field was found, and false otherwise
+     *  @param quitIfNotFound optional boolean saying whether to quit (throw Exception) if the string is not found. Defaults to true.
+     * 
+     *  @return std::vector of the type specified containing the data read. If the field was not found but
+     *     quitIfNotFound was passed in as false, the empty vector is returned.
+     */ 
+    template <class T> 
+    std::vector<T> ReadVectorOfUnknownSize(std::string fieldName, bool& found, bool quitIfNotFound = true)
+    {
+        found = false;
+        // the returned vector
+        std::vector<T> ret;
+
+        // search for <fieldName> in the file. found will be set to be true if it is
+        // found and data will be the rest of the appropriate line in the file
+        std::string data = Find(fieldName, found, quitIfNotFound);
+        if(found)
+        {
+            // get data from the string
+            std::stringstream line_stream(data);
+            while(!line_stream.eof())
+            {
+                T value;
+                line_stream >> value;
+                if(!line_stream.fail())
+                {
+                    ret.push_back(value);                
+                }
+                else if(!line_stream.eof())
+                {
+                    throw Exception("ParametersFileReader::ReadVectorOfUnknownSize(), error while attempting to read data entries corresponding to '" 
+                                     + fieldName + "' in file " + mFileName);
+                }
+            }
+        }
+        return ret;  // empty vector if the name wasn't found in the file
+    }
         
     /** 
      *  Read a string from the file.
@@ -225,9 +278,9 @@ public :
      *  thrown if either of these are not true, or if the field is found twice. The method reads 
      *  and returns the data after the field name and the colon.
      *  
-     *  @param the name of the field being searched for.
-     *  @param a boolean which will be set to true if the field was found, and false otherwise
-     *  @param optional boolean saying whether to quit (throw Exception) if the string is not found. Defaults to true.
+     *  @param fieldName the name of the field being searched for.
+     *  @param found a boolean which will be set to true if the field was found, and false otherwise
+     *  @param quitIfNotFound optional boolean saying whether to quit (throw Exception) if the string is not found. Defaults to true.
      * 
      *  @return string containing the data read. If the field was not found but
      *   quitIfNotFound was passed in as false, the empty string is returned.
@@ -280,4 +333,4 @@ public :
     }
 };
 
-#endif /*INPUTFILEREADER_HPP_*/
+#endif /*PARAMETERSFILEREADER_HPP_*/

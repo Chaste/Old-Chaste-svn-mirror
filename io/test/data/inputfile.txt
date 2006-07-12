@@ -35,3 +35,9 @@ MyString: readmeinstead#comment here
 
  another_repeated_field_name : morestuff
  another_repeated_field_name : finalstuff
+ 
+ 
+ ## read vector of unknown size (group of nodes, for example)
+  fixed nodes : 100 101 102 103 104 105 106 107 108 109
+   
+  ChasteMeetingToday : pras lee joe ozzy alan sharon

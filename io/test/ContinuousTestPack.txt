@@ -1,3 +1,4 @@
 TestColumnDataReaderWriter.hpp
-TestInputFileReader.hpp
+TestGroupOfNumbersFileReader.hpp
+TestParametersFileReader.hpp
 TestParallelColumnDataReaderWriter.hpp

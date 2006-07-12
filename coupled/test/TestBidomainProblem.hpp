@@ -293,7 +293,7 @@ public:
 
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         
-        std::vector<int> fixed_nodes;
+        std::vector<unsigned> fixed_nodes;
         for(int i=0; i<1; i++) // 11 nodes in this mesh
         {
             fixed_nodes.push_back(i);

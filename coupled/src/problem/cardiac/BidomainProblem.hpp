@@ -49,7 +49,7 @@ private:
 
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
-    std::vector<int> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
+    std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     
 public:
     
@@ -294,7 +294,7 @@ public:
      *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
-    void SetFixedExtracellularPotentialNodes(std::vector<int> nodes)
+    void SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
     {
         assert(nodes.size() > 0);
         mFixedExtracellularPotentialNodes.resize(nodes.size());

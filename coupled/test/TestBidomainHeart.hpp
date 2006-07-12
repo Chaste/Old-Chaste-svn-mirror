@@ -7,13 +7,12 @@
 #include <vector>
 //#include <iostream>
 
-#include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "BidomainPde.hpp"
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "ColumnDataReader.hpp"
+
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -22,7 +21,7 @@ private:
 public:
     PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-3000.0*1000, 0.5);
+        mpStimulus = new InitialStimulus(-1000.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -30,9 +29,10 @@ public:
         return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
     }
     
-    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
+    void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {
-        int stimulated_cells[] = {  37484-1,        
+        int stimulated_cells[] = {  
+                                    37484-1,        
                                     37499-1, 
                                     37777-1, 
                                     37779-1, 
@@ -51,7 +51,7 @@ public:
         for(int i=0; i<14; i++)
         {
             int global_index = stimulated_cells[i];
-            if((global_index>=lo) && (global_index<hi))
+            if((global_index>=(int)lo) && (global_index<(int)hi))
             {
                 int local_index = global_index - lo;
                 (*pCellsDistributed)[ local_index ]->SetStimulusFunction(mpStimulus);
@@ -65,23 +65,67 @@ public:
     }
 };
 
+
+
 class TestBidomainHeart : public CxxTest::TestSuite 
 {   
  
 public:
     void TestBidomainDg0Heart()
     {
-        PointStimulusHeartCellFactory cell_factory(0.01);
+        ///////////////////////////////////////////////////////////////////////
+        // Solve
+        ///////////////////////////////////////////////////////////////////////
+        double pde_time_step = 0.01;  // ms
+        double ode_time_step = 0.005; // ms
+        double end_time = 100;        // ms
+        
+        double printing_time_step = end_time/100;
+        
+        PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
 
-        bidomain_problem.SetMeshFilename("mesh/test/data/heart_fifth");
-        bidomain_problem.SetEndTime(100);   // 100 ms
-        bidomain_problem.SetOutputDirectory("/tmp/testoutput/BiDg0_FifthHeart");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_FifthHeart");
-        bidomain_problem.SetPdeTimeStep(0.01);
-        bidomain_problem.Initialise();        
+        bidomain_problem.SetMeshFilename("mesh/test/data/heart");
+        bidomain_problem.SetOutputDirectory("BidomainHeart");
+        bidomain_problem.SetOutputFilenamePrefix("bidomain_heart");
+   
+        bidomain_problem.SetEndTime(end_time);  
+        bidomain_problem.SetPdeTimeStep(pde_time_step);
+        bidomain_problem.SetPrintingTimeStep(printing_time_step);
 
+        bidomain_problem.Initialise();        
         bidomain_problem.Solve();
+
+
+        ///////////////////////////////////////////////////////////////////////
+        // now reread the data and check verify that one of the stimulated 
+        // nodes was actually stimulated, and that the propagation spread to
+        // a nearby node
+        ///////////////////////////////////////////////////////////////////////
+        ColumnDataReader data_reader("BidomainHeart","bidomain_heart");
+        
+        // get the voltage values at stimulated node
+        std::vector<double> voltage_values_at_node_37483 = data_reader.GetValues("Vm_And_Phi_e", 
+                                                                                  37484-1);
+        // get the voltage values at a nearby unstimulated node
+        std::vector<double> voltage_values_at_node_500 = data_reader.GetValues("Vm_And_Phi_e", 
+                                                                                501-1);                                                                            
+        bool stimulated_node_was_excited = false;
+        bool unstimulated_node_was_excited = false;
+        
+        for(unsigned i=0; i<voltage_values_at_node_37483.size(); i++)
+        {
+            if(voltage_values_at_node_37483[i] > 0)
+            {
+                stimulated_node_was_excited = true;
+            }
+            if(voltage_values_at_node_500[i] > 0)
+            {
+                unstimulated_node_was_excited = true;
+            }
+        }
+        TS_ASSERT(stimulated_node_was_excited);
+        TS_ASSERT(unstimulated_node_was_excited);
     }
 };
 

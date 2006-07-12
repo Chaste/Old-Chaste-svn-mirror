@@ -1,17 +1,17 @@
-#ifndef TESTINPUTFILEREADER_HPP_
-#define TESTINPUTFILEREADER_HPP_
+#ifndef TESTPARAMETERSFILEREADER_HPP_
+#define TESTPARAMETERSFILEREADER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <iostream>
 #include <sstream>
-#include "InputFileReader.hpp"
+#include "ParametersFileReader.hpp"
 
-class TestInputFileReader : public CxxTest::TestSuite 
+class TestParametersFileReader : public CxxTest::TestSuite 
 {
 public :
-    void testInputFileReader(void)
+    void testParametersFileReader(void)
     {
-        InputFileReader reader("io/test/data/inputfile.txt");
+        ParametersFileReader reader("io/test/data/inputfile.txt");
         
         bool found = false;
         std::string st;
@@ -111,9 +111,28 @@ public :
         TS_ASSERT_THROWS_ANYTHING( reader.ReadVector<std::string>("not there",1,found));
         TS_ASSERT_THROWS_ANYTHING( reader.ReadVector<int>   ("not there",1,found));
         TS_ASSERT_THROWS_ANYTHING( reader.ReadVector<double>("not there",1,found));
-
+        
+        // test read vector of unknown size
+        std::vector<int>     nodes = reader.ReadVectorOfUnknownSize<int>("fixed nodes",found);
+        std::vector<double> dnodes = reader.ReadVectorOfUnknownSize<double>("fixed nodes",found);
+        TS_ASSERT_EQUALS( nodes.size(), 10);
+        TS_ASSERT_EQUALS(dnodes.size(), 10);
+        for(int i=0; i<10; i++)
+        {
+            TS_ASSERT_EQUALS( nodes[i], 100+i);
+            TS_ASSERT_EQUALS(dnodes[i], 100+i);
+        }
+        
+        std::vector<std::string> names = reader.ReadVectorOfUnknownSize<std::string>("ChasteMeetingToday",found);
+        TS_ASSERT_EQUALS(names.size(), 6);
+        TS_ASSERT_EQUALS(names[0], "pras");
+        TS_ASSERT_EQUALS(names[1], "lee");
+        TS_ASSERT_EQUALS(names[2], "joe");
+        TS_ASSERT_EQUALS(names[3], "ozzy");
+        TS_ASSERT_EQUALS(names[4], "alan");
+        TS_ASSERT_EQUALS(names[5], "sharon");
     }
 };
 
 
-#endif /*TESTINPUTFILEREADER_HPP_*/
+#endif /*TESTPARAMETERSFILEREADER_HPP_*/

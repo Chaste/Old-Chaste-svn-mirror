@@ -2,7 +2,7 @@
 #define _EXCEPTION_HPP_
 
 #include <iostream>
-#include <string>
+//#include <string>
 
 /**
  * Exception class.
