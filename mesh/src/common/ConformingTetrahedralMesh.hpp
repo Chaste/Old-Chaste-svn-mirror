@@ -146,10 +146,15 @@ public:
     	mElements[index].SetMaterial(pMaterial);
     }
     
-    const Element<ELEMENT_DIM, SPACE_DIM>& GetElement(int index) const
+    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(int index)
     {
-    	return mElements[index];
+        return &(mElements[index]);
     }
+    
+    void SetNode(unsigned index, Point<SPACE_DIM> point, bool verify=true);
+
+  
+    
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

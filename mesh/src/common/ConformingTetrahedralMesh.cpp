@@ -210,30 +210,30 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 		std::vector<int> node_indices = rMeshReader.GetNextFace();
         
         // Determine if this is a boundary face
-        std::set<const void *> containing_elements; // Elements that contain this face
+        std::set<unsigned> containing_element_indices; // Elements that contain this face
 		std::vector<Node<SPACE_DIM>*> nodes;
-		for (unsigned j=0; j<node_indices.size(); j++)
+		for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
 		{
-			assert(node_indices[j] < (int) mNodes.size());
+			assert(node_indices[node_index] < (int) mNodes.size());
 			// Add Node pointer to list for creating an element
-			nodes.push_back(&mNodes[node_indices[j]]);
+			nodes.push_back(&mNodes[node_indices[node_index]]);
                        
             // Work out what elements contain this face, by taking the intersection
             // of the sets of elements containing each node in the face.
-            if (j == 0)
+            if (node_index == 0)
             {
-                containing_elements = nodes[j]->rGetContainingElements();
+                containing_element_indices = nodes[node_index]->rGetContainingElementIndices();
             } else {
-                std::set<const void *> temp;
-                std::set_intersection(nodes[j]->rGetContainingElements().begin(),
-                                      nodes[j]->rGetContainingElements().end(),
-                                      containing_elements.begin(), containing_elements.end(),
+                std::set<unsigned> temp;
+                std::set_intersection(nodes[node_index]->rGetContainingElementIndices().begin(),
+                                      nodes[node_index]->rGetContainingElementIndices().end(),
+                                      containing_element_indices.begin(), containing_element_indices.end(),
                                       std::inserter(temp, temp.begin()));
-                containing_elements = temp;
+                containing_element_indices = temp;
             }
 		}
         
-        if (containing_elements.size() == 1)
+        if (containing_element_indices.size() == 1)
         {
             // This is a boundary face
             // Ensure all its nodes are marked as boundary nodes
@@ -372,5 +372,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
     
 }
 
+template<int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, Point<SPACE_DIM> point, bool verify)
+{
+    mNodes[index].SetPoint(point);
+    if (verify) {
+        
+        std::cout<<"This is where we need to refresh the surrounding elements' Jacobians\n";
+        for (int i=0; i<mNodes[index].GetNumContainingElements(); i++)
+        {
+            Element <ELEMENT_DIM, SPACE_DIM> *p_element=GetElement(mNodes[index].GetNextContainingElementIndex());
+            std::cout<<"Jacobian determinant was "<<p_element->GetJacobianDeterminant()<<"\n";
+        }
+        
+    }           
+}
+    
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

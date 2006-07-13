@@ -14,8 +14,6 @@ private:
     bool mIsBoundaryNode;
 
     // Set of indices of elements containing this node as a vertex
-    std::set<const void *> mElements;
-    std::set<const void *>::const_iterator mIter;
     std::set<unsigned> mElementIndices;
     std::set<unsigned>::const_iterator mIterator;
 	//TODO:
@@ -38,7 +36,8 @@ public:
 		mIsBoundaryNode = isBoundaryNode;
 	}
 
-	void SetPoint(Point<SPACE_DIM> point)
+	//Note setting the point in space is dangerous
+    void SetPoint(Point<SPACE_DIM> point)
 	{
 		mPoint = point;
 	}
@@ -79,14 +78,10 @@ public:
     /**
      * Add an element that contains this node.
      * 
-     * @param pElement Pointer to the element to add.
+     * @param index of the element to add.
      */
-    void AddElement(const void *pElement)
-    {
-        mElements.insert(pElement);
-        mIter=mElements.begin();
-    }
-    void AddElementIndex(unsigned index)
+  
+    void AddElement(unsigned index)
     {
         mElementIndices.insert(index);
         mIterator=mElementIndices.begin();
@@ -95,30 +90,27 @@ public:
     /**
      * Return a set of pointers to elements containing this node as a vertex.
      */
-    std::set<const void *> &rGetContainingElements()
+    std::set<unsigned> &rGetContainingElementIndices()
     {
-        return mElements;
+        return mElementIndices;
     }
     
     const int GetNumContainingElements()
     {
-        return mElements.size();
+        return mElementIndices.size();
     }
     
-    void ResetContainingElementsIterator()
+    
+    unsigned GetNextContainingElementIndex()
     {
-        mIter=mElements.begin();
-    }
-    const void *GetNextContainingElement()
-    {
-        const void *p_current_containing_element = *mIter; 
-        mIter++;
+        unsigned current_containing_element = *mIterator; 
+        mIterator++;
         
-        if (mIter == mElements.end())
+        if (mIterator == mElementIndices.end())
         {
-           mIter = mElements.begin();
+           mIterator = mElementIndices.begin();
         }
-        return p_current_containing_element;
+        return current_containing_element;
     }
 
 };

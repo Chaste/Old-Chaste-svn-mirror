@@ -205,8 +205,7 @@ public:
         {
             for (unsigned i=0; i<mNodes.size(); i++)
             {
-                mNodes[i]->AddElement((const void*)this);
-                mNodes[i]->AddElementIndex(mIndex);
+                mNodes[i]->AddElement(mIndex);
             }
         }
  
@@ -462,8 +461,7 @@ public:
         {
             for (unsigned i=0; i<mNodes.size(); i++)
             {
-                mNodes[i]->AddElement((const void*)this);
-                mNodes[i]->AddElementIndex(mIndex);
+                mNodes[i]->AddElement(mIndex);
             }
         }
  
