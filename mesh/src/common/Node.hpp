@@ -13,9 +13,11 @@ private:
     
     bool mIsBoundaryNode;
 
-    // Set of pointers to elements containing this node as a vertex
+    // Set of indices of elements containing this node as a vertex
     std::set<const void *> mElements;
     std::set<const void *>::const_iterator mIter;
+    std::set<unsigned> mElementIndices;
+    std::set<unsigned>::const_iterator mIterator;
 	//TODO:
 	//bool mIsDirichletNode;
 	Node() {}
@@ -82,6 +84,12 @@ public:
     void AddElement(const void *pElement)
     {
         mElements.insert(pElement);
+        mIter=mElements.begin();
+    }
+    void AddElementIndex(unsigned index)
+    {
+        mElementIndices.insert(index);
+        mIterator=mElementIndices.begin();
     }
 
     /**

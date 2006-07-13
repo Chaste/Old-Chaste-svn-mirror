@@ -32,7 +32,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         std::vector<Node<1>*> nodes;
         nodes.push_back(new Node<1>(0, false, 1.0));
         nodes.push_back(new Node<1>(1, false, 3));
-        Element<1,1> element(nodes);
+        Element<1,1> element(INDEX_IS_NOT_USED, nodes);
         LinearBasisFunction<1> basis_function;
         c_matrix<double, 2, 2> ael;
         c_vector<double, 2> bel;
@@ -60,7 +60,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
         nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
-        Element<2,2> element(nodes);
+        Element<2,2> element(INDEX_IS_NOT_USED, nodes);
         LinearBasisFunction<2> basis_function;
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
@@ -97,7 +97,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
         nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
         nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
-        Element<2,2> element(nodes);
+        Element<2,2> element(INDEX_IS_NOT_USED, nodes);
         LinearBasisFunction<2> basis_function;
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;

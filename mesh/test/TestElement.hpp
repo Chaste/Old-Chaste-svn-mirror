@@ -39,7 +39,7 @@ public:
 		nodes.push_back(new Node<3>(7, false, 0.0, 0.0, 0.5));
 		nodes.push_back(new Node<3>(8, false, 0.5, 0.0, 0.5));
 		nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
-		Element<3,3> element(nodes, 2,true);
+		Element<3,3> element(INDEX_IS_NOT_USED, nodes, 2,true);
         
 		// Check nodes on the new element have the right indices
 		for (int i=0; i<10; i++)
@@ -77,7 +77,7 @@ public:
 		cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
 		cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
 		cornerNodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-		Element<3,3> element(cornerNodes, 1, true);
+		Element<3,3> element(INDEX_IS_NOT_USED, cornerNodes, 1, true);
 				
 		// Check nodes on the new element have the right indices
 		for (int i=0; i<4; i++)
@@ -115,7 +115,7 @@ public:
 		std::vector<Node<1>*> nodes1d;
 		nodes1d.push_back(new Node<1>(0, false, 2.0));
 		nodes1d.push_back(new Node<1>(1, false, 2.5));
-		Element<1,1> element1d(nodes1d);
+		Element<1,1> element1d(INDEX_IS_NOT_USED, nodes1d);
 		const c_matrix<double, 1, 1> *J1d = element1d.GetJacobian();
 		TS_ASSERT_DELTA((*J1d)(0,0), 0.5, 1e-12);
 		
@@ -132,7 +132,7 @@ public:
 		nodes2d.push_back(new Node<2>(0, false, 0.0, 0.0));
 		nodes2d.push_back(new Node<2>(1, false, 1.0, 0.0));
 		nodes2d.push_back(new Node<2>(2, false, 0.0, 1.0));
-		Element<2,2> element2d(nodes2d);
+		Element<2,2> element2d(INDEX_IS_NOT_USED, nodes2d);
 		const c_matrix<double, 2, 2> *J2d = element2d.GetJacobian();
 		TS_ASSERT_DELTA((*J2d)(0,0), 1.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d)(0,1), 0.0, 1e-12);
@@ -148,7 +148,7 @@ public:
 		nodes2d2.push_back(new Node<2>(0, false, 1.0, -2.0));
 		nodes2d2.push_back(new Node<2>(1, false, 4.0, -3.0));
 		nodes2d2.push_back(new Node<2>(2, false, 2.0, -1.0));
-		Element<2,2> element2d2(nodes2d2);
+		Element<2,2> element2d2(INDEX_IS_NOT_USED, nodes2d2);
 		const c_matrix<double, 2, 2> *J2d2 = element2d2.GetJacobian();
 		TS_ASSERT_DELTA((*J2d2)(0,0), 3.0, 1e-12);
 		TS_ASSERT_DELTA((*J2d2)(0,1), 1.0, 1e-12);
@@ -174,7 +174,7 @@ public:
 		nodes3d.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
 		nodes3d.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
 		nodes3d.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-		Element<3,3> element3d(nodes3d, true);
+		Element<3,3> element3d(INDEX_IS_NOT_USED, nodes3d, true);
 		const c_matrix<double, 3, 3> *J3d = element3d.GetJacobian();
 		TS_ASSERT_DELTA((*J3d)(0,0), 1.0, 1e-12);
 		TS_ASSERT_DELTA((*J3d)(0,1), 0.0, 1e-12);
@@ -198,7 +198,7 @@ public:
 		nodes3d2.push_back(new Node<3>(1, false, 2.0, 1.0, 3.0));
 		nodes3d2.push_back(new Node<3>(2, false, 5.0, 5.0, 5.0));
 		nodes3d2.push_back(new Node<3>(3, false, 0.0, 3.0, 4.0));
-		Element<3,3> element3d2(nodes3d2, true);
+		Element<3,3> element3d2(INDEX_IS_NOT_USED, nodes3d2, true);
 		const c_matrix<double, 3, 3> *J3d2 = element3d2.GetJacobian();
 		TS_ASSERT_DELTA((*J3d2)(0,0), 1.0, 1e-4);
 		TS_ASSERT_DELTA((*J3d2)(0,1), 4.0, 1e-4);
@@ -237,8 +237,8 @@ public:
         Node<1> node1(0, point1);
         Node<2> node2(0, point2);
         
-        Element<0,1> element1(&node1);
-        Element<0,2> element2(&node2);
+        Element<0,1> element1(INDEX_IS_NOT_USED, &node1);
+        Element<0,2> element2(INDEX_IS_NOT_USED, &node2);
         
         TS_ASSERT_EQUALS(element1.GetNode(0)->GetPoint()[0], point1[0]);
         
@@ -268,8 +268,8 @@ public:
         nodes_1d_incorrect.push_back(&na1);
         nodes_1d_incorrect.push_back(&na0);
 
-        Element<1,1>   e_1d_correct_orientation(nodes_1d_correct);
-        Element<1,1> e_1d_incorrect_orientation(nodes_1d_incorrect); 
+        Element<1,1>   e_1d_correct_orientation(INDEX_IS_NOT_USED, nodes_1d_correct);
+        Element<1,1> e_1d_incorrect_orientation(INDEX_IS_NOT_USED, nodes_1d_incorrect); 
 
         // index of second node should be 1
         TS_ASSERT_EQUALS( e_1d_correct_orientation.GetNode(1)->GetIndex(), 1);
@@ -291,8 +291,8 @@ public:
         nodes_2d_incorrect.push_back(&nb0);
         nodes_2d_incorrect.push_back(&nb2);
 
-        Element<2,2>   e_2d_correct_orientation(nodes_2d_correct);
-        Element<2,2> e_2d_incorrect_orientation(nodes_2d_incorrect); 
+        Element<2,2>   e_2d_correct_orientation(INDEX_IS_NOT_USED, nodes_2d_correct);
+        Element<2,2> e_2d_incorrect_orientation(INDEX_IS_NOT_USED, nodes_2d_incorrect); 
 
         // index of last node should be 2
         TS_ASSERT_EQUALS( e_2d_correct_orientation.GetNode(2)->GetIndex(), 2);
@@ -317,8 +317,8 @@ public:
         nodes_3d_incorrect.push_back(&nc3);
         nodes_3d_incorrect.push_back(&nc2);
 
-        Element<3,3>   e_3d_correct_orientation(nodes_3d_correct);
-        Element<3,3> e_3d_incorrect_orientation(nodes_3d_incorrect); 
+        Element<3,3>   e_3d_correct_orientation(INDEX_IS_NOT_USED, nodes_3d_correct);
+        Element<3,3> e_3d_incorrect_orientation(INDEX_IS_NOT_USED, nodes_3d_incorrect); 
 
         // index of last node should be 3
         TS_ASSERT_EQUALS( e_3d_correct_orientation.GetNode(3)->GetIndex(), 3);

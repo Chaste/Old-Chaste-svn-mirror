@@ -301,7 +301,9 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
         Node<1> *p_node=mesh.GetNodeAt(0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1);
-        p_node ->ResetContainingElementsIterator();
+        //unsigned element_index= p_node->GetNextContainingElementIndex();
+        //TS_ASSERT_EQUALS(element_index, 0);
+        
         Element<1,1> *p_element;
         
         p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
@@ -338,7 +340,6 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
         Node<2> *p_node=mesh.GetNodeAt(234);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 5);
-        p_node ->ResetContainingElementsIterator();
         Element<2,2> *p_element;
         
         p_element = (Element<2,2> *) p_node-> GetNextContainingElement();
@@ -379,7 +380,6 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         Node<3> *p_node=mesh.GetNodeAt(34);
  
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 10);
-        p_node ->ResetContainingElementsIterator();
         Element<3,3> *p_element;
         
         p_element = (Element<3,3> *) p_node-> GetNextContainingElement();
@@ -424,7 +424,6 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         TS_ASSERT_DELTA(point[0],0.1,1e-7);
  
         Element<1,1> *p_element;
-        p_node ->ResetContainingElementsIterator();
         p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
         p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
@@ -433,7 +432,6 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
         point.SetCoordinate(0,0.05);
         p_node->SetPoint(point);
-        p_node ->ResetContainingElementsIterator();
         p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
         //\todo TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.05, 1e-7);
         p_element = (Element<1,1> *) p_node-> GetNextContainingElement();
