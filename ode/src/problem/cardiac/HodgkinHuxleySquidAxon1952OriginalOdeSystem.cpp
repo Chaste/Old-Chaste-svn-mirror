@@ -1,7 +1,7 @@
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "AbstractOdeSystem.hpp"
 #include <cmath>
-#include <cassert>
+
 
 /**
  * Constructor

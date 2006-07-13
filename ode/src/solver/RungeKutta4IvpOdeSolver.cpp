@@ -8,7 +8,6 @@
 
 //#include <iostream>
 #include <vector>
-#include <cassert>
 
 /**
  * Solves a system of ODEs using the Runge Kutta 4th Order Initial Value Problem Ordinary Differential Equation Solver

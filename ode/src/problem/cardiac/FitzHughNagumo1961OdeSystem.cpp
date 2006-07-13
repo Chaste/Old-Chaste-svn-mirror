@@ -1,6 +1,5 @@
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include <cmath>
-#include <cassert>
 
 /**
  * Constructor

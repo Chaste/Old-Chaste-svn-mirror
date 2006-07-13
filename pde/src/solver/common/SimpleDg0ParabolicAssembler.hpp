@@ -83,8 +83,14 @@ public:
 		mDt     = dT;
 		mDtInverse = 1/dT;
 		
-		assert(mTstart < mTend);
-		assert(mDt > 0);
+		if (mTstart >= mTend)
+        {
+            EXCEPTION("Starting time has to less than ending time");
+        }
+		if (mDt <= 0)
+        {
+            EXCEPTION("Time step has to be greater than zero");
+        }
         
 		assert(mDt <= mTend - mTstart + 1e-10);
 	

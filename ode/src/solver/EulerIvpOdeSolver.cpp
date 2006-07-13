@@ -8,7 +8,6 @@
 
 //#include <iostream>
 #include <vector>
-#include <cassert>
 
 /**
  * Solves a system of ODEs using the Forward Euler method

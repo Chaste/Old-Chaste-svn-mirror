@@ -75,7 +75,10 @@ public:
     /** Initialise the system. Must be called before Solve() */
     void Initialise()
     {
-        assert( mMeshFilename!="" );
+        if( mMeshFilename=="" )
+        {
+            EXCEPTION("Mesh filename was passed in empty");
+        }
 
         TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
         mMesh.ConstructFromMeshReader(mesh_reader);
@@ -90,9 +93,15 @@ public:
      */
     void Solve()
     {
-        assert( mpMonodomainPde != NULL ); // if pde is NULL, Initialise() probably hasn't been called
-        assert( mStartTime < mEndTime );
-        
+        if( mpMonodomainPde == NULL )  // if pde is NULL, Initialise() probably hasn't been called
+        {
+            EXCEPTION("Monodomain pde is null, Initialise() probably hasn't been called");
+        }
+            
+        if( mStartTime >= mEndTime )
+        {
+            EXCEPTION("Start time should be less than end time");
+        }       
         // Boundary conditions, zero neumann everywhere
         BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
        
@@ -285,7 +294,10 @@ public:
 
     void SetPdeTimeStep(double pdeTimeStep)
     {
-        assert(0.0 < pdeTimeStep);
+        if(pdeTimeStep <= 0)
+        {
+            EXCEPTION("Pde time step should be positive");
+        }
         mPdeTimeStep = pdeTimeStep;
     }
     
@@ -294,7 +306,10 @@ public:
      */
     void SetPrintingTimeStep(double printingTimeStep)
     {
-        assert(0.0 < printingTimeStep);
+        if(printingTimeStep <= 0.0)
+        {
+            EXCEPTION("Printing time step should be positive");
+        }
         mPrintingTimeStep = printingTimeStep;
     }
     

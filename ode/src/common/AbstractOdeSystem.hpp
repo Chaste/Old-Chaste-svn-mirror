@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include "Exception.hpp"
 
 class AbstractOdeSystem
 { 
@@ -49,13 +50,19 @@ public:
     
     virtual void SetInitialConditions(std::vector<double> initialConditions) 
     {
-        assert(initialConditions.size() == mNumberOfStateVariables);
+        if(initialConditions.size() != mNumberOfStateVariables)
+        {
+            EXCEPTION("The number of initial conditions must be that of the number of state variables");
+        }
         mInitialConditions=initialConditions;
     }
     
     virtual void SetInitialConditionsComponent(unsigned index, double initialCondition) 
     {
-        assert( index < mNumberOfStateVariables); 
+        if( index >= mNumberOfStateVariables)
+        {
+            EXCEPTION("Index is greater than the number of state variables");
+        }
         mInitialConditions[index]=initialCondition;
     }
     
@@ -67,7 +74,10 @@ public:
         
     void SetStateVariables(std::vector<double> stateVariables) 
     {
-        assert( mNumberOfStateVariables == stateVariables.size() );
+        if( mNumberOfStateVariables != stateVariables.size() )
+        {
+            EXCEPTION("The size of the passed in vector must be that of the number of state variables");
+        }
         mStateVariables = stateVariables;
     }
     

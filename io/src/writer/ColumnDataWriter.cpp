@@ -294,7 +294,10 @@ void ColumnDataWriter::EndDefineMode()
     }
     else //The fixed dimension must be set at this point or we wouldn't be here
     {
-        assert(mIsFixedDimensionSet);
+        if(!mIsFixedDimensionSet)
+        {
+            EXCEPTION("Fixed dimension has not been set");
+        }
         mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + SPACING); 
         std::string filename = mBaseName + ".dat";
         this->CreateFixedDimensionFile(filename);
@@ -430,7 +433,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
     {
         EXCEPTION("Cannot put variables when in Define mode");
     }
-    //Check that variableID is in range (assert)
+    //Check that variableID is in range (exception)
     if(variableID > (int)mVariables.size() || 
        (variableID != UNLIMITED_DIMENSION_VAR_ID &&
         variableID != FIXED_DIMENSION_VAR_ID && 

@@ -8,10 +8,13 @@
  */
 RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double frequency, double startTime)
 {  
+    assert(frequency > 0);
     mMagnitudeOfStimulus = magnitudeOfStimulus;
     mDuration = duration;
     mFrequency = frequency;
     mStartTime = startTime;
+
+    assert(1.0/mFrequency >= mDuration);
 }
 
  /**
@@ -29,9 +32,6 @@ RegularStimulus::~RegularStimulus()
  */
 double RegularStimulus::GetStimulus(double time)
 {
-    
-    assert(1.0/mFrequency >= mDuration);
-    
     double period = 1.0/mFrequency;
   
     double beatTime = fmod(time-mStartTime,period);

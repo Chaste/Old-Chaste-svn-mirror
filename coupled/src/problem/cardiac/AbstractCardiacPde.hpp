@@ -104,13 +104,19 @@ public:
 
     void SetSurfaceAreaToVolumeRatio(double surfaceAreaToVolumeRatio)
     {
-        assert(surfaceAreaToVolumeRatio > 0);
+        if(surfaceAreaToVolumeRatio <= 0)
+        {
+            EXCEPTION("Surface area to volume ratio should be positive");
+        }
         mSurfaceAreaToVolumeRatio = surfaceAreaToVolumeRatio;
     }
      
     void SetCapacitance(double capacitance)
     {
-        assert(capacitance > 0);
+        if(capacitance <= 0)
+        {
+            EXCEPTION("Capacitance should be positive");
+        }
         mCapacitance = capacitance;
     }     
 

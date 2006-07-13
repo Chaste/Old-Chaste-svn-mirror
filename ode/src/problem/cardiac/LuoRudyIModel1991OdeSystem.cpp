@@ -1,6 +1,6 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include <cmath>
-#include <cassert>
+
 //#include <iostream>
 #include "Exception.hpp"
 
