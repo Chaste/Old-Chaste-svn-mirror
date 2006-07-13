@@ -20,13 +20,10 @@ public:
     /** Construct an exception with a message string */
     Exception(std::string message, std::string filename, const int& rLineNumber)
     {   
-       std::stringstream line_number;
-    
-       line_number << rLineNumber;
-       
-       mMessage = std::string("Error in file '")+filename+"' at line "+line_number.str()+" - "+message;
+        std::stringstream line_number;
+        line_number << rLineNumber;
 
-        //std::cout << mMessage << "\n" << std::flush;
+        mMessage = std::string("\nCHASTE ERROR: ") + filename + ":"  + line_number.str()  + ": " + message;       
     }
     
     /** Get the message associated with the exception 

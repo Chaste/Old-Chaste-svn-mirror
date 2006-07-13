@@ -18,9 +18,9 @@ void PetscException(int petscError,
     
     std::string err_string;
     err_string=p_text;
-    err_string+= " in function ";
+    err_string+= " in function '";
     err_string+= funct;
-    err_string+= " on line " ;
+    err_string+= "' on line " ;
     err_string+= line;
     err_string+= " of file ";
     err_string+= file;
@@ -65,9 +65,9 @@ void KspException(int kspError,
             err_string = "Unknown KSP error code"; 
     }
     
-    err_string+= " in function ";
+    err_string+= " in function '";
     err_string+= funct;
-    err_string+= " on line " ;
+    err_string+= "' on line " ;
     err_string+= line;
     err_string+= " of file ";
     err_string+= file;
