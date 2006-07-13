@@ -102,52 +102,58 @@ public:
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
      */
+#define COVERAGE_IGNORE
     double ComputeLinearSourceTerm(Point<SPACE_DIM> )
     {
         assert(0);
         return 0.0;
     }
-    
+#undef COVERAGE_IGNORE
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
      */
+#define COVERAGE_IGNORE
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double )
     {
         assert(0);
         return 0.0;
     }
-
+#undef COVERAGE_IGNORE
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
      */    
+#define COVERAGE_IGNORE
     double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& )
     {   
         assert(0);
         return 0;
     }
-    
+#undef COVERAGE_IGNORE
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
      */
+#define COVERAGE_IGNORE
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
         assert(0);
         return 1;
     }
-    
+#undef COVERAGE_IGNORE
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
      */
+#define COVERAGE_IGNORE
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         assert(0);
         identity_matrix<double> id(SPACE_DIM);
         return 0 * id;
     }
+#undef COVERAGE_IGNORE
 };
 
 

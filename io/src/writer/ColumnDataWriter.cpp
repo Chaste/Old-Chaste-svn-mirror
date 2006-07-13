@@ -441,6 +441,7 @@ void ColumnDataWriter::PutVariable(int variableID, double variableValue, long di
     {
     	 EXCEPTION("variableID unknown");
     }
+
     if(mIsFixedDimensionSet)
     {
     	if(dimensionPosition == -1 && variableID != UNLIMITED_DIMENSION_VAR_ID)

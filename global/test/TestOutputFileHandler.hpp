@@ -33,6 +33,25 @@ public:
         OutputFileHandler handler3("../../../../../../../../../../../../../../../",
                                    false);
         TS_ASSERT_THROWS_ANYTHING(p_file_stream = handler3.OpenOutputFile("test_file"));
+        
+        // Test that the Chaste directory is meaningful, just for coverage purposes
+        
+        char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");
+
+        setenv("CHASTE_TEST_OUTPUT", "", 1/*Overwrite*/);
+        
+        handler3.GetTestOutputDirectory("whatever");
+
+        rmdir("whatever");
+
+        setenv("CHASTE_TEST_OUTPUT", "somewhere_without_trailing_forward_slash", 1/*Overwrite*/);
+        
+        handler3.GetTestOutputDirectory("whatever");
+
+        rmdir("somewhere_without_trailing_forward_slash/whatever");
+        rmdir("somewhere_without_trailing_forward_slash");
+
+        setenv("CHASTE_TEST_OUTPUT", chaste_test_output, 1/*Overwrite*/);
     }
 };
 

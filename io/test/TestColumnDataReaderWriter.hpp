@@ -141,9 +141,12 @@ public:
     void testEndDefineMode( void )
     {
         TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("", "testdefine"));
+
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(0, 0, 0));
+
         //ending define mode without having defined a dimension and a variable should raise an exception
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->EndDefineMode());
-        
+
         int ina_var_id = 0;
         int ik_var_id = 0;
 
@@ -152,7 +155,9 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(ina_var_id = mpTestWriter->DefineVariable("I_Na","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(ik_var_id = mpTestWriter->DefineVariable("I_K","milliamperes"));
+
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineVariable("I_Ca","milli amperes")); 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineFixedDimension("Node","dimensionless", 5000));
@@ -211,10 +216,8 @@ public:
 		
 		TS_ASSERT_THROWS_NOTHING(mpTestReader = new ColumnDataReader("","testunlimited"));
 		
-		//TS_ASSERT_THROWS_ANYTHING(std::vector<double> values_ik = mpTestReader->GetValues("I_K",3));
-
 		std::vector<double> values_ik = mpTestReader->GetValues("I_K");
-		
+
 		for (int i=0; i<11; i++)
 		{
 			TS_ASSERT_DELTA(values_ik[i]/(7124.12355553*((double)(i+1))/12.0), 1.0, 1e-3);
@@ -225,8 +228,12 @@ public:
         {
             TS_ASSERT_DELTA(time_values[i],i*0.1-0.1,1e-3);   
         }
+
+        // Test for coverage
+        
+        TS_ASSERT_THROWS_ANYTHING(values_ik = mpTestReader->GetValues("I_K",3));
+
         delete mpTestReader;		                     
-		                     
     }
     
     void testPutNegativeVariable( void )
@@ -278,6 +285,9 @@ public:
         TS_ASSERT_THROWS_ANYTHING(node_var_id = mpTestWriter->DefineVariable("Node","dimensionless")) ;
         TS_ASSERT_THROWS_NOTHING(ica_var_id = mpTestWriter->DefineVariable("I_Ca","milliamperes"));
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
+
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -1));
+        TS_ASSERT_THROWS_ANYTHING(mpTestWriter->PutVariable(node_var_id, 0, -2));
                 
         for (int i=0; i<4; i++)
         {

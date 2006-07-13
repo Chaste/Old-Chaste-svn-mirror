@@ -12,6 +12,7 @@
 #include "FemlabMeshReader.cpp"
 
 typedef FemlabMeshReader<2,2> READER_2D;
+typedef FemlabMeshReader<1,1> READER_1D;
 
 class TestFemlabMeshReaders : public CxxTest::TestSuite
 {
@@ -32,6 +33,16 @@ class TestFemlabMeshReaders : public CxxTest::TestSuite
 		                  "femlab_lshape_edges.dat"));
 		                  
 		delete pFemlabMeshReader;
+
+        // Coverage test
+        
+        AbstractMeshReader<1,1> *pWrongFemlabMeshReader;
+    
+        TS_ASSERT_THROWS_ANYTHING(pWrongFemlabMeshReader=new READER_1D(
+                          "mesh/test/data/",
+                          "femlab_lshape_nodes.dat",
+                          "femlab_lshape_elements.dat",
+                          "femlab_lshape_edges.dat"));
 	}
 	
 	/**
