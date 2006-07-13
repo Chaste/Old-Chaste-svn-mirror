@@ -16,7 +16,7 @@
                                              # out of range with these choice of 
                                              # timesteps
  PrintingTimeStep          : 0.1
- EndTime                   : 10
+ EndTime                   : 1
 
 ## bidomain: node which are fixed in phi_e
  FixedNodes				   : NONE            # should be either "NONE" or a filename,
