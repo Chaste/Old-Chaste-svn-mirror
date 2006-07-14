@@ -94,12 +94,16 @@ for src_file in src_files:
     out_file = open(out_file_name, 'w')
     # Now go through them line by line in lock-step,
     # aggregating line execution counts
-    covered_line_count, missed_line_count, warn = 0, 0, True
+    covered_line_count, missed_line_count, warn, ignore = 0, 0, True, False
     for lines in itertools.izip(*gcov_fps):
         aggregated_count = 0
         for line in lines:
             count, line_no, src_line = line.split(':', 2)
             count, line_no = count.strip(), line_no.strip()
+            if src_line.strip() == '#define COVERAGE_IGNORE':
+                ignore = True
+            elif src_line.strip() == '#undef COVERAGE_IGNORE':
+                ignore = False
             if count == '-' or line_no == 0:
                 out_file.write(line)
                 break
@@ -108,7 +112,7 @@ for src_file in src_files:
         else:
             if aggregated_count == 0:
                 src_line_stripped = src_line.strip()
-                if not (src_line_stripped == '}' or
+                if not (ignore or src_line_stripped == '}' or
                         (src_line_stripped.startswith('return') and src_line_stripped[6] in [';', ' '])):
                     warn = False
                 aggregated_count = '#####'
