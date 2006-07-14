@@ -132,7 +132,7 @@ for src_file in src_files:
         else:
             out_file.write("This source file wasn't used at all!\n\nFailed 1 of 1 test\n")
             status = "1_1"
-    elif missed_line_count == 0:
+    elif not ignore and missed_line_count == 0:
         out_file.write('\nOK!\n\n')
         status = 'OK'
     else:
@@ -141,6 +141,8 @@ for src_file in src_files:
         status = "%d_%d" % counts
         if warn:
             status = 'warn_' + status
+        if ignore:
+            status = 'ignore_' + status
     # Close all files
     [fp.close() for fp in gcov_fps]
     out_file.close()
