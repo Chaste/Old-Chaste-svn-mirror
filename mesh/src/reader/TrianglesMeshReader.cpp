@@ -46,10 +46,9 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 	}
  
     if (ELEMENT_DIM < SPACE_DIM)
-    {
-        
+    { 
         ReadFacesAsElements(pathBaseName);
-        
+        ReadEdgesAsFaces(pathBaseName);  
         return;
     }
     // the default is to read the element file
@@ -303,6 +302,57 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
     if (num_elements != this->mElementData.size())
     {
         EXCEPTION("Number of elements does not match expected number declared in header");
+    }
+}
+
+/**
+ * This method is specific to reading a mesh of trianges in 3D
+ * 
+ */
+template <int ELEMENT_DIM, int SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string pathBaseName)
+{
+ 
+    if (SPACE_DIM == 2 && ELEMENT_DIM == 1)
+    {
+        //There is no file
+        //Set the mFaceData as all the nodes.
+        int num_faces = this->GetNumNodes();
+        for (int i=0; i<num_faces; i++)
+        {
+            std::vector<int> current_item;
+            current_item.push_back(i);
+            this->mFaceData.push_back(current_item);
+        }
+        this->mpFaceIterator = this->mFaceData.begin();
+        
+        return;
+    }
+    assert(SPACE_DIM == 3 && ELEMENT_DIM == 2);
+
+    std::string face_file_name;
+    face_file_name=pathBaseName+".edge";
+    
+    this->mFaceRawData=this->GetRawDataFromFile(face_file_name);
+
+    /* Read single line header as at:
+     * http://tetgen.berlios.de/fformats.face.html
+     * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
+     */
+    
+    std::stringstream face_header_stream(this->mFaceRawData[0]);
+    unsigned int num_faces;
+    face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
+
+  
+    // Read the rest of the face/edge data using TokenizeStringsToInts method
+    this->mFaceData = TokenizeStringsToInts(this->mFaceRawData,ELEMENT_DIM);
+    this->mpFaceIterator = this->mFaceData.begin();
+    
+    //Check that the size of the data matches the information in the header
+    if (num_faces != this->mFaceData.size())
+    {
+        EXCEPTION("Number of faces does not match expected number declared in header");
     }
 }
 

@@ -201,13 +201,14 @@ public:
         // Allow nodes to keep track of containing elements (but not surface/boundary elements)
         // Only done in copy constructor, since that is what is called to put elements
         // in the vector contained in ConformingTetrahedralMesh.
-        if (ELEMENT_DIM == SPACE_DIM)
-        {
+        
+        //if (ELEMENT_DIM == SPACE_DIM)
+        //{
             for (unsigned i=0; i<mNodes.size(); i++)
             {
                 mNodes[i]->AddElement(mIndex);
             }
-        }
+        //}
  
 		mHasLowerOrderElements = element.mHasLowerOrderElements;
     	if (mHasLowerOrderElements)

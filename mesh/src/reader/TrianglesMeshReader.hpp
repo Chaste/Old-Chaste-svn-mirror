@@ -23,6 +23,7 @@ private:
 											std::vector<std::string> rawData,
 	   										int dimensionOfObject);											
     void ReadFacesAsElements(std::string pathBaseName);
+    void ReadEdgesAsFaces(std::string pathBaseName);
     
 public:
 	TrianglesMeshReader(std::string pathBaseName);

@@ -11,7 +11,8 @@ public:
 	TrianglesMeshWriter(const std::string &rDirectory,
                         const std::string &rBbaseName);
 	void WriteFiles();
-    void WriteFacesAsElements();
+    void WriteElementsAsFaces();
+    void WriteFacesAsEdges();
 	virtual ~TrianglesMeshWriter();
 };
 

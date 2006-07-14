@@ -187,6 +187,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mpTestWriter->EndDefineMode());
 
         TS_ASSERT_THROWS_ANYTHING(mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+        delete mpTestWriter;
     }
 
     void testPutVariableInUnlimitedFile( void )

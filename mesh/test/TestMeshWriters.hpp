@@ -123,10 +123,33 @@ class TestMeshWriters : public CxxTest::TestSuite
     }
     
     
-    void TestTriangles1DMeshIn2DSpace()
+    void TestTriangles1DClosedMeshIn2DSpace()
     {        
         TrianglesMeshReader<1,2> mesh_reader(
                           "mesh/test/data/circle_outline");
+        ConformingTetrahedralMesh<1,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);         
+
+        TrianglesMeshWriter<1,2> mesh_writer("","1dClosedMeshIn2dSpace");
+
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        
+        TrianglesMeshReader<1,2> mesh_reader2(
+                          output_dir+"1dClosedMeshIn2dSpace");
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(),100); 
+        
+        //By default all nodes are read as potential "faces"
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100);
+    }         
+ 
+    void TestTriangles1DMeshIn2DSpace()
+    {        
+        TrianglesMeshReader<1,2> mesh_reader(
+                          "mesh/test/data/semicircle_outline");
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);         
 
@@ -138,20 +161,45 @@ class TestMeshWriters : public CxxTest::TestSuite
         
         TrianglesMeshReader<1,2> mesh_reader2(
                           output_dir+"1dMeshIn2dSpace");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100); 
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 51); 
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(),100); 
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 50); 
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 51);
                           
         
     }         
  
-    void Test2DMeshIn3DSpace()
+    void Test2DClosedMeshIn3DSpace()
     {
         
         TrianglesMeshReader<2,3> mesh_reader(
                           "mesh/test/data/slab_395_elements");   
+                          
+        ConformingTetrahedralMesh<2,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TrianglesMeshWriter<2,3> mesh_writer("","2dClosedMeshIn3dSpace");
+
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,3> mesh_reader2(
+                          output_dir+"2dClosedMeshIn3dSpace");
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 132); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 224); 
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0);
+
+
+    }        
+    
+    void Test2DMeshIn3DSpace()
+    {
+        
+        TrianglesMeshReader<2,3> mesh_reader(
+                          "mesh/test/data/disk_in_3d");   
                           
         ConformingTetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -163,13 +211,15 @@ class TestMeshWriters : public CxxTest::TestSuite
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,3> mesh_reader2(
                           output_dir+"2dMeshIn3dSpace");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 132); 
-        
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 224); 
-        
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 312); 
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 522); 
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), mesh_reader.GetNumNodes()); 
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), mesh_reader.GetNumElements()); 
 
-
+        //Note that this not a straight conversion, since we have culled internal data
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100);
+        
     }             
    
 };

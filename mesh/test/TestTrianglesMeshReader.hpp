@@ -342,16 +342,15 @@ public:
         
         pMeshReader=new TrianglesMeshReader<1,2>(
                           "mesh/test/data/circle_outline");
-        
- 
         TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 100); 
-        
         TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 100); 
-        
-        TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 0);
-  
         delete pMeshReader;
-        
+        //Note: don't test faces (end nodes), since they are culled later
+        pMeshReader=new TrianglesMeshReader<1,2>(
+                          "mesh/test/data/semicircle_outline");
+        TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 51); 
+        TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 50); 
+        delete pMeshReader;
     }         
  
     void Test2DMeshIn3DSpace()
@@ -368,6 +367,18 @@ public:
         TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 224); 
         
         TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 0);
+  
+        delete pMeshReader;
+        
+        pMeshReader=new TrianglesMeshReader<2,3>(
+                          "mesh/test/data/disk_in_3d");
+        
+ 
+        TS_ASSERT_EQUALS( pMeshReader->GetNumNodes(), 312); 
+        
+        TS_ASSERT_EQUALS( pMeshReader->GetNumElements(), 522); 
+        
+        TS_ASSERT_EQUALS( pMeshReader->GetNumFaces(), 833);
   
         delete pMeshReader;
         

@@ -267,7 +267,7 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         }
     }
     
-    void Test1DMeshIn2DSpace()
+    void Test1DClosedMeshIn2DSpace()
     {        
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");;
         ConformingTetrahedralMesh<1,2> mesh;
@@ -275,11 +275,28 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100); 
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 100); 
+        //Check that the mesh_reader has the unculled "faces" (which are nodes)
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
+        
+    }
+    
+    void Test1DMeshIn2DSpace()
+    {       
+        TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");;
+        ConformingTetrahedralMesh<1,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51); 
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 50); 
+        //Check that the mesh_reader has the unculled "faces" (which are nodes)
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), mesh.GetNumNodes());
+        //Culled "faces"
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2);
     }         
  
  
-    void Test2DMeshIn3DSpace()
+    void Test2DClosedMeshIn3DSpace()
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
         ConformingTetrahedralMesh<2,3> mesh;
@@ -288,6 +305,22 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 132); 
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 224); 
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
+    }
+    
+    void Test2DMeshIn3DSpace()
+    {
+        TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
+        ConformingTetrahedralMesh<2,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 312); 
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 522); 
+        
+        
+        ///Check that the mesh_reader has the unculled "faces" (which are edges)
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833);
+        //These are the 100 edges around the perimeter of the circle
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100);
     }
     
     
