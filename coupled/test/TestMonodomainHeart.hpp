@@ -83,7 +83,7 @@ public:
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 
-        monodomain_problem.SetMeshFilename("mesh/test/data/heart");
+        monodomain_problem.SetMeshFilename("mesh/test/data/heart"); // note that this is the full heart mesh (not fifthheart)
         monodomain_problem.SetOutputDirectory("MonoDg0Heart");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainLR91_Heart");
 
@@ -95,9 +95,7 @@ public:
 
         monodomain_problem.Initialise();        
         monodomain_problem.Solve();
-        
-        
-        
+                
         ///////////////////////////////////////////////////////////////////////
         // now reread the data and check verify that one of the stimulated 
         // nodes was actually stimulated, and that the propagation spread to
@@ -106,11 +104,9 @@ public:
         ColumnDataReader data_reader("MonoDg0Heart","MonodomainLR91_Heart");
         
         // get the voltage values at stimulated node
-        std::vector<double> voltage_values_at_node_37483 = data_reader.GetValues("Vm_And_Phi_e", 
-                                                                                  37484-1);
+        std::vector<double> voltage_values_at_node_37483 = data_reader.GetValues("V", 37484-1);
         // get the voltage values at a nearby unstimulated node
-        std::vector<double> voltage_values_at_node_500 = data_reader.GetValues("Vm_And_Phi_e", 
-                                                                                501-1);                                                                            
+        std::vector<double> voltage_values_at_node_500 = data_reader.GetValues("V", 501-1); 
         bool stimulated_node_was_excited = false;
         bool unstimulated_node_was_excited = false;
         
