@@ -80,6 +80,7 @@ public:
   }     
 };
 
+template<>
 class Point<0>
 {
 public:
