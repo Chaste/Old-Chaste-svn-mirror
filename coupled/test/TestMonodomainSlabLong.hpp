@@ -54,7 +54,7 @@ public:
 class TestMonodomainSlabLong : public CxxTest::TestSuite 
 {   
 public:
-    void TestMonodomainSlabLongWithCornerNodesStimulated( void )
+    void TestMonodomainSlabLongWithCornerNodesStimulated( void ) throw (Exception)
     {
         CornerStimulusCellFactory cell_factory;
         

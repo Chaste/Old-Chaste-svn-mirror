@@ -71,7 +71,7 @@ class TestBidomainHeart : public CxxTest::TestSuite
 {   
  
 public:
-    void TestBidomainDg0Heart()
+    void TestBidomainDg0Heart() throw (Exception)
     {
         ///////////////////////////////////////////////////////////////////////
         // Solve
