@@ -377,14 +377,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, 
 {
     mNodes[index].SetPoint(point);
     if (verify) {
-        
-        std::cout<<"This is where we need to refresh the surrounding elements' Jacobians\n";
-        for (int i=0; i<mNodes[index].GetNumContainingElements(); i++)
+       for (int i=0; i<mNodes[index].GetNumContainingElements(); i++)
         {
-            Element <ELEMENT_DIM, SPACE_DIM> *p_element=GetElement(mNodes[index].GetNextContainingElementIndex());
-            std::cout<<"Jacobian determinant was "<<p_element->GetJacobianDeterminant()<<"\n";
+            try 
+            {   
+                 GetElement(mNodes[index].GetNextContainingElementIndex())->RefreshJacobian();
+            }
+            catch (Exception e)
+            {
+                EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+            }
         }
-        
     }           
 }
     

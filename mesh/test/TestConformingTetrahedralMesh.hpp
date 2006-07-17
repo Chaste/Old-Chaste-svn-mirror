@@ -442,10 +442,11 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         mesh.ConstructFromMeshReader(meshReader);
         
         
-        Node<1> *p_node=mesh.GetNodeAt(1);
+        const int node_index=3;
+        Node<1> *p_node=mesh.GetNodeAt(node_index);
  
         Point<1> point=p_node->GetPoint();
-        TS_ASSERT_DELTA(point[0],0.1,1e-7);
+        TS_ASSERT_DELTA(point[0],0.3,1e-7);
  
         Element<1,1> *p_element;
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
@@ -454,15 +455,138 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
         
         
-        point.SetCoordinate(0,0.05);
-        mesh.SetNode(1, point);
+        // Move node 3 from 0.3 (between node 2 at 0.2 and node 4 at 0.4
+        point.SetCoordinate(0,0.25);
+        mesh.SetNode(node_index, point);
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        //\todo TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.05, 1e-7);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.05, 1e-7);
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        //\todo TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.15, 1e-7);
-         
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.15, 1e-7);
+
+        // Move node 3 from 0.3 (between node 2 at 0.2 and node 4 at 0.4
+        point.SetCoordinate(0,0.201);
+        mesh.SetNode(node_index, point);
+        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.001, 1e-7);
+        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.199, 1e-7);
+        
+
+        // Move node 3 so that one element is empty
+        point.SetCoordinate(0,0.200);
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point));
+
+        // Move node 3 so that one element is negative
+        point.SetCoordinate(0,0.15);
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point));
+        
+        //Move node 3 back (and recover)
+        point.SetCoordinate(0,0.3);
+        mesh.SetNode(node_index, point); 
+        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
+        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-7);
         
     }
+    
+    void Test2DSetPoint()
+    {
+        TrianglesMeshReader<2,2> meshReader("mesh/test/data/disk_984_elements");
+                          
+        ConformingTetrahedralMesh<2,2> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+        
+        const int node_index=234;
+        Node<2> *p_node=mesh.GetNodeAt(node_index);
+        //Just focus on one element
+        Element<2,2> *p_element;
+        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+ 
+        Point<2> point=p_node->GetPoint();
+        TS_ASSERT_DELTA(point[0], 0.063497248392600097, 1e-7);
+        TS_ASSERT_DELTA(point[1], -0.45483180039309123, 1e-7);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00907521, 1e-7);
+ 
+        //Nudge
+        point.SetCoordinate(0,0.06);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00861908, 1e-7);
+ 
+        //Nudge
+        point.SetCoordinate(0,0.02);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00340215, 1e-7);
+
+ 
+       //Nudge
+        point.SetCoordinate(0,-0.006);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 1.11485e-05, 1e-7);
+
+       //Nudge too far
+        point.SetCoordinate(0,-0.0065);
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point)); 
+  
+
+        //Put it back
+        point.SetCoordinate(0,0.063497248392600097);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00907521, 1e-7);
+        
+    }
+ 
+    void Test3DSetPoint()
+    {
+        TrianglesMeshReader<3,3> meshReader("mesh/test/data/cube_136_elements");
+                          
+        ConformingTetrahedralMesh<3,3> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+        
+        const int node_index=34;
+        Node<3> *p_node=mesh.GetNodeAt(node_index);
+        //Just focus on one element
+        Element<3,3> *p_element;
+        p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
+ 
+        Point<3> point=p_node->GetPoint();
+        TS_ASSERT_DELTA(point[0], 1, 1e-7);
+        TS_ASSERT_DELTA(point[1], 0.75, 1e-7);
+        TS_ASSERT_DELTA(point[2], 0.75, 1e-7);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.03125, 1e-7);
+ 
+        //Nudge
+        point.SetCoordinate(2,0.9);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0125, 1e-7);
+ 
+        //Nudge
+        point.SetCoordinate(2, 0.999);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.000125, 1e-7);
+
+ 
+       //Nudge
+        point.SetCoordinate(2,0.99999);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 1.25e-06, 1e-7);
+
+       //Nudge too far
+        point.SetCoordinate(2,1.0);
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, point)); 
+  
+
+        //Put it back
+        point.SetCoordinate(2,0.75);
+        mesh.SetNode(node_index, point); 
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.03125, 1e-7);
+        
+    }
+ 
                   
 };
 

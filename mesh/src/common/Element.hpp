@@ -1,6 +1,6 @@
 #ifndef _ELEMENT_HPP_
 #define _ELEMENT_HPP_
-
+#include <float.h>
 /**
  * This class defines an Element for use in FEM.
  * 
@@ -43,12 +43,32 @@ private:
 	AbstractMaterial<SPACE_DIM>* mpMaterial;
 	
     
-    // This method sets up the element, and is called from the first constructor. 
-    // If the determinant of the jacobian is negative (ie the orientation of the
-    // element is wrong), the last two nodes will be swapped around
-    void Create(std::vector<Node<SPACE_DIM>*> nodes,
+public:
+    static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
+
+	/**
+	 * Create a new Element.
+	 * 
+	 * @param nodes A vector of pointers to Node objects, of length at least
+	 *     ELEMENT_DIM+1, specifying the nodes associated with this element.
+	 *     The corner nodes must come first, and must be listed in anticlockwise
+     *     order.
+     * @param index - Global index of this element 
+	 * @param createLowerOrderElements Whether to create elements for e.g.
+	 *     the faces of a tetrahedral element.
+	 *     These only inherit corner nodes.
+	 * @param createJacobian Whether to create the Jacobian matrix for mapping
+	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
+	 *     The full matrix is only calculated for non-sub-elements with straight edges.
+     *     For surface (boundary) elements we only calculate the determinant,
+     *     but this is all that is needed.
+	 */
+    Element(unsigned index,
+    		std::vector<Node<SPACE_DIM>*> nodes, 
             int orderOfBasisFunctions=1,
-            bool createLowerOrderElements=false, bool createJacobian=true)
+    	    bool createLowerOrderElements=false, 
+            bool createJacobian=true)
+            : mIndex(index)
     {
         // Sanity checking
         assert(ELEMENT_DIM <= SPACE_DIM);
@@ -62,14 +82,7 @@ private:
         
         // Specify order of basis functions
         mOrderOfBasisFunctions = orderOfBasisFunctions;
-        
-        // Create lower order elements?
-        mHasLowerOrderElements = false;
-        if (createLowerOrderElements)
-        {
-            CreateLowerOrderElements();
-        }
-        
+               
         // Create Jacobian?
         mpJacobian = NULL;
         mpInverseJacobian = NULL;
@@ -80,39 +93,18 @@ private:
                 mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
                 mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
                 
-                for(int i=0; i<ELEMENT_DIM; i++)
+                try 
                 {
-                    for(int j=0; j<ELEMENT_DIM; j++)
-                    {                       
-                        (*mpJacobian)(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
-                    }
-                }
-               
-                *mpInverseJacobian   = Inverse(*mpJacobian);
-                mJacobianDeterminant = Determinant(*mpJacobian);
+                    RefreshJacobian();
+                } 
+                catch (Exception)
+                {
+                    // if the Jacobian is negative the orientation of the element is probably
+                    // wrong, so swap the last two nodes around.
                 
-                // if the Jacobian is negative the orientation of the element is probably
-                // wrong, so swap the last two nodes around.
-                if(mJacobianDeterminant < 0.0)
-                {
-                    static bool first=true;
-//                    if(first)
-//                    {
-//                        std::cout << "WARNING (Element.hpp): (at least one) element has negative Jacobian, " 
-//                                  << "swapping the last two nodes around.\n" << std::flush;
-//                    }
-                    first = false;                    
-                    Node<SPACE_DIM>* p_temp_node;
-                    p_temp_node = nodes[nodes.size()-1];
-                    nodes[nodes.size()-1] = nodes[nodes.size()-2];
-                    nodes[nodes.size()-2] = p_temp_node;
-                    
-                    //Clean up the Jacobian matrices
-                    delete mpJacobian;
-                    delete mpInverseJacobian;
-                    
-                    Create(nodes, orderOfBasisFunctions, createLowerOrderElements, createJacobian);
-                    return;
+                    mNodes[nodes.size()-1] = nodes[nodes.size()-2];
+                    mNodes[nodes.size()-2] = nodes[nodes.size()-1];
+                    RefreshJacobian();
                 }
 
                 // If determinant < 0 then element nodes are listed clockwise.
@@ -152,41 +144,19 @@ private:
                         assert(0); // TODO? Might want to change this
                 }
             }
+            
         }
+        // Create lower order elements?
+        mHasLowerOrderElements = false;
+        if (createLowerOrderElements)
+        {
+            CreateLowerOrderElements();
+        }
+ 
     }
 
-public:
-    static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
-
-	/**
-	 * Create a new Element.
-	 * 
-	 * @param nodes A vector of pointers to Node objects, of length at least
-	 *     ELEMENT_DIM+1, specifying the nodes associated with this element.
-	 *     The corner nodes must come first, and must be listed in anticlockwise
-     *     order.
-     * @param index - Global index of this element 
-	 * @param createLowerOrderElements Whether to create elements for e.g.
-	 *     the faces of a tetrahedral element.
-	 *     These only inherit corner nodes.
-	 * @param createJacobian Whether to create the Jacobian matrix for mapping
-	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
-	 *     The full matrix is only calculated for non-sub-elements with straight edges.
-     *     For surface (boundary) elements we only calculate the determinant,
-     *     but this is all that is needed.
-	 */
-    Element(unsigned index,
-    		std::vector<Node<SPACE_DIM>*> nodes, 
-            int orderOfBasisFunctions=1,
-    	    bool createLowerOrderElements=false, 
-            bool createJacobian=true)
-            : mIndex(index)
-    {
-        // note that Create() is a separate method because it sometimes recursively
-        // calls itself (if the determinant of the jacobian is negative, the last
-        // two nodes are swapped around and Create() called again.
-        Create(nodes, orderOfBasisFunctions, createLowerOrderElements, createJacobian);
-    }       
+        
+         
             
     
     /**
@@ -202,14 +172,11 @@ public:
         // Only done in copy constructor, since that is what is called to put elements
         // in the vector contained in ConformingTetrahedralMesh.
         
-        //if (ELEMENT_DIM == SPACE_DIM)
-        //{
-            for (unsigned i=0; i<mNodes.size(); i++)
-            {
-                mNodes[i]->AddElement(mIndex);
-            }
-        //}
- 
+        for (unsigned i=0; i<mNodes.size(); i++)
+        {
+            mNodes[i]->AddElement(mIndex);
+        }
+
 		mHasLowerOrderElements = element.mHasLowerOrderElements;
     	if (mHasLowerOrderElements)
     	{
@@ -258,6 +225,24 @@ public:
     	{
     		delete mpInverseJacobian;
     	}
+    }
+    
+    void RefreshJacobian(void)
+    {
+        for(int i=0; i<ELEMENT_DIM; i++)    
+        {
+            for(int j=0; j<ELEMENT_DIM; j++)
+            {                      
+                (*mpJacobian)(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
+            }
+        }
+               
+        mJacobianDeterminant = Determinant(*mpJacobian);
+        if (mJacobianDeterminant < DBL_EPSILON)
+        {
+            EXCEPTION("Jacobian determinant is non-positive");
+        }
+        *mpInverseJacobian   = Inverse(*mpJacobian);
     }
     
     void AddInternalNode(const Node<SPACE_DIM>* internalNodeToAdd)
