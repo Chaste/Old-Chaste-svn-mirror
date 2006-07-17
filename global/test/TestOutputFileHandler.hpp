@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include <string>
 #include <fstream>
+#include <unistd.h> //For rmdir()
 #include "OutputFileHandler.hpp"
 
 class TestOutputFileHandler : public CxxTest::TestSuite 

@@ -14,9 +14,6 @@ public:
 	 */
 	void TestSetAndGetCoordinate(void)
 	{
-		// check doesnt crash if a 0-dimensional point.
-		//Point<0> point0;
-	        // (Causes  unused variable warnings on some compilers)
 
 		Point<1> point1;
 		
@@ -83,9 +80,10 @@ void TestMidPoint(void)
         point_location(0) = 0;
     }
     
-    void TestZeroDimPoint(void)
+    void TestZeroDimPoint(void) 
     {
         Point<0> zero_dim_point;
+	TS_ASSERT_THROWS_ANYTHING(zero_dim_point[0]);
     }
 };
 

@@ -5,6 +5,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <cassert>
 #include <vector>
+#include "Exception.hpp"
 using namespace boost::numeric::ublas;
 
 template<int DIM> 
@@ -91,6 +92,10 @@ public:
    */
   Point(double v1=0, double v2=0, double v3=0)
   {
+  }  
+  double operator[] (unsigned i) const
+  {
+    EXCEPTION("Zero-dimensional point has no data");
   }
 };
 
