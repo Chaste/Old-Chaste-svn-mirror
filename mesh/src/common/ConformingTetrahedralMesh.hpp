@@ -23,7 +23,7 @@ class ConformingTetrahedralMesh
 {
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> >::const_iterator MeshIterator;
-    typedef typename std::vector<const Element<ELEMENT_DIM-1, SPACE_DIM>*>::const_iterator BoundaryElementIterator;
+    typedef typename std::vector<Element<ELEMENT_DIM-1, SPACE_DIM>*>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<const Node<SPACE_DIM>*>::const_iterator BoundaryNodeIterator;
 private:
 	
@@ -34,7 +34,7 @@ private:
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> > mElements;    
     std::vector<Node<SPACE_DIM> > mNodes;
     
-    std::vector<const Element<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
+    std::vector<Element<ELEMENT_DIM-1, SPACE_DIM> *> mBoundaryElements;
     std::vector<const Node<SPACE_DIM> *> mBoundaryNodes;
     
     MeshIterator mpConstIter;
@@ -149,6 +149,11 @@ public:
     Element<ELEMENT_DIM, SPACE_DIM>* GetElement(int index)
     {
         return &(mElements[index]);
+    }
+ 
+    Element<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(int index)
+    {
+        return mBoundaryElements[index];
     }
     
     void SetNode(unsigned index, Point<SPACE_DIM> point, bool verify=true);

@@ -96,7 +96,6 @@ public:
   
     void AddBoundaryElement(unsigned index)
     {
-        //std::cout<<"Boundary Element "<< index<< "\n";
         mBoundaryElementIndices.insert(index);
         mBoundaryElementIterator=mBoundaryElementIndices.begin();
     }

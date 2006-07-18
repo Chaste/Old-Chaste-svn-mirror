@@ -205,6 +205,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 	}
 	
 	// Add boundary elements & nodes
+    int actual_face_index=0;
 	for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
 	{
 		std::vector<int> node_indices = rMeshReader.GetNextFace();
@@ -237,16 +238,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         {
             // This is a boundary face
             // Ensure all its nodes are marked as boundary nodes
+            
             for (unsigned j=0; j<nodes.size(); j++)
             {
                 if (!nodes[j]->IsBoundaryNode())
                 {
                     nodes[j]->SetAsBoundaryNode();
                     mBoundaryNodes.push_back(nodes[j]);
-                    //Register the index that this bounday element will have
-                    //with the node
-                    nodes[j]->AddBoundaryElement(mBoundaryElements.size());
                 }
+                //Register the index that this bounday element will have
+                //with the node
+                nodes[j]->AddBoundaryElement(actual_face_index);
             }
 
 		
@@ -275,7 +277,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     		}
     		
     		// The added elements will be deleted in our destructor
-    		mBoundaryElements.push_back(new Element<ELEMENT_DIM-1,SPACE_DIM>(face_index,nodes,orderOfBasisFunctions));
+    		mBoundaryElements.push_back(new Element<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index,nodes,orderOfBasisFunctions));
+            actual_face_index++;
+            
     	}
     }
 }
@@ -389,6 +393,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, 
             catch (Exception e)
             {
                 EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+            }
+        }
+       for (int i=0; i<mNodes[index].GetNumBoundaryElements(); i++)
+        {
+            try 
+            {   
+                GetBoundaryElement(mNodes[index].GetNextBoundaryElementIndex())->RefreshJacobianDeterminant();
+            }
+            catch (Exception e)
+            {
+                EXCEPTION("Moving node caused a boundary element to have a non-positive Jacobian determinant");
             }
         }
     }           

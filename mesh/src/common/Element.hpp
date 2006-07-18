@@ -398,7 +398,10 @@ public:
 	{
 		return mJacobianDeterminant;
 	}
-    
+    void RefreshJacobianDeterminant(void)
+    {
+        mJacobianDeterminant = 1;
+    }
 };
 
 
