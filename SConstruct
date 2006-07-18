@@ -77,20 +77,21 @@ elif system_name == 'zuse':
 
 else:
   # Default
-  petsc_base = '../../../petsc-2.3.1-p13/'
+  petsc_base = '../../../petsc-2.3.1-p12/'
   petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
+  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu-c-real-debug '
   # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
   petsc_mpi = ''
   petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
-  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/linux-gnu'
-  blas_libs = ['f2clapack', 'f2cblas']
-  other_libpaths = ['']
-  other_libs = ['']
-  petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'
+    
+  blas_libpath = '#'+petsc_base+'/externalpackages/fblaslapack/linux-gnu-c-real-debug ' 
+  petsc_libpath = '#'+petsc_base+'lib/linux-gnu-c-real-debug/'
+  X11_libpath = '#'+'//usr/X11R6/lib64'
+  g2c_libpath = '#'+'//usr/lib/gcc-lib/x86_64-redhat-linux/3.2.3/' #found by looking in ${PETSC_DIR}/bmake/{PETSC_ARCH}/petscconf
+  Y_libpath = '#'+'//home/pras/scratch/lib'
 
-Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", 
-		"petsc_libpath", "blas_libpath", "blas_libs", "other_libpaths", "other_libs")
+
+Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", "petsc_libpath", "blas_libpath", "X11_libpath", "g2c_libpath", "Y_libpath")
 
 
 ## C++ build tools & MPI runner
