@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "AbstractMeshReader.hpp"
-#include "Element.hpp"
+#include "Element.cpp"
 #include "Node.hpp"
 #include "AbstractMaterial.hpp"
 

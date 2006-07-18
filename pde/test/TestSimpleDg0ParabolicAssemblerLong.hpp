@@ -11,21 +11,16 @@
  *   
  */
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
+#include "ConformingTetrahedralMesh.cpp"
 #include <petsc.h>
 #include <vector>
-//#include <iostream>
 #include <cmath>
 
 #include <sys/stat.h> // for mkdir
 
 #include "SimpleLinearSolver.hpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "Node.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp" 
 #include "ParallelColumnDataWriter.hpp"

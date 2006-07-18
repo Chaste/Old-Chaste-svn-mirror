@@ -1,11 +1,10 @@
 #ifndef _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 #define _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
+
 
 #include <cxxtest/TestSuite.h>
+#include "ConformingTetrahedralMesh.cpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
@@ -14,8 +13,6 @@
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "SimpleNonlinearSolver.hpp"
 
-#include "Node.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 
 #include "BoundaryConditionsContainer.hpp"
 #include "FunctionalBoundaryCondition.hpp"

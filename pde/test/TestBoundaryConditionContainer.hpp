@@ -5,8 +5,6 @@
 
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "Node.hpp"
-#include "Element.hpp"
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "SimpleLinearSolver.hpp"

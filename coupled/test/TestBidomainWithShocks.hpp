@@ -2,16 +2,13 @@
 #define TESTBIDOMAINWITHSHOCKS_HPP_
 
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
+
 #include <cxxtest/TestSuite.h>
-#include <petscvec.h>
-#include <vector>
-//#include <iostream>
-#include "PetscSetupAndFinalize.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
+#include <petscvec.h>
+#include <vector>
+#include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ColumnDataReader.hpp"

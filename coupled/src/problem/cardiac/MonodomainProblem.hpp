@@ -1,8 +1,8 @@
 #ifndef MONODOMAINPROBLEM_HPP_
 #define MONODOMAINPROBLEM_HPP_
 
-#include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
+#include "SimpleLinearSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.cpp"

@@ -1,17 +1,12 @@
 #ifndef _TESTMONODOMAINVERSUSSIMPLEDG0PARABOLICASSEMBLER_HPP_
 #define _TESTMONODOMAINVERSUSSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
-
 #include <cxxtest/TestSuite.h>
+#include "ConformingTetrahedralMesh.cpp"
 #include <petsc.h>
 #include <vector>
-//#include <iostream>
 
 #include "SimpleLinearSolver.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"  
 #include "MonodomainDg0Assembler.hpp"
@@ -19,7 +14,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
-#include "Point.hpp"
+
 
 
 /**

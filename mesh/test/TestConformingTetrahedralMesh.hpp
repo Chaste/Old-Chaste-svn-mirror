@@ -5,8 +5,6 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 
-#include "Element.hpp"
-#include "Node.hpp"
 
 #include <vector>
 

@@ -1,7 +1,6 @@
 #ifndef _TESTMONODOMAINPDE_HPP_
 #define _TESTMONODOMAINPDE_HPP_
 
-//#include <iostream>
 #include <vector>
 
 #include "InitialStimulus.hpp"

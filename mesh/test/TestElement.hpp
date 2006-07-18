@@ -3,7 +3,7 @@
 
 #include "Point.hpp"
 #include "Node.hpp"
-#include "Element.hpp"
+#include "Element.cpp"
 #include <cxxtest/TestSuite.h>
 //#include <iostream>
 

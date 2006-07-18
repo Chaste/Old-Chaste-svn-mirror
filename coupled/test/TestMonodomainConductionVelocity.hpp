@@ -1,13 +1,9 @@
 #ifndef _TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
 #define _TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
 #include <vector>
-//#include <iostream>
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "PropagationPropertiesCalculator.hpp"

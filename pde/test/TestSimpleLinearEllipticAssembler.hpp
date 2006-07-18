@@ -1,21 +1,15 @@
 #ifndef _TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
 #define _TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
-
 #include <cxxtest/TestSuite.h>
+#include "ConformingTetrahedralMesh.cpp"
 #include <petsc.h>
 #include "LinearHeatEquationPde.hpp"
 #include "LinearPdeWithZeroSource.hpp"
 #include "SimpleLinearSolver.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
-#include "ConformingTetrahedralMesh.cpp"
 #include <vector>
-//#include <iostream>
 #include <cmath>
-#include "Node.hpp" 
 #include "BoundaryConditionsContainer.hpp"
 #include "VaryingDiffusionAndSourceTermPde.hpp"
 #include "TrianglesMeshReader.cpp"

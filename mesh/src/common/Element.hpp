@@ -16,7 +16,6 @@
 #include "Exception.hpp"
 
 #include <vector>
-//#include <iostream>
 #include <cmath>
 
 // When creating an element within a mesh one needs to specify its global index
@@ -41,121 +40,18 @@ private:
     double mJacobianDeterminant;
 	
 	AbstractMaterial<SPACE_DIM>* mpMaterial;
+    void RefreshJacobian(void);
 	
     
 public:
     static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
 
-	/**
-	 * Create a new Element.
-	 * 
-	 * @param nodes A vector of pointers to Node objects, of length at least
-	 *     ELEMENT_DIM+1, specifying the nodes associated with this element.
-	 *     The corner nodes must come first, and must be listed in anticlockwise
-     *     order.
-     * @param index - Global index of this element 
-	 * @param createLowerOrderElements Whether to create elements for e.g.
-	 *     the faces of a tetrahedral element.
-	 *     These only inherit corner nodes.
-	 * @param createJacobian Whether to create the Jacobian matrix for mapping
-	 *     the element into the appropriate canonical space, e.g. [0,1] in 1D.
-	 *     The full matrix is only calculated for non-sub-elements with straight edges.
-     *     For surface (boundary) elements we only calculate the determinant,
-     *     but this is all that is needed.
-	 */
-    Element(unsigned index,
-    		std::vector<Node<SPACE_DIM>*> nodes, 
+	Element(unsigned index,
+            std::vector<Node<SPACE_DIM>*> nodes, 
             int orderOfBasisFunctions=1,
-    	    bool createLowerOrderElements=false, 
-            bool createJacobian=true)
-            : mIndex(index)
-    {
-        // Sanity checking
-        assert(ELEMENT_DIM <= SPACE_DIM);
-        //added extra 0.5 to ensure in correct interval for floor() function
-        unsigned total_nodes = (unsigned)floor((ELEMENT_DIM+1)*(1 + 0.5*ELEMENT_DIM*(orderOfBasisFunctions - 1)) + 0.5);
-
-        assert(nodes.size() == total_nodes);
-        
-        // Store Node pointers
-        mNodes = nodes;
-        
-        // Specify order of basis functions
-        mOrderOfBasisFunctions = orderOfBasisFunctions;
-               
-        // Create Jacobian?
-        mpJacobian = NULL;
-        mpInverseJacobian = NULL;
-        if (createJacobian)
-        {
-            if (ELEMENT_DIM == SPACE_DIM)
-            {
-                mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
-                mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
-                
-                try 
-                {
-                    RefreshJacobian();
-                } 
-                catch (Exception)
-                {
-                    // if the Jacobian is negative the orientation of the element is probably
-                    // wrong, so swap the last two nodes around.
-                
-                    mNodes[nodes.size()-1] = nodes[nodes.size()-2];
-                    mNodes[nodes.size()-2] = nodes[nodes.size()-1];
-                    RefreshJacobian();
-                }
-
-                // If determinant < 0 then element nodes are listed clockwise.
-                // We want them anticlockwise.
-                assert(mJacobianDeterminant > 0.0);
-                
-            }
-            else if (ELEMENT_DIM == SPACE_DIM-1)
-            {
-                // For boundary elements we only need to know the determinant
-                c_vector<double, 2> twod_r1_minus_r0;
-                c_vector<double, 3> r1_minus_r0;
-                c_vector<double, 3> r2_minus_r0;
-                switch (ELEMENT_DIM)
-                {
-                    case 0:
-                        // End point of a line
-                        mJacobianDeterminant = 1;
-                        break;
-                    case 1:
-                        // Linear edge in a plane
-                        twod_r1_minus_r0(0) = GetNodeLocation(1,0) - GetNodeLocation(0,0); // x1-x0
-                        twod_r1_minus_r0(1) = GetNodeLocation(1,1) - GetNodeLocation(0,1); // y1-y0
-                        mJacobianDeterminant = norm_2(twod_r1_minus_r0);
-                        break;
-                    case 2:
-                        // Surface triangle in a 3d mesh
-                        r1_minus_r0(0) = GetNodeLocation(1,0) - GetNodeLocation(0,0); // x1-x0
-                        r1_minus_r0(1) = GetNodeLocation(1,1) - GetNodeLocation(0,1); // y1-y0
-                        r1_minus_r0(2) = GetNodeLocation(1,2) - GetNodeLocation(0,2); // z1-z0
-                        r2_minus_r0(0) = GetNodeLocation(2,0) - GetNodeLocation(0,0); // x2-x0
-                        r2_minus_r0(1) = GetNodeLocation(2,1) - GetNodeLocation(0,1); // y2-y0
-                        r2_minus_r0(2) = GetNodeLocation(2,2) - GetNodeLocation(0,2); // z2-z0
-                        mJacobianDeterminant = norm_2( VectorProduct(r1_minus_r0, r2_minus_r0) );
-                        break;
-                    default:
-                        assert(0); // TODO? Might want to change this
-                }
-            }
-            
-        }
-        // Create lower order elements?
-        mHasLowerOrderElements = false;
-        if (createLowerOrderElements)
-        {
-            CreateLowerOrderElements();
-        }
- 
-    }
-
-        
+            bool createLowerOrderElements=false, 
+            bool createJacobian=true);
+      
          
             
     
@@ -227,23 +123,7 @@ public:
     	}
     }
     
-    void RefreshJacobian(void)
-    {
-        for(int i=0; i<ELEMENT_DIM; i++)    
-        {
-            for(int j=0; j<ELEMENT_DIM; j++)
-            {                      
-                (*mpJacobian)(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
-            }
-        }
-               
-        mJacobianDeterminant = Determinant(*mpJacobian);
-        if (mJacobianDeterminant < DBL_EPSILON)
-        {
-            EXCEPTION("Jacobian determinant is non-positive");
-        }
-        *mpInverseJacobian   = Inverse(*mpJacobian);
-    }
+    void RefreshJacobianDeterminant(void);
     
     void AddInternalNode(const Node<SPACE_DIM>* internalNodeToAdd)
     {

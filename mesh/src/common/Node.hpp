@@ -15,7 +15,9 @@ private:
 
     // Set of indices of elements containing this node as a vertex
     std::set<unsigned> mElementIndices;
-    std::set<unsigned>::const_iterator mIterator;
+    std::set<unsigned>::const_iterator mElementIterator;
+    std::set<unsigned> mBoundaryElementIndices;
+    std::set<unsigned>::const_iterator mBoundaryElementIterator;
 	//TODO:
 	//bool mIsDirichletNode;
 	Node() {}
@@ -84,7 +86,19 @@ public:
     void AddElement(unsigned index)
     {
         mElementIndices.insert(index);
-        mIterator=mElementIndices.begin();
+        mElementIterator=mElementIndices.begin();
+    }
+    /**
+     * Add an boundary element that contains this node.
+     * 
+     * @param index of the element to add.
+     */
+  
+    void AddBoundaryElement(unsigned index)
+    {
+        //std::cout<<"Boundary Element "<< index<< "\n";
+        mBoundaryElementIndices.insert(index);
+        mBoundaryElementIterator=mBoundaryElementIndices.begin();
     }
 
     /**
@@ -100,15 +114,32 @@ public:
         return mElementIndices.size();
     }
     
+    const int GetNumBoundaryElements()
+    {
+        return mBoundaryElementIndices.size();
+    }
     
+    
+    unsigned GetNextBoundaryElementIndex()
+    {
+        unsigned current_boundary_element = *mBoundaryElementIterator; 
+        mBoundaryElementIterator++;
+        
+        if (mBoundaryElementIterator == mBoundaryElementIndices.end())
+        {
+           mBoundaryElementIterator = mBoundaryElementIndices.begin();
+        }
+        return current_boundary_element;
+    }
+   
     unsigned GetNextContainingElementIndex()
     {
-        unsigned current_containing_element = *mIterator; 
-        mIterator++;
+        unsigned current_containing_element = *mElementIterator; 
+        mElementIterator++;
         
-        if (mIterator == mElementIndices.end())
+        if (mElementIterator == mElementIndices.end())
         {
-           mIterator = mElementIndices.begin();
+           mElementIterator = mElementIndices.begin();
         }
         return current_containing_element;
     }

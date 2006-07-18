@@ -1,17 +1,14 @@
 #ifndef _TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCE_HPP_
 #define _TESTMONODOMAINDG0ASSEMBLERFORCONVERGENCE_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
+#include "ConformingTetrahedralMesh.cpp"
 #include <petscvec.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
-#include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"

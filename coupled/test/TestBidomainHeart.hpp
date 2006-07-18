@@ -1,14 +1,12 @@
 #ifndef _TESTBIDOMAINHEART_HPP_
 #define _TESTBIDOMAINHEART_HPP_
 
-#include "Element.hpp"
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
+#include "BidomainProblem.hpp"
+#include <petscvec.h>
 #include <vector>
-//#include <iostream>
 
 #include "PetscSetupAndFinalize.hpp"
-#include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ColumnDataReader.hpp"

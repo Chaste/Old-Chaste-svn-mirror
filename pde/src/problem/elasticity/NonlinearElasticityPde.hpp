@@ -2,7 +2,7 @@
 #define _NONLINEARELASTICITYPDE_HPP_
 
 #include "AbstractMaterial.hpp"
-#include "Element.hpp"
+#include "Element.cpp"
 #include "FourthOrderTensor.hpp"
 
 template <int ELEM_DIM, int SPACE_DIM>

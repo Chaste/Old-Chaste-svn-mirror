@@ -5,10 +5,8 @@
 #include <vector>
 #include <petscvec.h>
 
-#include "Point.hpp"
-#include "Element.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 #include "LinearSystem.hpp"
-#include "ConformingTetrahedralMesh.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "BidomainPde.hpp"
 #include "AbstractBasisFunction.hpp"

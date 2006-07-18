@@ -2,8 +2,8 @@
 #define BIDOMAINPROBLEM_HPP_
 
 
-#include "SimpleLinearSolver.hpp"
 #include "ConformingTetrahedralMesh.cpp"
+#include "SimpleLinearSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "BidomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.cpp"

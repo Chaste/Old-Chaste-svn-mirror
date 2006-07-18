@@ -1,18 +1,14 @@
 #ifndef _TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_
 #define _TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
-#include "petscvec.h"
-#include <vector>
-//#include <iostream>
-
-#include "ConformingTetrahedralMesh.cpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
+#include <petscvec.h>
+#include <vector>
+
+
+#include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
 #include "FitzHughNagumo1961OdeSystem.hpp"

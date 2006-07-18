@@ -243,6 +243,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                 {
                     nodes[j]->SetAsBoundaryNode();
                     mBoundaryNodes.push_back(nodes[j]);
+                    //Register the index that this bounday element will have
+                    //with the node
+                    nodes[j]->AddBoundaryElement(mBoundaryElements.size());
                 }
             }
 
@@ -381,7 +384,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, 
         {
             try 
             {   
-                 GetElement(mNodes[index].GetNextContainingElementIndex())->RefreshJacobian();
+                 GetElement(mNodes[index].GetNextContainingElementIndex())->RefreshJacobianDeterminant();
             }
             catch (Exception e)
             {

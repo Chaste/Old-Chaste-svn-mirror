@@ -6,8 +6,7 @@
 #include <vector>
 #include <petscvec.h>
 
-#include "Point.hpp"
-#include "Element.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 #include "AbstractAssembler.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"

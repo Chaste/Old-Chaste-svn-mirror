@@ -5,7 +5,7 @@
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BasisFunctionsCheckers.hpp"
-#include "Element.hpp"
+#include "Element.cpp"
 #include <vector>
 
 class TestLinearBasisFunction : public CxxTest::TestSuite 

@@ -1,19 +1,15 @@
 #ifndef TESTBIDOMAINFORCONVERGENCE1D_HPP_
 #define TESTBIDOMAINFORCONVERGENCE1D_HPP_
 
-// Element.hpp includes the Boost ublas objects - these need to
-// be included early...  We think.  We're not that sure.
-#include "Element.hpp"
 
 #include <cxxtest/TestSuite.h>
+#include "BidomainProblem.hpp"
 #include <petscvec.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
-#include "ConformingTetrahedralMesh.cpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "OutputFileHandler.hpp"
