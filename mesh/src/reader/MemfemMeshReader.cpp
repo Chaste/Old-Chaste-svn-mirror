@@ -37,12 +37,15 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
 	this->mNodeData = TokenizeStringsToDoubles(this->mNodeRawData);
 	//Initialise iterator for public GetNextNode method
 	this->mpNodeIterator = this->mNodeData.begin();
-	
+
 	//Check that the size of the data matches the information in the header
-	
 	if (num_nodes != this->mNodeData.size())
 	{
+        // ignored from coverage because otherwise would have to create files
+        // for a bad mesh just to test this line
+        #define COVERAGE_IGNORE  
 		EXCEPTION("Number of nodes does not match expected number declared in header");
+        #undef COVERAGE_IGNORE
 	}
 	
 	//Open element file and store the lines as a vector of strings (minus the comments) 	
@@ -63,7 +66,11 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
  	//Check that the size of the data matches the information in the header
   	if (num_elements != this->mElementData.size())
 	{
+        // ignored from coverage because otherwise would have to create files
+        // for a bad mesh just to test this line
+        #define COVERAGE_IGNORE  
 		EXCEPTION("Number of elements does not match expected number declared in header");
+        #undef COVERAGE_IGNORE
 	}
 
 	//Open boundary face file and store the lines as a vector of strings (minus the comments) 	

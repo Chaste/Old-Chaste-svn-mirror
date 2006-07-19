@@ -292,12 +292,9 @@ void ColumnDataWriter::EndDefineMode()
             (*mpCurrentOutputFile) << blank_line; 
         }
     }
-    else //The fixed dimension must be set at this point or we wouldn't be here
+    else
     {
-        if(!mIsFixedDimensionSet)
-        {
-            EXCEPTION("Fixed dimension has not been set");
-        }
+        // The fixed dimension must be set at this point or we wouldn't be here
         mRowWidth = (mVariables.size() + fixed_dimension_variable)  * (FIELD_WIDTH + SPACING); 
         std::string filename = mBaseName + ".dat";
         this->CreateFixedDimensionFile(filename);

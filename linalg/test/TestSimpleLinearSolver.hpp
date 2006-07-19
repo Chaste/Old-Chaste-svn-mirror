@@ -1,12 +1,8 @@
 #ifndef _TESTSIMPLELINEARSOLVER_HPP_
 #define _TESTSIMPLELINEARSOLVER_HPP_
 
-
-
-
 #include "SimpleLinearSolver.hpp"
 #include <cxxtest/TestSuite.h>
-#include <petsc.h>
 #include <petsc.h>
  
 #include "PetscSetupAndFinalize.hpp"
@@ -252,6 +248,79 @@ public:
         VecDestroy(lhs_vector);
         MatDestroy(lhs_matrix);
     }
+    
+    void testLinearSolverWithMatrixIsConstantAndNullSpace()
+    {
+        // Solve Ax=b. 5x5 matrix
+        SimpleLinearSolver solver;
+    
+        // Set rhs vector
+        Vec rhs_vector;
+        VecCreate(PETSC_COMM_WORLD, &rhs_vector);
+        VecSetSizes(rhs_vector,PETSC_DECIDE,5);
+        //VecSetType(rhs_vector, VECSEQ);
+        VecSetFromOptions(rhs_vector);
+        
+        //Set Matrix
+        Mat lhs_matrix;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 5, 5, &lhs_matrix);
+#else
+        MatCreate(PETSC_COMM_WORLD,&lhs_matrix);
+        MatSetSizes(lhs_matrix, PETSC_DECIDE, PETSC_DECIDE,5,5);
+#endif
+        MatSetType(lhs_matrix, MATMPIDENSE);
+
+        Vec null_basis_vector;
+        VecDuplicate(rhs_vector, &null_basis_vector);
+
+        for(int i=0; i<5; i++)
+        {
+            VecSetValue(rhs_vector, i, (PetscReal) i, INSERT_VALUES);
+            VecSetValue(null_basis_vector, i, 1.0, INSERT_VALUES); 
+            for(int j=0; j<5; j++)
+            {
+                double val=0;
+                if(i==j)
+                {
+                    val = -2;
+                }
+                else if( (i==j+1) || (i==j-1) )
+                {
+                    val = 1;
+                }
+                MatSetValue(lhs_matrix, i, j, val, INSERT_VALUES);
+            }
+        }
+        
+        // Assemble matrix
+        MatAssemblyBegin(lhs_matrix, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(lhs_matrix, MAT_FINAL_ASSEMBLY);
+        
+        // set matrix is constant
+        solver.SetMatrixIsConstant();
+        
+        MatNullSpace mat_null_space;
+        MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, 1, &null_basis_vector, &mat_null_space);
+        
+        // Call solver
+        Vec lhs_vector;
+        TS_ASSERT_THROWS_NOTHING(lhs_vector = solver.Solve(lhs_matrix, rhs_vector, 5, mat_null_space));
+        
+        // Check result
+        PetscScalar *p_lhs_elements_array;
+        VecGetArray(lhs_vector, &p_lhs_elements_array);
+        int lo, hi;
+        VecGetOwnershipRange(lhs_vector, &lo, &hi);
+        
+        double answers[] = {-3.33, -6.66, -9.0, -9.33, -6.66};
+        for (int global_index = lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index-lo;        
+            TS_ASSERT_DELTA(p_lhs_elements_array[local_index], answers[local_index], 0.1);
+        }    
+    }
+        
 };
 
 #endif //_TESTSIMPLELINEARSOLVER_HPP_

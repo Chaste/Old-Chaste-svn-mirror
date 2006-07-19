@@ -11,7 +11,6 @@
 #include "Node.hpp"
 #include "Point.hpp"
 #include "UblasCustomFunctions.hpp"
-#include "AbstractMaterial.hpp"
 
 #include "Exception.hpp"
 
@@ -39,8 +38,7 @@ private:
 
     double mJacobianDeterminant;
 	
-	AbstractMaterial<SPACE_DIM>* mpMaterial;
-    void RefreshJacobian(void);
+	void RefreshJacobian(void);
 	
     
 public:
@@ -196,26 +194,6 @@ public:
 	double GetJacobianDeterminant(void) const
 	{
 		return mJacobianDeterminant;
-	}
-	
-	/** Set the material details for this element
-	 */
-	void SetMaterial(AbstractMaterial<SPACE_DIM>* pMaterial)
-	{
-		mpMaterial = pMaterial;
-	}
-
-	/** Get the material details for this element
-	 */
-	AbstractMaterial<SPACE_DIM>* GetMaterial() const
-	{
-
-		if(!mpMaterial)
-		{
-			assert(0);
-		}
-		
-		return mpMaterial;
 	}
 };
 

@@ -16,30 +16,21 @@ std::string AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetOutputDirectory(void)
 template<int ELEMENT_DIM, int SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double> nextNode)
 {
-	if (nextNode.size() != SPACE_DIM)
-	{
-		EXCEPTION("Size of node does not match dimension.");
-	}
+	assert (nextNode.size() == SPACE_DIM);
 	mNodeData.push_back(nextNode);
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<int> nextElement)
 {
-	if (nextElement.size() != ELEMENT_DIM+1)
-	{
-		EXCEPTION("Size of element does not match dimension.");
-	}
+	assert (nextElement.size() == ELEMENT_DIM+1);
 	mElementData.push_back(nextElement);
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<int> nextFace)
 {
-	if (nextFace.size() != ELEMENT_DIM)
-	{
-		EXCEPTION("Size of face or edge does not match dimension.");
-	}
+	assert (nextFace.size() == ELEMENT_DIM);
 	mBoundaryFaceData.push_back(nextFace);
 }
 

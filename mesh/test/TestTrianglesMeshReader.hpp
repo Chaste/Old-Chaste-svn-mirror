@@ -383,6 +383,12 @@ public:
         delete pMeshReader;
         
     }         
+    
+    void TestExceptions()
+    {
+        // this should fail because a 3D reader is attempting to read a 2D mesh
+        TS_ASSERT_THROWS_ANYTHING( READER_3D mesh_reader("mesh/test/data/disk_984_elements") );
+    }
         
 };
 

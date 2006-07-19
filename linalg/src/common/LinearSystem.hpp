@@ -58,8 +58,9 @@ public:
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 
     // DEBUGGING CODE:
-    //double GetMatrixElement(int row, int col);
-    //double GetRhsVectorElement(int row);
+    void GetOwnershipRange(PetscInt &lo, PetscInt &hi);
+    double GetMatrixElement(int row, int col);
+    double GetRhsVectorElement(int row);
     //void WriteLinearSystem(std::string matrixFile, std::string rhsVectorFile);
     
 };

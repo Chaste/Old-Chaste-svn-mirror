@@ -9,6 +9,7 @@
 
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
+#include "RegularStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
@@ -37,11 +38,29 @@ public:
                                     double endTime,
                                     const char *pFilename)
     {
+        double start_time = 0.0;
+        
+        // Store the current system state
+        std::vector<double> state_variables_ref = pOdeSystem->rGetStateVariables();
+        std::vector<double> state_variables_copy = state_variables_ref;
+
+        // Test ComputeExceptVoltage
+        double v_init = pOdeSystem->GetVoltage();
+        OdeSolution solution = pOdeSystem->ComputeExceptVoltage(start_time, endTime);        
+        double v_end = pOdeSystem->GetVoltage();
+        TS_ASSERT_DELTA(v_init, v_end, 1e-6);
+
+        // Test SetVoltage
+        pOdeSystem->SetVoltage(1e6);
+        TS_ASSERT_DELTA(pOdeSystem->GetVoltage(), 1e6, 1e-6);
+        
+        // Reset the system
+        pOdeSystem->SetStateVariables(state_variables_copy);
+
         /*
          * Solve 
          */
-        double start_time = 0.0;
-        OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
+        solution = pOdeSystem->Compute(start_time, endTime);
         
         /*
          * Write data to a file using ColumnDataWriter
@@ -67,7 +86,8 @@ public:
             }
             writer.AdvanceAlongUnlimitedDimension();
         }        
-        writer.Close();        
+        writer.Close();
+        
     }
     
     void CheckCellModelResults(std::string baseResultsFilename)
@@ -125,7 +145,7 @@ public:
         // a hardcoded result
         runOdeSolverWithIonicModel(&hh52_ode_system,
                                    15.0,
-                                   "HH52RegResult");
+                                   "HhGetIIonic");
         TS_ASSERT_DELTA( hh52_ode_system.GetIIonic(), 40.6341, 1e-3);
     }
 
@@ -194,8 +214,36 @@ public:
         // a hardcoded result
         runOdeSolverWithIonicModel(&lr91_ode_system,
                                    60.0,
-                                   "HH52RegResult");
+                                   "Lr91GetIIonic");
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);    
+    }
+    
+    void testOdeSolverForLR91WithRegularStimulus(void) throw (Exception)
+    {
+        /*
+         * Set stimulus
+         */
+        double magnitude = -25.5;  
+        double duration  = 2.0  ;  // ms                           
+        double start = 50.0; // ms
+        double frequency = 1.0/500; // ms^-1
+        RegularStimulus stimulus(magnitude, duration, frequency, start); 
+        
+        double end_time = 1000.0; //One second in milliseconds
+        double time_step = 0.01;  //1e-5 seconds in milliseconds           
+        
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        
+        /*
+         * Solve and write to file
+         */
+        runOdeSolverWithIonicModel(&lr91_ode_system,
+                                   end_time,
+                                   "Lr91RegularStim");
+
+        CheckCellModelResults("Lr91RegularStim");
+         
     }
 };
 

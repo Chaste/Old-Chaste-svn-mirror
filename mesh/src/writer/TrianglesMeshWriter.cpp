@@ -137,7 +137,11 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteElementsAsFaces()
     } 
     else 
     {
-       EXCEPTION("Can only write 1D/2D elements in 2D/3D space."); 
+        //This is ignored in coverage:
+        //Since we can't yet read line element meshes in 3D, we won't have anything to write
+        #define COVERAGE_IGNORE
+        EXCEPTION("Can only write 1D/2D elements in 2D/3D space."); 
+        #undef COVERAGE_IGNORE
     }   
     
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
@@ -177,7 +181,10 @@ void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFacesAsEdges()
         return;
     }
     
-    assert(ELEMENT_DIM == 2 && SPACE_DIM == 3);
+     //Gcov is confused by this assertion
+    #define COVERAGE_IGNORE  
+    assert(SPACE_DIM == 3 && ELEMENT_DIM == 2);
+    #undef COVERAGE_IGNORE  
     
     std::string face_file_name = this->mBaseName;
     face_file_name=face_file_name+".edge";

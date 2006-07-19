@@ -126,6 +126,7 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
      * Compute the LuoRudyIModel1991OdeSystem model
      */
     #ifndef NDEBUG
+#define COVERAGE_IGNORE
         if(!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))
         {
             EXCEPTION("h gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize");
@@ -155,6 +156,7 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
         {
             EXCEPTION("X gate for time dependent potassium current has gone out of range. Check model parameters, for example spatial stepsize");
         }
+#undef COVERAGE_IGNORE
     #endif
     
 
@@ -233,7 +235,9 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
     }
     else
     {
+        #define COVERAGE_IGNORE
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
+        #undef COVERAGE_IGNORE
     }
        
     double time_dependent_potassium_current_X_gate_alpha_X = 0.0005*exp(0.083*(membrane_V+50.0))/(1.0+exp(0.057*(membrane_V+50.0)));
@@ -308,7 +312,9 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
     }
     else
     {
+        #define COVERAGE_IGNORE    
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
+        #undef COVERAGE_IGNORE
     }
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);

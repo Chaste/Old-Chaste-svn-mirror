@@ -73,6 +73,10 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
         ABSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01);
         testvalue = state_variables[0];
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
+        
+        // Run again with too few timesteps
+        state_variables = ode_system.GetInitialConditions();
+        TS_ASSERT_THROWS_ANYTHING(ABSolver.Solve(&ode_system, state_variables, 0.0, 0.02, 0.01));
 	}
 	
 	

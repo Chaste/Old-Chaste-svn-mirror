@@ -233,15 +233,22 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
     //PETSCEXCEPT( MatNullSpaceTest(mMatNullSpace, mLhsMatrix) );
 }
 
+/**
+ * Get this process' ownership range of the contents of the system
+ */
+void LinearSystem::GetOwnershipRange(PetscInt &lo, PetscInt &hi)
+{
+    lo = mOwnershipRangeLo;
+    hi = mOwnershipRangeHi;
+}
 
-
-
-/*
- *  DEBUGGING CODE: comment out for commits as not tested and probably
- *  crashes in parallel
-
+/**
+ * Return an element of the matrix.
+ * May only be called for elements you own.
+ */
 double LinearSystem::GetMatrixElement(int row, int col)
 {
+    assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
 	int row_as_array[1]; row_as_array[0] = row;
 	int col_as_array[1]; col_as_array[0] = col;
 
@@ -252,8 +259,13 @@ double LinearSystem::GetMatrixElement(int row, int col)
 	return ret_array[0];
 }
 
+/**
+ * Return an element of the RHS vector.
+ * May only be called for elements you own.
+ */
 double LinearSystem::GetRhsVectorElement(int row)
 {
+    assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
     int row_as_array[1]; row_as_array[0] = row;
     
     double ret_array[0];
@@ -262,7 +274,7 @@ double LinearSystem::GetRhsVectorElement(int row)
     return ret_array[0];
 }
 
-
+/* BROKEN IN PARALLEL
 void LinearSystem::WriteLinearSystem(std::string matFile, std::string rhsVectorFile)
 {
     OutputFileHandler output_file_handler("");

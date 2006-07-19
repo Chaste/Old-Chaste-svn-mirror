@@ -109,8 +109,7 @@ ParallelColumnDataWriter::~ParallelColumnDataWriter()
         VecScatterDestroy(mToMaster);
         VecDestroy(mConcentrated);
     }
-    MPI_Barrier(PETSC_COMM_WORLD);
-        
+    Close();
 }
 
 
