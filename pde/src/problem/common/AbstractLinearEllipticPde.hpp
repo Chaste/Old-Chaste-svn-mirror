@@ -25,11 +25,14 @@ public:
 
 	/**
 	 * An elliptic PDE has no time dependence, so the coefficient of du/dt is zero.
+     * This method is never used.
 	 */
+    #define COVERAGE_IGNORE
 	double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
 	{
 		return 0.0;
 	}
+    #undef COVERAGE_IGNORE
 };
 
 #endif //_ABSTRACTLINEARELLIPTICPDE_HPP_

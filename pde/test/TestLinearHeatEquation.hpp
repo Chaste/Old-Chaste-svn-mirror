@@ -3,10 +3,19 @@
 
 #include <cxxtest/TestSuite.h>
 #include "LinearHeatEquationPde.hpp"
+#include "Node.hpp"
 
 class TestLinearHeatEquationPde : public CxxTest::TestSuite
 {
 public:
+    void TestComputeLinearSourceTermAtNode()
+    {
+        Node<2> zero(0);
+        LinearHeatEquationPde<2> heat_equation;
+        
+        TS_ASSERT_DELTA(heat_equation.ComputeLinearSourceTermAtNode(zero), 1.0, 1e-12);
+    }
+
 	void TestLinearHeatEquationPdeMethod()
 	{
 		Point<1> zero1(0);

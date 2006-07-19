@@ -63,6 +63,21 @@ private:
 
 public:
 
+    void TestExceptionalBehaviour( void )
+    {
+        // Linear solver
+        SimpleLinearSolver linear_solver;
+    
+        // Assembler
+        SimpleDg0ParabolicAssembler<1,1> assembler(&linear_solver);
+        
+        // start > end
+        TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(1.0, 0.0, 0.01));
+
+        // dt = 0
+        TS_ASSERT_THROWS_ANYTHING(assembler.SetTimes(0.0, 1.0, 0.0));
+    }
+    
     /// test 1D problem
 	void TestSimpleDg0ParabolicAssembler1DZeroDirich( void )
 	{
