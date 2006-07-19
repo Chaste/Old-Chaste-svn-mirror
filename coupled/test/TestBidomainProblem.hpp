@@ -333,10 +333,16 @@ public:
         //Throws because the input is empty
         std::vector<unsigned> empty;
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetFixedExtracellularPotentialNodes(empty));
-        
+
         //Throws because EndTime has not been set       
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         bidomain_problem.SetEndTime(1);  // ms
+        
+        //Throws because the node number is slightly bigger than the number of nodes in the mesh
+        std::vector<unsigned> too_large;
+        too_large.push_back(4358743);
+        bidomain_problem.SetFixedExtracellularPotentialNodes(too_large);
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
     }            
 };
 

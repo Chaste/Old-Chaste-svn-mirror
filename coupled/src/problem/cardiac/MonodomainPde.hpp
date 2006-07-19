@@ -51,6 +51,9 @@ public:
     }
 
         
+    //The following are hidden from the coverage test while it is waiting
+    //for a re-factor. (Ticket #157)
+    #define COVERAGE_IGNORE
     /**
      * This should not be called; use 
      * ComputeLinearSourceTermAtNode instead
@@ -61,7 +64,6 @@ public:
         return 0.0;
     }
     
-    
     /**
      * This should not be called; use 
      * ComputeNonlinearSourceTermAtNode instead
@@ -71,6 +73,7 @@ public:
         assert(0);
         return 0.0;
     }
+    #undef COVERAGE_IGNORE
  
  
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
@@ -87,11 +90,7 @@ public:
     }
     
     
-    double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& )
-    {   
-        return 0;
-    }
-  
+    
     
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
