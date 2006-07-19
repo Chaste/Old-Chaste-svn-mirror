@@ -228,9 +228,13 @@ public:
             { 
                 mVoltage = bidomain_assembler.Solve();
             } 
+            //Ill-conditioned solutions are covered in Monodomain problem
+            //(and possibly in Nightly/Weekly) so we don't insist on it
+            //in the coverage test.
+            #define COVERAGE_IGNORE
             catch (Exception &e) 
             {
-                if (write_files)
+                 if (write_files)
                 {
                     p_test_writer->Close();
                     delete p_test_writer;
@@ -238,6 +242,7 @@ public:
                 
                 throw e;
             }
+            #undef COVERAGE_IGNORE
                                     
             // Free old initial condition
             VecDestroy(initial_condition);
@@ -305,7 +310,7 @@ public:
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
     {
-        if(nodes.size() <= 0)
+        if(nodes.size() == 0)
         {
             EXCEPTION("Number of fixed nodes should be greater than zero");
         }

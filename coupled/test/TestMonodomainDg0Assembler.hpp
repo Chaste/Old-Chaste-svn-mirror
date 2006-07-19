@@ -444,6 +444,24 @@ public:
         
         delete p_monodomain_problem;
     }        
+    void TestMonodomainProblemExceptions() throw (Exception)
+    {
+        PointStimulusCellFactory cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );       
+ 
+        //Throws because we've not called initialise
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+        
+        //Throws because mesh filename is unset
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
+        monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        TS_ASSERT_THROWS_NOTHING(monodomain_problem.Initialise());
+      
+        //Throws because EndTime has not been set       
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+        monodomain_problem.SetEndTime(1);  // ms
+    }            
+
 };
 
 #endif //_TESTMONODOMAINDG0ASSEMBLER_HPP_

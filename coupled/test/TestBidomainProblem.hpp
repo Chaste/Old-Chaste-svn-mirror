@@ -315,6 +315,28 @@ public:
             }
         }
         bidomain_problem.RestoreVoltageArray(&p_voltage_array);
+    }
+    
+    void TestBidomainProblemExceptions() throw (Exception)
+    {
+        PointStimulusCellFactory cell_factory;
+        BidomainProblem<1> bidomain_problem( &cell_factory );       
+ 
+        //Throws because we've not called initialise
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        
+        //Throws because mesh filename is unset
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
+        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
+
+        //Throws because the input is empty
+        std::vector<unsigned> empty;
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetFixedExtracellularPotentialNodes(empty));
+        
+        //Throws because EndTime has not been set       
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+        bidomain_problem.SetEndTime(1);  // ms
     }            
 };
 
