@@ -36,7 +36,7 @@ def index(req):
 """)
 
   # Look for the latest revision present.
-  type = 'continuous'
+  type = 'continuous-cancer-06'
   revisions = os.listdir(os.path.join(_tests_dir, type))
   revision = str(max(itertools.imap(int, revisions)))
   # Display summary of each machine & build type combination for this revision
@@ -45,6 +45,7 @@ def index(req):
   if len(builds) < 1:
     output.append(_error('No test set found for revision '+revision+
                          '. Probably the build is still in progress.'))
+    output.append('<p><a href="/out/latest">Latest build log.</a></p>')
   else:
     for build in builds:
       machine, buildType = _extractDotSeparatedPair(build)
