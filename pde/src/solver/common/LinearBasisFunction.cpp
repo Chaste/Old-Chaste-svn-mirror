@@ -16,10 +16,14 @@
  *     within a canonical element.
  * @return The value of the basis function.
  */
+///\todo basisIndex should be unsigned (ticket:114)
 template <int ELEM_DIM>
 double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const
 {
 	assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(basisIndex <= ELEM_DIM);
+    assert(basisIndex >= 0); 
+
 	switch(ELEM_DIM)
 	{
 	case 1:
@@ -31,8 +35,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM>
     		case 1:
         		return rPoint[0];
         		break;
-        	default:
-        		assert(false);   
+        	default: ; //not possible to get here because of assertions above
     	}
     	break;
     	
@@ -48,8 +51,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM>
     		case 2:
     			return rPoint[1];
     			break;
-    		default:
-    			assert(false);   
+    		default: ; //not possible to get here because of assertions above
     	}
     	break;
     	
@@ -68,8 +70,7 @@ double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM>
 			case 3:
 				return rPoint[2]; 
 				break;
-			default:
-				assert(false);  
+			default: ; //not possible to get here because of assertions above
     	}
     	break;
 	}

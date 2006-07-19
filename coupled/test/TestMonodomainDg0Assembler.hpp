@@ -452,6 +452,12 @@ public:
         //Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
         
+        // throws because argument is negative
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPdeTimeStep(-1));
+
+        // throws because argument is negative
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.SetPrintingTimeStep(-1));
+
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Initialise());
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");

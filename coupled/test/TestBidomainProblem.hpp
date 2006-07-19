@@ -324,6 +324,12 @@ public:
  
         //Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
+
+        // throws because argument is negative
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeTimeStep(-1));
+
+        // throws because argument is negative
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPrintingTimeStep(-1));
         
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
