@@ -262,11 +262,11 @@ public:
         // note that nodes 2 and 3 are swapped by the element constructor
         // to ensure that the jacobian determinant is positive
         TS_ASSERT_EQUALS(element.GetNodeLocation(0,0),0.0);
-        TS_ASSERT_EQUALS(element.rGetNodeLocation(0)(0),0.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(0)(0),0.0);
         TS_ASSERT_EQUALS(element.GetNodeLocation(1,0),2.0);
-        TS_ASSERT_EQUALS(element.rGetNodeLocation(1)(0),2.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(1)(0),2.0);
         TS_ASSERT_EQUALS(element.GetNodeLocation(2,0),4.0);
-        TS_ASSERT_EQUALS(element.rGetNodeLocation(2)(0),4.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(2)(0),4.0);
     }
     
     void TestElementSwapsNodesIfJacobianIsNegative()

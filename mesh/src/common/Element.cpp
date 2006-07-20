@@ -109,18 +109,15 @@ void Element<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
         break;
     case 1:
         // Linear edge in a 2D plane or in 3D
-        line_r1_minus_r0 = c_vector<double,SPACE_DIM>(rGetNodeLocation(1))
-               - c_vector<double,SPACE_DIM>(rGetNodeLocation(0));
+        line_r1_minus_r0 = GetNodeLocation(1) - GetNodeLocation(0);
 
         mJacobianDeterminant = norm_2(line_r1_minus_r0); //r1_minus_r0);
         break;
     case 2:
         // Surface triangle in a 3d mesh
         assert(SPACE_DIM == 3);
-        r1_minus_r0 = c_vector<double,3>(rGetNodeLocation(1))
-                       - c_vector<double,3>(rGetNodeLocation(0));
-        r2_minus_r0 = c_vector<double,3>(rGetNodeLocation(2))
-                       - c_vector<double,3>(rGetNodeLocation(0));
+        r1_minus_r0 = GetNodeLocation(1) - GetNodeLocation(0);
+        r2_minus_r0 = GetNodeLocation(2) - GetNodeLocation(0);
 
         mJacobianDeterminant = norm_2( VectorProduct(r1_minus_r0, r2_minus_r0) );
         break;
