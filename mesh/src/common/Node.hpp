@@ -88,6 +88,26 @@ public:
         mElementIndices.insert(index);
         mElementIterator=mElementIndices.begin();
     }
+
+    /**
+     * Remove an element that contains this node.
+     * 
+     * @param index of the element to be removed.
+     */
+  
+    void RemoveElement(unsigned index)
+    {
+        mElementIterator = mElementIndices.find(index);
+
+        // check the index given corresponds to an element associated with this node
+        assert(mElementIterator != mElementIndices.end());
+        
+//        mElementIndices.erase(mElementIterator);
+std::cout << "Should do: mElementIndices.erase(mElementIterator);" << std::endl << std::flush;
+
+        mElementIterator=mElementIndices.begin();
+    }
+
     /**
      * Add an boundary element that contains this node.
      * 

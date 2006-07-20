@@ -152,8 +152,7 @@ public:
     
     void SetNode(unsigned index, Point<SPACE_DIM> point, bool verify=true);
 
-  
-    
+    void RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> Point);
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

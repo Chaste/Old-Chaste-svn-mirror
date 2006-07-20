@@ -742,6 +742,51 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         
         
     }
+    
+     void Test1DRefineElement()
+    {
+        TrianglesMeshReader<1,1> meshReader("mesh/test/data/1D_0_to_1_10_elements");
+                          
+        ConformingTetrahedralMesh<1,1> mesh;
+
+        mesh.ConstructFromMeshReader(meshReader);
+        
+        Point<1> new_point(0.01);
+        Element<1,1>* first_element=mesh.GetElement(0);   
+        
+        mesh.RefineElement(first_element,new_point);
+        // Instead of a element with nodes at 0 and 0.1
+        // there should be an element with nodes at 0 and 0.01 and
+        // an element with nodes at 0.01 and 0.1. Other elements should stay the same
+
+//        const Node<1>* first_node=first_element->GetNode(0);
+//        const Node<1>* second_node=first_element->GetNode(1);
+//
+//        TS_ASSERT_EQUALS(first_node->GetPoint().rGetLocation()(0), 0);
+//        TS_ASSERT_EQUALS(second_node->GetPoint().rGetLocation()(0), 0.01);
+
+        // test second element
+        
+//        Element<1,1> second_element=mesh.GetElement(1);   
+//
+//        first_node=second_element.GetNode(0);
+//        second_node=second_element.GetNode(1);
+//        
+//        TS_ASSERT_EQUALS(first_node.GetPoint().mLocation(0), 0.1);
+//        TS_ASSERT_EQUALS(second_node.GetPoint().mLocation(0), 0.2);
+//        
+//        // test last element
+//        
+//        Element<1,1> last_element=mesh.GetElement(10);   
+//
+//        first_node=last_element.GetNode(0);
+//        second_node=last_element.GetNode(1);
+//        
+//        TS_ASSERT_EQUALS(first_node.GetPoint().mLocation(0), 0.01);
+//        TS_ASSERT_EQUALS(second_node.GetPoint().mLocation(0), 0.1);
+        
+        // test jacobians
+    }
 };
 
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

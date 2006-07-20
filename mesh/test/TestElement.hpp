@@ -351,6 +351,42 @@ public:
         TS_ASSERT_EQUALS( e_3d_incorrect_orientation.GetNode(3)->GetIndex(), 3);
 
     }
+    
+    void TestElementCopyConstructor(void)
+    {
+        std::vector<Node<3>*> cornerNodes;
+        cornerNodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 3.0));
+        cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        cornerNodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+        Element<3,3> element(31415, cornerNodes, 1, true);
+        
+        // Create a copy of the element and test that it's the same as the original one
+        
+        Element<3,3> copied_element(element);
+        
+        TS_ASSERT_EQUALS(element.GetNumNodes(), copied_element.GetNumNodes());
+        //check that this version of the copy constructor gives the copied
+        //element the same index number
+        TS_ASSERT_EQUALS(copied_element.GetIndex(), 31415);
+        
+        for (int node = 0; node < 4; node++)
+        {
+            for (int dimension = 0; dimension < 3; dimension++)
+            {
+                TS_ASSERT_EQUALS(element.GetNodeLocation(node, dimension), copied_element.GetNodeLocation(node, dimension));
+            }
+        }
+        
+        Element<3,3> another_copied_element(element, 2345);
+        TS_ASSERT_EQUALS(another_copied_element.GetIndex(), 2345);
+        
+        // update a node of the element
+        another_copied_element.UpdateNode(1, new Node<3>(4, false, 0.0, 0.0, 2.0));
+        TS_ASSERT_EQUALS(another_copied_element.GetNodeLocation(1, 2), 2.0);
+    }
+    
+
 };
 
 #endif //_TESTELEMENT_HPP_

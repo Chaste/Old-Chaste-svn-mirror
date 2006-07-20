@@ -30,6 +30,7 @@ private:
     unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
     int mOrderOfBasisFunctions;
+    // for boundary elements only we store their lower order elements (ie faces) too.
     const Element<ELEMENT_DIM-1,SPACE_DIM>* mLowerOrderElements[ELEMENT_DIM+1];
     bool mHasLowerOrderElements;
 
@@ -39,7 +40,50 @@ private:
     double mJacobianDeterminant;
 	
 	void RefreshJacobian(void);
-	
+
+    /**
+     * Method that constructs the element. This is required because of having
+     * two different copy constructors, one with a new index and another without
+     */
+
+    void CommonConstructor(const Element &element)
+    {
+        mNodes = element.mNodes;
+        mIndex = element.mIndex;
+        // Allow nodes to keep track of containing elements (but not surface/boundary elements)
+        // Only done in copy constructor, since that is what is called to put elements
+        // in the vector contained in ConformingTetrahedralMesh.
+        
+        for (unsigned i=0; i<mNodes.size(); i++)
+        {
+            mNodes[i]->AddElement(mIndex);
+        }
+
+        mHasLowerOrderElements = element.mHasLowerOrderElements;
+        if (mHasLowerOrderElements)
+        {
+            // Copy lower order elements, rather than pointers
+            for (int i=0; i<ELEMENT_DIM+1; i++)
+            {
+                mLowerOrderElements[i] =
+                    new Element<ELEMENT_DIM-1, SPACE_DIM>(*(element.mLowerOrderElements[i]));
+            }
+        }
+
+        mJacobianDeterminant = element.mJacobianDeterminant;
+        mpJacobian = NULL;
+        if (element.mpJacobian != NULL)
+        {
+            mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
+            *mpJacobian = *(element.mpJacobian);
+        }
+        mpInverseJacobian = NULL;
+        if (element.mpInverseJacobian != NULL)
+        {
+            mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
+            *mpInverseJacobian = *(element.mpInverseJacobian);
+        }
+    }
     
 public:
     static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
@@ -50,9 +94,6 @@ public:
             bool createLowerOrderElements=false, 
             bool createJacobian=true);
       
-         
-            
-    
     /**
      * Copy constructor. This is needed so that copies of an element don't
      * share pointers to the same matrices, which causes problems when copies
@@ -60,41 +101,27 @@ public:
      */
     Element(const Element &element)
     {
-		mNodes = element.mNodes;
-		mIndex = element.mIndex;
-        // Allow nodes to keep track of containing elements (but not surface/boundary elements)
-        // Only done in copy constructor, since that is what is called to put elements
-        // in the vector contained in ConformingTetrahedralMesh.
+        CommonConstructor(element);
+    }
+    
+    /***
+     * Copy constructor which allows a new index to be specified
+     */
+    Element(const Element &element, const unsigned Index)
+    {
+        CommonConstructor(element);
         
-        for (unsigned i=0; i<mNodes.size(); i++)
+        // Loop over the nodes that make up this element and ensure that they are 
+        // associated to it
+        
+        for (unsigned j = 0; j < ELEMENT_DIM+1; j++)
         {
-            mNodes[i]->AddElement(mIndex);
+            mNodes[j]->AddElement(Index);
         }
 
-		mHasLowerOrderElements = element.mHasLowerOrderElements;
-    	if (mHasLowerOrderElements)
-    	{
-    		// Copy lower order elements, rather than pointers
-    		for (int i=0; i<ELEMENT_DIM+1; i++)
-    		{
-    			mLowerOrderElements[i] =
-    				new Element<ELEMENT_DIM-1, SPACE_DIM>(*(element.mLowerOrderElements[i]));
-    		}
-    	}
+        // Update the index of this element
 
-		mJacobianDeterminant = element.mJacobianDeterminant;
-		mpJacobian = NULL;
-		if (element.mpJacobian != NULL)
-		{
-			mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
-			*mpJacobian = *(element.mpJacobian);
-		}
-		mpInverseJacobian = NULL;
-		if (element.mpInverseJacobian != NULL)
-		{
-			mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
-			*mpInverseJacobian = *(element.mpInverseJacobian);
-		}
+        mIndex=Index;
     }
     
     /**
@@ -167,7 +194,7 @@ public:
     	return mNodes[localIndex]->GetIndex();
     }
     
-    const Node<SPACE_DIM>* GetNode(int localIndex) const
+    Node<SPACE_DIM>* GetNode(int localIndex) const
     {
     	assert((unsigned)localIndex < mNodes.size());
     	return mNodes[localIndex];
@@ -202,6 +229,29 @@ public:
 	{
 		return mJacobianDeterminant;
 	}
+
+    /** Get the index of this element
+     */
+    const unsigned& GetIndex(void) const
+    {
+        return mIndex;
+    }    
+
+    /** Update node at the given index
+     */
+    void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+    {
+        assert(rIndex < mNodes.size());
+     
+        // Remove it from the node at this location
+        mNodes[rIndex]->RemoveElement(mIndex);
+        
+        // Update the node at this location
+        mNodes[rIndex] = pNode;
+
+        // Add element to this node
+        mNodes[rIndex]->AddElement(mIndex);
+    }    
 };
 
 

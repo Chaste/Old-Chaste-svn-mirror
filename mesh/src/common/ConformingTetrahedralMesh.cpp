@@ -409,5 +409,44 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, 
     }           
 }
     
+template<int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> point)
+{
+//for (unsigned k = 0; k < mElements.size(); k++)
+//{
+//    std::cout << "=============================" << std::endl << std::flush;
+//    std::cout << "Element #" << k << std::endl << std::flush;
+//    std::cout << "Index: " << mElements[k].GetIndex() << std::endl << std::flush;
+//    std::cout << "Node 1: " << mElements[k].GetNodeGlobalIndex(0) << std::endl << std::flush;
+//    std::cout << "Node 2: " << mElements[k].GetNodeGlobalIndex(1) << std::endl << std::flush;
+//}
+
+    // Add a new node from the point that is passed to RefineElement
+
+//    AddNode(Node<SPACE_DIM>(0, point));
+
+    // Note: the first argument is the index of the node, which is going to be 
+    //       overriden by AddNode, so it can safely be ignored
+
+    for (unsigned i = 0; i < ELEMENT_DIM; i++)
+    {
+        // First, make a copy of the current element making sure we update its index
+
+//        Element<ELEMENT_DIM,SPACE_DIM> new_element(*pElement, mElements.size());
+
+        // Second, update the node in the element with the new one
+
+//        new_element.UpdateNode(ELEMENT_DIM-1-i, &mNodes[mNodes.size()-1]);
+
+        // Third, add the new element to the set
+
+//        mElements.push_back(new_element);
+    }
+
+    // Fourth, update the last node in the element to be refined
+
+//    pElement->UpdateNode(ELEMENT_DIM, &mNodes[mNodes.size()-1]);
+}
+
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_
