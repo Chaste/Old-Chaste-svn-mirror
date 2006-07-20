@@ -102,11 +102,14 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int 
  * @return The derivative of the basis function. This is a vector (c_vector<double, SPACE_DIM>
  *     instance) giving the derivative along each axis.
  */
+///\todo basisIndex should be unsigned (ticket:114)
 template <int ELEM_DIM>
 c_vector<double, ELEM_DIM> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivative(const Point<ELEM_DIM>&, int basisIndex) const
 {
     c_vector<double, ELEM_DIM> gradN;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(basisIndex <= ELEM_DIM);
+    assert(basisIndex >= 0); 
     
 	switch(ELEM_DIM)
 	{
@@ -119,10 +122,9 @@ c_vector<double, ELEM_DIM> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
 			case 1:
 				gradN(0) = 1; 
 				break;
-			default:
-				assert(false);
+			default: ; //not possible to get here because of assertions above
     	}
-    	break;
+    	break; 
     	
     case 2:
     	switch (basisIndex)
@@ -139,8 +141,7 @@ c_vector<double, ELEM_DIM> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
     			gradN(0) = 0;
         		gradN(1) = 1;   
         		break;
-    		default:
-    			assert(false);
+    		default: ; //not possible to get here because of assertions above
     	}
     	break;
     	
@@ -167,8 +168,7 @@ c_vector<double, ELEM_DIM> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
         		gradN(1) =  0;
         		gradN(2) =  1;
         		break;
-    		default:
-    			assert(false);   
+    		default: ; //not possible to get here because of assertions above
     	}
     	break;
 	}    

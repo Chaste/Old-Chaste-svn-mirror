@@ -109,6 +109,7 @@ void Element<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
         break;
     case 1:
         // Linear edge in a 2D plane or in 3D
+        ///\todo : Use rGetNodeLocation (a c_vector).
         line_r1_minus_r0(0) = GetNodeLocation(1,0) - GetNodeLocation(0,0); // x1-x0
         line_r1_minus_r0(1) = GetNodeLocation(1,1) - GetNodeLocation(0,1); // y1-y0
         if (SPACE_DIM == 3)
@@ -128,8 +129,7 @@ void Element<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
         r2_minus_r0(2) = GetNodeLocation(2,2) - GetNodeLocation(0,2); // z2-z0
         mJacobianDeterminant = norm_2( VectorProduct(r1_minus_r0, r2_minus_r0) );
         break;
-    default:
-        assert(0); // TODO? Might want to change this
+    default: ; // Not going to happen
     }
 }
 

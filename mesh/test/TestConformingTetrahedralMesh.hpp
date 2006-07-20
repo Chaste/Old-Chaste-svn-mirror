@@ -722,12 +722,24 @@ class TestConformingTetrahedralMesh : public CxxTest::TestSuite
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0208061, 1e-6);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.118095, 1e-6);
         
+        //Note, at present all lower order elemet Jacobian Determinants are positive
+        //(It's not possible to decide on the handedness)
+        //Nudge to the other side of the circlse
+        point.SetCoordinate(0,-1.0);
+        point.SetCoordinate(2,0.);
+        mesh.SetNode(boundary_node_index, point); 
+        
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.235899, 1e-6);
+        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 1.99901, 1e-4);
+        
+        
  
         //Put it back
-        point.SetCoordinate(2, 0.0);
+        point.SetCoordinate(0, 0.99211470130000001);
         mesh.SetNode(boundary_node_index, point); 
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0163772, 1e-6);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0628215, 1e-6);
+        
         
     }
 };

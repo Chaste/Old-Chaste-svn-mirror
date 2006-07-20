@@ -317,7 +317,7 @@ public:
         for (int global_index = lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;        
-            TS_ASSERT_DELTA(p_lhs_elements_array[local_index], answers[local_index], 0.1);
+            TS_ASSERT_DELTA(p_lhs_elements_array[local_index], answers[global_index], 0.1);
         }    
     }
         

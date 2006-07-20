@@ -154,6 +154,13 @@ public:
     	return mNodes[localIndex]->rGetPoint()[dimension];
     }
     
+    c_vector<double, SPACE_DIM> &rGetNodeLocation(int localIndex) const
+    {
+        assert((unsigned)localIndex < mNodes.size());
+        Point<SPACE_DIM> point=mNodes[localIndex]->rGetPoint();
+        return point.rGetLocation();
+    }
+    
     long GetNodeGlobalIndex(int localIndex) const
     {
     	assert((unsigned)localIndex < mNodes.size());

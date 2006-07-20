@@ -246,6 +246,29 @@ public:
         TS_ASSERT_EQUALS(element2.GetNode(0)->GetPoint()[1], point2[1]);
     }
     
+    void TestGetNodeLocation() throw(Exception)
+    {
+        Point<2> point1(0.0,1.0);
+        Point<2> point2(4.0,6.0);
+        Point<2> point3(2.0,3.0);
+        
+        std::vector<Node<2>*> element_nodes;
+        element_nodes.push_back(new Node<2>(0, point1));
+        element_nodes.push_back(new Node<2>(0, point2));
+        element_nodes.push_back(new Node<2>(0, point3));
+    
+        Element<2,2> element(INDEX_IS_NOT_USED, element_nodes);
+        
+        // note that nodes 2 and 3 are swapped by the element constructor
+        // to ensure that the jacobian determinant is positive
+        TS_ASSERT_EQUALS(element.GetNodeLocation(0,0),0.0);
+        TS_ASSERT_EQUALS(element.rGetNodeLocation(0)(0),0.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(1,0),2.0);
+        TS_ASSERT_EQUALS(element.rGetNodeLocation(1)(0),2.0);
+        TS_ASSERT_EQUALS(element.GetNodeLocation(2,0),4.0);
+        TS_ASSERT_EQUALS(element.rGetNodeLocation(2)(0),4.0);
+    }
+    
     void TestElementSwapsNodesIfJacobianIsNegative()
     {
         Point<1> a0(0),    a1(1);
