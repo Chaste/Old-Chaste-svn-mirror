@@ -252,7 +252,7 @@ double LinearSystem::GetMatrixElement(int row, int col)
 	int row_as_array[1]; row_as_array[0] = row;
 	int col_as_array[1]; col_as_array[0] = col;
 
-	double ret_array[0];
+	double ret_array[1];
 	
 	MatGetValues(mLhsMatrix, 1, row_as_array, 1, col_as_array, ret_array);
 
@@ -266,12 +266,14 @@ double LinearSystem::GetMatrixElement(int row, int col)
 double LinearSystem::GetRhsVectorElement(int row)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
-    int row_as_array[1]; row_as_array[0] = row;
     
-    double ret_array[0];
-    
-    VecGetValues(mRhsVector, 1, row_as_array, ret_array);
-    return ret_array[0];
+    double *p_rhs_vector;
+    int local_index=row-mOwnershipRangeLo;
+    VecGetArray(mRhsVector, &p_rhs_vector);
+    double answer=p_rhs_vector[local_index];
+    VecRestoreArray(mRhsVector, &p_rhs_vector);
+   
+    return answer;
 }
 
 /* BROKEN IN PARALLEL
