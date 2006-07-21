@@ -370,7 +370,10 @@ public:
         }
  
  		mJacobianDeterminant = element.mJacobianDeterminant;
-		mpJacobian = NULL;
+		//Note:  this code is under development in ticket #163
+        //It is currently NOT COVERED
+        #define COVERAGE_IGNORE
+        mpJacobian = NULL;
 		if (element.mpJacobian != NULL)
 		{
 			mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
@@ -382,6 +385,7 @@ public:
 			mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
 			*mpInverseJacobian = *(element.mpInverseJacobian);
 		}
+        #undef COVERAGE_IGNORE
     }
     
     /**

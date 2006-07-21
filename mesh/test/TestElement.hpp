@@ -267,6 +267,10 @@ public:
         TS_ASSERT_EQUALS(element.GetNodeLocation(1)(0),2.0);
         TS_ASSERT_EQUALS(element.GetNodeLocation(2,0),4.0);
         TS_ASSERT_EQUALS(element.GetNodeLocation(2)(0),4.0);
+        
+        delete element_nodes[0];
+        delete element_nodes[1];
+        delete element_nodes[2];
     }
     
     void TestElementSwapsNodesIfJacobianIsNegative()
