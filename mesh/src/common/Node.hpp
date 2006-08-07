@@ -162,7 +162,6 @@ std::cout << "Should do: mElementIndices.erase(mElementIterator);" << std::endl 
         }
         return current_containing_element;
     }
-
 };
 
 

@@ -13,7 +13,7 @@ class TestElement : public CxxTest::TestSuite
 {
 	/**
 	 * Create a node with given index that has a point at the origin and is
-	 * not on the boundary.
+	 * not on the boundary. 
 	 * 
 	 * @param index The global index of the created node.
 	 * @returns A pointer to a new 3d node.

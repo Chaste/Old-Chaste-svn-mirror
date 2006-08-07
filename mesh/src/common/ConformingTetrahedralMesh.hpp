@@ -8,7 +8,7 @@
 
 /**
  * This is a test version of the class using an AbstractMeshReader to construct
- * the mesh.
+ * the mesh. 
  * 
  * The AddElement and AddNode methods are now redundant, but still used for
  * tests, so I've left them in (for now).
