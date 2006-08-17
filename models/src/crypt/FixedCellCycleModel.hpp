@@ -3,6 +3,12 @@
 
 #include "AbstractCellCycleModel.hpp"
 
+/** 
+ *  Fixed cell cycle model
+ *  
+ *  Cell cycle time is deterministic for stem and transit cells (with values 
+ *  CancerParameters::StemCellCycleTime and CancerParameters::TransitCellCycleTime)
+ */
 class FixedCellCycleModel : public AbstractCellCycleModel
 {
 public:

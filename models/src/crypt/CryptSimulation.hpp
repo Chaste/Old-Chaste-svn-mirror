@@ -8,15 +8,21 @@
 #include <ctime>
 
 /**
- * Todo: Fill in the rest.
+ * Solve a crypt simulation based on the Meineke paper.
  *
- * The dimensionless equations that we are solving are
- * dr/dt=stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-1)
- *      =alpha sum_j r_hat_i,j*(|r_i,j|-1)
+ * The spring lengths are governed by the equations
+ * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
+ *       = alpha sum_j r_hat_i,j*(|r_i,j|-s0)
+ * 
  * where alpha = stem_cycle_time*(mu/eta) = stem_cycle_time*meineke_lambda.
+ *       s0    = natural length of the spring 
+
  * Length is scaled by natural length
  * Time is scaled by a stem cell cycle time
- * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke)
+
+ * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke - note
+ * that the value we use for Meineke lambda is completely different because we have
+ * nondimensionalised)
  */
 
 class CryptSimulation
@@ -36,13 +42,18 @@ private:
     CancerParameters *mpParams;
     
 public:
+  
+    /** Constructor
+     *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
+     *  should be called for any birth to happen.
+     */   
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
             : mrMesh(rMesh),
-            mCells(cells)
+              mCells(cells)
     {
         mpParams = CancerParameters::Instance();
-        mDt = 1.0/(mpParams->GetStemCellCycleTime()*120);
+        mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
         mEndTime = 5.0;
         
         srandom(time(NULL));
@@ -70,6 +81,10 @@ public:
         mpParams->SetCryptLength(cryptLength);
     }
     
+    /** 
+     *  Call this before Solve() if no cells have been specified. Randomly adds a new 
+     *  node every 1 time unit, starting 0.1
+     */
     void SetIncludeRandomBirth()
     {
         mIncludeRandomBirth = true;
@@ -80,11 +95,20 @@ public:
         mOutputDirectory = outputDirectory;
     }
     
+    /** 
+     *  Call this before Solve() to simulate cell growth after cell division.
+     *  (will eventually become SetIncludeCellBirth() and then become the default)
+     */
     void SetIncludeVariableRestLength()
     {
         mIncludeVariableRestLength = true;
     }
-    
+
+    /** 
+     * Main Solve method.
+     * 
+     * Once CryptSimulation object has been set up, call this to run simulation
+     */
     void Solve()
     {
         if (mOutputDirectory=="")
@@ -92,7 +116,7 @@ public:
             EXCEPTION("OutputDirectory not set");
         }
         double time = 0.0;
-        double time_since_last_birth = 0.9 ;
+        double time_since_last_birth = 0.9;
         
         int num_births = 0;
         int num_deaths = 0;
@@ -268,10 +292,12 @@ private:
     int AddRandomNode()
     {
         //Pick an element
-        int random_element_number = rand()%mrMesh.GetNumAllElements();
+        int random_element_number = rand()%mrMesh.GetNumAllElements(); // rand() gives a random int because 0 and RAND_MAX
         Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
         double element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
         //std::cout << "length " <<element_length << "\n";
+        
+        // keep picking until find an element which is big enough and not deleted
         while (element_length <0.4 || p_random_element->IsDeleted())
         {
             random_element_number = rand()%mrMesh.GetNumAllElements();
@@ -283,9 +309,11 @@ private:
         return AddNodeToElement(p_random_element);
     }
     
+    
     int AddNodeToElement(Element<1,1>* pElement)
     {
         double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
+        // pick a random position in the central 60% of the element
         double random_displacement = 0.2 + (((double)random())/RAND_MAX)*(element_length-0.4);
         double left_position = pElement->GetNodeLocation(0,0);
         

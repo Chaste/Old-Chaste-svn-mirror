@@ -16,6 +16,8 @@ private:
     
     /**
      * Disallow the use of a default constructor.
+     * 
+     * Is this needed? seems to work ok without it. 
      */
     MeinekeCryptCell()
     {

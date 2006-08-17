@@ -3,6 +3,12 @@
 
 #include "AbstractCellCycleModel.hpp"
 
+/** 
+ *  Stochastic cell model
+ *  
+ *  Cell cycle time is deterministic for stem cells and stochastic (normally
+ *  distributed with mean CancerParameters::TransitCellCycleTime and variance 1)
+ */
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 public:

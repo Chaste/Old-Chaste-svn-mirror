@@ -5,9 +5,10 @@
  * Possible types of Meineke crypt cells.
  */
 typedef enum CryptCellType_
-{STEM,
- TRANSIT,
- DIFFERENTIATED
+{
+   STEM,
+   TRANSIT,
+   DIFFERENTIATED
 } CryptCellType;
 
 
