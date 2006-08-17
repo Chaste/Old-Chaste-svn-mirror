@@ -179,7 +179,7 @@ protected:
 	 * @param rBoundaryConditions Container for boundary conditions for this
 	 *     problem.
 	 */
-	virtual void AssembleOnSurfaceElement(const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+	virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 								 c_vector<double, ELEMENT_DIM> &rBsubElem,
 								 AbstractLinearPde<SPACE_DIM> *pPde,
 								 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
@@ -332,16 +332,16 @@ protected:
         }
         
 		// Get an iterator over the elements of the mesh
-		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
+		typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
 			rMesh.GetElementIteratorBegin();
 		// Assume all elements have the same number of nodes...
-		const int num_nodes = iter->GetNumNodes();
+		const int num_nodes = (*iter)->GetNumNodes();
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> rAElem;
         c_vector<double, ELEMENT_DIM+1> rBElem;
  
 		while (iter != rMesh.GetElementIteratorEnd())
 		{
-		    const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
+		    const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
 
 
             AssembleOnElement(element, rAElem, rBElem, pPde, currentSolution);
@@ -374,7 +374,7 @@ protected:
 
 			while (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
 			{
-				const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+				const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 				
 				/**
 				 * \todo

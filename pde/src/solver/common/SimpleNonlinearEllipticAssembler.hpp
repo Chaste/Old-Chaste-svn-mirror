@@ -71,7 +71,7 @@ private:
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							c_vector<double, ELEMENT_DIM+1> Ui);
 	void ComputeResidualOnSurfaceElement(
- 							const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+ 							const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 							c_vector<double, ELEMENT_DIM> &rBsubElem,
 							AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 							BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
@@ -187,7 +187,7 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
  */
  template<int ELEMENT_DIM, int SPACE_DIM>
  void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOnSurfaceElement(
- 								const Element<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+ 								const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
 								c_vector<double, ELEMENT_DIM> &rBsubElem,
 								AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
 								BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
@@ -346,16 +346,16 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     VecGetOwnershipRange(currentSolution, &lo, &hi);
     
 	// Get an iterator over the elements of the mesh
-	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter
+	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter
 		= mpMesh->GetElementIteratorBegin();
  
 	// Assume all elements have the same number of nodes...
-	const int num_nodes = iter->GetNumNodes();
+	const int num_nodes = (*iter)->GetNumNodes();
  
 	// Iterate over all elements, summing the contribution of each to the residual
 	while (iter != mpMesh->GetElementIteratorEnd())
 	{
-		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
+		const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
 
 
 		// Ui contains the values of the current solution at the nodes of this element
@@ -401,7 +401,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  
 		while (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
 		{
-			const Element<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+			const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
 			
 			// UiSurf contains the values of the current solution at the nodes of this surface element
 			c_vector<double,ELEMENT_DIM> UiSurf;
@@ -614,15 +614,15 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     int lo, hi;
     VecGetOwnershipRange(currentSolution, &lo, &hi);
  	// Get an iterator over the elements of the mesh
-	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
+	typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
 		mpMesh->GetElementIteratorBegin();
 	// Assume all elements have the same number of nodes...
-	const int num_nodes = iter->GetNumNodes();
+	const int num_nodes = (*iter)->GetNumNodes();
 	// Will hold the contribution to the global jacobian from a single element
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> a_elem;
 	while (iter != mpMesh->GetElementIteratorEnd())
 	{
-		const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
+		const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
 		a_elem.clear();
 
 		// Ui contains the values of the current solution at the nodes of this element

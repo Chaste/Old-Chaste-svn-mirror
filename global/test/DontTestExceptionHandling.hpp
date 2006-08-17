@@ -11,8 +11,8 @@
  *
  * The tests are supposed to fail, so aren't run normally.
  */
- 
- 
+
+
 class TestExceptionHandling : public CxxTest::TestSuite
 {
 public:
@@ -33,12 +33,12 @@ public:
     {
         EXCEPTION("Exception thrown from method.");
     }
-
+    
     void TestThrowingAnExceptionInATest()
     {
         EXCEPTION("Will cxxtest be nice I wonder?");
     }
-
+    
     void TestCatchingExceptionWithCxxtest()
     {
         TS_ASSERT_THROWS_ANYTHING(EXCEPTION("Will cxxtest be nice I wonder?"));

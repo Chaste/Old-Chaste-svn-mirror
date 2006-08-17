@@ -7,11 +7,11 @@
 #include "Exception.hpp"
 
 extern void PetscException(int petscError, int line,
-                           const char* funct, const char* file);
-
+                               const char* funct, const char* file);
+                               
 extern void KspException(int kspError, int line,
-                         const char* funct, const char* file);
-
+                             const char* funct, const char* file);
+                             
 //Positive codes mean that there's an error
 //Zero means success
 //Negative codes should never happen, but we'll throw anyway

@@ -37,13 +37,13 @@ private:
     std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> > 
         *mpDirichletMap; /**< List (map) of Dirichlet boundary conditions */
 
-    std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* > 
+    std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* > 
         *mpNeumannMap; /**< List (map) of Neumann boundary conditions */
     
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator 
         dirichIterator; /**< Internal iterator over dirichlet boundary conditions */
 
-    typename std::map< const Element<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
+    typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         neumannIterator; /**< Internal iterator over neumann boundary conditions */
     
     unsigned int mSizeDependentVariable; /**< Number of components in the dependent variable */
@@ -60,7 +60,7 @@ public:
 		mSizeDependentVariable = size;
 		mNumNodes = numNodes;
 	   	mpDirichletMap =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
-    	mpNeumannMap   =  new std::map< const Element<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>; 
+    	mpNeumannMap   =  new std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>; 
 	}
 		
 	/**
@@ -141,7 +141,7 @@ public:
      * @param pBoundaryElement Pointer to an element on the boundary.
      * @param pBoundaryCondition Pointer to the neumann boundary condition on that element.
      */
-    void AddNeumannBoundaryCondition( const Element<ELEM_DIM-1, SPACE_DIM> *       pBoundaryElement, 
+    void AddNeumannBoundaryCondition( const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *       pBoundaryElement, 
                                       const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
     {
     	// check the size of the vector the BC returns is consistent with the number of dependent variables
@@ -150,7 +150,7 @@ public:
    
     	//assert(boundaryElement->IsBoundaryElement());
    		    	
-       	//std::pair<  const Element<ELEM_DIM-1,SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryElement, pBoundaryCondition);     
+       	//std::pair<  const BoundaryElement<ELEM_DIM-1,SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >  entry(pBoundaryElement, pBoundaryCondition);     
 		//mpNeumannMap->insert(entry);
 		(*mpNeumannMap)[pBoundaryElement] = pBoundaryCondition;
     }
@@ -366,7 +366,7 @@ public:
 	 * 
 	 * It is up to the user to ensure that the point x is contained in the surface element.
 	 */
-	c_vector<double, SPACE_DIM> GetNeumannBCValue(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement, Point<SPACE_DIM> x)
+	c_vector<double, SPACE_DIM> GetNeumannBCValue(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement, Point<SPACE_DIM> x)
 	{		
 		neumannIterator = mpNeumannMap->find(pSurfaceElement);
 		assert(neumannIterator!=mpNeumannMap->end());
@@ -381,7 +381,7 @@ public:
 	 * \todo
 	 * This is a horrendously inefficient fix. Perhaps have flag in element object?
 	 */
-	bool HasNeumannBoundaryCondition(const Element<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement) {
+	bool HasNeumannBoundaryCondition(const BoundaryElement<ELEM_DIM-1,SPACE_DIM>* pSurfaceElement) {
 		neumannIterator = mpNeumannMap->find(pSurfaceElement);
 
 		return (neumannIterator != mpNeumannMap->end());

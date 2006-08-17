@@ -11,8 +11,8 @@
 /**
  * This tests that the initialisation of PETSc does something.
  */
- 
- 
+
+
 class TestPetSCSetup : public CxxTest::TestSuite
 {
 public:
@@ -27,8 +27,8 @@ public:
     {
         int err=0;
         TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
-       
-        Vec v;     
+        
+        Vec v;
         err = VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v);
         //#define PETSC_ERR_ARG_WRONGSTATE   73   /* object in argument is in wrong */
         TS_ASSERT_THROWS_ANYTHING(PETSCEXCEPT(err));
@@ -40,9 +40,9 @@ public:
         //See if we can do it without a temporary
         TS_ASSERT_THROWS_ANYTHING(
             PETSCEXCEPT(VecCreateMPI(PETSC_COMM_WORLD, PETSC_DECIDE, -1, &v)));
-        
+            
         //This test give back an "unknown error" message
-        TS_ASSERT_THROWS_ANYTHING( PETSCEXCEPT(-3));    
+        TS_ASSERT_THROWS_ANYTHING( PETSCEXCEPT(-3));
     }
     
     

@@ -1,6 +1,6 @@
 /**
  * Concrete Ode1 class
- */ 
+ */
 #include "Ode1.hpp"
 
 Ode1::Ode1() : AbstractOdeSystem()
@@ -12,9 +12,9 @@ Ode1::Ode1() : AbstractOdeSystem()
 
 std::vector<double> Ode1::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> y_derivatives(GetNumberOfStateVariables());
-	y_derivatives[0]=1.0;
-	
-	return y_derivatives;
+    std::vector<double> y_derivatives(GetNumberOfStateVariables());
+    y_derivatives[0]=1.0;
+    
+    return y_derivatives;
 }
-	
+

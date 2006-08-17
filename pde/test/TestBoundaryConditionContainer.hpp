@@ -44,14 +44,14 @@ public:
 		}
 
 		int numElem = 10;
-		std::vector<Element<0,1> > elements;
+		std::vector<BoundaryElement<0,1> > elements;
 		for (unsigned element_index=0; element_index< (unsigned) numElem; element_index++)
 		{
 			std::vector<Node<1>* > nodes;
 			Node<1>* node = new Node<1>(element_index,true,0);
 			nodes.push_back(node);
 			
-			Element<0,1> element(element_index, nodes);
+			BoundaryElement<0,1> element(element_index, nodes);
 			elements.push_back(element);
 		}
 		for (int i=0; i<numElem; i++)
@@ -95,7 +95,7 @@ public:
 		}
 
 		numElem = 10;
-		std::vector<Element<1,2> > elements2;
+		std::vector<BoundaryElement<1,2> > elements2;
 		for (unsigned element_index=0; element_index< (unsigned) numElem; element_index++)
 		{
 			std::vector<Node<2>* > nodes;
@@ -103,7 +103,7 @@ public:
 			Node<2>* node1 = new Node<2>(element_index,true,0,0);
 			nodes.push_back(node0);
 			nodes.push_back(node1);
-			Element<1,2> element(element_index, nodes);
+			BoundaryElement<1,2> element(element_index, nodes);
 			
 			elements2.push_back(element);
 		}
@@ -148,7 +148,7 @@ public:
 		}
 
 		numElem = 10;
-		std::vector<Element<2,3> > elements3;
+		std::vector<BoundaryElement<2,3> > elements3;
 		for (int element_index=0; element_index<numElem; element_index++)
 		{
 			std::vector<Node<3>* > nodes;
@@ -158,7 +158,7 @@ public:
 			nodes.push_back(node0);
 			nodes.push_back(node1);
 			nodes.push_back(node2);
-			Element<2,3> element(element_index, nodes);
+			BoundaryElement<2,3> element(element_index, nodes);
 			
 			elements3.push_back(element);
 		}

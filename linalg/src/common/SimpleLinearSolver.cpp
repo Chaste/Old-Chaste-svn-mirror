@@ -5,9 +5,9 @@
 
 /**
  * \todo Document class + exceptional behaviour.
- * 
+ *
  * This method can solve linear systems of the form Ax = b
- * 
+ *
  * @param lhsMatrix A
  * @param rhsVector b
  * @return The solution Vec x.
@@ -16,8 +16,8 @@
 Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace matNullSpace)
 {
     Vec lhs_vector;
-	VecDuplicate(rhsVector, &lhs_vector);
-
+    VecDuplicate(rhsVector, &lhs_vector);
+    
     /* The following lines are very useful for debugging
      *    MatView(lhsMatrix,    PETSC_VIEWER_STDOUT_WORLD);
      *    VecView(rhsVector,    PETSC_VIEWER_STDOUT_WORLD);
@@ -25,9 +25,9 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpa
     if (mLinearSystemKnown==false)
     {
         PC prec; //Type of pre-conditioner
-     
+        
         KSPCreate(PETSC_COMM_WORLD, &mSimpleSolver);
-        //See    
+        //See
         //http://www-unix.mcs.anl.gov/petsc/petsc-2/snapshots/petsc-current/docs/manualpages/KSP/KSPSetOperators.html
         //The preconditioner flag (last argument) in the following calls says
         //how to reuse the preconditioner on subsequent iterations
@@ -35,8 +35,8 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpa
         {
             KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_PRECONDITIONER);
             
-        } 
-        else 
+        }
+        else
         {
             KSPSetOperators(mSimpleSolver, lhsMatrix, lhsMatrix,SAME_NONZERO_PATTERN);
         }
@@ -48,14 +48,14 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpa
         KSPGetPC(mSimpleSolver,&prec);
         if (size <= 4)
         {
-             PCSetType(prec,PCNONE);
-        } 
-        else 
+            PCSetType(prec,PCNONE);
+        }
+        else
         {
-             PCSetType(prec,PCJACOBI);        
+            PCSetType(prec,PCJACOBI);
         }
         
-        if(matNullSpace)
+        if (matNullSpace)
         {
             PETSCEXCEPT( KSPSetNullSpace(mSimpleSolver, matNullSpace) );
         }
@@ -64,8 +64,8 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpa
         KSPSetUp(mSimpleSolver);
         
         mLinearSystemKnown=true;
-    }    
-   
+    }
+    
     PETSCEXCEPT(KSPSolve(mSimpleSolver, rhsVector, lhs_vector));
     
     // Check that solver converged and throw if not
@@ -73,7 +73,7 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpa
     KSPGetConvergedReason(mSimpleSolver, &reason);
     
     KSPEXCEPT(reason);
-
-   return lhs_vector;
+    
+    return lhs_vector;
 }
 

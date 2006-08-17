@@ -55,6 +55,20 @@ if system_name == 'finarfin':
   blas_libs = ['f2clapack', 'f2cblas']
   other_libpaths = ['']
   other_libs = ['']
+elif system_name == 'joe':
+  # Joe Pitt-Francis userpc30 (Suse 9.3) and userpc33 (Ubuntu 6.06 Dapper Drake)
+  petsc_base = '/home/jmpf/petsc-2.3.1-p16/'
+  petsc_inc = '-I'+petsc_base+'include '
+  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
+  petsc_mpi = ''
+  boost = '-I/home/jmpf '
+  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi+boost
+  
+  petsc_libpath = petsc_base+'lib/linux-gnu/'
+  blas_libs = ['f2clapack', 'f2cblas']
+  blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
+  other_libpaths = ['']
+  other_libs = ['']
 elif system_name == 'zuse':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
   petsc_inc = '-I'+petsc_base+'include '
@@ -75,8 +89,8 @@ elif system_name == 'zuse':
                       '/home/zuse/system/software/opt/opt-deps/papi/lib64']
   other_libs = ['opt', 'loggerwebservice', 'gsoapclient', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
 
-else:
-  # Default
+elif system_name == 'chaste':
+  # Chaste machines in comlab
   petsc_base = '../../../petsc-2.3.1-p13/'
   petsc_inc = '-I'+petsc_base+'include '
   petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
@@ -88,6 +102,18 @@ else:
   other_libpaths = ['']
   other_libs = ['']
   petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'
+else:
+  # Default for cancer course in the DTC
+  petsc_base = '/usr/local/petsc-2.3.1-p15/'
+  petsc_inc = '-I'+petsc_base+'include '
+  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
+  petsc_mpi = ''
+  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
+  blas_libpath = ''
+  blas_libs = ['lapack', 'blas']
+  other_libpaths = []
+  other_libs = ['']
+  petsc_libpath = petsc_base+'lib/linux-gnu/'
 
 Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", 
 		"petsc_libpath", "blas_libpath", "blas_libs", "other_libpaths", "other_libs")
@@ -111,10 +137,19 @@ elif system_name == 'zuse':
    mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
    cxx = '/usr/bin/g++'
    ar = '/usr/bin/ar'
-   
-else:
+elif system_name == 'joe':
+  mpicxx = '/home/jmpf/mpi/bin/mpicxx'
+  mpirun = '/home/jmpf/mpi/bin/mpirun'
+  cxx = '/usr/bin/g++'
+  ar = '/usr/bin/ar'
+elif system_name == 'chaste':
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'
+  cxx = '/usr/bin/g++'
+  ar = '/usr/bin/ar'
+else:
+  mpicxx = '/usr/local/mpi/bin/mpicxx'
+  mpirun = '/usr/local/mpi/bin/mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
 
@@ -151,7 +186,7 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
           build.GetTestReportDir() + ' --no-stdout')
 
 build_dir = build.build_dir
-for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'ode', 'pde', 'coupled']:
+for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', 'coupled']:
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)

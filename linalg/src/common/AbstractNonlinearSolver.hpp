@@ -10,15 +10,14 @@
 
 class AbstractNonlinearSolver
 {
-    
+
 public:
-    virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*), 
+    virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec residual, Vec initialGuess,
                       void *context)=0;
     virtual ~AbstractNonlinearSolver()
-    {
-    }                  
+    {}
 };
 
 #endif // _ABSTRACTNONLINEARSOLVER_HPP_

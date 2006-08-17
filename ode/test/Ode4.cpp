@@ -1,6 +1,6 @@
 /**
  * Concrete Ode4 class
- */ 
+ */
 #include "Ode4.hpp"
 
 Ode4::Ode4() : AbstractOdeSystem()
@@ -12,8 +12,8 @@ Ode4::Ode4() : AbstractOdeSystem()
 
 std::vector<double> Ode4::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> y_derivatives(GetNumberOfStateVariables());
-	double alpha = 100;
-	y_derivatives[0]=alpha*rY[0]*(1-rY[0])*time;
-	return y_derivatives;
+    std::vector<double> y_derivatives(GetNumberOfStateVariables());
+    double alpha = 100;
+    y_derivatives[0]=alpha*rY[0]*(1-rY[0])*time;
+    return y_derivatives;
 }

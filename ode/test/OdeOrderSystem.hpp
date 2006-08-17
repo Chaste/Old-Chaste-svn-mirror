@@ -5,11 +5,11 @@
 
 class OdeOrderSystem : public AbstractOdeSystem
 {
-	public :
-	OdeOrderSystem();
-	
-	std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY);
-
+public :
+    OdeOrderSystem();
+    
+    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY);
+    
 };
 
 #endif //_ODEORDERSYSTEM_HPP_

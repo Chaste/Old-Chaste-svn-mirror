@@ -196,11 +196,12 @@ def _summary(req, type, revision, machine=None, buildType=None):
   # Work out the URL of the build log file
   # i.e. find out where test_set_dir/build.log points to
   build_log = ""
-  logurl = os.path.realpath(test_set_dir + "/build.log")
-  # Remove the '/var/www/html' part
-  logurl = logurl[13:]
-  if logurl:
-    build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logurl)
+  if not _standalone:
+    logurl = os.path.realpath(test_set_dir + "/build.log")
+    # Remove the '/var/www/html' part
+    logurl = logurl[13:]
+    if logurl:
+      build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logurl)
   
   # Produce output HTML
   output.append("""\

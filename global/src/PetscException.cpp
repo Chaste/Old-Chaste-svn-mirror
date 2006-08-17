@@ -2,16 +2,16 @@
 
 void PetscException(int petscError,
                     int line,
-                    const char* funct, 
+                    const char* funct,
                     const char* file)
 {
     const char*  p_text;
-    char default_message[30]="Unknown PETSc error code"; 
+    char default_message[30]="Unknown PETSc error code";
     
     //PetscErrorMessage will swing p_text to point to the error code's message
     //...but only if it's a valid code
     PetscErrorMessage(petscError,  &p_text, NULL);
-    if (p_text == 0) 
+    if (p_text == 0)
     {
         p_text=default_message;
     }
@@ -30,7 +30,7 @@ void PetscException(int petscError,
 
 void KspException(int kspError,
                   int line,
-                  const char* funct, 
+                  const char* funct,
                   const char* file)
 {
     std::string err_string;
@@ -62,7 +62,7 @@ void KspException(int kspError,
             
             break;
         default:
-            err_string = "Unknown KSP error code"; 
+            err_string = "Unknown KSP error code";
     }
     
     err_string+= " in function '";

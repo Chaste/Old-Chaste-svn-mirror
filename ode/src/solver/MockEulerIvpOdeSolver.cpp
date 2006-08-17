@@ -8,13 +8,13 @@ MockEulerIvpOdeSolver::MockEulerIvpOdeSolver() : EulerIvpOdeSolver()
 }
 
 OdeSolution MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
-                          std::vector<double> &rYValues, 
-                          double startTime,
-                          double endTime,
-                          double timeStep,
-                          double timeSampling)
+                                         std::vector<double> &rYValues,
+                                         double startTime,
+                                         double endTime,
+                                         double timeStep,
+                                         double timeSampling)
 {
-    return EulerIvpOdeSolver::Solve(pAbstractOdeSystem, 
+    return EulerIvpOdeSolver::Solve(pAbstractOdeSystem,
                                     rYValues,
                                     startTime,
                                     endTime,
@@ -23,17 +23,17 @@ OdeSolution MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
 }
 
 void MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
-                          std::vector<double> &rYValues, 
-                          double startTime,
-                          double endTime,
-                          double timeStep)
+                                  std::vector<double> &rYValues,
+                                  double startTime,
+                                  double endTime,
+                                  double timeStep)
 {
     mCallCount++;
-    EulerIvpOdeSolver::Solve(pAbstractOdeSystem, 
-                                    rYValues,
-                                    startTime,
-                                    endTime,
-                                    timeStep);
+    EulerIvpOdeSolver::Solve(pAbstractOdeSystem,
+                             rYValues,
+                             startTime,
+                             endTime,
+                             timeStep);
 }
 
 int MockEulerIvpOdeSolver::GetCallCount()

@@ -11,11 +11,11 @@ private:
      * The wrapped vector.
      */
     std::vector<double> mData;
- 
+    
     VecScatter mToAll;   /**< Variable holding information for replicating a PETSc vector*/
     Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector*/
     Vec mDistributed;    /**< Vector to hold data before replication*/
- 
+    
     void RemovePetscContext()
     {
         if (mToAll != NULL)
@@ -23,27 +23,27 @@ private:
             VecScatterDestroy(mToAll);
             mToAll=NULL;
         }
-
+        
         if (mReplicated != NULL)
         {
             VecDestroy(mReplicated);
             mReplicated=NULL;
         }
-
+        
         if (mDistributed != NULL)
         {
             VecDestroy(mDistributed);
             mDistributed=NULL;
         }
     }
-
- public:
+    
+public:
     /**
      * Default constructor.
      * Note that the vector will need to be resized before it can be used.
      */
     ReplicatableVector()
-    {   
+    {
         mToAll=NULL;
         mReplicated=NULL;
         mDistributed=NULL;
@@ -53,10 +53,10 @@ private:
      * Remove PETSc context.
      */
     ~ReplicatableVector()
-    {   
+    {
         RemovePetscContext();
     }
-
+    
     /**
      * Constructor to make a vector of given size.
      */
@@ -67,7 +67,7 @@ private:
         mDistributed=NULL;
         resize(size);
     }
-
+    
     /**
      * Return the size of the vector.
      */
@@ -96,7 +96,7 @@ private:
         return mData[index];
     }
     
- 
+    
     /**
      * Replicate this vector over all processes.
      * 
@@ -122,11 +122,11 @@ private:
         }
         VecAssemblyBegin(mDistributed);
         VecAssemblyEnd(mDistributed);
- 
+        
         //Now do the real replication
         ReplicatePetscVector(mDistributed);
     }
-
+    
     /**
      * Replicate the given PETSc vector over all processes.
      * 
@@ -139,15 +139,15 @@ private:
      */
     void ReplicatePetscVector(Vec vec)
     {
-        //If the size has changed then we'll need to make a new context       
+        //If the size has changed then we'll need to make a new context
         int size;
         VecGetSize(vec, &size);
-        if ((int) this->size() != size) 
+        if ((int) this->size() != size)
         {
             resize(size);
         }
         if (mReplicated == NULL)
-        {     
+        {
             //This creates mReplicated (the scatter context) and mReplicated (to store values)
             VecScatterCreateToAll(vec, &mToAll, &mReplicated);
         }
@@ -155,7 +155,7 @@ private:
         //Replicate the data
         VecScatterBegin(vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
         VecScatterEnd(vec,   mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
- 
+        
         //Information is now in mReplicated PETSc vector
         //Copy into mData
         double *p_replicated;
@@ -163,9 +163,9 @@ private:
         for (int i=0; i<size; i++)
         {
             mData[i]=p_replicated[i];
-        }          
+        }
     }
-   
+    
 };
 
 #endif /*REPLICATABLEVECTOR_HPP_*/

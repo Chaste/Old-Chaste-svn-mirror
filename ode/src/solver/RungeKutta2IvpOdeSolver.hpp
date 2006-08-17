@@ -1,5 +1,5 @@
 /**
- * Concrete RungeKutta2IvpOdeSolver class. 
+ * Concrete RungeKutta2IvpOdeSolver class.
 */
 #ifndef _RUNGEKUTTA2IVPODESOLVER_HPP_
 #define _RUNGEKUTTA2IVPODESOLVER_HPP_
@@ -12,14 +12,15 @@
 
 class RungeKutta2IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
-	public:
-	RungeKutta2IvpOdeSolver() {};	//Constructor-does nothing
-	
+public:
+    RungeKutta2IvpOdeSolver()
+    {};	//Constructor-does nothing
+    
     std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                             double timeStep,
                                             double time,
                                             std::vector<double> currentYValue);
-	
+                                            
 };
 
 #endif //_RUNGEKUTTA2IVPODESOLVER_HPP_

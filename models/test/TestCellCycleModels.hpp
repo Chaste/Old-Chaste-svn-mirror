@@ -1,0 +1,61 @@
+#ifndef TESTCELLCYCLEMODELS_HPP_
+#define TESTCELLCYCLEMODELS_HPP_
+
+#include <cxxtest/TestSuite.h>
+
+#include "FixedCellCycleModel.hpp"
+#include "StochasticCellCycleModel.hpp"
+
+class TestCellCycleModels : public CxxTest::TestSuite
+{
+public:
+    void TestFixedCellCycleModel(void) throw(Exception)
+    {
+        FixedCellCycleModel our_fixed_cell;
+        
+        our_fixed_cell.SetCellType(TRANSIT);
+        TS_ASSERT(!our_fixed_cell.ReadyToDivide(11.99));
+        TS_ASSERT(our_fixed_cell.ReadyToDivide(12.0));
+        TS_ASSERT(our_fixed_cell.ReadyToDivide(12.01));
+        
+        our_fixed_cell.SetCellType(STEM);
+        TS_ASSERT(!our_fixed_cell.ReadyToDivide(23.99));
+        TS_ASSERT(our_fixed_cell.ReadyToDivide(24.0));
+        TS_ASSERT(our_fixed_cell.ReadyToDivide(24.01));
+        
+        our_fixed_cell.SetCellType(DIFFERENTIATED);
+        TS_ASSERT(!our_fixed_cell.ReadyToDivide(1.0));
+        TS_ASSERT(!our_fixed_cell.ReadyToDivide(1e10));
+        TS_ASSERT(!our_fixed_cell.ReadyToDivide(1e100));
+    }
+    
+    void TestStochasticCellCycleModel(void) throw(Exception)
+    {
+        StochasticCellCycleModel cell_model;
+        
+        cell_model.SetCellType(STEM);
+        TS_ASSERT(!cell_model.ReadyToDivide(23.99));
+        TS_ASSERT(cell_model.ReadyToDivide(24.0));
+        TS_ASSERT(cell_model.ReadyToDivide(24.01));
+        cell_model.SetCellType(DIFFERENTIATED);
+        TS_ASSERT(!cell_model.ReadyToDivide(1.0));
+        TS_ASSERT(!cell_model.ReadyToDivide(1e10));
+        TS_ASSERT(!cell_model.ReadyToDivide(1e100));
+        
+        // Testing a random generator is hard...
+        cell_model.SetCellType(TRANSIT);
+        const int TESTS = 100;
+        int ready_count = 0;
+        for (int i=0; i<TESTS; i++)
+        {
+            if (cell_model.ReadyToDivide(11.9))
+            {
+                ready_count++;
+            }
+        }
+        TS_ASSERT(ready_count>0);
+    }
+    
+};
+
+#endif /*TESTCELLCYCLEMODELS_HPP_*/

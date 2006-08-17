@@ -15,14 +15,15 @@ public :
         
         mStateVariables.push_back(3);
         mStateVariables.push_back(4);
-    } 
-
-    std::vector<double> TwoDimOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
-    {   
+    }
+    
+    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
+    {
         // do nothing
         
         //Quick fudge to remove warnings:
-        time=0.0;return(rY);
+        time=0.0;
+        return(rY);
     }
 };
 

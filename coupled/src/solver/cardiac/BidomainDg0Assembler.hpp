@@ -193,12 +193,12 @@ private:
         }
      
         // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MeshIterator iter =
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
             mpMesh->GetElementIteratorBegin();
  
 
         // assumes elements all have same number of nodes
-        const int num_elem_nodes = iter->GetNumNodes();
+        const int num_elem_nodes = (*iter)->GetNumNodes();
         
 
         c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> a_elem;
@@ -206,7 +206,7 @@ private:
         
         while (iter != mpMesh->GetElementIteratorEnd())
         {
-            const Element<ELEMENT_DIM, SPACE_DIM> &element = *iter;
+            const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
 
             AssembleOnElement(element, a_elem, b_elem);
          

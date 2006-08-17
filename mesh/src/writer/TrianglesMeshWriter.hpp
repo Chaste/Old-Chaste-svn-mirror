@@ -8,12 +8,12 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class TrianglesMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
-	TrianglesMeshWriter(const std::string &rDirectory,
+    TrianglesMeshWriter(const std::string &rDirectory,
                         const std::string &rBbaseName);
-	void WriteFiles();
+    void WriteFiles();
     void WriteElementsAsFaces();
     void WriteFacesAsEdges();
-	virtual ~TrianglesMeshWriter();
+    virtual ~TrianglesMeshWriter();
 };
 
 #endif //_TRIANGLESMESHWRITER_HPP_

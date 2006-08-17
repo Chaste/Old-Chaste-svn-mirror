@@ -11,13 +11,13 @@
 
 class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
 {
-    public:
-    
+public:
+
     void testMockEulerSolver()
     {
         Ode1 ode_system;
         
-        // Initialising the instance of our solver class    
+        // Initialising the instance of our solver class
         MockEulerIvpOdeSolver euler_solver;
         // Initialising the instance of our solution class
         OdeSolution solutions;
@@ -26,8 +26,8 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 2.0);
         
-        int last = solutions.GetNumberOfTimeSteps();        
-        // Test to see if this worked       
+        int last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
         double testvalue = solutions.rGetSolutions()[last][0];
         
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
@@ -38,9 +38,9 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         
         state_variables = ode_system.GetInitialConditions();
         solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 2.0);
-                                               
-        last = solutions.GetNumberOfTimeSteps();        
-        // Test to see if this worked       
+        
+        last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
         testvalue = solutions.rGetSolutions()[last][0];
         
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
@@ -48,6 +48,6 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
         TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 2);
         
     }
-
+    
 };
 #endif //_TESTMOCKEULERIVPODESOLVER_HPP_

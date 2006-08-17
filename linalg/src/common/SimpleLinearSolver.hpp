@@ -19,16 +19,17 @@ public:
     }
     virtual ~SimpleLinearSolver()
     {
-         if (mLinearSystemKnown==true)
-         {
+        if (mLinearSystemKnown==true)
+        {
             KSPDestroy(mSimpleSolver);
-         }
+        }
     }
     
-    void SetMatrixIsConstant(){
+    void SetMatrixIsConstant()
+    {
         mMatrixIsConstant=true;
-    } 
-     
+    }
+    
 private:
     bool mLinearSystemKnown;
     bool mMatrixIsConstant;

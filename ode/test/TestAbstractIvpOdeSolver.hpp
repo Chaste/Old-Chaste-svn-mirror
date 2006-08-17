@@ -17,57 +17,59 @@
 #include "OdeOrderSystemOf3.hpp"
 #include "Ode4.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
-    public:
-	
-	void testEulerSolver()
-	{
+public:
+
+    void testEulerSolver()
+    {
         Ode1 ode_system;
         
-     	// Initialising the instance of our solver class	
-		EulerIvpOdeSolver euler_solver;
-	    // Initialising the instance of our solution class
-		OdeSolution solutions;
-		
-	    // Solving the ode problem and writing to solution		
+        // Initialising the instance of our solver class
+        EulerIvpOdeSolver euler_solver;
+        // Initialising the instance of our solution class
+        OdeSolution solutions;
+        
+        // Solving the ode problem and writing to solution
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-	    solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 0.001);
-		
-		int last = solutions.GetNumberOfTimeSteps();		
-	    // Test to see if this worked		
-		double testvalue = solutions.rGetSolutions()[last][0];
-		
-		TS_ASSERT_DELTA(testvalue,2.0,0.01);
+        solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 0.001);
+        
+        int last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
+        double testvalue = solutions.rGetSolutions()[last][0];
+        
+        TS_ASSERT_DELTA(testvalue,2.0,0.01);
         
         // Test second version of Solve
-
+        
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
         state_variables = ode_system.rGetStateVariables();
         euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001);
-        TS_ASSERT_DELTA(state_variables[0],2.0,0.01);       
-   	}
-	
-	void testAdamsBashforthSolver()
-	{
-		Ode1 ode_system;
-	
-     	// Initialising the instance of our solver class	
-		AdamsBashforthIvpOdeSolver ABSolver;
-	    // Initialising the instance of our solution class
-		OdeSolution solutions;
-		
-	    // Solving the ode problem and writing to solution		
-        std::vector<double> state_variables = ode_system.GetInitialConditions();
-	    solutions = ABSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01, 0.01);
-		
-		int last = solutions.GetNumberOfTimeSteps();		
-	    // Test to see if this worked		
-		double testvalue = solutions.rGetSolutions()[last][0];
-		
-		TS_ASSERT_DELTA(testvalue,2.0,0.01);
+        TS_ASSERT_DELTA(state_variables[0],2.0,0.01);
+    }
+    
+    void testAdamsBashforthSolver()
+    {
+        Ode1 ode_system;
         
-        // Run again with second version of solve. This version updates the second 
+        // Initialising the instance of our solver class
+        AdamsBashforthIvpOdeSolver ABSolver;
+        // Initialising the instance of our solution class
+        OdeSolution solutions;
+        
+        // Solving the ode problem and writing to solution
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        solutions = ABSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01, 0.01);
+        
+        int last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
+        double testvalue = solutions.rGetSolutions()[last][0];
+        
+        TS_ASSERT_DELTA(testvalue,2.0,0.01);
+        
+        // Run again with second version of solve. This version updates the second
         // parameter of Solve.
         state_variables = ode_system.GetInitialConditions();
         ABSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.01);
@@ -77,56 +79,56 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
         // Run again with too few timesteps
         state_variables = ode_system.GetInitialConditions();
         TS_ASSERT_THROWS_ANYTHING(ABSolver.Solve(&ode_system, state_variables, 0.0, 0.02, 0.01));
-	}
-	
-	
-	void testRungeKutta2Solver()
-	{
-		Ode1 ode_system;
-
+    }
+    
+    
+    void testRungeKutta2Solver()
+    {
+        Ode1 ode_system;
+        
         ode_system.SetInitialConditionsComponent(0,2.0);
-	
-     	// Initialising the instance of our solver class	
-		RungeKutta2IvpOdeSolver RK2Solver;
-	    // Initialising the instance of our solution class
-		OdeSolution solutions;
-		
-	    // Solving the ode problem and writing to solution		
+        
+        // Initialising the instance of our solver class
+        RungeKutta2IvpOdeSolver RK2Solver;
+        // Initialising the instance of our solution class
+        OdeSolution solutions;
+        
+        // Solving the ode problem and writing to solution
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-	    solutions = RK2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 0.001);
-		
-		int last = solutions.GetNumberOfTimeSteps();		
-	    // Test to see if this worked		
-		double testvalue = solutions.rGetSolutions()[last][0];
-		
-		TS_ASSERT_DELTA(testvalue,4.0,0.0001);
+        solutions = RK2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 0.001);
+        
+        int last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
+        double testvalue = solutions.rGetSolutions()[last][0];
+        
+        TS_ASSERT_DELTA(testvalue,4.0,0.0001);
         
         // test second version of Solve
         ode_system.SetStateVariables(ode_system.GetInitialConditions());
         state_variables = ode_system.rGetStateVariables();
         RK2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001);
         TS_ASSERT_DELTA(state_variables[0], 4.0, 0.0001);
-	}
-	
-	void testRungeKutta4Solver()
-	{
-		Ode1 ode_system;
-        ode_system.SetInitialConditionsComponent(0,2.0);
+    }
     
-     	// Initialising the instance of our solver class	
-		RungeKutta4IvpOdeSolver RungeKutta4Solver;
-	    // Initialising the instance of our solution class
-		OdeSolution solutions;
-		
-	    // Solving the ode problem and writing to solution		
+    void testRungeKutta4Solver()
+    {
+        Ode1 ode_system;
+        ode_system.SetInitialConditionsComponent(0,2.0);
+        
+        // Initialising the instance of our solver class
+        RungeKutta4IvpOdeSolver RungeKutta4Solver;
+        // Initialising the instance of our solution class
+        OdeSolution solutions;
+        
+        // Solving the ode problem and writing to solution
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-	    solutions = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 0.001);
-		
-		int last = solutions.GetNumberOfTimeSteps();		
-	    // Test to see if this worked		
-		double testvalue = solutions.rGetSolutions()[last][0];
-		
-		TS_ASSERT_DELTA(testvalue,4.0,0.000001);
+        solutions = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 0.001);
+        
+        int last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
+        double testvalue = solutions.rGetSolutions()[last][0];
+        
+        TS_ASSERT_DELTA(testvalue,4.0,0.000001);
         
         
         // test second version of Solve
@@ -134,329 +136,329 @@ class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
         state_variables = ode_system.rGetStateVariables();
         RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001);
         TS_ASSERT_DELTA(state_variables[0], 4.0, 0.000001);
-	}
-	
-	void testLastTimeStep()
-	{
-		Ode1 ode_system;
-		
-		// Initialising the instance of our solver class
-		EulerIvpOdeSolver EulerSolver;
-		// Initialising the instance of our solution class
-		OdeSolution solutions;
-		
-		// Solving the ode problem and writing to solution
-        std::vector<double> state_variables = ode_system.GetInitialConditions();
-	    solutions = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.000037, 0.000037);
-		
-		int last = solutions.GetNumberOfTimeSteps();
-		// Test to see if this worked
-		double testvalue = solutions.rGetSolutions()[last-1][0]	;
-		
-		TS_ASSERT_DELTA(testvalue,2.0,0.001);
-	}
-	
-	void testGlobalError()
-	{
-		OdeOrder ode_system;
-
-		double hValue=0.01;
-	
-		//Euler solver solution worked out	
-		EulerIvpOdeSolver euler_solver;
-		OdeSolution solutions_euler;
-
-        std::vector<double> state_variables = ode_system.GetInitialConditions();
-		solutions_euler = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last = solutions_euler.GetNumberOfTimeSteps();
-		double testvalueEuler = solutions_euler.rGetSolutions()[last][0];
-
-		//Runge Kutta 2 solver solution worked out	
-		RungeKutta2IvpOdeSolver RungeKutta2Solver;
-		OdeSolution solutionsRungeKutta2;
-
-        state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
-		double testvalueRungeKutta2 = solutionsRungeKutta2.rGetSolutions()[last2][0];
-
-		//Runge Kutta 4 solver solution worked out	
-		RungeKutta4IvpOdeSolver RungeKutta4Solver;
-		OdeSolution solutionsRungeKutta4;
-
-        state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
-		double testvalueRungeKutta4 = solutionsRungeKutta4.rGetSolutions()[last3][0];
-
-		//Adams-Bashforth solver solution worked out	
-		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
-		OdeSolution solutionsAdamsBashforth;
-
-        state_variables = ode_system.GetInitialConditions();
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
-		double testvalueAdamsBashforth = solutionsAdamsBashforth.rGetSolutions()[last4][0];
-
-		// The tests
-		double exactSolution=exp(2);
-				
-		double GlobalErrorEuler;
-		GlobalErrorEuler = 0.5*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler,exactSolution,GlobalErrorEuler);
-		
-		double GlobalErrorRungeKutta2;
-		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2,exactSolution,GlobalErrorRungeKutta2);
-		
-		double GlobalErrorRungeKutta4;
-		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorRungeKutta4);
-		
-		double GlobalErrorAdamsBashforth;
-		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueAdamsBashforth,exactSolution,GlobalErrorAdamsBashforth);	
-	}
+    }
     
-    		
-	void testGlobalErrorSystemOf2Equations()
-	{
-		OdeOrderSystem ode_system;
-		
-		double hValue=0.01;
-	
-		//Euler solver solution worked out	
-		EulerIvpOdeSolver EulerSolver;
-		OdeSolution solutionsEuler;
-		
+    void testLastTimeStep()
+    {
+        Ode1 ode_system;
+        
+        // Initialising the instance of our solver class
+        EulerIvpOdeSolver EulerSolver;
+        // Initialising the instance of our solution class
+        OdeSolution solutions;
+        
+        // Solving the ode problem and writing to solution
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-		solutionsEuler = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last = solutionsEuler.GetNumberOfTimeSteps();
-		
-		double testvalueEuler[2];
-		testvalueEuler[0] = solutionsEuler.rGetSolutions()[last][0];
-		testvalueEuler[1] = solutionsEuler.rGetSolutions()[last][1];
-		
-		//Runge Kutta 2 solver solution worked out	
-		RungeKutta2IvpOdeSolver RungeKutta2Solver;
-		OdeSolution solutionsRungeKutta2;
-		
-        state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
-		
-		double testvalueRungeKutta2[2];
-		testvalueRungeKutta2[0] = solutionsRungeKutta2.rGetSolutions()[last2][0];
-		testvalueRungeKutta2[1] = solutionsRungeKutta2.rGetSolutions()[last2][1];
-		
-		//Runge Kutta 4 solver solution worked out	
-		RungeKutta4IvpOdeSolver RungeKutta4Solver;
-		OdeSolution solutionsRungeKutta4;
-		
-        state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
-		double testvalueRungeKutta4[2];
-		testvalueRungeKutta4[0] = solutionsRungeKutta4.rGetSolutions()[last3][0];
-		testvalueRungeKutta4[1] = solutionsRungeKutta4.rGetSolutions()[last3][1];
-		
-		//solutionsRungeKutta4.SaveToFile("result.dat");
-		
-		//Adams-Bashforth solver solution worked out	
-		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
-		OdeSolution solutionsAdamsBashforth;
-		
-        state_variables = ode_system.GetInitialConditions();
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
-		double testvalueAdamsBashforth[2];
-		testvalueAdamsBashforth[0] = solutionsAdamsBashforth.rGetSolutions()[last4][0];
-		testvalueAdamsBashforth[1] = solutionsAdamsBashforth.rGetSolutions()[last4][1];
-		
-		// The tests
-		double exactSolution[2];
-		
-		exactSolution[0] = sin(2);
-		exactSolution[1] = cos(2);
-				
-		double GlobalErrorEuler;
-		GlobalErrorEuler = 0.5*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler);
-		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler);
-		
-		double GlobalErrorRungeKutta2;
-		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2);
-		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2);
-		
-		double GlobalErrorRungeKutta4;
-		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4);
-		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4);
-		
-		double GlobalErrorAdamsBashforth;
-		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);	
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);	
-		
-		
-	}
-	
-	void testGlobalErrorSystemOf3Equations()
-	{
-		OdeOrderSystemOf3 ode_system;
-		
-		double hValue=0.01;
-	
-		//Euler solver solution worked out	
-		EulerIvpOdeSolver EulerSolver;
-		OdeSolution solutionsEuler;
-		
+        solutions = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.000037, 0.000037);
+        
+        int last = solutions.GetNumberOfTimeSteps();
+        // Test to see if this worked
+        double testvalue = solutions.rGetSolutions()[last-1][0]	;
+        
+        TS_ASSERT_DELTA(testvalue,2.0,0.001);
+    }
+    
+    void testGlobalError()
+    {
+        OdeOrder ode_system;
+        
+        double hValue=0.01;
+        
+        //Euler solver solution worked out
+        EulerIvpOdeSolver euler_solver;
+        OdeSolution solutions_euler;
+        
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-		solutionsEuler = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last = solutionsEuler.GetNumberOfTimeSteps();
-		
-		double testvalueEuler[3];
-		testvalueEuler[0] = solutionsEuler.rGetSolutions()[last][0];
-		testvalueEuler[1] = solutionsEuler.rGetSolutions()[last][1];
-		testvalueEuler[2] = solutionsEuler.rGetSolutions()[last][2];
-		
-		//Runge Kutta 2 solver solution worked out	
-		RungeKutta2IvpOdeSolver RungeKutta2Solver;
-		OdeSolution solutionsRungeKutta2;
-		
+        solutions_euler = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last = solutions_euler.GetNumberOfTimeSteps();
+        double testvalueEuler = solutions_euler.rGetSolutions()[last][0];
+        
+        //Runge Kutta 2 solver solution worked out
+        RungeKutta2IvpOdeSolver RungeKutta2Solver;
+        OdeSolution solutionsRungeKutta2;
+        
         state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
-		
-		double testvalueRungeKutta2[3];
-		testvalueRungeKutta2[0] = solutionsRungeKutta2.rGetSolutions()[last2][0];
-		testvalueRungeKutta2[1] = solutionsRungeKutta2.rGetSolutions()[last2][1];
-		testvalueRungeKutta2[2] = solutionsRungeKutta2.rGetSolutions()[last2][2];
-		
-		//Runge Kutta 4 solver solution worked out	
-		RungeKutta4IvpOdeSolver RungeKutta4Solver;
-		OdeSolution solutionsRungeKutta4;
-		
+        solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
+        double testvalueRungeKutta2 = solutionsRungeKutta2.rGetSolutions()[last2][0];
+        
+        //Runge Kutta 4 solver solution worked out
+        RungeKutta4IvpOdeSolver RungeKutta4Solver;
+        OdeSolution solutionsRungeKutta4;
+        
         state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
-		
-		double testvalueRungeKutta4[3];
-		testvalueRungeKutta4[0] = solutionsRungeKutta4.rGetSolutions()[last3][0];
-		testvalueRungeKutta4[1] = solutionsRungeKutta4.rGetSolutions()[last3][1];
-		testvalueRungeKutta4[2] = solutionsRungeKutta4.rGetSolutions()[last3][2];
-		
-		//solutionsRungeKutta4.SaveToFile("result.dat");
-		
-		//Adams-Bashforth solver solution worked out	
-		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
-		OdeSolution solutionsAdamsBashforth;
-		
+        solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
+        double testvalueRungeKutta4 = solutionsRungeKutta4.rGetSolutions()[last3][0];
+        
+        //Adams-Bashforth solver solution worked out
+        AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
+        OdeSolution solutionsAdamsBashforth;
+        
         state_variables = ode_system.GetInitialConditions();
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
-		
-		double testvalueAdamsBashforth[3];
-		testvalueAdamsBashforth[0] = solutionsAdamsBashforth.rGetSolutions()[last4][0];
-		testvalueAdamsBashforth[1] = solutionsAdamsBashforth.rGetSolutions()[last4][1];
-		testvalueAdamsBashforth[2] = solutionsAdamsBashforth.rGetSolutions()[last4][2];
-		
-		// The tests
-		double exactSolution[3];
-		
-		exactSolution[0] = -sin(2);
-		exactSolution[1] = sin(2)+cos(2);
-		exactSolution[2] = 2*sin(2);
-				
-		double GlobalErrorEuler;
-		GlobalErrorEuler = 0.5*2*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler);
-		TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler);
-		TS_ASSERT_DELTA(testvalueEuler[2],exactSolution[2],GlobalErrorEuler);
-		
-		double GlobalErrorRungeKutta2;
-		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*2*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2);
-		TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2);
-		TS_ASSERT_DELTA(testvalueRungeKutta2[2],exactSolution[2],GlobalErrorRungeKutta2);
-		
-		double GlobalErrorRungeKutta4;
-		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*2*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4);
-		TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4);
-		TS_ASSERT_DELTA(testvalueRungeKutta4[2],exactSolution[2],GlobalErrorRungeKutta4);
-		
-		double GlobalErrorAdamsBashforth;
-		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*2*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);	
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);	
-		TS_ASSERT_DELTA(testvalueAdamsBashforth[2],exactSolution[2],GlobalErrorAdamsBashforth);
-		
-	}
-	
-	void testGlobalError2()
-	{
-		Ode4 ode_system;
-		
-		double hValue=0.001;
-	
-		//Euler solver solution worked out	
-		EulerIvpOdeSolver EulerSolver;
-		OdeSolution solutionsEuler;
-		
+        solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
+        double testvalueAdamsBashforth = solutionsAdamsBashforth.rGetSolutions()[last4][0];
+        
+        // The tests
+        double exactSolution=exp(2);
+        
+        double GlobalErrorEuler;
+        GlobalErrorEuler = 0.5*exp(2)*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueEuler,exactSolution,GlobalErrorEuler);
+        
+        double GlobalErrorRungeKutta2;
+        GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*exp(2)*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta2,exactSolution,GlobalErrorRungeKutta2);
+        
+        double GlobalErrorRungeKutta4;
+        GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorRungeKutta4);
+        
+        double GlobalErrorAdamsBashforth;
+        GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*exp(2)*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueAdamsBashforth,exactSolution,GlobalErrorAdamsBashforth);
+    }
+    
+    
+    void testGlobalErrorSystemOf2Equations()
+    {
+        OdeOrderSystem ode_system;
+        
+        double hValue=0.01;
+        
+        //Euler solver solution worked out
+        EulerIvpOdeSolver EulerSolver;
+        OdeSolution solutionsEuler;
+        
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-		solutionsEuler = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last = solutionsEuler.GetNumberOfTimeSteps();
-		double testvalueEuler = solutionsEuler.rGetSolutions()[last][0];
-		
-		//Runge Kutta 2 solver solution worked out	
-		RungeKutta2IvpOdeSolver RungeKutta2Solver;
-		OdeSolution solutionsRungeKutta2;
-		
+        solutionsEuler = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last = solutionsEuler.GetNumberOfTimeSteps();
+        
+        double testvalueEuler[2];
+        testvalueEuler[0] = solutionsEuler.rGetSolutions()[last][0];
+        testvalueEuler[1] = solutionsEuler.rGetSolutions()[last][1];
+        
+        //Runge Kutta 2 solver solution worked out
+        RungeKutta2IvpOdeSolver RungeKutta2Solver;
+        OdeSolution solutionsRungeKutta2;
+        
         state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
-		double testvalueRungeKutta2 = solutionsRungeKutta2.rGetSolutions()[last2][0];
-		
-		//Runge Kutta 4 solver solution worked out	
-		RungeKutta4IvpOdeSolver RungeKutta4Solver;
-		OdeSolution solutionsRungeKutta4;
-		
+        solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
+        
+        double testvalueRungeKutta2[2];
+        testvalueRungeKutta2[0] = solutionsRungeKutta2.rGetSolutions()[last2][0];
+        testvalueRungeKutta2[1] = solutionsRungeKutta2.rGetSolutions()[last2][1];
+        
+        //Runge Kutta 4 solver solution worked out
+        RungeKutta4IvpOdeSolver RungeKutta4Solver;
+        OdeSolution solutionsRungeKutta4;
+        
         state_variables = ode_system.GetInitialConditions();
-		solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
-		double testvalueRungeKutta4 = solutionsRungeKutta4.rGetSolutions()[last3][0];
-		
-		//Adams-Bashforth solver solution worked out	
-		AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
-		OdeSolution solutionsAdamsBashforth;
-		
+        solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
+        double testvalueRungeKutta4[2];
+        testvalueRungeKutta4[0] = solutionsRungeKutta4.rGetSolutions()[last3][0];
+        testvalueRungeKutta4[1] = solutionsRungeKutta4.rGetSolutions()[last3][1];
+        
+        //solutionsRungeKutta4.SaveToFile("result.dat");
+        
+        //Adams-Bashforth solver solution worked out
+        AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
+        OdeSolution solutionsAdamsBashforth;
+        
         state_variables = ode_system.GetInitialConditions();
-		solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
-		int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
-		double testvalueAdamsBashforth = solutionsAdamsBashforth.rGetSolutions()[last4][0];
-		
-		// The tests
-		double alpha = 100;
-		double exactSolution=1/(1+exp(-alpha*2));
-				
-		double GlobalErrorEuler;
-		GlobalErrorEuler = 0.5*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueEuler,exactSolution,GlobalErrorEuler);
-		
-		double GlobalErrorRungeKutta2;
-		GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta2,exactSolution,GlobalErrorRungeKutta2);
-		
-		double GlobalErrorRungeKutta4;
-		GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorRungeKutta4);
-		
-		double GlobalErrorAdamsBashforth;
-		GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
-		TS_ASSERT_DELTA(testvalueAdamsBashforth,exactSolution,GlobalErrorAdamsBashforth);
-	}
+        solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
+        double testvalueAdamsBashforth[2];
+        testvalueAdamsBashforth[0] = solutionsAdamsBashforth.rGetSolutions()[last4][0];
+        testvalueAdamsBashforth[1] = solutionsAdamsBashforth.rGetSolutions()[last4][1];
+        
+        // The tests
+        double exactSolution[2];
+        
+        exactSolution[0] = sin(2);
+        exactSolution[1] = cos(2);
+        
+        double GlobalErrorEuler;
+        GlobalErrorEuler = 0.5*1*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler);
+        TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler);
+        
+        double GlobalErrorRungeKutta2;
+        GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*1*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2);
+        TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2);
+        
+        double GlobalErrorRungeKutta4;
+        GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4);
+        TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4);
+        
+        double GlobalErrorAdamsBashforth;
+        GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);
+        TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);
+        
+        
+    }
+    
+    void testGlobalErrorSystemOf3Equations()
+    {
+        OdeOrderSystemOf3 ode_system;
+        
+        double hValue=0.01;
+        
+        //Euler solver solution worked out
+        EulerIvpOdeSolver EulerSolver;
+        OdeSolution solutionsEuler;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        solutionsEuler = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last = solutionsEuler.GetNumberOfTimeSteps();
+        
+        double testvalueEuler[3];
+        testvalueEuler[0] = solutionsEuler.rGetSolutions()[last][0];
+        testvalueEuler[1] = solutionsEuler.rGetSolutions()[last][1];
+        testvalueEuler[2] = solutionsEuler.rGetSolutions()[last][2];
+        
+        //Runge Kutta 2 solver solution worked out
+        RungeKutta2IvpOdeSolver RungeKutta2Solver;
+        OdeSolution solutionsRungeKutta2;
+        
+        state_variables = ode_system.GetInitialConditions();
+        solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
+        
+        double testvalueRungeKutta2[3];
+        testvalueRungeKutta2[0] = solutionsRungeKutta2.rGetSolutions()[last2][0];
+        testvalueRungeKutta2[1] = solutionsRungeKutta2.rGetSolutions()[last2][1];
+        testvalueRungeKutta2[2] = solutionsRungeKutta2.rGetSolutions()[last2][2];
+        
+        //Runge Kutta 4 solver solution worked out
+        RungeKutta4IvpOdeSolver RungeKutta4Solver;
+        OdeSolution solutionsRungeKutta4;
+        
+        state_variables = ode_system.GetInitialConditions();
+        solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
+        
+        double testvalueRungeKutta4[3];
+        testvalueRungeKutta4[0] = solutionsRungeKutta4.rGetSolutions()[last3][0];
+        testvalueRungeKutta4[1] = solutionsRungeKutta4.rGetSolutions()[last3][1];
+        testvalueRungeKutta4[2] = solutionsRungeKutta4.rGetSolutions()[last3][2];
+        
+        //solutionsRungeKutta4.SaveToFile("result.dat");
+        
+        //Adams-Bashforth solver solution worked out
+        AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
+        OdeSolution solutionsAdamsBashforth;
+        
+        state_variables = ode_system.GetInitialConditions();
+        solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
+        
+        double testvalueAdamsBashforth[3];
+        testvalueAdamsBashforth[0] = solutionsAdamsBashforth.rGetSolutions()[last4][0];
+        testvalueAdamsBashforth[1] = solutionsAdamsBashforth.rGetSolutions()[last4][1];
+        testvalueAdamsBashforth[2] = solutionsAdamsBashforth.rGetSolutions()[last4][2];
+        
+        // The tests
+        double exactSolution[3];
+        
+        exactSolution[0] = -sin(2);
+        exactSolution[1] = sin(2)+cos(2);
+        exactSolution[2] = 2*sin(2);
+        
+        double GlobalErrorEuler;
+        GlobalErrorEuler = 0.5*2*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueEuler[0],exactSolution[0],GlobalErrorEuler);
+        TS_ASSERT_DELTA(testvalueEuler[1],exactSolution[1],GlobalErrorEuler);
+        TS_ASSERT_DELTA(testvalueEuler[2],exactSolution[2],GlobalErrorEuler);
+        
+        double GlobalErrorRungeKutta2;
+        GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*2*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta2[0],exactSolution[0],GlobalErrorRungeKutta2);
+        TS_ASSERT_DELTA(testvalueRungeKutta2[1],exactSolution[1],GlobalErrorRungeKutta2);
+        TS_ASSERT_DELTA(testvalueRungeKutta2[2],exactSolution[2],GlobalErrorRungeKutta2);
+        
+        double GlobalErrorRungeKutta4;
+        GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*2*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta4[0],exactSolution[0],GlobalErrorRungeKutta4);
+        TS_ASSERT_DELTA(testvalueRungeKutta4[1],exactSolution[1],GlobalErrorRungeKutta4);
+        TS_ASSERT_DELTA(testvalueRungeKutta4[2],exactSolution[2],GlobalErrorRungeKutta4);
+        
+        double GlobalErrorAdamsBashforth;
+        GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*2*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueAdamsBashforth[0],exactSolution[0],GlobalErrorAdamsBashforth);
+        TS_ASSERT_DELTA(testvalueAdamsBashforth[1],exactSolution[1],GlobalErrorAdamsBashforth);
+        TS_ASSERT_DELTA(testvalueAdamsBashforth[2],exactSolution[2],GlobalErrorAdamsBashforth);
+        
+    }
+    
+    void testGlobalError2()
+    {
+        Ode4 ode_system;
+        
+        double hValue=0.001;
+        
+        //Euler solver solution worked out
+        EulerIvpOdeSolver EulerSolver;
+        OdeSolution solutionsEuler;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        solutionsEuler = EulerSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last = solutionsEuler.GetNumberOfTimeSteps();
+        double testvalueEuler = solutionsEuler.rGetSolutions()[last][0];
+        
+        //Runge Kutta 2 solver solution worked out
+        RungeKutta2IvpOdeSolver RungeKutta2Solver;
+        OdeSolution solutionsRungeKutta2;
+        
+        state_variables = ode_system.GetInitialConditions();
+        solutionsRungeKutta2 = RungeKutta2Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last2 = solutionsRungeKutta2.GetNumberOfTimeSteps();
+        double testvalueRungeKutta2 = solutionsRungeKutta2.rGetSolutions()[last2][0];
+        
+        //Runge Kutta 4 solver solution worked out
+        RungeKutta4IvpOdeSolver RungeKutta4Solver;
+        OdeSolution solutionsRungeKutta4;
+        
+        state_variables = ode_system.GetInitialConditions();
+        solutionsRungeKutta4 = RungeKutta4Solver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last3 = solutionsRungeKutta4.GetNumberOfTimeSteps();
+        double testvalueRungeKutta4 = solutionsRungeKutta4.rGetSolutions()[last3][0];
+        
+        //Adams-Bashforth solver solution worked out
+        AdamsBashforthIvpOdeSolver AdamsBashforthSolver;
+        OdeSolution solutionsAdamsBashforth;
+        
+        state_variables = ode_system.GetInitialConditions();
+        solutionsAdamsBashforth = AdamsBashforthSolver.Solve(&ode_system, state_variables, 0.0, 2.0, hValue, hValue);
+        int last4 = solutionsAdamsBashforth.GetNumberOfTimeSteps();
+        double testvalueAdamsBashforth = solutionsAdamsBashforth.rGetSolutions()[last4][0];
+        
+        // The tests
+        double alpha = 100;
+        double exactSolution=1/(1+exp(-alpha*2));
+        
+        double GlobalErrorEuler;
+        GlobalErrorEuler = 0.5*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueEuler,exactSolution,GlobalErrorEuler);
+        
+        double GlobalErrorRungeKutta2;
+        GlobalErrorRungeKutta2 = (1.0/6.0)*hValue*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta2,exactSolution,GlobalErrorRungeKutta2);
+        
+        double GlobalErrorRungeKutta4;
+        GlobalErrorRungeKutta4 = (1.0/24.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueRungeKutta4,exactSolution,GlobalErrorRungeKutta4);
+        
+        double GlobalErrorAdamsBashforth;
+        GlobalErrorAdamsBashforth = (1.0/6.0)*pow(hValue,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*hValue;
+        TS_ASSERT_DELTA(testvalueAdamsBashforth,exactSolution,GlobalErrorAdamsBashforth);
+    }
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

@@ -1,6 +1,6 @@
 /**
  * Concrete Ode3 class
- */ 
+ */
 #include "Ode3.hpp"
 
 Ode3::Ode3() : AbstractOdeSystem()
@@ -13,9 +13,9 @@ Ode3::Ode3() : AbstractOdeSystem()
 
 std::vector<double> Ode3::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> y_derivatives(GetNumberOfStateVariables());
-	y_derivatives[0]=rY[0]*time;
-	y_derivatives[1]=rY[1]*time;
-	return y_derivatives;
+    std::vector<double> y_derivatives(GetNumberOfStateVariables());
+    y_derivatives[0]=rY[0]*time;
+    y_derivatives[1]=rY[1]*time;
+    return y_derivatives;
 }
-	
+

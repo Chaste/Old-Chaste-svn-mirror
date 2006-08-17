@@ -23,7 +23,7 @@ public:
         TS_ASSERT_EQUALS(rep_vector.size(), (unsigned) VEC_SIZE);
         
         rep_vector.resize(5);
-        TS_ASSERT_EQUALS(rep_vector.size(), 5);
+        TS_ASSERT_EQUALS(rep_vector.size(), 5u);
     }
     
     void TestReplication()
@@ -51,7 +51,9 @@ public:
                 if (lo<=global_index && global_index<hi)
                 {
                     TS_ASSERT_EQUALS(rep_vector[global_index], lo);
-                } else {
+                }
+                else
+                {
                     TS_ASSERT_DIFFERS(rep_vector[global_index], lo);
                 }
             }
@@ -80,14 +82,16 @@ public:
         VecAssemblyEnd(petsc_vec);
         
         ReplicatableVector rep_vec;
-        rep_vec.ReplicatePetscVector(petsc_vec);    
-            
+        rep_vec.ReplicatePetscVector(petsc_vec);
+        
         for (int global_index=0; global_index<VEC_SIZE; global_index++)
         {
             if (lo<=global_index && global_index<hi)
             {
                 TS_ASSERT_EQUALS(rep_vec[global_index], lo);
-            } else {
+            }
+            else
+            {
                 TS_ASSERT_DIFFERS(rep_vec[global_index], lo);
             }
         }

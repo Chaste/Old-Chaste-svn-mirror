@@ -10,33 +10,33 @@
  */
 class FitzHughNagumo1961OdeSystem : public AbstractCardiacCell
 {
-   private:
-      // Stimulus to be applied to cell
- //     AbstractStimulusFunction *mpStimulus;
+private:
+    // Stimulus to be applied to cell
+//     AbstractStimulusFunction *mpStimulus;
 
-      // Constants for the FitzHugh-Nagumo model
-      double mAlpha;
-      double mGamma;
-      double mEpsilon;
-      
-   public:
-      // Constructor
-      FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver, 
-                                  double dt,
-                                  AbstractStimulusFunction *pIntracelullarStimulus, 
-                                  AbstractStimulusFunction *pExtracelullarStimulus=NULL);
-                                  
-      // Destructor
-      ~FitzHughNagumo1961OdeSystem();
-
-      void Init();
-      
-     // void SetStimulusFunction(AbstractStimulusFunction *stimulus);
-      //double GetStimulus(double time);
-      
-      // Compute the RHS of the FitHugh-Nagumo system of ODEs
-      std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
-      double GetIIonic();
+    // Constants for the FitzHugh-Nagumo model
+    double mAlpha;
+    double mGamma;
+    double mEpsilon;
+    
+public:
+    // Constructor
+    FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *pOdeSolver,
+                                double dt,
+                                AbstractStimulusFunction *pIntracelullarStimulus,
+                                AbstractStimulusFunction *pExtracelullarStimulus=NULL);
+                                
+    // Destructor
+    ~FitzHughNagumo1961OdeSystem();
+    
+    void Init();
+    
+    // void SetStimulusFunction(AbstractStimulusFunction *stimulus);
+    //double GetStimulus(double time);
+    
+    // Compute the RHS of the FitHugh-Nagumo system of ODEs
+    std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+    double GetIIonic();
 };
 
 #endif //_FITZHUGHNAGUMO1961ODESYSTEM_HPP_

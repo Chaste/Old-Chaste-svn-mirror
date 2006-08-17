@@ -9,11 +9,10 @@ class AbstractDataReader
 public:
 
     virtual std::vector<double> GetValues(std::string variableName) = 0;
-    virtual std::vector<double> GetValues(std::string variableName, 
+    virtual std::vector<double> GetValues(std::string variableName,
                                           int fixedDimension) = 0;
     virtual ~AbstractDataReader()
-    {
-    }                                          
+    {}
 };
 
 #endif //_ABSTRACTDATAREADER_HPP_

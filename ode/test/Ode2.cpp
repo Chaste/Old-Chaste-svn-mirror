@@ -12,8 +12,8 @@ Ode2::Ode2() : AbstractOdeSystem()
 
 std::vector<double> Ode2::EvaluateYDerivatives (double time, const std::vector<double> &rY)
 {
-	std::vector<double> y_derivatives(GetNumberOfStateVariables());
-	y_derivatives[0]=rY[0]*time;
-	return y_derivatives;
+    std::vector<double> y_derivatives(GetNumberOfStateVariables());
+    y_derivatives[0]=rY[0]*time;
+    return y_derivatives;
 }
-	
+

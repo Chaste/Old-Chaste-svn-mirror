@@ -3,26 +3,32 @@
 #include <iostream>
 
 ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName)
-: ColumnDataWriter::ColumnDataWriter(directory, baseName)
-{    
+        : ColumnDataWriter::ColumnDataWriter(directory, baseName)
+{
     mConcentrated=NULL;
     
     int num_procs, my_rank;
     MPI_Comm_size(PETSC_COMM_WORLD, &num_procs);
-    if (num_procs==1){
+    if (num_procs==1)
+    {
         mIsParallel=false;
-    } else {
+    }
+    else
+    {
         mIsParallel=true;
-    } 
+    }
     
     MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-    if (my_rank==0){
+    if (my_rank==0)
+    {
         mAmMaster=true;
-    } else {
+    }
+    else
+    {
         mAmMaster=false;
-    } 
+    }
     
-
+    
 }
 
 void
@@ -31,7 +37,7 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
     int size;
     VecGetSize(petscVector,&size);
     
-    if(size != mFixedDimensionSize)
+    if (size != mFixedDimensionSize)
     {
         //std::cout << "fixed_dim: " << mFixedDimensionSize << ", vec_size " << size << "\n";
         EXCEPTION("Size of vector does not match FixedDimensionSize.");
@@ -41,26 +47,26 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
     if (mConcentrated==NULL)
     {
         VecScatterCreateToZero(petscVector, &mToMaster, &mConcentrated);
-    }  
-
+    }
+    
 //    int size2;
 //    VecGetSize(mConcentrated, &size2);
 //    std::cout << "Vector size=" << size << "," << size2 << std::endl << std::flush;
-    
+
     VecScatterBegin(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
     VecScatterEnd(petscVector, mConcentrated, INSERT_VALUES, SCATTER_FORWARD, mToMaster);
     
 //    std::cout << "Done scatter" << std::endl << std::flush;
-    
+
     if (mAmMaster)
     {
         double *concentrated_vector;
-        VecGetArray(mConcentrated, &concentrated_vector); 
+        VecGetArray(mConcentrated, &concentrated_vector);
         for (int i=0 ; i<size; i++)
         {
             ColumnDataWriter::PutVariable(variableID, concentrated_vector[i], i);
         }
-        VecRestoreArray(mConcentrated, &concentrated_vector);      
+        VecRestoreArray(mConcentrated, &concentrated_vector);
     }
     
 }
@@ -69,7 +75,7 @@ ParallelColumnDataWriter::PutVector(int variableID, Vec petscVector)
 
 void ParallelColumnDataWriter::EndDefineMode()
 {
-    if(mAmMaster)
+    if (mAmMaster)
     {
         ColumnDataWriter::EndDefineMode();
     }
@@ -84,28 +90,29 @@ void ParallelColumnDataWriter::EndDefineMode()
  * 1) All processes call it as a collective operation from the user's code.
  *    This only makes sense if they are writing the unlimited dimension (time) variable.
  *    It is an error if any non-master process writes anything other than
- *      unlimited dimension 
- * 2) The master calls the equivalent method in the parent class after concentrating 
+ *      unlimited dimension
+ * 2) The master calls the equivalent method in the parent class after concentrating
  *      the data into a single Vec (ie. from the method PutVector() above).
  */
 void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
 {
-    if(variableID != UNLIMITED_DIMENSION_VAR_ID)
+    if (variableID != UNLIMITED_DIMENSION_VAR_ID)
     {
-       EXCEPTION("Non-master processes cannot write to disk.");
+        EXCEPTION("Non-master processes cannot write to disk.");
     }
     
-    if (mAmMaster) 
+    if (mAmMaster)
     {
-       //Master process is allowed to write
-       ColumnDataWriter::PutVariable(variableID,  variableValue, dimensionPosition);
+        //Master process is allowed to write
+        ColumnDataWriter::PutVariable(variableID,  variableValue, dimensionPosition);
     }
 }
 
 
 ParallelColumnDataWriter::~ParallelColumnDataWriter()
 {
-    if (mConcentrated != NULL) {
+    if (mConcentrated != NULL)
+    {
         VecScatterDestroy(mToMaster);
         VecDestroy(mConcentrated);
     }
@@ -121,12 +128,13 @@ void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
     
 //    std::cout<<"In AdvanceAlongUnlimitedDimension mAmMaster="<< mAmMaster<<
 //     " mpCurrentOutputFile="<<mpCurrentOutputFile<<"\n"<<std::flush;
-    
-    if (mAmMaster){
+
+    if (mAmMaster)
+    {
         //\todo
-        //This is where the master is going to take messages from the 
+        //This is where the master is going to take messages from the
         //slaves and write them
-        ColumnDataWriter::DoAdvanceAlongUnlimitedDimension(); 
+        ColumnDataWriter::DoAdvanceAlongUnlimitedDimension();
     }
 }
 
@@ -136,7 +144,8 @@ void ParallelColumnDataWriter::Close()
     MPI_Barrier(PETSC_COMM_WORLD);
     
     //\todo.. we may still have queued messages at this point.
-    if (mAmMaster){
+    if (mAmMaster)
+    {
         ColumnDataWriter::Close();
     }
 }

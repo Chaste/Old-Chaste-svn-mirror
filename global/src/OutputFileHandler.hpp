@@ -45,12 +45,17 @@ public:
         {
             int my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-            if (my_rank==0) {
+            if (my_rank==0)
+            {
                 mAmMaster=true;
-            } else {
+            }
+            else
+            {
                 mAmMaster=false;
             }
-        } else {
+        }
+        else
+        {
             // Not using PETSc, so we're definitely the only process
             mAmMaster = true;
         }

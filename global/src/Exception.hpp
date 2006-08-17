@@ -8,25 +8,25 @@
 /**
  * Exception class.
  * All exceptions thrown by this code are currently instances of this class.
- * 
+ *
  * \todo Might we want this class to inherit from STL exceptions?
  */
 class Exception
 {
 private:
     std::string mMessage; /**< Exception message */
- 
+    
 public:
     /** Construct an exception with a message string */
     Exception(std::string message, std::string filename, const int& rLineNumber)
-    {   
+    {
         std::stringstream line_number;
         line_number << rLineNumber;
-
-        mMessage = std::string("\nCHASTE ERROR: ") + filename + ":"  + line_number.str()  + ": " + message;       
+        
+        mMessage = std::string("\nCHASTE ERROR: ") + filename + ":"  + line_number.str()  + ": " + message;
     }
     
-    /** Get the message associated with the exception 
+    /** Get the message associated with the exception
      *
      * @return The message set when the exception was thrown.
      **/

@@ -1,5 +1,5 @@
 /**
- * Concrete AdamsBashforthIvpOdeSolver class. 
+ * Concrete AdamsBashforthIvpOdeSolver class.
 */
 #ifndef _ADAMSBASHFORTHIVPODESOLVER_HPP_
 #define _ADAMSBASHFORTHIVPODESOLVER_HPP_
@@ -12,23 +12,25 @@
 
 class AdamsBashforthIvpOdeSolver : public AbstractIvpOdeSolver
 {
-	public:
-	AdamsBashforthIvpOdeSolver() {}
-    ~AdamsBashforthIvpOdeSolver() {}
-	
-	OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+public:
+    AdamsBashforthIvpOdeSolver()
+    {}
+    ~AdamsBashforthIvpOdeSolver()
+    {}
+    
+    OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
                       std::vector<double>& rYValues,
-				      double startTime,
-				      double endTime,
-				      double timeStep,
+                      double startTime,
+                      double endTime,
+                      double timeStep,
                       double timeSampling);
-	
-    void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+                      
+    void Solve(AbstractOdeSystem* pAbstractOdeSystem,
                std::vector<double>& rYValues,
                double startTime,
                double endTime,
                double timeStep);
-
+               
 };
 
 #endif //_ADAMSBASHFORTHIVPODESOLVER_HPP_

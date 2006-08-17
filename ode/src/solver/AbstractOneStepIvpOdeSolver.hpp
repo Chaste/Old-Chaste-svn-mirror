@@ -9,45 +9,44 @@
 
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
-    public:
-    
-   /**
-    * Solves a system of ODEs using a specified one-step ODE solver
-    * 
-    * @param pAbstractOdeSystem points to the concrete ODE system to be solved
-    * @param startTime the time at which the initial conditions are specified
-    * @param endTime the time to which the system should be solved and the solution 
-    * returned
-    * @param timeStep the time interval to be used by the solver
-    * @param initialConditions a standard vector specifying the intial condition 
-    * of each solution variable in the system.
-    * 
-    * @return OdeSolution is an object containing an integer of the number of 
-    * equations, a std::vector of times and a std::vector of std::vectors where 
-    * each of those vectors contains the solution for one variable of the ODE 
-    * system at those times.
-    * 
-    */	
-    virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+public:
+
+    /**
+     * Solves a system of ODEs using a specified one-step ODE solver
+     * 
+     * @param pAbstractOdeSystem points to the concrete ODE system to be solved
+     * @param startTime the time at which the initial conditions are specified
+     * @param endTime the time to which the system should be solved and the solution 
+     * returned
+     * @param timeStep the time interval to be used by the solver
+     * @param initialConditions a standard vector specifying the intial condition 
+     * of each solution variable in the system.
+     * 
+     * @return OdeSolution is an object containing an integer of the number of 
+     * equations, a std::vector of times and a std::vector of std::vectors where 
+     * each of those vectors contains the solution for one variable of the ODE 
+     * system at those times.
+     * 
+     */
+    virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
                               std::vector<double>& rYValues,
                               double startTime,
                               double endTime,
                               double timeStep,
                               double timeSampling);
-    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-                              std::vector<double>& rYValues,
-                              double startTime,
-                              double endTime,
-                              double timeStep);
-
-	virtual std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-								double timeStep,
-								double time,
-								std::vector<double> currentYValue)=0;
-                                
+    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem,
+                       std::vector<double>& rYValues,
+                       double startTime,
+                       double endTime,
+                       double timeStep);
+                       
+    virtual std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                                                    double timeStep,
+                                                    double time,
+                                                    std::vector<double> currentYValue)=0;
+                                                    
     virtual ~AbstractOneStepIvpOdeSolver()
-    {
-    }                                
+    {}
 };
 
 #endif //_ABSTRACTONESTEPIVPODESOLVER_HPP_

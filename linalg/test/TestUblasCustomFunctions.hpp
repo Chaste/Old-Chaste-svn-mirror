@@ -9,9 +9,9 @@
 
 class TestUblasCustomFunctions : public CxxTest::TestSuite
 {
-   
-    public:
-    
+
+public:
+
     void TestDeterminant()
     {
         using namespace boost::numeric::ublas;
@@ -33,7 +33,7 @@ class TestUblasCustomFunctions : public CxxTest::TestSuite
         A(2,2) = 9;
         double ThreeThreeDeterminant = Determinant(A);
         TS_ASSERT_DELTA( ThreeThreeDeterminant, 0.2, 0.0000000001);
-
+        
         c_matrix<double, 2, 2> B;
         B(0,0) = 2.4;
         B(0,1) = 5;
@@ -62,7 +62,7 @@ class TestUblasCustomFunctions : public CxxTest::TestSuite
         A(2,1) = 8;
         A(2,2) = 9;
         c_matrix<double, 3, 3> invA;
-        c_matrix<double, 3, 3> invAMatlab;       
+        c_matrix<double, 3, 3> invAMatlab;
         invAMatlab(0,0) = -10.00;
         invAMatlab(0,1) = -25.00;
         invAMatlab(0,2) = 25.00;
@@ -73,9 +73,9 @@ class TestUblasCustomFunctions : public CxxTest::TestSuite
         invAMatlab(2,1) = 54.00;
         invAMatlab(2,2) = -53.00;
         invA = Inverse(A);
-        for( int i = 0; i < 3; i++)
+        for ( int i = 0; i < 3; i++)
         {
-            for( int j = 0; j < 3; j++)
+            for ( int j = 0; j < 3; j++)
             {
                 TS_ASSERT_DELTA( invA(i,j), invAMatlab(i,j), 0.0000000001);
             }
@@ -92,14 +92,14 @@ class TestUblasCustomFunctions : public CxxTest::TestSuite
         invBMatlab(0,1) = 0.4717;
         invBMatlab(1,0) = 0.4717;
         invBMatlab(1,1) = -0.2264;
-        for( int i = 0; i < 2; i++)
+        for ( int i = 0; i < 2; i++)
         {
-            for( int j = 0; j < 2; j++)
+            for ( int j = 0; j < 2; j++)
             {
                 TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
             }
         }
-            
+        
     }
     
 };

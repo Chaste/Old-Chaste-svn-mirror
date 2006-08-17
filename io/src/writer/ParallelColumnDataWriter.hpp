@@ -12,12 +12,12 @@ private:
     Vec mConcentrated;       /**< Vector to hold concentrated copy of distributed vector on the master process*/
     VecScatter mToMaster;    /**< variable holding information for concentrating a vector*/
 public:
-	ParallelColumnDataWriter(std::string directory, std::string baseName);
+    ParallelColumnDataWriter(std::string directory, std::string baseName);
     virtual ~ParallelColumnDataWriter();
     void PutVector(int variableID, Vec PetscVector);
     void PutVariable(int variableID, double variableValue,long dimensionPosition = -1);
     void EndDefineMode();
-    void AdvanceAlongUnlimitedDimension(); 
+    void AdvanceAlongUnlimitedDimension();
     void Close();
 };
 

@@ -1,6 +1,6 @@
 /**
- * Abstract IvpOdeSolver class. Sets up variables and functions for a numerical solution 
- * technique for an initial value ODE problem. 
+ * Abstract IvpOdeSolver class. Sets up variables and functions for a numerical solution
+ * technique for an initial value ODE problem.
 */
 #ifndef _ABSTRACTIVPODESOLVER_HPP_
 #define _ABSTRACTIVPODESOLVER_HPP_
@@ -12,7 +12,7 @@
 
 class AbstractIvpOdeSolver
 {
-    public:     
+public:
     /**
      * Solves a system of ODEs using a specified one-step ODE solver
      * 
@@ -30,21 +30,25 @@ class AbstractIvpOdeSolver
      * system at those times.
      * 
      */
-    virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem, 
+    virtual OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
                               std::vector<double>& rYValues,
                               double startTime,
                               double endTime,
                               double timeStep,
                               double timeSampling)=0;
-    
-    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem, 
-                              std::vector<double>& rYValues,
-                              double startTime,
-                              double endTime,
-                              double timeStep)=0;
-     
+                              
+    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem,
+                       std::vector<double>& rYValues,
+                       double startTime,
+                       double endTime,
+                       double timeStep)=0;
+                       
     virtual ~AbstractIvpOdeSolver()
+    {}
+    virtual bool CalculateStoppingEvent(AbstractOdeSystem* pAbstractOdeSystem, std::vector<double> currentYValue, double time)
+    //virtual bool CalculateStoppingEvent(std::vector<double> rYValues)
     {
+        return false;
     }
 };
 

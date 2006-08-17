@@ -10,7 +10,7 @@
 
 class ColumnDataReader : public AbstractDataReader
 {
-	
+
 private:
     std::map<std::string,int> mVariablesToColumns;
     std::map<std::string, std::string> mVariablesToUnits;
@@ -29,7 +29,7 @@ private:
     static const int FIELD_WIDTH = 10; /**< Width of each column in the text file (excludes column headers)*/
     static const int SPACING = 2; /**< Space between columns (includes minus sign) */
 public:
-    
+
     ColumnDataReader(std::string filepath, std::string basename,
                      bool make_absolute=true);
     std::vector<double> GetValues(std::string variableName);

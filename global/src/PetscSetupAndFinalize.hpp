@@ -4,7 +4,7 @@
 /**
  * This file is designed to be included by any test suites that use PETSc.
  * It controls the PETSc initialisation and finalisation.
- * 
+ *
  * Currently it will dump info on any non-freed vectors or matrices
  * on finalisation.
  */
@@ -18,25 +18,25 @@
 class PetSCSetup : public CxxTest::GlobalFixture
 {
 public:
-	/// Standard setup method for PETSc.
-	bool setUpWorld()
-	{
+    /// Standard setup method for PETSc.
+    bool setUpWorld()
+    {
         /**
          * The cxxtest_argc and cxxtest_argv variables are global, and filled in
          * from the arguments passed to the cxxtest test suite runner.
          */
-        PETSCEXCEPT(PetscInitialize(&cxxtest_argc, &cxxtest_argv, 
+        PETSCEXCEPT(PetscInitialize(&cxxtest_argc, &cxxtest_argv,
                                     PETSC_NULL, PETSC_NULL) );
-		
-		
-		return true;
-	}
-	// Clean up PETSc after running all tests.
-	bool tearDownWorld() 
+                                    
+                                    
+        return true;
+    }
+    // Clean up PETSc after running all tests.
+    bool tearDownWorld()
     {
-    	//std::cout << "Finalizing..." << std::endl;
-    	PETSCEXCEPT(PetscFinalize());
-    	return true;
+        //std::cout << "Finalizing..." << std::endl;
+        PETSCEXCEPT(PetscFinalize());
+        return true;
     }
 };
 static PetSCSetup thisSetup;

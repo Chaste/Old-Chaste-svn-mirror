@@ -10,7 +10,7 @@
 #include "Exception.hpp"
 
 class AbstractOdeSystem
-{ 
+{
 protected:
     // this is public so that AbstractIvpOdeSolver has direct access
     //\todo - change this to private/protected and make AbstractIvpOdeSolver a
@@ -21,45 +21,46 @@ protected:
     
     unsigned int mNumberOfStateVariables;
     std::vector<double> mInitialConditions;
- 
     
-
-	
- 
+    
+    
+    
+    
 public:
     /**
      * Constructor for an ODE system.
      * 
      * @param numberOfStateVariables  how many ODEs make up the system
      */
-	AbstractOdeSystem(unsigned numberOfStateVariables = 0)
+    AbstractOdeSystem(unsigned numberOfStateVariables = 0)
     {
         mNumberOfStateVariables = numberOfStateVariables;
     }
-
-	virtual ~AbstractOdeSystem() {} /**<  Destructor */  
-	
-	virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
-	
+    
+    virtual ~AbstractOdeSystem()
+    {} /**<  Destructor */
+    
+    virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY) = 0;
+    
     unsigned GetNumberOfStateVariables()
-    { 
+    {
         return mNumberOfStateVariables;
     }
     
     
     
-    virtual void SetInitialConditions(std::vector<double> initialConditions) 
+    virtual void SetInitialConditions(std::vector<double> initialConditions)
     {
-        if(initialConditions.size() != mNumberOfStateVariables)
+        if (initialConditions.size() != mNumberOfStateVariables)
         {
             EXCEPTION("The number of initial conditions must be that of the number of state variables");
         }
         mInitialConditions=initialConditions;
     }
     
-    virtual void SetInitialConditionsComponent(unsigned index, double initialCondition) 
+    virtual void SetInitialConditionsComponent(unsigned index, double initialCondition)
     {
-        if( index >= mNumberOfStateVariables)
+        if ( index >= mNumberOfStateVariables)
         {
             EXCEPTION("Index is greater than the number of state variables");
         }
@@ -71,10 +72,10 @@ public:
     {
         return mInitialConditions;
     }
-        
-    void SetStateVariables(std::vector<double> stateVariables) 
+    
+    void SetStateVariables(std::vector<double> stateVariables)
     {
-        if( mNumberOfStateVariables != stateVariables.size() )
+        if ( mNumberOfStateVariables != stateVariables.size() )
         {
             EXCEPTION("The size of the passed in vector must be that of the number of state variables");
         }

@@ -129,6 +129,9 @@ for src_file in src_files:
         if src_file['file'][-4:] == '.hpp' and \
             os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
             status = '' # So output file will be deleted
+        elif src_file['file'] == 'MeinekeCryptCellTypes.hpp':
+            # Special case - this file contains a single typedef
+            status = ''
         else:
             out_file.write("This source file wasn't used at all!\n\nFailed 1 of 1 test\n")
             status = "1_1"

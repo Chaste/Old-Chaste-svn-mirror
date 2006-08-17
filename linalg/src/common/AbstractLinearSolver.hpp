@@ -12,18 +12,17 @@ class AbstractLinearSolver
 
 public:
 
-	/**
-	 * Solve the system lhsMatrix * x = rhsVector for x.
-	 * 
-	 * @param lhsMatrix The left hand side matrix
-	 * @param rhsVector The right hand side vector
-	 * @return The solution x.
-	 */
+    /**
+     * Solve the system lhsMatrix * x = rhsVector for x.
+     * 
+     * @param lhsMatrix The left hand side matrix
+     * @param rhsVector The right hand side vector
+     * @return The solution x.
+     */
     virtual Vec Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace=NULL) = 0;
     virtual void SetMatrixIsConstant()=0;
     virtual ~AbstractLinearSolver()
-    {
-    }
+    {}
 };
 
 #endif

@@ -69,7 +69,7 @@ for file in os.listdir('../../test'):
 
 petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
               'petscmat', 'petscvec', 'petsc']
-chaste_libs = ['io', 'ode', 'pde', 'coupled', 'linalg', 'mesh', 'global']
+chaste_libs = ['io', 'ode', 'pde', 'coupled', 'linalg', 'mesh', 'models', 'global']
 
 all_libs = chaste_libs + petsc_libs + blas_libs + other_libs + ['test'+toplevel_dir]
 

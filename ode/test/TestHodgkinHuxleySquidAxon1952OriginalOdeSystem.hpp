@@ -10,20 +10,20 @@
 
 class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
 {
-    public:
-   
+public:
+
     void testHHModelAtSingularities()
     {
-         /*
-         * Set stimulus
-         */   
+        /*
+        * Set stimulus
+        */
         double magnitude_stimulus = 0.0;  // uA/cm2
         double duration_stimulus = 0.;  // ms
         double start_stimulus = 0.0;   // ms
         InitialStimulus stimulus(magnitude_stimulus,
                                  duration_stimulus,
                                  start_stimulus);
-
+                                 
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(NULL, 0.01, &stimulus);
         
         double v_singularity[2];
@@ -32,9 +32,9 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
         
         for (int i=0; i<2; i++)
         {
-            
+        
             std::vector<double> yleft;
-           
+            
             //mVariableNames.push_back("V");
             //mVariableUnits.push_back("mV");
             yleft.push_back(v_singularity[i]+0.1);
@@ -50,12 +50,12 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
             //mVariableNames.push_back("m");
             //mVariableUnits.push_back("");
             yleft.push_back(0.05);
-                 
-        
+            
+            
             std::vector<double> rhsleft =  hh52_ode_system.EvaluateYDerivatives (0.0, yleft);
-        
+            
             std::vector<double> yright;
-           
+            
             //mVariableNames.push_back("V");
             //mVariableUnits.push_back("mV");
             yright.push_back(v_singularity[i]-0.1);
@@ -71,12 +71,12 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
             //mVariableNames.push_back("m");
             //mVariableUnits.push_back("");
             yright.push_back(0.05);
-                 
+            
             std::vector<double> rhsright = hh52_ode_system.EvaluateYDerivatives (0.0, yright);
-        
-        
+            
+            
             std::vector<double> y_at_singularity;
-           
+            
             //mVariableNames.push_back("V");
             //mVariableUnits.push_back("mV");
             y_at_singularity.push_back(v_singularity[i]);
@@ -92,7 +92,7 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
             //mVariableNames.push_back("m");
             //mVariableUnits.push_back("");
             y_at_singularity.push_back(0.05);
-                 
+            
             std::vector<double> rhs_at_singularity = hh52_ode_system.EvaluateYDerivatives (0.0, y_at_singularity);
             
             for (int j=0; j<4; j++)
