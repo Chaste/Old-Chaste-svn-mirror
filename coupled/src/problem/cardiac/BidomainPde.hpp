@@ -6,16 +6,16 @@
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractCardiacPde.hpp"
 
- 
+
 /**
  * BidomainPde class.
- * 
+ *
  * The bidmain equation is of the form:
- * 
+ *
  * A_m ( C_m d(V_m)/dt + I_ion ) = div ( sigma_i grad( V_m + phi_e ) ) + I_intra_stim
- *   and 
+ *   and
  * div ( (sigma_i + sigma_e) grad phi_e    +   sigma_i (grad V_m) )  + I_extra_stim
- * 
+ *
  * where V_m is the trans-membrane potential = phi_i - phi_e            (mV),
  *       phi_i is the intracellular potential                           (mV),
  *       phi_e is the intracellular potential                           (mV),
@@ -32,13 +32,13 @@ class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
     c_matrix<double, SPACE_DIM, SPACE_DIM> mExtracellularConductivityTensor;
     ReplicatableVector mExtracellularStimulusCacheReplicated;
-
-public:    
-    //Constructor     
-    BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep) 
-       :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep, 2 /*mStride*/)
+    
+public:
+    //Constructor
+    BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep)
+            :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep, 2 /*mStride*/)
     {
-        
+    
         /**
           *  Parameters used in mono and bidomain simulations
           *  UNITS: surface area to volume ratio: 1/cm,
@@ -48,31 +48,30 @@ public:
           *  Extracellular conductivity set 7.0 mS/cm (Ref: Trayanova 2002 - "Look inside the heart")
           */
         double const_extra_conductivity = 7.0;
-
+        
         mExtracellularConductivityTensor.clear();
-        for(int i=0;i<SPACE_DIM;i++)
+        for (int i=0;i<SPACE_DIM;i++)
         {
             mExtracellularConductivityTensor(i,i) = const_extra_conductivity;
         }
- 
+        
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
-
+    
     ~BidomainPde()
-    {
-    }
-
+    {}
+    
     void SetExtracellularConductivityTensor(c_matrix<double, SPACE_DIM, SPACE_DIM> extracellularConductivity)
     {
         mExtracellularConductivityTensor = extracellularConductivity;
-    } 
-
+    }
+    
     c_matrix<double, SPACE_DIM, SPACE_DIM> GetExtracellularConductivityTensor()
     {
         return mExtracellularConductivityTensor;
     }
-
-    /** 
+    
+    /**
      * The bidomain pde also updates the extracellular stimulus cache
      */
     void UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
@@ -80,8 +79,8 @@ public:
         AbstractCardiacPde<SPACE_DIM>::UpdateCaches(globalIndex, localIndex, nextTime);
         mExtracellularStimulusCacheReplicated[globalIndex] = this->mCellsDistributed[localIndex]->GetExtracellularStimulus(nextTime);
     }
-  
-    /** 
+    
+    /**
      * The bidomain Pde also replicates the extracellular stimulus cache
      */
     void ReplicateCaches()
@@ -92,12 +91,12 @@ public:
         
         mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
     }
-
+    
     ReplicatableVector& GetExtracellularStimulusCacheReplicated()
     {
         return mExtracellularStimulusCacheReplicated;
     }
-
+    
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
@@ -123,10 +122,10 @@ public:
     /**
      * This should not be called, as the bidomain is not of the form
      * of a simple linear parabolic pde
-     */    
+     */
 #define COVERAGE_IGNORE
     double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& )
-    {   
+    {
         assert(0);
         return 0;
     }

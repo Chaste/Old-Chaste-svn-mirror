@@ -13,9 +13,9 @@
  * The spring lengths are governed by the equations
  * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
  *       = alpha sum_j r_hat_i,j*(|r_i,j|-s0)
- * 
+ *
  * where alpha = stem_cycle_time*(mu/eta) = stem_cycle_time*meineke_lambda.
- *       s0    = natural length of the spring 
+ *       s0    = natural length of the spring
 
  * Length is scaled by natural length
  * Time is scaled by a stem cell cycle time
@@ -42,15 +42,15 @@ private:
     CancerParameters *mpParams;
     
 public:
-  
+
     /** Constructor
      *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
      *  should be called for any birth to happen.
-     */   
+     */
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
             : mrMesh(rMesh),
-              mCells(cells)
+            mCells(cells)
     {
         mpParams = CancerParameters::Instance();
         mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
@@ -81,7 +81,7 @@ public:
         mpParams->SetCryptLength(cryptLength);
     }
     
-    /** 
+    /**
      *  Call this before Solve() if no cells have been specified. Randomly adds a new 
      *  node every 1 time unit, starting 0.1
      */
@@ -95,7 +95,7 @@ public:
         mOutputDirectory = outputDirectory;
     }
     
-    /** 
+    /**
      *  Call this before Solve() to simulate cell growth after cell division.
      *  (will eventually become SetIncludeCellBirth() and then become the default)
      */
@@ -103,8 +103,8 @@ public:
     {
         mIncludeVariableRestLength = true;
     }
-
-    /** 
+    
+    /**
      * Main Solve method.
      * 
      * Once CryptSimulation object has been set up, call this to run simulation

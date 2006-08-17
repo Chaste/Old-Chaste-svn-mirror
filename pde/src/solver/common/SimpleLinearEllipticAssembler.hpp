@@ -24,48 +24,46 @@ class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELE
 {
 private:
 
-	friend class TestSimpleLinearEllipticAssembler;
-
+    friend class TestSimpleLinearEllipticAssembler;
+    
 protected:
-	/**
-	 * In the case of an elliptic pde, this is zero.
-	 */
-	virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
-									   c_vector<double, ELEMENT_DIM+1> &rPhi,
-									   AbstractLinearPde<SPACE_DIM> *pPde,
-									   Point<SPACE_DIM> &rX)
-	{
-		return zero_matrix<double>(ELEMENT_DIM+1,ELEMENT_DIM+1);
-	}
-	
     /**
-	 * Compute extra RHS term.
-	 */
-	virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
-									  c_vector<double, ELEMENT_DIM+1> &rPhi,
-									  AbstractLinearPde<SPACE_DIM> *pPde,
-									  Point<SPACE_DIM> &rX,
-									  double u)
-	{
-		return pPde->ComputeLinearSourceTerm(rX) * rPhi;
-	}
-	
+     * In the case of an elliptic pde, this is zero.
+     */
+    virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        AbstractLinearPde<SPACE_DIM> *pPde,
+        Point<SPACE_DIM> &rX)
+    {
+        return zero_matrix<double>(ELEMENT_DIM+1,ELEMENT_DIM+1);
+    }
+    
+    /**
+    * Compute extra RHS term.
+    */
+    virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        AbstractLinearPde<SPACE_DIM> *pPde,
+        Point<SPACE_DIM> &rX,
+        double u)
+    {
+        return pPde->ComputeLinearSourceTerm(rX) * rPhi;
+    }
+    
 public:
-	/**
-	 * Constructors just call the base class versions.
-	 */
-	SimpleLinearEllipticAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-		AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
-	{
-	}
-	SimpleLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-								  AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-								  AbstractLinearSolver *pSolver, 
+    /**
+     * Constructors just call the base class versions.
+     */
+    SimpleLinearEllipticAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
+    {}
+    SimpleLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+                                  AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+                                  AbstractLinearSolver *pSolver,
                                   int numQuadPoints = 2) :
-		AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
-	{
-	}
-
+            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+    {}
+    
 };
 
 

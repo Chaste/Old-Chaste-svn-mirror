@@ -36,10 +36,10 @@ void CellProperties::CalculateProperties()
     {
         double v = mVoltage[i];
         double t = mTime[i];
-
+        
         double upstroke_vel;
-    
-        if(i==1)
+        
+        if (i==1)
         {   // artificially set initial upstroke_vel to be zero otherwise
             // end up dividing by zero
             upstroke_vel = 0;
@@ -48,7 +48,7 @@ void CellProperties::CalculateProperties()
         {
             upstroke_vel = (v - prev_v) / (t - prev_t);
         }
-                
+        
         switch (ap_phase)
         {
             case undefined:
@@ -74,12 +74,12 @@ void CellProperties::CalculateProperties()
                     
                     // Store maximum upstroke vel from this upstroke
                     mMaxUpstrokeVelocity = max_upstroke_vel;
-                   
+                    
                     mTimeAtMaxUpstrokeVelocity = time_at_max_upstroke_vel;
                     
                     ap_phase = repolarisation;
                 }
-                else 
+                else
                 {
                     // Update max. upstroke vel
                     if (upstroke_vel > max_upstroke_vel)
@@ -94,7 +94,7 @@ void CellProperties::CalculateProperties()
                     {
                         mPrevOnset = mOnset;
                         // Linear interpolation between timesteps
-                        mOnset = prev_t + 
+                        mOnset = prev_t +
                                  (t-prev_t)/(v-prev_v)*(mThreshold-prev_v);
                         // Did we have an earlier upstroke?
                         if (mPrevOnset >= 0)
@@ -110,7 +110,7 @@ void CellProperties::CalculateProperties()
                     ap_phase = undefined;
                 }
                 break;
-               
+                
         }
         
         prev_v = v;
@@ -118,15 +118,15 @@ void CellProperties::CalculateProperties()
         prev_upstroke_vel = upstroke_vel;
     }
     
-   
+    
 }
 
 
 double CellProperties::CalculateActionPotentialDuration(
-                                            const double percentage,
-                                            const double onset,
-                                            const double minPotential,
-                                            const double maxPotential)
+    const double percentage,
+    const double onset,
+    const double minPotential,
+    const double maxPotential)
 {
     double apd = 0.0;
     
@@ -137,7 +137,7 @@ double CellProperties::CalculateActionPotentialDuration(
     for (int i=0; i<time_steps; i++)
     {
         double t = mTime[i];
-
+        
         if (ap_phase == undefined && t >= onset)
         {
             ap_phase = upstroke;
@@ -172,7 +172,7 @@ double CellProperties::GetActionPotentialDuration(const double percentage)
         apd = CalculateActionPotentialDuration(percentage, mOnset,
                                                mMinPotential,
                                                mMaxPotential);
-        
+                                               
         if (apd == 0.0 && mPrevOnset >= 0.0)
         {
             // The last action potential is not complete, so try using

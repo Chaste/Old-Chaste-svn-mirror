@@ -16,10 +16,10 @@
 
 #include "PetscSetupAndFinalize.hpp"
 
-class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite 
+class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
 {
-    public:
-    
+public:
+
     void TestAssembleOnElement( void )
     {
         LinearHeatEquationPde<1> pde;
@@ -46,7 +46,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         delete nodes[0];
         delete nodes[1];
     }
-
+    
     void TestAssembleOnElement2DCanonical ( void )
     {
         LinearHeatEquationPde<2> pde;
@@ -68,7 +68,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);        
+        TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
         
         TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
@@ -105,7 +105,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         
         TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);        
+        TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
         
         TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
         TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
@@ -121,7 +121,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         delete nodes[2];
     }
     
-    void TestWithHeatEquationAndMeshReader()   
+    void TestWithHeatEquationAndMeshReader()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/trivial_1d_mesh");
@@ -129,7 +129,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        LinearHeatEquationPde<1> pde;  
+        LinearHeatEquationPde<1> pde;
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
@@ -167,7 +167,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_5_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
+        
         // Instantiate PDE object
         LinearHeatEquationPde<1> pde;
         
@@ -185,10 +185,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Linear solver
         SimpleLinearSolver solver;
         
-        // Assembler 
-        SimpleLinearEllipticAssembler<1,1> assembler(&solver);   
+        // Assembler
+        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);        
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
@@ -202,9 +202,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
         VecRestoreArray(result, &p_result);
-    	VecDestroy(result);
+        VecDestroy(result);
     }
-        
+    
     
     void TestWithHeatEquationNonzeroNeumannCondition()
     {
@@ -216,7 +216,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Instantiate PDE object
         LinearHeatEquationPde<1> pde;
         
-        // Boundary conditions u(-1)=1 u'(-3)=1 
+        // Boundary conditions u(-1)=1 u'(-3)=1
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
@@ -232,10 +232,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Linear solver
         SimpleLinearSolver solver;
         
-        // Assembler 
+        // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);       
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
         
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
@@ -249,9 +249,9 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
         VecRestoreArray(result, &p_result);
-    	VecDestroy(result);
+        VecDestroy(result);
     }
-
+    
     void Test2dHeatEquationOnUnitSquare()
     {
         // Create mesh from mesh reader
@@ -320,18 +320,18 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Linear solver
         SimpleLinearSolver solver;
         
-        // Assembler 
+        // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);       
-
+        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
         double *p_result;
         VecGetArray(result, &p_result);
         for (int global_index = lo; global_index < hi; global_index++)
         {
-            int local_index = global_index - lo;        
+            int local_index = global_index - lo;
             c_vector<double, 2> r;
             r(0) = mesh.GetNodeAt(global_index)->GetPoint()[0];
             r(1) = mesh.GetNodeAt(global_index)->GetPoint()[1];
@@ -339,10 +339,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
         }
         VecRestoreArray(result, &p_result);
-    	VecDestroy(result);
+        VecDestroy(result);
     }
     
-    void TestVaryingPdeAndMeshReader1D()   
+    void TestVaryingPdeAndMeshReader1D()
     {
         /// Create mesh from mesh reader \todo set to correct mesh file?
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_mesh_1_to_3");
@@ -350,17 +350,17 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        VaryingDiffusionAndSourceTermPde<1> pde;  
+        VaryingDiffusionAndSourceTermPde<1> pde;
         
         // Boundary conditions u(1)=4
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
-        ConstBoundaryCondition<1>* p_boundary_dirichlet_condition = 
-          new ConstBoundaryCondition<1>(4.0);
+        ConstBoundaryCondition<1>* p_boundary_dirichlet_condition =
+            new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_dirichlet_condition);
         
         // Note we need to specify D * du/dx for the Neumann boundary condition
-        ConstBoundaryCondition<1>* p_neumann_boundary_condition = 
-          new ConstBoundaryCondition<1>(7.0*9.0);
+        ConstBoundaryCondition<1>* p_neumann_boundary_condition =
+            new ConstBoundaryCondition<1>(7.0*9.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
@@ -380,7 +380,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecGetArray(result, &p_result);
         for (int global_index = lo; global_index < hi; global_index++)
         {
-            int local_index = global_index - lo;   
+            int local_index = global_index - lo;
             double x = mesh.GetNodeAt(global_index)->GetPoint()[0] ;
             double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
             TS_ASSERT_DELTA(p_result[local_index], u, 0.2);
@@ -404,10 +404,10 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         // Boundary conditions
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         // u = 0 on r<=1, z=0
-        ConstBoundaryCondition<2>* p_boundary_dirichlet_condition = 
-          new ConstBoundaryCondition<2>(0.0);
-        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 = 
-          mesh.GetBoundaryNodeIteratorBegin();
+        ConstBoundaryCondition<2>* p_boundary_dirichlet_condition =
+            new ConstBoundaryCondition<2>(0.0);
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter1 =
+            mesh.GetBoundaryNodeIteratorBegin();
         while (iter1 != mesh.GetBoundaryNodeIteratorEnd())
         {
             if ((*iter1)->GetPoint()[0] <= 1.0 && fabs((*iter1)->GetPoint()[1]) < 0.0001)
@@ -432,7 +432,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             if (fabs(r - 2.0) <= 0.0001 || fabs(z - 2.0) < 0.0001)
             {
                 double u = 1 - 2.0/M_PI*asin(2.0 / (sqrt(z*z + (1+r)*(1+r))
-                                                     + sqrt(z*z + (1-r)*(1-r))));
+                                                    + sqrt(z*z + (1-r)*(1-r))));
                 p_boundary_dirichlet_condition = new ConstBoundaryCondition<2>(u);
                 bcc.AddDirichletBoundaryCondition(*iter1, p_boundary_dirichlet_condition);
             }
@@ -461,7 +461,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             if (z > 1e-12)
             {
                 u = 1 - 2.0/M_PI*asin(2.0 / (sqrt(z*z + (1+r)*(1+r))
-                                                + sqrt(z*z + (1-r)*(1-r))));
+                                             + sqrt(z*z + (1-r)*(1-r))));
             }
             else if (r > 1.0)
             {
@@ -476,7 +476,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         VecRestoreArray(result, &p_result);
         VecDestroy(result);
     }
-
+    
     
     //Test 3d data
     void Test3dEllipticEquationDirichletCondition()
@@ -493,11 +493,11 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetBoundaryNodeIteratorEnd())
+        while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
-            double z = (*iter)->GetPoint()[2];            
+            double z = (*iter)->GetPoint()[2];
             
             ConstBoundaryCondition<3>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
             bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
@@ -524,7 +524,7 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             int local_index = global_index - lo;
             double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];            
+            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
             double u = -1.0/6 * (x*x+y*y+z*z);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
         }
@@ -547,33 +547,32 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
         BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
-        while(iter < mesh.GetBoundaryNodeIteratorEnd())
+        while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
-            double z = (*iter)->GetPoint()[2];    
+            double z = (*iter)->GetPoint()[2];
             
             if (fabs(1-x)<0.01)
             {
-                
             }
             else
             {
                 //Dirichlet boundary condition
-                ConstBoundaryCondition<3>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));            
+                ConstBoundaryCondition<3>* p_dirichlet_boundary_condition = new ConstBoundaryCondition<3>(-1.0/6*(x*x+y*y+z*z));
                 bcc.AddDirichletBoundaryCondition(*iter, p_dirichlet_boundary_condition);
             }
             iter++;
         }
         
         ConformingTetrahedralMesh<3,3>::BoundaryElementIterator surf_iter = mesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<3>* p_neumann_boundary_condition = new ConstBoundaryCondition<3>(-1.0/3);                                
+        ConstBoundaryCondition<3>* p_neumann_boundary_condition = new ConstBoundaryCondition<3>(-1.0/3);
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
             double x = mesh.GetNodeAt(node)->GetPoint()[0];
             // double y = mesh.GetNodeAt(node)->GetPoint()[1];
-         
+            
             if (fabs(x - 1.0) < 0.01)
             {
                 bcc.AddNeumannBoundaryCondition(*surf_iter, p_neumann_boundary_condition);
@@ -602,14 +601,14 @@ class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
             int local_index = global_index - lo;
             double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
             double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];            
+            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
             double u = -1.0/6 * (x*x+y*y+z*z);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
         }
-		VecRestoreArray(result, &p_result);
-		VecDestroy(result);
+        VecRestoreArray(result, &p_result);
+        VecDestroy(result);
     }
-
+    
 };
- 
+
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

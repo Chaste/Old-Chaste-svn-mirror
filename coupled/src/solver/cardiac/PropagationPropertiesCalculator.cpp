@@ -3,11 +3,10 @@
 #include <sstream>
 
 PropagationPropertiesCalculator::PropagationPropertiesCalculator(ColumnDataReader *pDataReader,
-                                                                 const std::string voltageName)
+        const std::string voltageName)
         : mpDataReader(pDataReader),
-          mVoltageName(voltageName)
-{
-}
+        mVoltageName(voltageName)
+{}
 
 PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
 {
@@ -23,7 +22,7 @@ double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(int glo
 }
 
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,
-                                                                         int globalNodeIndex)
+        int globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetValues(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
@@ -40,8 +39,8 @@ double PropagationPropertiesCalculator::CalculatePeakMembranePotential(int globa
 }
 
 double PropagationPropertiesCalculator::CalculateConductionVelocity(int globalNearNodeIndex,
-                                                                    int globalFarNodeIndex, 
-                                                                    const double euclideanDistance)
+        int globalFarNodeIndex,
+        const double euclideanDistance)
 {
     std::vector<double> near_voltages = mpDataReader->GetValues(mVoltageName, globalNearNodeIndex);
     std::vector<double> far_voltages = mpDataReader->GetValues(mVoltageName, globalFarNodeIndex);
@@ -49,7 +48,7 @@ double PropagationPropertiesCalculator::CalculateConductionVelocity(int globalNe
     
     CellProperties near_cell_props(near_voltages, times);
     CellProperties far_cell_props(far_voltages, times);
-
+    
     double t_near = near_cell_props.GetTimeAtMaxUpstrokeVelocity();
     double t_far = far_cell_props.GetTimeAtMaxUpstrokeVelocity();
     

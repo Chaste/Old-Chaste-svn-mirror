@@ -25,21 +25,21 @@ private:
     AbstractStimulusFunction* mpExtracellularStimulus1;
     AbstractStimulusFunction* mpExtracellularStimulus2;
 public:
-    
+
     MyCardiacCellFactory() : AbstractCardiacCellFactory<1>(0.01)
     {
         mpStimulus = new InitialStimulus(-80.0, 0.5);
         mpExtracellularStimulus1 = new InitialStimulus(-150,0.5);
-        mpExtracellularStimulus2 = new InitialStimulus(-250,0.5);        
+        mpExtracellularStimulus2 = new InitialStimulus(-250,0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
-    {                    
-        if(node==0)
+    {
+        if (node==0)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
         }
-        else if(node==1)
+        else if (node==1)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpExtracellularStimulus2);
         }
@@ -49,16 +49,16 @@ public:
         }
     }
     
-    ~MyCardiacCellFactory(void)   
+    ~MyCardiacCellFactory(void)
     {
-        delete mpStimulus; 
+        delete mpStimulus;
         delete mpExtracellularStimulus1;
         delete mpExtracellularStimulus2;
     }
     
-    unsigned GetNumberOfCells()        
-    { 
-        return 2; 
+    unsigned GetNumberOfCells()
+    {
+        return 2;
     }
 };
 
@@ -68,50 +68,50 @@ public:
 
 class TestBidomainPde : public CxxTest::TestSuite
 {
-    public:    
-    
+public:
+
     void testBidomainPdeGetSet( void )
     {
-        double big_time_step = 0.5;        
+        double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
-
-        BidomainPde<1>   bidomain_pde( &cell_factory, big_time_step );   
+        
+        BidomainPde<1>   bidomain_pde( &cell_factory, big_time_step );
         
         bidomain_pde.SetSurfaceAreaToVolumeRatio(3.14);
         TS_ASSERT_DELTA( bidomain_pde.GetSurfaceAreaToVolumeRatio(), 3.14, 1e-10);
         
         bidomain_pde.SetCapacitance(2.718);
         TS_ASSERT_DELTA( bidomain_pde.GetCapacitance(), 2.718, 1e-10);
-
+        
         c_matrix<double, 1,1> sigma_i;
         c_matrix<double, 1,1> sigma_e;
-
+        
         sigma_i(0,0) = 314;
         bidomain_pde.SetIntracellularConductivityTensor(sigma_i);
-
+        
         sigma_e(0,0) = 218;
         bidomain_pde.SetExtracellularConductivityTensor(sigma_e);
         
         c_matrix<double, 1,1> sigma = bidomain_pde.GetIntracellularConductivityTensor();
         TS_ASSERT_DELTA( sigma(0,0), 314, 1e-10);
-
+        
         sigma = bidomain_pde.GetExtracellularConductivityTensor();
         TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
     }
     
     void testBidomainPde_PrepareForAssembleSolution( void )
     {
-        double big_time_step = 0.5;        
+        double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory;
-
-        MonodomainPde<1> monodomain_pde( &cell_factory, big_time_step );        
-        BidomainPde<1>     bidomain_pde( &cell_factory, big_time_step );   
+        
+        MonodomainPde<1> monodomain_pde( &cell_factory, big_time_step );
+        BidomainPde<1>     bidomain_pde( &cell_factory, big_time_step );
         
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
- 
+        
         unsigned num_nodes = 2;
-        // initial condition;   
+        // initial condition;
         Vec monodomain_voltage, bidomain_voltage;
         VecCreate(PETSC_COMM_WORLD, &monodomain_voltage);
         VecSetSizes(monodomain_voltage, PETSC_DECIDE, num_nodes);
@@ -119,7 +119,7 @@ class TestBidomainPde : public CxxTest::TestSuite
         
         PetscInt lo, hi;
         VecGetOwnershipRange(monodomain_voltage,&lo,&hi);
-
+        
         VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo), 2*num_nodes, &bidomain_voltage);
         
         double *p_monodomain_voltage, *p_bidomain_voltage;
@@ -146,8 +146,8 @@ class TestBidomainPde : public CxxTest::TestSuite
         //VecView(bidomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
         
         monodomain_pde.PrepareForAssembleSystem(monodomain_voltage,0);
-        bidomain_pde.PrepareForAssembleSystem(bidomain_voltage,0);         
-
+        bidomain_pde.PrepareForAssembleSystem(bidomain_voltage,0);
+        
         
         // Check that both the monodomain and bidomain PDE have the same ionic cache
         for (int global_index=lo; global_index < hi; global_index++)
@@ -162,13 +162,13 @@ class TestBidomainPde : public CxxTest::TestSuite
                          bidomain_pde.GetIionicCacheReplicated()[global_index] << " " <<
                          bidomain_pde.GetIntracellularStimulusCacheReplicated()[global_index] << " " <<
                          bidomain_pde.GetExtracellularStimulusCacheReplicated()[global_index] << "\n";
-            */            
+            */
         }
-
+        
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_pde.GetIntracellularStimulusCacheReplicated()[1], 0);
-
+        
         // Check that the bidomain PDE has the right extracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[0], -150);
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[1], -250);
@@ -176,6 +176,6 @@ class TestBidomainPde : public CxxTest::TestSuite
         VecDestroy(monodomain_voltage);
         VecDestroy(bidomain_voltage);
     }
-};        
+};
 
 #endif /*TESTBIDOMAINPDE_HPP_*/

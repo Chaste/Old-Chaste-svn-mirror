@@ -9,7 +9,7 @@
 
 /**
  * Compute a basis function at a point within an element.
- * 
+ *
  * @param point The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
@@ -20,66 +20,69 @@
 template <int ELEM_DIM>
 double LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction(const Point<ELEM_DIM> &rPoint, int basisIndex) const
 {
-	assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     assert(basisIndex <= ELEM_DIM);
-    assert(basisIndex >= 0); 
-
-	switch(ELEM_DIM)
-	{
-	case 1:
-		switch (basisIndex)
-		{
-			case 0:
-				return 1.0 - rPoint[0];
-				break;
-    		case 1:
-        		return rPoint[0];
-        		break;
-        	default: ; //not possible to get here because of assertions above
-    	}
-    	break;
-    	
-    case 2:
-    	switch (basisIndex)
-    	{
-    		case 0:
-    			return 1.0 - rPoint[0] - rPoint[1];
-    			break;
-    		case 1:
-    			return rPoint[0];
-    			break;
-    		case 2:
-    			return rPoint[1];
-    			break;
-    		default: ; //not possible to get here because of assertions above
-    	}
-    	break;
-    	
-    case 3:
-    	switch (basisIndex)
-    	{
-    		case 0:	
-        		return 1.0 - rPoint[0] - rPoint[1] - rPoint[2];
-        		break;
-    		case 1:
-    			return rPoint[0];
-    			break;
-			case 2:
-				return rPoint[1];
-				break;
-			case 3:
-				return rPoint[2]; 
-				break;
-			default: ; //not possible to get here because of assertions above
-    	}
-    	break;
-	}
-	return 0.0; // Avoid compiler warning
+    assert(basisIndex >= 0);
+    
+    switch (ELEM_DIM)
+    {
+        case 1:
+            switch (basisIndex)
+            {
+                case 0:
+                    return 1.0 - rPoint[0];
+                    break;
+                case 1:
+                    return rPoint[0];
+                    break;
+                default:
+                    ; //not possible to get here because of assertions above
+            }
+            break;
+            
+        case 2:
+            switch (basisIndex)
+            {
+                case 0:
+                    return 1.0 - rPoint[0] - rPoint[1];
+                    break;
+                case 1:
+                    return rPoint[0];
+                    break;
+                case 2:
+                    return rPoint[1];
+                    break;
+                default:
+                    ; //not possible to get here because of assertions above
+            }
+            break;
+            
+        case 3:
+            switch (basisIndex)
+            {
+                case 0:
+                    return 1.0 - rPoint[0] - rPoint[1] - rPoint[2];
+                    break;
+                case 1:
+                    return rPoint[0];
+                    break;
+                case 2:
+                    return rPoint[1];
+                    break;
+                case 3:
+                    return rPoint[2];
+                    break;
+                default:
+                    ; //not possible to get here because of assertions above
+            }
+            break;
+    }
+    return 0.0; // Avoid compiler warning
 }
 
 /**
  * Compute a basis function at a point within an element.
- * 
+ *
  * @param pincludeoint The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
@@ -94,7 +97,7 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int 
 
 /**
  * Compute the derivative of a basis function at a point within an canonical element.
- * 
+ *
  * @param point The point at which to compute the basis function. The results
  *     are undefined if this is not within the canonical element.
  * @param basisIndex Which basis function to compute. This is a local index
@@ -109,76 +112,79 @@ c_vector<double, ELEM_DIM> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDe
     c_vector<double, ELEM_DIM> gradN;
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     assert(basisIndex <= ELEM_DIM);
-    assert(basisIndex >= 0); 
+    assert(basisIndex >= 0);
     
-	switch(ELEM_DIM)
-	{
-	case 1:
-    	switch (basisIndex)
-    	{
-    		case 0:
-    			gradN(0) = -1;
-    			break;
-			case 1:
-				gradN(0) = 1; 
-				break;
-			default: ; //not possible to get here because of assertions above
-    	}
-    	break; 
-    	
-    case 2:
-    	switch (basisIndex)
-    	{
-    		case 0:
-        		gradN(0) = -1;
-        		gradN(1) = -1;
-        		break;
-    		case 1:
-        		gradN(0) = 1;
-        		gradN(1) = 0;
-        		break;
-    		case 2:
-    			gradN(0) = 0;
-        		gradN(1) = 1;   
-        		break;
-    		default: ; //not possible to get here because of assertions above
-    	}
-    	break;
-    	
-    case 3:
-    	switch (basisIndex)
-    	{
-    		case 0:
-        		gradN(0) = -1;
-        		gradN(1) = -1;
-        		gradN(2) = -1;
-        		break;
-    		case 1:
-    			gradN(0) =  1;
-	        	gradN(1) =  0;
-    	    	gradN(2) =  0;
-	    		break;
-    		case 2:
-    			gradN(0) =  0;
-	        	gradN(1) =  1;
-    	    	gradN(2) =  0;
-    			break;
-			case 3:
-				gradN(0) =  0;
-        		gradN(1) =  0;
-        		gradN(2) =  1;
-        		break;
-    		default: ; //not possible to get here because of assertions above
-    	}
-    	break;
-	}    
+    switch (ELEM_DIM)
+    {
+        case 1:
+            switch (basisIndex)
+            {
+                case 0:
+                    gradN(0) = -1;
+                    break;
+                case 1:
+                    gradN(0) = 1;
+                    break;
+                default:
+                    ; //not possible to get here because of assertions above
+            }
+            break;
+            
+        case 2:
+            switch (basisIndex)
+            {
+                case 0:
+                    gradN(0) = -1;
+                    gradN(1) = -1;
+                    break;
+                case 1:
+                    gradN(0) = 1;
+                    gradN(1) = 0;
+                    break;
+                case 2:
+                    gradN(0) = 0;
+                    gradN(1) = 1;
+                    break;
+                default:
+                    ; //not possible to get here because of assertions above
+            }
+            break;
+            
+        case 3:
+            switch (basisIndex)
+            {
+                case 0:
+                    gradN(0) = -1;
+                    gradN(1) = -1;
+                    gradN(2) = -1;
+                    break;
+                case 1:
+                    gradN(0) =  1;
+                    gradN(1) =  0;
+                    gradN(2) =  0;
+                    break;
+                case 2:
+                    gradN(0) =  0;
+                    gradN(1) =  1;
+                    gradN(2) =  0;
+                    break;
+                case 3:
+                    gradN(0) =  0;
+                    gradN(1) =  0;
+                    gradN(2) =  1;
+                    break;
+                default:
+                    ; //not possible to get here because of assertions above
+            }
+            break;
+    }
     return gradN;
 }
 
 
 /**
  * Compute all basis functions at a point within an element.
- * 
+ *
  * @param point The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @return The values of the basis functions, in local index order.
@@ -188,7 +194,7 @@ c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction
 {
     c_vector<double, ELEM_DIM+1> basisValues;
     assert(ELEM_DIM < 4 && ELEM_DIM >= 0);
-    for(int i=0;i<ELEM_DIM+1;i++)
+    for (int i=0;i<ELEM_DIM+1;i++)
     {
         basisValues(i) = ComputeBasisFunction(rPoint, i);
     }
@@ -197,7 +203,7 @@ c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction
 
 /**
  * Compute all basis functions at a point within an element.
- * 
+ *
  * @param point The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @return The values of the basis functions, in local index order.
@@ -211,11 +217,11 @@ c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0>
 
 /**
  * Compute the derivatives of all basis functions at a point within an element.
- * 
+ *
  * @param point The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @return The derivatives of the basis functions as the column vectors of a matrix
- *     in local index order. 
+ *     in local index order.
  */
 template <int ELEM_DIM>
 c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const
@@ -224,13 +230,13 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBa
     c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues;
     
     
-    for(unsigned j=0;j<ELEM_DIM+1;j++)
+    for (unsigned j=0;j<ELEM_DIM+1;j++)
     {
         matrix_column< c_matrix<double, ELEM_DIM, ELEM_DIM+1> >  column(basisGradValues,j);
         column=ComputeBasisFunctionDerivative(rPoint,j);
     }
-
-    return basisGradValues;    
+    
+    return basisGradValues;
 }
 
 
@@ -238,13 +244,13 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBa
  * Compute the derivatives of all basis functions at a point within an element.
  * This method will transform the results, for use within gaussian quadrature
  * for example.
- * 
+ *
  * @param point The point at which to compute the basis functions. The results
  *     are undefined if this is not within the canonical element.
  * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
  *     element into the canonical element.
  * @return The derivatives of the basis functions, in local index order. Each
- *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the 
+ *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the
  *     derivative along each axis.
  */
 template <int ELEM_DIM>
@@ -252,9 +258,9 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTra
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
-  	std::vector<c_vector<double, ELEM_DIM> > transformedGradValues;
+    std::vector<c_vector<double, ELEM_DIM> > transformedGradValues;
     
-    return prod(trans(rInverseJacobian), basisGradValues);    	
+    return prod(trans(rInverseJacobian), basisGradValues);
 }
 
 

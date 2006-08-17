@@ -11,14 +11,14 @@ public:
 
     double ComputeLinearSourceTerm(Point<SPACE_DIM> )
     {
-    	return 0.0;
+        return 0.0;
     }
     
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double u)
     {
-    	return (-3*u*u*u);
+        return (-3*u*u*u);
     }
-
+    
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> , double u)
     {
         return identity_matrix<double>(SPACE_DIM) * (u*u);
@@ -31,7 +31,7 @@ public:
     
     double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> , double u)
     {
-    	return (-9*u*u);//(-(-4*exp(-x[0])+4*u));
+        return (-9*u*u);//(-(-4*exp(-x[0])+4*u));
     }
 };
 

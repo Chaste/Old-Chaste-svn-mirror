@@ -19,9 +19,9 @@ public:
      * @param voltageName  Optionally the name of the variable representing the
      *     membrane potential.  Defaults to "V".
      */
-	PropagationPropertiesCalculator(ColumnDataReader *pDataReader,
+    PropagationPropertiesCalculator(ColumnDataReader *pDataReader,
                                     const std::string voltageName = "V");
-	virtual ~PropagationPropertiesCalculator();
+    virtual ~PropagationPropertiesCalculator();
     
     /**
      * Calculate the maximum upstroke velocity at a single cell.
@@ -45,7 +45,7 @@ public:
      *     along the tissue.
      */
     double CalculateConductionVelocity(int globalNearNodeIndex,
-                                       int globalFarNodeIndex, 
+                                       int globalFarNodeIndex,
                                        const double euclideanDistance);
     /**
      * Calculate the action potential duration at a single cell.

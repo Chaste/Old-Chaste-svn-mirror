@@ -15,20 +15,20 @@ class AbstractCoupledPde : public AbstractLinearParabolicPde<SPACE_DIM>
 protected:
     // timestep used by the pde solver
     double mBigTimeStep;
-
-    // number of nodes in the mesh 
+    
+    // number of nodes in the mesh
     unsigned mNumNodes;
-       
+    
     // Lowest value of index that this part of the global object stores
     unsigned mOwnershipRangeLo;
-        
+    
     // One more than the local highest index
     unsigned mOwnershipRangeHi;
     
-public:   
+public:
     AbstractCoupledPde(unsigned numNodes, double bigTimeStep)
     {
-        assert(numNodes > 0);  
+        assert(numNodes > 0);
         
         mNumNodes = numNodes;
         mBigTimeStep = bigTimeStep;
@@ -52,6 +52,6 @@ public:
         rLo=mOwnershipRangeLo;
         rHi=mOwnershipRangeHi;
     }
-        
-};        
+    
+};
 #endif /*ABSTRACTCOUPLEDPDE_HPP_*/

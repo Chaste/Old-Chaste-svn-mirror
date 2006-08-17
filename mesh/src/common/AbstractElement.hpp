@@ -68,7 +68,7 @@ protected:
      */
     void FreeMemory()
     {
-        
+    
         if (mpJacobian != NULL)
         {
             delete mpJacobian;
@@ -86,7 +86,7 @@ public:
     
     ///Main constructor
     AbstractElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes, int orderOfBasisFunctions=1);
-            
+    
     /**
      * Copy constructor. This is needed so that copies of an element don't
      * share pointers to the same matrices, which causes problems when copies
@@ -98,10 +98,9 @@ public:
         CommonConstructor(element);
     }
     
- 
+    
     AbstractElement()
     {
-  
     }
     
     /**
@@ -224,10 +223,10 @@ public:
     {
         return mIsDeleted;
     }
-
-
-
-
+    
+    
+    
+    
     
     
 };

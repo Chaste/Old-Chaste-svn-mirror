@@ -24,16 +24,16 @@ const double BETA = 0.00014;
 
 /**
  * MonodomainPde class.
- * 
+ *
  * The monodomain equation is of the form:
- * A (C dV/dt + Iionic) +Istim = Div( sigma_i Grad(V) ) 
- * 
+ * A (C dV/dt + Iionic) +Istim = Div( sigma_i Grad(V) )
+ *
  * where A is the surface area to volume ratio         (1/cm),
  *       C is the capacitance                          (uF/cm^2),
  *       sigma_i is the intracellular conductivity     (mS/cm),
  *       I_ionic is the ionic current                  (uA/cm^2),
  *       I_stim is the intracellular stimulus current  (uA/cm^3).
- * 
+ *
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
 template <int SPACE_DIM>
@@ -41,19 +41,18 @@ class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
 private:
     friend class TestMonodomainPde;
-
-public:
     
-    //Constructor     
-    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep) 
-       :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep)          
-    {
-    }
+public:
 
-        
+    //Constructor
+    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep)
+            :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep)
+    {}
+    
+    
     //The following are hidden from the coverage test while it is waiting
     //for a re-factor. (Ticket #157)
-    #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
     /**
      * This should not be called; use 
      * ComputeLinearSourceTermAtNode instead
@@ -73,19 +72,19 @@ public:
         assert(0);
         return 0.0;
     }
-    #undef COVERAGE_IGNORE
- 
- 
+#undef COVERAGE_IGNORE
+    
+    
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         return this->mIntracellularConductivityTensor;
     }
     
- 
+    
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
         int index = node.GetIndex();
-        return  -(this->mSurfaceAreaToVolumeRatio)*(this->mIionicCacheReplicated[index]) 
+        return  -(this->mSurfaceAreaToVolumeRatio)*(this->mIionicCacheReplicated[index])
                 - this->mIntracellularStimulusCacheReplicated[index];
     }
     
@@ -94,10 +93,10 @@ public:
     
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
-        return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);    
+        return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);
     }
     
-   
+    
 };
 
 #endif /*MONODOMAINPDE_HPP_*/

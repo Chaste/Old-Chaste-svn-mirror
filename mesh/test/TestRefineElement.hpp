@@ -255,7 +255,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(mesh.RefineElement(p_corner_element,new_point));
     }
     
-
+    
 };
 
 #endif /*TESTREFINEELEMENT_HPP_*/

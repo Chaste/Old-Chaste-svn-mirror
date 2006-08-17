@@ -29,26 +29,26 @@ public:
     
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)
     {
-        int stimulated_cells[] = {  37484-1,        
-                                    37499-1, 
-                                    37777-1, 
-                                    37779-1, 
-                                    38008-1, 
-                                    38332-1, 
-                                    38587-1, 
-                                    38588-1, 
-                                    39312-1, 
-                                    39314-1, 
-                                    39643-1, 
-                                    40588-1, 
-                                    40590-1, 
-                                    63885-1 
+        int stimulated_cells[] = {  37484-1,
+                                    37499-1,
+                                    37777-1,
+                                    37779-1,
+                                    38008-1,
+                                    38332-1,
+                                    38587-1,
+                                    38588-1,
+                                    39312-1,
+                                    39314-1,
+                                    39643-1,
+                                    40588-1,
+                                    40590-1,
+                                    63885-1
                                  };
-
-        for(int i=0; i<14; i++)
+                                 
+        for (int i=0; i<14; i++)
         {
             int global_index = stimulated_cells[i];
-            if((global_index>=(int)lo) && (global_index<(int)hi))
+            if ((global_index>=(int)lo) && (global_index<(int)hi))
             {
                 int local_index = global_index - lo;
                 (*pCellsDistributed)[ local_index ]->SetStimulusFunction(mpStimulus);
@@ -62,22 +62,22 @@ public:
     }
 };
 
-class TestBidomainHeart : public CxxTest::TestSuite 
-{   
- 
+class TestBidomainHeart : public CxxTest::TestSuite
+{
+
 public:
     void TestBidomainDg0Heart()
     {
         PointStimulusHeartCellFactory cell_factory(0.01);
         BidomainProblem<3> bidomain_problem(&cell_factory);
-
+        
         bidomain_problem.SetMeshFilename("mesh/test/data/heart_fifth");
         bidomain_problem.SetEndTime(100);   // 100 ms
         bidomain_problem.SetOutputDirectory("BiDg0_FifthHeart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_FifthHeart");
         bidomain_problem.SetPdeTimeStep(0.01);
-        bidomain_problem.Initialise();        
-
+        bidomain_problem.Initialise();
+        
         bidomain_problem.Solve();
     }
 };

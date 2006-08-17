@@ -772,7 +772,7 @@ public:
         mesh.DeleteBoundaryNodeAt(10);
         
         TS_ASSERT(p_old_rhs_node->IsDeleted());
-        // Number of *all* nodes & elements should be unchanged, even though we've deleted one, 
+        // Number of *all* nodes & elements should be unchanged, even though we've deleted one,
         // since this is the size of the vector, not the number of active nodes/elements.
         // Yes, it's confusing.
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11);

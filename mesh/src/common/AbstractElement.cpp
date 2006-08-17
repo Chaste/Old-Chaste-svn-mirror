@@ -4,8 +4,8 @@
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
-                                         std::vector<Node<SPACE_DIM>*> nodes,
-                                         int orderOfBasisFunctions)
+                                                         std::vector<Node<SPACE_DIM>*> nodes,
+                                                         int orderOfBasisFunctions)
         : mIndex(index)
 {
     mIsDeleted = false;
@@ -54,7 +54,7 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
         RefreshJacobianDeterminant();
     }
     
-   
+    
 }
 
 

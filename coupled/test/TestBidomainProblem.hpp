@@ -37,59 +37,59 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-        
+    
     ~PointStimulusCellFactory(void)
     {
         delete mpStimulus;
     }
-};  
+};
 
 
-class TestBidomainProblem : public CxxTest::TestSuite 
+class TestBidomainProblem : public CxxTest::TestSuite
 {
 public:
     void TestBidomainDg01D()
     {
         PointStimulusCellFactory bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
-
+        
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
-
+        
         bidomain_problem.Initialise();
         
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);        
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-
-        try 
+        
+        try
         {
             bidomain_problem.Solve();
-        } 
-        catch (Exception e) 
+        }
+        catch (Exception e)
         {
             TS_FAIL(e.GetMessage());
         }
         
-            
+        
         double* p_voltage_array;
         unsigned v_lo, v_hi, lo, hi;
         bidomain_problem.GetVoltageArray(&p_voltage_array, v_lo, v_hi);
         bidomain_problem.GetBidomainPde()->GetOwnershipRange(lo, hi);
-
+        
         for (unsigned global_index=lo; global_index<hi; global_index++)
         {
             unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;   // mV 
+            double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
-
+            
             TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[2*local_index] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[2*local_index] + (Ek-30), 0);
-
+            
             std::vector<double> odeVars = bidomain_problem.GetBidomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
@@ -101,9 +101,9 @@ public:
                 }
             }
             
-            // wave shouldn't have reached the second half of the mesh so 
-            // these should all be near the resting potential          
-            if(global_index>50)
+            // wave shouldn't have reached the second half of the mesh so
+            // these should all be near the resting potential
+            if (global_index>50)
             {
                 TS_ASSERT_DELTA(p_voltage_array[2*local_index], -83.85, 0.1);
             }
@@ -111,20 +111,20 @@ public:
             // final voltages for nodes 0 to 5
             double test_values[6]={30.2636, 28.3578, 19.8386, -3.9738, -57.9465, -79.7750};
             
-            for(unsigned node=0; node<=5; node++)
+            for (unsigned node=0; node<=5; node++)
             {
-                if(global_index == node)
+                if (global_index == node)
                 {
                     // test against hardcoded value to check nothing has changed
                     TS_ASSERT_DELTA(p_voltage_array[2*local_index], test_values[node], 1e-4);
                 }
             }
         }
-        bidomain_problem.RestoreVoltageArray(&p_voltage_array);       
-    } 
+        bidomain_problem.RestoreVoltageArray(&p_voltage_array);
+    }
     
     
-    /* 
+    /*
      * The monodomain equations are obtained by taking the limit of the bidomain
      * equations as sigma_e tends to infinity (corresponding to the extracellular
      * space being grounded). Therefore, we set sigma_e very large (relative to 
@@ -145,49 +145,49 @@ public:
         monodomain_problem.SetOutputFilenamePrefix("monodomain1d");
         
         monodomain_problem.Initialise();
-
+        
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
-        // now solve       
+        // now solve
         monodomain_problem.Solve();
-
-
+        
+        
         ///////////////////////////////////////////////////////////////////
         // bidomain
         ///////////////////////////////////////////////////////////////////
         BidomainProblem<1> bidomain_problem( &cell_factory );
-
+        
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         bidomain_problem.SetEndTime(1);   // 1 ms
         bidomain_problem.SetOutputDirectory("Bidomain1d");
         bidomain_problem.SetOutputFilenamePrefix("bidomain1d");
-
+        
         bidomain_problem.Initialise();
         
         // set the intra conductivity to be the same as monodomain
         // and the extra conductivity to be very large in comparison
         c_matrix<double,1,1> sigma_e = 1*identity_matrix<double>(1);
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e); 
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e);
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);        
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
         
         // now solve
         bidomain_problem.Solve();
         
-                
+        
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
         double* p_mono_voltage_array;
         double* p_bi_voltage_array;
         unsigned bi_lo, bi_hi, mono_lo, mono_hi;
-
-        bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi); 
-        monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi); 
+        
+        bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi);
+        monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi);
         
         for (unsigned global_index=mono_lo; global_index<mono_hi; global_index++)
         {
@@ -197,26 +197,26 @@ public:
             double   bidomain_voltage      =   p_bi_voltage_array  [2*local_index];
             double extracellular_potential =   p_bi_voltage_array  [2*local_index+1];
             // std::cout << p_mono_voltage_array[local_index] << " " << p_bi_voltage_array[2*local_index] << "\n";
-
+            
             // the stimulus should be sufficient to ensure that cell 0 has
             // a positive voltage
             if (global_index==0)
             {
                 TS_ASSERT_LESS_THAN(0, monodomain_voltage);
             }
-
-            // the mono and bidomains should agree closely 
+            
+            // the mono and bidomains should agree closely
             TS_ASSERT_DELTA(monodomain_voltage, bidomain_voltage, 0.1);
             
-            // the extracellular potential should be uniform 
+            // the extracellular potential should be uniform
             TS_ASSERT_DELTA(extracellular_potential, 0, 0.05);
         }
-        monodomain_problem.RestoreVoltageArray(&p_mono_voltage_array); 
-        bidomain_problem.RestoreVoltageArray(&p_bi_voltage_array); 
+        monodomain_problem.RestoreVoltageArray(&p_mono_voltage_array);
+        bidomain_problem.RestoreVoltageArray(&p_bi_voltage_array);
     }
-
-
-
+    
+    
+    
     ///////////////////////////////////////////////////////////////////
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
@@ -226,16 +226,16 @@ public:
         // run testing PrintingTimeSteps
         PointStimulusCellFactory cell_factory;
         BidomainProblem<1>* p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-
+        
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-
+        
         p_bidomain_problem->SetEndTime(0.3);          // ms
         p_bidomain_problem->SetPdeTimeStep(0.01);      // ms
-        p_bidomain_problem->SetPrintingTimeStep(0.1);  // every 0.1ms 
-
+        p_bidomain_problem->SetPrintingTimeStep(0.1);  // every 0.1ms
+        
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-
+        
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
         
@@ -254,24 +254,24 @@ public:
         
         // run testing PrintEveryNthTimeStep
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
-
+        
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         p_bidomain_problem->SetEndTime(0.51);   // ms
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
-
+        
         p_bidomain_problem->SetPdeTimeStep(0.01);
         p_bidomain_problem->PrintEveryNthTimeStep(17);  // every 17 timesteps
-
+        
         p_bidomain_problem->SetWriteInfo();
         p_bidomain_problem->Initialise();
-        p_bidomain_problem->Solve(); 
+        p_bidomain_problem->Solve();
         
-
+        
         // read data entries for the time file and check correct
         ColumnDataReader data_reader2("Bidomain1d", "bidomain_testPrintTimes");
         times = data_reader2.GetUnlimitedDimensionValues();
-                  
+        
         TS_ASSERT_EQUALS( times.size(), 4);
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
@@ -279,36 +279,36 @@ public:
         TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
         
         delete p_bidomain_problem;
-    } 
+    }
     
     
     void testFixedNodesInBidomainProblem()
     {
         PointStimulusCellFactory cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
-
+        
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         
         std::vector<unsigned> fixed_nodes;
-        for(int i=0; i<1; i++) // 11 nodes in this mesh
+        for (int i=0; i<1; i++) // 11 nodes in this mesh
         {
             fixed_nodes.push_back(i);
         }
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
-
+        
         bidomain_problem.SetEndTime(1);  // ms
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
-    
+        
         double* p_voltage_array;
         unsigned lo,hi;
-
-        bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
-        for(unsigned global_index=lo; global_index<hi; global_index++)
+        
+        bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
             unsigned local_index = global_index - lo;
             
-            if((global_index%2)==1) // ie if index mod 2 == 1, ie every odd index, ie corresponding to phi_e
+            if ((global_index%2)==1) // ie if index mod 2 == 1, ie every odd index, ie corresponding to phi_e
             {
                 // node was fixed, phi_e should be almost exactly zero
                 TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
@@ -320,14 +320,14 @@ public:
     void TestBidomainProblemExceptions() throw (Exception)
     {
         PointStimulusCellFactory cell_factory;
-        BidomainProblem<1> bidomain_problem( &cell_factory );       
- 
+        BidomainProblem<1> bidomain_problem( &cell_factory );
+        
         //Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-
+        
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPdeTimeStep(-1));
-
+        
         // throws because argument is negative
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetPrintingTimeStep(-1));
         
@@ -335,12 +335,12 @@ public:
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
-
+        
         //Throws because the input is empty
         std::vector<unsigned> empty;
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetFixedExtracellularPotentialNodes(empty));
-
-        //Throws because EndTime has not been set       
+        
+        //Throws because EndTime has not been set
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
         bidomain_problem.SetEndTime(1);  // ms
         
@@ -349,7 +349,7 @@ public:
         too_large.push_back(4358743);
         bidomain_problem.SetFixedExtracellularPotentialNodes(too_large);
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Solve());
-    }            
+    }
 };
 
 #endif /*TESTBIDOMAINPROBLEM_HPP_*/

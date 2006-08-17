@@ -154,8 +154,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                         const Node<SPACE_DIM>* node1 = GetNodeAt(node_i);
                         const Node<SPACE_DIM>* node2 = GetNodeAt(node_j);
                         Node<SPACE_DIM> *p_new_node=new Node<SPACE_DIM>(new_node_index,
-                                                 node1->GetPoint().MidPoint(node2->GetPoint()),
-                                                 node1->IsBoundaryNode() && node2->IsBoundaryNode());
+                                                                        node1->GetPoint().MidPoint(node2->GetPoint()),
+                                                                        node1->IsBoundaryNode() && node2->IsBoundaryNode());
                         mNodes.push_back(p_new_node);
                         new_node_index++;
                     }
@@ -210,7 +210,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
     {
         std::vector<int> node_indices = rMeshReader.GetNextFace();
-         
+        
         // Determine if this is a boundary face
         std::set<unsigned> containing_element_indices; // Elements that contain this face
         std::vector<Node<SPACE_DIM>*> nodes;
@@ -286,7 +286,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             
             // The added elements will be deleted in our destructor
             mBoundaryElements.push_back(
-                    new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index,nodes,orderOfBasisFunctions));
+                new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index,nodes,orderOfBasisFunctions));
             actual_face_index++;
             
         }
@@ -332,7 +332,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *
         delete mNodes[index];
         mNodes[index] = pNewNode;
     }
-
+    
     return pNewNode->GetIndex();
 }
 
@@ -362,7 +362,7 @@ long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-        long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
+long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
     return mElements.size() - mDeletedElementIndices.size();
 }
@@ -463,13 +463,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
     {
         mBoundaryElements[i]->RefreshJacobianDeterminant();
     }
-        
+    
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
-                                                Element<ELEMENT_DIM,SPACE_DIM>* pElement, 
-                                                Point<SPACE_DIM> point)
+    Element<ELEMENT_DIM,SPACE_DIM>* pElement,
+    Point<SPACE_DIM> point)
 {
 
     // Add a new node from the point that is passed to RefineElement
@@ -493,15 +493,15 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
         }
         
         Element<ELEMENT_DIM,SPACE_DIM>* p_new_element=
-                                new Element<ELEMENT_DIM,SPACE_DIM>(*pElement, new_elt_index);
-        
+            new Element<ELEMENT_DIM,SPACE_DIM>(*pElement, new_elt_index);
+            
         // Second, update the node in the element with the new one
         p_new_element->UpdateNode(ELEMENT_DIM-1-i, mNodes[new_node_index]);
         
-        try 
+        try
         {
             p_new_element->RefreshJacobianDeterminant();
-        } 
+        }
         catch (Exception e)
         {
             //Clean up this element, because it's not going to be added to the mesh
@@ -524,15 +524,15 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     
     // Lastly, update the last node in the element to be refined
     pElement->UpdateNode(ELEMENT_DIM, mNodes[new_node_index]);
-    try 
+    try
     {
-       pElement->RefreshJacobianDeterminant();
-    } 
+        pElement->RefreshJacobianDeterminant();
+    }
     catch (Exception e)
     {
-       //There's no memory management to do here, because this original element is
-       //already referenced by the mesh
-       EXCEPTION("RefineElement could not be completed (point was not in element)");
+        //There's no memory management to do here, because this original element is
+        //already referenced by the mesh
+        EXCEPTION("RefineElement could not be completed (point was not in element)");
     }
     
     

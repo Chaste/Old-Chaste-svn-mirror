@@ -8,23 +8,23 @@
  */
 template<int SPACE_DIM>
 class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
-{   
+{
 private:
     vector<double> mValue;
     
 public:
-	/**
-	 * Create a new boundary condition object.
-	 * 
-	 * @param value The value of this boundary condition at all points where it
-	 *    is applied.
-	 */
+    /**
+     * Create a new boundary condition object.
+     * 
+     * @param value The value of this boundary condition at all points where it
+     *    is applied.
+     */
     ConstBoundaryCondition(const double value)
     {
-    	mValue.resize(1);
+        mValue.resize(1);
         mValue(0) = value;
     }
-
+    
     ConstBoundaryCondition(const vector<double> value)
     {
         mValue = value;

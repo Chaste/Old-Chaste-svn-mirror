@@ -9,10 +9,10 @@
 
 /**
  * AbstractLinearPde class.
- * 
+ *
  * A general PDE of the form:
  * c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
- * 
+ *
  * Both parabolic and elliptic PDEs can be derived from this.
  */
 
@@ -25,34 +25,34 @@ private:
     
 public:
 
-	/**
-	 * Compute Linear Source Term.
-	 * @param x The point in space at which the Linear Source Term is computed.
-	 */
-	 
-	virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+    /**
+     * Compute Linear Source Term.
+     * @param x The point in space at which the Linear Source Term is computed.
+     */
     
- 	/**
-	 * Compute Nonlinear Source Term.
-	 * @param x The point in space at which the Nonlinear Source Term is computed.
-	 */
-	virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
+    virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
+    
+    /**
+    * Compute Nonlinear Source Term.
+    * @param x The point in space at which the Nonlinear Source Term is computed.
+    */
+    virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
                                               double u)=0;
-
-	/**
-	 * Compute Diffusion Term.
-	 * @param x The point in space at which the Diffusion Term is computed.
-	 * @return A matrix. 
-	 */
-	virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
+                                              
+    /**
+     * Compute Diffusion Term.
+     * @param x The point in space at which the Diffusion Term is computed.
+     * @return A matrix. 
+     */
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)=0;
     
     /**
      * Compute the coefficient c(x) of du/dt
      */
-	virtual double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)=0;
-
-
-	virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
+    virtual double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> x)=0;
+    
+    
+    virtual double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double u)
     {
         return ComputeNonlinearSourceTerm(node.GetPoint(), u);
     }
@@ -71,13 +71,13 @@ public:
     * solve all the ODE systems before the PDE is solved.  A *parallel* coupled
     * system will want to solve the ODE systems and distribute the answers 
     * before anything else happens.
-    */ 
+    */
     virtual void PrepareForAssembleSystem(Vec currentSolution, double /*time - not used here*/)
     {
-        if (currentSolution != NULL) 
+        if (currentSolution != NULL)
         {
             mInputCacheReplicated.ReplicatePetscVector(currentSolution);
-        } 
+        }
     }
     
     double GetInputCacheMember(unsigned int i)
@@ -85,10 +85,9 @@ public:
         assert(i<mInputCacheReplicated.size());
         return(mInputCacheReplicated[i]);
     }
-    virtual ~AbstractLinearPde() 
+    virtual ~AbstractLinearPde()
     {
-        
-        
+    
     }
 };
 

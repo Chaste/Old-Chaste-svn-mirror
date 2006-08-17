@@ -10,19 +10,19 @@
 
 class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
 {
-	
-	public:
-	double ComputeLinearSourceTerm(Point<2> )
-	{
-		return 0;
-	}
+
+public:
+    double ComputeLinearSourceTerm(Point<2> )
+    {
+        return 0;
+    }
     
     double ComputeNonlinearSourceTerm(Point<2> p, double u)
     {
-    	double x = p[0], y = p[1];
-    	return -4*(u*cos(x)*cos(x) + sin(x)*sin(x)*cos(x)*cos(x) + y*y);
+        double x = p[0], y = p[1];
+        return -4*(u*cos(x)*cos(x) + sin(x)*sin(x)*cos(x)*cos(x) + y*y);
     }
-
+    
     c_matrix<double, 2, 2> ComputeDiffusionTerm(Point<2> , double u)
     {
         return identity_matrix<double>(2)*u;
@@ -35,12 +35,11 @@ class ExampleNasty2dNonlinearEllipticPde:public AbstractNonlinearEllipticPde<2>
     
     double ComputeNonlinearSourceTermPrime(Point<2> p, double )
     {
-    	return -(cos(p[0])*cos(p[0]));
+        return -(cos(p[0])*cos(p[0]));
     }
     
     virtual ~ExampleNasty2dNonlinearEllipticPde()
-    {
-    }
+    {}
 };
 
 #endif //_EXAMPLENASTY2DNONLINEARELLIPTICPDE_HPP_

@@ -13,18 +13,17 @@ public:
     
     virtual double ComputeNonlinearSourceTerm(Point<SPACE_DIM> x,
                                               double u)=0;
-
+                                              
     virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x,
-                                                                        double u)=0;
-                                              
-	virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(Point<SPACE_DIM> x,
-                                                                             double u)=0;
-                                              
+            double u)=0;
+            
+    virtual c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTermPrime(Point<SPACE_DIM> x,
+            double u)=0;
+            
     virtual double ComputeNonlinearSourceTermPrime(Point<SPACE_DIM> x,
-                                              double u)=0;
+                                                   double u)=0;
     virtual ~AbstractNonlinearEllipticPde()
-    {
-    }
+    {}
 };
 
 #endif //_ABSTRACTNONLINEARELLIPTICPDE_HPP_

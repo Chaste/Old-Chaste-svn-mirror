@@ -161,7 +161,7 @@ public:
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-                
+        
         CryptSimulation simulator(mesh);
         simulator.SetOutputDirectory("CryptWithBirthConstantRestLength");
         simulator.SetIncludeRandomBirth();
@@ -169,13 +169,13 @@ public:
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
     }
     
-    // Includes variable rest length but not fully working in the class (see 
-    // CryptSimulation.hpp and look for the 
-    // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if. 
+    // Includes variable rest length but not fully working in the class (see
+    // CryptSimulation.hpp and look for the
+    // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
-
+        
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();
@@ -251,9 +251,9 @@ public:
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
     }
     
-
-   // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
-   // (see comment for Test1DChainWithBirthVariableRestLength).
+    
+    // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
+    // (see comment for Test1DChainWithBirthVariableRestLength).
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();

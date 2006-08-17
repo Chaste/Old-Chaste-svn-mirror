@@ -26,7 +26,7 @@ class TestElement : public CxxTest::TestSuite
         return pnode;
     }
     
-
+    
 public:
     void TestConstructionForQuadraticBasisFunctions()
     {
@@ -69,7 +69,7 @@ public:
         {
             TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
         }
-
+        
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
             delete corner_nodes[i];

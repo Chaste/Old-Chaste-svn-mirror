@@ -24,8 +24,8 @@ private:
     unsigned mNodeNum;
 public:
     PointStimulus2dCellFactory(unsigned nodeNum)
-      : AbstractCardiacCellFactory<2>(0.01),
-	mNodeNum(nodeNum)
+            : AbstractCardiacCellFactory<2>(0.01),
+            mNodeNum(nodeNum)
     {
         mpStimulus = new InitialStimulus(-6000.0, 0.5);
     }
@@ -49,7 +49,7 @@ public:
 };
 
 
-class TestMonodomainDg0AssemblerLong : public CxxTest::TestSuite 
+class TestMonodomainDg0AssemblerLong : public CxxTest::TestSuite
 {
 public:
 
@@ -59,16 +59,16 @@ public:
     // have returned to the resting potential of -84.5
     // test should take about 30mins (or less)
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
-    {   
+    {
         // To time the solve
         time_t start,end;
         double dif;
         time (&start);
         
         PointStimulus2dCellFactory cell_factory(60); // Central node
-
+        
         MonodomainProblem<2> monodomain_problem(&cell_factory);
-
+        
         monodomain_problem.SetMeshFilename("mesh/test/data/2D_0_to_1mm_400_elements");
         monodomain_problem.SetEndTime(500);   // 500 ms
         monodomain_problem.SetOutputDirectory("MonoDg02dWithPointStimulusLong");
@@ -76,7 +76,7 @@ public:
         monodomain_problem.Initialise();
         
         monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);        
+        monodomain_problem.GetMonodomainPde()->SetCapacitance(1.0);
         monodomain_problem.GetMonodomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(2));
         
         
@@ -85,16 +85,16 @@ public:
         // To time the solve
         time (&end);
         dif = difftime (end,start);
- //       printf ("\nSolve took %.2lf seconds. \n", dif );
-        
+//       printf ("\nSolve took %.2lf seconds. \n", dif );
+
         Vec voltage=monodomain_problem.GetVoltage();
         ReplicatableVector voltage_replicated;
         voltage_replicated.ReplicatePetscVector(voltage);
         
-    
+        
         double* p_voltage_array;//We don't actually use this
         unsigned lo, hi;
-        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi); 
+        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
         // test whether voltages and gating variables are in correct ranges
         for (unsigned global_index=lo; global_index<hi; global_index++)
         {
@@ -104,27 +104,27 @@ public:
             
             TS_ASSERT_LESS_THAN_EQUALS( voltage_replicated[global_index] , Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(-voltage_replicated[global_index] + (Ek-30), 0);
-                
+            
             std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
-                                           GetCardiacCell(global_index)->rGetStateVariables();
+                                          GetCardiacCell(global_index)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
-                // if not voltage or calcium ion conc, test whether between 0 and 1 
+                // if not voltage or calcium ion conc, test whether between 0 and 1
                 if ((j!=4) && (j!=3))
                 {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);        
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);        
+                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
+                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
                 }
             }
         }
         
-         /*
-         * Test that corners are 'equal', and centres of sides.
-         * Irregularities in which way the triangles are oriented make
-         * this rather difficult, especially since the edges are sampled
-         * during the upstroke.
-         */
-         
+        /*
+        * Test that corners are 'equal', and centres of sides.
+        * Irregularities in which way the triangles are oriented make
+        * this rather difficult, especially since the edges are sampled
+        * during the upstroke.
+        */
+        
         // corners
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  0.1);
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[110], 0.1);
@@ -141,7 +141,7 @@ public:
         {
             TS_ASSERT_DELTA(voltage_replicated[i], -84.5, 1);
         }
-                    
-    }   
+        
+    }
 };
 #endif //_TESTMONODOMAINDG0ASSEMBLERLONG_HPP_

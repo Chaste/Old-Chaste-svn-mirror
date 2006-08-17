@@ -29,10 +29,10 @@ public:
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, int lo, int hi)
     {
         int stimulated_cells[] = { 0, 1, 11, 121 };
-
-        for(int i=0; i<4; i++)
+        
+        for (int i=0; i<4; i++)
         {
-            if((stimulated_cells[i]>=lo) && (stimulated_cells[i]<hi))
+            if ((stimulated_cells[i]>=lo) && (stimulated_cells[i]<hi))
             {
                 (*pCellsDistributed)[ stimulated_cells[i] - lo ]->SetStimulusFunction(mpStimulus);
             }
@@ -46,20 +46,20 @@ public:
 };
 
 
-class TestMonodomainSlabLong : public CxxTest::TestSuite 
-{   
+class TestMonodomainSlabLong : public CxxTest::TestSuite
+{
 public:
     void TestMonodomainSlabLongWithCornerNodesStimulated( void ) throw (Exception)
     {
         CornerStimulusCellFactory cell_factory;
         
         MonodomainProblem<3> monodomain_problem( &cell_factory );
-
+        
         monodomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_1mm_6000_elements");
         monodomain_problem.SetEndTime(200);   // 200 ms
         monodomain_problem.SetOutputDirectory("MonoDg03dSlabLong");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_3dSlabLong");
-
+        
         monodomain_problem.Initialise();
         monodomain_problem.Solve();
     }

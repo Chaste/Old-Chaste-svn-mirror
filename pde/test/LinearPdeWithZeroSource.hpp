@@ -10,7 +10,7 @@
 template <int SPACE_DIM>
 class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM>
 {
-    public:
+public:
     double ComputeLinearSourceTerm(Point<SPACE_DIM> x)
     {
         return 0.0;
@@ -20,7 +20,7 @@ class LinearPdeWithZeroSource:public AbstractLinearEllipticPde<SPACE_DIM>
     {
         return 0.0;
     }
-
+    
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> x)
     {
         return identity_matrix<double>(SPACE_DIM);

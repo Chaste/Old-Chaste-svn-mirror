@@ -8,7 +8,7 @@
 
 #include "SimpleLinearSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"  
+#include "SimpleDg0ParabolicAssembler.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -33,7 +33,7 @@ public:
     {
         return u*(1-u);
     }
-
+    
     c_matrix<double, SPACE_DIM, SPACE_DIM> ComputeDiffusionTerm(Point<SPACE_DIM> )
     {
         return identity_matrix<double>(SPACE_DIM);
@@ -53,10 +53,10 @@ public:
 
 
 
-class TestMonodomainDg0Assembler : public CxxTest::TestSuite 
-{   
+class TestMonodomainDg0Assembler : public CxxTest::TestSuite
+{
 private:
-    
+
     /**
      * Refactor code to set up a PETSc vector holding the initial condition.
      */
@@ -75,14 +75,14 @@ public:
         double tStart = 0;
         double tFinal = 1;
         double tBigStep = 0.01;
-        // Create mesh from mesh reader 
+        // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/heart_FHN_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
         FischerPde<1> pde;
-         
+        
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
@@ -92,47 +92,47 @@ public:
             bcc.AddNeumannBoundaryCondition(*iter, p_zero_condition);
             iter++;
         }
-
+        
         // Linear solver
         SimpleLinearSolver linear_solver;
-
+        
         // Assembler
         MonodomainDg0Assembler<1,1> monodomain_assembler(&linear_solver);
         SimpleDg0ParabolicAssembler<1,1> simple_assembler(&linear_solver);
         
-        // initial condition;   
+        // initial condition;
         Vec initial_condition_1, initial_condition_2;
         initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
         VecDuplicate(initial_condition_1, &initial_condition_2);
-  
+        
         double* p_init_array;
         int lo, hi;
         VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        VecGetArray(initial_condition_1, &p_init_array); 
+        VecGetArray(initial_condition_1, &p_init_array);
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
             double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
             p_init_array[local_index] = exp(-(x*x)/100);
         }
-        VecRestoreArray(initial_condition_1, &p_init_array);      
+        VecRestoreArray(initial_condition_1, &p_init_array);
         VecAssemblyBegin(initial_condition_1);
         VecAssemblyEnd(initial_condition_1);
         
         VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
-
+        
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
-
+        
         double tCurrent = tStart;
-        while( tCurrent < tFinal )
+        while ( tCurrent < tFinal )
         {
             monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             
             monodomain_assembler.SetInitialCondition( initial_condition_1 );
             simple_assembler.SetInitialCondition( initial_condition_2 );
-
+            
             current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc);
             
             current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc);
@@ -142,7 +142,7 @@ public:
             VecDestroy(initial_condition_2);
             initial_condition_1 = current_solution_1;
             initial_condition_2 = current_solution_2;
-     
+            
             tCurrent += tBigStep;
         }
         
@@ -159,8 +159,8 @@ public:
             if (global_index==50) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.992718, 1e-5);
             if (global_index==75) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.00648079, 1e-5);
         }
-  
-  
+        
+        
         VecRestoreArray(current_solution_1, &p_current_solution1_array);
         VecRestoreArray(current_solution_2, &p_current_solution2_array);
         VecDestroy(current_solution_1);
@@ -171,7 +171,7 @@ public:
         double tStart = 0;
         double tFinal = 1;
         double tBigStep = 0.01;
-        // Create mesh from mesh reader 
+        // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -183,52 +183,52 @@ public:
         BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
-        while(iter != mesh.GetBoundaryElementIteratorEnd())
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
         {
             bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
             iter++;
         }
-
+        
         // Linear solver
         SimpleLinearSolver linear_solver;
-
+        
         // Assembler
         MonodomainDg0Assembler<2,2> monodomain_assembler(&linear_solver);
         SimpleDg0ParabolicAssembler<2,2> simple_assembler(&linear_solver);
         
-        // initial condition;   
+        // initial condition;
         Vec initial_condition_1, initial_condition_2;
         initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
         VecDuplicate(initial_condition_1, &initial_condition_2);
-  
+        
         double* p_init_array;
         int lo, hi;
         VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        VecGetArray(initial_condition_1, &p_init_array); 
+        VecGetArray(initial_condition_1, &p_init_array);
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
             double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
             p_init_array[local_index] = exp(-(x*x)/100);
         }
-        VecRestoreArray(initial_condition_1, &p_init_array);      
+        VecRestoreArray(initial_condition_1, &p_init_array);
         VecAssemblyBegin(initial_condition_1);
         VecAssemblyEnd(initial_condition_1);
         
         VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
-
+        
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
-
+        
         double tCurrent = tStart;
-        while( tCurrent < tFinal )
+        while ( tCurrent < tFinal )
         {
             monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
             
             monodomain_assembler.SetInitialCondition( initial_condition_1 );
             simple_assembler.SetInitialCondition( initial_condition_2 );
-
+            
             current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc);
             
             current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc);
@@ -238,7 +238,7 @@ public:
             VecDestroy(initial_condition_2);
             initial_condition_1 = current_solution_1;
             initial_condition_2 = current_solution_2;
-     
+            
             tCurrent += tBigStep;
         }
         

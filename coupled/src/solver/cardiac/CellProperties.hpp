@@ -6,7 +6,7 @@
 /**
  * Class to calculate various physiological properties from the results of a
  * cardiac simulation.
- * 
+ *
  * It will calculate for a single cell:
  *   Action potential duration (at any percentage)
  *   Max. upstroke velocity
@@ -15,7 +15,7 @@
  *   Cycle length (time between APs)
  * These will all be calculated for the last complete action potential in a
  * dataset.
- * 
+ *
  * Results may be incorrect if you are stimulating the cell strangely.
  */
 
@@ -27,14 +27,14 @@ private:
      */
     std::vector<double> mTime;
     std::vector<double> mVoltage;
- 
+    
     /**
      * Threshold for determining what counts as an action potential.
      * This is a value part way between the min & max potential, to avoid
      * problems due to 'notches' in an action potential.
      */
     double mThreshold;
-
+    
     /**
      * Cached values of the properties
      */
@@ -43,12 +43,12 @@ private:
     double mCycleLength;
     double mMaxPotential, mMinPotential;
     double mUpstrokeStartTime;
-
+    
     /**
      * Values needed for calculating APD.
      */
     double mOnset, mPrevOnset, mPrevMinPotential, mPrevMaxPotential;
-
+    
     /**
      * Calculate all the cacheable values.
      */
@@ -66,7 +66,7 @@ private:
                                             const double onset,
                                             const double minPotential,
                                             const double maxPotential);
-    
+                                            
 public:
     /**
      * Constructor does nothing much
@@ -85,7 +85,7 @@ public:
      */
     void SetData(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
     {
-        mVoltage = rVoltage; 
+        mVoltage = rVoltage;
         mTime = rTime;
         mThreshold = threshold;
         CalculateProperties();
@@ -98,9 +98,9 @@ public:
     {
         return mMaxUpstrokeVelocity;
     }
-     /**
-     * Return the time at which the maximum upstroke velocity occured.
-     */
+    /**
+    * Return the time at which the maximum upstroke velocity occured.
+    */
     double GetTimeAtMaxUpstrokeVelocity()
     {
         return mTimeAtMaxUpstrokeVelocity;

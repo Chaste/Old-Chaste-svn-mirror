@@ -35,28 +35,28 @@ public:
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
-        
+    
     ~BidomainPointStimulusCellFactory(void)
     {
         delete mpStimulus;
     }
 };
 
-class TestBidomainCompareWithMemfem :  public CxxTest::TestSuite 
+class TestBidomainCompareWithMemfem :  public CxxTest::TestSuite
 {
 public:
-    
+
     void testBidomainCompareWithMemfem()
     {
         BidomainPointStimulusCellFactory bidomain_cell_factory;
         
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
-
+        
         bidomain_problem.SetMeshFilename("coupled/test/data/memfem_mesh/simple");
-
+        
         // set the back face (nodes 468-506) to have phi_e fixed to zero
         std::vector<unsigned> fixed_nodes;
-        for(unsigned i=468;i<507;i++)
+        for (unsigned i=468;i<507;i++)
         {
             fixed_nodes.push_back(i);
         }
@@ -67,7 +67,7 @@ public:
         bidomain_problem.SetOutputDirectory("Bidomain3d_CompareWithMemfem");
         bidomain_problem.SetOutputFilenamePrefix("bidomain3d");
         bidomain_problem.SetWriteInfo();
-
+        
         bidomain_problem.Initialise();
         
         c_matrix<double,3,3> sigma_i;
@@ -75,13 +75,13 @@ public:
         sigma_i(0,0) = 0.19; //0.000174;
         sigma_i(1,1) = 0.19; //0.000019;
         sigma_i(2,2) = 1.79; //0.000019;
-
+        
         c_matrix<double,3,3> sigma_e;
         sigma_e.clear();
         sigma_e(0,0) = 2.36; //0.000625;
         sigma_e(1,1) = 2.36; //0.000236;
         sigma_e(2,2) = 6.25; //0.000236;
-   
+        
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1500); //    1/cm
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(sigma_i);
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(sigma_e);
@@ -90,10 +90,10 @@ public:
         {
             bidomain_problem.Solve();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             std::cout << e.GetMessage() << "\n";
-        }               
+        }
     }
 };
 

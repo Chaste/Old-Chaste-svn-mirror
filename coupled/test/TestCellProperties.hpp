@@ -13,7 +13,7 @@
 class TestCellProperties : public CxxTest::TestSuite
 {
 public:
-    
+
     void TestExceptionalBehaviour(void)
     {
         // Check throws an exception if no data given
@@ -25,25 +25,25 @@ public:
     {
         /*
          * Set stimulus
-         */   
-        double magnitude_of_stimulus = -80.0;  
-        double duration_of_stimulus  = 0.5 ;  // ms                     
+         */
+        double magnitude_of_stimulus = -80.0;
+        double duration_of_stimulus  = 0.5 ;  // ms
         double frequency = 1.0/1000.0; // 1Hz
-        double when = 100.0;                                      
+        double when = 100.0;
         RegularStimulus stimulus(magnitude_of_stimulus,
                                  duration_of_stimulus,
                                  frequency,
                                  when);
-
+                                 
         EulerIvpOdeSolver solver;
-
+        
         /*
          * Solve 
          */
         double start_time = 0.0;   // ms
         double end_time = 3450.0;  // ms
         double time_step = 0.01;   // ms
-
+        
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
@@ -54,11 +54,11 @@ public:
 //            std::cout << solution.mTime[i] << "\t" << solution.mSolutions[i][4]
 //                << std::endl;
 //        }
-        
+
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
         CellProperties  cell_props(voltage, solution.rGetTimes()); // Use default threshold
-
+        
 //        std::cout << "Max upstroke vel: " << cell_props.GetMaxUpstrokeVelocity() << std::endl;
 //        std::cout << "Cycle length: " << cell_props.GetCycleLength() << std::endl;
 //        std::cout << "Max potential: " << cell_props.GetMaxPotential() << std::endl;
@@ -67,7 +67,7 @@ public:
 //        std::cout << "APD20: " << cell_props.GetActionPotentialDuration(20) << std::endl;
 //        std::cout << "APD50: " << cell_props.GetActionPotentialDuration(50) << std::endl;
 //        std::cout << "APD90: " << cell_props.GetActionPotentialDuration(90) << std::endl;
-       
+
         TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocity(), 418.4795, 0.001);
         TS_ASSERT_DELTA(cell_props.GetCycleLength(), 1000.00, 0.01);
         TS_ASSERT_DELTA(cell_props.GetMaxPotential(), 43.1665, 0.0001);

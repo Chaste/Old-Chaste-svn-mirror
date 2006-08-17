@@ -6,7 +6,7 @@
 template <int ELEMENT_DIM, int SPACE_DIM>
 class Element : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
-    
+
 public:
     Element(unsigned index,
             std::vector<Node<SPACE_DIM>*> nodes,
@@ -14,7 +14,7 @@ public:
     {
         RegisterWithNodes();
     }
-            
+    
     /***
      * Copy constructor which allows a new index to be specified
      */
@@ -27,12 +27,12 @@ public:
     
     void RegisterWithNodes()
     {
-          for (unsigned i=0; i<this->mNodes.size(); i++)
+        for (unsigned i=0; i<this->mNodes.size(); i++)
         {
             this->mNodes[i]->AddElement(this->mIndex);
         }
     }
-
+    
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;

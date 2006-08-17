@@ -6,15 +6,15 @@
 template <int ELEMENT_DIM, int SPACE_DIM>
 class BoundaryElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 {
-    
+
 public:
     BoundaryElement(unsigned index,
-            std::vector<Node<SPACE_DIM>*> nodes,
-            int orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
+                    std::vector<Node<SPACE_DIM>*> nodes,
+                    int orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
     {
         RegisterWithNodes();
     }
-            
+    
     /**
      * Create a new boundary element from a Node
      * The element has ELEMENT_DIM=0 and
@@ -22,7 +22,7 @@ public:
      * 
      */
     BoundaryElement(unsigned index,
-            Node<SPACE_DIM> *node)
+                    Node<SPACE_DIM> *node)
     {
         assert (ELEMENT_DIM == 0);
         
@@ -39,16 +39,16 @@ public:
         
         RegisterWithNodes();
         
-    }    
+    }
     
     void RegisterWithNodes()
     {
-          for (unsigned i=0; i<this->mNodes.size(); i++)
+        for (unsigned i=0; i<this->mNodes.size(); i++)
         {
             this->mNodes[i]->AddBoundaryElement(this->mIndex);
         }
     }
-
+    
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;

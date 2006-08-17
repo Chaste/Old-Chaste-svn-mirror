@@ -18,19 +18,19 @@ public:
 //    void testComputeResidualAndComputeJacobian()
 //    {
 //        AnotherOde ode_system;
-//        
+//
 //        // create BackwardEulerStructure
 //        BackwardEulerStructure backward_euler_structure;
 //        backward_euler_structure.TimeStep = 0.1;
 //        backward_euler_structure.Time = 0;
 //        backward_euler_structure.pAbstractOdeSystem = &ode_system;
-//        
+//
 //        std::vector<double> current_y_value;
 //        current_y_value.push_back(1.0);
 //        current_y_value.push_back(2.0);
 //        current_y_value.push_back(3.0);
 //        backward_euler_structure.currentYValue = current_y_value;
-//        
+//
 //        // create solution guess
 //        Vec initial_guess;
 //        VecCreate(PETSC_COMM_WORLD, &initial_guess);
@@ -39,40 +39,40 @@ public:
 //        for (int i=0;i<3; i++)
 //        {
 //            VecSetValue(initial_guess, i, current_y_value[i] ,INSERT_VALUES);
-//            
+//
 //        }
 //        VecAssemblyBegin(initial_guess);
 //        VecAssemblyEnd(initial_guess);
-//        
+//
 //        // compute residual
 //        Vec residual;
 //        VecDuplicate(initial_guess, &residual);
 //        SNES snes;
 //        PetscErrorCode ierr;
 //        ierr = ComputeResidual(snes, initial_guess, residual, &backward_euler_structure);
-//        
-//        
+//
+//
 //        // check results
 //        PetscScalar *p_residual_array;
 //        ierr = VecGetArray(residual, &p_residual_array);
-//        
+//
 //        TS_ASSERT_DELTA(p_residual_array[0],-2.0, 1e-6);
 //        TS_ASSERT_DELTA(p_residual_array[1], 1.0, 1e-6);
 //        TS_ASSERT_DELTA(p_residual_array[2],-1.0, 1e-6);
-//        
+//
 //        ierr = VecRestoreArray(residual, &p_residual_array);
-//        
+//
 //        // NOW TEST COMPUTE JACOBIAN
-//        
+//
 //        Mat jacobian;
 //        Mat preconditioner;
 //        MatStructure mat_structure;
 //        ierr = MatCreate(PETSC_COMM_WORLD, &jacobian);
 //        ierr = MatSetSizes(jacobian, PETSC_DECIDE, PETSC_DECIDE, 3, 3);
 //        ierr = MatSetFromOptions(jacobian);
-//        
+//
 //        ierr = ComputeJacobian(snes, initial_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);
-//        
+//
 //        double true_jacobian[3][3] = {{ 3,-1,-1},
 //                                      {-1, 1,-1},
 //                                      { 0, 2,-1}};
@@ -84,17 +84,17 @@ public:
 //                row_as_array[0] = row;
 //                int col_as_array[1];
 //                col_as_array[0] = col;
-//                
+//
 //                double ret_array[1];
-//                
+//
 //                MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
-//                
+//
 //                TS_ASSERT_DELTA(ret_array[0],true_jacobian[row][col], 1e-6);
 //            }
 //        }
 //    }
-//    
-//    
+//
+//
     void testBackwardEulerSystemOf3Equations() throw (Exception)
     {
         OdeOrderSystemOf3 ode_system;

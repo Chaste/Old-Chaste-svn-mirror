@@ -6,9 +6,9 @@
  */
 typedef enum CryptCellType_
 {
-   STEM,
-   TRANSIT,
-   DIFFERENTIATED
+    STEM,
+    TRANSIT,
+    DIFFERENTIATED
 } CryptCellType;
 
 
