@@ -528,6 +528,7 @@ public:
         
     }
     
+    
     void Test2DSetPoint()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -825,6 +826,7 @@ public:
         
     }
     
+    
     void TestAddingAndDeletingNodes() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -857,6 +859,121 @@ public:
                          
     }
     
-};
 
+
+    void Test1DNodeMerger()
+    {
+  
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        
+        ConformingTetrahedralMesh<1,1> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double length=mesh.CalculateMeshVolume();
+        const int node_index=3;
+        const int target_index=4;
+        const int not_neighbour_index=5;
+        
+       //Cannot merge node 3 with node 5 since they are not neighbours
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
+        
+       //Merge node 3 with node 4
+        mesh.SetNode(node_index, target_index);
+        
+        Element<1,1> *p_element;
+        p_element = mesh.GetElement(2);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.2, 1e-6);
+        p_element = mesh.GetElement(3);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0, 1e-6);
+       
+        TS_ASSERT_DELTA(length, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 1);
+    }
+    
+    void Test2DNodeMerger()
+    {
+  
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double area=mesh.CalculateMeshVolume();
+        //Node 432 is supported by a non-convex region
+        //Node 206 is the sole reflex vertex in the region
+        //Node 172 is not feasible since it is neighbour to the reflex
+        const int node_index=432;
+        const int target_index=206;
+        const int not_neighbour_index=204;
+        const int not_feasible_index=172;
+        
+        //Element 309 is shared by the moving node (432), the reflex node (206)
+        //the non-feasible node (172) - it will vanish
+        //Element 762 is shared by the moving node (432), some other node (205)
+        //the non-feasible node (172) - it will increase in size
+        TS_ASSERT_DELTA(mesh.GetElement(309)->GetJacobianDeterminant(), 
+                        0.00753493, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(), 
+                        0.00825652, 1e-6);
+        //Cannot merge since they are not neighbours
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
+        
+        //Cannot merge since an element goes negative
+        //The element 763 shared by moving node (432), reflex node (206) and the
+        //other neighbour to the reflex node goes negative
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index));
+        mesh.SetNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_DELTA(mesh.GetElement(309)->GetJacobianDeterminant(), 
+                        0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(), 
+                        0.0126728, 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
+    }
+    
+    void Test3DNodeMerger() throw (Exception)
+    {
+  
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        
+        ConformingTetrahedralMesh<3,3> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double volume=mesh.CalculateMeshVolume();
+        const int node_index=22; //In the middle
+        const int target_index=310;
+        const int not_neighbour_index=204;
+        const int not_feasible_index=103;
+        
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index));
+         
+        TS_ASSERT_THROWS_NOTHING( mesh.SetNode(node_index, target_index));
+        TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-6);
+        
+        //Ten elements share 22 and 310.  See:
+        /*   Element      N1    N2    N3    N4
+                 510     310   348    22   294
+                 645      22   328   310   216
+                 753      22   329   310   120
+                1164     295   310    22   175
+                1217     294   310   175    22
+                1251     310   336   328    22
+                1254     120   310    22   295
+                1357     310   336    22   193
+                1365      22   329   216   310
+                1484     310   348   193    22
+        */
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 10);
+    }
+                
+
+
+};
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

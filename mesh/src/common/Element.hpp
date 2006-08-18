@@ -36,6 +36,7 @@ public:
     void MarkAsDeleted()
     {
         this->mIsDeleted = true;
+        this->mJacobianDeterminant = 0.0;
         // Update nodes in this element so they know they are not contained by us
         for (int i=0; i<this->GetNumNodes(); i++)
         {

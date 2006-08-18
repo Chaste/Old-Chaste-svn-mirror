@@ -125,6 +125,7 @@ public:
     }
     
     void SetNode(unsigned index, Point<SPACE_DIM> point, bool verify=true);
+    void SetNode(unsigned index, unsigned targetIndex, bool crossReference=true);
     
     int RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> Point);
     void RefreshMesh(void);

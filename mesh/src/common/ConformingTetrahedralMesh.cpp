@@ -414,8 +414,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
     
 }
 
+/** SetNode moves the node with a particular index to a new point in space and
+  * verifies that the signed areas of the supporting Elements are positive
+  * @param index is the index of the node to be moved
+  * @param point is the new target location of the node
+  * @param verify is set to false if we want to skip the signed area tests
+  *
+  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, Point<SPACE_DIM> point, bool verify)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
+                                                                Point<SPACE_DIM> point, 
+                                                                bool verify)
 {
     mNodes[index]->SetPoint(point);
     if (verify)
@@ -444,6 +453,68 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index, 
         }
     }
 }
+
+/** SetNode moves the node with a particular index to a new point in space and
+ * verifies that the signed areas of the supporting Elements are positive
+ * @param index is the index of the node to be moved
+ * @param point is the new target location of the node
+ * @param verify is set to false if we want to skip the signed area tests
+ *
+ */
+template<int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
+                                                                unsigned targetIndex,
+                                                                bool crossReference)
+{
+    std::set<unsigned> unshared_element_indices;
+    std::set_difference(mNodes[index]->rGetContainingElementIndices().begin(),
+                        mNodes[index]->rGetContainingElementIndices().end(),
+                        mNodes[targetIndex]->rGetContainingElementIndices().begin(),
+                        mNodes[targetIndex]->rGetContainingElementIndices().end(),
+                        std::inserter(unshared_element_indices, unshared_element_indices.begin()));
+    
+    
+    if (unshared_element_indices.size() == mNodes[index]->rGetContainingElementIndices().size())
+    {
+        EXCEPTION("These nodes cannot be merged since they are not neighbours");
+    }
+    
+    mNodes[index]->SetPoint(mNodes[targetIndex]->rGetPoint());
+    
+    for (std::set<unsigned>::const_iterator element_iter=unshared_element_indices.begin();
+         element_iter != unshared_element_indices.end(); 
+         element_iter++)
+    {
+        try
+        {
+            GetElement(*element_iter)->RefreshJacobianDeterminant();
+        }
+        catch (Exception e)
+        {
+            EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+        }
+    }
+    
+    if (crossReference)
+    {
+    
+        std::set<unsigned> shared_element_indices;
+        std::set_intersection(mNodes[index]->rGetContainingElementIndices().begin(),
+                          mNodes[index]->rGetContainingElementIndices().end(),
+                          mNodes[targetIndex]->rGetContainingElementIndices().begin(),
+                          mNodes[targetIndex]->rGetContainingElementIndices().end(),
+                          std::inserter(shared_element_indices, shared_element_indices.begin()));
+        for (std::set<unsigned>::const_iterator element_iter=shared_element_indices.begin();
+             element_iter != shared_element_indices.end(); 
+            element_iter++)
+        {
+            GetElement(*element_iter)->MarkAsDeleted();
+            mDeletedElementIndices.push_back(*element_iter);
+        }
+        mNodes[index]->MarkAsDeleted();
+    }
+}
+
 
 /**
  * This method allows the mesh properties to be re-calculated after one
