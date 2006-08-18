@@ -181,9 +181,15 @@ PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat 
         PETSCEXCEPT(ComputeResidual(snes, solution_perturbed, residual_perturbed, pContext));
         
         // compute residual_perturbed - residual
-        VecWAXPY(jacobian_column, -1, residual, residual_perturbed);
-        
-        VecScale(jacobian_column, 1.0/eps);
+	double one_over_eps=1.0/eps;
+	double subtract=-1;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        PETSCEXCEPT( VecWAXPY(&subtract, residual, residual_perturbed, jacobian_column));
+        PETSCEXCEPT( VecScale(&one_over_eps, jacobian_column));
+#else
+        PETSCEXCEPT( VecWAXPY(jacobian_column, subtract, residual, residual_perturbed));
+        PETSCEXCEPT( VecScale(jacobian_column,  one_over_eps));
+#endif
         
         PetscScalar *p_jacobian_column_array;
         VecGetArray(jacobian_column, &p_jacobian_column_array);

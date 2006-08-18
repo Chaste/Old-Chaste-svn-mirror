@@ -780,7 +780,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(lon
     mBoundaryNodes.erase(b_node_iter);
     
     // Remove boundary elements containing this node
-    typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>*>::iterator b_elt_iter;
     std::set<unsigned> boundary_element_indices = mNodes[index]->rGetContainingBoundaryElementIndices();
     std::set<unsigned>::const_iterator boundary_element_indices_iterator = boundary_element_indices.begin();
     while (boundary_element_indices_iterator != boundary_element_indices.end())
