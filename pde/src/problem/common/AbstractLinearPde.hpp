@@ -2,10 +2,12 @@
 #define _ABSTRACTLINEARPDE_HPP_
 
 #include "UblasCustomFunctions.hpp"
+#include "AbstractPde.hpp"
 #include "Point.hpp"
 #include "Node.hpp"
 #include <petscvec.h>
-#include "ReplicatableVector.hpp"
+
+
 
 /**
  * AbstractLinearPde class.
@@ -17,19 +19,14 @@
  */
 
 template <int SPACE_DIM>
-class AbstractLinearPde
+class AbstractLinearPde : public virtual AbstractPde
 {
-private:
-    // Kludge to make parallel stuff work...
-    ReplicatableVector mInputCacheReplicated;
-    
 public:
 
     /**
      * Compute Linear Source Term.
      * @param x The point in space at which the Linear Source Term is computed.
      */
-    
     virtual double ComputeLinearSourceTerm(Point<SPACE_DIM> x)=0;
     
     /**
@@ -63,28 +60,6 @@ public:
     }
     
     
-    
-    /**
-    * PrepareForAssembleSystem is a virtual method.
-    * It's called by the AssembleSystem method of the assembler before any other
-    * useful work happens.  The idea is that a *coupled system* will want to 
-    * solve all the ODE systems before the PDE is solved.  A *parallel* coupled
-    * system will want to solve the ODE systems and distribute the answers 
-    * before anything else happens.
-    */
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double /*time - not used here*/)
-    {
-        if (currentSolution != NULL)
-        {
-            mInputCacheReplicated.ReplicatePetscVector(currentSolution);
-        }
-    }
-    
-    double GetInputCacheMember(unsigned int i)
-    {
-        assert(i<mInputCacheReplicated.size());
-        return(mInputCacheReplicated[i]);
-    }
     virtual ~AbstractLinearPde()
     {
     

@@ -56,7 +56,7 @@ protected:
                              const Node<SPACE_DIM> *pNode,
                              int nodeGlobalIndex)
     {
-        mSourceTerm += phi_i*pPde->ComputeNonlinearSourceTermAtNode(*pNode, pPde->GetInputCacheMember( nodeGlobalIndex ) );
+        mSourceTerm += phi_i*pPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ nodeGlobalIndex ] );
     }
     
     

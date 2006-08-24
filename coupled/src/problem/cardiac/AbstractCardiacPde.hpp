@@ -6,6 +6,7 @@
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractLinearParabolicPde.hpp"
+#include "ReplicatableVector.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
 
@@ -188,7 +189,7 @@ public:
     
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
-        AbstractLinearParabolicPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
+        AbstractPde::PrepareForAssembleSystem(currentSolution, time);
         
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);

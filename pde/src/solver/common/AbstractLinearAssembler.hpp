@@ -15,7 +15,7 @@
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractBasisFunction.hpp"
 
-// Need to change this to use Ublas matrices and vectors
+
 
 /**
  * Base class from which all solvers for linear PDEs inherit. It defines a common
@@ -28,6 +28,8 @@ class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
 
 protected:
     LinearSystem *mpAssembledLinearSystem;
+    
+    
     
     /**
      * mMatrixIsConstant is a flag to say whether the matrix of the system
@@ -145,7 +147,7 @@ protected:
                     // get the value in a usable form.
                     // NOTE - currentSolution input is actually now redundant at this point,
                     // the work is done in PrepareForAssembleSystem
-                    u  += phi(i)*pPde->GetInputCacheMember( node_global_index );
+                    u  += phi(i)*this->mCurrentSolutionReplicated[ node_global_index ];
                 }
                 IncrementSourceTerm(phi(i), pPde, p_node, node_global_index);
                 //sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
@@ -306,10 +308,18 @@ public:
                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
                                Vec currentSolution = NULL, double currentTime=0.0)
     {
+        // Replicate the current solution and store so can be used in 
+        // AssembleOnElement
+        if(currentSolution != NULL)
+        {
+            this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
+        }
+
         /* Allow the PDE to set up anything necessary for the assembly of the
          * solution (eg. if it's a coupled system, then solve the ODEs)
          */
         pPde->PrepareForAssembleSystem(currentSolution, currentTime);
+
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
         // << std::endl;elem
         // ^ gives the same in parallel

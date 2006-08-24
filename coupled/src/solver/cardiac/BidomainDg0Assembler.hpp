@@ -130,7 +130,7 @@ private:
                 
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 
-                Vm           += basis_func(i)*mpBidomainPde->GetInputCacheMember( 2*node_global_index );
+                Vm           += basis_func(i)*this->mCurrentSolutionReplicated[ 2*node_global_index ];
                 I_ionic      += basis_func(i)*mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
                 I_intra_stim += basis_func(i)*mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
                 I_extra_stim += basis_func(i)*mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
@@ -208,6 +208,13 @@ private:
     
     void AssembleSystem(Vec currentSolution, double currentTime)
     {
+        // Replicate the current solution and store so can be used in 
+        // AssembleOnElement
+        if(currentSolution != NULL)
+        {
+            this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
+        }
+        
         // Allow the PDE to set up anything necessary for the assembly of the
         // solution (ie solve the ODEs)
         mpBidomainPde->PrepareForAssembleSystem(currentSolution, currentTime);

@@ -5,6 +5,12 @@
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 
+//\todo: move this (and below) to somewhere like AbstractLinearAssembler when BidomainDg0Assembler
+// is correctly wired up
+#include "ReplicatableVector.hpp"
+
+
+
 
 /**
  * Abstract base class for all the PDE assemblers.
@@ -19,6 +25,10 @@ class AbstractAssembler
 
 protected:
 
+    //\todo: move this (and above) to somewhere like AbstractLinearAssembler when BidomainDg0Assembler
+    // is correctly wired up
+    ReplicatableVector mCurrentSolutionReplicated;
+    
     /*< User calls a method to set this, so that the assembler
      *  knows whether to build the matrix at every step */
     
