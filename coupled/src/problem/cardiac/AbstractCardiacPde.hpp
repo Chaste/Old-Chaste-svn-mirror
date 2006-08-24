@@ -5,7 +5,7 @@
 #include <vector>
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
-#include "AbstractCoupledPde.hpp"
+#include "AbstractLinearParabolicPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
 
@@ -13,7 +13,7 @@
  *  Pde containing common functionality to mono and bidomain pdes.
  */
 template <int SPACE_DIM>
-class AbstractCardiacPde : public AbstractCoupledPde<SPACE_DIM>
+class AbstractCardiacPde : public AbstractLinearParabolicPde<SPACE_DIM>
 {
 protected:
 
@@ -49,12 +49,39 @@ protected:
      */
     const unsigned mStride;
     
+    // timestep used by the pde solver
+    double mPdeTimeStep;
+    
+    // number of nodes in the mesh
+    unsigned mNumNodes;
+    
+    // Lowest value of index that this part of the global object stores
+    unsigned mOwnershipRangeLo;
+    
+    // One more than the local highest index
+    unsigned mOwnershipRangeHi;
+    
     
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep, const unsigned stride=1)
-            :  AbstractCoupledPde<SPACE_DIM>(pCellFactory->GetNumberOfCells(), pdeTimeStep),
-            mStride(stride)
+            :  mStride(stride)
     {
+        mNumNodes = pCellFactory->GetNumberOfCells();
+        mPdeTimeStep = pdeTimeStep;
+        
+        // Create a temporary PETSc vector and use the ownership range of 
+        // the PETSc vector to size our C++ vectors
+        Vec tempVec;
+        VecCreate(PETSC_COMM_WORLD, &tempVec);
+        VecSetSizes(tempVec, PETSC_DECIDE, mNumNodes);
+        VecSetFromOptions(tempVec);
+        PetscInt temp_lo, temp_hi;
+        VecGetOwnershipRange(tempVec, &temp_lo, &temp_hi);
+        mOwnershipRangeLo=(unsigned) temp_lo;
+        mOwnershipRangeHi=(unsigned) temp_hi;
+        VecDestroy(tempVec); // vector no longer needed
+        
+        
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
@@ -146,13 +173,14 @@ public:
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
     {
-#ifndef NDEBUG
-        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
-        {
-            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
-            " hi " << this->mOwnershipRangeHi << std::endl;
-        }
-#endif
+        #ifndef NDEBUG
+            if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
+            {
+                std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
+                " hi " << this->mOwnershipRangeHi << std::endl;
+            }
+        #endif
+        
         assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
@@ -160,16 +188,12 @@ public:
     
     virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
-        AbstractCoupledPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
+        AbstractLinearParabolicPde <SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
         
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);
         unsigned lo=this->mOwnershipRangeLo;
         unsigned hi=this->mOwnershipRangeHi;
-        
-//        double time=this->mTime;
-
-        double big_timestep=this->mBigTimeStep;
         
         for (unsigned global_index=lo; global_index < hi; global_index++)
         {
@@ -178,14 +202,12 @@ public:
             // overwrite the voltage with the input value
             mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
             
-            
             try
             {
-            
                 // solve
                 // Note: Voltage should not be updated. GetIIonic will be called later
                 // and needs the old voltage. The voltage will be updated from the pde.
-                mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+big_timestep);
+                mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+mPdeTimeStep);
             }
             catch (Exception &e)
             {
@@ -194,7 +216,7 @@ public:
             }
             
             // update the Iionic and stimulus caches
-            UpdateCaches(global_index, local_index, time+big_timestep);
+            UpdateCaches(global_index, local_index, time+mPdeTimeStep);
         }
         VecRestoreArray(currentSolution, &p_current_solution);
         
@@ -253,6 +275,12 @@ public:
         {
             EXCEPTION("Another process threw an exception in PrepareForAssembleSystem");
         }
+    }
+    
+    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
+    {
+        rLo=mOwnershipRangeLo;
+        rHi=mOwnershipRangeHi;
     }
 };
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
