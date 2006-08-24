@@ -13,8 +13,19 @@
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
  */
+
+// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual' because 
+// AbstractPde will be the top class in a 'dreaded diamond':
+//      A      
+//     / \     A = AbstractPde, B = AbstractCardiac, C = AbtractLinearParabolic (etc)
+//    B   C    D = MonodomainPde
+//     \ /
+//      D
+// 
+// B and C must use virtual inheritence of A in order for D to only contain 1 instance
+// of the member variables in A
 template <int SPACE_DIM>
-class AbstractCardiacPde : public AbstractLinearParabolicPde<SPACE_DIM>
+class AbstractCardiacPde : public virtual AbstractPde
 {
 protected:
 

@@ -4,6 +4,7 @@
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractCardiacPde.hpp"
+#include "AbstractLinearParabolicPde.hpp"
 
 /*
 const double rMyo = 150;                                // myoplasmic resistance, ohm*cm
@@ -37,7 +38,7 @@ const double BETA = 0.00014;
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
 template <int SPACE_DIM>
-class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>
+class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>, public AbstractLinearParabolicPde<SPACE_DIM>
 {
 private:
     friend class TestMonodomainPde;
@@ -88,12 +89,31 @@ public:
                 - this->mIntracellularStimulusCacheReplicated[index];
     }
     
-    
-    
-    
+
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
         return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);
+    }
+    
+    
+    
+    // IMPORTANT CODING NOTE: Since there is a 'dreaded diamond':
+    //      A      
+    //     / \     A = AbstractPde, B = AbstractCardiacPde
+    //    B   C    C  = AbtractLinearParabolicPde, D = MonodomainPde
+    //     \ /
+    //      D
+    // 
+    // the assemblers, which take in a D as pointer to C, can see the 
+    // empty implementation of PrepareForAssembleSystem() and might not 
+    // realise that the overloadeded implementation of PrepareForAssembleSystem()
+    // is actually in B (AbstractCardiac). Therefore, we overload 
+    // PrepareForAssembleSystem() again here and explicitly call the correct
+    // base class version. (This doesn't appear to be necessary at present,
+    // but may be required with other compilers etc)
+    void PrepareForAssembleSystem(Vec currentSolution, double time)
+    {
+        AbstractCardiacPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
     }
     
     

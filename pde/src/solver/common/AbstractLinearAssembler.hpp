@@ -23,7 +23,7 @@
  * AssembleOnElement and AssembleOnSurfaceElement.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
+class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
 {
 
 protected:
