@@ -24,14 +24,15 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 class AbstractElement
 {
 protected:
-    unsigned mIndex;
+   unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
     int mOrderOfBasisFunctions;
     bool mIsDeleted;
     c_matrix<double, SPACE_DIM, SPACE_DIM> *mpJacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> *mpInverseJacobian;
     double mJacobianDeterminant;
-    
+    bool mOwnership, mOwnershipSet;
+     
     void RefreshJacobian(void);
     
     
@@ -222,6 +223,22 @@ public:
     bool IsDeleted()
     {
         return mIsDeleted;
+    }
+    
+    bool GetOwnership()
+    {
+        return mOwnership;
+    }
+        
+    void SetOwnership(bool ownership)
+    {
+        mOwnership=ownership;
+        mOwnershipSet=true;
+    }
+    
+    bool GetOwnershipSet()
+    {
+        return mOwnershipSet;
     }
     
     

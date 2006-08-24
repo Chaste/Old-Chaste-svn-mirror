@@ -76,7 +76,7 @@ protected:
     * @param pPde Pointer to the PDE object specifying the equation to solve.
     * @param currentSolution For the parabolic case, the solution at the current timestep.
     */
-    void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+    void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1 > &rAElem,
                            c_vector<double, ELEMENT_DIM+1> &rBElem,
                            AbstractLinearPde<SPACE_DIM> *pPde,
@@ -86,7 +86,9 @@ protected:
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
-            
+       
+   
+           
         /**
         * \todo This assumes that the Jacobian is constant on an element.
         * This is true for linear basis functions, but not for any other type of
@@ -340,7 +342,7 @@ public:
         
         while (iter != rMesh.GetElementIteratorEnd())
         {
-            const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
+            Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
             
             
             AssembleOnElement(element, rAElem, rBElem, pPde, currentSolution);

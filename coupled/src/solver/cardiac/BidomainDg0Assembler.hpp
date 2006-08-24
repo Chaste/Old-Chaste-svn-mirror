@@ -42,10 +42,33 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
     
-    void AssembleOnElement(const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+    void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2>& rAElem,
                            c_vector<double, 2*ELEMENT_DIM+2>& rBElem)
     {
+        
+        
+        if(rElement.GetOwnershipSet()==false)
+        {
+            int mLo, mHi;
+            mpAssembledLinearSystem->GetOwnershipRange(mLo,mHi);
+            
+            for (int i=0; i< rElement.GetNumNodes(); i++)
+            {
+                int node_global_index = rElement.GetNodeGlobalIndex(i);
+                if (mLo<=node_global_index && node_global_index<mHi)
+                {
+                    rElement.SetOwnership(true);
+                    break;
+                }
+            }
+            if(rElement.GetOwnershipSet()==false)
+            {
+                rElement.SetOwnership(false);
+            }
+        }
+        
+        
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
@@ -62,6 +85,12 @@ private:
         }
         rBElem.clear();
         
+        /** \todo Ticket #101
+        if(rElement.GetOwnership()==false)
+        {
+            return;
+        }
+        */
         
         const int num_elem_nodes = rElement.GetNumNodes();
         
@@ -206,7 +235,7 @@ private:
         
         while (iter != mpMesh->GetElementIteratorEnd())
         {
-            const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
+            Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
             
             AssembleOnElement(element, a_elem, b_elem);
             
