@@ -142,7 +142,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result
         double *p_result;
@@ -188,7 +188,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
@@ -235,7 +235,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
@@ -276,7 +276,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result
         int lo, hi;
@@ -323,7 +323,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
@@ -371,7 +371,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result
         int lo, hi;
@@ -445,7 +445,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result
         double *p_result;
@@ -510,7 +510,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result
         int lo, hi;
@@ -587,7 +587,7 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&solver);
         
-        Vec result = assembler.AssembleSystem(mesh, &pde, bcc);
+        Vec result = assembler.Solve(mesh, &pde, bcc);
         
         // Check result
         int lo, hi;

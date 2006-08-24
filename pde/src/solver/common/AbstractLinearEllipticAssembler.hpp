@@ -47,26 +47,33 @@ public:
      * @param pSolver A pointer to the linear solver to use to solve the system.
      * @return A PETSc vector giving the solution at each node in the mesh.
      */
-    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                               AbstractLinearEllipticPde<SPACE_DIM> *pPde,
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
+    virtual void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+                                AbstractLinearPde<SPACE_DIM> *pPde,
+                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
     {
-        return AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
+        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
                    rMesh, pPde, rBoundaryConditions);
     }
     
-    /**
-     * Force the use of AbstractLinearEllipticPde subclasses with this assembler.
-     */
-    Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                       AbstractLinearPde<SPACE_DIM> *pPde,
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                       Vec currentSolution = NULL)
-    {
-        assert(false);
-        return NULL; // Avoid compiler warning
-    }
+//    /**
+//     * Force the use of AbstractLinearEllipticPde subclasses with this assembler.
+//     */
+//    void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+//                        AbstractLinearPde<SPACE_DIM> *pPde,
+//                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
+//                        Vec currentSolution = NULL)
+//    {
+//        assert(false);
+//    }
     
+
+    Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+              AbstractLinearPde<SPACE_DIM> *pPde,
+              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
+    {
+        AssembleSystem(rMesh, pPde, rBoundaryConditions);
+        return this->mpAssembledLinearSystem->Solve(this->mpSolver);
+    }
 };
 
 

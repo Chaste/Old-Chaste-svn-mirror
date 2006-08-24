@@ -303,7 +303,7 @@ public:
     * @param currentSolution For the parabolic case, the solution at the current timestep.
     * @return A PETSc vector giving the solution at each node in the mesh.
     */
-    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+    virtual void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
                                AbstractLinearPde<SPACE_DIM> *pPde,
                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
                                Vec currentSolution = NULL, double currentTime=0.0)
@@ -354,9 +354,7 @@ public:
         {
             Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
             
-            
             AssembleOnElement(element, rAElem, rBElem, pPde, currentSolution);
-            
             
             for (int i=0; i<num_nodes; i++)
             {
@@ -425,16 +423,16 @@ public:
         }
         
         mMatrixIsAssembled = true;
-        Vec sol = mpAssembledLinearSystem->Solve(mpSolver);
-        
-        //delete mpAssembledLinearSystem;
-        return sol;
     }
     
+    
+    virtual Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+                      AbstractLinearPde<SPACE_DIM> *pPde,
+                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)=0;
+              
     /**
     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
     */
-    
     void SetMatrixIsConstant()
     {
         mMatrixIsConstant = true;
@@ -451,13 +449,13 @@ public:
         VecView(sol, PETSC_VIEWER_STDOUT_WORLD);
         
     }
+
     void Debug()
     {
         std::cout<<"\n\nThis is the matrix>>>>>>>>>>>>>\n";
         mpAssembledLinearSystem->DisplayMatrix();
         std::cout<<"\n\nThis is the righthand side>>>>>>>>>>>>>\n";
         mpAssembledLinearSystem->DisplayRhs();
-        
     }
 };
 
