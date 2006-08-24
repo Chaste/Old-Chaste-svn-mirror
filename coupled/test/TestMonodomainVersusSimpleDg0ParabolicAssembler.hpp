@@ -124,6 +124,15 @@ public:
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
         
+        monodomain_assembler.SetMesh(&mesh);
+        monodomain_assembler.SetPde(&pde);
+        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        simple_assembler.SetMesh(&mesh);
+        simple_assembler.SetPde(&pde);
+        simple_assembler.SetBoundaryConditionsContainer(&bcc);
+
+
         double tCurrent = tStart;
         while ( tCurrent < tFinal )
         {
@@ -133,9 +142,9 @@ public:
             monodomain_assembler.SetInitialCondition( initial_condition_1 );
             simple_assembler.SetInitialCondition( initial_condition_2 );
             
-            current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc);
+            current_solution_1 = monodomain_assembler.Solve();
             
-            current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc);
+            current_solution_2 = simple_assembler.Solve();
             
             // Next iteration uses current solution as initial condition
             VecDestroy(initial_condition_1); // Free old initial condition
@@ -220,6 +229,14 @@ public:
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
         
+        monodomain_assembler.SetMesh(&mesh);
+        monodomain_assembler.SetPde(&pde);
+        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        simple_assembler.SetMesh(&mesh);
+        simple_assembler.SetPde(&pde);
+        simple_assembler.SetBoundaryConditionsContainer(&bcc);
+        
         double tCurrent = tStart;
         while ( tCurrent < tFinal )
         {
@@ -229,9 +246,9 @@ public:
             monodomain_assembler.SetInitialCondition( initial_condition_1 );
             simple_assembler.SetInitialCondition( initial_condition_2 );
             
-            current_solution_1 = monodomain_assembler.Solve(mesh, &pde, bcc);
+            current_solution_1 = monodomain_assembler.Solve();
             
-            current_solution_2 = simple_assembler.Solve(mesh, &pde, bcc);
+            current_solution_2 = simple_assembler.Solve();
             
             // Next iteration uses current solution as initial condition
             VecDestroy(initial_condition_1); // Free old initial condition

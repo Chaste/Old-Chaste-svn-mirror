@@ -45,12 +45,12 @@ public :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {}
     
-    void SetTimes(double Tstart, double Tend, double dT)
+    void SetTimes(double Tstart, double Tend, double dt)
     {
         mTstart = Tstart;
         mTend   = Tend;
-        mDt     = dT;
-        mDtInverse = 1/dT;
+        mDt     = dt;
+        mDtInverse = 1/dt;
         
         if (mTstart >= mTend)
         {
@@ -84,10 +84,12 @@ public :
      * @return A PETSc vector giving the solution after the final timestep at
      *     each node in the mesh.
      */
-    Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-              AbstractLinearPde<SPACE_DIM> *pPde,
-              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
+    Vec Solve()
     {
+        assert(this->mpMesh!=NULL);
+        assert(this->mpPde!=NULL);
+        assert(this->mpBoundaryConditions!=NULL);
+        
         assert(mTimesSet);
         assert(mInitialConditionSet);
         
@@ -99,7 +101,7 @@ public :
         while ( t < mTend - 1e-10 )
         {
             //std::cout << "t = " << t << std::endl << std::flush;
-            AssembleSystem(rMesh, pPde, rBoundaryConditions, currentSolution, t);
+            this->AssembleSystem(currentSolution, t); //mpMesh, mpPde, mpBoundaryConditions, currentSolution, t);
             nextSolution = this->mpAssembledLinearSystem->Solve(this->mpSolver);
 
             //std::cout << "Done AssembleSystem." << std::endl << std::flush;

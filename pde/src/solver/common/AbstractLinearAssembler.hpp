@@ -186,7 +186,7 @@ protected:
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
                                           c_vector<double, ELEMENT_DIM> &rBsubElem,
                                           AbstractLinearPde<SPACE_DIM> *pPde,
-                                          BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions)
+                                          BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM>* pBoundaryConditions)
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &rQuadRule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceQuadRule);
@@ -218,7 +218,7 @@ protected:
             /**
              * \todo Improve efficiency of Neumann BC implementation.
              */
-            c_vector<double, SPACE_DIM> Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+            c_vector<double, SPACE_DIM> Dgradu_dot_n = pBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
             
             noalias(rBsubElem) += phi * Dgradu_dot_n(0) *jW;
         }
@@ -303,10 +303,7 @@ public:
     * @param currentSolution For the parabolic case, the solution at the current timestep.
     * @return A PETSc vector giving the solution at each node in the mesh.
     */
-    virtual void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                               AbstractLinearPde<SPACE_DIM> *pPde,
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-                               Vec currentSolution = NULL, double currentTime=0.0)
+    virtual void AssembleSystem(Vec currentSolution = NULL, double currentTime=0.0)
     {
         // Replicate the current solution and store so can be used in 
         // AssembleOnElement
@@ -318,7 +315,7 @@ public:
         /* Allow the PDE to set up anything necessary for the assembly of the
          * solution (eg. if it's a coupled system, then solve the ODEs)
          */
-        pPde->PrepareForAssembleSystem(currentSolution, currentTime);
+        this->mpPde->PrepareForAssembleSystem(currentSolution, currentTime);
 
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
         // << std::endl;elem
@@ -326,7 +323,7 @@ public:
         
         if (mpAssembledLinearSystem == NULL)
         {
-            InitialiseLinearSystem(rMesh.GetNumNodes());
+            InitialiseLinearSystem(this->mpMesh->GetNumNodes());
             mMatrixIsAssembled = false;
         }
         else
@@ -344,17 +341,17 @@ public:
         
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
-            rMesh.GetElementIteratorBegin();
+            this->mpMesh->GetElementIteratorBegin();
         // Assume all elements have the same number of nodes...
         const int num_nodes = (*iter)->GetNumNodes();
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> rAElem;
         c_vector<double, ELEMENT_DIM+1> rBElem;
         
-        while (iter != rMesh.GetElementIteratorEnd())
+        while (iter != this->mpMesh->GetElementIteratorEnd())
         {
             Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
             
-            AssembleOnElement(element, rAElem, rBElem, pPde, currentSolution);
+            AssembleOnElement(element, rAElem, rBElem, this->mpPde, currentSolution);
             
             for (int i=0; i<num_nodes; i++)
             {
@@ -374,14 +371,14 @@ public:
             iter++;
         }
         // add the integrals associated with Neumann boundary conditions to the linear system
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = rMesh.GetBoundaryElementIteratorBegin();
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
         
-        if (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
+        if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
         {
             const int num_surf_nodes = (*surf_iter)->GetNumNodes();
             c_vector<double, ELEMENT_DIM> b_surf_elem;
             
-            while (surf_iter != rMesh.GetBoundaryElementIteratorEnd())
+            while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
                 const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
                 
@@ -389,9 +386,9 @@ public:
                  * \todo
                  * Check surf_element is in the Neumann surface in an efficient manner.
                  */
-                if (rBoundaryConditions.HasNeumannBoundaryCondition(&surf_element))
+                if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                 {
-                    AssembleOnSurfaceElement(surf_element, b_surf_elem, pPde, rBoundaryConditions);
+                    AssembleOnSurfaceElement(surf_element, b_surf_elem, this->mpPde, this->mpBoundaryConditions);
                     
                     for (int i=0; i<num_surf_nodes; i++)
                     {
@@ -411,7 +408,7 @@ public:
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
         // Apply dirichlet boundary conditions
-        rBoundaryConditions.ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
+        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
         
         if (mMatrixIsAssembled)
         {
@@ -426,9 +423,9 @@ public:
     }
     
     
-    virtual Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                      AbstractLinearPde<SPACE_DIM> *pPde,
-                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)=0;
+    virtual Vec Solve()=0;//ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+                      //AbstractLinearPde<SPACE_DIM> *pPde,
+                      //BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)=0;
               
     /**
     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 

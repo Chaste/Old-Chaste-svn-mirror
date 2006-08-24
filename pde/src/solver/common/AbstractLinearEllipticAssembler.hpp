@@ -47,31 +47,26 @@ public:
      * @param pSolver A pointer to the linear solver to use to solve the system.
      * @return A PETSc vector giving the solution at each node in the mesh.
      */
-    virtual void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                                AbstractLinearPde<SPACE_DIM> *pPde,
-                                BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
-    {
-        AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
-                   rMesh, pPde, rBoundaryConditions);
-    }
-    
-//    /**
-//     * Force the use of AbstractLinearEllipticPde subclasses with this assembler.
-//     */
-//    void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-//                        AbstractLinearPde<SPACE_DIM> *pPde,
-//                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions,
-//                        Vec currentSolution = NULL)
-//    {
-//        assert(false);
-//    }
+ //   virtual void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+ //                               AbstractLinearPde<SPACE_DIM> *pPde,
+ //                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
+ //   {
+  //      AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
+   //                rMesh, pPde, rBoundaryConditions);
+    //}
     
 
-    Vec Solve(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-              AbstractLinearPde<SPACE_DIM> *pPde,
-              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
+    
+
+    virtual Vec Solve() //ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
+              //AbstractLinearPde<SPACE_DIM> *pPde,
+              //BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
     {
-        AssembleSystem(rMesh, pPde, rBoundaryConditions);
+        assert(this->mpMesh!=NULL);
+        assert(this->mpPde!=NULL);
+        assert(this->mpBoundaryConditions!=NULL);
+
+        this->AssembleSystem(); //mpMesh, mpPde, mpBoundaryConditions);
         return this->mpAssembledLinearSystem->Solve(this->mpSolver);
     }
 };

@@ -123,6 +123,10 @@ public:
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&linear_solver);
         monodomain_assembler.SetMatrixIsConstant();
         
+        monodomain_assembler.SetMesh(&mMesh);
+        monodomain_assembler.SetPde(mpMonodomainPde);
+        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
+            
         // initial condition;
         Vec initial_condition;
         VecCreate(PETSC_COMM_WORLD, &initial_condition);
@@ -213,7 +217,7 @@ public:
             
             try
             {
-                mVoltage = monodomain_assembler.Solve(mMesh, mpMonodomainPde, bcc);
+                mVoltage = monodomain_assembler.Solve();
             }
             catch (Exception &e)
             {

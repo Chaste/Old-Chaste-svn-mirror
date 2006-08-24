@@ -142,7 +142,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         // Check result
         double *p_result;
@@ -188,7 +192,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         int lo,hi;
         VecGetOwnershipRange(result,&lo,&hi);
@@ -235,7 +243,12 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
+
         
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
@@ -276,7 +289,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         // Check result
         int lo, hi;
@@ -323,7 +340,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
@@ -371,7 +392,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         // Check result
         int lo, hi;
@@ -445,7 +470,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         // Check result
         double *p_result;
@@ -510,7 +539,11 @@ public:
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&solver);
         
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
+        Vec result = assembler.Solve();
         
         // Check result
         int lo, hi;
@@ -586,8 +619,12 @@ public:
         
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&solver);
-        
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+
+        Vec result = assembler.Solve();
         
         // Check result
         int lo, hi;

@@ -4,6 +4,10 @@
 #include "AbstractBasisFunction.hpp"
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
+#include "AbstractPde.hpp"
+#include "AbstractLinearPde.hpp"
+#include "ConformingTetrahedralMesh.hpp"
+#include "BoundaryConditionsContainer.hpp"
 
 //\todo: move this (and below) to somewhere like AbstractLinearAssembler when BidomainDg0Assembler
 // is correctly wired up
@@ -21,8 +25,6 @@
 template <int ELEMENT_DIM, int SPACE_DIM>
 class AbstractAssembler
 {
-
-
 protected:
 
     //\todo: move this (and above) to somewhere like AbstractLinearAssembler when BidomainDg0Assembler
@@ -34,6 +36,10 @@ protected:
     
     bool mWeAllocatedBasisFunctionMemory;
     
+    AbstractLinearPde<SPACE_DIM>* mpPde;
+    ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM>* mpBoundaryConditions;
+
     /*< Basis function for use with normal elements */
     AbstractBasisFunction<ELEMENT_DIM> *mpBasisFunction;
     /*< Basis function for use with boundary elements */
@@ -52,6 +58,12 @@ public:
      */
     AbstractAssembler(int numQuadPoints = 2)
     {
+        // Initialise pde, mesh and bcs to null, so we can check they 
+        // have been set before attempting to solve
+        mpPde = NULL;
+        mpMesh = NULL;
+        mpBoundaryConditions = NULL;
+        
         mWeAllocatedBasisFunctionMemory = false;
         LinearBasisFunction<ELEMENT_DIM> *pBasisFunction = new LinearBasisFunction<ELEMENT_DIM>();
         LinearBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction = new LinearBasisFunction<ELEMENT_DIM-1>();
@@ -61,8 +73,6 @@ public:
         mpQuadRule = NULL;
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
-        
-        
     }
     
     /**
@@ -82,7 +92,6 @@ public:
         mpQuadRule = NULL;
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
-        
     }
     
     /**
@@ -140,6 +149,21 @@ public:
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
     }
     
+    void SetPde(AbstractLinearPde<SPACE_DIM>* pPde)
+    {
+        mpPde = pPde;
+    }
+    
+    void SetMesh(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+    {
+        mpMesh = pMesh;
+    }
+    
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM>* pBoundaryConditions)
+    {
+        mpBoundaryConditions = pBoundaryConditions;
+    }
+        
 };
 
 #endif //_ABSTRACTASSEMBLER_HPP_
