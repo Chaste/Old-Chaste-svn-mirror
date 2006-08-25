@@ -25,10 +25,11 @@ protected:
      **/
     virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX)
     {
-        return this->mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) *
+        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
+        
+        return this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) *
                outer_prod(rPhi, rPhi);
     }
     
@@ -38,12 +39,13 @@ protected:
      */
     virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX,
         double u)
     {
-        return (pPde->ComputeNonlinearSourceTerm(rX, u) + pPde->ComputeLinearSourceTerm(rX)
-                + this->mDtInverse * pPde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi;
+        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
+
+        return (pde->ComputeNonlinearSourceTerm(rX, u) + pde->ComputeLinearSourceTerm(rX)
+                + this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi;
     }
     
 public:

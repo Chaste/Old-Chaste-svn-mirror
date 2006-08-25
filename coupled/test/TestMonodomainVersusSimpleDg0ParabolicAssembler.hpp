@@ -48,11 +48,6 @@ public:
 
 
 
-
-
-
-
-
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite
 {
 private:
@@ -143,7 +138,7 @@ public:
             simple_assembler.SetInitialCondition( initial_condition_2 );
             
             current_solution_1 = monodomain_assembler.Solve();
-            
+
             current_solution_2 = simple_assembler.Solve();
             
             // Next iteration uses current solution as initial condition

@@ -38,35 +38,19 @@ public:
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {}
     
-    /**
-     * Assemble the linear system for a linear elliptic PDE and solve it.
+    /** 
+     * Solve an elliptic pde.
      * 
-     * @param rMesh The mesh to solve on.
-     * @param pPde A pointer to a PDE object specifying the equation to solve.
-     * @param rBoundaryConditions A collection of boundary conditions for this problem.
-     * @param pSolver A pointer to the linear solver to use to solve the system.
-     * @return A PETSc vector giving the solution at each node in the mesh.
+     * SetMesh(), SetPde(), SetBoundaryConditionsContainer()
+     * must be called before Solve().
      */
- //   virtual void AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
- //                               AbstractLinearPde<SPACE_DIM> *pPde,
- //                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
- //   {
-  //      AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>::AssembleSystem(
-   //                rMesh, pPde, rBoundaryConditions);
-    //}
-    
-
-    
-
-    virtual Vec Solve() //ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-              //AbstractLinearPde<SPACE_DIM> *pPde,
-              //BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)
+    virtual Vec Solve() 
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpPde!=NULL);
         assert(this->mpBoundaryConditions!=NULL);
 
-        this->AssembleSystem(); //mpMesh, mpPde, mpBoundaryConditions);
+        this->AssembleSystem(); 
         return this->mpAssembledLinearSystem->Solve(this->mpSolver);
     }
 };

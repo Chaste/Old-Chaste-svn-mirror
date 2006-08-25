@@ -27,7 +27,7 @@ class AbstractAssembler
 {
 protected:
 
-    //\todo: move this (and above) to somewhere like AbstractLinearAssembler when BidomainDg0Assembler
+    //\todo: move this (and above) to somewhere like AbstractDynamicProblemAssembler when BidomainDg0Assembler
     // is correctly wired up
     ReplicatableVector mCurrentSolutionReplicated;
     
@@ -36,7 +36,7 @@ protected:
     
     bool mWeAllocatedBasisFunctionMemory;
     
-    AbstractLinearPde<SPACE_DIM>* mpPde;
+    AbstractPde* mpPde;
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM>* mpBoundaryConditions;
 
@@ -130,6 +130,36 @@ public:
         mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numQuadPoints);
     }
     
+    /**
+     * Set the pde to be solved.
+     * 
+     * This method must be called before Solve()
+     */
+    void SetPde(AbstractLinearPde<SPACE_DIM>* pPde)
+    {
+        mpPde = pPde;
+    }
+    
+    /**
+     * Set the mesh.
+     * 
+     * This method must be called before Solve()
+     */
+    void SetMesh(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
+    {
+        mpMesh = pMesh;
+    }
+    
+    /**
+     * Set the boundary conditions.
+     * 
+     * This method must be called before Solve()
+     */
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM>* pBoundaryConditions)
+    {
+        mpBoundaryConditions = pBoundaryConditions;
+    }
+    
     
     /**
      * Delete any memory allocated by this class.
@@ -149,21 +179,6 @@ public:
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
     }
     
-    void SetPde(AbstractLinearPde<SPACE_DIM>* pPde)
-    {
-        mpPde = pPde;
-    }
-    
-    void SetMesh(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-    {
-        mpMesh = pMesh;
-    }
-    
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM>* pBoundaryConditions)
-    {
-        mpBoundaryConditions = pBoundaryConditions;
-    }
-        
 };
 
 #endif //_ABSTRACTASSEMBLER_HPP_

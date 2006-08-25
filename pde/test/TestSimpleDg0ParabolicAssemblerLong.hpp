@@ -135,6 +135,10 @@ public:
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
         
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
         
@@ -155,7 +159,7 @@ public:
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        Vec result = assembler.Solve();
         
         // Check result
         double *p_result;
@@ -201,6 +205,10 @@ public:
         
         // Assembler
         SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
+
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
         
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an
@@ -225,7 +233,7 @@ public:
         double t_end = 0.1;
         assembler.SetTimes(0, t_end, 0.001);
         assembler.SetInitialCondition(initial_condition);
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        Vec result = assembler.Solve();
         
         // Check result
         double *p_result;
@@ -286,6 +294,10 @@ public:
         // Assembler
         SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
         
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
+        
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
         
@@ -307,7 +319,7 @@ public:
         double t_end = 0.1;
         assembler.SetTimes(0, 0.1, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        Vec result = assembler.Solve();
         
         // Check result
         double *p_result;
@@ -395,6 +407,10 @@ public:
         
         // Assembler
         SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
+
+        assembler.SetMesh(&mesh);
+        assembler.SetPde(&pde);
+        assembler.SetBoundaryConditionsContainer(&bcc);
         
         // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -417,7 +433,7 @@ public:
         
         assembler.SetTimes(0, 0.1, 0.01);
         assembler.SetInitialCondition(initial_condition);
-        Vec result = assembler.Solve(mesh, &pde, bcc);
+        Vec result = assembler.Solve();
         
         // Check result
         double *p_result;

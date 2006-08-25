@@ -32,9 +32,10 @@ protected:
      */
     virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX)
     {
+        //AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
+
         return zero_matrix<double>(ELEMENT_DIM+1,ELEMENT_DIM+1);
     }
     
@@ -43,11 +44,12 @@ protected:
     */
     virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX,
         double u)
     {
-        return pPde->ComputeLinearSourceTerm(rX) * rPhi;
+        AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
+
+        return pde->ComputeLinearSourceTerm(rX) * rPhi;
     }
     
 public:

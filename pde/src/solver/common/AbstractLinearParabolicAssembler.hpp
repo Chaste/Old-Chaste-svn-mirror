@@ -77,12 +77,8 @@ public :
      * Solve a linear parabolic PDE over the time period specified with a call to
      * SetTimes and the initial conditions specified by a call to SetInitialCondition.
      * 
-     * @param rMesh The mesh to solve on.
-     * @param pPde A pointer to a PDE object specifying the equation to solve.
-     * @param rBoundaryConditions A collection of boundary conditions for this problem.
-     * @param pSolver A pointer to the linear solver to use to solve the system.
-     * @return A PETSc vector giving the solution after the final timestep at
-     *     each node in the mesh.
+     * SetMesh(), SetPde(), SetBoundaryConditionsContainer(), SetTimes() and 
+     * SetInitialCondition() must be called before Solve().
      */
     Vec Solve()
     {
@@ -93,18 +89,15 @@ public :
         assert(mTimesSet);
         assert(mInitialConditionSet);
         
-        //std::cout << "In solve method" << std::endl;
-        
         double t = mTstart;
         Vec currentSolution = mInitialCondition;
         Vec nextSolution;
         while ( t < mTend - 1e-10 )
         {
-            //std::cout << "t = " << t << std::endl << std::flush;
-            this->AssembleSystem(currentSolution, t); //mpMesh, mpPde, mpBoundaryConditions, currentSolution, t);
+            this->AssembleSystem(currentSolution, t);
+
             nextSolution = this->mpAssembledLinearSystem->Solve(this->mpSolver);
 
-            //std::cout << "Done AssembleSystem." << std::endl << std::flush;
             t += mDt;
             // Avoid memory leaks
             if (currentSolution != mInitialCondition)

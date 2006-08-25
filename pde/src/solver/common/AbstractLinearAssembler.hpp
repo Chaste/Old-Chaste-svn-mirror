@@ -14,8 +14,8 @@
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractBasisFunction.hpp"
-
-
+#include "AbstractLinearPde.hpp"
+#include "AbstractLinearParabolicPde.hpp"
 
 /**
  * Base class from which all solvers for linear PDEs inherit. It defines a common
@@ -28,8 +28,6 @@ class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SP
 
 protected:
     LinearSystem *mpAssembledLinearSystem;
-    
-    
     
     /**
      * mMatrixIsConstant is a flag to say whether the matrix of the system
@@ -53,7 +51,6 @@ protected:
      */
     virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX)=0;
         
     /**
@@ -61,7 +58,6 @@ protected:
     */
     virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX,
         double u)=0;
         
@@ -75,13 +71,11 @@ protected:
     * @param rBElem The element's contribution to the RHS vector is returned in this
     *     vector of length n, the no. of nodes in this element. There is no
     *     need to zero this vector before calling.
-    * @param pPde Pointer to the PDE object specifying the equation to solve.
     * @param currentSolution For the parabolic case, the solution at the current timestep.
     */
     void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1 > &rAElem,
                            c_vector<double, ELEMENT_DIM+1> &rBElem,
-                           AbstractLinearPde<SPACE_DIM> *pPde,
                            Vec currentSolution)
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
@@ -89,8 +83,6 @@ protected:
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
        
-   
-           
         /**
         * \todo This assumes that the Jacobian is constant on an element.
         * This is true for linear basis functions, but not for any other type of
@@ -107,7 +99,6 @@ protected:
         }
         
         rBElem.clear();
-        
         
         
         // Create converters for use inside loop below
@@ -149,7 +140,7 @@ protected:
                     // the work is done in PrepareForAssembleSystem
                     u  += phi(i)*this->mCurrentSolutionReplicated[ node_global_index ];
                 }
-                IncrementSourceTerm(phi(i), pPde, p_node, node_global_index);
+                IncrementSourceTerm(phi(i), p_node, node_global_index);
                 //sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
             
@@ -157,15 +148,17 @@ protected:
             
             if (!this->mMatrixIsAssembled)
             {
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pPde->ComputeDiffusionTerm(x);
+                AbstractLinearPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearPde<SPACE_DIM>*> (this->mpPde);
                 
-                noalias(rAElem) += 	ComputeExtraLhsTerm(phi, pPde, x)*wJ;
+                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(x);
+                
+                noalias(rAElem) += 	ComputeExtraLhsTerm(phi, x)*wJ;
                 
                 noalias(rAElem) += prod( trans(gradPhi),
                                          c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, gradPhi)) )* wJ;
             }
             
-            noalias(rBElem) += ComputeExtraRhsTerm(phi, pPde, x,  u) * wJ;
+            noalias(rBElem) += ComputeExtraRhsTerm(phi, x, u) * wJ;
         }
     }
     
@@ -179,14 +172,9 @@ protected:
      * @param rBsubElem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
-     * @param pPde Pointer to the PDE object specifying the equation to solve.
-     * @param rBoundaryConditions Container for boundary conditions for this
-     *     problem.
      */
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                          c_vector<double, ELEMENT_DIM> &rBsubElem,
-                                          AbstractLinearPde<SPACE_DIM> *pPde,
-                                          BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM>* pBoundaryConditions)
+                                          c_vector<double, ELEMENT_DIM> &rBsubElem)
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &rQuadRule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceQuadRule);
@@ -218,7 +206,7 @@ protected:
             /**
              * \todo Improve efficiency of Neumann BC implementation.
              */
-            c_vector<double, SPACE_DIM> Dgradu_dot_n = pBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
+            c_vector<double, SPACE_DIM> Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
             
             noalias(rBsubElem) += phi * Dgradu_dot_n(0) *jW;
         }
@@ -230,7 +218,6 @@ protected:
     
     
     virtual void IncrementSourceTerm(double phi_i,
-                                     AbstractLinearPde<SPACE_DIM>* pPde,
                                      const Node<SPACE_DIM> *pNode,
                                      int nodeGlobalIndex)
     {
@@ -287,22 +274,13 @@ public:
        */
     void InitialiseLinearSystem(int size)
     {
-    
         // Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem = new LinearSystem(size);
-        
     }
     
     /**
-    * Assemble the linear system for a linear elliptic PDE and solve it.
-    * 
-    * @param rMesh The mesh to solve on.
-    * @param pPde A pointer to a PDE object specifying the equation to solve.
-    * @param rBoundaryConditions A collection of boundary conditions for this problem.
-    * @param pSolver A pointer to the linear solver to use to solve the system.
-    * @param currentSolution For the parabolic case, the solution at the current timestep.
-    * @return A PETSc vector giving the solution at each node in the mesh.
-    */
+     * Assemble the linear system for a linear elliptic PDE and solve it.
+     */
     virtual void AssembleSystem(Vec currentSolution = NULL, double currentTime=0.0)
     {
         // Replicate the current solution and store so can be used in 
@@ -351,7 +329,7 @@ public:
         {
             Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
             
-            AssembleOnElement(element, rAElem, rBElem, this->mpPde, currentSolution);
+            AssembleOnElement(element, rAElem, rBElem, currentSolution);
             
             for (int i=0; i<num_nodes; i++)
             {
@@ -388,7 +366,7 @@ public:
                  */
                 if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                 {
-                    AssembleOnSurfaceElement(surf_element, b_surf_elem, this->mpPde, this->mpBoundaryConditions);
+                    AssembleOnSurfaceElement(surf_element, b_surf_elem);
                     
                     for (int i=0; i<num_surf_nodes; i++)
                     {
@@ -423,10 +401,8 @@ public:
     }
     
     
-    virtual Vec Solve()=0;//ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> &rMesh,
-                      //AbstractLinearPde<SPACE_DIM> *pPde,
-                      //BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> &rBoundaryConditions)=0;
-              
+    virtual Vec Solve()=0;
+
     /**
     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
     */
@@ -444,7 +420,6 @@ public:
         mpAssembledLinearSystem->DisplayRhs();
         std::cout<<"\n\nWS: This is the solution>>>>>>>>>>>>>\n";
         VecView(sol, PETSC_VIEWER_STDOUT_WORLD);
-        
     }
 
     void Debug()

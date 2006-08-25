@@ -13,6 +13,7 @@
 #include "AbstractLinearPde.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
+#include "MonodomainPde.hpp"
 
 
 //delete this
@@ -26,23 +27,20 @@ private:
     
 protected:
 
-
     /**
      * Compute extra RHS term
      * because pde is parabolic
      */
     virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
-        AbstractLinearPde<SPACE_DIM> *pPde,
         Point<SPACE_DIM> &rX,
         double u)
     {
+        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
+        
         return  rPhi * (mSourceTerm + this->mDtInverse *
-                        pPde->ComputeDuDtCoefficientFunction(rX) * u);
-    }
-    
-    
-    
+                        pde->ComputeDuDtCoefficientFunction(rX) * u);
+    }    
     
     
     void ResetSourceTerm( void )
@@ -52,11 +50,12 @@ protected:
     
     
     void IncrementSourceTerm(double phi_i,
-                             AbstractLinearPde<SPACE_DIM>* pPde,
                              const Node<SPACE_DIM> *pNode,
                              int nodeGlobalIndex)
     {
-        mSourceTerm += phi_i*pPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ nodeGlobalIndex ] );
+        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
+
+        mSourceTerm += phi_i*pde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ nodeGlobalIndex ] );
     }
     
     

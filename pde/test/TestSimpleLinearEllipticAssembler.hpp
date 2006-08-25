@@ -32,7 +32,8 @@ public:
         c_vector<double, 2> bel;
         SimpleLinearEllipticAssembler<1,1> assembler(NULL);
         
-        assembler.AssembleOnElement(element, ael, bel, &pde, false);
+        assembler.SetPde(&pde);
+        assembler.AssembleOnElement(element, ael, bel, false);
         
         TS_ASSERT_DELTA(ael(0,0),0.5, 1e-12);
         TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
@@ -60,7 +61,8 @@ public:
         c_vector<double, 3> bel;
         
         SimpleLinearEllipticAssembler<2,2> assembler(NULL);
-        assembler.AssembleOnElement(element, ael, bel,  &pde, false);
+        assembler.SetPde(&pde);
+        assembler.AssembleOnElement(element, ael, bel, false);
         
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
         TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
@@ -97,7 +99,9 @@ public:
         c_vector<double, 3> bel;
         
         SimpleLinearEllipticAssembler<2,2> assembler(NULL);
-        assembler.AssembleOnElement(element, ael, bel, &pde, false);
+        assembler.SetPde(&pde);
+        
+        assembler.AssembleOnElement(element, ael, bel, false);
         
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
         TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
