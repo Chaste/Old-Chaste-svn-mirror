@@ -20,7 +20,7 @@
  * from the abstract base classes.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
+class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
 private:
 
@@ -57,13 +57,13 @@ public:
      * Constructors just call the base class versions.
      */
     SimpleLinearEllipticAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
+            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pSolver, numQuadPoints)
     {}
     SimpleLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                   AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                   AbstractLinearSolver *pSolver,
                                   int numQuadPoints = 2) :
-            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {}
     
 };

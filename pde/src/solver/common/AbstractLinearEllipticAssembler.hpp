@@ -19,8 +19,8 @@
 #include "AbstractLinearEllipticPde.hpp"
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
+class AbstractLinearEllipticAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>
 {
 
 public:
@@ -29,13 +29,13 @@ public:
      * Constructors just call the base class versions.
      */
     AbstractLinearEllipticAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pSolver, numQuadPoints)
     {}
     AbstractLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                     AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                     AbstractLinearSolver *pSolver,
                                     int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {}
     
     /** 

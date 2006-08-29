@@ -192,9 +192,9 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
     vector<double> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
-        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceBasisFunction);
+        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::mpSurfaceBasisFunction);
     GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
-        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceQuadRule);
+        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::mpSurfaceQuadRule);
         
     double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
     
@@ -243,9 +243,9 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
     c_vector<double, ELEMENT_DIM+1> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::mpBasisFunction);
     GaussianQuadratureRule<ELEMENT_DIM> *pQuadRule =
-        AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule;
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::mpQuadRule;
         
     const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = rElement.GetInverseJacobian();
     double jacobian_determinant = rElement.GetJacobianDeterminant();
@@ -535,9 +535,9 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
     vector<double> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+        *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::mpBasisFunction);
     GaussianQuadratureRule<ELEMENT_DIM> *pQuadRule =
-        AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule;
+        AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>::mpQuadRule;
         
     const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = rElement.GetInverseJacobian();
     double jacobian_determinant = rElement.GetJacobianDeterminant();

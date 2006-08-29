@@ -18,8 +18,8 @@
 #include "AbstractLinearParabolicPde.hpp"
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractLinearParabolicAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
+class AbstractLinearParabolicAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>
 {
 protected :
     double mTstart;
@@ -36,13 +36,13 @@ public :
      * Constructors just call the base class versions.
      */
     AbstractLinearParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pSolver, numQuadPoints)
     {}
     AbstractLinearParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                      AbstractLinearSolver *pSolver,
                                      int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {}
     
     void SetTimes(double Tstart, double Tend, double dt)
@@ -84,7 +84,10 @@ public :
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpPde!=NULL);
-        assert(this->mpBoundaryConditions!=NULL);
+        
+///\todo: bring this assertion back (currently removed as bidomain assembler doesn't
+// use a bcc        
+//        assert(this->mpBoundaryConditions!=NULL);
         
         assert(mTimesSet);
         assert(mInitialConditionSet);

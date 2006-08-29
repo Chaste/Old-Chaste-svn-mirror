@@ -11,47 +11,27 @@
 #include "BidomainPde.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "AbstractAssembler.hpp"
+#include "AbstractLinearParabolicAssembler.hpp"
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class BidomainDg0Assembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM>
+class BidomainDg0Assembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:
-    // pde
-    BidomainPde<SPACE_DIM>* mpBidomainPde;
-    
-    // linear system and solver
-    LinearSystem* mpAssembledLinearSystem;
-    AbstractLinearSolver* mpSolver;
-    bool mMatrixIsAssembled;
-    
-    // mesh
-    ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
-    
-    // times
-    double mTstart;
-    double mTend;
-    double mDt;
-    bool   mTimesSet;
-    
-    // initial condition
-    Vec  mInitialCondition;
-    bool mInitialConditionSet;
     
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
-    
     void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2>& rAElem,
-                           c_vector<double, 2*ELEMENT_DIM+2>& rBElem)
+                           c_vector<double, 2*ELEMENT_DIM+2>& rBElem,
+                           Vec currentSolution)
     {
-        
+        BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*>(this->mpPde);
         
         if(rElement.GetOwnershipSet()==false)
         {
             int mLo, mHi;
-            mpAssembledLinearSystem->GetOwnershipRange(mLo,mHi);
+            this->mpAssembledLinearSystem->GetOwnershipRange(mLo,mHi);
             
             for (int i=0; i< rElement.GetNumNodes(); i++)
             {
@@ -70,15 +50,15 @@ private:
         
         
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>::mpBasisFunction);
             
         const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
-        if (!mMatrixIsAssembled)
+        if (!this->mMatrixIsAssembled)
         {
             inverseJacobian = rElement.GetInverseJacobian();
             rAElem.clear();
@@ -102,7 +82,7 @@ private:
             c_vector<double, ELEMENT_DIM+1> basis_func = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>  grad_basis;
             
-            if (!mMatrixIsAssembled)
+            if (!this->mMatrixIsAssembled)
             {
                 grad_basis = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
                              (quad_point, *inverseJacobian);
@@ -130,24 +110,24 @@ private:
                 
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 
-                Vm           += basis_func(i)*this->mCurrentSolutionReplicated[ 2*node_global_index ];
-                I_ionic      += basis_func(i)*mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
-                I_intra_stim += basis_func(i)*mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
-                I_extra_stim += basis_func(i)*mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
+                Vm           += basis_func(i) * this->mCurrentSolutionReplicated[ 2*node_global_index ];
+                I_ionic      += basis_func(i) * pde->GetIionicCacheReplicated()[ node_global_index ];
+                I_intra_stim += basis_func(i) * pde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
+                I_extra_stim += basis_func(i) * pde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
             }
             
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             
             // get bidomain parameters
-            double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
-            double Cm = mpBidomainPde->GetCapacitance();
+            double Am = pde->GetSurfaceAreaToVolumeRatio();
+            double Cm = pde->GetCapacitance();
             
-            c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = mpBidomainPde->GetIntracellularConductivityTensor();
-            c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = mpBidomainPde->GetExtracellularConductivityTensor();
+            c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = pde->GetIntracellularConductivityTensor();
+            c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = pde->GetExtracellularConductivityTensor();
             
             
             // assemble element stiffness matrix
-            if (!mMatrixIsAssembled)
+            if (!this->mMatrixIsAssembled)
             {
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, grad_basis);
                 c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
@@ -177,7 +157,7 @@ private:
                 // even rows, even columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                 rAElem_slice00(rAElem, slice (0, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
-                rAElem_slice00 += wJ*( (Am*Cm/mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi );
+                rAElem_slice00 += wJ*( (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi );
                 
                 // odd rows, even columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
@@ -199,86 +179,27 @@ private:
             vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_V  (rBElem, slice (0, 2, num_elem_nodes));
             vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_Phi(rBElem, slice (1, 2, num_elem_nodes));
             
-            rBElem_slice_V   += wJ*( (Am*Cm*Vm/mDt - Am*I_ionic - I_intra_stim) * basis_func );
+            rBElem_slice_V   += wJ*( (Am*Cm*Vm/this->mDt - Am*I_ionic - I_intra_stim) * basis_func );
             rBElem_slice_Phi += wJ*( -I_extra_stim * basis_func );
         }
     }
     
     
     
-    void AssembleSystem(Vec currentSolution, double currentTime)
+    
+    virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
     {
-        // Replicate the current solution and store so can be used in 
-        // AssembleOnElement
-        if(currentSolution != NULL)
-        {
-            this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
-        }
-        
-        // Allow the PDE to set up anything necessary for the assembly of the
-        // solution (ie solve the ODEs)
-        mpBidomainPde->PrepareForAssembleSystem(currentSolution, currentTime);
-        
-        if (mMatrixIsAssembled)
-        {
-            mpAssembledLinearSystem->ZeroRhsVector();
-        }
-        else
-        {
-            mpAssembledLinearSystem->ZeroLinearSystem();
-        }
-        
-        // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
-            mpMesh->GetElementIteratorBegin();
-            
-            
-        // assumes elements all have same number of nodes
-        const int num_elem_nodes = (*iter)->GetNumNodes();
-        
-        
-        c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> a_elem;
-        c_vector<double, 2*ELEMENT_DIM+2> b_elem;
-        
-        while (iter != mpMesh->GetElementIteratorEnd())
-        {
-            Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
-            
-            AssembleOnElement(element, a_elem, b_elem);
-            
-            for (int i=0; i<num_elem_nodes; i++)
-            {
-                int node1 = element.GetNodeGlobalIndex(i);
-                
-                if (!mMatrixIsAssembled)
-                {
-                    for (int j=0; j<num_elem_nodes; j++)
-                    {
-                        int node2 = element.GetNodeGlobalIndex(j);
-                        
-                        mpAssembledLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
-                        mpAssembledLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
-                        mpAssembledLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
-                        mpAssembledLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
-                    }
-                }
-                
-                mpAssembledLinearSystem->AddToRhsVectorElement(2*node1,   b_elem(2*i));
-                mpAssembledLinearSystem->AddToRhsVectorElement(2*node1+1, b_elem(2*i+1));
-            }
-            iter++;
-        }
-        
-        
         // if there are no fixed nodes, and the matrix is not assembled, then set up the null
         // basis.
-        if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mMatrixIsAssembled) )
+        if ( (mFixedExtracellularPotentialNodes.size()==0) && (!this->mMatrixIsAssembled) )
         {
             //create null space for matrix and pass to linear system
             Vec nullbasis[1];
             unsigned lo, hi;
-            mpBidomainPde->GetOwnershipRange(lo, hi);
-            VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*mpMesh->GetNumNodes(), &nullbasis[0]);
+            
+            BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*>(this->mpPde);
+            pde->GetOwnershipRange(lo, hi);
+            VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*this->mpMesh->GetNumNodes(), &nullbasis[0]);
             double* p_nullbasis;
             VecGetArray(nullbasis[0], &p_nullbasis);
             
@@ -292,23 +213,11 @@ private:
             VecAssemblyBegin(nullbasis[0]);
             VecAssemblyEnd(nullbasis[0]);
             
-            mpAssembledLinearSystem->SetNullBasis(nullbasis, 1);
+            this->mpAssembledLinearSystem->SetNullBasis(nullbasis, 1);
             
             
             VecDestroy(nullbasis[0]);
         }
-        
-        if (mMatrixIsAssembled)
-        {
-            mpAssembledLinearSystem->AssembleRhsVector();
-        }
-        else
-        {
-            mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
-        }
-        
-        // NOTE: no need to loop over surface elems to apply neumann bcs here, because
-        // the neumann bcs are zero
         
         // apply dirichlet boundary conditions (phi_e at these nodes fixed to zero)
         // if any fixed nodes have been set
@@ -317,44 +226,25 @@ private:
             for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
             {
                 int node_num = mFixedExtracellularPotentialNodes[i];
-                if (!mMatrixIsAssembled)
+                if (!this->mMatrixIsAssembled)
                 {
-                    mpAssembledLinearSystem->ZeroMatrixRow   ( 2*node_num + 1 );
-                    mpAssembledLinearSystem->SetMatrixElement( 2*node_num + 1, 2*node_num + 1, 1);
+                    this->mpAssembledLinearSystem->ZeroMatrixRow   ( 2*node_num + 1 );
+                    this->mpAssembledLinearSystem->SetMatrixElement( 2*node_num + 1, 2*node_num + 1, 1);
                 }
-                mpAssembledLinearSystem->SetRhsVectorElement ( 2*node_num + 1, 0);
+                this->mpAssembledLinearSystem->SetRhsVectorElement ( 2*node_num + 1, 0);
             }
         }
-        
-        if (mMatrixIsAssembled)
-        {
-            mpAssembledLinearSystem->AssembleRhsVector();
-        }
-        else
-        {
-            mpAssembledLinearSystem->AssembleFinalLinearSystem();
-        }
-        
-        mMatrixIsAssembled = true;
-        
-        // write matrix and rhs vector
-        // mpAssembledLinearSystem->WriteLinearSystem("mat.txt", "rhs.txt");
     }
     
     
 public:
-    BidomainDg0Assembler(BidomainPde<SPACE_DIM>* pBidomainPde,
-                         ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh,
-                         AbstractLinearSolver* pLinearSolver,
-                         int numQuadPoints = 2)
-            : AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints),
-            mpAssembledLinearSystem(NULL)
+    BidomainDg0Assembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,2>(pSolver, numQuadPoints)            
     {
-        mpBidomainPde = pBidomainPde;
-        mpMesh = pMesh;
-        mpSolver = pLinearSolver;
-        
-        mMatrixIsAssembled = false;
+        this->mpAssembledLinearSystem = NULL;
+        this->mpSolver = pSolver;
+        this->mMatrixIsAssembled = false;
+        this->mMatrixIsConstant = true;
         
         mFixedExtracellularPotentialNodes.resize(0);
     }
@@ -362,13 +252,12 @@ public:
     
     ~BidomainDg0Assembler()
     {
-        if (mpAssembledLinearSystem != NULL)
+        if (this->mpAssembledLinearSystem != NULL)
         {
-            delete mpAssembledLinearSystem;
-            mpAssembledLinearSystem = NULL;
+            delete this->mpAssembledLinearSystem;
+            this->mpAssembledLinearSystem = NULL;
         }
     }
-    
     
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to 
@@ -385,7 +274,7 @@ public:
         assert(fixedExtracellularPotentialNodes.size() > 0);
         for (unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)
         {
-            if ( (int) fixedExtracellularPotentialNodes[i] >= mpMesh->GetNumNodes() )
+            if ( (int) fixedExtracellularPotentialNodes[i] >= this->mpMesh->GetNumNodes() )
             {
                 EXCEPTION("Fixed node number must be less than total number nodes");
             }
@@ -393,69 +282,28 @@ public:
         mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
     }
     
-    // identical to SetTimes in SimpleDg0ParabolicAssembler
-    void SetTimes(double Tstart, double Tend, double dT)
+    
+    #define COVERAGE_IGNORE
+    // this shouldn't be called but has to be implemented - issue with the 
+    // AssembleOnElement() method 
+    c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        Point<SPACE_DIM> &rX)
     {
-        mTstart = Tstart;
-        mTend   = Tend;
-        mDt     = dT;
-        
-        assert(mTstart < mTend);
-        assert(mDt > 0);
-        assert(mDt <= mTend - mTstart + 1e-12);
-        
-        mTimesSet = true;
-    }
+        return zero_matrix<double>(ELEMENT_DIM+1);
+    }    
+
     
-    
-    // identical to SetInitialCondition in SimpleDg0ParabolicAssembler
-    void SetInitialCondition(Vec initCondition)
+    // this shouldn't be called but has to be implemented - issue with the 
+    // AssembleOnElement() method
+    c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        Point<SPACE_DIM> &rX,
+        double u)
     {
-        /// \todo: check initCondition is the correct size, & do the same in other assemblers
-        mInitialCondition = initCondition;
-        mInitialConditionSet = true;
-        
-        if (mpAssembledLinearSystem == NULL)
-        {
-            mpAssembledLinearSystem = new LinearSystem(initCondition);
-        }
+        return zero_vector<double>(ELEMENT_DIM+1);
     }
-    
-    
-    // very similar to Solve in SimpleDg0ParabolicAssembler.
-    // (this doesn't take in any arguments however, and also the AssembleSystem
-    // method in this assembler class does not call Solve() on the linear system,
-    // instead it is done here).
-    Vec Solve()
-    {
-        assert(mTimesSet);
-        assert(mInitialConditionSet);
-        
-        double t = mTstart;
-        
-        Vec current_solution = mInitialCondition;
-        Vec next_solution;
-        while ( t < mTend - 1e-10 )
-        {
-            AssembleSystem(current_solution, t);
-            
-            // std::cout << "solving at t="<< t << "\n" <<std::flush;
-            next_solution = mpAssembledLinearSystem->Solve(mpSolver);
-            
-            t += mDt;
-            
-            if (current_solution != mInitialCondition)
-            {
-                VecDestroy(current_solution);
-            }
-            current_solution = next_solution;
-        }
-        
-        return current_solution;
-    }
+    #undef COVERAGE_IGNORE
+
 };
-
-
-
-
 #endif /*_BIDOMAINDG0ASSEMBLER_HPP_*/

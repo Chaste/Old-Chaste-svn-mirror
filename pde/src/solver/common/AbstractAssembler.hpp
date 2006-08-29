@@ -5,15 +5,8 @@
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractPde.hpp"
-#include "AbstractLinearPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
-
-//\todo: move this (and below) to somewhere like AbstractLinearAssembler when BidomainDg0Assembler
-// is correctly wired up
-#include "ReplicatableVector.hpp"
-
-
 
 
 /**
@@ -22,18 +15,10 @@
  * Currently this provides methods for selecting what type of basis function to
  * use, and how many quadrature points per dimension.
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
 class AbstractAssembler
 {
 protected:
-
-    //\todo: move this (and above) to somewhere like AbstractDynamicProblemAssembler when BidomainDg0Assembler
-    // is correctly wired up
-    ReplicatableVector mCurrentSolutionReplicated;
-    
-    /*< User calls a method to set this, so that the assembler
-     *  knows whether to build the matrix at every step */
-    
     bool mWeAllocatedBasisFunctionMemory;
     
     AbstractPde* mpPde;
@@ -135,7 +120,7 @@ public:
      * 
      * This method must be called before Solve()
      */
-    void SetPde(AbstractLinearPde<SPACE_DIM>* pPde)
+    void SetPde(AbstractPde* pPde)
     {
         mpPde = pPde;
     }
@@ -178,7 +163,6 @@ public:
         if (mpQuadRule) delete mpQuadRule;
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
     }
-    
 };
 
 #endif //_ABSTRACTASSEMBLER_HPP_

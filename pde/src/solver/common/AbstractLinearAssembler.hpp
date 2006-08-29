@@ -16,14 +16,15 @@
 #include "AbstractBasisFunction.hpp"
 #include "AbstractLinearPde.hpp"
 #include "AbstractLinearParabolicPde.hpp"
+#include "ReplicatableVector.hpp"
 
 /**
  * Base class from which all solvers for linear PDEs inherit. It defines a common
  * interface and (hopefully) sensible default code for AssembleAndSolveSystem,
  * AssembleOnElement and AssembleOnSurfaceElement.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
+class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM, NUM_UNKNOWNS>
 {
 
 protected:
@@ -45,6 +46,11 @@ protected:
      */
     AbstractLinearSolver *mpSolver;
     
+    /** 
+     * The current solution as a replicated vector. NULL for a static problem
+     */ 
+    ReplicatableVector mCurrentSolutionReplicated;
+
     /**
      * Compute the factor on the LHS of the linear system that depends on the type
      * of PDE.
@@ -73,15 +79,18 @@ protected:
     *     need to zero this vector before calling.
     * @param currentSolution For the parabolic case, the solution at the current timestep.
     */
-    void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                           c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1 > &rAElem,
-                           c_vector<double, ELEMENT_DIM+1> &rBElem,
+    virtual void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+                           c_matrix<double, NUM_UNKNOWNS*(ELEMENT_DIM+1), NUM_UNKNOWNS*(ELEMENT_DIM+1) > &rAElem,
+                           c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> &rBElem,
                            Vec currentSolution)
     {
-        GaussianQuadratureRule<ELEMENT_DIM> &quad_rule =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpQuadRule);
+        assert(NUM_UNKNOWNS==1);
+
+        GaussianQuadratureRule<ELEMENT_DIM> &quad_rule = 
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpBasisFunction);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpBasisFunction);
+
        
         /**
         * \todo This assumes that the Jacobian is constant on an element.
@@ -134,7 +143,7 @@ protected:
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (currentSolution)
                 {
-                    // If we have a current solution (e.g. this is a parabolic PDE)
+                    // If we have a current solution (e.g. this is a dynamic problem)
                     // get the value in a usable form.
                     // NOTE - currentSolution input is actually now redundant at this point,
                     // the work is done in PrepareForAssembleSystem
@@ -176,18 +185,18 @@ protected:
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
                                           c_vector<double, ELEMENT_DIM> &rBsubElem)
     {
-        GaussianQuadratureRule<ELEMENT_DIM-1> &rQuadRule =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceQuadRule);
+        GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpSurfaceQuadRule);
         AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM>::mpSurfaceBasisFunction);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpSurfaceBasisFunction);
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         
         rBsubElem.clear();
         
-        for (int quad_index=0; quad_index<rQuadRule.GetNumQuadPoints(); quad_index++)
+        for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            Point<ELEMENT_DIM-1> quad_point=rQuadRule.GetQuadPoint(quad_index);
+            Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
             
             c_vector<double, ELEMENT_DIM+1>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             
@@ -202,7 +211,7 @@ protected:
                 }
             }
             
-            double jW = jacobian_determinant * rQuadRule.GetWeight(quad_index);
+            double jW = jacobian_determinant * quad_rule.GetWeight(quad_index);
             /**
              * \todo Improve efficiency of Neumann BC implementation.
              */
@@ -228,7 +237,7 @@ public:
     * Constructors just call the base class versions.
     */
     AbstractLinearAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
     {
         mpSolver = pSolver;
         mpAssembledLinearSystem = NULL;
@@ -240,7 +249,7 @@ public:
                             AbstractLinearSolver *pSolver,
                             int numQuadPoints = 2) :
                             
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = pSolver;
         mpAssembledLinearSystem = NULL;
@@ -272,16 +281,23 @@ public:
        * Initialise the LinearSystem class to a given size
        * @param size The size of the LinearSystem (number of nodes in the mesh)
        */
-    void InitialiseLinearSystem(int size)
+    void InitialiseLinearSystem(unsigned size)
     {
         // Linear system in n unknowns, where n=#nodes
         mpAssembledLinearSystem = new LinearSystem(size);
     }
     
+    
     /**
-     * Assemble the linear system for a linear elliptic PDE and solve it.
+     *  Assemble the linear system for a linear PDE. Takes in current solution and
+     *  time if necessary but only used if the problem is a dynamic one. This method
+     *  uses NUM_UNKNOWNS and can assemble linear systems for any number of unknown 
+     *  variables.
+     * 
+     *  Called by Solve()
+     *  Calls AssembleOnElement()
      */
-    virtual void AssembleSystem(Vec currentSolution = NULL, double currentTime=0.0)
+    virtual void AssembleSystem(Vec currentSolution=NULL, double currentTime=0.0)
     {
         // Replicate the current solution and store so can be used in 
         // AssembleOnElement
@@ -290,18 +306,18 @@ public:
             this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
         }
 
-        /* Allow the PDE to set up anything necessary for the assembly of the
-         * solution (eg. if it's a coupled system, then solve the ODEs)
-         */
+        // Allow the PDE to set up anything necessary for the assembly of the
+        // solution (eg. if it's a coupled system, then solve the ODEs)
         this->mpPde->PrepareForAssembleSystem(currentSolution, currentTime);
 
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
         // << std::endl;elem
         // ^ gives the same in parallel
-        
+
         if (mpAssembledLinearSystem == NULL)
         {
-            InitialiseLinearSystem(this->mpMesh->GetNumNodes());
+            unsigned size = NUM_UNKNOWNS * this->mpMesh->GetNumNodes();
+            InitialiseLinearSystem(size);
             mMatrixIsAssembled = false;
         }
         else
@@ -320,63 +336,88 @@ public:
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
             this->mpMesh->GetElementIteratorBegin();
+            
         // Assume all elements have the same number of nodes...
-        const int num_nodes = (*iter)->GetNumNodes();
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> rAElem;
-        c_vector<double, ELEMENT_DIM+1> rBElem;
-        
+        const int num_elem_nodes = (*iter)->GetNumNodes();
+        c_matrix<double, NUM_UNKNOWNS*(ELEMENT_DIM+1), NUM_UNKNOWNS*(ELEMENT_DIM+1)> a_elem;
+        c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> b_elem;
+
         while (iter != this->mpMesh->GetElementIteratorEnd())
         {
             Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
             
-            AssembleOnElement(element, rAElem, rBElem, currentSolution);
+            AssembleOnElement(element, a_elem, b_elem, currentSolution);
             
-            for (int i=0; i<num_nodes; i++)
+            for (int i=0; i<num_elem_nodes; i++)
             {
                 int node1 = element.GetNodeGlobalIndex(i);
                 
                 if (!mMatrixIsAssembled)
                 {
-                    for (int j=0; j<num_nodes; j++)
+                    for (int j=0; j<num_elem_nodes; j++)
                     {
                         int node2 = element.GetNodeGlobalIndex(j);
-                        mpAssembledLinearSystem->AddToMatrixElement(node1,node2,rAElem(i,j));
+                        
+                        for(int k=0; k<NUM_UNKNOWNS; k++)
+                        {
+                            for(int m=0; m<NUM_UNKNOWNS; m++)
+                            {
+                                /* 
+                                 * the following expands to, for (eg) the case of two unknowns
+                                 * mpAssembledLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
+                                 * mpAssembledLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
+                                 * mpAssembledLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
+                                 * mpAssembledLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
+                                 */ 
+ 
+                                mpAssembledLinearSystem->AddToMatrixElement( NUM_UNKNOWNS*node1+k,
+                                                                             NUM_UNKNOWNS*node2+m,
+                                                                             a_elem(NUM_UNKNOWNS*i+k,NUM_UNKNOWNS*j+m) );
+                            }
+                        }
                     }
                 }
-                
-                mpAssembledLinearSystem->AddToRhsVectorElement(node1,rBElem(i));
+
+                for(int k=0; k<NUM_UNKNOWNS; k++)
+                {
+                    mpAssembledLinearSystem->AddToRhsVectorElement(NUM_UNKNOWNS*node1+k,b_elem(NUM_UNKNOWNS*i+k));
+                }
             }
             iter++;
         }
+
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
-        
-        if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+
+        if(this->mpBoundaryConditions!=NULL) // temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
         {
-            const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-            c_vector<double, ELEMENT_DIM> b_surf_elem;
-            
-            while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+            if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
-                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+                const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+                c_vector<double, ELEMENT_DIM> b_surf_elem;
                 
-                /**
-                 * \todo
-                 * Check surf_element is in the Neumann surface in an efficient manner.
-                 */
-                if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
+                while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
                 {
-                    AssembleOnSurfaceElement(surf_element, b_surf_elem);
-                    
-                    for (int i=0; i<num_surf_nodes; i++)
+                    const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+                    /**
+                     * \todo
+                     * Check surf_element is in the Neumann surface in an efficient manner.
+                     */
+                    if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                     {
-                        int node1 = surf_element.GetNodeGlobalIndex(i);
-                        mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+                        AssembleOnSurfaceElement(surf_element, b_surf_elem);
+
+                        for (int i=0; i<num_surf_nodes; i++)
+                        {
+                            int node1 = surf_element.GetNodeGlobalIndex(i);
+                            mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+                        }
                     }
+                    surf_iter++;
                 }
-                surf_iter++;
             }
         }
+
         if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
@@ -385,8 +426,15 @@ public:
         {
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
+        
         // Apply dirichlet boundary conditions
-        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
+        if(this->mpBoundaryConditions)// temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
+        {
+            this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
+        }
+        
+        // the assembler can set bcs here instead (see bidomain assembler)
+        FinaliseAssembleSystem(currentSolution, currentTime);
         
         if (mMatrixIsAssembled)
         {
@@ -396,10 +444,15 @@ public:
         {
             mpAssembledLinearSystem->AssembleFinalLinearSystem();
         }
-        
+
         mMatrixIsAssembled = true;
     }
     
+    /** 
+     *  This method is called at the end of AssembleSystem() and should be overloaded
+     *  in the concrete assembler class if there is any further work to be done
+     */
+    virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime) {}
     
     virtual Vec Solve()=0;
 

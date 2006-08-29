@@ -15,7 +15,7 @@
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
+class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
 protected:
     
@@ -54,7 +54,7 @@ public:
      * for work.
      */
     SimpleDg0ParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
+            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pSolver, numQuadPoints)
     {
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
@@ -64,7 +64,7 @@ public:
                                 AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                 AbstractLinearSolver *pSolver,
                                 int numQuadPoints = 2) :
-            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
     {
         this->mTimesSet = false;
         this->mInitialConditionSet = false;

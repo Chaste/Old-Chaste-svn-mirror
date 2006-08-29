@@ -124,7 +124,11 @@ public:
         SimpleLinearSolver linear_solver;
         
         // Assembler
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(mpBidomainPde, &mMesh, &linear_solver);
+        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(&linear_solver);
+        bidomain_assembler.SetMesh(&mMesh);
+        bidomain_assembler.SetPde(mpBidomainPde);
+//        bidomain_assembler.SetBoundaryConditionsContainer(&bcc);
+
         if (mFixedExtracellularPotentialNodes.size()>0)
         {
             bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
