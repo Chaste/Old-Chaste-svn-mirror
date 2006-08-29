@@ -7,14 +7,13 @@
 #include <petscvec.h>
 
 #include "LinearSystem.hpp"
-#include "AbstractLinearPde.hpp"
+#include "AbstractLinearEllipticPde.hpp"
 #include "AbstractAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractBasisFunction.hpp"
-#include "AbstractLinearPde.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -84,7 +83,10 @@ protected:
                            c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> &rBElem,
                            Vec currentSolution)
     {
-        assert(NUM_UNKNOWNS==1);
+        // this AssembleOnElement method (currently?) only works with 1 unknown.
+        // AssembleOnElement should be overloaded in the appropriate assembler
+        // if the number of unknowns is greater than 1
+        assert(NUM_UNKNOWNS==1); 
 
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule = 
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpQuadRule);
@@ -157,7 +159,7 @@ protected:
             
             if (!this->mMatrixIsAssembled)
             {
-                AbstractLinearPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearPde<SPACE_DIM>*> (this->mpPde);
+                AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*> (this->mpPde);
                 
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(x);
                 
@@ -185,6 +187,11 @@ protected:
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
                                           c_vector<double, ELEMENT_DIM> &rBsubElem)
     {
+        // this AssembleOnElement method (currently?) only works with 1 unknown.
+        // AssembleOnElement should be overloaded in the appropriate assembler
+        // if the number of unknowns is greater than 1
+        assert(NUM_UNKNOWNS==1); 
+
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpSurfaceQuadRule);
         AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =

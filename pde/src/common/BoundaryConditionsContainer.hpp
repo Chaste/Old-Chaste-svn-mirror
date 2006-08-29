@@ -18,7 +18,7 @@
  * neumann boundary conditions.
  *
  * \todo
- * Various operations are currently very inefficient - there is certainly cope for
+ * Various operations are currently very inefficient - there is certainly scope for
  * optimisation here!
  */
 template<int SPACE_DIM>
@@ -141,7 +141,7 @@ public:
      * @param pBoundaryElement Pointer to an element on the boundary.
      * @param pBoundaryCondition Pointer to the neumann boundary condition on that element.
      */
-    void AddNeumannBoundaryCondition( const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *       pBoundaryElement,
+    void AddNeumannBoundaryCondition( const BoundaryElement<ELEM_DIM-1, SPACE_DIM> * pBoundaryElement,
                                       const AbstractBoundaryCondition<SPACE_DIM> * pBoundaryCondition)
     {
         // check the size of the vector the BC returns is consistent with the number of dependent variables

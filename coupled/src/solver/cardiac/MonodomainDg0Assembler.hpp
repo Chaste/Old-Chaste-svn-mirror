@@ -10,7 +10,6 @@
 #include "AbstractAssembler.hpp"
 #include "AbstractLinearAssembler.hpp"
 #include "SimpleDg0ParabolicAssembler.hpp"
-#include "AbstractLinearPde.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "MonodomainPde.hpp"
