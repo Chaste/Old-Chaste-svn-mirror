@@ -36,7 +36,7 @@ def index(req):
 """)
 
   # Look for the latest revision present.
-  type = 'continuous-cancer-06'
+  type = 'continuous'
   revisions = os.listdir(os.path.join(_tests_dir, type))
   revision = str(max(itertools.imap(int, revisions)))
   # Display summary of each machine & build type combination for this revision
