@@ -141,8 +141,7 @@ protected:
                 // interpolate x
                 for (int j=0; j<SPACE_DIM; j++)
                 {
-                     x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
-                    //x.rGetLocation() += phi * node_loc[j];                    
+                    x.rGetLocation()[j] += phi(i)*node_loc[j];
                 }
                 
                 // interpolate u
@@ -325,8 +324,6 @@ public:
         // AssembleOnElement
         if(currentSolution != NULL)
         {
-            int size;
-            VecGetSize(currentSolution,&size);
             this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
         }
 
@@ -415,6 +412,7 @@ public:
 
         if(this->mpBoundaryConditions!=NULL) // temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
         {
+            // the following is not true of Bidomain or Monodomain
             if(this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
             {
                 //! remove this when no longer needed
@@ -449,7 +447,10 @@ public:
         }
         else
         {
+            // all problems with 1 unknown should have a boundary conditions container
+            // defined.
             assert(NUM_UNKNOWNS != 1);
+
             // add code here to allow an assembler to call some function to add 
             // neumann type conditions that don't fit into the 
             // BoundaryConditionsContainer architecture?

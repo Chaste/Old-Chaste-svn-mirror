@@ -314,11 +314,11 @@ public:
         
             while (dirichIterator != mpDirichletMap[0]->end() )
             {
-                long node_index = dirichIterator->first->GetIndex();
+                int node_index = dirichIterator->first->GetIndex();
             
                 for (int col=0; col<cols; col++)
                 {
-                    value = (col == (NUM_UNKNOWNS*node_index + index_of_unknown)) ? 1.0 : 0.0;
+                    value = (col == (int)(NUM_UNKNOWNS*node_index + index_of_unknown)) ? 1.0 : 0.0;
                     MatSetValue(jacobian, node_index, col, value, INSERT_VALUES);
                 }
                 dirichIterator++;
