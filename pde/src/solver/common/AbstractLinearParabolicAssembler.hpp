@@ -35,14 +35,13 @@ public :
     /**AbstractLinearParabolicAssembler
      * Constructors just call the base class versions.
      */
-    AbstractLinearParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pSolver, numQuadPoints)
+    AbstractLinearParabolicAssembler(int numQuadPoints = 2) :
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
     {}
     AbstractLinearParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                     AbstractLinearSolver *pSolver,
                                      int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     
     void SetTimes(double Tstart, double Tend, double dt)
@@ -108,7 +107,9 @@ public :
                 VecDestroy(currentSolution);
             }
             currentSolution = nextSolution;
+            
         }
+
         return currentSolution;
     }
 };

@@ -83,7 +83,7 @@ public:
         TimeDependentDiffusionEquationPde<2> pde;
         
         // Boundary conditions - zero dirichlet on boundary;
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
@@ -128,12 +128,9 @@ public:
             
             surf_iter++;
         }
-        
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
+
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler(&linear_solver);
+        SimpleDg0ParabolicAssembler<2,2> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -197,14 +194,11 @@ public:
         TimeDependentDiffusionEquationPde<3> pde;
         
         // Boundary conditions - zero dirichlet everywhere on boundary
-        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
         
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
         // Assembler
-        SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
+        SimpleDg0ParabolicAssembler<3,3> assembler;
 
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -274,7 +268,7 @@ public:
         TimeDependentDiffusionEquationWithSourceTermPde<3> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
@@ -288,11 +282,8 @@ public:
             iter++;
         }
         
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
         // Assembler
-        SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
+        SimpleDg0ParabolicAssembler<3,3> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -363,7 +354,7 @@ public:
         TimeDependentDiffusionEquationPde<3> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
@@ -402,11 +393,8 @@ public:
             surf_iter++;
         }
         
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
         // Assembler
-        SimpleDg0ParabolicAssembler<3,3> assembler(&linear_solver);
+        SimpleDg0ParabolicAssembler<3,3> assembler;
 
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);

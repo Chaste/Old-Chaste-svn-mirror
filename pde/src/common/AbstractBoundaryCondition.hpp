@@ -16,7 +16,7 @@ public:
      * 
      * @param x The point at which to evaluate the boundary condition.
      */
-    virtual vector<double> GetValue(const Point<SPACE_DIM> x) const = 0;
+    virtual double GetValue(const Point<SPACE_DIM> x) const = 0;
     
     // Make derived classes work
     AbstractBoundaryCondition()

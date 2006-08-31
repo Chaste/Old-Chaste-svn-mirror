@@ -42,19 +42,17 @@ protected:
     }    
     
     
-    void ResetSourceTerm( void )
+    void ResetInterpolatedQuantities( void )
     {
         mSourceTerm=0;
     }
     
     
-    void IncrementSourceTerm(double phi_i,
-                             const Node<SPACE_DIM> *pNode,
-                             int nodeGlobalIndex)
+    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {
         AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
 
-        mSourceTerm += phi_i*pde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ nodeGlobalIndex ] );
+        mSourceTerm += phi_i*pde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ pNode->GetIndex() ] );
     }
     
     
@@ -64,15 +62,19 @@ public:
     /**
      * Constructors just call the base class versions.
      */
-    MonodomainDg0Assembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pSolver, numQuadPoints)
-    {}
+    MonodomainDg0Assembler(int numQuadPoints = 2) :
+            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
+    {
+        this->SetMatrixIsConstant();
+    }
+    
     MonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                            AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                           AbstractLinearSolver *pSolver,
                            int numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
-    {}
+            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+    {
+        this->SetMatrixIsConstant();
+    }
 };
 
 #endif //_MONODOMAINDG0ASSEMBLER_HPP_

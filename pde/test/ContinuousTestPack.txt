@@ -1,4 +1,4 @@
-TestBoundaryConditionContainer.hpp
+TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp

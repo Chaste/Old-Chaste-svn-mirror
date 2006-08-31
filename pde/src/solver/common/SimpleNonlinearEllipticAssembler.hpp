@@ -52,7 +52,7 @@ class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssemble
 private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *mpBoundaryConditions;
     AbstractNonlinearSolver *mpSolver;
     bool mUseAnalyticalJacobian;
     
@@ -74,7 +74,7 @@ private:
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double, ELEMENT_DIM> &rBsubElem,
         AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
+        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM, 1> &rBoundaryConditions,
         vector<double> Ui);
     void ComputeJacobianOnElement(
         const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
@@ -97,7 +97,7 @@ public:
     
     Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
                        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
+                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *pBoundaryConditions,
                        AbstractNonlinearSolver *pSolver,
                        Vec initialGuess,
                        bool UseAnalyticalJacobian = false);
@@ -122,7 +122,7 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
     AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *pBoundaryConditions,
     AbstractNonlinearSolver *pSolver,
     Vec initialGuess,
     bool UseAnalyticalJacobian)
@@ -188,7 +188,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
     const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
     c_vector<double, ELEMENT_DIM> &rBsubElem,
     AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM> &rBoundaryConditions,
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM, 1> &rBoundaryConditions,
     vector<double> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
@@ -222,11 +222,11 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
          * \todo Neumann BC value depends on u?
          */
         //double U = inner_prod(phi,Ui);
-        c_vector<double, SPACE_DIM> Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+        double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
         
         // I'm not sure why we want -phi, but it seems to work:)
         
-        noalias(rBsubElem) += (Dgradu_dot_n(0) * jacobian_determinant * quad_rule.GetWeight(quad_index) * -1) * phi ;
+        noalias(rBsubElem) += (Dgradu_dot_n * jacobian_determinant * quad_rule.GetWeight(quad_index) * -1) * phi ;
     }
 }
 

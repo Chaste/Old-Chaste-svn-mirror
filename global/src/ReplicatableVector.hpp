@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <petscvec.h>
+#include <iostream>
 
 class ReplicatableVector
 {
@@ -154,7 +155,7 @@ public:
         
         //Replicate the data
         VecScatterBegin(vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
-        VecScatterEnd(vec,   mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
+        VecScatterEnd  (vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
         
         //Information is now in mReplicated PETSc vector
         //Copy into mData

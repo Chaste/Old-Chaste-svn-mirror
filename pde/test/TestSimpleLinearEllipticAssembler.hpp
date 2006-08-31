@@ -30,7 +30,7 @@ public:
         LinearBasisFunction<1> basis_function;
         c_matrix<double, 2, 2> ael;
         c_vector<double, 2> bel;
-        SimpleLinearEllipticAssembler<1,1> assembler(NULL);
+        SimpleLinearEllipticAssembler<1,1> assembler;
         
         assembler.SetPde(&pde);
         assembler.AssembleOnElement(element, ael, bel, false);
@@ -60,7 +60,7 @@ public:
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
         
-        SimpleLinearEllipticAssembler<2,2> assembler(NULL);
+        SimpleLinearEllipticAssembler<2,2> assembler;
         assembler.SetPde(&pde);
         assembler.AssembleOnElement(element, ael, bel, false);
         
@@ -98,7 +98,7 @@ public:
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
         
-        SimpleLinearEllipticAssembler<2,2> assembler(NULL);
+        SimpleLinearEllipticAssembler<2,2> assembler;
         assembler.SetPde(&pde);
         
         assembler.AssembleOnElement(element, ael, bel, false);
@@ -136,15 +136,12 @@ public:
         LinearHeatEquationPde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
+        SimpleLinearEllipticAssembler<1,1> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -180,7 +177,7 @@ public:
         LinearHeatEquationPde<1> pde;
         
         // Boundary conditions u(-1)=1, u'(-3)=0
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         
@@ -190,11 +187,8 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
+        SimpleLinearEllipticAssembler<1,1> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -229,7 +223,7 @@ public:
         LinearHeatEquationPde<1> pde;
         
         // Boundary conditions u(-1)=1 u'(-3)=1
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], -1, 1e-12);
@@ -241,11 +235,8 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
+        SimpleLinearEllipticAssembler<1,1> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -280,18 +271,15 @@ public:
         LinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(2), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), p_boundary_condition);
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&solver);
+        SimpleLinearEllipticAssembler<2,2> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -324,7 +312,7 @@ public:
         LinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition;
@@ -338,11 +326,8 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&solver);
+        SimpleLinearEllipticAssembler<2,2> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -378,7 +363,7 @@ public:
         VaryingDiffusionAndSourceTermPde<1> pde;
         
         // Boundary conditions u(1)=4
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_dirichlet_condition);
@@ -390,11 +375,8 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&solver);
+        SimpleLinearEllipticAssembler<1,1> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -431,7 +413,7 @@ public:
         LinearPdeWithZeroSource<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         // u = 0 on r<=1, z=0
         ConstBoundaryCondition<2>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<2>(0.0);
@@ -468,11 +450,8 @@ public:
             iter1++;
         }
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&solver);
+        SimpleLinearEllipticAssembler<2,2> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -523,7 +502,7 @@ public:
         LinearHeatEquationPde<3> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
@@ -537,11 +516,8 @@ public:
             iter++;
         }
         
-        // Linear solver
-        SimpleLinearSolver solver;
-        
         // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler(&solver);
+        SimpleLinearEllipticAssembler<3,3> assembler;
         
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);
@@ -581,7 +557,7 @@ public:
         LinearHeatEquationPde<3> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<3,3> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
@@ -617,12 +593,9 @@ public:
             
             surf_iter++;
         }
-        
-        // Linear solver
-        SimpleLinearSolver solver;
-        
+                
         // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler(&solver);
+        SimpleLinearEllipticAssembler<3,3> assembler;
 
         assembler.SetMesh(&mesh);
         assembler.SetPde(&pde);

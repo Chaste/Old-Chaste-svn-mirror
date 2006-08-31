@@ -56,14 +56,13 @@ public:
     /**
      * Constructors just call the base class versions.
      */
-    SimpleLinearEllipticAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pSolver, numQuadPoints)
+    SimpleLinearEllipticAssembler(int numQuadPoints = 2) :
+            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {}
     SimpleLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                   AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                  AbstractLinearSolver *pSolver,
                                   int numQuadPoints = 2) :
-            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     
 };

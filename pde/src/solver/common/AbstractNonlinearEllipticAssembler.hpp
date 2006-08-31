@@ -24,7 +24,7 @@ class AbstractNonlinearEllipticAssembler : public AbstractAssembler<ELEMENT_DIM,
 private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *mpBoundaryConditions;
     AbstractNonlinearSolver *mpSolver;
     
 public:
@@ -43,7 +43,7 @@ public:
     
     virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
                                AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM> *pBoundaryConditions,
+                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *pBoundaryConditions,
                                AbstractNonlinearSolver *pSolver,
                                Vec initialGuess,
                                bool UseAnalyticalJacobian = false) = 0;

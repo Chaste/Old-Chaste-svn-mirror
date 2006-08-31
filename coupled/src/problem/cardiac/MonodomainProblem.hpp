@@ -103,7 +103,7 @@ public:
             EXCEPTION("Start time should be less than end time");
         }
         // Boundary conditions, zero neumann everywhere
-        BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM> bcc(1, mMesh.GetNumNodes());
+        BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,1> bcc(mMesh.GetNumNodes());
         
         // The 'typename' keyword is required otherwise the compiler complains
         // Not totally sure why!
@@ -116,11 +116,8 @@ public:
             iter++;
         }
         
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
         // Assembler
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&linear_solver);
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
         monodomain_assembler.SetMatrixIsConstant();
         
         monodomain_assembler.SetMesh(&mMesh);

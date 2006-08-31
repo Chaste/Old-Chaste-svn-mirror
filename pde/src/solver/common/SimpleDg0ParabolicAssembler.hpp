@@ -53,8 +53,8 @@ public:
      * Constructors call the base class versions, and note we're not fully ready
      * for work.
      */
-    SimpleDg0ParabolicAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
-            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pSolver, numQuadPoints)
+    SimpleDg0ParabolicAssembler(int numQuadPoints = 2) :
+            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
@@ -62,9 +62,8 @@ public:
 
     SimpleDg0ParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                 AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                AbstractLinearSolver *pSolver,
                                 int numQuadPoints = 2) :
-            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, pSolver, numQuadPoints)
+            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         this->mTimesSet = false;
         this->mInitialConditionSet = false;

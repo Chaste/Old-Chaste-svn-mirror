@@ -10,7 +10,7 @@ template<int SPACE_DIM>
 class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:
-    vector<double> mValue;
+    double mValue;
     
 public:
     /**
@@ -21,20 +21,14 @@ public:
      */
     ConstBoundaryCondition(const double value)
     {
-        mValue.resize(1);
-        mValue(0) = value;
-    }
-    
-    ConstBoundaryCondition(const vector<double> value)
-    {
         mValue = value;
     }
-    
+        
     /**
      * @param x The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.
      */
-    vector<double> GetValue( const Point<SPACE_DIM> ) const
+    double GetValue( const Point<SPACE_DIM> ) const
     {
         return mValue;
     }

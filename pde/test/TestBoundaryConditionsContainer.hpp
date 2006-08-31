@@ -11,7 +11,7 @@
 
 #include "PetscSetupAndFinalize.hpp"
 
-class TestBoundaryConditionContainer : public CxxTest::TestSuite
+class TestBoundaryConditionsContainer : public CxxTest::TestSuite
 {
 public:
     void TestSetGet()
@@ -21,7 +21,7 @@ public:
         //////////////////////////////////////////////////////////////
         
         int numNodes = 10;
-        BoundaryConditionsContainer<1,1> bcc1(1,numNodes);
+        BoundaryConditionsContainer<1,1,1> bcc1(numNodes);
         
         Node<1>* nodes[numNodes];
         for (int i=0; i<numNodes; i++)
@@ -34,8 +34,8 @@ public:
         
         for (int i=0; i<numNodes; i++)
         {
-            c_vector<double, 1> value = bcc1.GetDirichletBCValue(nodes[i]);
-            TS_ASSERT_DELTA( value(0), i, 1e-12 );
+            double value = bcc1.GetDirichletBCValue(nodes[i]);
+            TS_ASSERT_DELTA( value, i, 1e-12 );
         }
         
         for (int i=0; i<numNodes; i++)
@@ -63,8 +63,8 @@ public:
         
         for (int i=0; i<numElem; i++)
         {
-            c_vector<double, 1> value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
-            TS_ASSERT_DELTA( value(0), i, 1e-12 );
+            double value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
+            TS_ASSERT_DELTA( value, i, 1e-12 );
             delete elements[i].GetNode(0);
         }
         
@@ -72,7 +72,7 @@ public:
         // test in 2d
         //////////////////////////////////////////////////////////////
         numNodes = 10;
-        BoundaryConditionsContainer<2,2> bcc2(1,numNodes);
+        BoundaryConditionsContainer<2,2,1> bcc2(numNodes);
         
         Node<2>* nodes2[numNodes];
         for (int i=0; i<numNodes; i++)
@@ -85,8 +85,8 @@ public:
         
         for (int i=0; i<numNodes; i++)
         {
-            c_vector<double, 2> value = bcc2.GetDirichletBCValue(nodes2[i]);
-            TS_ASSERT_DELTA( value(0), i, 1e-12 );
+            double value = bcc2.GetDirichletBCValue(nodes2[i]);
+            TS_ASSERT_DELTA( value, i, 1e-12 );
         }
         
         for (int i=0; i<numNodes; i++)
@@ -116,8 +116,8 @@ public:
         
         for (int i=0; i<numElem; i++)
         {
-            c_vector<double, 2> value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
-            TS_ASSERT_DELTA( value(0), i, 1e-12 );
+            double value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
+            TS_ASSERT_DELTA( value, i, 1e-12 );
             delete elements2[i].GetNode(0);
             delete elements2[i].GetNode(1);
         }
@@ -126,7 +126,7 @@ public:
         // test in 3d
         //////////////////////////////////////////////////////////////
         numNodes = 10;
-        BoundaryConditionsContainer<3,3> bcc3(1,numNodes);
+        BoundaryConditionsContainer<3,3,1> bcc3(numNodes);
         
         Node<3>* nodes3[numNodes];
         for (int i=0; i<numNodes; i++)
@@ -139,8 +139,8 @@ public:
         
         for (int i=0; i<numNodes; i++)
         {
-            c_vector<double, 3> value = bcc3.GetDirichletBCValue(nodes3[i]);
-            TS_ASSERT_DELTA( value(0), i, 1e-12 );
+            double value = bcc3.GetDirichletBCValue(nodes3[i]);
+            TS_ASSERT_DELTA( value, i, 1e-12 );
         }
         for (int i=0; i<numNodes; i++)
         {
@@ -171,8 +171,8 @@ public:
         
         for (int i=0; i<numElem; i++)
         {
-            c_vector<double, 3> value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
-            TS_ASSERT_DELTA( value(0), i, 1e-12 );
+            double value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
+            TS_ASSERT_DELTA( value, i, 1e-12 );
             delete elements3[i].GetNode(0);
             delete elements3[i].GetNode(1);
             delete elements3[i].GetNode(2);
@@ -197,7 +197,7 @@ public:
         some_system.AssembleIntermediateLinearSystem();
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3> bcc3(1,SIZE);
+        BoundaryConditionsContainer<3,3,1> bcc3(SIZE);
         
         // Apply dirichlet boundary conditions to all but last node
         for (int i = 0; i < SIZE-1; i++)
@@ -274,7 +274,7 @@ public:
         VecRestoreArray(residual, &p_residual);
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3> bcc3(1,SIZE);
+        BoundaryConditionsContainer<3,3,1> bcc3(SIZE);
         
         for (int i = 0; i < SIZE-1; i++)
         {
@@ -323,19 +323,63 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        BoundaryConditionsContainer<2,2> bcc(1,mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
         
         // Check boundary nodes have the right condition
         for (int i=0; i<4; i++)
         {
-            c_vector<double, 2> value = bcc.GetDirichletBCValue(mesh.GetNodeAt(i));
-            TS_ASSERT_DELTA(value(0), 0.0, 1e-12);
+            double value = bcc.GetDirichletBCValue(mesh.GetNodeAt(i));
+            TS_ASSERT_DELTA(value, 0.0, 1e-12);
         }
         // Check non-boundary node has no condition
         TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNodeAt(4)));
     }
+    
+    void Test_AnyNonZeroNeumannConditions_and_ApplyNeumannToMeshBoundary()
+    {
+        // Load a 2D square mesh with 1 central non-boundary node
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,2> bcc_2unknowns(mesh.GetNumNodes());
+        
+        TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), false);
+        
+        bcc.DefineZeroNeumannOnMeshBoundary(&mesh);
+        
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter;
+        iter = mesh.GetBoundaryElementIteratorBegin();
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
+        {        
+            TS_ASSERT(bcc.HasNeumannBoundaryCondition(*iter));
+            double value = bcc.GetNeumannBCValue(*iter, (*iter)->GetNode(0)->GetPoint());
+            TS_ASSERT_DELTA(value, 0.0, 1e-8);
+
+            iter++;
+        }
+        
+        TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), false);
+        
+        
+        iter = mesh.GetBoundaryElementIteratorBegin();
+
+        ConstBoundaryCondition<2>* p_boundary_condition1 = 
+                new ConstBoundaryCondition<2>(-1);
+
+        ConstBoundaryCondition<2>* p_boundary_condition2 = 
+                new ConstBoundaryCondition<2>(-1);
+        
+        bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition1);
+        bcc_2unknowns.AddNeumannBoundaryCondition(*iter, p_boundary_condition2);
+        
+        TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), true);
+        TS_ASSERT_EQUALS(bcc_2unknowns.AnyNonZeroNeumannConditions(), true);
+    }
+    
     
     void TestValidate()
     {
@@ -344,7 +388,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        BoundaryConditionsContainer<2,2> bcc(1,mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         
         // No BCs yet, so shouldn't validate
         TS_ASSERT(!bcc.Validate(&mesh));
@@ -382,23 +426,36 @@ public:
         some_system.AssembleIntermediateLinearSystem();
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3> bcc32(2,SIZE);
+        BoundaryConditionsContainer<3,3,2> bcc32(SIZE);
         
         // Apply dirichlet boundary conditions to all but last node
         for (int i = 0; i < SIZE-1; i++)
         {
             nodes_array[i] = new Node<3>(i,true);
-            c_vector<double, 2> vec;
-            vec(0) = -1;
-            vec(1) = -2;
-            ConstBoundaryCondition<3>* p_boundary_condition =
-                new ConstBoundaryCondition<3>(vec);
-            bcc32.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
+
+            ConstBoundaryCondition<3>* p_boundary_condition0 =
+                new ConstBoundaryCondition<3>(-1);
+
+            ConstBoundaryCondition<3>* p_boundary_condition1 =
+                new ConstBoundaryCondition<3>(-2);
+
+            bcc32.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);
+            bcc32.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition1, 1);
         }
         bcc32.ApplyDirichletToLinearProblem(some_system);
         
         some_system.AssembleFinalLinearSystem();
         
+        // matrix should now look like 
+        // A = (1 0 0 0 .. 0)
+        //     (0 1 0 0 .. 0)
+        //     (     ..     )
+        //     (1 1 ..     1)
+        //     (1 1 ..     1)
+        // 
+        // and rhs vector looks like b=(-1, -2, -1, -2, ..., -1, -2, 2, 2)
+        // so solution of Ax = b is  x=(-1, -2, -1, -2, ..., -1, -2, ?, ?) 
+
         SimpleLinearSolver solver;
         Vec solution = some_system.Solve(&solver);
         
@@ -408,14 +465,20 @@ public:
         int lo, hi;
         VecGetOwnershipRange(solution, &lo, &hi);
         
+        
+        
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            if (global_index < SIZE-1)
+            
+            // even rows, x(global_index) should be equal to -1
+            if (global_index%2==0 && global_index<2*SIZE-2)
             {
                 TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
             }
-            if (global_index >= SIZE && global_index < SIZE-1)
+
+            // odd rows, x(global_index) should be equal to -1
+            if (global_index%2==1 && global_index<2*SIZE-2)
             {
                 TS_ASSERT_DELTA(p_solution[local_index], -2.0, 0.000001);
             }
@@ -448,19 +511,25 @@ public:
         some_system.AssembleIntermediateLinearSystem();
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
+        BoundaryConditionsContainer<3,3,3> bcc33(SIZE);
         
         // Apply dirichlet boundary conditions to all but last node
         for (int i = 0; i < SIZE-1; i++)
         {
             nodes_array[i] = new Node<3>(i,true);
-            c_vector<double, 3> vec;
-            vec(0) = -1;
-            vec(1) = -2;
-            vec(2) =  0;
-            ConstBoundaryCondition<3>* p_boundary_condition =
-                new ConstBoundaryCondition<3>(vec);
-            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
+            
+            ConstBoundaryCondition<3>* p_boundary_condition0 =
+                new ConstBoundaryCondition<3>(-1);
+
+            ConstBoundaryCondition<3>* p_boundary_condition1 =
+                new ConstBoundaryCondition<3>(-2);
+
+            ConstBoundaryCondition<3>* p_boundary_condition2 =
+                new ConstBoundaryCondition<3>( 0);
+
+            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);
+            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition1, 1);
+            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition2, 2);
         }
         bcc33.ApplyDirichletToLinearProblem(some_system);
         
@@ -475,20 +544,21 @@ public:
         int lo, hi;
         VecGetOwnershipRange(solution, &lo, &hi);
         
+        // see comments in previous test
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index-lo;
-            if (global_index < SIZE - 1)
+            if (global_index%3==0 && global_index<3*SIZE-3)
             {
                 TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
             }
-            if (SIZE <=global_index && global_index < 2*SIZE - 1)
+            if (global_index%3==1 && global_index<3*SIZE-3)
             {
                 TS_ASSERT_DELTA(p_solution[local_index], -2.0, 0.000001);
             }
-            if (2*SIZE <= global_index && global_index < 3*SIZE-1)
+            if (global_index%3==2 && global_index<3*SIZE-3)
             {
-                TS_ASSERT_DELTA(p_solution[local_index],  0, 0.000001);
+                TS_ASSERT_DELTA(p_solution[local_index],  0.0, 0.000001);
             }
         }
         for (int i = 0; i < SIZE-1; i++)
@@ -498,6 +568,8 @@ public:
         VecRestoreArray(solution, &p_solution);
         VecDestroy(solution);
     }
+    
+    
     
     void TestApplyToNonlinearSystem3Unknowns( void )
     {
@@ -533,20 +605,24 @@ public:
         VecRestoreArray(residual, &p_residual);
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3> bcc33(3,SIZE);
+        BoundaryConditionsContainer<3,3,3> bcc33(SIZE);
         
         for (int i = 0; i < SIZE; i++)
         {
             nodes_array[i] = new Node<3>(i,true);
             
-            c_vector<double, 3> vec;
-            vec(0) = -1;
-            vec(1) = -2;
-            vec(2) = -3;
-            
-            ConstBoundaryCondition<3>* p_boundary_condition =
-                new ConstBoundaryCondition<3>(vec);
-            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
+            ConstBoundaryCondition<3>* p_boundary_condition0 =
+                new ConstBoundaryCondition<3>(-1);
+
+            ConstBoundaryCondition<3>* p_boundary_condition1 =
+                new ConstBoundaryCondition<3>(-2);
+
+            ConstBoundaryCondition<3>* p_boundary_condition2 =
+                new ConstBoundaryCondition<3>(-3);
+
+            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition0, 0);
+            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition1, 1);
+            bcc33.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition2, 2);
         }
         
         bcc33.ApplyDirichletToNonlinearResidual(solution, residual);
@@ -557,17 +633,18 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            if (global_index < SIZE-1)
+            
+            if (global_index%3==0)
             {
-                TS_ASSERT_DELTA(p_solution[local_index], global_index, 1e-12);
+                TS_ASSERT_DELTA(p_solution[local_index], global_index,   1e-12);
                 TS_ASSERT_DELTA(p_residual[local_index], global_index+1, 1e-12);
             }
-            if (SIZE <=global_index && global_index < 2*SIZE - 1)
+            if (global_index%3==1)
             {
                 TS_ASSERT_DELTA(p_solution[local_index], global_index, 1e-12);
                 TS_ASSERT_DELTA(p_residual[local_index], global_index+2, 1e-12);
             }
-            if ( 2*SIZE <= global_index && global_index< 3*SIZE - 1)
+            if (global_index%3==2)
             {
                 TS_ASSERT_DELTA(p_solution[local_index], global_index,   1e-12);
                 TS_ASSERT_DELTA(p_residual[local_index], global_index+3, 1e-12);

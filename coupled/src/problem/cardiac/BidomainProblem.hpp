@@ -119,12 +119,10 @@ public:
         {
             EXCEPTION("Start time should be less than end time");
         }
-        
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
+
         // Assembler
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(&linear_solver);
+        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler;
+
         bidomain_assembler.SetMesh(&mMesh);
         bidomain_assembler.SetPde(mpBidomainPde);
 //        bidomain_assembler.SetBoundaryConditionsContainer(&bcc);
@@ -209,7 +207,7 @@ public:
         assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
                              -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
                              
-                             
+
         while ( current_time < mEndTime )
         {
             // compute the next printing time
@@ -235,7 +233,7 @@ public:
             //Ill-conditioned solutions are covered in Monodomain problem
             //(and possibly in Nightly/Weekly) so we don't insist on it
             //in the coverage test.
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             catch (Exception &e)
             {
                 if (write_files)
@@ -246,7 +244,7 @@ public:
                 
                 throw e;
             }
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
             
             // Free old initial condition
             VecDestroy(initial_condition);
@@ -256,7 +254,7 @@ public:
             
             // update the current time
             current_time = next_printing_time;
-            
+
             // print out details at current time if asked for
             if (mWriteInfo)
             {
@@ -278,7 +276,7 @@ public:
             p_test_writer->Close();
             delete p_test_writer;
         }
-        
+
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if ((my_rank==0) && (write_files)) // ie only if master process and results files were written

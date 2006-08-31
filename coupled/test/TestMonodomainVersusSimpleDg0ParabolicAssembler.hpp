@@ -79,7 +79,7 @@ public:
         FischerPde<1> pde;
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
-        BoundaryConditionsContainer<1,1> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -88,12 +88,10 @@ public:
             iter++;
         }
         
-        // Linear solver
-        SimpleLinearSolver linear_solver;
         
         // Assembler
-        MonodomainDg0Assembler<1,1> monodomain_assembler(&linear_solver);
-        SimpleDg0ParabolicAssembler<1,1> simple_assembler(&linear_solver);
+        MonodomainDg0Assembler<1,1> monodomain_assembler;
+        SimpleDg0ParabolicAssembler<1,1> simple_assembler;
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
@@ -184,7 +182,7 @@ public:
         FischerPde<2> pde;
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
-        BoundaryConditionsContainer<2,2> bcc(1, mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -193,12 +191,9 @@ public:
             iter++;
         }
         
-        // Linear solver
-        SimpleLinearSolver linear_solver;
-        
         // Assembler
-        MonodomainDg0Assembler<2,2> monodomain_assembler(&linear_solver);
-        SimpleDg0ParabolicAssembler<2,2> simple_assembler(&linear_solver);
+        MonodomainDg0Assembler<2,2> monodomain_assembler;
+        SimpleDg0ParabolicAssembler<2,2> simple_assembler;
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;

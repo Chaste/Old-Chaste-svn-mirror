@@ -23,7 +23,7 @@ protected:
     
     AbstractPde* mpPde;
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM>* mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, NUM_UNKNOWNS>* mpBoundaryConditions;
 
     /*< Basis function for use with normal elements */
     AbstractBasisFunction<ELEMENT_DIM> *mpBasisFunction;
@@ -140,7 +140,7 @@ public:
      * 
      * This method must be called before Solve()
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM>* pBoundaryConditions)
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>* pBoundaryConditions)
     {
         mpBoundaryConditions = pBoundaryConditions;
     }

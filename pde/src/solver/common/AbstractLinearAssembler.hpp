@@ -99,13 +99,13 @@ protected:
         * This is true for linear basis functions, but not for any other type of
         * basis function.
         */
-        const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverseJacobian = NULL;
+        const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
         if (!this->mMatrixIsAssembled)
         {
-            inverseJacobian = rElement.GetInverseJacobian();
+            p_inverse_jacobian = rElement.GetInverseJacobian();
             rAElem.clear();
         }
         
@@ -120,28 +120,32 @@ protected:
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
             
             c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> gradPhi;
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
             
             if (!this->mMatrixIsAssembled)
             {
-                gradPhi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-                          (quad_point, *inverseJacobian);
+                grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
+                          (quad_point, *p_inverse_jacobian);
             }
             
             // Location of the gauss point in the original element will be stored in x
             // Where applicable, u will be set to the value of the current solution at x
             Point<SPACE_DIM> x(0,0,0);
             double u=0;
-            ResetSourceTerm();
+            ResetInterpolatedQuantities();
             for (int i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
                 const Point<SPACE_DIM> node_loc = p_node->rGetPoint();
+                
+                // interpolate x
                 for (int j=0; j<SPACE_DIM; j++)
                 {
-                    x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
+                     x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
+                    //x.rGetLocation() += phi * node_loc[j];                    
                 }
                 
+                // interpolate u
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (currentSolution)
                 {
@@ -151,7 +155,10 @@ protected:
                     // the work is done in PrepareForAssembleSystem
                     u  += phi(i)*this->mCurrentSolutionReplicated[ node_global_index ];
                 }
-                IncrementSourceTerm(phi(i), p_node, node_global_index);
+                
+                // interpolate any other quantities that will be needed (done by the
+                // concrete version of the assembler if necessary)
+                IncrementInterpolatedQuantities(phi(i), p_node);
                 //sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
             
@@ -165,8 +172,8 @@ protected:
                 
                 noalias(rAElem) += 	ComputeExtraLhsTerm(phi, x)*wJ;
                 
-                noalias(rAElem) += prod( trans(gradPhi),
-                                         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, gradPhi)) )* wJ;
+                noalias(rAElem) += prod( trans(grad_phi),
+                                         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, grad_phi)) )* wJ;
             }
             
             noalias(rBElem) += ComputeExtraRhsTerm(phi, x, u) * wJ;
@@ -222,43 +229,40 @@ protected:
             /**
              * \todo Improve efficiency of Neumann BC implementation.
              */
-            c_vector<double, SPACE_DIM> Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
+            double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
             
-            noalias(rBsubElem) += phi * Dgradu_dot_n(0) *jW;
+            noalias(rBsubElem) += phi * Dgradu_dot_n *jW;
         }
     }
     
-    virtual void ResetSourceTerm( void )
+    virtual void ResetInterpolatedQuantities( void )
     {
     }
     
     
-    virtual void IncrementSourceTerm(double phi_i,
-                                     const Node<SPACE_DIM> *pNode,
-                                     int nodeGlobalIndex)
+    virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {
     }
     
 public:
     /**
-    * Constructors just call the base class versions.
-    */
-    AbstractLinearAssembler(AbstractLinearSolver *pSolver, int numQuadPoints = 2) :
+     * Constructors just call the base class versions.
+     */
+    AbstractLinearAssembler(int numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
     {
-        mpSolver = pSolver;
+        mpSolver = new SimpleLinearSolver;
         mpAssembledLinearSystem = NULL;
         mMatrixIsConstant = false;
         mMatrixIsAssembled = false;
     }
     AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                             AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                            AbstractLinearSolver *pSolver,
                             int numQuadPoints = 2) :
                             
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
-        mpSolver = pSolver;
+        mpSolver = new SimpleLinearSolver;
         mpAssembledLinearSystem = NULL;
         mMatrixIsConstant = false;
         mMatrixIsAssembled = false;
@@ -274,20 +278,31 @@ public:
             delete mpAssembledLinearSystem;
         }
         mpAssembledLinearSystem=NULL;
+
+        delete mpSolver;
     }
     
-    /**
-     * Set the linear solver to use.
+    /** 
+     * Manually re-set the linear system solver (which by default 
+     * is a SimpleLinearSolver)
      */
     void SetLinearSolver(AbstractLinearSolver *pSolver)
     {
+        delete mpSolver;
         mpSolver = pSolver;
+        
+        // make sure new solver knows matrix is constant
+        if(mMatrixIsConstant)
+        {
+            SetMatrixIsConstant();
+        }
     }
     
     /**
-       * Initialise the LinearSystem class to a given size
-       * @param size The size of the LinearSystem (number of nodes in the mesh)
-       */
+     * Initialise the LinearSystem class to a given size
+     *      
+     * @param size The size of the LinearSystem (number of nodes in the mesh)
+     */
     void InitialiseLinearSystem(unsigned size)
     {
         // Linear system in n unknowns, where n=#nodes
@@ -310,6 +325,8 @@ public:
         // AssembleOnElement
         if(currentSolution != NULL)
         {
+            int size;
+            VecGetSize(currentSolution,&size);
             this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
         }
 
@@ -398,31 +415,44 @@ public:
 
         if(this->mpBoundaryConditions!=NULL) // temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
         {
-            if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+            if(this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
             {
-                const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-                c_vector<double, ELEMENT_DIM> b_surf_elem;
-                
-                while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+                //! remove this when no longer needed
+                assert(NUM_UNKNOWNS==1);
+                  
+                if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
                 {
-                    const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
-                    /**
-                     * \todo
-                     * Check surf_element is in the Neumann surface in an efficient manner.
-                     */
-                    if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
+                    const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+                    c_vector<double, ELEMENT_DIM> b_surf_elem;
+                    
+                    while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
                     {
-                        AssembleOnSurfaceElement(surf_element, b_surf_elem);
-
-                        for (int i=0; i<num_surf_nodes; i++)
+                        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
+                        /**
+                         * \todo
+                         * Check surf_element is in the Neumann surface in an efficient manner.
+                         */
+                        if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                         {
-                            int node1 = surf_element.GetNodeGlobalIndex(i);
-                            mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+                            AssembleOnSurfaceElement(surf_element, b_surf_elem);
+    
+                            for (int i=0; i<num_surf_nodes; i++)
+                            {
+                                int node1 = surf_element.GetNodeGlobalIndex(i);
+                                mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+                            }
                         }
+                        surf_iter++;
                     }
-                    surf_iter++;
                 }
             }
+        }
+        else
+        {
+            assert(NUM_UNKNOWNS != 1);
+            // add code here to allow an assembler to call some function to add 
+            // neumann type conditions that don't fit into the 
+            // BoundaryConditionsContainer architecture?
         }
 
         if (mMatrixIsAssembled)
@@ -440,7 +470,8 @@ public:
             this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
         }
         
-        // the assembler can set bcs here instead (see bidomain assembler)
+        // the assembler can set bcs here instead, or do anything else
+        // required like setting up a null basis (see BidomainDg0Assembler) 
         FinaliseAssembleSystem(currentSolution, currentTime);
         
         if (mMatrixIsAssembled)
@@ -464,31 +495,37 @@ public:
     virtual Vec Solve()=0;
 
     /**
-    * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
-    */
+     * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
+     */
     void SetMatrixIsConstant()
     {
         mMatrixIsConstant = true;
         mpSolver->SetMatrixIsConstant();
     }
     
+    
+    
+     
+
+    /*
     void DebugWithSolution(Vec sol)
     {
-        std::cout<<"\n\nWS: This is the matrix>>>>>>>>>>>>>\n";
+        std::cout<<"\n\nWS: This is the matrix:\n";
         mpAssembledLinearSystem->DisplayMatrix();
-        std::cout<<"\n\nWS: This is the righthand side>>>>>>>>>>>>>\n";
+        std::cout<<"\n\nWS: This is the righthand side:\n";
         mpAssembledLinearSystem->DisplayRhs();
-        std::cout<<"\n\nWS: This is the solution>>>>>>>>>>>>>\n";
+        std::cout<<"\n\nWS: This is the solution:\n";
         VecView(sol, PETSC_VIEWER_STDOUT_WORLD);
     }
 
     void Debug()
     {
-        std::cout<<"\n\nThis is the matrix>>>>>>>>>>>>>\n";
+        std::cout<<"\n\nThis is the matrix:\n";
         mpAssembledLinearSystem->DisplayMatrix();
-        std::cout<<"\n\nThis is the righthand side>>>>>>>>>>>>>\n";
+        std::cout<<"\n\nThis is the righthand side:\n";
         mpAssembledLinearSystem->DisplayRhs();
     }
+    */
 };
 
 #endif //_ABSTRACTLINEARASSEMBLER_HPP_
