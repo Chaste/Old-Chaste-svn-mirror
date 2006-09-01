@@ -361,22 +361,15 @@ public:
 
             iter++;
         }
-        
         TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), false);
         
         
         iter = mesh.GetBoundaryElementIteratorBegin();
 
-        ConstBoundaryCondition<2>* p_boundary_condition1 = 
-                new ConstBoundaryCondition<2>(-1);
-
         ConstBoundaryCondition<2>* p_boundary_condition2 = 
                 new ConstBoundaryCondition<2>(-1);
         
-        bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition1);
         bcc_2unknowns.AddNeumannBoundaryCondition(*iter, p_boundary_condition2);
-        
-        TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), true);
         TS_ASSERT_EQUALS(bcc_2unknowns.AnyNonZeroNeumannConditions(), true);
     }
     

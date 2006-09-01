@@ -240,6 +240,8 @@ public:
             delete this->mpAssembledLinearSystem;
             this->mpAssembledLinearSystem = NULL;
         }
+        
+        delete this->mpBoundaryConditions;
     }
     
     /**
