@@ -464,6 +464,11 @@ public:
         {
             mpAssembledLinearSystem->AssembleIntermediateLinearSystem();
         }
+
+
+        // the assembler can set bcs here instead, or do anything else
+        // required like setting up a null basis (see BidomainDg0Assembler) 
+        FinaliseAssembleSystem(currentSolution, currentTime);
         
         // Apply dirichlet boundary conditions
         if(this->mpBoundaryConditions)// temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
@@ -471,9 +476,6 @@ public:
             this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
         }
         
-        // the assembler can set bcs here instead, or do anything else
-        // required like setting up a null basis (see BidomainDg0Assembler) 
-        FinaliseAssembleSystem(currentSolution, currentTime);
         
         if (mMatrixIsAssembled)
         {

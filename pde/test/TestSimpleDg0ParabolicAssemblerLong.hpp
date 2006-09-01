@@ -130,11 +130,7 @@ public:
         }
 
         // Assembler
-        SimpleDg0ParabolicAssembler<2,2> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -198,12 +194,8 @@ public:
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
         
         // Assembler
-        SimpleDg0ParabolicAssembler<3,3> assembler;
+        SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
 
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
-        
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an
         // eigenfunction of the heat equation.
@@ -283,12 +275,8 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<3,3> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
-        
+        SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
+                
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
         
@@ -394,12 +382,8 @@ public:
         }
         
         // Assembler
-        SimpleDg0ParabolicAssembler<3,3> assembler;
+        SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
 
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
-        
         // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
         

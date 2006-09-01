@@ -62,17 +62,36 @@ public:
     /**
      * Constructors just call the base class versions.
      */
-    MonodomainDg0Assembler(int numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
+    MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                           AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                           int numQuadPoints = 2) :
+            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
     {
+        this->mpMesh = pMesh;
+        this->mpPde = pPde;
+
+        // set up boundary conditions
+        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>( this->mpMesh->GetNumNodes() );
+        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
+        
         this->SetMatrixIsConstant();
     }
+
     
-    MonodomainDg0Assembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+    MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                           AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                           AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                            AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                            int numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
+        this->mpMesh = pMesh;
+        this->mpPde = pPde;
+
+        // set up boundary conditions
+        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );
+        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
+        
         this->SetMatrixIsConstant();
     }
 };

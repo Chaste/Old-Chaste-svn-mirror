@@ -30,9 +30,8 @@ public:
         LinearBasisFunction<1> basis_function;
         c_matrix<double, 2, 2> ael;
         c_vector<double, 2> bel;
-        SimpleLinearEllipticAssembler<1,1> assembler;
+        SimpleLinearEllipticAssembler<1,1> assembler(NULL,&pde,NULL);
         
-        assembler.SetPde(&pde);
         assembler.AssembleOnElement(element, ael, bel, false);
         
         TS_ASSERT_DELTA(ael(0,0),0.5, 1e-12);
@@ -60,8 +59,8 @@ public:
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
         
-        SimpleLinearEllipticAssembler<2,2> assembler;
-        assembler.SetPde(&pde);
+        SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
+
         assembler.AssembleOnElement(element, ael, bel, false);
         
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
@@ -98,8 +97,7 @@ public:
         c_matrix<double, 3, 3> ael;
         c_vector<double, 3> bel;
         
-        SimpleLinearEllipticAssembler<2,2> assembler;
-        assembler.SetPde(&pde);
+        SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
         
         assembler.AssembleOnElement(element, ael, bel, false);
         
@@ -141,12 +139,8 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
-        
+        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+                
         Vec result = assembler.Solve();
         
         // Check result
@@ -188,11 +182,7 @@ public:
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
         
@@ -236,12 +226,8 @@ public:
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
-        
+        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+                
         Vec result = assembler.Solve();
 
         
@@ -279,11 +265,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), p_boundary_condition);
         
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
         
@@ -327,11 +309,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
         
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
         
@@ -376,11 +354,7 @@ public:
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
         
         // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
         
@@ -451,11 +425,7 @@ public:
         }
         
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
         
@@ -517,11 +487,7 @@ public:
         }
         
         // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler;
-        
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
         
         Vec result = assembler.Solve();
         
@@ -595,11 +561,7 @@ public:
         }
                 
         // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler;
-
-        assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
-        assembler.SetBoundaryConditionsContainer(&bcc);
+        SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         
@@ -622,7 +584,6 @@ public:
         VecRestoreArray(result, &p_result);
         VecDestroy(result);
     }
-    
 };
 
 #endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_

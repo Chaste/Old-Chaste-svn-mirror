@@ -344,23 +344,26 @@ public:
     {
         bool valid = true;
         
-        // Iterate over surface elements
-        typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
-        = pMesh->GetBoundaryElementIteratorBegin();
-        while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
+        for(unsigned index_of_unknown=0; index_of_unknown<NUM_UNKNOWNS; index_of_unknown++)
         {
-            if (!HasNeumannBoundaryCondition(*elt_iter))
+            // Iterate over surface elements
+            typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
+            = pMesh->GetBoundaryElementIteratorBegin();
+            while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
             {
-                // Check for Dirichlet conditions on this element's nodes
-                for (int i=0; i<(*elt_iter)->GetNumNodes(); i++)
+                if (!HasNeumannBoundaryCondition(*elt_iter, index_of_unknown))
                 {
-                    if (!HasDirichletBoundaryCondition((*elt_iter)->GetNode(i)))
+                    // Check for Dirichlet conditions on this element's nodes
+                    for (int i=0; i<(*elt_iter)->GetNumNodes(); i++)
                     {
-                        valid = false;
+                        if (!HasDirichletBoundaryCondition((*elt_iter)->GetNode(i)))
+                        {
+                            valid = false;
+                        }
                     }
                 }
+                elt_iter++;
             }
-            elt_iter++;
         }
         return valid;
     }

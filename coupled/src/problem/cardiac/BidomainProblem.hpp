@@ -121,11 +121,7 @@ public:
         }
 
         // Assembler
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler;
-
-        bidomain_assembler.SetMesh(&mMesh);
-        bidomain_assembler.SetPde(mpBidomainPde);
-//        bidomain_assembler.SetBoundaryConditionsContainer(&bcc);
+        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(&mMesh, mpBidomainPde);
 
         if (mFixedExtracellularPotentialNodes.size()>0)
         {

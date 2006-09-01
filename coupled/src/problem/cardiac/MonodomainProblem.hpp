@@ -102,7 +102,8 @@ public:
         {
             EXCEPTION("Start time should be less than end time");
         }
-        // Boundary conditions, zero neumann everywhere
+
+/*        // Boundary conditions, zero neumann everywhere
         BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,1> bcc(mMesh.GetNumNodes());
         
         // The 'typename' keyword is required otherwise the compiler complains
@@ -115,14 +116,10 @@ public:
             bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
             iter++;
         }
-        
+*/        
         // Assembler
-        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler;
-        monodomain_assembler.SetMatrixIsConstant();
-        
-        monodomain_assembler.SetMesh(&mMesh);
-        monodomain_assembler.SetPde(mpMonodomainPde);
-        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
+        MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&mMesh, mpMonodomainPde);
+  //      monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
             
         // initial condition;
         Vec initial_condition;

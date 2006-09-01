@@ -221,9 +221,24 @@ private:
     
     
 public:
-    BidomainDg0Assembler(int numQuadPoints = 2) :
+    BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                         BidomainPde<SPACE_DIM>* pPde,
+                         int numQuadPoints = 2) :
             AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints)            
     {
+        this->mpMesh = pMesh;
+        this->mpPde = pPde;
+        
+        // set up boundary conditions
+        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );
+
+        // define zero neumann boundary conditions everywhere
+        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage 
+        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
+
+        //assert(this->mpBoundaryConditions->Validate(this->mpMesh));
+        
+
         this->mpAssembledLinearSystem = NULL;
         this->mMatrixIsAssembled = false;
         
@@ -253,18 +268,9 @@ public:
      * 
      *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
-     * 
-     *  NOTE: this can only be called after SetMesh()
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> fixedExtracellularPotentialNodes)
     {
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );
-        
-        if(this->mpMesh==NULL)
-        {
-            EXCEPTION("Only call SetFixedExtracellularPotentialNodes() after the mesh has been set");
-        }
-
         assert(fixedExtracellularPotentialNodes.size() > 0);
         for (unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)
         {
@@ -273,21 +279,20 @@ public:
                 EXCEPTION("Fixed node number must be less than total number nodes");
             }
         }
+
         mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
-        
-        // define zero neumann boundary conditions everywhere
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage 
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
         
         for(unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
         {
             ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition
-             = new ConstBoundaryCondition<SPACE_DIM>(mFixedExtracellularPotentialNodes[i]);
+             = new ConstBoundaryCondition<SPACE_DIM>(0.0);
             
-            this->mpBoundaryConditions->AddDirichletBoundaryCondition( this->mpMesh->GetNodeAt(i), p_boundary_condition, 1);
+            Node<SPACE_DIM>* p_node = this->mpMesh->GetNodeAt(mFixedExtracellularPotentialNodes[i]);
+            
+            this->mpBoundaryConditions->AddDirichletBoundaryCondition(p_node, p_boundary_condition, 1);
         }
         
-        //this->mpBoundaryConditions.Validate();
+        //assert(this->mpBoundaryConditions->Validate(this->mpMesh));
     }
     
     

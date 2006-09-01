@@ -56,15 +56,34 @@ public:
     /**
      * Constructors just call the base class versions.
      */
-    SimpleLinearEllipticAssembler(int numQuadPoints = 2) :
+    SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                  AbstractLinearEllipticPde<SPACE_DIM>* pPde,
+                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
+                                  int numQuadPoints = 2) :
             AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
-    {}
-    SimpleLinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+    {
+        // note - we don't check any of these are NULL here (that is done in Solve() instead),
+        // to allow the user or a subclass to set any of these later
+        this->mpMesh = pMesh; 
+        this->mpPde  = pPde;
+        this->mpBoundaryConditions = pBoundaryConditions;
+    }
+    
+    
+    SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                  AbstractLinearEllipticPde<SPACE_DIM>* pPde,
+                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
+                                  AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                   AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                   int numQuadPoints = 2) :
             AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
-    {}
-    
+    {
+        // note - we don't check any of these are NULL here (that is done in Solve() instead),
+        // to allow the user or a subclass to set any of these later
+        this->mpMesh = pMesh; 
+        this->mpPde  = pPde;
+        this->mpBoundaryConditions = pBoundaryConditions;
+    }
 };
 
 

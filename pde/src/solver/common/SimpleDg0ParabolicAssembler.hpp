@@ -53,18 +53,36 @@ public:
      * Constructors call the base class versions, and note we're not fully ready
      * for work.
      */
-    SimpleDg0ParabolicAssembler(int numQuadPoints = 2) :
+    SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                                BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
+                                int numQuadPoints = 2) :
             AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
+        // note - we don't check any of these are NULL here (that is done in Solve() instead),
+        // to allow the user or a subclass to set any of these later
+        this->mpMesh = pMesh; 
+        this->mpPde  = pPde;
+        this->mpBoundaryConditions = pBoundaryConditions;
+        
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
     }
 
-    SimpleDg0ParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+    SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                                BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
+                                AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                 AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                 int numQuadPoints = 2) :
             AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
+        // note - we don't check any of these are NULL here (that is done in Solve() instead),
+        // to allow the user or a subclass to set any of these later
+        this->mpMesh = pMesh; 
+        this->mpPde  = pPde;
+        this->mpBoundaryConditions = pBoundaryConditions;
+
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
     }

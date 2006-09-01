@@ -262,7 +262,9 @@ public:
         p_bidomain_problem->SetPdeTimeStep(0.01);
         p_bidomain_problem->PrintEveryNthTimeStep(17);  // every 17 timesteps
         
+        // for coverage:
         p_bidomain_problem->SetWriteInfo();
+        
         p_bidomain_problem->Initialise();
         p_bidomain_problem->Solve();
         
@@ -286,33 +288,46 @@ public:
         PointStimulusCellFactory cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
         
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
         
+        // fix the boundary nodes
         std::vector<unsigned> fixed_nodes;
-        for (int i=0; i<1; i++) // 11 nodes in this mesh
-        {
-            fixed_nodes.push_back(i);
-        }
+        fixed_nodes.push_back(0);
+        fixed_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
-        
+
+
+        bidomain_problem.SetOutputDirectory("temp");
+        bidomain_problem.SetOutputFilenamePrefix("temp");
         bidomain_problem.SetEndTime(1);  // ms
         bidomain_problem.Initialise();
+
+        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
+        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
+        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        
         bidomain_problem.Solve();
         
         double* p_voltage_array;
         unsigned lo,hi;
         
         bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+  
+        unsigned global_index = 1;  // index for phi_e corresponding to node 0
+        if(lo<=global_index && global_index<hi)
         {
             unsigned local_index = global_index - lo;
-            
-            if ((global_index%2)==1) // ie if index mod 2 == 1, ie every odd index, ie corresponding to phi_e
-            {
-                // node was fixed, phi_e should be almost exactly zero
-                TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
-            }
+            TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
         }
+        
+        global_index = 201;         // index for phi_e corresponding to node 100
+        if(lo<=global_index && global_index<hi)
+        {
+            unsigned local_index = global_index - lo;
+            TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
+        }
+        
         bidomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     

@@ -88,10 +88,9 @@ public:
             iter++;
         }
         
-        
         // Assembler
-        MonodomainDg0Assembler<1,1> monodomain_assembler;
-        SimpleDg0ParabolicAssembler<1,1> simple_assembler;
+        MonodomainDg0Assembler<1,1> monodomain_assembler(&mesh,&pde);
+        SimpleDg0ParabolicAssembler<1,1> simple_assembler(&mesh,&pde,&bcc);
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
@@ -116,15 +115,6 @@ public:
         
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
-        
-        monodomain_assembler.SetMesh(&mesh);
-        monodomain_assembler.SetPde(&pde);
-        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
-        
-        simple_assembler.SetMesh(&mesh);
-        simple_assembler.SetPde(&pde);
-        simple_assembler.SetBoundaryConditionsContainer(&bcc);
-
 
         double tCurrent = tStart;
         while ( tCurrent < tFinal )
@@ -192,9 +182,9 @@ public:
         }
         
         // Assembler
-        MonodomainDg0Assembler<2,2> monodomain_assembler;
-        SimpleDg0ParabolicAssembler<2,2> simple_assembler;
-        
+        MonodomainDg0Assembler<2,2> monodomain_assembler(&mesh,&pde);
+        SimpleDg0ParabolicAssembler<2,2> simple_assembler(&mesh,&pde,&bcc);
+                
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
         initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
@@ -218,14 +208,6 @@ public:
         
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
-        
-        monodomain_assembler.SetMesh(&mesh);
-        monodomain_assembler.SetPde(&pde);
-        monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
-        
-        simple_assembler.SetMesh(&mesh);
-        simple_assembler.SetPde(&pde);
-        simple_assembler.SetBoundaryConditionsContainer(&bcc);
         
         double tCurrent = tStart;
         while ( tCurrent < tFinal )
