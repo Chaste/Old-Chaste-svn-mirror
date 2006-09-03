@@ -94,6 +94,11 @@ public:
         
         this->SetMatrixIsConstant();
     }
+
+    ~MonodomainDg0Assembler()
+    {
+        delete this->mpBoundaryConditions;
+    }
 };
 
 #endif //_MONODOMAINDG0ASSEMBLER_HPP_
