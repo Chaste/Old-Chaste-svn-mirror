@@ -1,25 +1,30 @@
-#ifndef _ABSTRACTLINEARPARABOLICASSEMBLER_HPP_
-#define _ABSTRACTLINEARPARABOLICASSEMBLER_HPP_
+#ifndef _ABSTRACTLINEARDYNAMICPROBLEMASSEMBLER_HPP_
+#define _ABSTRACTLINEARDYNAMICPROBLEMASSEMBLER_HPP_
 
 /**
- * Abstract superclass for classes that assemble and solve the linear system
- * for a linear parabolic PDE.
+ *  AbstractLinearDynamicProblemAssembler
+ * 
+ *  Abstract superclass for classes that assemble and solve the linear system
+ *  for a dynamic linear PDE, for example a parabolic PDE or the bidomain 
+ *  equations.
+ * 
+ *  The template parameter NUM_UNKNOWNS represents the number of 
+ *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
+ *  2 in u_xx + v = 0, v_xx + 2u = 1
+ *  
+ *  SetTimes() and SetInitialCondition() should be called be the user prior to
+ *  Solve().
  */
-
-
 #include <vector>
 #include <petscvec.h>
 
 #include "AbstractLinearAssembler.hpp"
-#include "AbstractLinearParabolicPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
-#include "AbstractLinearParabolicPde.hpp"
-
 
 template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
-class AbstractLinearParabolicAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>
+class AbstractLinearDynamicProblemAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>
 {
 protected :
     double mTstart;
@@ -32,18 +37,22 @@ protected :
     Vec    mInitialCondition;
 
 public :
-    /**AbstractLinearParabolicAssembler
+    /**
+     * AbstractLinearDynamicProblemAssembler
      * Constructors just call the base class versions.
      */
-    AbstractLinearParabolicAssembler(int numQuadPoints = 2) :
+    AbstractLinearDynamicProblemAssembler(int numQuadPoints = 2) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
     {}
-    AbstractLinearParabolicAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+    AbstractLinearDynamicProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                      int numQuadPoints = 2) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     
+    /** 
+     *  Set the times to solve between, and the time step to use
+     */
     void SetTimes(double Tstart, double Tend, double dt)
     {
         mTstart = Tstart;
@@ -65,6 +74,9 @@ public :
         mTimesSet = true;
     }
     
+    /** 
+     *  Set the initial condition
+     */
     void SetInitialCondition(Vec initCondition)
     {
         mInitialCondition = initCondition;
@@ -73,20 +85,17 @@ public :
     
     
     /**
-     * Solve a linear parabolic PDE over the time period specified with a call to
-     * SetTimes and the initial conditions specified by a call to SetInitialCondition.
+     *  Solve a dynamic PDE over the time period specified through SetTimes()
+     *  and the initial conditions specified through SetInitialCondition().
      * 
-     * SetMesh(), SetPde(), SetBoundaryConditionsContainer(), SetTimes() and 
-     * SetInitialCondition() must be called before Solve().
+     *  SetTimes() and SetInitialCondition() must be called before Solve(), and 
+     *  the mesh and pde must have been set.
      */
     Vec Solve()
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpPde!=NULL);
-        
-///\todo: bring this assertion back (currently removed as bidomain assembler doesn't
-// use a bcc        
-//        assert(this->mpBoundaryConditions!=NULL);
+        assert(this->mpBoundaryConditions!=NULL);
         
         assert(mTimesSet);
         assert(mInitialConditionSet);
@@ -114,4 +123,4 @@ public :
     }
 };
 
-#endif //_ABSTRACTLINEARPARABOLICASSEMBLER_HPP_
+#endif //_ABSTRACTLINEARDYNAMICPROBLEMASSEMBLER_HPP_

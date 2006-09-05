@@ -7,7 +7,7 @@
 
 #include "LinearSystem.hpp"
 #include "AbstractLinearEllipticPde.hpp"
-#include "AbstractLinearEllipticAssembler.hpp"
+#include "AbstractLinearStaticProblemAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
@@ -15,12 +15,13 @@
 #include "AbstractBasisFunction.hpp"
 
 
-/**
- * An example implementation of a linear elliptic PDE solver. It just uses code
- * from the abstract base classes.
+/** 
+ *  SimpleLinearEllipticAssembler
+ * 
+ *  Assembler for solving AbstractLinearEllipticPdes
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleLinearEllipticAssembler : public AbstractLinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleLinearEllipticAssembler : public AbstractLinearStaticProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
 private:
 
@@ -28,39 +29,57 @@ private:
     
 protected:
     /**
-     * In the case of an elliptic pde, this is zero.
+     *  The term to be added to the element stiffness matrix: 
+     *  
+     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) 
      */
-    virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX)
+    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeLhsTerm(
+        const c_vector<double,ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> &rGradPhi,
+        const Point<SPACE_DIM> &rX,
+        const c_vector<double,1> &u)
     {
-        //AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
+        AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
 
-        return zero_matrix<double>(ELEMENT_DIM+1,ELEMENT_DIM+1);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(rX);
+
+        return prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) );
     }
     
-    /**
-    * Compute extra RHS term.
-    */
-    virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX,
-        double u)
+    /** 
+     *  The term arising from boundary conditions to be added to the element
+     *  stiffness vector
+     */
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(const c_vector<double, ELEMENT_DIM+1> &rPhi,
+                                                              const Point<SPACE_DIM> &rX,
+                                                              const c_vector<double,1> &u)
     {
         AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
 
         return pde->ComputeLinearSourceTerm(rX) * rPhi;
     }
     
+    
+    virtual c_vector<double, ELEMENT_DIM> ComputeSurfaceRhsTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+                                                                const c_vector<double, ELEMENT_DIM> &phi,
+                                                                const Point<SPACE_DIM> &x )
+    {
+        // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
+        double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
+        return phi * D_times_gradu_dot_n;
+    }
+                                                               
+
+    
 public:
     /**
-     * Constructors just call the base class versions.
+     * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
     SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
                                   int numQuadPoints = 2) :
-            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
@@ -69,14 +88,16 @@ public:
         this->mpBoundaryConditions = pBoundaryConditions;
     }
     
-    
+    /**
+     * Constructor which also takes in basis functions
+     */
     SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
                                   AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                   AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                   int numQuadPoints = 2) :
-            AbstractLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later

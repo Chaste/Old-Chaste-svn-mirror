@@ -7,57 +7,79 @@
 
 #include "LinearSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
-#include "AbstractLinearParabolicAssembler.hpp"
+#include "AbstractLinearDynamicProblemAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
-
+/** 
+ *  SimpleDg0ParabolicAssembler
+ * 
+ *  Assembler for solving AbstractLinearParabolicPdes
+ */
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleDg0ParabolicAssembler : public AbstractLinearParabolicAssembler<ELEMENT_DIM, SPACE_DIM, 1>
+class SimpleDg0ParabolicAssembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
 protected:
     
     /**
-     * Compute the factor depending on the DuDtCoefficient ie: 
-     * (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
-     **/
-    virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX)
-    {
-        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
-        
-        return this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) *
-               outer_prod(rPhi, rPhi);
-    }
-    
-    /**
-     * Compute extra RHS term
-     * because pde is parabolic
+     *  The term to be added to the element stiffness matrix: 
+     *  
+     *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) + 
+     *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
      */
-    virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX,
-        double u)
+    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeLhsTerm(
+        const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        const Point<SPACE_DIM> &rX,
+        const c_vector<double,1> &u)
     {
         AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
 
-        return (pde->ComputeNonlinearSourceTerm(rX, u) + pde->ComputeLinearSourceTerm(rX)
-                + this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) * u) * rPhi;
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(rX);
+
+        return    prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
+                + this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
     }
+    
+    /** 
+     *  The term to be added to the element stiffness vector: 
+     */
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(const c_vector<double, ELEMENT_DIM+1> &rPhi,
+                                                              const Point<SPACE_DIM> &rX,
+                                                              const c_vector<double,1> &u)
+    {
+        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
+
+        return (pde->ComputeNonlinearSourceTerm(rX, u(0)) + pde->ComputeLinearSourceTerm(rX)
+                + this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) * u(0)) * rPhi;
+    }
+    
+    
+    /** 
+     *  The term arising from boundary conditions to be added to the element
+     *  stiffness vector
+     */
+    virtual c_vector<double, ELEMENT_DIM> ComputeSurfaceRhsTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+                                                                const c_vector<double, ELEMENT_DIM> &phi,
+                                                                const Point<SPACE_DIM> &x )
+    {
+        // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
+        double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
+        return phi * D_times_gradu_dot_n;
+    }
+                                        
     
 public:
     /**
-     * Constructors call the base class versions, and note we're not fully ready
-     * for work.
+     * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
      */
     SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
                                 int numQuadPoints = 2) :
-            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
@@ -69,13 +91,16 @@ public:
         this->mInitialConditionSet = false;
     }
 
+    /**
+     * Constructor which also takes in basis functions
+     */
     SimpleDg0ParabolicAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                 AbstractLinearParabolicPde<SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
                                 AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                 AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                 int numQuadPoints = 2) :
-            AbstractLinearParabolicAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later

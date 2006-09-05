@@ -49,6 +49,20 @@ public:
         mReplicated=NULL;
         mDistributed=NULL;
     }
+    
+    /**
+     *  Constructor taking in Petsc vector, which is immediately 
+     *  replicated into the internal data
+     */
+    ReplicatableVector(Vec vec)
+    {
+        mToAll=NULL;
+        mReplicated=NULL;
+        mDistributed=NULL;
+        
+        ReplicatePetscVector(vec);
+    }
+        
     /**
      * Default destructor.
      * Remove PETSc context.

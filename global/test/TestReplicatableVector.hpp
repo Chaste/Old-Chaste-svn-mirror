@@ -98,5 +98,43 @@ public:
         
         VecDestroy(petsc_vec);
     }
+    
+    void TestPetscReplicationUsingAlternativeConstructor()
+    {
+        int lo, hi;
+        Vec petsc_vec;
+        VecCreate(PETSC_COMM_WORLD, &petsc_vec);
+        VecSetSizes(petsc_vec, PETSC_DECIDE, VEC_SIZE);
+        VecSetFromOptions(petsc_vec);
+        VecGetOwnershipRange(petsc_vec,&lo,&hi);
+        
+        double *p_petsc_vec;
+        
+        VecGetArray(petsc_vec, &p_petsc_vec);
+        for (int global_index=lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            p_petsc_vec[local_index]=lo;
+        }
+        VecRestoreArray(petsc_vec, &p_petsc_vec);
+        VecAssemblyBegin(petsc_vec);
+        VecAssemblyEnd(petsc_vec);
+        
+        ReplicatableVector rep_vec(petsc_vec);
+        
+        for (int global_index=0; global_index<VEC_SIZE; global_index++)
+        {
+            if (lo<=global_index && global_index<hi)
+            {
+                TS_ASSERT_EQUALS(rep_vec[global_index], lo);
+            }
+            else
+            {
+                TS_ASSERT_DIFFERS(rep_vec[global_index], lo);
+            }
+        }
+        
+        VecDestroy(petsc_vec);
+    }
 };
 #endif /*TESTREPLICATABLEVECTOR_HPP_*/

@@ -16,11 +16,41 @@
 #include "AbstractBasisFunction.hpp"
 #include "AbstractLinearParabolicPde.hpp"
 #include "ReplicatableVector.hpp"
+#include "SimpleLinearSolver.cpp"
 
 /**
- * Base class from which all solvers for linear PDEs inherit. It defines a common
- * interface and (hopefully) sensible default code for AssembleAndSolveSystem,
- * AssembleOnElement and AssembleOnSurfaceElement.
+ *  AbstractLinearAssembler
+ *  
+ *  Base class from which all solvers for linear PDEs inherit. 
+ * 
+ *  The template parameter NUM_UNKNOWNS represents the number of 
+ *  unknown dependent variables in the problem (ie 1 in for example 
+ *  u_xx + u_yy = 0, and 2 in u_xx + v = 0, v_xx + 2u = 1)
+ * 
+ *  It defines a common interface and default code for AssembleSystem,
+ *  AssembleOnElement and AssembleOnSurfaceElement. Each of these work 
+ *  for any NUM_UNKNOWNS>=1, although the latter pair may have to be 
+ *  overridden depending on the problem when NUM_UNKNOWNS>1. Each of these
+ *  methods work in both the dynamic case (when there is a current solution
+ *  available) and the static case.
+ *  
+ *  user calls: 
+ * 
+ *  Solve() (implemented in AbsLin[Dynamic/Static]ProblemAssembler, and loops
+ *  over time in the dynamic case). Solve() calls:
+ * 
+ *  AssembleSystem() (implemented here, loops over elements and adds to the 
+ *  linear system) AssembleSystem() calls:
+ * 
+ *  AssembleOnElement() and AssembleOnSurfaceElement() (implemented here. These
+ *  loop over gauss points and create the element stiffness matrix and vector.
+ *  They call:
+ * 
+ *  ComputeLhsTerm(), ComputeRhsTerm(), ComputeSurfaceRhsTerm() (implemented in
+ *  the concrete assembler class (eg SimpleDg0ParabolicAssembler), which tells 
+ *  this assembler exactly what function of bases, position, pde constants etc
+ *  to add to the element stiffness matrix/vector.
+ * 
  */
 template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
 class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM, NUM_UNKNOWNS>
@@ -34,6 +64,7 @@ protected:
      * needs to be assembled at each time step.
      */
     bool mMatrixIsConstant;
+
     /**
      * mMatrixIsAssembled is a flag to say whether the matrix has been assembled 
      * for the current time step.
@@ -51,43 +82,65 @@ protected:
     ReplicatableVector mCurrentSolutionReplicated;
 
     /**
-     * Compute the factor on the LHS of the linear system that depends on the type
-     * of PDE.
+     *  This method returns the matrix to be added to element stiffness matrix
+     *  for a given gauss point. The arguments are the bases, bases gradients, 
+     *  x and current solution computed at the Gauss point. The returned matrix
+     *  will be multiplied by the gauss weight and jacobian determinent and 
+     *  added to the element stiffness matrix (see AssembleOnElement()).
      */
-    virtual c_matrix<double,ELEMENT_DIM+1,ELEMENT_DIM+1> ComputeExtraLhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX)=0;
+    virtual c_matrix<double,NUM_UNKNOWNS*(ELEMENT_DIM+1),NUM_UNKNOWNS*(ELEMENT_DIM+1)> ComputeLhsTerm(
+        const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        const Point<SPACE_DIM> &rX,
+        const c_vector<double,NUM_UNKNOWNS> &u)=0;  
         
     /**
-    * Compute the part of the RHS of the linear system that depends on the type of PDE.
-    */
-    virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX,
-        double u)=0;
-        
-    /**
-    * Calculate the contribution of a single element to the linear system.
-    * 
-    * @param rElement The element to assemble on.
-    * @param rAElem The element's contribution to the LHS matrix is returned in this
-    *     n by n matrix, where n is the no. of nodes in this element. There is no
-    *     need to zero this matrix before calling.
-    * @param rBElem The element's contribution to the RHS vector is returned in this
-    *     vector of length n, the no. of nodes in this element. There is no
-    *     need to zero this vector before calling.
-    * @param currentSolution For the parabolic case, the solution at the current timestep.
-    */
-    virtual void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                           c_matrix<double, NUM_UNKNOWNS*(ELEMENT_DIM+1), NUM_UNKNOWNS*(ELEMENT_DIM+1) > &rAElem,
-                           c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> &rBElem,
-                           Vec currentSolution)
-    {
-        // this AssembleOnElement method (currently?) only works with 1 unknown.
-        // AssembleOnElement should be overloaded in the appropriate assembler
-        // if the number of unknowns is greater than 1
-        assert(NUM_UNKNOWNS==1); 
+     *  This method returns the vector to be added to element stiffness vector
+     *  for a given gauss point. The arguments are the bases, 
+     *  x and current solution computed at the Gauss point. The returned vector
+     *  will be multiplied by the gauss weight and jacobian determinent and 
+     *  added to the element stiffness matrix (see AssembleOnElement()).
+     */
+    virtual c_vector<double,NUM_UNKNOWNS*(ELEMENT_DIM+1)> ComputeRhsTerm(
+        const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const Point<SPACE_DIM> &rX,
+        const c_vector<double,NUM_UNKNOWNS> &u)=0;  
 
+
+    /**
+     *  This method returns the vector to be added to element stiffness vector
+     *  for a given gauss point in BoundaryElement. The arguments are the bases, 
+     *  x and current solution computed at the Gauss point. The returned vector
+     *  will be multiplied by the gauss weight and jacobian determinent and 
+     *  added to the element stiffness matrix (see AssembleOnElement()).
+     */  
+    virtual c_vector<double, NUM_UNKNOWNS*ELEMENT_DIM> ComputeSurfaceRhsTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+        const c_vector<double, ELEMENT_DIM> &phi,
+        const Point<SPACE_DIM> &x )=0;
+
+
+        
+    /**
+     *  Calculate the contribution of a single element to the linear system.
+     * 
+     *  @param rElement The element to assemble on.
+     *  @param rAElem The element's contribution to the LHS matrix is returned in this
+     *     n by n matrix, where n is the no. of nodes in this element. There is no
+     *     need to zero this matrix before calling.
+     *  @param rBElem The element's contribution to the RHS vector is returned in this
+     *     vector of length n, the no. of nodes in this element. There is no
+     *     need to zero this vector before calling.
+     *  @param currentSolution For the parabolic case, the solution at the current timestep.
+     * 
+     *  Called by AssembleSystem()
+     *  Calls ComputeLhsTerm() etc
+     */
+    virtual void AssembleOnElement( Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+                                    c_matrix<double, NUM_UNKNOWNS*(ELEMENT_DIM+1), NUM_UNKNOWNS*(ELEMENT_DIM+1) > &rAElem,
+                                    c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> &rBElem,
+                                    Vec currentSolution)
+    {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule = 
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
@@ -95,10 +148,10 @@ protected:
 
        
         /**
-        * \todo This assumes that the Jacobian is constant on an element.
-        * This is true for linear basis functions, but not for any other type of
-        * basis function.
-        */
+         * \todo This assumes that the Jacobian is constant on an element.
+         * This is true for linear basis functions, but not for any other type of
+         * basis function.
+         */
         const c_matrix<double, SPACE_DIM, SPACE_DIM> *p_inverse_jacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
@@ -111,10 +164,10 @@ protected:
         
         rBElem.clear();
         
-        
-        // Create converters for use inside loop below
+
         const int num_nodes = rElement.GetNumNodes();
         
+        // loop over Gauss points
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
@@ -131,8 +184,16 @@ protected:
             // Location of the gauss point in the original element will be stored in x
             // Where applicable, u will be set to the value of the current solution at x
             Point<SPACE_DIM> x(0,0,0);
-            double u=0;
-            ResetInterpolatedQuantities();
+            
+            c_vector<double,NUM_UNKNOWNS> u = zero_vector<double>(NUM_UNKNOWNS);
+            
+            // allow the concrete version of the assembler to interpolate any
+            // desired quantities
+            ResetInterpolatedQuantities();  
+
+            /////////////////////////////////////////////////////////////
+            // interpolation
+            /////////////////////////////////////////////////////////////
             for (int i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
@@ -148,34 +209,36 @@ protected:
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (currentSolution)
                 {
-                    // If we have a current solution (e.g. this is a dynamic problem)
-                    // get the value in a usable form.
-                    // NOTE - currentSolution input is actually now redundant at this point,
-                    // the work is done in PrepareForAssembleSystem
-                    u  += phi(i)*this->mCurrentSolutionReplicated[ node_global_index ];
+                    for(unsigned index_of_unknown=0; index_of_unknown<NUM_UNKNOWNS; index_of_unknown++)
+                    {
+                        // If we have a current solution (e.g. this is a dynamic problem)
+                        // get the value in a usable form.
+
+                        // NOTE - currentSolution input is actually now redundant at this point - 
+
+                        // NOTE - following assumes that, if say there are two unknowns u and v, they
+                        // are stored in the curren solution vector as 
+                        // [U1 V1 U2 V2 ... U_n V_n]
+                        u(index_of_unknown)  += phi(i)*this->mCurrentSolutionReplicated[ NUM_UNKNOWNS*node_global_index + index_of_unknown];
+                    }
                 }
                 
-                // interpolate any other quantities that will be needed (done by the
-                // concrete version of the assembler if necessary)
+                // allow the concrete version of the assembler to interpolate any
+                // desired quantities
                 IncrementInterpolatedQuantities(phi(i), p_node);
-                //sourceTerm += phi(i)*pPde->ComputeNonlinearSourceTermAtNode(*node, pPde->GetInputCacheMember( node_global_index ) );
             }
             
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
             
+            ////////////////////////////////////////////////////////////
+            // create rAElem and rBElem
+            ////////////////////////////////////////////////////////////
             if (!this->mMatrixIsAssembled)
             {
-                AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*> (this->mpPde);
-                
-                c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(x);
-                
-                noalias(rAElem) += 	ComputeExtraLhsTerm(phi, x)*wJ;
-                
-                noalias(rAElem) += prod( trans(grad_phi),
-                                         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, grad_phi)) )* wJ;
+                noalias(rAElem) += ComputeLhsTerm(phi, grad_phi, x, u) * wJ;
             }
             
-            noalias(rBElem) += ComputeExtraRhsTerm(phi, x, u) * wJ;
+            noalias(rBElem) += ComputeRhsTerm(phi, x, u) * wJ;
         }
     }
     
@@ -186,18 +249,13 @@ protected:
      * boundary condition to the linear system.
      * 
      * @param rSurfaceElement The element to assemble on.
-     * @param rBsubElem The element's contribution to the RHS vector is returned in this
+     * @param rBSurfElem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
      */
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                          c_vector<double, ELEMENT_DIM> &rBsubElem)
+                                          c_vector<double, NUM_UNKNOWNS*ELEMENT_DIM> &rBSurfElem)
     {
-        // this AssembleOnElement method (currently?) only works with 1 unknown.
-        // AssembleOnElement should be overloaded in the appropriate assembler
-        // if the number of unknowns is greater than 1
-        assert(NUM_UNKNOWNS==1); 
-
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpSurfaceQuadRule);
         AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
@@ -205,48 +263,71 @@ protected:
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         
-        rBsubElem.clear();
+        rBSurfElem.clear();
         
+        // loop over Gauss points
         for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM+1>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_vector<double, ELEMENT_DIM>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             
-            // Location of the gauss point in the original element will be stored in x
+            
+            /////////////////////////////////////////////////////////////
+            // interpolation
+            /////////////////////////////////////////////////////////////
+            
+            // Location of the gauss point in the original element will be 
+            // stored in x
             Point<SPACE_DIM> x(0,0,0);
+            
+            ResetInterpolatedQuantities(); 
             for (int i=0; i<rSurfaceElement.GetNumNodes(); i++)
             {
                 const Point<SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetPoint();
                 for (int j=0; j<SPACE_DIM; j++)
                 {
-                    x.SetCoordinate(j, x[j] + phi(i)*node_loc[j]);
+                    x.rGetLocation()[j] += phi(i)*node_loc[j];
                 }
+                
+                // allow the concrete version of the assembler to interpolate any
+                // desired quantities
+                IncrementInterpolatedQuantities(phi(i), rSurfaceElement.GetNode(i));
+                
+                ///\todo: add interpolation of u as well
             }
             
-            double jW = jacobian_determinant * quad_rule.GetWeight(quad_index);
-            /**
-             * \todo Improve efficiency of Neumann BC implementation.
-             */
-            double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
-            
-            noalias(rBsubElem) += phi * Dgradu_dot_n *jW;
+            double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
+
+            ////////////////////////////////////////////////////////////
+            // create rAElem and rBElem
+            ////////////////////////////////////////////////////////////
+            ///\todo Improve efficiency of Neumann BC implementation.
+            noalias(rBSurfElem) += ComputeSurfaceRhsTerm(rSurfaceElement, phi, x) * wJ;
         }
     }
-    
+
+    /** 
+     *  The concrete subclass can overload this and IncrementInterpolatedQuantities()
+     *  if there are some quantities which need to be computed at each Gauss point. 
+     *  They are called in AssembleOnElement()
+     */
     virtual void ResetInterpolatedQuantities( void )
     {
     }
     
-    
+    /** 
+     *  The concrete subclass can overload this and ResetInterpolatedQuantities()
+     *  if there are some quantities which need to be computed at each Gauss point. 
+     *  They are called in AssembleOnElement()
+     */    
     virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {
     }
     
+
+    
 public:
-    /**
-     * Constructors just call the base class versions.
-     */
     AbstractLinearAssembler(int numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
     {
@@ -255,10 +336,11 @@ public:
         mMatrixIsConstant = false;
         mMatrixIsAssembled = false;
     }
+    
+    
     AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                             AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                             int numQuadPoints = 2) :
-                            
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = new SimpleLinearSolver;
@@ -282,8 +364,8 @@ public:
     }
     
     /** 
-     * Manually re-set the linear system solver (which by default 
-     * is a SimpleLinearSolver)
+     *  Manually re-set the linear system solver (which by default 
+     *  is a SimpleLinearSolver)
      */
     void SetLinearSolver(AbstractLinearSolver *pSolver)
     {
@@ -298,9 +380,9 @@ public:
     }
     
     /**
-     * Initialise the LinearSystem class to a given size
+     *  Initialise the LinearSystem class to a given size
      *      
-     * @param size The size of the LinearSystem (number of nodes in the mesh)
+     *  @param size The size of the LinearSystem (number of nodes in the mesh)
      */
     void InitialiseLinearSystem(unsigned size)
     {
@@ -310,10 +392,13 @@ public:
     
     
     /**
-     *  Assemble the linear system for a linear PDE. Takes in current solution and
-     *  time if necessary but only used if the problem is a dynamic one. This method
-     *  uses NUM_UNKNOWNS and can assemble linear systems for any number of unknown 
-     *  variables.
+     *  Assemble the linear system for a linear PDE. Loops over each element (and each 
+     *  each surface element if there are non-zero Neumann boundary conditions and 
+     *  calls AssembleOnElement() and adds the contribution to the linear system.
+     * 
+     *  Takes in current solution and time if necessary but only used if the problem 
+     *  is a dynamic one. This method uses NUM_UNKNOWNS and can assemble linear systems 
+     *  for any number of unknown variables.
      * 
      *  Called by Solve()
      *  Calls AssembleOnElement()
@@ -329,7 +414,10 @@ public:
 
         // Allow the PDE to set up anything necessary for the assembly of the
         // solution (eg. if it's a coupled system, then solve the ODEs)
-        this->mpPde->PrepareForAssembleSystem(currentSolution, currentTime);
+        if(this->mpPde!=NULL)
+        {
+            this->mpPde->PrepareForAssembleSystem(currentSolution, currentTime);
+        }
 
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
         // << std::endl;elem
@@ -410,52 +498,33 @@ public:
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
 
-        if(this->mpBoundaryConditions!=NULL) // temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
-        {
-            // the following is not true of Bidomain or Monodomain
-            if(this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
+        // the following is not true of Bidomain or Monodomain
+        if(this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
+        {            
+            if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
-                //! remove this when no longer needed
-                assert(NUM_UNKNOWNS==1);
-                  
-                if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+                const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+                c_vector<double, NUM_UNKNOWNS*ELEMENT_DIM> b_surf_elem;
+                
+                while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
                 {
-                    const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-                    c_vector<double, ELEMENT_DIM> b_surf_elem;
+                    const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
                     
-                    while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
+                    ///\todo Check surf_element is in the Neumann surface in an efficient manner
+                    if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                     {
-                        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
-                        /**
-                         * \todo
-                         * Check surf_element is in the Neumann surface in an efficient manner.
-                         */
-                        if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
-                        {
-                            AssembleOnSurfaceElement(surf_element, b_surf_elem);
-    
-                            for (int i=0; i<num_surf_nodes; i++)
-                            {
-                                int node1 = surf_element.GetNodeGlobalIndex(i);
-                                mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
-                            }
+                       AssembleOnSurfaceElement(surf_element, b_surf_elem);
+                       for (int i=0; i<num_surf_nodes; i++)
+                       {
+                           int node1 = surf_element.GetNodeGlobalIndex(i);
+                           mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
                         }
-                        surf_iter++;
                     }
+                    surf_iter++;
                 }
             }
         }
-        else
-        {
-            // all problems with 1 unknown should have a boundary conditions container
-            // defined.
-            assert(NUM_UNKNOWNS != 1);
-
-            // add code here to allow an assembler to call some function to add 
-            // neumann type conditions that don't fit into the 
-            // BoundaryConditionsContainer architecture?
-        }
-
+ 
         if (mMatrixIsAssembled)
         {
             mpAssembledLinearSystem->AssembleRhsVector();
@@ -466,15 +535,12 @@ public:
         }
 
 
-        // the assembler can set bcs here instead, or do anything else
-        // required like setting up a null basis (see BidomainDg0Assembler) 
+        // the assembler do anything else required like setting up a null basis 
+        // (see BidomainDg0Assembler) in this function
         FinaliseAssembleSystem(currentSolution, currentTime);
         
         // Apply dirichlet boundary conditions
-        if(this->mpBoundaryConditions)// temporary check, as bccs don't work for NUM_UNKNOWNS>1 yet.
-        {
-            this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
-        }
+        this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpAssembledLinearSystem, mMatrixIsAssembled);
         
         
         if (mMatrixIsAssembled)

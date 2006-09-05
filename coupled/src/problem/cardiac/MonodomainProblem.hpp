@@ -103,23 +103,8 @@ public:
             EXCEPTION("Start time should be less than end time");
         }
 
-/*        // Boundary conditions, zero neumann everywhere
-        BoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,1> bcc(mMesh.GetNumNodes());
-        
-        // The 'typename' keyword is required otherwise the compiler complains
-        // Not totally sure why!
-        typename ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM>::BoundaryElementIterator iter = mMesh.GetBoundaryElementIteratorBegin();
-        ConstBoundaryCondition<SPACE_DIM>* p_neumann_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
-        
-        while (iter != mMesh.GetBoundaryElementIteratorEnd())
-        {
-            bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
-            iter++;
-        }
-*/        
         // Assembler
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&mMesh, mpMonodomainPde);
-  //      monodomain_assembler.SetBoundaryConditionsContainer(&bcc);
             
         // initial condition;
         Vec initial_condition;

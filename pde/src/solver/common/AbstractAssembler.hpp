@@ -10,10 +10,14 @@
 
 
 /**
- * Abstract base class for all the PDE assemblers.
+ *  Abstract base class for all the PDE assemblers.
  *
- * Currently this provides methods for selecting what type of basis function to
- * use, and how many quadrature points per dimension.
+ *  Currently this provides methods for selecting what type of basis function to
+ *  use, and how many quadrature points per dimension.
+ * 
+ *  The template parameter NUM_UNKNOWNS represents the number of 
+ *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
+ *  2 in u_xx + v = 0, v_xx + 2u = 1
  */
 template <int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
 class AbstractAssembler
@@ -21,8 +25,13 @@ class AbstractAssembler
 protected:
     bool mWeAllocatedBasisFunctionMemory;
     
+    /*< Pde to be solved */
     AbstractPde* mpPde;
+
+    /*< Mesh to be solved on */
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
+    
+    /*< Boundary conditions to be applied */
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, NUM_UNKNOWNS>* mpBoundaryConditions;
 
     /*< Basis function for use with normal elements */
@@ -117,8 +126,6 @@ public:
     
     /**
      * Set the pde to be solved.
-     * 
-     * This method must be called before Solve()
      */
     void SetPde(AbstractPde* pPde)
     {
@@ -127,8 +134,6 @@ public:
     
     /**
      * Set the mesh.
-     * 
-     * This method must be called before Solve()
      */
     void SetMesh(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
     {
@@ -137,8 +142,6 @@ public:
     
     /**
      * Set the boundary conditions.
-     * 
-     * This method must be called before Solve()
      */
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>* pBoundaryConditions)
     {

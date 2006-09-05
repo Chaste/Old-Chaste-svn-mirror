@@ -15,9 +15,19 @@
 #include "MonodomainPde.hpp"
 
 
-//delete this
-#include <boost/numeric/ublas/io.hpp>
-
+/**
+ *  MonodomainDg0Assembler
+ * 
+ *  This is essentially the same as the SimpleDg0ParabolicAssembler (which it inherits from),
+ *  except that the source term (ie ionic current + stimulus) is interpolated from
+ *  their nodal values, instead of computed at the gauss point, since they are only
+ *  known at the nodes.
+ *  
+ *  Also, the MonodomainAssembler automatically creates zero neumann boundary conditions
+ *  when constructed and therefore does not need to take in a BoundaryConditionsContainer.
+ * 
+ *  The user should call Solve() from the superclass AbstractLinearDynamicProblemAssembler.
+ */
 template<int ELEMENT_DIM, int SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
@@ -26,19 +36,24 @@ private:
     
 protected:
 
-    /**
-     * Compute extra RHS term
-     * because pde is parabolic
+    /** 
+     *  ComputeRhsTerm()
+     * 
+     *  This method is called by AssembleOnElement() and tells the assembler
+     *  the contribution to add to the element stiffness vector.
+     * 
+     *  Here, the SimpleDg0ParabolicAssembler version of this method is 
+     *  overloaded using the interpolated source term
      */
-    virtual c_vector<double,ELEMENT_DIM+1> ComputeExtraRhsTerm(
-        c_vector<double, ELEMENT_DIM+1> &rPhi,
-        Point<SPACE_DIM> &rX,
-        double u)
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(
+        const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const Point<SPACE_DIM> &rX,
+        const c_vector<double,1> &u)
     {
         AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
         
         return  rPhi * (mSourceTerm + this->mDtInverse *
-                        pde->ComputeDuDtCoefficientFunction(rX) * u);
+                        pde->ComputeDuDtCoefficientFunction(rX) * u(0));
     }    
     
     
@@ -56,11 +71,9 @@ protected:
     }
     
     
-    
-    
 public:
     /**
-     * Constructors just call the base class versions.
+     * Constructor stores the mesh and pde and sets up boundary conditions.
      */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            AbstractLinearParabolicPde<SPACE_DIM>* pPde,
@@ -77,7 +90,10 @@ public:
         this->SetMatrixIsConstant();
     }
 
-    
+    /**
+     *  Alternative constructor which stores the mesh and pde, sets up 
+     *  boundary conditions, and also takes in basis functions.
+     */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            AbstractLinearParabolicPde<SPACE_DIM>* pPde,
                            AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
