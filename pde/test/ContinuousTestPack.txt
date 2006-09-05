@@ -7,5 +7,6 @@ TestNonlinearHeatEquationPde.hpp
 TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp
+TestSolvingCoupledPdes.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp

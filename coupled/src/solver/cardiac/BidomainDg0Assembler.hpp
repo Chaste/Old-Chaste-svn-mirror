@@ -178,8 +178,8 @@ private:
         c_vector<double, 2*ELEMENT_DIM> ret;
         for(int i=0; i<ELEMENT_DIM; i++)
         {
-            ret(i)             = phi(i)*D_times_grad_v_dot_n;
-            ret(i+ELEMENT_DIM) = phi(i)*D_times_grad_phi_e_dot_n;
+            ret(2*i)   = phi(i)*D_times_grad_v_dot_n;
+            ret(2*i+1) = phi(i)*D_times_grad_phi_e_dot_n;
         }
     
         return ret;

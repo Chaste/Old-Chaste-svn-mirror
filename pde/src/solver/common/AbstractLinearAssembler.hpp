@@ -443,8 +443,8 @@ public:
         }
         
         // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
-            this->mpMesh->GetElementIteratorBegin();
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator 
+            iter = this->mpMesh->GetElementIteratorBegin();
             
         // Assume all elements have the same number of nodes...
         const int num_elem_nodes = (*iter)->GetNumNodes();
@@ -453,7 +453,7 @@ public:
 
         while (iter != this->mpMesh->GetElementIteratorEnd())
         {
-            Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
+            Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
             
             AssembleOnElement(element, a_elem, b_elem, currentSolution);
             
@@ -496,7 +496,8 @@ public:
         }
 
         // add the integrals associated with Neumann boundary conditions to the linear system
-        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator 
+            surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
 
         // the following is not true of Bidomain or Monodomain
         if(this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
@@ -513,11 +514,15 @@ public:
                     ///\todo Check surf_element is in the Neumann surface in an efficient manner
                     if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                     {
-                       AssembleOnSurfaceElement(surf_element, b_surf_elem);
-                       for (int i=0; i<num_surf_nodes; i++)
-                       {
-                           int node1 = surf_element.GetNodeGlobalIndex(i);
-                           mpAssembledLinearSystem->AddToRhsVectorElement(node1,b_surf_elem(i));
+                        AssembleOnSurfaceElement(surf_element, b_surf_elem);
+                        for (int i=0; i<num_surf_nodes; i++)
+                        {
+                            int node1 = surf_element.GetNodeGlobalIndex(i);
+                            
+                            for(int k=0; k<NUM_UNKNOWNS; k++)
+                            {
+                                mpAssembledLinearSystem->AddToRhsVectorElement(NUM_UNKNOWNS*node1 + k, b_surf_elem(NUM_UNKNOWNS*i+k));
+                            }
                         }
                     }
                     surf_iter++;
