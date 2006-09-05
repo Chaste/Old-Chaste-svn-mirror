@@ -2,6 +2,7 @@ TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
+TestLinearElasticityAssembler.hpp
 TestLinearHeatEquation.hpp
 TestNonlinearHeatEquationPde.hpp
 TestSimpleDg0ParabolicAssembler.hpp
