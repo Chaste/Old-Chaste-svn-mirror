@@ -9,9 +9,9 @@ MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::st
         const bool &rSetCoolGraphics)
         : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName)
 {
-    if ( ELEMENT_DIM != 3 || SPACE_DIM !=3 )
+    if (ELEMENT_DIM != SPACE_DIM)
     {
-        EXCEPTION("Can only write 3D data");
+        EXCEPTION("ELEMENT_DIM must be equal to SPACE_DIM");
     }
     
     if (rSetCoolGraphics)
@@ -37,7 +37,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     
     //Write the node header
     int num_nodes = this->GetNumNodes();
-    *p_node_file<< num_nodes << "\n";
+    *p_node_file << num_nodes << "\n";
     
     //Write each node's data
     for (int item_num=0; item_num<num_nodes; item_num++)
@@ -45,24 +45,43 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         std::vector<double> current_item = this->mNodeData[item_num];
         for (unsigned int i=0;i<SPACE_DIM;i++)
         {
-            *p_node_file<<current_item[i]<<"\t";
+            *p_node_file << current_item[i] << "\t";
+            if(SPACE_DIM==2)
+            {
+                *p_node_file << 0 << "\t";
+            }
+            if(SPACE_DIM==1)
+            {
+                *p_node_file << 0 << "\t" << 0 << "\t";
+            }
         }
-        *p_node_file<<"\n";
+        *p_node_file << "\n";
         
     }
     p_node_file->close();
     
     //Write Element file
-    std::string element_file_name = this->mBaseName+".tetras";
+    std::string element_file_name;
+    
+    if(SPACE_DIM == 3)
+    {    
+        element_file_name = this->mBaseName+".tetra";
+    }
+    else // SPACE_DIM == 1 or 2
+    {
+        element_file_name = this->mBaseName+".tri";
+    }
+    
+
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
     
     //Write the element header
     int num_elements = this->GetNumElements();
     
-    *p_element_file<< num_elements << "\n";
+    *p_element_file << num_elements << "\n";
     
     //Write each element's data
-    int nodes_per_element = 4;
+    int nodes_per_element = ELEMENT_DIM+1;
     for (int item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<int> current_item = this->mElementData[item_num];
@@ -70,56 +89,58 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         {
             if (this->mIndexFromZero)
             {
-                *p_element_file<<current_item[i]<<"\t";
+                *p_element_file << current_item[i] << "\t";
             }
             else
             {
-                *p_element_file<<current_item[i]+1<<"\t";
+                *p_element_file << current_item[i]+1 << "\t";
             }
         }
-        *p_element_file<<"\n";
+        *p_element_file << "\n";
         
     }
     p_element_file->close();
     
-    //Write boundary face file
-    std::string face_file_name = this->mBaseName+".tris";
-    out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
-    
-    //Write the boundary face header
-    int num_faces = this->GetNumBoundaryFaces();
-    
-    *p_face_file<< num_faces << "\n";
-    
-    //Write each face's data
-    double material_property= 0.0;
-    for (int item_num=0; item_num<num_faces; item_num++)
+    if(SPACE_DIM==3)
     {
-        std::vector<int> current_item = this->mBoundaryFaceData[item_num];
-        for (unsigned int i=0;i<ELEMENT_DIM;i++)
+        //Write boundary face file
+        std::string face_file_name = this->mBaseName+".tri";
+        out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
+    
+        //Write the boundary face header
+        int num_faces = this->GetNumBoundaryFaces();
+    
+        *p_face_file<< num_faces << "\n";
+    
+        //Write each face's data
+        double material_property= 0.0;
+        for (int item_num=0; item_num<num_faces; item_num++)
         {
-            if (this->mIndexFromZero)
+            std::vector<int> current_item = this->mBoundaryFaceData[item_num];
+            for (unsigned int i=0;i<ELEMENT_DIM;i++)
             {
-                *p_face_file<<current_item[i]<<"\t";
+                if (this->mIndexFromZero)
+                {
+                    *p_face_file << current_item[i] << "\t";
+                }
+                else
+                {
+                    *p_face_file << current_item[i]+1 <<"\t";
+                }
             }
-            else
-            {
-                *p_face_file<<current_item[i]+1<<"\t";
-            }
+            *p_face_file << material_property << "\n";
+        }   
+        p_face_file->close();
+            
+        if (this->mWriteMetaFile)
+        {
+            std::string meta_file_name = this->mBaseName+".cg_in";
+            out_stream p_meta_file = this->mpOutputFileHandler->OpenOutputFile(meta_file_name);
+        
+            *p_meta_file << "1\n" << "0\n";
+            *p_meta_file << face_file_name <<"\n";
+            p_meta_file->close();
         }
-        *p_face_file<<material_property<<"\n";
-        
-    }
-    p_face_file->close();
-    
-    if (this->mWriteMetaFile)
-    {
-        std::string meta_file_name = this->mBaseName+".cg_in";
-        out_stream p_meta_file = this->mpOutputFileHandler->OpenOutputFile(meta_file_name);
-        
-        *p_meta_file<< "1\n"<< "0\n";
-        *p_meta_file<< face_file_name<<"\n";
-        p_meta_file->close();
     }
 }
 

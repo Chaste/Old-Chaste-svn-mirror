@@ -1,5 +1,6 @@
 TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
+TestElasticityBoundaryConditionsContainer.hpp
 TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearElasticityAssembler.hpp

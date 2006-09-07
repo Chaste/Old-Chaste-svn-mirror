@@ -3,7 +3,7 @@
 
 #include "AbstractLinearStaticProblemAssembler.hpp"
 #include "ConformingTetrahedralMesh.hpp"
-#include "BoundaryConditionsContainer.hpp"
+#include "ElasticityBoundaryConditionsContainer.hpp"
 
 template <int DIM>
 class LinearElasticityAssembler : public AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>
@@ -73,7 +73,7 @@ private :
     
 public :
     LinearElasticityAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
-                              BoundaryConditionsContainer<DIM,DIM,DIM>* pBoundaryConditions)
+                              ElasticityBoundaryConditionsContainer<DIM>* pBoundaryConditions)
     {
         assert(pMesh!=NULL);
         assert(pBoundaryConditions!=NULL);
