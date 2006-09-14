@@ -7,6 +7,31 @@
 
 #define LAME_COEFF_UNSET -1e10
 
+
+
+/** 
+ *  LinearElasticityAssembler
+ * 
+ *  Solve the isotropic linear elasticity equations 
+ * 
+ *      sigma_{ij,j} + rho g_i = 0,
+ * 
+ *  where 
+ * 
+ *      x_i  = old position,
+ *      rho  = density,
+ *      g_i  = body force (per unit volume) (eg gravity)
+ * 
+ *  and the stress sigma_ij is given by 
+ *  
+ *      sigma_ij = mu (u_{i,j} + u_{j,i}) +  lambda u_{k,k} delta_{ij}  
+ *               =  2 mu e_{i,j} + lamda u_{k,k} delta_{ij}
+ * 
+ *  where u_i is the displacement, and lambda and mu are the Lame coefficients (and
+ *  e_{i,j} = 0.5*(u_{i,j}+u_{j,i}) is the infinitessimal strain).
+ * 
+ *  NOTE: currently only solves heterogeneous problems.
+ */
 template <int DIM>
 class LinearElasticityAssembler : public AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>
 {
@@ -66,11 +91,19 @@ private :
 
     virtual c_vector<double, DIM*DIM> ComputeSurfaceRhsTerm(
         const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
-        const c_vector<double, DIM> &phi,
+        const c_vector<double, DIM> &rPhi,
         const Point<DIM> &x )
     {
-        assert(0);
-        return zero_vector<double>(DIM*(DIM+1)); 
+        c_vector<double,DIM*DIM> ret;
+        for(unsigned I=0; I<DIM; I++) // DIM = number of nodes, in this context (as element is a surface element)
+        {
+            for(unsigned s=0; s<DIM; s++) // s = spatial dimension index
+            {
+                // GetNeumannBCValue(&rSurfaceElement,x,s) = s-component of traction 
+                ret(DIM*I+s) = rPhi(I) * this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement,x,s);
+            }
+        }
+        return ret;
     }
 
 

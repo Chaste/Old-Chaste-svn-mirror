@@ -282,6 +282,114 @@ public:
     }
     
     
+    
+    //////////////////////////////////////////////////////////////////////////////
+    // 3d cube, fixed on it's bottom surface, with tractions applied on the other 
+    // surfaces.
+    //
+    //  !!TODO!! - compare this with femlab
+    //////////////////////////////////////////////////////////////////////////////
+    void Test3dExampleWithNonzeroTractions(void) throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        ElasticityBoundaryConditionsContainer<3> bcc(mesh.GetNumNodes());
+
+        ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator node_iter 
+           = mesh.GetBoundaryNodeIteratorBegin(); 
+
+        // fix nodes whose z value is 0.0 (ie the bottom surface)
+        while( node_iter != mesh.GetBoundaryNodeIteratorEnd() )
+        {
+            double z = (*node_iter)->GetPoint()[2];
+            if(z==0.0)
+            {
+                bcc.FixNode(*node_iter);
+            }
+            node_iter++;
+        }
+
+        ConformingTetrahedralMesh<3,3>::BoundaryElementIterator elem_iter 
+           = mesh.GetBoundaryElementIteratorBegin(); 
+
+        c_vector<double,3> traction;
+        traction(0) = 0;
+        traction(1) = 0;
+        traction(2) = -0.5;
+        
+
+        // apply this traction to the elements on the top surface, which can be 
+        // found by checking whether the zero-th and second nodes (which are on
+        // opposite ends of the element) both have z=1
+        while( elem_iter != mesh.GetBoundaryElementIteratorEnd() )
+        {
+            double z1 = (*elem_iter)->GetNode(0)->GetPoint()[2];
+            double z2 = (*elem_iter)->GetNode(2)->GetPoint()[2];
+            
+            if( (z1+1e-6 >= 1) && (z2+1e-6 >= 1) )
+            {
+                bcc.SetTraction(*elem_iter, traction);
+            }
+            else
+            {
+                bcc.SetZeroTraction(*elem_iter);
+            }
+            elem_iter++;
+        }
+
+        LinearElasticityAssembler<3> assembler(&mesh,&bcc);
+        assembler.SetLameCoefficients(1, 2);
+
+        Vec result = assembler.Solve(); 
+        ReplicatableVector result_repl(result);
+
+        ConformingTetrahedralMesh<3,3> deformed_mesh;
+        deformed_mesh.ConstructFromMeshReader(mesh_reader);
+        
+        for(int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x_new = mesh.GetNodeAt(i)->GetPoint()[0] + result_repl[3*i];
+            double y_new = mesh.GetNodeAt(i)->GetPoint()[1] + result_repl[3*i+1];
+            double z_new = mesh.GetNodeAt(i)->GetPoint()[2] + result_repl[3*i+2];
+
+            Point<3> new_point(x_new, y_new, z_new);
+            deformed_mesh.SetNode(i, new_point, false);
+        }
+        
+        ///\todo: get writers to handle parallel stuff        
+        int my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0) // if master process
+        {
+            MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity", "simple3d_traction_undeformed");
+            writer_undeformed.WriteFilesUsingMesh(mesh);
+        
+            MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity", "simple3d_traction_deformed");
+            writer_deformed.WriteFilesUsingMesh(deformed_mesh);
+        }
+
+
+        
+        for(int i=0; i<mesh.GetNumNodes(); i++)
+        {
+        /*
+            double x = mesh.GetNodeAt(i)->GetPoint()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint()[1];
+            double z = mesh.GetNodeAt(i)->GetPoint()[2];
+
+            double u = result_repl[3*i];
+            double v = result_repl[3*i+1];
+            double w = result_repl[3*i+2];
+            
+            TS_ASSERT_DELTA( ? )
+        */
+        }
+    }
+    
+    
+    
     void TestSettingCoeffsAndExceptions()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");

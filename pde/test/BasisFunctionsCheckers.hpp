@@ -36,7 +36,7 @@ public:
                                 
                 TS_ASSERT_DELTA(pBasisFunc->ComputeBasisFunction(*(evaluationPoints[point_index]),func_index),
                                 expected_evaluation,
-                                1e12);
+                                1e-12);
             }
         }
     }

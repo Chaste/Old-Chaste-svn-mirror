@@ -103,9 +103,11 @@ private:
 public:
     void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
     {
-        double tStart = 0;
-        double tFinal = 1;
-        double tBigStep = 0.01;
+        double t_start = 0;
+        double t_final = 1;
+        double pde_timestep = 0.01;
+        
+        
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/heart_FHN_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -149,30 +151,16 @@ public:
         
         VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
         
-        // Vars to hold current solutions at each iteration
-        Vec current_solution_1, current_solution_2;
 
-        double tCurrent = tStart;
-        while ( tCurrent < tFinal )
-        {
-            monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
+        monodomain_assembler.SetTimes(t_start, t_final, pde_timestep);
+        simple_assembler.SetTimes(t_start, t_final, pde_timestep);
             
-            monodomain_assembler.SetInitialCondition( initial_condition_1 );
-            simple_assembler.SetInitialCondition( initial_condition_2 );
+        monodomain_assembler.SetInitialCondition( initial_condition_1 );
+        simple_assembler.SetInitialCondition( initial_condition_2 );
             
-            current_solution_1 = monodomain_assembler.Solve();
-
-            current_solution_2 = simple_assembler.Solve();
+        Vec current_solution_1 = monodomain_assembler.Solve();
+        Vec current_solution_2 = simple_assembler.Solve();
             
-            // Next iteration uses current solution as initial condition
-            VecDestroy(initial_condition_1); // Free old initial condition
-            VecDestroy(initial_condition_2);
-            initial_condition_1 = current_solution_1;
-            initial_condition_2 = current_solution_2;
-            
-            tCurrent += tBigStep;
-        }
         
         // Compare the results
         double *p_current_solution1_array, *p_current_solution2_array;
@@ -191,14 +179,20 @@ public:
         
         VecRestoreArray(current_solution_1, &p_current_solution1_array);
         VecRestoreArray(current_solution_2, &p_current_solution2_array);
+
+        VecDestroy(initial_condition_1); 
+        VecDestroy(initial_condition_2);
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
     }
+    
+    
     void TestMonodomainDg0AssemblerWithFischer2DAgainstSimpleDg0Assembler()
     {
-        double tStart = 0;
-        double tFinal = 1;
-        double tBigStep = 0.01;
+        double t_start = 0;
+        double t_final = 1;
+        double pde_timestep = 0.01;
+        
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -245,11 +239,11 @@ public:
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
         
-        double tCurrent = tStart;
-        while ( tCurrent < tFinal )
+        double tCurrent = t_start;
+        while ( tCurrent < t_final )
         {
-            monodomain_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
-            simple_assembler.SetTimes(tCurrent, tCurrent+tBigStep, tBigStep);
+            monodomain_assembler.SetTimes(tCurrent, tCurrent+pde_timestep, pde_timestep);
+            simple_assembler.SetTimes(tCurrent, tCurrent+pde_timestep, pde_timestep);
             
             monodomain_assembler.SetInitialCondition( initial_condition_1 );
             simple_assembler.SetInitialCondition( initial_condition_2 );
@@ -264,7 +258,7 @@ public:
             initial_condition_1 = current_solution_1;
             initial_condition_2 = current_solution_2;
             
-            tCurrent += tBigStep;
+            tCurrent += pde_timestep;
         }
         
         // Compare the results
