@@ -100,9 +100,9 @@ for src_file in src_files:
         for line in lines:
             count, line_no, src_line = line.split(':', 2)
             count, line_no = count.strip(), line_no.strip()
-            if src_line.strip() == '#define COVERAGE_IGNORE':
+            if src_line.find('#define COVERAGE_IGNORE') != -1:
                 ignore = True
-            elif src_line.strip() == '#undef COVERAGE_IGNORE':
+            elif src_line.find('#undef COVERAGE_IGNORE') != -1:
                 ignore = False
             if count == '-' or line_no == 0:
                 out_file.write(line)
