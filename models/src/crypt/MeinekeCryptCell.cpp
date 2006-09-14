@@ -17,8 +17,6 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mCellType=cellType;
     mpCellCycleModel->SetCellType(cellType);
     mCanDivide = false;
-    
-    mNodeIndex = NODE_INDEX_UNSET;
 }
 
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
@@ -77,7 +75,6 @@ void MeinekeCryptCell::SetNodeIndex(unsigned index)
 
 unsigned MeinekeCryptCell::GetNodeIndex()
 {
-    assert(mNodeIndex != NODE_INDEX_UNSET);
     return mNodeIndex;
 }
 
