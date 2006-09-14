@@ -23,9 +23,11 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleLinearEllipticAssembler : public AbstractLinearStaticProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
-private:
-
     friend class TestSimpleLinearEllipticAssembler;
+
+private:
+    AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
+    
     
 protected:
     /**
@@ -39,9 +41,7 @@ protected:
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u)
     {
-        AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
-
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(rX);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
 
         return prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) );
     }
@@ -54,9 +54,7 @@ protected:
                                                               const Point<SPACE_DIM> &rX,
                                                               const c_vector<double,1> &u)
     {
-        AbstractLinearEllipticPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearEllipticPde<SPACE_DIM>*>(this->mpPde);
-
-        return pde->ComputeLinearSourceTerm(rX) * rPhi;
+        return mpEllipticPde->ComputeLinearSourceTerm(rX) * rPhi;
     }
     
     
@@ -83,8 +81,8 @@ public:
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
+        mpEllipticPde = pPde;
         this->mpMesh = pMesh; 
-        this->mpPde  = pPde;
         this->mpBoundaryConditions = pBoundaryConditions;
     }
     
@@ -101,9 +99,19 @@ public:
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
+        mpEllipticPde = pPde;
         this->mpMesh = pMesh; 
-        this->mpPde  = pPde;
         this->mpBoundaryConditions = pBoundaryConditions;
+    }
+    
+    /**
+     * This method is called at the beginning of Solve() in AbstractLinearStaticProblemAssembler
+     */
+    void PrepareForSolve()
+    {
+        assert(mpEllipticPde != NULL);
+        assert(this->mpMesh != NULL);
+        assert(this->mpBoundaryConditions != NULL);
     }
 };
 

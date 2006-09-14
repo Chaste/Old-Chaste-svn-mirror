@@ -101,7 +101,7 @@ public:
         
         mpCellFactory->SetMesh( &mMesh );
         
-        mpBidomainPde = new BidomainPde<SPACE_DIM>( mpCellFactory, mPdeTimeStep );
+        mpBidomainPde = new BidomainPde<SPACE_DIM>( mpCellFactory );
     }
     
     

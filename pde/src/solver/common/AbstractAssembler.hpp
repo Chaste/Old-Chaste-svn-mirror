@@ -4,7 +4,6 @@
 #include "AbstractBasisFunction.hpp"
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
-#include "AbstractPde.hpp"
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 
@@ -24,9 +23,6 @@ class AbstractAssembler
 {
 protected:
     bool mWeAllocatedBasisFunctionMemory;
-    
-    /*< Pde to be solved */
-    AbstractPde* mpPde;
 
     /*< Mesh to be solved on */
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
@@ -52,9 +48,8 @@ public:
      */
     AbstractAssembler(int numQuadPoints = 2)
     {
-        // Initialise pde, mesh and bcs to null, so we can check they 
+        // Initialise mesh and bcs to null, so we can check they 
         // have been set before attempting to solve
-        mpPde = NULL;
         mpMesh = NULL;
         mpBoundaryConditions = NULL;
         
@@ -122,14 +117,6 @@ public:
         mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numQuadPoints);
         if (mpSurfaceQuadRule) delete mpSurfaceQuadRule;
         mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numQuadPoints);
-    }
-    
-    /**
-     * Set the pde to be solved.
-     */
-    void SetPde(AbstractPde* pPde)
-    {
-        mpPde = pPde;
     }
     
     /**

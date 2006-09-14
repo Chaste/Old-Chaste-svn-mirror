@@ -46,8 +46,8 @@ private:
 public:
 
     //Constructor
-    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep)
-            :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep)
+    MonodomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+            :  AbstractCardiacPde<SPACE_DIM>(pCellFactory)
     {}
     
     
@@ -93,30 +93,7 @@ public:
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
         return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);
-    }
-    
-    
-    
-    // IMPORTANT CODING NOTE: Since there is a 'dreaded diamond':
-    //      A      
-    //     / \     A = AbstractPde, B = AbstractCardiacPde
-    //    B   C    C  = AbtractLinearParabolicPde, D = MonodomainPde
-    //     \ /
-    //      D
-    // 
-    // the assemblers, which take in a D as pointer to C, can see the 
-    // empty implementation of PrepareForAssembleSystem() and might not 
-    // realise that the overloadeded implementation of PrepareForAssembleSystem()
-    // is actually in B (AbstractCardiac). Therefore, we overload 
-    // PrepareForAssembleSystem() again here and explicitly call the correct
-    // base class version. (This doesn't appear to be necessary at present,
-    // but may be required with other compilers etc)
-    void PrepareForAssembleSystem(Vec currentSolution, double time)
-    {
-        AbstractCardiacPde<SPACE_DIM>::PrepareForAssembleSystem(currentSolution, time);
-    }
-    
-    
+    }    
 };
 
 #endif /*MONODOMAINPDE_HPP_*/

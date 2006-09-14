@@ -35,8 +35,8 @@ class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
     
 public:
     //Constructor
-    BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep)
-            :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, pdeTimeStep, 2 /*mStride*/)
+    BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
+            :  AbstractCardiacPde<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
     {
     
         /**

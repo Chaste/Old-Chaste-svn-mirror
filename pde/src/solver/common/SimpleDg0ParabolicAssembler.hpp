@@ -21,6 +21,9 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleDg0ParabolicAssembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
+private : 
+    AbstractLinearParabolicPde<SPACE_DIM>* mpParabolicPde;
+    
 protected:
     
     /**
@@ -35,12 +38,10 @@ protected:
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u)
     {
-        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
-
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = pde->ComputeDiffusionTerm(rX);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX);
 
         return    prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
-                + this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
+                + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
     }
     
     /** 
@@ -50,10 +51,8 @@ protected:
                                                               const Point<SPACE_DIM> &rX,
                                                               const c_vector<double,1> &u)
     {
-        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
-
-        return (pde->ComputeNonlinearSourceTerm(rX, u(0)) + pde->ComputeLinearSourceTerm(rX)
-                + this->mDtInverse * pde->ComputeDuDtCoefficientFunction(rX) * u(0)) * rPhi;
+        return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, u(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)
+                + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * u(0)) * rPhi;
     }
     
     
@@ -83,8 +82,8 @@ public:
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
+        mpParabolicPde = pPde;
         this->mpMesh = pMesh; 
-        this->mpPde  = pPde;
         this->mpBoundaryConditions = pBoundaryConditions;
         
         this->mTimesSet = false;
@@ -104,12 +103,22 @@ public:
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
+        mpParabolicPde = pPde;
         this->mpMesh = pMesh; 
-        this->mpPde  = pPde;
         this->mpBoundaryConditions = pBoundaryConditions;
 
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
+    }
+    
+    /** 
+     * Called by AbstractLinearDynamicProblemSolver at the beginning of Solve() 
+     */
+    void PrepareForSolve()
+    {
+        assert(mpParabolicPde != NULL);
+        assert(this->mpMesh != NULL);
+        assert(this->mpBoundaryConditions != NULL);
     }
 };
 

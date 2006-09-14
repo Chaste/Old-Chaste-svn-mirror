@@ -50,8 +50,9 @@ public:
     virtual Vec Solve() 
     {
         assert(this->mpMesh!=NULL);
-        // assert(this->mpPde!=NULL); // some assemblers may not use a pde (esp ones for coupled problems).
         assert(this->mpBoundaryConditions!=NULL);
+        
+        this->PrepareForSolve();
 
         this->AssembleSystem(); 
         return this->mpAssembledLinearSystem->Solve(this->mpSolver);

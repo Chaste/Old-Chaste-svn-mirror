@@ -85,7 +85,7 @@ public:
         
         mpCellFactory->SetMesh( &mMesh );
         
-        mpMonodomainPde = new MonodomainPde<SPACE_DIM>( mpCellFactory, mPdeTimeStep);
+        mpMonodomainPde = new MonodomainPde<SPACE_DIM>(mpCellFactory);
     }
     
     /**

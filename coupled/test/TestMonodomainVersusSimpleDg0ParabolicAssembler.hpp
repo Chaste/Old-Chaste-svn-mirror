@@ -16,12 +16,39 @@
 #include "AbstractLinearParabolicPde.hpp"
 
 
+template <int SPACE_DIM>
+class ZeroStimCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
+{
+public:
+    ZeroStimCellFactory() : AbstractCardiacCellFactory<SPACE_DIM>(0.01)
+    {
+    }
+    
+    AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
+    {
+        return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mTimeStep, this->mpZeroStimulus);
+    }
+    
+    virtual unsigned GetNumberOfCells()
+    {
+        return 1;
+    }
+};
 
-/**
+
+
+
+/*
  * A simple parabolic PDE used in this test.
+ * 
+ * NOTE: The fischer pde is a parabolic linear pde, however we want to get the 
+ * MonodomainDg0Assembler, which expects a MonodomainPde passed it, to solve it.
+ * Therefore, we get this pde to inherit from MonodomainPde, and overload all the
+ * main functions. For this reason it has to take in a cell class, although this is
+ * not used.
  */
 template <int SPACE_DIM>
-class FischerPde : public AbstractLinearParabolicPde<SPACE_DIM>
+class FischerPde : public MonodomainPde<SPACE_DIM>
 {
 public:
     double ComputeLinearSourceTerm(Point<SPACE_DIM> )
@@ -30,6 +57,11 @@ public:
     }
     
     double ComputeNonlinearSourceTerm(Point<SPACE_DIM> , double u)
+    {
+        return u*(1-u);
+    }
+    
+    double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& , double u)
     {
         return u*(1-u);
     }
@@ -43,6 +75,10 @@ public:
     {
         return 1;
     }
+    
+    FischerPde() : MonodomainPde<SPACE_DIM>(new ZeroStimCellFactory<SPACE_DIM>)
+    {
+    }    
 };
 
 

@@ -34,6 +34,8 @@ class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, S
 private:
     double mSourceTerm;
     
+    MonodomainPde<SPACE_DIM>* mpMonodomainPde;
+    
 protected:
 
     /** 
@@ -50,10 +52,8 @@ protected:
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u)
     {
-        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
-        
         return  rPhi * (mSourceTerm + this->mDtInverse *
-                        pde->ComputeDuDtCoefficientFunction(rX) * u(0));
+                        mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * u(0));
     }    
     
     
@@ -65,10 +65,15 @@ protected:
     
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {
-        AbstractLinearParabolicPde<SPACE_DIM>* pde = dynamic_cast<AbstractLinearParabolicPde<SPACE_DIM>*> (this->mpPde);
-
-        mSourceTerm += phi_i*pde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ pNode->GetIndex() ] );
+        mSourceTerm += phi_i * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ pNode->GetIndex() ] );
     }
+
+
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime)
+    {
+        mpMonodomainPde->SolveCellSystems(currentSolution, currentTime, currentTime+this->mDt);
+    }
+
     
     
 public:
@@ -76,12 +81,13 @@ public:
      * Constructor stores the mesh and pde and sets up boundary conditions.
      */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                           AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                           MonodomainPde<SPACE_DIM>* pPde,
                            int numQuadPoints = 2) :
             SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
     {
+        mpMonodomainPde = pPde;
+
         this->mpMesh = pMesh;
-        this->mpPde = pPde;
 
         // set up boundary conditions
         this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>( this->mpMesh->GetNumNodes() );
@@ -95,14 +101,14 @@ public:
      *  boundary conditions, and also takes in basis functions.
      */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                           AbstractLinearParabolicPde<SPACE_DIM>* pPde,
+                           MonodomainPde<SPACE_DIM>* pPde,
                            AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                            AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                            int numQuadPoints = 2) :
             SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         this->mpMesh = pMesh;
-        this->mpPde = pPde;
+        mpMonodomainPde = pPde;
 
         // set up boundary conditions
         this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );

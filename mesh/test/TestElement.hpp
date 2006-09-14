@@ -53,6 +53,9 @@ public:
         {
             delete nodes[i];
         }
+        
+        //for coverage
+        Element<3,3> another_element = element;
     }
     
     void TestConstructionForLinearBasisFunctions()
@@ -75,6 +78,8 @@ public:
             delete corner_nodes[i];
         }
         
+        //for coverage
+        Element<3,3> another_element = element;
     }
     
     void TestGetSetAbstractElementMethods()

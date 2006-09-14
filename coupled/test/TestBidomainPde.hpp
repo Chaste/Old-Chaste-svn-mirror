@@ -72,10 +72,9 @@ public:
 
     void testBidomainPdeGetSet( void )
     {
-        double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
         
-        BidomainPde<1>   bidomain_pde( &cell_factory, big_time_step );
+        BidomainPde<1>   bidomain_pde( &cell_factory );
         
         bidomain_pde.SetSurfaceAreaToVolumeRatio(3.14);
         TS_ASSERT_DELTA( bidomain_pde.GetSurfaceAreaToVolumeRatio(), 3.14, 1e-10);
@@ -99,13 +98,13 @@ public:
         TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
     }
     
-    void testBidomainPde_PrepareForAssembleSolution( void )
+    void testBidomainPde_SolveCellSystems( void )
     {
         double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory;
         
-        MonodomainPde<1> monodomain_pde( &cell_factory, big_time_step );
-        BidomainPde<1>     bidomain_pde( &cell_factory, big_time_step );
+        MonodomainPde<1> monodomain_pde( &cell_factory );
+        BidomainPde<1>     bidomain_pde( &cell_factory );
         
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -145,8 +144,8 @@ public:
         //VecView(monodomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
         //VecView(bidomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
         
-        monodomain_pde.PrepareForAssembleSystem(monodomain_voltage,0);
-        bidomain_pde.PrepareForAssembleSystem(bidomain_voltage,0);
+        monodomain_pde.SolveCellSystems(monodomain_voltage, 0, big_time_step);
+        bidomain_pde.SolveCellSystems(bidomain_voltage, 0, big_time_step);
         
         
         // Check that both the monodomain and bidomain PDE have the same ionic cache

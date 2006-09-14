@@ -85,7 +85,7 @@ public:
     //
     // Get beta from the equation sigma_22 = 0 (since sigma is a constant 
     // as u_{i,j} is constant, and sigma_22 must be zero on bottom and top
-    // surfaces (zero surface tractions applied). 
+    // surfaces (zero surface tractions applied)). 
     //          0 = sigma_{22} = lam (u_x + v_y) + mu ( v_y + v_y)
     //                         = lam (alpha + beta) + 2 mu beta
     // therefore 
@@ -157,14 +157,22 @@ public:
             Point<2> new_point(x_new, y_new);
             deformed_mesh.SetNode(i, new_point, false);
         }
+
+
+        ///\todo: get writers to handle parallel stuff        
+        int my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0) // if master process
+        {
+            MeshalyzerMeshWriter<2,2> writer_undeformed("LinearElasticity", "simple2d_undeformed");
+            writer_undeformed.WriteFilesUsingMesh(mesh);
         
-        MeshalyzerMeshWriter<2,2> writer_undeformed("LinearElasticity", "simple2d_undeformed");
-        writer_undeformed.WriteFilesUsingMesh(mesh);
+            ///\todo: figure out why everything written in the folder LinearElasticity is
+            // deleted when this is called again on the deformed mesh.
+            MeshalyzerMeshWriter<2,2> writer_deformed("LinearElasticity", "simple2d_deformed");
+            writer_deformed.WriteFilesUsingMesh(deformed_mesh);
+        }        
         
-        ///\todo: figure out why everything written in the folder LinearElasticity is
-        // deleted when this is called again on the deformed mesh.
-        MeshalyzerMeshWriter<2,2> writer_deformed("LinearElasticity", "simple2d_deformed");
-        writer_deformed.WriteFilesUsingMesh(deformed_mesh);
         
         double alpha = -0.5;                        // expected stretching in x-direction
         double beta  = -lambda*alpha/(lambda+2*mu); // expected stretching in y-direction
@@ -230,7 +238,6 @@ public:
         Vec result = assembler.Solve(); 
         ReplicatableVector result_repl(result);
 
-
         ConformingTetrahedralMesh<3,3> deformed_mesh;
         deformed_mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -244,11 +251,17 @@ public:
             deformed_mesh.SetNode(i, new_point, false);
         }
         
-        MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity", "simple3d_undeformed");
-        writer_undeformed.WriteFilesUsingMesh(mesh);
+        ///\todo: get writers to handle parallel stuff        
+        int my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0) // if master process
+        {
+            MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity", "simple3d_undeformed");
+            writer_undeformed.WriteFilesUsingMesh(mesh);
         
-        MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity", "simple3d_deformed");
-        writer_deformed.WriteFilesUsingMesh(deformed_mesh);
+            MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity", "simple3d_deformed");
+            writer_deformed.WriteFilesUsingMesh(deformed_mesh);
+        }
 
 
         
@@ -267,6 +280,43 @@ public:
         */
         }
     }
+    
+    
+    void TestSettingCoeffsAndExceptions()
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // fix the lhs node        
+        ElasticityBoundaryConditionsContainer<1> bcc(mesh.GetNumNodes());
+        bcc.FixNode(mesh.GetNodeAt(0));
+                
+        LinearElasticityAssembler<1> assembler(&mesh,&bcc);
+        
+        // should throw as lame coeffs have not yet been set.
+        TS_ASSERT_THROWS_ANYTHING(assembler.Solve());
+        
+        // should throw as E < 0
+        TS_ASSERT_THROWS_ANYTHING(assembler.SetYoungsModulusAndPoissonsRatio(-1,0.4));
+
+        // should throw as nu > 0.5
+        TS_ASSERT_THROWS_ANYTHING(assembler.SetYoungsModulusAndPoissonsRatio(-1,0.51));
+        
+        // set E and nu and check lambda and mu have been computed correctly
+        assembler.SetYoungsModulusAndPoissonsRatio(10,0.4);
+        TS_ASSERT_DELTA( assembler.GetLambda(), 10*0.4/(1.4*0.2), 1e-8 );
+        TS_ASSERT_DELTA( assembler.GetMu(), 10/(2*1.4), 1e-8 );
+        
+        // set K and G and check lambda and mu have been computed correctly
+        assembler.SetBulkModulusAndShearModulus(36,30);
+        TS_ASSERT_DELTA( assembler.GetLambda(), 36 - (2.0*30/3), 1e-8 );
+        TS_ASSERT_DELTA( assembler.GetMu(), 30, 1e-8 );
+        
+        // should throw because density is negative
+        TS_ASSERT_THROWS_ANYTHING( assembler.SetDensityAndGravity(-1, zero_vector<double>(1)) );
+    }
+        
 };
 
 

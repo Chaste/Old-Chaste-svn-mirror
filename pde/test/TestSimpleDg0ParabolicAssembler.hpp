@@ -729,9 +729,8 @@ public:
         }
 
         // Assembler - created using Set methods for coverage
-        SimpleDg0ParabolicAssembler<1,1> assembler(NULL,NULL,NULL);
+        SimpleDg0ParabolicAssembler<1,1> assembler(NULL,&pde,NULL);
         assembler.SetMesh(&mesh);
-        assembler.SetPde(&pde);
         assembler.SetBoundaryConditionsContainer(&bcc);
 
         // These three lines are just to cover SetBasisFunction

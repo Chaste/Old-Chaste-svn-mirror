@@ -93,12 +93,10 @@ public :
      */
     Vec Solve()
     {
-        assert(this->mpMesh!=NULL);
-        assert(this->mpPde!=NULL);
-        assert(this->mpBoundaryConditions!=NULL);
-        
         assert(mTimesSet);
         assert(mInitialConditionSet);
+
+        this->PrepareForSolve();
         
         double t = mTstart;
         Vec currentSolution = mInitialCondition;

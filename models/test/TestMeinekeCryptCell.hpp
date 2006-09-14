@@ -22,6 +22,10 @@ public:
                                    new FixedCellCycleModel());
                                    
         TS_ASSERT_EQUALS(stem_cell.GetAge(1.0), 0.9);
+        
+        //for coverage
+        stem_cell.SetNodeIndex(3);
+        TS_ASSERT_EQUALS(stem_cell.GetNodeIndex, 3);
     }
     
     void TestCellDivision()

@@ -81,7 +81,7 @@ public:
         
         MyCardiacCellFactory cell_factory;
         
-        MonodomainPde<1> monodomain_pde( &cell_factory, big_time_step );
+        MonodomainPde<1> monodomain_pde( &cell_factory );
         
         
         // voltage that gets passed in solving ode
@@ -116,7 +116,7 @@ public:
         VecAssemblyBegin(voltage);
         VecAssemblyEnd(voltage);
         
-        monodomain_pde.PrepareForAssembleSystem(voltage, start_time);
+        monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
         
         
         double value1 = monodomain_pde.GetIionicCacheReplicated()[0];
@@ -168,8 +168,7 @@ public:
         VecAssemblyBegin(voltage);
         VecAssemblyEnd(voltage);
         
-        //	monodomain_pde.ResetAsUnsolvedOdeSystem();
-        monodomain_pde.PrepareForAssembleSystem(voltage, start_time + big_time_step);
+        monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
         
         value1 = monodomain_pde.GetIionicCacheReplicated()[0];
         
@@ -208,7 +207,7 @@ public:
     {
         unsigned num_nodes = 2;
         MyCardiacCellFactory cell_factory;
-        MonodomainPde<1> monodomain_pde( &cell_factory, 0.1 );
+        MonodomainPde<1> monodomain_pde( &cell_factory );
         
         // initial condition;
         Vec voltage;

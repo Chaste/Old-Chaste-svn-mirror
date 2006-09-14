@@ -411,13 +411,8 @@ public:
         {
             this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
         }
-
-        // Allow the PDE to set up anything necessary for the assembly of the
-        // solution (eg. if it's a coupled system, then solve the ODEs)
-        if(this->mpPde!=NULL)
-        {
-            this->mpPde->PrepareForAssembleSystem(currentSolution, currentTime);
-        }
+       
+        PrepareForAssembleSystem(currentSolution, currentTime);
 
         //VecView(currentSolution, PETSC_VIEWER_STDOUT_WORLD);
         // << std::endl;elem
@@ -560,13 +555,37 @@ public:
         mMatrixIsAssembled = true;
     }
     
+    
+    
+    /** 
+     *  This method is called at the beginning of Solve(). Subclass assemblers can 
+     *  use it to check everything has been set up correctly
+     */
+    virtual void PrepareForSolve()
+    {
+    }
+    
+    
+    /** 
+     *  This method is called at the beginning of AssembleSystem() and should be 
+     *  overloaded in the concrete assembler class if there is any work to be done
+     *  before assembling, for example integrating ODEs such as in the Monodomain
+     *  assembler.
+     */
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime)
+    {
+    }
+
     /** 
      *  This method is called at the end of AssembleSystem() and should be overloaded
      *  in the concrete assembler class if there is any further work to be done
      */
-    virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime) {}
+    virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime) 
+    {
+    }
     
     virtual Vec Solve()=0;
+
 
     /**
      * Set the boolean mMatrixIsConstant to true to build the matrix only once. 
@@ -576,10 +595,7 @@ public:
         mMatrixIsConstant = true;
         mpSolver->SetMatrixIsConstant();
     }
-    
-    
-    
-     
+
 
     /*
     void DebugWithSolution(Vec sol)

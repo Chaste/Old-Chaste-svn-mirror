@@ -14,8 +14,11 @@
  *  Pde containing common functionality to mono and bidomain pdes.
  */
 
-// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual' because 
-// AbstractPde will be the top class in a 'dreaded diamond':
+
+//// OLD NOTE: read this if AbstractPde is brought back
+// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual' 
+// ie "class AbstractCardiacPde : public virtual AbstractPde"
+// because AbstractPde will be the top class in a 'dreaded diamond':
 //      A      
 //     / \     A = AbstractPde, B = AbstractCardiac, C = AbtractLinearParabolic (etc)
 //    B   C    D = MonodomainPde
@@ -24,8 +27,9 @@
 // 
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
+
 template <int SPACE_DIM>
-class AbstractCardiacPde : public virtual AbstractPde
+class AbstractCardiacPde
 {
 protected:
 
@@ -61,9 +65,6 @@ protected:
      */
     const unsigned mStride;
     
-    // timestep used by the pde solver
-    double mPdeTimeStep;
-    
     // number of nodes in the mesh
     unsigned mNumNodes;
     
@@ -75,11 +76,10 @@ protected:
     
     
 public:
-    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, double pdeTimeStep, const unsigned stride=1)
+    AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             :  mStride(stride)
     {
         mNumNodes = pCellFactory->GetNumberOfCells();
-        mPdeTimeStep = pdeTimeStep;
         
         // Create a temporary PETSc vector and use the ownership range of 
         // the PETSc vector to size our C++ vectors
@@ -129,7 +129,7 @@ public:
     }
     
     
-    ~AbstractCardiacPde()
+    virtual ~AbstractCardiacPde()
     {
         unsigned lo=this->mOwnershipRangeLo;
         unsigned hi=this->mOwnershipRangeHi;
@@ -197,11 +197,18 @@ public:
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
     
-    
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
+ 
+    /** 
+     *  SolveCellSystems()
+     *  
+     *  Integrate the cell ODEs and update ionic current etc for each of the 
+     *  cells, between the two times provided.
+     * 
+     *  NOTE: this used to be PrepareForAssembleSystem, but that method is now
+     *  a virtual method in the assemblers not the pdes.
+     */
+    void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
     {
-        AbstractPde::PrepareForAssembleSystem(currentSolution, time);
-        
         double *p_current_solution;
         VecGetArray(currentSolution, &p_current_solution);
         unsigned lo=this->mOwnershipRangeLo;
@@ -219,7 +226,7 @@ public:
                 // solve
                 // Note: Voltage should not be updated. GetIIonic will be called later
                 // and needs the old voltage. The voltage will be updated from the pde.
-                mCellsDistributed[local_index]->ComputeExceptVoltage(time, time+mPdeTimeStep);
+                mCellsDistributed[local_index]->ComputeExceptVoltage(currentTime, nextTime);
             }
             catch (Exception &e)
             {
@@ -228,7 +235,7 @@ public:
             }
             
             // update the Iionic and stimulus caches
-            UpdateCaches(global_index, local_index, time+mPdeTimeStep);
+            UpdateCaches(global_index, local_index, nextTime);
         }
         VecRestoreArray(currentSolution, &p_current_solution);
         
@@ -236,7 +243,7 @@ public:
         
         ReplicateCaches();
     }
-    
+
     ReplicatableVector& GetIionicCacheReplicated()
     {
         return mIionicCacheReplicated;
@@ -295,4 +302,6 @@ public:
         rHi=mOwnershipRangeHi;
     }
 };
+
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
+

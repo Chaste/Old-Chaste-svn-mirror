@@ -36,6 +36,7 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class BidomainDg0Assembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:
+    BidomainPde<SPACE_DIM>* mpBidomainPde;
 
     // quantities to be interpolated
     double mIionic;
@@ -55,13 +56,11 @@ private:
 
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
     {
-        BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*> (this->mpPde);
-
         unsigned node_global_index = pNode->GetIndex();
         
-        mIionic                 += phi_i * pde->GetIionicCacheReplicated()[ node_global_index ];
-        mIIntracellularStimulus += phi_i * pde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
-        mIExtracellularStimulus += phi_i * pde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
+        mIionic                 += phi_i * mpBidomainPde->GetIionicCacheReplicated()[ node_global_index ];
+        mIIntracellularStimulus += phi_i * mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
+        mIExtracellularStimulus += phi_i * mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
     }
 
     /** ComputeLhsTerm()
@@ -75,14 +74,12 @@ private:
         const Point<SPACE_DIM> &rX,
         const c_vector<double,2> &u)
     {
-        BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*> (this->mpPde);
-        
         // get bidomain parameters
-        double Am = pde->GetSurfaceAreaToVolumeRatio();
-        double Cm = pde->GetCapacitance();
+        double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
+        double Cm = mpBidomainPde->GetCapacitance();
             
-        c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = pde->GetIntracellularConductivityTensor();
-        c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = pde->GetExtracellularConductivityTensor();
+        c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = mpBidomainPde->GetIntracellularConductivityTensor();
+        c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = mpBidomainPde->GetExtracellularConductivityTensor();
         
         
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
@@ -134,11 +131,9 @@ private:
         const Point<SPACE_DIM> &rX,
         const c_vector<double,2> &u)
     {
-        BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*> (this->mpPde);
-
         // get bidomain parameters
-        double Am = pde->GetSurfaceAreaToVolumeRatio();
-        double Cm = pde->GetCapacitance();
+        double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
+        double Cm = mpBidomainPde->GetCapacitance();
 
         c_vector<double,2*(ELEMENT_DIM+1)> ret;
         
@@ -357,7 +352,18 @@ private:
     }
     
     */
-    
+
+
+    /** 
+     *  PrepareForAssembleSystem
+     * 
+     *  Called at the beginning of AbstractLinearAssmebler::AssembleSystem() 
+     *  after the system. Here, used to integrate cell odes.
+     */
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double time) 
+    {
+        mpBidomainPde->SolveCellSystems(currentSolution, time, time+this->mDt);
+    }    
     
     /** 
      *  FinaliseAssembleSystem
@@ -375,8 +381,7 @@ private:
             Vec nullbasis[1];
             unsigned lo, hi;
             
-            BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*>(this->mpPde);
-            pde->GetOwnershipRange(lo, hi);
+            mpBidomainPde->GetOwnershipRange(lo, hi);
             VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*this->mpMesh->GetNumNodes(), &nullbasis[0]);
             double* p_nullbasis;
             VecGetArray(nullbasis[0], &p_nullbasis);
@@ -408,8 +413,11 @@ public:
                          int numQuadPoints = 2) :
             AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints)            
     {
+        assert(pPde != NULL);
+        assert(pMesh != NULL);
+        
+        mpBidomainPde = pPde;
         this->mpMesh = pMesh;
-        this->mpPde = pPde;
         
         // set up boundary conditions
         this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );

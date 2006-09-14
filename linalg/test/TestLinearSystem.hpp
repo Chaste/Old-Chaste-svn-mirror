@@ -32,6 +32,11 @@ public:
         ls.SetRhsVectorElement(1, 32.0);
         ls.SetRhsVectorElement(2, 50.0);
         
+        // for coverage
+        ls.DisplayMatrix();
+        ls.DisplayRhs();
+        
+        
         SimpleLinearSolver solver;
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));

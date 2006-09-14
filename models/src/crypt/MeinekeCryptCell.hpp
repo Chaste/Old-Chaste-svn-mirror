@@ -6,6 +6,8 @@
 #include "AbstractCellCycleModel.hpp"
 
 const unsigned int MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
+#define NODE_INDEX_UNSET 1e20
+
 
 class MeinekeCryptCell
 {

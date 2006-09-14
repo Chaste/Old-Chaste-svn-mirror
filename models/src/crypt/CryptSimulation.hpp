@@ -300,9 +300,13 @@ private:
         // keep picking until find an element which is big enough and not deleted
         while (element_length <0.4 || p_random_element->IsDeleted())
         {
+            // the following is ignored in coverage as there is a random 
+            // chance of it not happening
+            #define COVERAGE_IGNORE
             random_element_number = rand()%mrMesh.GetNumAllElements();
             p_random_element = mrMesh.GetElement(random_element_number);
             element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
+            #undef COVERAGE_IGNORE
             //std::cout << "..too small, trying: length " <<element_length << "\n";
             //double random_displacement = 0.2+((((double)random())/RAND_MAX)*0.6);
         }
