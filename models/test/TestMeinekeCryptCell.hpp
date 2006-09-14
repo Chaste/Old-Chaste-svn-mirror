@@ -25,7 +25,7 @@ public:
         
         //for coverage
         stem_cell.SetNodeIndex(3);
-        TS_ASSERT_EQUALS(stem_cell.GetNodeIndex, 3);
+        TS_ASSERT_EQUALS((int)stem_cell.GetNodeIndex, (int)3);
     }
     
     void TestCellDivision()
