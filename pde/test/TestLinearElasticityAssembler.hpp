@@ -409,7 +409,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(assembler.SetYoungsModulusAndPoissonsRatio(-1,0.4));
 
         // should throw as nu > 0.5
-        TS_ASSERT_THROWS_ANYTHING(assembler.SetYoungsModulusAndPoissonsRatio(-1,0.51));
+        TS_ASSERT_THROWS_ANYTHING(assembler.SetYoungsModulusAndPoissonsRatio(1,0.51));
         
         // set E and nu and check lambda and mu have been computed correctly
         assembler.SetYoungsModulusAndPoissonsRatio(10,0.4);
