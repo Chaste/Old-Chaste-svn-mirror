@@ -76,7 +76,8 @@ public:
         return 1;
     }
     
-    FischerPde() : MonodomainPde<SPACE_DIM>(new ZeroStimCellFactory<SPACE_DIM>)
+    FischerPde(ZeroStimCellFactory<SPACE_DIM>* pCellFactory) 
+       : MonodomainPde<SPACE_DIM>(pCellFactory)
     {
     }    
 };
@@ -114,7 +115,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        FischerPde<1> pde;
+        ZeroStimCellFactory<1> cell_factory;
+        FischerPde<1> pde(&cell_factory);
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
@@ -199,7 +201,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Instantiate PDE object
-        FischerPde<2> pde;
+        ZeroStimCellFactory<2> cell_factory;
+        FischerPde<2> pde(&cell_factory);
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
         BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
