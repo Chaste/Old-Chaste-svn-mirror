@@ -23,14 +23,14 @@
  *  
  *  Base class from which all solvers for linear PDEs inherit. 
  * 
- *  The template parameter NUM_UNKNOWNS represents the number of 
+ *  The template parameter PROBLEM_DIM represents the number of 
  *  unknown dependent variables in the problem (ie 1 in for example 
  *  u_xx + u_yy = 0, and 2 in u_xx + v = 0, v_xx + 2u = 1)
  * 
  *  It defines a common interface and default code for AssembleSystem,
  *  AssembleOnElement and AssembleOnSurfaceElement. Each of these work 
- *  for any NUM_UNKNOWNS>=1, although the latter pair may have to be 
- *  overridden depending on the problem when NUM_UNKNOWNS>1. Each of these
+ *  for any PROBLEM_DIM>=1, although the latter pair may have to be 
+ *  overridden depending on the problem when PROBLEM_DIM>1. Each of these
  *  methods work in both the dynamic case (when there is a current solution
  *  available) and the static case.
  *  
@@ -52,8 +52,8 @@
  *  to add to the element stiffness matrix/vector.
  * 
  */
-template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
-class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM, NUM_UNKNOWNS>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
 
 protected:
@@ -88,11 +88,11 @@ protected:
      *  will be multiplied by the gauss weight and jacobian determinent and 
      *  added to the element stiffness matrix (see AssembleOnElement()).
      */
-    virtual c_matrix<double,NUM_UNKNOWNS*(ELEMENT_DIM+1),NUM_UNKNOWNS*(ELEMENT_DIM+1)> ComputeLhsTerm(
+    virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeLhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
-        const c_vector<double,NUM_UNKNOWNS> &u)=0;  
+        const c_vector<double,PROBLEM_DIM> &u)=0;  
         
     /**
      *  This method returns the vector to be added to element stiffness vector
@@ -101,10 +101,10 @@ protected:
      *  will be multiplied by the gauss weight and jacobian determinent and 
      *  added to the element stiffness matrix (see AssembleOnElement()).
      */
-    virtual c_vector<double,NUM_UNKNOWNS*(ELEMENT_DIM+1)> ComputeRhsTerm(
+    virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeRhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
         const Point<SPACE_DIM> &rX,
-        const c_vector<double,NUM_UNKNOWNS> &u)=0;  
+        const c_vector<double,PROBLEM_DIM> &u)=0;  
 
 
     /**
@@ -114,7 +114,7 @@ protected:
      *  will be multiplied by the gauss weight and jacobian determinent and 
      *  added to the element stiffness matrix (see AssembleOnElement()).
      */  
-    virtual c_vector<double, NUM_UNKNOWNS*ELEMENT_DIM> ComputeSurfaceRhsTerm(
+    virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeSurfaceRhsTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         const c_vector<double, ELEMENT_DIM> &phi,
         const Point<SPACE_DIM> &x )=0;
@@ -137,14 +137,14 @@ protected:
      *  Calls ComputeLhsTerm() etc
      */
     virtual void AssembleOnElement( Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-                                    c_matrix<double, NUM_UNKNOWNS*(ELEMENT_DIM+1), NUM_UNKNOWNS*(ELEMENT_DIM+1) > &rAElem,
-                                    c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> &rBElem,
+                                    c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) > &rAElem,
+                                    c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> &rBElem,
                                     Vec currentSolution)
     {
         GaussianQuadratureRule<ELEMENT_DIM> &quad_rule = 
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpQuadRule);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpBasisFunction);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpBasisFunction);
 
        
         /**
@@ -185,7 +185,7 @@ protected:
             // Where applicable, u will be set to the value of the current solution at x
             Point<SPACE_DIM> x(0,0,0);
             
-            c_vector<double,NUM_UNKNOWNS> u = zero_vector<double>(NUM_UNKNOWNS);
+            c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
             
             // allow the concrete version of the assembler to interpolate any
             // desired quantities
@@ -209,7 +209,7 @@ protected:
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (currentSolution)
                 {
-                    for(unsigned index_of_unknown=0; index_of_unknown<NUM_UNKNOWNS; index_of_unknown++)
+                    for(unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
                     {
                         // If we have a current solution (e.g. this is a dynamic problem)
                         // get the value in a usable form.
@@ -219,7 +219,7 @@ protected:
                         // NOTE - following assumes that, if say there are two unknowns u and v, they
                         // are stored in the curren solution vector as 
                         // [U1 V1 U2 V2 ... U_n V_n]
-                        u(index_of_unknown)  += phi(i)*this->mCurrentSolutionReplicated[ NUM_UNKNOWNS*node_global_index + index_of_unknown];
+                        u(index_of_unknown)  += phi(i)*this->mCurrentSolutionReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
                     }
                 }
                 
@@ -254,12 +254,12 @@ protected:
      *     need to zero this vector before calling.
      */
     virtual void AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                          c_vector<double, NUM_UNKNOWNS*ELEMENT_DIM> &rBSurfElem)
+                                          c_vector<double, PROBLEM_DIM*ELEMENT_DIM> &rBSurfElem)
     {
         GaussianQuadratureRule<ELEMENT_DIM-1> &quad_rule =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpSurfaceQuadRule);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceQuadRule);
         AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
-            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>::mpSurfaceBasisFunction);
+            *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::mpSurfaceBasisFunction);
             
         double jacobian_determinant = rSurfaceElement.GetJacobianDeterminant();
         
@@ -329,7 +329,7 @@ protected:
     
 public:
     AbstractLinearAssembler(int numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpSolver = new SimpleLinearSolver;
         mpAssembledLinearSystem = NULL;
@@ -341,7 +341,7 @@ public:
     AbstractLinearAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                             AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                             int numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = new SimpleLinearSolver;
         mpAssembledLinearSystem = NULL;
@@ -397,7 +397,7 @@ public:
      *  calls AssembleOnElement() and adds the contribution to the linear system.
      * 
      *  Takes in current solution and time if necessary but only used if the problem 
-     *  is a dynamic one. This method uses NUM_UNKNOWNS and can assemble linear systems 
+     *  is a dynamic one. This method uses PROBLEM_DIM and can assemble linear systems 
      *  for any number of unknown variables.
      * 
      *  Called by Solve()
@@ -420,7 +420,7 @@ public:
 
         if (mpAssembledLinearSystem == NULL)
         {
-            unsigned size = NUM_UNKNOWNS * this->mpMesh->GetNumNodes();
+            unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
             InitialiseLinearSystem(size);
             mMatrixIsAssembled = false;
         }
@@ -443,8 +443,8 @@ public:
             
         // Assume all elements have the same number of nodes...
         const int num_elem_nodes = (*iter)->GetNumNodes();
-        c_matrix<double, NUM_UNKNOWNS*(ELEMENT_DIM+1), NUM_UNKNOWNS*(ELEMENT_DIM+1)> a_elem;
-        c_vector<double, NUM_UNKNOWNS*(ELEMENT_DIM+1)> b_elem;
+        c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
+        c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
 
         while (iter != this->mpMesh->GetElementIteratorEnd())
         {
@@ -462,9 +462,9 @@ public:
                     {
                         int node2 = element.GetNodeGlobalIndex(j);
                         
-                        for(int k=0; k<NUM_UNKNOWNS; k++)
+                        for(int k=0; k<PROBLEM_DIM; k++)
                         {
-                            for(int m=0; m<NUM_UNKNOWNS; m++)
+                            for(int m=0; m<PROBLEM_DIM; m++)
                             {
                                 /* 
                                  * the following expands to, for (eg) the case of two unknowns
@@ -474,17 +474,17 @@ public:
                                  * mpAssembledLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
                                  */ 
  
-                                mpAssembledLinearSystem->AddToMatrixElement( NUM_UNKNOWNS*node1+k,
-                                                                             NUM_UNKNOWNS*node2+m,
-                                                                             a_elem(NUM_UNKNOWNS*i+k,NUM_UNKNOWNS*j+m) );
+                                mpAssembledLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
+                                                                             PROBLEM_DIM*node2+m,
+                                                                             a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
                             }
                         }
                     }
                 }
 
-                for(int k=0; k<NUM_UNKNOWNS; k++)
+                for(int k=0; k<PROBLEM_DIM; k++)
                 {
-                    mpAssembledLinearSystem->AddToRhsVectorElement(NUM_UNKNOWNS*node1+k,b_elem(NUM_UNKNOWNS*i+k));
+                    mpAssembledLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
                 }
             }
             iter++;
@@ -500,7 +500,7 @@ public:
             if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
                 const int num_surf_nodes = (*surf_iter)->GetNumNodes();
-                c_vector<double, NUM_UNKNOWNS*ELEMENT_DIM> b_surf_elem;
+                c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
                 
                 while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
                 {
@@ -514,9 +514,9 @@ public:
                         {
                             int node1 = surf_element.GetNodeGlobalIndex(i);
                             
-                            for(int k=0; k<NUM_UNKNOWNS; k++)
+                            for(int k=0; k<PROBLEM_DIM; k++)
                             {
-                                mpAssembledLinearSystem->AddToRhsVectorElement(NUM_UNKNOWNS*node1 + k, b_surf_elem(NUM_UNKNOWNS*i+k));
+                                mpAssembledLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1 + k, b_surf_elem(PROBLEM_DIM*i+k));
                             }
                         }
                     }

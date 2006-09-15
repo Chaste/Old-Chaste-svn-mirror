@@ -14,11 +14,11 @@
  *  Currently this provides methods for selecting what type of basis function to
  *  use, and how many quadrature points per dimension.
  * 
- *  The template parameter NUM_UNKNOWNS represents the number of 
+ *  The template parameter PROBLEM_DIM represents the number of 
  *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
  *  2 in u_xx + v = 0, v_xx + 2u = 1
  */
-template <int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
+template <int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
 class AbstractAssembler
 {
 protected:
@@ -28,7 +28,7 @@ protected:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
     
     /*< Boundary conditions to be applied */
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, NUM_UNKNOWNS>* mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
 
     /*< Basis function for use with normal elements */
     AbstractBasisFunction<ELEMENT_DIM> *mpBasisFunction;
@@ -130,7 +130,7 @@ public:
     /**
      * Set the boundary conditions.
      */
-    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>* pBoundaryConditions)
+    void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* pBoundaryConditions)
     {
         mpBoundaryConditions = pBoundaryConditions;
     }

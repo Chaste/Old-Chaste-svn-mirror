@@ -8,7 +8,7 @@
  *  for a dynamic linear PDE, for example a parabolic PDE or the bidomain 
  *  equations.
  * 
- *  The template parameter NUM_UNKNOWNS represents the number of 
+ *  The template parameter PROBLEM_DIM represents the number of 
  *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
  *  2 in u_xx + v = 0, v_xx + 2u = 1
  *  
@@ -23,8 +23,8 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
 
-template<int ELEMENT_DIM, int SPACE_DIM, int NUM_UNKNOWNS>
-class AbstractLinearDynamicProblemAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+class AbstractLinearDynamicProblemAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected :
     double mTstart;
@@ -42,12 +42,12 @@ public :
      * Constructors just call the base class versions.
      */
     AbstractLinearDynamicProblemAssembler(int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {}
     AbstractLinearDynamicProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                      int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,NUM_UNKNOWNS>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     
     /** 
