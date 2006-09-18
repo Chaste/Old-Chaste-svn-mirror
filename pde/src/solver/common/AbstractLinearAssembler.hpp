@@ -379,17 +379,6 @@ public:
         }
     }
     
-    /**
-     *  Initialise the LinearSystem class to a given size
-     *      
-     *  @param size The size of the LinearSystem (number of nodes in the mesh)
-     */
-    void InitialiseLinearSystem(unsigned size)
-    {
-        // Linear system in n unknowns, where n=#nodes
-        mpAssembledLinearSystem = new LinearSystem(size);
-    }
-    
     
     /**
      *  Assemble the linear system for a linear PDE. Loops over each element (and each 
@@ -420,9 +409,20 @@ public:
 
         if (mpAssembledLinearSystem == NULL)
         {
-            unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-            InitialiseLinearSystem(size);
-            mMatrixIsAssembled = false;
+            if(currentSolution == NULL)
+            {
+                // static problem, create linear system using the size
+                unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+                mpAssembledLinearSystem = new LinearSystem(size);
+            }
+            else
+            {
+                // use the currrent solution (ie the initial solution) 
+                // as the template in the alternative constructor of 
+                // LinearSystem. This appears to avoid problems with 
+                // VecScatter.
+                mpAssembledLinearSystem = new LinearSystem(currentSolution);
+            }
         }
         else
         {

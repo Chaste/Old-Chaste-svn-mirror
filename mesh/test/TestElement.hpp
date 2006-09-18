@@ -100,8 +100,7 @@ public:
         {
             for(int j=0; j<3; j++)
             {
-                double value = ( (i>0) && (i==j+1) ) ? 1.0 : 0.0;
-                TS_ASSERT_EQUALS(another_element.GetNode(i)->GetPoint()[j], value);
+                TS_ASSERT_DELTA(another_element.GetNode(i)->GetPoint()[j], element.GetNode(i)->GetPoint()[j], 1e-10);
             }
         }
 
