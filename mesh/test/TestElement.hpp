@@ -98,7 +98,11 @@ public:
         
         for (int i=0; i<4; i++)
         {
-            TS_ASSERT_EQUALS(another_element.GetNodeGlobalIndex(i), i);
+            for(int j=0; j<3; j++)
+            {
+                double value = ( (i>0) && (i==j+1) ) ? 1.0 : 0.0;
+                TS_ASSERT_EQUALS(another_element.GetNode(i)->GetPoint()[j], value);
+            }
         }
 
         for (unsigned i=0; i<corner_nodes.size(); i++)
