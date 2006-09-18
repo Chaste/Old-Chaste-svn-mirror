@@ -53,9 +53,6 @@ public:
         {
             delete nodes[i];
         }
-        
-        //for coverage
-        Element<3,3> another_element = element;
     }
     
     void TestConstructionForLinearBasisFunctions()
@@ -77,10 +74,40 @@ public:
         {
             delete corner_nodes[i];
         }
-        
-        //for coverage
-        Element<3,3> another_element = element;
     }
+    
+    
+    void TestEquals()
+    {
+        std::vector<Node<3>*> corner_nodes;
+        corner_nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        corner_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+        Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
+        
+        std::vector<Node<3>*> more_nodes;
+        more_nodes.push_back(new Node<3>(0, false, 10.0, 10.0, 10.0));
+        more_nodes.push_back(new Node<3>(1, false, 11.0, 10.0, 10.0));
+        more_nodes.push_back(new Node<3>(2, false, 10.0, 11.0, 10.0));
+        more_nodes.push_back(new Node<3>(3, false, 10.0, 10.0, 11.0));
+        Element<3,3> another_element(INDEX_IS_NOT_USED, more_nodes, 1);
+        
+        // test (and cover) equals operator
+        another_element = element;
+        
+        for (int i=0; i<4; i++)
+        {
+            TS_ASSERT_EQUALS(another_element.GetNodeGlobalIndex(i), i);
+        }
+
+        for (unsigned i=0; i<corner_nodes.size(); i++)
+        {
+            delete corner_nodes[i];
+            delete more_nodes[i];
+        }
+    }
+
     
     void TestGetSetAbstractElementMethods()
     {
