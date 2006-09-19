@@ -1,6 +1,6 @@
 /**
  * Concrete BackwardEulerIvpOdeSolver class.
-*/
+ */
 #ifndef BACKWARDEULERIVPODESOLVER_HPP_
 #define BACKWARDEULERIVPODESOLVER_HPP_
 
@@ -13,17 +13,19 @@
 class BackwardEulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 public:
+    // Constructor - does nothing
     BackwardEulerIvpOdeSolver()
-    {} //Constructor-does nothing
+    {
+    } 
+    
+    virtual ~BackwardEulerIvpOdeSolver()
+    {
+    }
     
     std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                             double timeStep,
                                             double time,
                                             std::vector<double> currentYValue);
-                                            
-    virtual ~BackwardEulerIvpOdeSolver()
-    {}
-    
 };
 
 

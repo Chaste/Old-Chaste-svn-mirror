@@ -97,6 +97,19 @@ public:
         return mVariableUnits;
     }
     
+    /** 
+     *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
+     *  only until a particular event (for example, only until the y value becomes
+     *  negative.
+     * 
+     *  After each timestep the solver will call this method on the ODE to see if 
+     *  it should stop there. By default, false is returned here.
+     */
+    virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
+    {
+        return false;
+    }
+    
 };
 
 #endif //_ABSTRACTODESYSTEM_HPP_

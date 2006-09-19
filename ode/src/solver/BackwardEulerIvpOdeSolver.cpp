@@ -1,6 +1,6 @@
 /**
  * Concrete BackwardEulerIvpOdeSolver class.
-*/
+ */
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"

@@ -6,7 +6,6 @@
 #include <vector>
 #include <iostream>
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolverEvents.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
 
@@ -45,10 +44,9 @@ public:
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver;
         EulerIvpOdeSolver euler_solver;
-        BackwardEulerIvpOdeSolverEvents events_solver;
         
         OdeSolution solutions;
-        OdeSolution solutions2;
+
         
         std::vector<double> state_variables = tyson_novak_system.GetInitialConditions();
         solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 1.0, h_value, h_value);
@@ -77,12 +75,22 @@ public:
         }
         writer.Close();
         
-        //std::vector<double> state_variables2 = tyson_novak_system.GetInitialConditions();
-        //solutions2 = events_solver.Solve(&tyson_novak_system, state_variables2, 0.0, 1000.0, h_value, h_value);
-        //TS_ASSERT_EQUALS(solutions2.GetNumberOfTimeSteps(), 10);
         
+        //// old version of events:
+        //// NOTE: BackwardEulerIvpOdeSolverEvents has now been removed, the 
+        //// function CalculateStoppingEvent() is now a member of the ode class
+        //// not the solver.
+        //// The ode should overload CalculateStoppingEvent if it has a stopping 
+        //// event.
+        //// for reference the stopping event that was hard-coded 
+        //// BackwardEulerIvpOdeSolverEvents (for TysonNovak?) was 
+        /////   "currentYValue[0] < 0.1 && dy[0] < 0.0"
+        
+        //BackwardEulerIvpOdeSolverEvents events_solver;
+        //OdeSolution solutions2;
+        //solutions2 = events_solver.Solve(&tyson_novak_system, state_variables, 0.0, 1000.0, h_value, h_value);
+        //TS_ASSERT_EQUALS(solutions2.GetNumberOfTimeSteps(), 10);  
     }
-    
 };
 
 #endif /*TESTTYSONNOVAK2001ODESYSTEM_HPP_*/

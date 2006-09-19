@@ -1,6 +1,6 @@
 /**
  * Concrete RungeKutta4IvpOdeSolver class.
-*/
+ */
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -15,19 +15,20 @@
  * To be used in the form:
  *
  * RungeKutta4IvpOdeSolver mySolver
- * OdeSolution solution=mySolver->Solve(pMyOdeSystem, StartTime, EndTime, TimeStep, yInit);
- *
-*/
+ * 
+ * OdeSolution solution=mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
+ * 
+ * See documentation for AbstractOneStepIvpOdeSolver::Solve() 
+ */
 
 std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
         double timeStep,
         double time,
         std::vector<double> currentYValue)
 {
-    /* Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.
-        * Calculates a vector containing the next Y value from the current one for each 
-        * equation in the system.
-     */
+    // Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.
+    // Calculates a vector containing the next Y value from the current one for each 
+    // equation in the system.
     
     int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     

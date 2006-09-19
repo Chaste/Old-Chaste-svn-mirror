@@ -1,6 +1,6 @@
 /**
  * Concrete AdamsBashforthIvpOdeSolver class.
-*/
+ */
 #ifndef _ADAMSBASHFORTHIVPODESOLVER_HPP_
 #define _ADAMSBASHFORTHIVPODESOLVER_HPP_
 
@@ -14,9 +14,12 @@ class AdamsBashforthIvpOdeSolver : public AbstractIvpOdeSolver
 {
 public:
     AdamsBashforthIvpOdeSolver()
-    {}
+    {
+    }
+    
     ~AdamsBashforthIvpOdeSolver()
-    {}
+    {
+    }
     
     OdeSolution Solve(AbstractOdeSystem* pAbstractOdeSystem,
                       std::vector<double>& rYValues,

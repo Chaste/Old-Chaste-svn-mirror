@@ -12,7 +12,15 @@
 
 class AbstractIvpOdeSolver
 {
-public:
+protected :
+    /** 
+     * boolean indicating whether the solver quit due to the ODEs
+     * stopping event occuring
+     */
+    bool mStoppingEventOccured; 
+
+    
+public :
     /**
      * Solves a system of ODEs using a specified one-step ODE solver
      * 
@@ -42,13 +50,26 @@ public:
                        double startTime,
                        double endTime,
                        double timeStep)=0;
-                       
-    virtual ~AbstractIvpOdeSolver()
-    {}
-    virtual bool CalculateStoppingEvent(AbstractOdeSystem* pAbstractOdeSystem, std::vector<double> currentYValue, double time)
-    //virtual bool CalculateStoppingEvent(std::vector<double> rYValues)
+    
+    
+    /** 
+     * Determine whether the solver quit due to the ODE's stopping event 
+     * triggering
+     */
+    bool StoppingEventOccured()
     {
-        return false;
+        return mStoppingEventOccured;
+    }
+
+
+    AbstractIvpOdeSolver() 
+       : mStoppingEventOccured(false)
+    {
+    }
+
+                    
+    virtual ~AbstractIvpOdeSolver()
+    {
     }
 };
 

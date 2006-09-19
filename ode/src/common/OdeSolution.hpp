@@ -22,6 +22,7 @@ public:
     {
         return mNumberOfTimeSteps;
     }
+    
     void SetNumberOfTimeSteps(int num_timesteps)
     {
         mNumberOfTimeSteps = num_timesteps;
@@ -38,6 +39,7 @@ public:
         }
         return(answer);
     }
+    
     std::vector<double>& rGetTimes()
     {
         return mTimes;

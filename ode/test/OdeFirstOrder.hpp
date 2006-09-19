@@ -1,29 +1,25 @@
-/*
- * Concrete Ode1 class
- */
-#ifndef _ODE1_HPP_
-#define _ODE1_HPP_
+#ifndef _ODEFIRSTORDER_HPP_
+#define _ODEFIRSTORDER_HPP_
 #include "AbstractOdeSystem.hpp"
 
 
-class Ode1 : public AbstractOdeSystem
+class OdeFirstOrder : public AbstractOdeSystem
 {
 public :
-
-    Ode1()
+    OdeFirstOrder()
         : AbstractOdeSystem(1) // 1 here is the number of variables
     {
-        mInitialConditions.push_back(0.0);
+        mInitialConditions.push_back(1.0);
     }
     
     
     std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
     {
         std::vector<double> y_derivatives(GetNumberOfStateVariables());
-        y_derivatives[0]=1.0;
-    
+        y_derivatives[0] = rY[0];
         return y_derivatives;
     }
+    
 };
 
-#endif //_ODE1_HPP_
+#endif //_ODEFIRSTORDER_HPP_

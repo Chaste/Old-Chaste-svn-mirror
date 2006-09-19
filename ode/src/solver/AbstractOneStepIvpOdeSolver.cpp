@@ -26,24 +26,24 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     // ODE system (note that the current algorithm accounts for any potential
     // floating point error)
     
-    int numberOfTimeSamples;
-    double currentTime;
+    int number_of_time_samples;
+    double current_time;
     
-    numberOfTimeSamples = 0;
+    number_of_time_samples = 0;
     
-    currentTime = startTime;
+    current_time = startTime;
     
-    while (currentTime < endTime)
+    while (current_time < endTime)
     {
-        numberOfTimeSamples++;
+        number_of_time_samples++;
         
-        if (startTime+numberOfTimeSamples*timeSampling >= endTime)
+        if (startTime+number_of_time_samples*timeSampling >= endTime)
         {
-            currentTime = endTime;
+            current_time = endTime;
         }
         else
         {
-            currentTime = startTime+numberOfTimeSamples*timeSampling;
+            current_time = startTime+number_of_time_samples*timeSampling;
         }
     }
     
@@ -51,43 +51,43 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     
     OdeSolution solutions;
     
-    solutions.SetNumberOfTimeSteps(numberOfTimeSamples);
+    solutions.SetNumberOfTimeSteps(number_of_time_samples);
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     
     // Solve the ODE system
     
-    int timeStepNumber = 0;
+    int time_step_number = 0;
     
-    currentTime = startTime;
+    current_time = startTime;
     
-    double toTime;
+    double to_time;
     
-    while (currentTime < endTime)
+    while (current_time < endTime)
     {
-        timeStepNumber++;
+        time_step_number++;
         
-        toTime = startTime+timeStepNumber*timeSampling;
+        to_time = startTime+time_step_number*timeSampling;
         
-        if (toTime >= endTime)
+        if (to_time >= endTime)
         {
-            toTime = endTime;
+            to_time = endTime;
         }
         
-        Solve(pAbstractOdeSystem, rYValues, currentTime, toTime, timeStep);
+        Solve(pAbstractOdeSystem, rYValues, current_time, to_time, timeStep);
         
-        currentTime = toTime;
-        if ( CalculateStoppingEvent(pAbstractOdeSystem, rYValues, currentTime) == true )
+        current_time = to_time;
+        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
         {
-            endTime=currentTime;
-            solutions.SetNumberOfTimeSteps(timeStepNumber);
+            endTime=current_time;
+            solutions.SetNumberOfTimeSteps(time_step_number);
+            mStoppingEventOccured = true;
         }
         
         // write current solution into solutions
         solutions.rGetSolutions().push_back(rYValues);
         // Push back new time into the time solution vector
-        solutions.rGetTimes().push_back(currentTime);
-        
+        solutions.rGetTimes().push_back(current_time);
     }
     
     return solutions;
@@ -103,19 +103,19 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     
     double realTimeStep = timeStep;
     
-    int timeStepNumber = 0;
+    int time_step_number = 0;
     
-    double currentTime = startTime;
+    double current_time = startTime;
     
-    while (currentTime < endTime)
+    while (current_time < endTime)
     {
-        timeStepNumber++;
+        time_step_number++;
         
         // Determine what the value time step should really be like
         
-        if (startTime+timeStepNumber*timeStep >= endTime)
+        if (startTime+time_step_number*timeStep >= endTime)
         {
-            realTimeStep = endTime-currentTime;
+            realTimeStep = endTime-current_time;
         }
         
         // Function that calls the appropriate one-step solver
@@ -124,18 +124,18 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 //        std::cout.flush();
         rYValues = CalculateNextYValue(pAbstractOdeSystem,
                                        realTimeStep,
-                                       currentTime,
+                                       current_time,
                                        rYValues);
                                        
         // Determine the new current time
         
         if (realTimeStep < timeStep)
         {
-            currentTime = endTime;
+            current_time = endTime;
         }
         else
         {
-            currentTime = startTime+timeStepNumber*timeStep;
+            current_time = startTime+time_step_number*timeStep;
         }
     }
 }
