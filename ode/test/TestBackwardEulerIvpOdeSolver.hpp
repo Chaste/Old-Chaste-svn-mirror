@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "OdeThirdOrder.hpp"
-#include "AnotherOde.hpp"
+//#include "AnotherOde.hpp"
 #include "BackwardEulerIvpOdeSolver.cpp"
 
 #include "PetscSetupAndFinalize.hpp"
@@ -12,7 +12,7 @@
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
-    void testComputeResidualAndComputeJacobian()
+  /*      void NO_testComputeResidualAndComputeJacobian()
     {
         AnotherOde ode_system;
 
@@ -90,7 +90,7 @@ public:
             }
         }
     }
-
+  */
 
     void testBackwardEulerSystemOf3Equations() throw (Exception)
     {
