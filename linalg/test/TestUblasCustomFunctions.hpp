@@ -92,6 +92,7 @@ public:
         invBMatlab(0,1) = 0.4717;
         invBMatlab(1,0) = 0.4717;
         invBMatlab(1,1) = -0.2264;
+        
         for ( int i = 0; i < 2; i++)
         {
             for ( int j = 0; j < 2; j++)
@@ -101,7 +102,6 @@ public:
         }
         
     }
-    
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/
