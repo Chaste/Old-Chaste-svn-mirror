@@ -86,7 +86,9 @@ public:
         testGenericSolver(adams_bashforth_solver,  1.0, 2.0, 0.001, 0.01);
         testGenericSolver(adams_bashforth_solver, -1.0, 2.0, 0.001, 2);
         testGenericSolver(adams_bashforth_solver,  0.0, 0.4, 0.01,  0.34);
-
+        
+        // check exception thrown if number of timesteps <= 4
+        TS_ASSERT_THROWS_ANYTHING( testGenericSolver(adams_bashforth_solver,0.0,0.04,0.01,0.01) );
     }
     
     void testRungeKutta2Solver()
