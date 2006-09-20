@@ -244,6 +244,25 @@ class Profile(GccDebug):
     "Run test with a profiler and rename gmon.out"
     return exefile + ' ' + exeflags + ' ; gprof ' + exefile
 
+
+class GoogleProfile(GccDebug):
+  """
+  gcc compiler with profiling enabled (and optimisation).
+  """
+  def __init__(self):
+    GccDebug.__init__(self)
+    self._cc_flags += ' -O3'
+    self._link_flags += ' -lprofiler'
+    self._test_packs = ['Profile']
+    self.build_dir = 'google_profile'
+  
+  def GetTestRunnerCommand(self, exefile, exeflags=''):
+    "Run test with a profiler and rename gmon.out"
+    base=os.path.basename(exefile)
+    profileFile='/tmp/'+base+'.prof'
+    return 'export HOME=\'.\' ;export CPUPROFILE=' + profileFile + '; ' + exefile + ' ' + exeflags + ' '  + ' ; pprof -pdf ' + exefile + ' ' + profileFile + ' > testoutput/'+base+'.pdf'
+   
+
 class Parallel(GccDebug):
   """
   Run using mpi run for tests which run in a parallel environment
