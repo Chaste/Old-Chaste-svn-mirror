@@ -123,6 +123,51 @@ public:
         TS_ASSERT_DELTA(numerical_solution[1],analytical_solution[1],global_error_euler);
         TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);   
     }    
+    
+    void testComputeResidual() throw (Exception)
+    {
+    	double h_value=1.0;
+    	OdeThirdOrder ode_system;
+    	
+        BackwardEulerStructure backward_euler_structure;
+        backward_euler_structure.TimeStep = h_value;
+        backward_euler_structure.Time = 0.0;
+        backward_euler_structure.pAbstractOdeSystem = &ode_system;  
+        std::vector<double> current_y_value;
+        current_y_value.push_back(1.0);
+        current_y_value.push_back(2.0);
+        current_y_value.push_back(3.0);
+        backward_euler_structure.currentYValue = current_y_value;        
+        
+        Vec solution_guess, residual;
+        int indices[3] = {0,1,2};
+        double values[3] = {1.0, 2.0, 3.0};
+        SNES snes;
+        
+        VecCreate(PETSC_COMM_WORLD,solution_guess);
+        VecSetSizes(solution_guess,PETSC_DECIDE,3);
+        VecSetFromOptions(solution_guess);
+        VecDuplicate(solution_guess,&residual);
+        
+        VecSetValues(solution_guess,3,indices,values,INSERT_VALUES);
+        VecAssemblyBegin(solution_guess);
+        VecAssemblyEnd(solution_guess);
+        
+        PetscErrorCode compute_residual = ComputeResidual(snes,solution_guess,residual,&backward_euler_structure);
+        
+        PetscScalar *p_residual_array;
+        ierr = VecGetArray(residual, &p_residual_array);
+
+        TS_ASSERT_DELTA(p_residual_array[0],-2.0, 1e-6);
+        TS_ASSERT_DELTA(p_residual_array[1], 1.0, 1e-6);
+        TS_ASSERT_DELTA(p_residual_array[2],-1.0, 1e-6);
+
+        VecRestoreArray(residual, &p_residual_array);
+        
+  
+    }   
+    
+    
 };
 
 #endif /*TESTBACKWARDEULERIVPODESOLVER_HPP_*/
