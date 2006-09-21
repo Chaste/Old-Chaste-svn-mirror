@@ -43,7 +43,7 @@ private :
         // end_time/sampling_time = 2/0.01 = 200
         TS_ASSERT_DELTA(num_timesteps, (endTime-startTime)/samplingTime, 1);
         // also check the size of the data is correct
-        TS_ASSERT_EQUALS(solutions.rGetSolutions().size(), num_timesteps+1);
+        TS_ASSERT_EQUALS(solutions.rGetSolutions().size(), (unsigned) (num_timesteps+1));
   
         int last = num_timesteps;
 
