@@ -183,8 +183,8 @@ public:
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
                         
-                        double age1 = mCells[element->GetNode(0)->GetIndex()].GetAge(time);
-                        double age2 = mCells[element->GetNode(1)->GetIndex()].GetAge(time);
+                        double age1 = mCells[element->GetNode(0)->GetIndex()].GetAge(time*mpParams->GetStemCellCycleTime());
+                        double age2 = mCells[element->GetNode(1)->GetIndex()].GetAge(time*mpParams->GetStemCellCycleTime());
                         double rest_length=mpParams->GetNaturalSpringLength();
                         double time_scale = mpParams->GetStemCellCycleTime();
                         if (age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)
@@ -200,7 +200,7 @@ public:
                         drdt_contributions(1) = mpParams->GetAlpha() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
                         
                         drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
-                        drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
+						drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                     }
                 }
             }
