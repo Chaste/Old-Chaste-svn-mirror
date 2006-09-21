@@ -9,3 +9,4 @@ TestPoint.hpp
 TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRefineElement.hpp
+TestRemesh.hpp
