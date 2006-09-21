@@ -1,14 +1,1 @@
-TestBoundaryConditionsContainer.hpp
-TestConstBoundaryCondition.hpp
-TestElasticityBoundaryConditionsContainer.hpp
-TestGaussianQuadratureRule.hpp
-TestLinearBasisFunction.hpp
-TestLinearElasticityAssembler.hpp
-TestLinearHeatEquation.hpp
-TestNonlinearHeatEquationPde.hpp
-TestSimpleDg0ParabolicAssembler.hpp
-TestSimpleLinearEllipticAssembler.hpp
-TestSimpleNonlinearEllipticAssembler.hpp
-TestSolvingCoupledPdes.hpp
-TestTimeDependentDiffusionEquationPde.hpp
-TestVaryingDiffusionAndSourceTermPde.hpp
+
