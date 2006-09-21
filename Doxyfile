@@ -87,7 +87,8 @@ INPUT                  =    coupled/src \
 							linalg/src \
 							mesh/src \
 							ode/src \ 
-							pde/src 
+							pde/src \
+							models/src
 							                         
 FILE_PATTERNS          = *.c \
                          *.cc \
