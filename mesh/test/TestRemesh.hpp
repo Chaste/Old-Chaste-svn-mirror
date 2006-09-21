@@ -48,6 +48,95 @@ public:
  		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
         		
 	}
+	
+	void TestOperationOfTetgen() throw (Exception)
+	{
+		OutputFileHandler handler("");
+		
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double volume=mesh.CalculateMeshVolume();
+   		TS_ASSERT_DELTA(1, volume, 1e-7);
+   		TS_ASSERT_EQUALS(mesh.GetNumNodes(),375);
+   		TS_ASSERT_EQUALS(mesh.GetNumElements(),1626);
+   		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390);
+   		
+   		out_stream node_file=handler.OpenOutputFile("temp.node");
+   		(*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
+   		for (int i=0; i<mesh.GetNumNodes(); i++)
+   		{
+   			Point<3> point=mesh.GetNodeAt(i)->rGetPoint();
+   			(*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\t"<<point[2]<<"\n";
+   		}
+   		node_file->close();
+   		std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
+   		std::string command   = "./bin/tetgen -e " + full_name + "node";
+   		system(command.c_str());
+ 	
+        TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
+        ConformingTetrahedralMesh<3,3> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader2);
+  		TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
+   		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
+ 	
+ 		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
+        		
+	}
+	
+	void TestOperationOfTetgenMoveNodes() throw (Exception)
+	{
+		OutputFileHandler handler("");
+		
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+   		{
+   			Point<3> point=mesh.GetNodeAt(i)->GetPoint();
+   			for (int j=0; j<3; j++)
+   			{
+   				if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
+   				{
+   					point.SetCoordinate(j, point[j]+9e-2);
+   				}
+   			}
+   			
+   			mesh.GetNodeAt(i)->SetPoint(point);
+   		}
+        mesh.RefreshMesh();
+        
+        
+        
+        double volume=mesh.CalculateMeshVolume();
+   		TS_ASSERT_DELTA(1, volume, 1e-7);
+   		TS_ASSERT_EQUALS(mesh.GetNumNodes(),375);
+   		TS_ASSERT_EQUALS(mesh.GetNumElements(),1626);
+   		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390);
+   		
+   		out_stream node_file=handler.OpenOutputFile("temp.node");
+   		(*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
+   		for (int i=0; i<mesh.GetNumNodes(); i++)
+   		{
+   			Point<3> point=mesh.GetNodeAt(i)->rGetPoint();
+   			(*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\t"<<point[2]<<"\n";
+   		}
+   		node_file->close();
+   		std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
+   		std::string command   = "./bin/tetgen -e " + full_name + "node";
+   		system(command.c_str());
+ 	
+        TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
+        ConformingTetrahedralMesh<3,3> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader2);
+  		TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
+   		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
+ 	
+ 		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
+        		
+	}
 };
 
 #endif /*TESTREMESH_HPP_*/
