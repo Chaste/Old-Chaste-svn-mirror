@@ -6,6 +6,7 @@
 
 #include "OdeThirdOrder.hpp"
 #include "Ode4.hpp"
+#include "Ode5.hpp"
 //#include "AnotherOde.hpp"
 #include "BackwardEulerIvpOdeSolver.cpp"
 
@@ -46,7 +47,7 @@ public:
         TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);   
     }    
     
-    void testBackwardEulerNonlinearEquations() 
+    void testBackwardEulerNonlinearEquation() 
     {
         Ode4 ode_system;
         
@@ -68,6 +69,31 @@ public:
         double analytical_solution = 1.0/(1.0+exp(-12.5));
         
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-6); 
+    }    
+    
+    void testBackwardEulerAnotherNonlinearEquation() 
+    {
+        Ode5 ode_system;
+        
+        double h_value=0.001;
+        double end_time = 0.1;
+        
+        //Euler solver solution worked out
+        BackwardEulerIvpOdeSolver backward_euler_solver;
+        OdeSolution solutions;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        
+        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, h_value);
+        int last = solutions.GetNumberOfTimeSteps();
+        
+        double numerical_solution;
+        numerical_solution = solutions.rGetSolutions()[last][0];
+        
+        // The tests
+        double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
+        
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3); 
     }    
     
     void notestComputeResidual() 
