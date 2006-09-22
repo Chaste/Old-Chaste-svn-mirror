@@ -26,6 +26,10 @@ public:
         //for coverage
         stem_cell.SetNodeIndex(3);
         TS_ASSERT_EQUALS((int)(stem_cell.GetNodeIndex()), 3);
+    
+    	stem_cell.SetBirthTime(1.0);
+    	TS_ASSERT_EQUALS(stem_cell.GetAge(2.0), 1.0);
+    
     }
     
     void TestCellDivision()
