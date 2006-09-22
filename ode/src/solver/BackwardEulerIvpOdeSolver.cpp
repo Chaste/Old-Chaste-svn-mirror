@@ -141,7 +141,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     {
         double res_i;
         unsigned local_index=global_index - mLo;
-        res_i = (p_solution_guess_array[local_index]-current_y_value[global_index])/time_step - dy[global_index];
+        res_i = (p_solution_guess_array[local_index]-current_y_value[global_index]) - dy[global_index]*time_step;
         VecSetValue(residual,global_index,res_i,INSERT_VALUES);
     }
     VecRestoreArray(solutionGuess, &p_solution_guess_array);

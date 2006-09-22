@@ -59,7 +59,7 @@ public:
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         
-        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, 0.5, h_value, h_value);
+        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
         int last = solutions.GetNumberOfTimeSteps();
         
         double numerical_solution;
@@ -68,7 +68,7 @@ public:
         // The tests
         double analytical_solution = 1.0/(1.0+exp(-12.5));
         
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-6); 
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-4); 
     }    
     
     void testBackwardEulerAnotherNonlinearEquation() 
