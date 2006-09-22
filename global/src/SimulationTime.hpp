@@ -10,6 +10,7 @@ public:
 	void IncrementTimeOneStep();
 	int GetTimeStepsElapsed();
 	double GetDimensionalisedTime();
+	static void Destroy();
 protected:
  	SimulationTime(double, int);
 private:

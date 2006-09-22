@@ -38,6 +38,12 @@ SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsIn
 	mTimeStepsElapsed = 0;
 }
 
+
+void SimulationTime::Destroy() {
+	delete mInstance;
+	mInstance = 0;
+}
+
 /**
  * Get the simlation time step.
  * Warning: Use of this method may result in round errors
