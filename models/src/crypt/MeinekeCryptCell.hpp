@@ -4,6 +4,7 @@
 #include "Element.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 #include "AbstractCellCycleModel.hpp"
+#include "SimulationTime.hpp"
 
 const unsigned int MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
 
@@ -30,6 +31,8 @@ protected:
     CryptCellType mCellType;
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
+    SimulationTime* mpSimulationTime;
+    
     
     /**
      * Contains code common to both the copy constructor and operator=.
@@ -49,6 +52,17 @@ public:
                      double birthTime,
                      unsigned int generation,
                      AbstractCellCycleModel *pCellCycleModel);
+                     
+    /**
+     * Create a new Meineke crypt cell.
+     * @param cellType  the type of cell this is
+     * @param generation  its generation
+     * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
+     *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
+     */
+    MeinekeCryptCell(CryptCellType cellType,
+                     unsigned int generation,
+                     AbstractCellCycleModel *pCellCycleModel);                     
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
      */
@@ -58,6 +72,7 @@ public:
     void operator=(const MeinekeCryptCell &other_cell);
     
     void SetBirthTime(double birthTime);
+    void SetBirthTime();
     /**
      * Change the cell cycle model used.  This takes effect immediately.
      */
@@ -68,6 +83,7 @@ public:
     unsigned GetNodeIndex();
     
     double GetAge(double simulationTime);
+    double GetAge();
     unsigned int GetGeneration();
     CryptCellType GetCellType();
     

@@ -19,6 +19,22 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mCanDivide = false;
 }
 
+MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
+                                   unsigned int generation,
+                                   AbstractCellCycleModel *pCellCycleModel)
+        : mpCellCycleModel(pCellCycleModel)
+{
+	mpSimulationTime = SimulationTime::Instance();
+    // Stem cells are the only ones with generation = 0
+    assert( (generation == 0) == (cellType == STEM) );
+    
+    mBirthTime=mpSimulationTime->GetDimensionalisedTime();
+    mGeneration=generation;
+    mCellType=cellType;
+    mpCellCycleModel->SetCellType(cellType);
+    mCanDivide = false;
+}
+
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
 {
     // Copy 'easy' data members
@@ -57,6 +73,11 @@ void MeinekeCryptCell::SetBirthTime(double birthTime)
     mBirthTime = birthTime;
 }
 
+void MeinekeCryptCell::SetBirthTime()
+{
+    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+}
+
 void MeinekeCryptCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
 {
     delete mpCellCycleModel;
@@ -81,6 +102,11 @@ unsigned MeinekeCryptCell::GetNodeIndex()
 double MeinekeCryptCell::GetAge(double simulationTime)
 {
     return simulationTime-mBirthTime;
+}
+
+double MeinekeCryptCell::GetAge()
+{
+    return mpSimulationTime->GetDimensionalisedTime() - mBirthTime;
 }
 
 unsigned int MeinekeCryptCell::GetGeneration()

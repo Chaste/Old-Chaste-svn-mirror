@@ -14,7 +14,7 @@ public:
 protected:
  	SimulationTime(double, int);
 private:
- 	static SimulationTime* mInstance;
+ 	static SimulationTime* mpInstance;
  	double mDurationOfSimulation;
  	int mTotalTimeStepsInSimulation;
  	int mTimeStepsElapsed;

@@ -8,7 +8,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "CancerParameters.hpp"
-
+#include "SimulationTime.hpp"
 
 class TestMeinekeCryptCell: public CxxTest::TestSuite
 {
@@ -16,19 +16,27 @@ public:
 
     void TestMeinekeCryptCellClass()
     {
+    	SimulationTime* p_simulation_time = SimulationTime::Instance(2.0, 4);
+    	
+    	
+    	
         MeinekeCryptCell stem_cell(STEM, // type
-                                   0.1,  // birth time (hours)
                                    0,    // generation
                                    new FixedCellCycleModel());
                                    
-        TS_ASSERT_EQUALS(stem_cell.GetAge(1.0), 0.9);
+        p_simulation_time->IncrementTimeOneStep();                        
+                                   
+        TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
 
         //for coverage
         stem_cell.SetNodeIndex(3);
         TS_ASSERT_EQUALS((int)(stem_cell.GetNodeIndex()), 3);
     
-    	stem_cell.SetBirthTime(1.0);
-    	TS_ASSERT_EQUALS(stem_cell.GetAge(2.0), 1.0);
+    	p_simulation_time->IncrementTimeOneStep();  
+    	stem_cell.SetBirthTime();
+    	p_simulation_time->IncrementTimeOneStep(); 
+    	p_simulation_time->IncrementTimeOneStep(); 
+    	TS_ASSERT_EQUALS(stem_cell.GetAge(), 1.0);
     
     }
     

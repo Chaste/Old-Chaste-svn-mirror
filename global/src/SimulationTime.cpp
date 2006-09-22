@@ -6,7 +6,7 @@
 #include "Exception.hpp"
 #include <assert.h>
 
-SimulationTime* SimulationTime::mInstance = 0;
+SimulationTime* SimulationTime::mpInstance = 0;
 
 /**
  * Return a pointer to the simulation time object.
@@ -16,9 +16,9 @@ SimulationTime* SimulationTime::mInstance = 0;
  */
 SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalTimeStepsInSimulation) 
 {
-	assert(mInstance == 0);
-	mInstance = new SimulationTime(durationOfSimulation, totalTimeStepsInSimulation);
-	return mInstance;
+	assert(mpInstance == 0);
+	mpInstance = new SimulationTime(durationOfSimulation, totalTimeStepsInSimulation);
+	return mpInstance;
 }
 
 /**
@@ -28,8 +28,8 @@ SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalT
  */
 SimulationTime* SimulationTime::Instance()
 {
-	assert(mInstance != 0);
-	return mInstance;
+	assert(mpInstance != 0);
+	return mpInstance;
 }
 
 SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsInSimulation) {
@@ -40,8 +40,8 @@ SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsIn
 
 
 void SimulationTime::Destroy() {
-	delete mInstance;
-	mInstance = 0;
+	delete mpInstance;
+	mpInstance = 0;
 }
 
 /**
