@@ -4,14 +4,19 @@
 class SimulationTime 
 {
 public:
+	static SimulationTime* Instance(double, int);
 	static SimulationTime* Instance();
-	double GetTime();
-	void IncrementTime(double);
+	double GetTimeStep();
+	void IncrementTimeOneStep();
+	int GetTimeStepsElapsed();
+	double GetDimensionalisedTime();
 protected:
- 	SimulationTime();
+ 	SimulationTime(double, int);
 private:
  	static SimulationTime* mInstance;
- 	double mTime;
+ 	double mDurationOfSimulation;
+ 	int mTotalTimeStepsInSimulation;
+ 	int mTimeStepsElapsed;
 };
 
 #endif /*SIMULATIONTIME_HPP_*/

@@ -3,39 +3,75 @@
  */
 
 #include "SimulationTime.hpp"
+#include "Exception.hpp"
+#include <assert.h>
 
 SimulationTime* SimulationTime::mInstance = 0;
 
 /**
- * Return a pointer to the simulation time object
+ * Return a pointer to the simulation time object.
+ * The first time one creates a simulation time object, this method MUST be used.
+ * @param timeStep The time step of the simulation
  */
-SimulationTime* SimulationTime::Instance() 
+SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalTimeStepsInSimulation) 
 {
-	if (mInstance == 0)
-	{ 
-		mInstance = new SimulationTime();
-	}
+	assert(mInstance == 0);
+	mInstance = new SimulationTime(durationOfSimulation, totalTimeStepsInSimulation);
 	return mInstance;
 }
 
-SimulationTime::SimulationTime() {
-	mTime=0;
+/**
+ * Return a pointer to the simulation time object.
+ * The second and subsequent times one creates a simulation time object,
+ * this method MUST be used.
+ */
+SimulationTime* SimulationTime::Instance()
+{
+	assert(mInstance != 0);
+	return mInstance;
+}
+
+SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsInSimulation) {
+	mDurationOfSimulation = durationOfSimulation;
+	mTotalTimeStepsInSimulation=totalTimeStepsInSimulation;
+	mTimeStepsElapsed = 0;
 }
 
 /**
- * Get the simlation time
- * @return simluation time
+ * Get the simlation time step.
+ * Warning: Use of this method may result in round errors
+ *  -- see GetDimensionalisedTime.
+ * @return time step
  */
-double SimulationTime::GetTime()
+double SimulationTime::GetTimeStep()
 {
-	return mTime;
-}
-/**
- * Increment the simulation time
- * @param dt the amount added to the time
- */
-void SimulationTime::IncrementTime(double dt)
-{
-	mTime+=dt;
+	return mDurationOfSimulation/mTotalTimeStepsInSimulation;
 }
 
+/**
+ * Increment the simulation time by one time step
+ */
+void SimulationTime::IncrementTimeOneStep()
+{
+	mTimeStepsElapsed++;
+}
+
+/**
+ * Get the number of time steps that have elapsed.
+ * @return number of time steps
+ */
+int SimulationTime::GetTimeStepsElapsed()
+{
+	return mTimeStepsElapsed;
+}
+
+/**
+ * Get the dimensionalised simulation time.
+ * Should not have rounding errors.
+ * @return simulation time
+ */
+double SimulationTime::GetDimensionalisedTime()
+{
+	return ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
+	       * mDurationOfSimulation;
+}
