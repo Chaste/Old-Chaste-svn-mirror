@@ -263,6 +263,41 @@ public:
    			}
    		}
 	}
+	
+	void TestRemeshWithMethod2D()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double area=mesh.CalculateMeshVolume();
+        const int node_index=432;
+        const int target_index=206;
+       
+        int num_nodes_before=mesh.GetNumNodes();
+        
+        mesh.SetNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+        
+        NodeMap map(1);
+        mesh.ReMesh(map);
+
+		TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+
+		TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 0);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), 0);
+   		
+	}
         
 	
 	

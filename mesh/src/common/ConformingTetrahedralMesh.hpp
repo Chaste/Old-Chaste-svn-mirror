@@ -1,12 +1,20 @@
 #ifndef _CONFORMINGTETRAHEDRALMESH_HPP_
 #define _CONFORMINGTETRAHEDRALMESH_HPP_
 
+#include <iostream>
 #include <vector>
+#include <map>
+#include <set>
+#include <algorithm>
+
 #include "AbstractMeshReader.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "Element.cpp"
 #include "BoundaryElement.cpp"
 #include "Node.hpp"
-
+#include "NodeMap.hpp"
+#include "Exception.hpp"
+#include "OutputFileHandler.hpp"
 /**
  * \todo
  * Work still needs to be done with boundary nodes & elements?
@@ -168,6 +176,13 @@ public:
      * Re-index a mesh so that it has no deleted elements or nodes
      */
     void ReIndex(void);
+    /**
+     * Re-mesh a mesh using triangle or tetgen
+     * @param Is a NodeMap which associates the indices of nodes in the old mesh
+     * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
+     */
+    void ReMesh(NodeMap &map);
+    
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

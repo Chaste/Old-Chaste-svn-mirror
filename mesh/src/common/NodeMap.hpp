@@ -15,6 +15,12 @@ class NodeMap
 		mMap.reserve(size);
 	}
 	
+	void Reserve(int size)
+	{
+		mMap.reserve(size);
+	}
+	
+	
 	void SetNewIndex(unsigned oldIndex, unsigned newIndex)
 	{
 		mMap[oldIndex] = (int) newIndex;
