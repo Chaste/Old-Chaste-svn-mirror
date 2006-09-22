@@ -12,7 +12,7 @@ double ranf(void)
     
     if (!seeded)
     {
-        srand(time(NULL));
+        srand(0);
         seeded = true;
     }
     

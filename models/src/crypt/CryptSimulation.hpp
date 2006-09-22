@@ -56,7 +56,8 @@ public:
         mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
         mEndTime = 5.0;
         
-        srandom(time(NULL));
+        //srandom(time(NULL));
+        srandom(0);
         mpParams->SetMeinekeLambda(15.0);
         
         mIncludeRandomBirth = false;

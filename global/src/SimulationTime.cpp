@@ -32,7 +32,7 @@ double SimulationTime::GetTime()
 }
 /**
  * Increment the simulation time
- * @param the amount added to the time
+ * @param dt the amount added to the time
  */
 void SimulationTime::IncrementTime(double dt)
 {

@@ -52,6 +52,16 @@ class TestCryptSimulation : public CxxTest::TestSuite
         p_elem_file->close();
     }
     
+    void CheckAgainstPreviousRun(std::string resultDirectory)
+    {
+    	OutputFileHandler output_file_handler("");
+    	std::string testoutput_dir = output_file_handler.GetTestOutputDirectory();
+    	std::string compare_command = "cmp " + 
+            testoutput_dir + "/" + resultDirectory + "/results " +
+            "models/test/data/" + resultDirectory + "/results";
+        TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
+    }
+    
 public:
 
     void TestExceptions(void)
@@ -103,6 +113,8 @@ public:
             double position = point.rGetLocation()[0];
             TS_ASSERT_DELTA(position, index, 1e-1);
         }
+        
+        CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath");
     }
     
     // Death because this test has a cell starting at the end of
@@ -147,6 +159,8 @@ public:
         }
         
         TS_ASSERT_LESS_THAN(0u, dead_cells);
+        
+        CheckAgainstPreviousRun("CryptWithDeathButNoBirth");
     }
     
     // Includes random birth (random position in a random element), death and constant
@@ -167,6 +181,8 @@ public:
         simulator.SetIncludeRandomBirth();
         simulator.SetEndTime(10.0);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        
+        CheckAgainstPreviousRun("CryptWithBirthConstantRestLength");
     }
     
     // Includes variable rest length but not fully working in the class (see
@@ -191,6 +207,8 @@ public:
         simulator.SetIncludeVariableRestLength();
         simulator.SetEndTime(10.0);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        
+        CheckAgainstPreviousRun("CryptWithBirthVariableRestLength");
     }
     
     // Create a chain of meineke cells (1 stem, 14 transit cells and 8 differentiated)
@@ -198,7 +216,7 @@ public:
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(time(NULL));
+        srandom(0);
         double crypt_length = 22.0;
         
         p_params->SetNaturalSpringLength(2);
@@ -249,6 +267,8 @@ public:
         simulator.SetEndTime(10.0);
         simulator.SetCryptLength(crypt_length);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        
+        CheckAgainstPreviousRun("CryptWithCells");
     }
     
     
@@ -257,7 +277,7 @@ public:
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(time(NULL));
+        srandom(0);
         double crypt_length = 11.0;
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
@@ -307,6 +327,8 @@ public:
         simulator.SetCryptLength(crypt_length);
         simulator.SetIncludeVariableRestLength();
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        
+        CheckAgainstPreviousRun("CryptWithCellsAndGrowth");
     }
     
 };
