@@ -11,7 +11,8 @@ SimulationTime* SimulationTime::mInstance = 0;
 /**
  * Return a pointer to the simulation time object.
  * The first time one creates a simulation time object, this method MUST be used.
- * @param timeStep The time step of the simulation
+ * @param durationOfSimulation Total dimensionalized time of the simulation
+ * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
  */
 SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalTimeStepsInSimulation) 
 {
