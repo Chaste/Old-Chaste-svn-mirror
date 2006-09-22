@@ -69,15 +69,12 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     VecSetSizes(initial_guess, PETSC_DECIDE,num_equations);
     //VecSetType(initial_guess, VECSEQ);
     VecSetFromOptions(initial_guess);
-    
-    //If this class has not been used before then find out and set the ownership
-    if (mHi == 0)
-    {
-        int lo, hi;
-        VecGetOwnershipRange(initial_guess, &lo, &hi);
-        mLo=lo;
-        mHi=hi;
-    }
+
+	//mLo and mHi are identified each time - may be more efficient to only do this once
+    int lo, hi;
+    VecGetOwnershipRange(initial_guess, &lo, &hi);
+    mLo=lo;
+    mHi=hi;
     
     for (unsigned global_index=mLo; global_index<mHi; global_index++)
     {

@@ -15,7 +15,7 @@
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
-    void notestBackwardEulerSystemOf3Equations() 
+    void testBackwardEulerSystemOf3Equations() 
     {
         OdeThirdOrder ode_system;
         
@@ -100,7 +100,7 @@ public:
     {
     	double h_value=1.0;
     	OdeThirdOrder ode_system;
-    	
+    	BackwardEulerIvpOdeSolver backward_euler_solver;
         BackwardEulerStructure backward_euler_structure;
         backward_euler_structure.TimeStep = h_value;
         backward_euler_structure.Time = 0.0;
@@ -142,7 +142,7 @@ public:
     {
     	double h_value=1.0;
     	OdeThirdOrder ode_system;
-    	
+    	BackwardEulerIvpOdeSolver backward_euler_solver;
         BackwardEulerStructure backward_euler_structure;
         backward_euler_structure.TimeStep = h_value;
         backward_euler_structure.Time = 0.0;
