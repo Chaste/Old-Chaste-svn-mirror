@@ -23,19 +23,23 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
+import java.lang.Math;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
 
-public class Visualize2DChain implements ActionListener, AdjustmentListener, Runnable {
+public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runnable {
 
 	public Frame frame = new Frame();
 
 	public static double[] times;
 
 	public static int[] numCells;
+	public static int[] numElements;
 
 	public static double[][] positions;
+	public static int[][] element_nodes;
+	public static int[][] cell_type;
 
 	public static double max_x = 0.0;
 	
@@ -44,7 +48,7 @@ public class Visualize2DChain implements ActionListener, AdjustmentListener, Run
 	public static int timeStep = 0;
 
 	public static int delay = 50;
-
+	
 	private Thread updateThread;
 
 	CustomCanvas2D canvas;
@@ -53,7 +57,7 @@ public class Visualize2DChain implements ActionListener, AdjustmentListener, Run
 
 	public static int numSteps = 0;
 
-	public Visualize2DChain() {
+	public Visualize2Dcell() {
 		frame.setSize(1000, 500);
 		frame.setTitle("Gavaghan's goons' visualization tools (TM)");
 
@@ -178,44 +182,87 @@ public class Visualize2DChain implements ActionListener, AdjustmentListener, Run
 	}
 
 	public static void main(String args[]) {
-		Visualize2DChain vis = new Visualize2DChain();
+		Visualize2Dcell vis = new Visualize2Dcell();
 
 		System.out
-				.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn and Joe Pitt-Francis)");
+				.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan & Joe Pitt-Francis)");
 		try {
-			File file = new File(args[0]);
-			BufferedReader skimFile = new BufferedReader(new FileReader(file));
+			File node_file = new File(args[0]);
+			File element_file = new File(args[1]);
+			BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
 			int num_lines = 0;
-			while (skimFile.readLine() != null) {
+			while (skim_node_file.readLine() != null) {
 				num_lines++;
 			}
 
 			numSteps = num_lines;
 			times = new double[num_lines];
 			positions = new double[num_lines][];
+			cell_type = new int [num_lines][];
 			numCells = new int[num_lines];
+			numElements = new int[num_lines];
+			element_nodes = new int[num_lines][];
 
-			BufferedReader inFile = new BufferedReader(new FileReader(file));
-			String line = inFile.readLine(); // from console input example
-												// above.
+			BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
+			BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
+
+			String line_node = in_node_file.readLine(); // from console input example
+			String line_element = in_element_file.readLine();	// above.
+			
 			// If line is not end of file continue
 			int row = 0;
-			while (line != null) {
+			while (line_node != null) {
 				// Create a StringTokenizer with a colon sign as a delimiter
-				StringTokenizer st = new StringTokenizer(line);
+				StringTokenizer st_node = new StringTokenizer(line_node);
+				StringTokenizer st_element = new StringTokenizer(line_element);
 
-				Double time = Double.valueOf(st.nextToken());
+				Double time = Double.valueOf(st_node.nextToken());
+				Double element_time = Double.valueOf(st_element.nextToken());
+				
+				if (Math.abs(time-element_time)>1e-6) 
+				{
+					System.out.println("Oi - I want the element and node files with rows at the same times...");
+					System.exit(0);
+				}
+				
 				times[row] = time.doubleValue();
 
-				numCells[row] = st.countTokens();
-				positions[row] = new double[numCells[row]];
-				// ArrayList<Double> positionValues= new ArrayList<Double>();
-				for (int i = 0; i < numCells[row]; i+=2) 
+				// count the number of entries in the node file and check correct 
+				int entries = st_node.countTokens();
+				if (entries%3 != 0)
 				{
-					double d1 = Double.valueOf(st.nextToken()).doubleValue();
-					double d2 = Double.valueOf(st.nextToken()).doubleValue();
-					if (d1 > max_x) 
+					System.out.println("Oi - I want the node file to look like: time,x,y,type,x,y,type...");
+					System.exit(0);
+				}
+				numCells[row] = entries/3; 
+			
+				// count the number of entries in the element file and check correct 
+				entries = st_element.countTokens();
+				if (entries%3 != 0)
+				{
+					System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
+					System.exit(0);
+				}
+				
+				numElements[row] = st_element.countTokens()/3;
+				
+				positions[row] = new double[2*numCells[row]];
+				cell_type[row]= new int[numCells[row]];
+				element_nodes[row] = new int[3*numElements[row]];
+				// ArrayList<Double> positionValues= new ArrayList<Double>();
+				for (int i = 0; i < numCells[row]; i++) 
+				{
+					double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
+					double d2 = Double.valueOf(st_node.nextToken()).doubleValue();
+					cell_type[row][i] = Integer.parseInt(st_node.nextToken());
+					if ((cell_type[row][i]<0) || (cell_type[row][i]>3))
+					{
+						System.out.println("Oi - I want a cell type between 0 and 3");
+						System.exit(0);
+					}
+
+				    if (d1 > max_x) 
 					{
 						max_x = d1;
 					}
@@ -224,8 +271,16 @@ public class Visualize2DChain implements ActionListener, AdjustmentListener, Run
 						max_y = d2;
 					}
 					// positionValues.add(d1);
-					positions[row][i] = d1;
-					positions[row][i+1] = d2;
+					positions[row][2*i] = d1;
+					positions[row][2*i+1] = d2;
+				}
+				
+				for (int i = 0; i < 3*numElements[row]; i++) 
+				{
+					int node = Integer.parseInt(st_element.nextToken());
+					// int node = Int.valueOf(st_element.nextToken()).intValue();
+					// positionValues.add(d1);
+					element_nodes[row][i] = node;
 				}
 				// Collections.sort(positionValues);
 				// for (int i=0; i<numCells[row]; i++)
@@ -234,8 +289,8 @@ public class Visualize2DChain implements ActionListener, AdjustmentListener, Run
 				// }
 
 				// Read next line of the file
-				line = inFile.readLine();
-
+				line_node = in_node_file.readLine();
+				line_element = in_element_file.readLine();
 				row++;
 
 			} // end while not at end of file
@@ -249,7 +304,7 @@ public class Visualize2DChain implements ActionListener, AdjustmentListener, Run
 class CustomCanvas2D extends Canvas {
 	private static final long serialVersionUID = 6997195399856046957L;
 
-	Visualize2DChain vis;
+	Visualize2Dcell vis;
 
 	int width;
 
@@ -257,9 +312,11 @@ class CustomCanvas2D extends Canvas {
 
 	Graphics2D g2;
 
-	public CustomCanvas2D(Visualize2DChain v) {
+	public CustomCanvas2D(Visualize2Dcell v) {
 		vis = v;
-		setBackground(Color.yellow);
+		Color garysSexySilver = new Color(216,216,231);
+
+		setBackground(garysSexySilver);
 	}
 
 	public void paint(Graphics g) {
@@ -273,19 +330,79 @@ class CustomCanvas2D extends Canvas {
 		height = getHeight();
 		width = getWidth();
 		g2.drawString("Time = " + vis.times[vis.timeStep], 10,10);
-		for (int i = 0; i < vis.numCells[vis.timeStep]; i += 2) 
+		g2.setPaint(Color.black);
+		
+		// draw elements first
+		for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
 		{
-			int x = scaleX(vis.positions[vis.timeStep][i]);
-			int y = scaleY(vis.positions[vis.timeStep][i + 1]);
-			g2.fillOval(x - radius, height - y - radius, 2 * radius, 2 * radius);
-			if (i != 0) 
+			// What nodes are we joining up?
+			int n1 = vis.element_nodes[vis.timeStep][3*i];
+			int n2 = vis.element_nodes[vis.timeStep][3*i+1];
+			int n3 = vis.element_nodes[vis.timeStep][3*i+2];
+			
+			// Where are they? and convert to integer pixels
+			int x1 = scaleX(vis.positions[vis.timeStep][2*n1]);
+			int y1 = scaleY(vis.positions[vis.timeStep][2*n1 + 1]);
+			int x2 = scaleX(vis.positions[vis.timeStep][2*n2]);
+			int y2 = scaleY(vis.positions[vis.timeStep][2*n2 + 1]);
+			int x3 = scaleX(vis.positions[vis.timeStep][2*n3]);
+			int y3 = scaleY(vis.positions[vis.timeStep][2*n3 + 1]);
+					
+			
+			// Plot lines
+			g2.drawLine(x1, height - y1, x2, height - y2);
+			g2.drawLine(x2, height - y2, x3, height - y3);
+			g2.drawLine(x3, height - y3, x1, height - y1);
+		}
+		
+
+		// draw nodes second so that dots are on top of lines
+		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
+		{
+			int x = scaleX(vis.positions[vis.timeStep][2*i]);
+			int y = scaleY(vis.positions[vis.timeStep][2*i + 1]);
+			
+			if(vis.cell_type[vis.timeStep][i]==0)
 			{
-				// drawSpring(old_x, x);
-				g2.drawLine(old_x, height - old_y, x, height - y);
+				// stem cell
+				g2.setPaint(Color.green);
 			}
+			else if (vis.cell_type[vis.timeStep][i]==1)
+			{
+				// transit cell
+				g2.setPaint(Color.orange);
+			}
+			else if (vis.cell_type[vis.timeStep][i]==2)
+			{
+				// differentiated cell
+				g2.setPaint(Color.red);
+			}
+			else if (vis.cell_type[vis.timeStep][i]==3)
+			{
+				// DANGER! CANCER!
+				g2.setPaint(Color.black);
+			}
+
+			g2.fillOval(x - radius, height - y - radius, 2 * radius, 2 * radius);
 			old_x = x;
 			old_y = y;
 		}
+		g2.setPaint(Color.black);
+		
+		
+//		for (int i = 0; i < vis.numCells[vis.timeStep]; i += 2) 
+//		{
+//			int x = scaleX(vis.positions[vis.timeStep][i]);
+//			int y = scaleY(vis.positions[vis.timeStep][i + 1]);
+//			g2.fillOval(x - radius, height - y - radius, 2 * radius, 2 * radius);
+//			if (i != 0) 
+//			{
+//				// drawSpring(old_x, x);
+//				g2.drawLine(old_x, height - old_y, x, height - y);
+//			}
+//			old_x = x;
+//			old_y = y;
+//		}
 		drawXAxis(tick_length, num_ticks);
 		drawYAxis(tick_length, num_ticks);
 	}
