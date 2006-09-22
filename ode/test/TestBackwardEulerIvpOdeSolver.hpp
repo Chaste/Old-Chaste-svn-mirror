@@ -75,8 +75,8 @@ public:
     {
         Ode5 ode_system;
         
-        double h_value=0.001;
-        double end_time = 0.1;
+        double h_value=0.01;
+        double end_time = 1.0;
         
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver;
@@ -96,6 +96,7 @@ public:
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3); 
     }    
     
+    // Superceded tests
     void notestComputeResidual() 
     {
     	double h_value=1.0;

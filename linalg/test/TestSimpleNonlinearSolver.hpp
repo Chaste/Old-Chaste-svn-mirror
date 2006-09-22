@@ -55,7 +55,7 @@ public:
         int lo, hi;
         VecGetOwnershipRange(answer, &lo, &hi);
         
-        double tol = 1e-6;
+        double tol = 1e-4;
         
         for (int global_index=0; global_index<2; global_index++)
         {
