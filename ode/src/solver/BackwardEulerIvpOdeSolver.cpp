@@ -36,7 +36,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
 PetscErrorCode ComputeJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 
 /**
- * Solves a system of 3 ODEs using the Backward Euler method
+ * Solves a system of n ODEs using the Backward Euler method
  *
  * To be used in the form:
  *
@@ -81,7 +81,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     
     for (unsigned global_index=mLo; global_index<mHi; global_index++)
     {
-        VecSetValue(initial_guess, global_index, currentYValue[global_index] ,INSERT_VALUES);
+        VecSetValue(initial_guess, global_index, currentYValue[global_index], INSERT_VALUES);
     }
     VecAssemblyBegin(initial_guess);
     VecAssemblyEnd(initial_guess);
@@ -89,6 +89,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     Vec answer;
     Vec residual;
     VecDuplicate(initial_guess, &residual);
+    VecDuplicate(initial_guess, &answer);
     
     BackwardEulerStructure *p_backward_euler_structure = new BackwardEulerStructure;
     p_backward_euler_structure->pAbstractOdeSystem = pAbstractOdeSystem;
@@ -122,15 +123,15 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     double time = p_backward_euler_structure->Time;
     std::vector<double> current_y_value = p_backward_euler_structure->currentYValue;
     
+    unsigned num_equations = p_ode_system->GetNumberOfStateVariables();
     PetscScalar *p_solution_guess_array;
     VecGetArray(solutionGuess, &p_solution_guess_array);
     std::vector<double> current_guess;
-    current_guess.push_back(p_solution_guess_array[0]);
-    current_guess.push_back(p_solution_guess_array[1]);
-    current_guess.push_back(p_solution_guess_array[2]);
+    for (unsigned i=0; i<num_equations; i++)
+    {
+        current_guess.push_back(p_solution_guess_array[i]);
+    }
     VecRestoreArray(solutionGuess, &p_solution_guess_array);
-    
-    int num_equations = p_ode_system->GetNumberOfStateVariables();
     
     ReplicatableVector solution_guess_replicated;
     solution_guess_replicated.ReplicatePetscVector(solutionGuess);
@@ -150,6 +151,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     
     VecAssemblyBegin(residual);
     VecAssemblyEnd(residual);
+    
     return 0;
 }
 
@@ -215,7 +217,6 @@ PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat 
     VecDestroy(residual_perturbed);
     VecDestroy(solution_perturbed);
     VecDestroy(jacobian_column);
-    
     return 0;
     
 }

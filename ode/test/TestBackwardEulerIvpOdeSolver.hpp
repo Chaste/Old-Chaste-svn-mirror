@@ -5,6 +5,7 @@
 #include<iostream>
 
 #include "OdeThirdOrder.hpp"
+#include "Ode4.hpp"
 //#include "AnotherOde.hpp"
 #include "BackwardEulerIvpOdeSolver.cpp"
 
@@ -13,7 +14,7 @@
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
-    void testBackwardEulerSystemOf3Equations() 
+    void notestBackwardEulerSystemOf3Equations() 
     {
         OdeThirdOrder ode_system;
         
@@ -45,7 +46,31 @@ public:
         TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);   
     }    
     
-    void testComputeResidual() 
+    void testBackwardEulerNonlinearEquations() 
+    {
+        Ode4 ode_system;
+        
+        double h_value=0.001;
+        
+        //Euler solver solution worked out
+        BackwardEulerIvpOdeSolver backward_euler_solver;
+        OdeSolution solutions;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        
+        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, 0.5, h_value, h_value);
+        int last = solutions.GetNumberOfTimeSteps();
+        
+        double numerical_solution;
+        numerical_solution = solutions.rGetSolutions()[last][0];
+        
+        // The tests
+        double analytical_solution = 1.0/(1.0+exp(-12.5));
+        
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-6); 
+    }    
+    
+    void notestComputeResidual() 
     {
     	double h_value=1.0;
     	OdeThirdOrder ode_system;
@@ -87,7 +112,7 @@ public:
           
     }   
     
-    void testComputeJacobian() 
+    void notestComputeJacobian() 
     {
     	double h_value=1.0;
     	OdeThirdOrder ode_system;
