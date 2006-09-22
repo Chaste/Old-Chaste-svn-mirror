@@ -122,16 +122,21 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     double time = p_backward_euler_structure->Time;
     std::vector<double> current_y_value = p_backward_euler_structure->currentYValue;
     
+    PetscScalar *p_solution_guess_array;
+    VecGetArray(solutionGuess, &p_solution_guess_array);
+    std::vector<double> current_guess;
+    current_guess.push_back(p_solution_guess_array[0]);
+    current_guess.push_back(p_solution_guess_array[1]);
+    current_guess.push_back(p_solution_guess_array[2]);
+    VecRestoreArray(solutionGuess, &p_solution_guess_array);
+    
     int num_equations = p_ode_system->GetNumberOfStateVariables();
     
     ReplicatableVector solution_guess_replicated;
     solution_guess_replicated.ReplicatePetscVector(solutionGuess);
     
-    
-    PetscScalar *p_solution_guess_array;
-    
     std::vector<double> dy(num_equations);
-    dy = p_ode_system->EvaluateYDerivatives(time, current_y_value);
+    dy = p_ode_system->EvaluateYDerivatives(time, current_guess);
     
     VecGetArray(solutionGuess, &p_solution_guess_array);
     for (unsigned global_index=mLo; global_index<mHi; global_index++)
@@ -166,7 +171,7 @@ PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat 
     PETSCEXCEPT(ComputeResidual(snes, solutionGuess, residual, pContext));
     
     // this epsilon is somewhat arbitrary
-    double eps = 1.0e-5;
+    double eps = 1.0e-6;
     for (unsigned global_column=0; global_column<num_equations; global_column++)
     {
     
@@ -181,15 +186,16 @@ PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat 
         PETSCEXCEPT(ComputeResidual(snes, solution_perturbed, residual_perturbed, pContext));
         
         // compute residual_perturbed - residual
-	double one_over_eps=1.0/eps;
-	double subtract=-1;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        PETSCEXCEPT( VecWAXPY(&subtract, residual, residual_perturbed, jacobian_column));
-        PETSCEXCEPT( VecScale(&one_over_eps, jacobian_column));
-#else
-        PETSCEXCEPT( VecWAXPY(jacobian_column, subtract, residual, residual_perturbed));
-        PETSCEXCEPT( VecScale(jacobian_column,  one_over_eps));
-#endif
+	    double one_over_eps=1.0/eps;
+	    double subtract=-1;
+        #if (PETSC_VERSION_MINOR == 2) //Old API
+            PETSCEXCEPT( VecWAXPY(&subtract, residual, residual_perturbed, jacobian_column));
+            PETSCEXCEPT( VecScale(&one_over_eps, jacobian_column));
+        #else
+            PETSCEXCEPT( VecWAXPY(jacobian_column, subtract, residual, residual_perturbed));
+            PETSCEXCEPT( VecScale(jacobian_column,  one_over_eps));
+        #endif
+       
         
         PetscScalar *p_jacobian_column_array;
         VecGetArray(jacobian_column, &p_jacobian_column_array);
