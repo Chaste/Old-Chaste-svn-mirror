@@ -51,7 +51,7 @@ public:
     {
         Ode4 ode_system;
         
-        double h_value=0.001;
+        double h_value=0.01;
         
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver;
