@@ -69,7 +69,7 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     SNESSetFunction(snes, residual, pComputeResidual, pContext);
     SNESSetJacobian(snes, J, J, pComputeJacobian, pContext);
     SNESSetType(snes,SNESLS);
-    SNESSetTolerances(snes,1.0e-8,1.0e-8,1.0e-8,PETSC_DEFAULT,PETSC_DEFAULT);
+    SNESSetTolerances(snes,1.0e-5,1.0e-5,1.0e-5,PETSC_DEFAULT,PETSC_DEFAULT);
 
     // x is the iteration vector SNES uses when solving, set equal to initialGuess to start with
     Vec x;
