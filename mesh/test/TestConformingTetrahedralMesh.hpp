@@ -686,11 +686,9 @@ public:
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.505885, 1e-6);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 1.0, 1e-6);
         
-        //Nudge right
+        //Can't nudge right since an element flips chirality
         point.SetCoordinate(0,-0.5);
-        mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.501969, 1e-6);
-        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 1.0, 1e-6);
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(boundary_node_index, point));
         
         
         //Put it back
@@ -725,36 +723,34 @@ public:
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0628215, 1e-6);
         
         //Nudge above the plane
-        point.SetCoordinate(2,0.1);
+        point.SetCoordinate(2,1e-2);
         mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0208061, 1e-6);
-        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.118095, 1e-6);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0164274 , 1e-6);
+        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0636124, 1e-6);
         
-        //Nudge below the plane
-        point.SetCoordinate(2,-0.1);
-        mesh.SetNode(boundary_node_index, point);
-        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0208061, 1e-6);
-        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.118095, 1e-6);
-        
-        //Note, at present all lower order element Jacobian Determinants are positive
-        //(It's not possible to decide on the handedness)
-        //Nudge to the other side of the circlse
-        point.SetCoordinate(0,-1.0);
-        point.SetCoordinate(2,0.);
-        mesh.SetNode(boundary_node_index, point);
-        
-        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.235899, 1e-6);
-        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 1.99901, 1e-4);
-        
-        
-        
-        //Put it back
-        point.SetCoordinate(0, 0.99211470130000001);
+        //Nudge it back
+        point.SetCoordinate(2,0.0);
         mesh.SetNode(boundary_node_index, point);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0163772, 1e-6);
         TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0628215, 1e-6);
         
+        //Nudge below the plane
+        point.SetCoordinate(2,-1e-2);
+        mesh.SetNode(boundary_node_index, point);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0164274, 1e-6);
+        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0636124, 1e-6);
         
+        
+        //Put it back
+        point.SetCoordinate(2,0.0);
+        mesh.SetNode(boundary_node_index, point);
+        TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0163772, 1e-6);
+        TS_ASSERT_DELTA(p_boundary_element->GetJacobianDeterminant(), 0.0628215, 1e-6);
+        
+        //Can't nudge to the other side of the circle without changing handedness
+        point.SetCoordinate(0,-1.0);
+        point.SetCoordinate(2,0.);
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(boundary_node_index, point));
     }
     
     void TestDeletingNodes()
@@ -859,11 +855,11 @@ public:
                          
     }
     
-
-
+    
+    
     void Test1DNodeMerger()
     {
-  
+    
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         
         ConformingTetrahedralMesh<1,1> mesh;
@@ -875,10 +871,10 @@ public:
         const int target_index=4;
         const int not_neighbour_index=5;
         
-       //Cannot merge node 3 with node 5 since they are not neighbours
+        //Cannot merge node 3 with node 5 since they are not neighbours
         TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
         
-       //Merge node 3 with node 4
+        //Merge node 3 with node 4
         mesh.SetNode(node_index, target_index);
         
         Element<1,1> *p_element;
@@ -886,14 +882,14 @@ public:
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.2, 1e-6);
         p_element = mesh.GetElement(3);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.0, 1e-6);
-       
+        
         TS_ASSERT_DELTA(length, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 1);
     }
     
     void Test2DNodeMerger()
     {
-  
+    
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         
         ConformingTetrahedralMesh<2,2> mesh;
@@ -913,9 +909,9 @@ public:
         //the non-feasible node (172) - it will vanish
         //Element 762 is shared by the moving node (432), some other node (205)
         //the non-feasible node (172) - it will increase in size
-        TS_ASSERT_DELTA(mesh.GetElement(309)->GetJacobianDeterminant(), 
+        TS_ASSERT_DELTA(mesh.GetElement(309)->GetJacobianDeterminant(),
                         0.00753493, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(), 
+        TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(),
                         0.00825652, 1e-6);
         //Cannot merge since they are not neighbours
         TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
@@ -923,21 +919,23 @@ public:
         //Cannot merge since an element goes negative
         //The element 763 shared by moving node (432), reflex node (206) and the
         //other neighbour to the reflex node goes negative
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index));
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index, false));
+        //Added "crossReference=false" to stop elements deregistering
+        
         mesh.SetNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
-        TS_ASSERT_DELTA(mesh.GetElement(309)->GetJacobianDeterminant(), 
+        TS_ASSERT_DELTA(mesh.GetElement(309)->GetJacobianDeterminant(),
                         0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(), 
+        TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(),
                         0.0126728, 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
     }
     
     void Test3DNodeMerger() throw (Exception)
     {
-  
+    
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         
         ConformingTetrahedralMesh<3,3> mesh;
@@ -951,8 +949,9 @@ public:
         const int not_feasible_index=103;
         
         TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index));
-         
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index, false));
+        //Added "crossReference=false" to stop elements deregistering
+        
         TS_ASSERT_THROWS_NOTHING( mesh.SetNode(node_index, target_index));
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-6);
         
@@ -969,11 +968,96 @@ public:
                 1365      22   329   216   310
                 1484     310   348   193    22
         */
-
+        
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 10);
     }
-                
-
-
+    
+    
+    void Test2DBoundaryNodeMergerChangeArea()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        double area=mesh.CalculateMeshVolume();
+        double perim=mesh.CalculateMeshSurface();
+        int num_nodes=mesh.GetNumNodes();
+        int num_elements=mesh.GetNumElements();
+        int num_boundary_elements=mesh.GetNumBoundaryElements();
+        const int node_index=19;
+        const int target_index=20;
+        const int not_boundary_index=400;
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_boundary_index));
+        mesh.SetNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.24e-4, 1e-6);
+        TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 6.20e-5, 1e-7);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1);
+        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1);
+    }
+    
+    void Test2DBoundaryNodeMerger()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        double area=mesh.CalculateMeshVolume();
+        double perim=mesh.CalculateMeshSurface();
+        int num_nodes=mesh.GetNumNodes();
+        int num_elements=mesh.GetNumElements();
+        int num_boundary_elements=mesh.GetNumBoundaryElements();
+        const int node_index=9;
+        const int target_index=10;
+        const int not_boundary_index=31;
+        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_boundary_index));
+        mesh.SetNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 0.00, 1e-6);
+        TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 0.00, 1e-7);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1);
+        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1);
+        
+        const int corner_index=20;
+        const int corner_target_index=19;
+        mesh.SetNode(corner_index, corner_target_index);
+        
+        TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.25e-5, 1e-7);
+        TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 2.92893e-3, 1e-7);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 2);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 2);
+        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2);
+        
+    }
+    
+    void Test3DBoundaryNodeMerger()
+    {
+    
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        double volume=mesh.CalculateMeshVolume();
+        double surface=mesh.CalculateMeshSurface();
+        int num_nodes=mesh.GetNumNodes();
+        int num_elements=mesh.GetNumElements();
+        int num_boundary_elements=mesh.GetNumBoundaryElements();
+        const int node_index=147;
+        const int target_index=9;
+        //const int not_boundary_index=400;
+        
+        mesh.SetNode(node_index, target_index);
+        
+        
+        TS_ASSERT_DELTA(volume - mesh.CalculateMeshVolume(), 0.0, 1e-7);
+        TS_ASSERT_DELTA(surface - mesh.CalculateMeshSurface(), 0.0, 1e-7);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3);
+        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2);
+        
+        
+        //Can't move corner nodes since this forces some zero volume elements which aren't on the shared list...
+    }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

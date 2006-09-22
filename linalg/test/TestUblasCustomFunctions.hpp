@@ -43,6 +43,67 @@ public:
         TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
     }
     
+    void TestSubDeterminant()
+    {
+        using namespace boost::numeric::ublas;
+        
+        c_matrix<double, 1, 1> C;
+        double OneOneDeterminant;
+        C(0,0)=5.6;
+        OneOneDeterminant = Determinant(C);
+        TS_ASSERT_DELTA( OneOneDeterminant,
+                         C(0,0)*SubDeterminant(C,0,0),
+                         1e-10);
+                         
+        c_matrix<double, 2, 2> B;
+        B(0,0) = 2.4;
+        B(0,1) = 5;
+        B(1,0) = 5;
+        B(1,1) = 6;
+        double TwoTwoDeterminant = Determinant(B);
+        
+        
+        TS_ASSERT_DELTA( TwoTwoDeterminant,
+                         B(0,0)*SubDeterminant(B,0,0)-B(0,1)*SubDeterminant(B,0,1), 1e-10);
+        TS_ASSERT_DELTA( TwoTwoDeterminant,
+                         B(0,0)*SubDeterminant(B,0,0)-B(1,0)*SubDeterminant(B,1,0), 1e-10);
+        c_matrix<double, 3, 3> A;
+        A(0,0) = 2.4;
+        A(0,1) = 5;
+        A(0,2) = 5;
+        A(1,0) = 5;
+        A(1,1) = 6;
+        A(1,2) = 7;
+        A(2,0) = 6;
+        A(2,1) = 8;
+        A(2,2) = 9;
+        double ThreeThreeDeterminant = Determinant(A);
+        TS_ASSERT_DELTA( ThreeThreeDeterminant, 0.2, 1e-10);
+        TS_ASSERT_DELTA( ThreeThreeDeterminant,
+                         A(0,0)*SubDeterminant(A,0,0)
+                         - A(1,0)*SubDeterminant(A,1,0)
+                         + A(2,0)*SubDeterminant(A,2,0),
+                         1e-10);
+        TS_ASSERT_DELTA( ThreeThreeDeterminant,
+                         - A(0,1)*SubDeterminant(A,0,1)
+                         + A(1,1)*SubDeterminant(A,1,1)
+                         - A(2,1)*SubDeterminant(A,2,1),
+                         1e-10);
+        TS_ASSERT_DELTA( ThreeThreeDeterminant,
+                         A(0,0)*SubDeterminant(A,0,0)
+                         - A(0,1)*SubDeterminant(A,0,1)
+                         + A(0,2)*SubDeterminant(A,0,2),
+                         1e-10);
+        TS_ASSERT_DELTA( ThreeThreeDeterminant,
+                         - A(1,0)*SubDeterminant(A,1,0)
+                         + A(1,1)*SubDeterminant(A,1,1)
+                         - A(1,2)*SubDeterminant(A,1,2),
+                         1e-10);
+                         
+                         
+                         
+    }
+    
     void TestInverse( void )
     {
         using namespace boost::numeric::ublas;
@@ -92,7 +153,6 @@ public:
         invBMatlab(0,1) = 0.4717;
         invBMatlab(1,0) = 0.4717;
         invBMatlab(1,1) = -0.2264;
-        
         for ( int i = 0; i < 2; i++)
         {
             for ( int j = 0; j < 2; j++)
@@ -101,8 +161,8 @@ public:
             }
         }
         
-        
     }
+    
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

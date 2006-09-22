@@ -46,7 +46,19 @@ public:
    		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
  	
  		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
-        		
+ 		
+ 		//Test to see whether triangle/ tetgen is renumbering the nodes
+ 		
+ 		for (int i=0; i<mesh.GetNumNodes(); i++)
+   		{
+        	Point<2> point1=mesh.GetNodeAt(i)->rGetPoint();	
+        	Point<2> point2=mesh2.GetNodeAt(i)->rGetPoint();
+        	
+        	for (int j=0; j<2; j++)
+        	{
+        		TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+        	}
+   		}
 	}
 	
 	void TestOperationOfTetgen() throw (Exception)
@@ -82,6 +94,19 @@ public:
    		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
  	
  		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
+ 		
+ 		//Test to see whether triangle/ tetgen is renumbering the nodes
+ 		
+ 		for (int i=0; i<mesh.GetNumNodes(); i++)
+   		{
+        	Point<3> point1=mesh.GetNodeAt(i)->rGetPoint();	
+        	Point<3> point2=mesh2.GetNodeAt(i)->rGetPoint();
+        	
+        	for (int j=0; j<3; j++)
+        	{
+        		TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+        	}
+   		}
         		
 	}
 	
@@ -135,6 +160,20 @@ public:
    		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
  	
  		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
+ 		
+ 		//Test to see whether triangle/ tetgen is renumbering the nodes
+ 		
+ 		for (int i=0; i<mesh.GetNumNodes(); i++)
+   		{
+        	Point<3> point1=mesh.GetNodeAt(i)->rGetPoint();	
+        	Point<3> point2=mesh2.GetNodeAt(i)->rGetPoint();
+        	
+        	for (int j=0; j<3; j++)
+        	{
+        		TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+        	}
+   		}
+ 		
         		
 	}
 };

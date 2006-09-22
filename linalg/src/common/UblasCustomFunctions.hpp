@@ -29,7 +29,18 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,1,1> &m)
     
     return m(0,0);
 };
-
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,1> &m, const int missrow, const int misscol)
+{
+    using namespace boost::numeric::ublas;
+    
+    assert(missrow==0);
+    assert(misscol==0);
+    return 1.0;
+};
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,2,2> &m)
 {
@@ -37,6 +48,22 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,2,2> &m)
     
     return m(0,0)*m(1,1)
            - m(1,0)*m(0,1);
+};
+
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,2> &m, const int missrow, const int misscol)
+{
+    using namespace boost::numeric::ublas;
+    
+    assert(missrow>=0 && missrow<2);
+    assert(misscol>=0 && misscol<2);
+    
+    int row=(missrow==1)?0:1;
+    int col=(misscol==1)?0:1;
+    return m(row,col);
 };
 
 template<class T>
@@ -50,6 +77,23 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
              (m(1,0)*m(2,2) - m(1,2)*m(2,0))
              + m(0,2) *
              (m(1,0)*m(2,1) - m(1,1)*m(2,0));
+};
+/**
+ * Return the determinant of a submatrix after removing a particular row and column
+ */
+template<class T>
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,3> &m, const int missrow, const int misscol)
+{
+    using namespace boost::numeric::ublas;
+    
+    assert(missrow>=0 && missrow<3);
+    assert(misscol>=0 && misscol<3);
+    
+    int lorow=(missrow==0)?1:0;
+    int hirow=(missrow==2)?1:2;
+    int locol=(misscol==0)?1:0;
+    int hicol=(misscol==2)?1:2;
+    return (m(lorow,locol)*m(hirow,hicol) - m(lorow,hicol)*m(hirow,locol));
 };
 
 /**

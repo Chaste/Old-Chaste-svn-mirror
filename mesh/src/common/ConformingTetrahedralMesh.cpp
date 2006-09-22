@@ -423,8 +423,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
   */
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
-                                                                Point<SPACE_DIM> point, 
-                                                                bool verify)
+        Point<SPACE_DIM> point,
+        bool verify)
 {
     mNodes[index]->SetPoint(point);
     if (verify)
@@ -437,7 +437,14 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
             }
             catch (Exception e)
             {
-                EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+                if (ELEMENT_DIM == SPACE_DIM)
+                {
+                    EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+                }
+                else
+                {
+                    EXCEPTION("Moving node caused an subspace element to change direction");
+                }
             }
         }
         for (int i=0; i<mNodes[index]->GetNumBoundaryElements(); i++)
@@ -454,7 +461,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
     }
 }
 
-/** SetNode moves the node with a particular index to a new point in space and
+
+/** SetBoundaryNode moves the node with a particular index to a new point in space and
  * verifies that the signed areas of the supporting Elements are positive
  * @param index is the index of the node to be moved
  * @param point is the new target location of the node
@@ -463,55 +471,127 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
-                                                                unsigned targetIndex,
-                                                                bool crossReference)
+        unsigned targetIndex,
+        bool crossReference)
 {
+    if (mNodes[index]->IsBoundaryNode())
+    {
+        if (!mNodes[targetIndex]->IsBoundaryNode())
+        {
+            EXCEPTION("A boundary node can only be moved on to another boundary node");
+        }
+    }
     std::set<unsigned> unshared_element_indices;
     std::set_difference(mNodes[index]->rGetContainingElementIndices().begin(),
                         mNodes[index]->rGetContainingElementIndices().end(),
                         mNodes[targetIndex]->rGetContainingElementIndices().begin(),
                         mNodes[targetIndex]->rGetContainingElementIndices().end(),
                         std::inserter(unshared_element_indices, unshared_element_indices.begin()));
-    
-    
+                        
+                        
     if (unshared_element_indices.size() == mNodes[index]->rGetContainingElementIndices().size())
     {
         EXCEPTION("These nodes cannot be merged since they are not neighbours");
     }
     
-    mNodes[index]->SetPoint(mNodes[targetIndex]->rGetPoint());
-    
-    for (std::set<unsigned>::const_iterator element_iter=unshared_element_indices.begin();
-         element_iter != unshared_element_indices.end(); 
-         element_iter++)
+    std::set<unsigned> unshared_boundary_element_indices;
+    std::set_difference(mNodes[index]->rGetContainingBoundaryElementIndices().begin(),
+                        mNodes[index]->rGetContainingBoundaryElementIndices().end(),
+                        mNodes[targetIndex]->rGetContainingBoundaryElementIndices().begin(),
+                        mNodes[targetIndex]->rGetContainingBoundaryElementIndices().end(),
+                        std::inserter(unshared_boundary_element_indices, unshared_boundary_element_indices.begin()));
+                        
+                        
+    if (mNodes[index]->IsBoundaryNode())
     {
-        try
+        if (unshared_boundary_element_indices.size()
+            == mNodes[index]->rGetContainingBoundaryElementIndices().size())
         {
-            GetElement(*element_iter)->RefreshJacobianDeterminant();
-        }
-        catch (Exception e)
-        {
-            EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+            EXCEPTION("These nodes cannot be merged since they are not neighbours on the boundary");
         }
     }
     
-    if (crossReference)
-    {
+    mNodes[index]->SetPoint(mNodes[targetIndex]->rGetPoint());
     
-        std::set<unsigned> shared_element_indices;
-        std::set_intersection(mNodes[index]->rGetContainingElementIndices().begin(),
+    for (std::set<unsigned>::const_iterator element_iter=unshared_element_indices.begin();
+             element_iter != unshared_element_indices.end();
+             element_iter++)
+        {
+            try
+            {
+            
+                GetElement(*element_iter)->RefreshJacobianDeterminant();
+                if (crossReference)
+                {
+                    GetElement(*element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
+                }
+                
+            }
+            catch (Exception e)
+            {
+                EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+            }
+        }
+    for (std::set<unsigned>::const_iterator boundary_element_iter=
+                 unshared_boundary_element_indices.begin();
+             boundary_element_iter != unshared_boundary_element_indices.end();
+             boundary_element_iter++)
+        {
+        
+            GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant();
+            if (crossReference)
+            {
+                GetBoundaryElement(*boundary_element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
+            }
+        }
+        
+    std::set<unsigned> shared_element_indices;
+    std::set_intersection(mNodes[index]->rGetContainingElementIndices().begin(),
                           mNodes[index]->rGetContainingElementIndices().end(),
                           mNodes[targetIndex]->rGetContainingElementIndices().begin(),
                           mNodes[targetIndex]->rGetContainingElementIndices().end(),
                           std::inserter(shared_element_indices, shared_element_indices.begin()));
-        for (std::set<unsigned>::const_iterator element_iter=shared_element_indices.begin();
-             element_iter != shared_element_indices.end(); 
-            element_iter++)
+    for (std::set<unsigned>::const_iterator element_iter=shared_element_indices.begin();
+             element_iter != shared_element_indices.end();
+             element_iter++)
         {
-            GetElement(*element_iter)->MarkAsDeleted();
-            mDeletedElementIndices.push_back(*element_iter);
+            if (crossReference)
+            {
+                GetElement(*element_iter)->MarkAsDeleted();
+                mDeletedElementIndices.push_back(*element_iter);
+            }
+            else
+            {
+                GetElement(*element_iter)->ZeroJacobianDeterminant();
+            }
         }
+        
+        
+    std::set<unsigned> shared_boundary_element_indices;
+    std::set_intersection(mNodes[index]->rGetContainingBoundaryElementIndices().begin(),
+                          mNodes[index]->rGetContainingBoundaryElementIndices().end(),
+                          mNodes[targetIndex]->rGetContainingBoundaryElementIndices().begin(),
+                          mNodes[targetIndex]->rGetContainingBoundaryElementIndices().end(),
+                          std::inserter(shared_boundary_element_indices, shared_boundary_element_indices.begin()));
+    for (std::set<unsigned>::const_iterator boundary_element_iter=shared_boundary_element_indices.begin();
+             boundary_element_iter != shared_boundary_element_indices.end();
+             boundary_element_iter++)
+        {
+            if (crossReference)
+            {
+                GetBoundaryElement(*boundary_element_iter)->MarkAsDeleted();
+                mDeletedBoundaryElementIndices.push_back(*boundary_element_iter);
+            }
+            else
+            {
+                GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();
+                GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
+            }
+        }
+    if (crossReference)
+    {
         mNodes[index]->MarkAsDeleted();
+        mDeletedNodeIndices.push_back(index);
     }
 }
 
@@ -532,7 +612,14 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
     //Refresh each boundary element
     for (unsigned i=0; i<mBoundaryElements.size();i++)
     {
-        mBoundaryElements[i]->RefreshJacobianDeterminant();
+        try
+        {
+            mBoundaryElements[i]->RefreshJacobianDeterminant();
+        }
+        catch (Exception e)
+        {
+            //Since we may have rotated the mesh, it's okay for normals to swing round
+        }
     }
     
 }
@@ -883,4 +970,138 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(lon
     }
 }
 
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
+{
+
+    unsigned to_go=0;
+    while (to_go<mElements.size())
+    {
+        while (to_go<mElements.size() && mElements[to_go]->IsDeleted() == false)
+        {
+            to_go++;
+        }
+        if (to_go < mElements.size())
+        {
+            unsigned to_stay=to_go;
+            while (to_stay<mElements.size() && mElements[to_stay]->IsDeleted())
+            {
+                to_stay++;
+            }
+            if (to_stay<mElements.size())
+            {
+                //Swap the elements
+                Element<ELEMENT_DIM,SPACE_DIM> *p_element=mElements[to_go];
+                mElements[to_go]=mElements[to_stay];
+                mElements[to_stay]=p_element;
+                to_go++;
+            }
+            else
+            {
+                break;//Nothing left to swap with
+            }
+        }
+    }
+    while (mDeletedElementIndices.size() != 0)
+    {
+        mDeletedElementIndices.pop_back();
+        assert(mElements.back()->IsDeleted());
+        mElements.pop_back();
+    }
+    assert(mElements.back()->IsDeleted() == false );
+    
+    
+    to_go=0;
+    while (to_go<mNodes.size())
+    {
+        while (to_go<mNodes.size() && mNodes[to_go]->IsDeleted() == false)
+        {
+            to_go++;
+        }
+        if (to_go < mNodes.size())
+        {
+            unsigned to_stay=to_go;
+            while (to_stay<mNodes.size() && mNodes[to_stay]->IsDeleted())
+            {
+                to_stay++;
+            }
+            if (to_stay<mNodes.size())
+            {
+                //Swap the elements
+                Node<SPACE_DIM> *p_node=mNodes[to_go];
+                mNodes[to_go]=mNodes[to_stay];
+                mNodes[to_stay]=p_node;
+                to_go++;
+            }
+            else
+            {
+                break;//Nothing left to swap with
+            }
+        }
+    }
+    while (mDeletedNodeIndices.size() != 0)
+    {
+        mDeletedNodeIndices.pop_back();
+        assert(mNodes.back()->IsDeleted());
+        mNodes.pop_back();
+    }
+    assert(mNodes.back()->IsDeleted() == false );
+    
+    to_go=0;
+    while (to_go<mBoundaryElements.size())
+    {
+        while (to_go<mBoundaryElements.size() && mBoundaryElements[to_go]->IsDeleted() == false)
+        {
+            to_go++;
+        }
+        if (to_go < mBoundaryElements.size())
+        {
+            unsigned to_stay=to_go;
+            while (to_stay<mBoundaryElements.size() && mBoundaryElements[to_stay]->IsDeleted())
+            {
+                to_stay++;
+            }
+            if (to_stay<mBoundaryElements.size())
+            {
+                //Swap the elements
+                BoundaryElement <ELEMENT_DIM-1,SPACE_DIM> *p_el=mBoundaryElements[to_go];
+                mBoundaryElements[to_go]=mBoundaryElements[to_stay];
+                mBoundaryElements[to_stay]=p_el;
+                to_go++;
+            }
+            else
+            {
+                break;//Nothing left to swap with
+            }
+        }
+    }
+    while (mDeletedBoundaryElementIndices.size() != 0)
+    {
+        mDeletedBoundaryElementIndices.pop_back();
+        assert(mBoundaryElements.back()->IsDeleted());
+        mBoundaryElements.pop_back();
+    }
+    assert(mBoundaryElements.back()->IsDeleted() == false );
+    
+    
+    for (unsigned i=0; i<mNodes.size();i++)
+    {
+    
+        mNodes[i]->SetIndex(i);
+    }
+    for (unsigned i=0; i<mElements.size();i++)
+    {
+    
+        mElements[i]->ResetIndex(i);
+        
+    }
+    
+    for (unsigned i=0; i<mBoundaryElements.size();i++)
+    {
+    
+        mBoundaryElements[i]->ResetIndex(i);
+        
+    }
+    
+}
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

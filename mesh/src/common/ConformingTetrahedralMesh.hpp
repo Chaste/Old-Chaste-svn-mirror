@@ -163,6 +163,11 @@ public:
      * @param index  The index of the node to remove.
      */
     void DeleteBoundaryNodeAt(long index);
+    
+    /**
+     * Re-index a mesh so that it has no deleted elements or nodes
+     */
+    void ReIndex(void);
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

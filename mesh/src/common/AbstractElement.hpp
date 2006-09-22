@@ -24,16 +24,17 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 class AbstractElement
 {
 protected:
-   unsigned mIndex;
+    unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
     int mOrderOfBasisFunctions;
     bool mIsDeleted;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> *mpJacobian;
-    c_matrix<double, SPACE_DIM, SPACE_DIM> *mpInverseJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
+    c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
+    c_vector<double, SPACE_DIM> mWeightedDirection; //Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM
     double mJacobianDeterminant;
     bool mOwnership, mOwnershipSet;
-     
-    void RefreshJacobian(void);
+    
+    
     
     
     /**
@@ -50,35 +51,12 @@ protected:
         // in the vector contained in ConformingTetrahedralMesh.
         
         mJacobianDeterminant = element.mJacobianDeterminant;
-        mpJacobian = NULL;
-        if (element.mpJacobian != NULL)
-        {
-            mpJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
-            *mpJacobian = *(element.mpJacobian);
-        }
-        mpInverseJacobian = NULL;
-        if (element.mpInverseJacobian != NULL)
-        {
-            mpInverseJacobian = new c_matrix<double, SPACE_DIM, SPACE_DIM>;
-            *mpInverseJacobian = *(element.mpInverseJacobian);
-        }
+        mJacobian = element.mJacobian;
+        mInverseJacobian = element.mInverseJacobian;
+        mWeightedDirection = element.mWeightedDirection;
+        
     }
     
-    /**
-     * Used by the destructor and the assignment operator
-     */
-    void FreeMemory()
-    {
-    
-        if (mpJacobian != NULL)
-        {
-            delete mpJacobian;
-        }
-        if (mpInverseJacobian != NULL)
-        {
-            delete mpInverseJacobian;
-        }
-    }
     
 public:
     static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
@@ -101,32 +79,24 @@ public:
     
     
     AbstractElement()
-    {
-    }
+    {}
     
     /**
      * Element assignment - make this element equal to the other one.
      */
     virtual void operator=(const AbstractElement &element)
     {
-        // First free memory held by us
-        FreeMemory();
-        
         // Now copy stuff
         mIndex=element.mIndex;
         CommonConstructor(element);
     }
     
-    /**
-     * Free memory potentially allocated in the constructor (or elsewhere) for
-     * holding Jacobian and its inverse.
-     */
     virtual ~AbstractElement()
-    {
-        FreeMemory();
-    }
+    {}
     
     void RefreshJacobianDeterminant(void);
+    void ZeroJacobianDeterminant(void);
+    void ZeroWeightedDirection(void);
     
     void AddInternalNode(const Node<SPACE_DIM>* internalNodeToAdd)
     {
@@ -178,15 +148,21 @@ public:
     
     const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetJacobian(void) const
     {
-        return mpJacobian;
+        return &mJacobian;
     }
     const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> *GetInverseJacobian(void) const
     {
-        return mpInverseJacobian;
+        return &mInverseJacobian;
     }
     double GetJacobianDeterminant(void) const
     {
         return mJacobianDeterminant;
+    }
+    
+    c_vector<double, SPACE_DIM> *pGetWeightedDirection(void)
+    {
+        assert(ELEMENT_DIM < SPACE_DIM);
+        return &mWeightedDirection;
     }
     
     /** Get the index of this element
@@ -200,18 +176,20 @@ public:
      *  @param rIndex is an local index to which node to change
      *  @param pNode is a pointer to the replacement node
      */
-    void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+    virtual void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)=0;
+    
+    
+    void ReplaceNode(Node <SPACE_DIM>* pOldNode, Node <SPACE_DIM>* pNewNode)
     {
-        assert(rIndex < mNodes.size());
-        
-        // Remove it from the node at this location
-        mNodes[rIndex]->RemoveElement(mIndex);
-        
-        // Update the node at this location
-        mNodes[rIndex] = pNode;
-        
-        // Add element to this node
-        mNodes[rIndex]->AddElement(mIndex);
+        for (unsigned i=0; i<mNodes.size(); i++)
+        {
+            if (mNodes[i]==pOldNode)
+            {
+                UpdateNode(i,pNewNode);
+                return;
+            }
+        }
+        EXCEPTION("You didn't have that node to start with.");
     }
     
     /**
@@ -220,32 +198,36 @@ public:
     */
     virtual void MarkAsDeleted()=0;
     
-    bool IsDeleted()
+    bool IsDeleted() const
     {
         return mIsDeleted;
     }
     
-    bool GetOwnership()
+    void SetIndex(int index)
     {
-        return mOwnership;
-    }
-        
-    void SetOwnership(bool ownership)
-    {
-        mOwnership=ownership;
-        mOwnershipSet=true;
+        mIndex=index;
     }
     
-    bool GetOwnershipSet()
-    {
-        return mOwnershipSet;
-    }
-    
-    
-    
-    
-    
-    
+      bool IsDeleted()
+ 	    {
+ 	        return mIsDeleted;
+ 	    }
+ 	   
+ 	    bool GetOwnership()
+ 	    {
+ 	        return mOwnership;
+ 	    }
+ 	       
+ 	    void SetOwnership(bool ownership)
+ 	    {
+ 	        mOwnership=ownership;
+ 	        mOwnershipSet=true;
+ 	    }
+ 	   
+ 	    bool GetOwnershipSet()
+ 	    {
+ 	        return mOwnershipSet;
+ 	    }
 };
 
 
