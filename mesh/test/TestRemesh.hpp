@@ -174,7 +174,6 @@ public:
         		TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
         	}
    		}
- 		
         		
 	}
 	
@@ -277,6 +276,8 @@ public:
         const int target_index=206;
        
         int num_nodes_before=mesh.GetNumNodes();
+        int num_elements_before=mesh.GetNumElements();
+        int num_boundary_elements_before=mesh.GetNumBoundaryElements();
         
         mesh.SetNode(node_index, target_index);
         
@@ -293,10 +294,10 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
 
-		TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 0);
+		TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),num_nodes_before-1);
-        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), 0);
-   		
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
+   		TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
 	}
         
 	

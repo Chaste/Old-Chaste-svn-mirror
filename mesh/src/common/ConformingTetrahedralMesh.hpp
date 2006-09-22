@@ -44,9 +44,9 @@ private:
     // \todo change to indices?
     std::vector<const Node<SPACE_DIM> *> mBoundaryNodes;
     
-    ElementIterator mpElementIter;
-    BoundaryElementIterator mpBoundaryElementIter;
-    BoundaryNodeIterator mpBoundaryNodeIter;
+    //ElementIterator mpElementIter;
+    //BoundaryElementIterator mpBoundaryElementIter;
+    //BoundaryNodeIterator mpBoundaryNodeIter;
     
     int AddNode(Node<SPACE_DIM> *pNewNode);
     

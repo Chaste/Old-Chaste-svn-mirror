@@ -1182,6 +1182,31 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         mNodes.push_back(p_node);
     }
     
+    for (int i=0; i<temporary_mesh.GetNumElements(); i++)
+    {
+    	std::vector<Node<SPACE_DIM>* > nodes;
+    	for (int j=0; j<SPACE_DIM+1; j++){
+    		int index=(temporary_mesh.GetElement(i))->GetNodeGlobalIndex(j);
+    		nodes.push_back(mNodes[index]);
+    	}
+    	Element<ELEMENT_DIM,SPACE_DIM> *p_element=
+    	                new Element<ELEMENT_DIM,SPACE_DIM>(i, nodes);
+    	mElements.push_back(p_element);
+    }
+    
+   for (int i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
+    {
+    	std::vector<Node<SPACE_DIM>* > nodes;
+    	for (int j=0; j<SPACE_DIM; j++){
+    		int index=(temporary_mesh.GetBoundaryElement(i))->GetNodeGlobalIndex(j);
+    		nodes.push_back(mNodes[index]);
+    	}
+    	BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_b_element=
+    	                new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(i, nodes);
+    	mBoundaryElements.push_back(p_b_element);
+    }
+    
+  
     
 }
     
