@@ -119,8 +119,8 @@ public:
         double time = 0.0;
         double time_since_last_birth = 0.9;
         
-        int num_births = 0;
-        int num_deaths = 0;
+        //int num_births = 0;
+        //int num_deaths = 0;
         
         std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
         
@@ -174,7 +174,7 @@ public:
           // std::vector<double> drdt(mrMesh.GetNumAllNodes());
             
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
-            for(unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
+            for(int i=0; i<mrMesh.GetNumAllNodes(); i++)
             {
 	            drdt[i].resize(2);
             }

@@ -100,7 +100,8 @@ public:
         {
             std::vector<Node<2>* > nodes;
             Node<2>* node0 = new Node<2>(element_index,true,0,0);
-            Node<2>* node1 = new Node<2>(element_index,true,0,0);
+            Node<2>* node1 = new Node<2>(element_index,true,1,1); 
+            
             nodes.push_back(node0);
             nodes.push_back(node1);
             BoundaryElement<1,2> element(element_index, nodes);
@@ -153,8 +154,8 @@ public:
         {
             std::vector<Node<3>* > nodes;
             Node<3>* node0 = new Node<3>(element_index,true,0,0,0);
-            Node<3>* node1 = new Node<3>(element_index,true,0,0,0);
-            Node<3>* node2 = new Node<3>(element_index,true,0,0,0);
+            Node<3>* node1 = new Node<3>(element_index,true,1,0,0); 
+            Node<3>* node2 = new Node<3>(element_index,true,0,1,0); 
             nodes.push_back(node0);
             nodes.push_back(node1);
             nodes.push_back(node2);
