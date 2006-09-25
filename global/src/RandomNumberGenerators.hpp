@@ -11,6 +11,10 @@ public:
 	double NormalRandomDeviate(double mean, double sd);
 	double ranf(void);
 	int randMod(int base);
+	
+	/**
+	 * @param seed Is the new seed which defaults to zero.
+	 */
 	RandomNumberGenerators(int seed=0)
 	{
 		srandom(seed);

@@ -168,6 +168,7 @@ public:
     // rest length by default
     void Test1DChainWithBirthConstantRestLength()
     {
+    	// Note that random numbers are reseeded with srandom(0) by the following constructor.
      	RandomNumberGenerators *pGen=new RandomNumberGenerators;
      	
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);

@@ -48,8 +48,11 @@ private:
 public:
 
     /** Constructor
+     *  @param rMesh
      *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
      *  should be called for any birth to happen.
+     *  @param pGen is a RandomNumberGenerators class.  If it's not given then a new one is 
+     *  constructed and random numbers are reseeded with srandom(0).
      */
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(), 
