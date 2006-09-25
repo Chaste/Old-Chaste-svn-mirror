@@ -37,64 +37,70 @@ public:
     	p_simulation_time->IncrementTimeOneStep(); 
     	p_simulation_time->IncrementTimeOneStep(); 
     	TS_ASSERT_EQUALS(stem_cell.GetAge(), 1.0);
+    	
+    	SimulationTime::Destroy();
     
     }
     
     void TestCellDivision()
     {
+    	SimulationTime* p_simulation_time = SimulationTime::Instance(54.0, 9);
         CancerParameters *p_params = CancerParameters::Instance();
-        const double birth_time = 0.1;
         
+        // this test needs particular cell cycle times
+        TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
+        TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
+        
+        p_simulation_time->IncrementTimeOneStep();
         MeinekeCryptCell stem_cell(STEM, // type
-                                   birth_time,  // birth time (hours)
-                                   0,    // generation
+                                    0,    // generation
                                    new FixedCellCycleModel());
-                                   
-        TS_ASSERT(!stem_cell.ReadyToDivide(p_params->GetStemCellCycleTime()));
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->IncrementTimeOneStep(); 
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(!stem_cell.ReadyToDivide());
         
-        TS_ASSERT(stem_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+birth_time));
+           
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(stem_cell.ReadyToDivide());
         
         // create transit progeny of stem
-        MeinekeCryptCell daughter_cell = stem_cell.Divide(p_params->GetStemCellCycleTime()+birth_time);
+        MeinekeCryptCell daughter_cell = stem_cell.Divide();
         
-        TS_ASSERT(!stem_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+birth_time));
+        TS_ASSERT(!stem_cell.ReadyToDivide());
         
         TS_ASSERT(daughter_cell.GetGeneration() == 1);
         TS_ASSERT(daughter_cell.GetCellType() == TRANSIT);
-        TS_ASSERT(daughter_cell.GetAge(p_params->GetStemCellCycleTime()+birth_time) == 0);
+        TS_ASSERT(daughter_cell.GetAge() == 0);
         
-        TS_ASSERT(!daughter_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+
-                                               p_params->GetTransitCellCycleTime()));
-        TS_ASSERT(daughter_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+
-                                              p_params->GetTransitCellCycleTime()+birth_time));
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(!daughter_cell.ReadyToDivide());
+        p_simulation_time->IncrementTimeOneStep();                                       
+        TS_ASSERT(daughter_cell.ReadyToDivide());
                                               
         // create transit progeny of transit
-        MeinekeCryptCell grandaughter_cell = daughter_cell.Divide(p_params->GetStemCellCycleTime()+
-                                                                  p_params->GetTransitCellCycleTime()+birth_time);
+        MeinekeCryptCell grandaughter_cell = daughter_cell.Divide();
                                                                   
-        TS_ASSERT(!stem_cell.ReadyToDivide(2*p_params->GetStemCellCycleTime()));
+        p_simulation_time->IncrementTimeOneStep();                                                          
+        TS_ASSERT(!stem_cell.ReadyToDivide());
+        
+        TS_ASSERT(!grandaughter_cell.ReadyToDivide());
+        TS_ASSERT(!daughter_cell.ReadyToDivide());
+        
         // stem cell ready to divide again
-        TS_ASSERT(stem_cell.ReadyToDivide(2*p_params->GetStemCellCycleTime()+birth_time));
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(stem_cell.ReadyToDivide());
         
         // both grandaughter and daughter cells should be ready to
-        // divide at p_params->GetStemCellCycleTime()+2*p_params->GetTransitCellCycleTime()+0.1
-        
-        TS_ASSERT(!grandaughter_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+
-                                                   2*p_params->GetTransitCellCycleTime()));
-        TS_ASSERT(!daughter_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+
-                                               2*p_params->GetTransitCellCycleTime()));
-                                               
-                                               
-        TS_ASSERT(grandaughter_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+
-                                                  2*p_params->GetTransitCellCycleTime()+birth_time));
-        TS_ASSERT(daughter_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+
-                                              2*p_params->GetTransitCellCycleTime()+birth_time));
+        // divide                                  
+        TS_ASSERT(grandaughter_cell.ReadyToDivide());
+        TS_ASSERT(daughter_cell.ReadyToDivide());
     }
     
     void TestCellDivisionStops()
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        const double birth_time = 0.1;
+        const double birth_time = 6.0;
         
         MeinekeCryptCell stem_cell(STEM, // type
                                    birth_time,  // birth time (hours)
@@ -237,7 +243,7 @@ public:
     {
       	RandomNumberGenerators *pGen=new RandomNumberGenerators;
         CancerParameters *p_params = CancerParameters::Instance();
-        const double birth_time = 0.1;
+        const double birth_time = 6.0;
         // Test Stem cell
         MeinekeCryptCell stem_cell(STEM, // type
                                    birth_time,  // birth time (hours)

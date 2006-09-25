@@ -11,7 +11,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 {
     // Stem cells are the only ones with generation = 0
     assert( (generation == 0) == (cellType == STEM) );
-    
+    //std::cout<< "Birth time " << birthTime << "\n" ;
     mBirthTime=birthTime;
     mGeneration=generation;
     mCellType=cellType;
@@ -101,6 +101,7 @@ unsigned MeinekeCryptCell::GetNodeIndex()
 
 double MeinekeCryptCell::GetAge(double simulationTime)
 {
+	//std::cout<< "SImulation time" << simulationTime << "\n" ;
     return simulationTime-mBirthTime;
 }
 
@@ -122,7 +123,15 @@ CryptCellType MeinekeCryptCell::GetCellType()
 
 bool MeinekeCryptCell::ReadyToDivide(double simulationTime)
 {
+	//std::cout<< "Divide time" << simulationTime << "\n" ;
     mCanDivide = mpCellCycleModel->ReadyToDivide(simulationTime - mBirthTime);
+    return mCanDivide;
+}
+
+bool MeinekeCryptCell::ReadyToDivide()
+{
+	//std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
+    mCanDivide = mpCellCycleModel->ReadyToDivide(mpSimulationTime->GetDimensionalisedTime() - mBirthTime);
     return mCanDivide;
 }
 
@@ -130,7 +139,7 @@ MeinekeCryptCell MeinekeCryptCell::Divide(double simulationTime)
 {
     assert(mCanDivide);
     CancerParameters *p_params = CancerParameters::Instance();
-    
+    //std::cout<< "Divide time" << simulationTime << "\n" ;
     if (mCellType != STEM)
     {
         if (mGeneration < p_params->GetMaxTransitGenerations())
@@ -154,6 +163,39 @@ MeinekeCryptCell MeinekeCryptCell::Divide(double simulationTime)
     {
         mBirthTime = simulationTime;
         return MeinekeCryptCell(TRANSIT, simulationTime, 1,
+                                mpCellCycleModel->CreateCellCycleModel());
+    }
+    mCanDivide = false;
+}
+
+MeinekeCryptCell MeinekeCryptCell::Divide()
+{
+    assert(mCanDivide);
+    CancerParameters *p_params = CancerParameters::Instance();
+    //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
+    if (mCellType != STEM)
+    {
+        if (mGeneration < p_params->GetMaxTransitGenerations())
+        {
+            mGeneration++;
+            mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+            return MeinekeCryptCell(TRANSIT, mGeneration,
+                                    mpCellCycleModel->CreateCellCycleModel());
+        }
+        else
+        {
+            mGeneration++;
+            mCellType = DIFFERENTIATED;
+            mpCellCycleModel->SetCellType(mCellType);
+            mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+            return MeinekeCryptCell(DIFFERENTIATED, mGeneration,
+                                    mpCellCycleModel->CreateCellCycleModel());
+        }
+    }
+    else
+    {
+        mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+        return MeinekeCryptCell(TRANSIT, 1,
                                 mpCellCycleModel->CreateCellCycleModel());
     }
     mCanDivide = false;
