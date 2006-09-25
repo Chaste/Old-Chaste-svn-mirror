@@ -2,6 +2,7 @@
 #define _TYSONNOVAK2001ODESYSTEM_HPP_
 
 #include <vector>
+#include <cmath>
 #include "AbstractOdeSystem.hpp"
 
 /**
@@ -65,7 +66,7 @@ public:
     
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
-        return (rY[0] < 0.1 && EvaluateYDerivatives(time, rY)[0] < 0.0);
+        return (fabs(rY[0]-0.1) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
     }
 };
 
