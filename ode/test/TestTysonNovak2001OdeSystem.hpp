@@ -49,7 +49,7 @@ public:
 
         
         std::vector<double> state_variables = tyson_novak_system.GetInitialConditions();
-        solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 1.0, h_value, h_value);
+        solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 0.001, h_value, h_value);
         TS_ASSERT_EQUALS(solutions.GetNumberOfTimeSteps(), 10);
         
         int step_per_row = 100;
@@ -90,6 +90,9 @@ public:
         //OdeSolution solutions2;
         //solutions2 = events_solver.Solve(&tyson_novak_system, state_variables, 0.0, 1000.0, h_value, h_value);
         //TS_ASSERT_EQUALS(solutions2.GetNumberOfTimeSteps(), 10);  
+
+        
+        
     }
 };
 

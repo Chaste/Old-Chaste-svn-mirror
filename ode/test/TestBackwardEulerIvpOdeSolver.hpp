@@ -233,6 +233,7 @@ public:
         // solver should correctly state the stopping event occured
         TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);  
     }    
+    
 };
 
 #endif /*TESTBACKWARDEULERIVPODESOLVER_HPP_*/

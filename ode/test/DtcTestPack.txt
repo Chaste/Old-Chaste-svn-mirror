@@ -5,3 +5,4 @@ TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestMockEulerIvpOdeSolver.hpp
 TestSolvingStiffOdeSystems.hpp
 TestBackwardEulerIvpOdeSolver.hpp
+TestTysonNovak2001OdeSystem.hpp

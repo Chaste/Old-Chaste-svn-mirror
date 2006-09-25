@@ -62,6 +62,11 @@ public:
     
     // Compute the RHS of the T&N system of ODEs
     std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+    
+    bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
+    {
+        return (rY[0] < 0.1 && EvaluateYDerivatives(time, rY)[0] < 0.0);
+    }
 };
 
 #endif //_TYSONNOVAK2001ODESYSTEM_HPP_
