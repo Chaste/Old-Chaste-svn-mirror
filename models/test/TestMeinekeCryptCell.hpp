@@ -95,22 +95,32 @@ public:
         // divide                                  
         TS_ASSERT(grandaughter_cell.ReadyToDivide());
         TS_ASSERT(daughter_cell.ReadyToDivide());
+        
+        SimulationTime::Destroy();
     }
     
     void TestCellDivisionStops()
     {
+    	SimulationTime* p_simulation_time = SimulationTime::Instance(54.0, 9);
         CancerParameters *p_params = CancerParameters::Instance();
-        const double birth_time = 6.0;
+        
+        //const double birth_time = 6.0;
+        
+        p_simulation_time->IncrementTimeOneStep();
         
         MeinekeCryptCell stem_cell(STEM, // type
-                                   birth_time,  // birth time (hours)
-                                   0,    // generation
+                                    0,    // generation
                                    new FixedCellCycleModel());
                                    
-        double time = p_params->GetStemCellCycleTime() + birth_time;
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->IncrementTimeOneStep();
+        p_simulation_time->IncrementTimeOneStep();
+        
+        
         // create transit progeny of stem
-        TS_ASSERT(stem_cell.ReadyToDivide(time));
-        MeinekeCryptCell daughter_cell = stem_cell.Divide(time);
+        TS_ASSERT(stem_cell.ReadyToDivide());
+        MeinekeCryptCell daughter_cell = stem_cell.Divide();
         
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
@@ -132,17 +142,26 @@ public:
         expected_num_cells[5]=8;
         
         TS_ASSERT_EQUALS(expected_num_cells[1], cells.size());
-        
+        //double time = p_simulation_time->GetDimensionalisedTime();
+        double time ;
         for (int generation=2; generation<6; generation++)
         {
             // produce the offspring of the cells
             cell_iterator = cells.begin();
-            time += p_params->GetTransitCellCycleTime();
+            time = p_simulation_time->GetDimensionalisedTime();
+            
+            //time += p_params->GetTransitCellCycleTime();
+            p_simulation_time->IncrementTimeOneStep();
+            p_simulation_time->IncrementTimeOneStep();
+            
+            time = p_simulation_time->GetDimensionalisedTime();
+            
+            
             while (cell_iterator < cells.end())
             {
-                if (cell_iterator->ReadyToDivide(time))
+                if (cell_iterator->ReadyToDivide())
                 {
-                    newly_born.push_back(cell_iterator->Divide(time));
+                    newly_born.push_back(cell_iterator->Divide());
                 }
                 cell_iterator++;
             }
