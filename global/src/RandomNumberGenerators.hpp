@@ -11,9 +11,9 @@ public:
 	double NormalRandomDeviate(double mean, double sd);
 	double ranf(void);
 	int randMod(int base);
-	RandomNumberGenerators()
+	RandomNumberGenerators(int seed=0)
 	{
-		srandom(0);
+		srandom(seed);
 	}
 
 };

@@ -10,7 +10,7 @@ public:
  double ran1;
     void TestRandomNumers()
     {
-   	    srand(0);
+   	    srandom(0);
     	ran1=(double)random()/RAND_MAX;
      	
      	RandomNumberGenerators gen;
@@ -18,8 +18,6 @@ public:
      	double ran2=gen.ranf();
      	TS_ASSERT_DELTA(ran1,ran2,1e-7);
     	
-     	//double ran3=gen.ranf();
-   	  	//TS_ASSERT_DELTA(ran1,ran3,1e-7);
    
     }
     void TestNewMethodSeed()
@@ -28,6 +26,17 @@ public:
         double ran2=gen.ranf();
      	TS_ASSERT_DELTA(ran1,ran2,1e-7);
     }
-    
+    void TestDifferentRandomSeed()
+    {
+   	    srandom(36);
+    	ran1=(double)random()/RAND_MAX;
+     	
+     	RandomNumberGenerators gen(36);
+     	
+     	double ran2=gen.ranf();
+     	TS_ASSERT_DELTA(ran1,ran2,1e-7);
+    	
+   
+    }
 };
 #endif /*TESTRANDOMNUMBERS_HPP_*/
