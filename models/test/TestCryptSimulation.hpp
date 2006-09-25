@@ -248,7 +248,7 @@ public:
     {
         RandomNumberGenerators *pGen=new RandomNumberGenerators;
   		CancerParameters *p_params = CancerParameters::Instance();
-        srandom(10);
+        
         double crypt_length = 22.0;
         
         p_params->SetNaturalSpringLength(2.0); //if this is 1 then there are too many cells so use 2.
