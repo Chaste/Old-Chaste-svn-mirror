@@ -66,6 +66,7 @@ public:
 
     void TestExceptions(void)
     {
+        
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         
         OutputFileHandler output_file_handler("");
@@ -182,8 +183,8 @@ public:
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
-            unsigned generation;
+            CryptCellType cell_type=STEM;
+            unsigned generation=0;
             double birth_time=0; //hours
             MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
@@ -222,8 +223,8 @@ public:
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
-            unsigned generation;
+            CryptCellType cell_type=STEM;
+            unsigned generation=0;
             double birth_time= -1.0; //hours
             MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
@@ -247,10 +248,10 @@ public:
     {
         RandomNumberGenerators *pGen=new RandomNumberGenerators;
   		CancerParameters *p_params = CancerParameters::Instance();
-        srandom(0);
+        srandom(10);
         double crypt_length = 22.0;
         
-        p_params->SetNaturalSpringLength(2);
+        p_params->SetNaturalSpringLength(2.0); //if this is 1 then there are too many cells so use 2.
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir;
@@ -292,7 +293,7 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        
+              
         CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetEndTime(10.0);
@@ -305,12 +306,14 @@ public:
     
     // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
     // (see comment for Test1DChainWithBirthVariableRestLength).
-    void notTest1DChainWithMeinekeCellsAndGrowth() throw (Exception)
+    void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
-        double crypt_length = 11.0;
+        double crypt_length = 22.0;
         
+        p_params->SetNaturalSpringLength(2.0);//if this is 1 then there are too many cells so use 2.
+          
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -351,6 +354,8 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
+        
+         
         
         CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");

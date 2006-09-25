@@ -6,6 +6,7 @@
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 #include "StochasticCellCycleModel.hpp"
+#include "Exception.hpp"
 #include <cmath>
 #include <ctime>
 
@@ -134,14 +135,31 @@ public:
         OutputFileHandler output_file_handler(mOutputDirectory);
         out_stream p_results_file = output_file_handler.OpenOutputFile("results");
         
-        
         while (time < mEndTime)
         {
             // Cell birth
             if (mIncludeRandomBirth && time_since_last_birth > 1)
             {
-                AddRandomNode();
+                unsigned new_node_index = AddRandomNode(time);
                 time_since_last_birth = 0 ;
+                // Create new cell note all are Stem Cells and have generation 0 for random birth
+                RandomNumberGenerators *pGen=new RandomNumberGenerators;
+                CryptCellType cell_type=STEM ;
+                unsigned generation=0;
+                MeinekeCryptCell new_cell(cell_type, time, generation, new StochasticCellCycleModel(pGen));
+                // Update cells vector
+               
+                new_cell.SetNodeIndex(new_node_index);
+                if (new_node_index == mCells.size())
+                {
+                    mCells.push_back(new_cell);
+                }
+                else
+                {
+                    mCells[new_node_index] = new_cell;
+                }
+                //num_births++;
+                
             }
             else if (!mCells.empty())
             {
@@ -149,17 +167,18 @@ public:
                 {
                     if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
                     // Check for this cell dividing
-                    if (mCells[i].ReadyToDivide(time*mpParams->GetStemCellCycleTime()))
+                    if (mCells[i].ReadyToDivide(time))//*mpParams->GetStemCellCycleTime()))
                     {
                         // Create new cell
-                        MeinekeCryptCell new_cell = mCells[i].Divide(time*mpParams->GetStemCellCycleTime());
+                        MeinekeCryptCell new_cell = mCells[i].Divide(time);
+                        
                         // Add new node to mesh
                         Node<1> *p_our_node = mrMesh.GetNodeAt(i);
                         
                         //Note: May need to check which side element is put esp. at the ends
                         Element<1,1> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
                         
-                        unsigned new_node_index = AddNodeToElement(p_element);
+                        unsigned new_node_index = AddNodeToElement(p_element,time);
                         // Update cells vector
                         new_cell.SetNodeIndex(new_node_index);
                         if (new_node_index == mCells.size())
@@ -192,16 +211,17 @@ public:
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
                         
-                        double age1 = mCells[element->GetNode(0)->GetIndex()].GetAge(time*mpParams->GetStemCellCycleTime());
-                        double age2 = mCells[element->GetNode(1)->GetIndex()].GetAge(time*mpParams->GetStemCellCycleTime());
-                        double rest_length=mpParams->GetNaturalSpringLength();
                         double time_scale = mpParams->GetStemCellCycleTime();
+                        double age1 = mCells[element->GetNode(0)->GetIndex()].GetAge(time*time_scale);
+                        double age2 = mCells[element->GetNode(1)->GetIndex()].GetAge(time*time_scale);
+                        double rest_length=mpParams->GetNaturalSpringLength();
+                        
                         if (age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)
                         {
-                            /* Spring Rest Length Increases to 1 from 0.1 over 1 hour
+                        	/* Spring Rest Length Increases to 1 from 0.1 over 1 hour
                              * This doesnt happen at present as when the full line is included the tests fail
                              */
-                            rest_length=0.9*rest_length;//+0.1*age1*time_scale;
+                            rest_length=0.1*rest_length+0.9*age1*time_scale;
                             assert(rest_length<=mpParams->GetNaturalSpringLength());
                         }
                         
@@ -301,8 +321,9 @@ public:
     }
     
 private:
-    int AddRandomNode()
+    unsigned AddRandomNode(double time)
     {
+    	    	
         //Pick an element
         int random_element_number = rand()%mrMesh.GetNumAllElements(); // rand() gives a random int because 0 and RAND_MAX
         Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
@@ -322,20 +343,49 @@ private:
             //std::cout << "..too small, trying: length " <<element_length << "\n";
             //double random_displacement = 0.2+((((double)random())/RAND_MAX)*0.6);
         }
-        return AddNodeToElement(p_random_element);
+        // Reset age of left node to zero
+        mCells[p_random_element->GetNode(0)->GetIndex()].SetBirthTime(time);
+        return AddNodeToElement(p_random_element,time);
     }
     
     
-    int AddNodeToElement(Element<1,1>* pElement)
+    int AddNodeToElement(Element<1,1>* pElement, double time)
     {
-        double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
-        // pick a random position in the central 60% of the element
-        double random_displacement = 0.2 + (((double)random())/RAND_MAX)*(element_length-0.4);
-        double left_position = pElement->GetNodeLocation(0,0);
+        double displacement;
+        double left_position= pElement->GetNodeLocation(0,0);
+        if(mIncludeVariableRestLength)
+        {
+        	//double time_scale = mpParams->GetStemCellCycleTime();
+        	//double time_scale = mpParams->GetStemCellCycleTime();
+            double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
+            double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge(time);
+            
+                       
+            if (fabs(age0)<1e-6)
+            {
+                // place the new node to 0.1 to the right of the left-hand node
+                displacement = 0.1;
+            }
+            else if (fabs(age1)<1e-6)
+            {
+            	// place the new node to 0.1 to the left of the right-hand node
+            	double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
+                displacement = element_length - 0.1;
+            }
+            else
+            {
+            	EXCEPTION("No cell has divided in this element");
+            }
+        }
+        else
+        {
+        	double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
+            // pick a random position in the central 60% of the element
+            displacement = 0.2 + (((double)random())/RAND_MAX)*(element_length-0.4);
+         
+        }
+        Point<1> new_point(left_position + displacement);
         
-        Point<1> new_point(left_position + random_displacement);
-        
-        //std::cout<< "index "<<random_element_number<<" displacement "<<random_displacement<<"\n" << std::flush;
         return mrMesh.RefineElement(pElement, new_point);
     }
     
