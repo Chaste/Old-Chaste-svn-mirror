@@ -120,9 +120,11 @@ public:
             EXCEPTION("OutputDirectory not set");
         }
         
+        int num_time_steps = (int)(mEndTime/mDt+0.5);
+        
         SimulationTime *p_simulation_time =
         	SimulationTime::Instance(mEndTime*mpParams->GetStemCellCycleTime(),
-        							 (int)(mEndTime/mDt+0.5));
+        							 num_time_steps);
         							 
         double time = 0.0;
         double time_since_last_birth = 0.9;
@@ -135,7 +137,7 @@ public:
         OutputFileHandler output_file_handler(mOutputDirectory);
         out_stream p_results_file = output_file_handler.OpenOutputFile("results");
         
-        while (time < mEndTime)
+        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
             // Cell birth
             if (mIncludeRandomBirth && time_since_last_birth > 1)
