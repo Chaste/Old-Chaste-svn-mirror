@@ -26,7 +26,7 @@ class ConformingTetrahedralMesh
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
-    typedef typename std::vector<const Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
+    typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 private:
     int mNumCornerNodes;
     // Note that since these are vectors of objects, not pointers, push_back
@@ -41,8 +41,7 @@ private:
     std::vector<unsigned> mDeletedBoundaryElementIndices;
     std::vector<unsigned> mDeletedNodeIndices;
     
-    // \todo change to indices?
-    std::vector<const Node<SPACE_DIM> *> mBoundaryNodes;
+    std::vector< Node<SPACE_DIM> *> mBoundaryNodes;
     
     //ElementIterator mpElementIter;
     //BoundaryElementIterator mpBoundaryElementIter;

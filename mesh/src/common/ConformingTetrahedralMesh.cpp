@@ -928,7 +928,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(lon
     mNodes[index]->MarkAsDeleted();
     mDeletedNodeIndices.push_back(index);
     // Update the boundary node vector
-    typename std::vector<const Node<SPACE_DIM>*>::iterator b_node_iter
+    typename std::vector<Node<SPACE_DIM>*>::iterator b_node_iter
     = std::find(mBoundaryNodes.begin(), mBoundaryNodes.end(), mNodes[index]);
     mBoundaryNodes.erase(b_node_iter);
     

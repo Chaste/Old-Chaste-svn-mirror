@@ -6,6 +6,7 @@
 #include "CancerParameters.hpp"
 #include <cmath>
 #include <ctime>
+#include <iostream>
 
 /**
  * Solve a crypt simulation based on the Meineke paper.
@@ -120,7 +121,7 @@ public:
         double time_since_last_birth = 0.9;
         
         //int num_births = 0;
-        //int num_deaths = 0;
+        int num_deaths = 0;
         
         std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
         
@@ -130,7 +131,7 @@ public:
         
         while (time < mEndTime)
         {
-        	//std::cout << time << "\n" << std::flush;
+        	
 //            // Cell birth
 //            if (mIncludeRandomBirth && time_since_last_birth > 1)
 //            {
@@ -251,7 +252,9 @@ public:
                	        drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
                	        drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
                	        drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
-               	      
+               	        
+               	        assert(!p_element->GetNode(nodeA)->IsDeleted());
+               	        assert(!p_element->GetNode(nodeB)->IsDeleted());
                	        drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
                	        drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
                	        drdt[ p_element->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
@@ -268,32 +271,39 @@ public:
 	        while( elem_iter != mrMesh.GetBoundaryElementIteratorEnd() )
     	    {
     	    	BoundaryElement<1,2>* p_edge = *elem_iter;
-    	    	c_matrix<double, 2, 2> drdt_contributions;
+    	    	if (!p_edge->IsDeleted())
+                {
+    	    	    c_matrix<double, 2, 2> drdt_contributions;
                	      
-               	c_vector<double, 2> unit_difference;
+               	    c_vector<double, 2> unit_difference;
                	
-               	int nodeA = 0; 
-               	int nodeB = 1;
+               	    int nodeA = 0; 
+               	    int nodeB = 1;
                	
-               	unit_difference(0)=p_edge->GetNodeLocation(nodeB,0)-p_edge->GetNodeLocation(nodeA,0);
-               	unit_difference(1)=p_edge->GetNodeLocation(nodeB,1)-p_edge->GetNodeLocation(nodeA,1);
-               	double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
-               	     
-               	unit_difference(0)=unit_difference(0)/distance_between_nodes;
-               	unit_difference(1)=unit_difference(1)/distance_between_nodes;
-               	      
-               	// Refactor this to a vector operation
-               	      
-               	drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
-               	drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
-               	drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
-               	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
-               	      
-               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
-               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
-               	drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
-               	drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] += drdt_contributions(1,1);   
-                		
+               	    unit_difference(0)=p_edge->GetNodeLocation(nodeB,0)-p_edge->GetNodeLocation(nodeA,0);
+	               	unit_difference(1)=p_edge->GetNodeLocation(nodeB,1)-p_edge->GetNodeLocation(nodeA,1);
+	               	double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
+	               	     
+	               	unit_difference(0)=unit_difference(0)/distance_between_nodes;
+	               	unit_difference(1)=unit_difference(1)/distance_between_nodes;
+	               	      
+	               	// Refactor this to a vector operation
+	               	      
+	               	drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
+	               	drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
+	               	drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
+	               	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
+	               	
+	               	assert(!p_edge->GetNode(nodeA)->IsDeleted());
+	               	assert(!p_edge->GetNode(nodeB)->IsDeleted());
+	               	              
+	               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
+	               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
+	               	drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
+	               	drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] += drdt_contributions(1,1);   
+	                		
+	                
+                }
                 elem_iter++;
     	    }
            
@@ -322,27 +332,52 @@ public:
             }
             
             // Remove nodes that are beyond the crypt
-//            while (true)
-//            {
-//                bool sloughed_node = false;
-//                ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator it = mrMesh.GetBoundaryNodeIteratorEnd();
-//                while (it != mrMesh.GetBoundaryNodeIteratorBegin())
-//                {
-//                    it--;
-//                    const Node<1> *p_node = *it;
-//                    if (p_node->rGetPoint()[0] > mpParams->GetCryptLength())
-//                    {
-//                        // It's fallen off
-//                        mrMesh.DeleteBoundaryNodeAt(p_node->GetIndex());
-//                        num_deaths++;
-//                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
-//                        sloughed_node = true;
-//                        break;
-//                    }
-//                }
-//                if (!sloughed_node) break;
-//            }
-//            // Check nodes havent crossed
+            //std::cout<< "it's a timestep"<<"\n"<<std::flush;
+            while (true)
+            {
+                bool sloughed_node = false;
+                ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator it = mrMesh.GetBoundaryNodeIteratorEnd();
+                    
+                while (it != mrMesh.GetBoundaryNodeIteratorBegin())
+                {
+                    it--; 
+                    //Node<2> *p_node=mrMesh.GetNodeAt(0);
+                    Node<2> *p_node = *it;
+                    if(!p_node->IsDeleted())
+                    {
+	                    double x = p_node->rGetPoint()[0];
+	                    double y = p_node->rGetPoint()[1];
+	                    unsigned sloughing_node_index=p_node->GetIndex();
+	                    if ((x > 0.1)||(x<0)||(y>0.1))
+	                    {
+	                        unsigned boundary_element_index=p_node->GetNextBoundaryElementIndex();
+	                    	BoundaryElement<1,2>* p_boundary_element=mrMesh.GetBoundaryElement(boundary_element_index);
+	                    	unsigned target_node_index=p_boundary_element->GetNodeGlobalIndex(0);
+	                    	if (target_node_index==sloughing_node_index)
+	                    	{
+	                    		target_node_index=p_boundary_element->GetNodeGlobalIndex(1);
+	                    	}
+	                    	
+	                    	std::cout<<time << "\t"<<sloughing_node_index<<"\t"<<target_node_index<<"\n";
+	                        // It's fallen off
+	                        assert(!mrMesh.GetNodeAt(target_node_index)->IsDeleted());
+	                        mrMesh.SetNode(sloughing_node_index,target_node_index);
+
+	                        num_deaths++;
+	                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+	                        sloughed_node = true;
+	                        assert(p_node->IsDeleted());
+	                        
+	                        break;
+	                    }
+                    }
+                }
+                if (!sloughed_node) break;
+            }
+            
+            mrMesh.ReIndex();
+            
+//            // Check nodes havent crossed 
 //            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
 //            {
 //                Element<1,1>* element = mrMesh.GetElement(elem_index);
@@ -356,6 +391,7 @@ public:
             // write results to file
             (*p_node_file) << time << "\t";
             (*p_element_file) << time << "\t";
+            
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 if (!mrMesh.GetNodeAt(index)->IsDeleted())
@@ -365,6 +401,7 @@ public:
                 }
             }
             (*p_node_file) << "\n";
+            
             
             for (int index = 0; index<mrMesh.GetNumAllElements(); index++)
             {
@@ -378,7 +415,6 @@ public:
             time += mDt;
             time_since_last_birth += mDt;
             
-
         }
     }
     
