@@ -4,22 +4,29 @@
 #include <time.h>
 #include <stdlib.h>
 
+
+/** 
+ * Generate a random number mod base
+ */
+int RandomNumberGenerators::randMod(int base)
+{
+	return (random()%base);	
+}
 /** Generate a uniform random number in (0,1)
  */
-double ranf(void)
+double RandomNumberGenerators::ranf(void)
 {
-    static bool seeded = false;
-    
-    if (!seeded)
+        
+    if (!mSeeded)
     {
         srand(0);
-        seeded = true;
+        mSeeded = true;
     }
     
     return (double)random() / RAND_MAX;
 }
 
-double NormalRandomDeviate(double mean, double sd)
+double RandomNumberGenerators::NormalRandomDeviate(double mean, double sd)
 {
     return sd * StandardNormalRandomDeviate() + mean;
 }
@@ -51,7 +58,7 @@ double NormalRandomDeviate(double mean, double sd)
      THE DEFINITIONS OF THE CONSTANTS A(K), D(K), T(K) AND
      H(K) ARE ACCORDING TO THE ABOVEMENTIONED ARTICLE
 */
-double StandardNormalRandomDeviate(void)
+double RandomNumberGenerators::StandardNormalRandomDeviate(void)
 {
     static double a[32] =
         {

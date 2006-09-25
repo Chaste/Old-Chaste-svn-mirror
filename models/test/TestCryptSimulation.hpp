@@ -167,6 +167,7 @@ public:
     // rest length by default
     void Test1DChainWithBirthConstantRestLength()
     {
+     	RandomNumberGenerators *pGen=new RandomNumberGenerators;
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -184,7 +185,7 @@ public:
             CryptCellType cell_type;
             unsigned generation;
             double birth_time=0; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel());
+            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
@@ -204,6 +205,8 @@ public:
     // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
+        RandomNumberGenerators *pGen=new RandomNumberGenerators;
+  
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         
         std::string testoutput_dir;
@@ -222,7 +225,7 @@ public:
             CryptCellType cell_type;
             unsigned generation;
             double birth_time= -1.0; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel());
+            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
@@ -242,7 +245,8 @@ public:
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
-        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerators *pGen=new RandomNumberGenerators;
+  		CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
         double crypt_length = 22.0;
         
@@ -283,7 +287,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new StochasticCellCycleModel());
+            MeinekeCryptCell cell(cell_type, 0.0, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

@@ -235,6 +235,7 @@ public:
     
     void TestWithCellCycleModel() throw(Exception)
     {
+      	RandomNumberGenerators *pGen=new RandomNumberGenerators;
         CancerParameters *p_params = CancerParameters::Instance();
         const double birth_time = 0.1;
         // Test Stem cell
@@ -250,7 +251,7 @@ public:
         MeinekeCryptCell stochastic_stem_cell(STEM, // type
                                               birth_time,  // birth time (hours)
                                               0,    // generation
-                                              new StochasticCellCycleModel());
+                                              new StochasticCellCycleModel(pGen));
         TS_ASSERT(!stochastic_stem_cell.ReadyToDivide(p_params->GetStemCellCycleTime()));
         TS_ASSERT(stochastic_stem_cell.ReadyToDivide(p_params->GetStemCellCycleTime()+birth_time));
         
@@ -266,7 +267,7 @@ public:
         MeinekeCryptCell stochastic_differentiated_cell(DIFFERENTIATED, // type
                                                         birth_time,  // birth time (hours)
                                                         6,    // generation
-                                                        new StochasticCellCycleModel());
+                                                        new StochasticCellCycleModel(pGen));
         TS_ASSERT(!stochastic_differentiated_cell.ReadyToDivide(1e5));
         TS_ASSERT(!stochastic_differentiated_cell.ReadyToDivide(1e50));
         TS_ASSERT(!stochastic_differentiated_cell.ReadyToDivide(1e150));
@@ -279,7 +280,7 @@ public:
         TS_ASSERT(!transit_cell.ReadyToDivide(p_params->GetTransitCellCycleTime()+birth_time-0.01));
         TS_ASSERT(transit_cell.ReadyToDivide(p_params->GetTransitCellCycleTime()+birth_time));
         
-        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel();
+        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel(pGen);
         transit_cell.SetCellCycleModel(cell_cycle_model);
         TS_ASSERT_EQUALS(transit_cell.GetCellCycleModel(), cell_cycle_model);
         int ready_count=0;
@@ -303,6 +304,7 @@ public:
     
     void Test0DBucketStochastic()
     {
+        RandomNumberGenerators *pGen=new RandomNumberGenerators;
         const double end_time = 70.0;
         const int time_steps = 70;
         const int number_of_simulations = 1000;
@@ -323,7 +325,7 @@ public:
             MeinekeCryptCell stem_cell(STEM, // type
                                        0,  // birth time (hours)
                                        0,  // generation
-                                       new StochasticCellCycleModel());
+                                       new StochasticCellCycleModel(pGen));
             cells.push_back(stem_cell);
             // produce the offspring of the cells
             std::vector<MeinekeCryptCell>::iterator cell_iterator = cells.begin();

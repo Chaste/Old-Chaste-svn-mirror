@@ -3,3 +3,4 @@ TestReplicatableVector.hpp
 TestOutputFileHandler.hpp
 TestSimulationTime.hpp
 TestStaticPolymorphism.hpp
+TestRandomNumbers.hpp

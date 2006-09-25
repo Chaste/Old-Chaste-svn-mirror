@@ -96,7 +96,11 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
     {
         case 0:
             // End point of a line
-            mWeightedDirection(0)=1;
+            mWeightedDirection(0)=1.0;
+            if (SPACE_DIM == 2)
+            {
+            	mWeightedDirection(1)=0.0;
+            }
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D

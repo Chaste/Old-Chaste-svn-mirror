@@ -31,7 +31,8 @@ public:
     
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
-        StochasticCellCycleModel cell_model;
+    	RandomNumberGenerators *pGen=new RandomNumberGenerators;
+        StochasticCellCycleModel cell_model(pGen);
         
         cell_model.SetCellType(STEM);
         TS_ASSERT(!cell_model.ReadyToDivide(23.99));
