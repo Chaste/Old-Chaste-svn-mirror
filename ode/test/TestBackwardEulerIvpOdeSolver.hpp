@@ -5,6 +5,7 @@
 #include<iostream>
 
 #include "OdeThirdOrder.hpp"
+#include "OdeThirdOrderWithEvents.hpp"
 #include "Ode4.hpp"
 #include "Ode5.hpp"
 //#include "AnotherOde.hpp"
@@ -96,7 +97,7 @@ public:
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3); 
     }    
     
-    // Superceded tests
+    // Superceded test
     void notestComputeResidual() 
     {
     	double h_value=1.0;
@@ -137,8 +138,9 @@ public:
 
         VecRestoreArray(residual, &p_residual_array);
           
-    }   
-    
+    } 
+      
+    // Superceded test
     void notestComputeJacobian() 
     {
     	double h_value=1.0;
@@ -196,6 +198,40 @@ public:
                 TS_ASSERT_DELTA(ret_array[0],true_jacobian[row][col], 1e-3);
             }
         }
+    }    
+    
+    void testBackwardEulerSystemOf3EquationsWithEvents() 
+    {
+        OdeThirdOrderWithEvents ode_system_with_events;
+        
+        double h_value=0.01;
+        
+        //Euler solver solution worked out
+        BackwardEulerIvpOdeSolver backward_euler_solver;
+        OdeSolution solutions;
+        
+        std::vector<double> state_variables = ode_system_with_events.GetInitialConditions();
+        solutions = backward_euler_solver.Solve(&ode_system_with_events, state_variables, 0.0, 2.0, h_value, h_value);
+        int last = solutions.GetNumberOfTimeSteps();
+        
+        double numerical_solution[3];
+        numerical_solution[0] = solutions.rGetSolutions()[last][0];
+        numerical_solution[1] = solutions.rGetSolutions()[last][1];
+        numerical_solution[2] = solutions.rGetSolutions()[last][2];
+        
+        // The tests
+        int num_timesteps = solutions.GetNumberOfTimeSteps();
+        
+        // final time should be around pi and a bit
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], 0.5236, 0.01); 
+
+        // penultimate y0 should be greater than -0.5
+        TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[num_timesteps-1][0]); 
+        // final y0 should be less than -0.5
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], -0.5); 
+
+        // solver should correctly state the stopping event occured
+        TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);  
     }    
 };
 
