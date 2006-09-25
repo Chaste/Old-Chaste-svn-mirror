@@ -1,8 +1,5 @@
 #include "RandomNumberGenerators.hpp"
 
-#include <cmath>
-#include <time.h>
-#include <stdlib.h>
 
 
 /** 
@@ -10,19 +7,15 @@
  */
 int RandomNumberGenerators::randMod(int base)
 {
-	return (random()%base);	
+  
+    return (random()%base);	
 }
 /** Generate a uniform random number in (0,1)
  */
 double RandomNumberGenerators::ranf(void)
 {
         
-    if (!mSeeded)
-    {
-        srand(0);
-        mSeeded = true;
-    }
-    
+ 
     return (double)random() / RAND_MAX;
 }
 

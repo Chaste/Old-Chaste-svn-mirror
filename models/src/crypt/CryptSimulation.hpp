@@ -43,6 +43,7 @@ private:
     std::vector<MeinekeCryptCell> mCells;
     
     CancerParameters *mpParams;
+    RandomNumberGenerators *mpGen;
     
 public:
 
@@ -51,16 +52,23 @@ public:
      *  should be called for any birth to happen.
      */
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
-                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
+                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(), 
+                    RandomNumberGenerators *pGen = NULL)
             : mrMesh(rMesh),
             mCells(cells)
     {
+        if (pGen!=NULL)
+        {
+        	mpGen=pGen;
+        }
+        else
+        {
+        	mpGen= new RandomNumberGenerators;
+         }
         mpParams = CancerParameters::Instance();
         mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
         mEndTime = 5.0;
-        
-        //srandom(time(NULL));
-        srandom(0);
+       
         mpParams->SetMeinekeLambda(15.0);
         
         mIncludeRandomBirth = false;
@@ -327,7 +335,7 @@ private:
     {
     	    	
         //Pick an element
-        int random_element_number = rand()%mrMesh.GetNumAllElements(); // rand() gives a random int because 0 and RAND_MAX
+        int random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
         Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
         double element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
         //std::cout << "length " <<element_length << "\n";
@@ -338,12 +346,12 @@ private:
             // the following is ignored in coverage as there is a random 
             // chance of it not happening
             #define COVERAGE_IGNORE
-            random_element_number = rand()%mrMesh.GetNumAllElements();
+            random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
             p_random_element = mrMesh.GetElement(random_element_number);
             element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
             #undef COVERAGE_IGNORE
             //std::cout << "..too small, trying: length " <<element_length << "\n";
-            //double random_displacement = 0.2+((((double)random())/RAND_MAX)*0.6);
+            //double random_displacement = 0.2+mpGen->randf()*0.6;
         }
         // Reset age of left node to zero
         mCells[p_random_element->GetNode(0)->GetIndex()].SetBirthTime(time);
@@ -353,6 +361,7 @@ private:
     
     int AddNodeToElement(Element<1,1>* pElement, double time)
     {
+
         double displacement;
         double left_position= pElement->GetNodeLocation(0,0);
         if(mIncludeVariableRestLength)
@@ -383,7 +392,7 @@ private:
         {
         	double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
             // pick a random position in the central 60% of the element
-            displacement = 0.2 + (((double)random())/RAND_MAX)*(element_length-0.4);
+            displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
          
         }
         Point<1> new_point(left_position + displacement);

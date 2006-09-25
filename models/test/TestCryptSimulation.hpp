@@ -169,6 +169,7 @@ public:
     void Test1DChainWithBirthConstantRestLength()
     {
      	RandomNumberGenerators *pGen=new RandomNumberGenerators;
+     	
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -248,7 +249,7 @@ public:
     {
         RandomNumberGenerators *pGen=new RandomNumberGenerators;
   		CancerParameters *p_params = CancerParameters::Instance();
-        
+
         double crypt_length = 22.0;
         
         p_params->SetNaturalSpringLength(2.0); //if this is 1 then there are too many cells so use 2.
@@ -274,13 +275,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -pGen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -pGen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -309,7 +310,7 @@ public:
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(0);
+        RandomNumberGenerators *pGen = new RandomNumberGenerators;
         double crypt_length = 22.0;
         
         p_params->SetNaturalSpringLength(2.0);//if this is 1 then there are too many cells so use 2.
@@ -335,13 +336,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -pGen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -pGen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {

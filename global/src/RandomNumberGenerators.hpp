@@ -1,5 +1,8 @@
 #ifndef RANDOMNUMBERGENERATORS_HPP_
 #define RANDOMNUMBERGENERATORS_HPP_
+#include <cmath>
+#include <time.h>
+#include <stdlib.h>
 
 class RandomNumberGenerators
 { 
@@ -10,9 +13,8 @@ public:
 	int randMod(int base);
 	RandomNumberGenerators()
 	{
-		mSeeded = false;
+		srandom(0);
 	}
-private:
-	bool mSeeded;
+
 };
 #endif /*RANDOMNUMBERGENERATORS_HPP_*/
