@@ -128,7 +128,7 @@ public:
     // (see comment for Test1DChainWithBirthVariableRestLength).
     void Test2DSpringsWithSloughing() throw (Exception)
     {
-        //CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
         double crypt_length = 0.1;
         double crypt_width = 0.1;
@@ -141,6 +141,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
                 
+        p_params->SetNaturalSpringLength(0.01);
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
@@ -256,7 +257,6 @@ public:
             cells.push_back(cell);
         }
         
-        
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DTestMesh");
         simulator.SetEndTime(1.0);
@@ -269,6 +269,82 @@ public:
         TS_ASSERT_THROWS_ANYTHING( simulator.Solve() );
     }
     
+    
+        void NOTTest2DSpringsFixedBoundaries() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        srandom(0);
+        double crypt_length = 0.1;
+        double crypt_width = 0.1;
+//        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
+//        std::string testoutput_dir;
+//        OutputFileHandler output_file_handler("");
+//        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+                
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            
+            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            if (y == 0.0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+            }
+            
+            else if (y < 0.02)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+            }
+            
+            else if (y < 0.05)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+            }
+           
+            else if (y < 0.08)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+            }
+                 
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = 0; //hours
+            }
+            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        p_params->SetNaturalSpringLength(0.005);// to simulate less cells        
+        CryptSimulation2D simulator(mesh,cells);
+        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
+        simulator.SetEndTime(0.5); //Days?
+        simulator.SetFixedBoundaries();
+        simulator.SetCryptLength(crypt_length);
+        simulator.SetCryptWidth(crypt_width);
+        //simulator.SetIncludeVariableRestLength();
+        
+        simulator.Solve() ;
+    }
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

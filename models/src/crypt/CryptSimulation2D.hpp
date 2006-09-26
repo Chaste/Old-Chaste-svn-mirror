@@ -36,6 +36,7 @@ private:
     
     bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
+    bool mFixedBoundaries;
     
     std::string mOutputDirectory;
     
@@ -64,6 +65,7 @@ public:
         
         mIncludeRandomBirth = false;
         mIncludeVariableRestLength = false;
+        mFixedBoundaries =false;
         mOutputDirectory = "";
     }
     
@@ -110,6 +112,14 @@ public:
     void SetIncludeVariableRestLength()
     {
         mIncludeVariableRestLength = true;
+    }
+    
+     /**
+     *  Call this before Solve() to fix the boundary of the mesh
+     */       
+    void SetFixedBoundaries()
+    {
+        mFixedBoundaries = true;
     }
     
     /**
@@ -354,20 +364,55 @@ public:
             	// note factor of 0.5 in the update because drdt was twice 
             	// as large as it should be since edges were looped over twice.
             	
-                // assume stem cells are fixed, or if there are no cells, fix node 0
-                //if(
-                if (mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
-                {
-                    if (!mrMesh.GetNodeAt(index)->IsDeleted())
-                    {
-//                        std::cerr<<"Updating index "<<index<<"\n";
-                        Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
-                        Point<2> new_point;
-                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
-                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
-                        mrMesh.SetNode(index, new_point, false);
-                    }
-                }
+            	if(mFixedBoundaries)
+            	{
+            		// All Bonndaries x=0 x=crypt_width y=0 y=crypt_length
+                           
+                
+	                if (mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
+	                {
+	                	if (mrMesh.GetNodeAt(index)->rGetPoint()[1]<mpParams->GetCryptLength())
+	                	{
+	                		if (mrMesh.GetNodeAt(index)->rGetPoint()[0]>0)
+	                		{
+	                			if (mrMesh.GetNodeAt(index)->rGetPoint()[0]<mpParams->GetCryptWidth())
+	                            {
+	                                if (!mrMesh.GetNodeAt(index)->IsDeleted())
+	                                {
+			                        	//  std::cerr<<"Updating index "<<index<<"\n";
+				                        Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+				                        Point<2> new_point;
+				                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
+				                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
+				                        mrMesh.SetNode(index, new_point, false);
+				                    }
+	                            }
+	                		}
+	                	}
+	                }
+            	}
+            	else
+            	{
+            		// assume stem cells are fixed, or if there are no cells, fix node 0
+                                           
+                
+	                if (mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
+	                {
+	                    if (!mrMesh.GetNodeAt(index)->IsDeleted())
+	                    {
+	                        //  std::cerr<<"Updating index "<<index<<"\n";
+	                        Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+	                        Point<2> new_point;
+	                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
+	                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
+	                        mrMesh.SetNode(index, new_point, false);
+	                    }
+	                }
+            		
+            	}
+            	
+            	
+                
             }
             
 //            std::cerr<<"End loop \n";
@@ -445,14 +490,17 @@ public:
             
 //            if(step_number%10 == 0)
 //            {
-//	            //Re-mesh the mesh
-//				mrMesh.ReMesh(map);
+           if (mFixedBoundaries)
+           {
+	            //Re-mesh the mesh
+				mrMesh.ReMesh(map);
+           }
 //            }
 //            std::stringstream time_ss2;
 //	        time_ss2 << step_number++;
 //			TrianglesMeshWriter<2,2> mesh_writer2("","tempmesh"+time_ss2.str());
 //			mesh_writer2.WriteFilesUsingMesh(mrMesh);	    
-			        
+//			        
 //            // Check nodes havent crossed 
 //            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
 //            {
