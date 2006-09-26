@@ -130,18 +130,18 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
-        double crypt_length = 0.1;
-        double crypt_width = 0.1;
+        double crypt_length = 10;
+        double crypt_width = 10;
 //        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
 //        std::string testoutput_dir;
 //        OutputFileHandler output_file_handler("");
 //        testoutput_dir = output_file_handler.GetTestOutputDirectory();
         
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
                 
-        p_params->SetNaturalSpringLength(0.01);
+        p_params->SetNaturalSpringLength(1);
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
@@ -157,9 +157,9 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
-        double crypt_length = 0.1;
-        double crypt_width = 0.1;
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        double crypt_length = 10;
+        double crypt_width = 10;
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -179,7 +179,7 @@ public:
                 generation = 0;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
-            else if (y < 0.05)
+            else if (y < 5.0)
             {
                 cell_type = TRANSIT;
                 generation = 1;
@@ -197,7 +197,7 @@ public:
             cells.push_back(cell);
         }
         
-        p_params->SetNaturalSpringLength(0.01);//WRONG!!!!!!!
+        p_params->SetNaturalSpringLength(1);
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
         simulator.SetEndTime(1.0);
@@ -270,18 +270,18 @@ public:
     }
     
     
-        void NOTTest2DSpringsFixedBoundaries() throw (Exception)
+        void notTest2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
-        double crypt_length = 0.1;
-        double crypt_width = 0.1;
+        double crypt_length = 10;
+        double crypt_width = 10;
 //        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
 //        std::string testoutput_dir;
 //        OutputFileHandler output_file_handler("");
 //        testoutput_dir = output_file_handler.GetTestOutputDirectory();
         
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
                 
@@ -302,21 +302,21 @@ public:
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             
-            else if (y < 0.02)
+            else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 1;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
             }
             
-            else if (y < 0.05)
+            else if (y < 6.5)
             {
                 cell_type = TRANSIT;
                 generation = 2;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
             }
            
-            else if (y < 0.08)
+            else if (y < 8)
             {
                 cell_type = TRANSIT;
                 generation = 3;
@@ -334,7 +334,7 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        p_params->SetNaturalSpringLength(0.005);// to simulate less cells        
+        p_params->SetNaturalSpringLength(0.5);// to simulate less cells        
         CryptSimulation2D simulator(mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
         simulator.SetEndTime(0.5); //Days?
