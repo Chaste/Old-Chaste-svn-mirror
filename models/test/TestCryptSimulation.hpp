@@ -318,7 +318,7 @@ public:
         RandomNumberGenerators *pGen = new RandomNumberGenerators;
         double crypt_length = 22.0;
         
-        p_params->SetNaturalSpringLength(2.0);//if this is 1 then there are too many cells so use 2.
+        //p_params->SetNaturalSpringLength(2.0);//if this is 1 then there are too many cells so use 2.
           
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir;

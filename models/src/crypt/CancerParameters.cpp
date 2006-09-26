@@ -100,7 +100,7 @@ void CancerParameters::SetMeinekeLambda(double meinekeLambda)
     mMeinekeLambda = meinekeLambda;
     mAlpha = mStemCellCycleTime * mMeinekeLambda;
 }
-void CancerParameters::SetNaturalSpringLength(double springLen)
+void CancerParameters::SetNaturalSpringLength(double naturalSpringLength)
 {
-    mNaturalSpringLength = springLen;
+    mNaturalSpringLength = naturalSpringLength;
 }

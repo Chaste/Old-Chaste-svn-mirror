@@ -26,7 +26,7 @@ public:
     void SetCryptLength(double);
     void SetCryptWidth(double);
     void SetMeinekeLambda(double);
-    void SetNaturalSpringLength(double);
+    void SetNaturalSpringLength(double);//Note this should be got rid of, because length is defined in terms of NaturalSpringLength
     
 protected:
     CancerParameters();

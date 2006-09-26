@@ -196,7 +196,7 @@ public:
             cells.push_back(cell);
         }
         
-        p_params->SetNaturalSpringLength(0.01);
+        p_params->SetNaturalSpringLength(0.01);//WRONG!!!!!!!
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
         simulator.SetEndTime(1.0);
@@ -255,7 +255,7 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        p_params->SetNaturalSpringLength(1);
+        
         
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DTestMesh");

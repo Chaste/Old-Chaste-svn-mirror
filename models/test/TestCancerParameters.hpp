@@ -17,7 +17,7 @@ public:
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(-1.0);
         inst1->SetMeinekeLambda(-2.0);
-        inst1->SetNaturalSpringLength(-3.0);
+   //     inst1->SetNaturalSpringLength(-3.0);
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
@@ -27,7 +27,7 @@ public:
         TS_ASSERT_DELTA(inst2->GetCryptLength(), -1.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetMeinekeLambda(), -2.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetAlpha(), -2.0 * -25.0, 1e-12);
-        TS_ASSERT_DELTA(inst2->GetNaturalSpringLength(), -3.0, 1e-12);
+    //    TS_ASSERT_DELTA(inst2->GetNaturalSpringLength(), -3.0, 1e-12);
     }
 };
 
