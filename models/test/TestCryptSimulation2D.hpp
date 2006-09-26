@@ -22,7 +22,7 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
    public:
     // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
     // (see comment for Test1DChainWithBirthVariableRestLength).
-    void Test2DSprings() throw (Exception)
+    void Test2DSpringsWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
@@ -75,11 +75,8 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
         simulator.SetCryptLength(crypt_length);
         //simulator.SetIncludeVariableRestLength();
         
-        
-        // this is FAILING at the moment, the throws anything is for committing purposes
-        TS_ASSERT_THROWS_ANYTHING( simulator.Solve() );
+        simulator.Solve() ;
     }
-    
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/

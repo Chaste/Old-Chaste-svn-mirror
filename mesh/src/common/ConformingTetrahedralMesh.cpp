@@ -1172,7 +1172,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     mDeletedElementIndices.clear();
     mDeletedBoundaryElementIndices.clear();
     mDeletedNodeIndices.clear();
-    
+    mBoundaryNodes.clear();
     
     for (int i=0; i<temporary_mesh.GetNumNodes(); i++)
     {
@@ -1180,6 +1180,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         bool is_boundary=temporary_mesh.GetNodeAt(i)->IsBoundaryNode();
         Node<SPACE_DIM>* p_node=new Node<SPACE_DIM>(i,point,is_boundary);
         mNodes.push_back(p_node);
+        if (is_boundary)
+        {
+        	mBoundaryNodes.push_back(p_node);	
+        }
     }
     
     for (int i=0; i<temporary_mesh.GetNumElements(); i++)
@@ -1194,7 +1198,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     	mElements.push_back(p_element);
     }
     
-   for (int i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
+    for (int i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
     {
     	std::vector<Node<SPACE_DIM>* > nodes;
     	for (int j=0; j<SPACE_DIM; j++){
@@ -1206,8 +1210,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     	mBoundaryElements.push_back(p_b_element);
     }
     
-  
-    
+  	
 }
     
  	

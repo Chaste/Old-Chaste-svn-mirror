@@ -7,6 +7,7 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include "TrianglesMeshWriter.cpp"
 
 /**
  * Solve a crypt simulation based on the Meineke paper.
@@ -117,7 +118,8 @@ public:
         {
             EXCEPTION("OutputDirectory not set");
         }
-        double time = 0.0;
+        NodeMap map(mrMesh.GetNumAllNodes());
+ 		double time = 0.0;
         double time_since_last_birth = 0.9;
         
         //int num_births = 0;
@@ -129,8 +131,18 @@ public:
         out_stream p_node_file = output_file_handler.OpenOutputFile("nodes.dat");
         out_stream p_element_file = output_file_handler.OpenOutputFile("elements.dat");
         
+        std::vector<bool> sloughed_cells(10*mrMesh.GetNumAllNodes());
+        for(unsigned i=0; i<sloughed_cells.size(); i++)
+        {
+        	sloughed_cells[i] = false;
+        }
+			
+		static int step_number=0;
+        
         while (time < mEndTime)
         {
+        	//std::cout << "** TIME = " << time << " **\n";
+        	
         	
 //            // Cell birth
 //            if (mIncludeRandomBirth && time_since_last_birth > 1)
@@ -245,21 +257,25 @@ public:
                	      
                	        unit_difference(0)=unit_difference(0)/distance_between_nodes;
                	        unit_difference(1)=unit_difference(1)/distance_between_nodes;
-               	      
-               	        // Refactor this to a vector operation
-               	      
-               	        drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
-               	        drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
-               	        drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
-               	        drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
+
+
+						// if neither node is sloughed include force contribution
+		               	if( (sloughed_cells[p_element->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_element->GetNodeGlobalIndex(nodeB)] == false))
+	                	{
+       		       	        // Refactor this to a vector operation
+            	   	        drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
+               		        drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
+               	    	    drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
+               	        	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
                	        
-               	        assert(!p_element->GetNode(nodeA)->IsDeleted());
-               	        assert(!p_element->GetNode(nodeB)->IsDeleted());
-               	        drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
-               	        drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
-               	        drdt[ p_element->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
-               	        drdt[ p_element->GetNode(nodeB)->GetIndex()][1] += drdt_contributions(1,1);   
-                		
+	               	        assert(!p_element->GetNode(nodeA)->IsDeleted());
+    	           	        assert(!p_element->GetNode(nodeB)->IsDeleted());
+        
+        	       	        drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
+            	   	        drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
+               		        drdt[ p_element->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
+               	    	    drdt[ p_element->GetNode(nodeB)->GetIndex()][1] += drdt_contributions(1,1);   
+	                	}
                 	}
                 }
            }
@@ -287,22 +303,23 @@ public:
 	               	unit_difference(0)=unit_difference(0)/distance_between_nodes;
 	               	unit_difference(1)=unit_difference(1)/distance_between_nodes;
 	               	      
-	               	// Refactor this to a vector operation
-	               	      
-	               	drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
-	               	drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
-	               	drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
-	               	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
+	    			// if neither node is sloughed include force contribution
+	               	if( (sloughed_cells[p_edge->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_edge->GetNodeGlobalIndex(nodeB)] == false))
+                	{
+		               	// Refactor this to a vector operation
+		               	drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
+		               	drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
+	    	           	drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
+	        	       	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
 	               	
-	               	assert(!p_edge->GetNode(nodeA)->IsDeleted());
-	               	assert(!p_edge->GetNode(nodeB)->IsDeleted());
-	               	              
-	               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
-	               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
-	               	drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
-	               	drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] += drdt_contributions(1,1);   
-	                		
-	                
+	             	  	assert(!p_edge->GetNode(nodeA)->IsDeleted());
+	               		assert(!p_edge->GetNode(nodeB)->IsDeleted());
+		               	              
+		               	drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contributions(0,0);
+	    	           	drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contributions(0,1);
+	        	       	drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] += drdt_contributions(1,0);
+	            	   	drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] += drdt_contributions(1,1);   
+                	}
                 }
                 elem_iter++;
     	    }
@@ -311,6 +328,8 @@ public:
            
             
             // update node positions
+//            std::cerr<<"mrMesh.GetNumAllNodes() "<<mrMesh.GetNumAllNodes()<<"\n";
+//            std::cerr<<"mrMesh.GetNumNodes() "<<mrMesh.GetNumNodes()<<"\n";
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
             	// note factor of 0.5 in the update because drdt was twice 
@@ -322,6 +341,7 @@ public:
                 {
                     if (!mrMesh.GetNodeAt(index)->IsDeleted())
                     {
+//                        std::cerr<<"Updating index "<<index<<"\n";
                         Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
                         Point<2> new_point;
                         new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
@@ -331,8 +351,10 @@ public:
                 }
             }
             
+//            std::cerr<<"End loop \n";
             // Remove nodes that are beyond the crypt
             //std::cout<< "it's a timestep"<<"\n"<<std::flush;
+            /*
             while (true)
             {
                 bool sloughed_node = false;
@@ -347,7 +369,7 @@ public:
                     {
 	                    double x = p_node->rGetPoint()[0];
 	                    double y = p_node->rGetPoint()[1];
-	                    unsigned sloughing_node_index=p_node->GetIndex();
+	                    //unsigned sloughing_node_index=p_node->GetIndex();
 	                    if ((x > 0.1)||(x<0)||(y>0.1))
 	                    {
 	                        unsigned boundary_element_index=p_node->GetNextBoundaryElementIndex();
@@ -356,17 +378,18 @@ public:
 	                    	if (target_node_index==sloughing_node_index)
 	                    	{
 	                    		target_node_index=p_boundary_element->GetNodeGlobalIndex(1);
-	                    	}
+                        	}
 	                    	
 	                    	std::cout<<time << "\t"<<sloughing_node_index<<"\t"<<target_node_index<<"\n";
 	                        // It's fallen off
 	                        assert(!mrMesh.GetNodeAt(target_node_index)->IsDeleted());
 	                        mrMesh.SetNode(sloughing_node_index,target_node_index);
 
+							sloughed_cells[p_node->GetIndex()] = true;
+
 	                        num_deaths++;
 	                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
 	                        sloughed_node = true;
-	                        assert(p_node->IsDeleted());
 	                        
 	                        break;
 	                    }
@@ -374,9 +397,39 @@ public:
                 }
                 if (!sloughed_node) break;
             }
+            */
+            step_number++;
+
+            for(int i=0; i<mrMesh.GetNumNodes(); i++)
+            {
+                 Node<2> *p_node = mrMesh.GetNodeAt(i);
+                 if(!p_node->IsDeleted())
+                 {
+                    double x = p_node->rGetPoint()[0];
+                    double y = p_node->rGetPoint()[1];
+                    if ((x > 0.1)||(x<0)||(y>0.1))
+                    {
+						sloughed_cells[p_node->GetIndex()] = true;
+                        num_deaths++;
+                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+                    }
+                }
+            }
+
+
+
+
             
-            mrMesh.ReIndex();
-            
+//            if(step_number%10 == 0)
+//            {
+//	            //Re-mesh the mesh
+//				mrMesh.ReMesh(map);
+//            }
+//            std::stringstream time_ss2;
+//	        time_ss2 << step_number++;
+//			TrianglesMeshWriter<2,2> mesh_writer2("","tempmesh"+time_ss2.str());
+//			mesh_writer2.WriteFilesUsingMesh(mrMesh);	    
+			        
 //            // Check nodes havent crossed 
 //            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
 //            {
@@ -394,10 +447,15 @@ public:
             
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
+            	int colour = 0;
+            	if(sloughed_cells[index]==true)
+            	{
+            		colour = 4;
+            	}
                 if (!mrMesh.GetNodeAt(index)->IsDeleted())
                 {
                     Point<2> point = mrMesh.GetNodeAt(index)->rGetPoint();
-                    (*p_node_file) << point.rGetLocation()[0] << " "<< point.rGetLocation()[1] << " " << "0 ";
+                    (*p_node_file) << point.rGetLocation()[0] << " "<< point.rGetLocation()[1] << " " << colour << " ";
                 }
             }
             (*p_node_file) << "\n";

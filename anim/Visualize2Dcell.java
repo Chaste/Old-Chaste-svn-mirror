@@ -58,7 +58,7 @@ public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runn
 	public static int numSteps = 0;
 
 	public Visualize2Dcell() {
-		frame.setSize(1000, 500);
+		frame.setSize(800, 800);
 		frame.setTitle("Gavaghan's goons' visualization tools (TM)");
 
 		frame.setLayout(new BorderLayout());
@@ -256,7 +256,7 @@ public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runn
 					double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
 					double d2 = Double.valueOf(st_node.nextToken()).doubleValue();
 					cell_type[row][i] = Integer.parseInt(st_node.nextToken());
-					if ((cell_type[row][i]<0) || (cell_type[row][i]>3))
+					if ((cell_type[row][i]<0) || (cell_type[row][i]>4))
 					{
 						System.out.println("Oi - I want a cell type between 0 and 3");
 						System.exit(0);
@@ -350,9 +350,18 @@ class CustomCanvas2D extends Canvas {
 					
 			
 			// Plot lines
-			g2.drawLine(x1, height - y1, x2, height - y2);
-			g2.drawLine(x2, height - y2, x3, height - y3);
-			g2.drawLine(x3, height - y3, x1, height - y1);
+			if( (vis.cell_type[vis.timeStep][n1]<3) && (vis.cell_type[vis.timeStep][n2]<3))
+			{
+				g2.drawLine(x1, height - y1, x2, height - y2);
+			}
+			if( (vis.cell_type[vis.timeStep][n2]<3) && (vis.cell_type[vis.timeStep][n3]<3))
+			{
+				g2.drawLine(x2, height - y2, x3, height - y3);
+			}
+			if( (vis.cell_type[vis.timeStep][n3]<3) && (vis.cell_type[vis.timeStep][n1]<3))
+			{
+				g2.drawLine(x3, height - y3, x1, height - y1);
+			}
 		}
 		
 
@@ -382,6 +391,13 @@ class CustomCanvas2D extends Canvas {
 				// DANGER! CANCER!
 				g2.setPaint(Color.black);
 			}
+			else if(vis.cell_type[vis.timeStep][i]==4)
+			{
+				// danger! sloughed - don't draw anything
+				Color garysSexySilver = new Color(216,216,231);
+				g2.setPaint(garysSexySilver);
+			}
+				
 
 			g2.fillOval(x - radius, height - y - radius, 2 * radius, 2 * radius);
 			old_x = x;
@@ -422,7 +438,7 @@ class CustomCanvas2D extends Canvas {
 			g2.drawString(x_2dp, scaleX(x), scaleY(vis.max_y) + 2
 					* tick_length);
 		}
-		g2.drawString("x", scaleX(vis.max_x / 2.0), scaleY(vis.max_y)+3*tick_length);
+		//g2.drawString("x", scaleX(vis.max_x / 2.0), scaleY(vis.max_y)+3*tick_length);
 	}
 	
 	private void drawYAxis(int tick_length, int num_ticks) 
@@ -438,7 +454,7 @@ class CustomCanvas2D extends Canvas {
 			g2.drawLine(scaleX(0.0)-tick_length, scaleY(y), scaleX(0.0), scaleY(y));
 			g2.drawString(y_2dp, scaleX(0.0) - 4* tick_length, scaleY(vis.max_y)-scaleY(y)+scaleY(0.0));
 		}
-		g2.drawString("y", scaleY(vis.max_y / 2.0), width-5*tick_length);
+		//g2.drawString("y", scaleY(vis.max_y / 2.0), width-5*tick_length);
 	}
 
 	int scaleY(double realy) 
