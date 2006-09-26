@@ -182,7 +182,7 @@ public:
                 {
                     if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
                     // Check for this cell dividing
-                    if (mCells[i].ReadyToDivide(p_simulation_time->GetDimensionalisedTime()))//*mpParams->GetStemCellCycleTime()))
+                    if (mCells[i].ReadyToDivide(p_simulation_time->GetDimensionalisedTime()))
                     {
                         // Create new cell
                         MeinekeCryptCell new_cell = mCells[i].Divide(p_simulation_time->GetDimensionalisedTime());
@@ -334,7 +334,6 @@ public:
             (*p_results_file) << "\n";
              
             p_simulation_time->IncrementTimeOneStep();
-            //time = p_simulation_time->GetDimensionalisedTime()/mpParams->GetStemCellCycleTime();
             
             time_since_last_birth += mDt;
         }
@@ -378,9 +377,7 @@ private:
         double left_position= pElement->GetNodeLocation(0,0);
         if(mIncludeVariableRestLength)
         {
-        	//double time_scale = mpParams->GetStemCellCycleTime();
-        	//double time_scale = mpParams->GetStemCellCycleTime();
-            double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
+        	double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
             double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge(time);
                        
             if (fabs(age0)<1e-6)

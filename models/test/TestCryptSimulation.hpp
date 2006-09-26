@@ -173,6 +173,7 @@ public:
     {
     	// Note that random numbers are reseeded with srandom(0) by the following constructor.
      	RandomNumberGenerators *pGen=new RandomNumberGenerators;
+     	CancerParameters *p_params = CancerParameters::Instance();
      	
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
@@ -190,7 +191,7 @@ public:
         {
             CryptCellType cell_type=STEM;
             unsigned generation=0;
-            double birth_time=-24+1.0*i; //hours
+            double birth_time=-p_params->GetStemCellCycleTime()+1.0*i; //hours
             MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
@@ -318,8 +319,6 @@ public:
         RandomNumberGenerators *pGen = new RandomNumberGenerators;
         double crypt_length = 22.0;
         
-        //p_params->SetNaturalSpringLength(2.0);//if this is 1 then there are too many cells so use 2.
-          
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
