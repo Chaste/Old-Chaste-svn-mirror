@@ -1110,8 +1110,35 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 	assert( ELEMENT_DIM == SPACE_DIM );
 	OutputFileHandler handler("");
 	out_stream node_file=handler.OpenOutputFile("temp.node");
-  	(*node_file)<<GetNumNodes()<<"\t2\t0\t0\n";
+  	
+  	
+ 	//Add four/eight node to form a bounding box
+  	int extra_nodes;
+   	if (SPACE_DIM == 2)
+  	{
+  		extra_nodes=4;
+  	}
+   	if (SPACE_DIM == 3)
+  	{
+  		extra_nodes=8;
+  	}
+ 
+ 	//Un-comment for bounding box
+ 	extra_nodes=0;
+ 	
+  	(*node_file)<<GetNumNodes()+extra_nodes<<"\t2\t0\t0\n";
+   	double max[SPACE_DIM], min[SPACE_DIM];
+   	for (int i=0;i<SPACE_DIM;i++)
+   	{
+   		max[i]=-INFINITY;
+   		min[i]= INFINITY;
+   	}
+  
+   	
+   	
    	int new_index = 0;
+   	
+   	
    	for (int i=0; i<GetNumAllNodes(); i++)
    	{
    	    if (mNodes[i]->IsDeleted())
@@ -1122,10 +1149,29 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
    		{
    		    map.SetNewIndex(i,new_index);
    			new_index++;
-   		    Point<2> point=mNodes[i]->rGetPoint();
-   			(*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\n";
+   		    Point<SPACE_DIM> point=mNodes[i]->rGetPoint();
+   			(*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1];
+   			if (SPACE_DIM ==3)
+   			{
+   				(*node_file)<<"\t"<<point[2];
+   			}
+   			(*node_file)<<"\n";
+   			for (int j=0;j<SPACE_DIM;j++)
+   			{
+   	 			if (point[j]<min[j])
+   				{
+   					min[j]=point[j];
+   				}
+   				if (point[j]>max[j])
+   				{
+   					max[j]=point[j];
+   				}
+   			}
    		}   			
    	}
+   		
+   		
+   	
    		
     node_file->close();
    	std::string full_name = handler.GetTestOutputDirectory("")+"temp.";

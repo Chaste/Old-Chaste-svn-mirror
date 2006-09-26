@@ -300,7 +300,31 @@ public:
    		TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
 	}
         
-	
+	void TestRemeshCrinklyNonVoronoi()
+    {
+    	OutputFileHandler handler("");
+    
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/crinkly");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+//        double area=mesh.CalculateMeshVolume();
+//        
+//        int num_nodes_before=mesh.GetNumNodes();
+//        int num_elements_before=mesh.GetNumElements();
+//        int num_boundary_elements_before=mesh.GetNumBoundaryElements();
+//        
+        NodeMap map(1);
+        mesh.ReMesh(map);
+        
+//   	    TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before);
+//        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),num_nodes_before);
+//        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
+//   		TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
+//       
+    }
 	
 	
 };
