@@ -52,7 +52,7 @@ public:
     CryptSimulation2D(ConformingTetrahedralMesh<2,2> &rMesh,
                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
             : mrMesh(rMesh),
-            mCells(cells)
+              mCells(cells)
     {
         mpParams = CancerParameters::Instance();
         mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
@@ -122,7 +122,7 @@ public:
  		double time = 0.0;
         double time_since_last_birth = 0.9;
         
-        //int num_births = 0;
+        int num_births = 0;
         int num_deaths = 0;
         
         std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
@@ -145,46 +145,58 @@ public:
         	
         	
 //            // Cell birth
-//            if (mIncludeRandomBirth && time_since_last_birth > 1)
-//            {
+            if (mIncludeRandomBirth && time_since_last_birth > 1)
+            {
 //                AddRandomNode();
 //                time_since_last_birth = 0 ;
-//            }
-//            else if (!mCells.empty())
-//            {
-//                for (unsigned i=0; i<mCells.size(); i++)
-//                {
-//                    if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
-//                    // Check for this cell dividing
-//                    if (mCells[i].ReadyToDivide(time*mpParams->GetStemCellCycleTime()))
-//                    {
-//                        // Create new cell
-//                        MeinekeCryptCell new_cell = mCells[i].Divide(time*mpParams->GetStemCellCycleTime());
-//                        // Add new node to mesh
-//                        Node<1> *p_our_node = mrMesh.GetNodeAt(i);
-//                        
-//                        //Note: May need to check which side element is put esp. at the ends
-//                        Element<1,1> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
-//                        
-//                        unsigned new_node_index = AddNodeToElement(p_element);
-//                        // Update cells vector
-//                        new_cell.SetNodeIndex(new_node_index);
-//                        if (new_node_index == mCells.size())
-//                        {
-//                            mCells.push_back(new_cell);
-//                        }
-//                        else
-//                        {
-//                            mCells[new_node_index] = new_cell;
-//                        }
-//                        num_births++;
-//                        //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
-//                    }
-//                }
-//            }
+            }
+            else if (!mCells.empty())
+            {
+                for (unsigned i=0; i<mCells.size(); i++)
+                {
+                    if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
+                    // Check for this cell dividing
+                    if (mCells[i].ReadyToDivide(time*mpParams->GetStemCellCycleTime()))
+                    {
+                        // Create new cell
+                        MeinekeCryptCell new_cell = mCells[i].Divide(time*mpParams->GetStemCellCycleTime());
+                        // Add new node to mesh
+                        Node<2> *p_our_node = mrMesh.GetNodeAt(i);
+                        
+                        //Note: May need to check which side element is put esp. at the ends
+                        Element<2,2> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+                        
+                        //unsigned new_node_index = AddNodeToElement(p_element);
+                        double new_x_value = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[0] 
+                                                     +  p_element->GetNode(1)->GetPoint().rGetLocation()[0] 
+                                                     +  p_element->GetNode(2)->GetPoint().rGetLocation()[0] ); 
+                        
+                        double new_y_value = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[1] 
+                                                     +  p_element->GetNode(1)->GetPoint().rGetLocation()[1] 
+                                                     +  p_element->GetNode(2)->GetPoint().rGetLocation()[1] ); 
+                        
+                        Point<2> new_point(new_x_value, new_y_value);
+                        
+                        unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
+                        
+                        // Update cells vector
+                        new_cell.SetNodeIndex(new_node_index);
+                        if (new_node_index == mCells.size())
+                        {
+                            mCells.push_back(new_cell);
+                        }
+                        else
+                        {
+                            mCells[new_node_index] = new_cell;
+                        }
+                        num_births++;
+                        //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
+                    }
+                }
+            }
             
             // calculate node velocities
-          // std::vector<double> drdt(mrMesh.GetNumAllNodes());
+            // std::vector<double> drdt(mrMesh.GetNumAllNodes());
             
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
             for(int i=0; i<mrMesh.GetNumAllNodes(); i++)
@@ -447,7 +459,22 @@ public:
             
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
+            	CryptCellType type = mCells[index].GetCellType();
+            	
             	int colour = 0;
+            	if(type==STEM)
+            	{
+            		colour = 0;
+            	}
+            	else if(type == TRANSIT)
+            	{
+            		colour = 1;
+            	}
+            	else
+            	{
+            		colour = 2;
+            	}
+            	
             	if(sloughed_cells[index]==true)
             	{
             		colour = 4;
