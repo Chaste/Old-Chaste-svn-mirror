@@ -377,6 +377,46 @@ public:
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth");
     }
     
+    void TestForSingleStemCell() throw (Exception)
+    {
+    	Make1dCryptMesh("1D_crypt_mesh", 23, 22);
+        std::string testoutput_dir;
+        OutputFileHandler output_file_handler("");
+        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        
+        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time=0; //hours
+            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel());
+            cell.SetNodeIndex(i);
+            cells.push_back(cell);
+        }
+        
+        
+        CryptSimulation simulator(mesh, cells);
+        simulator.SetOutputDirectory("CryptSingleStemCellCheck");
+        simulator.SetIncludeRandomBirth();
+        simulator.SetEndTime(48.0);
+        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        CheckAgainstPreviousRun("CryptSingleStemCellCheck");
+        //Simulation Run ended
+        
+        // Testing for only one stem cell
+    	ColumnDataReader *mpResultReader;
+    	mpResultReader = new ColumnDataReader("/tmp/chaste/testoutput/CryptSingleStemCellCheck", "results",
+                                                 false);
+                                                 
+    }
+    
 };
 
 #endif /*TESTCRYPTSIMULATION_HPP_*/

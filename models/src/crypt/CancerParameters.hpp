@@ -15,6 +15,7 @@ public:
     double GetTransitCellCycleTime();
     unsigned GetMaxTransitGenerations();
     double GetCryptLength();
+    double GetCryptWidth();
     double GetMeinekeLambda();
     double GetAlpha();
     double GetNaturalSpringLength();
@@ -23,6 +24,7 @@ public:
     void SetTransitCellCycleTime(double);
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
+    void SetCryptWidth(double);
     void SetMeinekeLambda(double);
     void SetNaturalSpringLength(double);
     
@@ -54,6 +56,12 @@ private:
      * This determines when cells are sloughed from the crypt.
      */
     double mCryptLength;
+    
+      /**
+     * The non-dimensionalised (with cell length) width of the crypt.
+     * This determines when cells are sloughed from the crypt. in 2D
+     */
+    double mCryptWidth;
     
     /**
      * The ratio of mu (spring constant) to eta (damping constant).

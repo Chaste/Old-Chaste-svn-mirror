@@ -40,6 +40,10 @@ unsigned CancerParameters::GetMaxTransitGenerations()
 double CancerParameters::GetCryptLength()
 {
     return mCryptLength;
+}   
+    double CancerParameters::GetCryptWidth()
+{
+    return mCryptWidth;
 }
 double CancerParameters::GetMeinekeLambda()
 {
@@ -74,6 +78,10 @@ void CancerParameters::SetMaxTransitGenerations(unsigned maxTransitGens)
 void CancerParameters::SetCryptLength(double cryptLength)
 {
     mCryptLength = cryptLength;
+}
+void CancerParameters::SetCryptWidth(double cryptWidth)
+{
+    mCryptWidth = cryptWidth;
 }
 void CancerParameters::SetMeinekeLambda(double meinekeLambda)
 {

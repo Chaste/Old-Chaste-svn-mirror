@@ -84,6 +84,11 @@ public:
         mpParams->SetCryptLength(cryptLength);
     }
     
+     void SetCryptWidth(double cryptWidth)
+    {
+        mpParams->SetCryptWidth(cryptWidth);
+    }
+    
     /**
      *  Call this before Solve() if no cells have been specified. Randomly adds a new 
      *  node every 1 time unit, starting 0.1
@@ -275,10 +280,11 @@ public:
 		               	if( (sloughed_cells[p_element->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_element->GetNodeGlobalIndex(nodeB)] == false))
 	                	{
        		       	        // Refactor this to a vector operation
-            	   	        drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
-               		        drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
-               	    	    drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
-               	        	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
+       		       	        double rest_length=mpParams->GetNaturalSpringLength();
+            	   	        drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - rest_length) );
+               		        drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - rest_length) );
+               	    	    drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - rest_length) );
+               	        	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - rest_length) );
                	        
 	               	        assert(!p_element->GetNode(nodeA)->IsDeleted());
     	           	        assert(!p_element->GetNode(nodeB)->IsDeleted());
@@ -319,10 +325,11 @@ public:
 	               	if( (sloughed_cells[p_edge->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_edge->GetNodeGlobalIndex(nodeB)] == false))
                 	{
 		               	// Refactor this to a vector operation
-		               	drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - 0.01) );
-		               	drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - 0.01) );
-	    	           	drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - 0.01) );
-	        	       	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - 0.01) );
+		               	double rest_length=mpParams->GetNaturalSpringLength();
+		               	drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - rest_length) );
+		               	drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - rest_length) );
+	    	           	drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - rest_length) );
+	        	       	drdt_contributions(1,1) = mpParams->GetAlpha() *(  -unit_difference(1)  * (distance_between_nodes - rest_length) );
 	               	
 	             	  	assert(!p_edge->GetNode(nodeA)->IsDeleted());
 	               		assert(!p_edge->GetNode(nodeB)->IsDeleted());
@@ -382,7 +389,7 @@ public:
 	                    double x = p_node->rGetPoint()[0];
 	                    double y = p_node->rGetPoint()[1];
 	                    //unsigned sloughing_node_index=p_node->GetIndex();
-	                    if ((x > 0.1)||(x<0)||(y>0.1))
+	                    if ((x > 1)||(x<-1)||(y>1)) /// changed
 	                    {
 	                        unsigned boundary_element_index=p_node->GetNextBoundaryElementIndex();
 	                    	BoundaryElement<1,2>* p_boundary_element=mrMesh.GetBoundaryElement(boundary_element_index);
@@ -419,7 +426,11 @@ public:
                  {
                     double x = p_node->rGetPoint()[0];
                     double y = p_node->rGetPoint()[1];
-                    if ((x > 0.1)||(x<0)||(y>0.1))
+                    
+                    double crypt_length=mpParams->GetCryptLength();
+                    double crypt_width=mpParams->GetCryptWidth();
+                    
+                    if ((x > crypt_width )||(x<0.0)||(y>crypt_length))
                     {
 						sloughed_cells[p_node->GetIndex()] = true;
                         num_deaths++;

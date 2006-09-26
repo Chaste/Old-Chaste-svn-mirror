@@ -333,6 +333,9 @@ public:
             }
             (*p_results_file) << "\n";
             
+            //Using ColumnDataWriter 
+            OutputSimulationData();
+            
             p_simulation_time->IncrementTimeOneStep();
             //time = p_simulation_time->GetDimensionalisedTime()/mpParams->GetStemCellCycleTime();
             
@@ -341,6 +344,7 @@ public:
         SimulationTime::Destroy();
     }
     
+        
 private:
     unsigned AddRandomNode(double time)
     {
@@ -408,6 +412,14 @@ private:
         Point<1> new_point(left_position + displacement);
         
         return mrMesh.RefineElement(pElement, new_point);
+    }
+    
+    void OutputSimulationData()
+    {
+    	ColumnDataWriter *pOutputWriter;	
+    	mpTestWriter = new ColumnDataWriter(mOutputDirectory, "results");
+    	mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
+    	
     }
     
 };
