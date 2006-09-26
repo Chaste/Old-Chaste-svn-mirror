@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include <vector>
+#include <iostream>
 #include "OutputFileHandler.hpp"
 #include "CryptSimulation.hpp"
 
@@ -77,7 +78,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         CryptSimulation simulator(mesh);
-        simulator.SetEndTime(0.25);
+        simulator.SetEndTime(6.0);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
     }
     
@@ -102,8 +103,9 @@ public:
         
         CryptSimulation simulator(mesh);
         simulator.SetOutputDirectory("CryptWithNoBirthAndNoDeath");
-        simulator.SetEndTime(0.25);
+        simulator.SetEndTime(6.0);
         simulator.Solve();
+        
         
         // Note: converges very slowly so large tolerance of 0.1
         for (int index = 0; index<mesh.GetNumNodes(); index++)
@@ -137,7 +139,7 @@ public:
         
         CryptSimulation simulator(mesh);
         simulator.SetOutputDirectory("CryptWithDeathButNoBirth");
-        simulator.SetEndTime(0.25);
+        simulator.SetEndTime(6.0);
         simulator.Solve();
         
         unsigned dead_cells = 0;
@@ -187,7 +189,7 @@ public:
         {
             CryptCellType cell_type=STEM;
             unsigned generation=0;
-            double birth_time=0; //hours
+            double birth_time=-24+1.0*i; //hours
             MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
@@ -197,10 +199,11 @@ public:
         CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("CryptWithBirthConstantRestLength");
         simulator.SetIncludeRandomBirth();
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(240.0);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
         CheckAgainstPreviousRun("CryptWithBirthConstantRestLength");
+        delete pGen;
     }
     
     // Includes variable rest length but not fully working in the class (see
@@ -209,7 +212,11 @@ public:
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
         RandomNumberGenerators *pGen=new RandomNumberGenerators;
-  
+        CancerParameters *p_params = CancerParameters::Instance();
+        
+        //p_params->SetMeinekeLambda(30.0);
+        p_params->SetNaturalSpringLength(1.0); 
+               
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         
         std::string testoutput_dir;
@@ -227,18 +234,19 @@ public:
         {
             CryptCellType cell_type=STEM;
             unsigned generation=0;
-            double birth_time= -1.0; //hours
+            double birth_time= -1.0*i; //hours
             MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
         
         
-        CryptSimulation simulator(mesh, cells);
+        CryptSimulation simulator(mesh, cells); 
+        
         simulator.SetOutputDirectory("CryptWithBirthVariableRestLength");
         simulator.SetIncludeRandomBirth();
         simulator.SetIncludeVariableRestLength();
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(240.0);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
         CheckAgainstPreviousRun("CryptWithBirthVariableRestLength");
@@ -298,7 +306,7 @@ public:
               
         CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("CryptWithCells");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(240.0);
         simulator.SetCryptLength(crypt_length);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
@@ -361,7 +369,7 @@ public:
         
         CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(240.0);
         simulator.SetCryptLength(crypt_length);
         simulator.SetIncludeVariableRestLength();
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );

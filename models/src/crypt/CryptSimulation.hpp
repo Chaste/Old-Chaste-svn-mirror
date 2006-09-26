@@ -9,6 +9,7 @@
 #include "Exception.hpp"
 #include <cmath>
 #include <ctime>
+#include <iostream>
 
 /**
  * Solve a crypt simulation based on the Meineke paper.
@@ -69,10 +70,10 @@ public:
         	mpGen= new RandomNumberGenerators;
          }
         mpParams = CancerParameters::Instance();
-        mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
-        mEndTime = 5.0;
+        mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
+        mEndTime = 120.0; //hours
        
-        mpParams->SetMeinekeLambda(15.0);
+        //mpParams->SetMeinekeLambda(15.0);
         
         mIncludeRandomBirth = false;
         mIncludeVariableRestLength = false;
@@ -126,6 +127,7 @@ public:
      */
     void Solve()
     {
+    	
         if (mOutputDirectory=="")
         {
             EXCEPTION("OutputDirectory not set");
@@ -134,12 +136,12 @@ public:
         int num_time_steps = (int)(mEndTime/mDt+0.5);
         
         SimulationTime *p_simulation_time =
-        	SimulationTime::Instance(mEndTime*mpParams->GetStemCellCycleTime(),
+        	SimulationTime::Instance(mEndTime,
         							 num_time_steps);
         							 
-        double time = 0.0;
-        double time_since_last_birth = 0.9;
-        
+        //double time = 0.0;
+        double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
+               
         int num_births = 0;
         int num_deaths = 0;
         
@@ -151,15 +153,15 @@ public:
         while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
             // Cell birth
-            if (mIncludeRandomBirth && time_since_last_birth > 1)
+            if (mIncludeRandomBirth && time_since_last_birth > 5.0)// Ie Birth every 5 hours
             {
-                unsigned new_node_index = AddRandomNode(time);
+                unsigned new_node_index = AddRandomNode(p_simulation_time->GetDimensionalisedTime());
                 time_since_last_birth = 0 ;
                 // Create new cell note all are Stem Cells and have generation 0 for random birth
-                RandomNumberGenerators *pGen=new RandomNumberGenerators;
+                //RandomNumberGenerators *pGen=new RandomNumberGenerators;
                 CryptCellType cell_type=STEM ;
                 unsigned generation=0;
-                MeinekeCryptCell new_cell(cell_type, time, generation, new StochasticCellCycleModel(pGen));
+                MeinekeCryptCell new_cell(cell_type, p_simulation_time->GetDimensionalisedTime(), generation, new StochasticCellCycleModel(mpGen));
                 // Update cells vector
                
                 new_cell.SetNodeIndex(new_node_index);
@@ -180,10 +182,10 @@ public:
                 {
                     if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
                     // Check for this cell dividing
-                    if (mCells[i].ReadyToDivide(time))//*mpParams->GetStemCellCycleTime()))
+                    if (mCells[i].ReadyToDivide(p_simulation_time->GetDimensionalisedTime()))//*mpParams->GetStemCellCycleTime()))
                     {
                         // Create new cell
-                        MeinekeCryptCell new_cell = mCells[i].Divide(time);
+                        MeinekeCryptCell new_cell = mCells[i].Divide(p_simulation_time->GetDimensionalisedTime());
                         
                         // Add new node to mesh
                         Node<1> *p_our_node = mrMesh.GetNodeAt(i);
@@ -191,7 +193,7 @@ public:
                         //Note: May need to check which side element is put esp. at the ends
                         Element<1,1> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
                         
-                        unsigned new_node_index = AddNodeToElement(p_element,time);
+                        unsigned new_node_index = AddNodeToElement(p_element,p_simulation_time->GetDimensionalisedTime());
                         // Update cells vector
                         new_cell.SetNodeIndex(new_node_index);
                         if (new_node_index == mCells.size())
@@ -210,37 +212,38 @@ public:
             
             // calculate node velocities
             std::vector<double> drdt(mrMesh.GetNumAllNodes());
-            
             if (mIncludeVariableRestLength && !mCells.empty())
             {
+            	//std::cout<< "elements" << mrMesh.GetNumAllElements() <<std::endl<< std::flush;
+                        
                 for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
                 {
                     Element<1,1>* element = mrMesh.GetElement(elem_index);
                     if (!element->IsDeleted())
                     {
-                        c_vector<double, 2> drdt_contributions;
-                        
+                    	c_vector<double, 2> drdt_contributions;
                         double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
-                        
-                        double time_scale = mpParams->GetStemCellCycleTime();
-                        double age1 = mCells[element->GetNode(0)->GetIndex()].GetAge(time*time_scale);
-                        double age2 = mCells[element->GetNode(1)->GetIndex()].GetAge(time*time_scale);
+                        double age0 = mCells[element->GetNode(0)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+                        double age1 = mCells[element->GetNode(1)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
                         double rest_length=mpParams->GetNaturalSpringLength();
                         
-                        if (age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)
+                        if (age0<1.0 && age1<1.0 && fabs(age0-age1)<1e-6)
                         {
-                        	/* Spring Rest Length Increases to 1 from 0.1 over 1 hour
+                        	/* Spring Rest Length Increases to normal rest length from 0.9 normal rest length over 1 hour
                              * This doesnt happen at present as when the full line is included the tests fail
+                             * 
+                             * This is wrong but due to the model being set up in 1D, when a new cell with a weaker spring is
+                             * put in next to other stressed cells, the weaker spring will be compressed too much and lead to
+                             * cells being pushed through other ones.  Leading to an exception being thrown in line 319 ish.
                              */
-                            rest_length=0.1*rest_length+0.9*age1*time_scale;
+                            rest_length=(0.9+0.1*age0)*rest_length;
+                            
                             assert(rest_length<=mpParams->GetNaturalSpringLength());
                         }
-                        
-                        drdt_contributions(0) = mpParams->GetAlpha() *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
-                        drdt_contributions(1) = mpParams->GetAlpha() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
-                        
+                        drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
+                        drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
                         drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
 						drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                     }
@@ -259,8 +262,8 @@ public:
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
                         
-                        drdt_contributions(0) = mpParams->GetAlpha() *(  unit_vector_forward  * (distance_between_nodes - mpParams->GetNaturalSpringLength()) );
-                        drdt_contributions(1) = mpParams->GetAlpha() *(  unit_vector_backward * (distance_between_nodes - mpParams->GetNaturalSpringLength()) );
+                        drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - mpParams->GetNaturalSpringLength()) );
+                        drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - mpParams->GetNaturalSpringLength()) );
                         
                         drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                         drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
@@ -309,12 +312,17 @@ public:
                 Element<1,1>* element = mrMesh.GetElement(elem_index);
                 if (!element->IsDeleted())
                 {
+                    //std::cout<< "element1 " << element->GetNodeLocation(1,0) << "element0 " << element->GetNodeLocation(0,0) <<"\n" << std::flush;
+                    
+                    //double test_val = element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0);
+                    //TS_ASSERT_LESS_THAN(0,test_val);
                     assert(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0)>0);
+                    
                 }
             }
             
             // write results to file
-            (*p_results_file) << time << "\t";
+            (*p_results_file) << p_simulation_time->GetDimensionalisedTime() << "\t";
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 if (!mrMesh.GetNodeAt(index)->IsDeleted())
@@ -326,7 +334,7 @@ public:
             (*p_results_file) << "\n";
             
             p_simulation_time->IncrementTimeOneStep();
-            time = p_simulation_time->GetDimensionalisedTime()/mpParams->GetStemCellCycleTime();
+            //time = p_simulation_time->GetDimensionalisedTime()/mpParams->GetStemCellCycleTime();
             
             time_since_last_birth += mDt;
         }
@@ -373,7 +381,6 @@ private:
         	//double time_scale = mpParams->GetStemCellCycleTime();
             double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
             double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge(time);
-            
                        
             if (fabs(age0)<1e-6)
             {

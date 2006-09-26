@@ -14,11 +14,11 @@ CancerParameters::CancerParameters()
     mTransitCellCycleTime = 12.0;
     mMaxTransitGenerations = 3u;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
-    mMeinekeLambda = 1.0;       // Meineke uses 0.01
+    mMeinekeLambda = 30.0;       // Meineke uses 0.01
     mNaturalSpringLength = 1.0; // Units of cell length
     
     // Calculated parameters
-    mAlpha = mStemCellCycleTime * mMeinekeLambda;
+    //mAlpha = mStemCellCycleTime * mMeinekeLambda;
 }
 
 ///////////////////////////////////////////////////////////////////////
