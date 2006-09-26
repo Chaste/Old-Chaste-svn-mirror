@@ -16,6 +16,7 @@
 #include "StochasticCellCycleModel.hpp"
 
 #include "CancerParameters.hpp"
+#include "ColumnDataReader.hpp"
 
 
 class TestCryptSimulation : public CxxTest::TestSuite
@@ -212,10 +213,6 @@ public:
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
         RandomNumberGenerators *pGen=new RandomNumberGenerators;
-        CancerParameters *p_params = CancerParameters::Instance();
-        
-        //p_params->SetMeinekeLambda(30.0);
-        p_params->SetNaturalSpringLength(1.0); 
                
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         
@@ -261,7 +258,6 @@ public:
 
         double crypt_length = 22.0;
         
-        p_params->SetNaturalSpringLength(2.0); //if this is 1 then there are too many cells so use 2.
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir;
@@ -377,8 +373,9 @@ public:
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth");
     }
     
-    void TestForSingleStemCell() throw (Exception)
+    void DoNotTestForSingleStemCell() throw (Exception)
     {
+    	RandomNumberGenerators *pGen = new RandomNumberGenerators;
     	Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -396,7 +393,7 @@ public:
             CryptCellType cell_type;
             unsigned generation;
             double birth_time=0; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel());
+            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
@@ -414,7 +411,8 @@ public:
     	ColumnDataReader *mpResultReader;
     	mpResultReader = new ColumnDataReader("/tmp/chaste/testoutput/CryptSingleStemCellCheck", "results",
                                                  false);
-                                                 
+
+		delete pGen;
     }
     
 };

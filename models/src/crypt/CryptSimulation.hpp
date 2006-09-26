@@ -332,10 +332,7 @@ public:
                 }
             }
             (*p_results_file) << "\n";
-            
-            //Using ColumnDataWriter 
-            OutputSimulationData();
-            
+             
             p_simulation_time->IncrementTimeOneStep();
             //time = p_simulation_time->GetDimensionalisedTime()/mpParams->GetStemCellCycleTime();
             
@@ -414,14 +411,7 @@ private:
         return mrMesh.RefineElement(pElement, new_point);
     }
     
-    void OutputSimulationData()
-    {
-    	ColumnDataWriter *pOutputWriter;	
-    	mpTestWriter = new ColumnDataWriter(mOutputDirectory, "results");
-    	mpTestWriter->DefineUnlimitedDimension("Time","msecs"));
-    	
-    }
-    
+  
 };
 
 #endif /*CRYPTSIMULATION_HPP_*/

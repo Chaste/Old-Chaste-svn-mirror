@@ -9,16 +9,28 @@ CancerParameters* CancerParameters::Instance()
 
 CancerParameters::CancerParameters()
 {
+	/**
+	 * @param mStemCellCycleTime has units of hours
+	 * @param mTransitCellCycleTime has units of hours
+	 * @param mMaxTransitGenerations has no units
+	 * @param mCryptLength  has units of cell size at equilibrium rest length
+	 * @param mMeinekeLambda has units of 1/hours and is the same as the paper
+	 * @param mNaturalSpringLength has units of cell length at equilibrium rest length.
+	 * This is set to 1 and should be left unchanged in all simulations.
+	 * 
+	 */
+	 
     // Default parameter values
     mStemCellCycleTime = 24.0;
     mTransitCellCycleTime = 12.0;
     mMaxTransitGenerations = 3u;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
     mMeinekeLambda = 30.0;       // Meineke uses 0.01
-    mNaturalSpringLength = 1.0; // Units of cell length
+    mNaturalSpringLength = 1.0;
     
     // Calculated parameters
     //mAlpha = mStemCellCycleTime * mMeinekeLambda;
+    // This was used in non-dimensional case
 }
 
 ///////////////////////////////////////////////////////////////////////
