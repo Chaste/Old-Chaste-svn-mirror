@@ -50,7 +50,9 @@ private:
     std::vector<MeinekeCryptCell> mCells;
     
     CancerParameters *mpParams;
+    
     RandomNumberGenerators *mpGen;
+    bool mCreatedRng;
     
 public:
 
@@ -69,12 +71,14 @@ public:
     {
         if (pGen!=NULL)
         {
-        	mpGen=pGen;
+        	mpGen = pGen;
+            mCreatedRng = false;
         }
         else
         {
-        	mpGen= new RandomNumberGenerators;
-         }
+        	mpGen = new RandomNumberGenerators;
+            mCreatedRng = true;
+        }
         mpParams = CancerParameters::Instance();
         mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
         mEndTime = 120.0; //hours
@@ -84,6 +88,17 @@ public:
         mIncludeRandomBirth = false;
         mIncludeVariableRestLength = false;
         mOutputDirectory = "";
+    }
+    
+    /**
+     * Free any memory allocated by the constructor
+     */
+    ~CryptSimulation()
+    {
+        if (mCreatedRng)
+        {
+            delete mpGen;
+        }
     }
     
     void SetDt(double dt)

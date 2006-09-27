@@ -126,6 +126,10 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
 public:
     // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
     // (see comment for Test1DChainWithBirthVariableRestLength).
+    /**
+     * This test is *BROKEN* - no cells are created here, and SetIncludeRandomBirth()
+     * is not called.
+     */
     void Test2DSpringsWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -149,7 +153,7 @@ public:
         simulator.SetCryptWidth(crypt_width);
         //simulator.SetIncludeVariableRestLength();
         
-        simulator.Solve() ;
+        simulator.Solve();
     }
      
       

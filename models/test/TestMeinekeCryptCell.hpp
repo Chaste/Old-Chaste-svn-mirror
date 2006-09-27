@@ -37,7 +37,6 @@ public:
     	TS_ASSERT_EQUALS(stem_cell.GetAge(), 1.0);
     	
     	SimulationTime::Destroy();
-    
     }
     
     void TestCellDivision()
@@ -51,7 +50,7 @@ public:
         
         p_simulation_time->IncrementTimeOneStep();
         MeinekeCryptCell stem_cell(STEM, // type
-                                    0,    // generation
+                                   0,    // generation
                                    new FixedCellCycleModel());
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep(); 
@@ -103,8 +102,8 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         
         // If the value of GetStemCellCycleTime() changes in p_params the simulation time 
-        //step and end time will need to be changed accordingly so that IncrementTimeOneStep() gets the cell
-        // to correct division times
+        // step and end time will need to be changed accordingly so that
+        // IncrementTimeOneStep() gets the cell to correct division times
         
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
@@ -114,7 +113,7 @@ public:
         // SimulationTime returns 6 hours
         
         MeinekeCryptCell stem_cell(STEM, // type
-                                    0,    // generation
+                                   0,    // generation
                                    new FixedCellCycleModel());
                                    
         p_simulation_time->IncrementTimeOneStep();
@@ -274,7 +273,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-      	RandomNumberGenerators *pGen=new RandomNumberGenerators;
+      	RandomNumberGenerators rand_gen;
       	
       	p_simulation_time->IncrementTimeOneStep();  
       	
@@ -286,13 +285,13 @@ public:
               
         MeinekeCryptCell stochastic_stem_cell(STEM, // type
                                               0,    // generation
-                                              new StochasticCellCycleModel(pGen));     
+                                              new StochasticCellCycleModel(&rand_gen));     
         MeinekeCryptCell differentiated_cell(DIFFERENTIATED, // type
                                              6,    // generation
                                              new FixedCellCycleModel());
         MeinekeCryptCell stochastic_differentiated_cell(DIFFERENTIATED, // type
                                                         6,    // generation
-                                                        new StochasticCellCycleModel(pGen)); 
+                                                        new StochasticCellCycleModel(&rand_gen)); 
         MeinekeCryptCell transit_cell(TRANSIT, // type
                                       2,    // generation
                                       new FixedCellCycleModel());                                                                                   
@@ -347,7 +346,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-      	RandomNumberGenerators *pGen=new RandomNumberGenerators;
+      	RandomNumberGenerators rand_gen;
       	
       	for (int i=0; i<600; i++)
       	{
@@ -364,7 +363,7 @@ public:
       	}
         TS_ASSERT(!transit_cell.ReadyToDivide());
         
-        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel(pGen);
+        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel(&rand_gen);
         transit_cell.SetCellCycleModel(cell_cycle_model);
         TS_ASSERT_EQUALS(transit_cell.GetCellCycleModel(), cell_cycle_model);
         int ready_count=0;
@@ -398,7 +397,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerators *pGen=new RandomNumberGenerators;
+        RandomNumberGenerators rand_gen;
         
         const double end_time = 70.0;
         //const int time_steps = 70;
@@ -421,7 +420,7 @@ public:
         	
             MeinekeCryptCell stem_cell(STEM, // type
                                        0,  // generation
-                                       new StochasticCellCycleModel(pGen));
+                                       new StochasticCellCycleModel(&rand_gen));
             cells.push_back(stem_cell);
             // produce the offspring of the cells
             std::vector<MeinekeCryptCell>::iterator cell_iterator = cells.begin();

@@ -518,26 +518,29 @@ public:
             
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
-            	CryptCellType type = mCells[index].GetCellType();
+                int colour;
+                if (sloughed_cells[index]==true)
+                {
+                    colour = 4;
+                }
+                else
+                {
+            	    CryptCellType type = mCells[index].GetCellType();
             	
-            	int colour = 0;
-            	if(type==STEM)
-            	{
-            		colour = 0;
-            	}
-            	else if(type == TRANSIT)
-            	{
-            		colour = 1;
-            	}
-            	else
-            	{
-            		colour = 2;
-            	}
+                	if (type==STEM)
+                	{
+                		colour = 0;
+                	}
+                	else if (type == TRANSIT)
+                	{
+                		colour = 1;
+                	}
+                	else
+                	{
+                		colour = 2;
+                	}
+                }
             	
-            	if(sloughed_cells[index]==true)
-            	{
-            		colour = 4;
-            	}
                 if (!mrMesh.GetNodeAt(index)->IsDeleted())
                 {
                     Point<2> point = mrMesh.GetNodeAt(index)->rGetPoint();

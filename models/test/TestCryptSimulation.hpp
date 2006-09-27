@@ -57,48 +57,42 @@ class TestCryptSimulation : public CxxTest::TestSuite
     
     void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells)
     {
-    	std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
-//    	OutputFileHandler output_file_handler("");
-//    	std::string testoutput_dir = output_file_handler.GetTestOutputDirectory();
-//    	std::string compare_command = "cmp " + 
-//            testoutput_dir + "/" + resultDirectory + "/results " +
+        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
 
-//        TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
-		ColumnDataReader computed_results = ColumnDataReader(resultDirectory,
-														  "tabulated_results",
-														  true);
-														  
-		ColumnDataReader expected_results = ColumnDataReader("models/test/data/" + resultDirectory,
-														  "tabulated_results",
-														  false);
-														  
-		for (unsigned cell=0; cell<maxCells; cell++)
-		{
-			std::stringstream cell_type_var_name;
-        	std::stringstream cell_position_var_name;
+        ColumnDataReader computed_results = ColumnDataReader(resultDirectory,
+                                                            "tabulated_results",
+                                                            true);
+
+        ColumnDataReader expected_results = ColumnDataReader("models/test/data/" + resultDirectory,
+                                                             "tabulated_results",
+                                                             false);
+
+        for (unsigned cell=0; cell<maxCells; cell++)
+        {
+            std::stringstream cell_type_var_name;
+            std::stringstream cell_position_var_name;
             cell_type_var_name << "cell_type_" << cell;
-        	cell_position_var_name << "cell_position_" << cell;
-			
-			// Vector of Cell Types
-			std::vector<double> expected_cell_types = expected_results.GetValues(cell_type_var_name.str());
-			std::vector<double> computed_cell_types = computed_results.GetValues(cell_type_var_name.str());
-			
-			//Vector of Cell Positions
-			std::vector<double> expected_cell_positions = expected_results.GetValues(cell_position_var_name.str());
-			std::vector<double> computed_cell_positions = computed_results.GetValues(cell_position_var_name.str());
-			
-			//Comparing expected and computed vector length
-			TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
-			TS_ASSERT_EQUALS(expected_cell_positions.size(), computed_cell_positions.size());
-			
-			//Walkthrough of the expected and computed vectors
-			for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
-			{
-				TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
-				TS_ASSERT_EQUALS(expected_cell_positions[time_step], computed_cell_positions[time_step]);
-			}
-		}
-
+            cell_position_var_name << "cell_position_" << cell;
+            
+            // Vector of Cell Types
+            std::vector<double> expected_cell_types = expected_results.GetValues(cell_type_var_name.str());
+            std::vector<double> computed_cell_types = computed_results.GetValues(cell_type_var_name.str());
+            
+            //Vector of Cell Positions
+            std::vector<double> expected_cell_positions = expected_results.GetValues(cell_position_var_name.str());
+            std::vector<double> computed_cell_positions = computed_results.GetValues(cell_position_var_name.str());
+            
+            //Comparing expected and computed vector length
+            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
+            TS_ASSERT_EQUALS(expected_cell_positions.size(), computed_cell_positions.size());
+            
+            //Walkthrough of the expected and computed vectors
+            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
+            {
+                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
+                TS_ASSERT_EQUALS(expected_cell_positions[time_step], computed_cell_positions[time_step]);
+            }
+        }
     }
     
 public:
@@ -209,10 +203,10 @@ public:
     // rest length by default
     void Test1DChainWithBirthConstantRestLength() throw (Exception)
     {
-    	// Note that random numbers are reseeded with srandom(0) by the following constructor.
-     	RandomNumberGenerators *pGen=new RandomNumberGenerators;
-     	CancerParameters *p_params = CancerParameters::Instance();
-     	
+        // Note that random numbers are reseeded with srandom(0) by the following constructor.
+        RandomNumberGenerators rand_gen;
+        CancerParameters *p_params = CancerParameters::Instance();
+         
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -230,7 +224,7 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time=-p_params->GetStemCellCycleTime()+1.0*i; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
+            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
@@ -251,7 +245,7 @@ public:
     // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
-        RandomNumberGenerators *pGen=new RandomNumberGenerators;
+        RandomNumberGenerators rand_gen;
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         
         std::string testoutput_dir;
@@ -270,7 +264,7 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time= -1.0; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(pGen));
+            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
@@ -291,8 +285,8 @@ public:
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
-        RandomNumberGenerators *pGen=new RandomNumberGenerators;
-  		CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerators rand_gen;
+        CancerParameters *p_params = CancerParameters::Instance();
 
         double crypt_length = 22.0;
         
@@ -318,13 +312,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -pGen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -rand_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -pGen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -rand_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -332,7 +326,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new StochasticCellCycleModel(pGen));
+            MeinekeCryptCell cell(cell_type, 0.0, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -354,7 +348,7 @@ public:
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerators *pGen = new RandomNumberGenerators;
+        RandomNumberGenerators rand_gen;
         double crypt_length = 22.0;
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
@@ -378,13 +372,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -pGen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -rand_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -pGen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -rand_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {

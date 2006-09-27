@@ -34,8 +34,8 @@ public:
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
     	CancerParameters *p_params = CancerParameters::Instance();
-    	RandomNumberGenerators *pGen=new RandomNumberGenerators;
-        StochasticCellCycleModel cell_model(pGen);
+    	RandomNumberGenerators rand_gen;
+        StochasticCellCycleModel cell_model(&rand_gen);
         
         cell_model.SetCellType(STEM);
         TS_ASSERT(!cell_model.ReadyToDivide(p_params->GetStemCellCycleTime()-0.01));
