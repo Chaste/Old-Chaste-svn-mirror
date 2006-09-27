@@ -29,9 +29,9 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
         (*p_elem_file) << std::scientific;
 
         unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
-        unsigned num_elem_along_width = numNodesAlongWidth-1; // number of *squares* in each dimension
-        unsigned num_elem_along_length = numNodesAlongLength-1; // number of *squares* in each dimension     
-        unsigned num_elem             = 2*num_elem_along_width*num_elem_along_length; // 2 as triangles not squares
+        unsigned num_elem_along_width = numNodesAlongWidth-1;
+        unsigned num_elem_along_length = numNodesAlongLength-1; 
+        unsigned num_elem             = 2*num_elem_along_width*num_elem_along_length; 
         unsigned num_edges            = 3*num_elem_along_width*num_elem_along_length + num_elem_along_width + num_elem_along_length; 
         
         (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
@@ -91,7 +91,8 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
                 (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node2 <<  "\t" << 0 << std::endl;         
                 (*p_edge_file) << edge++ << "\t" << node2 << "\t" << node0 <<  "\t" << vertical_edge_is_boundary_edge << std::endl;         
                 
-                node0 =     i*numNodesAlongWidth + j + 1;
+                node0 = i*numNodesAlongWidth + j + 1;
+                
                 if(i%2 != 0)
                 {
                 	node0 = node0 - 1;
@@ -99,7 +100,6 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
                 node1 = (i+1)*numNodesAlongWidth + j+1;
                 node2 = (i+1)*numNodesAlongWidth + j;
         
-                
                 (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
             }
         }
@@ -124,36 +124,58 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
 	
 
 public:
-    // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
-    // (see comment for Test1DChainWithBirthVariableRestLength).
-    /**
-     * This test is *BROKEN* - no cells are created here, and SetIncludeRandomBirth()
-     * is not called.
-     */
-    void Test2DSpringsWithSloughing() throw (Exception)
+
+    // Test the spring system. There are no cells in this test, therefore no birth, although
+    // nodes are sloughed. The mesh is initially a set of 10 by 10 squares, each square made 
+    // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
+    // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
+    // triangle trying to become equilateral.
+    void Test2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
+
         double crypt_length = 10;
         double crypt_width = 10;
-//        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-//        std::string testoutput_dir;
-//        OutputFileHandler output_file_handler("");
-//        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
         
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
                 
-        p_params->SetNaturalSpringLength(1);
+        double natural_length = 1.0;
+        p_params->SetNaturalSpringLength(natural_length);
+        
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
-        simulator.SetCryptLength(crypt_length);
-        simulator.SetCryptWidth(crypt_width);
-        //simulator.SetIncludeVariableRestLength();
-        
+
         simulator.Solve();
+        
+        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                unsigned nodeA, nodeB;
+                j==2 ? nodeA = 2 : nodeA = j;
+                j==2 ? nodeB = 0 : nodeB = j+1;
+                
+                double x_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[0];
+                double y_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[1];
+                double x_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[0];
+                double y_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[1];
+                
+                // if both nodes are not sloughed, check distance between them is
+                // the natural length.
+                if(  (x_nodeA < crypt_width)  && (x_nodeB < crypt_width) &&
+                     (y_nodeA < crypt_length) && (y_nodeB < crypt_length) )
+                {
+                    double length = sqrt( (x_nodeA - x_nodeB)*(x_nodeA - x_nodeB) + (y_nodeA - y_nodeB)*(y_nodeA - y_nodeB) );
+                    TS_ASSERT_DELTA(length, natural_length, 0.05); // tolerance of 0.01 would work if ran for 2 units
+                } 
+            }
+        }        
     }
      
       
@@ -163,6 +185,10 @@ public:
         srandom(0);
         double crypt_length = 10;
         double crypt_width = 10;
+
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -205,21 +231,26 @@ public:
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
         simulator.SetEndTime(1.0);
-        simulator.SetCryptLength(crypt_length);
-        simulator.SetCryptWidth(crypt_width);
+
         //simulator.SetIncludeVariableRestLength();
         
         // throws anything because not working at the moment
         TS_ASSERT_THROWS_ANYTHING( simulator.Solve() );
     }
-    void TestMake2DMesh() throw (Exception)
+    
+    
+    void TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);  // this is BAD, mkay?
+
         double crypt_length = 10.0;
         double crypt_width = 5.0;
-        // To do: make crypt_length and crypt_width members of the Parameters class
+
         Make2dCryptMesh("2D_crypt_mesh", 6, 11, crypt_width, crypt_length);
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();
@@ -255,6 +286,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
+            
             MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -262,10 +294,8 @@ public:
         }
         
         CryptSimulation2D simulator(mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DTestMesh");
+        simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(1.0);
-        simulator.SetCryptLength(crypt_length);
-        simulator.SetCryptWidth(crypt_width);
         
         //simulator.SetIncludeVariableRestLength();
         
@@ -273,17 +303,17 @@ public:
         TS_ASSERT_THROWS_ANYTHING( simulator.Solve() );
     }
     
-    
-        void notTest2DSpringsFixedBoundaries() throw (Exception)
+
+    // not being run because takes a few minutes to run
+    void DONOT_Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
         double crypt_length = 10;
         double crypt_width = 10;
-//        Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
-//        std::string testoutput_dir;
-//        OutputFileHandler output_file_handler("");
-//        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+     
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
         
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -305,46 +335,44 @@ public:
                 generation = 0;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
-            
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 1;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
             }
-            
             else if (y < 6.5)
             {
                 cell_type = TRANSIT;
                 generation = 2;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
             }
-           
             else if (y < 8)
             {
                 cell_type = TRANSIT;
                 generation = 3;
                 birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
             }
-                 
             else
             {
                 cell_type = DIFFERENTIATED;
                 generation = 4;
                 birth_time = 0; //hours
             }
+
             MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        p_params->SetNaturalSpringLength(0.5);// to simulate less cells        
+
+        p_params->SetNaturalSpringLength(0.5);// to simulate less cells       
+         
         CryptSimulation2D simulator(mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
         simulator.SetEndTime(0.5); //Days?
         simulator.SetFixedBoundaries();
-        simulator.SetCryptLength(crypt_length);
-        simulator.SetCryptWidth(crypt_width);
+
         //simulator.SetIncludeVariableRestLength();
         
         simulator.Solve() ;

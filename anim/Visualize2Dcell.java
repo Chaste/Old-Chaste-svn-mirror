@@ -350,15 +350,15 @@ class CustomCanvas2D extends Canvas {
 					
 			
 			// Plot lines
-			if( (vis.cell_type[vis.timeStep][n1]<3) && (vis.cell_type[vis.timeStep][n2]<3))
+			if( (vis.cell_type[vis.timeStep][n1]<4) && (vis.cell_type[vis.timeStep][n2]<4))
 			{
 				g2.drawLine(x1, height - y1, x2, height - y2);
 			}
-			if( (vis.cell_type[vis.timeStep][n2]<3) && (vis.cell_type[vis.timeStep][n3]<3))
+			if( (vis.cell_type[vis.timeStep][n2]<4) && (vis.cell_type[vis.timeStep][n3]<4))
 			{
 				g2.drawLine(x2, height - y2, x3, height - y3);
 			}
-			if( (vis.cell_type[vis.timeStep][n3]<3) && (vis.cell_type[vis.timeStep][n1]<3))
+			if( (vis.cell_type[vis.timeStep][n3]<4) && (vis.cell_type[vis.timeStep][n1]<4))
 			{
 				g2.drawLine(x3, height - y3, x1, height - y1);
 			}

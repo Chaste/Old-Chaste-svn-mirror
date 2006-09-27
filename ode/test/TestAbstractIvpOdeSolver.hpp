@@ -64,6 +64,62 @@ private :
         // stopping event.
         TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), false);
     }
+    
+    
+    // test a given solver on an ode which has a stopping event defined
+    void testSolverOnOdesWithEvents(AbstractIvpOdeSolver& rSolver)
+    {
+        // ode which has solution y0 = cos(t), and stopping event y0<0,
+        // ie should stop when t = pi/2;
+        OdeSecondOrderWithEvents ode_with_events;  
+
+        OdeSolution solutions;
+        std::vector<double> state_variables = ode_with_events.GetInitialConditions();
+        solutions = rSolver.Solve(&ode_with_events, state_variables, 0.0, 2.0, 0.001, 0.001);
+
+        int num_timesteps = solutions.GetNumberOfTimeSteps();
+        
+        // final time should be around pi/2
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01); 
+
+        // penultimate y0 should be greater than zero
+        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]); 
+
+        // final y0 should be less than zero
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0); 
+
+        // solver should correctly state the stopping event occured
+        TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
+
+
+        ///////////////////////////////////////////////
+        // repeat with sampling time larger than dt 
+        ///////////////////////////////////////////////
+
+        state_variables = ode_with_events.GetInitialConditions();
+        solutions = rSolver.Solve(&ode_with_events, state_variables, 0.0, 2.0, 0.001, 0.01);
+
+        num_timesteps = solutions.GetNumberOfTimeSteps();
+
+        // final time should be around pi/2
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01); 
+
+        // penultimate y0 should be greater than zero
+        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]); 
+
+        // final y0 should be less than zero
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0); 
+       
+        // solver should correctly state the stopping event occured
+        TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
+        
+        // cover the check event isn't initially true exception
+        std::vector<double> bad_init_cond;
+        bad_init_cond.push_back(-1);  //y0 < 0 so stopping event true 
+        bad_init_cond.push_back(0.0);
+        TS_ASSERT_THROWS_ANYTHING(rSolver.Solve(&ode_with_events, bad_init_cond, 0.0, 2.0, 0.001, 0.01));
+    }
+    
 
 
 
@@ -73,19 +129,25 @@ public:
     void testEulerSolver()
     {
         EulerIvpOdeSolver euler_solver;
+        
         testGenericSolver(euler_solver,  0.0, 2.0, 0.001, 0.001);
         testGenericSolver(euler_solver,  1.0, 2.0, 0.001, 0.01);
         testGenericSolver(euler_solver, -1.0, 2.0, 0.001, 2);
         testGenericSolver(euler_solver,  0.0, 0.4, 0.01,  0.34);
+        
+        testSolverOnOdesWithEvents(euler_solver);
     }
     
     void testAdamsBashforthSolver()
     {
         AdamsBashforthIvpOdeSolver adams_bashforth_solver;
+        
         testGenericSolver(adams_bashforth_solver,  0.0, 2.0, 0.001, 0.001);
         testGenericSolver(adams_bashforth_solver,  1.0, 2.0, 0.001, 0.01);
         testGenericSolver(adams_bashforth_solver, -1.0, 2.0, 0.001, 2);
         testGenericSolver(adams_bashforth_solver,  0.0, 0.4, 0.01,  0.34);
+        
+        testSolverOnOdesWithEvents(adams_bashforth_solver);
         
         // check exception thrown if number of timesteps <= 4
         TS_ASSERT_THROWS_ANYTHING( testGenericSolver(adams_bashforth_solver,0.0,0.04,0.01,0.01) );
@@ -94,19 +156,25 @@ public:
     void testRungeKutta2Solver()
     {
         RungeKutta2IvpOdeSolver rk2_solver;
+        
         testGenericSolver(rk2_solver,  0.0, 2.0, 0.001, 0.001);
         testGenericSolver(rk2_solver,  1.0, 2.0, 0.001, 0.01);
         testGenericSolver(rk2_solver, -1.0, 2.0, 0.001, 2);
         testGenericSolver(rk2_solver,  0.0, 0.4, 0.01,  0.34);
+        
+        testSolverOnOdesWithEvents(rk2_solver);
     }
     
     void testRungeKutta4Solver()
     {
         RungeKutta4IvpOdeSolver rk4_solver;
+
         testGenericSolver(rk4_solver,  0.0, 2.0, 0.001, 0.001);
         testGenericSolver(rk4_solver,  1.0, 2.0, 0.001, 0.01);
         testGenericSolver(rk4_solver, -1.0, 2.0, 0.001, 2);
         testGenericSolver(rk4_solver,  0.0, 0.4, 0.01,  0.34);
+
+        testSolverOnOdesWithEvents(rk4_solver);
     }
     
     
@@ -435,30 +503,7 @@ public:
     }
     
     
-    void testSolversOnOdesWithEvents()
-    {
-        // ode which has solution y0 = cos(t), and stopping event y0<0,
-        // ie should stop when t = pi/2;
-        OdeSecondOrderWithEvents ode_with_events;  
-                                                 
-        EulerIvpOdeSolver euler_solver;
-        OdeSolution solutions;
-        std::vector<double> state_variables = ode_with_events.GetInitialConditions();
-        solutions = euler_solver.Solve(&ode_with_events, state_variables, 0.0, 2.0, 0.001, 0.001);
 
-        int num_timesteps = solutions.GetNumberOfTimeSteps();
-        
-        // final time should be around pi/2
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01); 
-
-        // penultimate y0 should be greater than zero
-        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]); 
-        // final y0 should be less than zero
-        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0); 
-
-        // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(euler_solver.StoppingEventOccured(), true);
-    }
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

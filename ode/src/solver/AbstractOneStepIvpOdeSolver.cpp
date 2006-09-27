@@ -26,6 +26,12 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     // ODE system (note that the current algorithm accounts for any potential
     // floating point error)
     
+    mStoppingEventOccured = false;
+    if ( pAbstractOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
+    {
+        EXCEPTION("Stopping event is true for initial condition");
+    }
+ 
     int number_of_time_samples;
     double current_time;
     
@@ -63,7 +69,8 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     
     double to_time;
     
-    while (current_time < endTime)
+
+    while ( (current_time < endTime) && (!mStoppingEventOccured) )
     {
         time_step_number++;
         
@@ -77,11 +84,11 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         Solve(pAbstractOdeSystem, rYValues, current_time, to_time, timeStep);
         
         current_time = to_time;
-        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
+        if ( mStoppingEventOccured == true )
         {
-            endTime=current_time;
+            current_time = mStoppingTime;
+            endTime = current_time;
             solutions.SetNumberOfTimeSteps(time_step_number);
-            mStoppingEventOccured = true;
         }
         
         // write current solution into solutions
@@ -106,8 +113,11 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     int time_step_number = 0;
     
     double current_time = startTime;
+        
+    //should never get here if this bool has been set to true;
+    assert(!mStoppingEventOccured);
     
-    while (current_time < endTime)
+    while( (current_time < endTime) && (!mStoppingEventOccured) )
     {
         time_step_number++;
         
@@ -136,6 +146,12 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
         else
         {
             current_time = startTime+time_step_number*timeStep;
+        }
+        
+        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
+        {
+            mStoppingTime = current_time;
+            mStoppingEventOccured = true;
         }
     }
 }

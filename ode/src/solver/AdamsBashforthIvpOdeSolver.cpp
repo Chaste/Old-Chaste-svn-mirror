@@ -56,7 +56,11 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     // Assert that we  have a timesampling > 0 and >= timestep
     assert(timeSampling >= timeStep);
     
-    
+    mStoppingEventOccured = false;
+    if ( pAbstractOdeSystem->CalculateStoppingEvent(startTime, rYValues) == true )
+    {
+        EXCEPTION("Stopping event is true for initial condition");
+    }
     
     // Determine the number of time steps that will be required to solve the
     // ODE system (note that the current algorithm accounts for any potential
@@ -203,7 +207,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
 
     
     // Apply Adams-Bashforth method
-    while (current_time < endTime)
+    while ((current_time < endTime) && (!mStoppingEventOccured))
     { 
         // Determine what the value time step should really be like
         double next_time = startTime+(timestep_number+1)*timeStep;
@@ -229,6 +233,19 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
         {
             current_time = startTime+timestep_number*timeStep;
         }
+
+        // check to see if a stopping event has occured
+        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
+        {
+            mStoppingTime = current_time;
+            mStoppingEventOccured = true;
+
+            solutions.SetNumberOfTimeSteps(solutions.rGetTimes().size());
+            solutions.rGetSolutions().push_back(rYValues);
+            solutions.rGetTimes().push_back(current_time);
+        }
+
+
         
         // Update OdeSolution if at next printing time (if current_time is either
         // greater than the next printing time OR current time is within 0.01% less
@@ -252,6 +269,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
         derivative_store[0] = derivative_store[1];
         derivative_store[1] = derivative_store[2];
         derivative_store[2] = dy;
+        
     }
     
     return solutions;

@@ -18,6 +18,9 @@ protected :
      * stopping event occuring
      */
     bool mStoppingEventOccured; 
+    
+    /** if a stopping event occured the time is stored here */
+    double mStoppingTime;
 
     
 public :

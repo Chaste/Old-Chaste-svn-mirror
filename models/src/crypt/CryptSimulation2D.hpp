@@ -10,18 +10,18 @@
 #include "TrianglesMeshWriter.cpp"
 
 /**
- * Solve a crypt simulation based on the Meineke paper.
+ * Solve a 2D crypt simulation based on the Meineke paper.
  *
  * The spring lengths are governed by the equations
  * dr/dt = stem_cycle_time*(mu/eta) sum_j r_hat_i,j*(|r_i,j|-s0)
  *       = alpha sum_j r_hat_i,j*(|r_i,j|-s0)
  *
  * where alpha = stem_cycle_time*(mu/eta) = stem_cycle_time*meineke_lambda.
- *       s0    = natural length of the spring
+ *       s0    = natural length of the spring.
 
- * Length is scaled by natural length
- * Time is scaled by a stem cell cycle time
-
+ * Length is scaled by natural length.
+ * Time is scaled by a stem cell cycle time.
+ * 
  * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke - note
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
@@ -81,24 +81,14 @@ public:
         mEndTime=endTime;
     }
     
-    void SetCryptLength(double cryptLength)
-    {
-        mpParams->SetCryptLength(cryptLength);
-    }
-    
-     void SetCryptWidth(double cryptWidth)
-    {
-        mpParams->SetCryptWidth(cryptWidth);
-    }
-    
-    /**
-     *  Call this before Solve() if no cells have been specified. Randomly adds a new 
-     *  node every 1 time unit, starting 0.1
-     */
-    void SetIncludeRandomBirth()
-    {
-        mIncludeRandomBirth = true;
-    }
+//    /**
+//     *  Call this before Solve() if no cells have been specified. Randomly adds a new 
+//     *  node every 1 time unit, starting 0.1
+//     */
+//    void SetIncludeRandomBirth()
+//    {
+//        mIncludeRandomBirth = true;
+//    }
     
     void SetOutputDirectory(std::string outputDirectory)
     {
@@ -158,8 +148,7 @@ public:
         {
         	//std::cout << "** TIME = " << time << " **\n";
         	
-        	
-//            // Cell birth
+            // Cell birth
             if (mIncludeRandomBirth && time_since_last_birth > 1)
             {
 //                AddRandomNode();
@@ -211,14 +200,14 @@ public:
             }
             
             // calculate node velocities
-            // std::vector<double> drdt(mrMesh.GetNumAllNodes());
-            
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
             for(int i=0; i<mrMesh.GetNumAllNodes(); i++)
             {
 	            drdt[i].resize(2);
             }
             
+            
+            // the following commented section is old 1d code:
             
 //            if (mIncludeVariableRestLength && !mCells.empty())
 //            {
@@ -256,12 +245,14 @@ public:
 //            }
 //            else
 //            {
+            
+            // loop over element and for each one loop over it's three edges
 			for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
             	Element<2,2>* p_element = mrMesh.GetElement(elem_index);
                 if (!p_element->IsDeleted())
                 {
-                	for (int k=0; k<2; k++)
+                	for (int k=0; k<3; k++)
                 	{
                 		int nodeA, nodeB;
                 		if (k<2)
@@ -285,7 +276,6 @@ public:
                	        unit_difference(0)=unit_difference(0)/distance_between_nodes;
                	        unit_difference(1)=unit_difference(1)/distance_between_nodes;
 
-
 						// if neither node is sloughed include force contribution
 		               	if( (sloughed_cells[p_element->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_element->GetNodeGlobalIndex(nodeB)] == false))
 	                	{
@@ -306,12 +296,13 @@ public:
 	                	}
                 	}
                 }
-           }
-           
-           // Also loop over boundary edges so that all edges have been looped over exactly twice.
-           ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter 
-              = mrMesh.GetBoundaryElementIteratorBegin(); 
+            }
 
+            // Also loop over boundary edges so that all edges have been looped over exactly 
+            // twice.
+            ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter 
+               = mrMesh.GetBoundaryElementIteratorBegin(); 
+            
 	        while( elem_iter != mrMesh.GetBoundaryElementIteratorEnd() )
     	    {
     	    	BoundaryElement<1,2>* p_edge = *elem_iter;
@@ -354,11 +345,8 @@ public:
     	    }
            
            
-           
-            
+
             // update node positions
-//            std::cerr<<"mrMesh.GetNumAllNodes() "<<mrMesh.GetNumAllNodes()<<"\n";
-//            std::cerr<<"mrMesh.GetNumNodes() "<<mrMesh.GetNumNodes()<<"\n";
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
             	// note factor of 0.5 in the update because drdt was twice 
@@ -366,9 +354,7 @@ public:
             	
             	if(mFixedBoundaries)
             	{
-            		// All Bonndaries x=0 x=crypt_width y=0 y=crypt_length
-                           
-                
+            		// All Bonndaries x=0, x=crypt_width, y=0, y=crypt_length.
 	                if (mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
 	                {
 	                	if (mrMesh.GetNodeAt(index)->rGetPoint()[1]<mpParams->GetCryptLength())
@@ -394,8 +380,6 @@ public:
             	else
             	{
             		// assume stem cells are fixed, or if there are no cells, fix node 0
-                                           
-                
 	                if (mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
 	                {
 	                    if (!mrMesh.GetNodeAt(index)->IsDeleted())
@@ -408,17 +392,17 @@ public:
 	                        mrMesh.SetNode(index, new_point, false);
 	                    }
 	                }
-            		
             	}
-            	
-            	
-                
             }
             
-//            std::cerr<<"End loop \n";
-            // Remove nodes that are beyond the crypt
-            //std::cout<< "it's a timestep"<<"\n"<<std::flush;
+            
+            /////////////////////////////////////////////////////////////////////////
+            // SLOUGHING BY DELETING NODES. When ReMesh() works properly this will
+            // probably need to be brought back.
+            /////////////////////////////////////////////////////////////////////////
+
             /*
+            // Remove nodes that are beyond the crypt
             while (true)
             {
                 bool sloughed_node = false;
@@ -464,6 +448,8 @@ public:
             */
             step_number++;
 
+            // sloughing by noting which nodes are on boundary and removing their contributions
+            // to force
             for(int i=0; i<mrMesh.GetNumNodes(); i++)
             {
                  Node<2> *p_node = mrMesh.GetNodeAt(i);
@@ -475,7 +461,7 @@ public:
                     double crypt_length=mpParams->GetCryptLength();
                     double crypt_width=mpParams->GetCryptWidth();
                     
-                    if ((x > crypt_width )||(x<0.0)||(y>crypt_length))
+                    if ( (x>crypt_width) || (x<0.0) || (y>crypt_length))
                     {
 						sloughed_cells[p_node->GetIndex()] = true;
                         num_deaths++;
@@ -486,31 +472,18 @@ public:
 
 
 
-
-            
-//            if(step_number%10 == 0)
-//            {
            if (mFixedBoundaries)
            {
 	            //Re-mesh the mesh
 				mrMesh.ReMesh(map);
            }
-//            }
-//            std::stringstream time_ss2;
-//	        time_ss2 << step_number++;
-//			TrianglesMeshWriter<2,2> mesh_writer2("","tempmesh"+time_ss2.str());
-//			mesh_writer2.WriteFilesUsingMesh(mrMesh);	    
-//			        
-//            // Check nodes havent crossed 
-//            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-//            {
-//                Element<1,1>* element = mrMesh.GetElement(elem_index);
-//                if (!element->IsDeleted())
-//                {
-//                    assert(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0)>0);
-//                }
-//            }
             
+//          std::stringstream time_ss;
+//	        time_ss << step_number++;
+//			TrianglesMeshWriter<2,2> mesh_writer("","tempmesh"+time_ss.str());
+//			mesh_writer.WriteFilesUsingMesh(mrMesh);	    
+
+
            
             // write results to file
             (*p_node_file) << time << "\t";
@@ -518,12 +491,12 @@ public:
             
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
-                int colour;
+                int colour = 0; // all green if no cells have been passed in
                 if (sloughed_cells[index]==true)
                 {
-                    colour = 4;
+                    colour = 4; // visualizer treats these as invisible
                 }
-                else
+                else if(mCells.size()>0)
                 {
             	    CryptCellType type = mCells[index].GetCellType();
             	
@@ -564,48 +537,6 @@ public:
             
         }
     }
-    
-private:
-    int AddRandomNode()
-    {
-//        //Pick an element
-//        int random_element_number = rand()%mrMesh.GetNumAllElements(); // rand() gives a random int because 0 and RAND_MAX
-//        Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
-//        double element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
-//        //std::cout << "length " <<element_length << "\n";
-//        
-//        // keep picking until find an element which is big enough and not deleted
-//        while (element_length <0.4 || p_random_element->IsDeleted())
-//        {
-//            // the following is ignored in coverage as there is a random 
-//            // chance of it not happening
-//            #define COVERAGE_IGNORE
-//            random_element_number = rand()%mrMesh.GetNumAllElements();
-//            p_random_element = mrMesh.GetElement(random_element_number);
-//            element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
-//            #undef COVERAGE_IGNORE
-//            //std::cout << "..too small, trying: length " <<element_length << "\n";
-//            //double random_displacement = 0.2+((((double)random())/RAND_MAX)*0.6);
-//        }
-//        return AddNodeToElement(p_random_element);
-		return 0;
-    }
-    
-    
-    int AddNodeToElement(Element<1,1>* pElement)
-    {
-//        double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
-//        // pick a random position in the central 60% of the element
-//        double random_displacement = 0.2 + (((double)random())/RAND_MAX)*(element_length-0.4);
-//        double left_position = pElement->GetNodeLocation(0,0);
-//        
-//        Point<1> new_point(left_position + random_displacement);
-//        
-//        //std::cout<< "index "<<random_element_number<<" displacement "<<random_displacement<<"\n" << std::flush;
-//        return mrMesh.RefineElement(pElement, new_point);
-        return 0;
-    }
-    
 };
 
 #endif /*CRYPTSIMULATION2D_HPP_*/
