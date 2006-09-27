@@ -121,21 +121,19 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     std::vector<double> current_y_value = p_backward_euler_structure->currentYValue;
     
     unsigned num_equations = p_ode_system->GetNumberOfStateVariables();
-    PetscScalar *p_solution_guess_array;
-    VecGetArray(solutionGuess, &p_solution_guess_array);
-    std::vector<double> current_guess;
-    for (unsigned i=0; i<num_equations; i++)
-    {
-        current_guess.push_back(p_solution_guess_array[i]);
-    }
-    VecRestoreArray(solutionGuess, &p_solution_guess_array);
-    
     ReplicatableVector solution_guess_replicated;
     solution_guess_replicated.ReplicatePetscVector(solutionGuess);
+    std::vector<double> current_guess;
+    current_guess.reserve(num_equations);
+    for (unsigned i=0; i<num_equations; i++)
+    {
+        current_guess.push_back(solution_guess_replicated[i]);
+    }
     
     std::vector<double> dy(num_equations);
     dy = p_ode_system->EvaluateYDerivatives(time, current_guess);
     
+    PetscScalar *p_solution_guess_array;
     VecGetArray(solutionGuess, &p_solution_guess_array);
     for (unsigned global_index=mLo; global_index<mHi; global_index++)
     {
