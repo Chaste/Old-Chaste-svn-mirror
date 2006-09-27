@@ -153,7 +153,7 @@ public:
 
         simulator.Solve();
         
-        for(unsigned i=0; i<mesh.GetNumElements(); i++)
+        for(int i=0; i<mesh.GetNumElements(); i++)
         {
             for(unsigned j=0; j<3; j++)
             {
