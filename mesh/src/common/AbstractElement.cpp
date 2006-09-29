@@ -59,7 +59,6 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
 {
     mWeightedDirection=zero_vector<double>(SPACE_DIM);
-    ;
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
@@ -99,7 +98,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
             mWeightedDirection(0)=1.0;
             if (SPACE_DIM == 2)
             {
-            	mWeightedDirection(1)=0.0;
+                mWeightedDirection(1)=0.0;
             }
             break;
         case 1:

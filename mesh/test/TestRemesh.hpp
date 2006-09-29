@@ -94,7 +94,7 @@ public:
   		TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
    		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
  	
- 		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
+ 		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements() + 2 );
  		
  		//Test to see whether triangle/ tetgen is renumbering the nodes
  		
@@ -160,7 +160,7 @@ public:
   		TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
    		TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
  	
- 		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements());
+ 		TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements() + 1);
  		
  		//Test to see whether triangle/ tetgen is renumbering the nodes
  		

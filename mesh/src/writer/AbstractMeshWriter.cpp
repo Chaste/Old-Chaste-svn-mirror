@@ -45,15 +45,33 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     ConformingTetrahedralMesh<ELEMENT_DIM,
     SPACE_DIM>& rMesh)
 {
-    for (int i=0; i<rMesh.GetNumNodes();i++)
+
+    if (rMesh.GetNumNodes() != rMesh.GetNumAllNodes() )
+    {
+        rMesh.ReIndex();
+    }
+    if (rMesh.GetNumElements() != rMesh.GetNumAllElements())
+    {
+        rMesh.ReIndex();
+    }
+    if (rMesh.GetNumBoundaryElements() != rMesh.GetNumAllBoundaryElements())
+    {
+        rMesh.ReIndex();
+    }
+    
+    for (int i=0; i<rMesh.GetNumAllNodes();i++)
     {
         Node<SPACE_DIM>* p_node = rMesh.GetNodeAt(i);
-        std::vector<double> coords(SPACE_DIM);
-        for (int j=0; j<SPACE_DIM; j++)
+        
+        if (p_node->IsDeleted() == false)
         {
-            coords[j] = p_node->GetPoint()[j];
+            std::vector<double> coords(SPACE_DIM);
+            for (int j=0; j<SPACE_DIM; j++)
+            {
+                coords[j] = p_node->GetPoint()[j];
+            }
+            SetNextNode(coords);
         }
-        SetNextNode(coords);
     }
     
     // Get an iterator over the elements of the mesh
@@ -62,12 +80,16 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         
     while (iter != rMesh.GetElementIteratorEnd())
     {
-        std::vector<int> indices(ELEMENT_DIM+1);
-        for (int j=0; j<ELEMENT_DIM+1; j++)
+        if ((*iter)->IsDeleted() == false)
         {
-            indices[j] = (*iter)->GetNodeGlobalIndex(j);
+            std::vector<int> indices(ELEMENT_DIM+1);
+            for (int j=0; j<ELEMENT_DIM+1; j++)
+            {
+                indices[j] = (*iter)->GetNodeGlobalIndex(j);
+            }
+            SetNextElement(indices);
         }
-        SetNextElement(indices);
+        
         iter++;
     }
     

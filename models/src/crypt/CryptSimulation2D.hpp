@@ -498,7 +498,9 @@ public:
                 }
                 else if(mCells.size()>0)
                 {
-            	    CryptCellType type = mCells[index].GetCellType();
+                    if (index < (int) mCells.size())
+                    {
+                        CryptCellType type = mCells[index].GetCellType();
             	
                 	if (type==STEM)
                 	{
@@ -512,6 +514,12 @@ public:
                 	{
                 		colour = 2;
                 	}
+                    }
+                    else 
+                    {
+                        colour=2; //Fix for segmentation fault
+                    }
+                    
                 }
             	
                 if (!mrMesh.GetNodeAt(index)->IsDeleted())
