@@ -113,10 +113,6 @@ public:
         mEndTime=endTime;
     }
     
-    void SetCryptLength(double cryptLength)
-    {
-        mpParams->SetCryptLength(cryptLength);
-    }
     
     /**
      *  Call this before Solve() if no cells have been specified. Randomly adds a new 
@@ -152,8 +148,7 @@ public:
      * Once CryptSimulation object has been set up, call this to run simulation
      */
     void Solve()
-    {
-    	
+    {	
         if (mOutputDirectory=="")
         {
             EXCEPTION("OutputDirectory not set");
@@ -396,14 +391,24 @@ public:
 	                    {
 	                    	tabulated_writer.PutVariable(type_var_ids[cell], 2);
 	                    }
-	                    else
-	                    {
-	                    	tabulated_writer.PutVariable(type_var_ids[cell], -1);
-	                    }
-                        Point<1> point = mrMesh.GetNodeAt(index)->rGetPoint();
-	                    tabulated_writer.PutVariable(position_var_ids[cell], point.rGetLocation()[0]);	
-	                    (*p_results_file) << point.rGetLocation()[0] << " ";
+                        else
+                        {
+                            // should be impossible to get here, until cancer cells
+                            // are implemented
+                            #define COVERAGE_IGNORE
+                            assert(0);
+                            #undef COVERAGE_IGNORE
+                        }
                     }
+	                else
+	                {
+	                  	tabulated_writer.PutVariable(type_var_ids[cell], -1);
+	                }
+                    
+                    Point<1> point = mrMesh.GetNodeAt(index)->rGetPoint();
+	                tabulated_writer.PutVariable(position_var_ids[cell], point.rGetLocation()[0]);	
+	                (*p_results_file) << point.rGetLocation()[0] << " ";
+
                     cell++;
                 }
             }
