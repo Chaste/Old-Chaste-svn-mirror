@@ -17,15 +17,15 @@
  */
 
 //// OLD NOTE: remember this if AbstractPde is brought back
-// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual', ie 
+// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual', ie
 // "class AbstractCardiacPde : public virtual AbstractPde"
 // because AbstractPde will be the top class in a 'dreaded diamond':
-//      A      
-//     / \     A = AbstractPde, B = AbstractCardiac, 
-//    B   C    C = AbtractLinearElliptic (and AbstractLinearParabolicPde) 
+//      A
+//     / \     A = AbstractPde, B = AbstractCardiac,
+//    B   C    C = AbtractLinearElliptic (and AbstractLinearParabolicPde)
 //     \ /     D = MonodomainPde
 //      D
-// 
+//
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
 
@@ -71,9 +71,7 @@ public:
     }
     
     virtual ~AbstractLinearEllipticPde()
-    {
-    
-    }
+    {}
 };
 
 #endif //_ABSTRACTLINEARELLIPTICPDE_HPP_

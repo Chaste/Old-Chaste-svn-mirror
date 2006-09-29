@@ -15,12 +15,10 @@ class BackwardEulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 public:
     // Constructor - does nothing
     BackwardEulerIvpOdeSolver()
-    {
-    } 
+    {}
     
     virtual ~BackwardEulerIvpOdeSolver()
-    {
-    }
+    {}
     
     std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                             double timeStep,

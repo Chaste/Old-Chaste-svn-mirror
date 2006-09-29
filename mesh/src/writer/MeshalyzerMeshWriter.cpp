@@ -46,11 +46,11 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         for (unsigned int i=0;i<SPACE_DIM;i++)
         {
             *p_node_file << current_item[i] << "\t";
-            if(SPACE_DIM==2)
+            if (SPACE_DIM==2)
             {
                 *p_node_file << 0 << "\t";
             }
-            if(SPACE_DIM==1)
+            if (SPACE_DIM==1)
             {
                 *p_node_file << 0 << "\t" << 0 << "\t";
             }
@@ -63,8 +63,8 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     //Write Element file
     std::string element_file_name;
     
-    if(SPACE_DIM == 3)
-    {    
+    if (SPACE_DIM == 3)
+    {
         element_file_name = this->mBaseName+".tetra";
     }
     else // SPACE_DIM == 1 or 2
@@ -72,7 +72,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         element_file_name = this->mBaseName+".tri";
     }
     
-
+    
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
     
     //Write the element header
@@ -101,17 +101,17 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     }
     p_element_file->close();
     
-    if(SPACE_DIM==3)
+    if (SPACE_DIM==3)
     {
         //Write boundary face file
         std::string face_file_name = this->mBaseName+".tri";
         out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
-    
+        
         //Write the boundary face header
         int num_faces = this->GetNumBoundaryFaces();
-    
+        
         *p_face_file<< num_faces << "\n";
-    
+        
         //Write each face's data
         double material_property= 0.0;
         for (int item_num=0; item_num<num_faces; item_num++)
@@ -129,14 +129,14 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
                 }
             }
             *p_face_file << material_property << "\n";
-        }   
+        }
         p_face_file->close();
-            
+        
         if (this->mWriteMetaFile)
         {
             std::string meta_file_name = this->mBaseName+".cg_in";
             out_stream p_meta_file = this->mpOutputFileHandler->OpenOutputFile(meta_file_name);
-        
+            
             *p_meta_file << "1\n" << "0\n";
             *p_meta_file << face_file_name <<"\n";
             p_meta_file->close();

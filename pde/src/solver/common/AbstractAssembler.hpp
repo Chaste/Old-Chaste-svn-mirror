@@ -13,8 +13,8 @@
  *
  *  Currently this provides methods for selecting what type of basis function to
  *  use, and how many quadrature points per dimension.
- * 
- *  The template parameter PROBLEM_DIM represents the number of 
+ *
+ *  The template parameter PROBLEM_DIM represents the number of
  *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
  *  2 in u_xx + v = 0, v_xx + 2u = 1
  */
@@ -23,13 +23,13 @@ class AbstractAssembler
 {
 protected:
     bool mWeAllocatedBasisFunctionMemory;
-
+    
     /*< Mesh to be solved on */
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpMesh;
     
     /*< Boundary conditions to be applied */
     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpBoundaryConditions;
-
+    
     /*< Basis function for use with normal elements */
     AbstractBasisFunction<ELEMENT_DIM> *mpBasisFunction;
     /*< Basis function for use with boundary elements */
@@ -48,7 +48,7 @@ public:
      */
     AbstractAssembler(int numQuadPoints = 2)
     {
-        // Initialise mesh and bcs to null, so we can check they 
+        // Initialise mesh and bcs to null, so we can check they
         // have been set before attempting to solve
         mpMesh = NULL;
         mpBoundaryConditions = NULL;

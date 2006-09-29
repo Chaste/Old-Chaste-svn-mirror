@@ -24,7 +24,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
 {
-	mpSimulationTime = SimulationTime::Instance();
+    mpSimulationTime = SimulationTime::Instance();
     // Stem cells are the only ones with generation = 0
     assert( (generation == 0) == (cellType == STEM) );
     
@@ -103,7 +103,7 @@ unsigned MeinekeCryptCell::GetNodeIndex()
 
 double MeinekeCryptCell::GetAge(double simulationTime)
 {
-	//std::cout<< "SImulation time" << simulationTime << "\n" ;
+    //std::cout<< "SImulation time" << simulationTime << "\n" ;
     return simulationTime-mBirthTime;
 }
 
@@ -125,14 +125,14 @@ CryptCellType MeinekeCryptCell::GetCellType()
 
 bool MeinekeCryptCell::ReadyToDivide(double simulationTime)
 {
-	//std::cout<< "Divide time" << simulationTime << "\n" ;
+    //std::cout<< "Divide time" << simulationTime << "\n" ;
     mCanDivide = mpCellCycleModel->ReadyToDivide(simulationTime - mBirthTime);
     return mCanDivide;
 }
 
 bool MeinekeCryptCell::ReadyToDivide()
 {
-	//std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
+    //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
     mCanDivide = mpCellCycleModel->ReadyToDivide(mpSimulationTime->GetDimensionalisedTime() - mBirthTime);
     return mCanDivide;
 }

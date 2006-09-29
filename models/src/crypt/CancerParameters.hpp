@@ -57,10 +57,10 @@ private:
      */
     double mCryptLength;
     
-      /**
-     * The non-dimensionalised (with cell length) width of the crypt.
-     * This determines when cells are sloughed from the crypt. in 2D
-     */
+    /**
+    * The non-dimensionalised (with cell length) width of the crypt.
+    * This determines when cells are sloughed from the crypt. in 2D
+    */
     double mCryptWidth;
     
     /**

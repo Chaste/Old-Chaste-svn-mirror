@@ -97,7 +97,7 @@ public:
         return mVariableUnits;
     }
     
-    /** 
+    /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
      *  only until a particular event (for example, only until the y value becomes
      *  negative.

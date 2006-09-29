@@ -62,7 +62,7 @@ public:
         
         ReplicatePetscVector(vec);
     }
-        
+    
     /**
      * Default destructor.
      * Remove PETSc context.

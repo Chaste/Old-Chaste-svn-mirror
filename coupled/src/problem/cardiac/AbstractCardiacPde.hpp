@@ -16,15 +16,15 @@
 
 
 //// OLD NOTE: read this if AbstractPde is brought back
-// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual' 
+// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
 // ie "class AbstractCardiacPde : public virtual AbstractPde"
 // because AbstractPde will be the top class in a 'dreaded diamond':
-//      A      
+//      A
 //     / \     A = AbstractPde, B = AbstractCardiac, C = AbtractLinearParabolic (etc)
 //    B   C    D = MonodomainPde
 //     \ /
 //      D
-// 
+//
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
 
@@ -81,7 +81,7 @@ public:
     {
         mNumNodes = pCellFactory->GetNumberOfCells();
         
-        // Create a temporary PETSc vector and use the ownership range of 
+        // Create a temporary PETSc vector and use the ownership range of
         // the PETSc vector to size our C++ vectors
         Vec tempVec;
         VecCreate(PETSC_COMM_WORLD, &tempVec);
@@ -185,20 +185,20 @@ public:
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
     {
-        #ifndef NDEBUG
-            if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
-            {
-                std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
-                " hi " << this->mOwnershipRangeHi << std::endl;
-            }
-        #endif
+#ifndef NDEBUG
+        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
+        {
+            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
+            " hi " << this->mOwnershipRangeHi << std::endl;
+        }
+#endif
         
         assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
     
- 
-    /** 
+    
+    /**
      *  SolveCellSystems()
      *  
      *  Integrate the cell ODEs and update ionic current etc for each of the 
@@ -243,7 +243,7 @@ public:
         
         ReplicateCaches();
     }
-
+    
     ReplicatableVector& GetIionicCacheReplicated()
     {
         return mIionicCacheReplicated;

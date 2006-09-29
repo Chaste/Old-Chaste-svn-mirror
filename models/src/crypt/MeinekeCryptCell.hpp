@@ -62,7 +62,7 @@ public:
      */
     MeinekeCryptCell(CryptCellType cellType,
                      unsigned int generation,
-                     AbstractCellCycleModel *pCellCycleModel);                     
+                     AbstractCellCycleModel *pCellCycleModel);
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
      */
@@ -105,7 +105,7 @@ public:
      * ReadyToDivide must have been called with the given simulationTime, and returned true.
      */
     MeinekeCryptCell Divide(double simulationTime);
-
+    
     /**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide must have been called with the given simulationTime, and returned true.

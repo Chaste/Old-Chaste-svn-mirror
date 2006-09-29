@@ -69,8 +69,8 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     VecSetSizes(initial_guess, PETSC_DECIDE,num_equations);
     //VecSetType(initial_guess, VECSEQ);
     VecSetFromOptions(initial_guess);
-
-	//mLo and mHi are identified each time - may be more efficient to only do this once
+    
+    //mLo and mHi are identified each time - may be more efficient to only do this once
     int lo, hi;
     VecGetOwnershipRange(initial_guess, &lo, &hi);
     mLo=lo;
@@ -183,16 +183,16 @@ PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat 
         PETSCEXCEPT(ComputeResidual(snes, solution_perturbed, residual_perturbed, pContext));
         
         // compute residual_perturbed - residual
-	    double one_over_eps=1.0/eps;
-	    double subtract=-1;
-        #if (PETSC_VERSION_MINOR == 2) //Old API
-            PETSCEXCEPT( VecWAXPY(&subtract, residual, residual_perturbed, jacobian_column));
-            PETSCEXCEPT( VecScale(&one_over_eps, jacobian_column));
-        #else
-            PETSCEXCEPT( VecWAXPY(jacobian_column, subtract, residual, residual_perturbed));
-            PETSCEXCEPT( VecScale(jacobian_column,  one_over_eps));
-        #endif
-       
+        double one_over_eps=1.0/eps;
+        double subtract=-1;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        PETSCEXCEPT( VecWAXPY(&subtract, residual, residual_perturbed, jacobian_column));
+        PETSCEXCEPT( VecScale(&one_over_eps, jacobian_column));
+#else
+        PETSCEXCEPT( VecWAXPY(jacobian_column, subtract, residual, residual_perturbed));
+        PETSCEXCEPT( VecScale(jacobian_column,  one_over_eps));
+#endif
+        
         
         PetscScalar *p_jacobian_column_array;
         VecGetArray(jacobian_column, &p_jacobian_column_array);

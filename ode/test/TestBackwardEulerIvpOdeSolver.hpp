@@ -16,7 +16,7 @@
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
-    void testBackwardEulerSystemOf3Equations() 
+    void testBackwardEulerSystemOf3Equations()
     {
         OdeThirdOrder ode_system;
         
@@ -45,10 +45,10 @@ public:
         double global_error_euler = 0.5*2*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(numerical_solution[0],analytical_solution[0],global_error_euler);
         TS_ASSERT_DELTA(numerical_solution[1],analytical_solution[1],global_error_euler);
-        TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);   
-    }    
+        TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);
+    }
     
-    void testBackwardEulerNonlinearEquation() 
+    void testBackwardEulerNonlinearEquation()
     {
         Ode4 ode_system;
         
@@ -69,10 +69,10 @@ public:
         // The tests
         double analytical_solution = 1.0/(1.0+exp(-12.5));
         
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-4); 
-    }    
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-4);
+    }
     
-    void testBackwardEulerAnotherNonlinearEquation() 
+    void testBackwardEulerAnotherNonlinearEquation()
     {
         Ode5 ode_system;
         
@@ -94,24 +94,24 @@ public:
         // The tests
         double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
         
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3); 
-    }    
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+    }
     
     // Superceded test
-    void notestComputeResidual() 
+    void notestComputeResidual()
     {
-    	double h_value=1.0;
-    	OdeThirdOrder ode_system;
-    	BackwardEulerIvpOdeSolver backward_euler_solver;
+        double h_value=1.0;
+        OdeThirdOrder ode_system;
+        BackwardEulerIvpOdeSolver backward_euler_solver;
         BackwardEulerStructure backward_euler_structure;
         backward_euler_structure.TimeStep = h_value;
         backward_euler_structure.Time = 0.0;
-        backward_euler_structure.pAbstractOdeSystem = &ode_system;  
+        backward_euler_structure.pAbstractOdeSystem = &ode_system;
         std::vector<double> current_y_value;
         current_y_value.push_back(1.0);
         current_y_value.push_back(2.0);
         current_y_value.push_back(3.0);
-        backward_euler_structure.currentYValue = current_y_value;        
+        backward_euler_structure.currentYValue = current_y_value;
         
         Vec solution_guess, residual;
         int indices[3] = {0,1,2};
@@ -131,30 +131,30 @@ public:
         
         PetscScalar *p_residual_array;
         VecGetArray(residual, &p_residual_array);
-
+        
         TS_ASSERT_DELTA(p_residual_array[0],-2.0, 1e-6);
         TS_ASSERT_DELTA(p_residual_array[1], 1.0, 1e-6);
         TS_ASSERT_DELTA(p_residual_array[2],-1.0, 1e-6);
-
+        
         VecRestoreArray(residual, &p_residual_array);
-          
-    } 
-      
+        
+    }
+    
     // Superceded test
-    void notestComputeJacobian() 
+    void notestComputeJacobian()
     {
-    	double h_value=1.0;
-    	OdeThirdOrder ode_system;
-    	BackwardEulerIvpOdeSolver backward_euler_solver;
+        double h_value=1.0;
+        OdeThirdOrder ode_system;
+        BackwardEulerIvpOdeSolver backward_euler_solver;
         BackwardEulerStructure backward_euler_structure;
         backward_euler_structure.TimeStep = h_value;
         backward_euler_structure.Time = 0.0;
-        backward_euler_structure.pAbstractOdeSystem = &ode_system;  
+        backward_euler_structure.pAbstractOdeSystem = &ode_system;
         std::vector<double> current_y_value;
         current_y_value.push_back(1.0);
         current_y_value.push_back(2.0);
         current_y_value.push_back(3.0);
-        backward_euler_structure.currentYValue = current_y_value;        
+        backward_euler_structure.currentYValue = current_y_value;
         
         Vec solution_guess;
         int indices[3] = {0,1,2};
@@ -176,9 +176,9 @@ public:
         MatCreate(PETSC_COMM_WORLD, &jacobian);
         MatSetSizes(jacobian, PETSC_DECIDE, PETSC_DECIDE, 3, 3);
         MatSetFromOptions(jacobian);
-
+        
         ComputeJacobian(snes, solution_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);
-
+        
         double true_jacobian[3][3] = {{ 0,1,-1},
                                       {0, 0,1},
                                       { 0, -2,2}};
@@ -190,17 +190,17 @@ public:
                 row_as_array[0] = row;
                 int col_as_array[1];
                 col_as_array[0] = col;
-
+                
                 double ret_array[1];
-
+                
                 MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
-
+                
                 TS_ASSERT_DELTA(ret_array[0],true_jacobian[row][col], 1e-3);
             }
         }
-    }    
+    }
     
-    void testBackwardEulerSystemOf3EquationsWithEvents() 
+    void testBackwardEulerSystemOf3EquationsWithEvents()
     {
         OdeThirdOrderWithEvents ode_system_with_events;
         
@@ -223,16 +223,16 @@ public:
         int num_timesteps = solutions.GetNumberOfTimeSteps();
         
         // final time should be around pi and a bit
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], 0.5236, 0.01); 
-
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], 0.5236, 0.01);
+        
         // penultimate y0 should be greater than -0.5
-        TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[num_timesteps-1][0]); 
+        TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[num_timesteps-1][0]);
         // final y0 should be less than -0.5
-        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], -0.5); 
-
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], -0.5);
+        
         // solver should correctly state the stopping event occured
-        TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);  
-    }    
+        TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);
+    }
     
 };
 

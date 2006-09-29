@@ -3,15 +3,15 @@
 
 /**
  *  AbstractLinearDynamicProblemAssembler
- * 
+ *
  *  Abstract superclass for classes that assemble and solve the linear system
- *  for a dynamic linear PDE, for example a parabolic PDE or the bidomain 
+ *  for a dynamic linear PDE, for example a parabolic PDE or the bidomain
  *  equations.
- * 
- *  The template parameter PROBLEM_DIM represents the number of 
+ *
+ *  The template parameter PROBLEM_DIM represents the number of
  *  unknown dependent variables in the problem (ie 1 in for example u_xx + u_yy = 0,
  *  2 in u_xx + v = 0, v_xx + 2u = 1
- *  
+ *
  *  SetTimes() and SetInitialCondition() should be called be the user prior to
  *  Solve().
  */
@@ -35,7 +35,7 @@ protected :
     bool   mInitialConditionSet;
     
     Vec    mInitialCondition;
-
+    
 public :
     /**
      * AbstractLinearDynamicProblemAssembler
@@ -45,12 +45,12 @@ public :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {}
     AbstractLinearDynamicProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                     AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                     int numQuadPoints = 2) :
+                                          AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+                                          int numQuadPoints = 2) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     
-    /** 
+    /**
      *  Set the times to solve between, and the time step to use
      */
     void SetTimes(double Tstart, double Tend, double dt)
@@ -74,7 +74,7 @@ public :
         mTimesSet = true;
     }
     
-    /** 
+    /**
      *  Set the initial condition
      */
     void SetInitialCondition(Vec initCondition)
@@ -95,7 +95,7 @@ public :
     {
         assert(mTimesSet);
         assert(mInitialConditionSet);
-
+        
         this->PrepareForSolve();
         
         double t = mTstart;
@@ -104,9 +104,9 @@ public :
         while ( t < mTend - 1e-10 )
         {
             this->AssembleSystem(currentSolution, t);
-
+            
             nextSolution = this->mpAssembledLinearSystem->Solve(this->mpSolver);
-
+            
             t += mDt;
             // Avoid memory leaks
             if (currentSolution != mInitialCondition)
@@ -116,7 +116,7 @@ public :
             currentSolution = nextSolution;
             
         }
-
+        
         return currentSolution;
     }
 };

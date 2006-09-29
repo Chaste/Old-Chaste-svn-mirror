@@ -7,7 +7,7 @@ class OdeFirstOrder : public AbstractOdeSystem
 {
 public :
     OdeFirstOrder()
-        : AbstractOdeSystem(1) // 1 here is the number of variables
+            : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mInitialConditions.push_back(1.0);
     }

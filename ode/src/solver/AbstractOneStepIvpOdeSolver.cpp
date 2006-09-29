@@ -31,7 +31,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     {
         EXCEPTION("Stopping event is true for initial condition");
     }
- 
+    
     int number_of_time_samples;
     double current_time;
     
@@ -69,7 +69,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     
     double to_time;
     
-
+    
     while ( (current_time < endTime) && (!mStoppingEventOccured) )
     {
         time_step_number++;
@@ -113,11 +113,11 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
     int time_step_number = 0;
     
     double current_time = startTime;
-        
+    
     //should never get here if this bool has been set to true;
     assert(!mStoppingEventOccured);
     
-    while( (current_time < endTime) && (!mStoppingEventOccured) )
+    while ( (current_time < endTime) && (!mStoppingEventOccured) )
     {
         time_step_number++;
         

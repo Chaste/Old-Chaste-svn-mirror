@@ -49,8 +49,8 @@ public:
                               double endTime,
                               double timeStep,
                               double timeSampling);
-    
-    
+                              
+                              
     /**
      * Second version of Solve. See comments for the first version of Solve. 
      * This method does not return the solution and therefore does not take 
@@ -71,14 +71,14 @@ public:
      * @param timeStep the time interval to be used by the solver
      * 
      * EXAMPLE:
-     *        
+     *    
      * std::vector<double> init_cond = ode_system.GetInitialConditions();
      * 
      * solver.Solve(&ode, init_cond, 0, 1, 0.01);
      * 
      * state_variables = ode_system.rGetStateVariables(); // solution at t=1 found here
      * 
-     */                          
+     */
     virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem,
                        std::vector<double>& rYValues,
                        double startTime,
@@ -91,8 +91,7 @@ public:
                                                     std::vector<double> currentYValue)=0;
                                                     
     virtual ~AbstractOneStepIvpOdeSolver()
-    {
-    }
+    {}
 };
 
 #endif //_ABSTRACTONESTEPIVPODESOLVER_HPP_

@@ -23,7 +23,7 @@ public:
     {
         mValue = value;
     }
-        
+    
     /**
      * @param x The point at which this boundary condition is to be evaluated.
      * @return The constant value given in the constructor.

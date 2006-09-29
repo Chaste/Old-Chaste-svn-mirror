@@ -2,20 +2,20 @@
 
 
 
-/** 
+/**
  * Generate a random number mod base
  */
 int RandomNumberGenerators::randMod(int base)
 {
-  
-    return (random()%base);	
+
+    return (random()%base);
 }
 /** Generate a uniform random number in (0,1)
  */
 double RandomNumberGenerators::ranf(void)
 {
-        
- 
+
+
     return (double)random() / RAND_MAX;
 }
 

@@ -11,7 +11,7 @@ class Ode2 : public AbstractOdeSystem
 public :
 
     Ode2()
-        : AbstractOdeSystem(1) // 1 here is the number of unknowns
+            : AbstractOdeSystem(1) // 1 here is the number of unknowns
     {
         mInitialConditions.push_back(4.0);
     }

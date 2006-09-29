@@ -64,7 +64,7 @@ public:
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-       
+        
         try
         {
             bidomain_problem.Solve();
@@ -295,13 +295,13 @@ public:
         fixed_nodes.push_back(0);
         fixed_nodes.push_back(100);
         bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
-
-
+        
+        
         bidomain_problem.SetOutputDirectory("temp");
         bidomain_problem.SetOutputFilenamePrefix("temp");
         bidomain_problem.SetEndTime(1);  // ms
         bidomain_problem.Initialise();
-
+        
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
@@ -313,16 +313,16 @@ public:
         unsigned lo,hi;
         
         bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-  
+        
         unsigned global_index = 1;  // index for phi_e corresponding to node 0
-        if(lo<=global_index && global_index<hi)
+        if (lo<=global_index && global_index<hi)
         {
             unsigned local_index = global_index - lo;
             TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
         }
         
         global_index = 201;         // index for phi_e corresponding to node 100
-        if(lo<=global_index && global_index<hi)
+        if (lo<=global_index && global_index<hi)
         {
             unsigned local_index = global_index - lo;
             TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);

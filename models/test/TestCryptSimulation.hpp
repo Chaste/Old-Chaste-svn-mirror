@@ -58,15 +58,15 @@ class TestCryptSimulation : public CxxTest::TestSuite
     void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
-
+        
         ColumnDataReader computed_results = ColumnDataReader(resultDirectory,
-                                                            "tabulated_results",
-                                                            true);
-
+                                                             "tabulated_results",
+                                                             true);
+                                                             
         ColumnDataReader expected_results = ColumnDataReader("models/test/data/" + resultDirectory,
                                                              "tabulated_results",
                                                              false);
-
+                                                             
         for (unsigned cell=0; cell<maxCells; cell++)
         {
             std::stringstream cell_type_var_name;
@@ -205,7 +205,7 @@ public:
         // Note that random numbers are reseeded with srandom(0) by the following constructor.
         RandomNumberGenerators rand_gen;
         CancerParameters *p_params = CancerParameters::Instance();
-         
+        
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
@@ -255,7 +255,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-         // Set up cells by iterating through the mesh nodes
+        // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
@@ -287,7 +287,7 @@ public:
     {
         RandomNumberGenerators rand_gen;
         CancerParameters *p_params = CancerParameters::Instance();
-
+        
         double crypt_length = 22.0;
         p_params->SetCryptLength(crypt_length);
         
@@ -331,12 +331,12 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-              
+        
         CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
-
+        
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
         CheckAgainstPreviousRun("CryptWithCells",50);
@@ -349,9 +349,9 @@ public:
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerators rand_gen;
-
+        
         double crypt_length = 22.0;
-        p_params->SetCryptLength(crypt_length);        
+        p_params->SetCryptLength(crypt_length);
         
         Make1dCryptMesh("1D_crypt_mesh", 23, crypt_length);
         std::string testoutput_dir;
@@ -395,13 +395,13 @@ public:
         }
         
         CryptSimulation simulator(mesh, cells);
-
+        
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
-
+        
         simulator.SetIncludeVariableRestLength();
-
+        
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
         
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);

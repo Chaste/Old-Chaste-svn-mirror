@@ -102,10 +102,10 @@ public:
         {
             EXCEPTION("Start time should be less than end time");
         }
-
+        
         // Assembler
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&mMesh, mpMonodomainPde);
-            
+        
         // initial condition;
         Vec initial_condition;
         VecCreate(PETSC_COMM_WORLD, &initial_condition);

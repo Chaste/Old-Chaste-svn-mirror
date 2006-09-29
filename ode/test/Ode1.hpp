@@ -11,7 +11,7 @@ class Ode1 : public AbstractOdeSystem
 public :
 
     Ode1()
-        : AbstractOdeSystem(1) // 1 here is the number of variables
+            : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mInitialConditions.push_back(0.0);
     }
@@ -21,7 +21,7 @@ public :
     {
         std::vector<double> y_derivatives(GetNumberOfStateVariables());
         y_derivatives[0]=1.0;
-    
+        
         return y_derivatives;
     }
 };

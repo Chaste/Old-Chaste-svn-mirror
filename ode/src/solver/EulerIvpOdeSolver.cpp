@@ -15,9 +15,9 @@
  * To be used in the form:
  *
  * EulerIvpOdeSolver mySolver;
- * 
+ *
  * OdeSolution solution=mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
- * 
+ *
  * See documentation for AbstractOneStepIvpOdeSolver::Solve()
  *
  */
@@ -27,9 +27,9 @@ std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pA
                                                            double time,
                                                            std::vector<double> currentYValue)
 {
-    // for each timestep in AbstractOneStepIvpSolver calculates a vector containing 
+    // for each timestep in AbstractOneStepIvpSolver calculates a vector containing
     // the next Y value from the current one for each equation in the system.
-   
+    
     int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     std::vector<double> dy(num_equations);

@@ -64,25 +64,25 @@ public:
      *  constructed and random numbers are reseeded with srandom(0).
      */
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
-                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(), 
+                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
                     RandomNumberGenerators *pGen = NULL)
             : mrMesh(rMesh),
             mCells(cells)
     {
         if (pGen!=NULL)
         {
-        	mpGen = pGen;
+            mpGen = pGen;
             mCreatedRng = false;
         }
         else
         {
-        	mpGen = new RandomNumberGenerators;
+            mpGen = new RandomNumberGenerators;
             mCreatedRng = true;
         }
         mpParams = CancerParameters::Instance();
         mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
         mEndTime = 120.0; //hours
-       
+        
         //mpParams->SetMeinekeLambda(1simulator.SetEndTime(0.25);5.0);
         
         mIncludeRandomBirth = false;
@@ -139,7 +139,7 @@ public:
     
     void SetMaxCells(unsigned maxCells)
     {
-    	mMaxCells = maxCells;
+        mMaxCells = maxCells;
     }
     
     /**
@@ -148,7 +148,7 @@ public:
      * Once CryptSimulation object has been set up, call this to run simulation
      */
     void Solve()
-    {	
+    {
         if (mOutputDirectory=="")
         {
             EXCEPTION("OutputDirectory not set");
@@ -167,24 +167,24 @@ public:
         // set up columns
         for (unsigned cell=0; cell<mMaxCells; cell++)
         {
-        	std::stringstream cell_type_var_name;
-        	std::stringstream cell_position_var_name;
+            std::stringstream cell_type_var_name;
+            std::stringstream cell_position_var_name;
             cell_type_var_name << "cell_type_" << cell;
-        	cell_position_var_name << "cell_position_" << cell;
-        	type_var_ids[cell]=tabulated_writer.DefineVariable(cell_type_var_name.str(),"dimensionless");
-        	position_var_ids[cell]=tabulated_writer.DefineVariable(cell_position_var_name.str(),"cell_lengths");
+            cell_position_var_name << "cell_position_" << cell;
+            type_var_ids[cell]=tabulated_writer.DefineVariable(cell_type_var_name.str(),"dimensionless");
+            position_var_ids[cell]=tabulated_writer.DefineVariable(cell_position_var_name.str(),"cell_lengths");
         }
         tabulated_writer.EndDefineMode();
         
         int num_time_steps = (int)(mEndTime/mDt+0.5);
         
         SimulationTime *p_simulation_time =
-        	SimulationTime::Instance(mEndTime,
-        							 num_time_steps);
-        							 
+            SimulationTime::Instance(mEndTime,
+                                     num_time_steps);
+                                     
         //double time = 0.0;
         double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
-               
+        
         int num_births = 0;
         int num_deaths = 0;
         
@@ -207,7 +207,7 @@ public:
                 unsigned generation=0;
                 MeinekeCryptCell new_cell(cell_type, p_simulation_time->GetDimensionalisedTime(), generation, new StochasticCellCycleModel(mpGen));
                 // Update cells vector
-               
+                
                 new_cell.SetNodeIndex(new_node_index);
                 if (new_node_index == mCells.size())
                 {
@@ -258,14 +258,14 @@ public:
             std::vector<double> drdt(mrMesh.GetNumAllNodes());
             if (mIncludeVariableRestLength && !mCells.empty())
             {
-            	//std::cout<< "elements" << mrMesh.GetNumAllElements() <<std::endl<< std::flush;
-                        
+                //std::cout<< "elements" << mrMesh.GetNumAllElements() <<std::endl<< std::flush;
+                
                 for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
                 {
                     Element<1,1>* element = mrMesh.GetElement(elem_index);
                     if (!element->IsDeleted())
                     {
-                    	c_vector<double, 2> drdt_contributions;
+                        c_vector<double, 2> drdt_contributions;
                         double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
@@ -275,13 +275,13 @@ public:
                         
                         if (age0<1.0 && age1<1.0 && fabs(age0-age1)<1e-6)
                         {
-                        	/* Spring Rest Length Increases to normal rest length from 0.9 normal rest length over 1 hour
-                             * This doesnt happen at present as when the full line is included the tests fail
-                             * 
-                             * This is wrong but due to the model being set up in 1D, when a new cell with a weaker spring is
-                             * put in next to other stressed cells, the weaker spring will be compressed too much and lead to
-                             * cells being pushed through other ones.  Leading to an exception being thrown in line 319 ish.
-                             */
+                            /* Spring Rest Length Increases to normal rest length from 0.9 normal rest length over 1 hour
+                                * This doesnt happen at present as when the full line is included the tests fail
+                                * 
+                                * This is wrong but due to the model being set up in 1D, when a new cell with a weaker spring is
+                                * put in next to other stressed cells, the weaker spring will be compressed too much and lead to
+                                * cells being pushed through other ones.  Leading to an exception being thrown in line 319 ish.
+                                */
                             rest_length=(0.9+0.1*age0)*rest_length;
                             
                             assert(rest_length<=mpParams->GetNaturalSpringLength());
@@ -289,7 +289,7 @@ public:
                         drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
                         drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
                         drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
-						drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
+                        drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                     }
                 }
             }
@@ -366,8 +366,8 @@ public:
             
             // Increment simulation time here, so results files look sensible
             p_simulation_time->IncrementTimeOneStep();
-
-			// Writing Results To Tabulated File First And Then To Space Separated File
+            
+            // Writing Results To Tabulated File First And Then To Space Separated File
             tabulated_writer.PutVariable(time_var_id, p_simulation_time->GetDimensionalisedTime());
             (*p_results_file) << p_simulation_time->GetDimensionalisedTime() << "\t";
             
@@ -376,39 +376,39 @@ public:
             {
                 if (!mrMesh.GetNodeAt(index)->IsDeleted())
                 {
-                    if(mCells.size() > 0)
+                    if (mCells.size() > 0)
                     {
-                    	CryptCellType type  = mCells[index].GetCellType();
-	                    if(type == STEM)
-	                    {
-	                    	tabulated_writer.PutVariable(type_var_ids[cell], 0);
-	                    }
-	                    else if(type == TRANSIT)
-	                    {
-	                    	tabulated_writer.PutVariable(type_var_ids[cell], 1);
-	                    }
-	                    else if(type == DIFFERENTIATED)
-	                    {
-	                    	tabulated_writer.PutVariable(type_var_ids[cell], 2);
-	                    }
+                        CryptCellType type  = mCells[index].GetCellType();
+                        if (type == STEM)
+                        {
+                            tabulated_writer.PutVariable(type_var_ids[cell], 0);
+                        }
+                        else if (type == TRANSIT)
+                        {
+                            tabulated_writer.PutVariable(type_var_ids[cell], 1);
+                        }
+                        else if (type == DIFFERENTIATED)
+                        {
+                            tabulated_writer.PutVariable(type_var_ids[cell], 2);
+                        }
                         else
                         {
                             // should be impossible to get here, until cancer cells
                             // are implemented
-                            #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
                             assert(0);
-                            #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
                         }
                     }
-	                else
-	                {
-	                  	tabulated_writer.PutVariable(type_var_ids[cell], -1);
-	                }
+                    else
+                    {
+                        tabulated_writer.PutVariable(type_var_ids[cell], -1);
+                    }
                     
                     Point<1> point = mrMesh.GetNodeAt(index)->rGetPoint();
-	                tabulated_writer.PutVariable(position_var_ids[cell], point.rGetLocation()[0]);	
-	                (*p_results_file) << point.rGetLocation()[0] << " ";
-
+                    tabulated_writer.PutVariable(position_var_ids[cell], point.rGetLocation()[0]);
+                    (*p_results_file) << point.rGetLocation()[0] << " ";
+                    
                     cell++;
                 }
             }
@@ -420,11 +420,11 @@ public:
         SimulationTime::Destroy();
     }
     
-        
+    
 private:
     unsigned AddRandomNode(double time)
     {
-    	    	
+    
         //Pick an element
         int random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
         Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
@@ -434,13 +434,13 @@ private:
         // keep picking until find an element which is big enough and not deleted
         while (element_length <0.4 || p_random_element->IsDeleted())
         {
-            // the following is ignored in coverage as there is a random 
+            // the following is ignored in coverage as there is a random
             // chance of it not happening
-            #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
             random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
             p_random_element = mrMesh.GetElement(random_element_number);
             element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
-            #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
             //std::cout << "..too small, trying: length " <<element_length << "\n";
             //double random_displacement = 0.2+mpGen->randf()*0.6;
         }
@@ -452,14 +452,14 @@ private:
     
     int AddNodeToElement(Element<1,1>* pElement, double time)
     {
-
+    
         double displacement;
         double left_position= pElement->GetNodeLocation(0,0);
-        if(mIncludeVariableRestLength)
+        if (mIncludeVariableRestLength)
         {
-        	double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
+            double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
             double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge(time);
-                       
+            
             if (fabs(age0)<1e-6)
             {
                 // place the new node to 0.1 to the right of the left-hand node
@@ -467,21 +467,21 @@ private:
             }
             else if (fabs(age1)<1e-6)
             {
-            	// place the new node to 0.1 to the left of the right-hand node
-            	double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
+                // place the new node to 0.1 to the left of the right-hand node
+                double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
                 displacement = element_length - 0.1;
             }
             else
             {
-            	EXCEPTION("No cell has divided in this element");
+                EXCEPTION("No cell has divided in this element");
             }
         }
         else
         {
-        	double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
+            double element_length = fabs(pElement->GetNodeLocation(1,0) - pElement->GetNodeLocation(0,0));
             // pick a random position in the central 60% of the element
             displacement = 0.2 + (mpGen->ranf())*(element_length-0.4);
-         
+            
         }
         Point<1> new_point(left_position + displacement);
         

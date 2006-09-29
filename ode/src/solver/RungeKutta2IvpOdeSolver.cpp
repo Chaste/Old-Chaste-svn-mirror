@@ -16,10 +16,10 @@
  * To be used in the form:
  *
  * RungeKutta2IvpOdeSolver mySolver
- * 
+ *
  * OdeSolution solution=mySolver.Solve(pMyOdeSystem, yInit, StartTime, EndTime, TimeStep, SamplingTime);
- * 
- * See documentation for AbstractOneStepIvpOdeSolver::Solve() 
+ *
+ * See documentation for AbstractOneStepIvpOdeSolver::Solve()
  */
 
 std::vector<double> RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
@@ -30,7 +30,7 @@ std::vector<double> RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
     int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     // Apply Runge-Kutta 2nd Order method for each timestep in AbstractOneStepIvpSolver.
-    // Calculates a vector containing the next Y value from the current one for each 
+    // Calculates a vector containing the next Y value from the current one for each
     // equation in the system.
     
     // Work out k1

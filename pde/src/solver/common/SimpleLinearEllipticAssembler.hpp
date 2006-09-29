@@ -15,16 +15,16 @@
 #include "AbstractBasisFunction.hpp"
 
 
-/** 
+/**
  *  SimpleLinearEllipticAssembler
- * 
+ *
  *  Assembler for solving AbstractLinearEllipticPdes
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
 class SimpleLinearEllipticAssembler : public AbstractLinearStaticProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
     friend class TestSimpleLinearEllipticAssembler;
-
+    
 private:
     AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
     
@@ -42,11 +42,11 @@ protected:
         const c_vector<double,1> &u)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
-
+        
         return prod( trans(rGradPhi), c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) );
     }
     
-    /** 
+    /**
      *  The term arising from boundary conditions to be added to the element
      *  stiffness vector
      */
@@ -66,8 +66,8 @@ protected:
         double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
         return phi * D_times_gradu_dot_n;
     }
-                                                               
-
+    
+    
     
 public:
     /**
@@ -75,14 +75,14 @@ public:
      */
     SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
-                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
+                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   int numQuadPoints = 2) :
             AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
         mpEllipticPde = pPde;
-        this->mpMesh = pMesh; 
+        this->mpMesh = pMesh;
         this->mpBoundaryConditions = pBoundaryConditions;
     }
     
@@ -91,7 +91,7 @@ public:
      */
     SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
-                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions, 
+                                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                   AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                   int numQuadPoints = 2) :
@@ -100,7 +100,7 @@ public:
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
         // to allow the user or a subclass to set any of these later
         mpEllipticPde = pPde;
-        this->mpMesh = pMesh; 
+        this->mpMesh = pMesh;
         this->mpBoundaryConditions = pBoundaryConditions;
     }
     

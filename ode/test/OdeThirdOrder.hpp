@@ -10,7 +10,7 @@ class OdeThirdOrder : public AbstractOdeSystem
 {
 public :
     OdeThirdOrder()
-        : AbstractOdeSystem(3) // 3 here is the number of unknowns
+            : AbstractOdeSystem(3) // 3 here is the number of unknowns
     {
         mInitialConditions.push_back(0.0);
         mInitialConditions.push_back(1.0);

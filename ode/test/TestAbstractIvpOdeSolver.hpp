@@ -32,8 +32,8 @@ private :
         Ode1 ode_system;
         OdeSolution solutions;
         
-        // Solving the ode problem. Note that dt and the sampling time 
-        // are different 
+        // Solving the ode problem. Note that dt and the sampling time
+        // are different
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = rSolver.Solve(&ode_system, state_variables, startTime, endTime, dt, samplingTime);
         
@@ -44,9 +44,9 @@ private :
         TS_ASSERT_DELTA(num_timesteps, (endTime-startTime)/samplingTime, 1);
         // also check the size of the data is correct
         TS_ASSERT_EQUALS(solutions.rGetSolutions().size(), (unsigned) (num_timesteps+1));
-  
+        
         int last = num_timesteps;
-
+        
         // Test to solution is correct
         double testvalue = solutions.rGetSolutions()[last][0];
         
@@ -59,8 +59,8 @@ private :
         rSolver.Solve(&ode_system, state_variables, startTime, endTime, dt);
         TS_ASSERT_DELTA(state_variables[0], endTime-startTime, 0.01);
         
-        // no stopping event was specified in the ODE, so check the 
-        // solver correctly states it didn't stop due to a 
+        // no stopping event was specified in the ODE, so check the
+        // solver correctly states it didn't stop due to a
         // stopping event.
         TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), false);
     }
@@ -71,59 +71,59 @@ private :
     {
         // ode which has solution y0 = cos(t), and stopping event y0<0,
         // ie should stop when t = pi/2;
-        OdeSecondOrderWithEvents ode_with_events;  
-
+        OdeSecondOrderWithEvents ode_with_events;
+        
         OdeSolution solutions;
         std::vector<double> state_variables = ode_with_events.GetInitialConditions();
         solutions = rSolver.Solve(&ode_with_events, state_variables, 0.0, 2.0, 0.001, 0.001);
-
+        
         int num_timesteps = solutions.GetNumberOfTimeSteps();
         
         // final time should be around pi/2
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01); 
-
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01);
+        
         // penultimate y0 should be greater than zero
-        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]); 
-
+        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
+        
         // final y0 should be less than zero
-        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0); 
-
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
+        
         // solver should correctly state the stopping event occured
         TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
-
-
+        
+        
         ///////////////////////////////////////////////
-        // repeat with sampling time larger than dt 
+        // repeat with sampling time larger than dt
         ///////////////////////////////////////////////
-
+        
         state_variables = ode_with_events.GetInitialConditions();
         solutions = rSolver.Solve(&ode_with_events, state_variables, 0.0, 2.0, 0.001, 0.01);
-
+        
         num_timesteps = solutions.GetNumberOfTimeSteps();
-
+        
         // final time should be around pi/2
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01); 
-
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01);
+        
         // penultimate y0 should be greater than zero
-        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]); 
-
+        TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
+        
         // final y0 should be less than zero
-        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0); 
-       
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], 0);
+        
         // solver should correctly state the stopping event occured
         TS_ASSERT_EQUALS(rSolver.StoppingEventOccured(), true);
         
         // cover the check event isn't initially true exception
         std::vector<double> bad_init_cond;
-        bad_init_cond.push_back(-1);  //y0 < 0 so stopping event true 
+        bad_init_cond.push_back(-1);  //y0 < 0 so stopping event true
         bad_init_cond.push_back(0.0);
         TS_ASSERT_THROWS_ANYTHING(rSolver.Solve(&ode_with_events, bad_init_cond, 0.0, 2.0, 0.001, 0.01));
     }
     
-
-
-
-
+    
+    
+    
+    
 public:
 
     void testEulerSolver()
@@ -168,12 +168,12 @@ public:
     void testRungeKutta4Solver()
     {
         RungeKutta4IvpOdeSolver rk4_solver;
-
+        
         testGenericSolver(rk4_solver,  0.0, 2.0, 0.001, 0.001);
         testGenericSolver(rk4_solver,  1.0, 2.0, 0.001, 0.01);
         testGenericSolver(rk4_solver, -1.0, 2.0, 0.001, 2);
         testGenericSolver(rk4_solver,  0.0, 0.4, 0.01,  0.34);
-
+        
         testSolverOnOdesWithEvents(rk4_solver);
     }
     
@@ -187,8 +187,8 @@ public:
         // Initialise the instance of our solution class
         OdeSolution solutions;
         
-        // Solving the ode problem. Note that dt and the sampling time 
-        // are different 
+        // Solving the ode problem. Note that dt and the sampling time
+        // are different
         std::vector<double> state_variables = ode_system.GetInitialConditions();
         solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.000037, 0.000037);
         
@@ -503,7 +503,7 @@ public:
     }
     
     
-
+    
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

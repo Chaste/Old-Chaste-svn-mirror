@@ -12,7 +12,7 @@ class TestCellCycleModels : public CxxTest::TestSuite
 public:
     void TestFixedCellCycleModel(void) throw(Exception)
     {
-    	CancerParameters *p_params = CancerParameters::Instance();
+        CancerParameters *p_params = CancerParameters::Instance();
         FixedCellCycleModel our_fixed_cell;
         
         our_fixed_cell.SetCellType(TRANSIT);
@@ -33,8 +33,8 @@ public:
     
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
-    	CancerParameters *p_params = CancerParameters::Instance();
-    	RandomNumberGenerators rand_gen;
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerators rand_gen;
         StochasticCellCycleModel cell_model(&rand_gen);
         
         cell_model.SetCellType(STEM);

@@ -17,7 +17,7 @@ public:
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(-1.0);
         inst1->SetMeinekeLambda(-2.0);
-   
+        
         CancerParameters *inst2 = CancerParameters::Instance();
         
         TS_ASSERT_DELTA(inst2->GetStemCellCycleTime(), -25.0, 1e-12);

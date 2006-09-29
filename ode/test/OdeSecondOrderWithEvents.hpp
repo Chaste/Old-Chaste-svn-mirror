@@ -6,14 +6,14 @@
 class OdeSecondOrderWithEvents : public AbstractOdeSystem
 {
 public :
-    OdeSecondOrderWithEvents() 
-        : AbstractOdeSystem(2)  // 2 here is the number of variables
+    OdeSecondOrderWithEvents()
+            : AbstractOdeSystem(2)  // 2 here is the number of variables
     {
         // set initial conditions
         mInitialConditions.push_back(1.0);
         mInitialConditions.push_back(0.0);
     }
-        
+    
     
     std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY)
     {
@@ -23,8 +23,8 @@ public :
         ret[1] = -rY[0];
         return ret;
     }
-   
-   
+    
+    
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
         return (rY[0]<0);

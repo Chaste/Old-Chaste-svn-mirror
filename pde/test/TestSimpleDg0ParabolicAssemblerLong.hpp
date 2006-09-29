@@ -128,7 +128,7 @@ public:
             
             surf_iter++;
         }
-
+        
         // Assembler
         SimpleDg0ParabolicAssembler<2,2> assembler(&mesh,&pde,&bcc);
         
@@ -195,7 +195,7 @@ public:
         
         // Assembler
         SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
-
+        
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an
         // eigenfunction of the heat equation.
@@ -276,7 +276,7 @@ public:
         
         // Assembler
         SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
-                
+        
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
         
@@ -383,7 +383,7 @@ public:
         
         // Assembler
         SimpleDg0ParabolicAssembler<3,3> assembler(&mesh,&pde,&bcc);
-
+        
         // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
         Vec initial_condition = CreateInitialConditionVec(mesh.GetNumNodes());
         

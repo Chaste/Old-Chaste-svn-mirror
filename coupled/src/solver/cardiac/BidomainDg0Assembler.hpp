@@ -14,46 +14,46 @@
 #include "AbstractLinearDynamicProblemAssembler.hpp"
 
 
-/** 
+/**
  *  BidomainDg0Assembler
- * 
+ *
  *  inherits from AbstractLinearDynamicProblemAssembler<ELEM_DIM, SPACE_DIM, 2> (the
  *  2 representing the number of unknowns (ie voltage and extracellular potential)).
- * 
- *  This assembler interpolates quantities such as ionic currents and stimuli from 
+ *
+ *  This assembler interpolates quantities such as ionic currents and stimuli from
  *  their nodal values (obtained from a BidomainPde) onto a gauss point, and uses
- *  the interpolated values in assembly. The assembler also creates boundary conditions, 
- *  which are zero-Neumann boundary conditions on the surface unless 
- *  SetFixedExtracellularPotentialNodes() is called. 
- * 
+ *  the interpolated values in assembly. The assembler also creates boundary conditions,
+ *  which are zero-Neumann boundary conditions on the surface unless
+ *  SetFixedExtracellularPotentialNodes() is called.
+ *
  *  The user should call Solve() from the superclass AbstractLinearDynamicProblemAssembler.
- * 
- *  NOTE: if any cells have a non-zero extracellular stimulus, phi_e must be fixed at some 
+ *
+ *  NOTE: if any cells have a non-zero extracellular stimulus, phi_e must be fixed at some
  *  nodes (using SetFixedExtracellularPotentialNodes() ), else no solution is possible.
- */ 
+ */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class BidomainDg0Assembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
-
+    
     // quantities to be interpolated
     double mIionic;
     double mIIntracellularStimulus;
     double mIExtracellularStimulus;
-
+    
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
-
-
+    
+    
     void ResetInterpolatedQuantities( void )
     {
         mIionic=0;
         mIIntracellularStimulus=0;
         mIExtracellularStimulus=0;
     }
-
-
+    
+    
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
     {
         unsigned node_global_index = pNode->GetIndex();
@@ -62,7 +62,7 @@ private:
         mIIntracellularStimulus += phi_i * mpBidomainPde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
         mIExtracellularStimulus += phi_i * mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
     }
-
+    
     /** ComputeLhsTerm()
      * 
      *  This method is called by AssembleOnElement() and tells the assembler
@@ -77,35 +77,35 @@ private:
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
         double Cm = mpBidomainPde->GetCapacitance();
-            
+        
         c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = mpBidomainPde->GetIntracellularConductivityTensor();
         c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = mpBidomainPde->GetExtracellularConductivityTensor();
         
         
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
-                    prod(trans(rGradPhi), temp);
-                    
+            prod(trans(rGradPhi), temp);
+            
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
-                    outer_prod(rPhi, rPhi);
-                    
+            outer_prod(rPhi, rPhi);
+            
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(sigma_e, rGradPhi);
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_e_grad_phi =
-                    prod(trans(rGradPhi), temp2);
-        
-        
+            prod(trans(rGradPhi), temp2);
+            
+            
         c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ret;
         
         // even rows, even columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice00(ret, slice (0, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
         slice00 = (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi ;
-                
+        
         // odd rows, even columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice10(ret, slice (1, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
         slice10 = grad_phi_sigma_i_grad_phi;
-                
+        
         // even rows, odd columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice01(ret, slice (0, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
@@ -114,13 +114,13 @@ private:
         // odd rows, odd columns
         matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
         slice11(ret, slice (1, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
-        slice11 = grad_phi_sigma_i_grad_phi + grad_phi_sigma_e_grad_phi;        
-
+        slice11 = grad_phi_sigma_i_grad_phi + grad_phi_sigma_e_grad_phi;
+        
         return ret;
-    }    
-
+    }
     
-    /** 
+    
+    /**
      *  ComputeRhsTerm()
      * 
      *  This method is called by AssembleOnElement() and tells the assembler
@@ -134,22 +134,22 @@ private:
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
         double Cm = mpBidomainPde->GetCapacitance();
-
+        
         c_vector<double,2*(ELEMENT_DIM+1)> ret;
         
         vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
         vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
-            
-        // u(0) = voltage    
+        
+        // u(0) = voltage
         slice_V   =  (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
         slice_Phi =  -mIExtracellularStimulus * rPhi;
         
         return ret;
     }
-
-
-
-  
+    
+    
+    
+    
     /** ComputeSurfaceLhsTerm()
      * 
      *  This method is called by AssembleOnSurfaceElement() and tells the 
@@ -161,33 +161,33 @@ private:
      *  conditions and the AbstractLinearAssmebler::AssembleSystem() method
      *  will realise this and not loop over surface elements.
      */
-    #define COVERAGE_IGNORE //see NOTE above
+#define COVERAGE_IGNORE //see NOTE above
     virtual c_vector<double, 2*ELEMENT_DIM> ComputeSurfaceRhsTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                                                  const c_vector<double,ELEMENT_DIM> &phi,
-                                                                  const Point<SPACE_DIM> &x)
+            const c_vector<double,ELEMENT_DIM> &phi,
+            const Point<SPACE_DIM> &x)
     {
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
         double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x, 0);
         double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x, 1);
-
+        
         c_vector<double, 2*ELEMENT_DIM> ret;
-        for(int i=0; i<ELEMENT_DIM; i++)
+        for (int i=0; i<ELEMENT_DIM; i++)
         {
             ret(2*i)   = phi(i)*D_times_grad_v_dot_n;
             ret(2*i+1) = phi(i)*D_times_grad_phi_e_dot_n;
         }
-    
+        
         return ret;
     }
-    #undef COVERAGE_IGNORE
-  
-  
-  
+#undef COVERAGE_IGNORE
+    
+    
+    
     
     //   this method is not needed anymore - AbstractLinearAssembler has been
-    //   refactored to handle pdes with more than one unknown 
-     
-    /* 
+    //   refactored to handle pdes with more than one unknown
+    
+    /*
     void AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                            c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2>& rAElem,
                            c_vector<double, 2*ELEMENT_DIM+2>& rBElem,
@@ -199,7 +199,7 @@ private:
         {
             int mLo, mHi;
             this->mpAssembledLinearSystem->GetOwnershipRange(mLo,mHi);
-            
+        
             for (int i=0; i< rElement.GetNumNodes(); i++)
             {
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
@@ -220,7 +220,7 @@ private:
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>::mpQuadRule);
         AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
             *(AbstractAssembler<ELEMENT_DIM,SPACE_DIM,2>::mpBasisFunction);
-            
+        
         const c_matrix<double, SPACE_DIM, SPACE_DIM> *inverse_jacobian = NULL;
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
@@ -245,17 +245,17 @@ private:
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
-            
+        
             c_vector<double, ELEMENT_DIM+1> basis_func = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>  grad_basis;
-            
+        
             if (!this->mMatrixIsAssembled)
             {
                 grad_basis = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
                              (quad_point, *inverse_jacobian);
             }
             Point<SPACE_DIM> x(0,0,0);
-            
+        
             // Vm is the trans-membrane voltage interpolated onto the gauss point
             // I_ionic is the ionic current (per unit AREA) interpolated onto gauss point
             // I_intra_stim, I_extra_stim are the stimuli (per unit VOLUME) interpolated
@@ -264,7 +264,7 @@ private:
             double I_ionic = 0;
             double I_intra_stim = 0;
             double I_extra_stim = 0;
-            
+        
             // interpolate x, Vm, and currents
             for (int i=0; i<num_elem_nodes; i++)
             {
@@ -274,98 +274,98 @@ private:
                 {
                     x.SetCoordinate(j, x[j] + basis_func(i)*node_loc[j]);
                 }
-                
+        
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
-                
+        
                 Vm           += basis_func(i) * this->mCurrentSolutionReplicated[ 2*node_global_index ];
                 I_ionic      += basis_func(i) * pde->GetIionicCacheReplicated()[ node_global_index ];
                 I_intra_stim += basis_func(i) * pde->GetIntracellularStimulusCacheReplicated()[ node_global_index ];
                 I_extra_stim += basis_func(i) * pde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
             }
-            
+        
             double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
-            
+        
             // get bidomain parameters
             double Am = pde->GetSurfaceAreaToVolumeRatio();
             double Cm = pde->GetCapacitance();
-            
+        
             c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_i = pde->GetIntracellularConductivityTensor();
             c_matrix<double, SPACE_DIM, SPACE_DIM> sigma_e = pde->GetExtracellularConductivityTensor();
-            
-            
+        
+        
             // assemble element stiffness matrix
             if (!this->mMatrixIsAssembled)
             {
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, grad_basis);
                 c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
                     prod(trans(grad_basis), temp);
-                    
+        
                 c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
                     outer_prod(basis_func, basis_func);
-                    
+        
                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> temp2 = prod(sigma_e, grad_basis);
                 c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_e_grad_phi =
                     prod(trans(grad_basis), temp2);
-                    
+        
                 // Components of the element stiffness matrix are:
                 // (0,0) block:            ACV/dt + (Di grad_basis_col)dot(grad_basis_row)
                 // (0,1) and (1,0) blocks: (Di grad_basis_col)dot(grad_basis_row)
                 // (1,1) block:           ( ((Di+De)grad_basis_col )dot(grad_basis_row)
-                
+        
                 //// old version:
                 //rAElem(2*row,  2*col)   += wJ*( (Am*Cm/mDt)*basis_func(col)*basis_func(row)  +  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col )) );
                 //rAElem(2*row+1,2*col)   += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   );
                 //rAElem(2*row,  2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))  );
                 //rAElem(2*row+1,2*col+1) += wJ*(  inner_prod( grad_basis_row, prod( sigma_i, grad_basis_col ))   +   inner_prod( grad_basis_row, prod( sigma_e, grad_basis_col )));
-                
-                
+        
+        
                 // a matrix slice is a submatrix
-                
+        
                 // even rows, even columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                 rAElem_slice00(rAElem, slice (0, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
                 rAElem_slice00 += wJ*( (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi );
-                
+        
                 // odd rows, even columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                 rAElem_slice10(rAElem, slice (1, 2, num_elem_nodes), slice (0, 2, num_elem_nodes));
                 rAElem_slice10 += wJ * grad_phi_sigma_i_grad_phi;
-                
+        
                 // even rows, odd columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                 rAElem_slice01(rAElem, slice (0, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
                 rAElem_slice01 += wJ * grad_phi_sigma_i_grad_phi;
-                
+        
                 // odd rows, odd columns
                 matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
                 rAElem_slice11(rAElem, slice (1, 2, num_elem_nodes), slice (1, 2, num_elem_nodes));
                 rAElem_slice11 += wJ*( grad_phi_sigma_i_grad_phi + grad_phi_sigma_e_grad_phi);
             }
-            
+        
             // assemble element stiffness vector
             vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_V  (rBElem, slice (0, 2, num_elem_nodes));
             vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > rBElem_slice_Phi(rBElem, slice (1, 2, num_elem_nodes));
-            
+        
             rBElem_slice_V   += wJ*( (Am*Cm*Vm/this->mDt - Am*I_ionic - I_intra_stim) * basis_func );
             rBElem_slice_Phi += wJ*( -I_extra_stim * basis_func );
         }
     }
     
     */
-
-
-    /** 
+    
+    
+    /**
      *  PrepareForAssembleSystem
      * 
      *  Called at the beginning of AbstractLinearAssmebler::AssembleSystem() 
      *  after the system. Here, used to integrate cell odes.
      */
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double time) 
+    virtual void PrepareForAssembleSystem(Vec currentSolution, double time)
     {
         mpBidomainPde->SolveCellSystems(currentSolution, time, time+this->mDt);
-    }    
+    }
     
-    /** 
+    /**
      *  FinaliseAssembleSystem
      * 
      *  Called by AbstractLinearAssmebler::AssembleSystem() after the system
@@ -397,7 +397,7 @@ private:
             VecAssemblyEnd(nullbasis[0]);
             
             this->mpAssembledLinearSystem->SetNullBasis(nullbasis, 1);
-
+            
             VecDestroy(nullbasis[0]);
         }
     }
@@ -408,10 +408,10 @@ public:
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
      */
-     BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+    BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
                          int numQuadPoints = 2) :
-            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints)            
+            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints)
     {
         assert(pPde != NULL);
         assert(pMesh != NULL);
@@ -421,11 +421,11 @@ public:
         
         // set up boundary conditions
         this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );
-
+        
         // define zero neumann boundary conditions everywhere
-        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage 
+        this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
-
+        
         this->mpAssembledLinearSystem = NULL;
         this->mMatrixIsAssembled = false;
         
@@ -466,13 +466,13 @@ public:
                 EXCEPTION("Fixed node number must be less than total number nodes");
             }
         }
-
+        
         mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
         
-        for(unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
+        for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
         {
             ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition
-             = new ConstBoundaryCondition<SPACE_DIM>(0.0);
+            = new ConstBoundaryCondition<SPACE_DIM>(0.0);
             
             Node<SPACE_DIM>* p_node = this->mpMesh->GetNodeAt(mFixedExtracellularPotentialNodes[i]);
             

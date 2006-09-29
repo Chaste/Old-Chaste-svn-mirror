@@ -98,19 +98,19 @@ public:
         
         for (int i=0; i<4; i++)
         {
-            for(int j=0; j<3; j++)
+            for (int j=0; j<3; j++)
             {
                 TS_ASSERT_DELTA(another_element.GetNode(i)->GetPoint()[j], element.GetNode(i)->GetPoint()[j], 1e-10);
             }
         }
-
+        
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
             delete corner_nodes[i];
             delete more_nodes[i];
         }
     }
-
+    
     
     void TestGetSetAbstractElementMethods()
     {
@@ -127,7 +127,7 @@ public:
         
         TS_ASSERT_EQUALS(element.GetOwnership(),true);
         TS_ASSERT_EQUALS(element.GetOwnershipSet(),true);
-      
+        
         
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {

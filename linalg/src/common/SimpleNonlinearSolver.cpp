@@ -70,7 +70,7 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     SNESSetJacobian(snes, J, J, pComputeJacobian, pContext);
     SNESSetType(snes,SNESLS);
     SNESSetTolerances(snes,1.0e-5,1.0e-5,1.0e-5,PETSC_DEFAULT,PETSC_DEFAULT);
-
+    
     // x is the iteration vector SNES uses when solving, set equal to initialGuess to start with
     Vec x;
     VecDuplicate(initialGuess, &x);

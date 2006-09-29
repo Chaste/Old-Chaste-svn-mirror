@@ -13,15 +13,15 @@
 class AbstractIvpOdeSolver
 {
 protected :
-    /** 
+    /**
      * boolean indicating whether the solver quit due to the ODEs
      * stopping event occuring
      */
-    bool mStoppingEventOccured; 
+    bool mStoppingEventOccured;
     
     /** if a stopping event occured the time is stored here */
     double mStoppingTime;
-
+    
     
 public :
     /**
@@ -53,9 +53,9 @@ public :
                        double startTime,
                        double endTime,
                        double timeStep)=0;
-    
-    
-    /** 
+                       
+                       
+    /**
      * Determine whether the solver quit due to the ODE's stopping event 
      * triggering
      */
@@ -63,17 +63,15 @@ public :
     {
         return mStoppingEventOccured;
     }
-
-
-    AbstractIvpOdeSolver() 
-       : mStoppingEventOccured(false)
-    {
-    }
-
-                    
+    
+    
+    AbstractIvpOdeSolver()
+            : mStoppingEventOccured(false)
+    {}
+    
+    
     virtual ~AbstractIvpOdeSolver()
-    {
-    }
+    {}
 };
 
 #endif //_ABSTRACTIVPODESOLVER_HPP_

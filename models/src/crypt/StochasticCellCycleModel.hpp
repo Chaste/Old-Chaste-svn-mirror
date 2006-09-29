@@ -13,13 +13,13 @@
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 private:
-	RandomNumberGenerators* mpGen;
+    RandomNumberGenerators* mpGen;
     
 public:
-	StochasticCellCycleModel(RandomNumberGenerators *pGen)
-	{
-		mpGen=pGen;
-	}
+    StochasticCellCycleModel(RandomNumberGenerators *pGen)
+    {
+        mpGen=pGen;
+    }
     
     bool ReadyToDivide(double timeSinceBirth);
     

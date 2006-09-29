@@ -14,11 +14,11 @@ SimulationTime* SimulationTime::mpInstance = 0;
  * @param durationOfSimulation Total dimensionalized time of the simulation
  * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
  */
-SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalTimeStepsInSimulation) 
+SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalTimeStepsInSimulation)
 {
-	assert(mpInstance == 0);
-	mpInstance = new SimulationTime(durationOfSimulation, totalTimeStepsInSimulation);
-	return mpInstance;
+    assert(mpInstance == 0);
+    mpInstance = new SimulationTime(durationOfSimulation, totalTimeStepsInSimulation);
+    return mpInstance;
 }
 
 /**
@@ -28,20 +28,22 @@ SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalT
  */
 SimulationTime* SimulationTime::Instance()
 {
-	assert(mpInstance != 0);
-	return mpInstance;
+    assert(mpInstance != 0);
+    return mpInstance;
 }
 
-SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsInSimulation) {
-	mDurationOfSimulation = durationOfSimulation;
-	mTotalTimeStepsInSimulation=totalTimeStepsInSimulation;
-	mTimeStepsElapsed = 0;
+SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsInSimulation)
+{
+    mDurationOfSimulation = durationOfSimulation;
+    mTotalTimeStepsInSimulation=totalTimeStepsInSimulation;
+    mTimeStepsElapsed = 0;
 }
 
 
-void SimulationTime::Destroy() {
-	delete mpInstance;
-	mpInstance = 0;
+void SimulationTime::Destroy()
+{
+    delete mpInstance;
+    mpInstance = 0;
 }
 
 /**
@@ -52,7 +54,7 @@ void SimulationTime::Destroy() {
  */
 double SimulationTime::GetTimeStep()
 {
-	return mDurationOfSimulation/mTotalTimeStepsInSimulation;
+    return mDurationOfSimulation/mTotalTimeStepsInSimulation;
 }
 
 /**
@@ -60,7 +62,7 @@ double SimulationTime::GetTimeStep()
  */
 void SimulationTime::IncrementTimeOneStep()
 {
-	mTimeStepsElapsed++;
+    mTimeStepsElapsed++;
 }
 
 /**
@@ -69,7 +71,7 @@ void SimulationTime::IncrementTimeOneStep()
  */
 int SimulationTime::GetTimeStepsElapsed()
 {
-	return mTimeStepsElapsed;
+    return mTimeStepsElapsed;
 }
 
 /**
@@ -79,6 +81,6 @@ int SimulationTime::GetTimeStepsElapsed()
  */
 double SimulationTime::GetDimensionalisedTime()
 {
-	return ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
-	       * mDurationOfSimulation;
+    return ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
+           * mDurationOfSimulation;
 }

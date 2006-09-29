@@ -10,10 +10,10 @@ class Ode4 : public AbstractOdeSystem
 {
 public :
     Ode4()
-        : AbstractOdeSystem(1)  // 1 here is the number of unknowns
+            : AbstractOdeSystem(1)  // 1 here is the number of unknowns
     {
         mInitialConditions.push_back(0.5);
-    }    
+    }
     
     std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
     {

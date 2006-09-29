@@ -7,7 +7,7 @@ class OdeSecondOrder : public AbstractOdeSystem
 {
 public :
     OdeSecondOrder()
-       : AbstractOdeSystem(2) // 2 here is the number of unknowns
+            : AbstractOdeSystem(2) // 2 here is the number of unknowns
     {
         mInitialConditions.push_back(0.0);
         mInitialConditions.push_back(1.0);

@@ -208,26 +208,26 @@ public:
         mIndex=index;
     }
     
-      bool IsDeleted()
- 	    {
- 	        return mIsDeleted;
- 	    }
- 	   
- 	    bool GetOwnership()
- 	    {
- 	        return mOwnership;
- 	    }
- 	       
- 	    void SetOwnership(bool ownership)
- 	    {
- 	        mOwnership=ownership;
- 	        mOwnershipSet=true;
- 	    }
- 	   
- 	    bool GetOwnershipSet()
- 	    {
- 	        return mOwnershipSet;
- 	    }
+    bool IsDeleted()
+    {
+        return mIsDeleted;
+    }
+    
+    bool GetOwnership()
+    {
+        return mOwnership;
+    }
+    
+    void SetOwnership(bool ownership)
+    {
+        mOwnership=ownership;
+        mOwnershipSet=true;
+    }
+    
+    bool GetOwnershipSet()
+    {
+        return mOwnershipSet;
+    }
 };
 
 

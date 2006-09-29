@@ -60,7 +60,7 @@ public:
         c_vector<double, 3> bel;
         
         SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
-
+        
         assembler.AssembleOnElement(element, ael, bel, false);
         
         TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
@@ -140,7 +140,7 @@ public:
         value1 = pde.ComputeLinearSourceTermAtNode(*(mesh.GetNodeAt(0)));
         value2 = pde.ComputeLinearSourceTerm(mesh.GetNodeAt(0)->GetPoint());
         TS_ASSERT_DELTA(value1, value2, 1e-10);
-            
+        
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
@@ -148,7 +148,7 @@ public:
         
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-                
+        
         Vec result = assembler.Solve();
         
         // Check result
@@ -235,9 +235,9 @@ public:
         
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
-                
+        
         Vec result = assembler.Solve();
-
+        
         
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
@@ -541,8 +541,7 @@ public:
             double z = (*iter)->GetPoint()[2];
             
             if (fabs(1-x)<0.01)
-            {
-            }
+            {}
             else
             {
                 //Dirichlet boundary condition
@@ -567,10 +566,10 @@ public:
             
             surf_iter++;
         }
-                
+        
         // Assembler
         SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
-
+        
         Vec result = assembler.Solve();
         
         // Check result

@@ -89,11 +89,11 @@ public:
                 - this->mIntracellularStimulusCacheReplicated[index];
     }
     
-
+    
     double ComputeDuDtCoefficientFunction(Point<SPACE_DIM> )
     {
         return (this->mSurfaceAreaToVolumeRatio)*(this->mCapacitance);
-    }    
+    }
 };
 
 #endif /*MONODOMAINPDE_HPP_*/

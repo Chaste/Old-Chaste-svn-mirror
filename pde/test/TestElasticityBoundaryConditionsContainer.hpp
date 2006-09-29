@@ -22,7 +22,7 @@ public:
         
         Node<1>* p_node_0 = mesh.GetNodeAt(0);
         Node<1>* p_node_1 = mesh.GetNodeAt(10);
-
+        
         bcc.FixNode(p_node_0);
         
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_0,0), 0.0, 1e-10 );
@@ -31,12 +31,12 @@ public:
         displacement(0) = 3.14;
         
         bcc.SetDisplacement(p_node_1, displacement);
-
+        
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_1,0), 3.14, 1e-10 );
     }
-
-
-    void test_FixNode_and_SetDisplacement_2d() throw(Exception) 
+    
+    
+    void test_FixNode_and_SetDisplacement_2d() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -46,7 +46,7 @@ public:
         
         Node<2>* p_node_0 = mesh.GetNodeAt(0);
         Node<2>* p_node_1 = mesh.GetNodeAt(1);
-
+        
         bcc.FixNode(p_node_0);
         
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_0,0), 0.0, 1e-10 );
@@ -57,12 +57,12 @@ public:
         displacement(1) = 2.81;
         
         bcc.SetDisplacement(p_node_1, displacement);
-
+        
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_1,0), 3.14, 1e-10 );
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_1,1), 2.81, 1e-10 );
     }
-
-
+    
+    
     void test_FixNode_and_SetDisplacement_3d() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -73,7 +73,7 @@ public:
         
         Node<3>* p_node_0 = mesh.GetNodeAt(0);
         Node<3>* p_node_1 = mesh.GetNodeAt(1);
-
+        
         bcc.FixNode(p_node_0);
         
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_0,0), 0.0, 1e-10 );
@@ -86,11 +86,11 @@ public:
         displacement(2) = -1;
         
         bcc.SetDisplacement(p_node_1, displacement);
-
+        
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_1,0),  3.14, 1e-10 );
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_1,1),  2.81, 1e-10 );
         TS_ASSERT_DELTA( bcc.GetDirichletBCValue(p_node_1,2), -1.00, 1e-10 );
     }
-
+    
 };
 #endif /*TESTELASTICITYBOUNDARYCONDITIONSCONTAINER_HPP_*/

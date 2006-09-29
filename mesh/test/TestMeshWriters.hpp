@@ -57,9 +57,9 @@ public:
         delete p_new_mesh_reader;
     }
     
-
-
-
+    
+    
+    
     void TestTrianglesToMeshalyzer1d(void)
     {
         TrianglesMeshReader<1,1> import_mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -67,7 +67,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
-
+    
     void TestTrianglesToMeshalyzer2d(void)
     {
         TrianglesMeshReader<2,2> import_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
@@ -75,7 +75,7 @@ public:
         
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
-
+    
     void TestTrianglesToMeshalyzer3d(void)
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");

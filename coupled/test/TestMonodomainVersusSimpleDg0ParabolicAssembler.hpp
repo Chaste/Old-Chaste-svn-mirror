@@ -21,8 +21,7 @@ class ZeroStimCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>
 {
 public:
     ZeroStimCellFactory() : AbstractCardiacCellFactory<SPACE_DIM>(0.01)
-    {
-    }
+    {}
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
@@ -40,8 +39,8 @@ public:
 
 /*
  * A simple parabolic PDE used in this test.
- * 
- * NOTE: The fischer pde is a parabolic linear pde, however we want to get the 
+ *
+ * NOTE: The fischer pde is a parabolic linear pde, however we want to get the
  * MonodomainDg0Assembler, which expects a MonodomainPde passed it, to solve it.
  * Therefore, we get this pde to inherit from MonodomainPde, and overload all the
  * main functions. For this reason it has to take in a cell class, although this is
@@ -76,10 +75,9 @@ public:
         return 1;
     }
     
-    FischerPde(ZeroStimCellFactory<SPACE_DIM>* pCellFactory) 
-       : MonodomainPde<SPACE_DIM>(pCellFactory)
-    {
-    }    
+    FischerPde(ZeroStimCellFactory<SPACE_DIM>* pCellFactory)
+            : MonodomainPde<SPACE_DIM>(pCellFactory)
+    {}
 };
 
 
@@ -153,16 +151,16 @@ public:
         
         VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
         
-
+        
         monodomain_assembler.SetTimes(t_start, t_final, pde_timestep);
         simple_assembler.SetTimes(t_start, t_final, pde_timestep);
-            
+        
         monodomain_assembler.SetInitialCondition( initial_condition_1 );
         simple_assembler.SetInitialCondition( initial_condition_2 );
-            
+        
         Vec current_solution_1 = monodomain_assembler.Solve();
         Vec current_solution_2 = simple_assembler.Solve();
-            
+        
         
         // Compare the results
         double *p_current_solution1_array, *p_current_solution2_array;
@@ -181,8 +179,8 @@ public:
         
         VecRestoreArray(current_solution_1, &p_current_solution1_array);
         VecRestoreArray(current_solution_2, &p_current_solution2_array);
-
-        VecDestroy(initial_condition_1); 
+        
+        VecDestroy(initial_condition_1);
         VecDestroy(initial_condition_2);
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
@@ -217,7 +215,7 @@ public:
         // Assembler
         MonodomainDg0Assembler<2,2> monodomain_assembler(&mesh,&pde);
         SimpleDg0ParabolicAssembler<2,2> simple_assembler(&mesh,&pde,&bcc);
-                
+        
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
         initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());

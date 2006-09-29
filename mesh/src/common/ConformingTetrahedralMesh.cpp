@@ -1102,93 +1102,93 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
 template <int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 {
-	//Make sure the map is big enough
-	map.Reserve(GetNumAllNodes());
-	
-	//Make sure that we are in the correct dimension
-	assert( SPACE_DIM==2 || SPACE_DIM==3 );
-	assert( ELEMENT_DIM == SPACE_DIM );
-	OutputFileHandler handler("");
-	out_stream node_file=handler.OpenOutputFile("temp.node");
-  	
-  	
- 	//Add four/eight node to form a bounding box
-  	int extra_nodes;
-   	if (SPACE_DIM == 2)
-  	{
-  		extra_nodes=4;
-  	}
-   	if (SPACE_DIM == 3)
-  	{
-  		extra_nodes=8;
-  	}
- 
- 	//Un-comment for bounding box
- 	extra_nodes=0;
- 	
-  	(*node_file)<<GetNumNodes()+extra_nodes<<"\t2\t0\t0\n";
-   	double max[SPACE_DIM], min[SPACE_DIM];
-   	for (int i=0;i<SPACE_DIM;i++)
-   	{
-   		max[i]=-INFINITY;
-   		min[i]= INFINITY;
-   	}
-  
-   	
-   	
-   	int new_index = 0;
-   	
-   	
-   	for (int i=0; i<GetNumAllNodes(); i++)
-   	{
-   	    if (mNodes[i]->IsDeleted())
-   	    {
-   	    	map.SetDeleted(i);
-   	    }
-   	    else
-   		{
-   		    map.SetNewIndex(i,new_index);
-   			new_index++;
-   		    Point<SPACE_DIM> point=mNodes[i]->rGetPoint();
-   			(*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1];
-   			if (SPACE_DIM ==3)
-   			{
-   				(*node_file)<<"\t"<<point[2];
-   			}
-   			(*node_file)<<"\n";
-   			for (int j=0;j<SPACE_DIM;j++)
-   			{
-   	 			if (point[j]<min[j])
-   				{
-   					min[j]=point[j];
-   				}
-   				if (point[j]>max[j])
-   				{
-   					max[j]=point[j];
-   				}
-   			}
-   		}   			
-   	}
-   		
-   		
-   	
-   		
+    //Make sure the map is big enough
+    map.Reserve(GetNumAllNodes());
+    
+    //Make sure that we are in the correct dimension
+    assert( SPACE_DIM==2 || SPACE_DIM==3 );
+    assert( ELEMENT_DIM == SPACE_DIM );
+    OutputFileHandler handler("");
+    out_stream node_file=handler.OpenOutputFile("temp.node");
+    
+    
+    //Add four/eight node to form a bounding box
+    int extra_nodes;
+    if (SPACE_DIM == 2)
+    {
+        extra_nodes=4;
+    }
+    if (SPACE_DIM == 3)
+    {
+        extra_nodes=8;
+    }
+    
+    //Un-comment for bounding box
+    extra_nodes=0;
+    
+    (*node_file)<<GetNumNodes()+extra_nodes<<"\t2\t0\t0\n";
+    double max[SPACE_DIM], min[SPACE_DIM];
+    for (int i=0;i<SPACE_DIM;i++)
+    {
+        max[i]=-INFINITY;
+        min[i]= INFINITY;
+    }
+    
+    
+    
+    int new_index = 0;
+    
+    
+    for (int i=0; i<GetNumAllNodes(); i++)
+    {
+        if (mNodes[i]->IsDeleted())
+        {
+            map.SetDeleted(i);
+        }
+        else
+        {
+            map.SetNewIndex(i,new_index);
+            new_index++;
+            Point<SPACE_DIM> point=mNodes[i]->rGetPoint();
+            (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1];
+            if (SPACE_DIM ==3)
+            {
+                (*node_file)<<"\t"<<point[2];
+            }
+            (*node_file)<<"\n";
+            for (int j=0;j<SPACE_DIM;j++)
+            {
+                if (point[j]<min[j])
+                {
+                    min[j]=point[j];
+                }
+                if (point[j]>max[j])
+                {
+                    max[j]=point[j];
+                }
+            }
+        }
+    }
+    
+    
+    
+    
     node_file->close();
-   	std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
-   	std::string binary_name;
-   	if (SPACE_DIM==2)
-   	{
-   		binary_name="triangle";
-   	}
-   	else
-   	{
-   		binary_name="tetgen";
-   	}
-   	std::string command   = "./bin/"+ binary_name +" -e " + full_name + "node";
-   	system(command.c_str());
-   	
-   	//Read the new mesh back from file
-   	TrianglesMeshReader<SPACE_DIM,SPACE_DIM> mesh_reader(full_name+"1");
+    std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
+    std::string binary_name;
+    if (SPACE_DIM==2)
+    {
+        binary_name="triangle";
+    }
+    else
+    {
+        binary_name="tetgen";
+    }
+    std::string command   = "./bin/"+ binary_name +" -e " + full_name + "node";
+    system(command.c_str());
+    
+    //Read the new mesh back from file
+    TrianglesMeshReader<SPACE_DIM,SPACE_DIM> mesh_reader(full_name+"1");
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> temporary_mesh;
     temporary_mesh.ConstructFromMeshReader(mesh_reader);
     
@@ -1214,7 +1214,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         delete mBoundaryElements[i];
     }
     mBoundaryElements.clear();
-        
+    
     mDeletedElementIndices.clear();
     mDeletedBoundaryElementIndices.clear();
     mDeletedNodeIndices.clear();
@@ -1228,37 +1228,39 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         mNodes.push_back(p_node);
         if (is_boundary)
         {
-        	mBoundaryNodes.push_back(p_node);	
+            mBoundaryNodes.push_back(p_node);
         }
     }
     
     for (int i=0; i<temporary_mesh.GetNumElements(); i++)
     {
-    	std::vector<Node<SPACE_DIM>* > nodes;
-    	for (int j=0; j<SPACE_DIM+1; j++){
-    		int index=(temporary_mesh.GetElement(i))->GetNodeGlobalIndex(j);
-    		nodes.push_back(mNodes[index]);
-    	}
-    	Element<ELEMENT_DIM,SPACE_DIM> *p_element=
-    	                new Element<ELEMENT_DIM,SPACE_DIM>(i, nodes);
-    	mElements.push_back(p_element);
+        std::vector<Node<SPACE_DIM>* > nodes;
+        for (int j=0; j<SPACE_DIM+1; j++)
+        {
+            int index=(temporary_mesh.GetElement(i))->GetNodeGlobalIndex(j);
+            nodes.push_back(mNodes[index]);
+        }
+        Element<ELEMENT_DIM,SPACE_DIM> *p_element=
+            new Element<ELEMENT_DIM,SPACE_DIM>(i, nodes);
+        mElements.push_back(p_element);
     }
     
     for (int i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
     {
-    	std::vector<Node<SPACE_DIM>* > nodes;
-    	for (int j=0; j<SPACE_DIM; j++){
-    		int index=(temporary_mesh.GetBoundaryElement(i))->GetNodeGlobalIndex(j);
-    		nodes.push_back(mNodes[index]);
-    	}
-    	BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_b_element=
-    	                new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(i, nodes);
-    	mBoundaryElements.push_back(p_b_element);
+        std::vector<Node<SPACE_DIM>* > nodes;
+        for (int j=0; j<SPACE_DIM; j++)
+        {
+            int index=(temporary_mesh.GetBoundaryElement(i))->GetNodeGlobalIndex(j);
+            nodes.push_back(mNodes[index]);
+        }
+        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_b_element=
+            new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(i, nodes);
+        mBoundaryElements.push_back(p_b_element);
     }
     
-  	
-}
     
- 	
+}
+
+
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_
