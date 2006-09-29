@@ -117,7 +117,7 @@ public:
     // No death because the initial length is 21 and only cells
     // with position greater than 22 (=default crypt length)
     // are sloughed off.
-    void N0_test1dChainWithNoBirth(void) throw(Exception)
+    void test1dChainWithNoBirth(void) throw(Exception)
     {
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         std::string testoutput_dir;
@@ -200,7 +200,7 @@ public:
     
     // Includes random birth (random position in a random element), death and constant
     // rest length by default
-    void NO_Test1DChainWithBirthConstantRestLength() throw (Exception)
+    void Test1DChainWithBirthConstantRestLength() throw (Exception)
     {
         // Note that random numbers are reseeded with srandom(0) by the following constructor.
         RandomNumberGenerators rand_gen;
@@ -242,7 +242,7 @@ public:
     // Includes variable rest length but not fully working in the class (see
     // CryptSimulation.hpp and look for the
     // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
-    void N0_Test1DChainWithBirthVariableRestLength() throw (Exception)
+    void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
         RandomNumberGenerators rand_gen;
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
@@ -283,7 +283,7 @@ public:
     
     // Create a chain of meineke cells (1 stem, 14 transit cells and 8 differentiated)
     // and pass into the simulation class
-    void N0_Test1DChainWithMeinekeCells() throw (Exception)
+    void Test1DChainWithMeinekeCells() throw (Exception)
     {
         RandomNumberGenerators rand_gen;
         CancerParameters *p_params = CancerParameters::Instance();
@@ -345,7 +345,7 @@ public:
     
     // same as Test1DChainWithBirthVariableRestLength but with Meineke cells.
     // (see comment for Test1DChainWithBirthVariableRestLength).
-    void N0_Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
+    void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerators rand_gen;
