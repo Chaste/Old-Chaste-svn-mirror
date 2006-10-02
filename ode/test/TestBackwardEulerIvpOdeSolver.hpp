@@ -183,9 +183,9 @@ public:
         
         ComputeJacobian(snes, solution_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);
         
-        double true_jacobian[3][3] = {{ 0,1,-1},
-                                      {0, 0,1},
-                                      { 0, -2,2}};
+        double true_jacobian[3][3] = {{ 0, 1,-1},
+                                      { 0, 0, 1},
+                                      { 0,-2, 2}};
         for (int row=0; row<3; row++)
         {
             for (int col=0; col<3; col++)
@@ -218,21 +218,13 @@ public:
         solutions = backward_euler_solver.Solve(&ode_system_with_events, state_variables, 0.0, 2.0, h_value, h_value);
         int last = solutions.GetNumberOfTimeSteps();
         
-        double numerical_solution[3];
-        numerical_solution[0] = solutions.rGetSolutions()[last][0];
-        numerical_solution[1] = solutions.rGetSolutions()[last][1];
-        numerical_solution[2] = solutions.rGetSolutions()[last][2];
-        
-        // The tests
-        int num_timesteps = solutions.GetNumberOfTimeSteps();
-        
-        // final time should be around pi and a bit
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], 0.5236, 0.01);
+        // final time should be pi/6 (?)
+        TS_ASSERT_DELTA( solutions.rGetTimes()[last], 0.5236, 0.01);
         
         // penultimate y0 should be greater than -0.5
-        TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[num_timesteps-1][0]);
+        TS_ASSERT_LESS_THAN(-0.5,solutions.rGetSolutions()[last-1][0]);
         // final y0 should be less than -0.5
-        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[num_timesteps][0], -0.5);
+        TS_ASSERT_LESS_THAN( solutions.rGetSolutions()[last][0], -0.5);
         
         // solver should correctly state the stopping event occured
         TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);

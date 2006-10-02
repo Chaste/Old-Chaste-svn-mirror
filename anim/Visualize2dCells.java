@@ -28,7 +28,7 @@ import java.lang.Math;
 import javax.swing.Box;
 import javax.swing.JPanel;
 
-public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runnable {
+public class Visualize2dCells implements ActionListener, AdjustmentListener, Runnable {
 
 	public Frame frame = new Frame();
 
@@ -57,7 +57,7 @@ public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runn
 
 	public static int numSteps = 0;
 
-	public Visualize2Dcell() {
+	public Visualize2dCells() {
 		frame.setSize(800, 800);
 		frame.setTitle("Gavaghan's goons' visualization tools (TM)");
 
@@ -182,7 +182,7 @@ public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runn
 	}
 
 	public static void main(String args[]) {
-		Visualize2Dcell vis = new Visualize2Dcell();
+		Visualize2dCells vis = new Visualize2dCells();
 
 		System.out
 				.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan & Joe Pitt-Francis)");
@@ -304,7 +304,7 @@ public class Visualize2Dcell implements ActionListener, AdjustmentListener, Runn
 class CustomCanvas2D extends Canvas {
 	private static final long serialVersionUID = 6997195399856046957L;
 
-	Visualize2Dcell vis;
+	Visualize2dCells vis;
 
 	int width;
 
@@ -312,7 +312,7 @@ class CustomCanvas2D extends Canvas {
 
 	Graphics2D g2;
 
-	public CustomCanvas2D(Visualize2Dcell v) {
+	public CustomCanvas2D(Visualize2dCells v) {
 		vis = v;
 		Color garysSexySilver = new Color(216,216,231);
 

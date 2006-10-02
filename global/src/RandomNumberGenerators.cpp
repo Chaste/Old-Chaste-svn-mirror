@@ -3,29 +3,35 @@
 
 
 /**
- * Generate a random number mod base
+ * Generate a random number modulo base (ie an integer
+ * within the range 0,..,base-1)
  */
 int RandomNumberGenerators::randMod(int base)
 {
-
     return (random()%base);
 }
-/** Generate a uniform random number in (0,1)
+
+/** 
+ * Generate a uniform random number in (0,1)
  */
 double RandomNumberGenerators::ranf(void)
 {
-
-
     return (double)random() / RAND_MAX;
 }
 
+/** 
+ * Generate a random number from a normal distribution with given
+ * mean and standard deviation
+ */
 double RandomNumberGenerators::NormalRandomDeviate(double mean, double sd)
 {
     return sd * StandardNormalRandomDeviate() + mean;
 }
 
 /**
- * *********************************************************************
+ *  Generate a random number from the normal distribution with mean 0
+ *  and standard distribution 1.
+ 
 
 
      (STANDARD-)  N O R M A L  DISTRIBUTION

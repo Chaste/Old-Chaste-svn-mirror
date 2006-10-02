@@ -16,38 +16,49 @@
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
+#include "SimpleNonlinearSolver.hpp"
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractNonlinearEllipticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>
 {
-private:
-    ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
-    AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *mpBoundaryConditions;
-    AbstractNonlinearSolver *mpSolver;
+protected:
+    AbstractNonlinearEllipticPde<SPACE_DIM>* mpPde;
+    AbstractNonlinearSolver* mpSolver;
     
 public:
 
     /**
     * Constructors just call the base class versions.
     */
-    AbstractNonlinearEllipticAssembler(int numPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(numPoints)
-    {}
+    AbstractNonlinearEllipticAssembler(int numQuadPoints = 2) :
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+    {
+        mpSolver = new SimpleNonlinearSolver;
+    }
+    
     AbstractNonlinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                        AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                       int numPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numPoints)
-    {}
+                                       int numQuadPoints = 2) :
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+    {
+        mpSolver = new SimpleNonlinearSolver;
+    }
+
+    ~AbstractNonlinearEllipticAssembler()
+    {
+        delete mpSolver;
+    }
+
     
-    virtual Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
-                               AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-                               BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *pBoundaryConditions,
-                               AbstractNonlinearSolver *pSolver,
-                               Vec initialGuess,
-                               bool UseAnalyticalJacobian = false) = 0;
-                               
+    virtual Vec Solve(Vec initialGuess, bool UseAnalyticalJacobian = false) = 0;
+                                                             
+                                                                 
+    void SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver)
+    {                           
+        delete mpSolver;
+        mpSolver = pNonlinearSolver;
+    }
                                
 };
 #endif //_ABSTRACTNONLINEARELLIPTICASSEMBLER_HPP_

@@ -26,10 +26,11 @@
  * All the functions are defined as stubs which call methods on *pContext.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeResidualPetsc(SNES snes, Vec currentSolution, Vec residualVector,
+PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentSolution, Vec residualVector,
                                     void *pContext);
+                                    
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
+PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentSolution,
                                     Mat *pGlobalJacobian, Mat *pPreconditioner,
                                     MatStructure *pMatStructure, void *pContext);
                                     
@@ -43,107 +44,107 @@ PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
  * It probably needs re-writing to take advantage of parallel machines.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleNonlinearEllipticAssembler: public AbstractNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
+class SimpleNonlinearEllipticAssembler : public AbstractNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>
 {
     // Allow tests to access private members, in order to test computation of
     // residual & jacobian directly.
     friend class TestSimpleNonlinearEllipticAssembler;
     
 private:
-    ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpMesh;
     AbstractNonlinearEllipticPde<SPACE_DIM> *mpPde;
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *mpBoundaryConditions;
-    AbstractNonlinearSolver *mpSolver;
     bool mUseAnalyticalJacobian;
     
-public:
-    // These methods are called indirectly by the PETSc iterative solvers,
-    // so must be public.
-    PetscErrorCode ComputeResidual(const Vec currentSolution, Vec residualVector);
-    PetscErrorCode ComputeJacobianAnalytically(const Vec currentSolution, Mat *pGlobalJacobian);
-    PetscErrorCode ComputeJacobianNumerically(const Vec input, Mat *pJacobian);
-    PetscErrorCode ComputeJacobian(const Vec input, Mat *pJacobian);
-    
-private:
-    void ComputeResidualOnElement(
-        const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-        c_vector<double, ELEMENT_DIM+1> &rBElem,
-        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-        c_vector<double, ELEMENT_DIM+1> Ui);
-    void ComputeResidualOnSurfaceElement(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-        c_vector<double, ELEMENT_DIM> &rBsubElem,
-        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-        BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM, 1> &rBoundaryConditions,
-        vector<double> Ui);
-    void ComputeJacobianOnElement(
-        const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
-        c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
-        AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-        vector<double> Ui);
+    void AssembleResidualOnElement( const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+                                   c_vector<double, ELEMENT_DIM+1> &rBElem,
+                                   c_vector<double, ELEMENT_DIM+1> Ui
+                                  );
+
+
+    void AssembleResidualOnSurfaceElement( const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+                                          c_vector<double, ELEMENT_DIM> &rBsubElem,                                          
+                                          vector<double> Ui
+                                         );
+
+
+    void AssembleJacobianOnElement( const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
+                                   c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
+                                   vector<double> Ui
+                                  );
         
+    PetscErrorCode AssembleJacobianAnalytically(const Vec currentSolution, Mat *pGlobalJacobian);
+    PetscErrorCode AssembleJacobianNumerically(const Vec input, Mat *pJacobian);
+
 public:
+    // These are the methods that are called indirectly by the PETSc iterative solvers,
+    // so must be public.
+    PetscErrorCode AssembleResidual(const Vec currentSolution, Vec residualVector);
+    PetscErrorCode AssembleJacobian(const Vec input, Mat *pJacobian);
+
+
     /**
      * Constructors just call the base class versions.
      */
-    SimpleNonlinearEllipticAssembler(int numPoints = 2) :
-            AbstractNonlinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(numPoints)
-    {}
-    SimpleNonlinearEllipticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                     AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                     int numPoints = 2) :
-            AbstractNonlinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numPoints)
-    {}
-    
-    Vec AssembleSystem(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
-                       AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *pBoundaryConditions,
-                       AbstractNonlinearSolver *pSolver,
-                       Vec initialGuess,
-                       bool UseAnalyticalJacobian = false);
-                       
-};
+    SimpleNonlinearEllipticAssembler( ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+                                      AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
+                                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
+                                      int numQuadPoints = 2) :  
+            AbstractNonlinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
+    {
+        // Store data structures
+        assert(pMesh!=NULL);
+        assert(pPde!=NULL);
+        assert(pBoundaryConditions!=NULL);
 
-/**
- * Assemble and solve the system for a nonlinear elliptic PDE.
- *
- * @param pMesh Pointer to the mesh to solve on
- * @param pPde Pointer to the object specifying the equation to solve
- * @param pBoundaryConditions Pointer to the container object for our boundary conditions
- * @param pSolver Pointer to the nonlinear solver object
- * @param pBasisFunction Pointer to object for computing basis functions
- * @param pGaussianQuadratureRule Pointer to database object for Gaussian quadrature
- * @param initialGuess An initial guess for the iterative solver
- * @param UseAnalyticalJacobian Set to true to use an analytically calculated
- *     jacobian matrix rather than a numerically approximated one.
- * @return A PETSc vector giving the solution at each mesh node.
- */
-template <int ELEMENT_DIM, int SPACE_DIM>
-Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
-    ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh,
-    AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-    BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1> *pBoundaryConditions,
-    AbstractNonlinearSolver *pSolver,
-    Vec initialGuess,
-    bool UseAnalyticalJacobian)
-{
-    // Store data structures as private members
-    mpMesh = pMesh;
-    mpPde = pPde;
-    mpBoundaryConditions = pBoundaryConditions;
+        this->mpMesh = pMesh;
+        mpPde = pPde;
+        this->mpBoundaryConditions = pBoundaryConditions;
+    }
+
+    SimpleNonlinearEllipticAssembler( ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+                                      AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
+                                      BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
+                                      AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
+                                      AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+                                      int numQuadPoints = 2) :
+            AbstractNonlinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+    {
+        // Store data structures
+        assert(pMesh!=NULL);
+        assert(pPde!=NULL);
+        assert(pBoundaryConditions!=NULL);
+
+        this->mpMesh = pMesh;
+        mpPde = pPde;
+        this->mpBoundaryConditions = pBoundaryConditions;
+    }
+            
     
-    mUseAnalyticalJacobian = UseAnalyticalJacobian;
-    
-    Vec residual;
-    VecDuplicate(initialGuess, &residual);
-    
-    Vec answer = pSolver->Solve(&ComputeResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
-                                &ComputeJacobianPetsc<ELEMENT_DIM, SPACE_DIM>, residual, initialGuess, this);
-                                
-    VecDestroy(residual);
-    
-    return answer;
-}
+    /**
+     * Assemble and solve the system for a nonlinear elliptic PDE.
+     *
+     * @param initialGuess An initial guess for the iterative solver
+     * @param UseAnalyticalJacobian Set to true to use an analytically calculated
+     *     jacobian matrix rather than a numerically approximated one.
+     * @return A PETSc vector giving the solution at each mesh node.
+     */
+    Vec Solve(Vec initialGuess, bool UseAnalyticalJacobian = false)
+    {
+        mUseAnalyticalJacobian = UseAnalyticalJacobian;
+        
+        Vec residual;
+        VecDuplicate(initialGuess, &residual);
+        
+        Vec answer = this->mpSolver->Solve( &AssembleResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
+                                            &AssembleJacobianPetsc<ELEMENT_DIM, SPACE_DIM>, 
+                                            residual, 
+                                            initialGuess, 
+                                            this);
+                                    
+        VecDestroy(residual);
+        
+        return answer;
+    }
+};
 
 
 /*
@@ -184,11 +185,9 @@ Vec SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleSystem(
  *
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOnSurfaceElement(
+void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleResidualOnSurfaceElement(
     const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
     c_vector<double, ELEMENT_DIM> &rBsubElem,
-    AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
-    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM, 1> &rBoundaryConditions,
     vector<double> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM-1> &rBasisFunction =
@@ -222,7 +221,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
          * \todo Neumann BC value depends on u?
          */
         //double U = inner_prod(phi,Ui);
-        double Dgradu_dot_n = rBoundaryConditions.GetNeumannBCValue(&rSurfaceElement, x);
+        double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x);
         
         // I'm not sure why we want -phi, but it seems to work:)
         
@@ -236,10 +235,9 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
  *
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOnElement(
+void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleResidualOnElement(
     const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
     c_vector<double, ELEMENT_DIM+1> &rBElem,
-    AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
     c_vector<double, ELEMENT_DIM+1> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
@@ -279,11 +277,11 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
         // which should be defined in/by NonlinearEllipticEquation.hpp:
         // d/dx [f(U,x) du/dx ] = -g
         // where g(x,U) is the forcing term
-        double ForcingTerm = pPde->ComputeLinearSourceTerm(x);
-        ForcingTerm += pPde->ComputeNonlinearSourceTerm(x, U);
+        double ForcingTerm = mpPde->ComputeLinearSourceTerm(x);
+        ForcingTerm += mpPde->ComputeNonlinearSourceTerm(x, U);
         //make RHS general: consists of linear and nonlinear source terms
         
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = pPde->ComputeDiffusionTerm(x,U);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpPde->ComputeDiffusionTerm(x,U);
         
         c_vector<double, ELEMENT_DIM+1> integrand_values1 =
             prod(c_vector<double, ELEMENT_DIM>(prod(gradU, FOfU)), grad_phi);
@@ -304,13 +302,13 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidualOn
  * @return An error code if any PETSc routines fail.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeResidualPetsc(SNES snes, Vec currentSolution,
-                                    Vec residualVector, void *pContext)
+PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentSolution,
+                                     Vec residualVector, void *pContext)
 {
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
         (SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
         
-    return pAssembler->ComputeResidual(currentSolution, residualVector);
+    return pAssembler->AssembleResidual(currentSolution, residualVector);
 }
 
 
@@ -322,7 +320,7 @@ PetscErrorCode ComputeResidualPetsc(SNES snes, Vec currentSolution,
  * @return An error code if any PETSc routines fail.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeResidual(
+PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleResidual(
     const Vec currentSolution,
     Vec residualVector)
 {
@@ -345,13 +343,13 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter
-    = mpMesh->GetElementIteratorBegin();
+      = this->mpMesh->GetElementIteratorBegin();
     
     // Assume all elements have the same number of nodes...
     const int num_nodes = (*iter)->GetNumNodes();
     
     // Iterate over all elements, summing the contribution of each to the residual
-    while (iter != mpMesh->GetElementIteratorEnd())
+    while (iter != this->mpMesh->GetElementIteratorEnd())
     {
         const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
         
@@ -367,7 +365,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
         // Will contain the contribution of a single element to the residual
         c_vector<double, ELEMENT_DIM+1> b_elem;
         b_elem.clear();
-        ComputeResidualOnElement(element, b_elem, mpPde, Ui);
+        AssembleResidualOnElement(element, b_elem, Ui);
         
         // Update the residual vector for this element
         for (int i=0; i<num_nodes; i++)
@@ -390,14 +388,14 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
      */
     // Add the integrals associated with Neumann boundary conditions to the residual
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator surf_iter
-    = mpMesh->GetBoundaryElementIteratorBegin();
+    = this->mpMesh->GetBoundaryElementIteratorBegin();
     
-    if (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
+    if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
     {
         const int num_surf_nodes = (*surf_iter)->GetNumNodes();
         
         
-        while (surf_iter != mpMesh->GetBoundaryElementIteratorEnd())
+        while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
         {
             const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
             
@@ -413,11 +411,11 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
              * \todo
              * Check surf_element is in the Neumann surface in an efficient manner.
              */
-            if (mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
+            if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
             {
                 c_vector<double, ELEMENT_DIM> b_surf_elem;
                 b_surf_elem.clear();
-                ComputeResidualOnSurfaceElement(surf_element, b_surf_elem, mpPde, *mpBoundaryConditions, UiSurf);
+                AssembleResidualOnSurfaceElement(surf_element, b_surf_elem, UiSurf);
                 
                 for (int i=0; i<num_surf_nodes; i++)
                 {
@@ -434,7 +432,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     }
     
     // Apply Dirichlet boundary conditions for nonlinear problem
-    mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolution, residualVector);
+    this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolution, residualVector);
     
     
     VecAssemblyBegin(residualVector);
@@ -490,7 +488,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  * @return An error code if any PETSc routines fail.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
+PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentSolution,
                                     Mat *pGlobalJacobian, Mat *pPreconditioner,
                                     MatStructure *pMatStructure, void *pContext)
 {
@@ -498,7 +496,7 @@ PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
     SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
         (SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
         
-    return pAssembler->ComputeJacobian(currentSolution, pGlobalJacobian);
+    return pAssembler->AssembleJacobian(currentSolution, pGlobalJacobian);
 }
 
 /**
@@ -511,16 +509,16 @@ PetscErrorCode ComputeJacobianPetsc(SNES snes, Vec currentSolution,
  * @return An error code if any PETSc routines fail.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobian(
+PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleJacobian(
     const Vec currentSolution, Mat *pGlobalJacobian)
 {
     if (mUseAnalyticalJacobian)
     {
-        return ComputeJacobianAnalytically(currentSolution, pGlobalJacobian);
+        return AssembleJacobianAnalytically(currentSolution, pGlobalJacobian);
     }
     else
     {
-        return ComputeJacobianNumerically(currentSolution, pGlobalJacobian);
+        return AssembleJacobianNumerically(currentSolution, pGlobalJacobian);
     }
 }
 
@@ -528,10 +526,9 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOnElement(
+void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleJacobianOnElement(
     const Element<ELEMENT_DIM,SPACE_DIM> &rElement,
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> &rAElem,
-    AbstractNonlinearEllipticPde<SPACE_DIM> *pPde,
     vector<double> Ui)
 {
     AbstractBasisFunction<ELEMENT_DIM> &rBasisFunction =
@@ -572,11 +569,11 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
         // which should be defined in/by NonlinearEllipticEquation.hpp:
         // d/dx [f(U,x) du/dx ] = -g
         // where g(x,U) is the forcing term
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = pPde->ComputeDiffusionTerm(x,U);
-        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = pPde->ComputeDiffusionTermPrime(x,U);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpPde->ComputeDiffusionTerm(x,U);
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpPde->ComputeDiffusionTermPrime(x,U);
         
         //LinearSourceTerm(x)   not needed as it is a constant wrt U_i
-        double forcing_term_prime = pPde->ComputeNonlinearSourceTermPrime(x, U);
+        double forcing_term_prime = mpPde->ComputeNonlinearSourceTermPrime(x, U);
         c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,gradU);
         c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, grad_phi);
         
@@ -600,7 +597,7 @@ void SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianOn
  * @return An error code if any PETSc routines fail.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianAnalytically(
+PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleJacobianAnalytically(
     const Vec currentSolution, Mat *pGlobalJacobian)
 {
     // Set all entries of jacobian to 0
@@ -613,12 +610,12 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     VecGetOwnershipRange(currentSolution, &lo, &hi);
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
-        mpMesh->GetElementIteratorBegin();
+        this->mpMesh->GetElementIteratorBegin();
     // Assume all elements have the same number of nodes...
     const int num_nodes = (*iter)->GetNumNodes();
     // Will hold the contribution to the global jacobian from a single element
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> a_elem;
-    while (iter != mpMesh->GetElementIteratorEnd())
+    while (iter != this->mpMesh->GetElementIteratorEnd())
     {
         const Element<ELEMENT_DIM, SPACE_DIM> &element = **iter;
         a_elem.clear();
@@ -630,7 +627,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
             int node = element.GetNodeGlobalIndex(i);
             Ui(i) = current_solution_replicated_array[node];
         }
-        ComputeJacobianOnElement(element, a_elem, mpPde, Ui);
+        AssembleJacobianOnElement(element, a_elem, Ui);
         // Update global jacobian matrix with this element's contribution
         for (int i=0; i<num_nodes; i++)
         {
@@ -649,8 +646,9 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     }
     MatAssemblyBegin(*pGlobalJacobian, MAT_FLUSH_ASSEMBLY);
     MatAssemblyEnd(*pGlobalJacobian, MAT_FLUSH_ASSEMBLY);
+    
     // Apply dirichlet boundary conditions
-    mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pGlobalJacobian);
+    this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pGlobalJacobian);
     MatAssemblyBegin(*pGlobalJacobian, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pGlobalJacobian, MAT_FINAL_ASSEMBLY);
     
@@ -668,11 +666,11 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
  * @return An error code if any PETSc routines fail.
  */
 template <int ELEMENT_DIM, int SPACE_DIM>
-PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::ComputeJacobianNumerically(
+PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::AssembleJacobianNumerically(
     const Vec input, Mat *pJacobian)
 {
 
-    int num_nodes = mpMesh->GetNumNodes();
+    int num_nodes = this->mpMesh->GetNumNodes();
     
     // Set up working vectors
     Vec residual;
@@ -697,7 +695,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
     PETSCEXCEPT( VecCopy(input, inputcopy) );
     
     // Compute the current residual
-    ComputeResidual(input, residual);
+    AssembleResidual(input, residual);
     
     // Amount to perturb each input element by
     double h = 0.00001;
@@ -714,7 +712,7 @@ PetscErrorCode SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM>::Compute
         {
             PETSCEXCEPT( VecSetValue(inputcopy, global_index_outer,h, ADD_VALUES) );
         }
-        ComputeResidual(inputcopy, perturbed_residual);
+        AssembleResidual(inputcopy, perturbed_residual);
         
         // result = (perturbed_residual - residual) / h
 #if (PETSC_VERSION_MINOR == 2) //Old API

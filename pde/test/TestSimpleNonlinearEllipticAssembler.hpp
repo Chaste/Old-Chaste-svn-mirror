@@ -13,7 +13,6 @@
 #include "SimpleNonlinearEllipticAssembler.hpp"
 #include "SimpleNonlinearSolver.hpp"
 
-
 #include "BoundaryConditionsContainer.hpp"
 #include "FunctionalBoundaryCondition.hpp"
 #include "ConstBoundaryCondition.hpp"
@@ -27,11 +26,7 @@
 #include "NonlinearLinearHeatEquationPde.hpp"
 #include "ExampleNasty2dNonlinearEllipticPde.hpp"
 #include "TrianglesMeshReader.cpp"
-
 #include "PetscSetupAndFinalize.hpp"
-
-
-
 
 
 
@@ -90,6 +85,8 @@ private:
         VecSetFromOptions(initial_guess);
         return initial_guess;
     }
+    
+    
     Vec CreateConstantInitialGuessVec(int size, double value)
     {
         Vec initial_guess = CreateInitialGuessVec(size);
@@ -107,7 +104,7 @@ private:
     
 public:
 
-    void TestComputeResidual( void )
+    void TestAssembleResidual( void )
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/practical1_1d_mesh");
@@ -115,18 +112,18 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> boundary_conditions(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         //Adding Dirichlet BC at node 0
         double DirichletBCValue = 5.0;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
-        boundary_conditions.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), pBoundaryCondition);
         
         // adding von Neumann BC at the last node
         double VonNeumannBCValue = 9.0;
         ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
         iter--; // to be consistent with c++ :))), GetBoundaryElementIteratorEnd points to one element passed it
-        boundary_conditions.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
+        bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
         
         // initialize 'solution' vector
         Vec solution;
@@ -134,13 +131,10 @@ public:
         VecSetSizes(solution, PETSC_DECIDE, mesh.GetNumNodes());
         VecSetFromOptions(solution);
         
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-        
-        assembler.mpMesh = &mesh;
         NonlinearHeatEquationPde<1> pde;
-        assembler.mpPde = &pde;
-        assembler.mpBoundaryConditions = &boundary_conditions;
         
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+                
         // Set 'solution' to 1 and compute residual
         double h = 0.01;
         for (int global_index = 0; global_index<mesh.GetNumNodes(); global_index++)
@@ -153,7 +147,7 @@ public:
         Vec residual;
         VecDuplicate(solution, &residual);
         
-        assembler.ComputeResidual(solution, residual);
+        assembler.AssembleResidual(solution, residual);
         
         PetscScalar *p_residual;
         VecGetArray(residual, &p_residual);
@@ -209,14 +203,22 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+
         // Instantiate PDE object
         NonlinearHeatEquationPde<1> pde;
+
+
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
+
+
+        // assembler
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+
+
         // Set up initial solution guess for residuals
         int length=mesh.GetNumNodes();
         Vec initial_guess;
@@ -229,13 +231,10 @@ public:
         }
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-        // Store data structures as object members
-        assembler.mpMesh = &mesh;
-        assembler.mpPde = &pde;
-        assembler.mpBoundaryConditions = &bcc;
-        int errcode = assembler.ComputeJacobianNumerically(initial_guess, &numerical_jacobian);
+
+        int errcode = assembler.AssembleJacobianNumerically(initial_guess, &numerical_jacobian);
         TS_ASSERT_EQUALS(errcode, 0);
-        errcode = assembler.ComputeJacobianAnalytically(initial_guess, &analytic_jacobian);
+        errcode = assembler.AssembleJacobianAnalytically(initial_guess, &analytic_jacobian);
         TS_ASSERT_EQUALS(errcode, 0);
         MatAssemblyBegin(numerical_jacobian, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(numerical_jacobian, MAT_FINAL_ASSEMBLY);
@@ -292,9 +291,8 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
         
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-        SimpleNonlinearSolver solver;
-        
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+
         // Set up initial guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
         for (int i=0; i<mesh.GetNumNodes(); i++)
@@ -304,8 +302,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        answer = assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -345,21 +342,17 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
         
-        // Nonlinear solver to use
-        SimpleNonlinearSolver solver;
-        
         // Set up initial Guess
         Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 0.25);
         
         // Nonlinear assembler to use
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
         // Set no. of gauss points to use
         assembler.SetNumberOfQuadraturePointsPerDimension(3);
         
         // Solve the PDE
-        Vec answer;
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -395,8 +388,7 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(exp(1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
         
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
@@ -407,9 +399,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -446,9 +436,7 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(10), p_boundary_condition);
         
-        
-        SimpleNonlinearEllipticAssembler<1,1> assembler(3);
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc,3);
         
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
@@ -459,9 +447,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -500,8 +486,7 @@ public:
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
         
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
@@ -514,9 +499,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -557,8 +540,7 @@ public:
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
         
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
@@ -571,9 +553,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -614,17 +594,14 @@ public:
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
         
-        SimpleNonlinearEllipticAssembler<1,1> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 1.0);
         // This problem seems unusally sensitive to the initial guess. Various other
         // choices failed to converge.
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -668,15 +645,12 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
         
-        SimpleNonlinearEllipticAssembler<2,2> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 1.0);
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         double *p_answer;
         int lo, hi;
@@ -742,15 +716,12 @@ public:
             iter++;
         }
         
-        SimpleNonlinearEllipticAssembler<2,2> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 0.25);
         
-        Vec answer;
-        
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
         double *p_answer;
@@ -830,16 +801,14 @@ public:
             elt_iter++;
         }
         
-        SimpleNonlinearEllipticAssembler<2,2> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 4.0);
         
-        Vec answer;
-        
+
         // Numerical Jacobian
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
+        Vec answer = assembler.Solve(initial_guess);
         
         // Check result
         double *p_answer;
@@ -858,7 +827,7 @@ public:
         VecDestroy(answer);
         
         // Analytical Jacobian
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        answer=assembler.Solve(initial_guess, true);
         
         // Check result
         VecGetArray(answer, &p_answer);
@@ -936,16 +905,13 @@ public:
             elt_iter++;
         }
         
-        SimpleNonlinearEllipticAssembler<2,2> assembler;
-        SimpleNonlinearSolver solver;
+        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
         Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 4.0);
         
-        Vec answer;
-        
         // Numerical Jacobian
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess);
+        Vec answer = assembler.Solve(initial_guess);
         
         // Check result
         double *p_answer;
@@ -964,7 +930,7 @@ public:
         VecDestroy(answer);
         
         // Analytical Jacobian
-        answer=assembler.AssembleSystem(&mesh, &pde, &bcc, &solver, initial_guess, true);
+        answer=assembler.Solve(initial_guess, true);
         
         // Check result
         VecGetArray(answer, &p_answer);
