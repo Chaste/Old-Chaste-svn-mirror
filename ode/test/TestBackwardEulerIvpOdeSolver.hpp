@@ -173,8 +173,12 @@ public:
         Mat jacobian;
         Mat preconditioner;
         MatStructure mat_structure;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 3, 3, &jacobian);
+#else
         MatCreate(PETSC_COMM_WORLD, &jacobian);
         MatSetSizes(jacobian, PETSC_DECIDE, PETSC_DECIDE, 3, 3);
+#endif
         MatSetFromOptions(jacobian);
         
         ComputeJacobian(snes, solution_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);

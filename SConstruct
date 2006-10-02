@@ -81,6 +81,20 @@ elif system_name == 'zuse':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
   blas_libs = ['']
+  other_libpaths = ['/opt/intel/mkl/8.0/lib/em64t/']
+  other_libs = ['']
+elif system_name == 'zuse_opt':
+  petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
+  petsc_inc = '-I'+petsc_base+'include '
+  petsc_bmake = '-I'+petsc_base+'bmake/linux-mpich-gnu-mkl '
+  #petsc_mpi = '-I'+petsc_base+'include/mpiuni '
+  petsc_mpi = ' '
+  boost = '-I/home/zuse/system/joe '
+  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi+boost
+  
+  petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
+  blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
+  blas_libs = ['']
   other_libpaths = ['/opt/intel/mkl/8.0/lib/em64t/',
                       '/home/zuse/system/software/opt/opt/lib/static/',
                       '/home/zuse/system/software/opt/opt-deps/gsoap/lib/',
@@ -88,7 +102,6 @@ elif system_name == 'zuse':
                       '/home/zuse/system/software/opt/opt-deps/libunwind/lib',
                       '/home/zuse/system/software/opt/opt-deps/papi/lib64']
   other_libs = ['opt', 'loggerwebservice', 'gsoapclient', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
-
 elif system_name == 'chaste':
   # Chaste machines in comlab
   petsc_base = '../../../petsc-2.3.1-p13/'
@@ -133,6 +146,11 @@ if system_name == 'finarfin':
     cxx    = '/usr/bin/g++'
     ar     = '/usr/bin/ar'
 elif system_name == 'zuse':
+   mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
+   mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
+   cxx = '/usr/bin/g++'
+   ar = '/usr/bin/ar'
+elif system_name == 'zuse_opt':
    mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
    mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
    cxx = '/usr/bin/g++'

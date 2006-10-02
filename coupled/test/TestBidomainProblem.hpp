@@ -20,7 +20,7 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)
+  PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.001)//Ode timestep
     {
         // set the new stimulus
         mpStimulus = new InitialStimulus(-600, 0.5);
@@ -48,8 +48,10 @@ public:
 class TestBidomainProblem : public CxxTest::TestSuite
 {
 public:
+    double startTime;
     void TestBidomainDg01D()
     {
+        startTime=MPI_Wtime();
         PointStimulusCellFactory bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
         
@@ -58,13 +60,16 @@ public:
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
         
-        bidomain_problem.Initialise();
+	std::cout<<"Point 1 : time is "<<MPI_Wtime()-startTime<<"\n";
+
+	bidomain_problem.Initialise();
         
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
+	std::cout<<"Point 2 : time is "<<MPI_Wtime()-startTime<<"\n";
         try
         {
             bidomain_problem.Solve();
@@ -73,6 +78,7 @@ public:
         {
             TS_FAIL(e.GetMessage());
         }
+	std::cout<<"Point 3 : time is "<<MPI_Wtime()-startTime<<"\n";
         
         double* p_voltage_array;
         unsigned v_lo, v_hi, lo, hi;
@@ -120,6 +126,7 @@ public:
             }
         }
         bidomain_problem.RestoreVoltageArray(&p_voltage_array);
+	std::cout<<"Point 4 : time is "<<MPI_Wtime()-startTime<<"\n";
     }
     
     
@@ -130,11 +137,12 @@ public:
      * sigma_i) in a bidomain simulation it should agree with a monodomain 
      * simulation with the same parameters. 
      */
-    void TestCompareBidomainProblemWithMonodomain()
+    void xTestCompareBidomainProblemWithMonodomain()
     {
         ///////////////////////////////////////////////////////////////////
         // monodomain
         ///////////////////////////////////////////////////////////////////
+	std::cout<<"Point 5 : time is "<<MPI_Wtime()-startTime<<"\n";
         PointStimulusCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         
@@ -220,7 +228,7 @@ public:
     // Solve a simple simulation and check the output was only
     // printed out at the correct times
     ///////////////////////////////////////////////////////////////////
-    void TestBidomainProblemPrintsOnlyAtRequestedTimes()
+    void xTestBidomainProblemPrintsOnlyAtRequestedTimes()
     {
         // run testing PrintingTimeSteps
         PointStimulusCellFactory cell_factory;
@@ -283,7 +291,7 @@ public:
     }
     
     
-    void testFixedNodesInBidomainProblem()
+    void xtestFixedNodesInBidomainProblem()
     {
         PointStimulusCellFactory cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
@@ -331,7 +339,7 @@ public:
         bidomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
-    void TestBidomainProblemExceptions() throw (Exception)
+    void xTestBidomainProblemExceptions() throw (Exception)
     {
         PointStimulusCellFactory cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
