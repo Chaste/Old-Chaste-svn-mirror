@@ -4,6 +4,16 @@
 #include "UblasCustomFunctions.hpp"
 #include "Point.hpp"
 
+
+/**
+ * AbstractNonlinearEllipticPde class.
+ *
+ * A simple elliptic PDE in 1 unknown with nonlinear diffusion term as
+ * well as nonlinear source term:
+ * 
+ *  0 = Grad.(DiffusionTerm(x,u)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
+ *
+ */
 template <int SPACE_DIM>
 class AbstractNonlinearEllipticPde
 {
