@@ -56,7 +56,8 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
     virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeLhsTerm(const c_vector<double, 2+1> &rPhi,
                                                             const c_matrix<double, 2, 2+1> &rGradPhi,
                                                             const Point<2> &rX,
-                                                            const c_vector<double,2> &u)
+                                                            const c_vector<double,2> &u,
+                                                            const c_vector<double,2> &rGradU)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret;
         
@@ -79,8 +80,10 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
     
     
     virtual c_vector<double,2*(2+1)> ComputeRhsTerm(const c_vector<double, 2+1> &rPhi,
+                                                    const c_matrix<double, 2, 2+1> &rGradPhi,
                                                     const Point<2> &rX,
-                                                    const c_vector<double,2> &u)
+                                                    const c_vector<double,2> &u,
+                                                    const c_vector<double,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
         
@@ -150,8 +153,10 @@ class AnotherCoupledAssembler : public MySimpleCoupledAssembler
     }
     
     virtual c_vector<double,2*(2+1)> ComputeRhsTerm(const c_vector<double, 2+1> &rPhi,
+                                                    const c_matrix<double, 2, 2+1> &rGradPhi,
                                                     const Point<2> &rX,
-                                                    const c_vector<double,2> &u)
+                                                    const c_vector<double,2> &u,
+                                                    const c_vector<double,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
         

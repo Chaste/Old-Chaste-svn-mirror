@@ -72,7 +72,8 @@ private:
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
-        const c_vector<double,2> &u)
+        const c_vector<double,2> &u,
+        const c_vector<double,SPACE_DIM>& rGradU /* not used */)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
@@ -128,8 +129,10 @@ private:
      */
     virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeRhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
-        const c_vector<double,2> &u)
+        const c_vector<double,2> &u,
+        const c_vector<double,SPACE_DIM>& rGradU /* not used */)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
@@ -396,7 +399,7 @@ private:
             VecAssemblyBegin(nullbasis[0]);
             VecAssemblyEnd(nullbasis[0]);
             
-            this->mpAssembledLinearSystem->SetNullBasis(nullbasis, 1);
+            this->mpLinearSystem->SetNullBasis(nullbasis, 1);
             
             VecDestroy(nullbasis[0]);
         }
@@ -426,7 +429,6 @@ public:
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
         
-        this->mpAssembledLinearSystem = NULL;
         this->mMatrixIsAssembled = false;
         
         this->SetMatrixIsConstant();
@@ -437,12 +439,6 @@ public:
     
     ~BidomainDg0Assembler()
     {
-        if (this->mpAssembledLinearSystem != NULL)
-        {
-            delete this->mpAssembledLinearSystem;
-            this->mpAssembledLinearSystem = NULL;
-        }
-        
         delete this->mpBoundaryConditions;
     }
     

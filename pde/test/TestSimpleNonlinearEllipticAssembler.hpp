@@ -234,7 +234,9 @@ public:
 
         int errcode = assembler.AssembleJacobianNumerically(initial_guess, &numerical_jacobian);
         TS_ASSERT_EQUALS(errcode, 0);
-        errcode = assembler.AssembleJacobianAnalytically(initial_guess, &analytic_jacobian);
+        
+        assembler.mUseAnalyticalJacobian = true; // can access the member variable as this class is a friend
+        errcode = assembler.AssembleJacobian(initial_guess, &analytic_jacobian);
         TS_ASSERT_EQUALS(errcode, 0);
         MatAssemblyBegin(numerical_jacobian, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(numerical_jacobian, MAT_FINAL_ASSEMBLY);

@@ -55,7 +55,7 @@ public:
         this->PrepareForSolve();
         
         this->AssembleSystem();
-        return this->mpAssembledLinearSystem->Solve(this->mpSolver);
+        return this->mpLinearSystem->Solve(this->mpLinearSolver);
     }
 };
 

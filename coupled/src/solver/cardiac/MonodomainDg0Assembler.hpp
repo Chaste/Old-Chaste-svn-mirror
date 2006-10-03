@@ -49,8 +49,10 @@ protected:
      */
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
-        const c_vector<double,1> &u)
+        const c_vector<double,1> &u,
+        const c_vector<double,SPACE_DIM>& rGradU /* not used */)
     {
         return  rPhi * (mSourceTerm + this->mDtInverse *
                         mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * u(0));

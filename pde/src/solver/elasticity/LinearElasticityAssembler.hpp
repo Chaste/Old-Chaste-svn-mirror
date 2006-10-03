@@ -47,7 +47,8 @@ private :
         const c_vector<double, DIM+1> &rPhi,
         const c_matrix<double, DIM, DIM+1> &rGradPhi,
         const Point<DIM> &rX,
-        const c_vector<double,DIM> &u)
+        const c_vector<double,DIM> &u,
+        const c_vector<double,DIM> &rGradU)
     {
         c_matrix<double,DIM*(DIM+1),DIM*(DIM+1)> ret;
         
@@ -75,8 +76,10 @@ private :
     
     virtual c_vector<double,DIM*(DIM+1)> ComputeRhsTerm(
         const c_vector<double, DIM+1> &rPhi,
+        const c_matrix<double, DIM, DIM+1> &rGradPhi,
         const Point<DIM> &rX,
-        const c_vector<double,DIM> &u)
+        const c_vector<double,DIM> &u,
+        const c_vector<double,DIM> &rGradU)
     {
         c_vector<double,DIM*(DIM+1)> ret;
         for (unsigned I=0; I<DIM+1; I++) // I = node_index

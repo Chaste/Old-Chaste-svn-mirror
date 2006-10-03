@@ -105,7 +105,7 @@ public :
         {
             this->AssembleSystem(currentSolution, t);
             
-            nextSolution = this->mpAssembledLinearSystem->Solve(this->mpSolver);
+            nextSolution = this->mpLinearSystem->Solve(this->mpLinearSolver);
             
             t += mDt;
             // Avoid memory leaks

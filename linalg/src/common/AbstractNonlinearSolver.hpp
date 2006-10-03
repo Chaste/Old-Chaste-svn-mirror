@@ -2,7 +2,7 @@
 #define _ABSTRACTNONLINEARSOLVER_HPP_
 
 /**
- * Abstract Nonlinear PDE system solver, dictates that each solver must have a
+ * Abstract Nonlinear equation system solver, dictates that each solver must have a
  * Solve function.
  */
 

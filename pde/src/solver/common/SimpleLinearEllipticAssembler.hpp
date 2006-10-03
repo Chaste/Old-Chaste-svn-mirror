@@ -36,10 +36,11 @@ protected:
      *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) 
      */
     virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeLhsTerm(
-        const c_vector<double,ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double,ELEMENT_DIM,ELEMENT_DIM+1> &rGradPhi,
+        const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
-        const c_vector<double,1> &u)
+        const c_vector<double,1> &u,
+        const c_vector<double, SPACE_DIM> &rGradU)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
         
@@ -50,9 +51,16 @@ protected:
      *  The term arising from boundary conditions to be added to the element
      *  stiffness vector
      */
-    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(const c_vector<double, ELEMENT_DIM+1> &rPhi,
-                                                              const Point<SPACE_DIM> &rX,
-                                                              const c_vector<double,1> &u)
+//    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(const c_vector<double, ELEMENT_DIM+1> &rPhi,
+  //                                                            const Point<SPACE_DIM> &rX,
+    //                                                          const c_vector<double,1> &u)
+
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(
+        const c_vector<double, ELEMENT_DIM+1> &rPhi,
+        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        const Point<SPACE_DIM> &rX,
+        const c_vector<double,1> &u,
+        const c_vector<double, SPACE_DIM> &rGradU)
     {
         return mpEllipticPde->ComputeLinearSourceTerm(rX) * rPhi;
     }
