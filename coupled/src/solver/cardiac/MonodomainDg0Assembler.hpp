@@ -67,7 +67,7 @@ protected:
     
     void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {
-        mSourceTerm += phi_i * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionReplicated[ pNode->GetIndex() ] );
+        mSourceTerm += phi_i * mpMonodomainPde->ComputeNonlinearSourceTermAtNode(*pNode, this->mCurrentSolutionOrGuessReplicated[ pNode->GetIndex() ] );
     }
     
     

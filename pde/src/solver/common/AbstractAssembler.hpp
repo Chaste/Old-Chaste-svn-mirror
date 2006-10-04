@@ -36,7 +36,7 @@
  *  call AssembleSystem():
  *
  *  AssembleSystem() (implemented here, loops over elements and adds to the
- *  linear system) AssembleSystem() calls:
+ *  linear system or residual vector or jacobian matrix) AssembleSystem() calls:
  *
  *  AssembleOnElement() and AssembleOnSurfaceElement() (implemented here. These
  *  loop over gauss points and create the element stiffness matrix and vector in 
@@ -70,10 +70,14 @@ protected:
     /*< Quadrature rule for use on boundary elements */
     GaussianQuadratureRule<ELEMENT_DIM-1> *mpSurfaceQuadRule;
 
-    /*< The current solution as a replicated vector. NULL for a static problem */
-    ReplicatableVector mCurrentSolutionReplicated;
+    /**
+     *  The CURRENT SOLUTION as a replicated vector for linear dynamic problems. 
+     *  (Empty for a static problem). The CURRENT GUESS for nonlinear problems
+     */
+    ReplicatableVector mCurrentSolutionOrGuessReplicated;
     
-////////////// stuff for linear problems
+
+    /*< bool stating whether the problem is a linear or nonlinear one */
     bool mProblemIsLinear; 
 
     /** 
@@ -84,17 +88,16 @@ protected:
     
     /**
      * mMatrixIsConstant is a flag to say whether the matrix of the system
-     * needs to be assembled at each time step.
+     * needs to be assembled at each time step. (Linear problems only).
      */
     bool mMatrixIsConstant;
     
     /**
      * mMatrixIsAssembled is a flag to say whether the matrix has been assembled 
-     * for the current time step.
+     * for the current time step. (Linear problems only).
      */
     bool mMatrixIsAssembled;
     
-
 
     /**
      *  This method returns the matrix to be added to element stiffness matrix
@@ -156,7 +159,7 @@ protected:
      *  @param rBElem The element's contribution to the RHS vector is returned in this
      *     vector of length n, the no. of nodes in this element. There is no
      *     need to zero this vector before calling.
-     *  @param currentSolution For the parabolic linear case, the solution at the current 
+     *  @param currentSolutionOrGuess For the parabolic linear case, the solution at the current 
      *     timestep. NULL for the static linear case. In the nonlinear case, the current
      *     guess.
      *  @param assembleVector a bool stating whether to assemble the load vector (in the 
@@ -170,7 +173,6 @@ protected:
     virtual void AssembleOnElement( Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                                     c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) > &rAElem,
                                     c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> &rBElem,
-                                    Vec currentSolution,
                                     bool assembleVector,
                                     bool assembleMatrix)
     {
@@ -189,7 +191,7 @@ protected:
         double jacobian_determinant = rElement.GetJacobianDeterminant();
         
         // Initialise element contributions to zero
-//        if (!this->mMatrixIsAssembled)
+        if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
         {
             p_inverse_jacobian = rElement.GetInverseJacobian();
             rAElem.clear();
@@ -208,8 +210,7 @@ protected:
             c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
 
-// loss of efficiency            
-//            if (!this->mMatrixIsAssembled)  
+            if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
             {
                 grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
                            (quad_point, *p_inverse_jacobian);
@@ -241,27 +242,30 @@ protected:
                     x.rGetLocation()[j] += phi(i)*node_loc[j];
                 }
                 
-                // interpolate u
+                // interpolate u and grad u if a current solution or guess exists
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
-                if (currentSolution)
+                if (mCurrentSolutionOrGuessReplicated.size()>0)
                 {
                     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
                     {
                         // If we have a current solution (e.g. this is a dynamic problem)
                         // get the value in a usable form.
                         
-                        // NOTE - currentSolution input is actually now redundant at this point -
+                        // NOTE - currentSolutionOrGuess input is actually now redundant at this point -
                         
                         // NOTE - following assumes that, if say there are two unknowns u and v, they
                         // are stored in the curren solution vector as
                         // [U1 V1 U2 V2 ... U_n V_n]
-                        u(index_of_unknown)  += phi(i)*this->mCurrentSolutionReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
+                        u(index_of_unknown) += phi(i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
                     }
                     
-                    for(unsigned j=0; j<SPACE_DIM; j++)
+                    if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
                     {
-//                        grad_u(j) += grad_phi(i,j)*this->mCurrentSolutionReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
-                        grad_u(j) += grad_phi(j,i)*this->mCurrentSolutionReplicated[ node_global_index ];
+                        ///\todo make grad_u a matrix (du_i/dx_j) for PROB_DIM>1
+                        for(unsigned j=0; j<SPACE_DIM; j++)
+                        {
+                            grad_u(j) += grad_phi(j,i)*this->mCurrentSolutionOrGuessReplicated[ node_global_index ];
+                        }
                     }
                         
                 }
@@ -276,7 +280,7 @@ protected:
             ////////////////////////////////////////////////////////////
             // create rAElem and rBElem
             ////////////////////////////////////////////////////////////
-            if(assembleMatrix) //(!this->mMatrixIsAssembled && mProblemIsLinear)
+            if(assembleMatrix) 
             {
                 noalias(rAElem) += ComputeLhsTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
@@ -373,12 +377,12 @@ protected:
 
 
     /**
-     *  AssembleSystem
+     *  AssembleSystem - the major method for all assemblers
      * 
      *  Assemble the linear system for a linear PDE, or the residual or Jacobian for
-     *  nonlinear PDEs Loops over each element (and each each surface element if 
-     * there are non-zero Neumann boundary conditions and 
-     *  calls AssembleOnElement() and adds the contribution to the linear system.
+     *  nonlinear PDEs. Loops over each element (and each each surface element if 
+     *  there are non-zero Neumann boundary conditions and calls AssembleOnElement() 
+     *  and adds the contribution to the linear system.
      * 
      *  Takes in current solution and time if necessary but only used if the problem 
      *  is a dynamic one. This method uses PROBLEM_DIM and can assemble linear systems 
@@ -386,26 +390,58 @@ protected:
      * 
      *  Called by Solve()
      *  Calls AssembleOnElement()
+     * 
+     *  @param currentSolutionOrGuess The current solution in a linear dynamic problem, 
+     *     or the current guess in a nonlinear problem. Should be NULL for linear static 
+     *     problems.
+     * 
+     *  @param currentTime The current time for dynamic problems. Not used in static 
+     *     problems.
+     * 
+     *  @param residualVector The residual vector to be assembled in nonlinear problems
+     *     (eg created by the Petsc nonlinear solver). Should be NULL for linear problems.
+     * 
+     *  @param pJacobianMatrix (A pointer to) the Jacobian matrix to be assembled in 
+     *     nonlinear problems (eg created by the Petsc nonlinear solver). Should be 
+     *     NULL for linear problems.
      */
-    virtual void AssembleSystem(Vec currentSolution=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
+    virtual void AssembleSystem(Vec currentSolutionOrGuess=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
     {
+        // if a linear problem there mustn't be a residual or jacobian specified
+        // otherwise one of the MUST be specifed
+        assert(    (mProblemIsLinear && !residualVector && !pJacobian) 
+                || (!mProblemIsLinear && (residualVector || pJacobian) ) );
+        
+        // if the problem is nonlinear the currentSolutionOrGuess MUST be specifed
+        assert( mProblemIsLinear || (!mProblemIsLinear && currentSolutionOrGuess ) );
+                        
         // Replicate the current solution and store so can be used in
         // AssembleOnElement
-        if (currentSolution != NULL)
+        if (currentSolutionOrGuess != NULL)
         {
-            this->mCurrentSolutionReplicated.ReplicatePetscVector(currentSolution);
+            this->mCurrentSolutionOrGuessReplicated.ReplicatePetscVector(currentSolutionOrGuess);
         }
         
-        PrepareForAssembleSystem(currentSolution, currentTime);
+        // the AssembleOnElement type methods will determine if a current solution or
+        // current guess exists by looking at the size of the replicated vector, so 
+        // check the size is zero if there isn't a current solution
+        assert(    ( currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()>0)
+                || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
         
 
+        // the concrete class can override this following method if there is
+        // work to be done before assembly
+        PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
+        
         int lo, hi;
         
         if(mProblemIsLinear)
         {
+            // linear problem - set up the Linear System if necessary, otherwise zero
+            // it.
             if (mpLinearSystem == NULL)
             {
-                if (currentSolution == NULL)
+                if (currentSolutionOrGuess == NULL)
                 {
                     // static problem, create linear system using the size
                     unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
@@ -417,7 +453,7 @@ protected:
                     // as the template in the alternative constructor of
                     // LinearSystem. This appears to avoid problems with
                     // VecScatter.
-                    mpLinearSystem = new LinearSystem(currentSolution);
+                    mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
                 }
             }
             else
@@ -434,9 +470,9 @@ protected:
             }
         }
         else
-        {
-            assert(residualVector || pJacobian);
-        
+        {   
+            // nonlinear problem - zero residual or jacobian depending on which has
+            // been asked for     
             if(residualVector)
             {
                 // Set residual vector to zero
@@ -447,28 +483,17 @@ protected:
                 PETSCEXCEPT( VecSet(residualVector, zero) );
 #endif
             }
-            else if(pJacobian)
+            else 
             {
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);
-            }
-            else
-            {
-                assert(0);
-            }
-                
-   
-            // Replicate the currentGuess data
-            //ReplicatableVector current_guess_replicated_array;
-            //current_guess_replicated_array.ReplicatePetscVector(currentSolution);
+            }        
         
             // Get our ownership range
-            VecGetOwnershipRange(currentSolution, &lo, &hi);
+            VecGetOwnershipRange(currentSolutionOrGuess, &lo, &hi);
         }
         
                  
-      
-   
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
             iter = this->mpMesh->GetElementIteratorBegin();
@@ -478,21 +503,26 @@ protected:
         c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
         c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
         
+
+        // decide what we want to assemble. 
         bool assemble_vector = ((mProblemIsLinear) || ((!mProblemIsLinear) && (residualVector!=NULL)));
         bool assemble_matrix = ( (mProblemIsLinear && !mMatrixIsAssembled) || ((!mProblemIsLinear) && (pJacobian!=NULL)) );
        
         
+        ////////////////////////////////////////////////////////
+        // loop over elements
+        ////////////////////////////////////////////////////////
         while (iter != this->mpMesh->GetElementIteratorEnd())
         {
             Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
             
-            AssembleOnElement(element, a_elem, b_elem, currentSolution, assemble_vector, assemble_matrix);
+            AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
             
             for (int i=0; i<num_elem_nodes; i++)
             {
                 int node1 = element.GetNodeGlobalIndex(i);
                 
-                if (!mMatrixIsAssembled || pJacobian)
+                if (assemble_matrix)
                 {
                     for (int j=0; j<num_elem_nodes; j++)
                     {
@@ -502,7 +532,7 @@ protected:
                         {
                             for (int m=0; m<PROBLEM_DIM; m++)
                             {
-                                if(mProblemIsLinear && !mMatrixIsAssembled)
+                                if(mProblemIsLinear)
                                 {  
                                     // the following expands to, for (eg) the case of two unknowns:
                                     // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
@@ -510,19 +540,16 @@ protected:
                                     // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
                                     // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
                                     mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
-                                                                                 PROBLEM_DIM*node2+m,
-                                                                                 a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
+                                                                        PROBLEM_DIM*node2+m,
+                                                                        a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
                                 }
-                                else if(!mProblemIsLinear && pJacobian!=NULL)
+                                else 
                                 {
-                                    assert(PROBLEM_DIM==1);
+                                    assert(pJacobian!=NULL); // extra check
+                                    assert(PROBLEM_DIM==1);  // can only do nonlinear problems in 1 unknown as yet
                                     if (lo<=node1 && node1<hi)
                                     {
                                         PetscScalar value = a_elem(i,j);
-                                        
-                                        //std::cout << value << "\n";
-                                        
-                                        
                                         MatSetValue(*pJacobian, node1, node2, value, ADD_VALUES);                                
                                     }
                                 }
@@ -531,21 +558,24 @@ protected:
                     }
                 }
 
-
-                for (int k=0; k<PROBLEM_DIM; k++)
+                if(assemble_vector)
                 {
-                    if(mProblemIsLinear)
+                    for (int k=0; k<PROBLEM_DIM; k++)
                     {
-                        mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-                    }
-                    else if (residualVector!=NULL)
-                    {
-                        assert(PROBLEM_DIM==1);
-                        //Make sure it's only done once
-                        if (lo<=node1 && node1<hi)
+                        if(mProblemIsLinear)
                         {
-                            PetscScalar value = b_elem(i);
-                            PETSCEXCEPT( VecSetValue(residualVector,node1,value,ADD_VALUES) );
+                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
+                        }
+                        else 
+                        {
+                            assert(residualVector!=NULL); // extra check
+                            assert(PROBLEM_DIM==1);       // can only do nonlinear problems in 1 unknown as yet
+                            //Make sure it's only done once
+                            if (lo<=node1 && node1<hi)
+                            {
+                                PetscScalar value = b_elem(i);
+                                PETSCEXCEPT( VecSetValue(residualVector,node1,value,ADD_VALUES) );
+                            }
                         }
                     }
                 }
@@ -557,7 +587,12 @@ protected:
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
         surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
         
-        // the following is not true of Bidomain or Monodomain
+
+        ////////////////////////////////////////////////////////
+        // loop over surface elements
+        ////////////////////////////////////////////////////////
+
+        // note, the following condition is not true of Bidomain or Monodomain
         if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
         {
             if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
@@ -573,6 +608,7 @@ protected:
                     if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                     {
                         AssembleOnSurfaceElement(surf_element, b_surf_elem);
+                        
                         for (int i=0; i<num_surf_nodes; i++)
                         {
                             int node_index = surf_element.GetNodeGlobalIndex(i);
@@ -617,12 +653,6 @@ protected:
             MatAssemblyEnd(*pJacobian, MAT_FLUSH_ASSEMBLY);
         }
         
-        
-        // the assembler do anything else required like setting up a null basis
-        // (see BidomainDg0Assembler) in this function
-        FinaliseAssembleSystem(currentSolution, currentTime);
-        
-        
         // Apply dirichlet boundary conditions
         if(mProblemIsLinear)
         {
@@ -630,7 +660,7 @@ protected:
         }
         else if(residualVector)
         {
-            this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolution, residualVector);
+            this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolutionOrGuess, residualVector);
         }        
         else if(pJacobian)
         {
@@ -648,6 +678,8 @@ protected:
             {
                 mpLinearSystem->AssembleFinalLinearSystem();
             }
+            
+            mMatrixIsAssembled = true; // this will be reset to false in next iteration if mMatrixIsConstant is true
         }
         else if(residualVector)
         {
@@ -659,7 +691,10 @@ protected:
             MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
             MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
         }        
-        mMatrixIsAssembled = true;
+        
+        // the assembler do anything else required like setting up a null basis
+        // (see BidomainDg0Assembler) in this function
+        FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
     }
     
     
@@ -678,14 +713,14 @@ protected:
      *  before assembling, for example integrating ODEs such as in the Monodomain
      *  assembler.
      */
-    virtual void PrepareForAssembleSystem(Vec currentSolution, double currentTime)
+    virtual void PrepareForAssembleSystem(Vec currentSolutionOrGuess, double currentTime)
     {}
     
     /**
      *  This method is called at the end of AssembleSystem() and should be overloaded
      *  in the concrete assembler class if there is any further work to be done
      */
-    virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
+    virtual void FinaliseAssembleSystem(Vec currentSolutionOrGuess, double currentTime)
     {}
 
 
@@ -712,7 +747,10 @@ public:
         mpQuadRule = NULL;
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
+
+        mMatrixIsAssembled = false;
     }
+    
     
     /**
      * Constructor allowing specification of the type of basis function to use.
@@ -736,7 +774,10 @@ public:
         mpQuadRule = NULL;
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
+        
+        mMatrixIsAssembled = false;
     }
+    
     
     /**
      * Specify what type of basis functions to use.
@@ -757,6 +798,7 @@ public:
         mpSurfaceBasisFunction = pSurfaceBasisFunction;
     }
     
+    
     /**
      * Set the number of quadrature points to use, per dimension.
      * 
@@ -774,6 +816,7 @@ public:
         mpSurfaceQuadRule = new GaussianQuadratureRule<ELEMENT_DIM-1>(numQuadPoints);
     }
     
+    
     /**
      * Set the mesh.
      */
@@ -782,6 +825,7 @@ public:
         mpMesh = pMesh;
     }
     
+    
     /**
      * Set the boundary conditions.
      */
@@ -789,6 +833,7 @@ public:
     {
         mpBoundaryConditions = pBoundaryConditions;
     }
+    
     
     /**
      * Delete any memory allocated by this class.
