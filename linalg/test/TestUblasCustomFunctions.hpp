@@ -160,9 +160,30 @@ public:
                 TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
             }
         }
-        
     }
     
+    
+    // square brackets seem to be implemented in ublas to get rows but not documented.
+    void TestUblasSquareBrackets()
+    {
+        c_matrix<double,2,3> a;
+        a(0,0) = 1;
+        a(0,1) = 2;
+        a(0,2) = 3;
+        a(1,0) = 4;
+        a(1,1) = 5;
+        a(1,2) = 6;
+        
+        c_vector<double,3> row0 = a[0];
+        c_vector<double,3> row1 = a[1];
+        
+        TS_ASSERT_EQUALS(a(0,0), row0(0));
+        TS_ASSERT_EQUALS(a(0,1), row0(1));
+        TS_ASSERT_EQUALS(a(0,2), row0(2));
+        TS_ASSERT_EQUALS(a(1,0), row1(0));
+        TS_ASSERT_EQUALS(a(1,1), row1(1));
+        TS_ASSERT_EQUALS(a(1,2), row1(2));
+    }
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

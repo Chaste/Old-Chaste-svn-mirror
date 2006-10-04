@@ -17,8 +17,8 @@
 #include "SimpleNonlinearSolver.hpp"
 
 
-///   TODO - make this class templated over PROBLEM_DIM and implement the
-///   general PROBLEM_DIM case in AbstractAssembler
+///   TODO - make this class templated over 1 and implement the
+///   general 1 case in AbstractAssembler
 
 
 /*
@@ -31,11 +31,11 @@
  * 
  * [The implementations are at the bottom of this file]
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
 PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess, Vec residualVector,
                                      void *pContext);
                                     
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
 PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentGuess,
                                      Mat *pGlobalJacobian, Mat *pPreconditioner,
                                      MatStructure *pMatStructure, void *pContext);
@@ -47,8 +47,8 @@ PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentGuess,
  * 
  *  to become AbstractNonlinearStaticAssembler ?
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
-class AbstractNonlinearStaticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+class AbstractNonlinearStaticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
     AbstractNonlinearSolver* mpSolver;
@@ -201,7 +201,7 @@ public:
     * Constructors just call the base class versions.
     */
     AbstractNonlinearStaticAssembler(int numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpSolver = new SimpleNonlinearSolver;  
         this->mProblemIsLinear = false;
@@ -210,7 +210,7 @@ public:
     AbstractNonlinearStaticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                        AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                        int numQuadPoints = 2) :
-            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = new SimpleNonlinearSolver;
         this->mpProblemIsLinear = false;
@@ -237,8 +237,8 @@ public:
         Vec residual;
         VecDuplicate(initialGuess, &residual);
         
-        Vec answer = this->mpSolver->Solve( &AssembleResidualPetsc<ELEMENT_DIM, SPACE_DIM>,
-                                            &AssembleJacobianPetsc<ELEMENT_DIM, SPACE_DIM>, 
+        Vec answer = this->mpSolver->Solve( &AssembleResidualPetsc<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+                                            &AssembleJacobianPetsc<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>, 
                                             residual, 
                                             initialGuess, 
                                             this);
@@ -286,13 +286,13 @@ public:
  * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
  * @return An error code if any PETSc routines fail.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
 PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess,
                                      Vec residualVector, void *pContext)
 {
     // Extract an assembler from the void*
-    AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
-        (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
+    AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
+        (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
         
     return pAssembler->AssembleResidual(currentGuess, residualVector);
 }
@@ -311,14 +311,14 @@ PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess,
  * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
  * @return An error code if any PETSc routines fail.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
 PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentGuess,
                                     Mat *pGlobalJacobian, Mat *pPreconditioner,
                                     MatStructure *pMatStructure, void *pContext)
 {
     // Extract an assembler from the void*
-    AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM> *pAssembler =
-        (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM>*) pContext;
+    AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
+        (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
         
     return pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
 }

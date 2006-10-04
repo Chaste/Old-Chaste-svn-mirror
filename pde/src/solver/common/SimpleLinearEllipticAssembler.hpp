@@ -27,8 +27,7 @@ class SimpleLinearEllipticAssembler : public AbstractLinearStaticProblemAssemble
     
 private:
     AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
-    
-    
+        
 protected:
     /**
      *  The term to be added to the element stiffness matrix: 
@@ -40,7 +39,7 @@ protected:
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u,
-        const c_vector<double, SPACE_DIM> &rGradU)
+        const c_matrix<double,1,SPACE_DIM> &rGradU)
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpEllipticPde->ComputeDiffusionTerm(rX);
         
@@ -51,19 +50,16 @@ protected:
      *  The term arising from boundary conditions to be added to the element
      *  stiffness vector
      */
-//    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(const c_vector<double, ELEMENT_DIM+1> &rPhi,
-  //                                                            const Point<SPACE_DIM> &rX,
-    //                                                          const c_vector<double,1> &u)
-
     virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u,
-        const c_vector<double, SPACE_DIM> &rGradU)
+        const c_matrix<double,1,SPACE_DIM> &rGradU)
     {
         return mpEllipticPde->ComputeLinearSourceTerm(rX) * rPhi;
     }
+    
     
     
     virtual c_vector<double, ELEMENT_DIM> ComputeSurfaceRhsTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,

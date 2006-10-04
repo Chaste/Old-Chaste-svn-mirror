@@ -107,13 +107,16 @@ protected:
      *  added to the element stiffness matrix (see AssembleOnElement()).
      * 
      *    --This method has to be implemented in the concrete class--
+     * 
+     *  NOTE: for linear problems rGradU is NOT set up correctly because it should
+     *  not be needed
      */
     virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeLhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,PROBLEM_DIM> &u,
-        const c_vector<double, SPACE_DIM> &rGradU)=0;
+        const c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
 
         
     /**
@@ -124,13 +127,16 @@ protected:
      *  added to the element stiffness matrix (see AssembleOnElement()).
      * 
      *     --This method has to be implemented in the concrete class--
+     * 
+     *  NOTE: for linear problems rGradPhi and rGradU are NOT set up correctly because 
+     *  they should not be needed
      */        
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeRhsTerm(
         const c_vector<double, ELEMENT_DIM+1> &rPhi,
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,PROBLEM_DIM> &u,
-        const c_vector<double, SPACE_DIM> &rGradU)=0;         // this should be a matrix really PROBLEM_DIM by SPACE_DI, rGradU(i,j) = d u_i/ d x_j
+        const c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
 
         
         
@@ -221,7 +227,7 @@ protected:
             Point<SPACE_DIM> x(0,0,0);
             
             c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
-            c_vector<double,SPACE_DIM>   grad_u = zero_vector<double>(SPACE_DIM);
+            c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
             
             // allow the concrete version of the assembler to interpolate any
             // desired quantities
@@ -257,17 +263,15 @@ protected:
                         // are stored in the curren solution vector as
                         // [U1 V1 U2 V2 ... U_n V_n]
                         u(index_of_unknown) += phi(i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
-                    }
-                    
-                    if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
-                    {
-                        ///\todo make grad_u a matrix (du_i/dx_j) for PROB_DIM>1
-                        for(unsigned j=0; j<SPACE_DIM; j++)
+
+                        if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
                         {
-                            grad_u(j) += grad_phi(j,i)*this->mCurrentSolutionOrGuessReplicated[ node_global_index ];
+                            for(unsigned j=0; j<SPACE_DIM; j++)
+                            {
+                               grad_u(index_of_unknown,j) += grad_phi(j,i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
+                            }
                         }
-                    }
-                        
+                    }        
                 }
                 
                 // allow the concrete version of the assembler to interpolate any
@@ -408,7 +412,7 @@ protected:
     virtual void AssembleSystem(Vec currentSolutionOrGuess=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
     {
         // if a linear problem there mustn't be a residual or jacobian specified
-        // otherwise one of the MUST be specifed
+        // otherwise one of them MUST be specifed
         assert(    (mProblemIsLinear && !residualVector && !pJacobian) 
                 || (!mProblemIsLinear && (residualVector || pJacobian) ) );
         
@@ -475,6 +479,11 @@ protected:
             // been asked for     
             if(residualVector)
             {
+   //temporary
+                int size;
+                VecGetSize(residualVector,&size);
+                assert(size==PROBLEM_DIM * this->mpMesh->GetNumNodes());
+            
                 // Set residual vector to zero
                 PetscScalar zero = 0.0;
 #if (PETSC_VERSION_MINOR == 2) //Old API
@@ -485,6 +494,13 @@ protected:
             }
             else 
             {
+   //temporary
+                int size1, size2;
+                MatGetSize(*pJacobian,&size1,&size2);
+                assert(size1==PROBLEM_DIM * this->mpMesh->GetNumNodes());
+                assert(size2==PROBLEM_DIM * this->mpMesh->GetNumNodes());
+   
+   
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);
             }        
@@ -546,11 +562,13 @@ protected:
                                 else 
                                 {
                                     assert(pJacobian!=NULL); // extra check
-                                    assert(PROBLEM_DIM==1);  // can only do nonlinear problems in 1 unknown as yet
-                                    if (lo<=node1 && node1<hi)
+                                    
+                                    int matrix_index_1 = PROBLEM_DIM*node1+k;
+                                    if (lo<=matrix_index_1 && matrix_index_1<hi)
                                     {
-                                        PetscScalar value = a_elem(i,j);
-                                        MatSetValue(*pJacobian, node1, node2, value, ADD_VALUES);                                
+                                        int matrix_index_2 = PROBLEM_DIM*node2+m;
+                                        PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
+                                        MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);                                
                                     }
                                 }
                             }
@@ -569,12 +587,13 @@ protected:
                         else 
                         {
                             assert(residualVector!=NULL); // extra check
-                            assert(PROBLEM_DIM==1);       // can only do nonlinear problems in 1 unknown as yet
+
+                            int matrix_index = PROBLEM_DIM*node1+k;
                             //Make sure it's only done once
-                            if (lo<=node1 && node1<hi)
+                            if (lo<=matrix_index && matrix_index<hi)
                             {
-                                PetscScalar value = b_elem(i);
-                                PETSCEXCEPT( VecSetValue(residualVector,node1,value,ADD_VALUES) );
+                                PetscScalar value = b_elem(PROBLEM_DIM*i+k);
+                                PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
                             }
                         }
                     }
@@ -621,11 +640,12 @@ protected:
                                 }
                                 else if(residualVector!=NULL)
                                 {
-                                    assert(PROBLEM_DIM==1);
-                                    PetscScalar value = b_surf_elem(i);
-                                    if (lo<=node_index && node_index<hi)
+                                    int matrix_index = PROBLEM_DIM*node_index + k;
+
+                                    PetscScalar value = b_surf_elem(PROBLEM_DIM*i+k);
+                                    if (lo<=matrix_index && matrix_index<hi)
                                     {
-                                        PETSCEXCEPT( VecSetValue(residualVector, node_index, value, ADD_VALUES) );
+                                        PETSCEXCEPT( VecSetValue(residualVector, matrix_index, value, ADD_VALUES) );
                                     }
                                 }
                             }

@@ -27,7 +27,7 @@
  * It probably needs re-writing to take advantage of parallel machines.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-class SimpleNonlinearEllipticAssembler : public AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM>
+class SimpleNonlinearEllipticAssembler : public AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
     // Allow tests to access private members, in order to test computation of
     // residual & jacobian directly.
@@ -50,7 +50,7 @@ private:
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u,
-        const c_vector<double, SPACE_DIM> &rGradU) 
+        const c_matrix<double,1,SPACE_DIM> &rGradU) 
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
 
@@ -59,7 +59,11 @@ private:
         
         //LinearSourceTerm(x)   not needed as it is a constant wrt u
         double forcing_term_prime = mpNonlinearEllipticPde->ComputeNonlinearSourceTermPrime(rX, u(0));
-        c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,rGradU);
+
+        // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
+        // u (ie in this problem the unknown is a scalar). The square brackets take the nth
+        // row of the matrix, so rGradU[0] is the zeroth row, ie rGradU as a vector
+        c_vector<double, ELEMENT_DIM> temp1 = prod(f_of_u_prime,rGradU[0]);
         c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, rGradPhi);
         
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
@@ -85,7 +89,7 @@ private:
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,1> &u,
-        const c_vector<double, SPACE_DIM> &rGradU) 
+        const c_matrix<double,1,SPACE_DIM> &rGradU) 
     {
         c_vector<double, 1*(ELEMENT_DIM+1)> ret;
         
@@ -101,8 +105,11 @@ private:
         
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
         
+        // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
+        // u (ie in this problem the unknown is a scalar). The square brackets take the nth
+        // row of the matrix, so rGradU[0] is the zeroth row, ie rGradU as a vector
         c_vector<double, ELEMENT_DIM+1> integrand_values1 =
-            prod(c_vector<double, ELEMENT_DIM>(prod(rGradU, FOfU)), rGradPhi);
+            prod(c_vector<double, ELEMENT_DIM>(prod(rGradU[0], FOfU)), rGradPhi);
            
         ret = integrand_values1 - (ForcingTerm * rPhi);
         return ret;
@@ -138,7 +145,7 @@ public :
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       int numQuadPoints = 2) :  
-            AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM>(numQuadPoints)
+            AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // Store data structures
         assert(pMesh!=NULL);
@@ -161,7 +168,7 @@ public :
                                       AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                       AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
                                       int numQuadPoints = 2) :
-            AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+            AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // Store data structures
         assert(pMesh!=NULL);

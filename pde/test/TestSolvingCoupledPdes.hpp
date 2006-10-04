@@ -57,7 +57,7 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
                                                             const c_matrix<double, 2, 2+1> &rGradPhi,
                                                             const Point<2> &rX,
                                                             const c_vector<double,2> &u,
-                                                            const c_vector<double,2> &rGradU)
+                                                            const c_matrix<double,2,2> &rGradU)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret;
         
@@ -83,7 +83,7 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
                                                     const c_matrix<double, 2, 2+1> &rGradPhi,
                                                     const Point<2> &rX,
                                                     const c_vector<double,2> &u,
-                                                    const c_vector<double,2> &rGradU)
+                                                    const c_matrix<double,2,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
         
@@ -156,7 +156,7 @@ class AnotherCoupledAssembler : public MySimpleCoupledAssembler
                                                     const c_matrix<double, 2, 2+1> &rGradPhi,
                                                     const Point<2> &rX,
                                                     const c_vector<double,2> &u,
-                                                    const c_vector<double,2> &rGradU)
+                                                    const c_matrix<double,2,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
         

@@ -73,7 +73,7 @@ private:
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,2> &u,
-        const c_vector<double,SPACE_DIM>& rGradU /* not used */)
+        const c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
@@ -132,7 +132,7 @@ private:
         const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         const Point<SPACE_DIM> &rX,
         const c_vector<double,2> &u,
-        const c_vector<double,SPACE_DIM>& rGradU /* not used */)
+        const c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
