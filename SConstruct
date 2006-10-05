@@ -1,9 +1,15 @@
 # Controlling scons build script for Chaste
 
-import sys, os, glob
+# This script is executed within the root Chaste source directory
+
+import sys
+import os
+import glob
+
 sys.path.append('python')
 import BuildTypes
 
+# The type of build to perform (see python/BuildTypes.py for options)
 build_type = ARGUMENTS.get('build', 'default')
 build = BuildTypes.GetBuildType(build_type)
 build.SetRevision(ARGUMENTS.get('revision', ''))
@@ -42,60 +48,68 @@ else:
 Export('single_test_suite', 'single_test_suite_dir')
 
 
-## PETSc library paths
+# Set extra paths to search for libraries and include files.
+# Paths to PETSc, and any other external libraries, should be set here.
+# The three variables exported are:
+#  other_libs: names of libraries to link against.  Do not include PETSc
+#              libraries.  Do not include the 'lib' prefix or any suffixes
+#              in the library name (e.g. f2cblas not libf2cblas.a)
+#  other_libpaths: paths to search for libraries to link against.  These
+#                  should all be absolute paths, for safety.  Do include
+#                  the path to PETSc libraries (unless they're in a standard
+#                  system location).
+#  other_includepaths: paths to search for header files.  Do include the
+#                      path to PETSc headers (unless it's standard).
 if system_name == 'finarfin':
   # Finarfin (Debian sarge)
   petsc_base = '/home/jonc/work/dtc/courses/IB/petsc-2.2.1/'
-  petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
-  petsc_mpi = '-I'+petsc_base+'include/mpiuni '
-  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
-  
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+  petsc_mpi = petsc_base+'include/mpiuni'
+  petsc_incs = [petsc_inc, petsc_bmake, petsc_mpi]
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
-  blas_libs = ['f2clapack', 'f2cblas']
-  other_libpaths = ['']
-  other_libs = ['']
+
+  other_libs = ['f2clapack', 'f2cblas']
+  other_libpaths = [petsc_libpath]
+  other_includepaths = petsc_incs
 elif system_name == 'joe':
   # Joe Pitt-Francis userpc30 (Suse 9.3) and userpc33 (Ubuntu 6.06 Dapper Drake)
   petsc_base = '/home/jmpf/petsc-2.3.1-p16/'
-  petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
-  petsc_mpi = ''
-  boost = '-I/home/jmpf '
-  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi+boost
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+  boost = '/home/jmpf'
+  other_includepaths = [petsc_inc, petsc_bmake, boost]
   
   petsc_libpath = petsc_base+'lib/linux-gnu/'
-  blas_libs = ['f2clapack', 'f2cblas']
   blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
-  other_libpaths = ['']
-  other_libs = ['']
+  other_libs = ['f2clapack', 'f2cblas']
+  other_libpaths = [petsc_libpath, blas_libpath]
 elif system_name == 'zuse':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
-  petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-mpich-gnu-mkl '
-  #petsc_mpi = '-I'+petsc_base+'include/mpiuni '
-  petsc_mpi = ' '
-  boost = '-I/home/zuse/system/joe '
-  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi+boost
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
+  #petsc_mpi = petsc_base+'include/mpiuni'
+  petsc_mpi = ''
+  boost = '/home/zuse/system/joe'
+  other_includepaths = [petsc_inc, petsc_bmake, boost]
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
-  blas_libs = ['']
-  other_libpaths = ['/opt/intel/mkl/8.0/lib/em64t/']
-  other_libs = ['']
+
+  other_libpaths = [petsc_libpath, blas_libpath]
+  other_libs = []
 elif system_name == 'zuse_opt':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
-  petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-mpich-gnu-mkl '
-  #petsc_mpi = '-I'+petsc_base+'include/mpiuni '
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
+  #petsc_mpi = petsc_base+'include/mpiuni'
   petsc_mpi = ' '
-  boost = '-I/home/zuse/system/joe '
-  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi+boost
+  boost = '-I/home/zuse/system/joe'
+  other_includepaths = [petsc_inc, petsc_bmake, boost]
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
-  blas_libs = ['']
-  other_libpaths = ['/opt/intel/mkl/8.0/lib/em64t/',
+  other_libpaths = [petsc_libpath, blas_libpath,
                       '/home/zuse/system/software/opt/opt/lib/static/',
                       '/home/zuse/system/software/opt/opt-deps/gsoap/lib/',
                       '/home/zuse/system/software/opt/opt-deps/papi/lib/',
@@ -105,31 +119,28 @@ elif system_name == 'zuse_opt':
 elif system_name == 'chaste':
   # Chaste machines in comlab
   petsc_base = '../../../petsc-2.3.1-p13/'
-  petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
-  # petsc_mpi = '-I'+petsc_base+'include/mpiuni '
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+  # petsc_mpi = petsc_base+'include/mpiuni'
   petsc_mpi = ''
-  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
-  blas_libpath = '#'+petsc_base+'externalpackages/f2cblaslapack/linux-gnu'
-  blas_libs = ['f2clapack', 'f2cblas']
-  other_libpaths = ['']
-  other_libs = ['']
-  petsc_libpath = '#'+petsc_base+'lib/linux-gnu/'
+  other_includepaths = [petsc_inc, petsc_bmake]
+
+  blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
+  petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+  other_libpaths = [petsc_libpath, blas_libpath]
+  other_libs = ['f2clapack', 'f2cblas']
 else:
   # Default for cancer course in the DTC
   petsc_base = '/usr/local/petsc-2.3.1-p15/'
-  petsc_inc = '-I'+petsc_base+'include '
-  petsc_bmake = '-I'+petsc_base+'bmake/linux-gnu '
-  petsc_mpi = ''
-  petsc_incs = petsc_inc+petsc_bmake+petsc_mpi
-  blas_libpath = ''
-  blas_libs = ['lapack', 'blas']
-  other_libpaths = []
-  other_libs = ['']
-  petsc_libpath = petsc_base+'lib/linux-gnu/'
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+  other_includepaths = [petsc_inc, petsc_bmake]
 
-Export("petsc_base", "petsc_inc", "petsc_bmake", "petsc_mpi", "petsc_incs", 
-		"petsc_libpath", "blas_libpath", "blas_libs", "other_libpaths", "other_libs")
+  other_libs = ['lapack', 'blas']
+  other_libpaths = [petsc_base+'lib/linux-gnu/']
+
+
+Export("other_includepaths", "other_libpaths", "other_libs")
 
 
 ## C++ build tools & MPI runner
@@ -180,7 +191,7 @@ link_flags  = build.LinkFlags()
 
 Export("extra_flags", "link_flags")
 
-# Search path for #includes
+# Search path for Chaste #includes
 import glob
 cpppath = ['#/', '#/cxxtest']
 src_folders = glob.glob('*/src')
@@ -208,7 +219,8 @@ for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', '
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
-    SConscript(toplevel_dir + '/SConscript', build_dir=bld_dir, duplicate=0)
+    SConscript('SConscript', src_dir=toplevel_dir, build_dir=bld_dir,
+               duplicate=0)
 
 
 # Remove the contents of testoutput/ on a clean build
