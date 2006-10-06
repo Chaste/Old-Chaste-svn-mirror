@@ -7,7 +7,7 @@
 #include "OdeSolution.hpp"
 #include <vector>
 
-#include "SimpleNonlinearSolver.hpp"
+#include "SimplePetscNonlinearSolver.hpp"
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
 #include <cmath>
@@ -82,11 +82,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     }
     VecAssemblyBegin(initial_guess);
     VecAssemblyEnd(initial_guess);
-    
-    Vec answer;
-    Vec residual;
-    VecDuplicate(initial_guess, &residual);
-    VecDuplicate(initial_guess, &answer);
+   
     
     BackwardEulerStructure *p_backward_euler_structure = new BackwardEulerStructure;
     p_backward_euler_structure->pAbstractOdeSystem = pAbstractOdeSystem;
@@ -94,9 +90,9 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     p_backward_euler_structure->Time = time;
     p_backward_euler_structure->currentYValue = std::vector<double>(currentYValue);
     
-    SimpleNonlinearSolver solver;
-    answer = solver.Solve(&ComputeResidual, &ComputeJacobian,
-                          residual, initial_guess, p_backward_euler_structure);
+    SimplePetscNonlinearSolver solver;
+    Vec answer = solver.Solve(&ComputeResidual, &ComputeJacobian,
+                          initial_guess, p_backward_euler_structure);
                           
     ReplicatableVector answer_replicated;
     answer_replicated.ReplicatePetscVector(answer);

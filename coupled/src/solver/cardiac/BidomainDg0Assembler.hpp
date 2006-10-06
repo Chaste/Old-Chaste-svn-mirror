@@ -43,6 +43,8 @@ private:
     double mIIntracellularStimulus;
     double mIExtracellularStimulus;
     
+    bool mNullSpaceCreated;
+    
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
     
@@ -378,9 +380,8 @@ private:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolution, double currentTime)
     {
-        // if there are no fixed nodes, and the matrix is not assembled, then set up the null
-        // basis.
-        if ( (mFixedExtracellularPotentialNodes.size()==0) && (!this->mMatrixIsAssembled) )
+        // if there are no fixed nodes then set up the null basis.
+        if ( (mFixedExtracellularPotentialNodes.size()==0) && (!mNullSpaceCreated) )
         {
             //create null space for matrix and pass to linear system
             Vec nullbasis[1];
@@ -404,6 +405,7 @@ private:
             this->mpLinearSystem->SetNullBasis(nullbasis, 1);
             
             VecDestroy(nullbasis[0]);
+            mNullSpaceCreated = true;
         }
     }
     
@@ -432,6 +434,7 @@ public:
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,1); // second unknown, ie phi_e
         
         this->mMatrixIsAssembled = false;
+        mNullSpaceCreated = false;
         
         this->SetMatrixIsConstant();
         

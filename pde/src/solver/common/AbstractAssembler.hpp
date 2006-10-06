@@ -697,8 +697,7 @@ protected:
             {
                 mpLinearSystem->AssembleFinalLinearSystem();
             }
-            
-            mMatrixIsAssembled = true; // this will be reset to false in next iteration if mMatrixIsConstant is true
+            mMatrixIsAssembled = true;
         }
         else if(residualVector)
         {

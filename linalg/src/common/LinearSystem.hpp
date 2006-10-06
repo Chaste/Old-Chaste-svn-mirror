@@ -4,6 +4,8 @@
 #include <petscvec.h>
 #include <petscmat.h>
 #include <petscksp.h>
+
+
 class AbstractLinearSolver;
 
 
@@ -19,6 +21,8 @@ class AbstractLinearSolver;
 
 class LinearSystem
 {
+
+    
 private:
     Mat mLhsMatrix;
     Vec mRhsVector;
@@ -56,6 +60,9 @@ public:
     void AddToRhsVectorElement(int row, double value);
     int GetSize();
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
+    Vec& rGetRhsVector();
+    Mat& rGetLhsMatrix();
+    
     
     // DEBUGGING CODE:
     void GetOwnershipRange(PetscInt &lo, PetscInt &hi);

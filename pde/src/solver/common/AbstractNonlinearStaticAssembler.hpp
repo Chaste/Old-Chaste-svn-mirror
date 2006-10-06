@@ -14,7 +14,8 @@
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractNonlinearSolver.hpp"
-#include "SimpleNonlinearSolver.hpp"
+#include "AbstractNonlinearSolver.hpp"
+#include "SimplePetscNonlinearSolver.hpp"
 
 
 
@@ -26,16 +27,24 @@
  *
  * All the functions are defined as stubs which call methods on *pContext.
  * 
+ * Note: these are global functions, hence the need for long names to avoid
+ * potential conflicting names later
+ * 
  * [The implementations are at the bottom of this file]
  */
 template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
-PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess, Vec residualVector,
-                                     void *pContext);
+PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, 
+                                                                 Vec currentGuess, 
+                                                                 Vec residualVector,
+                                                                 void *pContext);
                                     
 template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
-PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentGuess,
-                                     Mat *pGlobalJacobian, Mat *pPreconditioner,
-                                     MatStructure *pMatStructure, void *pContext);
+PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes,
+                                                                 Vec currentGuess,
+                                                                 Mat *pGlobalJacobian, 
+                                                                 Mat *pPreconditioner,
+                                                                 MatStructure *pMatStructure,
+                                                                 void *pContext);
                                     
 
 
@@ -200,7 +209,7 @@ public:
     AbstractNonlinearStaticAssembler(int numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
-        mpSolver = new SimpleNonlinearSolver;  
+        mpSolver = new SimplePetscNonlinearSolver;  
         this->mProblemIsLinear = false;
         
         mUseAnalyticalJacobian = true;
@@ -211,7 +220,7 @@ public:
                                        int numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
-        mpSolver = new SimpleNonlinearSolver;
+        mpSolver = new SimplePetscNonlinearSolver;
         this->mpProblemIsLinear = false;
 
         mUseAnalyticalJacobian = true;
@@ -220,6 +229,16 @@ public:
     ~AbstractNonlinearStaticAssembler()
     {
         delete mpSolver;
+    }
+    
+    
+    /**
+     *  Set a solver other than the default
+     */
+    void SetSolver(AbstractNonlinearSolver* pSolver)
+    {
+        delete mpSolver;
+        mpSolver = pSolver;
     }
 
     
@@ -252,23 +271,18 @@ public:
         
         mUseAnalyticalJacobian = UseAnalyticalJacobian;
         
-        Vec residual;
-        VecDuplicate(initialGuess, &residual);
-        
-        Vec answer = this->mpSolver->Solve( &AssembleResidualPetsc<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
-                                            &AssembleJacobianPetsc<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>, 
-                                            residual, 
+        // run the solver, telling it which global functions to call in order to assemble
+        // the residual or jacobian
+        Vec answer = this->mpSolver->Solve( &AbstractNonlinearStaticAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+                                            &AbstractNonlinearStaticAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>, 
                                             initialGuess, 
                                             this);
-                                    
-        VecDestroy(residual);
-        
         return answer;
     }
                                                              
 
     /** 
-     *  SetNonlinearSolver - by default a SimpleNonlinearSolver is created
+     *  SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
      *  and used in this class, this method can be called to use a different
      *  AbstractNonlinearSolver
      */
@@ -331,18 +345,21 @@ public:
  * @param residualVector We fill this with the residual vector.
  * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
  * @return An error code if any PETSc routines fail.
+ * 
+ * Note: this is a global function, hence the need for a long name to avoid
+ * potential conflicting names later
  */
 template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
-PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess,
-                                     Vec residualVector, void *pContext)
+PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, Vec currentGuess,
+                                                                 Vec residualVector, void *pContext)
 {
     // Extract an assembler from the void*
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
         
-    double two_norm;
-    VecNorm(residualVector, NORM_2, &two_norm);
-    std::cout << "||residual|| = " << two_norm << "\n";
+//    double two_norm;
+//    VecNorm(residualVector, NORM_2, &two_norm);
+//    std::cout << "||residual|| = " << two_norm << "\n";
         
     return pAssembler->AssembleResidual(currentGuess, residualVector);
 }
@@ -360,19 +377,23 @@ PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess,
  * @param pMatStructure This is not used by us, but required by PETSc.
  * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
  * @return An error code if any PETSc routines fail.
+ * 
+ * Note: this is a global function, hence the need a long name to avoid
+ * potential conflicting names later
  */
 template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
-PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentGuess,
-                                    Mat *pGlobalJacobian, Mat *pPreconditioner,
-                                    MatStructure *pMatStructure, void *pContext)
+PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes, Vec currentGuess,
+                                                                 Mat *pGlobalJacobian, Mat *pPreconditioner,
+                                                                 MatStructure *pMatStructure, void *pContext)
 {
-    std::cout << "begin assemble jacobian\n";
+//   std::cout << "begin assemble jacobian\n";
+
     // Extract an assembler from the void*
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
 
     PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
-    std::cout << "end assemble jacobian\n";
+//    std::cout << "end assemble jacobian\n";
         
     return ierr;
 }

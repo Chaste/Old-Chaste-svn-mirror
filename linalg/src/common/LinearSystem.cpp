@@ -276,6 +276,24 @@ double LinearSystem::GetRhsVectorElement(int row)
     return answer;
 }
 
+/** 
+ * Get access to the rhs vector directly. Shouldn't generally need to be called.
+ */
+Vec& LinearSystem::rGetRhsVector()
+{
+    return mRhsVector;
+}
+
+/** 
+ * Get access to the lhs matrix directly. Shouldn't generally need to be called.
+ */
+Mat& LinearSystem::rGetLhsMatrix()
+{
+    return mLhsMatrix;
+}
+
+
+
 /* BROKEN IN PARALLEL
 void LinearSystem::WriteLinearSystem(std::string matFile, std::string rhsVectorFile)
 {

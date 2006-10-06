@@ -11,7 +11,7 @@
 //#include <iostream>
 
 #include "SimpleNonlinearEllipticAssembler.hpp"
-#include "SimpleNonlinearSolver.hpp"
+#include "SimplePetscNonlinearSolver.hpp"
 
 #include "BoundaryConditionsContainer.hpp"
 #include "FunctionalBoundaryCondition.hpp"

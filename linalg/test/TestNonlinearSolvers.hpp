@@ -1,7 +1,8 @@
-#ifndef _TESTSIMPLENONLINEARSOLVER_HPP_
-#define _TESTSIMPLENONLINEARSOLVER_HPP_
+#ifndef _TESTNONLINEARSOLVERS_HPP_
+#define _TESTNONLINEARSOLVERS_HPP_
 
-#include "SimpleNonlinearSolver.hpp"
+#include "SimplePetscNonlinearSolver.hpp"
+#include "SimpleNewtonNonlinearSolver.hpp"
 #include <cxxtest/TestSuite.h>
 #include <petsc.h>
 #include <petsc.h>
@@ -19,14 +20,16 @@ PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPre
 PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext);
 PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 
-class TestSimpleNonlinearSolver : public CxxTest::TestSuite
+class TestNonlinearSolvers : public CxxTest::TestSuite
 {
 public:
 
-    void TestOn2dNonlinearProblem(void)
+    void TestOn2dNonlinearProblem(void) throw (Exception)
     {
-        SimpleNonlinearSolver solver;
+        SimplePetscNonlinearSolver solver_petsc;
+        SimpleNewtonNonlinearSolver solver_newton;
         
+
         // Set up solution guess for residuals
         int length=2;
         
@@ -36,56 +39,43 @@ public:
         VecSetSizes(initial_guess, PETSC_DECIDE,length);
         //VecSetType(initial_guess, VECSEQ);
         VecSetFromOptions(initial_guess);
-        VecSetValue(initial_guess, 0, 1.0 ,INSERT_VALUES);
-        VecSetValue(initial_guess, 1, 1.0 ,INSERT_VALUES);
+        VecSetValue(initial_guess, 0, 1.1*(1/sqrt(2)) ,INSERT_VALUES);
+        VecSetValue(initial_guess, 1, 1.1*(1/sqrt(2)) ,INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        Vec residual;
-        VecDuplicate(initial_guess, &residual);
-        
-        
-        answer = solver.Solve(&ComputeTestResidual, &ComputeTestJacobian,
-                              residual, initial_guess, NULL);
+        // solve using petsc solver
+        Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
+                                              initial_guess, NULL);
                               
+        // solve using newton method
+        Vec answer_newton = solver_newton.Solve(&ComputeTestResidual, &ComputeTestJacobian,
+                                                initial_guess, NULL);
+
+        // replicate the answers so we can access them without worrying about parallel stuff
+        ReplicatableVector answer_petsc_repl(answer_petsc);
+        ReplicatableVector answer_newton_repl(answer_newton);
                               
-        PetscScalar *p_answer_elements_array;
-        VecGetArray(answer, &p_answer_elements_array);
-        int lo, hi;
-        VecGetOwnershipRange(answer, &lo, &hi);
-        
         double tol = 1e-4;
         
-        for (int global_index=0; global_index<2; global_index++)
+        for (int i=0; i<2; i++)
         {
-            int local_index = global_index-lo;
-            if (lo<=global_index && global_index<hi)
-            {
-                double x = p_answer_elements_array[local_index];
-                TS_ASSERT_DELTA(x,1/sqrt(2),tol);
-            }
+            // the solution is x = 1/sqrt(2), y = 1/sqrt(2)
+            TS_ASSERT_DELTA(answer_petsc_repl[i] ,1/sqrt(2),tol);
+            TS_ASSERT_DELTA(answer_newton_repl[i],1/sqrt(2),tol);
         }
-//    	if (lo<=0 && 0<hi)
-//        {
-//          double x = p_answer_elements_array[0-lo];
-//	      TS_ASSERT_DELTA(x,1/sqrt(2),tol);
-//        }
-//        if (lo<=1 && 1<hi)
-//        {
-//        	double y = p_answer_elements_array[1-lo];
-//        	TS_ASSERT_DELTA(y,1/sqrt(2),tol);
-//        }
-        VecRestoreArray(answer,&p_answer_elements_array);
-        
+
+
         VecDestroy(initial_guess);
-        VecDestroy(residual);
-        VecDestroy(answer);
+        VecDestroy(answer_petsc);
+        VecDestroy(answer_newton);
+        
     }
     
-    void TestOn3dNonlinearProblem(void)
+    void TestOn3dNonlinearProblem(void) throw (Exception)
     {
-        SimpleNonlinearSolver solver;
+        SimplePetscNonlinearSolver solver_petsc;
+        SimpleNewtonNonlinearSolver solver_newton;
         
         // Set up solution guess for residuals
         int length=3;
@@ -102,43 +92,51 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-        Vec answer;
-        Vec residual;
-        VecDuplicate(initial_guess,&residual);
-        
-        answer = solver.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
-                              residual, initial_guess, NULL);
-                              
-        PetscScalar *p_answer_elements_array;
-        VecGetArray(answer, &p_answer_elements_array);
-        int lo, hi;
-        VecGetOwnershipRange(answer, &lo, &hi);
+        // solve using petsc solver
+        Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
+                                              initial_guess, NULL);
+
+        // solve using newton method
+        solver_newton.SetTolerance(1e-10);                      // use a different tolerance
+        solver_newton.SetWriteStats();                          // to cover this method
+        solver_newton.SetLinearSolver(new SimpleLinearSolver);  // to cover this method
+        Vec answer_newton = solver_newton.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
+                                                initial_guess, NULL);
+                                
+        // replicate the answers so we can access them without worrying about parallel stuff
+        ReplicatableVector answer_petsc_repl(answer_petsc);
+        ReplicatableVector answer_newton_repl(answer_newton);        
         
         double tol = 1e-6;
         
-        for (int global_index=0; global_index<3; global_index++)
+        for (int i=0; i<3; i++)
         {
-            int local_index = global_index-lo;
-            if (lo<=global_index && global_index<hi)
-            {
-                double x = p_answer_elements_array[local_index];
-                TS_ASSERT_DELTA(x,1/sqrt(3),tol);
-            }
+            // the solution is x = 1/sqrt(3), y = 1/sqrt(3),  z = 1/sqrt(3)
+            TS_ASSERT_DELTA(answer_petsc_repl[i] ,1/sqrt(3),tol);
+            TS_ASSERT_DELTA(answer_newton_repl[i],1/sqrt(3),tol);
         }
         
-        VecRestoreArray(answer,&p_answer_elements_array);
+        
+        // check the residual really did have scaled norm within the tolerance
+        Vec residual;
+        VecDuplicate(answer_newton, &residual);
+        ComputeTestResidual3d(NULL, answer_newton, residual, NULL);
+        double norm;
+        VecNorm(residual, NORM_2, &norm);
+        TS_ASSERT_LESS_THAN(norm/length, 1e-10);
+        
         
         VecDestroy(initial_guess);
-        VecDestroy(residual);
-        VecDestroy(answer);
+        VecDestroy(answer_petsc);
+        VecDestroy(answer_newton);
     }
-    
 };
 
 
 
-//////////////////////LEAVE////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////
+// global functions called by nonlinear solvers
+///////////////////////////////////////////////////////////////////////////////////////////////
 PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,void *pContext)
 {
     double x,y;
@@ -219,4 +217,4 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
     return 0;
 }
 
-#endif //_TESTSIMPLENONLINEARSOLVER_HPP_
+#endif //_TESTNONLINEARSOLVERS_HPP_

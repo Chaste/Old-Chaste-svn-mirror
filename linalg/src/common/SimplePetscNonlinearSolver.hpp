@@ -8,12 +8,13 @@
 #include <petscsnes.h>
 #include "AbstractNonlinearSolver.hpp"
 
-class SimpleNonlinearSolver : public AbstractNonlinearSolver
+class SimplePetscNonlinearSolver : public AbstractNonlinearSolver
 {
 public:
-    Vec Solve(PetscErrorCode (*pFunction)(SNES,Vec,Vec,void*),
+    Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
               PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
-              Vec residual, Vec initialGuess, void *context);
+              Vec initialGuess, 
+              void *pContext);
               
 };
 

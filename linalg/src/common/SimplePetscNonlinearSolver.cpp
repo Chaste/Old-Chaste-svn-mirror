@@ -4,7 +4,7 @@
 
 
 
-#include "SimpleNonlinearSolver.hpp"
+#include "SimplePetscNonlinearSolver.hpp"
 #include "Exception.hpp"
 #include "petscsnes.h"
 #include <sstream>
@@ -30,29 +30,34 @@
  *
  * @param initialGuess A PETSc Vec of the correct size, containing initial guesses
  *  for the nonlinear solver.
+ * 
+ * @param pContext [optional] A pointer to a class that may have to be used in the 
+ *  ComputeResidual and ComputeJacobian functions
  *
  * @return Returns a PETSc Vec of the solution.
  *
  * To be used in the form:
- * Vec answer;
- * Vec residual;
- * VecDuplicate(initialGuess,&residual);
- * VecDuplicate(initialGuess,&answer);
- * answer=solver->Solve(&ComputeResidual, &ComputeJacobian, residual, initialGuess, NULL);
+ * Vec answer=solver->Solve(&ComputeResidual, &ComputeJacobian, initialGuess, NULL);
  *
  * In the same file, but outside this class the functions ComputeResidual and
  * ComputeJacobian must sit, using the input arguments specified above.
  */
-Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
+Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                                  PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
-                                 Vec residual, Vec initialGuess, void *pContext)
+                                 Vec initialGuess, 
+                                 void *pContext)
 {
     SNES snes;
+    
+    // create the residual vector by copying the structure of the initial guess
+    Vec residual;
+    VecDuplicate(initialGuess, &residual);
+    
     Mat J; //Jacobian Matrix
     
     int N; //number of elements
     //get the size of the jacobian from the residual
-    VecGetSize(residual,&N);
+    VecGetSize(initialGuess,&N);
     
     
 #if (PETSC_VERSION_MINOR == 2) //Old API
@@ -61,8 +66,6 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     MatCreate(PETSC_COMM_WORLD,&J);
     MatSetSizes(J,PETSC_DECIDE,PETSC_DECIDE,N,N);
 #endif
-    
-    
     MatSetFromOptions(J);
     
     SNESCreate(PETSC_COMM_WORLD, &snes);
@@ -83,7 +86,7 @@ Vec SimpleNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec
     SNESSolve(snes, PETSC_NULL, x);
 #endif
     
-    
+    VecDestroy(residual);
     MatDestroy(J); // Free Jacobian
     
     SNESConvergedReason reason;
