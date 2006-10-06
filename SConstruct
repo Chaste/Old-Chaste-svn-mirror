@@ -19,7 +19,17 @@ Export('build', 'build_type')
 test_summary = ARGUMENTS.get('test_summary', 1)
 
 # Specify system_name=finarfin to scons to change default paths
-system_name = ARGUMENTS.get('system_name', '')
+host_name = os.getenv('HOSTNAME')
+# Allow the system_name to be derived automatically
+system_name=''
+if host_name == "userpc30" or host_name == "userpc33" :
+    system_name = 'joe'
+if host_name == "zuse.osc.ox.ac.uk" :
+    system_name = 'zuse'
+if host_name == "userpc58.comlab.ox.ac.uk" or host_name == "userpc59.comlab.ox.ac.uk" or host_name == "userpc60.comlab.ox.ac.uk":
+    system_name = 'chaste'
+
+system_name = ARGUMENTS.get('system_name', system_name)
 
 # Specifying extra run-time flags
 run_time_flags = ARGUMENTS.get('run_time_flags', '')
