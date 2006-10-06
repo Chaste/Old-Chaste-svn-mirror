@@ -1,0 +1,505 @@
+#ifndef TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_
+#define TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_
+
+
+#include <cxxtest/TestSuite.h>
+#include "ConformingTetrahedralMesh.cpp"
+#include <petsc.h>
+#include <vector>
+#include <cmath>
+#include "PetscSetupAndFinalize.hpp"
+#include "SimpleNonlinearEllipticAssembler.hpp"
+#include "BoundaryConditionsContainer.hpp"
+#include "TrianglesMeshReader.cpp"
+#include "AbstractNonlinearStaticAssembler.hpp"
+#include "AbstractNonlinearEllipticPde.hpp"
+#include "ReplicatableVector.hpp"
+#include "NonlinearHeatEquationPde.hpp"
+
+#define PI 3.14159265
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// an assembler to solve the 'coupled' 2-unknown problem
+//    div.(u grad u) + 1  = 0
+//    div.(v grav v) + lambda  = 0
+//
+//   \lambda is taken in in the constructor
+//////////////////////////////////////////////////////////////////////////////
+template <int DIM>
+class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearStaticAssembler<DIM,DIM,2>
+{
+private:
+    double mLambda;
+    virtual c_matrix<double,2*(DIM+1),2*(DIM+1)> ComputeMatrixTerm(c_vector<double, DIM+1> &rPhi,
+                                                                   c_matrix<double, DIM, DIM+1> &rGradPhi,
+                                                                   Point<DIM> &rX,
+                                                                   c_vector<double,2> &u,
+                                                                   c_matrix<double,2,DIM> &rGradU)
+    {
+        c_matrix<double,2*(DIM+1),2*(DIM+1)> ret;
+
+        for (unsigned i=0; i<DIM+1; i++)
+        {
+            for (unsigned j=0; j<DIM+1; j++)
+            {
+                matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_i(rGradPhi,i); 
+                matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_j(rGradPhi,j); 
+
+                ret(2*i,  2*j)   = + rPhi(j)*inner_prod(rGradU[0],grad_phi_i) + u(0)*inner_prod(grad_phi_j,grad_phi_i);
+                ret(2*i+1,2*j+1) = + rPhi(j)*inner_prod(rGradU[1],grad_phi_i) + u(1)*inner_prod(grad_phi_j,grad_phi_i);   
+            }
+        }
+        return ret;
+    }
+    
+    
+ //    - todo - change the name of ComputeMatrixTerm to ComputeMatrixTerm or something
+   //         - make rGradPhi, rGradU easier to understand and easier to access the 
+     //         vectors
+     // make default jacobian analytic
+    
+    virtual c_vector<double,2*(DIM+1)> ComputeVectorTerm(c_vector<double, DIM+1> &rPhi,
+                                                         c_matrix<double, DIM, DIM+1> &rGradPhi,
+                                                         Point<DIM> &rX,
+                                                         c_vector<double,2> &u,
+                                                         c_matrix<double,2,DIM> &rGradU)
+    {
+        c_vector<double,2*(DIM+1)> ret;
+        
+        for (unsigned i=0; i<DIM+1; i++)
+        {
+            matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_i(rGradPhi,i); 
+
+            ret(2*i)   = u(0)*inner_prod(rGradU[0],grad_phi_i) - rPhi(i);
+            ret(2*i+1) = u(1)*inner_prod(rGradU[1],grad_phi_i) - mLambda*rPhi(i);
+        }
+        return ret;
+    }
+
+
+ 
+    
+    virtual c_vector<double, 2*DIM> ComputeVectorSurfaceTerm(const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
+                                                             c_vector<double,DIM> &rPhi,
+                                                             Point<DIM> &rX )
+    {
+        c_vector<double,2*DIM> ret;
+
+        double ugradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
+        double vgradv_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
+
+        for (unsigned i=0; i<DIM; i++)
+        {
+            ret(2*i)   = -ugradu_dot_n * rPhi(i);
+            ret(2*i+1) = -vgradv_dot_n * rPhi(i);
+        }
+        return ret;
+    }
+    
+    
+public:
+    MySimpleNonlinearCoupledAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
+                                      BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
+                                      double lambda) 
+                         :  AbstractNonlinearStaticAssembler<DIM,DIM,2>()
+    {
+        this->mpMesh = pMesh;
+        this->mpBoundaryConditions = pBoundaryConditions;
+        
+        mLambda = lambda;
+    }
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+// an assembler to solve the coupled 2-unknown problem
+//    div.(v gradu) = f(x,y)
+//    div.(u gradv) = g(x,y)
+//
+// where f and g are chosen so that (with zero-dirichlet boundary conditions)
+// the solution is
+//       u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
+//////////////////////////////////////////////////////////////////////////////
+class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler<2,2,2>
+{
+    double f(double x,double y)
+    {   
+/*        double u = sin(PI*x)*sin(PI*y);
+        double u_x = PI*cos(PI*x)*sin(PI*y);
+        double u_y = PI*sin(PI*x)*cos(PI*y);
+        double delsq_u = -PI*PI*u;
+
+        double v = sin(2*PI*x)*sin(2*PI*y);
+        double v_x = 2*PI*cos(2*PI*x)*sin(2*PI*y);
+        double v_y = 2*PI*sin(2*PI*x)*cos(2*PI*y);
+  */      
+        return 2; //(u_x*v_x + u_y*v_y + v*delsq_u);
+    }
+    
+    double g(double x,double y)
+    {
+/*        double u = sin(PI*x)*sin(PI*y);
+        double u_x = PI*cos(PI*x)*sin(PI*y);
+        double u_y = PI*sin(PI*x)*cos(PI*y);
+
+        double v = sin(2*PI*x)*sin(2*PI*y);
+        double v_x = 2*PI*cos(2*PI*x)*sin(2*PI*y);
+        double v_y = 2*PI*sin(2*PI*x)*cos(2*PI*y);
+        double delsq_v = -4*PI*PI*v;
+  */      
+        return 2; //(v_x*u_x + v_y*u_y + u*delsq_v);
+    }
+
+
+    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
+                                                            c_matrix<double, 2, 2+1> &rGradPhi,
+                                                            Point<2> &rX,
+                                                            c_vector<double,2> &u,
+                                                            c_matrix<double,2,2> &rGradU)
+    {
+        c_matrix<double,2*(2+1),2*(2+1)> ret;
+
+        for (unsigned i=0; i<2+1; i++)
+        {
+            for (unsigned j=0; j<2+1; j++)
+            {
+                matrix_column<c_matrix<double,2,2+1> > grad_phi_i(rGradPhi,i); 
+                matrix_column<c_matrix<double,2,2+1> > grad_phi_j(rGradPhi,j); 
+
+                ret(2*i,  2*j)   = u(1)*inner_prod(grad_phi_j,grad_phi_i);
+                ret(2*i,  2*j+1) = rPhi(j)*inner_prod(rGradU[0],grad_phi_i);
+                ret(2*i+1,2*j)   = rPhi(i)*inner_prod(rGradU[0],grad_phi_j);
+                ret(2*i+1,2*j+1) = u(0)*inner_prod(grad_phi_j,grad_phi_i);   
+            }
+        }
+        return ret;
+    }   
+   
+   
+   
+    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
+                                                    c_matrix<double, 2, 2+1> &rGradPhi,
+                                                    Point<2> &rX,
+                                                    c_vector<double,2> &u,
+                                                    c_matrix<double,2,2> &rGradU)
+    {
+        c_vector<double,2*(2+1)> ret;
+                
+        for (unsigned i=0; i<2+1; i++)
+        {
+            matrix_column<c_matrix<double,2,2+1> > grad_phi_i(rGradPhi,i); 
+
+            ret(2*i)   = u(1)*inner_prod(rGradU[0],grad_phi_i) + f(rX[0], rX[1])*rPhi(i);
+            ret(2*i+1) = u(0)*inner_prod(rGradU[1],grad_phi_i) + g(rX[0], rX[1])*rPhi(i);
+        }
+        return ret;
+    }
+    
+    
+    // not used
+    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement, c_vector<double,2> &rPhi, Point<2> &rX)
+    {
+        assert(0);
+        return zero_vector<double>(2*2);
+    }
+
+    
+    
+public :
+    AnotherCoupledNonlinearAssembler(ConformingTetrahedralMesh<2,2>* pMesh,
+                                     BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) 
+                         :  AbstractNonlinearStaticAssembler<2,2,2>()
+    {
+        this->mpMesh = pMesh;
+        this->mpBoundaryConditions = pBoundaryConditions;
+    }
+};
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// test class
+//////////////////////////////////////////////////////////////////////////////
+class TestSolvingCoupledNonlinearPdes : public CxxTest::TestSuite
+{
+private :
+
+    template<int DIM>
+    void runTestSimpleCoupledNonlinearPde()
+    {
+        std::string file;
+        if(DIM==1)
+        {
+            file = "mesh/test/data/1D_0_to_1_10_elements";
+        }
+        else if(DIM==2)
+        {
+            file = "mesh/test/data/disk_522_elements";
+        }
+        else
+        {
+            // don't call this method with DIM=3
+            assert(0);
+        }
+        TrianglesMeshReader<DIM,DIM> mesh_reader(file);
+        
+        
+        ConformingTetrahedralMesh<DIM,DIM> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ////////////////////////////////////////////////////////////////
+        // Solve coupled system using assembler defined above
+        ////////////////////////////////////////////////////////////////
+        
+        // boundary conditions for 2-unknown problem
+        BoundaryConditionsContainer<DIM,DIM,2> bcc(mesh.GetNumNodes());
+        bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
+        bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
+        
+        // for comparing residuals
+        MySimpleNonlinearCoupledAssembler<DIM> assembler_lam_1(&mesh,&bcc,1);
+        // for comparing solutions
+        MySimpleNonlinearCoupledAssembler<DIM> assembler(&mesh,&bcc,4);
+        
+        
+        ////////////////////////////////////////////
+        // store residual
+        ////////////////////////////////////////////
+
+        // initialize 'solution' vector
+        Vec guess = assembler.CreateConstantInitialGuess(1);
+        Vec residual;
+        VecDuplicate(guess, &residual);
+        
+        assembler_lam_1.AssembleResidual(guess, residual);
+        ReplicatableVector residual_repl(residual);
+        
+        /////////////////////////////////////////////        
+        // solve as well
+        /////////////////////////////////////////////          
+        Vec result = assembler.Solve(guess, true);
+        ReplicatableVector result_repl(result);
+        
+return;
+
+        ///////////////////////////////////////////////////////////////////////
+        // Now solve div.(u gradu) + 1 = 0 as an uncoupled 1-unknown problem
+        ///////////////////////////////////////////////////////////////////////
+        
+        // Instantiate PDE object
+        NonlinearHeatEquationPde<DIM> pde;  //defined above
+        
+        // boundary conditions for 1-unknown problem
+        BoundaryConditionsContainer<DIM,DIM,1> bcc_1unknown(mesh.GetNumNodes());
+        bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
+     
+        // Assembler
+        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
+        
+        ////////////////////////////////////////////
+        // store residual
+        ////////////////////////////////////////////
+        Vec guess_1unknown = assembler_1unknown.CreateConstantInitialGuess(1.0);
+        Vec residual_1unknown;
+        VecDuplicate(guess_1unknown, &residual_1unknown);
+        
+        assembler_1unknown.AssembleResidual(guess_1unknown, residual_1unknown);
+        ReplicatableVector residual_1unknown_repl(residual_1unknown);
+
+        /////////////////////////////////////////////        
+        // solve as well
+        /////////////////////////////////////////////        
+        Vec result_1unknown = assembler_1unknown.Solve(guess_1unknown, true);
+        ReplicatableVector result_1unknown_repl(result_1unknown);
+        
+
+        /////////////////////////////////////////////////////////////////////////        
+        // check the residuals and solutions agree
+        // (check the u solutions (result_repl[2*i]) is equal to the
+        // solution of the 1-unknown problem and the v solutions
+        // (result_repl[2*i+1]) equal to 2 times the 1-unknown
+        // solution (as lambda=4))
+        //////////////////////////////////////////////////////////////////////////
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            // note the residuals were from a different problem when lamda = 1, so 
+            // should agree
+            TS_ASSERT_DELTA(residual_repl[2*i],   residual_1unknown_repl[i], 1e-10);
+            TS_ASSERT_DELTA(residual_repl[2*i+1], residual_1unknown_repl[i], 1e-10);
+
+            TS_ASSERT_DELTA(result_repl[2*i],   result_1unknown_repl[i], 1e-5);
+            TS_ASSERT_DELTA(result_repl[2*i+1], 2*result_1unknown_repl[i], 1e-5);
+        }
+    }
+    
+    
+   
+        
+    
+    
+public:
+
+    /*  Solve:
+     *     div.(u gradu) + 1  = 0
+     *     div.(v gradv) + 4  = 0
+     *  with zero dirichlet on boundary
+     * 
+     *  This is obviously really just two virtually identical uncoupled 
+     *  problems
+     */
+    void TestSimpleCoupledNonlinearPde()   throw (Exception)
+    {
+        // run 1d version
+        runTestSimpleCoupledNonlinearPde<1>();
+ 
+        // run 2d version
+        runTestSimpleCoupledNonlinearPde<2>();
+    }
+    
+    
+    
+    /*  Solve:
+     *     div.(u gradu) + 1  = 0
+     *     div.(v gradv) + 1  = 0
+     *  with neumann boundary conditions (the same on both u and v)
+     *  on part of the boundary
+     * 
+     *  This is obviously two identical uncoupled problems
+     */
+    void TestSimpleCoupledNonlinearPdeWithNeumannBoundaryConditions( void ) throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        ////////////////////////////////////////////////////////////////
+        // Solve coupled system using assembler defined above
+        ////////////////////////////////////////////////////////////////
+        
+        // boundary conditions for 2-unknown problem
+        BoundaryConditionsContainer<2,2,2> bcc(mesh.GetNumNodes());
+        
+        // du/dn = -0.5 on r=1
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
+        ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
+        ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(-0.5);
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
+        {
+            bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition,0);
+            bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition1,1);
+            iter++;
+        }
+
+        // u = 2 at some point on the boundary, say node 1
+        p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
+        p_boundary_condition1 = new ConstBoundaryCondition<2>(2.0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition,0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition1,1);
+        
+        // use assembler to solve (with lambda = 1)
+        MySimpleNonlinearCoupledAssembler<2> assembler(&mesh,&bcc,1.0);
+        
+        Vec result = assembler.Solve(assembler.CreateConstantInitialGuess(1.0),true);
+        ReplicatableVector result_repl(result);
+        
+        
+        ///////////////////////////////////////////////////////////////////////
+        // Now solve div.(u gradu) + 1 = 0 as an uncoupled 1-unknown problem
+        ///////////////////////////////////////////////////////////////////////
+        
+        // Instantiate PDE object
+        NonlinearHeatEquationPde<2> pde;  
+        
+        // boundary conditions for 1-unknown problem
+        BoundaryConditionsContainer<2,2,1> bcc_1unknown(mesh.GetNumNodes());
+        
+        iter = mesh.GetBoundaryElementIteratorBegin();
+        p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
+        while (iter != mesh.GetBoundaryElementIteratorEnd())
+        {
+            bcc_1unknown.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
+            iter++;
+        }
+        // u = 2 at some point on the boundary, say node 1
+        p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
+        bcc_1unknown.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
+        
+        // Assembler
+        SimpleNonlinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
+        
+        Vec result_1unknown = assembler_1unknown.Solve(assembler_1unknown.CreateConstantInitialGuess(1.0), true);
+        ReplicatableVector result_1unknown_repl(result_1unknown);
+        
+        // check the u solutions (result_repl[2*i]) is equal to the
+        // solution of the 1-unknown problem and the v solutions
+        // (result_repl[2*i+1]) are equal to the 1-unknown
+        // solution
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(result_repl[2*i]  , result_1unknown_repl[i], 1e-6);
+            TS_ASSERT_DELTA(result_repl[2*i+1], result_1unknown_repl[i], 1e-6);
+        }
+    }
+ 
+    
+    /*
+     *   WORK IN PROGRESS..
+     */
+/*    void noTestRealCoupledPde( void ) throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // boundary conditions for 2-unknown problem
+        BoundaryConditionsContainer<2,2,2> bcc(mesh.GetNumNodes());
+        
+        
+        ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
+        while (iter != mesh.GetBoundaryNodeIteratorEnd())
+        {
+            std::cout << (*iter)->GetIndex() << "..";
+            double x = (*iter)->GetPoint()[0];
+            ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(x);
+            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition,0);
+
+            double y = (*iter)->GetPoint()[1];
+            ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(y);
+            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition1,1);
+            iter++;
+        }
+        
+        
+      //  bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
+      //  bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
+        
+        // purpose-made assembler for this problem:
+        AnotherCoupledNonlinearAssembler assembler(&mesh,&bcc);
+        
+        Vec result = assembler.Solve( assembler.CreateConstantInitialGuess(0.0), true);
+        ReplicatableVector result_repl(result);
+        
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint()[1];
+            
+            double u = sin(PI*x)*sin(PI*y);
+            double v = sin(2*PI*x)*sin(2*PI*y);
+            
+            // need lower tolerance for v because v is higher frequency
+            // and not captured very well on this mesh
+            TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.02);
+            TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.1);
+        }
+    }
+    */
+};
+#endif /*TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_*/
+

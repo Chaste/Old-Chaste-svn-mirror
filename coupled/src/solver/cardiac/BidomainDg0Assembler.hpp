@@ -63,17 +63,18 @@ private:
         mIExtracellularStimulus += phi_i * mpBidomainPde->GetExtracellularStimulusCacheReplicated()[ node_global_index ];
     }
     
-    /** ComputeLhsTerm()
+    /** 
+     *  ComputeMatrixTerm()
      * 
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness matrix.
-     */
-    virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeLhsTerm(
-        const c_vector<double, ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        const Point<SPACE_DIM> &rX,
-        const c_vector<double,2> &u,
-        const c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
+     */        
+    virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        Point<SPACE_DIM> &rX,
+        c_vector<double,2> &u,
+        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
@@ -122,17 +123,17 @@ private:
     
     
     /**
-     *  ComputeRhsTerm()
+     *  ComputeVectorTerm()
      * 
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness vector.
      */
-    virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeRhsTerm(
-        const c_vector<double, ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        const Point<SPACE_DIM> &rX,
-        const c_vector<double,2> &u,
-        const c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
+    virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        Point<SPACE_DIM> &rX,
+        c_vector<double,2> &u,
+        c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
         // get bidomain parameters
         double Am = mpBidomainPde->GetSurfaceAreaToVolumeRatio();
@@ -165,19 +166,20 @@ private:
      *  will realise this and not loop over surface elements.
      */
 #define COVERAGE_IGNORE //see NOTE above
-    virtual c_vector<double, 2*ELEMENT_DIM> ComputeSurfaceRhsTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-            const c_vector<double,ELEMENT_DIM> &phi,
-            const Point<SPACE_DIM> &x)
+    virtual c_vector<double, 2*ELEMENT_DIM> ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+        c_vector<double,ELEMENT_DIM> &rPhi,
+        Point<SPACE_DIM> &rX)
     {
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
-        double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x, 0);
-        double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x, 1);
+        double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
+        double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
         
         c_vector<double, 2*ELEMENT_DIM> ret;
         for (int i=0; i<ELEMENT_DIM; i++)
         {
-            ret(2*i)   = phi(i)*D_times_grad_v_dot_n;
-            ret(2*i+1) = phi(i)*D_times_grad_phi_e_dot_n;
+            ret(2*i)   = rPhi(i)*D_times_grad_v_dot_n;
+            ret(2*i+1) = rPhi(i)*D_times_grad_phi_e_dot_n;
         }
         
         return ret;

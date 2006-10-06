@@ -39,7 +39,7 @@ private:
 protected:
 
     /**
-     *  ComputeRhsTerm()
+     *  ComputeVectorTerm()
      * 
      *  This method is called by AssembleOnElement() and tells the assembler
      *  the contribution to add to the element stiffness vector.
@@ -47,12 +47,12 @@ protected:
      *  Here, the SimpleDg0ParabolicAssembler version of this method is 
      *  overloaded using the interpolated source term
      */
-    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(
-        const c_vector<double, ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        const Point<SPACE_DIM> &rX,
-        const c_vector<double,1> &u,
-        const c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */)
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        Point<SPACE_DIM> &rX,
+        c_vector<double,1> &u,
+        c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */)
     {
         return  rPhi * (mSourceTerm + this->mDtInverse *
                         mpMonodomainPde->ComputeDuDtCoefficientFunction(rX) * u(0));

@@ -17,9 +17,6 @@
 #include "SimpleNonlinearSolver.hpp"
 
 
-///   TODO - make this class templated over 1 and implement the
-///   general 1 case in AbstractAssembler
-
 
 /*
  * Since we need to pass function pointers to the PETSc SNES routines, we can't
@@ -88,7 +85,7 @@ public :
      */
     PetscErrorCode AssembleJacobian(const Vec currentGuess, Mat *pGlobalJacobian)
     {
-        if (this->mUseAnalyticalJacobian)
+        if (mUseAnalyticalJacobian)
         {
             // call assemble system with the current guess and the jacobian to
             // be assembled
@@ -113,7 +110,7 @@ protected:
      */
     PetscErrorCode AssembleJacobianNumerically(const Vec currentGuess, Mat *pJacobian)
     {
-        int num_nodes = this->mpMesh->GetNumNodes();
+        int num_nodes = PROBLEM_DIM*this->mpMesh->GetNumNodes();
         
         // Set up working vectors
         Vec residual;
@@ -205,6 +202,8 @@ public:
     {
         mpSolver = new SimpleNonlinearSolver;  
         this->mProblemIsLinear = false;
+        
+        mUseAnalyticalJacobian = true;
     }
     
     AbstractNonlinearStaticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
@@ -214,6 +213,8 @@ public:
     {
         mpSolver = new SimpleNonlinearSolver;
         this->mpProblemIsLinear = false;
+
+        mUseAnalyticalJacobian = true;
     }
 
     ~AbstractNonlinearStaticAssembler()
@@ -232,6 +233,23 @@ public:
      */
     virtual Vec Solve(Vec initialGuess, bool UseAnalyticalJacobian = false)
     {
+        assert(this->mpMesh!=NULL);
+        assert(this->mpBoundaryConditions!=NULL);
+
+        // check size of initial guess is correct
+        int size_of_init_guess;
+        VecGetSize(initialGuess, &size_of_init_guess);
+        if(size_of_init_guess!=PROBLEM_DIM * this->mpMesh->GetNumNodes())
+        {
+            std::stringstream error_message;
+            error_message << "Size of initial guess vector, " << size_of_init_guess 
+                          << ", does not match size of problem, " 
+                          << PROBLEM_DIM * this->mpMesh->GetNumNodes();
+            
+            EXCEPTION(error_message.str());
+        }
+        
+        
         mUseAnalyticalJacobian = UseAnalyticalJacobian;
         
         Vec residual;
@@ -259,6 +277,34 @@ public:
         delete mpSolver;
         mpSolver = pNonlinearSolver;
     }                        
+    
+    
+    
+    /** 
+     *  A helpful method for creating an initial guess vector
+     */
+    Vec CreateConstantInitialGuess(double value)
+    {
+        assert(this->mpMesh!=NULL);
+        
+        int size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+
+        Vec initial_guess;
+        VecCreate(PETSC_COMM_WORLD, &initial_guess);
+        VecSetSizes(initial_guess, PETSC_DECIDE, size);
+        VecSetFromOptions(initial_guess);
+        
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        VecSet(&value, initial_guess);
+#else
+        VecSet(initial_guess, value);
+#endif
+        
+        VecAssemblyBegin(initial_guess);
+        VecAssemblyEnd(initial_guess);
+        return initial_guess;
+    }
+    
 }; //end of class AbstractNonlinearStaticAssembler
 
 
@@ -294,6 +340,10 @@ PetscErrorCode AssembleResidualPetsc(SNES snes, Vec currentGuess,
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
         
+    double two_norm;
+    VecNorm(residualVector, NORM_2, &two_norm);
+    std::cout << "||residual|| = " << two_norm << "\n";
+        
     return pAssembler->AssembleResidual(currentGuess, residualVector);
 }
 
@@ -316,11 +366,15 @@ PetscErrorCode AssembleJacobianPetsc(SNES snes, Vec currentGuess,
                                     Mat *pGlobalJacobian, Mat *pPreconditioner,
                                     MatStructure *pMatStructure, void *pContext)
 {
+    std::cout << "begin assemble jacobian\n";
     // Extract an assembler from the void*
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
+
+    PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
+    std::cout << "end assemble jacobian\n";
         
-    return pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
+    return ierr;
 }
 
 

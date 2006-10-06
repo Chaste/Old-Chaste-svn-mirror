@@ -42,7 +42,7 @@
  *  loop over gauss points and create the element stiffness matrix and vector in 
  *  the linear case ). They call:
  *
- *  ComputeLhsTerm(), ComputeRhsTerm(), ComputeSurfaceRhsTerm() (implemented in
+ *  ComputeMatrixTerm(), ComputeVectorTerm(), ComputeVectorSurfaceTerm() (implemented in
  *  the concrete assembler class (eg SimpleDg0ParabolicAssembler), which tells
  *  this assembler exactly what function of bases, position, pde constants etc
  *  to add to the element stiffness matrix/vector).
@@ -111,12 +111,12 @@ protected:
      *  NOTE: for linear problems rGradU is NOT set up correctly because it should
      *  not be needed
      */
-    virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeLhsTerm(
-        const c_vector<double, ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        const Point<SPACE_DIM> &rX,
-        const c_vector<double,PROBLEM_DIM> &u,
-        const c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
+    virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        Point<SPACE_DIM> &rX,
+        c_vector<double,PROBLEM_DIM> &u,
+        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
 
         
     /**
@@ -131,12 +131,12 @@ protected:
      *  NOTE: for linear problems rGradPhi and rGradU are NOT set up correctly because 
      *  they should not be needed
      */        
-    virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeRhsTerm(
-        const c_vector<double, ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        const Point<SPACE_DIM> &rX,
-        const c_vector<double,PROBLEM_DIM> &u,
-        const c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
+    virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        Point<SPACE_DIM> &rX,
+        c_vector<double,PROBLEM_DIM> &u,
+        c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
 
         
         
@@ -149,10 +149,10 @@ protected:
      * 
      *     --This method has to be implemented in the concrete class--
      */
-    virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeSurfaceRhsTerm(
+    virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-        const c_vector<double, ELEMENT_DIM> &rPhi,
-        const Point<SPACE_DIM> &rX )=0; 
+        c_vector<double, ELEMENT_DIM> &rPhi,
+        Point<SPACE_DIM> &rX)=0; 
         
         
     /**
@@ -174,7 +174,7 @@ protected:
      *     the linear case) or the Jacobian matrix (in the nonlinear case)
      * 
      *  Called by AssembleSystem()
-     *  Calls ComputeLhsTerm() etc
+     *  Calls ComputeMatrixTerm() etc
      */
     virtual void AssembleOnElement( Element<ELEMENT_DIM,SPACE_DIM> &rElement,
                                     c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) > &rAElem,
@@ -286,12 +286,12 @@ protected:
             ////////////////////////////////////////////////////////////
             if(assembleMatrix) 
             {
-                noalias(rAElem) += ComputeLhsTerm(phi, grad_phi, x, u, grad_u) * wJ;
+                noalias(rAElem) += ComputeMatrixTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
             
             if(assembleVector)
             {
-                noalias(rBElem) += ComputeRhsTerm(phi, grad_phi, x, u, grad_u) * wJ;
+                noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
         }
     }
@@ -357,7 +357,7 @@ protected:
             // create rAElem and rBElem
             ////////////////////////////////////////////////////////////
             ///\todo Improve efficiency of Neumann BC implementation.
-            noalias(rBSurfElem) += ComputeSurfaceRhsTerm(rSurfaceElement, phi, x) * wJ;
+            noalias(rBSurfElem) += ComputeVectorSurfaceTerm(rSurfaceElement, phi, x) * wJ;
         }
     }
     
@@ -479,7 +479,6 @@ protected:
             // been asked for     
             if(residualVector)
             {
-   //temporary
                 int size;
                 VecGetSize(residualVector,&size);
                 assert(size==PROBLEM_DIM * this->mpMesh->GetNumNodes());
@@ -494,12 +493,10 @@ protected:
             }
             else 
             {
-   //temporary
                 int size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
                 assert(size1==PROBLEM_DIM * this->mpMesh->GetNumNodes());
                 assert(size2==PROBLEM_DIM * this->mpMesh->GetNumNodes());
-   
    
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);
@@ -524,7 +521,6 @@ protected:
         bool assemble_vector = ((mProblemIsLinear) || ((!mProblemIsLinear) && (residualVector!=NULL)));
         bool assemble_matrix = ( (mProblemIsLinear && !mMatrixIsAssembled) || ((!mProblemIsLinear) && (pJacobian!=NULL)) );
        
-        
         ////////////////////////////////////////////////////////
         // loop over elements
         ////////////////////////////////////////////////////////
@@ -537,7 +533,7 @@ protected:
             for (int i=0; i<num_elem_nodes; i++)
             {
                 int node1 = element.GetNodeGlobalIndex(i);
-                
+                                
                 if (assemble_matrix)
                 {
                     for (int j=0; j<num_elem_nodes; j++)
@@ -562,7 +558,7 @@ protected:
                                 else 
                                 {
                                     assert(pJacobian!=NULL); // extra check
-                                    
+                                           
                                     int matrix_index_1 = PROBLEM_DIM*node1+k;
                                     if (lo<=matrix_index_1 && matrix_index_1<hi)
                                     {
@@ -601,7 +597,7 @@ protected:
             }
             iter++;
         }
-        
+                
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
         surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
@@ -655,6 +651,7 @@ protected:
                 }
             }
         }
+
         
         if(mProblemIsLinear)
         {
@@ -673,6 +670,7 @@ protected:
             MatAssemblyEnd(*pJacobian, MAT_FLUSH_ASSEMBLY);
         }
         
+        
         // Apply dirichlet boundary conditions
         if(mProblemIsLinear)
         {
@@ -687,7 +685,8 @@ protected:
             this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pJacobian);
         }
         
-            
+        
+                    
         if(mProblemIsLinear)
         {        
             if (mMatrixIsAssembled)
@@ -712,8 +711,8 @@ protected:
             MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
         }        
         
-        // the assembler do anything else required like setting up a null basis
-        // (see BidomainDg0Assembler) in this function
+        // overload this method if the assembler has to do anything else
+        // required (like setting up a null basis (see BidomainDg0Assembler))
         FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
     }
     

@@ -32,12 +32,12 @@ protected:
      *   grad_phi[row] \dot ( pde_diffusion_term * grad_phi[col]) + 
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
      */
-    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeLhsTerm(
-        const c_vector<double, ELEMENT_DIM+1> &rPhi,
-        const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        const Point<SPACE_DIM> &rX,
-        const c_vector<double,1> &u,
-        const c_matrix<double,1,SPACE_DIM> &rGradU /* not used */ )
+    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+        Point<SPACE_DIM> &rX,
+        c_vector<double,1> &u,
+        c_matrix<double,1,SPACE_DIM> &rGradU /* not used */ )
     {
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX);
         
@@ -48,11 +48,11 @@ protected:
     /**
      *  The term to be added to the element stiffness vector: 
      */
-    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeRhsTerm(const c_vector<double, ELEMENT_DIM+1> &rPhi,
-                                                              const c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-                                                              const Point<SPACE_DIM> &rX,
-                                                              const c_vector<double,1> &u,
-                                                              const c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */ )
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(c_vector<double, ELEMENT_DIM+1> &rPhi,
+                                                                 c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
+                                                                 Point<SPACE_DIM> &rX,
+                                                                 c_vector<double,1> &u,
+                                                                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */ )
 
     {
         return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, u(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)
@@ -64,9 +64,9 @@ protected:
      *  The term arising from boundary conditions to be added to the element
      *  stiffness vector
      */
-    virtual c_vector<double, ELEMENT_DIM> ComputeSurfaceRhsTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                                                const c_vector<double, ELEMENT_DIM> &rPhi,
-                                                                const Point<SPACE_DIM> &rX )
+    virtual c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+                                                                   c_vector<double, ELEMENT_DIM> &rPhi,
+                                                                   Point<SPACE_DIM> &rX )
     {
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
         double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);

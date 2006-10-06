@@ -53,11 +53,11 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
 {
     double mLambda;
     
-    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeLhsTerm(const c_vector<double, 2+1> &rPhi,
-                                                            const c_matrix<double, 2, 2+1> &rGradPhi,
-                                                            const Point<2> &rX,
-                                                            const c_vector<double,2> &u,
-                                                            const c_matrix<double,2,2> &rGradU)
+    virtual c_matrix<double,2*(2+1),2*(2+1)> ComputeMatrixTerm(c_vector<double, 2+1> &rPhi,
+                                                               c_matrix<double, 2, 2+1> &rGradPhi,
+                                                               Point<2> &rX,
+                                                               c_vector<double,2> &u,
+                                                               c_matrix<double,2,2> &rGradU)
     {
         c_matrix<double,2*(2+1),2*(2+1)> ret;
         
@@ -79,11 +79,11 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
     }
     
     
-    virtual c_vector<double,2*(2+1)> ComputeRhsTerm(const c_vector<double, 2+1> &rPhi,
-                                                    const c_matrix<double, 2, 2+1> &rGradPhi,
-                                                    const Point<2> &rX,
-                                                    const c_vector<double,2> &u,
-                                                    const c_matrix<double,2,2> &rGradU)
+    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
+                                                       c_matrix<double, 2, 2+1> &rGradPhi,
+                                                       Point<2> &rX,
+                                                       c_vector<double,2> &u,
+                                                       c_matrix<double,2,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
         
@@ -96,19 +96,19 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
     }
     
     
-    virtual c_vector<double, 2*2> ComputeSurfaceRhsTerm(const BoundaryElement<2-1,2> &rSurfaceElement,
-                                                        const c_vector<double,2> &phi,
-                                                        const Point<2> &x )
+    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2> &rSurfaceElement,
+                                                           c_vector<double,2> &rPhi,
+                                                           Point<2> &rX )
     {
         // D_times_grad_u_dot_n  = (D gradu) \dot n
-        double D_times_grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x, 0);
-        double D_times_grad_v_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, x, 1);
+        double D_times_grad_u_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
+        double D_times_grad_v_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
         
         c_vector<double, 2*2> ret;
         for (int i=0; i<2; i++)
         {
-            ret(2*i)   = phi(i)*D_times_grad_u_dot_n;
-            ret(2*i+1) = phi(i)*D_times_grad_v_dot_n;
+            ret(2*i)   = rPhi(i)*D_times_grad_u_dot_n;
+            ret(2*i+1) = rPhi(i)*D_times_grad_v_dot_n;
         }
         
         return ret;
@@ -137,7 +137,7 @@ public:
 //   the solution is
 //       u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
 //
-// ComputeLhsTerm() and ComputeSurfaceRhsTerm() are identical to MySimpleCoupledAssembler
+// ComputeMatrixTerm() and ComputeSurfaceRhsTerm() are identical to MySimpleCoupledAssembler
 //  (above), so this class inherits from MySimpleCoupledAssembler
 //////////////////////////////////////////////////////////////////////////////
 class AnotherCoupledAssembler : public MySimpleCoupledAssembler
@@ -152,11 +152,11 @@ class AnotherCoupledAssembler : public MySimpleCoupledAssembler
         return -8*PI*PI*sin(2*PI*x)*sin(2*PI*y) + sin(PI*x)*sin(PI*y);
     }
     
-    virtual c_vector<double,2*(2+1)> ComputeRhsTerm(const c_vector<double, 2+1> &rPhi,
-                                                    const c_matrix<double, 2, 2+1> &rGradPhi,
-                                                    const Point<2> &rX,
-                                                    const c_vector<double,2> &u,
-                                                    const c_matrix<double,2,2> &rGradU)
+    virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
+                                                       c_matrix<double, 2, 2+1> &rGradPhi,
+                                                       Point<2> &rX,
+                                                       c_vector<double,2> &u,
+                                                       c_matrix<double,2,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
         

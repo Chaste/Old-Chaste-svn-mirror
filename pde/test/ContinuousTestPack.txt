@@ -10,5 +10,6 @@ TestSimpleDg0ParabolicAssembler.hpp
 TestSimpleLinearEllipticAssembler.hpp
 TestSimpleNonlinearEllipticAssembler.hpp
 TestSolvingCoupledPdes.hpp
+TestSolvingCoupledNonlinearPdes.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp

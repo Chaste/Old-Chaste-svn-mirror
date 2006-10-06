@@ -307,19 +307,23 @@ public:
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
+            //if(index_of_unknown==1) assert(0);
             dirichIterator = mpDirichletMap[index_of_unknown]->begin();
             int rows, cols;
             double value;
             MatGetSize(jacobian, &rows, &cols);
             
-            while (dirichIterator != mpDirichletMap[0]->end() )
+            while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
             {
                 int node_index = dirichIterator->first->GetIndex();
+                               
+                int row_index = PROBLEM_DIM*node_index + index_of_unknown;
+                assert(row_index<rows); 
                 
-                for (int col=0; col<cols; col++)
+                for (int col_index=0; col_index<cols; col_index++)
                 {
-                    value = (col == (int)(PROBLEM_DIM*node_index + index_of_unknown)) ? 1.0 : 0.0;
-                    MatSetValue(jacobian, node_index, col, value, INSERT_VALUES);
+                    value = (col_index == row_index) ? 1.0 : 0.0;
+                    MatSetValue(jacobian, row_index, col_index, value, INSERT_VALUES);
                 }
                 dirichIterator++;
             }
@@ -348,7 +352,7 @@ public:
         {
             // Iterate over surface elements
             typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
-            = pMesh->GetBoundaryElementIteratorBegin();
+               = pMesh->GetBoundaryElementIteratorBegin();
             while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
             {
                 if (!HasNeumannBoundaryCondition(*elt_iter, index_of_unknown))

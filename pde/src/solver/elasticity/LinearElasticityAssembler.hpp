@@ -43,12 +43,12 @@ private :
     
     bool mLameCoefficientsSet;  // bool saying whether the lame coeffs have been set yet
     
-    virtual c_matrix<double,DIM*(DIM+1),DIM*(DIM+1)> ComputeLhsTerm(
-        const c_vector<double, DIM+1> &rPhi,
-        const c_matrix<double, DIM, DIM+1> &rGradPhi,
-        const Point<DIM> &rX,
-        const c_vector<double,DIM> &u,
-        const c_matrix<double,DIM,DIM> &rGradU)
+    virtual c_matrix<double,DIM*(DIM+1),DIM*(DIM+1)> ComputeMatrixTerm(
+        c_vector<double, DIM+1> &rPhi,
+        c_matrix<double, DIM, DIM+1> &rGradPhi,
+        Point<DIM> &rX,
+        c_vector<double,DIM> &u,
+        c_matrix<double,DIM,DIM> &rGradU)
     {
         c_matrix<double,DIM*(DIM+1),DIM*(DIM+1)> ret;
         
@@ -74,12 +74,12 @@ private :
     }
     
     
-    virtual c_vector<double,DIM*(DIM+1)> ComputeRhsTerm(
-        const c_vector<double, DIM+1> &rPhi,
-        const c_matrix<double, DIM, DIM+1> &rGradPhi,
-        const Point<DIM> &rX,
-        const c_vector<double,DIM> &u,
-        const c_matrix<double,DIM,DIM> &rGradU)
+    virtual c_vector<double,DIM*(DIM+1)> ComputeVectorTerm(
+        c_vector<double, DIM+1> &rPhi,
+        c_matrix<double, DIM, DIM+1> &rGradPhi,
+        Point<DIM> &rX,
+        c_vector<double,DIM> &u,
+        c_matrix<double,DIM,DIM> &rGradU)
     {
         c_vector<double,DIM*(DIM+1)> ret;
         for (unsigned I=0; I<DIM+1; I++) // I = node_index
@@ -92,10 +92,10 @@ private :
         return ret;
     }
     
-    virtual c_vector<double, DIM*DIM> ComputeSurfaceRhsTerm(
+    virtual c_vector<double, DIM*DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<DIM-1,DIM> &rSurfaceElement,
-        const c_vector<double, DIM> &rPhi,
-        const Point<DIM> &x )
+        c_vector<double, DIM> &rPhi,
+        Point<DIM> &rX )
     {
         c_vector<double,DIM*DIM> ret;
         for (unsigned I=0; I<DIM; I++) // DIM = number of nodes, in this context (as element is a surface element)
@@ -103,7 +103,7 @@ private :
             for (unsigned s=0; s<DIM; s++) // s = spatial dimension index
             {
                 // GetNeumannBCValue(&rSurfaceElement,x,s) = s-component of traction
-                ret(DIM*I+s) = rPhi(I) * this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement,x,s);
+                ret(DIM*I+s) = rPhi(I) * this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement,rX,s);
             }
         }
         return ret;

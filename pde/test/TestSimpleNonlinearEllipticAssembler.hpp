@@ -85,22 +85,7 @@ private:
         VecSetFromOptions(initial_guess);
         return initial_guess;
     }
-    
-    
-    Vec CreateConstantInitialGuessVec(int size, double value)
-    {
-        Vec initial_guess = CreateInitialGuessVec(size);
-        
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        VecSet(&value, initial_guess);
-#else
-        VecSet(initial_guess, value);
-#endif
-        
-        VecAssemblyBegin(initial_guess);
-        VecAssemblyEnd(initial_guess);
-        return initial_guess;
-    }
+   
     
 public:
 
@@ -344,11 +329,12 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
         
-        // Set up initial Guess
-        Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 0.25);
-        
         // Nonlinear assembler to use
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        
+        // Set up initial Guess
+        Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
+        
         
         // Set no. of gauss points to use
         assembler.SetNumberOfQuadraturePointsPerDimension(3);
@@ -598,11 +584,23 @@ public:
         
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
         
+        // cover the bad size exception
+        Vec badly_sized_init_guess = CreateInitialGuessVec(1);
+        double value = 1;
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        VecSet(&value, badly_sized_init_guess);
+#else
+        VecSet(badly_sized_init_guess, value);
+#endif
+        VecAssemblyBegin(badly_sized_init_guess);
+        VecAssemblyEnd(badly_sized_init_guess);
+        
+        TS_ASSERT_THROWS_ANYTHING( assembler.Solve(badly_sized_init_guess, true) );
+        
         // Set up initial Guess
-        Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 1.0);
+        Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
         // This problem seems unusally sensitive to the initial guess. Various other
         // choices failed to converge.
-        
         Vec answer = assembler.Solve(initial_guess, true);
         
         // Check result
@@ -650,7 +648,7 @@ public:
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
-        Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 1.0);
+        Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
         
         Vec answer = assembler.Solve(initial_guess, true);
         
@@ -721,7 +719,7 @@ public:
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
-        Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 0.25);
+        Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
         
         Vec answer = assembler.Solve(initial_guess, true);
         
@@ -806,7 +804,7 @@ public:
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
-        Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 4.0);
+        Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
         
 
         // Numerical Jacobian
@@ -910,7 +908,7 @@ public:
         SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
         
         // Set up initial Guess
-        Vec initial_guess = CreateConstantInitialGuessVec(mesh.GetNumNodes(), 4.0);
+        Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
         
         // Numerical Jacobian
         Vec answer = assembler.Solve(initial_guess);
