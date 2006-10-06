@@ -18,17 +18,21 @@ Export('build', 'build_type')
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
 
-# Specify system_name=finarfin to scons to change default paths
-host_name = os.getenv('HOSTNAME')
 # Allow the system_name to be derived automatically
-system_name=''
-if host_name == "userpc30" or host_name == "userpc33" :
+host_name = os.getenv('HOSTNAME')
+if host_name in ["userpc30", "userpc33"]:
     system_name = 'joe'
-if host_name == "zuse.osc.ox.ac.uk" :
+elif host_name == "zuse.osc.ox.ac.uk":
     system_name = 'zuse'
-if host_name == "userpc58.comlab.ox.ac.uk" or host_name == "userpc59.comlab.ox.ac.uk" or host_name == "userpc60.comlab.ox.ac.uk":
+elif host_name in ["userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
+                   "userpc60.comlab.ox.ac.uk", "clpc129.comlab"]:
     system_name = 'chaste'
+elif host_name == 'finarfin':
+    system_name = 'finarfin'
+else:
+    system_name = ''
 
+# Specify system_name=<whatever> to scons to change default paths
 system_name = ARGUMENTS.get('system_name', system_name)
 
 # Specifying extra run-time flags

@@ -9,7 +9,7 @@ curdir = os.getcwd()
 # Get our top-level directory
 toplevel_dir = os.path.basename(os.path.dirname(os.path.dirname(curdir)))
 
-print curdir, toplevel_dir
+#print curdir, toplevel_dir
 
 # Look for .cpp files within the src folder
 os.chdir('../..') # This is so .o files are built in `toplevel_dir'/build/<something>/
