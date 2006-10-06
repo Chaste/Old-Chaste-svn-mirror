@@ -285,8 +285,7 @@ private :
         /////////////////////////////////////////////          
         Vec result = assembler.Solve(guess, true);
         ReplicatableVector result_repl(result);
-        
-return;
+       
 
         ///////////////////////////////////////////////////////////////////////
         // Now solve div.(u gradu) + 1 = 0 as an uncoupled 1-unknown problem
