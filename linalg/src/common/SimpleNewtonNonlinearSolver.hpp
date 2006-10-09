@@ -10,6 +10,7 @@ class SimpleNewtonNonlinearSolver : public AbstractNonlinearSolver
 private :
     /*< The solver used to solve the linear system created each iteration */
     AbstractLinearSolver* mpLinearSolver;
+    bool mWeAllocatedSolverMemory;
     double mTolerance;
     bool mWriteStats;
 

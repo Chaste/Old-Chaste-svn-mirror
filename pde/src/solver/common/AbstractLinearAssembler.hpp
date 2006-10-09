@@ -22,6 +22,7 @@ protected:
      * The linear solver used to solve the linear system at each time step.
      */
     AbstractLinearSolver *mpLinearSolver;
+    bool mWeAllocatedSolverMemory;
  
     
 public:
@@ -29,6 +30,8 @@ public:
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpLinearSolver = new SimpleLinearSolver;
+        mWeAllocatedSolverMemory = true;
+        
         this->mpLinearSystem = NULL;
         this->mMatrixIsConstant = false;
         this->mMatrixIsAssembled = false;
@@ -43,6 +46,8 @@ public:
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpLinearSolver = new SimpleLinearSolver;
+        mWeAllocatedSolverMemory = true;
+        
         this->mpLinearSystem = NULL;
         this->mMatrixIsConstant = false;
         this->mMatrixIsAssembled = false;
@@ -59,9 +64,13 @@ public:
         {
             delete this->mpLinearSystem;
         }
+        
         this->mpLinearSystem=NULL;
         
-        delete mpLinearSolver;
+        if(mWeAllocatedSolverMemory)
+        {
+            delete mpLinearSolver;
+        }
     }
     
     /**
@@ -70,7 +79,10 @@ public:
      */
     void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
     {
-        delete mpLinearSolver;
+        if(mWeAllocatedSolverMemory)
+        {
+            delete mpLinearSolver;
+        }
         mpLinearSolver = pLinearSolver;
         
         // make sure new solver knows matrix is constant

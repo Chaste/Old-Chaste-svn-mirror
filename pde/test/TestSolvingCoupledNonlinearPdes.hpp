@@ -19,6 +19,7 @@
 #define PI 3.14159265
 
 
+#include "SimpleNewtonNonlinearSolver.hpp"
 
 
 
@@ -116,43 +117,24 @@ public:
 };
 
 
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 // an assembler to solve the coupled 2-unknown problem
 //    div.(v gradu) = f(x,y)
 //    div.(u gradv) = g(x,y)
 //
-// where f and g are chosen so that (with zero-dirichlet boundary conditions)
-// the solution is
-//       u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
-//////////////////////////////////////////////////////////////////////////////
+// where f and g (and boundary conditions) are chosen such that the solution is
+//    u = x^2,  v = y
+//////////////////////////////////////////////////////////////////////////////////
 class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler<2,2,2>
 {
     double f(double x,double y)
     {   
-/*        double u = sin(PI*x)*sin(PI*y);
-        double u_x = PI*cos(PI*x)*sin(PI*y);
-        double u_y = PI*sin(PI*x)*cos(PI*y);
-        double delsq_u = -PI*PI*u;
-
-        double v = sin(2*PI*x)*sin(2*PI*y);
-        double v_x = 2*PI*cos(2*PI*x)*sin(2*PI*y);
-        double v_y = 2*PI*sin(2*PI*x)*cos(2*PI*y);
-  */      
-        return 2; //(u_x*v_x + u_y*v_y + v*delsq_u);
+        return 2*y;
     }
     
     double g(double x,double y)
     {
-/*        double u = sin(PI*x)*sin(PI*y);
-        double u_x = PI*cos(PI*x)*sin(PI*y);
-        double u_y = PI*sin(PI*x)*cos(PI*y);
-
-        double v = sin(2*PI*x)*sin(2*PI*y);
-        double v_x = 2*PI*cos(2*PI*x)*sin(2*PI*y);
-        double v_y = 2*PI*sin(2*PI*x)*cos(2*PI*y);
-        double delsq_v = -4*PI*PI*v;
-  */      
-        return 2; //(v_x*u_x + v_y*u_y + u*delsq_v);
+        return 0;
     }
 
 
@@ -173,7 +155,7 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler
 
                 ret(2*i,  2*j)   = u(1)*inner_prod(grad_phi_j,grad_phi_i);
                 ret(2*i,  2*j+1) = rPhi(j)*inner_prod(rGradU[0],grad_phi_i);
-                ret(2*i+1,2*j)   = rPhi(i)*inner_prod(rGradU[0],grad_phi_j);
+                ret(2*i+1,2*j)   = rPhi(j)*inner_prod(rGradU[1],grad_phi_i);
                 ret(2*i+1,2*j+1) = u(0)*inner_prod(grad_phi_j,grad_phi_i);   
             }
         }
@@ -183,10 +165,10 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler
    
    
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
-                                                    c_matrix<double, 2, 2+1> &rGradPhi,
-                                                    Point<2> &rX,
-                                                    c_vector<double,2> &u,
-                                                    c_matrix<double,2,2> &rGradU)
+                                                       c_matrix<double, 2, 2+1> &rGradPhi,
+                                                       Point<2> &rX,
+                                                       c_vector<double,2> &u,
+                                                       c_matrix<double,2,2> &rGradU)
     {
         c_vector<double,2*(2+1)> ret;
                 
@@ -244,8 +226,7 @@ private :
         }
         else
         {
-            // don't call this method with DIM=3
-            assert(0);
+            file = "mesh/test/data/slab_395_elements";
         }
         TrianglesMeshReader<DIM,DIM> mesh_reader(file);
         
@@ -327,19 +308,17 @@ private :
         //////////////////////////////////////////////////////////////////////////
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            // note the residuals were from a different problem when lamda = 1, so 
+            // note the residuals were from a different problem when lambda = 1, so 
             // should agree
             TS_ASSERT_DELTA(residual_repl[2*i],   residual_1unknown_repl[i], 1e-10);
             TS_ASSERT_DELTA(residual_repl[2*i+1], residual_1unknown_repl[i], 1e-10);
 
-            TS_ASSERT_DELTA(result_repl[2*i],   result_1unknown_repl[i], 1e-5);
-            TS_ASSERT_DELTA(result_repl[2*i+1], 2*result_1unknown_repl[i], 1e-5);
+            TS_ASSERT_DELTA(result_repl[2*i],   result_1unknown_repl[i], 1e-4);
+            TS_ASSERT_DELTA(result_repl[2*i+1], 2*result_1unknown_repl[i], 1e-4);
         }
     }
     
-    
-   
-        
+
     
     
 public:
@@ -359,6 +338,9 @@ public:
  
         // run 2d version
         runTestSimpleCoupledNonlinearPde<2>();
+        
+        // run 3d version
+        runTestSimpleCoupledNonlinearPde<3>();
     }
     
     
@@ -447,41 +429,71 @@ public:
     }
  
     
-    /*
-     *   WORK IN PROGRESS..
+    
+    /* Solve the real coupled pde
+     * 
+     *    v (u_xx+u_yy) = f
+     *    u (v_xx+v_yy) = g
+     * 
+     * where f,g and boundary conditions are chosen given the solution
+     *    
+     *    u = x^2
+     *    v = y
      */
-/*    void noTestRealCoupledPde( void ) throw (Exception)
+    void TestRealCoupledPde( void ) throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+
+// REPLACE ABOVE LINE WITH THIS AND THE ASSEMBLER SEEMS TO GET STUCK SOMEWHERE (applying 
+// boundary conditions maybe?)  ///\todo: find out why..
+        //TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
+
         ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.ConstructFromMeshReader(mesh_reader);    
         
         // boundary conditions for 2-unknown problem
         BoundaryConditionsContainer<2,2,2> bcc(mesh.GetNumNodes());
-        
-        
+
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         while (iter != mesh.GetBoundaryNodeIteratorEnd())
         {
-            std::cout << (*iter)->GetIndex() << "..";
             double x = (*iter)->GetPoint()[0];
-            ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(x);
-            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition,0);
-
             double y = (*iter)->GetPoint()[1];
+
+            // apply bc u=x^2
+            ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(x*x);
+            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition, 0);
+
+            // apply bc v=x^2
             ConstBoundaryCondition<2>* p_boundary_condition1 = new ConstBoundaryCondition<2>(y);
-            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition1,1);
+            bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition1, 1);
             iter++;
         }
-        
-        
-      //  bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
-      //  bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
+
         
         // purpose-made assembler for this problem:
         AnotherCoupledNonlinearAssembler assembler(&mesh,&bcc);
+
+        // use the newton solver (for coverage)
+        SimpleNewtonNonlinearSolver newton_solver;
+        newton_solver.SetTolerance(1e-10);
+        newton_solver.SetWriteStats();    
+        assembler.SetNonlinearSolver(&newton_solver);
         
-        Vec result = assembler.Solve( assembler.CreateConstantInitialGuess(0.0), true);
+        //// uncomment this to check whether ComputeMatrixTerm has been coded up correctly
+        //// (by seeing whether the resulting analytic jacobian matches the numerical one).
+        //assert( assembler.VerifyJacobian() );
+        
+        // IMPORTANT NOTE: both the petsc nonlinear solver and the Newton solver will FAIL
+        // if an initial guess of zeroes is given.
+        Vec result = assembler.Solve( assembler.CreateConstantInitialGuess(1.0), false);
+
+   
+        int size;     
+        VecGetSize(result,&size);
+
+        TS_ASSERT_EQUALS(size, mesh.GetNumNodes()*2);
+    
         ReplicatableVector result_repl(result);
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
@@ -489,16 +501,15 @@ public:
             double x = mesh.GetNodeAt(i)->GetPoint()[0];
             double y = mesh.GetNodeAt(i)->GetPoint()[1];
             
-            double u = sin(PI*x)*sin(PI*y);
-            double v = sin(2*PI*x)*sin(2*PI*y);
+            double u = result_repl[2*i];
+            double v = result_repl[2*i+1];;
             
-            // need lower tolerance for v because v is higher frequency
-            // and not captured very well on this mesh
-            TS_ASSERT_DELTA( result_repl[2*i]  , u, 0.02);
-            TS_ASSERT_DELTA( result_repl[2*i+1], v, 0.1);
-        }
-    }
-    */
+            TS_ASSERT_DELTA(u, x*x, 1e-2);
+            TS_ASSERT_DELTA(v, y, 1e-2);
+        } 
+  
+        VecDestroy(result);
+    } 
 };
 #endif /*TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_*/
 

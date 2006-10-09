@@ -16,6 +16,7 @@
 #include "AbstractNonlinearSolver.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
+#include "RandomNumberGenerators.hpp"
 
 
 
@@ -58,6 +59,8 @@ class AbstractNonlinearStaticAssembler : public AbstractAssembler<ELEMENT_DIM,SP
 {
 protected:
     AbstractNonlinearSolver* mpSolver;
+    bool mWeAllocatedSolverMemory;
+    
     bool mUseAnalyticalJacobian;
     
 public :
@@ -203,7 +206,7 @@ protected:
 public:
 
 
-    /**
+   /**
     * Constructors just call the base class versions.
     */
     AbstractNonlinearStaticAssembler(int numQuadPoints = 2) :
@@ -221,6 +224,8 @@ public:
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;
+        mWeAllocatedSolverMemory = true;
+
         this->mpProblemIsLinear = false;
 
         mUseAnalyticalJacobian = true;
@@ -228,18 +233,13 @@ public:
 
     ~AbstractNonlinearStaticAssembler()
     {
-        delete mpSolver;
+        if(mWeAllocatedSolverMemory)
+        {
+            delete mpSolver;
+        }
     }
     
     
-    /**
-     *  Set a solver other than the default
-     */
-    void SetSolver(AbstractNonlinearSolver* pSolver)
-    {
-        delete mpSolver;
-        mpSolver = pSolver;
-    }
 
     
    /**
@@ -287,9 +287,13 @@ public:
      *  AbstractNonlinearSolver
      */
     void SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver)
-    {                           
-        delete mpSolver;
+    {                     
+        if(mWeAllocatedSolverMemory)
+        {
+            delete mpSolver;
+        }
         mpSolver = pNonlinearSolver;
+        mWeAllocatedSolverMemory = false;
     }                        
     
     
@@ -317,6 +321,99 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         return initial_guess;
+    }
+    
+    
+    /** 
+     *  VerifyJacobian
+     * 
+     *  A helper method for use when writing concrete assemblers. Once the user has calculated
+     *  (on paper) the weak form and the form of the ComputeMatrixTerm method, they can check 
+     *  whether the analytic Jacobian matches the numerical Jacobian (which only calls 
+     *  ComputeVectorTerm and ComputeVectorSurfaceTerm) to verify the correctness of the code.
+     *  The method creates a random initial guess from which to compute the Jacobians.
+     * 
+     *  @param tol A tolerance which defaults to 1e-5
+     *  @return true if the componentwise difference between the matrices is less than 
+     *    the tolerance, false otherwise.
+     * 
+     *  The difference matrix J_numerical-J_analytical is also printed.
+     * 
+     *  This method should NOT be run in simulations - it is only to verify the correctness 
+     *  of the concrete assembler code.
+     */
+    bool VerifyJacobian(double tol=1e-5)
+    {
+        int size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+
+        Vec initial_guess;
+        VecCreate(PETSC_COMM_WORLD, &initial_guess);
+        VecSetSizes(initial_guess, PETSC_DECIDE, size);
+        VecSetFromOptions(initial_guess);
+        
+        RandomNumberGenerators random_num_gen;
+        for (int i=0; i<size ; i++)
+        {
+            double value = random_num_gen.ranf();
+            VecSetValue(initial_guess, i, value, INSERT_VALUES);
+        }
+                
+        VecAssemblyBegin(initial_guess);
+        VecAssemblyEnd(initial_guess);
+        
+
+        Mat analytic_jacobian; //Jacobian Matrix
+        Mat numerical_jacobian; //Jacobian Matrix
+        
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,size,size,&analytic_jacobian);
+        MatCreate(PETSC_COMM_WORLD,PETSC_DECIDE,PETSC_DECIDE,size,size,&numerical_jacobian);
+#else
+        MatCreate(PETSC_COMM_WORLD,&analytic_jacobian);
+        MatSetSizes(analytic_jacobian,PETSC_DECIDE,PETSC_DECIDE,size,size);
+        MatCreate(PETSC_COMM_WORLD,&numerical_jacobian);
+        MatSetSizes(numerical_jacobian,PETSC_DECIDE,PETSC_DECIDE,size,size);
+#endif
+        MatSetFromOptions(analytic_jacobian);
+        MatSetFromOptions(numerical_jacobian);
+        
+        mUseAnalyticalJacobian = true;
+        AssembleJacobian(initial_guess, &analytic_jacobian);
+
+        mUseAnalyticalJacobian = false;
+        AssembleJacobian(initial_guess, &numerical_jacobian);
+        
+        bool all_less_than_tol = true;
+        for(int i=0; i<size; i++)
+        {
+            for(int j=0; j<size; j++)
+            {
+                double val_a[1];
+                double val_n[1];
+                int row[1];
+                int col[1];
+                row[0] = i;
+                col[0] = j;
+                
+                MatGetValues(numerical_jacobian,1,row,1,col,val_n);
+                MatGetValues(analytic_jacobian,1,row,1,col,val_a);
+                
+                std::cout << val_n[0]-val_a[0] << " ";       
+                
+                if(fabs(val_n[0]-val_a[0]) > tol)
+                {
+                    all_less_than_tol = false;
+                }
+            }
+            std::cout << "\n"<<std::flush;                
+        }
+        std::cout << std::flush;
+        
+        MatDestroy(numerical_jacobian);
+        MatDestroy(analytic_jacobian);
+        VecDestroy(initial_guess);
+        
+        return all_less_than_tol;
     }
     
 }; //end of class AbstractNonlinearStaticAssembler

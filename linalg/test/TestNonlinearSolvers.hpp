@@ -99,7 +99,8 @@ public:
         // solve using newton method
         solver_newton.SetTolerance(1e-10);                      // use a different tolerance
         solver_newton.SetWriteStats();                          // to cover this method
-        solver_newton.SetLinearSolver(new SimpleLinearSolver);  // to cover this method
+        SimpleLinearSolver linear_solver;                      
+        solver_newton.SetLinearSolver(&linear_solver);          // to cover this method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
                                                 initial_guess, NULL);
                                 
