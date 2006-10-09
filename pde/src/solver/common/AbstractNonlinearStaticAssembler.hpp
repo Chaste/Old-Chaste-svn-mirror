@@ -342,7 +342,7 @@ public:
      *  This method should NOT be run in simulations - it is only to verify the correctness 
      *  of the concrete assembler code.
      */
-    bool VerifyJacobian(double tol=1e-5)
+    bool VerifyJacobian(double tol=1e-4)
     {
         int size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
@@ -384,6 +384,7 @@ public:
         AssembleJacobian(initial_guess, &numerical_jacobian);
         
         bool all_less_than_tol = true;
+        std::cout << "Difference between numerical and analyical Jacobians:\n\n";
         for(int i=0; i<size; i++)
         {
             for(int j=0; j<size; j++)
