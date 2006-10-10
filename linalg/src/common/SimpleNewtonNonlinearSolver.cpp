@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include "SimpleNewtonNonlinearSolver.hpp"
 #include "Exception.hpp"
 
@@ -64,9 +65,14 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
      
         Vec update = linear_system.Solve(mpLinearSolver);
 
-        // update to solution: current_guess += -update [note: VecAXPY(y,a,x) computes y = ax+y]
-        VecAXPY(current_solution, -1, update);
-
+        // update to solution: current_guess += -update 
+#if (PETSC_VERSION_MINOR == 2) //Old API
+	double minus_one=-1;
+	VecAXPY(&minus_one,  update, current_solution);
+#else
+	//[note: VecAXPY(y,a,x) computes y = ax+y]
+	VecAXPY(current_solution, -1, update);
+#endif
         // compute new residual and check it didn't decrease
         linear_system.ZeroLinearSystem();
         (*pComputeResidual)(NULL, current_solution, linear_system.rGetRhsVector(), pContext);
