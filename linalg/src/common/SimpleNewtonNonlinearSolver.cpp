@@ -5,18 +5,12 @@
 
 SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver()
 {
-    mpLinearSolver = new SimpleLinearSolver;
-    mWeAllocatedSolverMemory = true;
     mTolerance = 1e-5;
     mWriteStats = false;
 }
 
 SimpleNewtonNonlinearSolver::~SimpleNewtonNonlinearSolver()
 {
-    if(mWeAllocatedSolverMemory)
-    {
-        delete mpLinearSolver;
-    }
 }
 
 Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
@@ -30,9 +24,6 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     Vec current_solution;     
     VecDuplicate(initialGuess, &current_solution);
     VecCopy(initialGuess, current_solution);
-
-    // don't need initialGuess anymore
-    VecDestroy(initialGuess);
     
     LinearSystem linear_system(current_solution);
     
@@ -50,8 +41,9 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     }
 
 
-    double old_scaled_norm;
+    SimpleLinearSolver simple_linear_solver;
     
+    double old_scaled_norm;
     unsigned counter = 0;
     while(scaled_norm > mTolerance)
     {
@@ -63,16 +55,17 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
         // compute Jacobian and solve J dx = f for the (negative) update dx, (J the jacobian, f the residual) 
         (*pComputeJacobian)(NULL, current_solution, &(linear_system.rGetLhsMatrix()), NULL, NULL, pContext);
      
-        Vec update = linear_system.Solve(mpLinearSolver);
+        Vec update = linear_system.Solve(&simple_linear_solver);
 
-        // update to solution: current_guess += -update 
+        // update solution: current_guess += -update 
 #if (PETSC_VERSION_MINOR == 2) //Old API
-	double minus_one=-1;
-	VecAXPY(&minus_one,  update, current_solution);
+	    double minus_one=-1;
+    	VecAXPY(&minus_one, update, current_solution);
 #else
-	//[note: VecAXPY(y,a,x) computes y = ax+y]
-	VecAXPY(current_solution, -1, update);
+	   //[note: VecAXPY(y,a,x) computes y = ax+y]
+	   VecAXPY(current_solution, -1, update);
 #endif
+
         // compute new residual and check it didn't decrease
         linear_system.ZeroLinearSystem();
         (*pComputeResidual)(NULL, current_solution, linear_system.rGetRhsVector(), pContext);
@@ -101,17 +94,6 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     return current_solution;
 }
 
-
-
-void SimpleNewtonNonlinearSolver::SetLinearSolver(AbstractLinearSolver* pLinearSolver)
-{
-    if(mWeAllocatedSolverMemory)
-    {
-        delete mpLinearSolver;
-    }
-    mpLinearSolver = pLinearSolver;
-    mWeAllocatedSolverMemory = false;
-}
 
 void SimpleNewtonNonlinearSolver::SetTolerance(double tolerance)
 {

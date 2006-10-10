@@ -19,6 +19,7 @@ PetscErrorCode ComputeTestResidual(SNES snes,Vec solution_guess,Vec residual,voi
 PetscErrorCode ComputeTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 PetscErrorCode ComputeTestResidual3d(SNES snes,Vec solution_guess,Vec residual,void *pContext);
 PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
+PetscErrorCode ComputeBadTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 
 class TestNonlinearSolvers : public CxxTest::TestSuite
 {
@@ -39,11 +40,12 @@ public:
         VecSetSizes(initial_guess, PETSC_DECIDE,length);
         //VecSetType(initial_guess, VECSEQ);
         VecSetFromOptions(initial_guess);
-        VecSetValue(initial_guess, 0, 1.1*(1/sqrt(2)) ,INSERT_VALUES);
-        VecSetValue(initial_guess, 1, 1.1*(1/sqrt(2)) ,INSERT_VALUES);
+        VecSetValue(initial_guess, 0, 1.0, INSERT_VALUES);
+        VecSetValue(initial_guess, 1, 1.0, INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
+
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
                                               initial_guess, NULL);
@@ -51,6 +53,10 @@ public:
         // solve using newton method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual, &ComputeTestJacobian,
                                                 initial_guess, NULL);
+
+        // cover the residual increases exception (note the ComputeBADTestJacobian is passed in here)
+        TS_ASSERT_THROWS_ANYTHING(solver_newton.Solve(&ComputeTestResidual, &ComputeBadTestJacobian, initial_guess, NULL));
+
 
         // replicate the answers so we can access them without worrying about parallel stuff
         ReplicatableVector answer_petsc_repl(answer_petsc);
@@ -86,23 +92,24 @@ public:
         VecSetSizes(initial_guess, PETSC_DECIDE,length);
         //VecSetType(initial_guess, VECSEQ);
         VecSetFromOptions(initial_guess);
-        VecSetValue(initial_guess, 0, 1.0 ,INSERT_VALUES);
-        VecSetValue(initial_guess, 1, 1.0 ,INSERT_VALUES);
-        VecSetValue(initial_guess, 2, 1.0 ,INSERT_VALUES);
+        VecSetValue(initial_guess, 0, 1, INSERT_VALUES);
+        VecSetValue(initial_guess, 1, 1, INSERT_VALUES);
+        VecSetValue(initial_guess, 2, 1, INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
+
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
                                               initial_guess, NULL);
 
         // solve using newton method
-        solver_newton.SetTolerance(1e-10);                      // use a different tolerance
+        solver_newton.SetTolerance(1e-10);                      // to cover this method
         solver_newton.SetWriteStats();                          // to cover this method
-        SimpleLinearSolver linear_solver;                      
-        solver_newton.SetLinearSolver(&linear_solver);          // to cover this method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
                                                 initial_guess, NULL);
+
+
                                 
         // replicate the answers so we can access them without worrying about parallel stuff
         ReplicatableVector answer_petsc_repl(answer_petsc);
@@ -116,7 +123,6 @@ public:
             TS_ASSERT_DELTA(answer_petsc_repl[i] ,1/sqrt(3),tol);
             TS_ASSERT_DELTA(answer_newton_repl[i],1/sqrt(3),tol);
         }
-        
         
         // check the residual really did have scaled norm within the tolerance
         Vec residual;
@@ -212,6 +218,27 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat *pJacobian ,Mat *pP
     MatSetValue(*pJacobian, 2 , 0 , 0.0, INSERT_VALUES);
     MatSetValue(*pJacobian, 2 , 1 , 1.0, INSERT_VALUES);
     MatSetValue(*pJacobian, 2 , 2 , -1.0, INSERT_VALUES);
+    MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
+    
+    return 0;
+}
+
+// bad jacobian (used to cover an exception)
+PetscErrorCode ComputeBadTestJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
+{
+    double x, y;
+    
+    ReplicatableVector input_replicated;
+    input_replicated.ReplicatePetscVector(input);
+    
+    x = input_replicated[0];
+    y = input_replicated[1];
+    
+    MatSetValue(*pJacobian, 0 , 0 , 35 , INSERT_VALUES);
+    MatSetValue(*pJacobian, 0 , 1 , 343, INSERT_VALUES);
+    MatSetValue(*pJacobian, 1 , 0 , 45, INSERT_VALUES);
+    MatSetValue(*pJacobian, 1 , 1 , 2343, INSERT_VALUES);
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
     

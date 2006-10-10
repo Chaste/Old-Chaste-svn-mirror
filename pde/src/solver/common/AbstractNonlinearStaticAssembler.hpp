@@ -403,7 +403,9 @@ public:
                 
                 if(fabs(val_n[0]-val_a[0]) > tol)
                 {
+                    #define COVERAGE_IGNORE // would have to write a bad concrete assembler class just to cover this line
                     all_less_than_tol = false;
+                    #undef COVERAGE_IGNORE
                 }
             }
             std::cout << "\n"<<std::flush;                
