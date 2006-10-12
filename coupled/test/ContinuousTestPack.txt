@@ -1,3 +1,4 @@
+Test1dBidomainProblemForEfficiency.hpp
 TestBidomainPde.hpp
 TestBidomainProblem.hpp
 TestCellProperties.hpp
