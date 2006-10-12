@@ -1,2 +1,0 @@
-TestColumnDataReaderWriter.hpp
-TestParallelColumnDataReaderWriter.hpp

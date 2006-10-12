@@ -1,5 +1,0 @@
-TestCancerParameters.hpp
-TestCryptSimulation.hpp
-TestCryptSimulation2D.hpp
-TestCellCycleModels.hpp
-TestMeinekeCryptCell.hpp
