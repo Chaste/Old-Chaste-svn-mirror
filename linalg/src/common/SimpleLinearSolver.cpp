@@ -42,7 +42,7 @@ Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpa
         }
         
         // Default relative tolerance appears to be 1e-5.  This ain't so great.
-        KSPSetTolerances(mSimpleSolver, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
+        KSPSetTolerances(mSimpleSolver, mRelativeTolerance, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT);
         
         //Turn off pre-conditioning if the system size is very small
         KSPGetPC(mSimpleSolver,&prec);

@@ -52,6 +52,7 @@ private:
     
     std::vector<unsigned> mFixedExtracellularPotentialNodes; /** nodes at which the extracellular voltage is fixed to zero (replicated) */
     
+    double mLinearSolverRelativeTolerance;
 public:
 
     /**
@@ -80,6 +81,8 @@ public:
         mPrintOutput = true;   // We want some output by default
         
         mFixedExtracellularPotentialNodes.resize(0);
+        
+        mLinearSolverRelativeTolerance=1e-6;
     }
     
     /**
@@ -124,7 +127,9 @@ public:
         }
         
         // Assembler
-        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(&mMesh, mpBidomainPde);
+        BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
+                            &mMesh, mpBidomainPde, 
+                            2, mLinearSolverRelativeTolerance);
         
         if (mFixedExtracellularPotentialNodes.size()>0)
         {
@@ -355,6 +360,11 @@ public:
     void SetStartTime(const double &rStartTime)
     {
         mStartTime = rStartTime;
+    }
+  
+    void SetLinearSolverRelativeTolerance(const double &rRelTol)
+    {
+        mLinearSolverRelativeTolerance = rRelTol;
     }
     
     void SetEndTime(const double &rEndTime)

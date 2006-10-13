@@ -8,11 +8,13 @@
 
 class SimpleLinearSolver : public AbstractLinearSolver
 {
+private:
+    double mRelativeTolerance;
 
 public:
 
     Vec Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace matNullSpace=NULL);
-    SimpleLinearSolver()
+    SimpleLinearSolver(double relTolerance): mRelativeTolerance(relTolerance)
     {
         mLinearSystemKnown=false;
         mMatrixIsConstant=false;

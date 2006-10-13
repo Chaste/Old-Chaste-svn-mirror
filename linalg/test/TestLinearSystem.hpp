@@ -37,7 +37,7 @@ public:
         ls.DisplayRhs();
         
         
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
         
@@ -125,7 +125,7 @@ public:
         ls.AddToRhsVectorElement(0, 3.0);
         ls.AddToRhsVectorElement(1, 7.0);
         
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         Vec solution_vector;
         TS_ASSERT_THROWS_NOTHING(solution_vector = ls.Solve(&solver));
         

@@ -14,7 +14,7 @@ public:
     {
         // Solve Ax=b. 2x2 matrix
         
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         
         // Set rhs vector
         Vec rhs_vector;
@@ -75,7 +75,7 @@ public:
     void TestLinearSolverThrowsIfDoesNotConverge( void )
     {
         // Solve Ax=b. 2x2 matrix
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         
         // Set rhs vector
         Vec rhs_vector;
@@ -120,7 +120,7 @@ public:
     void TestLinearSolverHarder( void )
     {
         // Solve Ax=b. 2x2 matrix
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         
         // Set rhs vector
         Vec rhs_vector;
@@ -188,7 +188,7 @@ public:
         //
         // A = 6 0, b = 3
         //     0 0      3
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         
         // Set rhs vector
         Vec rhs_vector;
@@ -252,7 +252,7 @@ public:
     void testLinearSolverWithMatrixIsConstantAndNullSpace()
     {
         // Solve Ax=b. 5x5 matrix
-        SimpleLinearSolver solver;
+        SimpleLinearSolver solver(1e-6);
         
         // Set rhs vector
         Vec rhs_vector;

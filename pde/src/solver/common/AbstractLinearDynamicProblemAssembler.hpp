@@ -41,13 +41,15 @@ public :
      * AbstractLinearDynamicProblemAssembler
      * Constructors just call the base class versions.
      */
-    AbstractLinearDynamicProblemAssembler(int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
+    AbstractLinearDynamicProblemAssembler(int numQuadPoints = 2,
+                                            double linearSolverRelativeTolerance = 1e-6) :
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints, linearSolverRelativeTolerance)
     {}
     AbstractLinearDynamicProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                           AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                          int numQuadPoints = 2) :
-            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
+                                          int numQuadPoints = 2,
+                                          double linearSolverRelativeTolerance = 1e-6) :
+            AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints, linearSolverRelativeTolerance)
     {}
     
     /**

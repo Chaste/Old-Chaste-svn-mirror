@@ -8,11 +8,12 @@
 class SimpleNewtonNonlinearSolver : public AbstractNonlinearSolver
 {
 private :
+    double mLinearSolverRelativeTolerance;
     double mTolerance;
     bool mWriteStats;
 
 public :
-    SimpleNewtonNonlinearSolver();
+    SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance = 1e-6);
     virtual ~SimpleNewtonNonlinearSolver();
 
     virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),

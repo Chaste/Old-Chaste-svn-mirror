@@ -417,8 +417,9 @@ public:
      */
     BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
-                         int numQuadPoints = 2) :
-            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints)
+                         int numQuadPoints = 2,
+                         double linearSolverRelativeTolerance = 1e-6) :
+            AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints, linearSolverRelativeTolerance)
     {
         assert(pPde != NULL);
         assert(pMesh != NULL);

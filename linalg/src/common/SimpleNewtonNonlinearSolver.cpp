@@ -3,10 +3,11 @@
 #include "SimpleNewtonNonlinearSolver.hpp"
 #include "Exception.hpp"
 
-SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver()
+SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance)
+: mLinearSolverRelativeTolerance(linearSolverRelativeTolerance),
+  mTolerance(1e-5),
+  mWriteStats(false)
 {
-    mTolerance = 1e-5;
-    mWriteStats = false;
 }
 
 SimpleNewtonNonlinearSolver::~SimpleNewtonNonlinearSolver()
@@ -41,7 +42,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     }
 
 
-    SimpleLinearSolver simple_linear_solver;
+    SimpleLinearSolver simple_linear_solver(mLinearSolverRelativeTolerance);
     
     double old_scaled_norm;
     unsigned counter = 0;

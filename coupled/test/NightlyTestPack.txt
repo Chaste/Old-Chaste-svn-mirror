@@ -1,3 +1,4 @@
+Test1dBidomainProblemForEfficiency.hpp
 TestBidomain3D.hpp
 TestBidomainForConvergence.hpp
 TestBidomainWithShocks.hpp

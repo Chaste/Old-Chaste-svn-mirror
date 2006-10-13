@@ -9,10 +9,8 @@
  */
 class AbstractLinearSolver
 {
-
 public:
-
-    /**
+     /**
      * Solve the system lhsMatrix * x = rhsVector for x.
      * 
      * @param lhsMatrix The left hand side matrix
