@@ -51,7 +51,7 @@ public:
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
         
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
-        bidomain_problem.SetEndTime(2);   // 2 ms
+        bidomain_problem.SetEndTime(1);   // 2 ms
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
@@ -60,8 +60,8 @@ public:
         
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
+        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.00005*identity_matrix<double>(1));
+        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.00005*identity_matrix<double>(1));
 
         bidomain_problem.PrintOutput(false);
 
@@ -100,22 +100,18 @@ public:
                 }
             }
             
-            // wave shouldn't have reached the second half of the mesh so
-            // these should all be near the resting potential
-            if (global_index>50)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[2*local_index], -83.85, 0.1);
-            }
+            
             
             // final voltages for nodes 0 to 5
-            double test_values[6]={30.2636, 28.3578, 19.8386, -3.9738, -57.9465, -79.7750};
+            double test_values[6]={-22.9004, -78.6935, -83.7585, -83.8568,  -83.8570, -83.8568};
             
-            for (unsigned node=0; node<=5; node++)
+            for (unsigned i=0; i<=5; i++)
             {
+                unsigned node=10*i; //Step through every 10th node
                 if (global_index == node)
                 {
                     // test against hardcoded value to check nothing has changed
-                    TS_ASSERT_DELTA(p_voltage_array[2*local_index], test_values[node], 1e-3);
+                    TS_ASSERT_DELTA(p_voltage_array[2*local_index], test_values[i], 1e-1);
                 }
             }
         }
