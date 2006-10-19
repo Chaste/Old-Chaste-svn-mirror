@@ -255,12 +255,20 @@ class GoogleProfile(GccDebug):
     self._link_flags += ' -lprofiler'
     self._test_packs = ['Profile']
     self.build_dir = 'google_profile'
-  
+    import socket
+    machine = socket.getfqdn()
+    self.output_dir = os.path.join(self.GetTestReportDir(), machine+'.'+self.__class__.__name__)
+ 
+  def ParseGraphFilename(self, filename):
+    "Remove the string 'Runner.gif' from the end of a filename, thus returning test_suite name"
+    return filename[:-10]
+
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a profiler and rename gmon.out"
     base=os.path.basename(exefile)
     profileFile='/tmp/'+base+'.prof'
-    return 'export HOME=\'.\' ;export CPUPROFILE=' + profileFile + '; ' + exefile + ' ' + exeflags + ' '  + ' ; pprof -pdf ' + exefile + ' ' + profileFile + ' > testoutput/'+base+'.pdf'
+    return 'export HOME=\'.\' ;export CPUPROFILE=' + profileFile + '; ' + exefile + ' ' + exeflags \
+      + ' ; pprof -gif ' + exefile + ' ' + profileFile + ' > ' +self.output_dir+'/'+base+'.gif'
    
 
 class Parallel(GccDebug):
