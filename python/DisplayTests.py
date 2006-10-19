@@ -6,6 +6,7 @@
 import os
 import time
 import itertools
+import re
 
 _standalone = False
 
@@ -134,7 +135,7 @@ def _recent(req, type=None):
       old_revision = revision
     build = buildTypesModule.GetBuildType(buildType)
     test_set_dir = _testResultsDir(type, revision, machine, buildType)
-    overall_status, colour = _getTestStatus(test_set_dir, build, summary=True)
+    overall_status, colour = _getTestSummary(test_set_dir, build)
     #overall_status, colour = 'Fake', 'green'
     
     output.append("""\
@@ -358,6 +359,35 @@ def _testResultsDir(type, revision, machine, buildType):
   test type, code revision, build machine and build type.
   """
   return os.path.join(_tests_dir, type, str(revision), machine+'.'+buildType)
+
+_testSummaryRegexp = re.compile(r' *Overall status: <span style="color: (\w+);">(.*)</span>')
+def _getTestSummary(test_set_dir, build):
+  """
+  Return a summary of the status of tests in the given directory,
+  as a tuple of strings (overall_status, colour).
+
+  Does this by parsing the index.html page in the directory, looking
+  for the overall status line.
+  If this file doesn't exist or parsing fails, will fall back to
+  using _getTestStatus.
+  """
+  index_path = os.path.join(test_set_dir, 'index.html')
+  parsed_ok = False
+  if os.path.isfile(index_path):
+    # Load & parse file
+    index_file = file(index_path, 'r')
+    if index_file:
+      for line in index_file:
+        m = _testSummaryRegexp.match(line)
+        if m:
+          overall_status = m.group(2)
+          colour = m.group(1)
+          parsed_ok = True
+          break
+      index_file.close()
+  if not parsed_ok:
+    overall_status, colour = _getTestStatus(test_set_dir, build, True)
+  return overall_status, colour
 
 def _getTestStatus(test_set_dir, build, summary=False):
   """
