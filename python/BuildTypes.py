@@ -8,7 +8,7 @@
 
 import os
 
-class BuildType:
+class BuildType(object):
   """
   Base class for all objects representing a build type.
   Also gives the default build options.
@@ -25,6 +25,7 @@ class BuildType:
     self._test_packs = ['Continuous']
     self._revision = ''
     self.build_dir = 'default'
+    self._num_processes = 1
   
   def CompilerType(self):
     """
@@ -90,23 +91,38 @@ class BuildType:
   def EncodeStatus(self, exitCode, logFile):
     """
     Encode the output from a test program as a status string.
-    If the exit code is zero then all tests passed, and the status
-    is 'OK'. Otherwise the output must be parsed looking for a line
-    'Failed (\d+) of (\d+) tests?' and the status string is '\1_\2'.
+    Parses the output looking for a line
+    'Failed (\d+) of (\d+) tests?'; if one is found then the
+    testsuite failed and the status string is '\1_\2'.
+    Otherwise if the output contains as many 'OK!' lines as
+    the number of processes running then the test suite is 
+    deemed to have passed.
+    If neither type of line is found (e.g. due to premature termination)
+    then the status is 'Unknown'.
     Return the encoded status.
     """
     status = 'Unknown'
-    if exitCode:
-      # At least one test failed. Find out how many by parsing the output.
-      import re
-      failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
-      for line in logFile:
-        m = failed_tests.match(line)
-        if m:
-          status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
-          break
-    else:
-      # All tests passed
+    
+    import re
+    failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
+    ok, ok_count = re.compile('OK!'), 0
+    infrastructure_ok = re.compile('Infrastructure test passed ok.')
+    
+    for line in logFile:
+      m = failed_tests.match(line)
+      if m:
+        status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
+        break
+      m = ok.match(line)
+      if m:
+        ok_count += 1
+      m = infrastructure_ok.match(line)
+      if m:
+        ok_count = self._num_processes
+        break
+    
+    if ok_count > 0 and status == 'Unknown':
+      # All tests passed on all processes
       status = 'OK'
     return status
 
@@ -269,7 +285,47 @@ class GoogleProfile(GccDebug):
     profileFile='/tmp/'+base+'.prof'
     return 'export HOME=\'.\' ;export CPUPROFILE=' + profileFile + '; ' + exefile + ' ' + exeflags \
       + ' ; pprof -gif ' + exefile + ' ' + profileFile + ' > ' +self.output_dir+'/'+base+'.gif'
-   
+
+  def StatusColour(self, status):
+    """
+    Return a colour string indicating whether the given status string
+    represents a 'successful' test suite under this build type.
+    """
+    prof = False
+    if status[-5:] == '_prof':
+      prof = True
+      status = status[:-5]
+    # By default, 'OK' is ok and anything else isn't.
+    if status == 'OK':
+      if prof:
+        return 'orange'
+      else:
+        return 'green'
+    else:
+      return 'red'
+    
+  def DisplayStatus(self, status):
+    """
+    Return a (more) human readable version of the given status string.
+    """
+    ret = ''
+    if status[-5:] == '_prof':
+      ret = 'Profiler failed. '
+      status = status[:-5]
+    return ret + super(GoogleProfile, self).DisplayStatus(status)
+
+  def EncodeStatus(self, exitCode, logFile):
+    """
+    Encode the output from a test program as a status string.
+    If the exit code is zero then all tests passed, and the status
+    is 'OK'. Otherwise the output must be parsed looking for a line
+    'Failed (\d+) of (\d+) tests?' and the status string is '\1_\2'.
+    Return the encoded status.
+    """
+    status = super(GoogleProfile, self).EncodeStatus(exitCode, logFile)
+    if exitCode:
+      status = status + '_prof'
+    return status
 
 class Parallel(GccDebug):
   """
@@ -284,42 +340,6 @@ class Parallel(GccDebug):
     "Run test with a two processor environment"
     return 'mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
 
-  def EncodeStatus(self, exitCode, logFile):
-    """
-    Encode the output from a test program as a status string.
-    Parses the output looking for a line
-    'Failed (\d+) of (\d+) tests?'; if one is found then the
-    testsuite failed and the status string is '\1_\2'.
-    Otherwise if the output contains at least one line 'OK!'
-    then the test suite is deemed to have passed.  If neither
-    type of line is found (e.g. due to premature termination)
-    then the status is 'Unknown'.
-    Return the encoded status.
-    """
-    status = 'Unknown'
-    
-    import re
-    failed_tests = re.compile('Failed (\d+) of (\d+) tests?')
-    ok, ok_count = re.compile('OK!'), 0
-    infrastructure_ok = re.compile('Infrastructure test passed ok.')
-    
-    for line in logFile:
-      m = failed_tests.match(line)
-      if m:
-        status = '%d_%d' % (int(m.group(1)), int(m.group(2)))
-        break
-      m = ok.match(line)
-      if m:
-        ok_count += 1
-      m = infrastructure_ok.match(line)
-      if m:
-        ok_count = self._num_processes
-        break
-    
-    if ok_count > 0 and status == 'Unknown':
-      # All tests passed on all processes
-      status = 'OK'
-    return status
 
 class Parallel10(Parallel):
   """

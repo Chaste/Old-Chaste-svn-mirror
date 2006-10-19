@@ -82,13 +82,14 @@ def testsuite(req, type, revision, machine, buildType, testsuite, status, runtim
 
 def graph(req, type, revision, machine, buildType, graphName):
   """
-  Send the given graph file (a .gif or similar) back to the user.
+  Send the given graph file (a .gif) back to the user.
   """
   test_set_dir = _testResultsDir(type, revision, machine, buildType)
   graphName = os.path.basename(graphName) # Foil hackers
   graph_path = os.path.join(test_set_dir, graphName)
   if os.path.isfile(graph_path):
-    req.sendfile()
+    req.content_type = 'image/gif'
+    req.sendfile(graph_path)
   else:
     req.content_type = 'text/html'
     req.write(_header(), 0)
@@ -231,6 +232,10 @@ def _summary(req, type, revision, machine=None, buildType=None):
       build_log = "Build log: <a href=\"%s\">%s</a>" % (logurl, logurl)
   
   # Produce output HTML
+  if graphs:
+    extra_cols = '<th>Extras</th>'
+  else:
+    extra_cols = ''
   output.append("""\
   <p>
   Revision: %s<br />
@@ -245,10 +250,10 @@ def _summary(req, type, revision, machine=None, buildType=None):
       <th>Test Suite</th>
       <th>Status</th>
       <th>Run Time</th>
-      <th>Extras</th>
+      %s
     </tr>
 """ % (_linkRevision(revision), date, _colourText(overall_status, colour),
-       _linkBuildType(buildType, revision), machine, build_log))
+       _linkBuildType(buildType, revision), machine, build_log, extra_cols))
   
   # Display the status of each test suite, in alphabetical order
   testsuites = testsuite_status.keys()
@@ -259,7 +264,7 @@ def _summary(req, type, revision, machine=None, buildType=None):
       <td>%s</td>
       <td style="background-color: %s;">%s</td>
       <td>%s</td>
-      <td>%s</td>
+      %s
     </tr>
 """ % (testsuite, _statusColour(testsuite_status[testsuite], build),
        _linkTestSuite(type, revision, machine, buildType, testsuite,
@@ -570,19 +575,19 @@ def _linkTestSuite(type, revision, machine, buildType, testsuite,
 
 def _linkGraph(type, revision, machine, buildType, graphFilename):
   """
-  Return a link tag to graphics file contains the graph
+  Return a link tag in a <td> to the graphics file which contains the graph.
   """
   if graphFilename == '':
     link = ''
   elif type == 'standalone':
     #filename = build.ResultsFileName(os.curdir, testsuite, status, runtime)
-    link = '<a href="%s">%s</a>' % (graphFilename, 'Profile callgraph')
+    link = '<td><a href="%s">%s</a></td>' % (graphFilename, 'Profile callgraph')
   else:
     query = 'type=%s&amp;revision=%s&amp;machine=%s&amp;buildType=%s' % (type, revision,
                                                                          machine, buildType)
     query = query + '&amp;graphName=%s' % (graphFilename)
-    link = '<a href="%s/graph?%s">%s</a>' % (_our_url, query, 
-                                             'Profile callgraph')
+    link = '<td><a href="%s/graph?%s">%s</a></td>' % (_our_url, query, 
+                                                      'Profile callgraph')
   return link
 
 def _formatRunTime(runtime):
