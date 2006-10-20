@@ -118,6 +118,11 @@ opt.SharedLibrary(toplevel_dir, files)
 # Build the test library for this component
 opt.Library('test'+toplevel_dir, testsource)
 
+# Make test output depend on shared libraries, so if implementation changes
+# then tests are re-run.  Choose which line according to taste.
+#lib_deps = map(lambda lib: '#lib/lib%s.so' % lib, chaste_libs) # all libs
+lib_deps = '#lib/lib%s.so' % toplevel_dir # only this lib
+
 # Build and run tests of this component
 for testfile in testfiles:
   prefix = testfile[:-4]
@@ -126,5 +131,6 @@ for testfile in testfiles:
               LIBS = all_libs,
               LIBPATH = ['../../../linklib', '.'] + other_libpaths)
   if not compile_only:
+    opt.Depends(prefix+'.log', lib_deps)
     opt.RunTests(prefix+'.log', prefix+'Runner')
 
