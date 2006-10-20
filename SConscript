@@ -1,6 +1,11 @@
 import glob
 import os
 
+# Faster shared library linking
+import sys
+sys.path.append('../../../python')
+import fasterSharedLibrary
+
 Import("*")
 
 # Note that this script is executed from within the build/<something>/ folder
@@ -85,7 +90,7 @@ opt = Environment(
          'CHASTE_TEST_OUTPUT':
          os.environ.get('CHASTE_TEST_OUTPUT',
                         '/tmp/'+os.environ['USER']+'/testoutput/')})
-opt['ENV']['LD_LIBRARY_PATH'] = ':'.join(other_libpaths)
+opt['ENV']['LD_LIBRARY_PATH'] = ':'.join(other_libpaths) + ':' + os.path.abspath('../../../lib')
 opt.Append(CCFLAGS = '-I' + ' -I'.join(other_includepaths)
            + ' ' + extra_flags)
 opt.Append(LINKFLAGS = link_flags)
@@ -103,9 +108,13 @@ runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests
 
+# New shared library builder
+opt['BUILDERS']['OriginalSharedLibrary'] = opt['BUILDERS']['SharedLibrary']
+opt['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
+
 # Build and install the library for this component
-opt.Library(toplevel_dir, files)
-opt.Install('../../../lib', 'lib'+toplevel_dir+'.a')
+opt.SharedLibrary(toplevel_dir, files)
+#opt.Install('../../../lib', 'lib'+toplevel_dir+'.a')
 # Build the test library for this component
 opt.Library('test'+toplevel_dir, testsource)
 
@@ -115,7 +124,7 @@ for testfile in testfiles:
   opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
   opt.Program(testfile[:-4]+'Runner', [prefix+'Runner.cpp'],
               LIBS = all_libs,
-              LIBPATH = ['../../../lib', '.'] + other_libpaths)
+              LIBPATH = ['../../../linklib', '.'] + other_libpaths)
   if not compile_only:
     opt.RunTests(prefix+'.log', prefix+'Runner')
 
