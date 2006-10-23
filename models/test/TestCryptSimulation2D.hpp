@@ -20,7 +20,7 @@
 
 class TestCryptSimulation2D : public CxxTest::TestSuite
 {
-    void Make2dCryptMesh(std::string meshFilename, unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, double length)
+    void Make2dCryptMesh(std::string meshFilename, unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, double length, double x0=0.0, double y0=0.0)
     {
         OutputFileHandler output_file_handler("CryptMesh");
         out_stream p_node_file = output_file_handler.OpenOutputFile(meshFilename+".node");
@@ -46,9 +46,9 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
                 {
                     b = 1;
                 }
-                double x = width*((double)j + 0.25*(1+ pow(-1,i+1)))/(num_elem_along_width) ;
+                double x = x0 + width*((double)j + 0.25*(1+ pow(-1,i+1)))/(num_elem_along_width) ;
                 
-                double y = length*(sqrt(3)/2)*(double)i/(num_elem_along_length); //
+                double y = y0 + length*(sqrt(3)/2)*(double)i/(num_elem_along_length);
                 
                 (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << b << std::endl;
             }
@@ -149,7 +149,7 @@ public:
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
-        
+        simulator.SetReMeshRule(false);
         simulator.Solve();
         
         for (int i=0; i<mesh.GetNumElements(); i++)
@@ -231,6 +231,7 @@ public:
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
         simulator.SetEndTime(1.0);
+        simulator.SetReMeshRule(false);
         
         //simulator.SetIncludeVariableRestLength();
         
@@ -239,15 +240,16 @@ public:
     }
     
     
-    void TestWithBirthOnHoneycombMesh() throw (Exception)
+    // not being run because takes a few minutes to run
+    void DO_NOT_TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(0);  // this is BAD, mkay?
+        srandom(0);  // this is BAD, mkay, no way?
         
         double crypt_length = 10.0;
         double crypt_width = 5.0;
         
-        Make2dCryptMesh("2D_crypt_mesh", 6, 11, crypt_width, crypt_length);
+        Make2dCryptMesh("2D_crypt_mesh", 8, 14, crypt_width+2, crypt_length+3, -1.0, 0.0);
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
@@ -258,6 +260,16 @@ public:
         TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+"/CryptMesh/2D_crypt_mesh");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        std::vector<int> ghost_node_indices;
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            if ((x<0)||(x>crypt_width)||(y>crypt_length)||(y<0))
+            {
+               ghost_node_indices.push_back(i);
+            }
+        }
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
@@ -297,10 +309,10 @@ public:
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(1.0);
         
+        simulator.SetGhostNodes(ghost_node_indices);
         //simulator.SetIncludeVariableRestLength();
-        
-        // throws anything because not working at the moment
-        TS_ASSERT_THROWS_ANYTHING( simulator.Solve() );
+ 
+        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
     }
     
     

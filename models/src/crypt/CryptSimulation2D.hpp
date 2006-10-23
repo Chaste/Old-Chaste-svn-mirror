@@ -37,7 +37,9 @@ private:
     bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
     bool mFixedBoundaries;
-    std::vector <bool> mGhostNodes; 
+    bool mReMesh;
+    
+    std::vector <bool> mIsGhostNode; 
     
     std::string mOutputDirectory;
     
@@ -69,11 +71,13 @@ public:
         mFixedBoundaries =false;
         mOutputDirectory = "";
         
-        mGhostNodes.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
-        for (unsigned i=0; i<mGhostNodes.size(); i++)
+        mIsGhostNode.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
+        for (unsigned i=0; i<mIsGhostNode.size(); i++)
         {
-            mGhostNodes[i] = false;
+            mIsGhostNode[i] = false;
         }
+        
+        mReMesh = true;
     }
     
     void SetDt(double dt)
@@ -160,6 +164,8 @@ public:
                 for (unsigned i=0; i<mCells.size(); i++)
                 {
                     if(mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
+                    
+                    if(mIsGhostNode[i]) continue;
                     // Check for this cell dividing
                     if(mCells[i].ReadyToDivide(time*mpParams->GetStemCellCycleTime()))
                     {
@@ -284,12 +290,12 @@ public:
                         assert(!p_element->GetNode(nodeB)->IsDeleted());
 
                             
-                        if(mGhostNodes[p_element->GetNodeGlobalIndex(nodeA)] == false)
+                        if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)] == false)
                         {
                             drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
                             drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
 
-                            if(mGhostNodes[p_element->GetNodeGlobalIndex(nodeB)] == false)
+                            if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)] == false)
                             {
                                 drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
                                 drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
@@ -300,7 +306,7 @@ public:
                             drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
                             drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
  
-                            if(mGhostNodes[p_element->GetNodeGlobalIndex(nodeB)] == true)
+                            if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)] == true)
                             {
                                drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
                                drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
@@ -338,12 +344,12 @@ public:
                     assert(!p_edge->GetNode(nodeA)->IsDeleted());
                     assert(!p_edge->GetNode(nodeB)->IsDeleted());
                         
-                    if(mGhostNodes[p_edge->GetNodeGlobalIndex(nodeA)] == false)
+                    if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)] == false)
                     {
                         drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
                         drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
 
-                        if(mGhostNodes[p_edge->GetNodeGlobalIndex(nodeB)] == false)
+                        if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == false)
                         {
                             drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
                             drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
@@ -354,7 +360,7 @@ public:
                         drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
                         drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
  
-                        if(mGhostNodes[p_edge->GetNodeGlobalIndex(nodeB)] == true)
+                        if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == true)
                         {
                            drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
                            drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
@@ -455,7 +461,7 @@ public:
                          assert(!mrMesh.GetNodeAt(target_node_index)->IsDeleted());
                          mrMesh.SetNode(sloughing_node_index,target_node_index);
             
-            mGhostNodes[p_node->GetIndex()] = true;
+            mIsGhostNode[p_node->GetIndex()] = true;
             
                          num_deaths++;
                          //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
@@ -485,20 +491,23 @@ public:
                     
                     if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
                     {
-                        mGhostNodes[p_node->GetIndex()] = true;
+                        mIsGhostNode[p_node->GetIndex()] = true;
                         num_deaths++;
                         //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
                     }
                 }
             }
             
-            
-            
-            if(mFixedBoundaries)
+            if( mReMesh )
             {
-                //Re-mesh the mesh
                 mrMesh.ReMesh(map);
             }
+            
+//            if(mFixedBoundaries)
+//            {
+//                //Re-mesh the mesh
+//                mrMesh.ReMesh(map);
+//            }
             
 //          std::stringstream time_ss;
 //	        time_ss << step_number++;
@@ -514,7 +523,7 @@ public:
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 int colour = 0; // all green if no cells have been passed in
-                if(mGhostNodes[index]==true)
+                if(mIsGhostNode[index]==true)
                 {
                     colour = 3; // visualizer treats '4' these as invisible
                 }
@@ -572,9 +581,15 @@ public:
     {
         for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
         {
-            mGhostNodes[ghostNodeIndices[i]]=true;
+            mIsGhostNode[ghostNodeIndices[i]]=true;
         }
     } 
+    
+    void SetReMeshRule(bool remesh)
+    {
+        mReMesh = remesh;
+    }
+    
 };
 
 #endif /*CRYPTSIMULATION2D_HPP_*/
