@@ -145,9 +145,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        double natural_length = 1.0;
-        p_params->SetNaturalSpringLength(natural_length);
-        
+       
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
@@ -173,7 +171,7 @@ public:
                       (y_nodeA < crypt_length) && (y_nodeB < crypt_length) )
                 {
                     double length = sqrt( (x_nodeA - x_nodeB)*(x_nodeA - x_nodeB) + (y_nodeA - y_nodeB)*(y_nodeA - y_nodeB) );
-                    TS_ASSERT_DELTA(length, natural_length, 0.05); // tolerance of 0.01 would work if ran for 2 units
+                    TS_ASSERT_DELTA(length, 1.0, 0.05); // tolerance of 0.01 would work if ran for 2 units
                 }
             }
         }
@@ -228,7 +226,7 @@ public:
             cells.push_back(cell);
         }
         
-        p_params->SetNaturalSpringLength(1);
+
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
         simulator.SetEndTime(1.0);
@@ -366,8 +364,6 @@ public:
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
-        
-        p_params->SetNaturalSpringLength(0.5);// to simulate less cells
         
         CryptSimulation2D simulator(mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");

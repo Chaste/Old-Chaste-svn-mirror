@@ -280,7 +280,7 @@ public:
                         if ( (sloughed_cells[p_element->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_element->GetNodeGlobalIndex(nodeB)] == false))
                         {
                             // Refactor this to a vector operation
-                            double rest_length=mpParams->GetNaturalSpringLength();
+                            double rest_length=1.0;
                             drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - rest_length) );
                             drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - rest_length) );
                             drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - rest_length) );
@@ -326,7 +326,7 @@ public:
                     if ( (sloughed_cells[p_edge->GetNodeGlobalIndex(nodeA)] == false) && (sloughed_cells[p_edge->GetNodeGlobalIndex(nodeB)] == false))
                     {
                         // Refactor this to a vector operation
-                        double rest_length=mpParams->GetNaturalSpringLength();
+                        double rest_length=1.0;
                         drdt_contributions(0,0) = mpParams->GetAlpha() *(  unit_difference(0)  * (distance_between_nodes - rest_length) );
                         drdt_contributions(0,1) = mpParams->GetAlpha() *(  unit_difference(1)  * (distance_between_nodes - rest_length) );
                         drdt_contributions(1,0) = mpParams->GetAlpha() *(  -unit_difference(0)  * (distance_between_nodes - rest_length) );

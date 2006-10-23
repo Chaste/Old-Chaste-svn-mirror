@@ -65,10 +65,7 @@ double CancerParameters::GetAlpha()
 {
     return mAlpha;
 }
-double CancerParameters::GetNaturalSpringLength()
-{
-    return mNaturalSpringLength;
-}
+
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -99,8 +96,4 @@ void CancerParameters::SetMeinekeLambda(double meinekeLambda)
 {
     mMeinekeLambda = meinekeLambda;
     mAlpha = mStemCellCycleTime * mMeinekeLambda;
-}
-void CancerParameters::SetNaturalSpringLength(double naturalSpringLength)
-{
-    mNaturalSpringLength = naturalSpringLength;
 }

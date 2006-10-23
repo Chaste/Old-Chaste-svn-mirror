@@ -271,20 +271,20 @@ public:
                         double unit_vector_forward = 1;
                         double age0 = mCells[element->GetNode(0)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
                         double age1 = mCells[element->GetNode(1)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
-                        double rest_length=mpParams->GetNaturalSpringLength();
+                        double rest_length = 1.0;
                         
                         if (age0<1.0 && age1<1.0 && fabs(age0-age1)<1e-6)
                         {
-                            /* Spring Rest Length Increases to normal rest length from 0.9 normal rest length over 1 hour
+                            /* Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
                                 * This doesnt happen at present as when the full line is included the tests fail
                                 * 
                                 * This is wrong but due to the model being set up in 1D, when a new cell with a weaker spring is
                                 * put in next to other stressed cells, the weaker spring will be compressed too much and lead to
                                 * cells being pushed through other ones.  Leading to an exception being thrown in line 319 ish.
                                 */
-                            rest_length=(0.9+0.1*age0)*rest_length;
+                            rest_length=(0.9+0.1*age0);
                             
-                            assert(rest_length<=mpParams->GetNaturalSpringLength());
+                            assert(rest_length<=1.0);
                         }
                         drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
                         drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
@@ -305,8 +305,8 @@ public:
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
                         
-                        drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - mpParams->GetNaturalSpringLength()) );
-                        drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - mpParams->GetNaturalSpringLength()) );
+                        drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
+                        drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - 1.0) );
                         
                         drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                         drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);

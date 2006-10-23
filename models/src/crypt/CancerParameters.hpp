@@ -18,15 +18,13 @@ public:
     double GetCryptWidth();
     double GetMeinekeLambda();
     double GetAlpha();
-    double GetNaturalSpringLength();
-    
+   
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
     void SetCryptWidth(double);
     void SetMeinekeLambda(double);
-    void SetNaturalSpringLength(double);//Note this should be got rid of, because length is defined in terms of NaturalSpringLength
     
 protected:
     CancerParameters();
