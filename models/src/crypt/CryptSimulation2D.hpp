@@ -200,6 +200,12 @@ public:
                         {
                             mCells[new_node_index] = new_cell;
                         }
+                        // Update size of IsGhostNode if necessary
+                        if((int)mrMesh.GetNumNodes() > (int)mIsGhostNode.size())
+                        {
+                            mIsGhostNode.resize(mrMesh.GetNumNodes());
+                            mIsGhostNode[new_node_index] = false;
+                        }
                         num_births++;
                         //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
                     }

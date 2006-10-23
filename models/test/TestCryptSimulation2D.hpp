@@ -241,7 +241,7 @@ public:
     
     
     // not being run because takes a few minutes to run
-    void DO_NOT_TestWithBirthOnHoneycombMesh() throw (Exception)
+    void D_NOT_TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);  // this is BAD, mkay, no way?
