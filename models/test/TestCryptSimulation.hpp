@@ -17,7 +17,7 @@
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 
-#include "ColumnDataReader.hpp"
+
 
 
 class TestCryptSimulation : public CxxTest::TestSuite

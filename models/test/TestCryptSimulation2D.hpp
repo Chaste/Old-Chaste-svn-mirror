@@ -16,6 +16,7 @@
 
 #include "CancerParameters.hpp"
 
+#include "ColumnDataReader.hpp"
 
 
 class TestCryptSimulation2D : public CxxTest::TestSuite
@@ -123,6 +124,95 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
         p_edge_file->close();
     }
     
+       void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
+    {
+        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
+        
+        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"Results",
+                                                             "tabulated_node_results",
+                                                             true);
+                                                             
+        ColumnDataReader expected_node_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
+                                                             "tabulated_node_results",
+                                                             false);
+        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"Results",
+                                                             "tabulated_element_results",
+                                                             true);
+                                                             
+        ColumnDataReader expected_element_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
+                                                             "tabulated_element_results",
+                                                             false);
+                                                                                                                  
+        for (unsigned cell=0; cell<maxCells; cell++)
+        {
+            std::stringstream cell_type_var_name;
+            std::stringstream cell_x_position_var_name;
+            std::stringstream cell_y_position_var_name;
+            cell_type_var_name << "cell_type_" << cell;
+            cell_x_position_var_name << "cell_x_position_" << cell;
+            cell_y_position_var_name << "cell_y_position_" << cell;
+            
+            // Vector of Cell Types
+            std::vector<double> expected_cell_types = expected_node_results.GetValues(cell_type_var_name.str());
+            std::vector<double> computed_cell_types = computed_node_results.GetValues(cell_type_var_name.str());
+            
+            //Vector of Cell Positions
+            std::vector<double> expected_cell_x_positions = expected_node_results.GetValues(cell_x_position_var_name.str());
+            std::vector<double> computed_cell_x_positions = computed_node_results.GetValues(cell_x_position_var_name.str());
+            
+            std::vector<double> expected_cell_y_positions = expected_node_results.GetValues(cell_y_position_var_name.str());
+            std::vector<double> computed_cell_y_positions = computed_node_results.GetValues(cell_y_position_var_name.str());
+            
+            //Comparing expected and computed vector length
+            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
+            TS_ASSERT_EQUALS(expected_cell_x_positions.size(), computed_cell_x_positions.size());
+            TS_ASSERT_EQUALS(expected_cell_y_positions.size(), computed_cell_y_positions.size());
+            
+            //Walkthrough of the expected and computed vectors
+            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
+            {
+                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
+                TS_ASSERT_DELTA(expected_cell_x_positions[time_step], computed_cell_x_positions[time_step],1e-6);
+                TS_ASSERT_DELTA(expected_cell_y_positions[time_step], computed_cell_y_positions[time_step],1e-6);
+            }
+        }
+        
+        for (unsigned element=0; element<maxElements; element++)
+        {
+            std::stringstream nodeA_var_name;
+            std::stringstream nodeB_var_name;
+            std::stringstream nodeC_var_name;
+            nodeA_var_name << "nodeA_" << element;
+            nodeB_var_name << "nodeB_" << element;
+            nodeC_var_name << "nodeC_" << element;
+            
+            // Vector of Node A indexes
+            std::vector<double> expected_NodeA_numbers = expected_element_results.GetValues(nodeA_var_name.str());
+            std::vector<double> computed_NodeA_numbers = computed_element_results.GetValues(nodeA_var_name.str());
+            
+            // Vector of Node B indexes
+            std::vector<double> expected_NodeB_numbers = expected_element_results.GetValues(nodeB_var_name.str());
+            std::vector<double> computed_NodeB_numbers = computed_element_results.GetValues(nodeB_var_name.str());
+            
+            // Vector of Node C indexes
+            std::vector<double> expected_NodeC_numbers = expected_element_results.GetValues(nodeC_var_name.str());
+            std::vector<double> computed_NodeC_numbers = computed_element_results.GetValues(nodeC_var_name.str());
+            
+            TS_ASSERT_EQUALS(expected_NodeA_numbers.size(), computed_NodeA_numbers.size());
+            TS_ASSERT_EQUALS(expected_NodeB_numbers.size(), computed_NodeB_numbers.size());
+            TS_ASSERT_EQUALS(expected_NodeC_numbers.size(), computed_NodeC_numbers.size());
+            
+            for (unsigned time_step = 0; time_step < expected_NodeA_numbers.size(); time_step++)
+            {
+                TS_ASSERT_EQUALS(expected_NodeA_numbers[time_step], computed_NodeA_numbers[time_step]);
+                TS_ASSERT_EQUALS(expected_NodeB_numbers[time_step], computed_NodeB_numbers[time_step]);
+                TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
+            }
+        }
+        
+    }
+    
+    
     
 public:
 
@@ -148,33 +238,38 @@ public:
        
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
+        //simulator.SetOutputDirectory("asdfasdf");
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(400);
         simulator.SetEndTime(1.0);
         simulator.SetReMeshRule(false);
         simulator.Solve();
         
-        for (int i=0; i<mesh.GetNumElements(); i++)
-        {
-            for (unsigned j=0; j<3; j++)
-            {
-                unsigned nodeA, nodeB;
-                j==2 ? nodeA = 2 : nodeA = j;
-                j==2 ? nodeB = 0 : nodeB = j+1;
-                
-                double x_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[0];
-                double y_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[1];
-                double x_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[0];
-                double y_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[1];
-                
-                // if both nodes are not sloughed, check distance between them is
-                // the natural length.
-                if (  (x_nodeA < crypt_width)  && (x_nodeB < crypt_width) &&
-                      (y_nodeA < crypt_length) && (y_nodeB < crypt_length) )
-                {
-                    double length = sqrt( (x_nodeA - x_nodeB)*(x_nodeA - x_nodeB) + (y_nodeA - y_nodeB)*(y_nodeA - y_nodeB) );
-                    TS_ASSERT_DELTA(length, 1.0, 0.05); // tolerance of 0.01 would work if ran for 2 units
-                }
-            }
-        }
+//        for (int i=0; i<mesh.GetNumElements(); i++)
+//        {
+//            for (unsigned j=0; j<3; j++)
+//            {
+//                unsigned nodeA, nodeB;
+//                j==2 ? nodeA = 2 : nodeA = j;
+//                j==2 ? nodeB = 0 : nodeB = j+1;
+//                
+//                double x_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[0];
+//                double y_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[1];
+//                double x_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[0];
+//                double y_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[1];
+//                
+//                // if both nodes are not sloughed, check distance between them is
+//                // the natural length.
+//                if (  (x_nodeA < crypt_width)  && (x_nodeB < crypt_width) &&
+//                      (y_nodeA < crypt_length) && (y_nodeB < crypt_length) )
+//                {
+//                    double length = sqrt( (x_nodeA - x_nodeB)*(x_nodeA - x_nodeB) + (y_nodeA - y_nodeB)*(y_nodeA - y_nodeB) );
+//                    TS_ASSERT_DELTA(length, 1.0, 0.05); // tolerance of 0.01 would work if ran for 2 units
+//                }
+//            }
+//        }
+        
+        CheckAgainstPreviousRun("Crypt2DSprings", 400u, 400u);
         
     }
     
@@ -230,13 +325,17 @@ public:
 
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
-        simulator.SetEndTime(1.0);
+        
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(800);
+        simulator.SetEndTime(0.45);
         simulator.SetReMeshRule(false);
         
         //simulator.SetIncludeVariableRestLength();
         
         // throws anything because not working at the moment
-        TS_ASSERT_THROWS_ANYTHING( simulator.Solve() );
+        simulator.Solve();
+        CheckAgainstPreviousRun("Crypt2DSpringsWithCells", 400u, 800u);
     }
     
     
@@ -308,10 +407,11 @@ public:
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(1.0);
+        simulator.SetMaxCells(40000);
         
         simulator.SetGhostNodes(ghost_node_indices);
         //simulator.SetIncludeVariableRestLength();
- 
+
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
     }
     
