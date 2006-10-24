@@ -269,7 +269,7 @@ public:
 
 
         //std::cout<< "\n mOutputDirectory " << mOutputDirectory ;
-        
+        int counter1 = 0 ;
         while (time < mEndTime)
         {
             //std::cout << "** TIME = " << time << " **\n";
@@ -679,8 +679,10 @@ public:
             }
             (*p_node_file) << "\n";
             
-            if (time/0.05 - floor(time/0.05) < 1e-6)
+            //if (time/0.05 - floor(time/0.05) < 1e-6)
+            if (counter1 > 80)
             {
+                counter1 = 0 ;
                 tabulated_node_writer.PutVariable(time_var_id, time);
                 tabulated_element_writer.PutVariable(time_var_id_elem, time);
                 
@@ -733,17 +735,20 @@ public:
                         tabulated_element_writer.PutVariable(nodeA_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0));
                         tabulated_element_writer.PutVariable(nodeB_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1));
                         tabulated_element_writer.PutVariable(nodeC_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2));
+                        
                     }
+                    
                 }
                 tabulated_element_writer.AdvanceAlongUnlimitedDimension();
                 
             }
-            
+            counter1++ ; 
            
             time += mDt;
             time_since_last_birth += mDt;
             
         }
+        
         tabulated_node_writer.Close();
         tabulated_element_writer.Close();
     }

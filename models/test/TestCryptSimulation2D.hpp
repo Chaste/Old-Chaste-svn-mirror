@@ -340,7 +340,7 @@ public:
     
     
     // not being run because takes a few minutes to run
-    void DO_NOT_TestWithBirthOnHoneycombMesh() throw (Exception)
+    void NOOONOOOOOOONOOOOOOTestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);  // this is BAD, mkay, no way?
@@ -407,17 +407,19 @@ public:
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(1.0);
-        simulator.SetMaxCells(40000);
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(800);
         
         simulator.SetGhostNodes(ghost_node_indices);
         //simulator.SetIncludeVariableRestLength();
 
-        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+       simulator.Solve();
+       CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
     
     
     // not being run because takes a few minutes to run
-    void DONOT_Test2DSpringsFixedBoundaries() throw (Exception)
+    void NOOOOOOOOONOTest2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
@@ -430,7 +432,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+          
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -481,11 +483,14 @@ public:
         CryptSimulation2D simulator(mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
         simulator.SetEndTime(0.5); //Days?
+        simulator.SetMaxCells(800);
+        simulator.SetMaxElements(800);
         simulator.SetFixedBoundaries();
         
         //simulator.SetIncludeVariableRestLength();
         
-        simulator.Solve() ;
+        simulator.Solve();
+        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
     }
 };
 
