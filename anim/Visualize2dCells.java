@@ -361,6 +361,9 @@ class CustomCanvas2D extends Canvas {
 		int radius = 5;
 		int tick_length = 10;
 		int num_ticks = 10;
+		boolean draw_springs=false;
+		boolean draw_cells=true;
+		boolean draw_cell_boundaries=true;
 		
 		g2 = (Graphics2D) g;
 		
@@ -378,60 +381,91 @@ class CustomCanvas2D extends Canvas {
 		// draw elements first
 		for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
 		{
-			// What nodes are we joining up?
-			int n1 = vis.element_nodes[vis.timeStep][3*i];
-			int n2 = vis.element_nodes[vis.timeStep][3*i+1];
-			int n3 = vis.element_nodes[vis.timeStep][3*i+2];
 			
-			RealPoint r1 = vis.positions[vis.timeStep][n1];
-			RealPoint r2 = vis.positions[vis.timeStep][n2];
-			RealPoint r3 = vis.positions[vis.timeStep][n3];
+			
+			// What nodes are we joining up?
+			int index[]=new int[3];
+			index[0] = vis.element_nodes[vis.timeStep][3*i];
+			index[1] = vis.element_nodes[vis.timeStep][3*i+1];
+			index[2] = vis.element_nodes[vis.timeStep][3*i+2];
+			
+			RealPoint r1 = vis.positions[vis.timeStep][index[0]];
+			RealPoint r2 = vis.positions[vis.timeStep][index[1]];
+			RealPoint r3 = vis.positions[vis.timeStep][index[2]];
 			
 			RealPoint circumcentre=DrawCircumcentre(r1,r2,r3);
 			
 			PlotPoint plotcircumcentre = scale(circumcentre);
 			
 			// Where are they? and convert to integer pixels
-			PlotPoint p1 = scale(r1);
-			PlotPoint p2 = scale(r2);
-			PlotPoint p3 = scale(r3);
+			PlotPoint vertex[]=new PlotPoint[3];
+			vertex[0] = scale(r1);
+			vertex[1] = scale(r2);
+			vertex[2] = scale(r3);
 			
-			PlotPoint m12 = scale(new RealPoint(r1,r2));
-			PlotPoint m23 = scale(new RealPoint(r2,r3));
-			PlotPoint m31 = scale(new RealPoint(r3,r1));
+			PlotPoint midpoint[]=new PlotPoint[3];
+			midpoint[2] = scale(new RealPoint(r1,r2));
+			midpoint[0] = scale(new RealPoint(r2,r3));
+			midpoint[1] = scale(new RealPoint(r3,r1));
 								
-			
-			g2.setPaint(garysSexySilver);
-            // Plot lines
-			if( (vis.cell_type[vis.timeStep][n1]<4) && (vis.cell_type[vis.timeStep][n2]<4))
-			{
-				g2.drawLine(p1.x, height - p1.y, p2.x, height - p2.y);
-				// g2.drawLine(x1, height - y1, x2, height - y2);
-			}
-			if( (vis.cell_type[vis.timeStep][n2]<4) && (vis.cell_type[vis.timeStep][n3]<4))
-			{
-				g2.drawLine(p2.x, height - p2.y, p3.x, height - p3.y);
-				// g2.drawLine(x2, height - y2, x3, height - y3);
-			}
-			if( (vis.cell_type[vis.timeStep][n3]<4) && (vis.cell_type[vis.timeStep][n1]<4))
-			{
-				g2.drawLine(p3.x, height - p3.y, p1.x, height - p1.y);
-				// g2.drawLine(x3, height - y3, x1, height - y1);
-			}
-			
 			g2.setPaint(Color.black);
-			//// Plot cell boundary lines
-			if( (vis.cell_type[vis.timeStep][n1]<4) && (vis.cell_type[vis.timeStep][n2]<4))
+			
+			if (draw_springs)
 			{
-				g2.drawLine(m12.x, height - m12.y, plotcircumcentre.x, height - plotcircumcentre.y);
+				
+				// Plot lines
+				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
+				{
+					g2.drawLine(vertex[0].x, height - vertex[0].y, vertex[1].x, height - vertex[1].y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[1]]<4) && (vis.cell_type[vis.timeStep][index[2]]<4))
+				{
+					g2.drawLine(vertex[1].x, height - vertex[1].y, vertex[2].x, height - vertex[2].y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[2]]<4) && (vis.cell_type[vis.timeStep][index[0]]<4))
+				{
+					g2.drawLine(vertex[2].x, height - vertex[2].y, vertex[0].x, height - vertex[0].y);
+				}
 			}
-			if( (vis.cell_type[vis.timeStep][n2]<4) && (vis.cell_type[vis.timeStep][n3]<4))
+			
+			
+			if (draw_cells)
 			{
-				g2.drawLine(m23.x, height - m23.y, plotcircumcentre.x, height - plotcircumcentre.y);
+				for (int node=0;node<3;node++)
+				 {
+					 SetCellColour(index[node]);
+					 int xs[]=new int[4];
+					 int ys[]=new int[4];
+					 xs[0]=plotcircumcentre.x;
+					 ys[0]=height - plotcircumcentre.y;
+					 xs[1]=midpoint[(node+1)%3].x;
+					 ys[1]=height - midpoint[(node+1)%3].y;
+					 xs[2]=vertex[node].x;
+					 ys[2]=height - vertex[node].y;
+					 xs[3]=midpoint[(node+2)%3].x;
+					 ys[3]=height - midpoint[(node+2)%3].y;
+					 g2.fillPolygon(xs,ys,4);
+				 }
+			
 			}
-			if( (vis.cell_type[vis.timeStep][n3]<4) && (vis.cell_type[vis.timeStep][n1]<4))
+			
+			
+			if (draw_cell_boundaries)
 			{
-    			g2.drawLine(m31.x, height - m31.y, plotcircumcentre.x, height - plotcircumcentre.y);
+				g2.setPaint(Color.black);
+				////		 Plot cell boundary lines
+				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
+				{
+					g2.drawLine(midpoint[2].x, height - midpoint[2].y, plotcircumcentre.x, height - plotcircumcentre.y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[1]]<4) && (vis.cell_type[vis.timeStep][index[2]]<4))
+				{
+					g2.drawLine(midpoint[0].x, height - midpoint[0].y, plotcircumcentre.x, height - plotcircumcentre.y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[2]]<4) && (vis.cell_type[vis.timeStep][index[0]]<4))
+				{
+					g2.drawLine(midpoint[1].x, height - midpoint[1].y, plotcircumcentre.x, height - plotcircumcentre.y);
+				}
 			}
     		 
 			
@@ -441,40 +475,15 @@ class CustomCanvas2D extends Canvas {
 		// draw nodes second so that dots are on top of lines
 		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
 		{
-			int x = scaleX(vis.positions[vis.timeStep][i].x);
-			int y = scaleY(vis.positions[vis.timeStep][i].y);
+			PlotPoint p=scale(vis.positions[vis.timeStep][i]);
 			
-			if(vis.cell_type[vis.timeStep][i]==0)
-			{
-				// stem cell
-				g2.setPaint(Color.green);
-			}
-			else if (vis.cell_type[vis.timeStep][i]==1)
-			{
-				// transit cell
-				g2.setPaint(Color.orange);
-			}
-			else if (vis.cell_type[vis.timeStep][i]==2)
-			{
-				// differentiated cell
-				g2.setPaint(Color.red);
-			}
-			else if (vis.cell_type[vis.timeStep][i]==3)
-			{
-				// DANGER! CANCER!
-				g2.setPaint(Color.black);
-			}
-			else if(vis.cell_type[vis.timeStep][i]==4)
-			{
-				// danger! sloughed - don't draw anything
-				Color garysSexySilver = new Color(216,216,231);
-				g2.setPaint(garysSexySilver);
-			}
-				
+			
+			SetNodeColour(i);
+			
 
-			g2.fillOval(x - radius, height - y - radius, 2 * radius, 2 * radius);
-			old_x = x;
-			old_y = y;
+			g2.fillOval(p.x - radius, height - p.y - radius, 2 * radius, 2 * radius);
+			old_x = p.x;
+			old_y = p.y;
 		}
 		g2.setPaint(Color.black);
 		
@@ -498,8 +507,8 @@ class CustomCanvas2D extends Canvas {
 
 	private void drawXAxis(int tick_length, int num_ticks) 
 	{
-		g2.drawLine(scaleX(0.0), scaleY(vis.max_y), scaleX(vis.max_x),
-				scaleY(vis.max_y));
+		g2.drawLine(scaleX(vis.min_x), height-scaleY(vis.min_y), scaleX(vis.max_x),
+				height-scaleY(vis.min_y));
 		for (int i = 0; i <= num_ticks; i++) 
 		{
 			double x = (i * vis.max_x) / num_ticks;
@@ -511,13 +520,12 @@ class CustomCanvas2D extends Canvas {
 			g2.drawString(x_2dp, scaleX(x), scaleY(vis.max_y) + 2
 					* tick_length);
 		}
-		//g2.drawString("x", scaleX(vis.max_x / 2.0), scaleY(vis.max_y)+3*tick_length);
-	}
+		}
 	
 	private void drawYAxis(int tick_length, int num_ticks) 
 	{
-		g2.drawLine(scaleX(0.0), scaleY(0.0), scaleX(0.0),
-				scaleY(vis.max_y));
+		g2.drawLine(scaleX(vis.min_x), height - scaleY(vis.max_y), scaleX(vis.min_x),
+				height - scaleY(vis.min_y));
 		for (int i = 0; i <= num_ticks; i++) 
 		{
 			double y = (i * vis.max_y) / num_ticks;
@@ -527,7 +535,6 @@ class CustomCanvas2D extends Canvas {
 			g2.drawLine(scaleX(0.0)-tick_length, scaleY(y), scaleX(0.0), scaleY(y));
 			g2.drawString(y_2dp, scaleX(0.0) - 4* tick_length, scaleY(vis.max_y)-scaleY(y)+scaleY(0.0));
 		}
-		//g2.drawString("y", scaleY(vis.max_y / 2.0), width-5*tick_length);
 	}
 
 	int scaleY(double realy) 
@@ -604,11 +611,74 @@ class CustomCanvas2D extends Canvas {
 	
 	PlotPoint scale(RealPoint p) 
 	{
-		int x = (int) ((double) (width) / 20.0 * ((p.x * 18.0) / vis.max_x + 1));
+		//int x = (int) ((double) (width) / 20.0 * ((p.x * 18.0) / vis.max_x + 1));
+		int x = (int) (p.x * width /(vis.max_x - vis.min_x)- vis.min_x);
 		int y = (int) ((double) (height) / 20.0 * ((p.y * 18.0) / vis.max_y + 1));
 		
 		return (new PlotPoint(x,y));
 	}
-		
+	
+	
+	void SetNodeColour(int index)
+	{
+		if(vis.cell_type[vis.timeStep][index]==0)
+		{
+			// stem cell
+			g2.setPaint(Color.green);
+		}
+		else if (vis.cell_type[vis.timeStep][index]==1)
+		{
+			// transit cell
+			g2.setPaint(Color.orange);
+		}
+		else if (vis.cell_type[vis.timeStep][index]==2)
+		{
+			// differentiated cell
+			g2.setPaint(Color.red);
+		}
+		else if (vis.cell_type[vis.timeStep][index]==3)
+		{
+			// DANGER! CANCER!
+			g2.setPaint(Color.black);
+		}
+		else if(vis.cell_type[vis.timeStep][index]==4)
+		{
+			// danger! sloughed - don't draw anything
+			Color garysSexySilver = new Color(216,216,231);
+			g2.setPaint(garysSexySilver);
+		}
+	}	
+	
+	
+	void SetCellColour(int index)
+	{
+		if(vis.cell_type[vis.timeStep][index]==0)
+		{
+			// stem cell
+			g2.setPaint(Color.cyan);
+		}
+		else if (vis.cell_type[vis.timeStep][index]==1)
+		{
+			// transit cell
+			g2.setPaint(Color.yellow);
+		}
+		else if (vis.cell_type[vis.timeStep][index]==2)
+		{
+			// differentiated cell
+			g2.setPaint(Color.pink);
+		}
+		else if (vis.cell_type[vis.timeStep][index]==3)
+		{
+			// DANGER! CANCER!
+			g2.setPaint(Color.gray);
+		}
+		else if(vis.cell_type[vis.timeStep][index]==4)
+		{
+			// danger! sloughed - don't draw anything
+			
+			g2.setPaint(garysSexySilver);
+		}
+	}
+			
 	
 }
