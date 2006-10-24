@@ -25,6 +25,11 @@
  * meineke_lambda = mu (spring constant) / eta (damping) = 0.01 (from Meineke - note
  * that the value we use for Meineke lambda is completely different because we have
  * nondimensionalised)
+ * 
+ * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which 
+ * do not correspond to a cell, but are necessary for remeshing (because the remesher tries to 
+ * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
+ * the constructor and the class is told about the ghost nodes by using the method SetGhostNodes. 
  */
 
 class CryptSimulation2D
@@ -36,9 +41,12 @@ private:
     
     bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
-    bool mFixedBoundaries;
+    /**< A boolean saying to fix all four boundaries.*/  
+    bool mFixedBoundaries;    
+    /**< A boolean saying whether to remesh at each timestep or not (defaults to true).*/    
     bool mReMesh;
     
+    /**< A vector of bools saying whether a node is ghosted-ified or not.*/  
     std::vector <bool> mIsGhostNode; 
     
     std::string mOutputDirectory;
@@ -66,11 +74,12 @@ public:
         srandom(0);
         mpParams->SetMeinekeLambda(15.0);
         
-        mIncludeRandomBirth = false;
         mIncludeVariableRestLength = false;
         mFixedBoundaries =false;
         mOutputDirectory = "";
         
+        // Set up the ghost nodes bool.  Assume initially that the maximum number of nodes is
+        // ten times the mesh size.  Note that more memory is allocated later, if necessary.
         mIsGhostNode.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
         for (unsigned i=0; i<mIsGhostNode.size(); i++)
         {
@@ -92,15 +101,6 @@ public:
         mEndTime=endTime;
     }
     
-//    /**
-//     *  Call this before Solve() if no cells have been specified. Randomly adds a new
-//     *  node every 1 time unit, starting 0.1
-//     */
-//    void SetIncludeRandomBirth()
-//    {
-//        mIncludeRandomBirth = true;
-//    }
-
     void SetOutputDirectory(std::string outputDirectory)
     {
         mOutputDirectory = outputDirectory;
@@ -154,12 +154,7 @@ public:
             //std::cout << "** TIME = " << time << " **\n";
             
             // Cell birth
-            if(mIncludeRandomBirth && time_since_last_birth > 1)
-            {
-//                AddRandomNode();
-//                time_since_last_birth = 0 ;
-            }
-            else if(!mCells.empty())
+            if(!mCells.empty())
             {
                 for (unsigned i=0; i<mCells.size(); i++)
                 {
@@ -200,6 +195,7 @@ public:
                         {
                             mCells[new_node_index] = new_cell;
                         }
+                        
                         // Update size of IsGhostNode if necessary
                         if((int)mrMesh.GetNumNodes() > (int)mIsGhostNode.size())
                         {
@@ -218,50 +214,12 @@ public:
             {
                 drdt[i].resize(2);
             }
-            
-            
-            // the following commented section is old 1d code:
-            
-//            if(mIncludeVariableRestLength && !mCells.empty())
-//            {
-//                for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-//                {
-//                    Element<1,1>* element = mrMesh.GetElement(elem_index);
-//                    if(!element->IsDeleted())
-//                    {
-//                        c_vector<double, 2> drdt_contribution;
-//
-//                        double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
-//                        double unit_vector_backward = -1;
-//                        double unit_vector_forward = 1;
-//
-//                        double age1 = mCells[element->GetNode(0)->GetIndex()].GetAge(time*mpParams->GetStemCellCycleTime());
-//                        double age2 = mCells[element->GetNode(1)->GetIndex()].GetAge(time*mpParams->GetStemCellCycleTime());
-//                        double rest_length=mpParams->GetNaturalSpringLength();
-//                        double time_scale = mpParams->GetStemCellCycleTime();
-//                        if(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)
-//                        {
-//                            /* Spring Rest Length Increases to 1 from 0.1 over 1 hour
-//                             * This doesnt happen at present as when the full line is included the tests fail
-//                             */
-//                            rest_length=0.9*rest_length;//+0.1*age1*time_scale;
-//                            assert(rest_length<=mpParams->GetNaturalSpringLength());
-//                        }
-//
-//                        drdt_contribution(0) = mpParams->GetAlpha() *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
-//                        drdt_contribution(1) = mpParams->GetAlpha() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
-//
-//                        drdt[ element->GetNode(0)->GetIndex() ] += drdt_contribution(0);
-//						drdt[ element->GetNode(1)->GetIndex() ] += drdt_contribution(1);
-//                    }
-//                }
-//            }
-//            else
-//            {
-
-            // loop over element and for each one loop over it's three edges
+                        
             double rest_length=1.0;
             
+            ////////////////////////////////////////////////////////////////////
+            // loop over element and for each one loop over it's three edges
+            ////////////////////////////////////////////////////////////////////
             for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
                 Element<2,2>* p_element = mrMesh.GetElement(elem_index);
@@ -295,7 +253,10 @@ public:
                         assert(!p_element->GetNode(nodeA)->IsDeleted());
                         assert(!p_element->GetNode(nodeB)->IsDeleted());
 
-                            
+                        // Assume that if both nodes are real, or both are ghosts, then they both
+                        // exert forces on each other, but if one is real and one is ghost then
+                        // the real node exerts a force on the ghost node, but the ghost node 
+                        // does NOT exert a force on the real node.   
                         if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)] == false)
                         {
                             drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
@@ -322,8 +283,9 @@ public:
                 }
             }
             
-            // Also loop over boundary edges so that all edges have been looped over exactly
-            // twice.
+            ////////////////////////////////////////////////////////////////////////////////////////
+            // Also loop over boundary edges so that all edges have been looped over exactly twice.
+            ////////////////////////////////////////////////////////////////////////////////////////
             ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter
                = mrMesh.GetBoundaryElementIteratorBegin();
             
@@ -350,6 +312,10 @@ public:
                     assert(!p_edge->GetNode(nodeA)->IsDeleted());
                     assert(!p_edge->GetNode(nodeB)->IsDeleted());
                         
+                    // Assume that if both nodes are real, or both are ghosts, then they both
+                    // exert forces on each other, but if one is real and one is ghost then
+                    // the real node exerts a force on the ghost node, but the ghost node 
+                    // does NOT exert a force on the real node.   
                     if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)] == false)
                     {
                         drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
@@ -374,16 +340,13 @@ public:
                     }                            
                 }
                 elem_iter++;
-            }
+            }            
             
-            
-            
+            ////////////////////////////////////////////////////////////////////////////////////
             // update node positions
+            ////////////////////////////////////////////////////////////////////////////////////
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
-            {
-                // note factor of 0.5 in the update because drdt was twice
-                // as large as it should be since edges were looped over twice.
-                
+            {                
                 if(mFixedBoundaries)
                 {
                     // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
@@ -401,6 +364,8 @@ public:
                                         Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
                                         Point<2> new_point;
                                         
+                                        // note factor of 0.5 in the update because drdt was twice
+                                        // as large as it should be since edges were looped over twice.
                                         new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
                                         new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
                                         mrMesh.SetNode(index, new_point, false);
@@ -482,8 +447,9 @@ public:
             */
             step_number++;
             
-            // sloughing by noting which nodes are on boundary and removing their contributions
-            // to force
+            ///////////////////////////////////////////////////////////////////////////////////
+            // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
+            ///////////////////////////////////////////////////////////////////////////////////
             for (int i=0; i<mrMesh.GetNumNodes(); i++)
             {
                 Node<2> *p_node = mrMesh.GetNodeAt(i);
@@ -509,26 +475,16 @@ public:
                 mrMesh.ReMesh(map);
             }
             
-//            if(mFixedBoundaries)
-//            {
-//                //Re-mesh the mesh
-//                mrMesh.ReMesh(map);
-//            }
-            
-//          std::stringstream time_ss;
-//	        time_ss << step_number++;
-//			TrianglesMeshWriter<2,2> mesh_writer("","tempmesh"+time_ss.str());
-//			mesh_writer.WriteFilesUsingMesh(mrMesh);
-
-
-
-            // write results to file
+            ////////////////////////////////////////////////////////////////////////////////
+            // Write results to file
+            ////////////////////////////////////////////////////////////////////////////////
             (*p_node_file) << time << "\t";
             (*p_element_file) << time << "\t";
             
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 int colour = 0; // all green if no cells have been passed in
+                
                 if(mIsGhostNode[index]==true)
                 {
                     colour = 3; // visualizer treats '4' these as invisible
@@ -583,6 +539,13 @@ public:
         }
     }
     
+    
+    /**
+     * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which 
+     * do not correspond to a cell, but are necessary for remeshing (because the remesher tries to 
+     * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
+     * the constructor and the class is told about the ghost nodes by using this method. 
+     */     
     void SetGhostNodes(std::vector<int> ghostNodeIndices)
     {
         for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
@@ -591,6 +554,9 @@ public:
         }
     } 
     
+    /**
+     * Get the mesh to be remeshed at every time step.
+     */   
     void SetReMeshRule(bool remesh)
     {
         mReMesh = remesh;

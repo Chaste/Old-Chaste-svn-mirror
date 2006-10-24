@@ -241,7 +241,7 @@ public:
     
     
     // not being run because takes a few minutes to run
-    void D_NOT_TestWithBirthOnHoneycombMesh() throw (Exception)
+    void DO_NOT_TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);  // this is BAD, mkay, no way?
@@ -249,7 +249,7 @@ public:
         double crypt_length = 10.0;
         double crypt_width = 5.0;
         
-        Make2dCryptMesh("2D_crypt_mesh", 8, 14, crypt_width+2, crypt_length+3, -1.0, 0.0);
+        Make2dCryptMesh("2D_crypt_mesh", 8, 15, crypt_width+2, crypt_length+4, -1.0, -sqrt(3)/2.0);
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
