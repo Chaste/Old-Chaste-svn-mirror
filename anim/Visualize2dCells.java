@@ -37,13 +37,16 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public static int[] numCells;
 	public static int[] numElements;
 
-	public static double[][] positions;
+	public static RealPoint[][] positions;
 	public static int[][] element_nodes;
 	public static int[][] cell_type;
 
-	public static double max_x = 0.0;
+	public static double max_x = -1e12;
+	public static double max_y = -1e12;
+	public static double min_x =  1e12;
+	public static double min_y =  1e12;
 	
-	public static double max_y = 0.0;
+	public static boolean parsed_all_files=false;
 
 	public static int timeStep = 0;
 
@@ -51,7 +54,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	
 	private Thread updateThread;
 
-	CustomCanvas2D canvas;
+	static CustomCanvas2D canvas;
 
 	Button run;
 
@@ -183,9 +186,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 
 	public static void main(String args[]) {
 		Visualize2dCells vis = new Visualize2dCells();
-
-		System.out
-				.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan & Joe Pitt-Francis)");
+        
+		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan & Joe Pitt-Francis)");
 		try {
 			File node_file = new File(args[0]);
 			File element_file = new File(args[1]);
@@ -198,7 +200,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 
 			numSteps = num_lines;
 			times = new double[num_lines];
-			positions = new double[num_lines][];
+			positions = new RealPoint[num_lines][];
 			cell_type = new int [num_lines][];
 			numCells = new int[num_lines];
 			numElements = new int[num_lines];
@@ -247,7 +249,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 				
 				numElements[row] = st_element.countTokens()/3;
 				
-				positions[row] = new double[2*numCells[row]];
+				positions[row] = new RealPoint[numCells[row]];
 				cell_type[row]= new int[numCells[row]];
 				element_nodes[row] = new int[3*numElements[row]];
 				// ArrayList<Double> positionValues= new ArrayList<Double>();
@@ -262,17 +264,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 						System.exit(0);
 					}
 
-				    if (d1 > max_x) 
+					if (d1 > max_x) 
 					{
 						max_x = d1;
 					}
 					if (d2 > max_y) 
 					{
 						max_y = d2;
+					} 
+					if (d1 < min_x) 
+					{
+						min_x = d1;
 					}
-					// positionValues.add(d1);
-					positions[row][2*i] = d1;
-					positions[row][2*i+1] = d2;
+				    if (d2 < min_y) 
+					{
+						min_y = d2;
+					}
+					positions[row][i]=new RealPoint(d1,d2);
+					
 				}
 				
 				for (int i = 0; i < 3*numElements[row]; i++) 
@@ -294,10 +303,36 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 				row++;
 
 			} // end while not at end of file
-
+            parsed_all_files=true;
+            canvas.repaint();
 		} catch (Exception e) {
 
 		}
+	}
+}
+
+class RealPoint
+{
+	public double x, y; 
+	public RealPoint(double xs, double ys)
+	{
+		x=xs;
+		y=ys;
+	}
+	public RealPoint(RealPoint p1, RealPoint p2) // returns the average of p1 and p2
+	{
+		x = (p1.x + p2.x)/2.0;
+		y = (p1.y + p2.y)/2.0;
+	}
+}
+
+class PlotPoint
+{
+	public int x, y;
+	public PlotPoint(int xs, int ys)
+	{
+		x=xs;
+		y=ys;
 	}
 }
 
@@ -312,10 +347,11 @@ class CustomCanvas2D extends Canvas {
 
 	Graphics2D g2;
 
+	Color garysSexySilver = new Color(216,216,231);
+	
 	public CustomCanvas2D(Visualize2dCells v) {
 		vis = v;
-		Color garysSexySilver = new Color(216,216,231);
-
+	
 		setBackground(garysSexySilver);
 	}
 
@@ -325,8 +361,15 @@ class CustomCanvas2D extends Canvas {
 		int radius = 5;
 		int tick_length = 10;
 		int num_ticks = 10;
-
+		
 		g2 = (Graphics2D) g;
+		
+        if (vis.parsed_all_files == false)
+        {
+          	g2.drawString("Still parsing input...", 10,10);
+        	return;
+        }
+		
 		height = getHeight();
 		width = getWidth();
 		g2.drawString("Time = " + vis.times[vis.timeStep], 10,10);
@@ -340,36 +383,66 @@ class CustomCanvas2D extends Canvas {
 			int n2 = vis.element_nodes[vis.timeStep][3*i+1];
 			int n3 = vis.element_nodes[vis.timeStep][3*i+2];
 			
-			// Where are they? and convert to integer pixels
-			int x1 = scaleX(vis.positions[vis.timeStep][2*n1]);
-			int y1 = scaleY(vis.positions[vis.timeStep][2*n1 + 1]);
-			int x2 = scaleX(vis.positions[vis.timeStep][2*n2]);
-			int y2 = scaleY(vis.positions[vis.timeStep][2*n2 + 1]);
-			int x3 = scaleX(vis.positions[vis.timeStep][2*n3]);
-			int y3 = scaleY(vis.positions[vis.timeStep][2*n3 + 1]);
-					
+			RealPoint r1 = vis.positions[vis.timeStep][n1];
+			RealPoint r2 = vis.positions[vis.timeStep][n2];
+			RealPoint r3 = vis.positions[vis.timeStep][n3];
 			
-			// Plot lines
+			RealPoint circumcentre=DrawCircumcentre(r1,r2,r3);
+			
+			PlotPoint plotcircumcentre = scale(circumcentre);
+			
+			// Where are they? and convert to integer pixels
+			PlotPoint p1 = scale(r1);
+			PlotPoint p2 = scale(r2);
+			PlotPoint p3 = scale(r3);
+			
+			PlotPoint m12 = scale(new RealPoint(r1,r2));
+			PlotPoint m23 = scale(new RealPoint(r2,r3));
+			PlotPoint m31 = scale(new RealPoint(r3,r1));
+								
+			
+			g2.setPaint(garysSexySilver);
+            // Plot lines
 			if( (vis.cell_type[vis.timeStep][n1]<4) && (vis.cell_type[vis.timeStep][n2]<4))
 			{
-				g2.drawLine(x1, height - y1, x2, height - y2);
+				g2.drawLine(p1.x, height - p1.y, p2.x, height - p2.y);
+				// g2.drawLine(x1, height - y1, x2, height - y2);
 			}
 			if( (vis.cell_type[vis.timeStep][n2]<4) && (vis.cell_type[vis.timeStep][n3]<4))
 			{
-				g2.drawLine(x2, height - y2, x3, height - y3);
+				g2.drawLine(p2.x, height - p2.y, p3.x, height - p3.y);
+				// g2.drawLine(x2, height - y2, x3, height - y3);
 			}
 			if( (vis.cell_type[vis.timeStep][n3]<4) && (vis.cell_type[vis.timeStep][n1]<4))
 			{
-				g2.drawLine(x3, height - y3, x1, height - y1);
+				g2.drawLine(p3.x, height - p3.y, p1.x, height - p1.y);
+				// g2.drawLine(x3, height - y3, x1, height - y1);
 			}
+			
+			g2.setPaint(Color.black);
+			//// Plot cell boundary lines
+			if( (vis.cell_type[vis.timeStep][n1]<4) && (vis.cell_type[vis.timeStep][n2]<4))
+			{
+				g2.drawLine(m12.x, height - m12.y, plotcircumcentre.x, height - plotcircumcentre.y);
+			}
+			if( (vis.cell_type[vis.timeStep][n2]<4) && (vis.cell_type[vis.timeStep][n3]<4))
+			{
+				g2.drawLine(m23.x, height - m23.y, plotcircumcentre.x, height - plotcircumcentre.y);
+			}
+			if( (vis.cell_type[vis.timeStep][n3]<4) && (vis.cell_type[vis.timeStep][n1]<4))
+			{
+    			g2.drawLine(m31.x, height - m31.y, plotcircumcentre.x, height - plotcircumcentre.y);
+			}
+    		 
+			
+			
 		}
 		
-
 		// draw nodes second so that dots are on top of lines
 		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
 		{
-			int x = scaleX(vis.positions[vis.timeStep][2*i]);
-			int y = scaleY(vis.positions[vis.timeStep][2*i + 1]);
+			int x = scaleX(vis.positions[vis.timeStep][i].x);
+			int y = scaleY(vis.positions[vis.timeStep][i].y);
 			
 			if(vis.cell_type[vis.timeStep][i]==0)
 			{
@@ -493,4 +566,49 @@ class CustomCanvas2D extends Canvas {
 		}
 
 	}
+	
+	RealPoint DrawCircumcentre(RealPoint p0, RealPoint p1, RealPoint p2)
+	{
+		/* To find the coordinates (x_c,y_c) of the circumcentre, we first translate
+		 * coordinates so that one vertex of the element is at the origin and the 
+		 * other two vertices are at (X1,Y1) and (X2,Y2). We then solve the linear 
+		 * system
+		 * 
+		 *  ( 2*X1 2*Y1 ) (x_c) = (X1^2 + Y1^2)
+		 *  ( 2*X2 2*Y2 ) (y_c)   (X2^2 + Y2^2)
+		 * 
+		 */ 
+		
+		
+		double X1 = p1.x - p0.x;
+		double Y1 = p1.y - p0.y;
+		double X2 = p2.x - p0.x;
+		double Y2 = p2.y - p0.y;
+		
+		double determinant = X1*Y2 - X2*Y1;
+		
+		double RHS1 = (X1*X1 + Y1*Y1)/2.0;
+		double RHS2 = (X2*X2 + Y2*Y2)/2.0;
+		
+		double x_c = (Y2*RHS1 - Y1*RHS2)/determinant;
+		double y_c = (-X2*RHS1 + X1*RHS2)/determinant;
+		
+		// Translate back to original coordinate system
+		x_c += p0.x;
+		y_c += p0.y;
+		
+		return (new RealPoint(x_c,y_c));
+		// g2.fillRect(scaleX(x_c),height - scaleY(y_c),2,2);
+		
+	}
+	
+	PlotPoint scale(RealPoint p) 
+	{
+		int x = (int) ((double) (width) / 20.0 * ((p.x * 18.0) / vis.max_x + 1));
+		int y = (int) ((double) (height) / 20.0 * ((p.y * 18.0) / vis.max_y + 1));
+		
+		return (new PlotPoint(x,y));
+	}
+		
+	
 }
