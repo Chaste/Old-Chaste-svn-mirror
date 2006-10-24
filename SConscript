@@ -6,6 +6,13 @@ import sys
 sys.path.append('../../../python')
 import fasterSharedLibrary
 
+# Compatability with Python 2.3
+try:
+  set = set
+except NameError:
+  import sets
+  set = sets.Set
+
 Import("*")
 
 # Note that this script is executed from within the build/<something>/ folder
