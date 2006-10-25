@@ -124,7 +124,7 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
         p_edge_file->close();
     }
     
-       void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
+    void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
         
@@ -209,7 +209,6 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
                 TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
             }
         }
-        
     }
     
     
@@ -238,42 +237,18 @@ public:
        
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
-        //simulator.SetOutputDirectory("asdfasdf");
+
+        simulator.SetEndTime(24.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(400);
-        simulator.SetEndTime(1.0);
+
         simulator.SetReMeshRule(false);
         simulator.Solve();
-        
-//        for (int i=0; i<mesh.GetNumElements(); i++)
-//        {
-//            for (unsigned j=0; j<3; j++)
-//            {
-//                unsigned nodeA, nodeB;
-//                j==2 ? nodeA = 2 : nodeA = j;
-//                j==2 ? nodeB = 0 : nodeB = j+1;
-//                
-//                double x_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[0];
-//                double y_nodeA = mesh.GetElement(i)->GetNode(nodeA)->GetPoint()[1];
-//                double x_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[0];
-//                double y_nodeB = mesh.GetElement(i)->GetNode(nodeB)->GetPoint()[1];
-//                
-//                // if both nodes are not sloughed, check distance between them is
-//                // the natural length.
-//                if (  (x_nodeA < crypt_width)  && (x_nodeB < crypt_width) &&
-//                      (y_nodeA < crypt_length) && (y_nodeB < crypt_length) )
-//                {
-//                    double length = sqrt( (x_nodeA - x_nodeB)*(x_nodeA - x_nodeB) + (y_nodeA - y_nodeB)*(y_nodeA - y_nodeB) );
-//                    TS_ASSERT_DELTA(length, 1.0, 0.05); // tolerance of 0.01 would work if ran for 2 units
-//                }
-//            }
-//        }
-        
+              
         CheckAgainstPreviousRun("Crypt2DSprings", 400u, 400u);
-        
     }
     
-    
+    // note - there is no remeshing here so it will crash if run for too long
     void Test2DSpringsWithCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -325,14 +300,14 @@ public:
 
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
-        
+
+        simulator.SetEndTime(0.45*24.0);
+
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.SetEndTime(0.45);
+
         simulator.SetReMeshRule(false);
-        
-        //simulator.SetIncludeVariableRestLength();
-        
+                
         // throws anything because not working at the moment
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DSpringsWithCells", 400u, 800u);
@@ -340,7 +315,7 @@ public:
     
     
     // not being run because takes a few minutes to run
-    void NOOONOOOOOOONOOOOOOTestWithBirthOnHoneycombMesh() throw (Exception)
+    void DO_NOT_________TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);  // this is BAD, mkay, no way?
@@ -406,20 +381,19 @@ public:
         
         CryptSimulation2D simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(24.0);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
         
         simulator.SetGhostNodes(ghost_node_indices);
-        //simulator.SetIncludeVariableRestLength();
 
-       simulator.Solve();
-       CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
+        simulator.Solve();
+        CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
     
     
     // not being run because takes a few minutes to run
-    void NOOOOOOOOONOTest2DSpringsFixedBoundaries() throw (Exception)
+    void DO_NOT_________Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);
@@ -482,12 +456,10 @@ public:
         
         CryptSimulation2D simulator(mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
-        simulator.SetEndTime(0.5); //Days?
+        simulator.SetEndTime(0.5); //hours
         simulator.SetMaxCells(800);
         simulator.SetMaxElements(800);
         simulator.SetFixedBoundaries();
-        
-        //simulator.SetIncludeVariableRestLength();
         
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);

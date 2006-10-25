@@ -10,14 +10,12 @@
 #include <iostream>
 #include "TrianglesMeshWriter.cpp"
 #include "Exception.hpp"
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #include "SimulationTime.hpp"
 #include "StochasticCellCycleModel.hpp"
-
 #include "ColumnDataWriter.hpp"
-
 #include "MeinekeCryptCellTypes.hpp"
-//!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 /**
  * Solve a 2D crypt simulation based on the Meineke paper.
  *
@@ -50,14 +48,18 @@ private:
     
     bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
+
     /**< A boolean saying to fix all four boundaries.*/  
     bool mFixedBoundaries;    
+
     /**< A boolean saying whether to remesh at each timestep or not (defaults to true).*/    
     bool mReMesh;
+
      /**< A vector of bools saying whether a node is ghosted-ified or not.*/  
     std::vector <bool> mIsGhostNode; 
+
     unsigned mMaxCells;
-    unsigned mMaxElements ;
+    unsigned mMaxElements;
     
     std::string mOutputDirectory;
     
@@ -77,8 +79,10 @@ public:
             mCells(cells)
     {
         mpParams = CancerParameters::Instance();
-        mDt = 1.0/(mpParams->GetStemCellCycleTime()*120); // NOTE: hardcoded 120?
-        mEndTime = 5.0;
+    
+        mDt = 1.0/(120.0);
+        mEndTime = 120.0; //hours
+        
         
         //srandom(time(NULL));
         srandom(0);
@@ -88,6 +92,7 @@ public:
         mIncludeVariableRestLength = false;
         mFixedBoundaries =false;
         mOutputDirectory = "";
+        
         // Set up the ghost nodes bool.  Assume initially that the maximum number of nodes is
         // ten times the mesh size.  Note that more memory is allocated later, if necessary.
         mIsGhostNode.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
@@ -108,21 +113,15 @@ public:
         mDt=dt;
     }
     
+    /** 
+     * Sets the end time and resets the timestep to be endtime/100
+     */
     void SetEndTime(double endTime)
     {
         assert(endTime>0);
         mEndTime=endTime;
     }
     
-//    /**
-//     *  Call this before Solve() if no cells have been specified. Randomly adds a new
-//     *  node every 1 time unit, starting 0.1
-//     */
-//    void SetIncludeRandomBirth()
-//    {
-//        mIncludeRandomBirth = true;
-//    }
-
     void SetOutputDirectory(std::string outputDirectory)
     {
         mOutputDirectory = outputDirectory;
@@ -148,8 +147,8 @@ public:
     }
     
     /**
-    *  Call this before Solve() to fix the boundary of the mesh
-    */
+     *  Call this before Solve() to fix the boundary of the mesh
+     */
     void SetFixedBoundaries()
     {
         mFixedBoundaries = true;
@@ -167,24 +166,22 @@ public:
             EXCEPTION("OutputDirectory not set");
         }
         
-        
-         //Creating Column Data Writer Handler
+        ///////////////////////////////////////////////////////////
+        // Set up Column Data Writer 
+        ///////////////////////////////////////////////////////////
         ColumnDataWriter tabulated_node_writer(mOutputDirectory+"Results", "tabulated_node_results");
         ColumnDataWriter tabulated_element_writer(mOutputDirectory+"Results", "tabulated_element_results");
         
         int time_var_id = tabulated_node_writer.DefineUnlimitedDimension("Time","hours");
         int time_var_id_elem = tabulated_element_writer.DefineUnlimitedDimension("Time","hours");
         
-        
         std::vector<int> type_var_ids;
         std::vector<int> x_position_var_ids, y_position_var_ids;
-        
         
         type_var_ids.resize(mMaxCells);
         x_position_var_ids.resize(mMaxCells);
         y_position_var_ids.resize(mMaxCells);
-        
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         // set up columns
         for (unsigned cell=0; cell<mMaxCells; cell++)
         {
@@ -214,14 +211,12 @@ public:
         nodeB_var_ids.resize(mMaxElements);
         nodeC_var_ids.resize(mMaxElements);
         
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // set up columns
         for (unsigned elem_index = 0; elem_index<mMaxElements; elem_index++)
         {
             std::stringstream nodeA_var_name;
             std::stringstream nodeB_var_name;
             std::stringstream nodeC_var_name;
-            
             
             nodeA_var_name << "nodeA_" << elem_index;
             nodeB_var_name << "nodeB_" << elem_index;
@@ -231,46 +226,38 @@ public:
             nodeB_var_ids[elem_index] = tabulated_element_writer.DefineVariable(nodeB_var_name.str(),"dimensionless");
             nodeC_var_ids[elem_index] = tabulated_element_writer.DefineVariable(nodeC_var_name.str(),"dimensionless");
         }
-                
         tabulated_element_writer.EndDefineMode();
         
-        
+
         
         NodeMap map(mrMesh.GetNumAllNodes());
-        double time = 0.0;
-        double time_since_last_birth = 0.9;
+
+        int num_time_steps = (int)(mEndTime/mDt+0.5);
         
+        SimulationTime *p_simulation_time = SimulationTime::Instance(mEndTime, num_time_steps);
+         
         int num_births = 0;
         int num_deaths = 0;
         
         
-        
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
-        
-
         std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
         
-        
-        std::vector<bool> sloughed_cells(10*mrMesh.GetNumAllNodes());
-        for (unsigned i=0; i<sloughed_cells.size(); i++)
-        {
-            sloughed_cells[i] = false;
-        }
         
         static int step_number=0;
         
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory);
+
         out_stream p_node_file = output_file_handler.OpenOutputFile("nodes.dat");
-        
         out_stream p_element_file = output_file_handler.OpenOutputFile("elements.dat");
 
 
+        int counter = 0;
 
-        //std::cout<< "\n mOutputDirectory " << mOutputDirectory ;
-        int counter1 = 0 ;
-        while (time < mEndTime)
+        /////////////////////////////////////////////////////////////////////
+        // Main time loop
+        /////////////////////////////////////////////////////////////////////
+        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
             //std::cout << "** TIME = " << time << " **\n";
             
@@ -280,13 +267,13 @@ public:
                 for (unsigned i=0; i<mCells.size(); i++)
                 {
                     if(mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
-                    
                     if(mIsGhostNode[i]) continue;
+
                     // Check for this cell dividing
-                    if(mCells[i].ReadyToDivide(time*mpParams->GetStemCellCycleTime()))
+                    if(mCells[i].ReadyToDivide(p_simulation_time->GetDimensionalisedTime()))
                     {
                         // Create new cell
-                        MeinekeCryptCell new_cell = mCells[i].Divide(time*mpParams->GetStemCellCycleTime());
+                        MeinekeCryptCell new_cell = mCells[i].Divide(p_simulation_time->GetDimensionalisedTime());
                         // Add new node to mesh
                         Node<2> *p_our_node = mrMesh.GetNodeAt(i);
                         
@@ -303,16 +290,15 @@ public:
                                                         +  p_element->GetNode(2)->GetPoint().rGetLocation()[1] );
                                                         
                         Point<2> new_point(new_x_value, new_y_value);
-                        //std::cout<< "try1" <<std::endl<< std::flush;
+
                         unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
-                        //std::cout<< "try2" <<std::endl<< std::flush;
+
                         // Update cells vector
                         new_cell.SetNodeIndex(new_node_index);
                         if (new_node_index == mCells.size())
                         {
                             mCells.push_back(new_cell);
                         }
-                   
                         else
                         {
                             mCells[new_node_index] = new_cell;
@@ -336,8 +322,6 @@ public:
             {
                 drdt[i].resize(2);
             }
-                        
-            double rest_length=1.0;
             
             ////////////////////////////////////////////////////////////////////
             // loop over element and for each one loop over it's three edges
@@ -370,7 +354,18 @@ public:
                         
                         unit_difference = unit_difference/distance_between_nodes;
                         
-                        drdt_contribution = mpParams->GetAlpha() *  unit_difference  * (distance_between_nodes - rest_length) ;
+                        double ageA = mCells[p_element->GetNode(nodeA)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+                        double ageB = mCells[p_element->GetNode(nodeB)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+                        double rest_length = 1.0;
+                        
+                        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+                        {
+                            // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+                            rest_length=(0.9+0.1*ageA);
+                            assert(rest_length<=1.0);
+                        }                        
+                        
+                        drdt_contribution = mpParams->GetMeinekeLambda() *  unit_difference  * (distance_between_nodes - rest_length) ;
                         
                         assert(!p_element->GetNode(nodeA)->IsDeleted());
                         assert(!p_element->GetNode(nodeB)->IsDeleted());
@@ -429,7 +424,18 @@ public:
                     
                     unit_difference=unit_difference/distance_between_nodes;
                     
-                    drdt_contribution = mpParams->GetAlpha() *  unit_difference  * (distance_between_nodes - rest_length);
+                    double ageA = mCells[p_edge->GetNode(nodeA)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+                    double ageB = mCells[p_edge->GetNode(nodeB)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+                    double rest_length = 1.0;
+                        
+                    if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+                    {
+                        // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+                        rest_length=(0.9+0.1*ageA);
+                        assert(rest_length<=1.0);
+                    }                          
+                
+                    drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
                        
                     assert(!p_edge->GetNode(nodeA)->IsDeleted());
                     assert(!p_edge->GetNode(nodeB)->IsDeleted());
@@ -549,7 +555,7 @@ public:
                      		target_node_index=p_boundary_element->GetNodeGlobalIndex(1);
                         	}
                      	
-                     	std::cout<<time << "\t"<<sloughing_node_index<<"\t"<<target_node_index<<"\n";
+                     	std::cout<<p_simulation_time->GetDimensionalisedTime() << "\t"<<sloughing_node_index<<"\t"<<target_node_index<<"\n";
                          // It's fallen off
                          assert(!mrMesh.GetNodeAt(target_node_index)->IsDeleted());
                          mrMesh.SetNode(sloughing_node_index,target_node_index);
@@ -597,46 +603,31 @@ public:
                 mrMesh.ReMesh(map);
             }
             
+            
             ////////////////////////////////////////////////////////////////////////////////
             // Write results to file
             ////////////////////////////////////////////////////////////////////////////////
-            (*p_node_file) << time << "\t";
-            (*p_element_file) << time << "\t";
             
-            for (int index = 0; index<mrMesh.GetNumAllElements(); index++)
+            // Increment simulation time here, so results files look sensible
+            p_simulation_time->IncrementTimeOneStep();
+
+            double time = p_simulation_time->GetDimensionalisedTime();
+            
+            (*p_node_file) <<  time << "\t";
+            (*p_element_file) <<  time << "\t";
+
+
+            
+            if(counter==0)
             {
-                if (!mrMesh.GetElement(index)->IsDeleted())
-                {
-                    (*p_element_file) << mrMesh.GetElement(index)->GetNodeGlobalIndex(0)<< " " << mrMesh.GetElement(index)->GetNodeGlobalIndex(1)<< " "<< mrMesh.GetElement(index)->GetNodeGlobalIndex(2)<< " ";
-                }
-            }
-            (*p_element_file) << "\n";
+                tabulated_node_writer.PutVariable(time_var_id, time);
+                tabulated_element_writer.PutVariable(time_var_id_elem, time);
+            }    
+                
             
-            
-            
-            
-            
-            int cell=0; // NB this is not the index in mCells, but the index in the mesh!
-//            for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
-//            {
-//                if (!mrMesh.GetNodeAt(index)->IsDeleted())
-//                {
-//                    Point<2> point = mrMesh.GetNodeAt(index)->rGetPoint();
-//                    (*p_node_file) << point.rGetLocation()[0] << " ";
-//                    (*p_node_file) << point.rGetLocation()[1] << " ";
-//                    
-//                    cell++;
-//                }
-//            }
-//            
-//            (*p_node_file) << "\n";
-//            
-            
-            // write results to file
-            //(*p_node_file) << time << "\t";
-            
-            
-            
+            /////////////////////////////////
+            // write node files
+            /////////////////////////////////
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 int colour = 0; // all green if no cells have been passed in
@@ -675,80 +666,47 @@ public:
                 {
                     Point<2> point = mrMesh.GetNodeAt(index)->rGetPoint();
                     (*p_node_file) << point.rGetLocation()[0] << " "<< point.rGetLocation()[1] << " " << colour << " ";
+
+                    if(counter==0)
+                    {   
+                        tabulated_node_writer.PutVariable(x_position_var_ids[index], point.rGetLocation()[0]);
+                        tabulated_node_writer.PutVariable(y_position_var_ids[index], point.rGetLocation()[1]);
+                        tabulated_node_writer.PutVariable(type_var_ids[index], colour);
+                    }
                 }
             }
             (*p_node_file) << "\n";
+            tabulated_node_writer.AdvanceAlongUnlimitedDimension();
             
-            //if (time/0.05 - floor(time/0.05) < 1e-6)
-            if (counter1 > 80)
+
+            /////////////////////////////////
+            // write element data files
+            /////////////////////////////////
+            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
-                counter1 = 0 ;
-                tabulated_node_writer.PutVariable(time_var_id, time);
-                tabulated_element_writer.PutVariable(time_var_id_elem, time);
-                
-                cell=0; // NB this is not the index in mCells, but the index in the mesh!
-                for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
+                if (!mrMesh.GetElement(elem_index)->IsDeleted())
                 {
-                    if (!mrMesh.GetNodeAt(index)->IsDeleted())
-                    {
-                        if (mCells.size() > 0)
-                        {
-                            CryptCellType type  = mCells[index].GetCellType();
-                            if (type == STEM)
-                            {
-                                tabulated_node_writer.PutVariable(type_var_ids[cell], 0);
-                            }
-                            else if (type == TRANSIT)
-                            {
-                                tabulated_node_writer.PutVariable(type_var_ids[cell], 1);
-                            }
-                            else if (type == DIFFERENTIATED)
-                            {
-                                tabulated_node_writer.PutVariable(type_var_ids[cell], 2);
-                            }
-                            else
-                            {
-                                // should be impossible to get here, until cancer cells
-                                // are implemented
-    #define COVERAGE_IGNORE
-                                assert(0);
-    #undef COVERAGE_IGNORE
-                            }
-                        }
-                        else
-                        {
-                            tabulated_node_writer.PutVariable(type_var_ids[cell], -1);
-                        }
-                        
-                        Point<2> point = mrMesh.GetNodeAt(index)->rGetPoint();
-                        tabulated_node_writer.PutVariable(x_position_var_ids[cell], point.rGetLocation()[0]);
-                        tabulated_node_writer.PutVariable(y_position_var_ids[cell], point.rGetLocation()[1]);
-                        cell++;
-                    }
-                }
-                tabulated_node_writer.AdvanceAlongUnlimitedDimension();
-                
-                for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-                {
-                    if (!mrMesh.GetElement(elem_index)->IsDeleted())
+                    (*p_element_file) << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0)<< " " << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1)<< " "<< mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2)<< " ";
+                    
+                    if(counter==0)
                     {
                         tabulated_element_writer.PutVariable(nodeA_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0));
                         tabulated_element_writer.PutVariable(nodeB_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1));
                         tabulated_element_writer.PutVariable(nodeC_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2));
-                        
                     }
-                    
                 }
-                tabulated_element_writer.AdvanceAlongUnlimitedDimension();
-                
             }
-            counter1++ ; 
-           
-            time += mDt;
-            time_since_last_birth += mDt;
-            
+            (*p_element_file) << "\n";
+            tabulated_element_writer.AdvanceAlongUnlimitedDimension();
+
+            counter++; 
+            if(counter > 80)
+            {
+                counter = 0;
+            }
         }
-        
+
+        SimulationTime::Destroy();
         tabulated_node_writer.Close();
         tabulated_element_writer.Close();
     }

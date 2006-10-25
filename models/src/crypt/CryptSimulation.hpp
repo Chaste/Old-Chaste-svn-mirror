@@ -83,8 +83,6 @@ public:
         mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
         mEndTime = 120.0; //hours
         
-        //mpParams->SetMeinekeLambda(1simulator.SetEndTime(0.25);5.0);
-        
         mIncludeRandomBirth = false;
         mIncludeVariableRestLength = false;
         mOutputDirectory = "";
@@ -178,9 +176,7 @@ public:
         
         int num_time_steps = (int)(mEndTime/mDt+0.5);
         
-        SimulationTime *p_simulation_time =
-            SimulationTime::Instance(mEndTime,
-                                     num_time_steps);
+        SimulationTime *p_simulation_time = SimulationTime::Instance(mEndTime, num_time_steps);
                                      
         //double time = 0.0;
         double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
@@ -201,13 +197,13 @@ public:
             {
                 unsigned new_node_index = AddRandomNode(p_simulation_time->GetDimensionalisedTime());
                 time_since_last_birth = 0 ;
-                // Create new cell note all are Stem Cells a        delete p_output_writer;nd have generation 0 for random birth
+                // Create new cell note all are Stem Cells and have generation 0 for random birth
                 //RandomNumberGenerators *pGen=new RandomNumberGenerators;
                 CryptCellType cell_type=STEM ;
                 unsigned generation=0;
                 MeinekeCryptCell new_cell(cell_type, p_simulation_time->GetDimensionalisedTime(), generation, new StochasticCellCycleModel(mpGen));
+
                 // Update cells vector
-                
                 new_cell.SetNodeIndex(new_node_index);
                 if (new_node_index == mCells.size())
                 {
@@ -217,8 +213,7 @@ public:
                 {
                     mCells[new_node_index] = new_cell;
                 }
-                //num_births++;
-                
+                num_births++;
             }
             else if (!mCells.empty())
             {
