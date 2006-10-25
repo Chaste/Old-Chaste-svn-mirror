@@ -203,7 +203,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 
 	public static void main(String args[]) {
 	     
-		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan & Joe Pitt-Francis)");
+		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
 		File node_file = new File(args[0]+".viznodes");
 		File element_file = new File(args[0]+".vizelements");
 		if (!node_file.isFile())
@@ -430,12 +430,12 @@ class CustomCanvas2D extends Canvas {
 			
 			if (vis.writeFiles)
 			{
-				String filename=String.format("image%1$05d.gif", vis.timeStep);
+				String filename=String.format("image%1$05d.png", vis.timeStep);
 				System.out.println("Writing file : "+filename+".");
 			    File f = new File(filename);
     			try 
 	    		{
-		    		ImageIO.write(buffered_image, "gif", f);
+		    		ImageIO.write(buffered_image, "png", f);
 		    	} catch (Exception e)
 		    	{
 		    	}
