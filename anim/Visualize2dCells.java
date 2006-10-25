@@ -303,7 +303,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 				row++;
 
 			} // end while not at end of file
-            parsed_all_files=true;
+         	
+			parsed_all_files=true;
+            
+            
             canvas.repaint();
 		} catch (Exception e) {
 
@@ -331,6 +334,7 @@ class PlotPoint
 	public int x, y;
 	public PlotPoint(int xs, int ys)
 	{
+		
 		x=xs;
 		y=ys;
 	}
@@ -346,6 +350,8 @@ class CustomCanvas2D extends Canvas {
 	int height;
 
 	Graphics2D g2;
+	
+	
 
 	Color garysSexySilver = new Color(216,216,231);
 	
@@ -361,9 +367,8 @@ class CustomCanvas2D extends Canvas {
 		int radius = 5;
 		int tick_length = 10;
 		int num_ticks = 10;
-		boolean draw_springs=false;
+		boolean draw_springs=true;
 		boolean draw_cells=true;
-		boolean draw_cell_boundaries=true;
 		
 		g2 = (Graphics2D) g;
 		
@@ -372,6 +377,8 @@ class CustomCanvas2D extends Canvas {
           	g2.drawString("Still parsing input...", 10,10);
         	return;
         }
+	
+		
 		
 		height = getHeight();
 		width = getWidth();
@@ -381,7 +388,9 @@ class CustomCanvas2D extends Canvas {
 		// draw elements first
 		for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
 		{
-			
+
+
+		
 			
 			// What nodes are we joining up?
 			int index[]=new int[3];
@@ -402,7 +411,9 @@ class CustomCanvas2D extends Canvas {
 			vertex[0] = scale(r1);
 			vertex[1] = scale(r2);
 			vertex[2] = scale(r3);
-			
+
+		
+		
 			PlotPoint midpoint[]=new PlotPoint[3];
 			midpoint[2] = scale(new RealPoint(r1,r2));
 			midpoint[0] = scale(new RealPoint(r2,r3));
@@ -410,61 +421,57 @@ class CustomCanvas2D extends Canvas {
 								
 			g2.setPaint(Color.black);
 			
+			if (draw_cells)
+			{
+				for (int node=0;node<3;node++)
+				 {
+				
+					
+					 SetCellColour(index[node]);
+					 int xs[]=new int[4];
+					 int ys[]=new int[4];
+					 xs[0]=plotcircumcentre.x;
+					 ys[0]=plotcircumcentre.y;
+					 xs[1]=midpoint[(node+1)%3].x;
+					 ys[1]=midpoint[(node+1)%3].y;
+					 xs[2]=vertex[node].x;
+					 ys[2]=vertex[node].y;
+					 xs[3]=midpoint[(node+2)%3].x;
+					 ys[3]=midpoint[(node+2)%3].y;
+					 g2.fillPolygon(xs,ys,4);
+				 }
+			
+				g2.setPaint(Color.black);
+				////		 Plot cell boundary lines
+				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
+				{
+					g2.drawLine(midpoint[2].x, midpoint[2].y, plotcircumcentre.x, plotcircumcentre.y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[1]]<4) && (vis.cell_type[vis.timeStep][index[2]]<4))
+				{
+					g2.drawLine(midpoint[0].x, midpoint[0].y, plotcircumcentre.x, plotcircumcentre.y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[2]]<4) && (vis.cell_type[vis.timeStep][index[0]]<4))
+				{
+					g2.drawLine(midpoint[1].x, midpoint[1].y, plotcircumcentre.x, plotcircumcentre.y);
+				}
+			}
+			
 			if (draw_springs)
 			{
 				
 				// Plot lines
 				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
 				{
-					g2.drawLine(vertex[0].x, height - vertex[0].y, vertex[1].x, height - vertex[1].y);
+					g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
 				}
 				if( (vis.cell_type[vis.timeStep][index[1]]<4) && (vis.cell_type[vis.timeStep][index[2]]<4))
 				{
-					g2.drawLine(vertex[1].x, height - vertex[1].y, vertex[2].x, height - vertex[2].y);
+					g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
 				}
 				if( (vis.cell_type[vis.timeStep][index[2]]<4) && (vis.cell_type[vis.timeStep][index[0]]<4))
 				{
-					g2.drawLine(vertex[2].x, height - vertex[2].y, vertex[0].x, height - vertex[0].y);
-				}
-			}
-			
-			
-			if (draw_cells)
-			{
-				for (int node=0;node<3;node++)
-				 {
-					 SetCellColour(index[node]);
-					 int xs[]=new int[4];
-					 int ys[]=new int[4];
-					 xs[0]=plotcircumcentre.x;
-					 ys[0]=height - plotcircumcentre.y;
-					 xs[1]=midpoint[(node+1)%3].x;
-					 ys[1]=height - midpoint[(node+1)%3].y;
-					 xs[2]=vertex[node].x;
-					 ys[2]=height - vertex[node].y;
-					 xs[3]=midpoint[(node+2)%3].x;
-					 ys[3]=height - midpoint[(node+2)%3].y;
-					 g2.fillPolygon(xs,ys,4);
-				 }
-			
-			}
-			
-			
-			if (draw_cell_boundaries)
-			{
-				g2.setPaint(Color.black);
-				////		 Plot cell boundary lines
-				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
-				{
-					g2.drawLine(midpoint[2].x, height - midpoint[2].y, plotcircumcentre.x, height - plotcircumcentre.y);
-				}
-				if( (vis.cell_type[vis.timeStep][index[1]]<4) && (vis.cell_type[vis.timeStep][index[2]]<4))
-				{
-					g2.drawLine(midpoint[0].x, height - midpoint[0].y, plotcircumcentre.x, height - plotcircumcentre.y);
-				}
-				if( (vis.cell_type[vis.timeStep][index[2]]<4) && (vis.cell_type[vis.timeStep][index[0]]<4))
-				{
-					g2.drawLine(midpoint[1].x, height - midpoint[1].y, plotcircumcentre.x, height - plotcircumcentre.y);
+					g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
 				}
 			}
     		 
@@ -481,98 +488,79 @@ class CustomCanvas2D extends Canvas {
 			SetNodeColour(i);
 			
 
-			g2.fillOval(p.x - radius, height - p.y - radius, 2 * radius, 2 * radius);
+			g2.fillOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
 			old_x = p.x;
 			old_y = p.y;
 		}
 		g2.setPaint(Color.black);
 		
-		
-//		for (int i = 0; i < vis.numCells[vis.timeStep]; i += 2) 
-//		{
-//			int x = scaleX(vis.positions[vis.timeStep][i]);
-//			int y = scaleY(vis.positions[vis.timeStep][i + 1]);
-//			g2.fillOval(x - radius, height - y - radius, 2 * radius, 2 * radius);
-//			if (i != 0) 
-//			{
-//				// drawSpring(old_x, x);
-//				g2.drawLine(old_x, height - old_y, x, height - y);
-//			}
-//			old_x = x;
-//			old_y = y;
-//		}
 		drawXAxis(tick_length, num_ticks);
 		drawYAxis(tick_length, num_ticks);
 	}
 
 	private void drawXAxis(int tick_length, int num_ticks) 
 	{
-		g2.drawLine(scaleX(vis.min_x), height-scaleY(vis.min_y), scaleX(vis.max_x),
-				height-scaleY(vis.min_y));
+		PlotPoint start=scale(vis.min_x,0);
+		PlotPoint end=scale(vis.max_x,0);
+		
+		
+		g2.drawLine(start.x, start.y, end.x, end.y);
 		for (int i = 0; i <= num_ticks; i++) 
 		{
-			double x = (i * vis.max_x) / num_ticks;
+			double x = vis.min_x + (i * (vis.max_x-vis.min_x)) / num_ticks;
 			DecimalFormat df = new DecimalFormat("0.00");
 			String x_2dp = df.format(x);
-
+			
+			
+			
 			//Tick lines!
-			g2.drawLine(scaleX(x), scaleY(vis.max_y), scaleX(x), scaleY(vis.max_y)+tick_length);
-			g2.drawString(x_2dp, scaleX(x), scaleY(vis.max_y) + 2
+			PlotPoint posn=scale(x,0);
+			g2.drawLine(posn.x, posn.y, posn.x, posn.y+tick_length);
+			g2.drawString(x_2dp, posn.x, posn.y + 2
 					* tick_length);
 		}
-		}
+	}
 	
 	private void drawYAxis(int tick_length, int num_ticks) 
 	{
-		g2.drawLine(scaleX(vis.min_x), height - scaleY(vis.max_y), scaleX(vis.min_x),
-				height - scaleY(vis.min_y));
+		PlotPoint start=scale(0,vis.min_y);
+		PlotPoint end=scale(0,vis.max_y);
+		g2.drawLine(start.x, start.y, end.x, end.y);
+		
 		for (int i = 0; i <= num_ticks; i++) 
 		{
-			double y = (i * vis.max_y) / num_ticks;
+			double y = vis.min_y + (i * (vis.max_y-vis.min_y)) / num_ticks;
 			DecimalFormat df = new DecimalFormat("0.00");
 			String y_2dp = df.format(y);
 
-			g2.drawLine(scaleX(0.0)-tick_length, scaleY(y), scaleX(0.0), scaleY(y));
-			g2.drawString(y_2dp, scaleX(0.0) - 4* tick_length, scaleY(vis.max_y)-scaleY(y)+scaleY(0.0));
+			//Tick lines!
+			PlotPoint posn=scale(0,y);
+			g2.drawLine(posn.x-tick_length, posn.y, posn.x, posn.y);
+			g2.drawString(y_2dp, posn.x - 4*tick_length, posn.y );
+		
+
+			//g2.drawString(y_2dp, scaleX(0.0) - 4* tick_length, scaleY(vis.max_y)-scaleY(y)+scaleY(0.0));
 		}
 	}
 
-	int scaleY(double realy) 
-	{
-		return (int) ((double) (height) / 20.0 * ((realy * 18.0) / vis.max_y + 1));
 
-	}
 	
-	int scaleX(double realx) 
+	PlotPoint scale(double x, double y)
 	{
-		return (int) ((double) (width) / 20.0 * ((realx * 18.0) / vis.max_x + 1));
-
+		//Map min_x to eps and max_x to width-eps (to allow a border)
+		int eps=20;
+		int ix = (int) ((x - vis.min_x) * (width-2*eps) /(vis.max_x - vis.min_x) +eps);
+		int iy = (int) ((y - vis.min_y) * (height-2*eps) /(vis.max_y - vis.min_y) +eps);
+		iy = height - iy; // This is because java is silly and has the y axis going down the screen.
+		return (new PlotPoint(ix,iy));
+		
+	}
+	PlotPoint scale(RealPoint p) 
+	{
+		return (scale(p.x,p.y));
+		
 	}
 
-	void drawSpring(int left, int right) {
-		int spring_width = 5;
-		int spring_coils = 40; // Divisible by 4
-		for (int i = 0; i < spring_coils; i += 4) {
-			// Down
-			g2.drawLine(left + (i) * (right - left) / spring_coils, height / 2,
-					left + (i + 1) * (right - left) / spring_coils, height / 2
-							+ spring_width);
-			// Back up
-			g2.drawLine(left + (i + 1) * (right - left) / spring_coils, height
-					/ 2 + spring_width, left + (i + 2) * (right - left)
-					/ spring_coils, height / 2);
-			// Up
-			g2.drawLine(left + (i + 2) * (right - left) / spring_coils,
-					height / 2, left + (i + 3) * (right - left) / spring_coils,
-					height / 2 - spring_width);
-			// Back down
-			g2.drawLine(left + (i + 3) * (right - left) / spring_coils, height
-					/ 2 - spring_width, left + (i + 4) * (right - left)
-					/ spring_coils, height / 2);
-
-		}
-
-	}
 	
 	RealPoint DrawCircumcentre(RealPoint p0, RealPoint p1, RealPoint p2)
 	{
@@ -605,18 +593,10 @@ class CustomCanvas2D extends Canvas {
 		y_c += p0.y;
 		
 		return (new RealPoint(x_c,y_c));
-		// g2.fillRect(scaleX(x_c),height - scaleY(y_c),2,2);
-		
+			
 	}
 	
-	PlotPoint scale(RealPoint p) 
-	{
-		//int x = (int) ((double) (width) / 20.0 * ((p.x * 18.0) / vis.max_x + 1));
-		int x = (int) (p.x * width /(vis.max_x - vis.min_x)- vis.min_x);
-		int y = (int) ((double) (height) / 20.0 * ((p.y * 18.0) / vis.max_y + 1));
-		
-		return (new PlotPoint(x,y));
-	}
+
 	
 	
 	void SetNodeColour(int index)
