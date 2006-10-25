@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <assert.h>
+#include <values.h>
 #include "ColumnDataReader.hpp"
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
@@ -276,6 +277,7 @@ void ColumnDataReader::ReadColumnFromFile(std::string filename, int col)
     }
     datafile.close();
 }
+
 void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
 {
     int startpos = col * (FIELD_WIDTH + SPACING) + SPACING - 1;
@@ -283,5 +285,11 @@ void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
     std::stringstream variable_stream(value);
     double d_value;
     variable_stream >> d_value;
+    if (variable_stream.fail())
+    {
+          d_value=FLT_MAX;
+    }
+        
+   
     mValues.push_back(d_value);
 }
