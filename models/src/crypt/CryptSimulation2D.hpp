@@ -734,6 +734,58 @@ public:
         mReMesh = remesh;
     }
     
+    std::vector<unsigned> CalculateCryptBoundary()
+    {
+
+        
+       std::vector<bool> is_nodes_on_boundary(mIsGhostNode.size()) ;
+       for(unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
+       {
+           is_nodes_on_boundary[i]=false;
+       }
+       // Loop over elements and find bounndary nodes of crypt
+       for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+            {
+                 Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+        
+                 if (!mIsGhostNode[p_element->GetNode(0)->GetIndex()])
+                 {
+                    if((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
+                    {
+                        is_nodes_on_boundary[p_element->GetNode(0)->GetIndex()]= true;
+                    }
+                 }
+                 
+                 if (!mIsGhostNode[p_element->GetNode(1)->GetIndex()])
+                 {
+                    
+                    if((mIsGhostNode[p_element->GetNode(0)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
+                    {
+                        is_nodes_on_boundary[p_element->GetNode(1)->GetIndex()]= true;
+                    }
+                 }
+                 
+                 if (!mIsGhostNode[p_element->GetNode(2)->GetIndex()])
+                 {
+                    if((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(0)->GetIndex()])   )
+                    {
+                        is_nodes_on_boundary[p_element->GetNode(2)->GetIndex()]= true; 
+                    }
+                 }
+                      
+            }
+            
+       std::vector<unsigned> nodes_on_boundary;   
+       for(unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
+       {
+           if(is_nodes_on_boundary[i])
+           {
+               nodes_on_boundary.push_back(i);
+           }
+       }
+            
+       return nodes_on_boundary;
+    }
 };
 
 #endif /*CRYPTSIMULATION2D_HPP_*/

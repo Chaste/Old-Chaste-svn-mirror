@@ -464,6 +464,57 @@ public:
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
     }
+    
+    void TestCalculateCryptBoundaries()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        //Create Vector of ghost nodes
+        std::vector<int> ghost_node_indices;
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            if ((x<2.01)||(x>7.99)||(y>7.99)||(y<2.01))
+            {
+               ghost_node_indices.push_back(i);
+            }
+        }
+        
+        CryptSimulation2D simulator(mesh);
+        simulator.SetGhostNodes(ghost_node_indices);
+        std::vector<unsigned> calculated_boundary_nodes = simulator.CalculateCryptBoundary();
+        
+        std::vector<unsigned> actual_boundary_nodes(16);
+      
+        actual_boundary_nodes[0] = 36;
+        actual_boundary_nodes[1] = 37;
+        actual_boundary_nodes[2] = 38;
+        actual_boundary_nodes[3] = 39;
+        actual_boundary_nodes[4] = 40;
+        actual_boundary_nodes[5] = 47;
+        actual_boundary_nodes[6] = 51;
+        actual_boundary_nodes[7] = 58;
+        actual_boundary_nodes[8] = 62;
+        actual_boundary_nodes[9] = 69;
+        actual_boundary_nodes[10] = 73;
+        actual_boundary_nodes[11] = 80;
+        actual_boundary_nodes[12] = 81;
+        actual_boundary_nodes[13] = 82;
+        actual_boundary_nodes[14] = 83;
+        actual_boundary_nodes[15] = 84;
+        
+        TS_ASSERT_EQUALS(actual_boundary_nodes.size(),calculated_boundary_nodes.size());
+        
+        
+        for(unsigned i=0; i<calculated_boundary_nodes.size(); i++)
+        {
+            TS_ASSERT_EQUALS(actual_boundary_nodes[i],calculated_boundary_nodes[i]);
+        }
+        
+    }
 };
 
 #endif /*TESTCRYPTSIMULATION2D_HPP_*/
