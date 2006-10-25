@@ -466,41 +466,53 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+        mesh.Translate(0.0,-2.0,0.0) ;
         //Create Vector of ghost nodes
         std::vector<int> ghost_node_indices;
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
             double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
-            if ((x<2.01)||(x>7.99)||(y>7.99)||(y<2.01))
+            if ((x<2.0)||(x>8.0)||(y>6.0)||(y<0.0))
             {
                ghost_node_indices.push_back(i);
             }
         }
         
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->SetCryptLength(6.0);
+        
         CryptSimulation2D simulator(mesh);
         simulator.SetGhostNodes(ghost_node_indices);
-        std::vector<unsigned> calculated_boundary_nodes = simulator.CalculateCryptBoundary();
+        simulator.CalculateCryptBoundary();
+        std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
         
-        std::vector<unsigned> actual_boundary_nodes(16);
+        std::vector<unsigned> actual_boundary_nodes(24);
       
-        actual_boundary_nodes[0] = 36;
-        actual_boundary_nodes[1] = 37;
-        actual_boundary_nodes[2] = 38;
-        actual_boundary_nodes[3] = 39;
-        actual_boundary_nodes[4] = 40;
-        actual_boundary_nodes[5] = 47;
-        actual_boundary_nodes[6] = 51;
-        actual_boundary_nodes[7] = 58;
-        actual_boundary_nodes[8] = 62;
-        actual_boundary_nodes[9] = 69;
-        actual_boundary_nodes[10] = 73;
-        actual_boundary_nodes[11] = 80;
-        actual_boundary_nodes[12] = 81;
-        actual_boundary_nodes[13] = 82;
-        actual_boundary_nodes[14] = 83;
-        actual_boundary_nodes[15] = 84;
+        actual_boundary_nodes[0] = 24;
+        actual_boundary_nodes[1] = 25;
+        actual_boundary_nodes[2] = 26;
+        actual_boundary_nodes[3] = 27;
+        actual_boundary_nodes[4] = 28;
+        actual_boundary_nodes[5] = 29;
+        actual_boundary_nodes[6] = 30;
+        actual_boundary_nodes[7] = 35;
+        actual_boundary_nodes[8] = 41;
+        actual_boundary_nodes[9] = 46;
+        actual_boundary_nodes[10] = 52;
+        actual_boundary_nodes[11] = 57;
+        actual_boundary_nodes[12] = 63;
+        actual_boundary_nodes[13] = 68;
+        actual_boundary_nodes[14] = 74;
+        actual_boundary_nodes[15] = 79;
+        actual_boundary_nodes[16] = 85;
+        actual_boundary_nodes[17] = 90;
+        actual_boundary_nodes[18] = 91;
+        actual_boundary_nodes[19] = 92;
+        actual_boundary_nodes[20] = 93;
+        actual_boundary_nodes[21] = 94;
+        actual_boundary_nodes[22] = 95;
+        actual_boundary_nodes[23] = 96;
         
         TS_ASSERT_EQUALS(actual_boundary_nodes.size(),calculated_boundary_nodes.size());
         
@@ -509,6 +521,43 @@ public:
         {
             TS_ASSERT_EQUALS(actual_boundary_nodes[i],calculated_boundary_nodes[i]);
         }
+        
+        std::vector<unsigned> calculated_left_boundary_nodes = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> calculated_right_boundary_nodes = simulator.GetRightCryptBoundary();
+        
+        std::vector<unsigned> actual_left_boundary_nodes(7);
+        
+        actual_left_boundary_nodes[0] = 24;
+        actual_left_boundary_nodes[1] = 35;
+        actual_left_boundary_nodes[2] = 46;
+        actual_left_boundary_nodes[3] = 57;
+        actual_left_boundary_nodes[4] = 68;
+        actual_left_boundary_nodes[5] = 79;
+        actual_left_boundary_nodes[6] = 90;
+        
+        std::vector<unsigned> actual_right_boundary_nodes(7);
+        
+        actual_right_boundary_nodes[0] = 24+6;
+        actual_right_boundary_nodes[1] = 35+6;
+        actual_right_boundary_nodes[2] = 46+6;
+        actual_right_boundary_nodes[3] = 57+6;
+        actual_right_boundary_nodes[4] = 68+6;
+        actual_right_boundary_nodes[5] = 79+6;
+        actual_right_boundary_nodes[6] = 90+6;
+        
+        //* Must uncomment and include this test
+        
+        //TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
+        //TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
+        
+        
+        //for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
+        //{
+        //    std::cout<< "calculated_left_boundary_nodes "<< calculated_left_boundary_nodes[i] <<"\n" << std::flush;
+            
+            //TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
+            //TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
+       // }
         
     }
 };
