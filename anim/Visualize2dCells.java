@@ -8,6 +8,8 @@ import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.image.*;
+import java.awt.Image;
 import java.awt.Label;
 import java.awt.Scrollbar;
 import java.awt.event.ActionEvent;
@@ -27,6 +29,7 @@ import java.lang.Math;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
+import javax.imageio.ImageIO;
 
 public class Visualize2dCells implements ActionListener, AdjustmentListener, Runnable {
 
@@ -115,25 +118,35 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 		delay = e.getValue();
 	}
 
-	public void run() {
-		while (updateThread != null) {
-			try {
-				Thread.sleep((100 - delay) * 1);
-			} catch (InterruptedException e) {
-				return;
-			}
-			if (timeStep < numSteps - 1) {
+	public void run() 
+	{
+		while (updateThread != null) 
+		{
+			
+			if (timeStep < numSteps - 1) 
+			{
 				timeStep++;
-			} else {
+			} 
+			else 
+			{
 
-				if (updateThread != null) {
+				if (updateThread != null) 
+				{
 					Thread fred = updateThread;
 					updateThread = null;
 					fred.interrupt();
 					run.setLabel("Run");
 				}
-
 			}
+			try 
+			{
+				Thread.sleep((100 - delay) * 1);
+			} 
+			catch (InterruptedException e) 
+			{
+				return;
+			}
+			canvas.drawBufferedImage();
 			canvas.repaint();
 
 		}
@@ -306,7 +319,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
          	
 			parsed_all_files=true;
             
-            
+            canvas.drawBufferedImage();
             canvas.repaint();
 		} catch (Exception e) {
 
@@ -349,9 +362,14 @@ class CustomCanvas2D extends Canvas {
 
 	int height;
 
-	Graphics2D g2;
+	BufferedImage buffered_image=null;
+	Graphics g2=null;
 	
-	
+	boolean drawSprings=true;
+	boolean drawCells=true;
+	boolean writeFiles=true;
+	boolean imageReady=false;	
+	boolean imageDrawing=false;
 
 	Color garysSexySilver = new Color(216,216,231);
 	
@@ -361,37 +379,68 @@ class CustomCanvas2D extends Canvas {
 		setBackground(garysSexySilver);
 	}
 
-	public void paint(Graphics g) {
+	public void paint(Graphics graphics)
+	{
+		if (vis.parsed_all_files == false)
+        {
+          	graphics.drawString("Still parsing input...", 10,10);
+        	return;
+        }
+				
+		if (imageReady)
+		{
+			imageDrawing = true;
+			graphics.drawImage(buffered_image,0,0,this);
+			
+			if (writeFiles)
+			{
+				String filename=String.format("image%1$05d.jpg", vis.timeStep);
+				System.out.println("Writing file : "+filename+".");
+			    File f = new File(filename);
+    			try 
+	    		{
+		    		ImageIO.write(buffered_image, "jpeg", f);
+		    	} catch (Exception e)
+		    	{
+		    	}
+			}
+			imageDrawing = false;
+		}
+	}
+	
+	public void drawBufferedImage() 
+	{
+		while (imageDrawing)
+		{
+			
+		}
+		imageReady = false;
+		
 		int old_x = -1;
 		int old_y = -1;
 		int radius = 5;
 		int tick_length = 10;
 		int num_ticks = 10;
-		boolean draw_springs=true;
-		boolean draw_cells=true;
 		
-		g2 = (Graphics2D) g;
+		if (g2==null)
+		{
+			height = getHeight();
+			width = getWidth();
+	    	buffered_image=new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
+			//buffered_image=new Image(width, height);
+			 g2 = buffered_image.getGraphics();
+		}
 		
-        if (vis.parsed_all_files == false)
-        {
-          	g2.drawString("Still parsing input...", 10,10);
-        	return;
-        }
-	
-		
-		
-		height = getHeight();
-		width = getWidth();
+		g2.setColor(garysSexySilver);
+		g2.fillRect(0,0,width,height);
+		g2.setColor(Color.black);
+				
 		g2.drawString("Time = " + vis.times[vis.timeStep], 10,10);
-		g2.setPaint(Color.black);
+		g2.setColor(Color.black);
 		
 		// draw elements first
 		for (int i=0 ; i < vis.numElements[vis.timeStep]; i++)
-		{
-
-
-		
-			
+		{		
 			// What nodes are we joining up?
 			int index[]=new int[3];
 			index[0] = vis.element_nodes[vis.timeStep][3*i];
@@ -412,21 +461,18 @@ class CustomCanvas2D extends Canvas {
 			vertex[1] = scale(r2);
 			vertex[2] = scale(r3);
 
-		
-		
 			PlotPoint midpoint[]=new PlotPoint[3];
 			midpoint[2] = scale(new RealPoint(r1,r2));
 			midpoint[0] = scale(new RealPoint(r2,r3));
 			midpoint[1] = scale(new RealPoint(r3,r1));
 								
-			g2.setPaint(Color.black);
+			g2.setColor(Color.black);
 			
-			if (draw_cells)
+			if (drawCells)
 			{
 				for (int node=0;node<3;node++)
 				 {
 				
-					
 					 SetCellColour(index[node]);
 					 int xs[]=new int[4];
 					 int ys[]=new int[4];
@@ -441,7 +487,7 @@ class CustomCanvas2D extends Canvas {
 					 g2.fillPolygon(xs,ys,4);
 				 }
 			
-				g2.setPaint(Color.black);
+				g2.setColor(Color.black);
 				////		 Plot cell boundary lines
 				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
 				{
@@ -457,7 +503,7 @@ class CustomCanvas2D extends Canvas {
 				}
 			}
 			
-			if (draw_springs)
+			if (drawSprings)
 			{
 				
 				// Plot lines
@@ -475,8 +521,6 @@ class CustomCanvas2D extends Canvas {
 				}
 			}
     		 
-			
-			
 		}
 		
 		// draw nodes second so that dots are on top of lines
@@ -484,18 +528,18 @@ class CustomCanvas2D extends Canvas {
 		{
 			PlotPoint p=scale(vis.positions[vis.timeStep][i]);
 			
-			
 			SetNodeColour(i);
 			
-
 			g2.fillOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
 			old_x = p.x;
 			old_y = p.y;
 		}
-		g2.setPaint(Color.black);
+		g2.setColor(Color.black);
 		
 		drawXAxis(tick_length, num_ticks);
 		drawYAxis(tick_length, num_ticks);
+		
+		imageReady = true;
 	}
 
 	private void drawXAxis(int tick_length, int num_ticks) 
@@ -604,28 +648,28 @@ class CustomCanvas2D extends Canvas {
 		if(vis.cell_type[vis.timeStep][index]==0)
 		{
 			// stem cell
-			g2.setPaint(Color.green);
+			g2.setColor(Color.green);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==1)
 		{
 			// transit cell
-			g2.setPaint(Color.orange);
+			g2.setColor(Color.orange);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==2)
 		{
 			// differentiated cell
-			g2.setPaint(Color.red);
+			g2.setColor(Color.red);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==3)
 		{
 			// DANGER! CANCER!
-			g2.setPaint(Color.black);
+			g2.setColor(Color.black);
 		}
 		else if(vis.cell_type[vis.timeStep][index]==4)
 		{
 			// danger! sloughed - don't draw anything
 			Color garysSexySilver = new Color(216,216,231);
-			g2.setPaint(garysSexySilver);
+			g2.setColor(garysSexySilver);
 		}
 	}	
 	
@@ -635,28 +679,28 @@ class CustomCanvas2D extends Canvas {
 		if(vis.cell_type[vis.timeStep][index]==0)
 		{
 			// stem cell
-			g2.setPaint(Color.cyan);
+			g2.setColor(Color.cyan);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==1)
 		{
 			// transit cell
-			g2.setPaint(Color.yellow);
+			g2.setColor(Color.yellow);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==2)
 		{
 			// differentiated cell
-			g2.setPaint(Color.pink);
+			g2.setColor(Color.pink);
 		}
 		else if (vis.cell_type[vis.timeStep][index]==3)
 		{
 			// DANGER! CANCER!
-			g2.setPaint(Color.gray);
+			g2.setColor(Color.gray);
 		}
 		else if(vis.cell_type[vis.timeStep][index]==4)
 		{
 			// danger! sloughed - don't draw anything
 			
-			g2.setPaint(garysSexySilver);
+			g2.setColor(garysSexySilver);
 		}
 	}
 			
