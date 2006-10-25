@@ -68,6 +68,9 @@ private:
     std::string mOutputDirectory;
     
     std::vector<MeinekeCryptCell> mCells;
+
+    RandomNumberGenerators *mpRandomNumberGenerator;    
+    bool mCreatedRng;
     
     CancerParameters *mpParams;
     
@@ -78,10 +81,22 @@ public:
      *  should be called for any birth to happen.
      */
     CryptSimulation2D(ConformingTetrahedralMesh<2,2> &rMesh,
-                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
+                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
+                      RandomNumberGenerators *pGen = NULL)
             : mrMesh(rMesh),
-            mCells(cells)
+              mCells(cells)
     {
+        if (pGen!=NULL)
+        {
+            mpRandomNumberGenerator = pGen;
+            mCreatedRng = false;
+        }
+        else
+        {
+            mpRandomNumberGenerator = new RandomNumberGenerators;
+            mCreatedRng = true;
+        }
+        
         mpParams = CancerParameters::Instance();
     
         mDt = 1.0/(120.0);
@@ -110,6 +125,18 @@ public:
         mMaxCells = 10*mrMesh.GetNumNodes();
         mMaxElements = 10*mrMesh.GetNumElements();
     }
+    
+    /**
+     * Free any memory allocated by the constructor
+     */
+    ~CryptSimulation2D()
+    {
+        if (mCreatedRng)
+        {
+            delete mpRandomNumberGenerator;
+        }
+    }
+    
     
     void SetDt(double dt)
     {
@@ -266,8 +293,8 @@ public:
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory);
 
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.visnodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.viselements");
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
 
 
         int counter = 0;
@@ -279,7 +306,9 @@ public:
         {
             //std::cout << "** TIME = " << time << " **\n";
             
+            ///////////////////////////////////////////////////////
             // Cell birth
+            ///////////////////////////////////////////////////////
             if (!mCells.empty())
             {
                 for (unsigned i=0; i<mCells.size(); i++)
@@ -294,19 +323,67 @@ public:
                         MeinekeCryptCell new_cell = mCells[i].Divide();
                         // Add new node to mesh
                         Node<2> *p_our_node = mrMesh.GetNodeAt(i);
+                        double x = p_our_node->GetPoint()[0];
+                        double y = p_our_node->GetPoint()[1];
                         
-                        //Note: May need to check which side element is put esp. at the ends
-                        Element<2,2> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+//Note: May need to check which side element is put esp. at the ends
+//Element<2,2> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+
+                        // Find an element to refine. If the cell is not a stem cell
+                        // pick a random connecting element. If the cell is a stem cell
+                        // pick a random element that isn't a ghost element.
+                        
+                        unsigned element_number = mpRandomNumberGenerator->randMod( p_our_node->GetNumContainingElements() );
+
+                        Element<2,2>* p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+                        for(unsigned j=0; j<element_number; j++)
+                        {
+                            p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+                        }
+                        
+                        // if the cell is a stem cell continue looping over elements until one that is
+                        // not a ghost element is found
+                        if(mCells[i].GetCellType()==STEM)
+                        {
+                            bool is_ghost_element = (    (mIsGhostNode[p_element->GetNodeGlobalIndex(0)]) 
+                                                      || (mIsGhostNode[p_element->GetNodeGlobalIndex(1)]) 
+                                                      ||  (mIsGhostNode[p_element->GetNodeGlobalIndex(2)]) );
+                            while (is_ghost_element)
+                            {
+                                p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+                                is_ghost_element = (    (mIsGhostNode[p_element->GetNodeGlobalIndex(0)]) 
+                                                     || (mIsGhostNode[p_element->GetNodeGlobalIndex(1)]) 
+                                                     || (mIsGhostNode[p_element->GetNodeGlobalIndex(2)]) );
+                            }
+                        }
+                        
                         
                         //unsigned new_node_index = AddNodeToElement(p_element);
-                        double new_x_value = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[0]
+                        double x_centroid = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[0]
                                                         +  p_element->GetNode(1)->GetPoint().rGetLocation()[0]
                                                         +  p_element->GetNode(2)->GetPoint().rGetLocation()[0] );
                                                         
-                        double new_y_value = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[1]
+                        double y_centroid = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[1]
                                                         +  p_element->GetNode(1)->GetPoint().rGetLocation()[1]
                                                         +  p_element->GetNode(2)->GetPoint().rGetLocation()[1] );
                                                         
+                        
+                        // check the new point is in the triangle
+                        double distance_from_node_to_centroid =  sqrt(  (x_centroid - x)*(x_centroid - x)
+                                                                      + (y_centroid - y)*(y_centroid - y) );
+                        
+                        // we assume the new cell is a distance 0.1 away from the old.
+                        // however, to avoid crashing in usual situations we check this
+                        // new position is actually in the triangle being refined.
+                        double distance_of_new_cell_from_parent = 0.1;
+                        if(distance_from_node_to_centroid < (2.0/3.0)*0.1)
+                        {
+                            distance_of_new_cell_from_parent = (3.0/2.0)*distance_from_node_to_centroid;
+                        }
+                        
+                        double new_x_value = x + distance_of_new_cell_from_parent*(x_centroid-x);
+                        double new_y_value = y + distance_of_new_cell_from_parent*(y_centroid-y);
+                        
                         Point<2> new_point(new_x_value, new_y_value);
 
                         unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
@@ -375,17 +452,18 @@ public:
                         
                         double rest_length = 1.0;
                         
-//                        if( (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)]) )
-//                        {
-//                            double ageA = mCells[p_element->GetNode(nodeA)->GetIndex()].GetAge();
-//                            double ageB = mCells[p_element->GetNode(nodeB)->GetIndex()].GetAge();
-//                            if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-//                            {
-//                                // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-//                                rest_length=(0.9+0.1*ageA);
-//                                assert(rest_length<=1.0);
-//                            }
-//                        }
+                        if( (mCells.size()>0) && (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)]) )
+                        {
+                            double ageA = mCells[p_element->GetNode(nodeA)->GetIndex()].GetAge();
+                            double ageB = mCells[p_element->GetNode(nodeB)->GetIndex()].GetAge();
+                            if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+                            {
+                                // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+                                rest_length=(0.1+0.9*ageA);
+                                assert(rest_length<=1.0);
+                               // std::cout<<p_element->GetNode(nodeA)->GetIndex()<<"\t"<<ageA<<"\t"<<p_simulation_time->GetDimensionalisedTime()<<std::endl;
+                            }
+                         }
                         
                         drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length) ;
                         
@@ -448,17 +526,17 @@ public:
 
                     double rest_length = 1.0;
                     
-//                    if( (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)]) )
-//                    {
-//                        double ageA = mCells[p_edge->GetNode(nodeA)->GetIndex()].GetAge();
-//                        double ageB = mCells[p_edge->GetNode(nodeB)->GetIndex()].GetAge();
-//                        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-//                        {
-//                           // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-//                           rest_length=(0.9+0.1*ageA);
-//                           assert(rest_length<=1.0);
-//                       }                          
-//                    }
+                    if( (mCells.size()>0) &&  (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)]) )
+                    {
+                        double ageA = mCells[p_edge->GetNode(nodeA)->GetIndex()].GetAge();
+                        double ageB = mCells[p_edge->GetNode(nodeB)->GetIndex()].GetAge();
+                        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+                        {
+                           // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+                           rest_length=(0.1+0.9*ageA);
+                           assert(rest_length<=1.0);
+                       }                          
+                    }
 
                     drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
                        
@@ -659,7 +737,7 @@ public:
                 
                 if(mIsGhostNode[index]==true)
                 {
-                    colour = 3; // visualizer treats '4' these as invisible
+                    colour = 4; // visualizer treats '4' these as invisible
                 }
                 else if(mCells.size()>0)
                 {

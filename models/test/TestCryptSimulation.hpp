@@ -148,7 +148,7 @@ public:
             TS_ASSERT_DELTA(position, index, 1e-1);
         }
         
-        CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
+        //CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
     }
     
     // Death because this test has a cell starting at the end of
