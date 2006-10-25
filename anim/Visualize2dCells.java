@@ -50,6 +50,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public static double min_y =  1e12;
 	
 	public static boolean parsed_all_files=false;
+	
+	public static boolean drawSprings=false;
+	public static boolean drawCells=true;
+	public static boolean writeFiles=false;
 
 	public static int timeStep = 0;
 
@@ -198,12 +202,47 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	}
 
 	public static void main(String args[]) {
-		Visualize2dCells vis = new Visualize2dCells();
-        
+	     
 		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan & Joe Pitt-Francis)");
-		try {
-			File node_file = new File(args[0]);
-			File element_file = new File(args[1]);
+		File node_file = new File(args[0]+".viznodes");
+		File element_file = new File(args[0]+".vizelements");
+		if (!node_file.isFile())
+		{
+			System.out.println("The file "+args[0]+".viznodes doesn't exist");
+			return;
+		}
+		if (!element_file.isFile())
+		{
+			System.out.println("The file "+args[0]+".vizelements doesn't exist");
+			return;
+		}
+		
+		for (int i=1; i<args.length; i++)
+		{
+			if (args[i].equals("output"))
+			{
+				writeFiles = true;
+								
+			}	
+			if (args[i].equals("springs"))
+			{
+				drawSprings = true;
+								
+			}	
+			if (args[i].equals("nocells"))
+			{
+				drawCells = false;
+								
+			}	
+		}
+		
+		System.out.println("Writing output files = "+writeFiles);
+		System.out.println("Drawing springs = "+drawSprings);
+		System.out.println("Drawing cells = "+drawCells);
+		
+		Visualize2dCells vis = new Visualize2dCells();
+		
+        try {
 			BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
 			int num_lines = 0;
@@ -365,9 +404,6 @@ class CustomCanvas2D extends Canvas {
 	BufferedImage buffered_image=null;
 	Graphics g2=null;
 	
-	boolean drawSprings=true;
-	boolean drawCells=true;
-	boolean writeFiles=true;
 	boolean imageReady=false;	
 	boolean imageDrawing=false;
 
@@ -392,14 +428,14 @@ class CustomCanvas2D extends Canvas {
 			imageDrawing = true;
 			graphics.drawImage(buffered_image,0,0,this);
 			
-			if (writeFiles)
+			if (vis.writeFiles)
 			{
-				String filename=String.format("image%1$05d.jpg", vis.timeStep);
+				String filename=String.format("image%1$05d.gif", vis.timeStep);
 				System.out.println("Writing file : "+filename+".");
 			    File f = new File(filename);
     			try 
 	    		{
-		    		ImageIO.write(buffered_image, "jpeg", f);
+		    		ImageIO.write(buffered_image, "gif", f);
 		    	} catch (Exception e)
 		    	{
 		    	}
@@ -468,7 +504,7 @@ class CustomCanvas2D extends Canvas {
 								
 			g2.setColor(Color.black);
 			
-			if (drawCells)
+			if (vis.drawCells)
 			{
 				for (int node=0;node<3;node++)
 				 {
@@ -503,7 +539,7 @@ class CustomCanvas2D extends Canvas {
 				}
 			}
 			
-			if (drawSprings)
+			if (vis.drawSprings)
 			{
 				
 				// Plot lines
