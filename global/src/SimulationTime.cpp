@@ -10,32 +10,20 @@ SimulationTime* SimulationTime::mpInstance = 0;
 
 /**
  * Return a pointer to the simulation time object.
- * The first time one creates a simulation time object, this method MUST be used.
- * @param durationOfSimulation Total dimensionalized time of the simulation
- * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
- */
-SimulationTime* SimulationTime::Instance(double durationOfSimulation, int totalTimeStepsInSimulation)
-{
-    assert(mpInstance == 0);
-    mpInstance = new SimulationTime(durationOfSimulation, totalTimeStepsInSimulation);
-    return mpInstance;
-}
-
-/**
- * Return a pointer to the simulation time object.
- * The second and subsequent times one creates a simulation time object,
- * this method MUST be used.
- */
+ * The first time this is called the simulation time object is created. 
+ * */
 SimulationTime* SimulationTime::Instance()
 {
-    assert(mpInstance != 0);
+    if(mpInstance == NULL)
+    {
+        mpInstance = new SimulationTime;
+    }
     return mpInstance;
 }
 
-SimulationTime::SimulationTime(double durationOfSimulation, int totalTimeStepsInSimulation)
+SimulationTime::SimulationTime()
 {
-    mDurationOfSimulation = durationOfSimulation;
-    mTotalTimeStepsInSimulation=totalTimeStepsInSimulation;
+    mEndTimeAndNumberOfTimeStepsSet = false;
     mTimeStepsElapsed = 0;
 }
 
@@ -54,6 +42,7 @@ void SimulationTime::Destroy()
  */
 double SimulationTime::GetTimeStep()
 {
+    assert(mEndTimeAndNumberOfTimeStepsSet==true);
     return mDurationOfSimulation/mTotalTimeStepsInSimulation;
 }
 
@@ -62,6 +51,7 @@ double SimulationTime::GetTimeStep()
  */
 void SimulationTime::IncrementTimeOneStep()
 {
+    assert(mEndTimeAndNumberOfTimeStepsSet==true);
     mTimeStepsElapsed++;
 }
 
@@ -71,6 +61,7 @@ void SimulationTime::IncrementTimeOneStep()
  */
 int SimulationTime::GetTimeStepsElapsed()
 {
+    assert(mEndTimeAndNumberOfTimeStepsSet==true);
     return mTimeStepsElapsed;
 }
 
@@ -81,6 +72,22 @@ int SimulationTime::GetTimeStepsElapsed()
  */
 double SimulationTime::GetDimensionalisedTime()
 {
+    assert(mEndTimeAndNumberOfTimeStepsSet==true);
     return ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
            * mDurationOfSimulation;
+}
+
+/**
+ * Sets the end time and the number of time steps.
+ * This must be called before any other methods. 
+ * @param durationOfSimulation Total dimensionalized time of the simulation
+ * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
+ * 
+ */
+void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation, int totalTimeStepsInSimulation)
+{    
+    assert(mEndTimeAndNumberOfTimeStepsSet==false);
+    mDurationOfSimulation = durationOfSimulation;
+    mTotalTimeStepsInSimulation=totalTimeStepsInSimulation;
+    mEndTimeAndNumberOfTimeStepsSet = true;
 }

@@ -91,20 +91,8 @@ public:
      * Determine if this cell will be ready to divide at the given simulation time.
      * MUST be called before Divide().
      */
-    bool ReadyToDivide(double simulationTime);
-    
-    /**
-     * Determine if this cell will be ready to divide at the given simulation time.
-     * MUST be called before Divide().
-     */
     bool ReadyToDivide();
     
-    
-    /**
-     * Divide this cell to produce a daughter cell.
-     * ReadyToDivide must have been called with the given simulationTime, and returned true.
-     */
-    MeinekeCryptCell Divide(double simulationTime);
     
     /**
      * Divide this cell to produce a daughter cell.

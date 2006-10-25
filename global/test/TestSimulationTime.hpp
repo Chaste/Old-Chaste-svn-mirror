@@ -11,7 +11,8 @@ public:
     {
         // create the simulation time object
         // set the simulation length and number of time steps
-        SimulationTime *p_simulation_time = SimulationTime :: Instance(10.0, 3);
+        SimulationTime *p_simulation_time = SimulationTime :: Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 3);
         
         // get the time step
         TS_ASSERT_DELTA(p_simulation_time->GetTimeStep(), 3.33333333, 1e-6);
@@ -43,7 +44,8 @@ public:
         
         SimulationTime::Destroy();
         
-        SimulationTime *p_simulation_time3 = SimulationTime :: Instance(10.0,5);
+        SimulationTime *p_simulation_time3 = SimulationTime :: Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0,5);
         TS_ASSERT_DELTA(p_simulation_time3->GetTimeStep(), 2.0, 1e-6);
     }
     

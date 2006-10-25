@@ -9,13 +9,10 @@
 #include <vector>
 #include "OutputFileHandler.hpp"
 #include "CryptSimulation2D.hpp"
-
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
-
 #include "CancerParameters.hpp"
-
 #include "ColumnDataReader.hpp"
 
 
@@ -315,7 +312,7 @@ public:
     
     
     // not being run because takes a few minutes to run
-    void DO_NOT_________TestWithBirthOnHoneycombMesh() throw (Exception)
+    void DO_NOT________TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);  // this is BAD, mkay, no way?
@@ -392,8 +389,7 @@ public:
     }
     
     
-    // not being run because takes a few minutes to run
-    void DO_NOT_________Test2DSpringsFixedBoundaries() throw (Exception)
+    void Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         srandom(0);

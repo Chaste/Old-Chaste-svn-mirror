@@ -176,7 +176,8 @@ public:
         
         int num_time_steps = (int)(mEndTime/mDt+0.5);
         
-        SimulationTime *p_simulation_time = SimulationTime::Instance(mEndTime, num_time_steps);
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
                                      
         //double time = 0.0;
         double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
@@ -221,10 +222,10 @@ public:
                 {
                     if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
                     // Check for this cell dividing
-                    if (mCells[i].ReadyToDivide(p_simulation_time->GetDimensionalisedTime()))
+                    if (mCells[i].ReadyToDivide())
                     {
                         // Create new cell
-                        MeinekeCryptCell new_cell = mCells[i].Divide(p_simulation_time->GetDimensionalisedTime());
+                        MeinekeCryptCell new_cell = mCells[i].Divide();
                         
                         // Add new node to mesh
                         Node<1> *p_our_node = mrMesh.GetNodeAt(i);
@@ -264,8 +265,8 @@ public:
                         double distance_between_nodes = fabs(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0));
                         double unit_vector_backward = -1;
                         double unit_vector_forward = 1;
-                        double age0 = mCells[element->GetNode(0)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
-                        double age1 = mCells[element->GetNode(1)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+                        double age0 = mCells[element->GetNode(0)->GetIndex()].GetAge();
+                        double age1 = mCells[element->GetNode(1)->GetIndex()].GetAge();
                         double rest_length = 1.0;
                         
                         if (age0<1.0 && age1<1.0 && fabs(age0-age1)<1e-6)
@@ -452,8 +453,8 @@ private:
         double left_position= pElement->GetNodeLocation(0,0);
         if (mIncludeVariableRestLength)
         {
-            double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge(time);
-            double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge(time);
+            double age0 = mCells[pElement->GetNode(0)->GetIndex()].GetAge();
+            double age1 = mCells[pElement->GetNode(1)->GetIndex()].GetAge();
             
             if (fabs(age0)<1e-6)
             {

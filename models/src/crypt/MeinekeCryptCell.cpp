@@ -9,6 +9,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
 {
+    mpSimulationTime = SimulationTime::Instance();
     // Stem cells are the only ones with generation = 0
     assert( (generation == 0) == (cellType == STEM) );
     //std::cout<< "Birth time " << birthTime << "\n" ;
@@ -123,55 +124,18 @@ CryptCellType MeinekeCryptCell::GetCellType()
 }
 
 
-bool MeinekeCryptCell::ReadyToDivide(double simulationTime)
-{
-    //std::cout<< "Divide time" << simulationTime << "\n" ;
-    mCanDivide = mpCellCycleModel->ReadyToDivide(simulationTime - mBirthTime);
-    return mCanDivide;
-}
-
 bool MeinekeCryptCell::ReadyToDivide()
 {
+    assert(mpSimulationTime!=NULL);
+
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;
     mCanDivide = mpCellCycleModel->ReadyToDivide(mpSimulationTime->GetDimensionalisedTime() - mBirthTime);
     return mCanDivide;
 }
 
-MeinekeCryptCell MeinekeCryptCell::Divide(double simulationTime)
-{
-    assert(mCanDivide);
-    CancerParameters *p_params = CancerParameters::Instance();
-    //std::cout<< "Divide time" << simulationTime << "\n" ;
-    if (mCellType != STEM)
-    {
-        if (mGeneration < p_params->GetMaxTransitGenerations())
-        {
-            mGeneration++;
-            mBirthTime = simulationTime;
-            return MeinekeCryptCell(TRANSIT, simulationTime, mGeneration,
-                                    mpCellCycleModel->CreateCellCycleModel());
-        }
-        else
-        {
-            mGeneration++;
-            mCellType = DIFFERENTIATED;
-            mpCellCycleModel->SetCellType(mCellType);
-            mBirthTime = simulationTime;
-            return MeinekeCryptCell(DIFFERENTIATED, simulationTime, mGeneration,
-                                    mpCellCycleModel->CreateCellCycleModel());
-        }
-    }
-    else
-    {
-        mBirthTime = simulationTime;
-        return MeinekeCryptCell(TRANSIT, simulationTime, 1,
-                                mpCellCycleModel->CreateCellCycleModel());
-    }
-    mCanDivide = false;
-}
-
 MeinekeCryptCell MeinekeCryptCell::Divide()
 {
+    assert(mpSimulationTime!=NULL);
     assert(mCanDivide);
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;

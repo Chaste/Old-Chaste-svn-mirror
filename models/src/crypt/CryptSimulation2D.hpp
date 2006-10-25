@@ -228,13 +228,13 @@ public:
         }
         tabulated_element_writer.EndDefineMode();
         
-
         
         NodeMap map(mrMesh.GetNumAllNodes());
 
         int num_time_steps = (int)(mEndTime/mDt+0.5);
         
-        SimulationTime *p_simulation_time = SimulationTime::Instance(mEndTime, num_time_steps);
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);        
          
         int num_births = 0;
         int num_deaths = 0;
@@ -248,8 +248,8 @@ public:
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory);
 
-        out_stream p_node_file = output_file_handler.OpenOutputFile("nodes.dat");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("elements.dat");
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.visnodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.viselements");
 
 
         int counter = 0;
@@ -270,10 +270,10 @@ public:
                     if(mIsGhostNode[i]) continue;
 
                     // Check for this cell dividing
-                    if(mCells[i].ReadyToDivide(p_simulation_time->GetDimensionalisedTime()))
+                    if(mCells[i].ReadyToDivide())
                     {
                         // Create new cell
-                        MeinekeCryptCell new_cell = mCells[i].Divide(p_simulation_time->GetDimensionalisedTime());
+                        MeinekeCryptCell new_cell = mCells[i].Divide();
                         // Add new node to mesh
                         Node<2> *p_our_node = mrMesh.GetNodeAt(i);
                         
@@ -315,6 +315,7 @@ public:
                     }
                 }
             }
+
             
             // calculate node velocities
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
@@ -354,18 +355,21 @@ public:
                         
                         unit_difference = unit_difference/distance_between_nodes;
                         
-                        double ageA = mCells[p_element->GetNode(nodeA)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
-                        double ageB = mCells[p_element->GetNode(nodeB)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
                         double rest_length = 1.0;
                         
-                        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-                        {
-                            // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-                            rest_length=(0.9+0.1*ageA);
-                            assert(rest_length<=1.0);
-                        }                        
+//                        if( (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)]) )
+//                        {
+//                            double ageA = mCells[p_element->GetNode(nodeA)->GetIndex()].GetAge();
+//                            double ageB = mCells[p_element->GetNode(nodeB)->GetIndex()].GetAge();
+//                            if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+//                            {
+//                                // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+//                                rest_length=(0.9+0.1*ageA);
+//                                assert(rest_length<=1.0);
+//                            }
+//                        }
                         
-                        drdt_contribution = mpParams->GetMeinekeLambda() *  unit_difference  * (distance_between_nodes - rest_length) ;
+                        drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length) ;
                         
                         assert(!p_element->GetNode(nodeA)->IsDeleted());
                         assert(!p_element->GetNode(nodeB)->IsDeleted());
@@ -423,18 +427,21 @@ public:
                     double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
                     
                     unit_difference=unit_difference/distance_between_nodes;
-                    
-                    double ageA = mCells[p_edge->GetNode(nodeA)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
-                    double ageB = mCells[p_edge->GetNode(nodeB)->GetIndex()].GetAge(p_simulation_time->GetDimensionalisedTime());
+
                     double rest_length = 1.0;
-                        
-                    if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-                    {
-                        // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-                        rest_length=(0.9+0.1*ageA);
-                        assert(rest_length<=1.0);
-                    }                          
-                
+                    
+//                    if( (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)]) )
+//                    {
+//                        double ageA = mCells[p_edge->GetNode(nodeA)->GetIndex()].GetAge();
+//                        double ageB = mCells[p_edge->GetNode(nodeB)->GetIndex()].GetAge();
+//                        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+//                        {
+//                           // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+//                           rest_length=(0.9+0.1*ageA);
+//                           assert(rest_length<=1.0);
+//                       }                          
+//                    }
+
                     drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
                        
                     assert(!p_edge->GetNode(nodeA)->IsDeleted());

@@ -16,7 +16,8 @@ public:
 
     void TestMeinekeCryptCellClass()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance(2.0, 4);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
         
         MeinekeCryptCell stem_cell(STEM, // type
                                    0,    // generation
@@ -41,7 +42,8 @@ public:
     
     void TestCellDivision()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance(54.0, 9);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         CancerParameters *p_params = CancerParameters::Instance();
         
         // this test needs particular cell cycle times
@@ -98,7 +100,8 @@ public:
     
     void TestCellDivisionStops()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance(54.0, 9);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         CancerParameters *p_params = CancerParameters::Instance();
         
         // If the value of GetStemCellCycleTime() changes in p_params the simulation time
@@ -189,7 +192,8 @@ public:
     
     void Test0DBucket()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance(60.0, 60);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
         
         MeinekeCryptCell stem_cell(STEM, // type
                                    0,  // generation
@@ -266,7 +270,8 @@ public:
     {
         // Simulation time is 6000 because we want to test that differentiated cells never divide.
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance(6000.0, 1000);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
         CancerParameters *p_params = CancerParameters::Instance();
         
         // this test needs particular cell cycle times
@@ -339,7 +344,8 @@ public:
     {
     
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
-        SimulationTime* p_simulation_time = SimulationTime::Instance(54.0, 5400);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
         CancerParameters *p_params = CancerParameters::Instance();
         
         // this test needs particular cell cycle times
@@ -416,7 +422,8 @@ public:
         
         for (int simulation_number=0; simulation_number<number_of_simulations; simulation_number++)
         {
-            SimulationTime* p_simulation_time = SimulationTime::Instance(70.0, 70);
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
             
             MeinekeCryptCell stem_cell(STEM, // type
                                        0,  // generation
@@ -493,7 +500,8 @@ public:
      */
     void TestInitialise0DBucket()
     {
-        SimulationTime* p_simulation_time = SimulationTime::Instance(60.0, 60);
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
         
         std::vector<MeinekeCryptCell> cells;
         
