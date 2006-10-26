@@ -5,6 +5,7 @@
 import sys
 import os
 import glob
+import socket 
 
 sys.path.append('python')
 import BuildTypes
@@ -18,16 +19,16 @@ Export('build', 'build_type')
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
 
+machine_fqdn = socket.getfqdn()
 # Allow the system_name to be derived automatically
-host_name = os.getenv('HOSTNAME')
-if host_name in ["userpc30", "userpc33"]:
+if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     system_name = 'joe'
-elif host_name == "zuse.osc.ox.ac.uk":
+elif machine_fqdn == "zuse.osc.ox.ac.uk":
     system_name = 'zuse'
-elif host_name in ["userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
+elif machine_fqdn in ["userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
                    "userpc60.comlab.ox.ac.uk", "clpc129.comlab"]:
     system_name = 'chaste'
-elif host_name == 'finarfin':
+elif machine_fqdn == 'finarfin':
     system_name = 'finarfin'
 else:
     system_name = ''
@@ -245,15 +246,14 @@ Clean('.', test_output_files)
 
 # Test summary generation
 if test_summary and not compile_only:
-  import socket, time
+  import time
   # Touch a file, which we use as source for the summary target, so the summary
   # is done on every build.
   fp = file('buildtime.txt', 'w')
   print >>fp, time.asctime()
   fp.close()
   # Get the directory to put results & summary in
-  machine = socket.getfqdn()
-  output_dir = os.path.join(build.GetTestReportDir(), machine+'.'+build_type)
+  output_dir = os.path.join(build.GetTestReportDir(), machine_fqdn+'.'+build_type)
   # Remove old results. Note that this command gets run before anything is built.
   #for oldfile in os.listdir(output_dir):
   #  os.remove(os.path.join(output_dir, oldfile))
