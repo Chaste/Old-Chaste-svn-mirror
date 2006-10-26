@@ -99,11 +99,9 @@ public:
     {
         if ( mMeshFilename=="" )
         {
-            EXCEPTION("Mesh filename was passed in empty");
+            EXCEPTION("Mesh filename was not set");
         }
         
-        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
-        mMesh.ConstructFromMeshReader(mesh_reader);
         
         mpCellFactory->SetMesh( &mMesh );
         
@@ -421,7 +419,21 @@ public:
     
     void SetMeshFilename(const std::string &rMeshFilename)
     {
+        if ( mMeshFilename!="" )
+        {
+            EXCEPTION("Mesh filename was already set");
+        }
+        if ( rMeshFilename=="" )
+        {
+            EXCEPTION("Mesh filename was passed in empty");
+        }
+        
+        
         mMeshFilename = rMeshFilename;
+        
+        TrianglesMeshReader<SPACE_DIM, SPACE_DIM> mesh_reader(mMeshFilename);
+        mMesh.ConstructFromMeshReader(mesh_reader);
+        
     }
     
     void SetOutputDirectory(const std::string &rOutputDirectory)

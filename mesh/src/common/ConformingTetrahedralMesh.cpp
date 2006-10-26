@@ -1261,6 +1261,23 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
 }
 
-
-
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumberGenerators &rRng)
+{
+    //Working from the back, each node is swapped with a random node that precedes it in the array
+    for (unsigned index=mNodes.size()-1; index>0; index--)
+    {
+        unsigned  other=rRng.randMod(index+1); //includes the possibility of rolling "index"
+        //Swap index and other
+        Node<SPACE_DIM> *temp=mNodes[index];
+        mNodes[index]=mNodes[other];
+        mNodes[other]=temp;
+    } 
+    
+    //Update indices
+    for (unsigned index=0; index<mNodes.size(); index++)
+    {
+        mNodes[index]->SetIndex(index);
+    }
+}
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

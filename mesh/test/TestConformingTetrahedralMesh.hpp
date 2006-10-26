@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
+#include "RandomNumberGenerators.hpp"
 #include <cmath>
 
 #include <vector>
@@ -1050,14 +1051,52 @@ public:
         mesh.SetNode(node_index, target_index);
         
         
-        TS_ASSERT_DELTA(volume - mesh.CalculateMeshVolume(), 0.0, 1e-7);
-        TS_ASSERT_DELTA(surface - mesh.CalculateMeshSurface(), 0.0, 1e-7);
+        TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
+        TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2);
         
         
         //Can't move corner nodes since this forces some zero volume elements which aren't on the shared list...
+    }
+    
+    
+    void TestNodePermutation()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        double volume=mesh.CalculateMeshVolume();
+        double surface=mesh.CalculateMeshSurface();
+        
+        Node<3>*  p_node0=mesh.GetNodeAt(0);
+        Node<3>*  p_node121=mesh.GetNodeAt(121);
+        Node<3>*  p_node125=mesh.GetNodeAt(125);
+        Node<3>*  p_node273=mesh.GetNodeAt(273);
+        
+        RandomNumberGenerators rng;
+        mesh.PermuteNodes(rng);
+        
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(  0)->GetIndex(),   0);
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(121)->GetIndex(), 121);
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(125)->GetIndex(), 125);
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(273)->GetIndex(), 273);
+        
+        TS_ASSERT_EQUALS(p_node0->GetIndex(), 357);
+        TS_ASSERT_EQUALS(p_node121->GetIndex(), 35);
+        TS_ASSERT_EQUALS(p_node125->GetIndex(), 219);
+        TS_ASSERT_EQUALS(p_node273->GetIndex(), 319);
+        
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node0->GetIndex()), p_node0);
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node121->GetIndex()), p_node121);
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node125->GetIndex()), p_node125);
+        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node273->GetIndex()), p_node273);
+        
+        TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
+        TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
+      
+        
     }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

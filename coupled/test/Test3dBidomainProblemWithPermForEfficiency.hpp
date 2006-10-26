@@ -1,5 +1,5 @@
-#ifndef TEST3DBIDOMAINFOREFFICIENCY_HPP_
-#define TEST3DBIDOMAINFOREFFICIENCY_HPP_
+#ifndef TEST3DBIDOMAINWITHPERMFOREFFICIENCY_HPP_
+#define TEST3DBIDOMAINWITHPERMFOREFFICIENCY_HPP_
 
 
 
@@ -12,6 +12,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "RandomNumberGenerators.hpp"
 
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
@@ -43,7 +44,7 @@ public:
     }
 };
 
-class Test3dBidomainProblemForEfficiency :  public CxxTest::TestSuite
+class Test3dBidomainProblemWithPermForEfficiency :  public CxxTest::TestSuite
 {
 public:
 
@@ -60,8 +61,11 @@ public:
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
     
-        bidomain_problem.Initialise();
+        RandomNumberGenerators rng;
+        bidomain_problem.rGetMesh().PermuteNodes(rng);
         
+        
+        bidomain_problem.Initialise();
         bidomain_problem.Solve();
         
         Vec voltage=bidomain_problem.GetVoltage();
@@ -114,4 +118,4 @@ public:
 };
 
 
-#endif /*TEST3DBIDOMAINFOREFFICIENCY_HPP_*/
+#endif /*TEST3DBIDOMAINWITHPERMFOREFFICIENCY_HPP_*/

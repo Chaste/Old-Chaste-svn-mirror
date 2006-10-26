@@ -348,6 +348,7 @@ public:
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename("AnyOldRandomStringWillDO"));
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
         
         //Throws because the input is empty
