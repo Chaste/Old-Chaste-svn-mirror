@@ -52,8 +52,8 @@ public:
         
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_1000_elements");
         bidomain_problem.SetEndTime(1);   // ms
-        bidomain_problem.SetOutputDirectory("bidomainDg01d");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
+        bidomain_problem.SetOutputDirectory("");
+        bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-7);
         
         bidomain_problem.Initialise();

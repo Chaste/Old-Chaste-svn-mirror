@@ -3,8 +3,6 @@
 #include "Exception.hpp"
 #include <assert.h>
 
-#include <iostream>
-
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
 
@@ -14,11 +12,9 @@ SimulationTime* SimulationTime::mpInstance = NULL;
  * */
 SimulationTime* SimulationTime::Instance()
 {
-    std::cout << "Getting instance " << mpInstance << std::endl;
     if(mpInstance == NULL)
     {
         mpInstance = new SimulationTime;
-	std::cout << "Creating instance " << mpInstance << std::endl;
     }
     return mpInstance;
 }
