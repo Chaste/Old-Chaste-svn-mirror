@@ -1,6 +1,10 @@
 #ifndef SIMULATIONTIME_HPP_
 #define SIMULATIONTIME_HPP_
 
+/**
+ * Simulation time object stores the simulation time, uses the
+ * singleton pattern
+ */
 class SimulationTime
 {
 public:
@@ -13,6 +17,8 @@ public:
     static void Destroy();
 protected:
     SimulationTime();
+    SimulationTime(const SimulationTime&);
+    SimulationTime& operator= (const SimulationTime&);
 private:
     static SimulationTime* mpInstance;
     double mDurationOfSimulation;

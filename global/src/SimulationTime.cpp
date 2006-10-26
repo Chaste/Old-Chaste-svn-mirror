@@ -1,12 +1,12 @@
-/**
- * Simulation time object stores the simulation time, uses the singleton pattern
- */
 
 #include "SimulationTime.hpp"
 #include "Exception.hpp"
 #include <assert.h>
 
-SimulationTime* SimulationTime::mpInstance = 0;
+#include <iostream>
+
+/** Pointer to the single instance */
+SimulationTime* SimulationTime::mpInstance = NULL;
 
 /**
  * Return a pointer to the simulation time object.
@@ -14,9 +14,11 @@ SimulationTime* SimulationTime::mpInstance = 0;
  * */
 SimulationTime* SimulationTime::Instance()
 {
+    std::cout << "Getting instance " << mpInstance << std::endl;
     if(mpInstance == NULL)
     {
         mpInstance = new SimulationTime;
+	std::cout << "Creating instance " << mpInstance << std::endl;
     }
     return mpInstance;
 }
@@ -28,10 +30,21 @@ SimulationTime::SimulationTime()
 }
 
 
+/**
+ * Destroy the current SimulationTime instance.  The next call to
+ * Instance will create a new instance, on which
+ * SetEndTimeAndNumberOfTimeSteps must be called again to reset time.
+ *
+ * This method *must* be called before program exit, to avoid a memory
+ * leak.
+ */
 void SimulationTime::Destroy()
 {
-    delete mpInstance;
-    mpInstance = 0;
+    if (mpInstance)
+    {
+	delete mpInstance;
+	mpInstance = NULL;
+    }
 }
 
 /**
@@ -42,7 +55,7 @@ void SimulationTime::Destroy()
  */
 double SimulationTime::GetTimeStep()
 {
-    assert(mEndTimeAndNumberOfTimeStepsSet==true);
+    assert(mEndTimeAndNumberOfTimeStepsSet);
     return mDurationOfSimulation/mTotalTimeStepsInSimulation;
 }
 
@@ -51,7 +64,7 @@ double SimulationTime::GetTimeStep()
  */
 void SimulationTime::IncrementTimeOneStep()
 {
-    assert(mEndTimeAndNumberOfTimeStepsSet==true);
+    assert(mEndTimeAndNumberOfTimeStepsSet);
     mTimeStepsElapsed++;
 }
 
@@ -61,7 +74,7 @@ void SimulationTime::IncrementTimeOneStep()
  */
 int SimulationTime::GetTimeStepsElapsed()
 {
-    assert(mEndTimeAndNumberOfTimeStepsSet==true);
+    assert(mEndTimeAndNumberOfTimeStepsSet);
     return mTimeStepsElapsed;
 }
 
@@ -72,7 +85,7 @@ int SimulationTime::GetTimeStepsElapsed()
  */
 double SimulationTime::GetDimensionalisedTime()
 {
-    assert(mEndTimeAndNumberOfTimeStepsSet==true);
+    assert(mEndTimeAndNumberOfTimeStepsSet);
     return ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
            * mDurationOfSimulation;
 }
@@ -86,8 +99,8 @@ double SimulationTime::GetDimensionalisedTime()
  */
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation, int totalTimeStepsInSimulation)
 {    
-    assert(mEndTimeAndNumberOfTimeStepsSet==false);
+    assert(!mEndTimeAndNumberOfTimeStepsSet);
     mDurationOfSimulation = durationOfSimulation;
-    mTotalTimeStepsInSimulation=totalTimeStepsInSimulation;
+    mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
