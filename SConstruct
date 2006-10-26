@@ -26,9 +26,9 @@ if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     system_name = 'zuse'
 elif machine_fqdn in ["userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
-                   "userpc60.comlab.ox.ac.uk", "clpc129.comlab"]:
+                      "userpc60.comlab.ox.ac.uk", "clpc129.comlab.ox.ac.uk"]:
     system_name = 'chaste'
-elif machine_fqdn == 'finarfin':
+elif machine_fqdn.startswith('finarfin'):
     system_name = 'finarfin'
 else:
     system_name = ''
@@ -54,12 +54,12 @@ Export('compile_only')
 # This will force the test suite to be run even if the source is unchanged.
 single_test_suite = ARGUMENTS.get('test_suite', '')
 if single_test_suite:
-  single_test_suite = single_test_suite.split(os.path.sep)
-  single_test_suite_dir = single_test_suite[0]
-  single_test_suite = single_test_suite[-1]
-  #print single_test_suite, single_test_suite_dir
+    single_test_suite = single_test_suite.split(os.path.sep)
+    single_test_suite_dir = single_test_suite[0]
+    single_test_suite = single_test_suite[-1]
+    #print single_test_suite, single_test_suite_dir
 else:
-  single_test_suite_dir = ''
+    single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')
 
 

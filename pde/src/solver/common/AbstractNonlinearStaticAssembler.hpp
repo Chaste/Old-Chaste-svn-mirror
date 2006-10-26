@@ -213,6 +213,8 @@ public:
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;  
+        mWeAllocatedSolverMemory = true;
+
         this->mProblemIsLinear = false;
         
         mUseAnalyticalJacobian = true;
