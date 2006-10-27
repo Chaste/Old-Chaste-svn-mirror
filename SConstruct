@@ -30,6 +30,8 @@ elif machine_fqdn in ["userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
     system_name = 'chaste'
 elif machine_fqdn.startswith('finarfin'):
     system_name = 'finarfin'
+elif machine_fqdn in ["engels.maths.nottingham.ac.uk", "marx.maths.nottingham.ac.uk"]:
+    system_name = 'Nottingham'
 else:
     system_name = ''
 
@@ -94,7 +96,6 @@ elif system_name == 'joe':
   petsc_bmake = petsc_base+'bmake/linux-gnu'
   boost = '/home/jmpf'
   other_includepaths = [petsc_inc, petsc_bmake, boost]
-  
   petsc_libpath = petsc_base+'lib/linux-gnu/'
   blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
   other_libs = ['f2clapack', 'f2cblas']
@@ -139,21 +140,31 @@ elif system_name == 'chaste':
   # petsc_mpi = petsc_base+'include/mpiuni'
   petsc_mpi = ''
   other_includepaths = [petsc_inc, petsc_bmake]
-
   blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
   petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
   other_libpaths = [petsc_libpath, blas_libpath]
   other_libs = ['f2clapack', 'f2cblas']
+elif system_name == 'Nottingham':
+  # Gary and Alex's machines in Nottingham
+  petsc_base = '/opt/petsc-2.2.1-with-mpi/'
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+#  petsc_mpi = petsc_base+'include/mpiuni'
+  petsc_mpi = ''
+  boost_path = '/usr/include/'
+  other_includepaths = [petsc_inc, petsc_bmake, petsc_mpi, boost_path]
+#  other_includepaths = [petsc_inc, petsc_bmake, petsc_mpi]
+  other_libs = ['lapack', 'blas']
+  blas_libpath = '/usr/lib/'
+  other_libpaths = [blas_libpath, petsc_base+'lib/libO_c++/linux-gnu/']
 else:
   # Default for cancer course in the DTC
   petsc_base = '/usr/local/petsc-2.3.1-p15/'
   petsc_inc = petsc_base+'include'
   petsc_bmake = petsc_base+'bmake/linux-gnu'
   other_includepaths = [petsc_inc, petsc_bmake]
-
   other_libs = ['lapack', 'blas']
   other_libpaths = [petsc_base+'lib/linux-gnu/']
-
 
 Export("other_includepaths", "other_libpaths", "other_libs")
 
@@ -191,11 +202,18 @@ elif system_name == 'chaste':
   mpirun = 'mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
+elif system_name == 'Nottingham':
+  mpicxx = '/opt/mpi/bin/mpicxx'
+  mpirun = '/opt/mpi/bin/mpirun'
+  cxx = '/usr/bin/g++'
+  ar = '/usr/bin/ar'
 else:
+ # DTC cancer course defaults
   mpicxx = '/usr/local/mpi/bin/mpicxx'
   mpirun = '/usr/local/mpi/bin/mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
+
 
 Export("mpicxx", "mpirun", "cxx", "ar")
 
