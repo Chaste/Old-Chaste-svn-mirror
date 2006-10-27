@@ -163,6 +163,42 @@ public:
     }
     
     
+    void TestTraceAndSecondInvariant()
+    {
+        c_matrix<double, 1,1> a;
+        a(0,0) = 13.03;
+        TS_ASSERT_DELTA(Trace(a),13.03,1e-10);
+ 
+        c_matrix<double, 2,2> b;
+        b(0,0) = 13.03;
+        b(1,0) = 3.03;
+        b(0,1) = 3.03;
+        b(1,1) = 165;
+        TS_ASSERT_DELTA(Trace(b),13.03+165,1e-10);
+ 
+        // symmetric 3 by 3 matrix.
+        c_matrix<double, 3,3> c;
+        c(0,0) = 13.03;
+        c(1,0) = 1.3;
+        c(2,0) = 2.3;
+        c(0,1) = 1.3;
+        c(1,1) = 45;
+        c(2,1) = 9.9;
+        c(0,2) = 2.3;
+        c(1,2) = 9.9;
+        c(2,2) = 34;
+        
+        c_matrix<double,3,3> c_squared = prod(trans(c),c);
+
+        TS_ASSERT_DELTA(Trace(c),13.03+45+34,1e-10);
+        TS_ASSERT_DELTA(SecondInvariant(c),0.5*(Trace(c)*Trace(c)-Trace(c_squared)),1e-10);
+ 
+        c_matrix<double, 4,4> d = identity_matrix<double>(4);
+        TS_ASSERT_DELTA(Trace(d),4,1e-10);
+    }
+    
+ 
+ 
     // square brackets seem to be implemented in ublas to get rows but not documented.
     void TestUblasSquareBrackets()
     {
