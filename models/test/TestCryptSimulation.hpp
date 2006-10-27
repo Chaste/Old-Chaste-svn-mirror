@@ -203,7 +203,7 @@ public:
     void Test1DChainWithBirthConstantRestLength() throw (Exception)
     {
         // Note that random numbers are reseeded with srandom(0) by the following constructor.
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         CancerParameters *p_params = CancerParameters::Instance();
         
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
@@ -244,7 +244,7 @@ public:
     // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         
         std::string testoutput_dir;
@@ -285,7 +285,7 @@ public:
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         CancerParameters *p_params = CancerParameters::Instance();
         
         double crypt_length = 22.0;
@@ -348,7 +348,7 @@ public:
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         
         double crypt_length = 22.0;
         p_params->SetCryptLength(crypt_length);

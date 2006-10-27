@@ -15,7 +15,7 @@
 #include "NodeMap.hpp"
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 /**
  * \todo
  * Work still needs to be done with boundary nodes & elements?
@@ -189,7 +189,7 @@ public:
      * @param rRng is a random number generators instance (so that the caller can seed
      * the permutation
      */
-     void PermuteNodes(RandomNumberGenerators &rRng);
+     void PermuteNodes(RandomNumberGenerator &rRng);
      
 };
 

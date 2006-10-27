@@ -2,7 +2,7 @@
 #define STOCHASTICCELLCYCLEMODEL_HPP_
 
 #include "AbstractCellCycleModel.hpp"
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 
 /**
  *  Stochastic cell model
@@ -13,10 +13,10 @@
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 private:
-    RandomNumberGenerators* mpGen;
+    RandomNumberGenerator* mpGen;
     
 public:
-    StochasticCellCycleModel(RandomNumberGenerators *pGen)
+    StochasticCellCycleModel(RandomNumberGenerator *pGen)
     {
         mpGen=pGen;
     }

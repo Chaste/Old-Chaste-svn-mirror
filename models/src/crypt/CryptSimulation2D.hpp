@@ -69,7 +69,7 @@ private:
     
     std::vector<MeinekeCryptCell> mCells;
 
-    RandomNumberGenerators *mpRandomNumberGenerator;    
+    RandomNumberGenerator *mpRandomNumberGenerator;    
     bool mCreatedRng;
     
     CancerParameters *mpParams;
@@ -82,7 +82,7 @@ public:
      */
     CryptSimulation2D(ConformingTetrahedralMesh<2,2> &rMesh,
                       std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
-                      RandomNumberGenerators *pGen = NULL)
+                      RandomNumberGenerator *pGen = NULL)
             : mrMesh(rMesh),
               mCells(cells)
     {
@@ -93,7 +93,7 @@ public:
         }
         else
         {
-            mpRandomNumberGenerator = new RandomNumberGenerators;
+            mpRandomNumberGenerator = new RandomNumberGenerator;
             mCreatedRng = true;
         }
         
@@ -304,7 +304,7 @@ public:
         /////////////////////////////////////////////////////////////////////
         while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
-            //std::cout << "** TIME = " << time << " **\n";
+		    //std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **\n";
             
             ///////////////////////////////////////////////////////
             // Cell birth
@@ -326,8 +326,6 @@ public:
                         double x = p_our_node->GetPoint()[0];
                         double y = p_our_node->GetPoint()[1];
                         
-//Note: May need to check which side element is put esp. at the ends
-//Element<2,2> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
 
                         // Find an element to refine. If the cell is not a stem cell
                         // pick a random connecting element. If the cell is a stem cell
@@ -348,17 +346,26 @@ public:
                             bool is_ghost_element = (    (mIsGhostNode[p_element->GetNodeGlobalIndex(0)]) 
                                                       || (mIsGhostNode[p_element->GetNodeGlobalIndex(1)]) 
                                                       ||  (mIsGhostNode[p_element->GetNodeGlobalIndex(2)]) );
+
+ 			                int counter = 0;
                             while (is_ghost_element)
                             {
                                 p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
                                 is_ghost_element = (    (mIsGhostNode[p_element->GetNodeGlobalIndex(0)]) 
                                                      || (mIsGhostNode[p_element->GetNodeGlobalIndex(1)]) 
                                                      || (mIsGhostNode[p_element->GetNodeGlobalIndex(2)]) );
+
+                				counter++;
+				                if(counter>p_our_node->GetNumContainingElements()+1)
+                				{
+                				    // somehow every connecting element is a ghost element. quit to
+                				    // avoid infinite loop
+                				    assert(0);
+                				}
                             }
                         }
                         
                         
-                        //unsigned new_node_index = AddNodeToElement(p_element);
                         double x_centroid = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[0]
                                                         +  p_element->GetNode(1)->GetPoint().rGetLocation()[0]
                                                         +  p_element->GetNode(2)->GetPoint().rGetLocation()[0] );
@@ -411,8 +418,9 @@ public:
                 }
             }
 
-            
-            // calculate node velocities
+            //////////////////////////////////////////////////////////////////////////
+            //                    calculate node velocities
+            //////////////////////////////////////////////////////////////////////////
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
             for (int i=0; i<mrMesh.GetNumAllNodes(); i++)
             {
@@ -606,9 +614,36 @@ public:
                         }
                     }
                 }
+                else if(mCells.size()>0)
+                {
+                    // move any node as long as it is not a stem cell.
+                    if(mCells[index].GetCellType()!=STEM)
+                    {
+                        if(!mrMesh.GetNodeAt(index)->IsDeleted())
+                        {
+                            //  std::cerr<<"Updating index "<<index<<"\n";
+                            Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+                            Point<2> new_point;
+
+                            // note factor of 0.5 in the update because drdt was twice
+                            // as large as it should be since edges were looped over twice.
+                            new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
+                            new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
+
+                            // if a cell wants to move below y<0 (most likely because it was 
+                            // just born from a stem cell), stop it doing so
+                            if( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
+                            {
+                                new_point.rGetLocation()[1] = 0.0;
+                            }
+
+                            mrMesh.SetNode(index, new_point, false);
+                        }
+                    }
+                }
                 else
                 {
-                    // assume stem cells are fixed, or if there are no cells, fix node 0
+                    // no cells, just fix any node on line y=0
                     if(mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
                     {
                         if(!mrMesh.GetNodeAt(index)->IsDeleted())
@@ -616,10 +651,12 @@ public:
                             //  std::cerr<<"Updating index "<<index<<"\n";
                             Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
                             Point<2> new_point;
+
+                            // note factor of 0.5 in the update because drdt was twice
+                            // as large as it should be since edges were looped over twice.
                             new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
                             new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
                             mrMesh.SetNode(index, new_point, false);
-
                         }
                     }
                 }
@@ -844,174 +881,169 @@ public:
      */
     
     void CalculateCryptBoundary()
-    {
-
-       double crypt_length=mpParams->GetCryptLength();
+    {       
+        double crypt_length=mpParams->GetCryptLength();
        
-       std::vector<bool> is_nodes_on_boundary(mIsGhostNode.size()) ;
-       std::vector<bool> is_nodes_on_top_boundary(mIsGhostNode.size()) ;
-       std::vector<bool> is_nodes_on_bottom_boundary(mIsGhostNode.size()) ;
-       for(unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
-       {
-           is_nodes_on_boundary[i]=false;
-           is_nodes_on_top_boundary[i]=false;
-           is_nodes_on_bottom_boundary[i]=false;
-       }
-       // Loop over elements and find bounndary nodes of crypt
-       for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+        std::vector<bool> is_nodes_on_boundary(mIsGhostNode.size());
+        std::vector<bool> is_nodes_on_top_boundary(mIsGhostNode.size());
+        std::vector<bool> is_nodes_on_bottom_boundary(mIsGhostNode.size());
+        for(unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
+        {
+            is_nodes_on_boundary[i]=false;
+            is_nodes_on_top_boundary[i]=false;
+            is_nodes_on_bottom_boundary[i]=false;
+        }
+       
+        // Loop over elements and find bounndary nodes of crypt
+        for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+        {
+            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+    
+            if (!mIsGhostNode[p_element->GetNode(0)->GetIndex()])
             {
-                 Element<2,2>* p_element = mrMesh.GetElement(elem_index);
-        
-                 if (!mIsGhostNode[p_element->GetNode(0)->GetIndex()])
-                 {
-                    if((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
-                    {
-                        is_nodes_on_boundary[p_element->GetNode(0)->GetIndex()]= true;
-                        
-                        if(mIsGhostNode[p_element->GetNode(1)->GetIndex()])
-                        {
-                            //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
-                            //Check if node 0 is on top
-                            if((p_element->GetNodeLocation(1,1)>crypt_length) && (p_element->GetNodeLocation(0,1)<=crypt_length))
-                            {
-                                is_nodes_on_top_boundary[p_element->GetNode(0)->GetIndex()]= true;
-                            }
-                            //Check  if node 0 is on bottom
-                            else if((p_element->GetNodeLocation(1,1)<0) && (p_element->GetNodeLocation(0,1)>=0))
-                            {
-                                is_nodes_on_bottom_boundary[p_element->GetNode(0)->GetIndex()]= true;
-                            }
-                         }
-                        
-                         else if(mIsGhostNode[p_element->GetNode(2)->GetIndex()])
-                         {
-                            //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
-                            
-                            //Check if node 0 is on top
-                            if((p_element->GetNodeLocation(2,1)>crypt_length) && (p_element->GetNodeLocation(0,1)<=crypt_length))
-                            {
-                                is_nodes_on_top_boundary[p_element->GetNode(0)->GetIndex()]= true;
-                            }
-                            //Check  if node 0 is on bottom
-                            else if((p_element->GetNodeLocation(2,1)<0) && (p_element->GetNodeLocation(0,1)>=0))
-                            {
-                                is_nodes_on_bottom_boundary[p_element->GetNode(0)->GetIndex()]= true;
-                            }
-                         }
-                     }
-                 
-                 }
-                 
-                 if (!mIsGhostNode[p_element->GetNode(1)->GetIndex()])
-                 {
+                if((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
+                {
+                    is_nodes_on_boundary[p_element->GetNode(0)->GetIndex()]= true;
                     
-                    if((mIsGhostNode[p_element->GetNode(0)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
+                    if(mIsGhostNode[p_element->GetNode(1)->GetIndex()])
                     {
-                        is_nodes_on_boundary[p_element->GetNode(1)->GetIndex()]= true;
-                        
-                        if(mIsGhostNode[p_element->GetNode(0)->GetIndex()])
+                        //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
+                        //Check if node 0 is on top
+                        if((p_element->GetNodeLocation(1,1)>crypt_length) && (p_element->GetNodeLocation(0,1)<=crypt_length))
                         {
-                            //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
-                            
-                            //Check if node 1 is on top
-                            if((p_element->GetNodeLocation(0,1)>crypt_length) && (p_element->GetNodeLocation(1,1)<=crypt_length))
-                            {
-                                is_nodes_on_top_boundary[p_element->GetNode(1)->GetIndex()]= true;
-                            }
-                            //Check  if node 1 is on bottom
-                            else if((p_element->GetNodeLocation(0,1)<0) && (p_element->GetNodeLocation(1,1)>=0))
-                            {
-                                is_nodes_on_bottom_boundary[p_element->GetNode(1)->GetIndex()]= true;
-                            }
-                         }
-                        
-                         else if(mIsGhostNode[p_element->GetNode(2)->GetIndex()])
-                         {
-                            //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
-                            
-                            //Check if node 1 is on top
-                            if((p_element->GetNodeLocation(2,1)>crypt_length) && (p_element->GetNodeLocation(1,1)<=crypt_length))
-                            {
-                                is_nodes_on_top_boundary[p_element->GetNode(1)->GetIndex()]= true;
-                            }
-                            //Check  if node 1 is on bottom
-                            else if((p_element->GetNodeLocation(2,1)<0) && (p_element->GetNodeLocation(1,1)>=0))
-                            {
-                                is_nodes_on_bottom_boundary[p_element->GetNode(1)->GetIndex()]= true;
-                            }
-                         }
-                        
+                            is_nodes_on_top_boundary[p_element->GetNode(0)->GetIndex()]= true;
+                        }
+                        //Check  if node 0 is on bottom
+                        else if((p_element->GetNodeLocation(1,1)<0) && (p_element->GetNodeLocation(0,1)>=0))
+                        {
+                            is_nodes_on_bottom_boundary[p_element->GetNode(0)->GetIndex()]= true;
+                        }
                     }
-                 }
-                 
-                 if (!mIsGhostNode[p_element->GetNode(2)->GetIndex()])
-                 {
-                    if((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(0)->GetIndex()]))
+                    
+                    else if(mIsGhostNode[p_element->GetNode(2)->GetIndex()])
                     {
-                        is_nodes_on_boundary[p_element->GetNode(2)->GetIndex()]= true; 
+                        //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
                         
-                        if(mIsGhostNode[p_element->GetNode(1)->GetIndex()])
+                        //Check if node 0 is on top
+                        if((p_element->GetNodeLocation(2,1)>crypt_length) && (p_element->GetNodeLocation(0,1)<=crypt_length))
                         {
-                            //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
-                            
-                            //Check if node 2 is on top
-                            if((p_element->GetNodeLocation(1,1)>crypt_length) && (p_element->GetNodeLocation(2,1)<=crypt_length))
-                            {
-                                is_nodes_on_top_boundary[p_element->GetNode(2)->GetIndex()]= true;
-                            }
-                            //Check  if node 2 is on bottom
-                            else if((p_element->GetNodeLocation(1,1)<0) && (p_element->GetNodeLocation(2,1)>=0))
-                            {
-                                is_nodes_on_bottom_boundary[p_element->GetNode(2)->GetIndex()]= true;
-                            }
-                         }
-                        
-                         else if(mIsGhostNode[p_element->GetNode(0)->GetIndex()])
-                         {
-                            //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
-                            
-                            //Check if node 2 is on top
-                            if((p_element->GetNodeLocation(0,1)>crypt_length) && (p_element->GetNodeLocation(2,1)<=crypt_length))
-                            {
-                                is_nodes_on_top_boundary[p_element->GetNode(2)->GetIndex()]= true;
-                            }
-                            //Check  if node 2 is on bottom
-                            else if((p_element->GetNodeLocation(0,1)<0) && (p_element->GetNodeLocation(2,1)>=0))
-                            {
-                                is_nodes_on_bottom_boundary[p_element->GetNode(2)->GetIndex()]= true;
-                            }
-                         }
+                            is_nodes_on_top_boundary[p_element->GetNode(0)->GetIndex()]= true;
+                        }
+                        //Check  if node 0 is on bottom
+                        else if((p_element->GetNodeLocation(2,1)<0) && (p_element->GetNodeLocation(0,1)>=0))
+                        {
+                            is_nodes_on_bottom_boundary[p_element->GetNode(0)->GetIndex()]= true;
+                        }
                     }
-                 }
-                      
+                }
             }
-            
-       std::vector<unsigned> nodes_on_boundary;   
-       std::vector<unsigned> nodes_on_left_boundary;
-       std::vector<unsigned> nodes_on_right_boundary;
-       std::vector<unsigned> nodes_on_top_boundary;
-       std::vector<unsigned> nodes_on_bottom_boundary;
-       for(unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
-       {
-           //std::cout<<"\n is node on bottom" << i << "\t" << is_nodes_on_bottom_boundary[i] << std::flush;
-           //std::cout<<"\n is node on top" << i << "\t" << is_nodes_on_top_boundary[i] << std::flush;
+             
+            if (!mIsGhostNode[p_element->GetNode(1)->GetIndex()])
+            {
+                
+                if((mIsGhostNode[p_element->GetNode(0)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
+                {
+                    is_nodes_on_boundary[p_element->GetNode(1)->GetIndex()]= true;
+                    
+                    if(mIsGhostNode[p_element->GetNode(0)->GetIndex()])
+                    {
+                        //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
+                        
+                        //Check if node 1 is on top
+                        if((p_element->GetNodeLocation(0,1)>crypt_length) && (p_element->GetNodeLocation(1,1)<=crypt_length))
+                        {
+                            is_nodes_on_top_boundary[p_element->GetNode(1)->GetIndex()]= true;
+                        }
+                        //Check  if node 1 is on bottom
+                        else if((p_element->GetNodeLocation(0,1)<0) && (p_element->GetNodeLocation(1,1)>=0))
+                        {
+                            is_nodes_on_bottom_boundary[p_element->GetNode(1)->GetIndex()]= true;
+                        }
+                    }
+                    else if(mIsGhostNode[p_element->GetNode(2)->GetIndex()])
+                    {
+                        //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
+                        
+                        //Check if node 1 is on top
+                        if((p_element->GetNodeLocation(2,1)>crypt_length) && (p_element->GetNodeLocation(1,1)<=crypt_length))
+                        {
+                            is_nodes_on_top_boundary[p_element->GetNode(1)->GetIndex()]= true;
+                        }
+                        //Check  if node 1 is on bottom
+                        else if((p_element->GetNodeLocation(2,1)<0) && (p_element->GetNodeLocation(1,1)>=0))
+                        {
+                            is_nodes_on_bottom_boundary[p_element->GetNode(1)->GetIndex()]= true;
+                        }
+                    }
+                }
+            }
+             
+            if (!mIsGhostNode[p_element->GetNode(2)->GetIndex()])
+            {
+                if((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(0)->GetIndex()]))
+                {
+                    is_nodes_on_boundary[p_element->GetNode(2)->GetIndex()]= true; 
+                    
+                    if(mIsGhostNode[p_element->GetNode(1)->GetIndex()])
+                    {
+                        //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
+                        
+                        //Check if node 2 is on top
+                        if((p_element->GetNodeLocation(1,1)>crypt_length) && (p_element->GetNodeLocation(2,1)<=crypt_length))
+                        {
+                            is_nodes_on_top_boundary[p_element->GetNode(2)->GetIndex()]= true;
+                        }
+                        //Check  if node 2 is on bottom
+                        else if((p_element->GetNodeLocation(1,1)<0) && (p_element->GetNodeLocation(2,1)>=0))
+                        {
+                            is_nodes_on_bottom_boundary[p_element->GetNode(2)->GetIndex()]= true;
+                        }
+                    }
+                    else if(mIsGhostNode[p_element->GetNode(0)->GetIndex()])
+                    {
+                        //std::cout<<"\n node 1 location " << p_element->GetNodeLocation(1,1) << "\t node 0 location " << p_element->GetNodeLocation(0,1) << "\t node 2 location " << p_element->GetNodeLocation(2,1) << std::flush;
+                        
+                        //Check if node 2 is on top
+                        if((p_element->GetNodeLocation(0,1)>crypt_length) && (p_element->GetNodeLocation(2,1)<=crypt_length))
+                        {
+                            is_nodes_on_top_boundary[p_element->GetNode(2)->GetIndex()]= true;
+                        }
+                        //Check  if node 2 is on bottom
+                        else if((p_element->GetNodeLocation(0,1)<0) && (p_element->GetNodeLocation(2,1)>=0))
+                        {
+                            is_nodes_on_bottom_boundary[p_element->GetNode(2)->GetIndex()]= true;
+                        }
+                    }
+                }
+            }
+        }
+                     
+        std::vector<unsigned> nodes_on_boundary;   
+        std::vector<unsigned> nodes_on_left_boundary;
+        std::vector<unsigned> nodes_on_right_boundary;
+        std::vector<unsigned> nodes_on_top_boundary;
+        std::vector<unsigned> nodes_on_bottom_boundary;
+        
+        for(unsigned i = 0; i < is_nodes_on_boundary.size(); i++) 
+        {
+            //std::cout<<"\n is node on bottom" << i << "\t" << is_nodes_on_bottom_boundary[i] << std::flush;
+            //std::cout<<"\n is node on top" << i << "\t" << is_nodes_on_top_boundary[i] << std::flush;
            
-           if(is_nodes_on_boundary[i])
-           {
-               nodes_on_boundary.push_back(i);
+            if(is_nodes_on_boundary[i])
+            {
+                nodes_on_boundary.push_back(i);
+                
+                if(is_nodes_on_top_boundary[i])
+                {
+                    nodes_on_top_boundary.push_back(i);
+                }
+                else if(is_nodes_on_bottom_boundary[i])
+                {
+                    nodes_on_bottom_boundary.push_back(i);
+                }
+            }
+        }
                
-               if(is_nodes_on_top_boundary[i])
-               {
-                  nodes_on_top_boundary.push_back(i);
-               }
-               else if(is_nodes_on_bottom_boundary[i])
-               {
-                  nodes_on_bottom_boundary.push_back(i);
-               }
-          }
-           
-       }
-       
        // Flagging corners for inclusion in left and right sides
 //       double max_x_top=0.0, min_x_top=100.0, max_x_bottom=0.0, min_x_bottom=100.0 ; 
 //       unsigned max_x_top_index, min_x_top_index, max_x_bottom_index, min_x_bottom_index ;
@@ -1046,15 +1078,10 @@ public:
 //        }
         
         
-       
-       
          mLeftCryptBoundary =  nodes_on_left_boundary;
          mRightCryptBoundary =  nodes_on_right_boundary;
          mCryptBoundary =  nodes_on_boundary;   
-         
     }
-    
-   
 };
 
 #endif /*CRYPTSIMULATION2D_HPP_*/

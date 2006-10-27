@@ -36,10 +36,10 @@ template <int DIM>
 class LinearElasticityAssembler : public AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>
 {
 private :
-    double mLambda;                  // units: anything, but must be {lambda, mu, rho, g} must be consistent
-    double mMu;                      // units: anything, but must be {lambda, mu, rho, g} must be consistent
-    double mDensity;                 // units: anything, but must be {lambda, mu, rho, g} must be consistent
-    c_vector<double, DIM> mGravity;  // units: anything, but must be {lambda, mu, rho, g} must be consistent
+    double mLambda;                  // units: anything, but {lambda, mu, rho, g} must be consistent
+    double mMu;                      // units: anything, but {lambda, mu, rho, g} must be consistent
+    double mDensity;                 // units: anything, but {lambda, mu, rho, g} must be consistent
+    c_vector<double, DIM> mGravity;  // units: anything, but {lambda, mu, rho, g} must be consistent
     
     bool mLameCoefficientsSet;  // bool saying whether the lame coeffs have been set yet
     
@@ -125,6 +125,7 @@ private :
 public :
     LinearElasticityAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                               ElasticityBoundaryConditionsContainer<DIM>* pBoundaryConditions)
+           :  AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>()
     {
         assert(pMesh != NULL);
         assert(pBoundaryConditions != NULL);

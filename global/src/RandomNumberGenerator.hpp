@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-class RandomNumberGenerators
+class RandomNumberGenerator
 {
 public:
     double StandardNormalRandomDeviate(void);
@@ -15,7 +15,7 @@ public:
     /**
      * @param seed Is the new seed which defaults to zero.
      */
-    RandomNumberGenerators(int seed=0)
+    RandomNumberGenerator(int seed=0)
     {
         srandom(seed);
     }

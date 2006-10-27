@@ -1,4 +1,4 @@
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 
 
 
@@ -6,7 +6,7 @@
  * Generate a random number modulo base (ie an integer
  * within the range 0,..,base-1)
  */
-int RandomNumberGenerators::randMod(int base)
+int RandomNumberGenerator::randMod(int base)
 {
     return (random()%base);
 }
@@ -14,7 +14,7 @@ int RandomNumberGenerators::randMod(int base)
 /** 
  * Generate a uniform random number in (0,1)
  */
-double RandomNumberGenerators::ranf(void)
+double RandomNumberGenerator::ranf(void)
 {
     return (double)random() / RAND_MAX;
 }
@@ -23,7 +23,7 @@ double RandomNumberGenerators::ranf(void)
  * Generate a random number from a normal distribution with given
  * mean and standard deviation
  */
-double RandomNumberGenerators::NormalRandomDeviate(double mean, double sd)
+double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 {
     return sd * StandardNormalRandomDeviate() + mean;
 }
@@ -57,7 +57,7 @@ double RandomNumberGenerators::NormalRandomDeviate(double mean, double sd)
      THE DEFINITIONS OF THE CONSTANTS A(K), D(K), T(K) AND
      H(K) ARE ACCORDING TO THE ABOVEMENTIONED ARTICLE
 */
-double RandomNumberGenerators::StandardNormalRandomDeviate(void)
+double RandomNumberGenerator::StandardNormalRandomDeviate(void)
 {
     static double a[32] =
         {

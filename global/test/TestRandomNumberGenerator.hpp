@@ -2,7 +2,7 @@
 #define TESTRANDOMNUMBERS_HPP_
 #include <cxxtest/TestSuite.h>
 
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 
 class TestRandomNumbers : public CxxTest::TestSuite
 {
@@ -14,7 +14,7 @@ public:
         srandom(0);
         ran1=(double)random()/RAND_MAX;
         
-        RandomNumberGenerators gen;
+        RandomNumberGenerator gen;
         
         double ran2=gen.ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
@@ -22,7 +22,7 @@ public:
     
     void TestNewMethodSeed()
     {
-        RandomNumberGenerators gen;
+        RandomNumberGenerator gen;
         double ran2=gen.ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
     }
@@ -32,7 +32,7 @@ public:
         srandom(36);
         ran1=(double)random()/RAND_MAX;
         
-        RandomNumberGenerators gen(36);
+        RandomNumberGenerator gen(36);
         
         double ran2=gen.ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);        

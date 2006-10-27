@@ -59,8 +59,8 @@ public:
             }
         }
     }
-    std::vector< std::vector < std::vector< std::vector<double> > > >
-    & rGetVal()
+    
+    std::vector< std::vector < std::vector< std::vector<double> > > >  & rGetVal()
     {
         return mVal;
     }

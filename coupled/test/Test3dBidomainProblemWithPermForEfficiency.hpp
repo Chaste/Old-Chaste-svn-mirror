@@ -12,7 +12,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
@@ -61,7 +61,7 @@ public:
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
     
-        RandomNumberGenerators rng;
+        RandomNumberGenerator rng;
         bidomain_problem.rGetMesh().PermuteNodes(rng);
         
         

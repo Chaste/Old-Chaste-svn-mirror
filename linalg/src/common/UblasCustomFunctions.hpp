@@ -41,6 +41,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,1> &m, const int miss
     assert(misscol==0);
     return 1.0;
 };
+
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T,2,2> &m)
 {
@@ -78,6 +79,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
              + m(0,2) *
              (m(1,0)*m(2,1) - m(1,1)*m(2,0));
 };
+
 /**
  * Return the determinant of a submatrix after removing a particular row and column
  */
@@ -172,4 +174,49 @@ c_vector<T, 3> VectorProduct(const c_vector<T, 3> &a, const c_vector<T, 3> &b)
     return result;
 }
 
+template<class T>
+T Trace(const c_matrix<T,1,1> &m)
+{
+    return m(0,0);
+}
+
+template<class T>
+T Trace(const c_matrix<T,2,2> &m)
+{
+    return m(0,0)+m(1,1);
+}
+
+template<class T>
+T Trace(const c_matrix<T,3,3> &m)
+{
+    return m(0,0)+m(1,1)+m(2,2);
+}
+
+template<class T>
+T Trace(const c_matrix<T,4,4> &m)
+{
+    return m(0,0)+m(1,1)+m(2,2)+m(3,3);
+}
+
+template<class T>
+T SecondInvariant(const c_matrix<T,1,1> &m)
+{
+    return m(0,0);
+}
+
+template<class T>
+T SecondInvariant(const c_matrix<T,2,2> &m)
+{
+    return m(1,1)*m(0,0) - m(1,0)*m(0,1);
+}
+
+template<class T>
+T SecondInvariant(const c_matrix<T,3,3> &m)
+{
+    return   m(0,1)*m(1,0) + m(1,2)*m(2,1) + m(2,0)*m(0,2) 
+           - m(0,0)*m(1,1) + m(1,1)*m(2,2) + m(2,2)*m(0,0);
+}
+
+
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
+

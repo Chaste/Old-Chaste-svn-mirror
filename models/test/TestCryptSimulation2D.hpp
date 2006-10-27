@@ -121,6 +121,8 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
         p_edge_file->close();
     }
     
+    
+    
     void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
@@ -220,7 +222,6 @@ public:
     void Test2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(0);
         
         double crypt_length = 10;
         double crypt_width = 10;
@@ -231,7 +232,6 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-       
         CryptSimulation2D simulator(mesh);
         simulator.SetOutputDirectory("Crypt2DSprings");
 
@@ -251,7 +251,8 @@ public:
 //    void DO_NOT____Test2DSpringsWithCells() throw (Exception)
 //    {
 //        CancerParameters *p_params = CancerParameters::Instance();
-//        srandom(0);
+//        RandomNumberGenerator random_num_gen;
+//
 //        double crypt_length = 10;
 //        double crypt_width = 10;
 //        
@@ -276,13 +277,13 @@ public:
 //            {
 //                cell_type = STEM;
 //                generation = 0;
-//                birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+//                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
 //            }
 //            else if (y < 5.0)
 //            {
 //                cell_type = TRANSIT;
 //                generation = 1;
-//                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+//                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
 //            }
 //            else
 //            {
@@ -314,10 +315,10 @@ public:
     
     
     // not being run because takes a few minutes to run
-    void DO_NOT________TestWithBirthOnHoneycombMesh() throw (Exception)
+    void DO_NOT__TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(0);  // this is BAD, mkay, no way?
+        RandomNumberGenerator random_num_gen;
         
         double crypt_length = 10.0;
         double crypt_width = 5.0;
@@ -358,25 +359,25 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 4)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -407,7 +408,8 @@ public:
     void Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        srandom(0);
+        RandomNumberGenerator random_num_gen;
+        
         double crypt_length = 10;
         double crypt_width = 10;
         
@@ -432,25 +434,25 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 6.5)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 8)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -(((double)random())/RAND_MAX)*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {

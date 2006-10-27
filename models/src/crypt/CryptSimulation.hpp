@@ -51,7 +51,7 @@ private:
     
     CancerParameters *mpParams;
     
-    RandomNumberGenerators *mpGen;
+    RandomNumberGenerator *mpGen;
     bool mCreatedRng;
     
 public:
@@ -60,12 +60,12 @@ public:
      *  @param rMesh
      *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
      *  should be called for any birth to happen.
-     *  @param pGen is a RandomNumberGenerators class.  If it's not given then a new one is 
+     *  @param pGen is a RandomNumberGenerator class.  If it's not given then a new one is 
      *  constructed and random numbers are reseeded with srandom(0).
      */
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
-                    RandomNumberGenerators *pGen = NULL)
+                    RandomNumberGenerator *pGen = NULL)
             : mrMesh(rMesh),
             mCells(cells)
     {
@@ -76,7 +76,7 @@ public:
         }
         else
         {
-            mpGen = new RandomNumberGenerators;
+            mpGen = new RandomNumberGenerator;
             mCreatedRng = true;
         }
         mpParams = CancerParameters::Instance();
@@ -199,7 +199,7 @@ public:
                 unsigned new_node_index = AddRandomNode(p_simulation_time->GetDimensionalisedTime());
                 time_since_last_birth = 0 ;
                 // Create new cell note all are Stem Cells and have generation 0 for random birth
-                //RandomNumberGenerators *pGen=new RandomNumberGenerators;
+                //RandomNumberGenerator *pGen=new RandomNumberGenerator;
                 CryptCellType cell_type=STEM ;
                 unsigned generation=0;
                 MeinekeCryptCell new_cell(cell_type, p_simulation_time->GetDimensionalisedTime(), generation, new StochasticCellCycleModel(mpGen));

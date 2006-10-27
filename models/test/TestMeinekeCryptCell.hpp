@@ -278,7 +278,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         
         p_simulation_time->IncrementTimeOneStep();
         
@@ -352,7 +352,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         
         for (int i=0; i<600; i++)
         {
@@ -403,7 +403,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerators rand_gen;
+        RandomNumberGenerator rand_gen;
         
         const double end_time = 70.0;
         //const int time_steps = 70;

@@ -110,6 +110,13 @@ protected:
      * 
      *  NOTE: for linear problems rGradU is NOT set up correctly because it should
      *  not be needed
+     * 
+     *   @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     *   @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     *   @param rX The point in space
+     *   @param u The unknown as a vector, u(i) = u_i
+     *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
+     * 
      */
     virtual c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -130,6 +137,12 @@ protected:
      * 
      *  NOTE: for linear problems rGradPhi and rGradU are NOT set up correctly because 
      *  they should not be needed
+     * 
+     *   @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     *   @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
+     *   @param rX The point in space
+     *   @param u The unknown as a vector, u(i) = u_i
+     *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      */        
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
@@ -148,6 +161,10 @@ protected:
      *  added to the element stiffness matrix (see AssembleOnElement()).
      * 
      *     --This method has to be implemented in the concrete class--
+     * 
+     *   @param rSurfaceElement the element which is being considered.
+     *   @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     *   @param rX The point in space
      */
     virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
@@ -535,7 +552,7 @@ protected:
                 int node1 = element.GetNodeGlobalIndex(i);
                                 
                 if (assemble_matrix)
-                {
+                {                    
                     for (int j=0; j<num_elem_nodes; j++)
                     {
                         int node2 = element.GetNodeGlobalIndex(j);

@@ -8,6 +8,14 @@ SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver(double linearSolverRela
   mTolerance(1e-5),
   mWriteStats(false)
 {
+    
+    mTestDampingValues.push_back(-0.1);
+    mTestDampingValues.push_back(0.05);
+    for(int i=1;i<=12;i++)
+    {
+        double val = double(i)/10;
+        mTestDampingValues.push_back(val);
+    }
 }
 
 SimpleNewtonNonlinearSolver::~SimpleNewtonNonlinearSolver()
@@ -33,56 +41,94 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     
     double residual_norm;
     VecNorm(linear_system.rGetRhsVector(), NORM_2, &residual_norm);
-    double scaled_norm = residual_norm/size;
+    double scaled_residual_norm = residual_norm/size;
     
     if(mWriteStats)
     {
-        std::cout << "Newton's method:\n  Initial ||residual||/N = " << scaled_norm 
+        std::cout << "Newton's method:\n  Initial ||residual||/N = " << scaled_residual_norm 
                   << "\n  Attempting to solve to tolerance " << mTolerance << "..\n";
     }
 
 
     SimpleLinearSolver simple_linear_solver(mLinearSolverRelativeTolerance);
     
-    double old_scaled_norm;
+    double old_scaled_residual_norm;
     unsigned counter = 0;
-    while(scaled_norm > mTolerance)
+    while(scaled_residual_norm > mTolerance)
     {
         counter++;
         
         // store the old norm to check with the new later
-        old_scaled_norm = scaled_norm;
+        old_scaled_residual_norm = scaled_residual_norm;
 
         // compute Jacobian and solve J dx = f for the (negative) update dx, (J the jacobian, f the residual) 
         (*pComputeJacobian)(NULL, current_solution, &(linear_system.rGetLhsMatrix()), NULL, NULL, pContext);
      
-        Vec update = linear_system.Solve(&simple_linear_solver);
+        Vec negative_update = linear_system.Solve(&simple_linear_solver);
 
-        // update solution: current_guess += -update 
+        
+        Vec test_vec;
+        VecDuplicate(initialGuess, &test_vec);
+        
+        double best_damping_factor = 1.0;
+        double best_scaled_residual = 1e20; //large
+        
+        // loop over all the possible damping value and determine which gives
+        // smallest residual
+        for(unsigned i=0; i<mTestDampingValues.size(); i++)
+        {
 #if (PETSC_VERSION_MINOR == 2) //Old API
-	    double minus_one=-1;
-    	VecAXPY(&minus_one, update, current_solution);
+            assert(0); // fill me in
 #else
-	   //[note: VecAXPY(y,a,x) computes y = ax+y]
-	   VecAXPY(current_solution, -1, update);
-#endif
+            //[note: VecWAXPY(w,a,x,y) computes w = ax+y]
+            VecWAXPY(test_vec,-mTestDampingValues[i],negative_update,current_solution);
+#endif            
 
-        // compute new residual and check it didn't decrease
-        linear_system.ZeroLinearSystem();
-        (*pComputeResidual)(NULL, current_solution, linear_system.rGetRhsVector(), pContext);
-        VecNorm(linear_system.rGetRhsVector(), NORM_2, &residual_norm);
-        scaled_norm = residual_norm/size;
-    
-        if(scaled_norm > old_scaled_norm)
+            // compute new residual 
+            linear_system.ZeroLinearSystem();
+            (*pComputeResidual)(NULL, test_vec, linear_system.rGetRhsVector(), pContext);
+            VecNorm(linear_system.rGetRhsVector(), NORM_2, &residual_norm);
+            scaled_residual_norm = residual_norm/size;
+            
+            if(scaled_residual_norm < best_scaled_residual)
+            {
+                best_scaled_residual = scaled_residual_norm;
+                best_damping_factor = mTestDampingValues[i];
+            }
+        }
+        
+        // check the smallest residual was actually smaller than the 
+        // previous. If not, quit.
+        if(best_scaled_residual > old_scaled_residual_norm)
         {
             std::stringstream error_message;
-            error_message << "Residual norm increased on iteration " << counter;
+            error_message << "Iteration " << counter << ", unable to find damping factor such that residual decreases in update direction";
             EXCEPTION(error_message.str());
         }
         
         if(mWriteStats)
         {
-            std::cout << "    Iteration " << counter << ": ||residual||/N = " << scaled_norm << "\n";
+            std::cout << "    Best damping factor = " << best_damping_factor << "\n";
+        }
+
+
+        // update solution: current_guess = current_solution - best_damping_factor*negative_update 
+#if (PETSC_VERSION_MINOR == 2) //Old API
+	    double minus_test_value = -best_damping_factor;
+    	VecAXPY(&minus_test_value, negative_update, current_solution);
+#else
+	    //[note: VecAXPY(y,a,x) computes y = ax+y]
+	    VecAXPY(current_solution, -best_damping_factor, negative_update);
+#endif
+        scaled_residual_norm = best_scaled_residual;
+        
+        // compute best residual vector again and store in linear_system for next Solve()
+        linear_system.ZeroLinearSystem();
+        (*pComputeResidual)(NULL, current_solution, linear_system.rGetRhsVector(), pContext);
+
+        if(mWriteStats)
+        {
+            std::cout << "    Iteration " << counter << ": ||residual||/N = " << scaled_residual_norm << "\n";
         }
     }
 

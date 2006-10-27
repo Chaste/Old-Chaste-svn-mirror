@@ -16,7 +16,7 @@
 #include "AbstractNonlinearSolver.hpp"
 #include "AbstractNonlinearSolver.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 
 
 
@@ -333,7 +333,6 @@ public:
      *  (on paper) the weak form and the form of the ComputeMatrixTerm method, they can check 
      *  whether the analytic Jacobian matches the numerical Jacobian (which only calls 
      *  ComputeVectorTerm and ComputeVectorSurfaceTerm) to verify the correctness of the code.
-     *  The method creates a random initial guess from which to compute the Jacobians.
      * 
      *  @param tol A tolerance which defaults to 1e-5
      *  @return true if the componentwise difference between the matrices is less than 
@@ -344,7 +343,7 @@ public:
      *  This method should NOT be run in simulations - it is only to verify the correctness 
      *  of the concrete assembler code.
      */
-    bool VerifyJacobian(double tol=1e-4)
+    bool VerifyJacobian(double tol=1e-4, bool print=false)
     {
         int size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
@@ -353,13 +352,13 @@ public:
         VecSetSizes(initial_guess, PETSC_DECIDE, size);
         VecSetFromOptions(initial_guess);
         
-        RandomNumberGenerators random_num_gen;
-        for (int i=0; i<size ; i++)
+        RandomNumberGenerator random_num_gen;
+        for(int i=0; i<size ; i++)
         {
-            double value = random_num_gen.ranf();
-            VecSetValue(initial_guess, i, value, INSERT_VALUES);
+//            double value = random_num_gen.ranf();
+            VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
         }
-                
+ 
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
@@ -386,7 +385,11 @@ public:
         AssembleJacobian(initial_guess, &numerical_jacobian);
         
         bool all_less_than_tol = true;
-        std::cout << "Difference between numerical and analyical Jacobians:\n\n";
+
+        if(print)
+        {
+            std::cout << "Difference between numerical and analyical Jacobians:\n\n";
+        }
         for(int i=0; i<size; i++)
         {
             for(int j=0; j<size; j++)
@@ -401,7 +404,10 @@ public:
                 MatGetValues(numerical_jacobian,1,row,1,col,val_n);
                 MatGetValues(analytic_jacobian,1,row,1,col,val_a);
                 
-                std::cout << val_n[0]-val_a[0] << " ";       
+                if(print)
+                {
+                    std::cout << val_n[0] - val_a[0]<< " ";
+                }
                 
                 if(fabs(val_n[0]-val_a[0]) > tol)
                 {
@@ -410,7 +416,10 @@ public:
                     #undef COVERAGE_IGNORE
                 }
             }
-            std::cout << "\n"<<std::flush;                
+            if(print)
+            {
+                std::cout << "\n" <<std::flush;
+            }
         }
         std::cout << std::flush;
         
@@ -459,11 +468,13 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, Vec 
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
         
-//    double two_norm;
-//    VecNorm(residualVector, NORM_2, &two_norm);
-//    std::cout << "||residual|| = " << two_norm << "\n";
-        
-    return pAssembler->AssembleResidual(currentGuess, residualVector);
+    PetscErrorCode ierr = pAssembler->AssembleResidual(currentGuess, residualVector);
+    
+    //double two_norm;
+    //VecNorm(residualVector, NORM_2, &two_norm);
+    //std::cout << "||residual|| = " << two_norm << "\n";
+    
+    return ierr;
 }
 
 
@@ -488,14 +499,14 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes, Vec 
                                                                  Mat *pGlobalJacobian, Mat *pPreconditioner,
                                                                  MatStructure *pMatStructure, void *pContext)
 {
-//   std::cout << "begin assemble jacobian\n";
+    //std::cout << "begin assemble jacobian\n";
 
     // Extract an assembler from the void*
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
 
     PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
-//    std::cout << "end assemble jacobian\n";
+    //std::cout << "end assemble jacobian\n";
         
     return ierr;
 }

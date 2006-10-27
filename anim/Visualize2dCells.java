@@ -54,6 +54,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public static boolean drawSprings=false;
 	public static boolean drawCells=true;
 	public static boolean writeFiles=false;
+	public static boolean drawGhosts=false;
 
 	public static int timeStep = 0;
 
@@ -232,13 +233,17 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 			if (args[i].equals("nocells"))
 			{
 				drawCells = false;
-								
 			}	
+			if (args[i].equals("ghosts"))
+			{
+				drawGhosts = true;
+			}
 		}
 		
 		System.out.println("Writing output files = "+writeFiles);
 		System.out.println("Drawing springs = "+drawSprings);
 		System.out.println("Drawing cells = "+drawCells);
+		System.out.println("Drawing ghost nodes = "+drawGhosts);
 		
 		Visualize2dCells vis = new Visualize2dCells();
 		
@@ -508,7 +513,6 @@ class CustomCanvas2D extends Canvas {
 			{
 				for (int node=0;node<3;node++)
 				 {
-				
 					 SetCellColour(index[node]);
 					 int xs[]=new int[4];
 					 int ys[]=new int[4];
@@ -541,7 +545,6 @@ class CustomCanvas2D extends Canvas {
 			
 			if (vis.drawSprings)
 			{
-				
 				// Plot lines
 				if( (vis.cell_type[vis.timeStep][index[0]]<4) && (vis.cell_type[vis.timeStep][index[1]]<4))
 				{
@@ -555,8 +558,7 @@ class CustomCanvas2D extends Canvas {
 				{
 					g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
 				}
-			}
-    		 
+			} 
 		}
 		
 		// draw nodes second so that dots are on top of lines
@@ -591,8 +593,7 @@ class CustomCanvas2D extends Canvas {
 			DecimalFormat df = new DecimalFormat("0.00");
 			String x_2dp = df.format(x);
 			
-			
-			
+
 			//Tick lines!
 			PlotPoint posn=scale(x,0);
 			g2.drawLine(posn.x, posn.y, posn.x, posn.y+tick_length);
@@ -703,11 +704,18 @@ class CustomCanvas2D extends Canvas {
 		}
 		else if(vis.cell_type[vis.timeStep][index]==4)
 		{
-			// danger! sloughed - don't draw anything
-			Color garysSexySilver = new Color(216,216,231);
-			g2.setColor(garysSexySilver);
+			// danger! sloughed - don't draw anything unless asked for
+			if(!vis.drawGhosts)
+            {
+				Color garysSexySilver = new Color(216,216,231);
+				g2.setColor(garysSexySilver);
+            }
+			else
+			{
+		        g2.setColor(Color.white);
+			}
 		}
-	}	
+	}
 	
 	
 	void SetCellColour(int index)
@@ -735,7 +743,6 @@ class CustomCanvas2D extends Canvas {
 		else if(vis.cell_type[vis.timeStep][index]==4)
 		{
 			// danger! sloughed - don't draw anything
-			
 			g2.setColor(garysSexySilver);
 		}
 	}

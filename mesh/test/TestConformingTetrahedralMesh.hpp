@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
-#include "RandomNumberGenerators.hpp"
+#include "RandomNumberGenerator.hpp"
 #include <cmath>
 
 #include <vector>
@@ -1075,7 +1075,7 @@ public:
         Node<3>*  p_node125=mesh.GetNodeAt(125);
         Node<3>*  p_node273=mesh.GetNodeAt(273);
         
-        RandomNumberGenerators rng;
+        RandomNumberGenerator rng;
         mesh.PermuteNodes(rng);
         
         TS_ASSERT_EQUALS(mesh.GetNodeAt(  0)->GetIndex(),   0);

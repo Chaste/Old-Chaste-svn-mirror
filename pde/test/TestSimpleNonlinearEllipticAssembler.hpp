@@ -204,7 +204,7 @@ public:
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
 
         // cover VerifyJacobian
-        TS_ASSERT( assembler.VerifyJacobian(1e-3) );
+        TS_ASSERT( assembler.VerifyJacobian(1e-3,true) );
 
         // Set up initial solution guess for residuals
         int length=mesh.GetNumNodes();

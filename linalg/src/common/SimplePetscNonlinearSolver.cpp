@@ -25,9 +25,6 @@
  * to a preconditioner matrix), MatStructure* (points to the PETSc matrix type e.g. AIJ), void* (a pointer to
  * anything you may need to refer to when calculating the residual).
  *
- * @param residual A PETSc Vec of the correct size, elements do not need to be specified.
- * Used by SNES when calculating the residual at each iteration.
- *
  * @param initialGuess A PETSc Vec of the correct size, containing initial guesses
  *  for the nonlinear solver.
  * 
