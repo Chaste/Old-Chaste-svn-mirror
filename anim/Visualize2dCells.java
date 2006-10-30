@@ -422,31 +422,32 @@ class CustomCanvas2D extends Canvas {
 
 	public void paint(Graphics graphics)
 	{
-		if (vis.parsed_all_files == false)
-        {
+	    if (vis.parsed_all_files == false)
+	    {
           	graphics.drawString("Still parsing input...", 10,10);
         	return;
-        }
+	    }
 				
-		if (imageReady)
+	    if (!imageReady)
+	    {
+		repaint();
+	    }
+	    imageDrawing = true;
+	    graphics.drawImage(buffered_image,0,0,this);
+		
+	    if (vis.writeFiles)
+	    {
+		String filename=String.format("image%1$05d.png", vis.timeStep);
+		System.out.println("Writing file : "+filename+".");
+		File f = new File(filename);
+		try 
 		{
-			imageDrawing = true;
-			graphics.drawImage(buffered_image,0,0,this);
-			
-			if (vis.writeFiles)
-			{
-				String filename=String.format("image%1$05d.png", vis.timeStep);
-				System.out.println("Writing file : "+filename+".");
-			    File f = new File(filename);
-    			try 
-	    		{
-		    		ImageIO.write(buffered_image, "png", f);
-		    	} catch (Exception e)
-		    	{
-		    	}
-			}
-			imageDrawing = false;
+		    ImageIO.write(buffered_image, "png", f);
+		} catch (Exception e)
+		{
 		}
+	    }
+	    imageDrawing = false;
 	}
 	
 	public void drawBufferedImage() 

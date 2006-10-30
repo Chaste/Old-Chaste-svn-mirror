@@ -74,7 +74,7 @@ public:
          * face of the cube against the top right one, comparing voltage.
          */
         bool need_initialisation = true;
-        double probe_voltage;
+        double probe_voltage=-9999.;
         
         need_initialisation = true;
         
