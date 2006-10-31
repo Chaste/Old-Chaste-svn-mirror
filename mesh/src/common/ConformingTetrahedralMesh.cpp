@@ -397,7 +397,7 @@ long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex)
 {
-
+    assert(GetNodeAt(boundaryNodeIndex)->IsBoundaryNode());
     double scaleFactor = updatedPoint[0] / GetNodeAt(boundaryNodeIndex)->GetPoint()[0];
     double temp;
     for (int i=0; i < boundaryNodeIndex+1; i++)
@@ -406,7 +406,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
         Point<1> newPoint(temp);
         mNodes[i]->SetPoint(newPoint);
     }
-    
+    RefreshMesh();
 }
 
 /** SetNode moves the node with a particular index to a new point in space and

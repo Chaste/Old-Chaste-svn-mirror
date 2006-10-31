@@ -434,8 +434,98 @@ public:
         
     }
     
+    
+    void TestCircum1d(void)
+    {
+        std::vector<Node<1>*> cornerNodes;
+        cornerNodes.push_back(new Node<1>(0, false, 10.0));
+        cornerNodes.push_back(new Node<1>(1, false, 15.0));
+        
+        Element<1,1> element(0, cornerNodes, 1);
+        
+        c_vector <double, 2> circum=element.CalculateCircumsphere();
+        TS_ASSERT_DELTA(circum[0], 12.5, 1e-7);
+        TS_ASSERT_DELTA(sqrt(circum[1]), 2.5, 1e-7);
+        
+        TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 5.0, 1e-7);
+        TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
+    }
+    void TestCircum2d(void)
+    {
+        std::vector<Node<2>*> equilateral_nodes;
+        equilateral_nodes.push_back(new Node<2>(0, false, 2.0, 0.0));
+        equilateral_nodes.push_back(new Node<2>(1, false, -1.0,sqrt(3)));
+        equilateral_nodes.push_back(new Node<2>(2, false, -1.0,-sqrt(3)));
+        
+        Element<2,2> equilateral_element(0, equilateral_nodes, 1);
+        
+        c_vector <double, 3> circum=equilateral_element.CalculateCircumsphere();
+        TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
+        TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
+        TS_ASSERT_DELTA(sqrt(circum[2]), 2.0, 1e-7);
+        
+        TS_ASSERT_DELTA(equilateral_element.CalculateCircumsphereVolume(), 4.0*M_PI, 1e-7);
+        TS_ASSERT_DELTA(equilateral_element.CalculateQuality(), 1.0, 1e-7);
+        
+        std::vector<Node<2>*> right_angle_nodes;
+        right_angle_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        right_angle_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+        right_angle_nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
+        Element<2,2> right_angle_element(0, right_angle_nodes, 1);
+        
+        c_vector <double, 3> circum2=right_angle_element.CalculateCircumsphere();
+        TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
+        TS_ASSERT_DELTA(circum2[1], 0.5, 1e-7);
+        TS_ASSERT_DELTA(sqrt(circum2[2]), 1.0/sqrt(2.0), 1e-7);
+        
+        TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), M_PI_2, 1e-7);
+        TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 4.0*sqrt(3.0)/9.0, 1e-7);
+        
+    }
+    
+    void TestCircum3d(void)
+    {
+        std::vector<Node<3>*> cornerNodes;
+        cornerNodes.push_back(new Node<3>(0, false,  1.0,  1.0,  1.0));
+        cornerNodes.push_back(new Node<3>(1, false, -1.0, -1.0,  1.0));
+        cornerNodes.push_back(new Node<3>(2, false, -1.0,  1.0, -1.0));
+        cornerNodes.push_back(new Node<3>(3, false,  1.0, -1.0, -1.0));
+        
+        
+        Element<3,3> element(0, cornerNodes, 1);
+        
+        c_vector <double, 4> circum=element.CalculateCircumsphere();
+        TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
+        TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
+        TS_ASSERT_DELTA(circum[2], 0.0, 1e-7);
+        TS_ASSERT_DELTA(sqrt(circum[3]), sqrt(3.0), 1e-7);
+    
+        TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 4.0*M_PI*sqrt(3), 1e-7);
+        TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 4.0*M_PI*sqrt(3), 1e-7);
+        TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
+        
+        std::vector<Node<3>*> right_angle_nodes;
+        right_angle_nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        right_angle_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        right_angle_nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
+        right_angle_nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
+        
+        Element<3,3> right_angle_element(0, right_angle_nodes, 1);
+        
+        c_vector <double, 4> circum2=right_angle_element.CalculateCircumsphere();
+        TS_ASSERT_DELTA(circum2[0], 0.5, 1e-7);
+        TS_ASSERT_DELTA(circum2[1], 0.5, 1e-7);
+        TS_ASSERT_DELTA(circum2[2], 0.5, 1e-7);
+        TS_ASSERT_DELTA(sqrt(circum2[3]), sqrt(3.0)/2.0, 1e-7);
+        
+        TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), sqrt(3)*M_PI_2, 1e-7);
+        TS_ASSERT_DELTA(right_angle_element.GetJacobianDeterminant(), 1.0, 1e-7);
+        TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 0.5, 1e-7);
+        
+    }
+    
+    
+  
 };
-
-
 
 #endif //_TESTELEMENT_HPP_

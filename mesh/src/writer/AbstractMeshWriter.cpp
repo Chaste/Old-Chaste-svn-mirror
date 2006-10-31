@@ -2,7 +2,6 @@
 #define _ABSTRACTMESHWRITER_CPP_
 
 #include "AbstractMeshWriter.hpp"
-#include "Exception.hpp"
 
 /**
  * Return the full path to the directory where meshes will be written.
@@ -46,19 +45,9 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     SPACE_DIM>& rMesh)
 {
 
-    if (rMesh.GetNumNodes() != rMesh.GetNumAllNodes() )
-    {
-        rMesh.ReIndex();
-    }
-    if (rMesh.GetNumElements() != rMesh.GetNumAllElements())
-    {
-        rMesh.ReIndex();
-    }
-    if (rMesh.GetNumBoundaryElements() != rMesh.GetNumAllBoundaryElements())
-    {
-        rMesh.ReIndex();
-    }
-    
+
+    NodeMap node_map(rMesh.GetNumAllNodes()); 
+    int new_index=0;
     for (int i=0; i<rMesh.GetNumAllNodes();i++)
     {
         Node<SPACE_DIM>* p_node = rMesh.GetNodeAt(i);
@@ -71,8 +60,14 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
                 coords[j] = p_node->GetPoint()[j];
             }
             SetNextNode(coords);
+            node_map.SetNewIndex(i,new_index++);
+        }
+        else
+        {
+            node_map.SetDeleted(i);
         }
     }
+    assert(new_index==rMesh.GetNumNodes());
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
@@ -85,7 +80,8 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             std::vector<int> indices(ELEMENT_DIM+1);
             for (int j=0; j<ELEMENT_DIM+1; j++)
             {
-                indices[j] = (*iter)->GetNodeGlobalIndex(j);
+                int old_index=(*iter)->GetNodeGlobalIndex(j);
+                indices[j] = node_map.GetNewIndex(old_index); 
             }
             SetNextElement(indices);
         }
@@ -98,12 +94,16 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         rMesh.GetBoundaryElementIteratorBegin();
     while (boundary_iter != rMesh.GetBoundaryElementIteratorEnd())
     {
-        std::vector<int> indices(ELEMENT_DIM);
-        for (int j=0; j<ELEMENT_DIM; j++)
+        if ((*boundary_iter)->IsDeleted() == false)
         {
-            indices[j] = (*boundary_iter)->GetNodeGlobalIndex(j);
+            std::vector<int> indices(ELEMENT_DIM);
+            for (int j=0; j<ELEMENT_DIM; j++)
+            {
+                int old_index=(*boundary_iter)->GetNodeGlobalIndex(j);
+                indices[j] = node_map.GetNewIndex(old_index); 
+            }
+            SetNextBoundaryFace(indices);
         }
-        SetNextBoundaryFace(indices);
         boundary_iter++;
     }
     WriteFiles();

@@ -72,11 +72,98 @@ public:
         RegisterWithNodes();
     }
     
+    /*Returns a vector representing the circumsphere/circumcircle
+     * @returns a vector containing x_centre, y_centre,...,radius^2
+    */
+    c_vector<double,SPACE_DIM+1> CalculateCircumsphere()
+    {
+        /*Assuming that x0,y0.. is at the origin then we need to solve
+         *
+         * ( 2x1 2y1 2z1  ) (x)    (x1^2+y1^2+z1^2)
+         * ( 2x2 2y2 2z2  ) (y)    (x2^2+y2^2+z2^2)
+         * ( 2x3 2y3 2z3  ) (z)    (x3^2+y3^2+z3^2)
+         * where (x,y,z) is the circumcentre
+         * 
+         */
+        assert (ELEMENT_DIM == SPACE_DIM);
+        c_vector <double, ELEMENT_DIM> rhs;
+        
+        for (int j=0; j<ELEMENT_DIM; j++)
+        {
+            double squared_location=0.0;
+            for (int i=0; i<SPACE_DIM; i++)
+            {
+                //mJacobian(i,j) is the i-th component of j-th vertex (relative to vertex 0)
+                squared_location += this->mJacobian(i,j)*this->mJacobian(i,j);
+            }
+            rhs[j]=squared_location/2.0;
+        }
+        
+        c_vector <double, ELEMENT_DIM> centre=prod(rhs, this->mInverseJacobian);
+        c_vector <double, ELEMENT_DIM+1> circum;
+        double squared_radius=0.0;
+         for (int i=0; i<SPACE_DIM; i++)
+        {
+            circum[i]=centre[i] + this->GetNodeLocation(0,i);
+            squared_radius += centre[i]*centre[i];
+        }
+        circum[SPACE_DIM]=squared_radius;
+          
+        return circum;
+        
+    }
+            
     double CalculateCircumsphereVolume()
     {
+        c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
+        if (SPACE_DIM == 1)
+        {
+            return 2.0*sqrt(circum[SPACE_DIM]); //2*r
+        }
+        else if (SPACE_DIM == 2)
+        {
+            return M_PI*circum[SPACE_DIM]; //Pi*r^2
+        }
+        assert (SPACE_DIM == 3);
+        return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
+    }
     
-    
-        return 0;
+    /* The quality of a triangle/tetrahedron is the ratio between the 
+     * volume of the shape and the volume of its circumsphere.
+     * This is normalised by dividing through by the Platonic ratio.
+     */
+     
+    double CalculateQuality()
+    {
+        assert (SPACE_DIM == ELEMENT_DIM);
+        if (SPACE_DIM == 1)
+        {
+            return 1.0;
+        }
+        
+        c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
+        if (SPACE_DIM == 2)
+        {
+            /* Want Q=(Area_Tri / Area_Cir) / (Area_Equilateral_Tri / Area_Equilateral_Cir)
+             * Area_Tri = |Jacobian| /2
+             * Area_Cir = Pi * r^2
+             * Area_Eq_Tri = (3*sqrt(3)/4)*R^2
+             * Area_Eq_Tri = Pi * R^2
+             * Q= (2*|Jacobian|)/ (3*sqrt(3)*r^2)
+             */
+            return 2.0*this->mJacobianDeterminant/(3.0*sqrt(3)*circum[SPACE_DIM]);
+        }
+        assert (SPACE_DIM == 3);
+       /* Want Q=(Vol_Tet / Vol_CirS) / (Vol_Plat_Tet / Vol_Plat_CirS)
+         *  Vol_Tet  = |Jacobian| /6
+         *  Vol_CirS = 4*Pi*r^3/3
+         *  Vol_Plat_Tet  = 8*sqrt(3)*R^3/27
+         *  Vol_Plat_CirS = 4*Pi*R^3/3
+        * Q= 3*sqrt(3)*|Jacobian|/ (16*r^3)
+         */
+        
+        return (3.0*sqrt(3.0)*this->mJacobianDeterminant)
+                /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));          
     }
     
 };
