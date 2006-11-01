@@ -385,12 +385,12 @@ public:
     
     void TestElementCopyConstructor(void)
     {
-        std::vector<Node<3>*> cornerNodes;
-        cornerNodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        cornerNodes.push_back(new Node<3>(1, false, 1.0, 0.0, 3.0));
-        cornerNodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-        cornerNodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        Element<3,3> element(31415, cornerNodes, 1);
+        std::vector<Node<3>*> corner_nodes;
+        corner_nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        corner_nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 3.0));
+        corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+        Element<3,3> element(31415, corner_nodes, 1);
         
         // Create a copy of the element and test that it's the same as the original one
         
@@ -413,8 +413,16 @@ public:
         TS_ASSERT_EQUALS(another_copied_element.GetIndex(), 2345u);
         
         // update a node of the element
-        another_copied_element.UpdateNode(1, new Node<3>(4, false, 0.0, 0.0, 2.0));
+	Node<3>* update_for_node= new Node<3>(4, false, 0.0, 0.0, 2.0);
+        another_copied_element.UpdateNode(1, update_for_node);
         TS_ASSERT_EQUALS(another_copied_element.GetNodeLocation(1, 2), 2.0);
+
+        for (unsigned i=0; i<corner_nodes.size(); i++)
+        {
+            delete corner_nodes[i];
+        }
+	delete update_for_node;
+
     }
     
     void TestBoundaryElement()
@@ -432,16 +440,20 @@ public:
         nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
         BoundaryElement<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
         
+	for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
     
     
     void TestCircum1d(void)
     {
-        std::vector<Node<1>*> cornerNodes;
-        cornerNodes.push_back(new Node<1>(0, false, 10.0));
-        cornerNodes.push_back(new Node<1>(1, false, 15.0));
+        std::vector<Node<1>*> nodes;
+        nodes.push_back(new Node<1>(0, false, 10.0));
+        nodes.push_back(new Node<1>(1, false, 15.0));
         
-        Element<1,1> element(0, cornerNodes, 1);
+        Element<1,1> element(0, nodes, 1);
         
         c_vector <double, 2> circum=element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum[0], 12.5, 1e-7);
@@ -449,6 +461,11 @@ public:
         
         TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 5.0, 1e-7);
         TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
+
+	for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
     void TestCircum2d(void)
     {
@@ -481,18 +498,26 @@ public:
         TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 4.0*sqrt(3.0)/9.0, 1e-7);
         
+	for (unsigned i=0; i<equilateral_nodes.size(); i++)
+        {
+            delete equilateral_nodes[i];
+        }
+	for (unsigned i=0; i<right_angle_nodes.size(); i++)
+        {
+            delete right_angle_nodes[i];
+        }
     }
     
     void TestCircum3d(void)
     {
-        std::vector<Node<3>*> cornerNodes;
-        cornerNodes.push_back(new Node<3>(0, false,  1.0,  1.0,  1.0));
-        cornerNodes.push_back(new Node<3>(1, false, -1.0, -1.0,  1.0));
-        cornerNodes.push_back(new Node<3>(2, false, -1.0,  1.0, -1.0));
-        cornerNodes.push_back(new Node<3>(3, false,  1.0, -1.0, -1.0));
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false,  1.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(1, false, -1.0, -1.0,  1.0));
+        nodes.push_back(new Node<3>(2, false, -1.0,  1.0, -1.0));
+        nodes.push_back(new Node<3>(3, false,  1.0, -1.0, -1.0));
         
         
-        Element<3,3> element(0, cornerNodes, 1);
+        Element<3,3> element(0,nodes, 1);
         
         c_vector <double, 4> circum=element.CalculateCircumsphere();
         TS_ASSERT_DELTA(circum[0], 0.0, 1e-7);
@@ -521,7 +546,14 @@ public:
         TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), sqrt(3)*M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.GetJacobianDeterminant(), 1.0, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 0.5, 1e-7);
-        
+        for (unsigned i=0; i<right_angle_nodes.size(); i++)
+        {
+            delete right_angle_nodes[i];
+        }
+	for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
     
     

@@ -359,7 +359,7 @@ class MemoryTesting(GccDebug):
   def __init__(self):
     GccDebug.__init__(self)
     #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
-    self._valgrind_flags = "--tool=memcheck --log-fd=1 --track-fds=yes --leak-check=full"
+    self._valgrind_flags = "--tool=memcheck --log-fd=1 --track-fds=yes --leak-check=yes"
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run all tests using valgrind to check for memory leaks."
