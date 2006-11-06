@@ -66,7 +66,7 @@ class TestBidomainHeart : public CxxTest::TestSuite
 {
 
 public:
-    void TestBidomainDg0Heart()
+    void TestBidomainDg0Heart() throw (Exception)
     {
         PointStimulusHeartCellFactory cell_factory(0.01);
         BidomainProblem<3> bidomain_problem(&cell_factory);
