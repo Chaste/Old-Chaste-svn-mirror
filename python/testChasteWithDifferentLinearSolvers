@@ -2,10 +2,12 @@
 
 cd /home/chaste/eclipse/workspace/Chaste
 
-for LinearSolver in richardson chebychev cg cgne gmres tcqmr bcgs bcgsl cgs tfqmr cr lsqr preonly qcg bicg fgmres minres symmlq lgmres
+#for LinearSolver in richardson chebychev cg cgne gmres tcqmr bcgs bcgsl cgs tfqmr cr lsqr preonly qcg bicg fgmres minres symmlq lgmres
+for LinearSolver in richardson chebychev cg cgne gmres tcqmr bcgs bcgsl cgs tfqmr cr lsqr preonly bicg fgmres minres symmlq lgmres
 #for LinearSolver in cg gmres bcgs cgs tfqmr cr bicg fgmres minres symmlq lgmres
 do 
-  for PreCond in none jacobi sor lu shell bjacobi mg eisenstat ilu icc asm ksp composite redundant spai nn cholesky samg pbjacobi mat hypre fieldsplit tfs ml prometheus galerkin
+  #for PreCond in none jacobi sor lu shell bjacobi mg eisenstat ilu icc asm ksp composite redundant spai nn cholesky samg pbjacobi mat hypre fieldsplit tfs ml prometheus galerkin
+  for PreCond in none jacobi sor bjacobi asm mat fieldsplit
   # for PreCond in none jacobi sor 
     do
 	for NbOfProcs in 1

@@ -55,7 +55,7 @@ public:
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
         
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-        bidomain_problem.SetEndTime(4);   // ms
+        bidomain_problem.SetEndTime(50);   // ms
         bidomain_problem.SetOutputDirectory("");
         bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.PrintOutput(false);
@@ -100,12 +100,12 @@ public:
                 {
                     // the voltage at the end face varies a little because
                     // of drift due to the orientation of the tets in the mesh,
-                    // hence the tolerance of 0.2
-                    TS_ASSERT_DELTA(voltage_replicated[2*i], probe_voltage, 0.2);
+                    // hence the tolerance of 0.02
+                    TS_ASSERT_DELTA(voltage_replicated[2*i], probe_voltage, 0.02);
                 }
                 
                 // Check against hard coded value
-                TS_ASSERT_DELTA(voltage_replicated[2*i],  21.7, 0.3);
+                TS_ASSERT_DELTA(voltage_replicated[2*i],  7.3, 0.2);
             }
         }
         
