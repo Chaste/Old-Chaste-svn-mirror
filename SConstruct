@@ -25,12 +25,11 @@ if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     system_name = 'joe'
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     system_name = 'zuse'
-elif machine_fqdn in ["userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk",
-                      "userpc60.comlab.ox.ac.uk", "clpc129.comlab.ox.ac.uk"]:
+elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
     system_name = 'chaste'
 elif machine_fqdn.startswith('finarfin'):
     system_name = 'finarfin'
-elif machine_fqdn in ["engels.maths.nottingham.ac.uk", "marx.maths.nottingham.ac.uk"]:
+elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
     system_name = 'Nottingham'
 else:
     system_name = ''
