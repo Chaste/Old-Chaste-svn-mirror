@@ -16,8 +16,6 @@
 #include "ReplicatableVector.hpp"
 
 
-#define PI 3.14159265
-
 
 //////////////////////////////////////////////////////////////////////////////
 // a simple pde : u_xx + u_yy + x = 0
@@ -144,12 +142,12 @@ class AnotherCoupledAssembler : public MySimpleCoupledAssembler
 {
     double f(double x,double y)
     {
-        return -2*PI*PI*sin(PI*x)*sin(PI*y) + sin(2*PI*x)*sin(2*PI*y);
+        return -2*M_PI*M_PI*sin(M_PI*x)*sin(M_PI*y) + sin(2*M_PI*x)*sin(2*M_PI*y);
     }
     
     double g(double x,double y)
     {
-        return -8*PI*PI*sin(2*PI*x)*sin(2*PI*y) + sin(PI*x)*sin(PI*y);
+        return -8*M_PI*M_PI*sin(2*M_PI*x)*sin(2*M_PI*y) + sin(M_PI*x)*sin(M_PI*y);
     }
     
     virtual c_vector<double,2*(2+1)> ComputeVectorTerm(c_vector<double, 2+1> &rPhi,
@@ -360,8 +358,8 @@ public:
             double x = mesh.GetNodeAt(i)->GetPoint()[0];
             double y = mesh.GetNodeAt(i)->GetPoint()[1];
             
-            double u = sin(PI*x)*sin(PI*y);
-            double v = sin(2*PI*x)*sin(2*PI*y);
+            double u = sin(M_PI*x)*sin(M_PI*y);
+            double v = sin(2*M_PI*x)*sin(2*M_PI*y);
             
             // need lower tolerance for v because v is higher frequency
             // and not captured very well on this mesh

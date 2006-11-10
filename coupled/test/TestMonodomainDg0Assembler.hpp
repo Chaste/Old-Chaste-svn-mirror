@@ -410,7 +410,7 @@ public:
         ColumnDataReader data_reader1("MonoDg01d", "mono_testPrintTimes");
         std::vector<double> times = data_reader1.GetUnlimitedDimensionValues();
         
-        TS_ASSERT_EQUALS( times.size(), 4);
+        TS_ASSERT_EQUALS( times.size(), 4u);
         TS_ASSERT_DELTA( times[0], 0.00, 1e-12);
         TS_ASSERT_DELTA( times[1], 0.10, 1e-12);
         TS_ASSERT_DELTA( times[2], 0.20, 1e-12);
@@ -436,7 +436,7 @@ public:
         ColumnDataReader data_reader2("MonoDg01d", "mono_testPrintTimes");
         times = data_reader2.GetUnlimitedDimensionValues();
         
-        TS_ASSERT_EQUALS( times.size(), 4);
+        TS_ASSERT_EQUALS( times.size(), 4u);
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);

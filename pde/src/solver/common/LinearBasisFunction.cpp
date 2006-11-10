@@ -258,7 +258,6 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTra
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
-    std::vector<c_vector<double, ELEM_DIM> > transformedGradValues;
     
     return prod(trans(rInverseJacobian), basisGradValues);
 }

@@ -199,8 +199,8 @@ public:
     
  
  
-    // square brackets seem to be implemented in ublas to get rows but not documented.
-    void TestUblasSquareBrackets()
+    // Get a row from a matrix
+    void TestUblasMatrixRow()
     {
         c_matrix<double,2,3> a;
         a(0,0) = 1;
@@ -210,8 +210,8 @@ public:
         a(1,1) = 5;
         a(1,2) = 6;
         
-        c_vector<double,3> row0 = a[0];
-        c_vector<double,3> row1 = a[1];
+		matrix_row< c_matrix<double,2,3> > row0(a, 0);
+		matrix_row< c_matrix<double,2,3> > row1(a, 1);
         
         TS_ASSERT_EQUALS(a(0,0), row0(0));
         TS_ASSERT_EQUALS(a(0,1), row0(1));

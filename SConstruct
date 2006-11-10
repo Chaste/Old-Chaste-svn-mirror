@@ -23,6 +23,8 @@ machine_fqdn = socket.getfqdn()
 # Allow the system_name to be derived automatically
 if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     system_name = 'joe'
+elif machine_fqdn == "userpc44.comlab.ox.ac.uk":
+    system_name = 'new_chaste'
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     system_name = 'zuse'
 elif machine_fqdn.endswith(".comlab.ox.ac.uk"):
@@ -143,6 +145,18 @@ elif system_name == 'chaste':
   petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
   other_libpaths = [petsc_libpath, blas_libpath]
   other_libs = ['f2clapack', 'f2cblas']
+elif system_name == 'new_chaste':
+  # New Chaste machines in comlab
+  petsc_base = '../../../petsc-2.3.2-p4/'
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+  # petsc_mpi = petsc_base+'include/mpiuni'
+  petsc_mpi = ''
+  other_includepaths = [petsc_inc, petsc_bmake]
+  blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
+  petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+  other_libpaths = [petsc_libpath, blas_libpath]
+  other_libs = ['f2clapack', 'f2cblas']
 elif system_name == 'Nottingham':
   # Gary and Alex's machines in Nottingham
   petsc_base = '/opt/petsc-2.2.1-with-mpi/'
@@ -197,6 +211,11 @@ elif system_name == 'joe':
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
 elif system_name == 'chaste':
+  mpicxx = 'mpicxx'
+  mpirun = 'mpirun'
+  cxx = '/usr/bin/g++'
+  ar = '/usr/bin/ar'
+elif system_name == 'new_chaste':
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'
   cxx = '/usr/bin/g++'

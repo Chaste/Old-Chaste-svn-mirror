@@ -20,7 +20,7 @@ public:
         
         c_vector<double, 1> basis_function_vector;
         basis_function_vector = basis_function.ComputeBasisFunctions(zero);
-        TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
+        TS_ASSERT_EQUALS(basis_function_vector.size(), 1u);
         TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
         
         // check link with 0d quad rule works ok
@@ -29,7 +29,7 @@ public:
         
         c_vector<double, 1> basis_function_vector2;
         basis_function_vector2 = basis_function.ComputeBasisFunctions(quad_point);
-        TS_ASSERT_EQUALS(basis_function_vector.size(), 1);
+        TS_ASSERT_EQUALS(basis_function_vector.size(), 1u);
         TS_ASSERT_DELTA(basis_function_vector[0], 1.0, 1e-12);
     }
     
@@ -125,9 +125,7 @@ public:
         LinearBasisFunction<2> basis_func2;
         Point<2> oneone(1,1);
         
-        c_matrix<double, 2, 2> invJ2;
-        invJ2(0,0)=0.5;
-        invJ2(1,1)=0.5;
+        c_matrix<double, 2, 2> invJ2 = 0.5 * identity_matrix<double>(2);
         
         c_matrix<double, 2, 3> transDeriv2 =
             basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone, invJ2);
@@ -141,10 +139,7 @@ public:
         LinearBasisFunction<3> basis_func3;
         Point<3> oneoneone(1,1,1);
         
-        c_matrix<double, 3, 3> invJ3;
-        invJ3(0,0)=0.5;
-        invJ3(1,1)=0.5;
-        invJ3(2,2)=0.5;
+        c_matrix<double, 3, 3> invJ3 = 0.5 * identity_matrix<double>(3);
         
         c_matrix<double, 3, 4> transDeriv3 =
             basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,invJ3);
