@@ -50,9 +50,11 @@ private:
             {
                 matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_i(rGradPhi,i); 
                 matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_j(rGradPhi,j); 
+                matrix_row<c_matrix<double,2,DIM> > gradU0(rGradU, 0);
+                matrix_row<c_matrix<double,2,DIM> > gradU1(rGradU, 1);
 
-                ret(2*i,  2*j)   = + rPhi(j)*inner_prod(rGradU[0],grad_phi_i) + u(0)*inner_prod(grad_phi_j,grad_phi_i);
-                ret(2*i+1,2*j+1) = + rPhi(j)*inner_prod(rGradU[1],grad_phi_i) + u(1)*inner_prod(grad_phi_j,grad_phi_i);   
+                ret(2*i,  2*j)   = + rPhi(j)*inner_prod(gradU0,grad_phi_i) + u(0)*inner_prod(grad_phi_j,grad_phi_i);
+                ret(2*i+1,2*j+1) = + rPhi(j)*inner_prod(gradU1,grad_phi_i) + u(1)*inner_prod(grad_phi_j,grad_phi_i);   
             }
         }
         return ret;
@@ -75,9 +77,11 @@ private:
         for (unsigned i=0; i<DIM+1; i++)
         {
             matrix_column<c_matrix<double,DIM,DIM+1> > grad_phi_i(rGradPhi,i); 
+            matrix_row<c_matrix<double,2,DIM> > gradU0(rGradU, 0);
+            matrix_row<c_matrix<double,2,DIM> > gradU1(rGradU, 1);
 
-            ret(2*i)   = u(0)*inner_prod(rGradU[0],grad_phi_i) - rPhi(i);
-            ret(2*i+1) = u(1)*inner_prod(rGradU[1],grad_phi_i) - mLambda*rPhi(i);
+            ret(2*i)   = u(0)*inner_prod(gradU0,grad_phi_i) - rPhi(i);
+            ret(2*i+1) = u(1)*inner_prod(gradU1,grad_phi_i) - mLambda*rPhi(i);
         }
         return ret;
     }
@@ -152,10 +156,12 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler
             {
                 matrix_column<c_matrix<double,2,2+1> > grad_phi_i(rGradPhi,i); 
                 matrix_column<c_matrix<double,2,2+1> > grad_phi_j(rGradPhi,j); 
+                matrix_row<c_matrix<double,2,2> > gradU0(rGradU, 0);
+                matrix_row<c_matrix<double,2,2> > gradU1(rGradU, 1);
 
                 ret(2*i,  2*j)   = u(1)*inner_prod(grad_phi_j,grad_phi_i);
-                ret(2*i,  2*j+1) = rPhi(j)*inner_prod(rGradU[0],grad_phi_i);
-                ret(2*i+1,2*j)   = rPhi(j)*inner_prod(rGradU[1],grad_phi_i);
+                ret(2*i,  2*j+1) = rPhi(j)*inner_prod(gradU0,grad_phi_i);
+                ret(2*i+1,2*j)   = rPhi(j)*inner_prod(gradU1,grad_phi_i);
                 ret(2*i+1,2*j+1) = u(0)*inner_prod(grad_phi_j,grad_phi_i);   
             }
         }
@@ -175,9 +181,11 @@ class AnotherCoupledNonlinearAssembler : public AbstractNonlinearStaticAssembler
         for (unsigned i=0; i<2+1; i++)
         {
             matrix_column<c_matrix<double,2,2+1> > grad_phi_i(rGradPhi,i); 
+            matrix_row<c_matrix<double,2,2> > gradU0(rGradU, 0);
+            matrix_row<c_matrix<double,2,2> > gradU1(rGradU, 1);
 
-            ret(2*i)   = u(1)*inner_prod(rGradU[0],grad_phi_i) + f(rX[0], rX[1])*rPhi(i);
-            ret(2*i+1) = u(0)*inner_prod(rGradU[1],grad_phi_i) + g(rX[0], rX[1])*rPhi(i);
+            ret(2*i)   = u(1)*inner_prod(gradU0,grad_phi_i) + f(rX[0], rX[1])*rPhi(i);
+            ret(2*i+1) = u(0)*inner_prod(gradU1,grad_phi_i) + g(rX[0], rX[1])*rPhi(i);
         }
         return ret;
     }

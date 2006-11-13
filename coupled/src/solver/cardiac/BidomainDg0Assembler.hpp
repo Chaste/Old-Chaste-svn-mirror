@@ -1,6 +1,10 @@
 #ifndef _BIDOMAINDG0ASSEMBLER_HPP_
 #define _BIDOMAINDG0ASSEMBLER_HPP_
 
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/vector_proxy.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
 //#include <iostream>
 #include <vector>
 #include <petscvec.h>
@@ -143,8 +147,8 @@ private:
         
         c_vector<double,2*(ELEMENT_DIM+1)> ret;
         
-        vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
-        vector_slice<c_vector<double, 2*ELEMENT_DIM+2> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
+        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
+        vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1)); 
         
         // u(0) = voltage
         slice_V   =  (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
