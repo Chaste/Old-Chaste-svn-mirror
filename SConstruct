@@ -33,6 +33,8 @@ elif machine_fqdn.startswith('finarfin'):
     system_name = 'finarfin'
 elif machine_fqdn.endswith(".maths.nottingham.ac.uk"):
     system_name = 'Nottingham'
+elif machine_fqdn.endswith(".maths.ox.ac.uk"):
+    system_name = 'maths'
 else:
     system_name = ''
 
@@ -88,6 +90,18 @@ if system_name == 'finarfin':
   petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
 
   other_libs = ['f2clapack', 'f2cblas']
+  other_libpaths = [petsc_libpath]
+  other_includepaths = petsc_incs
+elif system_name == 'maths':
+  # Oxford uni maths inst
+  petsc_base = '/scratch/chaste/petsc-2.3.2-p4/'
+  petsc_inc = petsc_base+'include'
+  petsc_bmake = petsc_base+'bmake/linux-gnu'
+  petsc_mpi = petsc_base+'include/mpiuni'
+  petsc_incs = [petsc_inc, petsc_bmake]
+  petsc_libpath = petsc_base+'lib/linux-gnu/'
+
+  other_libs = ['lapack', 'blas-3']
   other_libpaths = [petsc_libpath]
   other_includepaths = petsc_incs
 elif system_name == 'joe':
@@ -195,6 +209,11 @@ if system_name == 'finarfin':
     mpicxx = '/usr/bin/mpicxx'
     cxx    = '/usr/bin/g++'
     ar     = '/usr/bin/ar'
+elif system_name == 'maths':
+  mpicxx = 'mpicxx'
+  mpirun = 'mpirun'
+  cxx = 'g++'
+  ar = 'ar'
 elif system_name == 'zuse':
    mpicxx = '/home/zuse/system/software/mpich-gcc/bin/mpicxx'
    mpirun = '/home/zuse/system/software/mpich-gcc/bin/mpirun'
@@ -239,6 +258,10 @@ Export("mpicxx", "mpirun", "cxx", "ar")
 ## Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags()
 link_flags  = build.LinkFlags()
+
+# Hack to get around Debian strangeness
+if system_name == 'maths':
+  extra_flags = extra_flags + " -DCWD_HACK "
 
 Export("extra_flags", "link_flags")
 

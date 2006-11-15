@@ -13,6 +13,11 @@
 #include <petsc.h>
 #include <stdlib.h>
 
+#ifdef CWD_HACK
+#  include <unistd.h>
+#  include <iostream>
+#endif
+
 #include "PetscException.hpp"
 
 class PetSCSetup : public CxxTest::GlobalFixture
@@ -28,6 +33,12 @@ public:
         PETSCEXCEPT(PetscInitialize(&cxxtest_argc, &cxxtest_argv,
                                     PETSC_NULL, PETSC_NULL) );
                                     
+#ifdef CWD_HACK
+        char buf[10000];
+        std::cout << std::endl << "CWD: " << getcwd(buf, 10000) << std::endl;
+        chdir("../../..");
+        std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
+#endif
                                     
         return true;
     }
