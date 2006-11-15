@@ -252,7 +252,7 @@ public:
      *     jacobian matrix rather than a numerically approximated one.
      * @return A PETSc vector giving the solution at each mesh node.
      */
-    virtual Vec Solve(Vec initialGuess, bool UseAnalyticalJacobian = false)
+    virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian = false)
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);
@@ -271,7 +271,7 @@ public:
         }
         
         
-        mUseAnalyticalJacobian = UseAnalyticalJacobian;
+        mUseAnalyticalJacobian = useAnalyticalJacobian;
         
         // run the solver, telling it which global functions to call in order to assemble
         // the residual or jacobian
@@ -335,10 +335,9 @@ public:
      *  ComputeVectorTerm and ComputeVectorSurfaceTerm) to verify the correctness of the code.
      * 
      *  @param tol A tolerance which defaults to 1e-5
+     *  @param print  Whether to print the different matrix J_numerical-J_analytical
      *  @return true if the componentwise difference between the matrices is less than 
      *    the tolerance, false otherwise.
-     * 
-     *  The difference matrix J_numerical-J_analytical is also printed.
      * 
      *  This method should NOT be run in simulations - it is only to verify the correctness 
      *  of the concrete assembler code.

@@ -637,6 +637,7 @@ protected:
                     const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& surf_element = **surf_iter;
                     
                     ///\todo Check surf_element is in the Neumann surface in an efficient manner
+                    /// e.g. by iterating over boundary conditions!
                     if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
                     {
                         AssembleOnSurfaceElement(surf_element, b_surf_elem);
