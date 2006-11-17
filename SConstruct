@@ -24,7 +24,7 @@ machine_fqdn = socket.getfqdn()
 if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     system_name = 'joe'
 elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc60.comlab.ox.ac.uk",
-                      "userpc58.comlab.ox.ac.uk"]:
+                      "userpc58.comlab.ox.ac.uk", "userpc59.comlab.ox.ac.uk"]:
     system_name = 'new_chaste'
 elif machine_fqdn == "zuse.osc.ox.ac.uk":
     system_name = 'zuse'
