@@ -289,12 +289,13 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
           build.GetTestReportDir() + ' --no-stdout')
 
 build_dir = build.build_dir
+test_depends = []
 for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', 'coupled']:
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
-    SConscript('SConscript', src_dir=toplevel_dir, build_dir=bld_dir,
-               duplicate=0)
+    test_depends.append(SConscript('SConscript', src_dir=toplevel_dir, build_dir=bld_dir,
+                                   duplicate=0))
 
 
 # Remove the contents of testoutput/ on a clean build
@@ -305,12 +306,6 @@ Clean('.', test_output_files)
 
 # Test summary generation
 if test_summary and not compile_only:
-  import time
-  # Touch a file, which we use as source for the summary target, so the summary
-  # is done on every build.
-  fp = file('buildtime.txt', 'w')
-  print >>fp, time.asctime()
-  fp.close()
   # Get the directory to put results & summary in
   output_dir = os.path.join(build.GetTestReportDir(), machine_fqdn+'.'+build_type)
   # Remove old results. Note that this command gets run before anything is built.
@@ -337,4 +332,4 @@ if test_summary and not compile_only:
                            'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')})
   opt['BUILDERS']['TestSummary'] = summary
   opt.TestSummary(os.path.join(output_dir, 'index.html'),
-                  'buildtime.txt')
+                  opt.Flatten(test_depends))

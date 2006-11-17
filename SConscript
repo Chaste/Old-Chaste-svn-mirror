@@ -130,6 +130,10 @@ opt.Library('test'+toplevel_dir, testsource)
 #lib_deps = map(lambda lib: '#lib/lib%s.so' % lib, chaste_libs) # all libs
 lib_deps = '#lib/lib%s.so' % toplevel_dir # only this lib
 
+# Collect a list of test log files to use as dependencies for the test
+# summary generation
+test_log_files = []
+
 # Build and run tests of this component
 for testfile in testfiles:
   prefix = testfile[:-4]
@@ -138,6 +142,9 @@ for testfile in testfiles:
               LIBS = all_libs,
               LIBPATH = ['../../../linklib', '.'] + other_libpaths)
   if not compile_only:
-    opt.Depends(prefix+'.log', lib_deps)
-    opt.RunTests(prefix+'.log', prefix+'Runner')
+    log_file = opt.File(prefix+'.log')
+    opt.Depends(log_file, lib_deps)
+    test_log_files.append(log_file)
+    opt.RunTests(log_file, prefix+'Runner')
 
+Return("test_log_files")
