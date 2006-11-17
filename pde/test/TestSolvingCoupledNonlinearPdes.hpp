@@ -42,7 +42,7 @@ private:
                                                                    c_vector<double,2> &u,
                                                                    c_matrix<double,2,DIM> &rGradU)
     {
-        c_matrix<double,2*(DIM+1),2*(DIM+1)> ret;
+        c_matrix<double,2*(DIM+1),2*(DIM+1)> ret = zero_matrix<double>(2*(DIM+1), 2*(DIM+1));
 
         for (unsigned i=0; i<DIM+1; i++)
         {

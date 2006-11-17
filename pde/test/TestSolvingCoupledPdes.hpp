@@ -57,7 +57,7 @@ class MySimpleCoupledAssembler : public AbstractLinearStaticProblemAssembler<2,2
                                                                c_vector<double,2> &u,
                                                                c_matrix<double,2,2> &rGradU)
     {
-        c_matrix<double,2*(2+1),2*(2+1)> ret;
+        c_matrix<double,2*(2+1),2*(2+1)> ret = zero_matrix<double>(2*(2+1), 2*(2+1));
         
         // the following can be done more efficiently using matrix slices and prods
         // and so on (see BidomainDg0Assembler) - efficiency not needed for this
