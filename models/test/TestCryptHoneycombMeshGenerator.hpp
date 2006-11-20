@@ -38,8 +38,9 @@ public:
         // check the ghost nodes
         std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        for(int i=0; i<14; i++)
+        for(unsigned i=0; i<ghost_node_indices.size(); i++)
         {
+            std::cout << ghost_node_indices[i] << " ";
            // TS_ASSERT_EQUALS(ghost_node_indices[i], i);
         }
         
