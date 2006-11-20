@@ -1,4 +1,5 @@
 TestCancerParameters.hpp
+TestCryptHoneycombMeshGenerator.hpp
 TestCryptSimulation.hpp
 TestCryptSimulation2D.hpp
 TestCellCycleModels.hpp
