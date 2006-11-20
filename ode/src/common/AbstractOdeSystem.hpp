@@ -21,8 +21,7 @@ protected:
     
     unsigned int mNumberOfStateVariables;
     std::vector<double> mInitialConditions;
-    
-    
+     
     
     
     
