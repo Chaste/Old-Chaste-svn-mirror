@@ -185,6 +185,24 @@ public:
         mFixedBoundaries = true;
     }
     
+    /** 
+     *  Get the cells vector
+     */
+    std::vector<MeinekeCryptCell> GetCells()
+    {
+        assert(mCells.size()>0);
+        return mCells;
+    }
+    
+    /** A standard vector of booleans saying whether
+     *  a node is a ghost or not
+     */
+    std::vector <bool> GetGhostNodes()
+    {
+        return mIsGhostNode;
+    }
+    
+    
     std::vector<unsigned> GetLeftCryptBoundary()
     {
         return mLeftCryptBoundary;

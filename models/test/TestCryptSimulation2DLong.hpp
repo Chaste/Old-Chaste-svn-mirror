@@ -214,8 +214,6 @@ class TestCryptSimulation2DLong : public CxxTest::TestSuite
     
 public:
 
-
-
     void TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -304,6 +302,130 @@ public:
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
+    
+    
+    //////////////////////////////////////////////////////////////////
+    // starting with a small mesh with 1 stem cell and the rest
+    // differentiated, check the number of cells at the end of the 
+    // simulation is as expected.
+    //////////////////////////////////////////////////////////////////
+    void Test2DCorrectCellNumbers() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator random_num_gen;
+        
+        // check the stem cell cycle time is still 24 hrs, otherwise
+        // this test might not pass
+        TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);  
+        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);  
+                
+        double crypt_length = 4.0;
+        double crypt_width = 5.0;
+        
+        Make2dCryptMesh("2D_crypt_mesh", 8, 9, crypt_width+2, crypt_length+4, -1.0, -sqrt(3)/2.0);
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        std::string testoutput_dir;
+        OutputFileHandler output_file_handler("");
+        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        
+        TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+"/CryptMesh/2D_crypt_mesh");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        std::vector<int> ghost_node_indices;
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            if ((x<0)||(x>crypt_width)||(y>crypt_length)||(y<0))
+            {
+               ghost_node_indices.push_back(i);
+            }
+        }
+       
+
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            
+            if (i==11) // middle of bottom row of cells
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -1; 
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = -1; //hours
+            }
+            
+            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        CryptSimulation2D simulator(mesh,cells);
+        simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
+        simulator.SetEndTime(40); //hours
+        simulator.SetMaxCells(800);
+        simulator.SetMaxElements(800);
+
+        simulator.SetGhostNodes(ghost_node_indices);
+        
+        simulator.Solve();
+        
+        // now count the number of each type of cell
+        std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
+        std::vector<bool> is_ghost_node = simulator.GetGhostNodes();
+
+        int num_stem = 0;
+        int num_transit = 0;
+        int num_differentiated = 0;
+        
+        for (int index = 0; index<mesh.GetNumAllNodes(); index++)
+        {
+            if(!is_ghost_node[index])   //!mesh.GetNodeAt(index)->IsDeleted())
+            {
+                CryptCellType type = cells_after_simulation[index].GetCellType();
+                
+                if(type==STEM)
+                {
+                    num_stem++;
+                }
+                else if(type==TRANSIT)
+                {
+                    num_transit++;
+                }
+                else if(type==DIFFERENTIATED)
+                {
+                    num_differentiated++;
+                }
+                else
+                {
+                    // shouldn't get here
+                    TS_ASSERT(false);                
+                }
+            }
+        }
+        
+        TS_ASSERT_EQUALS(num_stem, 1);
+        TS_ASSERT_EQUALS(num_transit, 2);
+        
+        TS_ASSERT_LESS_THAN(num_differentiated, 23);
+        TS_ASSERT_LESS_THAN(18, num_differentiated);
+    } 
+    
+    
 };
 
 

@@ -388,6 +388,8 @@ public:
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
     }
+
+
     
     void TestCalculateCryptBoundaries()
     {
