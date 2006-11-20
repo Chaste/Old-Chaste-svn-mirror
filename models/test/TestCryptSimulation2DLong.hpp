@@ -1,5 +1,5 @@
-#ifndef TESTCRYPTSIMULATION2D_HPP_
-#define TESTCRYPTSIMULATION2D_HPP_
+#ifndef TESTCRYPTSIMULATION2DLONG_HPP_
+#define TESTCRYPTSIMULATION2DLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
@@ -16,7 +16,7 @@
 #include "ColumnDataReader.hpp"
 
 
-class TestCryptSimulation2D : public CxxTest::TestSuite
+class TestCryptSimulation2DLong : public CxxTest::TestSuite
 {
     void Make2dCryptMesh(std::string meshFilename, unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, double length, double x0=0.0, double y0=0.0)
     {
@@ -214,123 +214,38 @@ class TestCryptSimulation2D : public CxxTest::TestSuite
     
 public:
 
-    // Test the spring system. There are no cells in this test, therefore no birth, although
-    // nodes are sloughed. The mesh is initially a set of 10 by 10 squares, each square made
-    // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
-    // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
-    // triangle trying to become equilateral.
-    void noTest2DSpringSystemWithSloughing() throw (Exception)
-    {
-        CancerParameters *p_params = CancerParameters::Instance();
-        
-        double crypt_length = 10;
-        double crypt_width = 10;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        CryptSimulation2D simulator(mesh);
-        simulator.SetOutputDirectory("Crypt2DSprings");
 
-        simulator.SetEndTime(24.0);
-        simulator.SetMaxCells(400);
-        simulator.SetMaxElements(400);
 
-        simulator.SetReMeshRule(false);
-        simulator.Solve();
-              
-        CheckAgainstPreviousRun("Crypt2DSprings", 400u, 400u);
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // THIS TEST DOES NOT HAVE REMESHING AND SO WILL CRASH
-    ///////////////////////////////////////////////////////////////////////////
-//    void DO_NOT____Test2DSpringsWithCells() throw (Exception)
-//    {
-//        CancerParameters *p_params = CancerParameters::Instance();
-//        RandomNumberGenerator random_num_gen;
-//
-//        double crypt_length = 10;
-//        double crypt_width = 10;
-//        
-//        p_params->SetCryptLength(crypt_length);
-//        p_params->SetCryptWidth(crypt_width);
-//        
-//        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-//        ConformingTetrahedralMesh<2,2> mesh;
-//        mesh.ConstructFromMeshReader(mesh_reader);
-//        
-//        // Set up cells by iterating through the mesh nodes
-//        unsigned num_cells = mesh.GetNumAllNodes();
-//        std::vector<MeinekeCryptCell> cells;
-//        for (unsigned i=0; i<num_cells; i++)
-//        {
-//            CryptCellType cell_type;
-//            unsigned generation;
-//            double birth_time;
-//            
-//            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
-//            if (y == 0.0)
-//            {
-//                cell_type = STEM;
-//                generation = 0;
-//                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
-//            }
-//            else if (y < 5.0)
-//            {
-//                cell_type = TRANSIT;
-//                generation = 1;
-//                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
-//            }
-//            else
-//            {
-//                cell_type = DIFFERENTIATED;
-//                generation = 4;
-//                birth_time = -1; //hours
-//            }
-//            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
-//            cell.SetNodeIndex(i);
-//            cell.SetBirthTime(birth_time);
-//            cells.push_back(cell);
-//        }
-//        
-//
-//        CryptSimulation2D simulator(mesh, cells);
-//        simulator.SetOutputDirectory("Crypt2DSpringsWithCells");
-//
-//        simulator.SetEndTime(0.45*24.0);
-//
-//        simulator.SetMaxCells(400);
-//        simulator.SetMaxElements(800);
-//
-//        simulator.SetReMeshRule(false);
-//                
-//        // throws anything because not working at the moment
-//        TS_ASSERT_ANYTHING( simulator.Solve() );
-//     //   CheckAgainstPreviousRun("Crypt2DSpringsWithCells", 400u, 800u);
-//    }
-    
-    
-    
-    
-    void noTest2DSpringsFixedBoundaries() throw (Exception)
+    void TestWithBirthOnHoneycombMesh() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator random_num_gen;
         
-        double crypt_length = 10;
-        double crypt_width = 10;
+        double crypt_length = 10.0;
+        double crypt_width = 5.0;
         
+        Make2dCryptMesh("2D_crypt_mesh", 8, 15, crypt_width+2, crypt_length+4, -1.0, -sqrt(3)/2.0);
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        std::string testoutput_dir;
+        OutputFileHandler output_file_handler("");
+        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        
+        TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+"/CryptMesh/2D_crypt_mesh");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-          
+        std::vector<int> ghost_node_indices;
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
+            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            if ((x<0)||(x>crypt_width)||(y>crypt_length)||(y<0))
+            {
+               ghost_node_indices.push_back(i);
+            }
+        }
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -339,27 +254,27 @@ public:
             CryptCellType cell_type;
             unsigned generation;
             double birth_time;
-            
             double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+          
             if (y == 0.0)
             {
                 cell_type = STEM;
                 generation = 0;
                 birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
-            else if (y < 3)
+            else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
                 birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
-            else if (y < 6.5)
+            else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 2;
                 birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
-            else if (y < 8)
+            else if (y < 4)
             {
                 cell_type = TRANSIT;
                 generation = 3;
@@ -378,118 +293,18 @@ public:
             cells.push_back(cell);
         }
         
-        CryptSimulation2D simulator(mesh,cells);
-        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
-        simulator.SetEndTime(0.5); //hours
-        simulator.SetMaxCells(800);
+        CryptSimulation2D simulator(mesh, cells);
+        simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
+        simulator.SetEndTime(24.0);
+        simulator.SetMaxCells(400);
         simulator.SetMaxElements(800);
-        simulator.SetFixedBoundaries();
         
-        simulator.Solve();
-        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
-    }
-    
-    void TestCalculateCryptBoundaries()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        mesh.Translate(0.0,-2.0,0.0) ;
-        //Create Vector of ghost nodes
-        std::vector<int> ghost_node_indices;
-        for (int i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
-            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
-            if ((x<2.0)||(x>8.0)||(y>6.0)||(y<0.0))
-            {
-               ghost_node_indices.push_back(i);
-            }
-        }
-        
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->SetCryptLength(6.0);
-        p_params->SetCryptWidth(6.0);
-        CryptSimulation2D simulator(mesh);
         simulator.SetGhostNodes(ghost_node_indices);
-        simulator.CalculateCryptBoundary();
-        
-        std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
-        
-        std::vector<unsigned> actual_boundary_nodes(24);
-      
-        actual_boundary_nodes[0] = 24;
-        actual_boundary_nodes[1] = 25;
-        actual_boundary_nodes[2] = 26;
-        actual_boundary_nodes[3] = 27;
-        actual_boundary_nodes[4] = 28;
-        actual_boundary_nodes[5] = 29;
-        actual_boundary_nodes[6] = 30;
-        actual_boundary_nodes[7] = 35;
-        actual_boundary_nodes[8] = 41;
-        actual_boundary_nodes[9] = 46;
-        actual_boundary_nodes[10] = 52;
-        actual_boundary_nodes[11] = 57;
-        actual_boundary_nodes[12] = 63;
-        actual_boundary_nodes[13] = 68;
-        actual_boundary_nodes[14] = 74;
-        actual_boundary_nodes[15] = 79;
-        actual_boundary_nodes[16] = 85;
-        actual_boundary_nodes[17] = 90;
-        actual_boundary_nodes[18] = 91;
-        actual_boundary_nodes[19] = 92;
-        actual_boundary_nodes[20] = 93;
-        actual_boundary_nodes[21] = 94;
-        actual_boundary_nodes[22] = 95;
-        actual_boundary_nodes[23] = 96;
-        
-        TS_ASSERT_EQUALS(actual_boundary_nodes.size(),calculated_boundary_nodes.size());
-        
-        
-        for(unsigned i=0; i<calculated_boundary_nodes.size(); i++)
-        {
-            TS_ASSERT_EQUALS(actual_boundary_nodes[i],calculated_boundary_nodes[i]);
-        }
-        
-        std::vector<unsigned> calculated_left_boundary_nodes = simulator.GetLeftCryptBoundary();
-        std::vector<unsigned> calculated_right_boundary_nodes = simulator.GetRightCryptBoundary();
-        
-        std::vector<unsigned> actual_left_boundary_nodes(7);
-        
-        actual_left_boundary_nodes[0] = 24;
-        actual_left_boundary_nodes[1] = 35;
-        actual_left_boundary_nodes[2] = 46;
-        actual_left_boundary_nodes[3] = 57;
-        actual_left_boundary_nodes[4] = 68;
-        actual_left_boundary_nodes[5] = 79;
-        actual_left_boundary_nodes[6] = 90;
-        
-        std::vector<unsigned> actual_right_boundary_nodes(7);
-        
-        actual_right_boundary_nodes[0] = 24+6;
-        actual_right_boundary_nodes[1] = 35+6;
-        actual_right_boundary_nodes[2] = 46+6;
-        actual_right_boundary_nodes[3] = 57+6;
-        actual_right_boundary_nodes[4] = 68+6;
-        actual_right_boundary_nodes[5] = 79+6;
-        actual_right_boundary_nodes[6] = 90+6;
-        
-        //* Must uncomment and include this test
-        
-        TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
-        TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
-        
-        
-        for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
-        {
-            //std::cout<< "calculated_left_boundary_nodes "<< calculated_left_boundary_nodes[i] <<"\n" << std::flush;
-            
-            TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
-            TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
-        }
-        
+
+        simulator.Solve();
+        CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
 };
 
-#endif /*TESTCRYPTSIMULATION2D_HPP_*/
 
+#endif /*TESTCRYPTSIMULATION2DLONG_HPP_*/

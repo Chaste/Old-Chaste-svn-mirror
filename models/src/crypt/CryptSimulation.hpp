@@ -140,6 +140,17 @@ public:
         mMaxCells = maxCells;
     }
     
+    
+    /** 
+     *  Get the cells vector
+     */
+    std::vector<MeinekeCryptCell> GetCells()
+    {
+        assert(mCells.size()>0);
+        return mCells;
+    }   
+    
+    
     /**
      * Main Solve method.
      * 
@@ -483,6 +494,9 @@ private:
         
         return mrMesh.RefineElement(pElement, new_point);
     }
+    
+    
+     
 };
 
 #endif /*CRYPTSIMULATION_HPP_*/

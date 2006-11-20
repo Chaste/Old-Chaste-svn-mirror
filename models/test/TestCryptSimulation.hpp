@@ -406,6 +406,105 @@ public:
         
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
     }
+    
+    
+
+    /////////////////////////////////////////////////////////////////////////////
+    // create a chain of 1 stem cell and the test differentiated and check
+    // that there is correct number of cells and they are in the correct order 
+    /////////////////////////////////////////////////////////////////////////////
+    void Test1dChainCorrectCellNumbers()
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator rand_gen;
+        
+        // check the stem cell cycle time is still 24 hrs, otherwise
+        // this test might not pass
+        TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);  
+        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);  
+        
+
+        double crypt_length = 5.0;
+        p_params->SetCryptLength(crypt_length);
+        
+        Make1dCryptMesh("1D_crypt_mesh", 6, crypt_length);
+        std::string testoutput_dir;
+        OutputFileHandler output_file_handler("");
+        testoutput_dir = output_file_handler.GetTestOutputDirectory();
+        
+        TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
+        ConformingTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            if (i == 0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = 0; //hours - doesn't matter for stem cell;
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = 0; //hours
+            }
+            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        CryptSimulation simulator(mesh, cells);
+        
+        simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
+        simulator.SetMaxCells(50);
+        simulator.SetEndTime(40);
+        
+        simulator.SetIncludeVariableRestLength();
+        
+        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
+        
+        std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
+        //Warning - there are 6 live cells and one dead one sloughed off still in existance.
+        //n.b. throughout the simulation 2 cells are sloughed off but one place is reused
+        TS_ASSERT_EQUALS((int) cells_after_simulation.size(),7);
+        for (int index = 0; index<mesh.GetNumAllNodes(); index++)
+        {
+            if (!mesh.GetNodeAt(index)->IsDeleted())
+            {
+                MeinekeCryptCell cell = cells_after_simulation[index];
+                double x = mesh.GetNodeAt(index)->GetPoint()[0];
+                if (fabs(x)<1e-2)
+                {
+                    CryptCellType type  = cell.GetCellType();
+                    TS_ASSERT(type==STEM);
+                }
+                else if ((fabs(x-1)<1e-2)||(fabs(x-2)<1e-2))
+                {
+                    CryptCellType type  = cell.GetCellType();
+                    TS_ASSERT(type==TRANSIT);
+                }
+                else if ((fabs(x-3)<1e-2)||(fabs(x-4)<1e-2)||(fabs(x-5)<1e-2))
+                {
+                    CryptCellType type  = cell.GetCellType();
+                    TS_ASSERT(type==DIFFERENTIATED);
+                }
+                else
+                {
+                    //There shouldn't be any cells at non-integer positions provided resting length =1 
+                    TS_ASSERT(false);
+                }
+            }
+        }
+    }
 };
 
 #endif /*TESTCRYPTSIMULATION_HPP_*/
