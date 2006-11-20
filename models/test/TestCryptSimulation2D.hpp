@@ -219,7 +219,7 @@ public:
     // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
     // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
     // triangle trying to become equilateral.
-    void Test2DSpringSystemWithSloughing() throw (Exception)
+    void noTest2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -405,7 +405,7 @@ public:
     }
     
     
-    void Test2DSpringsFixedBoundaries() throw (Exception)
+    void noTest2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator random_num_gen;
@@ -498,10 +498,11 @@ public:
         
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->SetCryptLength(6.0);
-        
+        p_params->SetCryptWidth(6.0);
         CryptSimulation2D simulator(mesh);
         simulator.SetGhostNodes(ghost_node_indices);
         simulator.CalculateCryptBoundary();
+        
         std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
         
         std::vector<unsigned> actual_boundary_nodes(24);
@@ -564,17 +565,17 @@ public:
         
         //* Must uncomment and include this test
         
-        //TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
-        //TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
+        TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
+        TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
         
         
-        //for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
-        //{
-        //    std::cout<< "calculated_left_boundary_nodes "<< calculated_left_boundary_nodes[i] <<"\n" << std::flush;
+        for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
+        {
+            //std::cout<< "calculated_left_boundary_nodes "<< calculated_left_boundary_nodes[i] <<"\n" << std::flush;
             
-            //TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
-            //TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
-       // }
+            TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
+            TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
+        }
         
     }
 };
