@@ -1,3 +1,4 @@
+TestCwd.hpp
 TestPetSCSetup.hpp
 TestReplicatableVector.hpp
 TestOutputFileHandler.hpp

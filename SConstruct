@@ -83,14 +83,15 @@ Export('single_test_suite', 'single_test_suite_dir')
 #                      path to PETSc headers (unless it's standard).
 if system_name == 'finarfin':
   # Finarfin (Debian sarge)
-  petsc_base = '/home/jonc/work/dtc/courses/IB/petsc-2.2.1/'
+  #petsc_base = '/home/jonc/work/dtc/courses/IB/petsc-2.2.1/'
+  petsc_base = '/home/jonc/work/dphil/petsc-2.3.1-p19/'
   petsc_inc = petsc_base+'include'
   petsc_bmake = petsc_base+'bmake/linux-gnu'
   petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_incs = [petsc_inc, petsc_bmake, petsc_mpi]
-  petsc_libpath = petsc_base+'lib/libg_c++/linux-gnu/'
+  petsc_incs = [petsc_inc, petsc_bmake]
+  petsc_libpath = petsc_base+'lib/linux-gnu/'
 
-  other_libs = ['f2clapack', 'f2cblas']
+  other_libs = ['lapack', 'blas']
   other_libpaths = [petsc_libpath]
   other_includepaths = petsc_incs
 elif system_name == 'maths':
@@ -261,7 +262,7 @@ extra_flags = build.CcFlags()
 link_flags  = build.LinkFlags()
 
 # Hack to get around Debian strangeness
-if system_name == 'maths':
+if system_name in ['maths', 'finarfin']:
   extra_flags = extra_flags + " -DCWD_HACK "
 
 Export("extra_flags", "link_flags")

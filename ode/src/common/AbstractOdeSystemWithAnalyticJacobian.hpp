@@ -1,17 +1,17 @@
-/**
- * Abstract Analytic Jacobian
-*/
-
 #ifndef _ABSTRACTANALYTICJACOBIAN_HPP_
 #define _ABSTRACTANALYTICJACOBIAN_HPP_
 
-#include <vector>
-#include <string>
-#include "Exception.hpp"
-#include "AbstractOdeSystem.hpp"
-#include "PetscSetupAndFinalize.hpp"
-#include "PetscException.hpp"
+#include "petscvec.h"
+#include "petscmat.h"
 
+#include "AbstractOdeSystem.hpp"
+
+/**
+ * Abstract Analytic Jacobian
+ * 
+ * Represents an ODE system with an analytic Jacobian available,
+ * which can be computed using the method AnalyticJacobian.
+ */
 class AbstractOdeSystemWithAnalyticJacobian: public AbstractOdeSystem
 {
 protected:
