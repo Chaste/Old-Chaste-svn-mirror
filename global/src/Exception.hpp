@@ -18,22 +18,13 @@ private:
     
 public:
     /** Construct an exception with a message string */
-    Exception(std::string message, std::string filename, const int& rLineNumber)
-    {
-        std::stringstream line_number;
-        line_number << rLineNumber;
-        
-        mMessage = std::string("\nCHASTE ERROR: ") + filename + ":"  + line_number.str()  + ": " + message;
-    }
+    Exception(std::string message, std::string filename, const int& rLineNumber);
     
     /** Get the message associated with the exception
      *
      * @return The message set when the exception was thrown.
      **/
-    std::string GetMessage() const
-    {
-        return mMessage;
-    }
+    std::string GetMessage() const;
 };
 
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)

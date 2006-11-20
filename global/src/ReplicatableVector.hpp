@@ -17,99 +17,49 @@ private:
     Vec mReplicated;     /**< Vector to hold concentrated copy of replicated vector*/
     Vec mDistributed;    /**< Vector to hold data before replication*/
     
-    void RemovePetscContext()
-    {
-        if (mToAll != NULL)
-        {
-            VecScatterDestroy(mToAll);
-            mToAll=NULL;
-        }
-        
-        if (mReplicated != NULL)
-        {
-            VecDestroy(mReplicated);
-            mReplicated=NULL;
-        }
-        
-        if (mDistributed != NULL)
-        {
-            VecDestroy(mDistributed);
-            mDistributed=NULL;
-        }
-    }
+    void RemovePetscContext();
     
 public:
     /**
      * Default constructor.
      * Note that the vector will need to be resized before it can be used.
      */
-    ReplicatableVector()
-    {
-        mToAll=NULL;
-        mReplicated=NULL;
-        mDistributed=NULL;
-    }
+    ReplicatableVector();
     
     /**
      *  Constructor taking in Petsc vector, which is immediately 
      *  replicated into the internal data
      */
-    ReplicatableVector(Vec vec)
-    {
-        mToAll=NULL;
-        mReplicated=NULL;
-        mDistributed=NULL;
-        
-        ReplicatePetscVector(vec);
-    }
+    ReplicatableVector(Vec vec);
+    /**
+     * Constructor to make a vector of given size.
+     */
+    ReplicatableVector(unsigned size);
+    
     
     /**
      * Default destructor.
      * Remove PETSc context.
      */
-    ~ReplicatableVector()
-    {
-        RemovePetscContext();
-    }
-    
-    /**
-     * Constructor to make a vector of given size.
-     */
-    ReplicatableVector(unsigned size)
-    {
-        mToAll=NULL;
-        mReplicated=NULL;
-        mDistributed=NULL;
-        resize(size);
-    }
+    ~ReplicatableVector();
+
     
     /**
      * Return the size of the vector.
      */
-    unsigned size(void)
-    {
-        return mData.size();
-    }
+    unsigned size(void);
     
     /**
      * Resize the vector.
      * 
      * @param size  The number of elements to allocate memory for.
      */
-    void resize(unsigned size)
-    {
-        //PETSc stuff will be out of date
-        RemovePetscContext();
-        mData.resize(size);
-    }
+    void resize(unsigned size);
     
     /**
      * Access the vector.
      */
-    double& operator[](unsigned index)
-    {
-        return mData[index];
-    }
+    double& operator[](unsigned index);
     
     
     /**
@@ -121,26 +71,7 @@ public:
      * @param lo  The start of our ownership range
      * @param hi  One past the end of our ownership range
      */
-    void Replicate(unsigned lo, unsigned hi)
-    {
-        //Copy information into a PetSC vector
-        if (mDistributed==NULL)
-        {
-            VecCreateMPI(PETSC_COMM_WORLD, hi-lo, this->size(), &mDistributed);
-        }
-        
-        double *p_distributed;
-        VecGetArray(mDistributed, &p_distributed);
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            p_distributed[ (global_index-lo) ]= mData[global_index];
-        }
-        VecAssemblyBegin(mDistributed);
-        VecAssemblyEnd(mDistributed);
-        
-        //Now do the real replication
-        ReplicatePetscVector(mDistributed);
-    }
+    void Replicate(unsigned lo, unsigned hi);
     
     /**
      * Replicate the given PETSc vector over all processes.
@@ -152,34 +83,7 @@ public:
      * 
      * @param vec  The PETSc vector to replicate.
      */
-    void ReplicatePetscVector(Vec vec)
-    {
-        //If the size has changed then we'll need to make a new context
-        int size;
-        VecGetSize(vec, &size);
-        if ((int) this->size() != size)
-        {
-            resize(size);
-        }
-        if (mReplicated == NULL)
-        {
-            //This creates mReplicated (the scatter context) and mReplicated (to store values)
-            VecScatterCreateToAll(vec, &mToAll, &mReplicated);
-        }
-        
-        //Replicate the data
-        VecScatterBegin(vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
-        VecScatterEnd  (vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD, mToAll);
-        
-        //Information is now in mReplicated PETSc vector
-        //Copy into mData
-        double *p_replicated;
-        VecGetArray(mReplicated, &p_replicated);
-        for (int i=0; i<size; i++)
-        {
-            mData[i]=p_replicated[i];
-        }
-    }
+    void ReplicatePetscVector(Vec vec);
     
 };
 

@@ -3,13 +3,9 @@
 
 #include <string>
 #include <fstream>
-#include <cstdlib>
 #include <memory>
-#include <sys/stat.h>
 
-#include "Exception.hpp"
-#include <petsc.h>
-
+/** Type of our output streams; a managed pointer to an std::ofstream */
 typedef std::auto_ptr<std::ofstream> out_stream;
 
 /**
@@ -36,42 +32,7 @@ public:
      * @param rCleanOutputDirectory  whether to remove any existing files in the output directory
      */
     OutputFileHandler(const std::string &rDirectory,
-                      bool rCleanOutputDirectory = true)
-    {
-        // Are we the master process?  Only the master should do any writing to disk
-        PetscTruth is_there;
-        PetscInitialized(&is_there);
-        if (is_there == PETSC_TRUE)
-        {
-            int my_rank;
-            MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
-            if (my_rank==0)
-            {
-                mAmMaster=true;
-            }
-            else
-            {
-                mAmMaster=false;
-            }
-        }
-        else
-        {
-            // Not using PETSc, so we're definitely the only process
-            mAmMaster = true;
-        }
-        mDirectory = GetTestOutputDirectory(rDirectory);
-        
-        // Clean the output dir?
-        if (rCleanOutputDirectory && mAmMaster &&
-            rDirectory != "" && rDirectory.find("..") == std::string::npos)
-        {
-            // Remove the directory itself rather than contents, to avoid
-            // problems with too long command lines
-            system(("rm -rf " + mDirectory).c_str());
-            // Re-create the directory
-            mkdir(mDirectory.c_str(), 0775);
-        }
-    }
+                      bool rCleanOutputDirectory = true);
     
     /**
      * Check that the desired output directory exists and is writable by us.
@@ -86,46 +47,12 @@ public:
      *         output will be stored (user shouldn't care about this).
      * @return  full pathname to the output directory
      */
-    std::string GetTestOutputDirectory(std::string directory)
-    {
-        char *chaste_test_output = getenv("CHASTE_TEST_OUTPUT");
-        std::string directory_root;
-        if (chaste_test_output == NULL || *chaste_test_output == 0)
-        {
-            // Default to within the Chaste directory
-            directory_root = "testoutput/";
-        }
-        else
-        {
-            directory_root = std::string(chaste_test_output);
-            // Add a trailing slash if not already there
-            if (! ( *(directory_root.end()-1) == '/'))
-            {
-                directory_root = directory_root + "/";
-            }
-        }
-        directory = directory_root + directory;
-        // Make sure it exists (ish)
-        if (mAmMaster)
-        {
-            system(("mkdir -p " + directory).c_str());
-        }
-        
-        // Add a trailing slash if not already there
-        if (! ( *(directory.end()-1) == '/'))
-        {
-            directory = directory + "/";
-        }
-        return directory;
-    }
+    std::string GetTestOutputDirectory(std::string directory);
     /**
      * Return the full pathname to the directory this object will create files
      * in.
      */
-    std::string GetTestOutputDirectory()
-    {
-        return mDirectory;
-    }
+    std::string GetTestOutputDirectory();
     
     /**
      * Open an output file in our directory, and check it was opened successfully.
@@ -137,15 +64,7 @@ public:
      * @return  a managed pointer to the opened file stream.
      */
     out_stream OpenOutputFile(std::string filename,
-                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc)
-    {
-        out_stream p_output_file(new std::ofstream((mDirectory+filename).c_str(), mode));
-        if (!p_output_file->is_open())
-        {
-            EXCEPTION("Could not open file " + filename + " in " + mDirectory);
-        }
-        return p_output_file;
-    }
+                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
 };
 
 #endif /*OUTPUTFILEHANDLER_HPP_*/
