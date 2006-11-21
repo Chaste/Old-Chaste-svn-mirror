@@ -8,6 +8,7 @@
 #include "OdeThirdOrderWithEvents.hpp"
 #include "Ode4.hpp"
 #include "Ode5.hpp"
+#include "Ode5Jacobian.hpp"
 //#include "AnotherOde.hpp"
 #include "BackwardEulerIvpOdeSolver.cpp"
 
@@ -181,7 +182,7 @@ public:
 #endif
         MatSetFromOptions(jacobian);
         
-        ComputeJacobian(snes, solution_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);
+        ComputeNumericalJacobian(snes, solution_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);
         
         double true_jacobian[3][3] = {{ 0, 1,-1},
                                       { 0, 0, 1},
@@ -230,6 +231,30 @@ public:
         TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);
     }
     
+    void testBackwardEulerAnotherNonlinearEquationAnalytic() throw(Exception)
+    {
+        Ode5Jacobian ode_system;
+        
+        double h_value = 0.01;
+        double end_time = 1.0;
+        
+        //Euler solver solution worked out
+        BackwardEulerIvpOdeSolver backward_euler_solver;
+        OdeSolution solutions;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        
+        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, h_value);
+        int last = solutions.GetNumberOfTimeSteps();
+        
+        double numerical_solution;
+        numerical_solution = solutions.rGetSolutions()[last][0];
+        
+        // The tests
+        double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
+        
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+    }
 };
 
 #endif /*TESTBACKWARDEULERIVPODESOLVER_HPP_*/

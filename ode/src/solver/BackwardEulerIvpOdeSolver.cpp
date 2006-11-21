@@ -4,6 +4,7 @@
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
+#include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 #include "OdeSolution.hpp"
 #include <vector>
 
@@ -27,13 +28,15 @@ typedef struct
 }
 BackwardEulerStructure;
 
+
 //This one's a hack, so that we don't have to keep recalculating ownership
 static unsigned mLo;
 static unsigned mHi;
 
 
 PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext);
-PetscErrorCode ComputeJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
+PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
+PetscErrorCode ComputeAnalyticJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 
 /**
  * Solves a system of n ODEs using the Backward Euler method
@@ -80,20 +83,34 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     {
         VecSetValue(initial_guess, global_index, currentYValue[global_index], INSERT_VALUES);
     }
+
     VecAssemblyBegin(initial_guess);
     VecAssemblyEnd(initial_guess);
-   
-    
+
+    bool use_analytic_jacobian = pAbstractOdeSystem->GetUseAnalytic();
+
     BackwardEulerStructure *p_backward_euler_structure = new BackwardEulerStructure;
+
     p_backward_euler_structure->pAbstractOdeSystem = pAbstractOdeSystem;
     p_backward_euler_structure->TimeStep = timeStep;
     p_backward_euler_structure->Time = time;
     p_backward_euler_structure->currentYValue = std::vector<double>(currentYValue);
-    
+
     SimplePetscNonlinearSolver solver;
-    Vec answer = solver.Solve(&ComputeResidual, &ComputeJacobian,
-                          initial_guess, p_backward_euler_structure);
-                          
+
+    Vec answer;
+
+    if (use_analytic_jacobian)
+    {
+        answer = solver.Solve(&ComputeResidual, &ComputeAnalyticJacobian,
+                              initial_guess, p_backward_euler_structure);
+    }
+    else
+    {
+        answer = solver.Solve(&ComputeResidual, &ComputeNumericalJacobian,
+                              initial_guess, p_backward_euler_structure);
+    }   
+
     ReplicatableVector answer_replicated;
     answer_replicated.ReplicatePetscVector(answer);
     for (int i=0; i<num_equations; i++)
@@ -146,7 +163,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     return 0;
 }
 
-PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
+PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
 {
     BackwardEulerStructure *p_backward_euler_structure = (BackwardEulerStructure*)pContext;
     AbstractOdeSystem *p_ode_system = p_backward_euler_structure->pAbstractOdeSystem;
@@ -203,11 +220,34 @@ PetscErrorCode ComputeJacobian(SNES snes,Vec solutionGuess, Mat *pJacobian ,Mat 
     
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
-    
+
     VecDestroy(residual);
     VecDestroy(residual_perturbed);
     VecDestroy(solution_perturbed);
     VecDestroy(jacobian_column);
+
+    return 0;
+    
+}
+
+PetscErrorCode ComputeAnalyticJacobian(SNES snes, Vec solutionGuess, Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext)
+{
+    BackwardEulerStructure *p_backward_euler_structure = (BackwardEulerStructure*)pContext;
+    
+    // the ode system must be an AbstractOdeSystemWithAnalyticJacobian
+    // if we are in this function, so we can cast it into that class
+    AbstractOdeSystemWithAnalyticJacobian *p_ode_system 
+      = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(p_backward_euler_structure->pAbstractOdeSystem);
+
+    double time_step = p_backward_euler_structure->TimeStep;
+    double time = p_backward_euler_structure->Time;
+    
+    //This is the function we are running
+    p_ode_system->AnalyticJacobian(solutionGuess, pJacobian, time, time_step);
+        
+    MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
+    
     return 0;
     
 }

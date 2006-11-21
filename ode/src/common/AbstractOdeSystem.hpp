@@ -21,8 +21,7 @@ protected:
     
     unsigned int mNumberOfStateVariables;
     std::vector<double> mInitialConditions;
-     
-    
+    bool mUseAnalytic;
     
     
 public:
@@ -34,6 +33,7 @@ public:
     AbstractOdeSystem(unsigned numberOfStateVariables = 0)
     {
         mNumberOfStateVariables = numberOfStateVariables;
+        mUseAnalytic = false;
     }
     
     virtual ~AbstractOdeSystem()
@@ -107,6 +107,11 @@ public:
     virtual bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
         return false;
+    }
+    
+    virtual bool GetUseAnalytic()
+    {
+        return mUseAnalytic;
     }
     
 };
