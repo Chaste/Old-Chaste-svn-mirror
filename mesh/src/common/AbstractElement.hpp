@@ -1,6 +1,5 @@
 #ifndef _ABSTRACTELEMENT_HPP_
 #define _ABSTRACTELEMENT_HPP_
-#include <float.h>
 /**
  * This class defines an Element for use in FEM.
  */

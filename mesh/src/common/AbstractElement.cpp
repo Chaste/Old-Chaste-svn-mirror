@@ -75,7 +75,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
     if (ELEMENT_DIM == SPACE_DIM)
     {
         mJacobianDeterminant = Determinant(mJacobian);
-        if (mJacobianDeterminant < DBL_EPSILON)
+        if (mJacobianDeterminant <= DBL_EPSILON)
         {
             EXCEPTION("Jacobian determinant is non-positive");
         }

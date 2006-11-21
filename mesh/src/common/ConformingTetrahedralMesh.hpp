@@ -51,12 +51,12 @@ private:
     int AddNode(Node<SPACE_DIM> *pNewNode);
     
     /**
-      * Check whether any neighbouring node is inside the circumsphere of this element.
-      * @param pointer to an element
-      * @param maxPenetration is the maximum distance a node is allowed to be inside the
-      * circumsphere of the element, as a proportion of the circumsphere radius.   
-      */
-     bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
+     * Check whether any neighbouring node is inside the circumsphere of this element.
+     * @param pointer to an element
+     * @param maxPenetration is the maximum distance a node is allowed to be inside the
+     * circumsphere of the element, as a proportion of the circumsphere radius.
+     */
+      bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
     
 public:
 
@@ -154,6 +154,7 @@ public:
     
     void Translate(c_vector<double, SPACE_DIM> displacement);
     void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
+    void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
     void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix);
     void Rotate(c_vector<double,3> axis, double angle);
     void RotateX(const double theta);
@@ -197,22 +198,23 @@ public:
      * the permutation
      */
      void PermuteNodes(RandomNumberGenerator &rRng);
-     
-     /**
-      * Checks the entire mesh element by element and checkes whether any neighbouring node
-      * inside the circumsphere of this element.
-      * @param maxPenetration is the maximum distance a node is allowed to be inside the
-      * circumsphere of an element that it is not a member of, as a proportion of the
-      * circumsphere radius.
-      */
-     bool CheckVoronoi(double maxPenetration=0.0);
-     
+   
+    /**    
+     * Checks the entire mesh element by element and checkes whether any neighbouring node
+     * inside the circumsphere of this element.
+     * @param maxPenetration is the maximum distance a node is allowed to be inside the
+     * circumsphere of an element that it is not a member of, as a proportion of the
+     * circumsphere radius.
+     */
+    bool CheckVoronoi(double maxPenetration=0.0);
+    
      /**
       * Construct a rectangular grid on [0,width]x[0,height]
       * diagonals can be staggered so that there is no prefered diffusion propagation
       * direction.
       */
      void ConstructRectangularMesh(int width, int height, bool stagger=true);
- };
+     
+};
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

@@ -12,7 +12,8 @@
 #include <fstream>
 #include <vector>
 
-#define TINY 1E-13
+#include <float.h>
+#define TINY DBL_EPSILON
 
 using namespace boost::numeric::ublas;
 /**
@@ -123,6 +124,7 @@ boost::numeric::ublas::c_matrix<T, 2, 2> Inverse(const boost::numeric::ublas::c_
     
     c_matrix<T, 2, 2> inverse;
     T det = Determinant(m);
+    
     assert( fabs(det) > TINY ); //Else it is a singular matrix
     inverse(0,0)  =  m(1,1)/det;
     inverse(0,1)  = -m(0,1)/det;

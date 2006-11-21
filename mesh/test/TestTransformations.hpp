@@ -509,7 +509,36 @@ public:
         TS_ASSERT_DELTA(mesh_volume, original_mesh_volume, 1e-5);
         
     }
-    
+    void TestScalingWithMethod(void)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        double mesh_volume = mesh.CalculateMeshVolume();
+        
+        mesh.Scale(1.0);
+        TS_ASSERT_DELTA(mesh_volume,mesh.CalculateMeshVolume(),1e-6);
+        
+        mesh.Scale(2.0, 3.0, 4.0);
+        TS_ASSERT_DELTA(24.0*mesh_volume,mesh.CalculateMeshVolume(),1e-6);
+        
+        Point<3> corner_after=mesh.GetNodeAt(6)->GetPoint();
+        TS_ASSERT_DELTA(corner_after[0],  2.0, 1e-7);
+        TS_ASSERT_DELTA(corner_after[1],  3.0, 1e-7);
+        TS_ASSERT_DELTA(corner_after[2],  4.0, 1e-7);
+        
+        
+        mesh.Scale(.5,1.0/3.0,.25);
+        
+        TS_ASSERT_DELTA(mesh_volume,mesh.CalculateMeshVolume(),1e-6);
+        
+        corner_after=mesh.GetNodeAt(6)->GetPoint();
+        TS_ASSERT_DELTA(corner_after[0],  1.0, 1e-7);
+        TS_ASSERT_DELTA(corner_after[1],  1.0, 1e-7);
+        TS_ASSERT_DELTA(corner_after[2],  1.0, 1e-7);
+        
+    }    
 };
 
 #endif /*TESTTRANSFORMATIONS_HPP_*/

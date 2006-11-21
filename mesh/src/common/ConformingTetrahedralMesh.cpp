@@ -751,16 +751,49 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
 
 
 /**
+ * Scale the mesh.
+ * @param xFactor is the scale in the x-direction,
+ * @param yFactor is the scale in the y-direction,
+ * @param zFactor is the scale in the z-direction
+ **/
+template <int ELEMENT_DIM, int SPACE_DIM>
+        void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
+                const double xScale,
+                const double yScale,
+                const double zScale)
+{
+    long num_nodes=GetNumAllNodes();
+    
+    for (int i=0; i<num_nodes; i++)
+    {
+        Point<SPACE_DIM> point = mNodes[i]->rGetPoint();
+        if (SPACE_DIM>=3)
+        {
+            point.rGetLocation()[2] *= zScale;
+        }
+        if (SPACE_DIM>=2)
+        {
+            point.rGetLocation()[1] *= yScale;
+        }
+        point.rGetLocation()[0] *= xScale;
+        
+        mNodes[i]->SetPoint(point);
+    }
+    
+    RefreshMesh();
+}
+
+/**
  * Translate the mesh.
  * @param xMovement is the x-displacement,
  * @param yMovement is the y-displacement,
  * @param zMovement is the z-displacement,
  **/
-template <int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
-    const double xMovement,
-    const double yMovement,
-    const double zMovement)
+         template <int ELEMENT_DIM, int SPACE_DIM>
+         void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
+                 const double xMovement,
+         const double yMovement,
+         const double zMovement)
 {
     c_vector<double , SPACE_DIM> displacement;
     
@@ -1111,28 +1144,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     OutputFileHandler handler("");
     out_stream node_file=handler.OpenOutputFile("temp.node");
     
-    
-    //Add four/eight node to form a bounding box
-    int extra_nodes;
-    if (SPACE_DIM == 2)
-    {
-        extra_nodes=4;
-    }
-    if (SPACE_DIM == 3)
-    {
-        extra_nodes=8;
-    }
-    
-    //Un-comment for bounding box
-    extra_nodes=0;
-    
-    (*node_file)<<GetNumNodes()+extra_nodes<<"\t2\t0\t0\n";
-    double max[SPACE_DIM], min[SPACE_DIM];
-    for (int i=0;i<SPACE_DIM;i++)
-    {
-        max[i]=-INFINITY;
-        min[i]= INFINITY;
-    }
+    (*node_file)<<GetNumNodes()<<"\t2\t0\t0\n";
     
     
     
@@ -1156,18 +1168,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
                 (*node_file)<<"\t"<<point[2];
             }
             (*node_file)<<"\n";
-            for (int j=0;j<SPACE_DIM;j++)
-            {
-                if (point[j]<min[j])
-                {
-                    min[j]=point[j];
-                }
-                if (point[j]>max[j])
-                {
-                    max[j]=point[j];
-                }
-            }
-        }
+         }
     }
     
     
@@ -1281,6 +1282,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumbe
     }
 }
 
+
+
 template <int ELEMENT_DIM, int SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
 {
@@ -1289,45 +1292,45 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
      std::set<unsigned> neighbouring_elements_indices;
      std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;
      std::set<unsigned> neighbouring_nodes_indices;
-        
-     //Form a set of neighbouring elements via the nodes   
+
+     //Form a set of neighbouring elements via the nodes
      for(int i = 0 ; i < num_nodes; i++)
      {
          Node<SPACE_DIM>* node = pElement->GetNode(i);
          neighbouring_elements_indices = node->rGetContainingElementIndices();
          ///\todo Should use a set union operation here
          for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();
-         it != neighbouring_elements_indices.end(); ++it) 
+         it != neighbouring_elements_indices.end(); ++it)
          {
             neighbouring_elements.insert(GetElement(*it));
          }
      }
      neighbouring_elements.erase(pElement);
-     
-     
+
+
      //For each neighbouring element find the supporting nodes
      typedef typename std::set<Element<ELEMENT_DIM,SPACE_DIM> *>::const_iterator ElementIterator;
- 
+
      for (ElementIterator it = neighbouring_elements.begin();
-        it != neighbouring_elements.end(); ++it) 
+        it != neighbouring_elements.end(); ++it)
      {
         for(int i = 0 ; i < num_nodes; i++)
         {
-            neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));    
-        } 
+            neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));
+        }
      }
      //Remove the nodes that support this element
      for(int i = 0 ; i < num_nodes; i++)
      {
-        neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));  
+        neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));
      }
-     
-     
-     //Get the circumsphere information   
-     c_vector <double, ELEMENT_DIM+1> this_circum_centre;    
+
+
+     //Get the circumsphere information
+     c_vector <double, ELEMENT_DIM+1> this_circum_centre;
      this_circum_centre = pElement->CalculateCircumsphere();
-     
-     //Copy the actualy circumcentre into a smaller vector 
+
+     //Copy the actualy circumcentre into a smaller vector
      c_vector <double, ELEMENT_DIM> circum_centre;
      for (int i=0;i<ELEMENT_DIM;i++)
      {
@@ -1335,25 +1338,25 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
      }
 
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
-         it != neighbouring_nodes_indices.end(); ++it) 
+         it != neighbouring_nodes_indices.end(); ++it)
     {
         Point<SPACE_DIM> node_point = GetNodeAt(*it)->rGetPoint();
         c_vector < double, ELEMENT_DIM> node_location = node_point.rGetLocation();
-        
+
         // Calculate vector from circumcenter to node
         node_location -= circum_centre;
         // This is to calculate the squared distance betweeen them
         double squared_distance = inner_prod(node_location, node_location);
-        
+
         // If the squared idstance is less than the elements circum-radius(squared),
         // then the voronoi property is violated.
-       
+
         if(squared_distance < this_circum_centre[ELEMENT_DIM])
         {
             // We know the node is inside the circumsphere, but we don't know how far
             double radius = sqrt(this_circum_centre[ELEMENT_DIM]);
             double distance = radius - sqrt(squared_distance);
-            
+
             // If the node penetration is greater than supplied maximum penetration factor
             if(distance/radius > maxPenetration)
             {
@@ -1389,7 +1392,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 {
     assert(SPACE_DIM == 2);
     assert(ELEMENT_DIM == 2);
-    
+
     //Construct the nodes
     int node_index=0;
     for (int j=height-1;j>=0;j--)
@@ -1397,7 +1400,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         for (int i=0;i<width;i++)
         {
             bool is_boundary=false;
-            if (i==0 || j==0 || i==width-1 || j==height-1) 
+            if (i==0 || j==0 || i==width-1 || j==height-1)
             {
                 is_boundary=true;
             }
@@ -1439,7 +1442,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         nodes.push_back(mNodes[width*(i)]);
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
-    
+
     //Construct the elements
     int elem_index=0;
     for (int j=0;j<height-1;j++)
@@ -1453,11 +1456,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
             if (stagger==false  || parity == 0)
             {
                 upper_nodes.push_back(mNodes[(j+1)*width+i+1]);
-            } 
-            else 
+            }
+            else
             {
                 upper_nodes.push_back(mNodes[(j+1)*width+i]);
-            }    
+            }
             mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
             std::vector<Node<SPACE_DIM>*> lower_nodes;
             lower_nodes.push_back(mNodes[(j+1)*width+i+1]);
@@ -1465,11 +1468,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
             if (stagger==false  ||parity == 0)
             {
                 lower_nodes.push_back(mNodes[j*width+i]);
-            } 
-            else 
+            }
+            else
             {
                 lower_nodes.push_back(mNodes[j*width+i+1]);
-            }    
+            }
             mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
         }
     }
