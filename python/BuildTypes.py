@@ -394,7 +394,7 @@ class MemoryTesting(GccDebug):
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
     petsc = re.compile('\[0]Total space allocated (\d+) bytes')
     uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
-    open_files = re.compile('==\d+== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/workspace|/dev/urandom))(.*)')
+    open_files = re.compile('==\d+== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
     
     if outputLines is None:
       outputLines = logFile.readlines()
@@ -438,7 +438,7 @@ class MemoryTesting(GccDebug):
       if m:
         # There's a file open that shouldn't be.
         # Descriptors 0, 1 and 2 are ok, as are names /dev/urandom
-        # and /home/bob/eclipse/workspace.
+        # and /home/bob/eclipse/lockfile, and the log file.
         file_name = m.group(2)
         if not file_name.endswith(logFile.name):
           status = 'Openfile'
