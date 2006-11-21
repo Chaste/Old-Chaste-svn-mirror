@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
+#include "TrianglesMeshWriter.cpp"
 #include "RandomNumberGenerator.hpp"
 #include <cmath>
 
@@ -1098,6 +1099,24 @@ public:
         
     }
     
+        
+    void TestConstructRectangle()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        unsigned width=40;
+        unsigned height=17;
+        mesh.ConstructRectangularMesh(width,height);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), (width-1)*(height-1), 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width-1+height-1), 1e-7);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) (width*height));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width-1+height-1)));
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*(width-1)*(height-1)));
+        
+        TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
+    
+    
     void TestCheckVoronoiDisk()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -1109,6 +1128,8 @@ public:
         
     } 
     
+    
+    
     void TestCheckVoronoiSquare()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -1119,17 +1140,44 @@ public:
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
         
     }
-    void xTestCheckCircularFanFails()
+    
+    void TestCheckCircularFan()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader,1);
         
         
-        TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
+        TS_ASSERT_EQUALS(mesh.CheckVoronoi(5e-3),true);
         
     }
     
+    void TestCheckMovingMesh()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructRectangularMesh(2,2);
+        
+        Node<2> *p_node=mesh.GetNodeAt(1);
+        
+        Point<2> point=p_node->GetPoint();
+        
+        for(double x = 1.1; x >= 0.9; x-= 0.01)
+        {
+            point.SetCoordinate(0,x);
+            point.SetCoordinate(1,x);
+            mesh.SetNode(1, point);
+            
+            if(x >= 0.91)
+            {
+                TS_ASSERT_EQUALS(mesh.CheckVoronoi(0.2),true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(mesh.CheckVoronoi(0.2),false);
+            }
+        }
+    }
     
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

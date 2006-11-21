@@ -1282,7 +1282,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumbe
 }
 
 template <int ELEMENT_DIM, int SPACE_DIM>
-bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement)
+bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
 {
      assert (ELEMENT_DIM == SPACE_DIM);
      int num_nodes = pElement->GetNumNodes();
@@ -1348,34 +1348,132 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
         // If the squared idstance is less than the elements circum-radius(squared),
         // then the voronoi property is violated.
        
-        if(squared_distance - this_circum_centre[ELEMENT_DIM] < -1e-4)
+        if(squared_distance < this_circum_centre[ELEMENT_DIM])
         {
-            //\todo check sqrt distance is necessary
-            std::cout<<squared_distance - this_circum_centre[ELEMENT_DIM]<<"\n";
-            return false;
+            // We know the node is inside the circumsphere, but we don't know how far
+            double radius = sqrt(this_circum_centre[ELEMENT_DIM]);
+            double distance = radius - sqrt(squared_distance);
+            
+            // If the node penetration is greater than supplied maximum penetration factor
+            if(distance/radius > maxPenetration)
+            {
+                return false;
+            }
         }
     }
     return true;
 }
 
 template <int ELEMENT_DIM, int SPACE_DIM>
-bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi()
+bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
-    bool pass=true;
+    // Looping through all the elements in the mesh
     for (unsigned i=0; i<mElements.size();i++)
     {
+        // Check if the element is not deleted
         if(!mElements[i]->IsDeleted())
         {
-//            if(CheckVoronoi(mElements[i]) == false)
-//            {
-//                return false;
-//            }
-            pass = CheckVoronoi(mElements[i])  && pass;
+            // Checking the Voronoi of the Element
+            if(CheckVoronoi(mElements[i], maxPenetration) == false)
+            {
+                return false;
+            }
         }
     }
+    return true;
+}
+
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(int width, int height, bool stagger)
+{
+    assert(SPACE_DIM == 2);
+    assert(ELEMENT_DIM == 2);
     
-    return pass;
-    //return true;
+    //Construct the nodes
+    int node_index=0;
+    for (int j=height-1;j>=0;j--)
+    {
+        for (int i=0;i<width;i++)
+        {
+            bool is_boundary=false;
+            if (i==0 || j==0 || i==width-1 || j==height-1) 
+            {
+                is_boundary=true;
+            }
+            mNodes.push_back(new Node<2>(node_index++, is_boundary, i, j));
+        }
+    }
+
+    //Construct the boundary elements
+    int belem_index=0;
+    //Top
+    for (int i=0;i<width-1;i++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(mNodes[i]);
+        nodes.push_back(mNodes[i+1]);
+        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+    }
+    //Right
+    for (int i=1;i<height;i++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(mNodes[width*i-1]);
+        nodes.push_back(mNodes[width*(i+1)-1]);
+        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+    }
+    //Bottom
+    for (int i=0;i<width-1;i++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(mNodes[(height-1)*width+i+1]);
+        nodes.push_back(mNodes[(height-1)*width+i]);
+        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+    }
+    //Left
+    for (int i=0;i<height-1;i++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        nodes.push_back(mNodes[width*(i+1)]);
+        nodes.push_back(mNodes[width*(i)]);
+        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
+    }
+    
+    //Construct the elements
+    int elem_index=0;
+    for (int j=0;j<height-1;j++)
+    {
+        for (int i=0; i<width-1; i++)
+        {
+            int parity=(i+j)%2;
+            std::vector<Node<SPACE_DIM>*> upper_nodes;
+            upper_nodes.push_back(mNodes[j*width+i]);
+            upper_nodes.push_back(mNodes[j*width+i+1]);
+            if (stagger==false  || parity == 0)
+            {
+                upper_nodes.push_back(mNodes[(j+1)*width+i+1]);
+            } 
+            else 
+            {
+                upper_nodes.push_back(mNodes[(j+1)*width+i]);
+            }    
+            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
+            std::vector<Node<SPACE_DIM>*> lower_nodes;
+            lower_nodes.push_back(mNodes[(j+1)*width+i+1]);
+            lower_nodes.push_back(mNodes[(j+1)*width+i]);
+            if (stagger==false  ||parity == 0)
+            {
+                lower_nodes.push_back(mNodes[j*width+i]);
+            } 
+            else 
+            {
+                lower_nodes.push_back(mNodes[j*width+i+1]);
+            }    
+            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
+        }
+    }
+
 }
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

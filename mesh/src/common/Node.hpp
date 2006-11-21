@@ -39,6 +39,7 @@ public:
         mPoint = Point<SPACE_DIM>(v1, v2, v3);
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
+        mIsDeleted = false;
     }
     
     //Note setting the point in space is dangerous

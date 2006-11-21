@@ -13,6 +13,7 @@ public:
             std::vector<Node<SPACE_DIM>*> nodes,
             int orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
     {
+        this->mIsDeleted=false;
         RegisterWithNodes();
     }
     

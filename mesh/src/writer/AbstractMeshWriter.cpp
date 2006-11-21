@@ -64,10 +64,10 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
         else
         {
-            node_map.SetDeleted(i);
+             node_map.SetDeleted(i);
         }
     }
-    assert(new_index==rMesh.GetNumNodes());
+     assert(new_index==rMesh.GetNumNodes());
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
