@@ -114,10 +114,10 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator random_num_gen;
         
-        double crypt_length = 10.0;
-        double crypt_width = 5.0;
         int num_cells_depth = 11;
         int num_cells_width = 6;
+        double crypt_length = num_cells_depth-1.0;
+        double crypt_width = num_cells_width-1.0;
 
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth); 
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
@@ -207,8 +207,9 @@ public:
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth); 
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
-        double crypt_length = 4.0;//num_cells_depth -1
-        double crypt_width = 5.0;//num_cells_width -1
+
+        double crypt_width = num_cells_width - 1.0;
+        double crypt_length = num_cells_depth - 1.0;
         
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
