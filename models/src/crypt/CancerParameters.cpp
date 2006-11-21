@@ -68,7 +68,6 @@ double CancerParameters::GetMeinekeLambda()
 void CancerParameters::SetStemCellCycleTime(double stemCellCycleTime)
 {
     mStemCellCycleTime = stemCellCycleTime;
-    mAlpha = mStemCellCycleTime * mMeinekeLambda;
 }
 void CancerParameters::SetTransitCellCycleTime(double transitCellCycleTime)
 {

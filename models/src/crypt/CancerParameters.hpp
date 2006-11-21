@@ -17,7 +17,6 @@ public:
     double GetCryptLength();
     double GetCryptWidth();
     double GetMeinekeLambda();
-    double GetAlpha();
    
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
@@ -66,17 +65,6 @@ private:
      * Has dimensions 1/time.
      */
     double mMeinekeLambda;
-    /**
-     * The non-dimensionalised parameter.
-     * alpha = stem cell cycle time * Meineke lambda.
-     */
-    double mAlpha;
-    
-    /**
-     * The resting length of springs connected mature cells.
-     * (i.e. the size of mature cells)
-     */
-    double mNaturalSpringLength;
 };
 
 #endif /*CANCERPARAMETERS_HPP_*/

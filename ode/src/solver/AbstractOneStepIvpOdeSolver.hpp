@@ -10,7 +10,6 @@
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
 public:
-
     /**
      * Solves a system of ODEs using a specified one-step ODE solver
      * 

@@ -33,7 +33,7 @@ BackwardEulerStructure;
 static unsigned mLo;
 static unsigned mHi;
 
-
+    
 PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pContext);
 PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
 PetscErrorCode ComputeAnalyticJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *pPreconditioner,MatStructure *pMatStructure ,void *pContext);
@@ -60,6 +60,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     
     int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
+ 
     std::vector<double> dy(num_equations);
     dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValue);
     
@@ -90,7 +91,6 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     bool use_analytic_jacobian = pAbstractOdeSystem->GetUseAnalytic();
 
     BackwardEulerStructure *p_backward_euler_structure = new BackwardEulerStructure;
-
     p_backward_euler_structure->pAbstractOdeSystem = pAbstractOdeSystem;
     p_backward_euler_structure->TimeStep = timeStep;
     p_backward_euler_structure->Time = time;
@@ -176,19 +176,18 @@ PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec solutionGuess, Mat *pJacob
     VecDuplicate(solutionGuess, &residual_perturbed);
     VecDuplicate(solutionGuess, &solution_perturbed);
     VecDuplicate(solutionGuess, &jacobian_column);
-    
+    //\TODO 
+    double epsilon=1e-6;
     
     PETSCEXCEPT(ComputeResidual(snes, solutionGuess, residual, pContext));
     
-    // this epsilon is somewhat arbitrary
-    double eps = 1.0e-6;
     for (unsigned global_column=0; global_column<num_equations; global_column++)
     {
     
         VecCopy(solutionGuess, solution_perturbed);
         if (mLo<=global_column && global_column<mHi)
         {
-            VecSetValue(solution_perturbed, global_column, eps, ADD_VALUES);
+            VecSetValue(solution_perturbed, global_column, epsilon, ADD_VALUES);
         }
         VecAssemblyBegin(solution_perturbed);
         VecAssemblyEnd(solution_perturbed);
@@ -196,7 +195,7 @@ PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec solutionGuess, Mat *pJacob
         PETSCEXCEPT(ComputeResidual(snes, solution_perturbed, residual_perturbed, pContext));
         
         // compute residual_perturbed - residual
-        double one_over_eps=1.0/eps;
+        double one_over_eps=1.0/epsilon;
         double subtract=-1;
 #if (PETSC_VERSION_MINOR == 2) //Old API
         PETSCEXCEPT( VecWAXPY(&subtract, residual, residual_perturbed, jacobian_column));
