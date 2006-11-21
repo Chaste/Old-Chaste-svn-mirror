@@ -37,15 +37,13 @@ public:
 
         // check the ghost nodes
         std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        for(unsigned i=0; i<ghost_node_indices.size(); i++)
+        for(int i=0; i<13; i++)
         {
-            std::cout << ghost_node_indices[i] << " ";
-           // TS_ASSERT_EQUALS(ghost_node_indices[i], i);
+           TS_ASSERT(ghost_node_indices[i]==i);
         }
         
         delete p_mesh;
-    }
+    } 
 };
 
 

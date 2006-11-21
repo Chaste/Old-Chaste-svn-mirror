@@ -388,7 +388,7 @@ public:
         std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
         std::vector<bool> is_ghost_node = simulator.GetGhostNodes();
 
-        int num_stem = 0;
+        int num_stem = 0; 
         int num_transit = 0;
         int num_differentiated = 0;
         
