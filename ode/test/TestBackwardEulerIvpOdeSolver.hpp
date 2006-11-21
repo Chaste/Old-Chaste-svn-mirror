@@ -25,6 +25,10 @@ public:
         
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver;
+        
+        // cover the SetEpsilonForNumericalJacobian() method
+        backward_euler_solver.SetEpsilonForNumericalJacobian(1e-6);
+        
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();

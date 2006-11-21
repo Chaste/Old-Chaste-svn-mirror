@@ -21,7 +21,7 @@ public:
     BackwardEulerIvpOdeSolver()
     {
         // default epsilon
-       mEpsilon = 1e-6;
+        mEpsilon = 1e-6;
     }
     
     void SetEpsilonForNumericalJacobian(double epsilon)
@@ -29,11 +29,7 @@ public:
         assert(epsilon > 0);
         mEpsilon = epsilon;
     }
-    
-    double GetMEplison()
-    {
-        return mEpsilon;
-    }         
+     
     
     virtual ~BackwardEulerIvpOdeSolver()
     {

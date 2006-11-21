@@ -23,6 +23,7 @@ typedef struct
 {
     double TimeStep;
     double Time;
+    double Epsilon;
     AbstractOdeSystem *pAbstractOdeSystem;
     std::vector<double> currentYValue;
 }
@@ -94,6 +95,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     p_backward_euler_structure->pAbstractOdeSystem = pAbstractOdeSystem;
     p_backward_euler_structure->TimeStep = timeStep;
     p_backward_euler_structure->Time = time;
+    p_backward_euler_structure->Epsilon = mEpsilon;
     p_backward_euler_structure->currentYValue = std::vector<double>(currentYValue);
 
     SimplePetscNonlinearSolver solver;
@@ -176,8 +178,9 @@ PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec solutionGuess, Mat *pJacob
     VecDuplicate(solutionGuess, &residual_perturbed);
     VecDuplicate(solutionGuess, &solution_perturbed);
     VecDuplicate(solutionGuess, &jacobian_column);
-    //\TODO 
-    double epsilon=1e-6;
+
+    double epsilon=p_backward_euler_structure->Epsilon;
+
     
     PETSCEXCEPT(ComputeResidual(snes, solutionGuess, residual, pContext));
     
