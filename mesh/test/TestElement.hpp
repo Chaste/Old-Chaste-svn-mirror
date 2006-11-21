@@ -467,6 +467,7 @@ public:
             delete nodes[i];
         }
     }
+    
     void TestCircum2d(void)
     {
         std::vector<Node<2>*> equilateral_nodes;
@@ -550,13 +551,15 @@ public:
         {
             delete right_angle_nodes[i];
         }
-	for (unsigned i=0; i<nodes.size(); i++)
+     	for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
     }
     
     
+    
+
   
 };
 

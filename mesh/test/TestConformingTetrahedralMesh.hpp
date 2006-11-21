@@ -1087,7 +1087,6 @@ public:
         TS_ASSERT_EQUALS(p_node121->GetIndex(), 35);
         TS_ASSERT_EQUALS(p_node125->GetIndex(), 219);
         TS_ASSERT_EQUALS(p_node273->GetIndex(), 319);
-        
         TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node0->GetIndex()), p_node0);
         TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node121->GetIndex()), p_node121);
         TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node125->GetIndex()), p_node125);
@@ -1098,5 +1097,39 @@ public:
       
         
     }
+    
+    void TestCheckVoronoiDisk()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader,1);
+        
+        
+        TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
+        
+    } 
+    
+    void TestCheckVoronoiSquare()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader,1);
+        
+        
+        TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
+        
+    }
+    void xTestCheckCircularFanFails()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/circular_fan");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader,1);
+        
+        
+        TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
+        
+    }
+    
+    
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

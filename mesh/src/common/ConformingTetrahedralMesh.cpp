@@ -1280,4 +1280,102 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumbe
         mNodes[index]->SetIndex(index);
     }
 }
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement)
+{
+     assert (ELEMENT_DIM == SPACE_DIM);
+     int num_nodes = pElement->GetNumNodes();
+     std::set<unsigned> neighbouring_elements_indices;
+     std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;
+     std::set<unsigned> neighbouring_nodes_indices;
+        
+     //Form a set of neighbouring elements via the nodes   
+     for(int i = 0 ; i < num_nodes; i++)
+     {
+         Node<SPACE_DIM>* node = pElement->GetNode(i);
+         neighbouring_elements_indices = node->rGetContainingElementIndices();
+         ///\todo Should use a set union operation here
+         for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();
+         it != neighbouring_elements_indices.end(); ++it) 
+         {
+            neighbouring_elements.insert(GetElement(*it));
+         }
+     }
+     neighbouring_elements.erase(pElement);
+     
+     
+     //For each neighbouring element find the supporting nodes
+     typedef typename std::set<Element<ELEMENT_DIM,SPACE_DIM> *>::const_iterator ElementIterator;
+ 
+     for (ElementIterator it = neighbouring_elements.begin();
+        it != neighbouring_elements.end(); ++it) 
+     {
+        for(int i = 0 ; i < num_nodes; i++)
+        {
+            neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));    
+        } 
+     }
+     //Remove the nodes that support this element
+     for(int i = 0 ; i < num_nodes; i++)
+     {
+        neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));  
+     }
+     
+     
+     //Get the circumsphere information   
+     c_vector <double, ELEMENT_DIM+1> this_circum_centre;    
+     this_circum_centre = pElement->CalculateCircumsphere();
+     
+     //Copy the actualy circumcentre into a smaller vector 
+     c_vector <double, ELEMENT_DIM> circum_centre;
+     for (int i=0;i<ELEMENT_DIM;i++)
+     {
+         circum_centre[i]=this_circum_centre[i];
+     }
+
+    for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
+         it != neighbouring_nodes_indices.end(); ++it) 
+    {
+        Point<SPACE_DIM> node_point = GetNodeAt(*it)->rGetPoint();
+        c_vector < double, ELEMENT_DIM> node_location = node_point.rGetLocation();
+        
+        // Calculate vector from circumcenter to node
+        node_location -= circum_centre;
+        // This is to calculate the squared distance betweeen them
+        double squared_distance = inner_prod(node_location, node_location);
+        
+        // If the squared idstance is less than the elements circum-radius(squared),
+        // then the voronoi property is violated.
+       
+        if(squared_distance - this_circum_centre[ELEMENT_DIM] < -1e-4)
+        {
+            //\todo check sqrt distance is necessary
+            std::cout<<squared_distance - this_circum_centre[ELEMENT_DIM]<<"\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi()
+{
+    bool pass=true;
+    for (unsigned i=0; i<mElements.size();i++)
+    {
+        if(!mElements[i]->IsDeleted())
+        {
+//            if(CheckVoronoi(mElements[i]) == false)
+//            {
+//                return false;
+//            }
+            pass = CheckVoronoi(mElements[i])  && pass;
+        }
+    }
+    
+    return pass;
+    //return true;
+}
+
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

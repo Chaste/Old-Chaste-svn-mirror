@@ -2,6 +2,7 @@
 #define _ELEMENT_HPP_
 
 #include "AbstractElement.cpp"
+#include <set>
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 class Element : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
@@ -102,7 +103,7 @@ public:
         c_vector <double, ELEMENT_DIM> centre=prod(rhs, this->mInverseJacobian);
         c_vector <double, ELEMENT_DIM+1> circum;
         double squared_radius=0.0;
-         for (int i=0; i<SPACE_DIM; i++)
+        for (int i=0; i<SPACE_DIM; i++)
         {
             circum[i]=centre[i] + this->GetNodeLocation(0,i);
             squared_radius += centre[i]*centre[i];
@@ -149,7 +150,13 @@ public:
              * Area_Cir = Pi * r^2
              * Area_Eq_Tri = (3*sqrt(3)/4)*R^2
              * Area_Eq_Tri = Pi * R^2
-             * Q= (2*|Jacobian|)/ (3*sqrt(3)*r^2)
+             * Q= (2*|Jacobian|)/ (    bool CalculateVoronoiElement(c_vector <double, 3> first_node, c_vector <double, 3> second_node)
+    {
+        double x_diff_sqr = ((first_node[0] - second_node[0])*(first_node[0] - second_node[0]));
+        double y_diff_sqr = ((first_node[1] - second_node[1])*(first_node[1] - second_node[1]));
+        
+        return ((x_diff_sqr + y_diff_sqr) > first_node[2]);
+    }3*sqrt(3)*r^2)
              */
             return 2.0*this->mJacobianDeterminant/(3.0*sqrt(3)*circum[SPACE_DIM]);
         }
@@ -165,6 +172,40 @@ public:
         return (3.0*sqrt(3.0)*this->mJacobianDeterminant)
                 /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));          
     }
+    
+    
+//    bool CheckVoronoiElement()
+//    {
+//        assert (ELEMENT_DIM == SPACE_DIM);
+//        
+//        c_vector <double, ELEMENT_DIM+1> this_circum_centre;    
+//        this_circum_centre = CalculateCircumsphere();
+//        
+//        c_vector <double, ELEMENT_DIM> circum_centre;
+//        for (int i=0;i<ELEMENT_DIM;i++)
+//        {
+//            circum_centre[i]=this_circum_centre[i];
+//        }
+//         int neighbouring_num_nodes = neighbouring_element.GetNumNodes();
+//        std::set<Node<SPACE_DIM>*> neighbouring_node_set;
+//          
+//        for(int i = 0 ; i <= neighbouring_num_nodes; i++)
+//        {
+//            Node<SPACE_DIM> node = neighbouring_element.GetNode(i);
+//            neighbouring_node_set.insert(node);
+//        }
+//        
+//        
+//        double x_circum_centre = this_circum_centre[0];
+//        double y_circum_centre = this_circum_centre[1];
+//        
+//        double x_diff_sqr = ((this_circum_centre[0] - neighbouring_circum_centre[0])*(this_circum_centre[0] - neighbouring_circum_centre[0]));
+//        double y_diff_sqr = ((this_circum_centre[1] - neighbouring_circum_centre[1])*(this_circum_centre[1] - neighbouring_circum_centre[1]));
+//        
+//        return ((x_diff_sqr + y_diff_sqr) > this_circum_centre[2]);
+//    }
+    
+
     
 };
 

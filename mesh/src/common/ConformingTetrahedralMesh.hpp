@@ -191,6 +191,17 @@ public:
      */
      void PermuteNodes(RandomNumberGenerator &rRng);
      
+     /**
+      * Check whether any neighbouring node is inside the circumsphere of this element.
+      * @param pointer to an element
+      */
+     bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement);
+     
+     /**
+      * Checks the entire mesh element by element and checkes whether any neighbouring node
+      * inside the circumsphere of this element.
+      */
+     bool CheckVoronoi();
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_
