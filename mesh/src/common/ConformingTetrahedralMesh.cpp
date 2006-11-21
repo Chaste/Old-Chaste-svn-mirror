@@ -1371,7 +1371,7 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
-    for (unsigned i=0; i<mElements.size();i++)
+    for (unsigned i=0; i < mElements.size();i++)
     {
         // Check if the element is not deleted
         if(!mElements[i]->IsDeleted())

@@ -20,7 +20,13 @@ public:
         mMap.reserve(size);
     }
     
-    
+    void ResetToIdentity()
+    {
+        for (unsigned oldIndex=0; oldIndex<mMap.size(); oldIndex++)
+        {
+            mMap[oldIndex] = (int) oldIndex;
+        }
+    }
     void SetNewIndex(unsigned oldIndex, unsigned newIndex)
     {
         mMap[oldIndex] = (int) newIndex;

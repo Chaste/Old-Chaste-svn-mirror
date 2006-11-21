@@ -758,7 +758,14 @@ public:
             
             if( mReMesh )
             {
-                mrMesh.ReMesh(map);
+                if ( !mrMesh.CheckVoronoi() )
+                {
+                    mrMesh.ReMesh(map);
+                }
+                else
+                {
+                    map.ResetToIdentity();
+                }
             }
             
             
