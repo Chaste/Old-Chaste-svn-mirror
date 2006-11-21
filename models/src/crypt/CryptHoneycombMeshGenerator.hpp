@@ -141,7 +141,7 @@ private:
 public:
     CryptHoneycombMeshGenerator(int numCellWidth, int numCellDepth)
     {
-        mCryptWidth = numCellWidth;
+        mCryptWidth = numCellWidth*1; //*1 because cells are considered to be size one
         mCryptDepth = sqrt(3)*numCellDepth/2;
         
         mMeshFilename = "2D_temporary_crypt_mesh";

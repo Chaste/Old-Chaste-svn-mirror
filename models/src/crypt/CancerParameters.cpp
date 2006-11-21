@@ -26,7 +26,6 @@ CancerParameters::CancerParameters()
     mMaxTransitGenerations = 3u;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
     mMeinekeLambda = 30.0;       // Meineke uses 0.01
-    mNaturalSpringLength = 1.0;
     
     // Calculated parameters
     //mAlpha = mStemCellCycleTime * mMeinekeLambda;
@@ -61,11 +60,6 @@ double CancerParameters::GetMeinekeLambda()
 {
     return mMeinekeLambda;
 }
-double CancerParameters::GetAlpha()
-{
-    return mAlpha;
-}
-
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -95,5 +89,4 @@ void CancerParameters::SetCryptWidth(double cryptWidth)
 void CancerParameters::SetMeinekeLambda(double meinekeLambda)
 {
     mMeinekeLambda = meinekeLambda;
-    mAlpha = mStemCellCycleTime * mMeinekeLambda;
 }

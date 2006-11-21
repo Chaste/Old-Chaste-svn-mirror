@@ -25,7 +25,6 @@ public:
         TS_ASSERT_EQUALS(inst2->GetMaxTransitGenerations(), 666u);
         TS_ASSERT_DELTA(inst2->GetCryptLength(), -1.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetMeinekeLambda(), -2.0, 1e-12);
-        TS_ASSERT_DELTA(inst2->GetAlpha(), -2.0 * -25.0, 1e-12);
     }
 };
 
