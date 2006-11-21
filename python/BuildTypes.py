@@ -281,10 +281,12 @@ class GoogleProfile(GccDebug):
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a profiler and rename gmon.out"
-    base=os.path.basename(exefile)
-    profileFile='/tmp/'+base+'.prof'
-    return 'export HOME=\'.\' ;export CPUPROFILE=' + profileFile + '; ' + exefile + ' ' + exeflags \
-      + ' ; pprof -gif ' + exefile + ' ' + profileFile + ' > ' +self.output_dir+'/'+base+'.gif'
+    base = os.path.basename(exefile)
+    profileFile = '/tmp/'+base+'.prof'
+    return "export HOME='.' ;export CPUPROFILE=" + profileFile + '; ' \
+      + exefile + ' ' + exeflags  + ' ; pprof -gif ' \
+      + exefile + ' ' + profileFile + ' > ' +self.output_dir+'/'+base+'.gif ; rm ' \
+      + profileFile
 
   def StatusColour(self, status):
     """
