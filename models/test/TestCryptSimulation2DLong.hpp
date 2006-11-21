@@ -14,115 +14,10 @@
 #include "StochasticCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
-
+#include "CryptHoneycombMeshGenerator.hpp"
 
 class TestCryptSimulation2DLong : public CxxTest::TestSuite
 {
-    void Make2dCryptMesh(std::string meshFilename, unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, double length, double x0=0.0, double y0=0.0)
-    {
-        OutputFileHandler output_file_handler("CryptMesh");
-        out_stream p_node_file = output_file_handler.OpenOutputFile(meshFilename+".node");
-        (*p_node_file) << std::scientific;
-        
-        out_stream p_elem_file = output_file_handler.OpenOutputFile(meshFilename+".ele");
-        (*p_elem_file) << std::scientific;
-        
-        unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
-        unsigned num_elem_along_width = numNodesAlongWidth-1;
-        unsigned num_elem_along_length = numNodesAlongLength-1;
-        unsigned num_elem             = 2*num_elem_along_width*num_elem_along_length;
-        unsigned num_edges            = 3*num_elem_along_width*num_elem_along_length + num_elem_along_width + num_elem_along_length;
-        
-        (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
-        unsigned node = 0;
-        for (unsigned i = 0; i < numNodesAlongLength; i++)
-        {
-            for (unsigned j = 0; j < numNodesAlongWidth; j++)
-            {
-                int b = 0;
-                if ((i==0) || (i==numNodesAlongLength-1) || (j==0) || (j==numNodesAlongWidth-1))
-                {
-                    b = 1;
-                }
-                double x = x0 + width*((double)j + 0.25*(1+ pow(-1,i+1)))/(num_elem_along_width) ;
-                
-                double y = y0 + length*(sqrt(3)/2)*(double)i/(num_elem_along_length);
-                
-                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << b << std::endl;
-            }
-        }
-        p_node_file->close();
-        
-        out_stream p_edge_file = output_file_handler.OpenOutputFile(meshFilename+".edge");
-        (*p_node_file) << std::scientific;
-        
-        (*p_elem_file) << num_elem << "\t3\t0" << std::endl;
-        (*p_edge_file) << num_edges << "\t3\t0\t1" << std::endl;
-        
-        unsigned elem = 0;
-        unsigned edge = 0;
-        for (unsigned i = 0; i < num_elem_along_length; i++)
-        {
-            for (unsigned j = 0; j < num_elem_along_width; j++)
-            {
-                int node0 =     i*numNodesAlongWidth + j;
-                int node1 =     i*numNodesAlongWidth + j+1;
-                int node2 = (i+1)*numNodesAlongWidth + j;
-                if (i%2 != 0)
-                {
-                    node2 = node2 + 1;
-                }
-                
-                (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
-                
-                int horizontal_edge_is_boundary_edge = 0;
-                int vertical_edge_is_boundary_edge = 0;
-                if (i==0)
-                {
-                    horizontal_edge_is_boundary_edge = 1;
-                }
-                if (j==0)
-                {
-                    vertical_edge_is_boundary_edge = 1;
-                }
-                
-                (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 <<  "\t" << horizontal_edge_is_boundary_edge << std::endl;
-                (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node2 <<  "\t" << 0 << std::endl;
-                (*p_edge_file) << edge++ << "\t" << node2 << "\t" << node0 <<  "\t" << vertical_edge_is_boundary_edge << std::endl;
-                
-                node0 = i*numNodesAlongWidth + j + 1;
-                
-                if (i%2 != 0)
-                {
-                    node0 = node0 - 1;
-                }
-                node1 = (i+1)*numNodesAlongWidth + j+1;
-                node2 = (i+1)*numNodesAlongWidth + j;
-                
-                (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
-            }
-        }
-        
-        for (unsigned i = 0; i < num_elem_along_length; i++)
-        {
-            int node0 = (i+1)*numNodesAlongWidth-1;
-            int node1 = (i+2)*numNodesAlongWidth-1;
-            (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
-        }
-        
-        for (unsigned j = 0; j < num_elem_along_width; j++)
-        {
-            int node0 =  numNodesAlongWidth*(numNodesAlongLength-1) + j;
-            int node1 =  numNodesAlongWidth*(numNodesAlongLength-1) + j+1;
-            (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << 1 << std::endl;
-        }
-        
-        p_elem_file->close();
-        p_edge_file->close();
-    }
-    
-    
-    
     void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
@@ -221,38 +116,25 @@ public:
         
         double crypt_length = 10.0;
         double crypt_width = 5.0;
+        int num_cells_depth = 11;
+        int num_cells_width = 6;
+
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth); 
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        Make2dCryptMesh("2D_crypt_mesh", 8, 15, crypt_width+2, crypt_length+4, -1.0, -sqrt(3)/2.0);
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
-        
-        TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+"/CryptMesh/2D_crypt_mesh");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        std::vector<int> ghost_node_indices;
-        for (int i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
-            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
-            if ((x<0)||(x>crypt_width)||(y>crypt_length)||(y<0))
-            {
-               ghost_node_indices.push_back(i);
-            }
-        }
-        
         // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        unsigned num_cells = p_mesh->GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
             CryptCellType cell_type;
             unsigned generation;
             double birth_time;
-            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            double y = p_mesh->GetNodeAt(i)->GetPoint().rGetLocation()[1];
           
             if (y == 0.0)
             {
@@ -291,7 +173,7 @@ public:
             cells.push_back(cell);
         }
         
-        CryptSimulation2D simulator(mesh, cells);
+        CryptSimulation2D simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(24.0);
         simulator.SetMaxCells(400);
@@ -318,36 +200,20 @@ public:
         // this test might not pass
         TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);  
         TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);  
-                
-        double crypt_length = 4.0;
-        double crypt_width = 5.0;
         
-        Make2dCryptMesh("2D_crypt_mesh", 8, 9, crypt_width+2, crypt_length+4, -1.0, -sqrt(3)/2.0);
+        int num_cells_width = 6;
+        int num_cells_depth = 5;
+
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth); 
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
+        double crypt_length = 4.0;//num_cells_depth -1
+        double crypt_width = 5.0;//num_cells_width -1
+        
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
-        
-        std::string testoutput_dir;
-        OutputFileHandler output_file_handler("");
-        testoutput_dir = output_file_handler.GetTestOutputDirectory();
-        
-        TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+"/CryptMesh/2D_crypt_mesh");
-        
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        std::vector<int> ghost_node_indices;
-        for (int i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
-            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
-            if ((x<0)||(x>crypt_width)||(y>crypt_length)||(y<0))
-            {
-               ghost_node_indices.push_back(i);
-            }
-        }
-       
-
         // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
+        unsigned num_cells = p_mesh->GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
@@ -355,7 +221,7 @@ public:
             unsigned generation;
             double birth_time;
             
-            if (i==11) // middle of bottom row of cells
+            if (i==14) // middle of bottom row of cells
             {
                 cell_type = STEM;
                 generation = 0;
@@ -374,7 +240,7 @@ public:
             cells.push_back(cell);
         }
         
-        CryptSimulation2D simulator(mesh,cells);
+        CryptSimulation2D simulator(*p_mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); //hours
         simulator.SetMaxCells(800);
@@ -392,7 +258,7 @@ public:
         int num_transit = 0;
         int num_differentiated = 0;
         
-        for (int index = 0; index<mesh.GetNumAllNodes(); index++)
+        for (int index = 0; index<p_mesh->GetNumAllNodes(); index++)
         {
             if(!is_ghost_node[index])   //!mesh.GetNodeAt(index)->IsDeleted())
             {
@@ -423,6 +289,7 @@ public:
         
         TS_ASSERT_LESS_THAN(num_differentiated, 23);
         TS_ASSERT_LESS_THAN(18, num_differentiated);
+        delete p_mesh;
     } 
     
     
