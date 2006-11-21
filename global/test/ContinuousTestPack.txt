@@ -5,3 +5,4 @@ TestOutputFileHandler.hpp
 TestSimulationTime.hpp
 TestStaticPolymorphism.hpp
 TestRandomNumberGenerator.hpp
+TestException.hpp
