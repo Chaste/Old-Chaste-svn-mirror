@@ -303,7 +303,8 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
           build.GetTestReportDir() + ' --no-stdout')
 
 build_dir = build.build_dir
-test_depends = []
+test_depends = [File('testoutput/OrphanedTests.log'),
+                File('testoutput/DuplicateFileNames.log')]
 for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', 'coupled']:
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
@@ -341,9 +342,24 @@ if test_summary and not compile_only:
     summary = Builder(action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type)
   else:
     summary = Builder(action = 'python python/DisplayTests.py '+output_dir+' '+build_type)
+  def output_dir_lister(target, source, env, output_dir=output_dir):
+    """Create a file containing a directory listing."""
+    files = filter(lambda f: f[0] != '.', os.listdir(output_dir))
+    files.sort()
+    fp = file(str(target[0]), 'w')
+    for f in files:
+      fp.write(f + '\n')
+    fp.close()
+    return None # Successful build
+  lister = Action(output_dir_lister,
+                  lambda ts, ss, env: "Generating file list %s" % ts[0])
   opt = Environment(ENV = {'PATH': os.environ['PATH'],
                            'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
                            'LD_LIBRARY_PATH': os.environ.get('LD_LIBRARY_PATH', '')})
   opt['BUILDERS']['TestSummary'] = summary
-  opt.TestSummary(os.path.join(output_dir, 'index.html'),
-                  opt.Flatten(test_depends))
+  # Make sure we use the file list contents as its signature
+  opt.TargetSignatures('content')
+  file_list = File(os.path.join(output_dir, '.filelist'))
+  opt.AlwaysBuild(file_list)
+  opt.Command(file_list, test_depends, lister)
+  opt.TestSummary(os.path.join(output_dir, 'index.html'), [file_list, test_depends])

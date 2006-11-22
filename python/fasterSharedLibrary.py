@@ -6,14 +6,6 @@
 # signature to used for the SharedLibrary node itself directly. That is
 # certainly possible, but would rely on the internal structure of SCons.
 
-def Copy(s):
-    #print "Copy:", s, s[0].get_abspath()
-    def copy(env, target, source):
-        #print "copy:", target, source, target[0].get_abspath()
-        import os
-        os.system("/bin/cp " + s[0].get_abspath() + " " + target[0].get_abspath())
-    return copy
-
 def fasterSharedLibrary(env, library, sources, **args):
         # use the 'quicker' shallow copy method!
         envContentSig=env.Copy()
@@ -39,7 +31,7 @@ def fasterSharedLibrary(env, library, sources, **args):
         # Programs it relinked.
         catLink=env.Command('#linklib/${SHLIBPREFIX}%s${SHLIBSUFFIX}'%(library),
                 '',
-                Copy(catLib))
+                Copy('$TARGET', catLib))
 
         #Dir('#lib')
         envContentSig.Depends(catLink, catIF)

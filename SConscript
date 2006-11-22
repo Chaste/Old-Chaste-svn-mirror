@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.append('../../../python')
 import fasterSharedLibrary
+fasterSharedLibrary.Copy = Copy
 
 # Compatability with Python 2.3
 try:
