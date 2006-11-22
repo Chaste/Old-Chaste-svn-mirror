@@ -163,16 +163,28 @@ elif system_name == 'chaste':
   other_libs = ['f2clapack', 'f2cblas']
 elif system_name == 'new_chaste':
   # New Chaste machines in comlab
-  petsc_base = '../../../petsc-2.3.2-p4/'
+  other_includepaths = []
+  if build.using_dealii:
+    petsc_base = '../../../petsc-2.2.1/'
+    dealii_base = '../../../deal.II.shared/'
+    petsc_libpath = os.path.abspath(petsc_base+'lib/libg_c++/linux-gnu/')
+    dealii_libpath = os.path.abspath(dealii_base+'lib/')
+    metis_libpath = os.path.abspath('../../../metis-4.0/')
+    other_libpaths = [petsc_libpath, dealii_libpath, metis_libpath]
+    metis_includepath = metis_libpath + '/Lib' # Bizarre, I know!
+    dealii_includepaths = ['base/include', 'lac/include', 'deal.II/include']
+    other_includepaths.extend(map(lambda s: dealii_base + s, dealii_includepaths))
+    other_libs = build.GetDealiiLibraries(dealii_base) + ['blas', 'lapack']
+  else:
+    petsc_base = '../../../petsc-2.3.2-p4/'
+    petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+    blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
+    other_libpaths = [petsc_libpath, blas_libpath]
+    other_libs = ['f2clapack', 'f2cblas']
   petsc_inc = petsc_base+'include'
   petsc_bmake = petsc_base+'bmake/linux-gnu'
-  # petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_mpi = ''
-  other_includepaths = [petsc_inc, petsc_bmake]
-  blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
-  petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
-  other_libpaths = [petsc_libpath, blas_libpath]
-  other_libs = ['f2clapack', 'f2cblas']
+  # TODO: Make sure Chaste paths come first in the -I list.
+  other_includepaths.extend([petsc_inc, petsc_bmake])
 elif system_name == 'Nottingham':
   # Gary and Alex's machines in Nottingham
   petsc_base = '/opt/petsc-2.2.1-with-mpi/'

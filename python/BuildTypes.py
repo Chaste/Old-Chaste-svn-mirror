@@ -26,6 +26,8 @@ class BuildType(object):
     self._revision = ''
     self.build_dir = 'default'
     self._num_processes = 1
+    self.using_dealii = False
+    self.is_optimised = False
   
   def CompilerType(self):
     """
@@ -184,6 +186,33 @@ class BuildType(object):
     return {'testsuite': leafname[:i1],
             'status': leafname[i1+1:i2],
             'runtime': runtime}
+
+  def UseDealii(self, use_dealii):
+    """Set whether this build should link against Deal.II.
+    
+    Several things need to change if we do:
+     * The build_dir - alter this directly
+     * The libraries linked against, and search paths for them
+        - set a flag that SConstruct can check
+    """
+    self.using_dealii = use_dealii
+    self.build_dir = 'dealii_' + self.build_dir
+
+  def GetDealiiLibraries(self, dealii_basepath):
+    """Return a list of Deal.II libraries to link against.
+    
+    This method is provided so that optimised builds can use
+    the optimised libraries.
+    """
+    metis_libs = ['metis']
+    dealii_libs = ['deal_II_1d', 'deal_II_2d', 'deal_II_3d', 'lac', 'base']
+    dealii_petsc = dealii_basepath + 'lib/libpetsc'
+    if not self.is_optimised:
+      dealii_libs = map(lambda s: s + '.g', dealii_libs)
+      dealii_petsc = dealii_petsc + '.g'
+    dealii_petsc = dealii_petsc + '.so'
+    return dealii_libs + metis_libs
+
 
 Gcc = BuildType
 
@@ -501,6 +530,7 @@ class GccOpt(Gcc):
     Gcc.__init__(self)
     self._cc_flags = '-O3'
     self.build_dir = 'optimised'
+    self.is_optimised = True
 
 class GccOptP4(GccOpt):
   """
@@ -520,6 +550,8 @@ class Intel(BuildType):
     self._cc_flags = '-wr470 -wr186'
     self._link_flags = '-static-libcxa'
     self.build_dir = 'intel'
+    # Intel compiler uses optimisation by default
+    self.is_optimised = True
 
   def SetReporting(self, vec=1):
     """
@@ -539,6 +571,8 @@ class IntelNonopt(Intel):
   def __init__(self):
     Intel.__init__(self)
     self._cc_flags = self._cc_flags + ' -O0 -xK'
+    self.build_dir = 'intel_nonopt'
+    self.is_optimised = False
 
 class IntelP3(Intel):
   "Intel compilers optimised for Pentium 3."
@@ -546,6 +580,7 @@ class IntelP3(Intel):
     Intel.__init__(self)
     self._cc_flags = self._cc_flags + ' -xK -O3 -ip -ipo0 -ipo_obj'
     self._link_flags = self._link_flags + ' -ipo'
+    self.build_dir = 'intel_p3'
 
 class IntelP4(Intel):
   "Intel compilers optimised for Pentium 4."
@@ -553,6 +588,7 @@ class IntelP4(Intel):
     Intel.__init__(self)
     self._cc_flags = self._cc_flags + ' -xN -O3 -ip -ipo0 -ipo_obj -static'
     self._link_flags = self._link_flags + ' -ipo -lsvml -L/opt/intel_cc_80/lib -static'
+    self.build_dir = 'intel_p4'
 
 
 
@@ -584,6 +620,8 @@ def GetBuildType(buildType):
     elif extra == 'ndebug':
       obj._cc_flags += ' -DNDEBUG'
       obj.build_dir += '_ndebug'
+    elif extra == 'dealii':
+      obj.UseDealii(True)
     else:
       # Assume it's a test pack
       obj.AddTestPacks(extra)
