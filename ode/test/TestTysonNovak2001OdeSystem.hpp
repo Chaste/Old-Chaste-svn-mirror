@@ -19,7 +19,7 @@ class TestTysonNovak2001OdeSystem : public CxxTest::TestSuite
 {
 public:
 
-    void testTysonNovak() throw(Exception)
+    void testTysonNovakEquation()
     {
         TysonNovak2001OdeSystem tyson_novak_system;
         
@@ -33,7 +33,7 @@ public:
         initialConditions.push_back(0.85);
         std::vector<double> derivs = tyson_novak_system.EvaluateYDerivatives(time,initialConditions);
         
-//		Test derivatives are correct
+        // Test derivatives are correct
         TS_ASSERT_DELTA(derivs[0],-4.400000000000000e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[1],-6.047872340425530e+00, 1e-5);
         TS_ASSERT_DELTA(derivs[2],3.361442884485838e-02, 1e-5);
@@ -41,8 +41,13 @@ public:
         TS_ASSERT_DELTA(derivs[4],8.400000000000001e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03, 1e-5);
         
-//		Solve system using backward Euler solver
-// Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
+    }
+    
+    void testTysonNovakSolver() throw(Exception)
+    {
+        TysonNovak2001OdeSystem tyson_novak_system;
+        // Solve system using backward Euler solver
+        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
         double h_value=0.1;
 
         //Euler solver solution worked out
