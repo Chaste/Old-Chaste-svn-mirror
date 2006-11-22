@@ -435,14 +435,14 @@ def _getTestStatus(test_set_dir, build, summary=False):
   
   If summary is given as True, don't generate or return the dictionaries.
   """
-  ignores = ['index.html', '.sconsign', 'build.log']
+  ignores = ['index.html', 'build.log']
   result_files = os.listdir(test_set_dir)
   testsuite_status, runtime, graphs = {}, {}, {}
   for filename in result_files:
     if filename[-3:]=='gif':
       testsuite = build.ParseGraphFilename(filename)
       graphs[testsuite] = filename
-    elif not filename in ignores:
+    elif not (filename in ignores or filename[0] == '.'):
       d = build.GetInfoFromResultsFileName(filename)
       testsuite = d['testsuite']
       testsuite_status[testsuite] = d['status']
