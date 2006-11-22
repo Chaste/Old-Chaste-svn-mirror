@@ -66,7 +66,7 @@ public:
     
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
-        return (fabs(rY[0]-0.1) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
+         return (fabs(rY[0]-0.1) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
     }
     
     PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep);
