@@ -62,21 +62,25 @@ public:
         // use the numerical jac even though an analytic one is available
         backward_euler_solver.ForceUseOfNumericalJacobian();
         
-        RungeKutta4IvpOdeSolver rk4_solver;
+        //RungeKutta4IvpOdeSolver rk4_solver;
 
         OdeSolution solutions;
-        OdeSolution solutions2;
-
-
+        
         std::vector<double> state_variables = tyson_novak_system.GetInitialConditions();
-        double start_time = std::clock();
-
-        solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 80, h_value, h_value);
-        double end_time = std::clock();
+        
+        double start_time, end_time, elapsed_time = 0.0;
+        
+        state_variables = tyson_novak_system.GetInitialConditions();
+        
+        start_time = std::clock();
+        solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
+        end_time = std::clock();
         //solutions2 = rk4_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
         //TS_ASSERT_EQUALS(solutions.GetNumberOfTimeSteps(), 10);
-        std::cout <<  "Elapsed time = " << (end_time - start_time)/(CLOCKS_PER_SEC) << "\n";
-
+        elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
+        std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
+        
+        
         // If you run it up to about 75 the ode will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
       
