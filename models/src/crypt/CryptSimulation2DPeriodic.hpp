@@ -1,5 +1,5 @@
-#ifndef CRYPTSIMULATION2D_HPP_
-#define CRYPTSIMULATION2D_HPP_
+#ifndef CRYPTSIMULATION2DPERIODIC_HPP_
+#define CRYPTSIMULATION2DPERIODIC_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "MeinekeCryptCell.hpp"
@@ -39,7 +39,7 @@
  * the constructor and the class is told about the ghost nodes by using the method SetGhostNodes. 
  */
 
-class CryptSimulation2D
+class CryptSimulation2DPeriodic
 {
 private:
     double mDt;
@@ -80,7 +80,7 @@ public:
      *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
      *  should be called for any birth to happen.
      */
-    CryptSimulation2D(ConformingTetrahedralMesh<2,2> &rMesh,
+    CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
                       std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
                       RandomNumberGenerator *pGen = NULL)
             : mrMesh(rMesh),
@@ -119,6 +119,7 @@ public:
         {
             mIsGhostNode[i] = false;
         }
+
         
         mReMesh = true;
         
@@ -129,7 +130,7 @@ public:
     /**
      * Free any memory allocated by the constructor
      */
-    ~CryptSimulation2D()
+    ~CryptSimulation2DPeriodic()
     {
         if (mCreatedRng)
         {
@@ -201,7 +202,6 @@ public:
     {
         return mIsGhostNode;
     }
-    
     
     std::vector<unsigned> GetLeftCryptBoundary()
     {
@@ -316,8 +316,8 @@ public:
 
 
         int counter = 0;
-
-        /////////////////////////////////////////////////////////////////////
+        
+		/////////////////////////////////////////////////////////////////////
         // Main time loop
         /////////////////////////////////////////////////////////////////////
         while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
@@ -568,27 +568,66 @@ public:
                        
                     assert(!p_edge->GetNode(nodeA)->IsDeleted());
                     assert(!p_edge->GetNode(nodeB)->IsDeleted());
-                        
+                    
+                    bool AandBInLeftOrRightEdges = false;
+                    // Lookup whether A and B are both in a left or right edge element...
+                    
+                    for(unsigned i=0; i< mLeftCryptBoundary.size();i++)
+                    {
+	                    if(mLeftCryptBoundary[i]==(unsigned)p_edge->GetNode(nodeA)->GetIndex())
+	                    {
+	                    	for(unsigned j=0; j<mLeftCryptBoundary.size(); j++)
+	                    	{
+	                    		if(mLeftCryptBoundary[j]==(unsigned)p_edge->GetNode(nodeB)->GetIndex())
+	                    		{
+	                    			AandBInLeftOrRightEdges = true;
+	                    			std::cout << "Left Boundary; Node A = " << mLeftCryptBoundary[i] << "Node B = "<< mLeftCryptBoundary[j] << "\n";
+	                    			break;
+	                    		}	
+	                    	}
+	                    }
+	                    if(mRightCryptBoundary[i]==(unsigned)p_edge->GetNode(nodeA)->GetIndex())
+	                    {
+	                    	for(unsigned j=0; j<mRightCryptBoundary.size(); j++)
+	                    	{
+	                    		if(mRightCryptBoundary[j]==(unsigned)p_edge->GetNode(nodeB)->GetIndex())
+	                    		{
+	                    			AandBInLeftOrRightEdges = true;
+	                    			std::cout << "Right Boundary; Node A = " << mRightCryptBoundary[i] << "Node B = "<< mRightCryptBoundary[j] << "\n";
+	                    			break;
+	                    		}	
+	                    	}
+	                    }
+	                }
+
                     // Assume that if both nodes are real, or both are ghosts, then they both
                     // exert forces on each other, but if one is real and one is ghost then
                     // the real node exerts a force on the ghost node, but the ghost node 
                     // does NOT exert a force on the real node.   
                     if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)] == false)
                     {
-                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
-
-                        if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == false)
-                        {
-                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
-                        }
+                    	// Only do this if we are NOT on the left and right
+                    	if (!AandBInLeftOrRightEdges)
+                    	{
+	                    	// Real A force on any B
+	                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
+	                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+	
+							// B exerts a force back if it is real.
+	                        if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == false)
+	                        {
+	                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
+	                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+	                        }
+                    	}
                     }
                     else
                     {
+                    	// Ghost A receives a force
                         drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
                         drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
  
+ 						// Only a ghost B also receives a force
                         if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == true)
                         {
                            drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
@@ -598,6 +637,35 @@ public:
                 }
                 elem_iter++;
             }            
+
+			//assert(0);            
+            ///////////////
+            //  sum forces for boundary nodes
+            ////////////////
+            
+            // iterate through the left boundary nodes
+            //for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+            //{
+            	// Get boundary element that this node belongs to
+            	
+            	// Get boundary edge that contains another member of mLeftCryptBoundary
+            	
+            	// Work out force and take away from both nodes
+            	
+            //end loop
+            //}
+            
+            // Add up the forces on paired up nodes
+            // loop through size of left boundaries
+            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+            {
+            	double x_force = drdt[mLeftCryptBoundary[i]][0] + drdt[mRightCryptBoundary[i]][0];
+            	double y_force = drdt[mLeftCryptBoundary[i]][1] + drdt[mRightCryptBoundary[i]][1];
+            	drdt[mLeftCryptBoundary[i]][0] = x_force;
+            	drdt[mLeftCryptBoundary[i]][1] = y_force;
+            	drdt[mRightCryptBoundary[i]][0] = x_force;
+            	drdt[mRightCryptBoundary[i]][1] = y_force;
+            }
             
             ////////////////////////////////////////////////////////////////////////////////////
             // update node positions
@@ -741,13 +809,14 @@ public:
                 Node<2> *p_node = mrMesh.GetNode(i);
                 if(!p_node->IsDeleted())
                 {
-                    double x = p_node->rGetPoint()[0];
+                    //double x = p_node->rGetPoint()[0];
                     double y = p_node->rGetPoint()[1];
                     
                     double crypt_length=mpParams->GetCryptLength();
-                    double crypt_width=mpParams->GetCryptWidth();
+                    //double crypt_width=mpParams->GetCryptWidth();
                     
-                    if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
+//                    if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
+                    if(y>crypt_length)
                     {
                         mIsGhostNode[p_node->GetIndex()] = true;
                         num_deaths++;
@@ -758,16 +827,14 @@ public:
             
             if( mReMesh )
             {
-                if ( !mrMesh.CheckVoronoi() )
-                {
-                    mrMesh.ReMesh(map);
-                }
-                else
-                {
-                    //map.ResetToIdentity();
-                }
+                mrMesh.ReMesh(map);
             }
             
+//            for (int i=0; i<mrMesh.GetNumAllNodes(); i++)
+//            {
+//            	std::cout<<"\t"<<mIsGhostNode[i]<<"\t"<<mIsGhostNode[map.GetNewIndex(i)]<<"\t"<<47*(mIsGhostNode[i]-mIsGhostNode[map.GetNewIndex(i)])<<"\n";
+//            }
+//            
             
             ////////////////////////////////////////////////////////////////////////////////
             // Write results to file
@@ -782,7 +849,7 @@ public:
             (*p_element_file) <<  time << "\t";
 
 
-              
+            
             if(counter==0)
             {
                 tabulated_node_writer.PutVariable(time_var_id, time);
@@ -910,13 +977,10 @@ public:
         double crypt_width=mpParams->GetCryptWidth();
        
         std::vector<bool> is_nodes_on_boundary(mIsGhostNode.size());
-        std::vector<bool> is_nodes_on_left_boundary(mIsGhostNode.size());
-        std::vector<bool> is_nodes_on_right_boundary(mIsGhostNode.size());
         for(unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
         {
             is_nodes_on_boundary[i]=false;
-            is_nodes_on_left_boundary[i]=false;
-            is_nodes_on_right_boundary[i]=false;
+
         }
        
         // Loop over elements and find bounndary nodes of crypt
@@ -973,30 +1037,62 @@ public:
         	     	if(fabs(mrMesh.GetNode(nodes_on_boundary[j])->rGetPoint()[0]-mrMesh.GetNode(nodes_on_boundary[i])->rGetPoint()[0]-crypt_width)<1e-6)
         	     	{
         	     		//std::cout <<"\n " << nodes_on_boundary[i] << "\t" <<  nodes_on_boundary[j] << std::flush;
-        	     		is_nodes_on_left_boundary[nodes_on_boundary[i]]=true;
-        	     		is_nodes_on_right_boundary[nodes_on_boundary[j]]=true;
+        	     		
+        	     		nodes_on_left_boundary.push_back(nodes_on_boundary[i]);
+        	     		
+        	     		nodes_on_right_boundary.push_back(nodes_on_boundary[j]);
         	     	}
         	     }
         	}
         }        
           
-        for(unsigned i = 0; i < is_nodes_on_boundary.size(); i++) 
-        {
-           
-            if(is_nodes_on_left_boundary[i])
-            {
-                nodes_on_left_boundary.push_back(i);
-            }
-            if(is_nodes_on_right_boundary[i])
-            {
-                nodes_on_right_boundary.push_back(i);
-            }
-        }
-            
         mLeftCryptBoundary =  nodes_on_left_boundary;
         mRightCryptBoundary =  nodes_on_right_boundary;
         mCryptBoundary =  nodes_on_boundary;   
     }
+    
+//    std::vector<unsigned> CalculateAdjacentNodes(std::vector<unsigned> main_node_vector)
+//    {
+//    	int elem_index;
+//    	
+//    	std::vector<bool> is_adjacent_node(mIsGhostNode.size());
+//    	std::vector<bool> is_main_node(mIsGhostNode.size());
+//        for(unsigned i = 0; i < is_adjacent_node.size() ; i++)
+//        {
+//            is_adjacent_node[i] = false;
+//            is_main_node[i] = false;
+//        }
+//        for (unsigned i = 0; i < main_node_vector.size(); i++)
+//        {
+//        	is_main_node[main_node_vector[i]] = true;
+//        }
+//        
+//    	for (unsigned i = 0; i < main_node_vector.size(); i++)
+//    	{
+//    		for (int j = 0; j < mrMesh.GetNode(main_node_vector[i])->GetNumContainingElements(); j++)
+//    		{
+//    			elem_index = mrMesh.GetNode(main_node_vector[i])->GetNextContainingElementIndex();
+//    			Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+//    			for (unsigned k = 0; k < 3; k++)
+//    			{
+//    				is_adjacent_node[p_element->GetNode(k)->GetIndex()] = true;
+//    			}
+//    		}
+//    	}
+//        
+//        std::vector<unsigned> adjacent_nodes; 
+//        
+//        for(unsigned i = 0; i < is_adjacent_node.size(); i++) 
+//        {
+//           
+//            if((is_adjacent_node[i]) && (!mIsGhostNode[i]) && (!is_main_node[i]))
+//            {
+//                adjacent_nodes.push_back(i);
+//            }
+//        }
+//           
+//    	return adjacent_nodes;
+//    }
 };
 
-#endif /*CRYPTSIMULATION2D_HPP_*/
+#endif /*CRYPTSIMULATION2DPERIODIC_HPP_*/
