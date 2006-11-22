@@ -34,11 +34,11 @@ public:
         AbstractStimulusFunction* extra_stim;
         
         // if x=0 set intracellular stimulus, otherwise it is zero
-        mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0   ?
+        mpMesh->GetNode(node)->GetPoint()[0] == 0.0   ?
         intra_stim = mpIntraStimulus :  intra_stim = mpZeroStimulus;
         
         // if x=0 set extracellular stimulus, otherwise it is zero
-        mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0   ?
+        mpMesh->GetNode(node)->GetPoint()[0] == 0.0   ?
         extra_stim = mpExtraStimulus  :  extra_stim = mpZeroStimulus;
         
         return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, intra_stim, extra_stim);

@@ -17,23 +17,23 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),12*26);
 
         // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(0)->GetPoint()[0],-2.0, 1e-12); 
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(0)->GetPoint()[1],-sqrt(3)/2,1e-8); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-2.0, 1e-12); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-sqrt(3)/2,1e-8); 
         
         // first real node
         int index = num_cells_width+4+2; // 4 here is the number of ghost nodes in a row
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(index)->GetPoint()[0], 0.5,1e-12); 
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(index)->GetPoint()[1], 0.0,1e-12); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.5,1e-12); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0,1e-12); 
 
         // last real node
         index = num_cells_depth*(num_cells_width+4)+9;
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(index)->GetPoint()[0], 7.0,1e-12); 
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(index)->GetPoint()[1], 21.0*sqrt(3)/2.0,1e-4); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 7.0,1e-12); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 21.0*sqrt(3)/2.0,1e-4); 
 
         // last node
         int last_node = p_mesh->GetNumNodes()-1;
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(last_node)->GetPoint()[0], 9.5,1e-12); 
-        TS_ASSERT_DELTA(p_mesh->GetNodeAt(last_node)->GetPoint()[1], 24.0*sqrt(3)/2.0,1e-6); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], 9.5,1e-12); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], 24.0*sqrt(3)/2.0,1e-6); 
 
         // check the ghost nodes
         std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();

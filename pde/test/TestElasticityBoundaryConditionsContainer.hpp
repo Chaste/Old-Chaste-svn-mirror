@@ -20,8 +20,8 @@ public:
         
         ElasticityBoundaryConditionsContainer<1> bcc(mesh.GetNumNodes());
         
-        Node<1>* p_node_0 = mesh.GetNodeAt(0);
-        Node<1>* p_node_1 = mesh.GetNodeAt(10);
+        Node<1>* p_node_0 = mesh.GetNode(0);
+        Node<1>* p_node_1 = mesh.GetNode(10);
         
         bcc.FixNode(p_node_0);
         
@@ -44,8 +44,8 @@ public:
         
         ElasticityBoundaryConditionsContainer<2> bcc(mesh.GetNumNodes());
         
-        Node<2>* p_node_0 = mesh.GetNodeAt(0);
-        Node<2>* p_node_1 = mesh.GetNodeAt(1);
+        Node<2>* p_node_0 = mesh.GetNode(0);
+        Node<2>* p_node_1 = mesh.GetNode(1);
         
         bcc.FixNode(p_node_0);
         
@@ -71,8 +71,8 @@ public:
         
         ElasticityBoundaryConditionsContainer<3> bcc(mesh.GetNumNodes());
         
-        Node<3>* p_node_0 = mesh.GetNodeAt(0);
-        Node<3>* p_node_1 = mesh.GetNodeAt(1);
+        Node<3>* p_node_0 = mesh.GetNode(0);
+        Node<3>* p_node_1 = mesh.GetNode(1);
         
         bcc.FixNode(p_node_0);
         

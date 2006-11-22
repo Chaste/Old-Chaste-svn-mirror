@@ -128,8 +128,8 @@ private:
         assert(mpMesh!=NULL);
         for (int i=0; i<mpMesh->GetNumNodes(); i++)
         {
-            double x = mpMesh->GetNodeAt(i)->GetPoint().rGetLocation()[0];
-            double y = mpMesh->GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
+            double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
             if ((x<0)||(x>mCryptWidth)||(y>mCryptDepth)||(y<0))
             {
                 mGhostNodeIndices.push_back(i);

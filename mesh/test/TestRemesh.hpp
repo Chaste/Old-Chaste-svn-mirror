@@ -32,7 +32,7 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t2\t0\t0\n";
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<2> point=mesh.GetNodeAt(i)->rGetPoint();
+            Point<2> point=mesh.GetNode(i)->rGetPoint();
             (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\n";
         }
         node_file->close();
@@ -52,8 +52,8 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<2> point1=mesh.GetNodeAt(i)->rGetPoint();
-            Point<2> point2=mesh2.GetNodeAt(i)->rGetPoint();
+            Point<2> point1=mesh.GetNode(i)->rGetPoint();
+            Point<2> point2=mesh2.GetNode(i)->rGetPoint();
             
             for (int j=0; j<2; j++)
             {
@@ -80,7 +80,7 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point=mesh.GetNodeAt(i)->rGetPoint();
+            Point<3> point=mesh.GetNode(i)->rGetPoint();
             (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\t"<<point[2]<<"\n";
         }
         node_file->close();
@@ -100,8 +100,8 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point1=mesh.GetNodeAt(i)->rGetPoint();
-            Point<3> point2=mesh2.GetNodeAt(i)->rGetPoint();
+            Point<3> point1=mesh.GetNode(i)->rGetPoint();
+            Point<3> point2=mesh2.GetNode(i)->rGetPoint();
             
             for (int j=0; j<3; j++)
             {
@@ -121,7 +121,7 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point=mesh.GetNodeAt(i)->GetPoint();
+            Point<3> point=mesh.GetNode(i)->GetPoint();
             for (int j=0; j<3; j++)
             {
                 if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
@@ -130,7 +130,7 @@ public:
                 }
             }
             
-            mesh.GetNodeAt(i)->SetPoint(point);
+            mesh.GetNode(i)->SetPoint(point);
         }
         mesh.RefreshMesh();
         
@@ -146,7 +146,7 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point=mesh.GetNodeAt(i)->rGetPoint();
+            Point<3> point=mesh.GetNode(i)->rGetPoint();
             (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\t"<<point[2]<<"\n";
         }
         node_file->close();
@@ -166,8 +166,8 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point1=mesh.GetNodeAt(i)->rGetPoint();
-            Point<3> point2=mesh2.GetNodeAt(i)->rGetPoint();
+            Point<3> point1=mesh.GetNode(i)->rGetPoint();
+            Point<3> point2=mesh2.GetNode(i)->rGetPoint();
             
             for (int j=0; j<3; j++)
             {
@@ -204,9 +204,9 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t2\t0\t0\n";
         for (int i=0; i<mesh.GetNumAllNodes(); i++)
         {
-            if (!mesh.GetNodeAt(i)->IsDeleted())
+            if (!mesh.GetNode(i)->IsDeleted())
             {
-                Point<2> point=mesh.GetNodeAt(i)->rGetPoint();
+                Point<2> point=mesh.GetNode(i)->rGetPoint();
                 (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\n";
             }
         }
@@ -215,7 +215,7 @@ public:
         NodeMap map(mesh.GetNumAllNodes());
         for (int i=0; i<mesh.GetNumAllNodes(); i++)
         {
-            if (mesh.GetNodeAt(i)->IsDeleted())
+            if (mesh.GetNode(i)->IsDeleted())
             {
                 map.SetDeleted(i);
             }
@@ -245,15 +245,15 @@ public:
         
         for (int i=0; i<mesh.GetNumAllNodes(); i++)
         {
-            if (mesh.GetNodeAt(i)->IsDeleted())
+            if (mesh.GetNode(i)->IsDeleted())
             {
                 TS_ASSERT_THROWS_ANYTHING(map.GetNewIndex(i));
             }
             else
             {
-                Point<2> point1=mesh.GetNodeAt(i)->rGetPoint();
+                Point<2> point1=mesh.GetNode(i)->rGetPoint();
                 int another_new_index = map.GetNewIndex(i);
-                Point<2> point2=mesh2.GetNodeAt(another_new_index)->rGetPoint();
+                Point<2> point2=mesh2.GetNode(another_new_index)->rGetPoint();
                 
                 for (int j=0; j<2; j++)
                 {

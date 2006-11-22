@@ -146,8 +146,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                         // add node to map
                         internal_nodes_map[(std::pair<int,int>(node_i, node_j))] = new_node_index;
                         // add node to mesh
-                        const Node<SPACE_DIM>* node1 = GetNodeAt(node_i);
-                        const Node<SPACE_DIM>* node2 = GetNodeAt(node_j);
+                        const Node<SPACE_DIM>* node1 = GetNode(node_i);
+                        const Node<SPACE_DIM>* node2 = GetNode(node_j);
                         Node<SPACE_DIM> *p_new_node=new Node<SPACE_DIM>(new_node_index,
                                                                         node1->GetPoint().MidPoint(node2->GetPoint()),
                                                                         node1->IsBoundaryNode() && node2->IsBoundaryNode());
@@ -192,7 +192,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                     iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
                     assert(iterator != internal_nodes_map.end());
                     // add node to element
-                    nodes.push_back(this->GetNodeAt(iterator->second));
+                    nodes.push_back(this->GetNode(iterator->second));
                     new_node_index++;
                 }
             }
@@ -274,7 +274,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                         iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
                         assert(iterator != internal_nodes_map.end());
                         // add node to element
-                        nodes.push_back(this->GetNodeAt(iterator->second));
+                        nodes.push_back(this->GetNode(iterator->second));
                     }
                 }
             }
@@ -338,7 +338,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeAt(long index)
+Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(long index)
 {
     assert(index < (long) mNodes.size());
     return (mNodes[index]);
@@ -397,8 +397,8 @@ long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex)
 {
-    assert(GetNodeAt(boundaryNodeIndex)->IsBoundaryNode());
-    double scaleFactor = updatedPoint[0] / GetNodeAt(boundaryNodeIndex)->GetPoint()[0];
+    assert(GetNode(boundaryNodeIndex)->IsBoundaryNode());
+    double scaleFactor = updatedPoint[0] / GetNode(boundaryNodeIndex)->GetPoint()[0];
     double temp;
     for (int i=0; i < boundaryNodeIndex+1; i++)
     {
@@ -1223,8 +1223,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
     for (int i=0; i<temporary_mesh.GetNumNodes(); i++)
     {
-        Point<SPACE_DIM> point=temporary_mesh.GetNodeAt(i)->rGetPoint();
-        bool is_boundary=temporary_mesh.GetNodeAt(i)->IsBoundaryNode();
+        Point<SPACE_DIM> point=temporary_mesh.GetNode(i)->rGetPoint();
+        bool is_boundary=temporary_mesh.GetNode(i)->IsBoundaryNode();
         Node<SPACE_DIM>* p_node=new Node<SPACE_DIM>(i,point,is_boundary);
         mNodes.push_back(p_node);
         if (is_boundary)
@@ -1340,7 +1340,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
          it != neighbouring_nodes_indices.end(); ++it)
     {
-        Point<SPACE_DIM> node_point = GetNodeAt(*it)->rGetPoint();
+        Point<SPACE_DIM> node_point = GetNode(*it)->rGetPoint();
         c_vector < double, ELEMENT_DIM> node_location = node_point.rGetLocation();
 
         // Calculate vector from circumcenter to node

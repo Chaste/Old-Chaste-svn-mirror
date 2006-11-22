@@ -69,7 +69,7 @@ public:
     
     void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex);
     
-    Node<SPACE_DIM> *GetNodeAt(long index);
+    Node<SPACE_DIM> *GetNode(long index);
     
     long GetNumNodes();
     long GetNumElements();

@@ -27,17 +27,17 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
         
         // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0],  0.9980267283, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], -0.0627905195, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
         
         // Check first element has the right nodes
         ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNodeAt(144));
+        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
         
     }
     
@@ -64,24 +64,24 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2);
         
         // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(2)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(2)->GetPoint()[1], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(3)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(3)->GetPoint()[1], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(4)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(4)->GetPoint()[1], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(5)->GetPoint()[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(5)->GetPoint()[1], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(6)->GetPoint()[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(6)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(7)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(7)->GetPoint()[1], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(8)->GetPoint()[0], 0.5, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(8)->GetPoint()[1], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->GetPoint()[1], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(3)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(3)->GetPoint()[1], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(4)->GetPoint()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(5)->GetPoint()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(6)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->GetPoint()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(7)->GetPoint()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(8)->GetPoint()[1], 1.0, 1e-6);
         
         // Check all elements have the right nodes
         ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
@@ -91,7 +91,7 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 4);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 6);
-//		TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNodeAt(144));
+//		TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
         it++;
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 1);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 2);
@@ -125,10 +125,10 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
         
         // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0],  0.9980267283, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], -0.0627905195, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[0], 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(1)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
         
         // Check first element has the right nodes
         ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
@@ -138,7 +138,7 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 543);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 544);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 545);
-        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNodeAt(144));
+        TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
         it++;
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 546);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 547);
@@ -168,12 +168,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136);
         
         // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[2], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[0], 0.75, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[1], 0.25, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[0], 0.75, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[1], 0.25, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
         
     }
     
@@ -200,12 +200,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 136);
         
         // Check some node co-ordinates
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[1], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[2], 0.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[0], 0.75, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[1], 0.25, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(19)->GetPoint()[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[0], 0.75, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[1], 0.25, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
         
         // Check first element has the right nodes
         ConformingTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
@@ -219,7 +219,7 @@ public:
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(7), 54);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(8), 55);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(9), 56);
-        TS_ASSERT_EQUALS((*it)->GetNode(5), mesh.GetNodeAt(52));
+        TS_ASSERT_EQUALS((*it)->GetNode(5), mesh.GetNode(52));
         it++;
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 58);
         TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 59);
@@ -259,7 +259,7 @@ public:
         mesh.RescaleMeshFromBoundaryNode(updatedPoint,10);
         for (int i=0; i < 11; i++)
         {
-            TS_ASSERT_DELTA(mesh.GetNodeAt(i)->GetPoint()[0], 1.5*(i/10.0) , 0.001);
+            TS_ASSERT_DELTA(mesh.GetNode(i)->GetPoint()[0], 1.5*(i/10.0) , 0.001);
         }
     }
     
@@ -330,7 +330,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Node<1> *p_node=mesh.GetNodeAt(0);
+        Node<1> *p_node=mesh.GetNode(0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 1);
         unsigned boundary_element_index= p_node->GetNextBoundaryElementIndex();
@@ -343,7 +343,7 @@ public:
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
         
-        Node<1> *p_node2=mesh.GetNodeAt(1);
+        Node<1> *p_node2=mesh.GetNode(1);
         TS_ASSERT_EQUALS(p_node2->GetNumContainingElements(), 2);
         TS_ASSERT_EQUALS(p_node2->GetNumBoundaryElements(), 0);
         
@@ -369,7 +369,7 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Node<2> *p_node=mesh.GetNodeAt(234);
+        Node<2> *p_node=mesh.GetNode(234);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 5);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 0);
         Element<2,2> *p_element;
@@ -400,7 +400,7 @@ public:
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
         
         //Now look at a boundary node
-        p_node=mesh.GetNodeAt(99);
+        p_node=mesh.GetNode(99);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 3);
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 2);
         const BoundaryElement<1,2> *p_boundary_element;
@@ -422,7 +422,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         
-        Node<3> *p_node=mesh.GetNodeAt(34);
+        Node<3> *p_node=mesh.GetNode(34);
         
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 10);
         Element<3,3> *p_element;
@@ -483,7 +483,7 @@ public:
         
         
         const int node_index=3;
-        Node<1> *p_node=mesh.GetNodeAt(node_index);
+        Node<1> *p_node=mesh.GetNode(node_index);
         
         Point<1> point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0],0.3,1e-6);
@@ -542,7 +542,7 @@ public:
         
         const int node_index=234;
         const int boundary_node_index=99;
-        Node<2> *p_node=mesh.GetNodeAt(node_index);
+        Node<2> *p_node=mesh.GetNode(node_index);
         //Just focus on one element
         Element<2,2> *p_element;
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
@@ -579,7 +579,7 @@ public:
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.00907521, 1e-6);
         
         //Now try to move a boundary node
-        p_node=mesh.GetNodeAt(boundary_node_index);
+        p_node=mesh.GetNode(boundary_node_index);
         Point<2> boundary_point=p_node->GetPoint();
         TS_ASSERT_DELTA(boundary_point[0], 0.99211470130000001, 1e-6);
         TS_ASSERT_DELTA(boundary_point[1], -0.12533323360000001, 1e-6);
@@ -601,7 +601,7 @@ public:
         double reference_volume = mesh.CalculateMeshVolume();
         
         const int interior_node_index=34;
-        Node<3> *p_node=mesh.GetNodeAt(interior_node_index);
+        Node<3> *p_node=mesh.GetNode(interior_node_index);
         //Just focus on one element
         Element<3,3> *p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
         BoundaryElement<2,3> *p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
@@ -646,7 +646,7 @@ public:
         
         // Find exterior node
         const int exterior_node_index=0;
-        p_node=mesh.GetNodeAt(exterior_node_index); // this exterior node is at (0,0,0)
+        p_node=mesh.GetNode(exterior_node_index); // this exterior node is at (0,0,0)
         point=p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 0, 1e-6);
         TS_ASSERT_DELTA(point[1], 0, 1e-6);
@@ -670,7 +670,7 @@ public:
         
         
         const int boundary_node_index=50;
-        Node<2> *p_node=mesh.GetNodeAt(boundary_node_index);
+        Node<2> *p_node=mesh.GetNode(boundary_node_index);
         //Just focus on one element
         Element<1,2> *p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
         BoundaryElement<0,2> *p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
@@ -711,7 +711,7 @@ public:
         
         
         const int boundary_node_index=99;
-        Node<3> *p_node=mesh.GetNodeAt(boundary_node_index);
+        Node<3> *p_node=mesh.GetNode(boundary_node_index);
         //Just focus on one element
         Element<2,3> *p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
         BoundaryElement<1,3> *p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
@@ -761,8 +761,8 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Node<1> *p_old_rhs_node = mesh.GetNodeAt(10);
-        Node<1> *p_old_lhs_node = mesh.GetNodeAt(0);
+        Node<1> *p_old_rhs_node = mesh.GetNode(10);
+        Node<1> *p_old_lhs_node = mesh.GetNode(0);
         
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator b_elt_iter;
         ConformingTetrahedralMesh<1,1>::BoundaryNodeIterator b_node_iter;
@@ -790,7 +790,7 @@ public:
         TS_ASSERT_EQUALS((*b_elt_iter++)->GetNode(0)->GetIndex(), 0);
         
         // Check the new boundary node
-        Node<1> *p_new_rhs_node = mesh.GetNodeAt(9);
+        Node<1> *p_new_rhs_node = mesh.GetNode(9);
         TS_ASSERT(p_new_rhs_node->IsBoundaryNode());
         TS_ASSERT_EQUALS(p_new_rhs_node->GetNumContainingElements(), 1);
         
@@ -816,7 +816,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0);
         
         // Check the new boundary node
-        Node<1> *p_new_lhs_node = mesh.GetNodeAt(1);
+        Node<1> *p_new_lhs_node = mesh.GetNode(1);
         TS_ASSERT(p_new_lhs_node->IsBoundaryNode());
         TS_ASSERT_EQUALS(p_new_lhs_node->GetNumContainingElements(), 1);
         
@@ -1071,27 +1071,27 @@ public:
         double volume=mesh.CalculateMeshVolume();
         double surface=mesh.CalculateMeshSurface();
         
-        Node<3>*  p_node0=mesh.GetNodeAt(0);
-        Node<3>*  p_node121=mesh.GetNodeAt(121);
-        Node<3>*  p_node125=mesh.GetNodeAt(125);
-        Node<3>*  p_node273=mesh.GetNodeAt(273);
+        Node<3>*  p_node0=mesh.GetNode(0);
+        Node<3>*  p_node121=mesh.GetNode(121);
+        Node<3>*  p_node125=mesh.GetNode(125);
+        Node<3>*  p_node273=mesh.GetNode(273);
         
         RandomNumberGenerator rng;
         mesh.PermuteNodes(rng);
         
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(  0)->GetIndex(),   0);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(121)->GetIndex(), 121);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(125)->GetIndex(), 125);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(273)->GetIndex(), 273);
+        TS_ASSERT_EQUALS(mesh.GetNode(  0)->GetIndex(),   0);
+        TS_ASSERT_EQUALS(mesh.GetNode(121)->GetIndex(), 121);
+        TS_ASSERT_EQUALS(mesh.GetNode(125)->GetIndex(), 125);
+        TS_ASSERT_EQUALS(mesh.GetNode(273)->GetIndex(), 273);
         
         TS_ASSERT_EQUALS(p_node0->GetIndex(), 357);
         TS_ASSERT_EQUALS(p_node121->GetIndex(), 35);
         TS_ASSERT_EQUALS(p_node125->GetIndex(), 219);
         TS_ASSERT_EQUALS(p_node273->GetIndex(), 319);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node0->GetIndex()), p_node0);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node121->GetIndex()), p_node121);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node125->GetIndex()), p_node125);
-        TS_ASSERT_EQUALS(mesh.GetNodeAt(p_node273->GetIndex()), p_node273);
+        TS_ASSERT_EQUALS(mesh.GetNode(p_node0->GetIndex()), p_node0);
+        TS_ASSERT_EQUALS(mesh.GetNode(p_node121->GetIndex()), p_node121);
+        TS_ASSERT_EQUALS(mesh.GetNode(p_node125->GetIndex()), p_node125);
+        TS_ASSERT_EQUALS(mesh.GetNode(p_node273->GetIndex()), p_node273);
         
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
         TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
@@ -1158,7 +1158,7 @@ public:
         
         mesh.ConstructRectangularMesh(2,2);
         
-        Node<2> *p_node=mesh.GetNodeAt(1);
+        Node<2> *p_node=mesh.GetNode(1);
         
         Point<2> point=p_node->GetPoint();
         

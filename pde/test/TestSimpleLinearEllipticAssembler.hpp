@@ -137,17 +137,17 @@ public:
         LinearHeatEquationPde<1> pde;
         
         // test ComputeNonlinearSourceTermAtNode() on the pde (for coverage)
-        double value1 = pde.ComputeNonlinearSourceTermAtNode(*(mesh.GetNodeAt(0)),3.2);
-        double value2 = pde.ComputeNonlinearSourceTerm(mesh.GetNodeAt(0)->GetPoint(),3.2);
+        double value1 = pde.ComputeNonlinearSourceTermAtNode(*(mesh.GetNode(0)),3.2);
+        double value2 = pde.ComputeNonlinearSourceTerm(mesh.GetNode(0)->GetPoint(),3.2);
         TS_ASSERT_DELTA(value1, value2, 1e-10);
-        value1 = pde.ComputeLinearSourceTermAtNode(*(mesh.GetNodeAt(0)));
-        value2 = pde.ComputeLinearSourceTerm(mesh.GetNodeAt(0)->GetPoint());
+        value1 = pde.ComputeLinearSourceTermAtNode(*(mesh.GetNode(0)));
+        value2 = pde.ComputeLinearSourceTerm(mesh.GetNode(0)->GetPoint());
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         
         // Assembler
         SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
@@ -163,7 +163,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             double u = 0.5*x*(3-x);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
@@ -184,7 +184,7 @@ public:
         // Boundary conditions u(-1)=1, u'(-3)=0
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         // Add Neumann condition to the left hand end
@@ -204,7 +204,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             double u = 1 - 0.5*(x+1)*(5+x);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
@@ -226,8 +226,8 @@ public:
         // Boundary conditions u(-1)=1 u'(-3)=1
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
-        TS_ASSERT_DELTA(mesh.GetNodeAt(0)->GetPoint()[0], -1, 1e-12);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
+        TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], -1, 1e-12);
         
         // Note we pass -1 not 1; see comment for AddNeumannBoundaryCondition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition = new ConstBoundaryCondition<1>(-1.0);
@@ -249,7 +249,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             double u = -0.5*x*x - 2*x - 0.5;
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
@@ -270,10 +270,10 @@ public:
         // Boundary conditions
         BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(2), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
         
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
@@ -317,7 +317,7 @@ public:
         }
         // u = 2 at some point on the boundary, say node 1
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
         
         // Assembler
         SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
@@ -332,8 +332,8 @@ public:
         {
             int local_index = global_index - lo;
             c_vector<double, 2> r;
-            r(0) = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            r(1) = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            r(0) = mesh.GetNode(global_index)->GetPoint()[0];
+            r(1) = mesh.GetNode(global_index)->GetPoint()[1];
             double u = -0.25 * inner_prod(r, r) + 2.25;
             TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
         }
@@ -355,7 +355,7 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<1>(4.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_dirichlet_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_dirichlet_condition);
         
         // Note we need to specify D * du/dx for the Neumann boundary condition
         ConstBoundaryCondition<1>* p_neumann_boundary_condition =
@@ -377,7 +377,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0] ;
+            double x = mesh.GetNode(global_index)->GetPoint()[0] ;
             double u = -(x*x*x/12.0)-(333/(4*x))+4+1000.0/12.0;
             TS_ASSERT_DELTA(p_result[local_index], u, 0.2);
         }
@@ -448,8 +448,8 @@ public:
         for (int global_index=0; global_index < mesh.GetNumNodes(); global_index++)
         {
             int local_index=global_index - lo;
-            double r = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double r = mesh.GetNode(global_index)->GetPoint()[0];
+            double z = mesh.GetNode(global_index)->GetPoint()[1];
             double u;
             if (z > 1e-12)
             {
@@ -512,9 +512,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             double u = -1.0/6 * (x*x+y*y+z*z);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
         }
@@ -559,8 +559,8 @@ public:
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
-            double x = mesh.GetNodeAt(node)->GetPoint()[0];
-            // double y = mesh.GetNodeAt(node)->GetPoint()[1];
+            double x = mesh.GetNode(node)->GetPoint()[0];
+            // double y = mesh.GetNode(node)->GetPoint()[1];
             
             if (fabs(x - 1.0) < 0.01)
             {
@@ -585,9 +585,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             double u = -1.0/6 * (x*x+y*y+z*z);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
         }

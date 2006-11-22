@@ -119,7 +119,7 @@ public:
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
-            double x = mesh.GetNodeAt(node)->GetPoint()[0];
+            double x = mesh.GetNode(node)->GetPoint()[0];
             
             if (fabs(x - 1.0) < 0.01)
             {
@@ -143,8 +143,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -162,8 +162,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             double u = exp((-5/4)*M_PI*M_PI*t_end) * sin(0.5*M_PI*x) * sin(M_PI*y) + x;
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
@@ -209,9 +209,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -229,9 +229,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             double u = exp(-3*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
         }
@@ -288,9 +288,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI)-1.0/6*(x*x+y*y+z*z);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -308,9 +308,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             double u = exp(-t_end*3*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)*sin(z*M_PI)-1.0/6*(x*x+y*y+z*z);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
         }
@@ -371,7 +371,7 @@ public:
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
-            double x = mesh.GetNodeAt(node)->GetPoint()[0];
+            double x = mesh.GetNode(node)->GetPoint()[0];
             
             if (fabs(x - 1.0) < 0.01)
             {
@@ -395,9 +395,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             
             p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)*sin(M_PI*z)+x;
         }
@@ -415,9 +415,9 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
-            double z = mesh.GetNodeAt(global_index)->GetPoint()[2];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
+            double z = mesh.GetNode(global_index)->GetPoint()[2];
             
             double u = exp((-5/2)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y)* sin(M_PI*z) + x;
             TS_ASSERT_DELTA(p_result[local_index], u, u*0.15);

@@ -26,7 +26,7 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
@@ -81,7 +81,7 @@ public:
         // Test the RHF of the mesh
         for (int i = 0; i < bidomain_problem.rGetMesh().GetNumNodes(); i++)
         {
-            if (bidomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.05)
+            if (bidomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.05)
             {
                 // x = 0 is where the stimulus has been applied
                 // x = 0.05cm is the other end of the mesh and where we want to

@@ -231,7 +231,7 @@ public:
             {
                 for (unsigned i=0; i<mCells.size(); i++)
                 {
-                    if (mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
+                    if (mrMesh.GetNode(i)->IsDeleted()) continue; // Skip deleted cells
                     // Check for this cell dividing
                     if (mCells[i].ReadyToDivide())
                     {
@@ -239,7 +239,7 @@ public:
                         MeinekeCryptCell new_cell = mCells[i].Divide();
                         
                         // Add new node to mesh
-                        Node<1> *p_our_node = mrMesh.GetNodeAt(i);
+                        Node<1> *p_our_node = mrMesh.GetNode(i);
                         
                         //Note: May need to check which side element is put esp. at the ends
                         Element<1,1> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
@@ -326,9 +326,9 @@ public:
             {
                 // assume stem cells are fixed, or if there are no cells, fix node 0
                 //if(
-                if (!mrMesh.GetNodeAt(index)->IsDeleted())
+                if (!mrMesh.GetNode(index)->IsDeleted())
                 {
-                    Point<1> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+                    Point<1> old_point = mrMesh.GetNode(index)->rGetPoint();
                     Point<1> new_point;
                     new_point.rGetLocation()[0] = old_point[0] + mDt*drdt[index]; // new_point_position[index];
                     mrMesh.SetNode(index, new_point, false);
@@ -381,7 +381,7 @@ public:
             int cell=0; // NB this is not the index in mCells, but the index in the mesh!
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
-                if (!mrMesh.GetNodeAt(index)->IsDeleted())
+                if (!mrMesh.GetNode(index)->IsDeleted())
                 {
                     if (mCells.size() > 0)
                     {
@@ -412,7 +412,7 @@ public:
                         tabulated_writer.PutVariable(type_var_ids[cell], -1);
                     }
                     
-                    Point<1> point = mrMesh.GetNodeAt(index)->rGetPoint();
+                    Point<1> point = mrMesh.GetNode(index)->rGetPoint();
                     tabulated_writer.PutVariable(position_var_ids[cell], point.rGetLocation()[0]);
                     (*p_results_file) << point.rGetLocation()[0] << " ";
                     

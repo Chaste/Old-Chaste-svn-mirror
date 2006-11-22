@@ -134,7 +134,7 @@ public:
             CryptCellType cell_type;
             unsigned generation;
             double birth_time;
-            double y = p_mesh->GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
           
             if (y == 0.0)
             {
@@ -261,7 +261,7 @@ public:
         
         for (int index = 0; index<p_mesh->GetNumAllNodes(); index++)
         {
-            if(!is_ghost_node[index])   //!mesh.GetNodeAt(index)->IsDeleted())
+            if(!is_ghost_node[index])   //!mesh.GetNode(index)->IsDeleted())
             {
                 CryptCellType type = cells_after_simulation[index].GetCellType();
                 

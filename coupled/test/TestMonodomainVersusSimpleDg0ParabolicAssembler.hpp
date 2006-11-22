@@ -142,7 +142,7 @@ public:
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
-            double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x=mesh.GetNode(global_index)->GetPoint()[0];
             p_init_array[local_index] = exp(-(x*x)/100);
         }
         VecRestoreArray(initial_condition_1, &p_init_array);
@@ -228,7 +228,7 @@ public:
         for (int global_index=lo; global_index<hi; global_index++)
         {
             int local_index = global_index-lo;
-            double x=mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x=mesh.GetNode(global_index)->GetPoint()[0];
             p_init_array[local_index] = exp(-(x*x)/100);
         }
         VecRestoreArray(initial_condition_1, &p_init_array);

@@ -29,7 +29,7 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
@@ -58,7 +58,7 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
@@ -254,7 +254,7 @@ public:
         // Test the RHS of the mesh
         for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
-            if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
+            if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
             {
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to

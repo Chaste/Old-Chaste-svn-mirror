@@ -28,7 +28,7 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
         }

@@ -272,7 +272,7 @@ public:
 //            unsigned generation;
 //            double birth_time;
 //            
-//            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+//            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
 //            if (y == 0.0)
 //            {
 //                cell_type = STEM;
@@ -340,7 +340,7 @@ public:
             unsigned generation;
             double birth_time;
             
-            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
             if (y == 0.0)
             {
                 cell_type = STEM;
@@ -401,8 +401,8 @@ public:
         std::vector<int> ghost_node_indices;
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[0];
-            double y = mesh.GetNodeAt(i)->GetPoint().rGetLocation()[1];
+            double x = mesh.GetNode(i)->GetPoint().rGetLocation()[0];
+            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
             if ((x<2.0)||(x>8.0)||(y>6.0)||(y<0.0))
             {
                ghost_node_indices.push_back(i);

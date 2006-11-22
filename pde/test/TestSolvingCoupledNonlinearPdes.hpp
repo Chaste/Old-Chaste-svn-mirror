@@ -388,8 +388,8 @@ public:
         // u = 2 at some point on the boundary, say node 1
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         p_boundary_condition1 = new ConstBoundaryCondition<2>(2.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition,0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition1,1);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition,0);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
         
         // use assembler to solve (with lambda = 1)
         MySimpleNonlinearCoupledAssembler<2> assembler(&mesh,&bcc,1.0);
@@ -417,7 +417,7 @@ public:
         }
         // u = 2 at some point on the boundary, say node 1
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
-        bcc_1unknown.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), p_boundary_condition);
+        bcc_1unknown.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
         
         // Assembler
         SimpleNonlinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
@@ -506,8 +506,8 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x = mesh.GetNodeAt(i)->GetPoint()[0];
-            double y = mesh.GetNodeAt(i)->GetPoint()[1];
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
             
             double u = result_repl[2*i];
             double v = result_repl[2*i+1];;

@@ -50,7 +50,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     int new_index=0;
     for (int i=0; i<rMesh.GetNumAllNodes();i++)
     {
-        Node<SPACE_DIM>* p_node = rMesh.GetNodeAt(i);
+        Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
         
         if (p_node->IsDeleted() == false)
         {

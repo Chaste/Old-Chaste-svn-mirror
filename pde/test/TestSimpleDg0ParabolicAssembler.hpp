@@ -90,8 +90,8 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition =
             new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
         
         // Assembler
         SimpleDg0ParabolicAssembler<1,1> assembler(&mesh,&pde,&bcc);
@@ -107,7 +107,7 @@ public:
         for ( int global_index=lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             p_initial_condition[local_index] = sin(x*M_PI);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -128,7 +128,7 @@ public:
         for (int global_index = lo; global_index<hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
         }
@@ -152,9 +152,9 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition =
             new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(-0.5);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt( mesh.GetNumNodes()-1 ), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
         
         // Assembler
         SimpleDg0ParabolicAssembler<1,1> assembler(&mesh,&pde,&bcc);
@@ -171,7 +171,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             p_initial_condition[local_index] = sin(x*M_PI)-0.5*x*x;
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -191,7 +191,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             double u = exp(-0.1*M_PI*M_PI)*sin(x*M_PI)-0.5*x*x;
             TS_ASSERT_DELTA(p_result[local_index], u, 0.1);
         }
@@ -213,7 +213,7 @@ public:
         // Boundary conditions  u(0)=0, u'(1)=1
         BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         
         ConstBoundaryCondition<1>* p_neumann_boundary_condition =
             new ConstBoundaryCondition<1>(1.0);
@@ -237,7 +237,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             p_initial_condition[local_index] = x + sin(PI_over_2 * x);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -255,7 +255,7 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
             double u = x + exp(-0.5*PI_over_2*PI_over_2)*sin(x*PI_over_2);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
         }
@@ -296,8 +296,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -317,8 +317,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             double u = exp(-2*t_end*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.01);
         }
@@ -368,8 +368,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -388,8 +388,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             double u = exp(-0.1*2*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.05);
         }
@@ -441,8 +441,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             p_initial_condition[local_index] = sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -461,8 +461,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             double u = exp(-0.1*2*M_PI*M_PI)*sin(x*M_PI)*sin(y*M_PI)-0.25*(x*x+y*y);
             TS_ASSERT_DELTA(p_result[local_index], u, 0.001);
         }
@@ -509,7 +509,7 @@ public:
         while (surf_iter < mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
-            double x = mesh.GetNodeAt(node)->GetPoint()[0];
+            double x = mesh.GetNode(node)->GetPoint()[0];
             
             if (fabs(x - 1.0) < 0.01)
             {
@@ -533,8 +533,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -553,8 +553,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             double u = exp((-5/4)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y) +x;
             TS_ASSERT_DELTA(p_result[local_index], u, u*0.15);
         }
@@ -604,7 +604,7 @@ public:
         while (surf_iter != mesh.GetBoundaryElementIteratorEnd())
         {
             int node = (*surf_iter)->GetNodeGlobalIndex(0);
-            double x = mesh.GetNodeAt(node)->GetPoint()[0];
+            double x = mesh.GetNode(node)->GetPoint()[0];
             
             if (fabs(x - 1.0) < 0.01)
             {
@@ -629,8 +629,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             p_initial_condition[local_index] = sin(0.5*M_PI*x)*sin(M_PI*y)+x;
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
@@ -648,8 +648,8 @@ public:
         for (int global_index = lo; global_index < hi; global_index++)
         {
             int local_index = global_index - lo;
-            double x = mesh.GetNodeAt(global_index)->GetPoint()[0];
-            double y = mesh.GetNodeAt(global_index)->GetPoint()[1];
+            double x = mesh.GetNode(global_index)->GetPoint()[0];
+            double y = mesh.GetNode(global_index)->GetPoint()[1];
             double u = exp((-5/4)*M_PI*M_PI*0.1) * sin(0.5*M_PI*x) * sin(M_PI*y) + x;
             TS_ASSERT_DELTA(p_result[local_index], u, u*0.1);
         }

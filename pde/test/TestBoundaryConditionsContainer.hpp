@@ -331,11 +331,11 @@ public:
         // Check boundary nodes have the right condition
         for (int i=0; i<4; i++)
         {
-            double value = bcc.GetDirichletBCValue(mesh.GetNodeAt(i));
+            double value = bcc.GetDirichletBCValue(mesh.GetNode(i));
             TS_ASSERT_DELTA(value, 0.0, 1e-12);
         }
         // Check non-boundary node has no condition
-        TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNodeAt(4)));
+        TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNode(4)));
     }
     
     void Test_AnyNonZeroNeumannConditions_and_ApplyNeumannToMeshBoundary()
@@ -389,9 +389,9 @@ public:
         
         // Add some BCs
         ConstBoundaryCondition<2> *bc = new ConstBoundaryCondition<2>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(0), bc);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(1), bc);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNodeAt(3), bc);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), bc);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), bc);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), bc);
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter
         = mesh.GetBoundaryElementIteratorEnd();
         iter--;

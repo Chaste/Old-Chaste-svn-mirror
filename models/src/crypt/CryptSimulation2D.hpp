@@ -331,7 +331,7 @@ public:
             {
                 for (unsigned i=0; i<mCells.size(); i++)
                 {
-                    if(mrMesh.GetNodeAt(i)->IsDeleted()) continue; // Skip deleted cells
+                    if(mrMesh.GetNode(i)->IsDeleted()) continue; // Skip deleted cells
                     if(mIsGhostNode[i]) continue;
 
                     // Check for this cell dividing
@@ -340,7 +340,7 @@ public:
                         // Create new cell
                         MeinekeCryptCell new_cell = mCells[i].Divide();
                         // Add new node to mesh
-                        Node<2> *p_our_node = mrMesh.GetNodeAt(i);
+                        Node<2> *p_our_node = mrMesh.GetNode(i);
                         double x = p_our_node->GetPoint()[0];
                         double y = p_our_node->GetPoint()[1];
                         
@@ -607,18 +607,18 @@ public:
                 if(mFixedBoundaries)
                 {
                     // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-                    if(mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
+                    if(mrMesh.GetNode(index)->rGetPoint()[1]>0)
                     {
-                        if(mrMesh.GetNodeAt(index)->rGetPoint()[1]<mpParams->GetCryptLength())
+                        if(mrMesh.GetNode(index)->rGetPoint()[1]<mpParams->GetCryptLength())
                         {
-                            if(mrMesh.GetNodeAt(index)->rGetPoint()[0]>0)
+                            if(mrMesh.GetNode(index)->rGetPoint()[0]>0)
                             {
-                                if(mrMesh.GetNodeAt(index)->rGetPoint()[0]<mpParams->GetCryptWidth())
+                                if(mrMesh.GetNode(index)->rGetPoint()[0]<mpParams->GetCryptWidth())
                                 {
-                                    if(!mrMesh.GetNodeAt(index)->IsDeleted())
+                                    if(!mrMesh.GetNode(index)->IsDeleted())
                                     {
                                         //  std::cerr<<"Updating index "<<index<<"\n";
-                                        Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+                                        Point<2> old_point = mrMesh.GetNode(index)->rGetPoint();
                                         Point<2> new_point;
                                         
                                         // note factor of 0.5 in the update because drdt was twice
@@ -637,10 +637,10 @@ public:
                     // move any node as long as it is not a stem cell.
                     if(mCells[index].GetCellType()!=STEM)
                     {
-                        if(!mrMesh.GetNodeAt(index)->IsDeleted())
+                        if(!mrMesh.GetNode(index)->IsDeleted())
                         {
                             //  std::cerr<<"Updating index "<<index<<"\n";
-                            Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+                            Point<2> old_point = mrMesh.GetNode(index)->rGetPoint();
                             Point<2> new_point;
 
                             // note factor of 0.5 in the update because drdt was twice
@@ -662,12 +662,12 @@ public:
                 else
                 {
                     // no cells, just fix any node on line y=0
-                    if(mrMesh.GetNodeAt(index)->rGetPoint()[1]>0)
+                    if(mrMesh.GetNode(index)->rGetPoint()[1]>0)
                     {
-                        if(!mrMesh.GetNodeAt(index)->IsDeleted())
+                        if(!mrMesh.GetNode(index)->IsDeleted())
                         {
                             //  std::cerr<<"Updating index "<<index<<"\n";
-                            Point<2> old_point = mrMesh.GetNodeAt(index)->rGetPoint();
+                            Point<2> old_point = mrMesh.GetNode(index)->rGetPoint();
                             Point<2> new_point;
 
                             // note factor of 0.5 in the update because drdt was twice
@@ -696,7 +696,7 @@ public:
                 while (it != mrMesh.GetBoundaryNodeIteratorBegin())
                 {
                     it--; 
-                    //Node<2> *p_node=mrMesh.GetNodeAt(0);
+                    //Node<2> *p_node=mrMesh.GetNode(0);
                     Node<2> *p_node = *it;
                     if(!p_node->IsDeleted())
                     {
@@ -715,7 +715,7 @@ public:
                      	
                      	std::cout<<p_simulation_time->GetDimensionalisedTime() << "\t"<<sloughing_node_index<<"\t"<<target_node_index<<"\n";
                          // It's fallen off
-                         assert(!mrMesh.GetNodeAt(target_node_index)->IsDeleted());
+                         assert(!mrMesh.GetNode(target_node_index)->IsDeleted());
                          mrMesh.SetNode(sloughing_node_index,target_node_index);
             
             mIsGhostNode[p_node->GetIndex()] = true;
@@ -738,7 +738,7 @@ public:
             ///////////////////////////////////////////////////////////////////////////////////
             for (int i=0; i<mrMesh.GetNumNodes(); i++)
             {
-                Node<2> *p_node = mrMesh.GetNodeAt(i);
+                Node<2> *p_node = mrMesh.GetNode(i);
                 if(!p_node->IsDeleted())
                 {
                     double x = p_node->rGetPoint()[0];
@@ -827,9 +827,9 @@ public:
                     
                 }
                 
-                if(!mrMesh.GetNodeAt(index)->IsDeleted())
+                if(!mrMesh.GetNode(index)->IsDeleted())
                 {
-                    Point<2> point = mrMesh.GetNodeAt(index)->rGetPoint();
+                    Point<2> point = mrMesh.GetNode(index)->rGetPoint();
                     (*p_node_file) << point.rGetLocation()[0] << " "<< point.rGetLocation()[1] << " " << colour << " ";
 
                     if(counter==0)
@@ -968,9 +968,9 @@ public:
         {
         	for(unsigned j=0; j<nodes_on_boundary.size(); j++)
         	{
-        		 if(fabs(mrMesh.GetNodeAt(nodes_on_boundary[i])->rGetPoint()[1]-mrMesh.GetNodeAt(nodes_on_boundary[j])->rGetPoint()[1])<1e-6)
+        		 if(fabs(mrMesh.GetNode(nodes_on_boundary[i])->rGetPoint()[1]-mrMesh.GetNode(nodes_on_boundary[j])->rGetPoint()[1])<1e-6)
         	     {
-        	     	if(fabs(mrMesh.GetNodeAt(nodes_on_boundary[j])->rGetPoint()[0]-mrMesh.GetNodeAt(nodes_on_boundary[i])->rGetPoint()[0]-crypt_width)<1e-6)
+        	     	if(fabs(mrMesh.GetNode(nodes_on_boundary[j])->rGetPoint()[0]-mrMesh.GetNode(nodes_on_boundary[i])->rGetPoint()[0]-crypt_width)<1e-6)
         	     	{
         	     		//std::cout <<"\n " << nodes_on_boundary[i] << "\t" <<  nodes_on_boundary[j] << std::flush;
         	     		is_nodes_on_left_boundary[nodes_on_boundary[i]]=true;

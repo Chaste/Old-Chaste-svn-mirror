@@ -480,7 +480,7 @@ public:
             ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition
             = new ConstBoundaryCondition<SPACE_DIM>(0.0);
             
-            Node<SPACE_DIM>* p_node = this->mpMesh->GetNodeAt(mFixedExtracellularPotentialNodes[i]);
+            Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(mFixedExtracellularPotentialNodes[i]);
             
             this->mpBoundaryConditions->AddDirichletBoundaryCondition(p_node, p_boundary_condition, 1);
         }

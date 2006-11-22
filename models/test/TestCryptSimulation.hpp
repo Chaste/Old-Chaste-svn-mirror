@@ -141,7 +141,7 @@ public:
         // Note: converges very slowly so large tolerance of 0.1
         for (int index = 0; index<mesh.GetNumNodes(); index++)
         {
-            Node<1> *p_node = mesh.GetNodeAt(index);
+            Node<1> *p_node = mesh.GetNode(index);
             TS_ASSERT(!p_node->IsDeleted());
             Point<1> point = p_node->rGetPoint();
             double position = point.rGetLocation()[0];
@@ -178,7 +178,7 @@ public:
         // Note: converges very slowly so small tolerance of 0.1
         for (int index = 0; index<mesh.GetNumAllNodes(); index++)
         {
-            Node<1> *p_node = mesh.GetNodeAt(index);
+            Node<1> *p_node = mesh.GetNode(index);
             if (!p_node->IsDeleted())
             {
                 Point<1> point = p_node->rGetPoint();
@@ -478,10 +478,10 @@ public:
         TS_ASSERT_EQUALS((int) cells_after_simulation.size(),7);
         for (int index = 0; index<mesh.GetNumAllNodes(); index++)
         {
-            if (!mesh.GetNodeAt(index)->IsDeleted())
+            if (!mesh.GetNode(index)->IsDeleted())
             {
                 MeinekeCryptCell cell = cells_after_simulation[index];
-                double x = mesh.GetNodeAt(index)->GetPoint()[0];
+                double x = mesh.GetNode(index)->GetPoint()[0];
                 if (fabs(x)<1e-2)
                 {
                     CryptCellType type  = cell.GetCellType();

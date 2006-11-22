@@ -40,7 +40,7 @@ public:
         
         // fix the lhs node
         ElasticityBoundaryConditionsContainer<1> bcc(mesh.GetNumNodes());
-        bcc.FixNode(mesh.GetNodeAt(0));
+        bcc.FixNode(mesh.GetNode(0));
 
         double rho = 1;
         c_vector<double,1> g;
@@ -54,7 +54,7 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x = mesh.GetNodeAt(i)->GetPoint()[0];
+            double x = mesh.GetNode(i)->GetPoint()[0];
             
 //            TS_ASSERT_DELTA(result_repl[i], exact_solution, 1e-6);
             std::cout << x << " " << result_repl[i] << "\n";
@@ -99,7 +99,7 @@ public:
         // be defined up to a y-translation
         // NOTE: in this case, the assembler doesn't actually crash, but picks out
         // one of the infinite possible solutions
-        bcc.FixNode(mesh.GetNodeAt(0));
+        bcc.FixNode(mesh.GetNode(0));
         
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
@@ -133,8 +133,8 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x_new = mesh.GetNodeAt(i)->GetPoint()[0] + result_repl[2*i];
-            double y_new = mesh.GetNodeAt(i)->GetPoint()[1] + result_repl[2*i+1];
+            double x_new = mesh.GetNode(i)->GetPoint()[0] + result_repl[2*i];
+            double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[2*i+1];
             
             Point<2> new_point(x_new, y_new);
             deformed_mesh.SetNode(i, new_point, false);
@@ -156,8 +156,8 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-//            double x = mesh.GetNodeAt(i)->GetPoint()[0];
-  //          double y = mesh.GetNodeAt(i)->GetPoint()[1];
+//            double x = mesh.GetNode(i)->GetPoint()[0];
+  //          double y = mesh.GetNode(i)->GetPoint()[1];
     //        
       ///      double u = result_repl[2*i];
          //   double v = result_repl[2*i+1];
@@ -250,9 +250,9 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            double x_new = mesh.GetNodeAt(i)->GetPoint()[0] + result_repl[3*i];
-            double y_new = mesh.GetNodeAt(i)->GetPoint()[1] + result_repl[3*i+1];
-            double z_new = mesh.GetNodeAt(i)->GetPoint()[2] + result_repl[3*i+2];
+            double x_new = mesh.GetNode(i)->GetPoint()[0] + result_repl[3*i];
+            double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[3*i+1];
+            double z_new = mesh.GetNode(i)->GetPoint()[2] + result_repl[3*i+2];
             
             Point<3> new_point(x_new, y_new, z_new);
             deformed_mesh.SetNode(i, new_point, false);
@@ -274,9 +274,9 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-//                double x = mesh.GetNodeAt(i)->GetPoint()[0];
-//                double y = mesh.GetNodeAt(i)->GetPoint()[1];
-//                double z = mesh.GetNodeAt(i)->GetPoint()[2];
+//                double x = mesh.GetNode(i)->GetPoint()[0];
+//                double y = mesh.GetNode(i)->GetPoint()[1];
+//                double z = mesh.GetNode(i)->GetPoint()[2];
 //            
 //                double u = result_repl[3*i];
 //                double v = result_repl[3*i+1];

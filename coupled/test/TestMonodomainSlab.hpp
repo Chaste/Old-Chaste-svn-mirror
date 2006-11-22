@@ -21,7 +21,7 @@ public:
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        if (mpMesh->GetNodeAt(node)->GetPoint()[0] == 0.0)
+        if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
         }
@@ -105,7 +105,7 @@ public:
         // Test the RHF of the mesh
         for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
-            if (monodomain_problem.rGetMesh().GetNodeAt(i)->GetPoint()[0] == 0.1)
+            if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
             {
                 // x = 0 is where the stimulus has been applied
                 // x = 0.1cm is the other end of the mesh and where we want to
@@ -119,7 +119,7 @@ public:
                 else
                 {
                     TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 1.1);
-                    // std::cout << "y=" << monodomain_problem.mMesh.GetNodeAt(i)->GetPoint()[1] << std::endl;
+                    // std::cout << "y=" << monodomain_problem.mMesh.GetNode(i)->GetPoint()[1] << std::endl;
                 }
                 
                 // Check against 1d case - if the TestMonodomainDg01D test is run
