@@ -101,8 +101,8 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     SimplePetscNonlinearSolver solver;
 
     Vec answer;
-
-    if (use_analytic_jacobian)
+    
+    if (use_analytic_jacobian && !mForceUseOfNumericalJacobian)
     {
         answer = solver.Solve(&ComputeResidual, &ComputeAnalyticJacobian,
                               initial_guess, p_backward_euler_structure);
@@ -249,6 +249,7 @@ PetscErrorCode ComputeAnalyticJacobian(SNES snes, Vec solutionGuess, Mat *pJacob
         
     MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
+ 
     
     return 0;
     

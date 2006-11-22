@@ -1,9 +1,12 @@
 #include "TysonNovak2001OdeSystem.hpp"
 #include <cmath>
+#include <cassert>
+#include "ReplicatableVector.hpp"
 /**
  * Constructor
  */
-TysonNovak2001OdeSystem::TysonNovak2001OdeSystem() : AbstractOdeSystem()
+TysonNovak2001OdeSystem::TysonNovak2001OdeSystem() 
+  : AbstractOdeSystemWithAnalyticJacobian(6)
 {
     /*
      * State variable
@@ -157,5 +160,80 @@ std::vector<double> TysonNovak2001OdeSystem::EvaluateYDerivatives (double time, 
     
     return RHS;
 }
+
+
+PetscErrorCode TysonNovak2001OdeSystem::AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep)
+{
+    ReplicatableVector solution_guess_replicated;
+    solution_guess_replicated.ReplicatePetscVector(solutionGuess);
+    
+    double x1 = solution_guess_replicated[0];
+    double x2 = solution_guess_replicated[1];
+    double x3 = solution_guess_replicated[2];
+    double x4 = solution_guess_replicated[3];
+    double x5 = solution_guess_replicated[4];
+    double x6 = solution_guess_replicated[5];
+    
+    MatZeroEntries(*pJacobian);
+    
+    // f1
+    double df1_dx1 = -mK2d - mK2dd*x2;
+    double df1_dx2 = -mK2dd*x1;
+
+    MatSetValue(*pJacobian, 0, 0, 1-timeStep*df1_dx1, INSERT_VALUES);
+    MatSetValue(*pJacobian, 0, 1,  -timeStep*df1_dx2, INSERT_VALUES);
+
+    //f2
+    double df2_dx1 = -mK4*x6*x2/(mJ4+x2);
+    double df2_dx2 = -mJ3*(mK3d + mK3dd*x4)/(pow((mJ3 + 1 - x2),2))  
+                     -mJ4*mK4*x6*x1/(pow((mJ4+x2),2));
+    double df2_dx4 =  mK3dd*(1-x2)/(mJ3+1-x2);
+    double df2_dx6 = -mK4*x1*x2/(mJ4+x2);
+
+    MatSetValue(*pJacobian, 1, 0,  -timeStep*df2_dx1, INSERT_VALUES);
+    MatSetValue(*pJacobian, 1, 1, 1-timeStep*df2_dx2, INSERT_VALUES);
+    MatSetValue(*pJacobian, 1, 3,  -timeStep*df2_dx4, INSERT_VALUES);
+    MatSetValue(*pJacobian, 1, 5,  -timeStep*df2_dx6, INSERT_VALUES);
+
+    
+    //f3
+    double z = x1*x6/mJ5;
+    double df3_dx1 = (mK5dd*x6/mJ5)*mN*pow(z,mN-1)/(pow((1-pow(z,mN)),2));
+    double df3_dx3 = -mK6;
+    double df3_dx6 = (mK5dd*x1/mJ5)*mN*pow(z,mN-1)/(pow((1-pow(z,mN)),2));
+
+    MatSetValue(*pJacobian, 2, 0,  -timeStep*df3_dx1, INSERT_VALUES);
+    MatSetValue(*pJacobian, 2, 2, 1-timeStep*df3_dx3, INSERT_VALUES);
+    MatSetValue(*pJacobian, 2, 5,  -timeStep*df3_dx6, INSERT_VALUES);
+   
+    //f4
+    double df4_dx3 =  mJ7*mK7*x5/(pow(mJ7+x3-x4,2));
+    double df4_dx4 = -mJ7*mK7*x5/(pow(mJ7+x3-x4,2)) - mK6 - mJ8*mK8*mMad/(pow(mJ8+x4,2));
+    double df4_dx5 =  mK7*(x3-x4)/(mJ7+x3-x4);
+
+    MatSetValue(*pJacobian, 3, 2,  -timeStep*df4_dx3, INSERT_VALUES);
+    MatSetValue(*pJacobian, 3, 3, 1-timeStep*df4_dx4, INSERT_VALUES);
+    MatSetValue(*pJacobian, 3, 4,  -timeStep*df4_dx5, INSERT_VALUES);
+    
+    //f5
+    double df5_dx1 =  mK9*x6*(1-x5);
+    double df5_dx5 = -mK10 - mK9*x6*x1;
+    double df5_dx6 =  mK9*x1*(1-x5);
+
+    MatSetValue(*pJacobian, 4, 0,  -timeStep*df5_dx1, INSERT_VALUES);
+    MatSetValue(*pJacobian, 4, 4, 1-timeStep*df5_dx5, INSERT_VALUES);
+    MatSetValue(*pJacobian, 4, 5,  -timeStep*df5_dx6, INSERT_VALUES);
+
+    
+    //f6
+    double df6_dx6 = mMu - 2*mMu*x6/mMstar; 
+    MatSetValue(*pJacobian, 5, 5, 1-timeStep*df6_dx6, INSERT_VALUES);
+
+        
+    MatAssemblyBegin(*pJacobian,MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(*pJacobian,MAT_FINAL_ASSEMBLY);
+    return 0;   
+}
+
 
 

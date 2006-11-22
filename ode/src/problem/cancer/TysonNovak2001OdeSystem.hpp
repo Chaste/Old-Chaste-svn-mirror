@@ -3,12 +3,12 @@
 
 #include <vector>
 #include <cmath>
-#include "AbstractOdeSystem.hpp"
+#include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 
 /**
  * Represents the Tyson & Novak 2001 system of ODEs.
  */
-class TysonNovak2001OdeSystem: public AbstractOdeSystem
+class TysonNovak2001OdeSystem: public AbstractOdeSystemWithAnalyticJacobian
 {
 private:
 
@@ -68,6 +68,8 @@ public:
     {
         return (fabs(rY[0]-0.1) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
     }
+    
+    PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep);
 };
 
 #endif //_TYSONNOVAK2001ODESYSTEM_HPP_

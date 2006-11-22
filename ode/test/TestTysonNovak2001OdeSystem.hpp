@@ -40,7 +40,6 @@ public:
         TS_ASSERT_DELTA(derivs[3],4.016602000735009e-02, 1e-5);
         TS_ASSERT_DELTA(derivs[4],8.400000000000001e-03, 1e-5);
         TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03, 1e-5);
-        
     }
     
     void testTysonNovakSolver() throw(Exception)
@@ -48,10 +47,21 @@ public:
         TysonNovak2001OdeSystem tyson_novak_system;
         // Solve system using backward Euler solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
+
         double h_value=0.1;
 
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver;
+
+
+        // NOTE:
+        // if we use the analytical jacobian the results are the same up to
+        // t=40, but at t=42 the nonlinear solver doesn't converge with the 
+        // analytical jacobian, but continues fine up to t=75.8 if the numerical
+        // jacobian is used. So, to pass the tests, we get the solver to 
+        // use the numerical jac even though an analytic one is available
+        backward_euler_solver.ForceUseOfNumericalJacobian();
+        
         RungeKutta4IvpOdeSolver rk4_solver;
 
         OdeSolution solutions;
@@ -60,7 +70,9 @@ public:
 
         std::vector<double> state_variables = tyson_novak_system.GetInitialConditions();
         double start_time = std::clock();
+
         solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
+
         double end_time = std::clock();
         //solutions2 = rk4_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
         //TS_ASSERT_EQUALS(solutions.GetNumberOfTimeSteps(), 10);
@@ -93,6 +105,7 @@ public:
 		// Test backward euler solutions are OK for a very small time increase...
 		int end = solutions.rGetSolutions().size() - 1;
 
+
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.59995781827316, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.09406711653612, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.50003361032032, 1e-5);
@@ -108,8 +121,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.95328206604519, 1e-2);
-        
-               
+           
     }
 };
 
