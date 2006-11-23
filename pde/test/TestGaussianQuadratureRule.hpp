@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include "GaussianQuadratureRule.hpp"
 #include "Node.hpp"
-#include "Element.cpp"
+#include "Element.hpp"
 
 class TestGaussianQuadratureRule : public CxxTest::TestSuite
 {

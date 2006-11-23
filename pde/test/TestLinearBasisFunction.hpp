@@ -5,7 +5,7 @@
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BasisFunctionsCheckers.hpp"
-#include "Element.cpp"
+#include "Element.hpp"
 #include <vector>
 
 class TestLinearBasisFunction : public CxxTest::TestSuite
@@ -175,6 +175,9 @@ public:
         TS_ASSERT_DELTA(trans_deriv(0,2),-0.2, 1e-12);
         TS_ASSERT_DELTA(trans_deriv(1,2),0.4, 1e-12);
         
+        delete nodes[0];
+        delete nodes[1];
+        delete nodes[2];        
     }
 };
 

@@ -3,8 +3,8 @@
 
 #include "Point.hpp"
 #include "Node.hpp"
-#include "Element.cpp"
-#include "BoundaryElement.cpp"
+#include "Element.hpp"
+#include "BoundaryElement.hpp"
 #include <cxxtest/TestSuite.h>
 //#include <iostream>
 

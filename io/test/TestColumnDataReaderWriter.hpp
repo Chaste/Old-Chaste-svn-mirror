@@ -413,6 +413,8 @@ public:
         
         //check exception thrown if dimension is not given
         TS_ASSERT_THROWS_ANYTHING(ica_values = mpTestReader->GetValues("I_Ca"));
+        
+        delete mpTestReader;
     }
     
     

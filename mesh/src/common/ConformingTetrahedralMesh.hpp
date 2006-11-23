@@ -9,8 +9,8 @@
 
 #include "AbstractMeshReader.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "Element.cpp"
-#include "BoundaryElement.cpp"
+#include "Element.hpp"
+#include "BoundaryElement.hpp"
 #include "Node.hpp"
 #include "NodeMap.hpp"
 #include "Exception.hpp"

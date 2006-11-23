@@ -279,6 +279,25 @@ public:
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
         TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
         
+        
+        // Now check that we can turn off output printing
+        // Output should be the same as above: printing every 17th time step
+        // because even though we set to print every time step...
+        p_bidomain_problem->PrintEveryNthTimeStep(1);
+        // ...we have output turned off
+        p_bidomain_problem->PrintOutput(false);
+        p_bidomain_problem->Initialise();
+        p_bidomain_problem->Solve();
+        
+        ColumnDataReader data_reader3("Bidomain1d", "bidomain_testPrintTimes");
+        times = data_reader3.GetUnlimitedDimensionValues();
+        
+        TS_ASSERT_EQUALS( times.size(), (unsigned) 4);
+        TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
+        TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
+        TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
+        
         delete p_bidomain_problem;
     }
     
@@ -347,8 +366,9 @@ public:
         
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));        
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename("AnyOldRandomStringWillDO"));
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename("AnyOldRandomStringWillDo"));
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());
         
         //Throws because the input is empty
