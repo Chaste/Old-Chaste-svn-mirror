@@ -18,6 +18,7 @@
  *
  * \todo basisIndex should be unsigned (ticket:114)
  */
+template <>
 double LinearBasisFunction<3>::ComputeBasisFunction(
     const Point<3> &rPoint,
     int basisIndex) const
@@ -56,6 +57,7 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
  *
  * \todo basisIndex should be unsigned (ticket:114)
  */
+template <>
 double LinearBasisFunction<2>::ComputeBasisFunction(
     const Point<2> &rPoint,
     int basisIndex) const
@@ -91,6 +93,7 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
  *
  * \todo basisIndex should be unsigned (ticket:114)
  */
+template <>
 double LinearBasisFunction<1>::ComputeBasisFunction(
     const Point<1> &rPoint,
     int basisIndex) const
@@ -141,6 +144,7 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int 
  *
  * \todo basisIndex should be unsigned (ticket:114)
  */
+template <>
 c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
     const Point<3>&,
     int basisIndex) const
@@ -191,6 +195,7 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
  *
  * \todo basisIndex should be unsigned (ticket:114)
  */
+template <>
 c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
     const Point<2>&,
     int basisIndex) const
@@ -233,6 +238,7 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
  *
  * \todo basisIndex should be unsigned (ticket:114)
  */
+template <>
 c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
     const Point<1>&,
     int basisIndex) const
