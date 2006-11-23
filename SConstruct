@@ -68,6 +68,14 @@ else:
     single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')
 
+# Chaste components (top level dirs).
+# Order matters, as this list is also used as the list of Chaste libraries.
+components = ['models', 'coupled', 'pde', 'ode',
+               'mesh', 'linalg', 'io', 'global']
+if build.using_dealii:
+    components = ['dealii'] + components
+Export('components')
+
 
 # Set extra paths to search for libraries and include files.
 # Paths to PETSc, and any other external libraries, should be set here.
@@ -166,7 +174,7 @@ elif system_name == 'new_chaste':
   other_includepaths = []
   if build.using_dealii:
     petsc_base = '../../../petsc-2.2.1/'
-    dealii_base = '../../../deal.II.shared/'
+    dealii_base = '../../../deal.II/'
     petsc_libpath = os.path.abspath(petsc_base+'lib/libg_c++/linux-gnu/')
     dealii_libpath = os.path.abspath(dealii_base+'lib/')
     metis_libpath = os.path.abspath('../../../metis-4.0/')
@@ -305,7 +313,7 @@ os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
 build_dir = build.build_dir
 test_depends = [File(build.GetTestReportDir() + 'OrphanedTests.log'),
                 File(build.GetTestReportDir() + 'DuplicateFileNames.log')]
-for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', 'coupled']:
+for toplevel_dir in components:
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
