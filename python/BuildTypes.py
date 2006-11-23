@@ -140,6 +140,9 @@ class BuildType(object):
     Return the base directory in which to store the output from all
     the tests. Files with names that include status info will be
     saved in a subdirectory named 'machine.buildtype'.
+
+    Note: various places assume this includes a trailing slash.
+    Note2: the builder script also has this path hardcoded.
     """
     return 'testoutput/'
   

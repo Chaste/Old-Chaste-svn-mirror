@@ -295,16 +295,16 @@ Export("cpppath")
 
 # Check for orphaned test files
 os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
-          'testoutput/OrphanedTests.log ' + build_type + ' ' +
+          build.GetTestReportDir() + 'OrphanedTests.log ' + build_type + ' ' +
           build.GetTestReportDir() + ' --no-stdout')
 # Check for duplicate file names in multiple directories
 os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
-          'testoutput/DuplicateFileNames.log ' + build_type + ' ' +
+          build.GetTestReportDir() + 'DuplicateFileNames.log ' + build_type + ' ' +
           build.GetTestReportDir() + ' --no-stdout')
 
 build_dir = build.build_dir
-test_depends = [File('testoutput/OrphanedTests.log'),
-                File('testoutput/DuplicateFileNames.log')]
+test_depends = [File(build.GetTestReportDir() + 'OrphanedTests.log'),
+                File(build.GetTestReportDir() + 'DuplicateFileNames.log')]
 for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', 'coupled']:
     bld_dir = toplevel_dir + '/build/' + build_dir
     if not os.path.exists(bld_dir):
@@ -313,8 +313,8 @@ for toplevel_dir in ['linalg', 'mesh', 'global', 'io', 'models', 'ode', 'pde', '
                                    duplicate=0))
 
 
-# Remove the contents of testoutput/ on a clean build
-test_output_files = glob.glob('testoutput/*')
+# Remove the contents of build.GetTestReportDir() on a clean build
+test_output_files = glob.glob(build.GetTestReportDir() + '*')
 Clean('.', test_output_files)
 
 
