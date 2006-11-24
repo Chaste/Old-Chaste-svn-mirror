@@ -239,6 +239,7 @@ class Coverage(GccDebug):
     self.build_dir = 'coverage'
     self._num_processes = 2
     self._test_packs.append('Failing')
+    #self.UseDealii(True)
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test on 1 processor then on 2 processors"

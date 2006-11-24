@@ -2,21 +2,16 @@
 #define TESTDEALII_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include <grid/tria.h>
-//#include <dofs/dof_handler.h>
-#include <grid/grid_generator.h>
-//#include <grid/tria_accessor.h>
-//#include <grid/tria_iterator.h>
+#include "DiffusionProblem.cpp"
 
 
 class TestDealii : public CxxTest::TestSuite
 {
 public:
-    void testDealii()
+    void testDealiiOnDiffusionProblem()
     {
-        Triangulation<2>     triangulation;
-        GridGenerator::hyper_cube (triangulation, -1, 1);
-        std::cout << "hello deal ii\n";
+        DiffusionProblem diffusion_problem;
+        diffusion_problem.Run();
     }
 };
 

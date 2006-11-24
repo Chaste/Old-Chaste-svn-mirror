@@ -175,6 +175,7 @@ elif system_name == 'new_chaste':
   if build.using_dealii:
     petsc_base = '../../../petsc-2.2.1/'
     dealii_base = '../../../deal.II/'
+    Export('dealii_base')
     petsc_libpath = os.path.abspath(petsc_base+'lib/libg_c++/linux-gnu/')
     dealii_libpath = os.path.abspath(dealii_base+'lib/')
     metis_libpath = os.path.abspath('../../../metis-4.0/')

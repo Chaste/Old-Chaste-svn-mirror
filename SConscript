@@ -90,6 +90,10 @@ chaste_libs = components
 all_libs = chaste_libs + petsc_libs + other_libs + ['test'+toplevel_dir]
 
 
+if toplevel_dir == 'dealii':
+  extra_flags = '-isystem ' + dealii_base + 'contrib/boost/include/ ' + extra_flags
+
+
 # Set up build environment
 opt = Environment(
   ENV = {'PATH': os.environ['PATH'],

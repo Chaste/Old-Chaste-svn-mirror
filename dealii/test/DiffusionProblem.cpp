@@ -10,7 +10,7 @@
 
 #include <dofs/dof_tools.h>
 
-#include <fe/fe_values.h> // *** PROBLEM
+#include <fe/fe_values.h> // *** PROBLEM with boost
 #include <base/quadrature_lib.h>
 
 #include <base/function.h>
