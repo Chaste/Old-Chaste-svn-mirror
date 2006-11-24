@@ -19,7 +19,7 @@ private:
 public:
     PointStimulusHeartCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-3000.0*1000, 0.5);
+        mpStimulus = new InitialStimulus(-1000.0*1000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -68,16 +68,25 @@ class TestBidomainHeart : public CxxTest::TestSuite
 public:
     void TestBidomainDg0Heart() throw (Exception)
     {
-        PointStimulusHeartCellFactory cell_factory(0.01);
+        double pde_time_step = 0.01;  // ms
+        double ode_time_step = 0.005; // ms
+        double end_time = 100;        // ms
+        double printing_time_step = end_time/1000;
+        
+        PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
         
-        bidomain_problem.SetMeshFilename("mesh/test/data/heart_fifth");
-        bidomain_problem.SetEndTime(100);   // 100 ms
-        bidomain_problem.SetOutputDirectory("BiDg0_FifthHeart");
-        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_FifthHeart");
-        bidomain_problem.SetPdeTimeStep(0.01);
-        bidomain_problem.Initialise();
+        bidomain_problem.SetMeshFilename("mesh/test/data/heart");
+        bidomain_problem.SetOutputDirectory("BiDg0Heart");
+        bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
+
+        bidomain_problem.SetEndTime(end_time);   
+        bidomain_problem.SetPdeTimeStep(pde_time_step);
+        bidomain_problem.SetPrintingTimeStep(printing_time_step);
+
+        bidomain_problem.SetWriteInfo();
         
+        bidomain_problem.Initialise();        
         bidomain_problem.Solve();
     }
 };
