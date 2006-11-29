@@ -199,14 +199,11 @@ elif system_name == 'Nottingham':
   petsc_base = '/opt/petsc-2.2.1-with-mpi/'
   petsc_inc = petsc_base+'include'
   petsc_bmake = petsc_base+'bmake/linux-gnu'
-#  petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_mpi = ''
-  boost_path = '/usr/include/'
-  other_includepaths = [petsc_inc, petsc_bmake, petsc_mpi, boost_path]
-#  other_includepaths = [petsc_inc, petsc_bmake, petsc_mpi]
+  boost_path = '/opt/boost/include/boost-1_33_1'
+  other_includepaths = [petsc_inc, petsc_bmake,  boost_path]
+#  other_includepaths = [petsc_inc, petsc_bmake]
   other_libs = ['lapack', 'blas']
-  blas_libpath = '/usr/lib/'
-  other_libpaths = [blas_libpath, petsc_base+'lib/libO_c++/linux-gnu/']
+  other_libpaths = [petsc_base+'lib/libO_c++/linux-gnu/']
 else:
   # Default for cancer course in the DTC
   petsc_base = '/usr/local/petsc-2.3.1-p15/'
@@ -285,6 +282,9 @@ link_flags  = build.LinkFlags()
 # Hack to get around Debian strangeness
 if system_name in ['maths', 'finarfin']:
   extra_flags = extra_flags + " -DCWD_HACK "
+
+if system_name == 'Nottingham':
+  extra_flags = "-isystem " + boost_path + " " + extra_flags
 
 Export("extra_flags", "link_flags")
 
