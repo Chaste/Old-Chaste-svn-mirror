@@ -46,6 +46,7 @@ public:
         else
         {
             assert(0);
+	    return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
         }
     }
     

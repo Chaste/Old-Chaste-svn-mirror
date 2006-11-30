@@ -145,18 +145,18 @@ elif system_name == 'zuse_opt':
   petsc_bmake = petsc_base+'bmake/linux-mpich-gnu-mkl'
   #petsc_mpi = petsc_base+'include/mpiuni'
   petsc_mpi = ' '
-  boost = '-I/home/zuse/system/joe'
+  boost = '/home/zuse/system/joe'
   other_includepaths = [petsc_inc, petsc_bmake, boost]
   
   petsc_libpath = petsc_base+'lib/libg_c++/linux-mpich-gnu-mkl/'
   blas_libpath = '/opt/intel/mkl/8.0/lib/em64t/'
   other_libpaths = [petsc_libpath, blas_libpath,
-                      '/home/zuse/system/software/opt/opt/lib/static/',
+                      '/home/zuse/system/software/opt/opt/lib/',
                       '/home/zuse/system/software/opt/opt-deps/gsoap/lib/',
                       '/home/zuse/system/software/opt/opt-deps/papi/lib/',
                       '/home/zuse/system/software/opt/opt-deps/libunwind/lib',
                       '/home/zuse/system/software/opt/opt-deps/papi/lib64']
-  other_libs = ['opt', 'loggerwebservice', 'gsoapclient', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
+  other_libs = ['opt', 'gsoap', 'stdc++', 'dl', 'papi','unwind-x86_64', 'unwind', 'perfctr']
 elif system_name == 'chaste':
   # Chaste machines in comlab
   petsc_base = '../../../petsc-2.3.1-p13/'

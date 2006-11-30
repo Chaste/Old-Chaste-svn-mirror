@@ -40,7 +40,7 @@ public:
         Mat jacobian;
         //MatStructure mat_structure;
         #if (PETSC_VERSION_MINOR == 2) //Old API
-                MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 1, 1, &jacobian);
+	        MatCreateSeqAIJ(PETSC_COMM_SELF,1,1,1,PETSC_NULL,&jacobian);
         #else
                 jacobian=MatCreateSeqAIJ(1,1);        
         #endif
@@ -81,7 +81,7 @@ public:
         Mat jacobian;
         //MatStructure mat_structure;
         #if (PETSC_VERSION_MINOR == 2) //Old API
-                MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &jacobian);
+	        MatCreateSeqAIJ(PETSC_COMM_SELF,2,2,2,PETSC_NULL,&jacobian);
         #else
                 jacobian=MatCreateSeqAIJ(2, 2);
         #endif

@@ -153,12 +153,12 @@ public:
         return mBoundaryElementIndices;
     }
     
-    const int GetNumContainingElements()
+    unsigned GetNumContainingElements()
     {
         return mElementIndices.size();
     }
     
-    const int GetNumBoundaryElements()
+    unsigned GetNumBoundaryElements()
     {
         return mBoundaryElementIndices.size();
     }
