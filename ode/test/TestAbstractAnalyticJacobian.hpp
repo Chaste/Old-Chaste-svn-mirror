@@ -28,12 +28,13 @@ public:
         Vec solution_guess;
         int indices[1] = {0};
         double values[1] = {2.0};
-        VecCreate(PETSC_COMM_WORLD,&solution_guess);
-        VecSetSizes(solution_guess,PETSC_DECIDE,1);
+        VecCreateSeq(PETSC_COMM_SELF,1,&solution_guess);
+        //VecCreate(&solution_guess);
+        //VecSetSizes(solution_guess,1,1);
+        //VecSetType(solution_guess,VECSEQ);
         VecSetFromOptions(solution_guess);
         VecSetValues(solution_guess,1,indices,values,INSERT_VALUES);
-        VecAssemblyBegin(solution_guess);
-        VecAssemblyEnd(solution_guess);
+        
         
         // Set up a Jacobian matrix for function to put values in
         Mat jacobian;
@@ -41,8 +42,7 @@ public:
         #if (PETSC_VERSION_MINOR == 2) //Old API
                 MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 1, 1, &jacobian);
         #else
-                MatCreate(PETSC_COMM_WORLD, &jacobian);
-                MatSetSizes(jacobian, PETSC_DECIDE, PETSC_DECIDE, 1, 1);
+                jacobian=MatCreateSeqAIJ(1,1);        
         #endif
         MatSetFromOptions(jacobian);
         
@@ -73,12 +73,9 @@ public:
         Vec solution_guess;
         int indices[2] = {0,1};
         double values[2] = {1.0,2.0};
-        VecCreate(PETSC_COMM_WORLD,&solution_guess);
-        VecSetSizes(solution_guess,PETSC_DECIDE,2);
+        VecCreateSeq(PETSC_COMM_SELF,2,&solution_guess);
         VecSetFromOptions(solution_guess);
         VecSetValues(solution_guess,2,indices,values,INSERT_VALUES);
-        VecAssemblyBegin(solution_guess);
-        VecAssemblyEnd(solution_guess);
         
         // Set up a Jacobian matrix for function to put values in
         Mat jacobian;
@@ -86,8 +83,7 @@ public:
         #if (PETSC_VERSION_MINOR == 2) //Old API
                 MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 2, 2, &jacobian);
         #else
-                MatCreate(PETSC_COMM_WORLD, &jacobian);
-                MatSetSizes(jacobian, PETSC_DECIDE, PETSC_DECIDE, 2, 2);
+                jacobian=MatCreateSeqAIJ(2, 2);
         #endif
         MatSetFromOptions(jacobian);
         

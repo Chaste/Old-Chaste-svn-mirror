@@ -84,32 +84,39 @@ public:
         // If you run it up to about 75 the ode will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
       
-        int step_per_row = 1;
-        ColumnDataWriter writer("TysonNovak","TysonNovak");
-        int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-
-        std::vector<int> var_ids;
-        for (unsigned i=0; i<tyson_novak_system.rGetVariableNames().size(); i++)
+        
+        int my_rank;
+        MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
+        if (my_rank==0) // if master process
         {
-            var_ids.push_back(writer.DefineVariable(tyson_novak_system.rGetVariableNames()[i],
-                                                    tyson_novak_system.rGetVariableUnits()[i]));
-        }
-        writer.EndDefineMode();
 
-        for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
-        {
-            writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
-            for (unsigned j=0; j<var_ids.size(); j++)
+            int step_per_row = 1;
+            ColumnDataWriter writer("TysonNovak","TysonNovak");
+            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
+
+            std::vector<int> var_ids;
+            for (unsigned i=0; i<tyson_novak_system.rGetVariableNames().size(); i++)
             {
-                writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
+                var_ids.push_back(writer.DefineVariable(tyson_novak_system.rGetVariableNames()[i],
+                                                    tyson_novak_system.rGetVariableUnits()[i]));
             }
-            writer.AdvanceAlongUnlimitedDimension();
+            writer.EndDefineMode();
+
+            for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
+            {
+                writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
+                for (unsigned j=0; j<var_ids.size(); j++)
+                {
+                    writer.PutVariable(var_ids[j], solutions.rGetSolutions()[i][j]);
+                }
+                writer.AdvanceAlongUnlimitedDimension();
+            }
+            writer.Close();
         }
-        writer.Close();
+        MPI_Barrier(PETSC_COMM_WORLD);
 
-
-		// Test backward euler solutions are OK for a very small time increase...
-		int end = solutions.rGetSolutions().size() - 1;
+        // Test backward euler solutions are OK for a very small time increase...
+        int end = solutions.rGetSolutions().size() - 1;
 
 
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.59995781827316, 1e-5);
