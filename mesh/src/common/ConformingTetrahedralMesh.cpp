@@ -424,7 +424,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
     mNodes[index]->SetPoint(point);
     if (verify)
     {
-        for (int i=0; i<mNodes[index]->GetNumContainingElements(); i++)
+        for (unsigned i=0; i<mNodes[index]->GetNumContainingElements(); i++)
         {
             try
             {
@@ -442,7 +442,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
                 }
             }
         }
-        for (int i=0; i<mNodes[index]->GetNumBoundaryElements(); i++)
+        for (unsigned i=0; i<mNodes[index]->GetNumBoundaryElements(); i++)
         {
             try
             {

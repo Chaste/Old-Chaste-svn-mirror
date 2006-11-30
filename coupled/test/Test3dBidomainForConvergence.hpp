@@ -23,7 +23,7 @@ private:
 public:
     PointStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-2000000, 0.5);
+        mpStimulus = new InitialStimulus(-1000000, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -32,7 +32,7 @@ public:
         double y = mpMesh->GetNode(node)->GetPoint()[1];
         double z = mpMesh->GetNode(node)->GetPoint()[2];
         
-        if ((x==0.0) && (y==0.0) && (z==0.0))
+        if (x==0.0)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
         }

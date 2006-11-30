@@ -365,7 +365,7 @@ public:
                                                       || (mIsGhostNode[p_element->GetNodeGlobalIndex(1)]) 
                                                       ||  (mIsGhostNode[p_element->GetNodeGlobalIndex(2)]) );
 
- 			                int counter = 0;
+ 			                unsigned counter = 0;
                             while (is_ghost_element)
                             {
                                 p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
