@@ -29,8 +29,8 @@ public:
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
         double x = mpMesh->GetNode(node)->GetPoint()[0];
-        double y = mpMesh->GetNode(node)->GetPoint()[1];
-        double z = mpMesh->GetNode(node)->GetPoint()[2];
+        //double y = mpMesh->GetNode(node)->GetPoint()[1];
+        //double z = mpMesh->GetNode(node)->GetPoint()[2];
         
         if (x==0.0)
         {
@@ -53,13 +53,10 @@ class Test3dBidomainForConvergence : public CxxTest::TestSuite
 {
 public:
 
-    // Work in progess:
-    // need to pick a stimulus magnitude and end time so that there is a wavefront and
-    // it propagates to the other end of the cube (node 6)
     void Test3dBidomainSpaceAndTime()
     {
         std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687" };
-        double approx_space_steps[5] = {0.087,0.037,0.02,0.01,0.005};
+        double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025};
         int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
                 
         // To ensure that the first test fails        
@@ -71,7 +68,7 @@ public:
         double probe_voltage;
         ReplicatableVector voltage_replicated;
         
-        int current_file_num = 2;                    // <------------- change back to 0
+        int current_file_num = 0;                    
         
         do
         {
@@ -79,7 +76,7 @@ public:
             // To ensure that the first test fails
             double prev_voltage_for_time = -999;   
             
-            time_step = 0.01;  //0.04 // ms          // <------------- change back to 0.04
+            time_step = 0.04;  // ms 
             
             
             std::string mesh_pathname = "mesh/test/data/cube_2mm_" + file_num_elements[current_file_num] + "_elements";
@@ -94,13 +91,14 @@ public:
                 BidomainProblem<3> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
-                bidomain_problem.SetEndTime(40);   // ms        // <----------------change to something sensible
-                
-                //bidomain_problem.SetOutputDirectory("bitemp");
-                //bidomain_problem.SetOutputFilenamePrefix("bitemp");
-                //bidomain_problem.SetPrintingTimeStep(0.1);
-                //bidomain_problem.SetWriteInfo();
+                bidomain_problem.SetEndTime(3.5);   // ms        
 
+                
+/*              bidomain_problem.SetOutputDirectory("bitemp");
+                bidomain_problem.SetOutputFilenamePrefix("bitemp");
+                bidomain_problem.SetPrintingTimeStep(0.1);
+                bidomain_problem.SetWriteInfo();
+*/
 
                 bidomain_problem.SetPdeTimeStep(time_step);
                 bidomain_problem.Initialise();
@@ -110,8 +108,6 @@ public:
                 try
                 {
                     bidomain_problem.Solve();
-                    assert(0);                                   // <---------remove
-                    
                     Vec voltage=bidomain_problem.GetVoltage();
                     voltage_replicated.ReplicatePetscVector(voltage);
                     
