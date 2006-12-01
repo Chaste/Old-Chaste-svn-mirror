@@ -41,6 +41,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public static int[] numElements;
 
 	public static RealPoint[][] positions;
+	public static RealPoint[][] fibres;
 	public static int[][] element_nodes;
 	public static int[][] cell_type;
 
@@ -55,7 +56,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public static boolean drawCells=true;
 	public static boolean writeFiles=false;
 	public static boolean drawGhosts=false;
-
+        public static boolean drawFibres=false; 
 	public static int timeStep = 0;
 
 	public static int delay = 50;
@@ -205,6 +206,33 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public static void main(String args[]) {
 	     
 		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
+			for (int i=1; i<args.length; i++)
+		{
+			if (args[i].equals("output"))
+			{
+				writeFiles = true;
+								
+			}	
+			if (args[i].equals("springs"))
+			{
+				drawSprings = true;
+								
+			}	
+			if (args[i].equals("fibres"))
+			{
+				drawFibres = true;
+								
+			}	
+			if (args[i].equals("nocells"))
+			{
+				drawCells = false;
+			}	
+			if (args[i].equals("ghosts"))
+			{
+				drawGhosts = true;
+			}
+
+		}
 		File node_file = new File(args[0]+".viznodes");
 		File element_file = new File(args[0]+".vizelements");
 		if (!node_file.isFile())
@@ -218,36 +246,26 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 			return;
 		}
 		
-		for (int i=1; i<args.length; i++)
-		{
-			if (args[i].equals("output"))
-			{
-				writeFiles = true;
-								
-			}	
-			if (args[i].equals("springs"))
-			{
-				drawSprings = true;
-								
-			}	
-			if (args[i].equals("nocells"))
-			{
-				drawCells = false;
-			}	
-			if (args[i].equals("ghosts"))
-			{
-				drawGhosts = true;
-			}
-		}
+	
 		
+		File fibre_file=null;		
+		if (drawFibres){
+		    fibre_file= new File(args[0]+".vizfibres");
+	            if (!fibre_file.isFile())
+		    {
+			System.out.println("The file "+args[0]+".vizfibres doesn't exist");
+			return;
+		    }
+		}
 		System.out.println("Writing output files = "+writeFiles);
 		System.out.println("Drawing springs = "+drawSprings);
+		System.out.println("Drawing fibres = "+drawFibres);
 		System.out.println("Drawing cells = "+drawCells);
 		System.out.println("Drawing ghost nodes = "+drawGhosts);
 		
 		Visualize2dCells vis = new Visualize2dCells();
 		
-        try {
+                 try {
 			BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
 			int num_lines = 0;
@@ -262,23 +280,35 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 			numCells = new int[num_lines];
 			numElements = new int[num_lines];
 			element_nodes = new int[num_lines][];
-
+			fibres =  new RealPoint[num_lines][];
+			String line_fibre="";
+			BufferedReader in_fibre_file=null;
+			if (drawFibres)
+			{
+			    fibres = new RealPoint[num_lines][]; 
+			    in_fibre_file=new BufferedReader(new FileReader(fibre_file));
+			    line_fibre=in_fibre_file.readLine();
+			}
 			BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
 			BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
-
+			
 			String line_node = in_node_file.readLine(); // from console input example
 			String line_element = in_element_file.readLine();	// above.
-			
+
 			// If line is not end of file continue
 			int row = 0;
 			while (line_node != null) {
 				// Create a StringTokenizer with a colon sign as a delimiter
 				StringTokenizer st_node = new StringTokenizer(line_node);
 				StringTokenizer st_element = new StringTokenizer(line_element);
-
+				StringTokenizer st_fibre=null;
+				if (drawFibres)
+				{
+				    st_fibre=new StringTokenizer(line_fibre);
+				    Double fibre_time = Double.valueOf(st_fibre.nextToken());
+				}
 				Double time = Double.valueOf(st_node.nextToken());
 				Double element_time = Double.valueOf(st_element.nextToken());
-				
 				if (Math.abs(time-element_time)>1e-6) 
 				{
 					System.out.println("Oi - I want the element and node files with rows at the same times...");
@@ -307,6 +337,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 				numElements[row] = st_element.countTokens()/3;
 				
 				positions[row] = new RealPoint[numCells[row]];
+				fibres[row] = new RealPoint[numCells[row]];
 				cell_type[row]= new int[numCells[row]];
 				element_nodes[row] = new int[3*numElements[row]];
 				// ArrayList<Double> positionValues= new ArrayList<Double>();
@@ -314,7 +345,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 				{
 					double d1 = Double.valueOf(st_node.nextToken()).doubleValue();
 					double d2 = Double.valueOf(st_node.nextToken()).doubleValue();
-					cell_type[row][i] = Integer.parseInt(st_node.nextToken());
+
+					if (drawFibres)
+					{
+					    double f1= Double.valueOf(st_fibre.nextToken()).doubleValue();
+					    double f2= Double.valueOf(st_fibre.nextToken()).doubleValue();
+					    fibres[row][i]=new RealPoint(f1,f2);
+					}
+                                        cell_type[row][i] = Integer.parseInt(st_node.nextToken());
 					if ((cell_type[row][i]<0) || (cell_type[row][i]>4))
 					{
 						System.out.println("Oi - I want a cell type between 0 and 3");
@@ -338,7 +376,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 						min_y = d2;
 					}
 					positions[row][i]=new RealPoint(d1,d2);
-					
 				}
 				
 				for (int i = 0; i < 3*numElements[row]; i++) 
@@ -355,6 +392,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 				// }
 
 				// Read next line of the file
+				if (drawFibres)
+				{
+				    line_fibre=in_fibre_file.readLine();
+				}
 				line_node = in_node_file.readLine();
 				line_element = in_element_file.readLine();
 				row++;
@@ -563,6 +604,7 @@ class CustomCanvas2D extends Canvas {
 		}
 		
 		// draw nodes second so that dots are on top of lines
+		double fibre_length=1.2*radius;
 		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
 		{
 			PlotPoint p=scale(vis.positions[vis.timeStep][i]);
@@ -570,8 +612,15 @@ class CustomCanvas2D extends Canvas {
 			SetNodeColour(i);
 			
 			g2.fillOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
-			old_x = p.x;
-			old_y = p.y;
+			//old_x = p.x;
+			//old_y = p.y;
+			if (vis.drawFibres)
+			{
+			    g2.setColor(Color.magenta);
+			    RealPoint fibre=vis.fibres[vis.timeStep][i];
+			    g2.drawLine(p.x, p.y, (int) (p.x+fibre_length*fibre.x), (int) (p.y-fibre_length*fibre.y) );
+			    
+			}
 		}
 		g2.setColor(Color.black);
 		
