@@ -390,16 +390,22 @@ class MemoryTesting(GccDebug):
   Compile using gcc with debugging turned on, and run tests under valgrind.
   """
   _petsc_flags = "-trmalloc -trdebug -trdump"
+  _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes"
+  _valgrind_exe = "/usr/bin/valgrind"
 
   def __init__(self):
     GccDebug.__init__(self)
     #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
-    self._valgrind_flags = "--tool=memcheck --log-fd=1 --track-fds=yes --leak-check=yes"
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run all tests using valgrind to check for memory leaks."
-    return 'valgrind  ' + self._valgrind_flags + ' ' + \
-      exefile + ' ' + exeflags + ' ' + self._petsc_flags
+    test_suite = os.path.basename(exefile)
+    log_prefix = self.GetTestReportDir() + test_suite
+    cmd = ' '.join([self._valgrind_exe, self._valgrind_flags % log_prefix,
+                    exefile, exeflags, self._petsc_flags,
+                    '; cat', log_prefix + '.*',
+                    '; rm', log_prefix + '.*'])
+    return cmd
 
   def DisplayStatus(self, status):
     "Return a (more) human readable version of the given status string."
@@ -427,7 +433,7 @@ class MemoryTesting(GccDebug):
     lost = re.compile('==\d+==\s+(definitely|indirectly|possibly) lost: (\d+) bytes in (\d+) blocks.')
     petsc = re.compile('\[0]Total space allocated (\d+) bytes')
     uninit = re.compile('==\d+== (Conditional jump or move depends on uninitialised value\(s\)|Use of uninitialised value)')
-    open_files = re.compile('==\d+== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
+    open_files = re.compile('==(\d+)== Open (?:file descriptor|AF_UNIX socket) (?![012])(\d+): (?!(?:/home/bob/eclipse/lockfile|/dev/urandom))(.*)')
     
     if outputLines is None:
       outputLines = logFile.readlines()
@@ -471,9 +477,9 @@ class MemoryTesting(GccDebug):
       if m:
         # There's a file open that shouldn't be.
         # Descriptors 0, 1 and 2 are ok, as are names /dev/urandom
-        # and /home/bob/eclipse/lockfile, and the log file.
-        file_name = m.group(2)
-        if not file_name.endswith(logFile.name):
+        # and /home/bob/eclipse/lockfile, and the log files.
+        # All these OK files are inherited from the parent process.
+        if not outputLines[lineno+1].strip().endswith("<inherited from parent>"):
           status = 'Openfile'
           break
     else:
@@ -490,8 +496,9 @@ class ParallelMemoryTesting(MemoryTesting, Parallel):
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test within a two processor environment"
-    return 'mpirun -np ' + str(self._num_processes) + ' -dbg=valgrind ' + \
-      exefile + ' ' + exeflags + ' ' + self._petsc_flags
+    cmd = 'mpirun -np ' + str(self._num_processes) + ' ' + \
+        MemoryTesting.GetTestRunnerCommand(self, exefile, exeflags)
+    return cmd
 
   def EncodeStatus(self, exitCode, logFile):
     """
