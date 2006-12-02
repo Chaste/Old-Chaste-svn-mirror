@@ -91,7 +91,7 @@ public:
                 BidomainProblem<3> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
-                bidomain_problem.SetEndTime(3.5);   // ms        
+                bidomain_problem.SetEndTime(3.52);   // ms        
 
                 
 /*              bidomain_problem.SetOutputDirectory("bitemp");
