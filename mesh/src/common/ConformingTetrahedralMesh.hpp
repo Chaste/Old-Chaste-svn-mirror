@@ -215,6 +215,12 @@ public:
       */
      void ConstructRectangularMesh(int width, int height, bool stagger=true);
      
+     /**
+      *  Returns the element index for the first element that is known to contain a test point
+      *  @param testPoint 
+      */
+     unsigned GetContainingElement(Point<SPACE_DIM> testPoint);
+
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

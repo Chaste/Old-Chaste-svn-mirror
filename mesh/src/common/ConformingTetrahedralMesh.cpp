@@ -1479,4 +1479,22 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 
 }
 
+template <int ELEMENT_DIM, int SPACE_DIM>
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElement(Point<SPACE_DIM> testPoint)
+{
+	///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
+	///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
+    for (unsigned i=0; i < mElements.size();i++)
+    {
+    	///\todo What if the element is deleted?
+    	if (mElements[i]->IncludesPoint(testPoint))
+    	{
+    		return i;
+    	}
+    }
+    
+    //If it's in none of the elements, then throw
+    EXCEPTION("Point is not in mesh");
+}
+
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

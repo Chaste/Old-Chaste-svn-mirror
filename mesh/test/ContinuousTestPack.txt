@@ -6,6 +6,7 @@ TestTrianglesMeshReader.hpp
 TestElement.hpp
 TestNode.hpp
 TestPoint.hpp
+TestPointInclusion.hpp
 TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRefineElement.hpp

@@ -174,38 +174,26 @@ public:
                 /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));          
     }
     
-    
-//    bool CheckVoronoiElement()
-//    {
-//        assert (ELEMENT_DIM == SPACE_DIM);
-//        
-//        c_vector <double, ELEMENT_DIM+1> this_circum_centre;    
-//        this_circum_centre = CalculateCircumsphere();
-//        
-//        c_vector <double, ELEMENT_DIM> circum_centre;
-//        for (int i=0;i<ELEMENT_DIM;i++)
-//        {
-//            circum_centre[i]=this_circum_centre[i];
-//        }
-//         int neighbouring_num_nodes = neighbouring_element.GetNumNodes();
-//        std::set<Node<SPACE_DIM>*> neighbouring_node_set;
-//          
-//        for(int i = 0 ; i <= neighbouring_num_nodes; i++)
-//        {
-//            Node<SPACE_DIM> node = neighbouring_element.GetNode(i);
-//            neighbouring_node_set.insert(node);
-//        }
-//        
-//        
-//        double x_circum_centre = this_circum_centre[0];
-//        double y_circum_centre = this_circum_centre[1];
-//        
-//        double x_diff_sqr = ((this_circum_centre[0] - neighbouring_circum_centre[0])*(this_circum_centre[0] - neighbouring_circum_centre[0]));
-//        double y_diff_sqr = ((this_circum_centre[1] - neighbouring_circum_centre[1])*(this_circum_centre[1] - neighbouring_circum_centre[1]));
-//        
-//        return ((x_diff_sqr + y_diff_sqr) > this_circum_centre[2]);
-//    }
-    
+    bool IncludesPoint(Point<SPACE_DIM> point)
+    {
+		//Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+		assert (ELEMENT_DIM == SPACE_DIM);
+
+		//\todo Make it work in 2d, 3d
+		assert (SPACE_DIM == 1);
+		if (point[0] < this->mNodes[0]->rGetPoint()[0])
+		{
+			//Too far left
+			return false;
+		}
+		if (point[0] > this->mNodes[1]->rGetPoint()[0])
+		{
+			//Too far right
+			return false;
+		}
+				    	
+    	return true;
+    }
 
     
 };
