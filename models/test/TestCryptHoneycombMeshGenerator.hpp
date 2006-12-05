@@ -50,7 +50,7 @@ public:
         int num_cells_width = 8;
         int num_cells_depth = 12;
         double width = 6.0;
-		unsigned ghosts = 4;
+        unsigned ghosts = 4;
         
         CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,width,ghosts);
         
@@ -58,11 +58,11 @@ public:
        
         // check the mesh
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width+1+2*ghosts)*(num_cells_depth+2*ghosts));
+        TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+1+2*ghosts)*(num_cells_depth+2*ghosts));
 
-		// Scaling Factor
-		double F = (width/(double)num_cells_width);
-		double spooky = (double)ghosts;
+        // Scaling Factor
+        double F = (width/(double)num_cells_width);
+        double spooky = (double)ghosts;
 		
         // zeroth node
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky*F, 1e-6); 
