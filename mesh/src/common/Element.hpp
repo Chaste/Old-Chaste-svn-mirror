@@ -209,7 +209,7 @@ public:
         
         for (unsigned i=0;i<=SPACE_DIM;i++)
         {
-            if (weights[i] < 0)
+            if (weights[i] < -DBL_EPSILON)
             {
                 return false;
             }

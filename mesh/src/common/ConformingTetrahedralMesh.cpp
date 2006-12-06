@@ -1497,4 +1497,18 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElement
     EXCEPTION("Point is not in mesh");
 }
 
+template <int ELEMENT_DIM, int SPACE_DIM>
+std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(Point<SPACE_DIM> testPoint)
+{
+    std::vector<unsigned> element_indices;
+    for (unsigned i=0; i < mElements.size();i++)
+    {
+        ///\todo What if the element is deleted?
+        if (mElements[i]->IncludesPoint(testPoint))
+        {
+            element_indices.push_back(i);
+        }
+    }   
+    return element_indices;
+}
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

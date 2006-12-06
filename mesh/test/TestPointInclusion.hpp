@@ -72,6 +72,19 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),1U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(point2));
         TS_ASSERT_EQUALS(mesh.GetContainingElement(point3),1U);  //in elements 1 and 2
+        
+        std::vector<unsigned> indices;
+        indices=mesh.GetContainingElementIndices(point1);
+        TS_ASSERT_EQUALS(indices.size(), 1U);
+        TS_ASSERT_EQUALS(indices[0], 1U);
+
+        indices=mesh.GetContainingElementIndices(point2);
+        TS_ASSERT_EQUALS(indices.size(), 0U);
+
+        indices=mesh.GetContainingElementIndices(point3);
+        TS_ASSERT_EQUALS(indices.size(), 2U);
+        TS_ASSERT_EQUALS(indices[0], 1U);
+        TS_ASSERT_EQUALS(indices[1], 2U);
     }
   
         
@@ -120,12 +133,27 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<2> point1(0.05, 0.051);
+        Point<2> point1(0.051, 0.051);
         Point<2> point2(0.2,0.2);
         Point<2> point3(0.05, 0.05); //Node 60 of mesh
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),109U);
+        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),110U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(point2));
         TS_ASSERT_EQUALS(mesh.GetContainingElement(point3),89U);  //in elements 89,90,91,108,109, 110
+        
+        
+        std::vector<unsigned> indices;
+        indices=mesh.GetContainingElementIndices(point1);
+        TS_ASSERT_EQUALS(indices.size(), 1U);
+        TS_ASSERT_EQUALS(indices[0], 110U);
+
+        indices=mesh.GetContainingElementIndices(point2);
+        TS_ASSERT_EQUALS(indices.size(), 0U);
+
+        indices=mesh.GetContainingElementIndices(point3);
+        TS_ASSERT_EQUALS(indices.size(), 6U);
+        TS_ASSERT_EQUALS(indices[0], 89U);
+        TS_ASSERT_EQUALS(indices[1], 90U);
+        TS_ASSERT_EQUALS(indices[5], 110U);
     }
   
   
@@ -179,10 +207,11 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        Point<3> point1(0.05, 0.051,0.05);
+        Point<3> point1(0.051, 0.051,0.051);
         Point<3> point2(0.2,0.2,0.2);
-        Point<3> point3(0.05, 0.05,0.05); //Node 665 of mesh
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),2192U);
+        Point<3> point3(0.050000000000000003,  0.050000000000000003,  0.050000000000000003);
+        //Node 665 of mesh
+        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),2992U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(point2));
         TS_ASSERT_EQUALS(mesh.GetContainingElement(point3),2044U);  
         /*in elements 2044, 2047. 2058, 2192, 2268, 2286, 2392, 2414, 2415,
@@ -190,6 +219,21 @@ public:
          * 3015, 3022, 3024, 3026
          */
         
+        std::vector<unsigned> indices;
+        indices=mesh.GetContainingElementIndices(point1);
+        TS_ASSERT_EQUALS(indices.size(), 1U);
+        TS_ASSERT_EQUALS(indices[0], 2992U);
+
+        indices=mesh.GetContainingElementIndices(point2);
+        TS_ASSERT_EQUALS(indices.size(), 0U);
+
+        indices=mesh.GetContainingElementIndices(point3);
+        TS_ASSERT_EQUALS(indices.size(), 24U);
+        TS_ASSERT_EQUALS(indices[0], 2044U);
+        TS_ASSERT_EQUALS(indices[1], 2047U);
+        TS_ASSERT_EQUALS(indices[5], 2286U);   
+        TS_ASSERT_EQUALS(indices[23], 3026U); 
+         
     }
           
 };

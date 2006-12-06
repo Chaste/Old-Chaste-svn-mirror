@@ -220,6 +220,11 @@ public:
       *  @param testPoint 
       */
      unsigned GetContainingElement(Point<SPACE_DIM> testPoint);
+     /**
+      *  Returns all element indices for elements that are known to contain a test point
+      *  @param testPoint 
+      */
+     std::vector<unsigned> GetContainingElementIndices(Point<SPACE_DIM> testPoint);
 
 };
 
