@@ -174,24 +174,46 @@ public:
                 /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));          
     }
     
-    bool IncludesPoint(Point<SPACE_DIM> point)
+    
+    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(Point <SPACE_DIM> testPoint)
     {
-		//Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
-		assert (ELEMENT_DIM == SPACE_DIM);
+        //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+        assert (ELEMENT_DIM == SPACE_DIM);      
+        
+        c_vector<double, SPACE_DIM+1> weights;
+        
+        //Find the location with respect to node 0
+        c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
+        
+        //Multiply by inverse Jacobian
+        c_vector<double, SPACE_DIM> ans=prod(this->mInverseJacobian, test_location);
+        
+        //Copy 3 weights and compute the fourth weight
+        weights[0]=1.0;
+        for (unsigned i=1; i<=SPACE_DIM; i++)
+        {
+            weights[0] -= ans[i-1];
+            weights[i] = ans[i-1];
+        }
+        return weights;
+    }
+    
+    bool IncludesPoint(Point<SPACE_DIM> testPoint)
+    {
+	   //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+        assert (ELEMENT_DIM == SPACE_DIM);
 
-		//\todo Make it work in 2d, 3d
-		assert (SPACE_DIM == 1);
-		if (point[0] < this->mNodes[0]->rGetPoint()[0])
-		{
-			//Too far left
-			return false;
-		}
-		if (point[0] > this->mNodes[1]->rGetPoint()[0])
-		{
-			//Too far right
-			return false;
-		}
-				    	
+        c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(testPoint);
+		
+        //If the point is in the simplex then all the weights should be positive
+        
+        for (unsigned i=0;i<=SPACE_DIM;i++)
+        {
+            if (weights[i] < 0)
+            {
+                return false;
+            }
+        }	    	
     	return true;
     }
 
