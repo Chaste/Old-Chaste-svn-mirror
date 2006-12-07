@@ -366,8 +366,8 @@ public:
                     
                     //double test_val = element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0);
                     //TS_ASSERT_LESS_THAN(0,test_val);
-                    assert(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0)>0);
-                    
+                    //assert(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0)>0);
+                    element->RefreshJacobianDeterminant();
                 }
             }
             

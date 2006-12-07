@@ -50,8 +50,10 @@ public:
         Point<1> in_point(2.25);
         Point<1> on_point(2.00);
         Point<1> out_point(1.25);
+        bool strict=true;
         TS_ASSERT_EQUALS(element1d.IncludesPoint(in_point), true);
         TS_ASSERT_EQUALS(element1d.IncludesPoint(on_point), true);
+        TS_ASSERT_EQUALS(element1d.IncludesPoint(on_point, strict), false);
         TS_ASSERT_EQUALS(element1d.IncludesPoint(out_point), false);
         
         delete nodes1d[0];
@@ -98,7 +100,9 @@ public:
        
         Point<2> on_point(0., 2.);
         c_vector <double, 3> weights;
+        bool strict=true;
         TS_ASSERT_EQUALS(element2d.IncludesPoint(on_point), true);
+        TS_ASSERT_EQUALS(element2d.IncludesPoint(on_point, strict), false);
         weights=element2d.CalculateInterpolationWeights(on_point);
         TS_ASSERT_DELTA(weights[0], 1.0/3.0, 1e-5);
         TS_ASSERT_DELTA(weights[1], 0.0, 1e-5);
@@ -167,9 +171,11 @@ public:
         nodes3d.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
         Element<3,3> element3d(INDEX_IS_NOT_USED, nodes3d);
     
+        bool strict=true;
         Point<3> on_point(0., 0.2, 0.);
         c_vector <double, 4> weights;
         TS_ASSERT_EQUALS(element3d.IncludesPoint(on_point), true);
+        TS_ASSERT_EQUALS(element3d.IncludesPoint(on_point, strict), false);
         weights=element3d.CalculateInterpolationWeights(on_point);
         TS_ASSERT_DELTA(weights[0], 0.8, 1e-5);
         TS_ASSERT_DELTA(weights[1], 0.0, 1e-5);

@@ -198,7 +198,7 @@ public:
         return weights;
     }
     
-    bool IncludesPoint(Point<SPACE_DIM> testPoint)
+    bool IncludesPoint(Point<SPACE_DIM> testPoint, bool strict=false)
     {
 	   //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
@@ -209,9 +209,21 @@ public:
         
         for (unsigned i=0;i<=SPACE_DIM;i++)
         {
-            if (weights[i] < -DBL_EPSILON)
+            if (strict)
             {
-                return false;
+                //Points can't be close to a face
+                if (weights[i] <= DBL_EPSILON)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                //Allow point to be close to a face
+                if (weights[i] < -DBL_EPSILON)
+                {
+                    return false;
+                }
             }
         }	    	
     	return true;

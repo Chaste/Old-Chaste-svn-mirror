@@ -625,6 +625,12 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Point<SPACE_DIM> point)
 {
 
+    //Check that the point is in the element
+    if (pElement->IncludesPoint(point, true) == false)
+    {
+        EXCEPTION("RefineElement could not be started (point is not in element)");
+    }
+
     // Add a new node from the point that is passed to RefineElement
     int new_node_index = AddNode(new Node<SPACE_DIM>(0, point));
     // Note: the first argument is the index of the node, which is going to be
@@ -633,6 +639,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     //This loop constructs the extra elements which are going to fill the space
     for (unsigned i = 0; i < ELEMENT_DIM; i++)
     {
+        
         // First, make a copy of the current element making sure we update its index
         int new_elt_index;
         if (mDeletedElementIndices.empty())
@@ -657,6 +664,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
         }
         catch (Exception e)
         {
+            assert(0); //This code should now be redundant and fail the coverage test
             //Clean up this element, because it's not going to be added to the mesh
             delete p_new_element;
             EXCEPTION("RefineElement could not be completed (point was not in element)");
