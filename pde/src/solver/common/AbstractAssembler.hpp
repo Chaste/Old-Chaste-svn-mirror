@@ -257,13 +257,10 @@ protected:
             for (int i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
-                const Point<SPACE_DIM> node_loc = p_node->rGetPoint();
+                const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
                 
                 // interpolate x
-                for (int j=0; j<SPACE_DIM; j++)
-                {
-                    x.rGetLocation()[j] += phi(i)*node_loc[j];
-                }
+                x.rGetLocation() += phi(i)*node_loc;
                 
                 // interpolate u and grad u if a current solution or guess exists
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
@@ -355,11 +352,8 @@ protected:
             ResetInterpolatedQuantities();
             for (int i=0; i<rSurfaceElement.GetNumNodes(); i++)
             {
-                const Point<SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetPoint();
-                for (int j=0; j<SPACE_DIM; j++)
-                {
-                    x.rGetLocation()[j] += phi(i)*node_loc[j];
-                }
+                const c_vector<double, SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetLocation();
+                x.rGetLocation() += phi(i)*node_loc;
                 
                 // allow the concrete version of the assembler to interpolate any
                 // desired quantities

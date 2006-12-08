@@ -457,12 +457,14 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
 }
 
 
-/** SetBoundaryNode moves the node with a particular index to a new point in space and
- * verifies that the signed areas of the supporting Elements are positive
+/**
+ * SetNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
+ * appropriate. 
+ * 
  * @param index is the index of the node to be moved
- * @param point is the new target location of the node
- * @param verify is set to false if we want to skip the signed area tests
- *
+ * @param targetIndex is the index of the node to move to
+ * @param crossReference can be set to false if you just want to check whether this will work.
+ *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
@@ -506,7 +508,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         }
     }
     
-    mNodes[index]->SetPoint(mNodes[targetIndex]->rGetPoint());
+    mNodes[index]->rGetModifiableLocation() = mNodes[targetIndex]->rGetLocation();
     
     for (std::set<unsigned>::const_iterator element_iter=unshared_element_indices.begin();
              element_iter != unshared_element_indices.end();
@@ -1348,8 +1350,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
          it != neighbouring_nodes_indices.end(); ++it)
     {
-        Point<SPACE_DIM> node_point = GetNode(*it)->rGetPoint();
-        c_vector < double, ELEMENT_DIM> node_location = node_point.rGetLocation();
+        c_vector <double, ELEMENT_DIM> node_location = GetNode(*it)->rGetLocation();
 
         // Calculate vector from circumcenter to node
         node_location -= circum_centre;

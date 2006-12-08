@@ -109,17 +109,18 @@ public:
     {
         assert(dimension < SPACE_DIM);
         assert((unsigned)localIndex < mNodes.size());
-        return mNodes[localIndex]->rGetPoint()[dimension];
+        return mNodes[localIndex]->rGetLocation()[dimension];
     }
     
-    // note: this used to return a reference to a c_vector, in which case a
-    // weird error arose where it compiled, ran and passed on some machines
-    // but failed the tests (bad_size errors) on another machine.
+    /**
+     * \todo this used to return a reference to a c_vector, in which case a
+     * weird error arose where it compiled, ran and passed on some machines
+     * but failed the tests (bad_size errors) on another machine.
+     */
     c_vector<double, SPACE_DIM> GetNodeLocation(int localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
-        Point<SPACE_DIM> point=mNodes[localIndex]->rGetPoint();
-        return point.rGetLocation();
+        return mNodes[localIndex]->rGetLocation();
     }
     
     long GetNodeGlobalIndex(int localIndex) const

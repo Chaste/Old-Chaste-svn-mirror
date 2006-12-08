@@ -68,7 +68,7 @@ public:
         new_location[0]=10.0;
         
         // update location with new interface
-        node1.rGetLocation()=new_location;
+        node1.rGetModifiableLocation()=new_location;
         // check location with old interface
         TS_ASSERT_EQUALS(node1.GetPoint()[0], 10.0);
         
@@ -92,7 +92,7 @@ public:
         new_location[0]=10.0;
         
         // update location
-        node1.rGetLocation()=new_location;
+        node1.rGetModifiableLocation()=new_location;
         // read back location
         TS_ASSERT_EQUALS(node1.rGetLocation()[0], 10.0);
     }

@@ -92,10 +92,19 @@ public:
     }
     
     /**
-     * If you modify the returned location
-     * Jacobian and JacobianDeterminant of element need to be updated
+     * The returned location may not be modified; if you want that functionality use
+     * rGetModifiableLocation instead.
      */
-    c_vector<double, SPACE_DIM> &rGetLocation()
+    const c_vector<double, SPACE_DIM> &rGetLocation() const
+    {
+        return mLocation;
+    }
+    
+    /**
+     * If you modify the returned location,
+     * Jacobian and JacobianDeterminant of element need to be updated.
+     */
+    c_vector<double, SPACE_DIM> &rGetModifiableLocation()
     {
         return mLocation;
     }
