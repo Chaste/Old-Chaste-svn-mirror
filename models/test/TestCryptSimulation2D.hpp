@@ -114,7 +114,7 @@ public:
     // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
     // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
     // triangle trying to become equilateral.
-    void noTest2DSpringSystemWithSloughing() throw (Exception)
+    void Test2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -211,7 +211,7 @@ public:
     
     
     
-    void noTest2DSpringsFixedBoundaries() throw (Exception)
+    void Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator random_num_gen;

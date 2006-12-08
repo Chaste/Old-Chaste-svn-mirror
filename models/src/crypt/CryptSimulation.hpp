@@ -357,19 +357,8 @@ public:
                 if (!sloughed_node) break;
             }
             // Check nodes havent crossed
-            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-            {
-                Element<1,1>* element = mrMesh.GetElement(elem_index);
-                if (!element->IsDeleted())
-                {
-                    //std::cout<< "element1 " << element->GetNodeLocation(1,0) << "element0 " << element->GetNodeLocation(0,0) <<"\n" << std::flush;
-                    
-                    //double test_val = element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0);
-                    //TS_ASSERT_LESS_THAN(0,test_val);
-                    //assert(element->GetNodeLocation(1,0) - element->GetNodeLocation(0,0)>0);
-                    element->RefreshJacobianDeterminant();
-                }
-            }
+            mrMesh.RefreshMesh();
+           
             
             // Increment simulation time here, so results files look sensible
             p_simulation_time->IncrementTimeOneStep();

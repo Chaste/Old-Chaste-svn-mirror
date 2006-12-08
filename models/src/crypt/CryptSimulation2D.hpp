@@ -446,7 +446,7 @@ public:
             }
             
             ////////////////////////////////////////////////////////////////////
-            // loop over element and for each one loop over it's three edges
+            // loop over element and for each one loop over its three edges
             ////////////////////////////////////////////////////////////////////
             for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
@@ -756,16 +756,28 @@ public:
                 }
             }
             
+ 	    	//map.ResetToIdentity();
+ 
+            //make sure that all the Jacobians are updated
             if( mReMesh )
             {
-                if ( !mrMesh.CheckVoronoi() )
-                {
-                    mrMesh.ReMesh(map);
-                }
-                else
-                {
-                    //map.ResetToIdentity();
-                }
+            	
+            	try 
+            	{
+            		//If RefreshMesh fails, then it's because an element has turned inside out.
+            		//If so, drop into the catch branch and remesh anyway
+            		//If not, then check whether the mesh is still Voronoi and remesh if necessary
+            		mrMesh.RefreshMesh();
+            		
+            		if ( !mrMesh.CheckVoronoi() )
+                	{
+                    	mrMesh.ReMesh(map);
+                	}
+            	}
+            	catch (Exception e)
+            	{
+            		mrMesh.ReMesh(map);
+            	}         
             }
             
             

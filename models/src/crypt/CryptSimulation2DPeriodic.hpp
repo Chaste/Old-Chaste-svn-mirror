@@ -825,9 +825,28 @@ public:
                 }
             }
             
+ 	    	//map.ResetToIdentity();
+ 
+            //make sure that all the Jacobians are updated
             if( mReMesh )
             {
-                mrMesh.ReMesh(map);
+            	
+            	try 
+            	{
+            		//If RefreshMesh fails, then it's because an element has turned inside out.
+            		//If so, drop into the catch branch and remesh anyway
+            		//If not, then check whether the mesh is still Voronoi and remesh if necessary
+            		mrMesh.RefreshMesh();
+            		
+            		if ( !mrMesh.CheckVoronoi() )
+                	{
+                    	mrMesh.ReMesh(map);
+                	}
+            	}
+            	catch (Exception e)
+            	{
+            		mrMesh.ReMesh(map);
+            	}         
             }
             
 //            for (int i=0; i<mrMesh.GetNumAllNodes(); i++)
