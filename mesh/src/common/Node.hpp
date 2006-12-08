@@ -9,7 +9,9 @@ class Node
 {
 private:
     int mIndex;
+    
     Point<SPACE_DIM> mPoint;
+    c_vector<double, SPACE_DIM> mLocation;
     
     bool mIsBoundaryNode;
     bool mIsDeleted;
@@ -22,12 +24,13 @@ private:
     //TODO:
     //bool mIsDirichletNode;
     Node()
-{}
+    {}
 
 public:
 
     Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
+        mLocation = point.rGetLocation();
         mPoint = point;
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
@@ -36,15 +39,29 @@ public:
     
     Node(int index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
     {
-        mPoint = Point<SPACE_DIM>(v1, v2, v3);
+        mLocation[0] = v1;
+        if (SPACE_DIM > 1)
+        {
+            mLocation[1] = v2;
+            if (SPACE_DIM > 2)
+            {
+                mLocation[2] = v3;
+            }
+        }
+        mPoint.rGetLocation() = mLocation;
+        
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
     }
     
-    //Note setting the point in space is dangerous
+    /**
+     * Note setting the point in space is dangerous
+     * Jacobian and JacobianDeterminant of element need to be updated
+     */
     void SetPoint(Point<SPACE_DIM> point)
     {
+        mLocation = point.rGetLocation();
         mPoint = point;
     }
     
@@ -63,12 +80,24 @@ public:
     
     Point<SPACE_DIM> GetPoint() const
     {
-        return mPoint;
+        return Point<SPACE_DIM>(mLocation);
     }
     
+    /**
+     * DON'T UPDATE THE POINT YOU GET!
+     */
     const Point<SPACE_DIM> &rGetPoint() const
     {
         return mPoint;
+    }
+    
+    /**
+     * If you modify the returned location
+     * Jacobian and JacobianDeterminant of element need to be updated
+     */
+    c_vector<double, SPACE_DIM> &rGetLocation()
+    {
+        return mLocation;
     }
     
     int GetIndex() const

@@ -50,6 +50,52 @@ public:
         node1.MarkAsDeleted();
         TS_ASSERT(node1.IsDeleted());
     }
+    
+    /**
+     * Test that we can use both the new and old interfaces
+     */
+     
+     void TestNodeNewAndOld(void)
+    {
+        Point<1> point1(1.0);
+        
+        // create a node with old interface
+        Node<1> node1(0, point1);
+        // check location with new interface
+        TS_ASSERT_EQUALS(node1.rGetLocation()[0], point1[0]);
+        
+        c_vector<double, 1> new_location;
+        new_location[0]=10.0;
+        
+        // update location with new interface
+        node1.rGetLocation()=new_location;
+        // check location with old interface
+        TS_ASSERT_EQUALS(node1.GetPoint()[0], 10.0);
+        
+        // update location with old interface       
+        node1.SetPoint(point1);
+        // check location with new interface
+        TS_ASSERT_EQUALS(node1.rGetLocation()[0], point1[0]);
+    }
+    
+    void TestNodeNew(void)
+    {
+        c_vector<double, 1> point3;
+        point3[0]=23.0;
+        
+        // create node
+        Node<1> node1(0, point3);
+        // read back location
+        TS_ASSERT_EQUALS(node1.rGetLocation()[0], point3[0]);
+        
+        c_vector<double, 1> new_location;
+        new_location[0]=10.0;
+        
+        // update location
+        node1.rGetLocation()=new_location;
+        // read back location
+        TS_ASSERT_EQUALS(node1.rGetLocation()[0], 10.0);
+    }
 };
 
 #endif //_TESTNODE_HPP_

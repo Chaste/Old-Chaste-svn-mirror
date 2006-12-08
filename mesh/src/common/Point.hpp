@@ -55,6 +55,11 @@ public:
         }
     }
     
+    Point(c_vector<double, DIM> location)
+    {
+        mLocation = location;
+    }
+    
     c_vector<double, DIM>& rGetLocation(void)
     {
         return mLocation;

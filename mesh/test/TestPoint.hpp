@@ -88,6 +88,14 @@ public:
         Point<0> zero_dim_point;
         TS_ASSERT_THROWS_ANYTHING(zero_dim_point[0]);
     }
+    
+    void TestCreateFromCvector(void)
+    {
+        c_vector<double, 1> location;
+        location[0]=34.0;
+        Point<1> point(location);
+        TS_ASSERT_EQUALS(point[0], 34.0);
+    }
 };
 
 #endif //_TESTPOINT_HPP_
