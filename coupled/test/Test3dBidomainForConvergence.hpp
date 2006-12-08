@@ -55,8 +55,8 @@ public:
 
     void Test3dBidomainSpaceAndTime()
     {
-        std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687" };
-        double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025};
+        std::string file_num_elements[6] = { "12", "152", "1016", "7790", "61687", "488702"};
+        double approx_space_steps[6] = {0.043,0.018,0.01,0.005,0.0025, 0.00125};
         int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
                 
         // To ensure that the first test fails        
@@ -70,7 +70,7 @@ public:
         
         int current_file_num = 0;                    
         
-        do
+        do //do while: space_step
         {
             bool converging_in_time = false;
             // To ensure that the first test fails
@@ -85,7 +85,7 @@ public:
             std::cout<<"================================================================================"<<std::endl  << std::flush;
             std::cout<<"Solving with an (approx) space step of "<< approx_space_steps[current_file_num] <<" cm - mesh " << current_file_num <<std::endl  << std::flush;
             
-            do
+            do  //do while: time_step
             {
                 PointStimulusCellFactory cell_factory(time_step);
                 BidomainProblem<3> bidomain_problem(&cell_factory);
@@ -160,7 +160,7 @@ public:
             {
                 // Use the next mesh next time 
                 current_file_num++;
-                if(current_file_num==5)
+                if(current_file_num==6)
                 {
                     TS_FAIL("Could not converge for any of the meshes used");
                 }
