@@ -33,11 +33,11 @@ protected:
     unsigned mNodeIndex;
     SimulationTime* mpSimulationTime;
     
-    
     /**
      * Contains code common to both the copy constructor and operator=.
      */
     void CommonCopy(const MeinekeCryptCell &other_cell);
+
     
 public:
     /**
@@ -93,12 +93,14 @@ public:
      */
     bool ReadyToDivide();
     
+
     
     /**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide must have been called with the given simulationTime, and returned true.
      */
     MeinekeCryptCell Divide();
+    
     
 };
 

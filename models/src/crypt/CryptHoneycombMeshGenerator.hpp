@@ -256,7 +256,7 @@ private:
         {
             double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<0))
+            if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
             {
                mGhostNodeIndices.push_back(i);
             }
