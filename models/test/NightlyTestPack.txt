@@ -1,2 +1,2 @@
 TestCryptSimulation2DLong.hpp
-TestCryptSimulation2DPeriodic.hpp
+TestCryptSimulation2DPeriodicNightly.hpp
