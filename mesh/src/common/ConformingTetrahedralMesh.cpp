@@ -50,7 +50,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         for (int i=0; i < mNumCornerNodes; i++)
         {
             coords = rMeshReader.GetNextNode();
-            temp_nodes.push_back(Node<SPACE_DIM>(i, Point<SPACE_DIM>(coords), false));
+            temp_nodes.push_back(Node<SPACE_DIM>(i, coords, false));
         }
         
         int new_node_index = mNumCornerNodes;
@@ -106,7 +106,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     for (int i=0; i < mNumCornerNodes; i++)
     {
         coords = rMeshReader.GetNextNode();
-        mNodes.push_back(new Node<SPACE_DIM>(i, Point<SPACE_DIM>(coords), false));
+        mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
     }
     
     int new_node_index = mNumCornerNodes;
@@ -146,11 +146,14 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                         // add node to map
                         internal_nodes_map[(std::pair<int,int>(node_i, node_j))] = new_node_index;
                         // add node to mesh
-                        const Node<SPACE_DIM>* node1 = GetNode(node_i);
-                        const Node<SPACE_DIM>* node2 = GetNode(node_j);
+                        const Node<SPACE_DIM>* p_node1 = GetNode(node_i);
+                        const Node<SPACE_DIM>* p_node2 = GetNode(node_j);
+                        c_vector<double,SPACE_DIM> mid_point 
+                           =  0.5 * (p_node1->rGetLocation() + p_node2->rGetLocation());
+
                         Node<SPACE_DIM> *p_new_node=new Node<SPACE_DIM>(new_node_index,
-                                                                        node1->GetPoint().MidPoint(node2->GetPoint()),
-                                                                        node1->IsBoundaryNode() && node2->IsBoundaryNode());
+                                                                        mid_point,
+                                                                        p_node1->IsBoundaryNode() && p_node2->IsBoundaryNode());
                         mNodes.push_back(p_new_node);
                         new_node_index++;
                     }
@@ -634,7 +637,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     }
 
     // Add a new node from the point that is passed to RefineElement
-    int new_node_index = AddNode(new Node<SPACE_DIM>(0, point));
+    int new_node_index = AddNode(new Node<SPACE_DIM>(0, point.rGetLocation()));
     // Note: the first argument is the index of the node, which is going to be
     //       overriden by AddNode, so it can safely be ignored
     

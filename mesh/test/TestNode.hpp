@@ -96,6 +96,21 @@ public:
         // read back location
         TS_ASSERT_EQUALS(node1.rGetLocation()[0], 10.0);
     }
+    
+    void TestNodeFromStdVector(void)
+    {
+        std::vector<double> coords(3u);
+        coords[0] = 1.5;
+        coords[1] = 15.9;
+        coords[2] = 777.7;
+        Node<3> node(0, coords);
+        
+        for (int i=0; i<3; i++)
+        {
+            TS_ASSERT_DELTA(node.rGetLocation()[i], coords[i], 1e-12);
+        }
+    }
+    
 };
 
 #endif //_TESTNODE_HPP_

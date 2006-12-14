@@ -10,7 +10,7 @@ class Node
 private:
     int mIndex;
     
-    Point<SPACE_DIM> mPoint;
+//    Point<SPACE_DIM> mPoint;
     c_vector<double, SPACE_DIM> mLocation;
     
     bool mIsBoundaryNode;
@@ -31,8 +31,19 @@ public:
     Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
         mLocation = point.rGetLocation();
-        mPoint = point;
+//        mPoint = point;
         mIndex = index;
+        mIsBoundaryNode = isBoundaryNode;
+        mIsDeleted = false;
+    }
+    
+    Node(int index, std::vector<double> coords, bool isBoundaryNode=false)
+    {
+        mIndex = index;
+        for (int i=0; i<SPACE_DIM; i++)
+        {
+            mLocation(i) = coords.at(i);
+        }
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
     }
@@ -40,7 +51,7 @@ public:
     Node(int index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
     {
         mLocation = location;
-        mPoint = Point<SPACE_DIM>(location);
+//        mPoint = Point<SPACE_DIM>(location);
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
@@ -57,7 +68,7 @@ public:
                 mLocation[2] = v3;
             }
         }
-        mPoint.rGetLocation() = mLocation;
+//        mPoint.rGetLocation() = mLocation;
         
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
@@ -71,9 +82,19 @@ public:
     void SetPoint(Point<SPACE_DIM> point)
     {
         mLocation = point.rGetLocation();
-        mPoint = point;
+//        mPoint = point;
     }
-    
+
+//    /**
+//     * Note setting the location in space is dangerous
+//     * Jacobian and JacobianDeterminant of element need to be updated
+//     */
+//    void SetLocation(c_vector<double,SPACE_DIM> location)
+//    {
+//        mLocation = location;
+//    }
+
+   
     /**
      * This method should only be called during mesh generation.
      */

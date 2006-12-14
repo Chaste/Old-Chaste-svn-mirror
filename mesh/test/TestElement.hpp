@@ -21,9 +21,11 @@ class TestElement : public CxxTest::TestSuite
      */
     Node<3> *CreateZeroPointNode(int index)
     {
-        Point<3> point(0, 0, 0);
-        Node<3> *pnode = new Node<3>(index, point, false);
-        return pnode;
+        c_vector<double,3> zero_point;
+        zero_point.clear();
+        
+        Node<3> *p_node = new Node<3>(index, zero_point, false);
+        return p_node;
     }
     
     

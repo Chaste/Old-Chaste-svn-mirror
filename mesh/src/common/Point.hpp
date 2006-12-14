@@ -8,6 +8,7 @@
 #include "Exception.hpp"
 using namespace boost::numeric::ublas;
 
+
 template<int DIM>
 class Point
 {
@@ -75,14 +76,6 @@ public:
     {
         assert(i<DIM);
         mLocation(i) = value;
-    }
-    
-    Point<DIM> MidPoint(Point<DIM> otherPoint)
-    {
-        Point<DIM> mid_point;
-        c_vector<double, DIM>& mid_point_location = mid_point.rGetLocation();
-        mid_point_location = 0.5 * (mLocation + otherPoint.rGetLocation());
-        return mid_point;
     }
 };
 
