@@ -12,16 +12,22 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-
+#include "RegularStimulus.hpp"
+#include "RandomNumberGenerator.hpp"
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
     InitialStimulus *mpStimulus;
+    RegularStimulus *mpRegStimulus;
+    
 public:
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
+    //Pdetime step is (by default) 0.01
+    //Odetime step set below to 0.001 (10:1)
+    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.001)
     {
         mpStimulus = new InitialStimulus(-900.0*1000, 0.5);
+        mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 1.0/100.0, 0.0);//Same as above, but every 100ms
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -29,7 +35,7 @@ public:
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpRegStimulus, mpZeroStimulus);
         }
         else
         {
@@ -54,12 +60,17 @@ public:
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
         
         bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-        bidomain_problem.SetEndTime(50);   // ms
+        bidomain_problem.SetEndTime(150);   // ms
         bidomain_problem.SetOutputDirectory("");
         bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
-    
+        
+        PetscOptionsSetValue("-ksp_type", "symmlq");
+        PetscOptionsSetValue("-pc_type", "bjacobi");
+        PetscOptionsSetValue("-options_table", "");
+        
+        
         bidomain_problem.Initialise();
         
         bidomain_problem.Solve();
