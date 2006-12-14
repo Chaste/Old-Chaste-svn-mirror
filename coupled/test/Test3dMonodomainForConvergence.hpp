@@ -55,8 +55,8 @@ public:
 
     void Test3dMonodomainSpaceAndTime()
     {
-        std::string file_num_elements[6] = { "12", "152", "1016", "7790", "61687", "488702" };
-        double approx_space_steps[6] = {0.043,0.018,0.01,0.005,0.0025, 0.00125};
+        std::string file_num_elements[4] = { "12", "152", "1016", "7790" }; //, "61687", "488702" };
+        double approx_space_steps[4] = {0.043,0.018,0.01,0.005 }; //,0.0025, 0.00125};
         int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
                 
         // To ensure that the first test fails        
@@ -160,7 +160,7 @@ public:
             {
                 // Use the next mesh next time 
                 current_file_num++;
-                if(current_file_num==6)
+                if(current_file_num==4)
                 {
                     TS_FAIL("Could not converge for any of the meshes used");
                 }

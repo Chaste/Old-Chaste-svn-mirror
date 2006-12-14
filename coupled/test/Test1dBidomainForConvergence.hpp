@@ -22,9 +22,11 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    PointStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<1>(timeStep)
+    PointStimulusCellFactory(double timeStep, double spaceStep) : AbstractCardiacCellFactory<1>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-1500000, 0.5);
+    	// since we are refinig the mesh, the stimulus should be inversely proportional
+    	// to element volume (length)
+        mpStimulus = new InitialStimulus(-1500000/spaceStep*0.01, 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -123,14 +125,18 @@ public:
             
             do
             {
-                PointStimulusCellFactory cell_factory(time_step);
+                PointStimulusCellFactory cell_factory(time_step,space_step);
                 BidomainProblem<1> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
-                bidomain_problem.SetEndTime(200);   // 200 ms
+                bidomain_problem.SetEndTime(3); // ms
                 
                 bidomain_problem.SetPdeTimeStep(time_step);
                 bidomain_problem.Initialise();
+                
+                // temporarily write output
+                bidomain_problem.SetOutputDirectory("bidomainDg01dConvergence");
+                bidomain_problem.SetOutputFilenamePrefix("Bidomain01d");
                 
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl  << std::flush;
                 
@@ -194,9 +200,9 @@ public:
         
         std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
         
-        TS_ASSERT_DELTA(space_step, 0.005, 0.0);
+        TS_ASSERT_DELTA(space_step, 0.0025, 0.0);
         TS_ASSERT_DELTA(time_step, 0.005, 0.0);
-        TS_ASSERT_DELTA(probe_voltage, -10.3432, 0.0001);
+        TS_ASSERT_DELTA(probe_voltage, 21.9457, 0.0001);
         // Note: the delta is because of floating point issues (!!)
     }
 };
