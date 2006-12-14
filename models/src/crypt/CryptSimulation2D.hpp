@@ -607,18 +607,18 @@ public:
                 if(mFixedBoundaries)
                 {
                     // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-                    if(mrMesh.GetNode(index)->rGetPoint()[1]>0)
+                    if(mrMesh.GetNode(index)->rGetLocation()[1]>0)
                     {
-                        if(mrMesh.GetNode(index)->rGetPoint()[1]<mpParams->GetCryptLength())
+                        if(mrMesh.GetNode(index)->rGetLocation()[1]<mpParams->GetCryptLength())
                         {
-                            if(mrMesh.GetNode(index)->rGetPoint()[0]>0)
+                            if(mrMesh.GetNode(index)->rGetLocation()[0]>0)
                             {
-                                if(mrMesh.GetNode(index)->rGetPoint()[0]<mpParams->GetCryptWidth())
+                                if(mrMesh.GetNode(index)->rGetLocation()[0]<mpParams->GetCryptWidth())
                                 {
                                     if(!mrMesh.GetNode(index)->IsDeleted())
                                     {
                                         //  std::cerr<<"Updating index "<<index<<"\n";
-                                        Point<2> old_point = mrMesh.GetNode(index)->rGetPoint();
+                                        c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
                                         Point<2> new_point;
                                         
                                         // note factor of 0.5 in the update because drdt was twice
@@ -640,7 +640,7 @@ public:
                         if(!mrMesh.GetNode(index)->IsDeleted())
                         {
                             //  std::cerr<<"Updating index "<<index<<"\n";
-                            Point<2> old_point = mrMesh.GetNode(index)->rGetPoint();
+                            c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
                             Point<2> new_point;
 
                             // note factor of 0.5 in the update because drdt was twice
@@ -662,12 +662,12 @@ public:
                 else
                 {
                     // no cells, just fix any node on line y=0
-                    if(mrMesh.GetNode(index)->rGetPoint()[1]>0)
+                    if(mrMesh.GetNode(index)->rGetLocation()[1]>0)
                     {
                         if(!mrMesh.GetNode(index)->IsDeleted())
                         {
                             //  std::cerr<<"Updating index "<<index<<"\n";
-                            Point<2> old_point = mrMesh.GetNode(index)->rGetPoint();
+                            c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
                             Point<2> new_point;
 
                             // note factor of 0.5 in the update because drdt was twice
@@ -700,8 +700,8 @@ public:
                     Node<2> *p_node = *it;
                     if(!p_node->IsDeleted())
                     {
-                     double x = p_node->rGetPoint()[0];
-                     double y = p_node->rGetPoint()[1];
+                     double x = p_node->rGetLocation()[0];
+                     double y = p_node->rGetLocation()[1];
                      //unsigned sloughing_node_index=p_node->GetIndex();
                      if((x > 1)||(x<-1)||(y>1)) /// changed
                      {
@@ -741,8 +741,8 @@ public:
                 Node<2> *p_node = mrMesh.GetNode(i);
                 if(!p_node->IsDeleted())
                 {
-                    double x = p_node->rGetPoint()[0];
-                    double y = p_node->rGetPoint()[1];
+                    double x = p_node->rGetLocation()[0];
+                    double y = p_node->rGetLocation()[1];
                     
                     double crypt_length=mpParams->GetCryptLength();
                     double crypt_width=mpParams->GetCryptWidth();
@@ -841,13 +841,13 @@ public:
                 
                 if(!mrMesh.GetNode(index)->IsDeleted())
                 {
-                    Point<2> point = mrMesh.GetNode(index)->rGetPoint();
-                    (*p_node_file) << point.rGetLocation()[0] << " "<< point.rGetLocation()[1] << " " << colour << " ";
+                    const c_vector<double,2>& r_node_loc = mrMesh.GetNode(index)->rGetLocation();
+                    (*p_node_file) << r_node_loc[0] << " "<< r_node_loc[1] << " " << colour << " ";
 
                     if(counter==0)
                     {   
-                        tabulated_node_writer.PutVariable(x_position_var_ids[index], point.rGetLocation()[0]);
-                        tabulated_node_writer.PutVariable(y_position_var_ids[index], point.rGetLocation()[1]);
+                        tabulated_node_writer.PutVariable(x_position_var_ids[index], r_node_loc[0]);
+                        tabulated_node_writer.PutVariable(y_position_var_ids[index], r_node_loc[1]);
                         tabulated_node_writer.PutVariable(type_var_ids[index], colour);
                     }
                 }
@@ -980,9 +980,9 @@ public:
         {
         	for(unsigned j=0; j<nodes_on_boundary.size(); j++)
         	{
-        		 if(fabs(mrMesh.GetNode(nodes_on_boundary[i])->rGetPoint()[1]-mrMesh.GetNode(nodes_on_boundary[j])->rGetPoint()[1])<1e-6)
+        		 if(fabs(mrMesh.GetNode(nodes_on_boundary[i])->rGetLocation()[1]-mrMesh.GetNode(nodes_on_boundary[j])->rGetLocation()[1])<1e-6)
         	     {
-        	     	if(fabs(mrMesh.GetNode(nodes_on_boundary[j])->rGetPoint()[0]-mrMesh.GetNode(nodes_on_boundary[i])->rGetPoint()[0]-crypt_width)<1e-6)
+        	     	if(fabs(mrMesh.GetNode(nodes_on_boundary[j])->rGetLocation()[0]-mrMesh.GetNode(nodes_on_boundary[i])->rGetLocation()[0]-crypt_width)<1e-6)
         	     	{
         	     		//std::cout <<"\n " << nodes_on_boundary[i] << "\t" <<  nodes_on_boundary[j] << std::flush;
         	     		is_nodes_on_left_boundary[nodes_on_boundary[i]]=true;

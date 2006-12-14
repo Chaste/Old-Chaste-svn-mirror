@@ -143,9 +143,8 @@ public:
         {
             Node<1> *p_node = mesh.GetNode(index);
             TS_ASSERT(!p_node->IsDeleted());
-            Point<1> point = p_node->rGetPoint();
-            double position = point.rGetLocation()[0];
-            TS_ASSERT_DELTA(position, index, 1e-1);
+            const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
+            TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
         }
         
         //CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
@@ -181,9 +180,8 @@ public:
             Node<1> *p_node = mesh.GetNode(index);
             if (!p_node->IsDeleted())
             {
-                Point<1> point = p_node->rGetPoint();
-                double position = point.rGetLocation()[0];
-                TS_ASSERT_DELTA(position, index, 1e-1);
+                const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
+                TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
                 // Note: since there is no birth, the position of each node should still settle
                 // down to its index
             }

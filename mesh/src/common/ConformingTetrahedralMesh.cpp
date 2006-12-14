@@ -776,18 +776,16 @@ template <int ELEMENT_DIM, int SPACE_DIM>
     
     for (int i=0; i<num_nodes; i++)
     {
-        Point<SPACE_DIM> point = mNodes[i]->rGetPoint();
+        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
         if (SPACE_DIM>=3)
         {
-            point.rGetLocation()[2] *= zScale;
+            r_location[2] *= zScale;
         }
         if (SPACE_DIM>=2)
         {
-            point.rGetLocation()[1] *= yScale;
+            r_location[1] *= yScale;
         }
-        point.rGetLocation()[0] *= xScale;
-        
-        mNodes[i]->SetPoint(point);
+        r_location[0] *= xScale;
     }
     
     RefreshMesh();
@@ -799,9 +797,9 @@ template <int ELEMENT_DIM, int SPACE_DIM>
  * @param yMovement is the y-displacement,
  * @param zMovement is the z-displacement,
  **/
-         template <int ELEMENT_DIM, int SPACE_DIM>
-         void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
-                 const double xMovement,
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
+         const double xMovement,
          const double yMovement,
          const double zMovement)
 {
@@ -832,9 +830,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<doubl
     
     for (int i=0; i<num_nodes; i++)
     {
-        Point<SPACE_DIM> point = mNodes[i]->rGetPoint();
-        point.rGetLocation() += transVec;
-        mNodes[i]->SetPoint(point);
+        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        r_location += transVec;
     }
     
     RefreshMesh();
@@ -855,9 +852,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
     long num_nodes=GetNumAllNodes();
     for (int i=0; i<num_nodes; i++)
     {
-        Point<SPACE_DIM> point = mNodes[i]->rGetPoint();
-        point.rGetLocation() = prod(rotation_matrix, point.rGetLocation());
-        mNodes[i]->SetPoint(point);
+        c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
+        r_location = prod(rotation_matrix, r_location);
     }
     
     RefreshMesh();
@@ -1171,11 +1167,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         {
             map.SetNewIndex(i,new_index);
             new_index++;
-            Point<SPACE_DIM> point=mNodes[i]->rGetPoint();
-            (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1];
+            const c_vector<double, SPACE_DIM> node_loc = mNodes[i]->rGetLocation();
+            (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1];
             if (SPACE_DIM ==3)
             {
-                (*node_file)<<"\t"<<point[2];
+                (*node_file)<<"\t"<<node_loc[2];
             }
             (*node_file)<<"\n";
          }
@@ -1233,9 +1229,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
     for (int i=0; i<temporary_mesh.GetNumNodes(); i++)
     {
-        Point<SPACE_DIM> point=temporary_mesh.GetNode(i)->rGetPoint();
+        c_vector<double, SPACE_DIM> node_loc = temporary_mesh.GetNode(i)->rGetLocation();
         bool is_boundary=temporary_mesh.GetNode(i)->IsBoundaryNode();
-        Node<SPACE_DIM>* p_node=new Node<SPACE_DIM>(i,point,is_boundary);
+        Node<SPACE_DIM>* p_node=new Node<SPACE_DIM>(i,node_loc,is_boundary);
         mNodes.push_back(p_node);
         if (is_boundary)
         {

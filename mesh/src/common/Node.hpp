@@ -37,6 +37,15 @@ public:
         mIsDeleted = false;
     }
     
+    Node(int index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
+    {
+        mLocation = location;
+        mPoint = Point<SPACE_DIM>(location);
+        mIndex = index;
+        mIsBoundaryNode = isBoundaryNode;
+        mIsDeleted = false;
+    }
+    
     Node(int index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
     {
         mLocation[0] = v1;
@@ -84,14 +93,6 @@ public:
     }
     
     /**
-     * DON'T UPDATE THE POINT YOU GET!
-     */
-    const Point<SPACE_DIM> &rGetPoint() const
-    {
-        return mPoint;
-    }
-    
-    /**
      * The returned location may not be modified; if you want that functionality use
      * rGetModifiableLocation instead.
      */
@@ -102,7 +103,9 @@ public:
     
     /**
      * If you modify the returned location,
-     * Jacobian and JacobianDeterminant of element need to be updated.
+     * Jacobian and JacobianDeterminant of elements need to be updated.
+     *
+     * Don't forget to assign the result of this call to a reference!
      */
     c_vector<double, SPACE_DIM> &rGetModifiableLocation()
     {

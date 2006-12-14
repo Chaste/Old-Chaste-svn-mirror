@@ -32,8 +32,8 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t2\t0\t0\n";
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<2> point=mesh.GetNode(i)->rGetPoint();
-            (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\n";
+            const c_vector<double, 2> node_loc = mesh.GetNode(i)->rGetLocation();
+            (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\n";
         }
         node_file->close();
         std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
@@ -52,12 +52,12 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<2> point1=mesh.GetNode(i)->rGetPoint();
-            Point<2> point2=mesh2.GetNode(i)->rGetPoint();
+            const c_vector<double, 2> node_loc1 = mesh.GetNode(i)->rGetLocation();
+            const c_vector<double, 2> node_loc2 = mesh2.GetNode(i)->rGetLocation();
             
             for (int j=0; j<2; j++)
             {
-                TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+                TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
             }
         }
     }
@@ -80,8 +80,8 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point=mesh.GetNode(i)->rGetPoint();
-            (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\t"<<point[2]<<"\n";
+            const c_vector<double, 3> node_loc = mesh.GetNode(i)->rGetLocation();
+            (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\t"<<node_loc[2]<<"\n";
         }
         node_file->close();
         std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
@@ -100,12 +100,12 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point1=mesh.GetNode(i)->rGetPoint();
-            Point<3> point2=mesh2.GetNode(i)->rGetPoint();
+            const c_vector<double, 3> node_loc1 = mesh.GetNode(i)->rGetLocation();
+            const c_vector<double, 3> node_loc2 = mesh2.GetNode(i)->rGetLocation();
             
             for (int j=0; j<3; j++)
             {
-                TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+                TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
             }
         }
         
@@ -146,8 +146,8 @@ public:
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point=mesh.GetNode(i)->rGetPoint();
-            (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\t"<<point[2]<<"\n";
+            const c_vector<double, 3> node_loc=mesh.GetNode(i)->rGetLocation();
+            (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\t"<<node_loc[2]<<"\n";
         }
         node_file->close();
         std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
@@ -166,12 +166,12 @@ public:
         
         for (int i=0; i<mesh.GetNumNodes(); i++)
         {
-            Point<3> point1=mesh.GetNode(i)->rGetPoint();
-            Point<3> point2=mesh2.GetNode(i)->rGetPoint();
+            const c_vector<double, 3> node_loc1=mesh.GetNode(i)->rGetLocation();
+            const c_vector<double, 3> node_loc2=mesh2.GetNode(i)->rGetLocation();
             
             for (int j=0; j<3; j++)
             {
-                TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+                TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
             }
         }
         
@@ -206,8 +206,8 @@ public:
         {
             if (!mesh.GetNode(i)->IsDeleted())
             {
-                Point<2> point=mesh.GetNode(i)->rGetPoint();
-                (*node_file)<<i<<"\t"<<point[0]<<"\t"<<point[1]<<"\n";
+                const c_vector<double, 2> node_loc=mesh.GetNode(i)->rGetLocation();
+                (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\n";
             }
         }
         
@@ -251,13 +251,13 @@ public:
             }
             else
             {
-                Point<2> point1=mesh.GetNode(i)->rGetPoint();
+                const c_vector<double, 2> node_loc1=mesh.GetNode(i)->rGetLocation();
                 int another_new_index = map.GetNewIndex(i);
-                Point<2> point2=mesh2.GetNode(another_new_index)->rGetPoint();
+                const c_vector<double, 2> node_loc2=mesh2.GetNode(another_new_index)->rGetLocation();
                 
                 for (int j=0; j<2; j++)
                 {
-                    TS_ASSERT_DELTA(point1[j],point2[j],1e-6);
+                    TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
                 }
             }
         }

@@ -328,9 +328,9 @@ public:
                 //if(
                 if (!mrMesh.GetNode(index)->IsDeleted())
                 {
-                    Point<1> old_point = mrMesh.GetNode(index)->rGetPoint();
+                    c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
                     Point<1> new_point;
-                    new_point.rGetLocation()[0] = old_point[0] + mDt*drdt[index]; // new_point_position[index];
+                    new_point.rGetLocation()[0] = node_loc[0] + mDt*drdt[index]; // new_point_position[index];
                     mrMesh.SetNode(index, new_point, false);
                 }
             }
@@ -344,7 +344,7 @@ public:
                 {
                     it--;
                     const Node<1> *p_node = *it;
-                    if (p_node->rGetPoint()[0] > mpParams->GetCryptLength())
+                    if (p_node->rGetLocation()[0] > mpParams->GetCryptLength())
                     {
                         // It's fallen off
                         mrMesh.DeleteBoundaryNodeAt(p_node->GetIndex());
@@ -401,9 +401,9 @@ public:
                         tabulated_writer.PutVariable(type_var_ids[cell], -1);
                     }
                     
-                    Point<1> point = mrMesh.GetNode(index)->rGetPoint();
-                    tabulated_writer.PutVariable(position_var_ids[cell], point.rGetLocation()[0]);
-                    (*p_results_file) << point.rGetLocation()[0] << " ";
+                    const c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
+                    tabulated_writer.PutVariable(position_var_ids[cell], node_loc[0]);
+                    (*p_results_file) << node_loc[0] << " ";
                     
                     cell++;
                 }
