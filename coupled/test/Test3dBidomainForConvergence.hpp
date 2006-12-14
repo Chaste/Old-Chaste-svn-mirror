@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -21,9 +22,10 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-    PointStimulusCellFactory(double timeStep) : AbstractCardiacCellFactory<3>(timeStep)
+    PointStimulusCellFactory(double timeStep, double num_elements) : AbstractCardiacCellFactory<3>(timeStep)
     {
-        mpStimulus = new InitialStimulus(-1000000, 0.5);
+    	// scale stimulus depending on space_step of elements
+        mpStimulus = new InitialStimulus(-100000* pow(num_elements/12.0, 1.0/3.0), 0.5);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
@@ -55,13 +57,15 @@ public:
 
     void Test3dBidomainSpaceAndTime()
     {
-        std::string file_num_elements[4] = { "12", "152", "1016", "7790" }; //, "61687", "488702"};
-        double approx_space_steps[4] = {0.043,0.018,0.01,0.005 }; //,0.0025, 0.00125};
+    	double num_elements[5] =           {  12,   152,   1016,   7790 ,  61687 };
+        std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687"}; //, "488702"};
+        double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025}; //, 0.00125};
         int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
                 
         // To ensure that the first test fails        
         double prev_voltage_for_space = -999;   
         bool converging_in_space = false;
+        bool failed_to_converge_in_space = false;
 
         double time_step;   // ms
 
@@ -87,7 +91,7 @@ public:
             
             do  //do while: time_step
             {
-                PointStimulusCellFactory cell_factory(time_step);
+                PointStimulusCellFactory cell_factory(time_step, num_elements[current_file_num]);
                 BidomainProblem<3> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
@@ -160,19 +164,23 @@ public:
             {
                 // Use the next mesh next time 
                 current_file_num++;
-                if(current_file_num==4)
+                if(current_file_num==5)
                 {
                     TS_FAIL("Could not converge for any of the meshes used");
+                    failed_to_converge_in_space = true;
                 }
             }
             
             prev_voltage_for_space = probe_voltage;
         }
-        while (!converging_in_space);   //do while: space_step
+        while (!converging_in_space && !failed_to_converge_in_space);   //do while: space_step
         
-        std::cout<<"================================================================================"<<std::endl << std::flush;
+        if (converging_in_space)
+        {
+	        std::cout<<"================================================================================"<<std::endl << std::flush;
         
-        std::cout << "Converged both in space ("<< approx_space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
+    	    std::cout << "Converged both in space ("<< approx_space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
+        }    
         
        // TS_ASSERT_DELTA(approx_space_steps[current_file_num], 0.005, 0.0);
        // TS_ASSERT_DELTA(time_step, 0.005, 0.0);
