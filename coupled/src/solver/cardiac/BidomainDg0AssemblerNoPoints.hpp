@@ -13,18 +13,826 @@
 #include "LinearSystem.hpp"
 #include "AbstractLinearSolver.hpp"
 #include "BidomainPdeNoPoints.hpp"
-#include "AbstractBasisFunction.hpp"
-#include "GaussianQuadratureRule.hpp"
+//#include "AbstractBasisFunction.hpp"
+//#include "GaussianQuadratureRule.hpp"
 //#include "AbstractLinearDynamicProblemAssembler.hpp"
 
 #include "BoundaryConditionsContainer.hpp"
 
 #include "SimpleLinearSolver.cpp"
-#include "AbstractBasisFunction.hpp"
-#include "LinearBasisFunction.cpp"
+//#include "LinearBasisFunction.cpp"
 #include "ReplicatableVector.hpp"
 
 #define PROBLEM_DIM 2
+
+#include <cmath>
+#include "Point.hpp"
+#include "Exception.hpp"
+#include "UblasCustomFunctions.hpp"
+
+/**
+ * This class encapsulates tables of gaussian quadrature points and the
+ * associated weights.
+ *
+ * Data is available for 1d, 2d and 3d quadrature over (canonical) triangles,
+ * with between 1 and 3 (inclusive) gauss points in each dimension.
+ */
+
+template<int ELEM_DIM>
+class GaussianQuadratureRule
+{
+    int mNumQuadPoints;
+    std::vector<double>            mWeights;
+    std::vector<c_vector<double, ELEM_DIM> >  mPoints;
+    
+    c_vector<double, ELEM_DIM> MakePoint(double x=0, double y=0, double z=0)
+    {
+        c_vector<double, ELEM_DIM> point;
+        
+        switch (ELEM_DIM)
+        {
+            case 3: point[2] = z;
+            case 2: point[1] = y;
+            case 1: point[0] = x;
+        }
+        return point;
+    }
+    
+    
+public:
+
+    /**
+     * The constructor builds the appropriate table for the dimension (given
+     * by the template argument) and number of points in each dimension (given
+     * as a constructor argument).
+     * 
+     * An exception is thrown if data is not available for the requested
+     * parameters.
+     */
+    GaussianQuadratureRule(int numPointsInEachDimension)
+    {
+        mNumQuadPoints = (int) pow((double) numPointsInEachDimension,(ELEM_DIM));
+        
+        mWeights.reserve(mNumQuadPoints);
+        mPoints.reserve(mNumQuadPoints);
+        
+        switch (ELEM_DIM)
+        {
+            case 0 :
+            {
+                // mNumQuadPoints should have been set to be one as
+                // it is numPointsInEachDim^{0}
+                mWeights.push_back(1);
+                //mPoints.push_back(c_vector<double, ELEM_DIM>);
+            }
+            break;
+            case 1 :
+            {
+                switch (numPointsInEachDimension)
+                {
+                    case 1: // 1d, 1 point
+                        mWeights.push_back(1);
+                        mPoints.push_back(MakePoint(0.5)); //check
+                        break;
+                        
+                    case 2: // 1d, 2 points
+                        mWeights.push_back(0.5);
+                        mWeights.push_back(0.5);
+                        
+                        mPoints.push_back(MakePoint(0.21132486540519));
+                        mPoints.push_back(MakePoint(0.78867513459481));
+                        break;
+                        
+                    case 3: // 1d, 3 points
+                        mWeights.push_back(5.0/18.0);
+                        mWeights.push_back(4.0/9.0);
+                        mWeights.push_back(5.0/18.0);
+                        
+                        mPoints.push_back(MakePoint(0.1127016654));
+                        mPoints.push_back(MakePoint(0.5));
+                        mPoints.push_back(MakePoint(0.8872983346));
+                        break;
+                        
+                    default:
+                        EXCEPTION("Number of gauss points per dimension not supported.");
+                }
+            }
+            break;
+            case 2 :
+            {
+                switch (numPointsInEachDimension)
+                {
+                    case 1: // 2d, 1 point per dimension
+                        mWeights.push_back(0.5);
+                        mPoints.push_back(MakePoint(0.25,0.5));
+                        break;
+                        
+                    case 2: // 2d, 2 points per dimension
+                        mWeights.push_back(0.19716878364870);
+                        mWeights.push_back(0.19716878364870);
+                        mWeights.push_back(0.05283121635130);
+                        mWeights.push_back(0.05283121635130);
+                        
+                        mPoints.push_back(MakePoint(0.16666666666667,0.21132486540519));
+                        mPoints.push_back(MakePoint(0.62200846792815,0.21132486540519));
+                        mPoints.push_back(MakePoint(0.04465819873852,0.78867513459481));
+                        mPoints.push_back(MakePoint(0.16666666666667,0.78867513459481));
+                        break;
+                        
+                    case 3: // 2d, 3 points per dimension
+                        mWeights.push_back(0.06846437766975);
+                        mWeights.push_back(0.10954300427160);
+                        mWeights.push_back(0.06846437766975);
+                        mWeights.push_back(0.06172839506173);
+                        mWeights.push_back(0.09876543209877);
+                        mWeights.push_back(0.06172839506173);
+                        mWeights.push_back(0.00869611615741);
+                        mWeights.push_back(0.01391378585185);
+                        mWeights.push_back(0.00869611615741);
+                        
+                        mPoints.push_back(MakePoint(0.10000000001607,0.11270166540000));
+                        mPoints.push_back(MakePoint(0.44364916730000,0.11270166540000));
+                        mPoints.push_back(MakePoint(0.78729833458393,0.11270166540000));
+                        mPoints.push_back(MakePoint(0.05635083270000,0.50000000000000));
+                        mPoints.push_back(MakePoint(0.25000000000000,0.50000000000000));
+                        mPoints.push_back(MakePoint(0.44364916730000,0.50000000000000));
+                        mPoints.push_back(MakePoint(0.01270166538393,0.88729833460000));
+                        mPoints.push_back(MakePoint(0.05635083270000,0.88729833460000));
+                        mPoints.push_back(MakePoint(0.10000000001607,0.88729833460000));
+                        break;
+                        
+                    default:
+                        EXCEPTION("Number of gauss points per dimension not supported.");
+                }
+                
+            }
+            break;
+            case 3 :
+            {
+                switch (numPointsInEachDimension)
+                {
+                    case 1: //3d, 1 point per dimension
+                        mWeights.push_back(0.12500000000000);
+                        mPoints.push_back(MakePoint(0.25000000000000,0.50000000000000,0.12500000000000));
+                        break;
+                        
+                    case 2: //3d, 2 points per dimension
+                        mWeights.push_back(0.06132032652029);
+                        mWeights.push_back(0.01643073197073);
+                        mWeights.push_back(0.00440260136261);
+                        mWeights.push_back(0.00117967347971);
+                        mWeights.push_back(0.06132032652029);
+                        mWeights.push_back(0.01643073197073);
+                        mWeights.push_back(0.00440260136261);
+                        mWeights.push_back(0.00117967347971);
+                        
+                        mPoints.push_back(MakePoint(0.16666666666667,   0.21132486540519,   0.13144585576580));
+                        mPoints.push_back(MakePoint(0.62200846792815,   0.21132486540519,   0.03522081090086));
+                        mPoints.push_back(MakePoint(0.04465819873852,   0.78867513459481,   0.03522081090086));
+                        mPoints.push_back(MakePoint(0.16666666666667,   0.78867513459481,   0.00943738783766));
+                        mPoints.push_back(MakePoint(0.16666666666667,   0.21132486540519,   0.49056261216234));
+                        mPoints.push_back(MakePoint(0.62200846792815,   0.21132486540519,   0.13144585576580));
+                        mPoints.push_back(MakePoint(0.04465819873852,   0.78867513459481,   0.13144585576580));
+                        mPoints.push_back(MakePoint(0.16666666666667,   0.78867513459481,   0.03522081090086));
+                        break;
+                        
+                    case 3: //3d, 3 points per dimension
+                        mWeights.push_back(0.01497274736603);
+                        mWeights.push_back(0.01349962850795);
+                        mWeights.push_back(0.00190178826891);
+                        mWeights.push_back(0.00760715307442);
+                        mWeights.push_back(0.00685871056241);
+                        mWeights.push_back(0.00096623512860);
+                        mWeights.push_back(0.00024155878219);
+                        mWeights.push_back(0.00021779261632);
+                        mWeights.push_back(0.00003068198821);
+                        mWeights.push_back(0.02395639578565);
+                        mWeights.push_back(0.02159940561273);
+                        mWeights.push_back(0.00304286123026);
+                        mWeights.push_back(0.01217144491907);
+                        mWeights.push_back(0.01097393689986);
+                        mWeights.push_back(0.00154597620576);
+                        mWeights.push_back(0.00038649405150);
+                        mWeights.push_back(0.00034846818612);
+                        mWeights.push_back(0.00004909118114);
+                        mWeights.push_back(0.01497274736603);
+                        mWeights.push_back(0.01349962850795);
+                        mWeights.push_back(0.00190178826891);
+                        mWeights.push_back(0.00760715307442);
+                        mWeights.push_back(0.00685871056241);
+                        mWeights.push_back(0.00096623512860);
+                        mWeights.push_back(0.00024155878219);
+                        mWeights.push_back(0.00021779261632);
+                        mWeights.push_back(0.00003068198821);
+                        
+                        mPoints.push_back(MakePoint(0.10000000001607,   0.11270166540000,   0.08872983347426));
+                        mPoints.push_back(MakePoint(0.44364916730000,   0.11270166540000,   0.05000000000803));
+                        mPoints.push_back(MakePoint(0.78729833458393,   0.11270166540000,   0.01127016654181));
+                        mPoints.push_back(MakePoint(0.05635083270000,   0.50000000000000,   0.05000000000803));
+                        mPoints.push_back(MakePoint(0.25000000000000,   0.50000000000000,   0.02817541635000));
+                        mPoints.push_back(MakePoint(0.44364916730000,   0.50000000000000,   0.00635083269197));
+                        mPoints.push_back(MakePoint(0.01270166538393,   0.88729833460000,   0.01127016654181));
+                        mPoints.push_back(MakePoint(0.05635083270000,   0.88729833460000,   0.00635083269197));
+                        mPoints.push_back(MakePoint(0.10000000001607,   0.88729833460000,   0.00143149884212));
+                        mPoints.push_back(MakePoint(0.10000000001607,   0.11270166540000,   0.39364916729197));
+                        mPoints.push_back(MakePoint(0.44364916730000,   0.11270166540000,   0.22182458365000));
+                        mPoints.push_back(MakePoint(0.78729833458393,   0.11270166540000,   0.05000000000803));
+                        mPoints.push_back(MakePoint(0.05635083270000,   0.50000000000000,   0.22182458365000));
+                        mPoints.push_back(MakePoint(0.25000000000000,   0.50000000000000,   0.12500000000000));
+                        mPoints.push_back(MakePoint(0.44364916730000,   0.50000000000000,   0.02817541635000));
+                        mPoints.push_back(MakePoint(0.01270166538393,   0.88729833460000,   0.05000000000803));
+                        mPoints.push_back(MakePoint(0.05635083270000,   0.88729833460000,   0.02817541635000));
+                        mPoints.push_back(MakePoint(0.10000000001607,   0.88729833460000,   0.00635083269197));
+                        mPoints.push_back(MakePoint(0.10000000001607,   0.11270166540000,   0.69856850110968));
+                        mPoints.push_back(MakePoint(0.44364916730000,   0.11270166540000,   0.39364916729197));
+                        mPoints.push_back(MakePoint(0.78729833458393,   0.11270166540000,   0.08872983347426));
+                        mPoints.push_back(MakePoint(0.05635083270000,   0.50000000000000,   0.39364916729197));
+                        mPoints.push_back(MakePoint(0.25000000000000,   0.50000000000000,   0.22182458365000));
+                        mPoints.push_back(MakePoint(0.44364916730000,   0.50000000000000,   0.05000000000803));
+                        mPoints.push_back(MakePoint(0.01270166538393,   0.88729833460000,   0.08872983347426));
+                        mPoints.push_back(MakePoint(0.05635083270000,   0.88729833460000,   0.05000000000803));
+                        mPoints.push_back(MakePoint(0.10000000001607,   0.88729833460000,   0.01127016654181));
+                        break;
+                        
+                    case 4: //3d, 4 points per dimension
+                        mWeights.push_back(0.00423982561968);
+                        mWeights.push_back(0.00572288385156);
+                        mWeights.push_back(0.00281885467361);
+                        mWeights.push_back(0.00031634320391);
+                        mWeights.push_back(0.00412036229051);
+                        mWeights.push_back(0.00556163317318);
+                        mWeights.push_back(0.00273942929295);
+                        mWeights.push_back(0.00030742976838);
+                        mWeights.push_back(0.00099965677330);
+                        mWeights.push_back(0.00134932898618);
+                        mWeights.push_back(0.00066462336430);
+                        mWeights.push_back(0.00007458670588);
+                        mWeights.push_back(0.00002360309872);
+                        mWeights.push_back(0.00003185928022);
+                        mWeights.push_back(0.00001569255698);
+                        mWeights.push_back(0.00000176108183);
+                        mWeights.push_back(0.00794866986669);
+                        mWeights.push_back(0.01072905315027);
+                        mWeights.push_back(0.00528468555374);
+                        mWeights.push_back(0.00059306865848);
+                        mWeights.push_back(0.00772470439029);
+                        mWeights.push_back(0.01042674628127);
+                        mWeights.push_back(0.00513578175757);
+                        mWeights.push_back(0.00057635807584);
+                        mWeights.push_back(0.00187411992466);
+                        mWeights.push_back(0.00252967258912);
+                        mWeights.push_back(0.00124601155388);
+                        mWeights.push_back(0.00013983242583);
+                        mWeights.push_back(0.00004425022545);
+                        mWeights.push_back(0.00005972861231);
+                        mWeights.push_back(0.00002941983138);
+                        mWeights.push_back(0.00000330161175);
+                        mWeights.push_back(0.00794866986669);
+                        mWeights.push_back(0.01072905315027);
+                        mWeights.push_back(0.00528468555374);
+                        mWeights.push_back(0.00059306865848);
+                        mWeights.push_back(0.00772470439029);
+                        mWeights.push_back(0.01042674628127);
+                        mWeights.push_back(0.00513578175757);
+                        mWeights.push_back(0.00057635807584);
+                        mWeights.push_back(0.00187411992466);
+                        mWeights.push_back(0.00252967258912);
+                        mWeights.push_back(0.00124601155388);
+                        mWeights.push_back(0.00013983242583);
+                        mWeights.push_back(0.00004425022545);
+                        mWeights.push_back(0.00005972861231);
+                        mWeights.push_back(0.00002941983138);
+                        mWeights.push_back(0.00000330161175);
+                        mWeights.push_back(0.00423982561968);
+                        mWeights.push_back(0.00572288385156);
+                        mWeights.push_back(0.00281885467361);
+                        mWeights.push_back(0.00031634320391);
+                        mWeights.push_back(0.00412036229051);
+                        mWeights.push_back(0.00556163317318);
+                        mWeights.push_back(0.00273942929295);
+                        mWeights.push_back(0.00030742976838);
+                        mWeights.push_back(0.00099965677330);
+                        mWeights.push_back(0.00134932898618);
+                        mWeights.push_back(0.00066462336430);
+                        mWeights.push_back(0.00007458670588);
+                        mWeights.push_back(0.00002360309872);
+                        mWeights.push_back(0.00003185928022);
+                        mWeights.push_back(0.00001569255698);
+                        mWeights.push_back(0.00000176108183);
+                        
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.06943184420000,   0.06012499793653));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.06943184420000,   0.04328879995478));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.06943184420000,   0.02132226325621));
+                        mPoints.push_back(MakePoint(0.86595709258901,   0.06943184420000,   0.00448606527446));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.33000947820000,   0.04328879995478));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.33000947820000,   0.03116707302848));
+                        mPoints.push_back(MakePoint(0.44888729930184,   0.33000947820000,   0.01535160449661));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.33000947820000,   0.00322987757031));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.66999052180000,   0.02132226325621));
+                        mPoints.push_back(MakePoint(0.10890625570184,   0.66999052180000,   0.01535160449661));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.66999052180000,   0.00756156217830));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.66999052180000,   0.00159090341870));
+                        mPoints.push_back(MakePoint(0.00482078098901,   0.93056815580000,   0.00448606527446));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.93056815580000,   0.00322987757031));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.93056815580000,   0.00159090341870));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.93056815580000,   0.00033471571455));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.06943184420000,   0.28577404826889));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.06943184420000,   0.20575161800155));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.06943184420000,   0.10134469352354));
+                        mPoints.push_back(MakePoint(0.86595709258901,   0.06943184420000,   0.02132226325621));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.33000947820000,   0.20575161800155));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.33000947820000,   0.14813706341321));
+                        mPoints.push_back(MakePoint(0.44888729930184,   0.33000947820000,   0.07296615908496));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.33000947820000,   0.01535160449661));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.66999052180000,   0.10134469352354));
+                        mPoints.push_back(MakePoint(0.10890625570184,   0.66999052180000,   0.07296615908496));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.66999052180000,   0.03594009661688));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.66999052180000,   0.00756156217830));
+                        mPoints.push_back(MakePoint(0.00482078098901,   0.93056815580000,   0.02132226325621));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.93056815580000,   0.01535160449661));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.93056815580000,   0.00756156217830));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.93056815580000,   0.00159090341870));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.06943184420000,   0.58018304432012));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.06943184420000,   0.41772022627335));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.06943184420000,   0.20575161800155));
+                        mPoints.push_back(MakePoint(0.86595709258901,   0.06943184420000,   0.04328879995478));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.33000947820000,   0.41772022627335));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.33000947820000,   0.30075023588863));
+                        mPoints.push_back(MakePoint(0.44888729930184,   0.33000947820000,   0.14813706341321));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.33000947820000,   0.03116707302848));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.66999052180000,   0.20575161800155));
+                        mPoints.push_back(MakePoint(0.10890625570184,   0.66999052180000,   0.14813706341321));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.66999052180000,   0.07296615908496));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.66999052180000,   0.01535160449661));
+                        mPoints.push_back(MakePoint(0.00482078098901,   0.93056815580000,   0.04328879995478));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.93056815580000,   0.03116707302848));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.93056815580000,   0.01535160449661));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.93056815580000,   0.00322987757031));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.06943184420000,   0.80583209465249));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.06943184420000,   0.58018304432012));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.06943184420000,   0.28577404826889));
+                        mPoints.push_back(MakePoint(0.86595709258901,   0.06943184420000,   0.06012499793653));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.33000947820000,   0.58018304432012));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.33000947820000,   0.41772022627335));
+                        mPoints.push_back(MakePoint(0.44888729930184,   0.33000947820000,   0.20575161800155));
+                        mPoints.push_back(MakePoint(0.62347184427491,   0.33000947820000,   0.04328879995478));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.66999052180000,   0.28577404826889));
+                        mPoints.push_back(MakePoint(0.10890625570184,   0.66999052180000,   0.20575161800155));
+                        mPoints.push_back(MakePoint(0.22110322249816,   0.66999052180000,   0.10134469352354));
+                        mPoints.push_back(MakePoint(0.30709631152509,   0.66999052180000,   0.02132226325621));
+                        mPoints.push_back(MakePoint(0.00482078098901,   0.93056815580000,   0.06012499793653));
+                        mPoints.push_back(MakePoint(0.02291316667491,   0.93056815580000,   0.04328879995478));
+                        mPoints.push_back(MakePoint(0.04651867752509,   0.93056815580000,   0.02132226325621));
+                        mPoints.push_back(MakePoint(0.06461106321099,   0.93056815580000,   0.00448606527446));
+                        break;
+                        
+                    default:
+                        EXCEPTION("Number of gauss points per dimension not supported.");
+                }
+            }
+            break;
+            
+            default:
+                EXCEPTION("Gauss points not available for this dimension.");
+        }
+        
+    }
+    
+    /**
+     * Get a quadrature point.
+     * 
+     * @param index The index of the point to return.
+     * @return A gaussian quadrature point.
+     */
+    c_vector<double, ELEM_DIM> GetQuadPoint(int index) const
+    {
+        assert(index < mNumQuadPoints);
+        return mPoints[index];
+    }
+    
+    /**
+     * Get the weight associated with a quadrature point.
+     */
+    double GetWeight(int index) const
+    {
+        assert(index < mNumQuadPoints);
+        return mWeights[index];
+    }
+    
+    /**
+     * Get the number of quadrature points. This is the number of points in 
+     * each dimension, raised to the power of the number of dimensions.
+     */
+    int GetNumQuadPoints() const
+    {
+        return mNumQuadPoints;
+    }
+    
+};
+
+/**
+ * Abstract base class for basis functions. There are methods to compute
+ * the value and derivative of a particular basis function, or all basis
+ * functions on an element together.
+ *
+ * The methods are documented more fully in the LinearBasisFunction class.
+ *
+ * @see LinearBasisFunction
+ */
+template <int ELEM_DIM>
+class AbstractBasisFunction
+{
+
+public:
+    virtual double ComputeBasisFunction(const c_vector<double, ELEM_DIM> &rPoint, int basisIndex) const =0;
+    virtual c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const c_vector<double, ELEM_DIM> &rPoint, int basisIndex) const =0;
+    virtual c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) const =0;
+    virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) const =0;
+    virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const =0;
+    virtual ~AbstractBasisFunction()
+    { };
+};
+
+/**
+ * We need to specialise for the 0d case, because 0x0 matrices don't work.
+ */
+template <>
+class AbstractBasisFunction<0>
+{
+public:
+    virtual double ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const =0;
+    virtual c_vector<double, 1> ComputeBasisFunctions(const Point<0> &rPoint) const =0;
+    virtual ~AbstractBasisFunction()
+    { };
+};
+
+
+template <int ELEM_DIM>
+class LinearBasisFunction : public AbstractBasisFunction<ELEM_DIM>
+{
+public:
+    double ComputeBasisFunction(const c_vector<double,ELEM_DIM> &rPoint, int basisIndex) const;
+    c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const c_vector<double,ELEM_DIM> &rPoint, int basisIndex) const;
+    
+    c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) const;
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) const;
+    
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint,
+            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const;
+};
+
+/**
+ * We need to specialise for the 0d case, because 0x0 matrices don't work.
+ */
+template <>
+class LinearBasisFunction<0> : public AbstractBasisFunction<0>
+{
+public:
+    double ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const;
+    c_vector<double, 1>       ComputeBasisFunctions(const Point<0> &rPoint) const;
+};
+
+
+
+/**
+ * Compute a basis function at a point within an element (3d case).
+ *
+ * @param rPoint The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ *
+ * \todo basisIndex should be unsigned (ticket:114)
+ */
+template <>
+double LinearBasisFunction<3>::ComputeBasisFunction(
+    const c_vector<double,3> &rPoint,
+    int basisIndex) const
+{
+    assert(basisIndex <= 3);
+    assert(basisIndex >= 0);
+
+    switch (basisIndex)
+    {
+    case 0:
+    return 1.0 - rPoint[0] - rPoint[1] - rPoint[2];
+    break;
+    case 1:
+    return rPoint[0];
+    break;
+    case 2:
+    return rPoint[1];
+    break;
+    case 3:
+    return rPoint[2];
+    break;
+    default:
+    ; //not possible to get here because of assertions above
+    }
+    return 0.0; // Avoid compiler warning
+}
+
+/**
+ * Compute a basis function at a point within an element (2d case).
+ *
+ * @param rPoint The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ *
+ * \todo basisIndex should be unsigned (ticket:114)
+ */
+template <>
+double LinearBasisFunction<2>::ComputeBasisFunction(
+    const c_vector<double,2> &rPoint,
+    int basisIndex) const
+{
+    assert(basisIndex <= 2);
+    assert(basisIndex >= 0);
+
+    switch (basisIndex)
+    {
+    case 0:
+    return 1.0 - rPoint[0] - rPoint[1];
+    break;
+    case 1:
+    return rPoint[0];
+    break;
+    case 2:
+    return rPoint[1];
+    break;
+    default:
+    ; //not possible to get here because of assertions above
+    }
+    return 0.0; // Avoid compiler warning
+}
+
+/**
+ * Compute a basis function at a point within an element (1d case).
+ *
+ * @param rPoint The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ *
+ * \todo basisIndex should be unsigned (ticket:114)
+ */
+template <>
+double LinearBasisFunction<1>::ComputeBasisFunction(
+    const c_vector<double,1> &rPoint,
+    int basisIndex) const
+{
+    assert(basisIndex <= 1);
+    assert(basisIndex >= 0);
+
+    switch (basisIndex)
+    {
+    case 0:
+    return 1.0 - rPoint[0];
+    break;
+    case 1:
+    return rPoint[0];
+    break;
+    default:
+    ; //not possible to get here because of assertions above
+    }
+    return 0.0; // Avoid compiler warning
+}
+
+/**
+ * Compute a basis function at a point within an element (0d case).
+ *
+ * @param rPoint The point at which to compute the basis function. The results
+ *     are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The value of the basis function.
+ */
+double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const
+{
+    assert(basisIndex == 0);
+    return 1.0;
+}
+
+/**
+ * Compute the derivative of a basis function at a point within a
+ * canonical element (3d case).
+ *
+ * @param rPoint (unused) The point at which to compute the basis function.
+ *     The results are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The derivative of the basis function. This is a vector
+ *     (c_vector<double, ELEM_DIM> instance) giving the derivative
+ *     along each axis.
+ *
+ * \todo basisIndex should be unsigned (ticket:114)
+ */
+template <>
+c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
+    const c_vector<double,3>&,
+    int basisIndex) const
+{
+    assert(basisIndex <= 3);
+    assert(basisIndex >= 0);
+
+    c_vector<double, 3> gradN;
+    switch (basisIndex)
+    {
+    case 0:
+    gradN(0) = -1;
+    gradN(1) = -1;
+    gradN(2) = -1;
+    break;
+    case 1:
+    gradN(0) =  1;
+    gradN(1) =  0;
+    gradN(2) =  0;
+    break;
+    case 2:
+    gradN(0) =  0;
+    gradN(1) =  1;
+    gradN(2) =  0;
+    break;
+    case 3:
+    gradN(0) =  0;
+    gradN(1) =  0;
+    gradN(2) =  1;
+    break;
+    default:
+    ; //not possible to get here because of assertions above
+    }
+    return gradN;
+}
+
+/**
+ * Compute the derivative of a basis function at a point within a
+ * canonical element (2d case).
+ *
+ * @param rPoint (unused) The point at which to compute the basis function.
+ *     The results are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The derivative of the basis function. This is a vector
+ *     (c_vector<double, ELEM_DIM> instance) giving the derivative
+ *     along each axis.
+ *
+ * \todo basisIndex should be unsigned (ticket:114)
+ */
+template <>
+c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
+    const c_vector<double,2>&,
+    int basisIndex) const
+{
+    assert(basisIndex <= 2);
+    assert(basisIndex >= 0);
+
+    c_vector<double, 2> gradN;
+    switch (basisIndex)
+    {
+    case 0:
+    gradN(0) = -1;
+    gradN(1) = -1;
+    break;
+    case 1:
+    gradN(0) =  1;
+    gradN(1) =  0;
+    break;
+    case 2:
+    gradN(0) =  0;
+    gradN(1) =  1;
+    break;
+    default:
+    ; //not possible to get here because of assertions above
+    }
+    return gradN;
+}
+
+/**
+ * Compute the derivative of a basis function at a point within a
+ * canonical element (1d case).
+ *
+ * @param rPoint (unused) The point at which to compute the basis function.
+ *     The results are undefined if this is not within the canonical element.
+ * @param basisIndex Which basis function to compute. This is a local index
+ *     within a canonical element.
+ * @return The derivative of the basis function. This is a vector
+ *     (c_vector<double, ELEM_DIM> instance) giving the derivative
+ *     along each axis.
+ *
+ * \todo basisIndex should be unsigned (ticket:114)
+ */
+template <>
+c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
+    const c_vector<double,1>&,
+    int basisIndex) const
+{
+    assert(basisIndex <= 1);
+    assert(basisIndex >= 0);
+
+    c_vector<double, 1> gradN;
+    switch (basisIndex)
+    {
+    case 0:
+    gradN(0) = -1;
+    break;
+    case 1:
+    gradN(0) =  1;
+    break;
+    default:
+    ; //not possible to get here because of assertions above
+    }
+    return gradN;
+}
+
+
+
+/**
+ * Compute all basis functions at a point within an element.
+ *
+ * @param rPoint The point at which to compute the basis functions. The
+ *     results are undefined if this is not within the canonical element.
+ * @return The values of the basis functions, in local index order.
+ */
+template <int ELEM_DIM>
+c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) const
+{
+    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    c_vector<double, ELEM_DIM+1> basisValues;
+    for (int i=0; i<ELEM_DIM+1; i++)
+    {
+        basisValues(i) = ComputeBasisFunction(rPoint, i);
+    }
+    return basisValues;
+}
+
+/**
+ * Compute all basis functions at a point within an element.
+ *
+ * @param rPoint The point at which to compute the basis functions. The
+ *     results are undefined if this is not within the canonical element.
+ * @return The values of the basis functions, in local index order.
+ *
+ */
+c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0> &rPoint) const
+{
+    c_vector<double, 1> basisValues;
+    basisValues(0) = ComputeBasisFunction(rPoint, 0);
+    return basisValues;
+}
+
+/**
+ * Compute the derivatives of all basis functions at a point within an element.
+ *
+ * @param rPoint The point at which to compute the basis functions. The
+ *     results are undefined if this is not within the canonical element.
+ * @return The derivatives of the basis functions as the column vectors of
+ *     a matrix in local index order.
+ */
+template <int ELEM_DIM>
+c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) const
+{
+    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues;
+    
+    for (unsigned j=0;j<ELEM_DIM+1;j++)
+    {
+        matrix_column<c_matrix<double, ELEM_DIM, ELEM_DIM+1> > column(basisGradValues, j);
+        column = ComputeBasisFunctionDerivative(rPoint, j);
+    }
+    
+    return basisGradValues;
+}
+
+
+/**
+ * Compute the derivatives of all basis functions at a point within an element.
+ * This method will transform the results, for use within gaussian quadrature
+ * for example.
+ *
+ * @param rPoint The point at which to compute the basis functions. The
+ *     results are undefined if this is not within the canonical element.
+ * @param inverseJacobian The inverse of the Jacobian matrix mapping the real
+ *     element into the canonical element.
+ * @return The derivatives of the basis functions, in local index order. Each
+ *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the
+ *     derivative along each axis.
+ */
+template <int ELEM_DIM>
+c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const
+{
+    assert(ELEM_DIM < 4 && ELEM_DIM > 0);
+    
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
+    
+    return prod(trans(rInverseJacobian), basisGradValues);
+}
+
+
 
 /**
  *  BidomainDg0Assembler
@@ -158,7 +966,7 @@ private:
     virtual c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ComputeMatrixTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        Point<SPACE_DIM> &rX,
+        c_vector<double, SPACE_DIM> &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
@@ -217,7 +1025,7 @@ private:
     virtual c_vector<double,2*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
-        Point<SPACE_DIM> &rX,
+        c_vector<double,SPACE_DIM>  &rX,
         c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */)
     {
@@ -255,11 +1063,11 @@ private:
     virtual c_vector<double, 2*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double,ELEMENT_DIM> &rPhi,
-        Point<SPACE_DIM> &rX)
+        c_vector<double,SPACE_DIM> &rX)
     {
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
-        double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
-        double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
+        double D_times_grad_v_dot_n     = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, Point<SPACE_DIM>(rX), 0);
+        double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, Point<SPACE_DIM>(rX), 1);
         
         c_vector<double, 2*ELEMENT_DIM> ret;
         for (int i=0; i<ELEMENT_DIM; i++)
@@ -628,7 +1436,7 @@ public:
         // loop over Gauss points
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
+            c_vector<double, ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
             
             c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
@@ -641,7 +1449,8 @@ public:
             
             // Location of the gauss point in the original element will be stored in x
             // Where applicable, u will be set to the value of the current solution at x
-            Point<SPACE_DIM> x(0,0,0);
+            c_vector<double,SPACE_DIM> x;
+            x.clear();
             
             c_vector<double,PROBLEM_DIM> u = zero_vector<double>(PROBLEM_DIM);
             c_matrix<double,PROBLEM_DIM,SPACE_DIM> grad_u = zero_matrix<double>(PROBLEM_DIM,SPACE_DIM);
@@ -660,7 +1469,7 @@ public:
                 const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
                 
                 // interpolate x
-                x.rGetLocation() += phi(i)*node_loc;
+                x += phi(i)*node_loc;
                 
                 // interpolate u and grad u if a current solution or guess exists
                 int node_global_index = rElement.GetNodeGlobalIndex(i);
@@ -736,7 +1545,7 @@ public:
         // loop over Gauss points
         for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
+            c_vector<double, ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
             
             c_vector<double, ELEMENT_DIM>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             
@@ -747,13 +1556,14 @@ public:
             
             // Location of the gauss point in the original element will be
             // stored in x
-            Point<SPACE_DIM> x(0,0,0);
-            
+            c_vector<double,SPACE_DIM> x;
+            x.clear();
+                       
             ResetInterpolatedQuantities();
             for (int i=0; i<rSurfaceElement.GetNumNodes(); i++)
             {
                 const c_vector<double, SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetLocation();
-                x.rGetLocation() += phi(i)*node_loc;
+                x += phi(i)*node_loc;
                 
                 // allow the concrete version of the assembler to interpolate any
                 // desired quantities
