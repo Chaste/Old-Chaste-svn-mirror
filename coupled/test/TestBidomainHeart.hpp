@@ -68,15 +68,15 @@ class TestBidomainHeart : public CxxTest::TestSuite
 public:
     void TestBidomainDg0Heart() throw (Exception)
     {
-        double pde_time_step = 0.01;  // ms
-        double ode_time_step = 0.005; // ms
+        double pde_time_step = 0.005;  // ms
+        double ode_time_step = 0.0025; // ms
         double end_time = 100;        // ms
         double printing_time_step = end_time/1000;
         
         PointStimulusHeartCellFactory cell_factory(ode_time_step);
         BidomainProblem<3> bidomain_problem(&cell_factory);
         
-        bidomain_problem.SetMeshFilename("mesh/test/data/heart");
+        bidomain_problem.SetMeshFilename("mesh/test/data/halfheart");
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
 
