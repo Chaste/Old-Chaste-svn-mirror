@@ -31,7 +31,7 @@ protected:
     c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
     c_vector<double, SPACE_DIM> mWeightedDirection; //Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM
     double mJacobianDeterminant;
-    bool mOwnership, mOwnershipSet;
+    bool mOwnership;
     
     
     
@@ -221,13 +221,9 @@ public:
     void SetOwnership(bool ownership)
     {
         mOwnership=ownership;
-        mOwnershipSet=true;
     }
     
-    bool GetOwnershipSet()
-    {
-        return mOwnershipSet;
-    }
+
 };
 
 

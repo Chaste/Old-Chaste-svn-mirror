@@ -470,6 +470,17 @@ protected:
                     // VecScatter.
                     mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
                 }
+                
+                //If this is the first time through that it's appropriate to set the 
+                //element ownerships
+                //Note that this ought to use the number of nodes to set the ownership
+                PetscInt node_lo, node_hi;
+                Vec temp_vec;
+                VecCreate(PETSC_COMM_WORLD, &temp_vec);
+                VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
+                VecSetFromOptions(temp_vec);
+                VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
+                this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
             }
             else
             {

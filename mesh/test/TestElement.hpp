@@ -122,14 +122,10 @@ public:
         corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
         Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
-        
-        TS_ASSERT_EQUALS(element.GetOwnershipSet(),false);
-        
+                
         element.SetOwnership(true);
         
-        TS_ASSERT_EQUALS(element.GetOwnership(),true);
-        TS_ASSERT_EQUALS(element.GetOwnershipSet(),true);
-        
+        TS_ASSERT_EQUALS(element.GetOwnership(),true);        
         
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {

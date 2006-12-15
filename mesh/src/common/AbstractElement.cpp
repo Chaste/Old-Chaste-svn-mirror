@@ -10,7 +10,6 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
         : mIndex(index)
 {
     mIsDeleted = false;
-    mOwnershipSet = false;
     // Sanity checking
     assert(ELEMENT_DIM <= SPACE_DIM);
     //added extra 0.5 to ensure in correct interval for floor() function

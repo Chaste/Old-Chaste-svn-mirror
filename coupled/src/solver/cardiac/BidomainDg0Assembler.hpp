@@ -206,7 +206,7 @@ private:
     {
         BidomainPde<SPACE_DIM>* pde = dynamic_cast<BidomainPde<SPACE_DIM>*>(this->mpPde);
         
-        if(rElement.GetOwnershipSet()==false)
+        if(rElement.GetOwnershipIsKnown()==false)
         {
             int mLo, mHi;
             this->mpAssembledLinearSystem->GetOwnershipRange(mLo,mHi);
@@ -220,7 +220,7 @@ private:
                     break;
                 }
             }
-            if(rElement.GetOwnershipSet()==false)
+            if(rElement.GetOwnershipIsKnown()==false)
             {
                 rElement.SetOwnership(false);
             }

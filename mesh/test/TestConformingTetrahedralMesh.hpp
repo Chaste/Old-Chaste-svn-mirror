@@ -1178,5 +1178,41 @@ public:
         }
     }
     
+    void TestSetOwnerships()
+    {
+    	TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        unsigned lo = 300;
+        unsigned hi = 302;
+        
+        mesh.SetElementOwnerships(lo, hi);
+        
+        for (unsigned ele_num=0; ele_num< (unsigned) mesh.GetNumElements(); ele_num++)
+        {
+        	bool owned = mesh.GetElement(ele_num)->GetOwnership();
+        	if (ele_num==26  ||
+        	    ele_num==195 ||
+        	    ele_num==330 ||
+        	    ele_num==351 ||
+        	    ele_num==498 ||
+        	    ele_num==499 || //...these contain node 300
+        	    ele_num==186 ||
+        	    ele_num==208 ||
+        	    ele_num==480 ||
+        	    ele_num==500 ||
+        	    ele_num==501)  //... these contain node 301
+        	{
+        		TS_ASSERT_EQUALS(owned, true);
+        	}
+        	else
+        	{
+        		TS_ASSERT_EQUALS(owned, false);
+        	}	
+        }
+        
+    }
+    
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

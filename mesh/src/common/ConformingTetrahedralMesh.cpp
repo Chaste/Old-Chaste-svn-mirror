@@ -1519,4 +1519,26 @@ std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetCont
     }   
     return element_indices;
 }
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+{
+	assert(hi>=lo);
+	for (unsigned element_index=0; element_index<mElements.size(); element_index++)
+	{
+		Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
+		p_element->SetOwnership(false); 
+		for (int local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
+		{
+			unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
+            if (lo<=global_node_index && global_node_index<hi) 
+ 			{ 
+ 				p_element->SetOwnership(true); 
+                break; 
+ 		    } 
+		} 
+		
+	}	
+	
+}
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_
