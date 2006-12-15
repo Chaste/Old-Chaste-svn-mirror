@@ -9,7 +9,7 @@ TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
   : AbstractOdeSystemWithAnalyticJacobian(6)
 {
     /*
-     * State variable
+     * State variables
      */
     mVariableNames.push_back("CycB");
     mVariableUnits.push_back("nM");

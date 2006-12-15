@@ -7,3 +7,4 @@ TestMockEulerIvpOdeSolver.hpp
 TestSolvingStiffOdeSystems.hpp
 TestBackwardEulerIvpOdeSolver.hpp
 TestTysonNovak2001OdeSystem.hpp
+TestWntCellCycleOdeSystem.hpp

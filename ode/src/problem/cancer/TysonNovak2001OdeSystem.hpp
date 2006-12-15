@@ -11,8 +11,7 @@
 class TysonNovak2001OdeSystem: public AbstractOdeSystemWithAnalyticJacobian
 {
 private:
-
-    // Constants for the Tyson Novak Model
+	// Constants for the Tyson Novak Model
     double mK1;
     double mK2d;
     double mK2dd;
@@ -66,7 +65,7 @@ public:
     
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
-         return (fabs(rY[0]-0.1) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
+         return (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
     }
     
     PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep);
