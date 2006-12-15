@@ -2,3 +2,4 @@ TestMonodomainSlabLong.hpp
 Test1dBidomainProblemForEfficiency.hpp
 Test3dBidomainProblemForEfficiency.hpp
 Test3dBidomainProblemWithPermForEfficiency.hpp
+TestPointlessBidomainProblemForEfficiency.hpp
