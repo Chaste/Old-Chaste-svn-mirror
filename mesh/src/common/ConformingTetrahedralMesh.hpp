@@ -214,6 +214,13 @@ public:
       * direction.
       */
      void ConstructRectangularMesh(int width, int height, bool stagger=true);
+ 
+     /**
+      * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
+      * diagonals can be staggered so that there is no prefered diffusion propagation
+      * direction.
+      */
+     void ConstructCuboid(int width, int height, int depth);
      
      /**
       *  Returns the element index for the first element that is known to contain a test point

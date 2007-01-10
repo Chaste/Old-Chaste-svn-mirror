@@ -1102,19 +1102,34 @@ public:
     void TestConstructRectangle()
     {
         ConformingTetrahedralMesh<2,2> mesh;
-        unsigned width=40;
-        unsigned height=17;
+        unsigned width=39;
+        unsigned height=16;
         mesh.ConstructRectangularMesh(width,height);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), (width-1)*(height-1), 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width-1+height-1), 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) (width*height));
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width-1+height-1)));
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*(width-1)*(height-1)));
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width+height)));
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*width*height));
         
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
-    
+   void TestConstructRectangleNoStagger()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        unsigned width=39;
+        unsigned height=16;
+        mesh.ConstructRectangularMesh(width,height,false);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width+height)));
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*width*height));
+        
+        TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshNoStagger");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
+   
     
     void TestCheckVoronoiDisk()
     {
@@ -1155,7 +1170,7 @@ public:
     {
         ConformingTetrahedralMesh<2,2> mesh;
         
-        mesh.ConstructRectangularMesh(2,2);
+        mesh.ConstructRectangularMesh(1,1);
         
         Node<2> *p_node=mesh.GetNode(1);
         
@@ -1212,6 +1227,29 @@ public:
         	}	
         }
         
+    }
+
+    void TestConstructCuboid()
+    {
+        ConformingTetrahedralMesh<3,3> mesh;
+        unsigned width=39;
+        unsigned height=16;
+        unsigned depth=17;
+        
+        //For ease of programming:
+        width=height=depth=2;
+        mesh.ConstructCuboid(width,height,depth);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)*(depth+1)));
+      /*
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
+        //Each unit square on the surface is split into 2
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (4*(width*height+height*depth+depth*width)));
+        //Assuming that each cube is split into 6 tetrahedra
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (6*width*height*depth));
+        */
+        TrianglesMeshWriter<3,3> mesh_writer("","CuboidMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
     }
     
 };

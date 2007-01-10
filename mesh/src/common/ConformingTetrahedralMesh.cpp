@@ -1403,12 +1403,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 
     //Construct the nodes
     int node_index=0;
-    for (int j=height-1;j>=0;j--)
+    for (int j=height;j>=0;j--)
     {
-        for (int i=0;i<width;i++)
+        for (int i=0;i<width+1;i++)
         {
             bool is_boundary=false;
-            if (i==0 || j==0 || i==width-1 || j==height-1)
+            if (i==0 || j==0 || i==width || j==height)
             {
                 is_boundary=true;
             }
@@ -1419,7 +1419,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
     //Construct the boundary elements
     int belem_index=0;
     //Top
-    for (int i=0;i<width-1;i++)
+    for (int i=0;i<width;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(mNodes[i]);
@@ -1427,59 +1427,59 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Right
-    for (int i=1;i<height;i++)
+    for (int i=1;i<height+1;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[width*i-1]);
-        nodes.push_back(mNodes[width*(i+1)-1]);
+        nodes.push_back(mNodes[(width+1)*i-1]);
+        nodes.push_back(mNodes[(width+1)*(i+1)-1]);
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Bottom
-    for (int i=0;i<width-1;i++)
+    for (int i=0;i<width;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[(height-1)*width+i+1]);
-        nodes.push_back(mNodes[(height-1)*width+i]);
+        nodes.push_back(mNodes[height*(width+1)+i+1]);
+        nodes.push_back(mNodes[height*(width+1)+i]);
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Left
-    for (int i=0;i<height-1;i++)
+    for (int i=0;i<height;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(mNodes[width*(i+1)]);
-        nodes.push_back(mNodes[width*(i)]);
+        nodes.push_back(mNodes[(width+1)*(i+1)]);
+        nodes.push_back(mNodes[(width+1)*(i)]);
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
 
     //Construct the elements
     int elem_index=0;
-    for (int j=0;j<height-1;j++)
+    for (int j=0;j<height;j++)
     {
-        for (int i=0; i<width-1; i++)
+        for (int i=0; i<width; i++)
         {
             int parity=(i+j)%2;
             std::vector<Node<SPACE_DIM>*> upper_nodes;
-            upper_nodes.push_back(mNodes[j*width+i]);
-            upper_nodes.push_back(mNodes[j*width+i+1]);
+            upper_nodes.push_back(mNodes[j*(width+1)+i]);
+            upper_nodes.push_back(mNodes[j*(width+1)+i+1]);
             if (stagger==false  || parity == 0)
             {
-                upper_nodes.push_back(mNodes[(j+1)*width+i+1]);
+                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
             }
             else
             {
-                upper_nodes.push_back(mNodes[(j+1)*width+i]);
+                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
             }
             mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,upper_nodes));
             std::vector<Node<SPACE_DIM>*> lower_nodes;
-            lower_nodes.push_back(mNodes[(j+1)*width+i+1]);
-            lower_nodes.push_back(mNodes[(j+1)*width+i]);
+            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
+            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
             if (stagger==false  ||parity == 0)
             {
-                lower_nodes.push_back(mNodes[j*width+i]);
+                lower_nodes.push_back(mNodes[j*(width+1)+i]);
             }
             else
             {
-                lower_nodes.push_back(mNodes[j*width+i+1]);
+                lower_nodes.push_back(mNodes[j*(width+1)+i+1]);
             }
             mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
         }
@@ -1541,4 +1541,48 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(uns
 	}	
 	
 }
+
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int width,
+                                                                        int height,
+                                                                        int depth)
+{                                                                       
+    assert(SPACE_DIM == 3);
+    assert(ELEMENT_DIM == 3);
+   //Construct the nodes
+    int node_index=0;
+    for (int k=0;k<depth+1;k++)
+    {
+   		for (int j=0;j<height+1;j++)
+    	{
+        	for (int i=0;i<width+1;i++)
+        	{
+            	bool is_boundary=false;
+            	if (i==0 || j==0 || k==0 || i==width || j==height || k==depth)
+            	{
+                	is_boundary=true;
+            	}
+           		mNodes.push_back(new Node<3>(node_index++, is_boundary, i, j, k));
+        	}
+    	}
+    }
+    int cube_index=0;
+    for (int k=0;k<depth;k++)
+    {
+   		for (int j=0;j<height;j++)
+    	{
+        	for (int i=0;i<width;i++)
+        	{
+   				//std::cout<<"Cube is "<<cube_index<<"\n";
+   				//std::cout<<"Bottom index is "<<i + (width+1)*(j+(depth+1)*k) <<"\n";
+   				
+   				
+   				
+   				cube_index++;
+        	}
+    	}
+    }
+    
+}
+
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_
