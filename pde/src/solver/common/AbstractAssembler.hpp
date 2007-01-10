@@ -471,7 +471,7 @@ protected:
                     mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
                 }
                 
-                //If this is the first time through that it's appropriate to set the 
+                //If this is the first time through then it's appropriate to set the 
                 //element ownerships
                 //Note that this ought to use the number of nodes to set the ownership
                 PetscInt node_lo, node_hi;
@@ -526,6 +526,17 @@ protected:
         
             // Get our ownership range
             VecGetOwnershipRange(currentSolutionOrGuess, &lo, &hi);
+            //Set the elements' ownerships according to the node ownership
+            //\todo - This ought not to happen every time through
+ 			//Note that this ought to use the number of nodes to set the ownership
+            PetscInt node_lo, node_hi;
+            Vec temp_vec;
+            VecCreate(PETSC_COMM_WORLD, &temp_vec);
+            VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
+            VecSetFromOptions(temp_vec);
+            VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
+            this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
+                 
         }
         
                  
@@ -550,72 +561,76 @@ protected:
         {
             Element<ELEMENT_DIM, SPACE_DIM>& element = **iter;
             
-            AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
-            
-            for (int i=0; i<num_elem_nodes; i++)
+            if (element.GetOwnership() == true)
             {
-                int node1 = element.GetNodeGlobalIndex(i);
-                                
-                if (assemble_matrix)
-                {                    
-                    for (int j=0; j<num_elem_nodes; j++)
-                    {
-                        int node2 = element.GetNodeGlobalIndex(j);
-                        
-                        for (int k=0; k<PROBLEM_DIM; k++)
-                        {
-                            for (int m=0; m<PROBLEM_DIM; m++)
-                            {
-                                if(mProblemIsLinear)
-                                {  
-                                    // the following expands to, for (eg) the case of two unknowns:
-                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
-                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
-                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
-                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
-                                    mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
-                                                                        PROBLEM_DIM*node2+m,
-                                                                        a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
-                                }
-                                else 
-                                {
-                                    assert(pJacobian!=NULL); // extra check
-                                           
-                                    int matrix_index_1 = PROBLEM_DIM*node1+k;
-                                    if (lo<=matrix_index_1 && matrix_index_1<hi)
-                                    {
-                                        int matrix_index_2 = PROBLEM_DIM*node2+m;
-                                        PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
-                                        MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);                                
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if(assemble_vector)
-                {
-                    for (int k=0; k<PROBLEM_DIM; k++)
-                    {
-                        if(mProblemIsLinear)
-                        {
-                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-                        }
-                        else 
-                        {
-                            assert(residualVector!=NULL); // extra check
-
-                            int matrix_index = PROBLEM_DIM*node1+k;
-                            //Make sure it's only done once
-                            if (lo<=matrix_index && matrix_index<hi)
-                            {
-                                PetscScalar value = b_elem(PROBLEM_DIM*i+k);
-                                PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
-                            }
-                        }
-                    }
-                }
+             
+	            AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
+	            
+	            for (int i=0; i<num_elem_nodes; i++)
+	            {
+	                int node1 = element.GetNodeGlobalIndex(i);
+	                                
+	                if (assemble_matrix)
+	                {                    
+	                    for (int j=0; j<num_elem_nodes; j++)
+	                    {
+	                        int node2 = element.GetNodeGlobalIndex(j);
+	                        
+	                        for (int k=0; k<PROBLEM_DIM; k++)
+	                        {
+	                            for (int m=0; m<PROBLEM_DIM; m++)
+	                            {
+	                                if(mProblemIsLinear)
+	                                {  
+	                                    // the following expands to, for (eg) the case of two unknowns:
+	                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
+	                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
+	                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
+	                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
+	                                    mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
+	                                                                        PROBLEM_DIM*node2+m,
+	                                                                        a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
+	                                }
+	                                else 
+	                                {
+	                                    assert(pJacobian!=NULL); // extra check
+	                                           
+	                                    int matrix_index_1 = PROBLEM_DIM*node1+k;
+	                                    if (lo<=matrix_index_1 && matrix_index_1<hi)
+	                                    {
+	                                        int matrix_index_2 = PROBLEM_DIM*node2+m;
+	                                        PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
+	                                        MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);                                
+	                                    }
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	
+	                if(assemble_vector)
+	                {
+	                    for (int k=0; k<PROBLEM_DIM; k++)
+	                    {
+	                        if(mProblemIsLinear)
+	                        {
+	                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
+	                        }
+	                        else 
+	                        {
+	                            assert(residualVector!=NULL); // extra check
+	
+	                            int matrix_index = PROBLEM_DIM*node1+k;
+	                            //Make sure it's only done once
+	                            if (lo<=matrix_index && matrix_index<hi)
+	                            {
+	                                PetscScalar value = b_elem(PROBLEM_DIM*i+k);
+	                                PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
+	                            }
+	                        }
+	                    }
+	                }
+	            }
             }
             iter++;
         }
