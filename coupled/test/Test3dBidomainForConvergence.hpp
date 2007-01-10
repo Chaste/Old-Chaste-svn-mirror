@@ -34,7 +34,7 @@ public:
         //double y = mpMesh->GetNode(node)->GetPoint()[1];
         //double z = mpMesh->GetNode(node)->GetPoint()[2];
         
-        if (x==0.0)
+        if (x*x<=1e-10)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
         }
@@ -61,7 +61,7 @@ public:
         std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687"}; //, "488702"};
         double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025}; //, 0.00125};
         int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
-                
+        int num_meshes=5;                
         // To ensure that the first test fails        
         double prev_voltage_for_space = -999;   
         bool converging_in_space = false;
@@ -117,7 +117,14 @@ public:
                     
                     probe_voltage=voltage_replicated[opposite_corner_node];
                     
-                    double relerr = fabs ((probe_voltage - prev_voltage_for_time) / prev_voltage_for_time);
+                    double relerr = fabs ((pro
+    {
+    	double num_elements[5] =           {  12,   152,   1016,   7790 ,  61687 };
+        std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687"}; //, "488702"};
+        double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025}; //, 0.00125};
+        int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
+        int num_meshes=3;                
+        // Tobe_voltage - prev_voltage_for_time) / prev_voltage_for_time);
                     std::cout<<"   >>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_time = "<<prev_voltage_for_time
                     <<" mV | relerr = "<<relerr<<std::endl  << std::flush;
                     
@@ -164,7 +171,7 @@ public:
             {
                 // Use the next mesh next time 
                 current_file_num++;
-                if(current_file_num==5)
+                if(current_file_num==num_meshes)
                 {
                     TS_FAIL("Could not converge for any of the meshes used");
                     failed_to_converge_in_space = true;
