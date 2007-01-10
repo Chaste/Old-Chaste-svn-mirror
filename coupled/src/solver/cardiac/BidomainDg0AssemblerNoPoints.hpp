@@ -404,7 +404,7 @@ public:
      * @param index The index of the point to return.
      * @return A gaussian quadrature point.
      */
-    c_vector<double, ELEM_DIM> GetQuadPoint(int index) const
+    const c_vector<double, ELEM_DIM>& rGetQuadPoint(int index) const
     {
         assert(index < mNumQuadPoints);
         return mPoints[index];
@@ -446,9 +446,10 @@ class AbstractBasisFunction
 public:
     virtual double ComputeBasisFunction(const c_vector<double, ELEM_DIM> &rPoint, int basisIndex) const =0;
     virtual c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const c_vector<double, ELEM_DIM> &rPoint, int basisIndex) const =0;
-    virtual c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) const =0;
-    virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) const =0;
-    virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const =0;
+    virtual c_vector<double, ELEM_DIM+1>& rComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) =0;
+    virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) =0;
+    virtual c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rGetTransformedBasisFunctionDerivativesReference(void) =0;
+    virtual void UpdateTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian, bool computeDerivs=true) =0;
     virtual ~AbstractBasisFunction()
     { };
 };
@@ -470,15 +471,21 @@ public:
 template <int ELEM_DIM>
 class LinearBasisFunction : public AbstractBasisFunction<ELEM_DIM>
 {
+private:
+    c_vector<double, ELEM_DIM+1> mBasisValues;
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> mBasisGradValues;
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1> mTransformedBasisGradValues;
 public:
     double ComputeBasisFunction(const c_vector<double,ELEM_DIM> &rPoint, int basisIndex) const;
     c_vector<double, ELEM_DIM> ComputeBasisFunctionDerivative(const c_vector<double,ELEM_DIM> &rPoint, int basisIndex) const;
     
-    c_vector<double, ELEM_DIM+1> ComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) const;
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) const;
+    c_vector<double, ELEM_DIM+1>& rComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint);
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint);
     
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> ComputeTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint,
-            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const;
+    c_matrix<double, ELEM_DIM, ELEM_DIM+1>& rGetTransformedBasisFunctionDerivativesReference();
+    void UpdateTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint,
+            const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian,
+            bool computeDerivs=true);
 };
 
 /**
@@ -487,9 +494,11 @@ public:
 template <>
 class LinearBasisFunction<0> : public AbstractBasisFunction<0>
 {
+private:
+    c_vector<double, 1> mBasisValues;
 public:
     double ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const;
-    c_vector<double, 1>       ComputeBasisFunctions(const Point<0> &rPoint) const;
+    c_vector<double, 1>& rComputeBasisFunctions(const Point<0> &rPoint);
 };
 
 
@@ -758,15 +767,15 @@ c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
  * @return The values of the basis functions, in local index order.
  */
 template <int ELEM_DIM>
-c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint) const
+c_vector<double, ELEM_DIM+1>& LinearBasisFunction<ELEM_DIM>::rComputeBasisFunctions(const c_vector<double,ELEM_DIM> &rPoint)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
-    c_vector<double, ELEM_DIM+1> basisValues;
+//    c_vector<double, ELEM_DIM+1> basisValues;
     for (int i=0; i<ELEM_DIM+1; i++)
     {
-        basisValues(i) = ComputeBasisFunction(rPoint, i);
+        mBasisValues(i) = ComputeBasisFunction(rPoint, i);
     }
-    return basisValues;
+    return mBasisValues;
 }
 
 /**
@@ -777,11 +786,11 @@ c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction
  * @return The values of the basis functions, in local index order.
  *
  */
-c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0> &rPoint) const
+c_vector<double, 1>& LinearBasisFunction<0>::rComputeBasisFunctions(const Point<0> &rPoint)
 {
-    c_vector<double, 1> basisValues;
-    basisValues(0) = ComputeBasisFunction(rPoint, 0);
-    return basisValues;
+//    c_vector<double, 1> basisValues;
+    mBasisValues(0) = ComputeBasisFunction(rPoint, 0);
+    return mBasisValues;
 }
 
 /**
@@ -793,19 +802,19 @@ c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0>
  *     a matrix in local index order.
  */
 template <int ELEM_DIM>
-c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint) const
+c_matrix<double, ELEM_DIM, ELEM_DIM+1>& LinearBasisFunction<ELEM_DIM>::rComputeBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues;
+//    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues;
     
     for (unsigned j=0;j<ELEM_DIM+1;j++)
     {
-        matrix_column<c_matrix<double, ELEM_DIM, ELEM_DIM+1> > column(basisGradValues, j);
+        matrix_column<c_matrix<double, ELEM_DIM, ELEM_DIM+1> > column(mBasisGradValues, j);
         column = ComputeBasisFunctionDerivative(rPoint, j);
     }
     
-    return basisGradValues;
+    return mBasisGradValues;
 }
 
 
@@ -823,15 +832,23 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBa
  *     derivative along each axis.
  */
 template <int ELEM_DIM>
-c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const
+void LinearBasisFunction<ELEM_DIM>::UpdateTransformedBasisFunctionDerivatives(const c_vector<double,ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian, bool computeDerivs)
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     
-    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
-    
-    return prod(trans(rInverseJacobian), basisGradValues);
+//    c_matrix<double, ELEM_DIM, ELEM_DIM+1> basisGradValues = ComputeBasisFunctionDerivatives(rPoint);
+    if (computeDerivs)
+    {
+        rComputeBasisFunctionDerivatives(rPoint);
+    }
+    mTransformedBasisGradValues = prod(trans(rInverseJacobian), mBasisGradValues);
 }
 
+template <int ELEM_DIM>
+c_matrix<double, ELEM_DIM, ELEM_DIM+1>& LinearBasisFunction<ELEM_DIM>::rGetTransformedBasisFunctionDerivativesReference(void)
+{
+    return mTransformedBasisGradValues;
+}
 
 
 /**
@@ -1436,15 +1453,14 @@ public:
         // loop over Gauss points
         for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            c_vector<double, ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
+            const c_vector<double, ELEMENT_DIM>& quad_point = quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
-            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
+            c_vector<double, ELEMENT_DIM+1>& phi = rBasisFunction.rComputeBasisFunctions(quad_point);
+            c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1>& grad_phi = rBasisFunction.rGetTransformedBasisFunctionDerivativesReference();
 
             if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
             {
-                grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
-                           (quad_point, *p_inverse_jacobian);
+                rBasisFunction.UpdateTransformedBasisFunctionDerivatives(quad_point, *p_inverse_jacobian, false);
             }
             
             // Location of the gauss point in the original element will be stored in x
@@ -1545,9 +1561,9 @@ public:
         // loop over Gauss points
         for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
-            c_vector<double, ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
+            const c_vector<double, ELEMENT_DIM-1>& quad_point=quad_rule.rGetQuadPoint(quad_index);
             
-            c_vector<double, ELEMENT_DIM>  phi = rBasisFunction.ComputeBasisFunctions(quad_point);
+            c_vector<double, ELEMENT_DIM>& phi = rBasisFunction.rComputeBasisFunctions(quad_point);
             
             
             /////////////////////////////////////////////////////////////
