@@ -179,6 +179,9 @@ def _recent(req, type=None, show=''):
     output.append(_linkRecent('Show recent tests', type, show = ''))
   else:
     output.append(_linkRecent('Show all tests', type, show = 'all'))
+
+  if type == 'nightly':
+    output.append('<p><a href="/out/latest-nightly">Latest nightly build log.</a></p>')
   
   return ''.join(output)
 
