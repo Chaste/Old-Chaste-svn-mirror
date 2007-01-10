@@ -117,14 +117,7 @@ public:
                     
                     probe_voltage=voltage_replicated[opposite_corner_node];
                     
-                    double relerr = fabs ((pro
-    {
-    	double num_elements[5] =           {  12,   152,   1016,   7790 ,  61687 };
-        std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687"}; //, "488702"};
-        double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025}; //, 0.00125};
-        int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
-        int num_meshes=3;                
-        // Tobe_voltage - prev_voltage_for_time) / prev_voltage_for_time);
+                    double relerr = fabs ((probe_voltage - prev_voltage_for_time) / prev_voltage_for_time);
                     std::cout<<"   >>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_time = "<<prev_voltage_for_time
                     <<" mV | relerr = "<<relerr<<std::endl  << std::flush;
                     
