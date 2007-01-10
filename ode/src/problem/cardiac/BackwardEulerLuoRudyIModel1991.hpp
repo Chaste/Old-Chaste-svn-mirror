@@ -65,6 +65,12 @@ public:
     std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
     
     double GetIIonic();
+    
+    /**
+     *  Check that none of the gating variables have gone out of range. Throws an
+     *  Exception if any have.
+     */
+    void VerifyGatingVariables();
 };
 
 #endif //
