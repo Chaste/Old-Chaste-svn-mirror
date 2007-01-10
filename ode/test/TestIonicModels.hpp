@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <ctime>
 
 #include "AbstractStimulusFunction.hpp"
 #include "InitialStimulus.hpp"
@@ -123,6 +124,7 @@ public:
         /*
          * Compare 2 sets of results, e.g. from 2 different solvers for the same model.
          * Initially we assume the time series are the same; this will change.
+         * If the time series differ, the finer resolution must be given first.
          */
         
         ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
@@ -137,14 +139,33 @@ public:
         std::vector<double> calcium2 = data_reader2.GetValues("CaI");
         std::vector<double> h2 = data_reader2.GetValues("h");
         
-        TS_ASSERT_EQUALS(times1.size(), times2.size());
-        for (unsigned i=0; i<times1.size(); i++)
+        TS_ASSERT(times1.size() >= times2.size());
+        double last_v = voltages2[0];
+        double tol = tolerance;
+        for (unsigned i=0, j=0; i<times2.size(); i++)
         {
-            TS_ASSERT_DELTA(times1[i], times2[i], 1e-12);
+            // Find corresponding time index
+            while (j<times1.size() && times1[j] < times2[i] - 1e-12)
+            {
+                j++;
+            }
+            
+            // Set tolerance higher in upstroke
+            if (fabs(voltages2[i] - last_v) > 0.1)
+            {
+                tol = tolerance * 25;
+            }
+            else
+            {
+                tol = tolerance;
+            }
+            last_v = voltages2[i];
+            
+            TS_ASSERT_DELTA(times1[j], times2[i], 1e-12);
             // adjust tol to data
-            TS_ASSERT_DELTA(voltages1[i], voltages2[i], tolerance);
-            TS_ASSERT_DELTA(calcium1[i],  calcium2[i],  tolerance/1000);
-            TS_ASSERT_DELTA(h1[i],        h2[i],        tolerance/10);
+            TS_ASSERT_DELTA(voltages1[j], voltages2[i], tol);
+            TS_ASSERT_DELTA(calcium1[j],  calcium2[i],  tol/1000);
+            TS_ASSERT_DELTA(h1[j],        h2[i],        tol/10);
         }
     }
     
@@ -281,9 +302,8 @@ public:
     
     void testBackwardEulerLr91WithDelayedInitialStimulus(void) throw (Exception)
     {
-        /*
-         * Set stimulus
-         */
+        clock_t ck_start, ck_end;
+        // Set stimulus
         double magnitude = -25.5;
         double duration  = 2.0  ;  // ms
         double when = 50.0; // ms
@@ -292,24 +312,42 @@ public:
         double end_time = 1000.0; //One second in milliseconds
         double time_step = 0.01;  //1e-5 seconds in milliseconds
         
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
-        
-        /*
-         * Solve and write to file
-         */
-        RunOdeSolverWithIonicModel(&lr91_ode_system,
-                                   end_time,
-                                   "Lr91DelayedStim");
-                                   
-        // Now use the backward euler solver
+        // Solve using backward euler
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler(time_step, &stimulus);
+        ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler,
                                    end_time,
                                    "Lr91BackwardEuler");
+        ck_end = clock();
+        double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+
+        // Solve using forward Euler
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
+                                   end_time,
+                                   "Lr91DelayedStim");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
         // Compare results
-        CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler",0.25);
+        CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler", 0.01);
+        
+        // Try with larger timestep and coarser tolerance.
+        // We can't use a larger time step than 0.01 for forward Euler - the gating
+        // variables go out of range.
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler2(time_step*50, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&lr91_backward_euler2,
+                                   end_time,
+                                   "Lr91BackwardEuler2");
+        ck_end = clock();
+        double backward2 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler2", 0.25);
+        
+        std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
+            << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
     }
 };
 
