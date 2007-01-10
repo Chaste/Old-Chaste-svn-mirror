@@ -957,7 +957,7 @@ private:
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
     
     
-    void ResetInterpolatedQuantities( void )
+    inline void ResetInterpolatedQuantities( void )
     {
         mIionic=0;
         mIIntracellularStimulus=0;
@@ -965,7 +965,7 @@ private:
     }
     
     
-    void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
+    inline void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM>* pNode)
     {
         unsigned node_global_index = pNode->GetIndex();
         
@@ -1482,7 +1482,7 @@ public:
             for (int i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
-                const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
+                const c_vector<double, SPACE_DIM>& node_loc = p_node->rGetLocation();
                 
                 // interpolate x
                 x += phi(i)*node_loc;
@@ -1578,7 +1578,7 @@ public:
             ResetInterpolatedQuantities();
             for (int i=0; i<rSurfaceElement.GetNumNodes(); i++)
             {
-                const c_vector<double, SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetLocation();
+                const c_vector<double, SPACE_DIM>& node_loc = rSurfaceElement.GetNode(i)->rGetLocation();
                 x += phi(i)*node_loc;
                 
                 // allow the concrete version of the assembler to interpolate any

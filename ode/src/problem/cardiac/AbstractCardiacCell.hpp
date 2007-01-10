@@ -20,7 +20,7 @@ protected:
     AbstractStimulusFunction* mpIntracellularStimulus;
     AbstractStimulusFunction* mpExtracellularStimulus;
     
-    // flag set to true if ComputeExceptDerivative is called
+    // flag set to true if ComputeExceptVoltage is called
     bool mSetVoltageDerivativeToZero;
     
 public:

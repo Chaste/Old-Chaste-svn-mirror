@@ -14,8 +14,8 @@ using std::string;
 * destination directory.
 *
 */
-ColumnDataWriter::ColumnDataWriter(string directory, string baseName) :
-        mOutputFileHandler(directory),
+ColumnDataWriter::ColumnDataWriter(string directory, string baseName, bool cleanDirectory) :
+        mOutputFileHandler(directory, cleanDirectory),
         mDirectory(directory),
         mBaseName(baseName),
         mIsInDefineMode(true),

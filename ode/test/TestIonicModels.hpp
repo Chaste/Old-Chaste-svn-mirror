@@ -27,6 +27,8 @@
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
+#include "BackwardEulerLuoRudyIModel1991.hpp"
+
 const double TOLERANCE = 1e-2; // Not used at present
 
 
@@ -34,7 +36,7 @@ class TestIonicModels : public CxxTest::TestSuite
 {
 public:
 
-    void runOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
+    void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                     double endTime,
                                     const char *pFilename)
     {
@@ -66,7 +68,7 @@ public:
          * Write data to a file using ColumnDataWriter
          */
         int step_per_row = 100;
-        ColumnDataWriter writer("TestIonicModels",pFilename);
+        ColumnDataWriter writer("TestIonicModels",pFilename,false);
         int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
         
         std::vector<int> var_ids;
@@ -107,11 +109,42 @@ public:
         std::vector<double> valid_times = valid_reader.GetValues("Time");
         std::vector<double> valid_voltages = valid_reader.GetValues("V");
         
+        TS_ASSERT_EQUALS(times.size(), valid_times.size());
         for (unsigned i=0; i<valid_times.size(); i++)
         {
-            TS_ASSERT_DELTA(times[i], valid_times[i], 1e-6);
+            TS_ASSERT_DELTA(times[i], valid_times[i], 1e-12);
             // adjust tol to data
             TS_ASSERT_DELTA(voltages[i], valid_voltages[i], 1e-6);
+        }
+    }
+    
+    void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance)
+    {
+        /*
+         * Compare 2 sets of results, e.g. from 2 different solvers for the same model.
+         * Initially we assume the time series are the same; this will change.
+         */
+        
+        ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
+        std::vector<double> times1 = data_reader1.GetValues("Time");
+        std::vector<double> voltages1 = data_reader1.GetValues("V");
+        std::vector<double> calcium1 = data_reader1.GetValues("CaI");
+        std::vector<double> h1 = data_reader1.GetValues("h");
+        
+        ColumnDataReader data_reader2("TestIonicModels", baseResultsFilename2);
+        std::vector<double> times2 = data_reader2.GetValues("Time");
+        std::vector<double> voltages2 = data_reader2.GetValues("V");
+        std::vector<double> calcium2 = data_reader2.GetValues("CaI");
+        std::vector<double> h2 = data_reader2.GetValues("h");
+        
+        TS_ASSERT_EQUALS(times1.size(), times2.size());
+        for (unsigned i=0; i<times1.size(); i++)
+        {
+            TS_ASSERT_DELTA(times1[i], times2[i], 1e-12);
+            // adjust tol to data
+            TS_ASSERT_DELTA(voltages1[i], voltages2[i], tolerance);
+            TS_ASSERT_DELTA(calcium1[i],  calcium2[i],  tolerance/1000);
+            TS_ASSERT_DELTA(h1[i],        h2[i],        tolerance/10);
         }
     }
     
@@ -133,7 +166,7 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&hh52_ode_system,
+        RunOdeSolverWithIonicModel(&hh52_ode_system,
                                    150.0,
                                    "HH52RegResult");
                                    
@@ -143,7 +176,7 @@ public:
         // by changing the EvaluateYDerivatives() code to call it, this verified
         // that GetIionic has no errors, therefore we can test here against
         // a hardcoded result
-        runOdeSolverWithIonicModel(&hh52_ode_system,
+        RunOdeSolverWithIonicModel(&hh52_ode_system,
                                    15.0,
                                    "HhGetIIonic");
         TS_ASSERT_DELTA( hh52_ode_system.GetIIonic(), 40.6341, 1e-3);
@@ -169,7 +202,7 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&fhn61_ode_system,
+        RunOdeSolverWithIonicModel(&fhn61_ode_system,
                                    500.0,
                                    "FHN61RegResult");
                                    
@@ -202,7 +235,7 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&lr91_ode_system,
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91DelayedStim");
                                    
@@ -212,7 +245,7 @@ public:
         // by changing the EvaluateYDerivatives() code to call it, this verified
         // that GetIionic has no errors, therefore we can test here against
         // a hardcoded result
-        runOdeSolverWithIonicModel(&lr91_ode_system,
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    60.0,
                                    "Lr91GetIIonic");
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
@@ -238,12 +271,45 @@ public:
         /*
          * Solve and write to file
          */
-        runOdeSolverWithIonicModel(&lr91_ode_system,
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91RegularStim");
                                    
         CheckCellModelResults("Lr91RegularStim");
         
+    }
+    
+    void testBackwardEulerLr91WithDelayedInitialStimulus(void) throw (Exception)
+    {
+        /*
+         * Set stimulus
+         */
+        double magnitude = -25.5;
+        double duration  = 2.0  ;  // ms
+        double when = 50.0; // ms
+        InitialStimulus stimulus(magnitude, duration, when);
+        
+        double end_time = 1000.0; //One second in milliseconds
+        double time_step = 0.01;  //1e-5 seconds in milliseconds
+        
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        
+        /*
+         * Solve and write to file
+         */
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
+                                   end_time,
+                                   "Lr91DelayedStim");
+                                   
+        // Now use the backward euler solver
+        BackwardEulerLuoRudyIModel1991 lr91_backward_euler(time_step, &stimulus);
+        RunOdeSolverWithIonicModel(&lr91_backward_euler,
+                                   end_time,
+                                   "Lr91BackwardEuler");
+        
+        // Compare results
+        CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler",0.25);
     }
 };
 
