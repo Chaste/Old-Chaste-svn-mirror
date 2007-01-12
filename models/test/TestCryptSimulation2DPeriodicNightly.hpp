@@ -1,5 +1,5 @@
-#ifndef TESTCRYPTSIMULATION2DPERIODIC_HPP_
-#define TESTCRYPTSIMULATION2DPERIODIC_HPP_
+#ifndef TESTCRYPTSIMULATION2DPERIODICNIGHTLY_HPP_
+#define TESTCRYPTSIMULATION2DPERIODICNIGHTLY_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "ConformingTetrahedralMesh.cpp"
@@ -17,7 +17,7 @@
 #include "ColumnDataReader.hpp"
 #include "CryptHoneycombMeshGenerator.hpp"
 
-class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
+class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
 {
 	void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
     {
@@ -125,13 +125,10 @@ public:
         std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices(); 
 
 		double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-//		double crypt_length = 9.0;
-        //Make2dPeriodicCryptMesh("2D_crypt_mesh", cells_across, crypt_width, crypt_length, thickness_of_ghost_layer);
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
-        
-        // Set up cells by iterating through the mesh nodes
+     // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::cout << "Num Cells = " << num_cells << "\n";
         std::vector<MeinekeCryptCell> cells;
@@ -146,7 +143,7 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = 0;//-random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
@@ -179,13 +176,17 @@ public:
             cells.push_back(cell);
         }
         
+
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
-        //simulator.SetEndTime(24.0);
-        simulator.SetEndTime(24.0);
+
+		// Set length of simulation here
+        simulator.SetEndTime(60.0);
+        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         
+        // Set to re-mesh and birth
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(false);
         
@@ -302,4 +303,4 @@ public:
 };
 
 
-#endif /*TESTCRYPTSIMULATION2DPERIODIC_HPP_*/
+#endif /*TESTCRYPTSIMULATION2DPERIODICNIGHTLY_HPP_*/

@@ -12,6 +12,7 @@ CancerParameters::CancerParameters()
     /**
      * @param mStemCellCycleTime has units of hours
      * @param mTransitCellCycleTime has units of hours
+     * @param mSG2MDuration has units of hours
      * @param mMaxTransitGenerations has no units
      * @param mCryptLength  has units of cell size at equilibrium rest length
      * @param mMeinekeLambda has units of 1/hours and is the same as the paper
@@ -23,6 +24,7 @@ CancerParameters::CancerParameters()
     // Default parameter values
     mStemCellCycleTime = 24.0;
     mTransitCellCycleTime = 12.0;
+    mSG2MDuration = 10.0;	// This is a guess for Wnt Model
     mMaxTransitGenerations = 3u;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
     mMeinekeLambda = 30.0;       // Meineke uses 0.01
@@ -43,6 +45,10 @@ double CancerParameters::GetStemCellCycleTime()
 double CancerParameters::GetTransitCellCycleTime()
 {
     return mTransitCellCycleTime;
+}
+double CancerParameters::GetSG2MDuration()
+{
+    return mSG2MDuration;
 }
 unsigned CancerParameters::GetMaxTransitGenerations()
 {
@@ -72,6 +78,10 @@ void CancerParameters::SetStemCellCycleTime(double stemCellCycleTime)
 void CancerParameters::SetTransitCellCycleTime(double transitCellCycleTime)
 {
     mTransitCellCycleTime = transitCellCycleTime;
+}
+void CancerParameters::SetSG2MDuration(double SG2MDuration)
+{
+    mSG2MDuration = SG2MDuration;
 }
 void CancerParameters::SetMaxTransitGenerations(unsigned maxTransitGens)
 {

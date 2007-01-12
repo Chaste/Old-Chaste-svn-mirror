@@ -11,14 +11,14 @@
  * 
  * The variables are
  * 
- 1. r = pRb
- 2. e = E2F1
- 3. i = CycD (inactive)
- 4. j = CycD (active)
- 5. p = pRb-p
- 6. c = destruction complex (Active)
- 7. b = Beta-Catenin
- 8. WntLevel 
+ 0. r = pRb
+ 1. e = E2F1
+ 2. i = CycD (inactive)
+ 3. j = CycD (active)
+ 4. p = pRb-p
+ 5. c = destruction complex (Active)
+ 6. b = Beta-Catenin
+ 7. WntLevel 
  * 
  */
 class WntCellCycleOdeSystem: public AbstractOdeSystem
@@ -53,7 +53,7 @@ private:
     
 public:
     // Constructor
-    WntCellCycleOdeSystem();
+    WntCellCycleOdeSystem(double WntStimulus = 0.0);
     
     // Destructor
     ~WntCellCycleOdeSystem();

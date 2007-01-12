@@ -9,7 +9,6 @@
 #include <iostream>
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
 
 
@@ -19,31 +18,12 @@ public:
 
     void testWntCellCycleEquations()
     {
-		WntCellCycleOdeSystem wnt_cell_cycle_system;
+    	double WntLevel = 0.0;
+		WntCellCycleOdeSystem wnt_cell_cycle_system(WntLevel);
         
         double time = 0.0;
-        std::vector<double> initialConditions;
+        std::vector<double> initialConditions = wnt_cell_cycle_system.GetInitialConditions();
         
-        // these at start of G1 phase values
-        initialConditions.push_back(7.357000000000000e-01);
-        initialConditions.push_back(1.713000000000000e-01);
-        initialConditions.push_back(6.900000000000001e-02);
-        initialConditions.push_back(3.333333333333334e-03);
-        initialConditions.push_back(1.000000000000000e-04);
-        
-        // These three at equilibrium values
-        double a2d = 2.57e-03;
-        double a3d = 3.44e-01;
-        double a4d = 1000.0;
-        double a5d = 5.0;
-        
-        double WntLevel = 0.0;
-        double destruction_level = a5d/(a4d*WntLevel+a5d);
-        double beta_cat_level = a2d/(a2d+a3d*destruction_level);
-        
-        initialConditions.push_back(destruction_level);
-        initialConditions.push_back(beta_cat_level);
-        initialConditions.push_back(WntLevel);// Wnt level
         std::vector<double> derivs = wnt_cell_cycle_system.EvaluateYDerivatives(time,initialConditions);
         
         // Test derivatives are correct at t=0 for these initial conditions
@@ -60,16 +40,10 @@ public:
         /** 
          * And the same for a high Wnt level
          */
-        
-        
         WntLevel = 1.0;
-        destruction_level = a5d/(a4d*WntLevel+a5d);
-        beta_cat_level = a2d/(a2d+a3d*destruction_level);
-        
-        initialConditions[5] = destruction_level;
-        initialConditions[6] = beta_cat_level;
-        initialConditions[7] = WntLevel;// Wnt level
-		derivs = wnt_cell_cycle_system.EvaluateYDerivatives(time,initialConditions);
+        WntCellCycleOdeSystem wnt_cell_cycle_system2(WntLevel);
+		initialConditions = wnt_cell_cycle_system2.GetInitialConditions();
+		derivs = wnt_cell_cycle_system2.EvaluateYDerivatives(time,initialConditions);
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
@@ -85,7 +59,8 @@ public:
     
     void testWntCellCycleSolver() throw(Exception)
     {
-        WntCellCycleOdeSystem wnt_system;
+    	double WntLevel = 1.0;
+        WntCellCycleOdeSystem wnt_system(WntLevel);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
@@ -95,25 +70,7 @@ public:
 
         OdeSolution solutions;
                 
-        std::vector<double> initialConditions;
-        // these at start of G1 phase values
-        initialConditions.push_back(7.357000000000000e-01);
-        initialConditions.push_back(1.713000000000000e-01);
-        initialConditions.push_back(6.900000000000001e-02);
-        initialConditions.push_back(3.333333333333334e-03);
-        initialConditions.push_back(1.000000000000000e-04);
-        // These three at equilibrium values
-        double a2d = 2.57e-03;
-        double a3d = 3.44e-01;
-        double a4d = 1000.0;
-        double a5d = 5.0;
-        double WntLevel = 1.0;
-        double destruction_level = a5d/(a4d*WntLevel+a5d);
-        double beta_cat_level = a2d/(a2d+a3d*destruction_level);
-        
-        initialConditions.push_back(destruction_level);
-        initialConditions.push_back(beta_cat_level);
-        initialConditions.push_back(WntLevel);// Wnt level
+        std::vector<double> initialConditions = wnt_system.GetInitialConditions();
                         
         solutions = rk4_solver.Solve(&wnt_system, initialConditions, 0.0, 100.0, h_value, h_value);
         
@@ -147,7 +104,7 @@ public:
         }
         MPI_Barrier(PETSC_COMM_WORLD);
 
-        // Test backward euler solutions are OK for a very small time increase...
+        // Test solutions are OK for a small time increase...
         int end = solutions.rGetSolutions().size() - 1;
     	// Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
     	TS_ASSERT_DELTA(solutions.rGetTimes()[end] , 5.971 , 1e-3);

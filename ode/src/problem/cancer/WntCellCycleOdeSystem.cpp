@@ -6,28 +6,31 @@
 
 /**
  * Constructor
+ * 
+ * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
+ * 
  */
-WntCellCycleOdeSystem::WntCellCycleOdeSystem() 
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel) 
   : AbstractOdeSystem(8)
 {
     /*
      * State variables
 	% 
-	% 1. r = pRb
-	% 2. e = E2F1
-	% 3. i = CycD (inactive)
-	% 4. j = CycD (active)
-	% 5. p = pRb-p
-	% 6.c = APC (Active)
-	% 7.b = Beta-Catenin
-	% 8. WntLevel 
+	% 0. r = pRb
+	% 1. e = E2F1 (This is the S-phase indicator)
+	% 2. i = CycD (inactive)
+	% 3. j = CycD (active)
+	% 4. p = pRb-p
+	% 5. c = APC (Active)
+	% 6. b = Beta-Catenin
+	% 7. WntLevel 
 	*/
 	Init();
 	
-	double WntLevel = 0.0;
+	// These three lines set up a wnt signalling pathway in a steady state
 	double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
     double beta_cat_level = ma2d/(ma2d+ma3d*destruction_level);
-	
+    	
 	mVariableNames.push_back("pRb");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(7.357000000000000e-01);
@@ -196,11 +199,13 @@ std::vector<double> WntCellCycleOdeSystem::EvaluateYDerivatives (double time, co
 	std::vector<double> RHS;
     RHS.push_back(dx1*factor);
     RHS.push_back(dx2*factor);
+//    std::cout << "d/dt E2F1 = " << dx2*factor << "\n";
     RHS.push_back(dx3*factor);
     RHS.push_back(dx4*factor);
     RHS.push_back(dx5*factor);
     RHS.push_back(dx6*factor);
     RHS.push_back(dx7*factor);
+    //std::cout << "d/dt beta = " << dx7*factor << "\n";
     RHS.push_back(0.0); // Do not change the Wnt level.
     return RHS;
 }

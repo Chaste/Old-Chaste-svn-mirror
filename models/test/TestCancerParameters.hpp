@@ -12,6 +12,7 @@ public:
     {
         CancerParameters *inst1 = CancerParameters::Instance();
         
+        inst1->SetSG2MDuration(11.0);
         inst1->SetStemCellCycleTime(-25.0);
         inst1->SetTransitCellCycleTime(-35.0);
         inst1->SetMaxTransitGenerations(666u);
@@ -20,6 +21,7 @@ public:
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
+        TS_ASSERT_DELTA(inst2->GetSG2MDuration(), 11.0 , 1e-12);
         TS_ASSERT_DELTA(inst2->GetStemCellCycleTime(), -25.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetTransitCellCycleTime(), -35.0, 1e-12);
         TS_ASSERT_EQUALS(inst2->GetMaxTransitGenerations(), 666u);

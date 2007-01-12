@@ -789,7 +789,9 @@ public:
                             // just born from a stem cell), stop it doing so
                             if( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
                             {
-                                new_point.rGetLocation()[1] = 0.0;
+                            	// Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
+                            	// it is a bit of a hack to make it work nicely!
+                                new_point.rGetLocation()[1] = 0.01;
                             }
 
                             mrMesh.SetNode(index, new_point, false);

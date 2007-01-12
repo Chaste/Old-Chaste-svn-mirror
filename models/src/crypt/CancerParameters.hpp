@@ -13,6 +13,7 @@ public:
     
     double GetStemCellCycleTime();
     double GetTransitCellCycleTime();
+    double GetSG2MDuration();
     unsigned GetMaxTransitGenerations();
     double GetCryptLength();
     double GetCryptWidth();
@@ -20,6 +21,7 @@ public:
    
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
+    void SetSG2MDuration(double);
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
     void SetCryptWidth(double);
@@ -42,6 +44,12 @@ private:
      * Should probably be non-dimensionalised with stem cell cycle time (ticket:204)
      */
     double mTransitCellCycleTime;
+    
+    /**
+     * S-G2-M Phase Duration.
+     * Used by the Wnt signalling model which only models the G1 phase.
+     */
+    double mSG2MDuration;
     
     /**
      * How many generations a transit cell lives for before becoming fully differentiated.

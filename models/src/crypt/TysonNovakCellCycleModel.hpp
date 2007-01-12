@@ -17,6 +17,7 @@ private:
     TysonNovak2001OdeSystem mOdeSystem;
     BackwardEulerIvpOdeSolver mSolver;
     double mLastTime;
+    std::vector <double> mProteinConcentrations;
     SimulationTime* mpSimulationTime;
     
     
@@ -26,6 +27,8 @@ public:
 
     /// NOTE: the simulationTime parameter is NOT used!!!!!!!!!!!!!!
     virtual bool ReadyToDivide(double simulationTime);
+    
+    std::vector< double > GetProteinConcentrations();
     
     AbstractCellCycleModel *CreateCellCycleModel();
     
