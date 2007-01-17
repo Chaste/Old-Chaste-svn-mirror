@@ -1,6 +1,7 @@
 #include "WntCellCycleModel.hpp"
 #include "Exception.hpp"
 #include <iostream>
+#include <cassert>
 
 WntCellCycleModel::WntCellCycleModel()
 {

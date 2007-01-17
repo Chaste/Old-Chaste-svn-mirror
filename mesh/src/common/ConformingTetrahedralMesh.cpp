@@ -1291,7 +1291,63 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumbe
     }
 }
 
-
+template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries()
+{
+    assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
+    assert( GetNumAllElements() == GetNumElements());
+    assert( GetNumAllNodes() == GetNumNodes());
+    
+    //Open a file for the elements
+    OutputFileHandler handler("");
+    out_stream metis_file=handler.OpenOutputFile("metis.mesh");
+    
+    (*metis_file)<<GetNumElements()<<"\t";
+    if (ELEMENT_DIM==2)
+    {
+        (*metis_file)<<1<<"\n"; //1 is Metis speak for triangles
+    }
+    else
+    {
+        (*metis_file)<<2<<"\n"; //2 is Metis speak for tetrahedra
+    }
+    
+    for (unsigned i=0; i<(unsigned)GetNumElements(); i++)
+    {
+        for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+        {
+            //Note the +1 since Metis wants meshes indexed from 1
+            (*metis_file)<<mElements[i]->GetNode(j)->GetIndex() + 1<<"\t";
+        }
+        (*metis_file)<<"\n";
+    }
+    metis_file->close();
+    
+    
+    std::string convert_command   = "./bin/mesh2nodal "+handler.GetTestOutputDirectory("")
+                            + "metis.mesh";
+    system(convert_command.c_str());
+    
+    std::string permute_command   = "./bin/onmetis "+handler.GetTestOutputDirectory("")
+                            + "metis.mesh.ngraph";
+    system(permute_command.c_str());
+    
+    //Read the permutation back into a std::vector
+    std::vector<unsigned> perm(GetNumNodes());
+    std::string perm_file_name   = handler.GetTestOutputDirectory("")
+                            + "metis.mesh.ngraph.iperm";
+    std::ifstream perm_file(perm_file_name.c_str());
+    for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
+    {
+        int new_index;
+        perm_file>>new_index;
+        perm.push_back(new_index);
+    }
+    perm_file.close();   
+   
+    ///\todo use this permutation
+    
+}
 
 template <int ELEMENT_DIM, int SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)

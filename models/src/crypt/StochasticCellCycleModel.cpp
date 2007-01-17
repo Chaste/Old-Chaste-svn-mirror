@@ -1,6 +1,7 @@
 #include "StochasticCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "Exception.hpp"
+#include <cassert>
 
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()

@@ -2,6 +2,7 @@
 #include "CancerParameters.hpp"
 #include "Exception.hpp"
 #include <iostream>
+#include <cassert>
 
 AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
 {

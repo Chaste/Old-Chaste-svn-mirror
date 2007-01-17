@@ -1250,5 +1250,22 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
     
+    void TestReorderWithMetisBinaries()
+    {   
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        //mesh.PermuteNodesWithMetisBinaries();
+        
+        TS_ASSERT_EQUALS(mesh.GetNode(255)->GetIndex(), 255);
+    
+        TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
+        ConformingTetrahedralMesh<3,3> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader2);
+        
+        mesh2.PermuteNodesWithMetisBinaries();
+    }
+    
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
