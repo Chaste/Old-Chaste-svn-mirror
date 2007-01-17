@@ -29,8 +29,7 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-
-const double TOLERANCE = 1e-2; // Not used at present
+#include "ForwardEulerLuoRudyIModel1991.hpp"
 
 
 class TestIonicModels : public CxxTest::TestSuite
@@ -39,7 +38,8 @@ public:
 
     void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                     double endTime,
-                                    const char *pFilename)
+                                    const char *pFilename,
+                                    int stepPerRow=100)
     {
         double start_time = 0.0;
         
@@ -68,7 +68,6 @@ public:
         /*
          * Write data to a file using ColumnDataWriter
          */
-        int step_per_row = 100;
         ColumnDataWriter writer("TestIonicModels",pFilename,false);
         int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
         
@@ -80,7 +79,7 @@ public:
         }
         writer.EndDefineMode();
         
-        for (unsigned i = 0; i < solution.rGetSolutions().size(); i+=step_per_row)
+        for (unsigned i = 0; i < solution.rGetSolutions().size(); i+=stepPerRow)
         {
             writer.PutVariable(time_var_id, solution.rGetTimes()[i]);
             for (unsigned j=0; j<var_ids.size(); j++)
@@ -348,6 +347,46 @@ public:
         
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
             << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
+    }
+
+
+    void testForwardEulerLr91WithDelayedInitialStimulus(void) throw (Exception)
+    {
+        clock_t ck_start, ck_end;
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 2.0  ;  // ms
+        double when = 50.0; // ms
+        InitialStimulus stimulus(magnitude, duration, when);
+        
+        double end_time = 1000.0; //One second in milliseconds
+        double time_step = 0.01;  //1e-5 seconds in milliseconds
+        
+        // Solve using hardcoded forward euler LR91 class
+        ForwardEulerLuoRudyIModel1991 lr91_forward_euler(time_step, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&lr91_forward_euler,
+                                   end_time,
+                                   "Lr91ForwardEuler");
+        ck_end = clock();
+        double hardcoded = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+
+        // Solve using the forward Euler ODE solver class
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&lr91_ode_system,
+                                   end_time,
+                                   "Lr91DelayedStim");
+        ck_end = clock();
+        double normal = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
+        // Compare results
+        CompareCellModelResults("Lr91DelayedStim", "Lr91ForwardEuler", 1e-6);
+        
+        
+        std::cout << "Run times:\n\tHardcoded forward euler: " << hardcoded  
+                  << "\n\tNormal forward Euler: " << normal << std::endl;
     }
 };
 
