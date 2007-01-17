@@ -12,18 +12,19 @@
 
 class EulerIvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
+protected:
+    void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                             double timeStep,
+                             double time,
+                             std::vector<double>& currentYValues,
+                             std::vector<double>& nextYValues);
+
 public:
     EulerIvpOdeSolver()
     {}; //Constructor-does nothing
     
-    std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-                                            double timeStep,
-                                            double time,
-                                            std::vector<double> currentYValue);
-                                            
     virtual ~EulerIvpOdeSolver()
     {}
-    
 };
 
 #endif //_EULERIVPODESOLVER_HPP_

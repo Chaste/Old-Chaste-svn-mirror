@@ -116,7 +116,7 @@ public:
         current_y_value.push_back(1.0);
         current_y_value.push_back(2.0);
         current_y_value.push_back(3.0);
-        backward_euler_structure.currentYValue = current_y_value;
+        backward_euler_structure.currentYValues = current_y_value;
         
         Vec solution_guess, residual;
         int indices[3] = {0,1,2};
@@ -159,7 +159,7 @@ public:
         current_y_value.push_back(1.0);
         current_y_value.push_back(2.0);
         current_y_value.push_back(3.0);
-        backward_euler_structure.currentYValue = current_y_value;
+        backward_euler_structure.currentYValues = current_y_value;
         
         Vec solution_guess;
         int indices[3] = {0,1,2};

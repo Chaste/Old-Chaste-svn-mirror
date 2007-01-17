@@ -111,7 +111,9 @@ void LuoRudyIModel1991OdeSystem::Init()
  *
  * @return std::vector<double> RHS of LuoRudyIModel1991OdeSystem system of equations
  */
-std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
+void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time, 
+                                                      const std::vector<double> &rY, 
+                                                      std::vector<double> &rDY)
 {
     double fast_sodium_current_h_gate_h = rY[0];
     double fast_sodium_current_j_gate_j = rY[1];
@@ -265,18 +267,14 @@ std::vector<double> LuoRudyIModel1991OdeSystem::EvaluateYDerivatives (double tim
         membrane_V_prime = 0;
     }
     
-    std::vector<double> returnRHS;
-    
-    returnRHS.push_back(fast_sodium_current_h_gate_h_prime);
-    returnRHS.push_back(fast_sodium_current_j_gate_j_prime);
-    returnRHS.push_back(fast_sodium_current_m_gate_m_prime);
-    returnRHS.push_back(intracellular_calcium_concentration_Cai_prime);
-    returnRHS.push_back(membrane_V_prime);
-    returnRHS.push_back(slow_inward_current_d_gate_d_prime);
-    returnRHS.push_back(slow_inward_current_f_gate_f_prime);
-    returnRHS.push_back(time_dependent_potassium_current_X_gate_X_prime);
-    
-    return returnRHS;
+    rDY[0] = fast_sodium_current_h_gate_h_prime;
+    rDY[1] = fast_sodium_current_j_gate_j_prime;
+    rDY[2] = fast_sodium_current_m_gate_m_prime;
+    rDY[3] = intracellular_calcium_concentration_Cai_prime;
+    rDY[4] = membrane_V_prime;
+    rDY[5] = slow_inward_current_d_gate_d_prime;
+    rDY[6] = slow_inward_current_f_gate_f_prime;
+    rDY[7] = time_dependent_potassium_current_X_gate_X_prime;
 }
 
 

@@ -22,26 +22,23 @@
  *
  */
 
-std::vector<double> EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-                                                           double timeStep,
-                                                           double time,
-                                                           std::vector<double> currentYValue)
+void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                                            double timeStep,
+                                            double time,
+                                            std::vector<double>& currentYValues,
+                                            std::vector<double>& nextYValues)
 {
     // for each timestep in AbstractOneStepIvpSolver calculates a vector containing
     // the next Y value from the current one for each equation in the system.
     
-    int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
+    const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
-    std::vector<double> dy(num_equations);
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValue);
+    // Yes, this looks wierd, but it makes good use of memory!
+    pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, nextYValues);
     
-    
-    ///\todo only reserve memory if returning this
-    std::vector<double> next_y_value(num_equations);
-    
-    for (int i=0;i<num_equations; i++)
+    for (unsigned i=0;i<num_equations; i++)
     {
-        next_y_value[i] = currentYValue[i] + timeStep*dy[i];
+        // nextYValues contains dY/dt until here
+        nextYValues[i] = currentYValues[i] + timeStep*nextYValues[i];
     }
-    return next_y_value;
 }

@@ -22,36 +22,33 @@
  * See documentation for AbstractOneStepIvpOdeSolver::Solve()
  */
 
-std::vector<double> RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
         double timeStep,
         double time,
-        std::vector<double> currentYValue)
+        std::vector<double>& currentYValues,
+        std::vector<double>& nextYValues)
 {
-    int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
+    const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     // Apply Runge-Kutta 2nd Order method for each timestep in AbstractOneStepIvpSolver.
     // Calculates a vector containing the next Y value from the current one for each
     // equation in the system.
     
-    // Work out k1
     std::vector<double> k1(num_equations);
-    std::vector<double> dy(num_equations);
-    std::vector<double> next_y_value(num_equations);
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time,currentYValue);
-    for (int i=0;i<num_equations; i++)
+    std::vector<double>& dy = nextYValues; // re-use memory
+    
+    // Work out k1
+    dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues);
+    for (unsigned i=0; i<num_equations; i++)
     {
         k1[i] = timeStep*dy[i];
-        k1[i] = k1[i]/2.0+currentYValue[i];
-    }
-    // Work out k2
-    std::vector<double> k2(num_equations);
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep/2.0,k1);
-    for (int i=0;i<num_equations; i++)
-    {
-        k2[i] = timeStep*dy[i];
-        
-        next_y_value[i]=currentYValue[i] + k2[i];
+        k1[i] = k1[i]/2.0+currentYValues[i];
     }
     
-    return next_y_value;
+    // Work out k2 and new solution
+    dy = pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep/2.0, k1);
+    for (unsigned i=0; i<num_equations; i++)
+    {
+        nextYValues[i] = currentYValues[i] + timeStep*dy[i];
+    }
 }

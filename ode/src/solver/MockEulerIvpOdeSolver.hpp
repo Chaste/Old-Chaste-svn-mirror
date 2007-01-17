@@ -15,24 +15,19 @@ class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
 {
 private:
     int mCallCount;
+
+protected:
+    virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
+                               std::vector<double>& rCurrentYValues,
+                               std::vector<double>& rWorkingMemory,
+                               double startTime,
+                               double endTime,
+                               double timeStep);
     
 public:
     MockEulerIvpOdeSolver();
     
     int GetCallCount();
-    
-    virtual OdeSolution Solve(AbstractOdeSystem *pAbstractOdeSystem,
-                              std::vector<double> &rYValues,
-                              double startTime,
-                              double endTime,
-                              double timeStep,
-                              double timeSampling);
-                              
-    virtual void Solve(AbstractOdeSystem* pAbstractOdeSystem,
-                       std::vector<double>& rYValues,
-                       double startTime,
-                       double endTime,
-                       double timeStep);
                        
     virtual ~MockEulerIvpOdeSolver()
     {}

@@ -50,7 +50,7 @@ public:
     virtual void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                      double timeStep,
                      double time,
-                     const std::vector<double>& rCurrentYValues,
+                     std::vector<double>& rCurrentYValues,
                      std::vector<double>& rNextYValues);
 
     /** 

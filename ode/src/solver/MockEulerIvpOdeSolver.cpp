@@ -7,36 +7,24 @@ MockEulerIvpOdeSolver::MockEulerIvpOdeSolver() : EulerIvpOdeSolver()
     mCallCount=0;
 }
 
-OdeSolution MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
-                                         std::vector<double> &rYValues,
-                                         double startTime,
-                                         double endTime,
-                                         double timeStep,
-                                         double timeSampling)
-{
-    return EulerIvpOdeSolver::Solve(pAbstractOdeSystem,
-                                    rYValues,
-                                    startTime,
-                                    endTime,
-                                    timeStep,
-                                    timeSampling);
-}
-
-void MockEulerIvpOdeSolver::Solve(AbstractOdeSystem *pAbstractOdeSystem,
-                                  std::vector<double> &rYValues,
-                                  double startTime,
-                                  double endTime,
-                                  double timeStep)
-{
-    mCallCount++;
-    EulerIvpOdeSolver::Solve(pAbstractOdeSystem,
-                             rYValues,
-                             startTime,
-                             endTime,
-                             timeStep);
-}
-
 int MockEulerIvpOdeSolver::GetCallCount()
 {
     return mCallCount;
+}
+
+
+void MockEulerIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
+                                          std::vector<double>& rCurrentYValues,
+                                          std::vector<double>& rWorkingMemory,
+                                          double startTime,
+                                          double endTime,
+                                          double timeStep)
+{
+    mCallCount++;
+    EulerIvpOdeSolver::InternalSolve(pAbstractOdeSystem,
+                                     rCurrentYValues,
+                                     rWorkingMemory,
+                                     startTime,
+                                     endTime,
+                                     timeStep);
 }

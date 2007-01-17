@@ -21,16 +21,17 @@
  * See documentation for AbstractOneStepIvpOdeSolver::Solve()
  */
 
-std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
         double timeStep,
         double time,
-        std::vector<double> currentYValue)
+        std::vector<double>& currentYValues,
+        std::vector<double>& nextYValues)
 {
     // Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.
     // Calculates a vector containing the next Y value from the current one for each
     // equation in the system.
     
-    int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
+    const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
     std::vector<double> k1(num_equations);
     std::vector<double> k2(num_equations);
@@ -40,38 +41,35 @@ std::vector<double> RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSyst
     std::vector<double> yk3(num_equations);
     std::vector<double> yk4(num_equations);
     
-    std::vector<double> dy(num_equations);
-    std::vector<double> next_y_value(num_equations);
+    std::vector<double>& dy = nextYValues; // re-use memory (not that it makes much difference here!)
     
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time,currentYValue);
+    dy = pAbstractOdeSystem->EvaluateYDerivatives(time,currentYValues);
     
-    for (int i=0;i<num_equations; i++)
+    for (unsigned i=0;i<num_equations; i++)
     {
         k1[i]=timeStep*dy[i];
-        yk2[i] = currentYValue[i] + 0.5*k1[i];
+        yk2[i] = currentYValues[i] + 0.5*k1[i];
     }
     dy = pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep,yk2);
     
-    for (int i=0;i<num_equations; i++)
+    for (unsigned i=0;i<num_equations; i++)
     {
         k2[i]=timeStep*dy[i];
-        yk3[i] = currentYValue[i] + 0.5*k2[i];
+        yk3[i] = currentYValues[i] + 0.5*k2[i];
     }
     dy = pAbstractOdeSystem->EvaluateYDerivatives(time+0.5*timeStep,yk3);
     
-    for (int i=0;i<num_equations; i++)
+    for (unsigned i=0;i<num_equations; i++)
     {
         k3[i]=timeStep*dy[i];
-        yk4[i] = currentYValue[i] + k3[i];
+        yk4[i] = currentYValues[i] + k3[i];
     }
     dy = pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep,yk4);
     
-    for (int i=0;i<num_equations; i++)
+    for (unsigned i=0;i<num_equations; i++)
     {
         k4[i]=timeStep*dy[i];
         
-        next_y_value[i] = currentYValue[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
+        nextYValues[i] = currentYValues[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
     }
-    
-    return next_y_value;
 }

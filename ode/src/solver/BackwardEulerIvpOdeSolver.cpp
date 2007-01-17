@@ -25,7 +25,7 @@ typedef struct
     double Time;
     double Epsilon;
     AbstractOdeSystem *pAbstractOdeSystem;
-    std::vector<double> currentYValue;
+    std::vector<double> currentYValues;
 }
 BackwardEulerStructure;
 
@@ -49,25 +49,20 @@ PetscErrorCode ComputeAnalyticJacobian(SNES snes,Vec input,Mat *pJacobian ,Mat *
  *
 */
 
-std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+void BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
         double timeStep,
         double time,
-        std::vector<double> currentYValue)
+        std::vector<double>& currentYValues,
+        std::vector<double>& nextYValues)
 {
     /*
      * for each timestep in AbstractOneStepIvpSolver calculates a vector containing 
      * the next Y value from the current one for each equation in the system.
      */
     
-    int num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
+    const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     
- 
-    std::vector<double> dy(num_equations);
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValue);
-    
-    
-    //\todo only reserve memory if returning this
-    std::vector<double> next_y_value(num_equations);
+    pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, nextYValues);
     
     Vec initial_guess;
     VecCreate(PETSC_COMM_WORLD, &initial_guess);
@@ -83,7 +78,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     
     for (unsigned global_index=mLo; global_index<mHi; global_index++)
     {
-        VecSetValue(initial_guess, global_index, currentYValue[global_index], INSERT_VALUES);
+        VecSetValue(initial_guess, global_index, currentYValues[global_index], INSERT_VALUES);
     }
 
     VecAssemblyBegin(initial_guess);
@@ -96,7 +91,7 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
     p_backward_euler_structure->TimeStep = timeStep;
     p_backward_euler_structure->Time = time;
     p_backward_euler_structure->Epsilon = mEpsilon;
-    p_backward_euler_structure->currentYValue = std::vector<double>(currentYValue);
+    p_backward_euler_structure->currentYValues = std::vector<double>(currentYValues);
 
     SimplePetscNonlinearSolver solver;
 
@@ -115,14 +110,13 @@ std::vector<double> BackwardEulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSy
 
     ReplicatableVector answer_replicated;
     answer_replicated.ReplicatePetscVector(answer);
-    for (int i=0; i<num_equations; i++)
+    for (unsigned i=0; i<num_equations; i++)
     {
-        next_y_value[i] = answer_replicated[i];
+        nextYValues[i] = answer_replicated[i];
         
     }
     
     delete p_backward_euler_structure;
-    return next_y_value;
 }
 
 
@@ -133,7 +127,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     AbstractOdeSystem *p_ode_system = p_backward_euler_structure->pAbstractOdeSystem;
     double time_step = p_backward_euler_structure->TimeStep;
     double time = p_backward_euler_structure->Time;
-    std::vector<double> current_y_value = p_backward_euler_structure->currentYValue;
+    std::vector<double> current_y_value = p_backward_euler_structure->currentYValues;
     
     unsigned num_equations = p_ode_system->GetNumberOfStateVariables();
     ReplicatableVector solution_guess_replicated;
@@ -169,7 +163,7 @@ PetscErrorCode ComputeNumericalJacobian(SNES snes,Vec solutionGuess, Mat *pJacob
 {
     BackwardEulerStructure *p_backward_euler_structure = (BackwardEulerStructure*)pContext;
     AbstractOdeSystem *p_ode_system = p_backward_euler_structure->pAbstractOdeSystem;
-    std::vector<double> current_y_value = p_backward_euler_structure->currentYValue;
+    std::vector<double> current_y_value = p_backward_euler_structure->currentYValues;
     unsigned num_equations = p_ode_system->GetNumberOfStateVariables();
     
     Vec residual, residual_perturbed, solution_perturbed, jacobian_column;

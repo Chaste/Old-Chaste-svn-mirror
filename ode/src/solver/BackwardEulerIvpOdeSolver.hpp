@@ -17,6 +17,13 @@ private:
     double mEpsilon;
     bool mForceUseOfNumericalJacobian;
 
+protected:
+    void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                             double timeStep,
+                             double time,
+                             std::vector<double>& currentYValues,
+                             std::vector<double>& nextYValues);
+
 public:
     
     BackwardEulerIvpOdeSolver()
@@ -43,14 +50,6 @@ public:
     virtual ~BackwardEulerIvpOdeSolver()
     {
     }   
-    
-    
-    
-    std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-                                            double timeStep,
-                                            double time,
-                                            std::vector<double> currentYValue);                                
-                                            
 };
 
 

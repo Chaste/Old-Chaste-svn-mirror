@@ -12,14 +12,16 @@
 
 class RungeKutta2IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
+protected:
+    void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                             double timeStep,
+                             double time,
+                             std::vector<double>& currentYValues,
+                             std::vector<double>& nextYValues);
+    
 public:
     RungeKutta2IvpOdeSolver()
     {};	//Constructor-does nothing
-    
-    std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-                                            double timeStep,
-                                            double time,
-                                            std::vector<double> currentYValue);
                                             
 };
 

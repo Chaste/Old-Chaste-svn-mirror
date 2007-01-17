@@ -61,6 +61,9 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     
+    // Allocate working memory
+    std::vector<double> working_memory(rYValues.size());
+    
     // Solve the ODE system
     
     int time_step_number = 0;
@@ -81,7 +84,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
             to_time = endTime;
         }
         
-        Solve(pAbstractOdeSystem, rYValues, current_time, to_time, timeStep);
+        InternalSolve(pAbstractOdeSystem, rYValues, working_memory, current_time, to_time, timeStep);
         
         current_time = to_time;
         if ( mStoppingEventOccured == true )
@@ -106,15 +109,31 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
                                         double endTime,
                                         double timeStep)
 {
+    // Allocate working memory
+    std::vector<double> working_memory(rYValues.size());
+    // And solve...
+    InternalSolve(pAbstractOdeSystem, rYValues, working_memory, startTime, endTime, timeStep);
+}
+
+
+void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
+                       std::vector<double>& rYValues,
+                       std::vector<double>& rWorkingMemory,
+                       double startTime,
+                       double endTime,
+                       double timeStep)
+{
     // Solve the ODE system
     
-    double realTimeStep = timeStep;
-    
+    double real_time_step = timeStep;
     int time_step_number = 0;
-    
     double current_time = startTime;
     
-    //should never get here if this bool has been set to true;
+    // Which of our vectors holds the current solution?
+    // If this is true, it's in rYValues, otherwise it's in rWorkingMemory.
+    bool curr_is_curr = false;
+    
+    // should never get here if this bool has been set to true;
     assert(!mStoppingEventOccured);
     
     while ( (current_time < endTime) && (!mStoppingEventOccured) )
@@ -122,36 +141,39 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
         time_step_number++;
         
         // Determine what the value time step should really be like
-        
-        if (startTime+time_step_number*timeStep >= endTime)
+        double to_time = startTime+time_step_number*timeStep; 
+        if (to_time >= endTime)
         {
-            realTimeStep = endTime-current_time;
+            real_time_step = endTime - current_time;
+            to_time = endTime;
         }
+        
+        curr_is_curr = not curr_is_curr;
         
         // Function that calls the appropriate one-step solver
 //        std::cout << rYValues[0] << "\n";
 //        std::cout << pAbstractOdeSystem->GetNumberOfStateVariables()<<"\n";
 //        std::cout.flush();
-        rYValues = CalculateNextYValue(pAbstractOdeSystem,
-                                       realTimeStep,
-                                       current_time,
-                                       rYValues);
+        CalculateNextYValue(pAbstractOdeSystem,
+                            real_time_step,
+                            current_time,
+                            curr_is_curr ? rYValues : rWorkingMemory,
+                            curr_is_curr ? rWorkingMemory : rYValues);
                                        
         // Determine the new current time
+        current_time = to_time;
         
-        if (realTimeStep < timeStep)
-        {
-            current_time = endTime;
-        }
-        else
-        {
-            current_time = startTime+time_step_number*timeStep;
-        }
-        
-        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
+        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time,
+                                                        curr_is_curr ? rWorkingMemory : rYValues) == true )
         {
             mStoppingTime = current_time;
             mStoppingEventOccured = true;
         }
+    }
+    
+    // Final answer must be in rYValues
+    if (curr_is_curr)
+    {
+        rYValues.assign(rWorkingMemory.begin(), rWorkingMemory.end());
     }
 }

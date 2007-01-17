@@ -9,6 +9,34 @@
 
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
+protected:
+    /**
+     * Method that actually performs the solving on behalf of the public Solve methods.
+     * 
+     * @param pAbstractOdeSystem  the system to solve
+     * @param rCurrentYValues  the current (initial) state; results will also be returned
+     *     in here
+     * @param rWorkingMemory  working memory; same size as rCurrentYValues
+     * @param startTime  initial time
+     * @param endTime  time to solve to
+     * @param timeStep  dt
+     */
+    virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
+                               std::vector<double>& rCurrentYValues,
+                               std::vector<double>& rWorkingMemory,        
+                               double startTime,
+                               double endTime,
+                               double timeStep);
+
+    /**
+     * Calculate the next time step.  Concrete subclasses should provide this method.
+     */                       
+    virtual void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
+                                     double timeStep,
+                                     double time,
+                                     std::vector<double>& currentYValues,
+                                     std::vector<double>& nextYValues)=0;
+    
 public:
     /**
      * Solves a system of ODEs using a specified one-step ODE solver
@@ -83,12 +111,7 @@ public:
                        double startTime,
                        double endTime,
                        double timeStep);
-                       
-    virtual std::vector<double> CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-                                                    double timeStep,
-                                                    double time,
-                                                    std::vector<double> currentYValue)=0;
-                                                    
+                                                                           
     virtual ~AbstractOneStepIvpOdeSolver()
     {}
 };
