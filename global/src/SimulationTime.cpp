@@ -100,3 +100,12 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation,
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
+
+
+/**
+ * Allows lower classes to check whether the simulation time class has been set up before using it
+ */
+bool SimulationTime::IsSimulationTimeSetUp()
+{
+	return mEndTimeAndNumberOfTimeStepsSet;
+}

@@ -1,20 +1,46 @@
 #include "WntCellCycleModel.hpp"
+#include "Exception.hpp"
 #include <iostream>
+
+WntCellCycleModel::WntCellCycleModel()
+{
+	EXCEPTION("A Wnt cell cycle model must be given a steady state of Wnt (double)\n to set steady state of wnt pathway at start of model");	
+}
 
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 {
 	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
     mpSimulationTime = SimulationTime::Instance();
+    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+	{
+		EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
+	}
     mLastTime = mpSimulationTime->GetDimensionalisedTime();
-    //mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions()); 
+    mBirthTime = mLastTime;
     mProteinConcentrations = mOdeSystem.GetInitialConditions();
     mInSG2MPhase = false;
-    
-	mpCancerParams = CancerParameters::Instance();
+    mpCancerParams = CancerParameters::Instance();
+}
+
+void WntCellCycleModel::ResetModel()
+{	// This model needs the protein concentrations and phase resetting to G0/G1.
+	mpSimulationTime = SimulationTime::Instance();
+	mLastTime = mpSimulationTime->GetDimensionalisedTime();
+    mBirthTime = mLastTime;
+    // Keep the Wnt pathway in the same state but reset the cell cycle part
+    // Cell cycle is proteins 0 to 4 (first 5 ODEs)
+    for (unsigned i = 0 ; i<5 ; i++)
+    {
+	    mProteinConcentrations[i] = mOdeSystem.GetInitialConditions()[i];
+    }
+    mInSG2MPhase = false;
 }
     
-bool WntCellCycleModel::ReadyToDivide(double wntStimulus)
+bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
+	mpSimulationTime = SimulationTime::Instance();
+	assert(cellCycleInfluences.size()==1);
+	double wntStimulus = cellCycleInfluences[0];
 	bool divideNow = false;
 	double current_time = mpSimulationTime->GetDimensionalisedTime();
 	
@@ -61,7 +87,6 @@ bool WntCellCycleModel::ReadyToDivide(double wntStimulus)
  	
     return divideNow;
 }
-    
     
 std::vector<double> WntCellCycleModel::GetProteinConcentrations()
 {

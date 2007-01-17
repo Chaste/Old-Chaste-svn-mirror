@@ -128,6 +128,10 @@ public:
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
      // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::cout << "Num Cells = " << num_cells << "\n";
@@ -170,7 +174,7 @@ public:
                 birth_time = -1; //hours
             }
             
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -191,6 +195,9 @@ public:
         simulator.SetNoBirth(false);
         
         simulator.SetGhostNodes(ghost_node_indices);
+        
+        SimulationTime::Destroy();
+        
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DPeriodicNightly", 500u, 1000u);
     }

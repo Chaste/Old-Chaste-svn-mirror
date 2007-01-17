@@ -50,7 +50,7 @@ private:
     std::vector<MeinekeCryptCell> mCells;
     
     CancerParameters *mpParams;
-    
+    SimulationTime *mpSimulationTime;
     RandomNumberGenerator *mpGen;
     bool mCreatedRng;
     
@@ -69,7 +69,8 @@ public:
             : mrMesh(rMesh),
             mCells(cells)
     {
-        if (pGen!=NULL)
+    	mpSimulationTime = SimulationTime::Instance();
+    	if (pGen!=NULL)
         {
             mpGen = pGen;
             mCreatedRng = false;
@@ -97,6 +98,7 @@ public:
         {
             delete mpGen;
         }
+        SimulationTime::Destroy();
     }
     
     void SetDt(double dt)
@@ -158,7 +160,7 @@ public:
      */
     void Solve()
     {
-        if (mOutputDirectory=="")
+    	if (mOutputDirectory=="")
         {
             EXCEPTION("OutputDirectory not set");
         }
@@ -186,9 +188,8 @@ public:
         tabulated_writer.EndDefineMode();
         
         int num_time_steps = (int)(mEndTime/mDt+0.5);
-        
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
+        mpSimulationTime = SimulationTime::Instance();
+        mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
                                      
         //double time = 0.0;
         double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
@@ -201,19 +202,20 @@ public:
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory, false);
         out_stream p_results_file = output_file_handler.OpenOutputFile("results");
-        
-        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
+        while (mpSimulationTime->GetTimeStepsElapsed() < num_time_steps)
         {
+            //std::cout << "Simulation time = " << mpSimulationTime->GetDimensionalisedTime() << "\n" << std::endl;
             // Cell birth
             if (mIncludeRandomBirth && time_since_last_birth > 5.0)// Ie Birth every 5 hours
             {
-                unsigned new_node_index = AddRandomNode(p_simulation_time->GetDimensionalisedTime());
+                unsigned new_node_index = AddRandomNode(mpSimulationTime->GetDimensionalisedTime());
                 time_since_last_birth = 0 ;
                 // Create new cell note all are Stem Cells and have generation 0 for random birth
                 //RandomNumberGenerator *pGen=new RandomNumberGenerator;
                 CryptCellType cell_type=STEM ;
                 unsigned generation=0;
-                MeinekeCryptCell new_cell(cell_type, p_simulation_time->GetDimensionalisedTime(), generation, new StochasticCellCycleModel(mpGen));
+                
+                MeinekeCryptCell new_cell(cell_type, generation, new StochasticCellCycleModel(mpGen));
 
                 // Update cells vector
                 new_cell.SetNodeIndex(new_node_index);
@@ -244,7 +246,7 @@ public:
                         //Note: May need to check which side element is put esp. at the ends
                         Element<1,1> *p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
                         
-                        unsigned new_node_index = AddNodeToElement(p_element,p_simulation_time->GetDimensionalisedTime());
+                        unsigned new_node_index = AddNodeToElement(p_element,mpSimulationTime->GetDimensionalisedTime());
                         // Update cells        	 variableID unknown vector
                         new_cell.SetNodeIndex(new_node_index);
                         if (new_node_index == mCells.size())
@@ -361,11 +363,11 @@ public:
            
             
             // Increment simulation time here, so results files look sensible
-            p_simulation_time->IncrementTimeOneStep();
+            mpSimulationTime->IncrementTimeOneStep();
             
             // Writing Results To Tabulated File First And Then To Space Separated File
-            tabulated_writer.PutVariable(time_var_id, p_simulation_time->GetDimensionalisedTime());
-            (*p_results_file) << p_simulation_time->GetDimensionalisedTime() << "\t";
+            tabulated_writer.PutVariable(time_var_id, mpSimulationTime->GetDimensionalisedTime());
+            (*p_results_file) << mpSimulationTime->GetDimensionalisedTime() << "\t";
             
             int cell=0; // NB this is not the index in mCells, but the index in the mesh!
             for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
@@ -413,8 +415,8 @@ public:
             
             time_since_last_birth += mDt;
         }
-        SimulationTime::Destroy();
     }
+    
     
     
 private:

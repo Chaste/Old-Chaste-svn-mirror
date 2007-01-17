@@ -15,6 +15,7 @@ public:
     int GetTimeStepsElapsed();
     double GetDimensionalisedTime();
     static void Destroy();
+    bool IsSimulationTimeSetUp();
 protected:
     SimulationTime();
     SimulationTime(const SimulationTime&);

@@ -18,8 +18,6 @@
 #include "ColumnDataReader.hpp"
 
 
-
-
 class TestCryptSimulation : public CxxTest::TestSuite
 {
     void Make1dCryptMesh(std::string meshFilename, unsigned numNodesInEachDimension, double length)
@@ -111,6 +109,7 @@ public:
         CryptSimulation simulator(mesh);
         simulator.SetEndTime(0.25);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
+
     }
     
     // No birth because SetIncludeRandomBirth() was not called.
@@ -146,8 +145,8 @@ public:
             const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
             TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
         }
-        
-        //CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
+
+        CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
     }
     
     // Death because this test has a cell starting at the end of
@@ -192,7 +191,7 @@ public:
         }
         
         TS_ASSERT_LESS_THAN(0u, dead_cells);
-        
+
         CheckAgainstPreviousRun("CryptWithDeathButNoBirth", 23);
     }
     
@@ -213,6 +212,9 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+              
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -221,19 +223,22 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time=-p_params->GetStemCellCycleTime()+1.0*i; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         
+        //SimulationTime::Destroy();
         
         CryptSimulation simulator(mesh, cells);
+        SimulationTime::Destroy();
         simulator.SetOutputDirectory("CryptWithBirthConstantRestLength");
         simulator.SetMaxCells(33);
         simulator.SetIncludeRandomBirth();
         simulator.SetEndTime(10.0);
-        simulator.Solve();
-        
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
         CheckAgainstPreviousRun("CryptWithBirthConstantRestLength",33);
     }
     
@@ -253,6 +258,10 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -261,20 +270,22 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time= -1.0; //hours
-            MeinekeCryptCell cell(cell_type, birth_time, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         
         
         CryptSimulation simulator(mesh, cells);
+        SimulationTime::Destroy();
         simulator.SetOutputDirectory("CryptWithBirthVariableRestLength");
         simulator.SetMaxCells(25);
         simulator.SetIncludeRandomBirth();
         simulator.SetIncludeVariableRestLength();
         simulator.SetEndTime(10.0);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-        
+
         CheckAgainstPreviousRun("CryptWithBirthVariableRestLength",25);
     }
     
@@ -297,6 +308,10 @@ public:
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
@@ -324,19 +339,21 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         
+        
         CryptSimulation simulator(mesh, cells);
+        SimulationTime::Destroy();
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
         
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-        
+
         CheckAgainstPreviousRun("CryptWithCells",50);
     }
     
@@ -359,6 +376,10 @@ public:
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
@@ -386,14 +407,16 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         
-        CryptSimulation simulator(mesh, cells);
         
+        
+        CryptSimulation simulator(mesh, cells);
+        SimulationTime::Destroy();
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
@@ -401,7 +424,7 @@ public:
         simulator.SetIncludeVariableRestLength();
         
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-        
+
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
     }
     
@@ -434,6 +457,10 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -454,22 +481,22 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         
-        CryptSimulation simulator(mesh, cells);
         
+        CryptSimulation simulator(mesh, cells);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(40);
         
         simulator.SetIncludeVariableRestLength();
-        
-        TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-        
+        SimulationTime::Destroy();
+        simulator.Solve();
+
         std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
         //Warning - there are 6 live cells and one dead one sloughed off still in existance.
         //n.b. throughout the simulation 2 cells are sloughed off but one place is reused

@@ -3,6 +3,7 @@
 
 #include "AbstractCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "CancerParameters.hpp"
 
 /**
  *  Stochastic cell model
@@ -13,15 +14,15 @@
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 private:
+	CancerParameters* mp_params;
     RandomNumberGenerator* mpGen;
     
 public:
-    StochasticCellCycleModel(RandomNumberGenerator *pGen)
-    {
-        mpGen=pGen;
-    }
+    StochasticCellCycleModel(RandomNumberGenerator *pGen);
     
-    bool ReadyToDivide(double timeSinceBirth);
+    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    
+    virtual void ResetModel();
     
     AbstractCellCycleModel *CreateCellCycleModel();
 };

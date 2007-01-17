@@ -225,7 +225,11 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-          
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -267,7 +271,7 @@ public:
                 birth_time = -1; //hours
             }
             
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -279,7 +283,9 @@ public:
         simulator.SetMaxCells(800);
         simulator.SetMaxElements(800);
         simulator.SetFixedBoundaries();
-        
+        // sim time destroy needs to be below where we move cells around 
+        // (because it makes new ones from copies of old ones??)
+        SimulationTime::Destroy();
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
     }

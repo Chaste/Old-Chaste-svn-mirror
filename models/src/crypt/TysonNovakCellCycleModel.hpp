@@ -18,15 +18,15 @@ private:
     BackwardEulerIvpOdeSolver mSolver;
     double mLastTime;
     std::vector <double> mProteinConcentrations;
-    SimulationTime* mpSimulationTime;
-    
+  
     
 public:
     
     TysonNovakCellCycleModel();
 
-    /// NOTE: the simulationTime parameter is NOT used!!!!!!!!!!!!!!
-    virtual bool ReadyToDivide(double simulationTime);
+    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    
+    virtual void ResetModel();
     
     std::vector< double > GetProteinConcentrations();
     

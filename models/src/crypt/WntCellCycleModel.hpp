@@ -15,17 +15,21 @@ private:
     RungeKutta4IvpOdeSolver mSolver;
     double mLastTime;
     std::vector <double> mProteinConcentrations;
-    SimulationTime* mpSimulationTime;
     CancerParameters* mpCancerParams;
     double mDivideTime;
     bool mInSG2MPhase;
     
 public:
     
-    WntCellCycleModel(double InitialWntStimulus = 0.0);
+    WntCellCycleModel();
+    
+    WntCellCycleModel(double InitialWntStimulus);
 
     /// NOTE: the simulationTime parameter has been hijacked to provide a Wnt input
-    virtual bool ReadyToDivide(double wntStimulus);
+        
+    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    
+    virtual void ResetModel();
     
     std::vector< double > GetProteinConcentrations();
     

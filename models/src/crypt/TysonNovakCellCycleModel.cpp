@@ -1,18 +1,29 @@
 #include "TysonNovakCellCycleModel.hpp"
+#include "Exception.hpp"
 #include <iostream>
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
     mpSimulationTime = SimulationTime::Instance();
+    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+	{
+		EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
+	}
     mLastTime = mpSimulationTime->GetDimensionalisedTime();
-    
+    mBirthTime = mLastTime;
     mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
     mProteinConcentrations = mOdeSystem.GetInitialConditions();
 }
+
+void TysonNovakCellCycleModel::ResetModel()
+{	// This model cycles itself and nothing needs to be reset.
+	mBirthTime = mLastTime;	
+}
     
-/// NOTE: the simulationTime parameter is NOT used!!!!!!!!!!!!!!
-bool TysonNovakCellCycleModel::ReadyToDivide(double simulationTime)
+bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
+	mpSimulationTime = SimulationTime::Instance();
+	assert(cellCycleInfluences.size()==0);
     double current_time = mpSimulationTime->GetDimensionalisedTime();
     if(current_time<=mLastTime)
     {

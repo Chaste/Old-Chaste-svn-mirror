@@ -135,6 +135,7 @@ public:
         {
             delete mpRandomNumberGenerator;
         }
+        SimulationTime::Destroy();
     }
     
     
@@ -883,7 +884,7 @@ public:
             }
         }
 
-        SimulationTime::Destroy();
+        
         tabulated_node_writer.Close();
         tabulated_element_writer.Close();
     }

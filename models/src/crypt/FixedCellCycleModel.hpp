@@ -12,9 +12,13 @@
 class FixedCellCycleModel : public AbstractCellCycleModel
 {
 public:
-    virtual bool ReadyToDivide(double simulationTime);
+    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    
+    virtual void ResetModel();
     
     AbstractCellCycleModel *CreateCellCycleModel();
+    
+    FixedCellCycleModel();
 };
 
 #endif /*FIXEDCELLCYCLEMODEL_HPP_*/

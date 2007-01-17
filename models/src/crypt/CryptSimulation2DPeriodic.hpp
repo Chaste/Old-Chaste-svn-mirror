@@ -148,6 +148,7 @@ public:
         {
             delete mpRandomNumberGenerator;
         }
+        SimulationTime::Destroy();
     }
     
     
@@ -497,7 +498,7 @@ public:
 	                        {
 	                            mCells[new_node_index] = new_cell;
 	                        }
-	                        mCells[new_node_index].SetBirthTime();
+	                        //mCells[new_node_index].SetBirthTime();
 	                        
 	                        // Update size of IsGhostNode if necessary
 	                        if((int)mrMesh.GetNumNodes() > (int)mIsGhostNode.size())
@@ -1038,7 +1039,7 @@ public:
             }
         }
 
-        SimulationTime::Destroy();
+        
         tabulated_node_writer.Close();
         tabulated_element_writer.Close();
     }

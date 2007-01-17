@@ -126,6 +126,10 @@ public:
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -167,7 +171,7 @@ public:
                 birth_time = -1; //hours
             }
             
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -181,6 +185,7 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
 
+		SimulationTime::Destroy();
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
@@ -211,6 +216,10 @@ public:
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         // Set up cells by iterating through the mesh nodes
@@ -235,7 +244,7 @@ public:
                 birth_time = -1; //hours
             }
             
-            MeinekeCryptCell cell(cell_type, 0.0, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -248,7 +257,7 @@ public:
         simulator.SetMaxElements(800);
 
         simulator.SetGhostNodes(ghost_node_indices);
-        
+        SimulationTime::Destroy();
         simulator.Solve();
         
         // now count the number of each type of cell

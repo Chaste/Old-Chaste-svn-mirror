@@ -2,25 +2,51 @@
 #define ABSTRACTCELLCYCLEMODEL_HPP_
 
 #include "MeinekeCryptCellTypes.hpp"
-
+#include "SimulationTime.hpp"
+#include <vector>
 
 class AbstractCellCycleModel
 {
 protected:
     CryptCellType mCellType;
-    
+    double mBirthTime;
+    SimulationTime* mpSimulationTime;
     
 public:
     virtual ~AbstractCellCycleModel()
     {}
+    
+    /**
+     * Set the cell's type.
+     * 
+     * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
+     */
     void SetCellType(CryptCellType cellType);
+    
+    /**
+     * Set the cell's time of birth (usually not required as it should be inside
+     * the indivdual cell-cycle-model-constructor, but useful for tests)
+     * 
+     * @param birthTime the simulation time at this cell's birth.
+     */
+    void SetBirthTime(double birthTime);
+    
+    /**
+     * Returns the cell's age...
+     */
+    double GetAge();
     
     /**
      * Determine whether the cell is ready to divide.
      * 
      * @param timeSinceBirth  the elapsed time since the cell was born
      */
-    virtual bool ReadyToDivide(double timeSinceBirth)=0;
+    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>())=0;
+    
+    /**
+     * Each cell cycle model must be able to be reset after a cell division.
+     */
+    virtual void ResetModel()=0;
     
     /**
      * Builder method to create new instances of the cell cycle model.
@@ -32,3 +58,5 @@ public:
 
 
 #endif /*ABSTRACTCELLCYCLEMODEL_HPP_*/
+
+

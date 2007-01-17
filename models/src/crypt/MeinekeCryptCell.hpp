@@ -26,7 +26,6 @@ private:
     }
     
 protected:
-    double mBirthTime;
     unsigned int mGeneration;
     CryptCellType mCellType;
     AbstractCellCycleModel *mpCellCycleModel;
@@ -40,18 +39,18 @@ protected:
 
     
 public:
-    /**
-     * Create a new Meineke crypt cell.
-     * @param cellType  the type of cell this is
-     * @param birthTime  the time at which it was born
-     * @param generation  its generation
-     * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
-     *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
-     */
-    MeinekeCryptCell(CryptCellType cellType,
-                     double birthTime,
-                     unsigned int generation,
-                     AbstractCellCycleModel *pCellCycleModel);
+//    /**
+//     * Create a new Meineke crypt cell.
+//     * @param cellType  the type of cell this is
+//     * @param birthTime  the time at which it was born
+//     * @param generation  its generation
+//     * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
+//     *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
+//     */
+//    MeinekeCryptCell(CryptCellType cellType,
+//                     double birthTime,
+//                     unsigned int generation,
+//                     AbstractCellCycleModel *pCellCycleModel);
                      
     /**
      * Create a new Meineke crypt cell.
@@ -72,7 +71,7 @@ public:
     void operator=(const MeinekeCryptCell &other_cell);
     
     void SetBirthTime(double birthTime);
-    void SetBirthTime();
+
     /**
      * Change the cell cycle model used.  This takes effect immediately.
      */
@@ -82,7 +81,6 @@ public:
     void SetNodeIndex(unsigned index);
     unsigned GetNodeIndex();
     
-    double GetAge(double simulationTime);
     double GetAge();
     unsigned int GetGeneration();
     CryptCellType GetCellType();
@@ -91,11 +89,15 @@ public:
      * Determine if this cell will be ready to divide at the given simulation time.
      * MUST be called before Divide().
      */
-    bool ReadyToDivide();
+    bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
-
+//    /**
+//     * Determine if this cell will be ready to divide at the given simulation time.
+//     * MUST be called before Divide().
+//     */
+//    bool ReadyToDivide(double wnt_stimulus);
     
-    /**
+	/**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide must have been called with the given simulationTime, and returned true.
      */
