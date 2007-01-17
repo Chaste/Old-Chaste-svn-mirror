@@ -1,5 +1,5 @@
-#ifndef TEST3DBIDOMAINFOREFFICIENCY_HPP_
-#define TEST3DBIDOMAINFOREFFICIENCY_HPP_
+#ifndef TEST3DBIDOMAINFOREFFICIENCYWITHFASTERODES_HPP_
+#define TEST3DBIDOMAINFOREFFICIENCYWITHFASTERODES_HPP_
 
 
 
@@ -11,7 +11,7 @@
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "BackwardEulerLuoRudyIModel1991.hpp"
 #include "RegularStimulus.hpp"
 #include "RandomNumberGenerator.hpp"
 
@@ -23,8 +23,8 @@ private:
     
 public:
     //Pdetime step is (by default) 0.01
-    //Odetime step set below to 0.001 (10:1)
-    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.001)
+    //Odetime step set below to 0.01 as backward Euler should be stable
+    BidomainFaceStimulusCellFactory() : AbstractCardiacCellFactory<3>(0.01)
     {
         mpStimulus = new InitialStimulus(-900.0*1000, 0.5);
         mpRegStimulus = new RegularStimulus(-900.0*1000, 0.5, 1.0/100.0, 0.0);//Same as above, but every 100ms
@@ -35,11 +35,11 @@ public:
         if (mpMesh->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpRegStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mTimeStep, mpRegStimulus, mpZeroStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mTimeStep, mpZeroStimulus, mpZeroStimulus);
         }
     }
     
@@ -50,7 +50,7 @@ public:
     }
 };
 
-class Test3dBidomainProblemForEfficiency :  public CxxTest::TestSuite
+class Test3dBidomainProblemForEfficiencyWithFasterOdes :  public CxxTest::TestSuite
 {
 public:
 
@@ -70,7 +70,6 @@ public:
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
-        
         
         bidomain_problem.Initialise();
         
@@ -116,17 +115,10 @@ public:
                 // For 50 ms test TS_ASSERT_DELTA(voltage_replicated[2*i],  7.3, 0.2);
                 // For 150 ms test 
                 TS_ASSERT_DELTA(voltage_replicated[2*i],  -1.735, 0.001);
-                
             }
         }
-        
     }
-    
-    
-    
-    
-    
 };
 
 
-#endif /*TEST3DBIDOMAINFOREFFICIENCY_HPP_*/
+#endif /*TEST3DBIDOMAINFOREFFICIENCYWITHFASTERODES_HPP_*/

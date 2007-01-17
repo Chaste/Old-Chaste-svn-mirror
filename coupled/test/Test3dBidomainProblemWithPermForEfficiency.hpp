@@ -46,6 +46,7 @@ public:
     ~BidomainFaceStimulusCellFactory(void)
     {
         delete mpStimulus;
+        delete mpRegStimulus;
     }
 };
 
