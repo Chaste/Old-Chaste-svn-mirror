@@ -90,7 +90,10 @@ public:
      */
     ~BidomainProblem()
     {
-        delete mpBidomainPde;
+        if (mpBidomainPde)
+        {
+            delete mpBidomainPde;
+        }
     }
     
     
@@ -102,9 +105,12 @@ public:
             EXCEPTION("Mesh filename was not set");
         }
         
-        
         mpCellFactory->SetMesh( &mMesh );
         
+        if (mpBidomainPde)
+        {
+            delete mpBidomainPde;
+        }
         mpBidomainPde = new BidomainPde<SPACE_DIM>( mpCellFactory );
     }
     
