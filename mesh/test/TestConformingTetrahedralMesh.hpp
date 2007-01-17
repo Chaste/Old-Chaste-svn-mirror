@@ -1232,22 +1232,20 @@ public:
     void TestConstructCuboid()
     {
         ConformingTetrahedralMesh<3,3> mesh;
-        unsigned width=39;
-        unsigned height=16;
-        unsigned depth=17;
+        unsigned width=7;
+        unsigned height=4;
+        unsigned depth=50;
         
-        //For ease of programming:
-        width=height=depth=2;
         mesh.ConstructCuboid(width,height,depth);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)*(depth+1)));
-      /*
+      
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
-        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
+//      TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (4*(width*height+height*depth+depth*width)));
+//      TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (4*(width*height+height*depth+depth*width)));
         //Assuming that each cube is split into 6 tetrahedra
         TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (6*width*height*depth));
-        */
+
         TrianglesMeshWriter<3,3> mesh_writer("","CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }

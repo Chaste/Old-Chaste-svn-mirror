@@ -1550,6 +1550,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int widt
     assert(SPACE_DIM == 3);
     assert(ELEMENT_DIM == 3);
    //Construct the nodes
+    
     int node_index=0;
     for (int k=0;k<depth+1;k++)
     {
@@ -1566,23 +1567,89 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int widt
         	}
     	}
     }
-    int cube_index=0;
+    //Construct the boundary elements
+
+//    int belem_index=0;
+//    for (int j=0;j<height;j++)
+//    {
+//        for (int i=0; i<width; i++)
+//        {
+//            int parity=(i+j)%2;
+//            std::vector<Node<SPACE_DIM>*> upper_nodes;
+//            upper_nodes.push_back(mNodes[j*(width+1)+i]);
+//            upper_nodes.push_back(mNodes[j*(width+1)+i+1]);
+//            if (stagger==false  || parity == 0)
+//            {
+//                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
+//            }
+//            else
+//            {
+//                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
+//            }
+//	        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,upper_nodes));
+//
+//            std::vector<Node<SPACE_DIM>*> lower_nodes;
+//            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
+//            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
+//            if (stagger==false  ||parity == 0)
+//            {
+//                lower_nodes.push_back(mNodes[j*(width+1)+i]);
+//            }
+//            else
+//            {
+//                lower_nodes.push_back(mNodes[j*(width+1)+i+1]);
+//            }
+//	        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,lower_nodes));
+//        }
+//    }
+
+	// Construct the elements
+
+    int elem_index=0;
+    unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
+    								{0, 2, 3, 7}, {0, 2, 6, 7},
+    								{0, 4, 6, 7}, {0, 4, 5, 7}};
+	std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
+    
     for (int k=0;k<depth;k++)
     {
    		for (int j=0;j<height;j++)
     	{
         	for (int i=0;i<width;i++)
         	{
-   				//std::cout<<"Cube is "<<cube_index<<"\n";
-   				//std::cout<<"Bottom index is "<<i + (width+1)*(j+(depth+1)*k) <<"\n";
-   				
-   				
-   				
-   				cube_index++;
+        		// Compute the nodes' index
+				int global_node_indices[8];
+				int local_node_index = 0;
+				
+				for (int z = 0; z < 2; z++)
+				{
+					for (int y = 0; y < 2; y++)
+					{
+						for (int x = 0; x < 2; x++)
+						{
+							global_node_indices[local_node_index] = i+x+(width+1)*(j+y+(height+1)*(k+z));
+				
+							local_node_index++;
+						}
+					}
+				}
+
+			    for (int m = 0; m < 6; m++)
+			    {
+			    	// Tetrahedra #m
+			    	
+ 	            	tetrahedra_nodes.clear();
+	            
+				    for (int n = 0; n < 4; n++)
+				    {
+		                tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[m][n]]]);
+				    }
+	
+		            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
+			    }
         	}
     	}
     }
-    
 }
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

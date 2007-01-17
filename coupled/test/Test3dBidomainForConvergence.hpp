@@ -13,6 +13,7 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "OutputFileHandler.hpp"
+#include "TrianglesMeshWriter.cpp"
 
 
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<3>
@@ -33,7 +34,6 @@ public:
         double x = mpMesh->GetNode(node)->GetPoint()[0];
         //double y = mpMesh->GetNode(node)->GetPoint()[1];
         //double z = mpMesh->GetNode(node)->GetPoint()[2];
-        
         if (x*x<=1e-10)
         {
             return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpZeroStimulus);
@@ -57,11 +57,35 @@ public:
 
     void Test3dBidomainSpaceAndTime()
     {
-    	double num_elements[5] =           {  12,   152,   1016,   7790 ,  61687 };
-        std::string file_num_elements[5] = { "12", "152", "1016", "7790", "61687"}; //, "488702"};
-        double approx_space_steps[5] = {0.043,0.018,0.01,0.005,0.0025}; //, 0.00125};
-        int opposite_corner_node = 6; // the node at (0.2,0.2,0.2)
-        int num_meshes=5;                
+    	const unsigned number_of_meshes = 7;
+    	
+    	double num_elements[number_of_meshes];
+        std::string file_num_elements[number_of_meshes] = { "6", "48", "384", "3072", "24576", "196608", "1572864"};
+        unsigned opposite_corner_node[number_of_meshes];
+        double space_steps[number_of_meshes];
+
+    	// Create the meshes on which the test will be based
+
+    	for (unsigned i = 0; i < number_of_meshes; i++)
+    	{
+    		unsigned mesh_size = (unsigned) pow(2, i);
+    		double scaling = 0.2/(double) mesh_size;
+    		
+	        ConformingTetrahedralMesh<3,3> mesh;
+	        
+	        mesh.ConstructCuboid(mesh_size, mesh_size, mesh_size);
+	        mesh.Scale(scaling, scaling, scaling);
+
+	        num_elements[i] = mesh.GetNumElements();
+	        
+	        opposite_corner_node[i] = mesh.GetNumNodes()-1;
+	        space_steps[i] = scaling;
+
+	        TrianglesMeshWriter<3,3> mesh_writer("", "cube_2mm_"+file_num_elements[i]+"_elements");
+	        
+	        mesh_writer.WriteFilesUsingMesh(mesh);
+	    }
+    	
         // To ensure that the first test fails        
         double prev_voltage_for_space = -999;   
         bool converging_in_space = false;
@@ -72,7 +96,7 @@ public:
         double probe_voltage;
         ReplicatableVector voltage_replicated;
         
-        int current_file_num = 0;                    
+        unsigned current_file_num = 0;                    
         
         do //do while: space_step
         {
@@ -82,12 +106,10 @@ public:
             
             time_step = 0.04;  // ms 
             
-            
-            std::string mesh_pathname = "mesh/test/data/cube_2mm_" + file_num_elements[current_file_num] + "_elements";
-         
+            std::string mesh_pathname = "/tmp/chaste/testoutput/cube_2mm_" + file_num_elements[current_file_num] + "_elements";
 
             std::cout<<"================================================================================"<<std::endl  << std::flush;
-            std::cout<<"Solving with an (approx) space step of "<< approx_space_steps[current_file_num] <<" cm - mesh " << current_file_num <<std::endl  << std::flush;
+            std::cout<<"Solving with a space step of "<< space_steps[current_file_num] << " cm - mesh " << current_file_num <<std::endl  << std::flush;
             
             do  //do while: time_step
             {
@@ -115,7 +137,7 @@ public:
                     Vec voltage=bidomain_problem.GetVoltage();
                     voltage_replicated.ReplicatePetscVector(voltage);
                     
-                    probe_voltage=voltage_replicated[opposite_corner_node];
+                    probe_voltage=voltage_replicated[opposite_corner_node[current_file_num]];
                     
                     double relerr = fabs ((probe_voltage - prev_voltage_for_time) / prev_voltage_for_time);
                     std::cout<<"   >>> Convergence test: probe_voltage = "<<probe_voltage<<" mV | prev_voltage_for_time = "<<prev_voltage_for_time
@@ -164,7 +186,7 @@ public:
             {
                 // Use the next mesh next time 
                 current_file_num++;
-                if(current_file_num==num_meshes)
+                if(current_file_num==number_of_meshes)
                 {
                     TS_FAIL("Could not converge for any of the meshes used");
                     failed_to_converge_in_space = true;
@@ -179,10 +201,10 @@ public:
         {
 	        std::cout<<"================================================================================"<<std::endl << std::flush;
         
-    	    std::cout << "Converged both in space ("<< approx_space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
+    	    std::cout << "Converged both in space ("<< space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
         }    
         
-       // TS_ASSERT_DELTA(approx_space_steps[current_file_num], 0.005, 0.0);
+       // TS_ASSERT_DELTA(space_steps[current_file_num], 0.005, 0.0);
        // TS_ASSERT_DELTA(time_step, 0.005, 0.0);
        // TS_ASSERT_DELTA(probe_voltage, -10.3432, 0.0001);
         // Note: the delta is because of floating point issues (!!)
