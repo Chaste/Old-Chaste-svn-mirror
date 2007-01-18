@@ -1,5 +1,5 @@
-#ifndef TEST3DBIDOMAINWITHPERMFOREFFICIENCY_HPP_
-#define TEST3DBIDOMAINWITHPERMFOREFFICIENCY_HPP_
+#ifndef TEST3DBIDOMAINWITHMETISFOREFFICIENCY_HPP_
+#define TEST3DBIDOMAINWITHMETISFOREFFICIENCY_HPP_
 
 
 
@@ -50,7 +50,7 @@ public:
     }
 };
 
-class Test3dBidomainProblemWithPermForEfficiency :  public CxxTest::TestSuite
+class Test3dBidomainProblemWithMetisForEfficiency :  public CxxTest::TestSuite
 {
 public:
 
@@ -60,16 +60,14 @@ public:
         
         BidomainProblem<3> bidomain_problem( &bidomain_cell_factory );
         
-        bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
+        bidomain_problem.SetMeshFilename("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular_metis");
         bidomain_problem.SetEndTime(150);   // ms
         bidomain_problem.SetOutputDirectory("");
         bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
     
-        RandomNumberGenerator rng;
-        bidomain_problem.rGetMesh().PermuteNodes(rng);
-        
+       
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
@@ -130,4 +128,4 @@ public:
 };
 
 
-#endif /*TEST3DBIDOMAINWITHPERMFOREFFICIENCY_HPP_*/
+#endif /*TEST3DBIDOMAINWITHMETISFOREFFICIENCY_HPP_*/

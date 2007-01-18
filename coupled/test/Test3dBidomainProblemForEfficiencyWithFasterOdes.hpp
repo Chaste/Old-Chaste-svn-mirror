@@ -70,6 +70,7 @@ public:
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
+        PetscOptionsSetValue("-log_summary", "");
         
         bidomain_problem.Initialise();
         

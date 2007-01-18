@@ -1292,6 +1292,28 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumbe
 }
 
 template <int ELEMENT_DIM, int SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned> perm)
+{
+    //Let's not do this if there are any deleted nodes
+    assert( GetNumAllNodes() == GetNumNodes());
+    
+    //Copy the node pointers
+    std::vector <Node <SPACE_DIM> *> copy_m_nodes;
+    copy_m_nodes.assign(mNodes.begin(), mNodes.end());
+    
+    
+    for (unsigned i=0;i<mNodes.size();i++)
+    {
+        mNodes[ perm[i] ] = copy_m_nodes[i];
+    }
+       
+    //Update indices
+    for (unsigned index=0; index<mNodes.size(); index++)
+    {
+        mNodes[index]->SetIndex(index);
+    }
+}
+template <int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries()
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
@@ -1333,10 +1355,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     system(permute_command.c_str());
     
     //Read the permutation back into a std::vector
-    std::vector<unsigned> perm(GetNumNodes());
     std::string perm_file_name   = handler.GetTestOutputDirectory("")
                             + "metis.mesh.ngraph.iperm";
     std::ifstream perm_file(perm_file_name.c_str());
+    std::vector<unsigned> perm;
     for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
     {
         int new_index;
@@ -1345,7 +1367,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     }
     perm_file.close();   
    
-    ///\todo use this permutation
+    PermuteNodes(perm);
     
 }
 

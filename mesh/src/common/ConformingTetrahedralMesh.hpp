@@ -197,15 +197,22 @@ public:
      * @param rRng is a random number generators instance (so that the caller can seed
      * the permutation
      */
-     void PermuteNodes(RandomNumberGenerator &rRng);
+    void PermuteNodes(RandomNumberGenerator &rRng);
    
    /**
      * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly) using Metis binaries.
      * 
      */
-     void PermuteNodesWithMetisBinaries();
+    void PermuteNodesWithMetisBinaries();
    
+    /**
+      * Permute the nodes so that they appear in a different order in mNodes
+      * (and their mIndex's are altered accordingly).
+     * @param perm is a vector containing the new indices
+     */
+     void PermuteNodes(std::vector<unsigned> perm);
+    
     /**    
      * Checks the entire mesh element by element and checkes whether any neighbouring node
      * inside the circumsphere of this element.
