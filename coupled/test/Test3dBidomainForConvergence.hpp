@@ -57,11 +57,13 @@ public:
 
     void Test3dBidomainSpaceAndTime()
     {
-    	const unsigned number_of_meshes = 7;
+    	const unsigned number_of_meshes = 6;
     	
     	double num_elements[number_of_meshes];
-        std::string file_num_elements[number_of_meshes] = { "6", "48", "384", "3072", "24576", "196608", "1572864"};
+        std::string file_name[number_of_meshes];
+        
         unsigned opposite_corner_node[number_of_meshes];
+                
         double space_steps[number_of_meshes];
 
     	// Create the meshes on which the test will be based
@@ -79,9 +81,18 @@ public:
 	        num_elements[i] = mesh.GetNumElements();
 	        
 	        opposite_corner_node[i] = mesh.GetNumNodes()-1;
+	        
+	        TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[0],0.2,1e-6);
+	        TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[1],0.2,1e-6);
+	        TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[2],0.2,1e-6);
+	        
 	        space_steps[i] = scaling;
 
-	        TrianglesMeshWriter<3,3> mesh_writer("", "cube_2mm_"+file_num_elements[i]+"_elements");
+	     	std::stringstream file_name_stream;
+       	    file_name_stream<< "cube_2mm_"<< (int) 6*pow(2,i) <<"_elements";
+	        file_name[i]=file_name_stream.str();
+	        
+	        TrianglesMeshWriter<3,3> mesh_writer("", file_name[i]);
 	        
 	        mesh_writer.WriteFilesUsingMesh(mesh);
 	    }
@@ -106,7 +117,7 @@ public:
             
             time_step = 0.04;  // ms 
             
-            std::string mesh_pathname = "/tmp/chaste/testoutput/cube_2mm_" + file_num_elements[current_file_num] + "_elements";
+            std::string mesh_pathname = "/tmp/chaste/testoutput/"+ file_name[current_file_num];
 
             std::cout<<"================================================================================"<<std::endl  << std::flush;
             std::cout<<"Solving with a space step of "<< space_steps[current_file_num] << " cm - mesh " << current_file_num <<std::endl  << std::flush;
@@ -119,7 +130,8 @@ public:
                 bidomain_problem.SetMeshFilename(mesh_pathname);
                 bidomain_problem.SetEndTime(3.52);   // ms        
 
-                
+                bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
+ 
 /*              bidomain_problem.SetOutputDirectory("bitemp");
                 bidomain_problem.SetOutputFilenamePrefix("bitemp");
                 bidomain_problem.SetPrintingTimeStep(0.1);
