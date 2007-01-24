@@ -9,7 +9,7 @@ class AbstractCellCycleModel
 {
 protected:
     CryptCellType mCellType;
-    double mBirthTime;
+    double mBirthTime; // Time to start model from
     SimulationTime* mpSimulationTime;
     
 public:
@@ -29,12 +29,17 @@ public:
      * 
      * @param birthTime the simulation time at this cell's birth.
      */
-    void SetBirthTime(double birthTime);
+    virtual void SetBirthTime(double birthTime)=0;
     
     /**
      * Returns the cell's age...
      */
     double GetAge();
+    
+    /**
+     * Returns the cell's birth time...
+     */
+    double GetBirthTime();
     
     /**
      * Determine whether the cell is ready to divide.

@@ -19,6 +19,11 @@ FixedCellCycleModel::FixedCellCycleModel()
 	mBirthTime = mpSimulationTime->GetDimensionalisedTime();
 }
 
+void FixedCellCycleModel::SetBirthTime(double birthTime)
+{
+	mBirthTime = birthTime;	
+}
+
 void FixedCellCycleModel::ResetModel()
 {
 	mpSimulationTime = SimulationTime::Instance();
@@ -28,7 +33,7 @@ void FixedCellCycleModel::ResetModel()
 bool FixedCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {	
 	mpSimulationTime = SimulationTime::Instance();
-	assert(cellCycleInfluences.size()==0);
+	//assert(cellCycleInfluences.size()==0); NOT Needed - we just ignore them
     bool ready;
     
     CancerParameters *p_params = CancerParameters::Instance();

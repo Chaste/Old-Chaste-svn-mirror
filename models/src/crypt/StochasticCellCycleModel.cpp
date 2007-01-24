@@ -22,6 +22,11 @@ StochasticCellCycleModel::StochasticCellCycleModel(RandomNumberGenerator *pGen)
     mpGen=pGen;
 }
 
+void StochasticCellCycleModel::SetBirthTime(double birthTime)
+{
+	mBirthTime = birthTime;	
+}
+
 void StochasticCellCycleModel::ResetModel()
 {
 	mpSimulationTime = SimulationTime::Instance();
@@ -31,7 +36,7 @@ void StochasticCellCycleModel::ResetModel()
 bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
 	mpSimulationTime = SimulationTime::Instance();
-	assert(cellCycleInfluences.size()==0);
+	//assert(cellCycleInfluences.size()==0);
     bool ready;
         
     double timeSinceBirth = GetAge();

@@ -621,23 +621,28 @@ public:
     }
     
     
+    /*
+     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * That division of wnt cells and stuff works OK.
+     * 
+     * It checks that the cell division thing works nicely too.
+     */
     void TestWithWntCellCycleModel() throw(Exception)
     {
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
         CancerParameters *p_parameters = CancerParameters::Instance();
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
                                    1,    // generation
                                    new WntCellCycleModel(wnt_stimulus));
         
-        for(unsigned i=0 ; i<num_steps ; i++)
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
         {
         	p_simulation_time->IncrementTimeOneStep();
         	double time = p_simulation_time->GetDimensionalisedTime();
@@ -651,7 +656,50 @@ public:
         	{
         		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
            	}
+           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
+        
+        std::vector<double> wnt;
+        wnt.push_back(wnt_stimulus);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        
+        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        
+        TS_ASSERT(wnt_cell.GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+                
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        
+        double timeOfBirth = wnt_cell.GetBirthTime();
+        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        
+        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        
+        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	bool result1=wnt_cell.ReadyToDivide(wnt);
+        	bool result2=wnt_cell2.ReadyToDivide(wnt);
+        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+        	if(time>=5.971+SG2MDuration+timeOfBirth)
+        	{
+        		TS_ASSERT(result1==true);
+        		TS_ASSERT(result2==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(result1==false);
+        		TS_ASSERT(result2==false);
+           	}
+        }
+        
         SimulationTime::Destroy();
     }
 };

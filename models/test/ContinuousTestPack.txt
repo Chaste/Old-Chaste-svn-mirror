@@ -1,7 +1,6 @@
 TestCancerParameters.hpp
 TestCryptHoneycombMeshGenerator.hpp
 TestCryptSimulation.hpp
-TestCryptSimulation2D.hpp
 TestCryptSimulation2DPeriodic.hpp
 TestCellCycleModels.hpp
 TestMeinekeCryptCell.hpp

@@ -1,24 +1,8 @@
 #include "MeinekeCryptCell.hpp"
+#include "MeinekeCryptCellTypes.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 
-
-//MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
-//                                   double birthTime,
-//                                   unsigned int generation,
-//                                   AbstractCellCycleModel *pCellCycleModel)
-//        : mpCellCycleModel(pCellCycleModel)
-//{
-//    mpSimulationTime = SimulationTime::Instance();
-//    // Stem cells are the only ones with generation = 0
-//    assert( (generation == 0) == (cellType == STEM) );
-//    //std::cout<< "Birth time " << birthTime << "\n" ;
-//    mBirthTime=birthTime;
-//    mGeneration=generation;
-//    mCellType=cellType;
-//    mpCellCycleModel->SetCellType(cellType);
-//    mCanDivide = false;
-//}
 
 MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
                                    unsigned int generation,
@@ -31,7 +15,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     	EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");	
     }
     // Stem cells are the only ones with generation = 0
-    assert( (generation == 0) == (cellType == STEM) );
+    //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
     mGeneration=generation;
     mCellType=cellType;
     mpCellCycleModel->SetCellType(cellType);
@@ -40,17 +24,17 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
 {
-    // Copy 'easy' data members
+	// Copy 'easy' data members
     mGeneration = other_cell.mGeneration;
     mCellType = other_cell.mCellType;
     mCanDivide = other_cell.mCanDivide;
     mpSimulationTime = other_cell.mpSimulationTime;
-    
     // Copy cell cycle model
     // First create a new object
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
+    
 }
 
 MeinekeCryptCell::MeinekeCryptCell(const MeinekeCryptCell &other_cell)
@@ -102,6 +86,11 @@ double MeinekeCryptCell::GetAge()
 	return mpCellCycleModel->GetAge();
 }
 
+double MeinekeCryptCell::GetBirthTime()
+{
+	return mpCellCycleModel->GetBirthTime();
+}
+
 unsigned int MeinekeCryptCell::GetGeneration()
 {
     return mGeneration;
@@ -112,6 +101,11 @@ CryptCellType MeinekeCryptCell::GetCellType()
     return mCellType;
 }
 
+void MeinekeCryptCell::SetCellType(CryptCellType cellType)
+{
+	mCellType = cellType;
+	mpCellCycleModel->SetCellType(mCellType);
+}
 
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {	
@@ -119,15 +113,9 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
     return mCanDivide;
 }
 
-//bool MeinekeCryptCell::ReadyToDivide(double wnt_stimulus)
-//{
-//    mCanDivide = mpCellCycleModel->ReadyToDivide(wnt_stimulus);
-//    return mCanDivide;
-//}
-
 MeinekeCryptCell MeinekeCryptCell::Divide()
-{
-    assert(mpSimulationTime!=NULL);
+{	//Copy this cell and give new one relevant attributes...
+	assert(mpSimulationTime!=NULL);
     assert(mCanDivide);
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;

@@ -8,6 +8,11 @@ WntCellCycleModel::WntCellCycleModel()
 	EXCEPTION("A Wnt cell cycle model must be given a steady state of Wnt (double)\n to set steady state of wnt pathway at start of model");	
 }
 
+/**
+ * Model constructor - an initial wnt stimulus must be provided to set up the wnt pathway in an equilibrium state.
+ * 
+ * @param InitialWntStimulus a value between 0 and 1.
+ */
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 {
 	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
@@ -16,18 +21,51 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 	{
 		EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
 	}
-    mLastTime = mpSimulationTime->GetDimensionalisedTime();
-    mBirthTime = mLastTime;
+    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    mLastTime = mBirthTime;
     mProteinConcentrations = mOdeSystem.GetInitialConditions();
     mInSG2MPhase = false;
+    mReadyToDivide = false;
     mpCancerParams = CancerParameters::Instance();
 }
 
+/**
+ * A private constructor for daughter cells called only by the CreateCellCycleModel function
+ * 
+ * @param InitialWntStimulus a value between 0 and 1.
+ * @param birthTime the SimulationTime when the cell divided (birth time of mother cell)
+ */
+WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
+{
+	double InitialWntStimulus = parentProteinConcentrations[7];
+	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
+	mProteinConcentrations = parentProteinConcentrations;
+    mpSimulationTime = SimulationTime::Instance();
+    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+	{
+		EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
+	}
+    mBirthTime = birthTime;
+    mLastTime = birthTime;
+    mProteinConcentrations = mOdeSystem.GetInitialConditions();
+    mInSG2MPhase = false;
+    mReadyToDivide = false;
+    mpCancerParams = CancerParameters::Instance();
+}
+
+/**
+ * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)
+ * Cells are given a new birth time and cell cycle proteins are reset.
+ * Note that the wnt pathway proteins maintain their current values.
+ * 
+ * Should only be called by the MeinekeCryptCell Divide() method.
+ * 
+ */
 void WntCellCycleModel::ResetModel()
 {	// This model needs the protein concentrations and phase resetting to G0/G1.
-	mpSimulationTime = SimulationTime::Instance();
-	mLastTime = mpSimulationTime->GetDimensionalisedTime();
-    mBirthTime = mLastTime;
+	assert(mReadyToDivide);
+	mLastTime = mDivideTime;
+    mBirthTime = mDivideTime;
     // Keep the Wnt pathway in the same state but reset the cell cycle part
     // Cell cycle is proteins 0 to 4 (first 5 ODEs)
     for (unsigned i = 0 ; i<5 ; i++)
@@ -35,67 +73,119 @@ void WntCellCycleModel::ResetModel()
 	    mProteinConcentrations[i] = mOdeSystem.GetInitialConditions()[i];
     }
     mInSG2MPhase = false;
+    mReadyToDivide = false;
 }
     
+/**
+ * Returns a bool of whether or not the cell is ready to divide,
+ * 
+ * @param cellCycleInfluences the wnt stimulus -- must be the sole member of a standard vector of doubles and take a value between 0 and 1.
+ * 
+ */
 bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
+	//std::cout << "Looking up a cell cycle model" << std::endl;
 	mpSimulationTime = SimulationTime::Instance();
 	assert(cellCycleInfluences.size()==1);
-	double wntStimulus = cellCycleInfluences[0];
-	bool divideNow = false;
+	// Use the WntStimulus provided as an input
+	mProteinConcentrations[7] = cellCycleInfluences[0];
 	double current_time = mpSimulationTime->GetDimensionalisedTime();
-	
-	if(!mInSG2MPhase)
-	{	// WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
-		// feed this time step's Wnt stimulus into the solver as a constant over this timestep.
-		mProteinConcentrations[7] = wntStimulus;
+	//std::cout << "Last time = " << mLastTime << ", Current Time = " << current_time << "\n" << std::endl;
+	if(current_time>mLastTime)
+	{
+		if(!mInSG2MPhase)
+		{	// WE ARE IN G0 or G1 PHASE - running cell cycle ODEs
+			// feed this time step's Wnt stimulus into the solver as a constant over this timestep.
+			
+			
+		    double meshSize = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
+			OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
 		
-		if(current_time<=mLastTime)
-	    {
-	    	EXCEPTION("WntCellCycleModel evaluated up to this time already");
-	    }
-	    
-		double meshSize = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
-		OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
-	
-	 	unsigned timeRows = solution.GetNumberOfTimeSteps();
-	 	
-	 	for (unsigned i=0 ; i<8 ; i++)
-	 	{
-	 		mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
-	 		if (mProteinConcentrations[i]<0)
-	 		{
-	 			std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
-	 			EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the WntCellCycleModel numerical method is probably unstable.");
-	 		}
-	 	}
-		mLastTime = current_time;
-		
-		//std::cout << "Beta-Catenin = " << mProteinConcentrations[6] << "\n";
-		if(mSolver.StoppingEventOccured())
-	 	{
-	 		mDivideTime = current_time + mpCancerParams->GetSG2MDuration();
-	 		mInSG2MPhase = true;
-	 	}
-	}
-	else
-	{	// WE ARE IN S-G2-M Phases, ODE model finished just increasing time until division...
-		if(current_time >= mDivideTime)
-		{
-			divideNow = true;
+		 	unsigned timeRows = solution.GetNumberOfTimeSteps();
+		 	
+		 	for (unsigned i=0 ; i<8 ; i++)
+		 	{
+		 		mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
+		 		//std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+		 		if (mProteinConcentrations[i]<0)
+		 		{
+		 			std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+		 			EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the WntCellCycleModel numerical method is probably unstable.");
+		 		}
+		 	}
+						
+			//std::cout << "Beta-Catenin = " << mProteinConcentrations[6] << "\n";
+			if(mSolver.StoppingEventOccured())
+		 	{
+		 		int end = solution.rGetSolutions().size() - 1;
+    			// Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
+    			double time_entering_S_phase = solution.rGetTimes()[end];
+		 		mDivideTime = time_entering_S_phase + mpCancerParams->GetSG2MDuration();
+		 		//std::cout << " Divide time = " << mDivideTime << "\n" << std::endl;
+		 		mInSG2MPhase = true;
+		 	}
 		}
+		else
+		{	// WE ARE IN S-G2-M Phases, ODE model finished, just increasing time until division...
+			if(current_time >= mDivideTime)
+			{
+				mReadyToDivide = true;
+			}
+		}
+		mLastTime = current_time;
 	}
- 	
-    return divideNow;
+    return mReadyToDivide;
 }
-    
+  
+  
+/**
+ * Returns the protein concentrations at the current time (useful for tests)
+ * 
+ */
 std::vector<double> WntCellCycleModel::GetProteinConcentrations()
 {
 	return mProteinConcentrations;	
 }
-    
+
+/**
+ * Returns a new WntCellCycleModel created with the correct initial conditions.
+ * 
+ */    
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
-    return new WntCellCycleModel();
+	// calls a cheeky version of the constructor which makes the new cell cycle model
+	// the same age as the old one - not a copy at this time.
+	return new WntCellCycleModel(mProteinConcentrations,mBirthTime);
 }
+
+/**
+ * Returns a new WntCellCycleModel created with the correct initial conditions.
+ * 
+ * Should only be used in tests
+ * 
+ * @param birthTime the simulation time when the cell was born
+ */  
+void WntCellCycleModel::SetBirthTime(double birthTime)
+{
+	mLastTime = birthTime;
+    mBirthTime = birthTime;
+}
+
+/**
+ * Sets the protein concentrations and time when the model was last evaluated - should only be called by tests
+ * 
+ * @param lastTime the SimulationTime at which the protein concentrations apply
+ * @param proteinConcentrations a standard vector of doubles of protein concentrations
+ * 
+ */  
+void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
+{
+	mLastTime = lastTime;
+	assert(proteinConcentrations.size()==8);
+	mProteinConcentrations = proteinConcentrations;
+}
+
+
+
+
 

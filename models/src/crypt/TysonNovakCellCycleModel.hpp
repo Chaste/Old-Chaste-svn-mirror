@@ -18,7 +18,7 @@ private:
     BackwardEulerIvpOdeSolver mSolver;
     double mLastTime;
     std::vector <double> mProteinConcentrations;
-  
+	bool mReadyToDivide;
     
 public:
     
@@ -27,6 +27,8 @@ public:
     virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
     virtual void ResetModel();
+    
+    virtual void SetBirthTime(double birthTime);
     
     std::vector< double > GetProteinConcentrations();
     

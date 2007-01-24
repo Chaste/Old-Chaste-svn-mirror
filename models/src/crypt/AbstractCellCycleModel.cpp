@@ -5,9 +5,14 @@ void AbstractCellCycleModel::SetCellType(CryptCellType cellType)
     mCellType = cellType;
 }
 
-void AbstractCellCycleModel::SetBirthTime(double birthTime)
+//void AbstractCellCycleModel::SetBirthTime(double birthTime)
+//{
+//    mBirthTime = birthTime;
+//}
+
+double AbstractCellCycleModel::GetBirthTime()
 {
-    mBirthTime = birthTime;
+	return mBirthTime;
 }
 
 double AbstractCellCycleModel::GetAge()

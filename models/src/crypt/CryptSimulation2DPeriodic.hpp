@@ -14,6 +14,7 @@
 #include "StochasticCellCycleModel.hpp"
 #include "ColumnDataWriter.hpp"
 #include "MeinekeCryptCellTypes.hpp"
+#include "WntCellCycleModel.hpp"
 
 
 /**
@@ -57,6 +58,12 @@ private:
 
     /**< A boolean saying whether to remesh at each timestep or not (defaults to true).*/    
     bool mReMesh;
+    
+    /**< A boolean saying whether Wnt signalling is included or not (defaults to false).*/    
+    bool mWntIncluded;
+    
+    /**< A boolean saying whether the mesh is periodic or not (defaults to false).*/    
+    bool mPeriodicSides;
 
      /**< A vector of bools saying whether a node is ghosted-ified or not.*/  
     std::vector <bool> mIsGhostNode; 
@@ -137,6 +144,8 @@ public:
         mNoBirth = false;
         mMaxCells = 10*mrMesh.GetNumNodes();
         mMaxElements = 10*mrMesh.GetNumElements();
+        mWntIncluded = false;
+        mPeriodicSides = true;
     }
     
     /**
@@ -197,6 +206,14 @@ public:
     void SetFixedBoundaries()
     {
         mFixedBoundaries = true;
+    }
+    
+    /**
+     *  Call this before Solve() to set the boundary conditions
+     */
+    void SetPeriodicSides(bool periodicSides)
+    {
+        mPeriodicSides = periodicSides;
     }
     
     /** 
@@ -330,13 +347,44 @@ public:
 
         int counter = 0;
         
-		/////////////////////////////////////////////////////////////////////
+		int periodic_division_buffer = 0;
+        
+        if(mPeriodicSides)
+        {
+        	CalculateCryptBoundary();
+        	if(mLeftCryptBoundary.size()<1 || mRightCryptBoundary.size()<1)
+        	{
+        			EXCEPTION("Periodic Simulation but mesh is not periodic\nIf you want a non-periodic simulation use SetPeriodicSides(false)");
+        	}
+        }
+        /* Age the cells to the correct time (cells set up with negative birth dates 
+         * to gives some that are almost ready to divide).
+         * 
+         * For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
+         * Not sure why - when the same thing was evaluated in a test it seemed almost instant.
+         */
+        bool temp;
+        if (!mCells.empty())
+	    {
+	    	for(unsigned i=0; i<mCells.size() ; i++)
+        	{
+		    	if(mIsGhostNode[i]) continue;
+		    	//std::cout << "Perparing Cell "<< i << std::endl;
+		    	Node<2> *p_our_node = mrMesh.GetNode(i);
+		        double y = p_our_node->GetPoint()[1];
+		        std::vector<double> cellCycleInfluences;
+		        if(mWntIncluded)
+		        {
+			    	double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
+			    	cellCycleInfluences.push_back(wnt_stimulus);
+		        }
+				temp = mCells[i].ReadyToDivide(cellCycleInfluences);		
+	        }
+	    }
+	    
+        /////////////////////////////////////////////////////////////////////
         // Main time loop
         /////////////////////////////////////////////////////////////////////
-        int periodic_division_buffer = 0;
-        
-        CalculateCryptBoundary();
-        
         while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
 		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **\n";
@@ -352,48 +400,62 @@ public:
 	            	
 	                for (unsigned i=0; i<mCells.size(); i++)
 	                {
-	                    if(mrMesh.GetNode(i)->IsDeleted()) continue; // Skip deleted cells
-	                    if(mIsGhostNode[i]) continue; // Skip Ghost nodes
-						bool skip = false;
+	                    bool skip = false;
+	                    if(mrMesh.GetNode(i)->IsDeleted()) skip=true; // Skip deleted cells
+	                    if(mIsGhostNode[i]) skip=true; // Skip Ghost nodes
 						bool periodic_cell=false;
 						unsigned periodic_index = 0;
-	                    for (unsigned j=0 ; j < mRightCryptBoundary.size() ; j++)
-	                    {
-	                    	if (mRightCryptBoundary[j]==i)
-	                    	{	// Only allow one periodic boundary to have divisions...
-	                    		skip=true;
-	                    	}	
-	                    	if (mLeftCryptBoundary[j]==i)
-	                    	{
-	                    		//skip = true;
-	                    		if(periodic_division_buffer>0)
-	                    		{// Only allow one periodic cell division per timestep so that mesh can catch up with it.
-	                    			skip=true;	
-	                    		}
-	                    		periodic_cell = true;
-								periodic_index = j;
-	                    	}
-	                    }
+						if(mPeriodicSides)
+						{
+							for (unsigned j=0 ; j < mRightCryptBoundary.size() ; j++)
+		                    {
+		                    	if (mRightCryptBoundary[j]==i)
+		                    	{	// Only allow one periodic boundary to have divisions...
+		                    		skip=true;
+		                    	}	
+		                    	if (mLeftCryptBoundary[j]==i)
+		                    	{
+		                    		//skip = true;
+		                    		if(periodic_division_buffer>0)
+		                    		{// Only allow one periodic cell division per timestep so that mesh can catch up with it.
+		                    			skip=true;	
+		                    		}
+		                    		periodic_cell = true;
+									periodic_index = j;
+		                    	}
+		                    }
+						}
 	                    if(skip) continue;
 						
 	                    // Check for this cell dividing
-	                    if(mCells[i].ReadyToDivide())
+                    	Node<2> *p_our_node = mrMesh.GetNode(i);
+	                    double y = p_our_node->GetPoint()[1];
+	                    std::vector<double> cellCycleInfluences;
+	                    
+	                    if(mWntIncluded)
+	                    {
+		                    double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
+		                    cellCycleInfluences.push_back(wnt_stimulus);
+	                    }
+	                    
+
+						//std::cout << "On cell "<< i << std::endl;
+						if(mCells[i].ReadyToDivide(cellCycleInfluences))
 	                    {
 	                    	std::cout << "cell division at node " << i << "\n";
 	                        // Create new cell
 	                        MeinekeCryptCell new_cell = mCells[i].Divide();
-	                        if(periodic_cell)
+							if(mPeriodicSides && periodic_cell)
 	                        {	
 	                        	std::cout << "Periodic Division\n";
 	                        	periodic_division_buffer=5;
 	                        	//Make sure the image cell knows it has just divided and aged a generation
 	                        	mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
 	                        }
+	                        
 	
 	                        // Add new node to mesh
-	                        Node<2> *p_our_node = mrMesh.GetNode(i);
 	                        double x = p_our_node->GetPoint()[0];
-	                        double y = p_our_node->GetPoint()[1];
 	                        
 	                        
 	                        // For all cells find an element that isn't a ghost element to put a new cell into.
@@ -512,7 +574,8 @@ public:
 	            			{
 	                			ReMesh();
 	            			}
-	                    }
+	                    
+						}
 	                }
 	            }
         	}
@@ -584,22 +647,25 @@ public:
                         
                         bool AandBInLeftEdge = false;
 	                    // Lookup whether node A and node B are both in a left edge element...
-	                    for(unsigned i=0; i< mLeftCryptBoundary.size();i++)
+	                    if(mPeriodicSides)
 	                    {
-	                    	//std::cout << "i = " << i << "\n";
-		                    if(mLeftCryptBoundary[i]==(unsigned)p_element->GetNode(nodeA)->GetIndex())
+		                    for(unsigned i=0; i< mLeftCryptBoundary.size();i++)
 		                    {
-		                    	for(unsigned j=0; j<mLeftCryptBoundary.size(); j++)
-		                    	{
-		                    		if(mLeftCryptBoundary[j]==(unsigned)p_element->GetNode(nodeB)->GetIndex())
-		                    		{
-		                    			AandBInLeftEdge = true;
-		                    			//std::cout << "Left Boundary; Node A = " << mLeftCryptBoundary[i] << "\tNode B = "<< mLeftCryptBoundary[j] << "\n";
-		                    			break;
-		                    		}	
-		                    	}
-		                    }
-		                }
+		                    	//std::cout << "i = " << i << "\n";
+			                    if(mLeftCryptBoundary[i]==(unsigned)p_element->GetNode(nodeA)->GetIndex())
+			                    {
+			                    	for(unsigned j=0; j<mLeftCryptBoundary.size(); j++)
+			                    	{
+			                    		if(mLeftCryptBoundary[j]==(unsigned)p_element->GetNode(nodeB)->GetIndex())
+			                    		{
+			                    			AandBInLeftEdge = true;
+			                    			//std::cout << "Left Boundary; Node A = " << mLeftCryptBoundary[i] << "\tNode B = "<< mLeftCryptBoundary[j] << "\n";
+			                    			break;
+			                    		}	
+			                    	}
+			                    }
+			                }
+	                    }
 
                         // Assume that if both nodes are real, or both are ghosts, then they both
                         // exert forces on each other, but if one is real and one is ghost then
@@ -720,19 +786,20 @@ public:
             ///////////////
             //  sum forces for periodic nodes
             ////////////////
-            
-            // Add up the forces on paired up nodes
-            // loop through size of left boundaries
-            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+            if(mPeriodicSides)
             {
-            	double x_force = drdt[mLeftCryptBoundary[i]][0] + drdt[mRightCryptBoundary[i]][0];
-            	double y_force = drdt[mLeftCryptBoundary[i]][1] + drdt[mRightCryptBoundary[i]][1];
-            	drdt[mLeftCryptBoundary[i]][0] = x_force;
-            	drdt[mLeftCryptBoundary[i]][1] = y_force;
-            	drdt[mRightCryptBoundary[i]][0] = x_force;
-            	drdt[mRightCryptBoundary[i]][1] = y_force;
+	            // Add up the forces on paired up nodes
+	            // loop through size of left boundaries
+	            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+	            {
+	            	double x_force = drdt[mLeftCryptBoundary[i]][0] + drdt[mRightCryptBoundary[i]][0];
+	            	double y_force = drdt[mLeftCryptBoundary[i]][1] + drdt[mRightCryptBoundary[i]][1];
+	            	drdt[mLeftCryptBoundary[i]][0] = x_force;
+	            	drdt[mLeftCryptBoundary[i]][1] = y_force;
+	            	drdt[mRightCryptBoundary[i]][0] = x_force;
+	            	drdt[mRightCryptBoundary[i]][1] = y_force;
+	            }
             }
-            
             ////////////////////////////////////////////////////////////////////////////////////
             // update node positions
             ////////////////////////////////////////////////////////////////////////////////////
@@ -822,19 +889,21 @@ public:
             }
             
             // Ensure no errors can creep in and move left nodes to same position as right ones
-            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+            if(mPeriodicSides)
             {
-            	int RightNodeIndex = mRightCryptBoundary[i];
-            	int LeftNodeIndex = mLeftCryptBoundary[i];
-            	c_vector<double,2> right_point = mrMesh.GetNode(RightNodeIndex)->rGetLocation();
-            	Point<2> left_point;
-            	left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
-            	left_point.rGetLocation()[1] = right_point[1];
-            	mrMesh.SetNode(LeftNodeIndex, left_point, false);
-            	// Also force them to be the same cell
-            	// mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+	            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+	            {
+	            	int RightNodeIndex = mRightCryptBoundary[i];
+	            	int LeftNodeIndex = mLeftCryptBoundary[i];
+	            	c_vector<double,2> right_point = mrMesh.GetNode(RightNodeIndex)->rGetLocation();
+	            	Point<2> left_point;
+	            	left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
+	            	left_point.rGetLocation()[1] = right_point[1];
+	            	mrMesh.SetNode(LeftNodeIndex, left_point, false);
+	            	// Also force them to be the same cell
+	            	// mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+	            }
             }
-            
             //std::cout << "***************************************************\n";
             /////////////////////////////////////////////////////////////////////////
             // SLOUGHING BY DELETING NODES. When ReMesh() works properly this will
@@ -896,33 +965,83 @@ public:
                 Node<2> *p_node = mrMesh.GetNode(i);
                 if(!p_node->IsDeleted())
                 {
-                    //double x = p_node->rGetLocation()[0];
+                    double x = p_node->rGetLocation()[0];
                     double y = p_node->rGetLocation()[1];
                     
                     double crypt_length=mpParams->GetCryptLength();
-                    //double crypt_width=mpParams->GetCryptWidth();
+                    double crypt_width=mpParams->GetCryptWidth();
                     
-//                    if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
-                    if(y>crypt_length)
+                    if(!mPeriodicSides)
                     {
-                        mIsGhostNode[p_node->GetIndex()] = true;
-                        num_deaths++;
-                        // And delete the periodic image if appropriate.(don't count as a death since it is an image)
-                        for(unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
-                        {
-                        	if((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
-                        	{
-                        		mIsGhostNode[mRightCryptBoundary[j]]=true;
-                        	}	
-                        	if((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
-                        	{
-                        		mIsGhostNode[mLeftCryptBoundary[j]]=true;
-                        	}	
-                        }
-                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+	                    if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
+	                    {
+	                        mIsGhostNode[p_node->GetIndex()] = true;
+	                        num_deaths++;
+	                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+	                    }
+                    }
+                    else
+                    {
+						if(y>crypt_length)
+	                    {
+	                        mIsGhostNode[p_node->GetIndex()] = true;
+	                        num_deaths++;
+	                        if(mPeriodicSides)
+	                        {
+		                        // And delete the periodic image if appropriate.(don't count as a death since it is an image)
+		                        for(unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
+		                        {
+		                        	if((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
+		                        	{
+		                        		mIsGhostNode[mRightCryptBoundary[j]]=true;
+		                        	}	
+		                        	if((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
+		                        	{
+		                        		mIsGhostNode[mLeftCryptBoundary[j]]=true;
+		                        	}	
+		                        }
+	                        }
+	                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+	                    }
                     }
                 }
             }
+            
+            /*/////////////////////////////////////////////////////////
+             * 
+             * Designate cells as proliferating (transit) or
+             * quiescent (differentiated) according to protein concentrations
+             * 
+             * If the betaCatenin level falls below a certain concentration then
+             * the cell will (probably) be differentiated - if it later increases
+             * it could become a transit cell again. This is just for visualization...
+             * 
+             *////////////////////////////////////////////////////////
+            if(mWntIncluded)
+            {	// Cycle through each cell
+            	for (int i=0; i<mrMesh.GetNumNodes(); i++)
+            	{
+            		if(!mIsGhostNode[i])
+            		{
+            			if(!(mCells[i].GetCellType()==STEM))
+            			{
+	            			// If we are in here the cell cycle model must be a WntCellCycleModel
+	            			WntCellCycleModel *this_Wnt_model = static_cast<WntCellCycleModel*>(mCells[i].GetCellCycleModel());
+	            			double betaCateninLevel = this_Wnt_model->GetProteinConcentrations()[6];
+	            			//std::cout << "Cell " << i << ", beta-cat = " << betaCateninLevel << "\n" << std::endl;
+	            			
+	            			CryptCellType cell_type=TRANSIT;
+	            			
+            				if(betaCateninLevel < 0.4127)
+            				{
+								cell_type = DIFFERENTIATED;
+            				}
+	           				mCells[i].SetCellType(cell_type);
+            			}
+            		}
+            	}
+            }
+             
             
             if( mReMesh )
 			{
@@ -1081,6 +1200,16 @@ public:
         mNoBirth = nobirth;
     }
     
+    /**
+     * Set the simulation to run with Wnt signalling.
+     * (still needs a set of wnt dependent cells as input)
+     * This allows cells to change type on the fly
+     */   
+    void SetWntIncluded(bool wntIncluded)
+    {
+        mWntIncluded = wntIncluded;
+    }
+    
     
     /**
      * Method to calculate the boundary of the crypt within the whole mesh ie the interface 
@@ -1088,6 +1217,10 @@ public:
      */    
     void CalculateCryptBoundary()
     {   
+    	if(!mPeriodicSides)
+    	{
+    		EXCEPTION("This is not a periodic simulation");
+    	}
 		double crypt_width=mpParams->GetCryptWidth();
                
 		// Set all nodes as not being on the boundary...
@@ -1178,6 +1311,10 @@ public:
      */   
     void DetectNaughtyCellsAtPeriodicEdges()
     {
+    	if(!mPeriodicSides)
+    	{
+    		EXCEPTION("This is not a periodic simulation");
+    	}
 		//std::cout << "Nodes on Boundary : \n";
     	// Check for any surplus cells to remove...
 		RemoveSurplusCellsFromPeriodicBoundary();
@@ -1315,6 +1452,10 @@ public:
 	 */
 	void RemoveSurplusCellsFromPeriodicBoundary()
 	{
+		if(!mPeriodicSides)
+    	{
+    		EXCEPTION("This is not a periodic simulation");
+    	}
 		for(unsigned i=0 ; i<mOldLeftCryptBoundary.size() ; i++)
 		{
 			bool this_left_node_missing = true;
@@ -1371,6 +1512,10 @@ public:
      */
     void AddACellToPeriodicBoundary(unsigned original_node_index, double new_x, double new_y, std::vector< unsigned > periodic)
     {
+    	if(!mPeriodicSides)
+    	{
+    		EXCEPTION("This is not a periodic simulation");
+    	}
         unsigned node_index=0;        
 		//std::cout << "Periodic node " << original_node_index<< " should have an image created\n";
         
@@ -1455,14 +1600,6 @@ public:
     			}
         	}
         }
-//        for(unsigned i=0 ; i< ghosts_on_node_0.size() ; i++)
-//        {
-//        	std::cout << "Ghosts attached to first node = " << ghosts_on_node_0[i]<< "\n";
-//        }
-//        for(unsigned i=0 ; i< ghosts_on_node_1.size() ; i++)
-//        {
-//        	std::cout << "Ghosts attached to second node = " << ghosts_on_node_1[i]<< "\n";
-//        }
         bool image_created = false;
         for(unsigned i=0 ; i< ghosts_on_node_0.size() ; i++)
         {
@@ -1530,16 +1667,18 @@ public:
     	NodeMap map(mrMesh.GetNumAllNodes());
     	mrMesh.ReMesh(map);
 
-		mOldLeftCryptBoundary = mLeftCryptBoundary;
-		mOldRightCryptBoundary = mRightCryptBoundary;
-		mOldCryptBoundary = mCryptBoundary;
-		
-        CalculateCryptBoundary();
-        
-        if(mOldCryptBoundary!=mCryptBoundary)
-        {	// There has been a change in the boundary
-        	std::cout << "Boundary has changed\n";
-        	DetectNaughtyCellsAtPeriodicEdges();
+		if(mPeriodicSides)
+		{
+			mOldLeftCryptBoundary = mLeftCryptBoundary;
+			mOldRightCryptBoundary = mRightCryptBoundary;
+			mOldCryptBoundary = mCryptBoundary;
+		    CalculateCryptBoundary();
+    	
+			if(mOldCryptBoundary!=mCryptBoundary)
+	        {	// There has been a change in the boundary
+	        	std::cout << "Boundary has changed\n";
+	        	DetectNaughtyCellsAtPeriodicEdges();
+			}
 		}
 	}
 };

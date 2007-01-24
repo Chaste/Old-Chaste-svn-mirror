@@ -39,19 +39,6 @@ protected:
 
     
 public:
-//    /**
-//     * Create a new Meineke crypt cell.
-//     * @param cellType  the type of cell this is
-//     * @param birthTime  the time at which it was born
-//     * @param generation  its generation
-//     * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
-//     *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
-//     */
-//    MeinekeCryptCell(CryptCellType cellType,
-//                     double birthTime,
-//                     unsigned int generation,
-//                     AbstractCellCycleModel *pCellCycleModel);
-                     
     /**
      * Create a new Meineke crypt cell.
      * @param cellType  the type of cell this is
@@ -82,27 +69,25 @@ public:
     unsigned GetNodeIndex();
     
     double GetAge();
+    double GetBirthTime();
     unsigned int GetGeneration();
     CryptCellType GetCellType();
+    void SetCellType(CryptCellType cellType);
     
     /**
      * Determine if this cell will be ready to divide at the given simulation time.
      * MUST be called before Divide().
+     * 
+     * @param cellCycleInfluences a vector of doubles that are inputs to the cell cycle model e.g. Wnt stimulus
      */
     bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
-//    /**
-//     * Determine if this cell will be ready to divide at the given simulation time.
-//     * MUST be called before Divide().
-//     */
-//    bool ReadyToDivide(double wnt_stimulus);
     
 	/**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide must have been called with the given simulationTime, and returned true.
      */
     MeinekeCryptCell Divide();
-    
     
 };
 

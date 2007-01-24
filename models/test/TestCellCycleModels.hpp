@@ -199,8 +199,10 @@ public:
             }
         }
         
-        double second_cycle_start = p_simulation_time->GetDimensionalisedTime();
         cellModel.ResetModel();
+        
+        WntCellCycleModel cellModel2 = cellModel;
+        double second_cycle_start = cellModel2.GetBirthTime();
         
         for(int i=0; i<num_timesteps/2; i++)
         {
@@ -209,7 +211,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(WntLevel);
-            bool result = cellModel.ReadyToDivide(cell_cycle_params);
+            bool result = cellModel2.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+5.971+SG2MDuration)
             {
@@ -265,6 +267,16 @@ public:
 		TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
         TS_ASSERT_DELTA(testResults[6] , 7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(testResults[7] , 0.0 , 1e-6);
+        
+        double diff = 1.0;
+        testResults[6] = testResults[6] + diff;
+        
+        cellModel.SetProteinConcentrationsForTestsOnly(1.0, testResults);
+        
+        testResults = cellModel.GetProteinConcentrations();
+        
+        TS_ASSERT_DELTA(testResults[6] , diff + 7.415537855270896e-03 , 1e-5);
+        
         SimulationTime::Destroy();
     }
     
