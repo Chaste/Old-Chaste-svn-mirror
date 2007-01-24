@@ -6,12 +6,12 @@
 /**
  * Constructor
  */
-HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem
-(AbstractIvpOdeSolver *pOdeSolver,
- double dt,
- AbstractStimulusFunction *pIntracellularStimulus,
- AbstractStimulusFunction *pExtracellularStimulus)
-        :AbstractCardiacCell(pOdeSolver,4,0,dt,pIntracellularStimulus,pExtracellularStimulus)
+HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalOdeSystem(
+        AbstractIvpOdeSolver *pOdeSolver,
+        double dt,
+        AbstractStimulusFunction *pIntracellularStimulus,
+        AbstractStimulusFunction *pExtracellularStimulus)
+    : AbstractCardiacCell(pOdeSolver,4,0,dt,pIntracellularStimulus,pExtracellularStimulus)
 {
     /*
      * State variable
@@ -47,9 +47,9 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::~HodgkinHuxleySquidAxon1952Original
  * Function returns a vector representing the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem system of Odes at each time step, y' = [y1' ... yn'].
  * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
  *
- * @return std::vector<double> RHS of HodgkinHuxleySquidAxon1952OriginalOdeSystem system of equations
+ * @param rDY filled in derivatives using HodgkinHuxleySquidAxon1952OriginalOdeSystem system of equations
  */
-std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
+void HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
 {
     /*
      * Typical initial conditions for the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
@@ -114,14 +114,10 @@ std::vector<double> HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDeriva
     double sodium_channel_m_gate_beta_m = 4.0*exp(-(membrane_V+75.0)/18.0);
     double sodium_channel_m_gate_m_prime = sodium_channel_m_gate_alpha_m*(1.0-sodium_channel_m_gate_m)-sodium_channel_m_gate_beta_m*sodium_channel_m_gate_m;
     
-    std::vector<double> returnRHS;
-    
-    returnRHS.push_back(membrane_V_prime);
-    returnRHS.push_back(potassium_channel_n_gate_n_prime);
-    returnRHS.push_back(sodium_channel_h_gate_h_prime);
-    returnRHS.push_back(sodium_channel_m_gate_m_prime);
-    
-    return returnRHS;
+    rDY[0] = membrane_V_prime;
+    rDY[1] = potassium_channel_n_gate_n_prime;
+    rDY[2] = sodium_channel_h_gate_h_prime;
+    rDY[3] = sodium_channel_m_gate_m_prime;
 }
 
 void HodgkinHuxleySquidAxon1952OriginalOdeSystem::Init()

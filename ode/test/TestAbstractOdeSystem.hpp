@@ -22,31 +22,31 @@ public:
 
     void TestOdeSystemOne(void)
     {
-        // pointer to TestOde1 class
+        // Test Ode1 class
         Ode1 ode1;
-        // Yprime
-        std::vector<double> YPrime;
-        YPrime = ode1.EvaluateYDerivatives(1.0, ode1.GetInitialConditions());
-        TS_ASSERT_DELTA(YPrime[0],1.0,tol);
+        // dy
+        std::vector<double> dy(1);
+        ode1.EvaluateYDerivatives(1.0, ode1.GetInitialConditions(),dy);
+        TS_ASSERT_DELTA(dy[0],1.0,tol);
     }
     
     
     void TestOdeSystemTwo(void)
     {
         Ode2 ode2;
-        std::vector<double> YPrime;
-        YPrime = ode2.EvaluateYDerivatives(2.0, ode2.GetInitialConditions());
-        TS_ASSERT_DELTA(YPrime[0],8.0,tol);
+        std::vector<double> dy(1);
+        ode2.EvaluateYDerivatives(2.0, ode2.GetInitialConditions(), dy);
+        TS_ASSERT_DELTA(dy[0],8.0,tol);
     }
     
     
     void TestOdeSystemThree(void)
     {
         Ode3 ode3;
-        std::vector<double> YPrime;
-        YPrime = ode3.EvaluateYDerivatives(2.0, ode3.GetInitialConditions());
-        TS_ASSERT_DELTA(YPrime[0],8.0,tol);
-        TS_ASSERT_DELTA(YPrime[1],16.0,tol);
+        std::vector<double> dy(2);
+        ode3.EvaluateYDerivatives(2.0, ode3.GetInitialConditions(), dy);
+        TS_ASSERT_DELTA(dy[0],8.0,tol);
+        TS_ASSERT_DELTA(dy[1],16.0,tol);
     }
     
     

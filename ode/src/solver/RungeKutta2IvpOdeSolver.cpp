@@ -38,7 +38,8 @@ void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
     std::vector<double>& dy = nextYValues; // re-use memory
     
     // Work out k1
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues);
+    pAbstractOdeSystem->EvaluateYDerivatives(time, currentYValues, dy);
+    
     for (unsigned i=0; i<num_equations; i++)
     {
         k1[i] = timeStep*dy[i];
@@ -46,7 +47,7 @@ void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
     }
     
     // Work out k2 and new solution
-    dy = pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep/2.0, k1);
+    pAbstractOdeSystem->EvaluateYDerivatives(time+timeStep/2.0, k1, dy);
     for (unsigned i=0; i<num_equations; i++)
     {
         nextYValues[i] = currentYValues[i] + timeStep*dy[i];

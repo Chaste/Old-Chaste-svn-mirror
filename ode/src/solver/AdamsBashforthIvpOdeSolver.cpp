@@ -154,28 +154,31 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     // maintain fourth order accuracy of Adams-Bashforth method
     for (unsigned int time_index=1; time_index<=3; time_index++)
     {
-        dy = dy_rk4 = pAbstractOdeSystem->EvaluateYDerivatives(current_time,rYValues);
+        pAbstractOdeSystem->EvaluateYDerivatives(current_time,rYValues,dy);
         
         for (unsigned int i=0;i<num_equations; i++)
         {
-            k1[i] = timeStep*dy_rk4[i];
+            k1[i] = timeStep*dy[i];
             yk2[i] = rYValues[i] + 0.5*k1[i];
         }
-        dy_rk4 = pAbstractOdeSystem->EvaluateYDerivatives(current_time+0.5*timeStep,yk2);
+        
+        pAbstractOdeSystem->EvaluateYDerivatives(current_time+0.5*timeStep,yk2,dy_rk4);
         
         for (unsigned int i=0;i<num_equations; i++)
         {
             k2[i] = timeStep*dy_rk4[i];
             yk3[i] = rYValues[i] + 0.5*k2[i];
         }
-        dy_rk4 = pAbstractOdeSystem->EvaluateYDerivatives(current_time+0.5*timeStep,yk3);
+        
+        pAbstractOdeSystem->EvaluateYDerivatives(current_time+0.5*timeStep,yk3,dy_rk4);
         
         for (unsigned int i=0;i<num_equations; i++)
         {
             k3[i] = timeStep*dy_rk4[i];
             yk4[i] = rYValues[i] + k3[i];
         }
-        dy_rk4 = pAbstractOdeSystem->EvaluateYDerivatives(current_time+timeStep,yk4);
+
+        pAbstractOdeSystem->EvaluateYDerivatives(current_time+timeStep,yk4,dy_rk4);
         
         for (unsigned int i=0;i<num_equations; i++)
         {
@@ -216,7 +219,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
             real_timestep = endTime-current_time;
         }
         
-        dy = pAbstractOdeSystem->EvaluateYDerivatives(current_time,rYValues);
+        pAbstractOdeSystem->EvaluateYDerivatives(current_time,rYValues,dy);
         
         for (unsigned int i=0;i<num_equations; i++)
         {

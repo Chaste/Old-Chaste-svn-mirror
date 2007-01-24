@@ -61,11 +61,14 @@ public:
     void Init(); //Sets up the parameter values
     
     // Compute the RHS of the T&N system of ODEs
-    std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
-         return (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && EvaluateYDerivatives(time, rY)[0] < 0.0);
+        std::vector<double> dy(rY.size());
+        EvaluateYDerivatives(time, rY, dy);
+
+        return (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && dy[0] < 0.0);
     }
     
     PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep);

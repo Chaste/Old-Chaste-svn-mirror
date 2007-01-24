@@ -29,10 +29,7 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "ForwardEulerLuoRudyIModel1991.hpp"
 
-#include "EfficientEulerIvpOdeSolver.hpp"
-#include "EfficientLuoRudyIModel1991OdeSystem.hpp"
 
 
 class TestIonicModels : public CxxTest::TestSuite
@@ -361,88 +358,6 @@ public:
         
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
             << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
-    }
-
-
-    void testForwardEulerLr91WithDelayedInitialStimulus(void) throw (Exception)
-    {
-        clock_t ck_start, ck_end;
-        // Set stimulus
-        double magnitude = -25.5;
-        double duration  = 2.0  ;  // ms
-        double when = 50.0; // ms
-        InitialStimulus stimulus(magnitude, duration, when);
-        
-        double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.01;  //1e-5 seconds in milliseconds
-        
-        // Solve using hardcoded forward euler LR91 class
-        ForwardEulerLuoRudyIModel1991 lr91_forward_euler(time_step, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&lr91_forward_euler,
-                                   end_time,
-                                   "Lr91ForwardEuler");
-        ck_end = clock();
-        double hardcoded = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-
-        // Solve using the forward Euler ODE solver class
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&lr91_ode_system,
-                                   end_time,
-                                   "Lr91DelayedStim");
-        ck_end = clock();
-        double normal = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
-        // Compare results
-        CompareCellModelResults("Lr91DelayedStim", "Lr91ForwardEuler", 1e-6);
-        CompareCellModelResults("Lr91DelayedStim_ExceptVoltage", "Lr91ForwardEuler_ExceptVoltage", 1e-6);
-        
-        
-        std::cout << "Run times:\n\tHardcoded forward euler: " << hardcoded  
-                  << "\n\tNormal forward Euler: " << normal << std::endl;
-    }
-    
-    void testEfficientLr91WithDelayedInitialStimulus(void) throw (Exception)
-    {
-        clock_t ck_start, ck_end;
-        // Set stimulus
-        double magnitude = -25.5;
-        double duration  = 2.0  ;  // ms
-        double when = 50.0; // ms
-        InitialStimulus stimulus(magnitude, duration, when);
-        
-        double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.01;  //1e-5 seconds in milliseconds
-        
-        // Solve using efficient forward Euler solver
-        EfficientEulerIvpOdeSolver efficient_solver;
-        EfficientLuoRudyIModel1991OdeSystem lr91_efficient_euler(&efficient_solver, time_step, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&lr91_efficient_euler,
-                                   end_time,
-                                   "Lr91EfficientEuler");
-        ck_end = clock();
-        double efficient = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-
-        // Solve using the forward Euler ODE solver class
-        EulerIvpOdeSolver solver;
-        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&lr91_ode_system,
-                                   end_time,
-                                   "Lr91DelayedStim");
-        ck_end = clock();
-        double normal = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
-        // Compare results
-        CompareCellModelResults("Lr91DelayedStim", "Lr91EfficientEuler", 1e-6);
-        CompareCellModelResults("Lr91DelayedStim_ExceptVoltage", "Lr91EfficientEuler_ExceptVoltage", 1e-6);
-        
-        
-        std::cout << "Run times:\n\tEfficient forward euler: " << efficient  
-                  << "\n\tNormal forward Euler: " << normal << std::endl;
     }
 };
 

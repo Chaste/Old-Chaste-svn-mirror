@@ -140,7 +140,7 @@ PetscErrorCode ComputeResidual(SNES snes,Vec solutionGuess,Vec residual,void *pC
     }
     
     std::vector<double> dy(num_equations);
-    dy = p_ode_system->EvaluateYDerivatives(time, current_guess);
+    p_ode_system->EvaluateYDerivatives(time, current_guess, dy);
     
     PetscScalar *p_solution_guess_array;
     VecGetArray(solutionGuess, &p_solution_guess_array);

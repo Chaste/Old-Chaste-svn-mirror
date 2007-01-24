@@ -52,7 +52,8 @@ public:
             yleft.push_back(0.05);
             
             
-            std::vector<double> rhsleft =  hh52_ode_system.EvaluateYDerivatives (0.0, yleft);
+            std::vector<double> rhsleft(yleft.size());
+            hh52_ode_system.EvaluateYDerivatives (0.0, yleft, rhsleft);
             
             std::vector<double> yright;
             
@@ -72,7 +73,8 @@ public:
             //mVariableUnits.push_back("");
             yright.push_back(0.05);
             
-            std::vector<double> rhsright = hh52_ode_system.EvaluateYDerivatives (0.0, yright);
+            std::vector<double> rhsright(yright.size());
+            hh52_ode_system.EvaluateYDerivatives (0.0, yright, rhsright);
             
             
             std::vector<double> y_at_singularity;
@@ -93,7 +95,8 @@ public:
             //mVariableUnits.push_back("");
             y_at_singularity.push_back(0.05);
             
-            std::vector<double> rhs_at_singularity = hh52_ode_system.EvaluateYDerivatives (0.0, y_at_singularity);
+            std::vector<double> rhs_at_singularity(y_at_singularity.size());
+            hh52_ode_system.EvaluateYDerivatives (0.0, y_at_singularity, rhs_at_singularity);
             
             for (int j=0; j<4; j++)
             {

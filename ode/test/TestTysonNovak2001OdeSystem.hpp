@@ -24,14 +24,16 @@ public:
         TysonNovak2001OdeSystem tyson_novak_system;
         
         double time = 0.0;
-        std::vector<double> initialConditions;
-        initialConditions.push_back(0.6);
-        initialConditions.push_back(0.1);
-        initialConditions.push_back(1.5);
-        initialConditions.push_back(0.6);
-        initialConditions.push_back(0.6);
-        initialConditions.push_back(0.85);
-        std::vector<double> derivs = tyson_novak_system.EvaluateYDerivatives(time,initialConditions);
+        std::vector<double> initial_conditions;
+        initial_conditions.push_back(0.6);
+        initial_conditions.push_back(0.1);
+        initial_conditions.push_back(1.5);
+        initial_conditions.push_back(0.6);
+        initial_conditions.push_back(0.6);
+        initial_conditions.push_back(0.85);
+        
+        std::vector<double> derivs(initial_conditions.size());
+        tyson_novak_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct
         TS_ASSERT_DELTA(derivs[0],-4.400000000000000e-02, 1e-5);

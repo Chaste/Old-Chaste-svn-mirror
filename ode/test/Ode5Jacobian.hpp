@@ -13,18 +13,15 @@ private :
     double mAlpha;
     
 public :
-    Ode5Jacobian()
-            : AbstractOdeSystemWithAnalyticJacobian(1)  // 1 here is the number of unknowns
+    Ode5Jacobian() : AbstractOdeSystemWithAnalyticJacobian(1)  // 1 here is the number of unknowns
     {
         mInitialConditions.push_back(0.2);
         mAlpha = 100;
     }
     
-    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
-        std::vector<double> y_derivatives(GetNumberOfStateVariables());
-        y_derivatives[0]=mAlpha*rY[0]*(1-rY[0]);
-        return y_derivatives;
+        rDY[0]=mAlpha*rY[0]*(1-rY[0]);
     }
     
     PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep)

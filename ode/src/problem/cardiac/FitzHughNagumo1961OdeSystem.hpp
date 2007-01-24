@@ -35,7 +35,7 @@ public:
     //double GetStimulus(double time);
     
     // Compute the RHS of the FitHugh-Nagumo system of ODEs
-    std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
     double GetIIonic();
 };
 

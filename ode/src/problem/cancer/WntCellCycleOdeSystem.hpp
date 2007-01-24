@@ -61,11 +61,13 @@ public:
     void Init(); //Sets up the parameter values
         
     // Compute the RHS of the T&N system of ODEs
-    std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)
     {
-         return (fabs(rY[1]-1.0) < 1.0e-2 && EvaluateYDerivatives(time, rY)[1] > 0.0);
+        std::vector<double> dy(rY.size());
+        EvaluateYDerivatives(time, rY, dy);
+        return (fabs(rY[1]-1.0) < 1.0e-2 && dy[1] > 0.0);
     }
     
 };

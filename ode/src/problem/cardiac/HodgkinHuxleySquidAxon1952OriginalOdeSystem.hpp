@@ -31,7 +31,7 @@ public:
     void Init();
     
     // This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
-    std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY);
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
     double GetIIonic();
 };
 

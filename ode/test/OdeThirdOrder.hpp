@@ -17,14 +17,11 @@ public :
         mInitialConditions.push_back(0.0);
     }
     
-    
-    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
-        std::vector<double> y_derivatives(GetNumberOfStateVariables());
-        y_derivatives[0]=rY[0]-rY[1]+rY[2];
-        y_derivatives[1]=rY[1]-rY[2];
-        y_derivatives[2]=2*rY[1]-rY[2];
-        return y_derivatives;
+        rDY[0]=rY[0]-rY[1]+rY[2];
+        rDY[1]=rY[1]-rY[2];
+        rDY[2]=2*rY[1]-rY[2];
     }
 };
 

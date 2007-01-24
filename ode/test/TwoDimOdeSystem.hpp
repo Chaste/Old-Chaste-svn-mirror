@@ -17,13 +17,9 @@ public :
         mStateVariables.push_back(4);
     }
     
-    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
-        // do nothing
-        
-        //Quick fudge to remove warnings:
-        time=0.0;
-        return(rY);
+        rDY.assign(rY.begin(), rY.end());
     }
 };
 

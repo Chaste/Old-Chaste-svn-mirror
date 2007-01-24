@@ -15,13 +15,10 @@ public :
     }
     
     
-    std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY)
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
-        std::vector<double> ret(2);
-        
-        ret[0] =  rY[1];
-        ret[1] = -rY[0];
-        return ret;
+        rDY[0] =  rY[1];
+        rDY[1] = -rY[0];
     }
     
     

@@ -39,48 +39,22 @@ public:
     virtual ~AbstractOdeSystem()
     {} /**<  Destructor */
     
+    
     /**
      * Method to evaluate the derivatives of the system.
-     * 
-     * This version will allocate a fresh std::vector<double> to return the results in.
-     * 
-     * One of the 2 versions of this method MUST be implemented by concrete subclasses.
-     * 
-     * @param time  the current time
-     * @param rY  the current values of the state variables
-     * @return  the derivatives of the system
-     */
-    virtual std::vector<double> EvaluateYDerivatives(double time, const std::vector<double> &rY)
-    {
-        std::vector<double> res(rY.size());
-        EvaluateYDerivatives(time, rY, res);
-        return res;
-    }
-
-    /**
-     * Method to evaluate the derivatives of the system.
-     * 
-     * This version returns the results in its third parameter.
-     * 
-     * One of the 2 versions of this method MUST be implemented by concrete subclasses.
      * 
      * @param time  the current time
      * @param rY  the current values of the state variables
      * @param rDY  storage for the derivatives of the system; will be filled in on return
      */
     virtual void EvaluateYDerivatives(double time, const std::vector<double> &rY,
-                                      std::vector<double> &rDY)
-    {
-        std::vector<double> res = EvaluateYDerivatives(time, rY);
-        rDY.assign(res.begin(), res.end());
-    }    
+                                      std::vector<double> &rDY)=0;
 
     unsigned GetNumberOfStateVariables()
     {
         return mNumberOfStateVariables;
     }
-    
-    
+        
     
     virtual void SetInitialConditions(std::vector<double> initialConditions)
     {

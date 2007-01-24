@@ -22,9 +22,10 @@ public:
 		WntCellCycleOdeSystem wnt_cell_cycle_system(WntLevel);
         
         double time = 0.0;
-        std::vector<double> initialConditions = wnt_cell_cycle_system.GetInitialConditions();
+        std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
         
-        std::vector<double> derivs = wnt_cell_cycle_system.EvaluateYDerivatives(time,initialConditions);
+        std::vector<double> derivs(initial_conditions.size());
+        wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
@@ -42,8 +43,9 @@ public:
          */
         WntLevel = 1.0;
         WntCellCycleOdeSystem wnt_cell_cycle_system2(WntLevel);
-		initialConditions = wnt_cell_cycle_system2.GetInitialConditions();
-		derivs = wnt_cell_cycle_system2.EvaluateYDerivatives(time,initialConditions);
+		initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
+		
+        wnt_cell_cycle_system2.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct at t=0 for these initial conditions
         // (figures from MatLab code)
@@ -70,9 +72,9 @@ public:
 
         OdeSolution solutions;
                 
-        std::vector<double> initialConditions = wnt_system.GetInitialConditions();
+        std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
                         
-        solutions = rk4_solver.Solve(&wnt_system, initialConditions, 0.0, 100.0, h_value, h_value);
+        solutions = rk4_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
         
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);

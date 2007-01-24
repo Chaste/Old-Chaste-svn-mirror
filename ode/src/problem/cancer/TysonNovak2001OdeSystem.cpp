@@ -97,9 +97,9 @@ void TysonNovak2001OdeSystem::Init()
  * Returns a vector representing the RHS of the Tyson & Novak system of Odes at each time step, y' = [y1' ... yn'].
  * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
  *
- * @return std::vector<double> RHS of Tyson & Novak system of equations
+ * @param rDy filled in with the resulting derivatives using Tyson & Novak system of equations
  */
-std::vector<double> TysonNovak2001OdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
+void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     double x1 = rY[0];
     double x2 = rY[1];
@@ -127,8 +127,6 @@ std::vector<double> TysonNovak2001OdeSystem::EvaluateYDerivatives (double time, 
     % 6. m - mass of the cell
     */
     
-    std::vector<double> RHS;
-    
     dx1 = mK1-(mK2d+mK2dd*x2)*x1;
     
     // This line just models the start transition, no cycling, without Cdc20A
@@ -151,14 +149,12 @@ std::vector<double> TysonNovak2001OdeSystem::EvaluateYDerivatives (double time, 
     
     dx6 = mMu*x6*(1.0-x6/mMstar);
     
-    RHS.push_back(dx1);
-    RHS.push_back(dx2);
-    RHS.push_back(dx3);
-    RHS.push_back(dx4);
-    RHS.push_back(dx5);
-    RHS.push_back(dx6);
-    
-    return RHS;
+    rDY[0] = dx1;
+    rDY[1] = dx2;
+    rDY[2] = dx3;
+    rDY[3] = dx4;
+    rDY[4] = dx5;
+    rDY[5] = dx6;
 }
 
 

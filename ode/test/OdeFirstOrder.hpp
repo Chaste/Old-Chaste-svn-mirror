@@ -6,20 +6,15 @@
 class OdeFirstOrder : public AbstractOdeSystem
 {
 public :
-    OdeFirstOrder()
-            : AbstractOdeSystem(1) // 1 here is the number of variables
+    OdeFirstOrder() : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mInitialConditions.push_back(1.0);
     }
-    
-    
-    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
+      
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
-        std::vector<double> y_derivatives(GetNumberOfStateVariables());
-        y_derivatives[0] = rY[0];
-        return y_derivatives;
+        rDY[0] = rY[0];
     }
-    
 };
 
 #endif //_ODEFIRSTORDER_HPP_

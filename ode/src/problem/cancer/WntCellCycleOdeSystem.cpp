@@ -146,9 +146,9 @@ void WntCellCycleOdeSystem::Init()
  * Returns a vector representing the RHS of the odes at each time step, y' = [y1' ... yn'].
  * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
  *
- * @return std::vector<double> RHS of Mirams et al. (2007?) system of equations
+ * @param rDY filled in with the resulting derivatives (using Mirams et al. (2007?) system of equations)
  */
-std::vector<double> WntCellCycleOdeSystem::EvaluateYDerivatives (double time, const std::vector<double> &rY)
+void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
 {
     double r = rY[0];
     double e = rY[1];
@@ -196,17 +196,15 @@ std::vector<double> WntCellCycleOdeSystem::EvaluateYDerivatives (double time, co
 	
 	double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
     
-	std::vector<double> RHS;
-    RHS.push_back(dx1*factor);
-    RHS.push_back(dx2*factor);
+    rDY[0] = dx1*factor;
+    rDY[1] = dx2*factor;
 //    std::cout << "d/dt E2F1 = " << dx2*factor << "\n";
-    RHS.push_back(dx3*factor);
-    RHS.push_back(dx4*factor);
-    RHS.push_back(dx5*factor);
-    RHS.push_back(dx6*factor);
-    RHS.push_back(dx7*factor);
+    rDY[2] = dx3*factor;
+    rDY[3] = dx4*factor;
+    rDY[4] = dx5*factor;
+    rDY[5] = dx6*factor;
+    rDY[6] = dx7*factor;
     //std::cout << "d/dt beta = " << dx7*factor << "\n";
-    RHS.push_back(0.0); // Do not change the Wnt level.
-    return RHS;
+    rDY[7] = 0.0; // Do not change the Wnt level.
 }
 

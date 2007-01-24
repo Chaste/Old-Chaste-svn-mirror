@@ -10,19 +10,16 @@ class Ode3 : public AbstractOdeSystem
 {
 public :
 
-    Ode3()
-            : AbstractOdeSystem(2) // 2 here is the number of unknowns
+    Ode3()  : AbstractOdeSystem(2) // 2 here is the number of unknowns
     {
         mInitialConditions.push_back(4.0);
         mInitialConditions.push_back(8.0);
     }
     
-    std::vector<double> EvaluateYDerivatives (double time, const std::vector<double> &rY)
+    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY)
     {
-        std::vector<double> y_derivatives(GetNumberOfStateVariables());
-        y_derivatives[0]=rY[0]*time;
-        y_derivatives[1]=rY[1]*time;
-        return y_derivatives;
+        rDY[0]=rY[0]*time;
+        rDY[1]=rY[1]*time;
     }
 };
 
