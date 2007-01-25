@@ -32,14 +32,20 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 /**
  * A private constructor for daughter cells called only by the CreateCellCycleModel function
  * 
- * @param InitialWntStimulus a value between 0 and 1.
- * @param birthTime the SimulationTime when the cell divided (birth time of mother cell)
+ * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+ * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
 WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
 {
 	double InitialWntStimulus = parentProteinConcentrations[7];
 	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
-	mProteinConcentrations = parentProteinConcentrations;
+	// Set the cell cycle part of the model to start of G1 phase,
+	mProteinConcentrations = mOdeSystem.GetInitialConditions();
+	// Set the Wnt pathway part of the model to be the same as the parent cell.
+	mProteinConcentrations[7] = parentProteinConcentrations[7];
+	mProteinConcentrations[6] = parentProteinConcentrations[6];
+	mProteinConcentrations[5] = parentProteinConcentrations[5];
+    
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
 	{
@@ -47,9 +53,10 @@ WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrat
 	}
     mBirthTime = birthTime;
     mLastTime = birthTime;
-    mProteinConcentrations = mOdeSystem.GetInitialConditions();
+    
     mInSG2MPhase = false;
     mReadyToDivide = false;
+    
     mpCancerParams = CancerParameters::Instance();
 }
 
@@ -149,6 +156,8 @@ std::vector<double> WntCellCycleModel::GetProteinConcentrations()
 
 /**
  * Returns a new WntCellCycleModel created with the correct initial conditions.
+ * 
+ * Should be called just after the parent cell cycle model has been .Reset().
  * 
  */    
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
