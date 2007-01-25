@@ -1,16 +1,21 @@
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include <cmath>
-
-//#include <iostream>
 #include "Exception.hpp"
+#include "CardiacNewtonSolver.hpp"
+
+#include <cmath>
+#include <cassert>
+//#include <iostream>
+
 
 /**
  * Constructor
  */
-BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(double dt,
-                                                       AbstractStimulusFunction *pIntracellularStimulus,
-                                                       AbstractStimulusFunction *pExtracellularStimulus)
-        : AbstractCardiacCell(NULL, 8, 4, dt, pIntracellularStimulus, pExtracellularStimulus)
+BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
+                    double dt,
+                    AbstractStimulusFunction *pIntracellularStimulus,
+                    AbstractStimulusFunction *pExtracellularStimulus)
+        : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
+                                              pExtracellularStimulus)
 {
     /*
      * State variables
@@ -308,58 +313,62 @@ void BackwardEulerLuoRudyIModel1991::ComputeExceptVoltage(double tStart)
     rY[7] =  time_dependent_potassium_current_X_gate_X;
 
     // finally, use the newton method to calculate the Calcium concentration at the next time
-    double current_Ca_guess = rY[3];
-    const double tol = 1e-6*current_Ca_guess;            
-    double f = ComputeCalciumResidual(current_Ca_guess);
+    double guess[1] = {rY[3]};
+
+    CardiacNewtonSolver<1> *solver = CardiacNewtonSolver<1>::Instance();
+    solver->Solve(*this, guess);
+
+    rY[3] = guess[0];
     
-    int counter = 0;
-    while(fabs(f) > tol)
-    {
-        double J = ComputeCalciumJacobian(current_Ca_guess);
-        current_Ca_guess -= f/J;
-        f = ComputeCalciumResidual(current_Ca_guess);
-        
-        assert(counter++ < 15); // avoid infinite loops
-    }
-    
-    rY[3] = current_Ca_guess;
+    // Timings:
+    //  Hardcoded one-variable newton:
+    //    Forward: 1.66
+    //    Backward: 1.29
+    //    Backward (long dt): 0.03
+    //  Original DoNewton:
+    //    Forward: 1.69
+    //    Backward: 1.28
+    //    Backward (long dt): 0.02
+    //  Generic DoNewton:
+    //    Forward: 1.66, 1.67, 1.67
+    //    Backward: 1.36, 1.31, 1.32
+    //    Backward (long dt): 0.02, 0.03, 0.03
+    //  Generic DoNewton with JonW norm:
+    //    Forward: 1.67, 1.67, 1.67
+    //    Backward: 1.30, 1.29, 1.30
+    //    Backward (long dt): 0.03, 0.03, 0.02
+    //  CardiacNewtonSolver with JonW norm:
+    //    Forward: 1.70, 1.69, 1.70, 1.71
+    //    Backward: 1.29, 1.29, 1.30, 1.32
+    //    Backward (long dt): 0.03, 0.03, 0.02, 0.03
+    // So the method call itself has no significant impact, nor the use of generic solver.
+    // The choice of norm also seems immaterial for this problem.
 }
 
-double BackwardEulerLuoRudyIModel1991::ComputeCalciumResidual(double currentCaGuess)
+void BackwardEulerLuoRudyIModel1991::ComputeResidual(const double rCurrentGuess[1], double rResidual[1])
 {
     std::vector<double>& rY = rGetStateVariables();
     double membrane_V = rY[4];
     double slow_inward_current_d_gate_d = rY[5];
     double slow_inward_current_f_gate_f = rY[6];
     
-    double slow_inward_current_E_si = 7.7-13.0287*log(currentCaGuess);
+    double slow_inward_current_E_si = 7.7-13.0287*log(rCurrentGuess[0]);
     double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
     
-    double dCdt_using_current_guess = -1e-4*slow_inward_current_i_si+0.07*(1e-4-currentCaGuess);
+    double dCdt_using_current_guess = -1e-4*slow_inward_current_i_si+0.07*(1e-4-rCurrentGuess[0]);
  
-    return currentCaGuess - rY[3] - mDt*dCdt_using_current_guess; 
+    rResidual[0] = rCurrentGuess[0] - rY[3] - mDt*dCdt_using_current_guess;
 }
 
-double BackwardEulerLuoRudyIModel1991::ComputeCalciumJacobian(double currentCaGuess)
+void BackwardEulerLuoRudyIModel1991::ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1])
 {
     std::vector<double>& rY = rGetStateVariables();
     double slow_inward_current_d_gate_d = rY[5];
     double slow_inward_current_f_gate_f = rY[6];
     
-    return 1 - mDt*(-0.1172583e-3*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f/currentCaGuess 
-                    - 0.07);
+    rJacobian[0][0] = 1 - mDt*(-0.1172583e-3*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f/rCurrentGuess[0] 
+                               - 0.07);
 }
-
-#define COVERAGE_IGNORE
-/**
- * This function should never be called - the cell class incorporates its own solver.
- */
-void BackwardEulerLuoRudyIModel1991::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
-{
-    assert(0);
-}
-#undef COVERAGE_IGNORE
-
 
 double BackwardEulerLuoRudyIModel1991::GetIIonic()
 {

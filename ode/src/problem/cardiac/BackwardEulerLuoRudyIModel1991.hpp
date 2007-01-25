@@ -1,18 +1,18 @@
 #ifndef _BACKWARDEULERLUORUDYIMODEL1991_HPP_
 #define _BACKWARDEULERLUORUDYIMODEL1991_HPP_
 
-#include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractBackwardEulerCardiacCell.hpp"
+
 #include <vector>
 
-
 /**
- * This class sets up the Luo-Rudy I 1991 system of equations.
+ * This class sets up the Luo-Rudy I 1991 system of equations, and solves them
+ * using a decoupled backward Euler approach.
  */
-class BackwardEulerLuoRudyIModel1991 : public AbstractCardiacCell
+class BackwardEulerLuoRudyIModel1991 : public AbstractBackwardEulerCardiacCell<1>
 {
 private:
-    
     // Constants for the LuoRudyIModel1991OdeSystem model
     double background_current_E_b;
     double background_current_g_b;
@@ -42,28 +42,31 @@ public:
     
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep dt.
+     * with timestep mDt.
      */
-    virtual OdeSolution Compute(double tStart, double tEnd);
+    OdeSolution Compute(double tStart, double tEnd);
     
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep dt, but does not update the voltage.
+     * with timestep mDt, but does not update the voltage.
      */
-    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd);
+    OdeSolution ComputeExceptVoltage(double tStart, double tEnd);
     
-
-    /** Compute the values of all state variables except the voltage for one 
-     *  timestep
+protected:
+    /**
+     * Compute the values of all state variables except the voltage for one 
+     * timestep.
      */
     void ComputeExceptVoltage(double tStart);
 
-    double ComputeCalciumResidual(double currentCaGuess);
-    double ComputeCalciumJacobian(double currentCaGuess);
-    
-    // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
-    void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+public:
+    void ComputeResidual(const double rCurrentGuess[1], double rResidual[1]);
+    void ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1]);
+
+    /**
+     * Compute the ionic current at the current instant in time
+     * (i.e. using the current values of the state variables).
+     */
     double GetIIonic();
     
     /**
