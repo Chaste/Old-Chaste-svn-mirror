@@ -616,6 +616,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
     for (unsigned i=0; i<mBoundaryElements.size();i++)
     {
         if (!mBoundaryElements[i]->IsDeleted())
+        {
             try
             {
                 mBoundaryElements[i]->RefreshJacobianDeterminant();
