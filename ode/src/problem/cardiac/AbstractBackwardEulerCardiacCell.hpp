@@ -5,6 +5,7 @@
 //#include "CardiacNewtonSolver.hpp"
 
 #include <cassert>
+#include <cmath>
 
 /**
  * This is the base class for cardiac cells solved using a (decoupled) backward
@@ -74,12 +75,102 @@ public:
     virtual void ComputeJacobian(const double rCurrentGuess[SIZE], double rJacobian[SIZE][SIZE])=0;
     
     /**
-     * We override the default Compute* method to make them pure virtual, since the
-     * default implementations are not suitable - we don't have access to a standard
-     * ODE solver.
-     */    
-    virtual OdeSolution Compute(double tStart, double tEnd)=0;
-    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd)=0;
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep mDt.  Uses a forward Euler step to update the transmembrane
+     * potential at each timestep.
+     * 
+     * The length of the time interval must be a multiple of the timestep.
+     * 
+     * @return  the values of each state variable, at mDt intervals.
+     */
+    virtual OdeSolution Compute(double tStart, double tEnd)
+    {
+        // In this method, we iterate over timesteps, doing the following for each:
+        //   - update V using a forward Euler step
+        //   - call ComputeExceptVoltage(t) to update the remaining state variables
+        //     using backward Euler
+        // Check length of time interval
+        double _n_steps = (tEnd - tStart) / mDt;
+        int n_steps = (int) round(_n_steps);
+        assert(fabs(n_steps - _n_steps) < 1e-12);
+        
+        // Initialise solution store
+        OdeSolution solutions;
+        solutions.SetNumberOfTimeSteps(n_steps);
+        solutions.rGetSolutions().push_back(rGetStateVariables());
+        solutions.rGetTimes().push_back(tStart);
+        
+        // Loop over time
+        double curr_time;
+        for (int i=0; i<n_steps; i++)
+        {
+            curr_time = tStart + i*mDt;
+            
+            // Compute next value of V
+            UpdateTransmembranePotential(curr_time);
+            
+            // Compute other state variables
+            ComputeExceptVoltage(curr_time);
+            
+            // Update solutions
+            solutions.rGetSolutions().push_back(rGetStateVariables());
+            solutions.rGetTimes().push_back(curr_time+mDt);
+    
+            // check gating variables are still in range
+            VerifyGatingVariables();
+        }
+        
+        return solutions;
+    }
+    
+    /**
+     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
+     * with timestep mDt.  The transmembrane potential is kept fixed throughout.
+     * 
+     * The length of the time interval must be a multiple of the timestep.
+     * 
+     * @return  the values of each state variable, at mDt intervals.
+     */
+    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd)
+    {
+        // This method iterates over timesteps, calling ComputeExceptVoltage(t) at
+        // each one, to update all state variables except for V, using backward Euler.
+        // Check length of time interval
+        double _n_steps = (tEnd - tStart) / mDt;
+        int n_steps = (int) round(_n_steps);
+        assert(fabs(n_steps - _n_steps) < 1e-12);
+        
+        // Initialise solution store
+        OdeSolution solutions;
+        solutions.SetNumberOfTimeSteps(n_steps);
+        solutions.rGetSolutions().push_back(rGetStateVariables());
+        solutions.rGetTimes().push_back(tStart);
+        
+        // Loop over time
+        double curr_time;
+        for (int i=0; i<n_steps; i++)
+        {
+            curr_time = tStart + i*mDt;
+            
+            // Compute other state variables
+            ComputeExceptVoltage(curr_time);
+            
+            // Update solutions
+            solutions.rGetSolutions().push_back(rGetStateVariables());
+            solutions.rGetTimes().push_back(curr_time+mDt);
+            
+            // check gating variables are still in range
+            VerifyGatingVariables();
+        }
+        
+        return solutions;
+    }
+    
+    /**
+     *  Check that none of the gating variables have gone out of range. Throws an
+     *  Exception if any have.
+     */
+    virtual void VerifyGatingVariables()=0;
     
 #define COVERAGE_IGNORE
     /**
@@ -90,6 +181,22 @@ public:
         assert(0);
     }
 #undef COVERAGE_IGNORE
+
+protected:
+    /**
+     * Compute the values of all state variables except the voltage, for one 
+     * timestep from tStart.
+     * 
+     * This method must be provided by subclasses.
+     */
+    virtual void ComputeExceptVoltage(double tStart)=0;
+    
+    /**
+     * Perform a forward Euler step to update the transmembrane potential.
+     * 
+     * This method must be provided by subclasses.
+     */
+    virtual void UpdateTransmembranePotential(double time)=0;
 };
 
 #endif /*ABSTRACTBACKWARDEULERCARDIACCELL_HPP_*/

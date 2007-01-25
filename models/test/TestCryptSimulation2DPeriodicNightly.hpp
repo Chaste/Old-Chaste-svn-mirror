@@ -405,32 +405,32 @@ public:
 //        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
 //        }
         
-        TS_ASSERT_EQUALS(leftBoundary.size(),12);
+        TS_ASSERT_EQUALS(leftBoundary.size(),12u);
         
-		TS_ASSERT_EQUALS(leftBoundary[0], 64);
-		TS_ASSERT_EQUALS(rightBoundary[0], 70);
-		TS_ASSERT_EQUALS(leftBoundary[1], 77);
-		TS_ASSERT_EQUALS(rightBoundary[1], 84);
-		TS_ASSERT_EQUALS(leftBoundary[2], 78);
-		TS_ASSERT_EQUALS(rightBoundary[2], 305);
-		TS_ASSERT_EQUALS(leftBoundary[3], 109);
-		TS_ASSERT_EQUALS(rightBoundary[3], 115);
-		TS_ASSERT_EQUALS(leftBoundary[4], 124);
-		TS_ASSERT_EQUALS(rightBoundary[4], 130);
-		TS_ASSERT_EQUALS(leftBoundary[5], 139);
-		TS_ASSERT_EQUALS(rightBoundary[5], 145);
-		TS_ASSERT_EQUALS(leftBoundary[6], 154);
-		TS_ASSERT_EQUALS(rightBoundary[6], 160);
-		TS_ASSERT_EQUALS(leftBoundary[7], 169);
-		TS_ASSERT_EQUALS(rightBoundary[7], 175);
-		TS_ASSERT_EQUALS(leftBoundary[8], 184);
-		TS_ASSERT_EQUALS(rightBoundary[8], 190);
-		TS_ASSERT_EQUALS(leftBoundary[9], 199);
-		TS_ASSERT_EQUALS(rightBoundary[9], 205);
-		TS_ASSERT_EQUALS(leftBoundary[10], 315);
-		TS_ASSERT_EQUALS(rightBoundary[10], 101);
-		TS_ASSERT_EQUALS(leftBoundary[11], 322);
-		TS_ASSERT_EQUALS(rightBoundary[11], 116);
+		TS_ASSERT_EQUALS(leftBoundary[0], 64u);
+		TS_ASSERT_EQUALS(rightBoundary[0], 70u);
+		TS_ASSERT_EQUALS(leftBoundary[1], 77u);
+		TS_ASSERT_EQUALS(rightBoundary[1], 84u);
+		TS_ASSERT_EQUALS(leftBoundary[2], 78u);
+		TS_ASSERT_EQUALS(rightBoundary[2], 305u);
+		TS_ASSERT_EQUALS(leftBoundary[3], 109u);
+		TS_ASSERT_EQUALS(rightBoundary[3], 115u);
+		TS_ASSERT_EQUALS(leftBoundary[4], 124u);
+		TS_ASSERT_EQUALS(rightBoundary[4], 130u);
+		TS_ASSERT_EQUALS(leftBoundary[5], 139u);
+		TS_ASSERT_EQUALS(rightBoundary[5], 145u);
+		TS_ASSERT_EQUALS(leftBoundary[6], 154u);
+		TS_ASSERT_EQUALS(rightBoundary[6], 160u);
+		TS_ASSERT_EQUALS(leftBoundary[7], 169u);
+		TS_ASSERT_EQUALS(rightBoundary[7], 175u);
+		TS_ASSERT_EQUALS(leftBoundary[8], 184u);
+		TS_ASSERT_EQUALS(rightBoundary[8], 190u);
+		TS_ASSERT_EQUALS(leftBoundary[9], 199u);
+		TS_ASSERT_EQUALS(rightBoundary[9], 205u);
+		TS_ASSERT_EQUALS(leftBoundary[10], 315u);
+		TS_ASSERT_EQUALS(rightBoundary[10], 101u);
+		TS_ASSERT_EQUALS(leftBoundary[11], 322u);
+		TS_ASSERT_EQUALS(rightBoundary[11], 116u);
         
         //CheckAgainstPreviousRun("Crypt2DPeriodicNightly", 500u, 1000u);
     }
@@ -642,36 +642,36 @@ public:
 //        {
 //        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
 //        }
-        TS_ASSERT_EQUALS(leftBoundary.size(),14);
+        TS_ASSERT_EQUALS(leftBoundary.size(),14u);
         
-		TS_ASSERT_EQUALS(leftBoundary[0], 64);
-		TS_ASSERT_EQUALS(rightBoundary[0], 70);
-		TS_ASSERT_EQUALS(leftBoundary[1], 78);
-		TS_ASSERT_EQUALS(rightBoundary[1], 325);
-		TS_ASSERT_EQUALS(leftBoundary[2], 79);
-		TS_ASSERT_EQUALS(rightBoundary[2], 85);
-		TS_ASSERT_EQUALS(leftBoundary[3], 94);
-		TS_ASSERT_EQUALS(rightBoundary[3], 100);
-		TS_ASSERT_EQUALS(leftBoundary[4], 109);
-		TS_ASSERT_EQUALS(rightBoundary[4], 115);
-		TS_ASSERT_EQUALS(leftBoundary[5], 124);
-		TS_ASSERT_EQUALS(rightBoundary[5], 130);
-		TS_ASSERT_EQUALS(leftBoundary[6], 139);
-		TS_ASSERT_EQUALS(rightBoundary[6], 145);
-		TS_ASSERT_EQUALS(leftBoundary[7], 154);
-		TS_ASSERT_EQUALS(rightBoundary[7], 160);
-		TS_ASSERT_EQUALS(leftBoundary[8], 169);
-		TS_ASSERT_EQUALS(rightBoundary[8], 175);
-		TS_ASSERT_EQUALS(leftBoundary[9], 184);
-		TS_ASSERT_EQUALS(rightBoundary[9], 190);
-		TS_ASSERT_EQUALS(leftBoundary[10], 199);
-		TS_ASSERT_EQUALS(rightBoundary[10], 205);
-		TS_ASSERT_EQUALS(leftBoundary[11], 214);
-		TS_ASSERT_EQUALS(rightBoundary[11], 220);
-		TS_ASSERT_EQUALS(leftBoundary[12], 319);
-		TS_ASSERT_EQUALS(rightBoundary[12], 101);
-		TS_ASSERT_EQUALS(leftBoundary[13], 323);
-		TS_ASSERT_EQUALS(rightBoundary[13], 102);
+		TS_ASSERT_EQUALS(leftBoundary[0], 64u);
+		TS_ASSERT_EQUALS(rightBoundary[0], 70u);
+		TS_ASSERT_EQUALS(leftBoundary[1], 78u);
+		TS_ASSERT_EQUALS(rightBoundary[1], 325u);
+		TS_ASSERT_EQUALS(leftBoundary[2], 79u);
+		TS_ASSERT_EQUALS(rightBoundary[2], 85u);
+		TS_ASSERT_EQUALS(leftBoundary[3], 94u);
+		TS_ASSERT_EQUALS(rightBoundary[3], 100u);
+		TS_ASSERT_EQUALS(leftBoundary[4], 109u);
+		TS_ASSERT_EQUALS(rightBoundary[4], 115u);
+		TS_ASSERT_EQUALS(leftBoundary[5], 124u);
+		TS_ASSERT_EQUALS(rightBoundary[5], 130u);
+		TS_ASSERT_EQUALS(leftBoundary[6], 139u);
+		TS_ASSERT_EQUALS(rightBoundary[6], 145u);
+		TS_ASSERT_EQUALS(leftBoundary[7], 154u);
+		TS_ASSERT_EQUALS(rightBoundary[7], 160u);
+		TS_ASSERT_EQUALS(leftBoundary[8], 169u);
+		TS_ASSERT_EQUALS(rightBoundary[8], 175u);
+		TS_ASSERT_EQUALS(leftBoundary[9], 184u);
+		TS_ASSERT_EQUALS(rightBoundary[9], 190u);
+		TS_ASSERT_EQUALS(leftBoundary[10], 199u);
+		TS_ASSERT_EQUALS(rightBoundary[10], 205u);
+		TS_ASSERT_EQUALS(leftBoundary[11], 214u);
+		TS_ASSERT_EQUALS(rightBoundary[11], 220u);
+		TS_ASSERT_EQUALS(leftBoundary[12], 319u);
+		TS_ASSERT_EQUALS(rightBoundary[12], 101u);
+		TS_ASSERT_EQUALS(leftBoundary[13], 323u);
+		TS_ASSERT_EQUALS(rightBoundary[13], 102u);
 		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
     }
     

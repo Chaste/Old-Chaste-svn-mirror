@@ -40,24 +40,17 @@ public:
     
     void Init();
     
-    /**
-     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep mDt.
-     */
-    OdeSolution Compute(double tStart, double tEnd);
-    
-    /**
-     * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep mDt, but does not update the voltage.
-     */
-    OdeSolution ComputeExceptVoltage(double tStart, double tEnd);
-    
 protected:
     /**
      * Compute the values of all state variables except the voltage for one 
      * timestep.
      */
     void ComputeExceptVoltage(double tStart);
+    
+    /**
+     * Perform a forward Euler step to update the transmembrane potential.
+     */
+    void UpdateTransmembranePotential(double time);
 
 public:
     void ComputeResidual(const double rCurrentGuess[1], double rResidual[1]);
