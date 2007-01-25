@@ -1228,26 +1228,80 @@ public:
         }
         
     }
+    
+   
+    void TestOutwardNormal3D()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        for (int i=0; i<mesh.GetNumBoundaryElements(); i++)
+        {
+            BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
+            c_vector<double, 3> normal=*(b_element->pGetWeightedDirection());
+            c_vector<double, 3> centroid=b_element->CalculateCentroid();
+            Point<3> out(centroid+normal);
+            Point<3> in(centroid-normal);
+            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElement(in));
+            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(out));
+        }
+    }
+
 
     void TestConstructCuboid()
     {
+        
         ConformingTetrahedralMesh<3,3> mesh;
         unsigned width=7;
         unsigned height=4;
-        unsigned depth=50;
+        unsigned depth=5;
         
         mesh.ConstructCuboid(width,height,depth);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)*(depth+1)));
       
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
-//      TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
+        TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2
-//      TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (4*(width*height+height*depth+depth*width)));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (4*(width*height+height*depth+depth*width)));
         //Assuming that each cube is split into 6 tetrahedra
         TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (6*width*height*depth));
 
+        for (int i=0; i<mesh.GetNumBoundaryElements(); i++)
+        {
+            BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
+            c_vector<double, 3> normal=*(b_element->pGetWeightedDirection());
+            c_vector<double, 3> centroid=b_element->CalculateCentroid();
+            Point<3> out(centroid+normal);
+            Point<3> in(centroid-normal);
+            normal/=norm_2(normal);
+            if (fabs(centroid[0]) < 1e-5){
+                TS_ASSERT_DELTA( normal[0], -1.0, 1e-16);   
+            }
+            if (fabs(centroid[0] - width) < 1e-5){
+                TS_ASSERT_DELTA( normal[0], 1.0, 1e-16);   
+            }
+            if (fabs(centroid[1]) < 1e-5){
+                TS_ASSERT_DELTA( normal[1], -1.0, 1e-16);   
+            }
+            if (fabs(centroid[1] - height) < 1e-5){
+                TS_ASSERT_DELTA( normal[1], 1.0, 1e-16);   
+            }
+            if (fabs(centroid[2]) < 1e-5){
+                TS_ASSERT_DELTA( normal[2], -1.0, 1e-16);   
+            }
+            if (fabs(centroid[2] - depth) < 1e-5){
+                TS_ASSERT_DELTA( normal[2], 1.0, 1e-16);   
+            }
+            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElement(in));
+            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(out));
+        }
+        
         TrianglesMeshWriter<3,3> mesh_writer("","CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        
+        
+        
     }
     
     void TestPermute()
@@ -1256,15 +1310,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        //Make identity permuation
-        std::vector<unsigned> perm;
-        
-        for (unsigned i=0; i<(unsigned)mesh.GetNumNodes(); i++)
-        {
-            perm.push_back(i);
-        }
-        
-
+ 
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[2], 0.0);
@@ -1277,6 +1323,15 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[1], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[2], 0.0);
         
+        //Make identity permuation
+        std::vector<unsigned> perm;
+        
+        for (unsigned i=0; i<(unsigned)mesh.GetNumNodes(); i++)
+        {
+            perm.push_back(i);
+        }
+        //perm is now the identity permuation
+ 
         //Rotate first three
         perm[0]=1;
         perm[1]=2;
@@ -1306,6 +1361,7 @@ public:
     
     void TestPermuteWithMetisBinaries()
     {   
+        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);

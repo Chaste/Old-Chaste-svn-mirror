@@ -122,6 +122,15 @@ public:
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex]->rGetLocation();
     }
+    c_vector<double, SPACE_DIM> CalculateCentroid() const
+    {
+        c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
+        for (int i=0; i<=ELEMENT_DIM; i++)
+        {
+            centroid += mNodes[i]->rGetLocation();
+        }
+        return centroid/((double)(ELEMENT_DIM + 1));
+    }
     
     long GetNodeGlobalIndex(int localIndex) const
     {
@@ -161,7 +170,12 @@ public:
     
     c_vector<double, SPACE_DIM> *pGetWeightedDirection(void)
     {
-        assert(ELEMENT_DIM < SPACE_DIM);
+        if (ELEMENT_DIM >= SPACE_DIM)
+        {
+            assert(ELEMENT_DIM == SPACE_DIM);
+            EXCEPTION("WeightedDirection undefined for fully dimensional element");
+            
+        }
         return &mWeightedDirection;
     }
     

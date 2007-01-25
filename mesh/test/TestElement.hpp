@@ -555,10 +555,63 @@ public:
         }
     }
     
-    
+     void TestCentroidAndDirection(void)
+    {
+        c_vector<double,3> direction;
+        c_vector<double,3> centroid;
+        
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        BoundaryElement<1,3> element_1d(0, nodes, 1);
+        
+        direction = *(element_1d.pGetWeightedDirection());
+        //1D element in higher space is orientated by vector between endpoints 
+        TS_ASSERT_EQUALS(direction[0],1.0);
+        TS_ASSERT_EQUALS(direction[1],0.0);
+        TS_ASSERT_EQUALS(direction[2],0.0);
+        
+        centroid=element_1d.CalculateCentroid();
+        TS_ASSERT_EQUALS(centroid[0], 0.5);
+        TS_ASSERT_EQUALS(centroid[1], 0.0);
+        TS_ASSERT_EQUALS(centroid[2], 0.0);
+         
+        
+        nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
+        BoundaryElement<2,3> element_2d(0, nodes, 1);
+        
+        direction = *(element_2d.pGetWeightedDirection());
+        //2D element in higher space is orientated by a normal 
+        TS_ASSERT_EQUALS(direction[0],0.0);
+        TS_ASSERT_EQUALS(direction[1],0.0);
+        TS_ASSERT_EQUALS(direction[2],-1.0);
+        //Note it's negative z-axis:
+        //Vertices are *clockwise* when we look at them from outward facing normal
+        centroid=element_2d.CalculateCentroid();
+        TS_ASSERT_DELTA(centroid[0], 1.0/3.0, 1e-8);
+        TS_ASSERT_DELTA(centroid[1], 1.0/3.0, 1e-8);
+        TS_ASSERT_EQUALS(centroid[2], 0.0);
+
+        nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
+        Element<3,3> element_3d(0, nodes, 1);
+        
+        TS_ASSERT_THROWS_ANYTHING(direction = *(element_3d.pGetWeightedDirection()));
+        //3D element in 3D space has no orientation (other than JacobianDeterminant) 
+        
+        centroid=element_3d.CalculateCentroid();
+        TS_ASSERT_DELTA(centroid[0], 0.25, 1e-8);
+        TS_ASSERT_DELTA(centroid[1], 0.25, 1e-8);
+        TS_ASSERT_EQUALS(centroid[2], 0.25 );
+        
+         for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     
 
-  
+
+    }
+    
 };
 
 #endif //_TESTELEMENT_HPP_

@@ -88,7 +88,7 @@ public:
 	        
 	        space_steps[i] = scaling;
 
-	     	std::stringstream file_name_stream;
+            std::stringstream file_name_stream;
        	    file_name_stream<< "cube_2mm_"<< (int) 6*pow(2,i) <<"_elements";
 	        file_name[i]=file_name_stream.str();
 	        

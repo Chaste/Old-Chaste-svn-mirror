@@ -1180,10 +1180,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
          }
     }
     
-    
-    
-    
     node_file->close();
+ 
+ 
+    //system("cat /tmp/chaste/testoutput/temp.node");
+ 
+ 
     std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
     std::string binary_name;
     if (SPACE_DIM==2)
@@ -1645,45 +1647,11 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int widt
         	}
     	}
     }
-    //Construct the boundary elements
-
-//    int belem_index=0;
-//    for (int j=0;j<height;j++)
-//    {
-//        for (int i=0; i<width; i++)
-//        {
-//            int parity=(i+j)%2;
-//            std::vector<Node<SPACE_DIM>*> upper_nodes;
-//            upper_nodes.push_back(mNodes[j*(width+1)+i]);
-//            upper_nodes.push_back(mNodes[j*(width+1)+i+1]);
-//            if (stagger==false  || parity == 0)
-//            {
-//                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
-//            }
-//            else
-//            {
-//                upper_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
-//            }
-//	        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,upper_nodes));
-//
-//            std::vector<Node<SPACE_DIM>*> lower_nodes;
-//            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i+1]);
-//            lower_nodes.push_back(mNodes[(j+1)*(width+1)+i]);
-//            if (stagger==false  ||parity == 0)
-//            {
-//                lower_nodes.push_back(mNodes[j*(width+1)+i]);
-//            }
-//            else
-//            {
-//                lower_nodes.push_back(mNodes[j*(width+1)+i+1]);
-//            }
-//	        mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,lower_nodes));
-//        }
-//    }
 
 	// Construct the elements
 
     int elem_index=0;
+    int belem_index=0;
     unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
     								{0, 2, 3, 7}, {0, 2, 6, 7},
     								{0, 4, 6, 7}, {0, 4, 5, 7}};
@@ -1725,9 +1693,91 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int widt
 	
 		            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
 			    }
-        	}
-    	}
-    }
+                
+                //Are we at a boundary?
+                std::vector<Node<SPACE_DIM>*> triangle_nodes;
+                if (i == 0) //low face at x==0
+                {
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                }
+                if (i == width-1) //high face at x=width
+                {
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                }
+                if (j == 0) //low face at y==0
+                {
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                }
+                if (j == height-1) //high face at y=height
+                {
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                }
+                if (k == 0) //low face at z==0
+                {
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[2]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[0]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[1]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[3]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                }
+                if (k == depth-1) //high face at z=depth
+                {
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[5]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                    triangle_nodes.clear();
+                    triangle_nodes.push_back(mNodes[global_node_indices[4]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[6]]);
+                    triangle_nodes.push_back(mNodes[global_node_indices[7]]);
+                    mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
+                }
+                
+            }//i
+        }//j
+    }//k
 }
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

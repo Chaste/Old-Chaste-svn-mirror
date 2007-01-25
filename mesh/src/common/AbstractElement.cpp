@@ -108,9 +108,9 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
         case 2:
             // Surface triangle in a 3d mesh
             assert(SPACE_DIM == 3);
-            mWeightedDirection(0)= SubDeterminant(mJacobian,0,2);
-            mWeightedDirection(1)=-SubDeterminant(mJacobian,1,2);
-            mWeightedDirection(2)= SubDeterminant(mJacobian,2,2);
+            mWeightedDirection(0)=-SubDeterminant(mJacobian,0,2);
+            mWeightedDirection(1)= SubDeterminant(mJacobian,1,2);
+            mWeightedDirection(2)=-SubDeterminant(mJacobian,2,2);
             break;
         default:
             ; // Not going to happen
