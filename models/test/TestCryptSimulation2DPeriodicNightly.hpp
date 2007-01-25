@@ -188,6 +188,7 @@ public:
 
 		SimulationTime::Destroy();
         simulator.Solve();
+        
         CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
     
@@ -393,7 +394,45 @@ public:
         SimulationTime::Destroy();
         
         simulator.Solve();
-        CheckAgainstPreviousRun("Crypt2DPeriodicNightly", 500u, 1000u);
+        
+        std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+        
+//        std::cout << "Periodic Cell indices at the end of the simulation:\n";
+//        
+//        for(unsigned i=0 ; i<leftBoundary.size(); i++)
+//        {
+//        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
+//        }
+        
+        TS_ASSERT_EQUALS(leftBoundary.size(),12);
+        
+		TS_ASSERT_EQUALS(leftBoundary[0], 64);
+		TS_ASSERT_EQUALS(rightBoundary[0], 70);
+		TS_ASSERT_EQUALS(leftBoundary[1], 77);
+		TS_ASSERT_EQUALS(rightBoundary[1], 84);
+		TS_ASSERT_EQUALS(leftBoundary[2], 78);
+		TS_ASSERT_EQUALS(rightBoundary[2], 305);
+		TS_ASSERT_EQUALS(leftBoundary[3], 109);
+		TS_ASSERT_EQUALS(rightBoundary[3], 115);
+		TS_ASSERT_EQUALS(leftBoundary[4], 124);
+		TS_ASSERT_EQUALS(rightBoundary[4], 130);
+		TS_ASSERT_EQUALS(leftBoundary[5], 139);
+		TS_ASSERT_EQUALS(rightBoundary[5], 145);
+		TS_ASSERT_EQUALS(leftBoundary[6], 154);
+		TS_ASSERT_EQUALS(rightBoundary[6], 160);
+		TS_ASSERT_EQUALS(leftBoundary[7], 169);
+		TS_ASSERT_EQUALS(rightBoundary[7], 175);
+		TS_ASSERT_EQUALS(leftBoundary[8], 184);
+		TS_ASSERT_EQUALS(rightBoundary[8], 190);
+		TS_ASSERT_EQUALS(leftBoundary[9], 199);
+		TS_ASSERT_EQUALS(rightBoundary[9], 205);
+		TS_ASSERT_EQUALS(leftBoundary[10], 315);
+		TS_ASSERT_EQUALS(rightBoundary[10], 101);
+		TS_ASSERT_EQUALS(leftBoundary[11], 322);
+		TS_ASSERT_EQUALS(rightBoundary[11], 116);
+        
+        //CheckAgainstPreviousRun("Crypt2DPeriodicNightly", 500u, 1000u);
     }
     
     void TestCalculateCryptBoundaries()
@@ -594,7 +633,46 @@ public:
         SimulationTime::Destroy();
         
         simulator.Solve();
-        CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
+        
+        std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+//        std::cout << "Periodic Cell indices at the end of the simulation:\n";
+//        
+//        for(unsigned i=0 ; i<leftBoundary.size(); i++)
+//        {
+//        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
+//        }
+        TS_ASSERT_EQUALS(leftBoundary.size(),14);
+        
+		TS_ASSERT_EQUALS(leftBoundary[0], 64);
+		TS_ASSERT_EQUALS(rightBoundary[0], 70);
+		TS_ASSERT_EQUALS(leftBoundary[1], 78);
+		TS_ASSERT_EQUALS(rightBoundary[1], 325);
+		TS_ASSERT_EQUALS(leftBoundary[2], 79);
+		TS_ASSERT_EQUALS(rightBoundary[2], 85);
+		TS_ASSERT_EQUALS(leftBoundary[3], 94);
+		TS_ASSERT_EQUALS(rightBoundary[3], 100);
+		TS_ASSERT_EQUALS(leftBoundary[4], 109);
+		TS_ASSERT_EQUALS(rightBoundary[4], 115);
+		TS_ASSERT_EQUALS(leftBoundary[5], 124);
+		TS_ASSERT_EQUALS(rightBoundary[5], 130);
+		TS_ASSERT_EQUALS(leftBoundary[6], 139);
+		TS_ASSERT_EQUALS(rightBoundary[6], 145);
+		TS_ASSERT_EQUALS(leftBoundary[7], 154);
+		TS_ASSERT_EQUALS(rightBoundary[7], 160);
+		TS_ASSERT_EQUALS(leftBoundary[8], 169);
+		TS_ASSERT_EQUALS(rightBoundary[8], 175);
+		TS_ASSERT_EQUALS(leftBoundary[9], 184);
+		TS_ASSERT_EQUALS(rightBoundary[9], 190);
+		TS_ASSERT_EQUALS(leftBoundary[10], 199);
+		TS_ASSERT_EQUALS(rightBoundary[10], 205);
+		TS_ASSERT_EQUALS(leftBoundary[11], 214);
+		TS_ASSERT_EQUALS(rightBoundary[11], 220);
+		TS_ASSERT_EQUALS(leftBoundary[12], 319);
+		TS_ASSERT_EQUALS(rightBoundary[12], 101);
+		TS_ASSERT_EQUALS(leftBoundary[13], 323);
+		TS_ASSERT_EQUALS(rightBoundary[13], 102);
+		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
     }
     
 };
