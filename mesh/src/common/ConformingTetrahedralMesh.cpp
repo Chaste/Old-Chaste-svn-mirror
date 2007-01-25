@@ -606,19 +606,24 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {
     for (unsigned i=0; i<mElements.size();i++)
     {
-        mElements[i]->RefreshJacobianDeterminant();
+        if (!mElements[i]->IsDeleted())
+        {
+            mElements[i]->RefreshJacobianDeterminant();
+        }
     }
     
     //Refresh each boundary element
     for (unsigned i=0; i<mBoundaryElements.size();i++)
     {
-        try
-        {
-            mBoundaryElements[i]->RefreshJacobianDeterminant();
-        }
-        catch (Exception e)
-        {
-            //Since we may have rotated the mesh, it's okay for normals to swing round
+        if (!mBoundaryElements[i]->IsDeleted())
+            try
+            {
+                mBoundaryElements[i]->RefreshJacobianDeterminant();
+            }
+            catch (Exception e)
+            {
+                //Since we may have rotated the mesh, it's okay for normals to swing round
+            }
         }
     }
     

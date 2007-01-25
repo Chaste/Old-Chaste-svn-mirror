@@ -63,7 +63,10 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
 template<int ELEMENT_DIM, int SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
 {
-
+    if (mIsDeleted)
+    {
+        EXCEPTION("Attempting to Refresh a deleted element");
+    }
     for (int i=0; i<SPACE_DIM; i++)
     {
         for (int j=0; j<ELEMENT_DIM; j++)
