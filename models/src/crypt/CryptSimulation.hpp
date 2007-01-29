@@ -471,7 +471,9 @@ private:
             }
             else
             {
+                #define COVERAGE_IGNORE
                 EXCEPTION("No cell has divided in this element");
+                #undef COVERAGE_IGNORE
             }
         }
         else

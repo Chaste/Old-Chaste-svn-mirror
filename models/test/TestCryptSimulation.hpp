@@ -346,7 +346,7 @@ public:
         }
         
         
-        CryptSimulation simulator(mesh, cells);
+        CryptSimulation simulator(mesh, cells, &rand_gen);
         SimulationTime::Destroy();
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);

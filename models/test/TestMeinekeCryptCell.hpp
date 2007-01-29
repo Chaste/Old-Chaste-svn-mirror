@@ -15,13 +15,22 @@ class TestMeinekeCryptCell: public CxxTest::TestSuite
 {
 public:
 
-    void TestCellsAgeingCorrectly()
+    void TestCellsAgeingCorrectly() throw(Exception)
     {
-    	TS_ASSERT_THROWS_ANYTHING(MeinekeCryptCell bad_cell(STEM, // type
-                                   0,    // generation
-                                   new FixedCellCycleModel()));
-    	
+        // These lines are added to cover the exception case that a cell is 
+        // created without simulation time being set up...
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+    	FixedCellCycleModel fixed_model;
+        SimulationTime::Destroy();
+        
+        TS_ASSERT_THROWS_ANYTHING(MeinekeCryptCell bad_cell(STEM, // type
+                                   0,    // generation
+                                   &fixed_model));
+                                   
+        // Proper test again
+    	
+        p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
         
         MeinekeCryptCell stem_cell(STEM, // type

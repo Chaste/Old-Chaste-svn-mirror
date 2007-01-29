@@ -116,8 +116,10 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 		 		//std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
 		 		if (mProteinConcentrations[i]<0)
 		 		{
+                    #define COVERAGE_IGNORE
 		 			std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
 		 			EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the WntCellCycleModel numerical method is probably unstable.");
+                    #undef COVERAGE_IGNORE
 		 		}
 		 	}
 						
