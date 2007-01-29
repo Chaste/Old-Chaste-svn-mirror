@@ -11,7 +11,7 @@
 #include "Ode5Jacobian.hpp"
 //#include "AnotherOde.hpp"
 #include "BackwardEulerIvpOdeSolver.cpp"
-
+#include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
@@ -259,6 +259,33 @@ public:
         
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
     }
+    
+    void testBetterBackwardEulerIvpOdeSolver() throw(Exception)
+    {
+        Ode5Jacobian ode_system;
+        
+        double h_value = 0.01;
+        double end_time = 1.0;
+        
+        //Euler solver solution worked out
+        BetterBackwardEulerIvpOdeSolver<1> backward_euler_solver;
+        OdeSolution solutions;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        
+        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, h_value);
+        int last = solutions.GetNumberOfTimeSteps();
+        
+        double numerical_solution;
+        numerical_solution = solutions.rGetSolutions()[last][0];
+        
+        // The tests
+        double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
+        
+        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+        
+    }
+    
 };
 
 #endif /*TESTBACKWARDEULERIVPODESOLVER_HPP_*/

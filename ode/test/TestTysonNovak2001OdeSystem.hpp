@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include "BackwardEulerIvpOdeSolver.hpp"
+#include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
@@ -52,8 +53,9 @@ public:
 
         double h_value=0.1;
 
+        
         //Euler solver solution worked out
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver<6> backward_euler_solver;
 
 
         // NOTE:
