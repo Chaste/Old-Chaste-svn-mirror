@@ -372,13 +372,13 @@ public:
 		    	//std::cout << "Perparing Cell "<< i << std::endl;
 		    	Node<2> *p_our_node = mrMesh.GetNode(i);
 		        double y = p_our_node->GetPoint()[1];
-		        std::vector<double> cellCycleInfluences;
+		        std::vector<double> cell_cycle_influences;
 		        if(mWntIncluded)
 		        {
 			    	double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
-			    	cellCycleInfluences.push_back(wnt_stimulus);
+			    	cell_cycle_influences.push_back(wnt_stimulus);
 		        }
-				temp = mCells[i].ReadyToDivide(cellCycleInfluences);		
+				temp = mCells[i].ReadyToDivide(cell_cycle_influences);		
 	        }
 	    }
 	    
@@ -430,17 +430,17 @@ public:
 	                    // Check for this cell dividing
                     	Node<2> *p_our_node = mrMesh.GetNode(i);
 	                    double y = p_our_node->GetPoint()[1];
-	                    std::vector<double> cellCycleInfluences;
+	                    std::vector<double> cell_cycle_influences;
 	                    
 	                    if(mWntIncluded)
 	                    {
 		                    double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
-		                    cellCycleInfluences.push_back(wnt_stimulus);
+		                    cell_cycle_influences.push_back(wnt_stimulus);
 	                    }
 	                    
 
 						//std::cout << "On cell "<< i << std::endl;
-						if(mCells[i].ReadyToDivide(cellCycleInfluences))
+						if(mCells[i].ReadyToDivide(cell_cycle_influences))
 	                    {
 	                    	std::cout << "cell division at node " << i << "\n";
 	                        // Create new cell
@@ -1442,7 +1442,8 @@ public:
 					RemoveSurplusCellsFromPeriodicBoundary();
 				}
 			}// end of if(!our_node_periodic)
-		i++;
+            
+            i++;
 		}// next node on boundary.
 	}// end of function
 	

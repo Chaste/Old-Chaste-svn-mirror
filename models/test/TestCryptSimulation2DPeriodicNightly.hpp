@@ -189,6 +189,7 @@ public:
 		SimulationTime::Destroy();
         simulator.Solve();
         
+        delete p_mesh;
         CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
     }
     
@@ -397,6 +398,8 @@ public:
         
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
         std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+        
+        delete p_mesh;
         
 //        std::cout << "Periodic Cell indices at the end of the simulation:\n";
 //        
@@ -636,6 +639,8 @@ public:
         
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
         std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+        
+        delete p_mesh;
 //        std::cout << "Periodic Cell indices at the end of the simulation:\n";
 //        
 //        for(unsigned i=0 ; i<leftBoundary.size(); i++)

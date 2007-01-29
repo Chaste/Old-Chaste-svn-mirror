@@ -7,6 +7,14 @@
 #include <vector>
 #include "OutputFileHandler.hpp"
 
+
+/** 
+ *  Generator of honeycomb mesh
+ * 
+ *  This class takes in options such as width, height, number of ghost nodes
+ *  and generates a mesh and ghost node info. NOTE: the user should delete the
+ *  mesh after use
+ */
 class CryptHoneycombMeshGenerator 
 {
 private:

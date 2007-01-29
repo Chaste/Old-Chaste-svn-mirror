@@ -27,7 +27,15 @@ private:
     {}
 
 public:
-
+    ~Node()
+    {
+//        std::cout<<"Node destructor\n";
+//        delete mElementIndices;
+//        delete mElementIterator;
+//        delete mBoundaryElementIndices;
+//        delete mBoundaryElementIterator;
+        
+    }
     Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
         mLocation = point.rGetLocation();
