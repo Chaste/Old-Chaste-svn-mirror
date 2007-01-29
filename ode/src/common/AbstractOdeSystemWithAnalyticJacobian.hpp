@@ -29,6 +29,7 @@ public:
         }
     
     virtual PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep) = 0;
+    virtual void BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) = 0;
     
 };
 

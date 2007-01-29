@@ -18,7 +18,7 @@ private:
     /** Working memory : residual vector */
     double mResidual[SIZE];
     /** Working memory : Jacobian matrix */
-    double mJacobian[SIZE][SIZE];
+    double** mJacobian;
     /** Working memory : update vector */
     double mUpdate[SIZE];
     
@@ -70,12 +70,28 @@ protected:
     }    
 
 public:
+
+
     
     BetterBackwardEulerIvpOdeSolver()
     {
         // default epsilon
         mEpsilon = 1e-6;
         mForceUseOfNumericalJacobian = false;
+        mJacobian = new double*[SIZE];
+        for(unsigned i=0 ; i<SIZE ; i++)
+        {
+            mJacobian[i] = new double[SIZE];
+        }
+    }
+    
+    ~BetterBackwardEulerIvpOdeSolver()
+    {
+        for(unsigned i=0 ; i<SIZE ; i++)
+        {
+            delete mJacobian[i];
+        }
+        delete mJacobian;
     }
     
     void SetEpsilonForNumericalJacobian(double epsilon)
@@ -119,46 +135,61 @@ public:
                          std::vector<double>& currentYValues,
                          std::vector<double>& currentGuess)
     {
-        Vec current_guess;
-        VecCreate(PETSC_COMM_WORLD, &current_guess);
-        VecSetSizes(current_guess, PETSC_DECIDE,SIZE);
-        //VecSetType(initial_guess, VECSEQ);
-        VecSetFromOptions(current_guess);
-        for(unsigned i=0; i<SIZE; i++)
+//        Vec current_guess;
+//        VecCreate(PETSC_COMM_WORLD, &current_guess);
+//        VecSetSizes(current_guess, PETSC_DECIDE,SIZE);
+//        //VecSetType(initial_guess, VECSEQ);
+//        VecSetFromOptions(current_guess);
+//        for(unsigned i=0; i<SIZE; i++)
+//        {
+//            VecSetValue(current_guess, i, currentGuess[i], INSERT_VALUES);
+//        }
+//        VecAssemblyBegin(current_guess);
+//        VecAssemblyEnd(current_guess);
+//        
+//        
+//        AbstractOdeSystemWithAnalyticJacobian *p_ode_system 
+//         = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
+//
+//        Mat jacobian;
+//        //MatStructure mat_structure;
+//        jacobian=MatCreateSeqAIJ(SIZE,SIZE);        
+//        MatSetFromOptions(jacobian);
+//        
+//        p_ode_system->AnalyticJacobian(current_guess, &jacobian, time, timeStep);
+//        
+//        
+//        for(unsigned i=0; i<SIZE; i++)
+//        {
+//            for(unsigned j=0; j<SIZE; j++)
+//            {
+//                int row_as_array[1];
+//                row_as_array[0] = i;
+//                int col_as_array[1];
+//                col_as_array[0] = j;
+//                
+//                double ret_array[1];
+//                
+//                MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
+//                
+//                mJacobian[i][j] = ret_array[0];
+//            }
+//        }
+        
+        
+        for(unsigned i = 0 ; i<SIZE ; i++)
         {
-            VecSetValue(current_guess, i, currentGuess[i], INSERT_VALUES);
-        }
-        VecAssemblyBegin(current_guess);
-        VecAssemblyEnd(current_guess);
-        
-        
-        AbstractOdeSystemWithAnalyticJacobian *p_ode_system 
-         = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
-
-        Mat jacobian;
-        //MatStructure mat_structure;
-        jacobian=MatCreateSeqAIJ(SIZE,SIZE);        
-        MatSetFromOptions(jacobian);
-        
-        p_ode_system->AnalyticJacobian(current_guess, &jacobian, time, timeStep);
-        
-        
-        for(unsigned i=0; i<SIZE; i++)
-        {
-            for(unsigned j=0; j<SIZE; j++)
+            for(unsigned j = 0 ; j <SIZE ; j++)
             {
-                int row_as_array[1];
-                row_as_array[0] = i;
-                int col_as_array[1];
-                col_as_array[0] = j;
-                
-                double ret_array[1];
-                
-                MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
-                
-                mJacobian[i][j] = ret_array[0];
-            }
+                mJacobian[i][j]=0.0;
+            }   
         }
+
+        AbstractOdeSystemWithAnalyticJacobian *p_ode_system 
+                 = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
+
+        p_ode_system->BetterAnalyticJacobian(currentGuess, mJacobian, time, timeStep);
+        
     }
     
     void SolveLinearSystem()

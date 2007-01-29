@@ -24,6 +24,14 @@ public :
         rDY[1]=rY[0]*rY[0] + 2*rY[1]*rY[1];
     }
     
+    void BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
+    {
+        jacobian[0][0] = 1 - 2.0*timeStep*solutionGuess[0];
+        jacobian[0][1] =   - 2.0*timeStep*solutionGuess[1];
+        jacobian[1][0] =   - 2.0*timeStep*solutionGuess[0];
+        jacobian[1][1] = 1 - 4.0*timeStep*solutionGuess[1];
+    } 
+    
     PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep)
     {
         int num_equations = mNumberOfStateVariables;

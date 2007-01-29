@@ -72,6 +72,9 @@ public:
     }
     
     PetscErrorCode AnalyticJacobian(Vec solutionGuess, Mat *pJacobian, double time, double timeStep);
+    
+    virtual void BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep);
+    
 };
 
 #endif //_TYSONNOVAK2001ODESYSTEM_HPP_

@@ -138,7 +138,7 @@ public:
     }
         
     // Backward Euler solver is still broken so this won't work...
-    void no___TestTysonNovakCellCycleModel(void) throw(Exception)
+    void no__TestTysonNovakCellCycleModel(void) throw(Exception)
     {
         //CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime *p_simulation_time = SimulationTime::Instance();

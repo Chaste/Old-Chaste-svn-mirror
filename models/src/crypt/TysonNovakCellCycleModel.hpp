@@ -2,7 +2,7 @@
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
 #include "AbstractCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
+#include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 /**
@@ -15,7 +15,7 @@ class TysonNovakCellCycleModel : public AbstractCellCycleModel
 {
 private:    
     TysonNovak2001OdeSystem mOdeSystem;
-    BackwardEulerIvpOdeSolver mSolver;
+    BetterBackwardEulerIvpOdeSolver<6> mSolver;
     double mLastTime;
     std::vector <double> mProteinConcentrations;
 	bool mReadyToDivide;

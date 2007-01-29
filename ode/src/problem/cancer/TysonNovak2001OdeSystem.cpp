@@ -231,5 +231,69 @@ PetscErrorCode TysonNovak2001OdeSystem::AnalyticJacobian(Vec solutionGuess, Mat 
     return 0;   
 }
 
+void TysonNovak2001OdeSystem::BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) 
+{
+    double x1 = solutionGuess[0];
+    double x2 = solutionGuess[1];
+    double x3 = solutionGuess[2];
+    double x4 = solutionGuess[3];
+    double x5 = solutionGuess[4];
+    double x6 = solutionGuess[5];
+        
+    // f1
+    double df1_dx1 = -mK2d - mK2dd*x2;
+    double df1_dx2 = -mK2dd*x1;
+
+    jacobian[0][0] =  1-timeStep*df1_dx1;
+    jacobian[0][1] = -timeStep*df1_dx2;
+
+    //f2
+    double df2_dx1 = -mK4*x6*x2/(mJ4+x2);
+    double df2_dx2 = -mJ3*(mK3d + mK3dd*x4)/(pow((mJ3 + 1 - x2),2))  
+                     -mJ4*mK4*x6*x1/(pow((mJ4+x2),2));
+    double df2_dx4 =  mK3dd*(1-x2)/(mJ3+1-x2);
+    double df2_dx6 = -mK4*x1*x2/(mJ4+x2);
+    
+    jacobian[1][0] = -timeStep*df2_dx1;
+    jacobian[1][1] =  1-timeStep*df2_dx2;
+    jacobian[1][3] = -timeStep*df2_dx4;
+    jacobian[1][5] = -timeStep*df2_dx6;
+
+    
+    //f3
+    double z = x1*x6/mJ5;
+    double df3_dx1 = (mK5dd*x6/mJ5)*mN*pow(z,mN-1)/(pow((1-pow(z,mN)),2));
+    double df3_dx3 = -mK6;
+    double df3_dx6 = (mK5dd*x1/mJ5)*mN*pow(z,mN-1)/(pow((1-pow(z,mN)),2));
+
+    jacobian[2][0] = -timeStep*df3_dx1;
+    jacobian[2][2] = 1-timeStep*df3_dx3;
+    jacobian[2][5] = -timeStep*df3_dx6;
+   
+    //f4
+    double df4_dx3 =  mJ7*mK7*x5/(pow(mJ7+x3-x4,2));
+    double df4_dx4 = -mJ7*mK7*x5/(pow(mJ7+x3-x4,2)) - mK6 - mJ8*mK8*mMad/(pow(mJ8+x4,2));
+    double df4_dx5 =  mK7*(x3-x4)/(mJ7+x3-x4);
+
+    jacobian[3][2] = -timeStep*df4_dx3;
+    jacobian[3][3] = 1-timeStep*df4_dx4;
+    jacobian[3][4] = -timeStep*df4_dx5;
+    
+    //f5
+    double df5_dx1 =  mK9*x6*(1-x5);
+    double df5_dx5 = -mK10 - mK9*x6*x1;
+    double df5_dx6 =  mK9*x1*(1-x5);
+
+    jacobian[4][0] = -timeStep*df5_dx1;
+    jacobian[4][4] = 1-timeStep*df5_dx5;
+    jacobian[4][5] = -timeStep*df5_dx6;
+
+    
+    //f6
+    double df6_dx6 = mMu - 2*mMu*x6/mMstar; 
+    
+    jacobian[5][5] = 1-timeStep*df6_dx6;
+}
+
 
 
