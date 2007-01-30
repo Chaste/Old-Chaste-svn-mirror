@@ -3,6 +3,7 @@
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
+#include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 #include "OdeSolution.hpp"
 #include <cassert>
 #include <vector>

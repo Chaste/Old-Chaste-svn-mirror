@@ -59,7 +59,7 @@ public:
         double h_value=0.01;
         
         //Euler solver solution worked out
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();
@@ -84,7 +84,7 @@ public:
         double end_time = 1.0;
         
         //Euler solver solution worked out
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();
@@ -106,7 +106,7 @@ public:
     {
         double h_value=1.0;
         OdeThirdOrder ode_system;
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         BackwardEulerStructure backward_euler_structure;
         backward_euler_structure.TimeStep = h_value;
         backward_euler_structure.Time = 0.0;
@@ -149,7 +149,7 @@ public:
     {
         double h_value=1.0;
         OdeThirdOrder ode_system;
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         BackwardEulerStructure backward_euler_structure;
         backward_euler_structure.TimeStep = h_value;
         backward_euler_structure.Time = 0.0;
@@ -215,7 +215,7 @@ public:
         double h_value=0.01;
         
         //Euler solver solution worked out
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system_with_events.GetNumberOfStateVariables());
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system_with_events.GetInitialConditions();
@@ -242,7 +242,7 @@ public:
         double end_time = 1.0;
         
         //Euler solver solution worked out
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();
@@ -259,31 +259,6 @@ public:
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
     }
     
-    void testBetterBackwardEulerIvpOdeSolver() throw(Exception)
-    {
-        Ode5Jacobian ode_system;
-        
-        double h_value = 0.01;
-        double end_time = 1.0;
-        
-        //Euler solver solution worked out
-        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
-        OdeSolution solutions;
-        
-        std::vector<double> state_variables = ode_system.GetInitialConditions();
-        
-        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, h_value);
-        int last = solutions.GetNumberOfTimeSteps();
-        
-        double numerical_solution;
-        numerical_solution = solutions.rGetSolutions()[last][0];
-        
-        // The tests
-        double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
-        
-        TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
-        
-    }
     
 };
 

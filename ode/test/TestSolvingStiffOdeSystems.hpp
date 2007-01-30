@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-#include "BackwardEulerIvpOdeSolver.hpp"
+#include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "FieldNoyesReactionSystem.hpp"
 #include "ColumnDataWriter.hpp"
@@ -40,7 +40,7 @@ public:
             TS_ASSERT_LESS_THAN(0.99, x);
         }
         
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution ode_solution2;
         std::vector<double> ode_state_variables2 = ode_system.GetInitialConditions();
         ode_solution2 = backward_euler_solver.Solve(&ode_system, ode_state_variables2, 0.0, 0.1, 0.001, 0.001);

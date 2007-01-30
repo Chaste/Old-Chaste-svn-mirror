@@ -22,94 +22,49 @@ public:
     void TestJacobianOne(void)
     {
         // pointer to TestOde1 class
-        Jacobian1 jacobian1;
+        Jacobian1 ode_system;
         
-        // Make a PetSc vector of Y values...        
-        Vec solution_guess;
-        int indices[1] = {0};
-        double values[1] = {2.0};
-        VecCreateSeq(PETSC_COMM_SELF,1,&solution_guess);
-        //VecCreate(&solution_guess);
-        //VecSetSizes(solution_guess,1,1);
-        //VecSetType(solution_guess,VECSEQ);
-        VecSetFromOptions(solution_guess);
-        VecSetValues(solution_guess,1,indices,values,INSERT_VALUES);
-        
+        std::vector<double>  solution_guess(1);
+        solution_guess[0] = 2.0;
         
         // Set up a Jacobian matrix for function to put values in
-        Mat jacobian;
-        //MatStructure mat_structure;
-        #if (PETSC_VERSION_MINOR == 2) //Old API
-	        MatCreateSeqAIJ(PETSC_COMM_SELF,1,1,1,PETSC_NULL,&jacobian);
-        #else
-                jacobian=MatCreateSeqAIJ(1,1);        
-        #endif
-        MatSetFromOptions(jacobian);
+        double** jacobian;
+        
+        jacobian = new double*[1];
+        jacobian[0] = new double[1];
         
         // This is the function we are testing...
-        jacobian1.AnalyticJacobian(solution_guess, &jacobian, 1.0, 0.01);
+        ode_system.BetterAnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
         
-        
-        // Get the answer out! 
-        int row = 0;
-        int col = 0;
-        int row_as_array[1];
-        row_as_array[0] = row;
-        int col_as_array[1];
-        col_as_array[0] = col;
-        double ret_array[1];
-        MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
-                
-        TS_ASSERT_DELTA(ret_array[0], 0.96, tol);      
+        TS_ASSERT_DELTA(jacobian[0][0], 0.96, tol);
+             
+        delete jacobian[0];
+        delete jacobian; 
     }
     
     void TestJacobianTwo(void)
     {
         // pointer to TestOde1 class
-        Jacobian2 jacobian2;
-//        const int numEqns = jacobian2.GetNumberOfStateVariables();
+        Jacobian2 ode_system;
         
-        // Make a PetSc vector of Y values...        
-        Vec solution_guess;
-        int indices[2] = {0,1};
-        double values[2] = {1.0,2.0};
-        VecCreateSeq(PETSC_COMM_SELF,2,&solution_guess);
-        VecSetFromOptions(solution_guess);
-        VecSetValues(solution_guess,2,indices,values,INSERT_VALUES);
+        std::vector<double>  solution_guess(2);
+        solution_guess[0] = 1.0;
+        solution_guess[1] = 2.0;
         
         // Set up a Jacobian matrix for function to put values in
-        Mat jacobian;
-        //MatStructure mat_structure;
-        #if (PETSC_VERSION_MINOR == 2) //Old API
-	        MatCreateSeqAIJ(PETSC_COMM_SELF,2,2,2,PETSC_NULL,&jacobian);
-        #else
-                jacobian=MatCreateSeqAIJ(2, 2);
-        #endif
-        MatSetFromOptions(jacobian);
+        double** jacobian;
+        
+        jacobian = new double*[2];
+        jacobian[0] = new double[2];
+        jacobian[1] = new double[2];
         
         // This is the function we are testing...
-        jacobian2.AnalyticJacobian(solution_guess, &jacobian, 1.0, 0.01);
-                
-        // Get the answer out!
-        double big_vector[2][2]; 
-        for(int row = 0; row<2; row++)
-        {
-            for(int col = 0; col<2 ; col++)
-            {
-                int row_as_array[1];
-                row_as_array[0] = row;
-                int col_as_array[1];
-                col_as_array[0] = col;
-                double ret_array[1];
-                MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
-                big_vector[row][col]=ret_array[0];
-            }
-        }        
-        TS_ASSERT_DELTA(big_vector[0][0], 0.98, tol);
-        TS_ASSERT_DELTA(big_vector[0][1], -0.04, tol);
-        TS_ASSERT_DELTA(big_vector[1][0], -0.02, tol);
-        TS_ASSERT_DELTA(big_vector[1][1], 0.92, tol);
-              
+        ode_system.BetterAnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
+        
+        TS_ASSERT_DELTA(jacobian[0][0], 0.98, tol);
+        TS_ASSERT_DELTA(jacobian[0][1], -0.04, tol);
+        TS_ASSERT_DELTA(jacobian[1][0], -0.02, tol);
+        TS_ASSERT_DELTA(jacobian[1][1], 0.92, tol);             
     }
         
 };
