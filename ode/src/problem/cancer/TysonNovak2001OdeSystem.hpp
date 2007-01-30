@@ -73,7 +73,7 @@ public:
     }
     
     
-    virtual void BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep);
+    virtual void AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep);
     
 };
 

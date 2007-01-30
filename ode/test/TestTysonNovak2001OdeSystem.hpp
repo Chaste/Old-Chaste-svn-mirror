@@ -7,7 +7,7 @@
 #include "TysonNovak2001OdeSystem.hpp"
 #include <vector>
 #include <iostream>
-#include "BetterBackwardEulerIvpOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "ColumnDataWriter.hpp"
@@ -53,7 +53,7 @@ public:
         double h_value=0.1;
 
         //Euler solver solution worked out
-        BetterBackwardEulerIvpOdeSolver backward_euler_solver(6);
+        BackwardEulerIvpOdeSolver backward_euler_solver(6);
 
         OdeSolution solutions;
         

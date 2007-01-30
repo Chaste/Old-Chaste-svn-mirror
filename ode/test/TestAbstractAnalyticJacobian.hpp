@@ -34,7 +34,7 @@ public:
         jacobian[0] = new double[1];
         
         // This is the function we are testing...
-        ode_system.BetterAnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
+        ode_system.AnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
         
         TS_ASSERT_DELTA(jacobian[0][0], 0.96, tol);
              
@@ -59,7 +59,7 @@ public:
         jacobian[1] = new double[2];
         
         // This is the function we are testing...
-        ode_system.BetterAnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
+        ode_system.AnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
         
         TS_ASSERT_DELTA(jacobian[0][0], 0.98, tol);
         TS_ASSERT_DELTA(jacobian[0][1], -0.04, tol);

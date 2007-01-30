@@ -4,7 +4,7 @@
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
-    mpSolver = new BetterBackwardEulerIvpOdeSolver(6);
+    mpSolver = new BackwardEulerIvpOdeSolver(6);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
 	{

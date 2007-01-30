@@ -28,7 +28,7 @@ public:
             mUseAnalytic = true;
         }
     
-    virtual void BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) = 0;
+    virtual void AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) = 0;
     
 };
 

@@ -1,5 +1,5 @@
-#ifndef BETTERBACKWARDEULERIVPODESOLVER_HPP_
-#define BETTERBACKWARDEULERIVPODESOLVER_HPP_
+#ifndef BACKWARDEULERIVPODESOLVER_HPP_
+#define BACKWARDEULERIVPODESOLVER_HPP_
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -9,7 +9,7 @@
 #include <vector>
 
 
-class BetterBackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
+class BackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
 {
 private:
     unsigned mSizeOfOdeSystem;
@@ -65,7 +65,7 @@ private:
             // the ode system has an analytic jacobian, use that
             AbstractOdeSystemWithAnalyticJacobian *p_ode_system 
                  = static_cast<AbstractOdeSystemWithAnalyticJacobian*>(pAbstractOdeSystem);
-            p_ode_system->BetterAnalyticJacobian(currentGuess, mJacobian, time, timeStep);
+            p_ode_system->AnalyticJacobian(currentGuess, mJacobian, time, timeStep);
         }
         else
         {
@@ -212,7 +212,7 @@ public:
 
 
     
-    BetterBackwardEulerIvpOdeSolver(unsigned sizeOfOdeSystem)
+    BackwardEulerIvpOdeSolver(unsigned sizeOfOdeSystem)
     {
         mSizeOfOdeSystem = sizeOfOdeSystem;
         
@@ -231,7 +231,7 @@ public:
         }
     }
     
-    ~BetterBackwardEulerIvpOdeSolver()
+    ~BackwardEulerIvpOdeSolver()
     {
         // delete pointers
         delete mResidual;
@@ -260,4 +260,4 @@ public:
 };
 
 
-#endif /*BETTERBACKWARDEULERIVPODESOLVER_HPP_*/
+#endif /*BACKWARDEULERIVPODESOLVER_HPP_*/

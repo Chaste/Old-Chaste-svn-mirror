@@ -169,7 +169,7 @@ void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vecto
 
 
 
-void TysonNovak2001OdeSystem::BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) 
+void TysonNovak2001OdeSystem::AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) 
 {
     double x1 = solutionGuess[0];
     double x2 = solutionGuess[1];

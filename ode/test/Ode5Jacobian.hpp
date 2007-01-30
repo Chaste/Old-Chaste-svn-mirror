@@ -24,7 +24,7 @@ public :
         rDY[0]=mAlpha*rY[0]*(1-rY[0]);
     }
     
-    void BetterAnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
+    void AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
     {
         jacobian[0][0] = 1.0 - timeStep*mAlpha + 2.0*timeStep*mAlpha*solutionGuess[0];
     }
