@@ -7,7 +7,6 @@
 #include "TysonNovak2001OdeSystem.hpp"
 #include <vector>
 #include <iostream>
-#include "BackwardEulerIvpOdeSolver.hpp"
 #include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"

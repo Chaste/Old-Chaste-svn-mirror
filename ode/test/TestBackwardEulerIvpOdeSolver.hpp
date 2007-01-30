@@ -9,7 +9,6 @@
 #include "Ode4.hpp"
 #include "Ode5.hpp"
 #include "Ode5Jacobian.hpp"
-#include "BackwardEulerIvpOdeSolver.cpp"
 #include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
@@ -99,113 +98,6 @@ public:
         double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
         
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
-    }
-    
-    // Superceded test
-    void notestComputeResidual()
-    {
-        double h_value=1.0;
-        OdeThirdOrder ode_system;
-        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
-        BackwardEulerStructure backward_euler_structure;
-        backward_euler_structure.TimeStep = h_value;
-        backward_euler_structure.Time = 0.0;
-        backward_euler_structure.pAbstractOdeSystem = &ode_system;
-        std::vector<double> current_y_value;
-        current_y_value.push_back(1.0);
-        current_y_value.push_back(2.0);
-        current_y_value.push_back(3.0);
-        backward_euler_structure.currentYValues = current_y_value;
-        
-        Vec solution_guess, residual;
-        int indices[3] = {0,1,2};
-        double values[3] = {1.0, 2.0, 3.0};
-        SNES snes;
-        
-        VecCreate(PETSC_COMM_WORLD,&solution_guess);
-        VecSetSizes(solution_guess,PETSC_DECIDE,3);
-        VecSetFromOptions(solution_guess);
-        VecDuplicate(solution_guess,&residual);
-        
-        VecSetValues(solution_guess,3,indices,values,INSERT_VALUES);
-        VecAssemblyBegin(solution_guess);
-        VecAssemblyEnd(solution_guess);
-        
-        ComputeResidual(snes,solution_guess,residual,&backward_euler_structure);
-        
-        PetscScalar *p_residual_array;
-        VecGetArray(residual, &p_residual_array);
-        
-        TS_ASSERT_DELTA(p_residual_array[0],-2.0, 1e-6);
-        TS_ASSERT_DELTA(p_residual_array[1], 1.0, 1e-6);
-        TS_ASSERT_DELTA(p_residual_array[2],-1.0, 1e-6);
-        
-        VecRestoreArray(residual, &p_residual_array);
-        
-    }
-    
-    // Superceded test
-    void notestComputeJacobian()
-    {
-        double h_value=1.0;
-        OdeThirdOrder ode_system;
-        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
-        BackwardEulerStructure backward_euler_structure;
-        backward_euler_structure.TimeStep = h_value;
-        backward_euler_structure.Time = 0.0;
-        backward_euler_structure.pAbstractOdeSystem = &ode_system;
-        std::vector<double> current_y_value;
-        current_y_value.push_back(1.0);
-        current_y_value.push_back(2.0);
-        current_y_value.push_back(3.0);
-        backward_euler_structure.currentYValues = current_y_value;
-        
-        Vec solution_guess;
-        int indices[3] = {0,1,2};
-        double values[3] = {1.0, 2.0, 3.0};
-        
-        SNES snes;
-        
-        VecCreate(PETSC_COMM_WORLD,&solution_guess);
-        VecSetSizes(solution_guess,PETSC_DECIDE,3);
-        VecSetFromOptions(solution_guess);
-        
-        VecSetValues(solution_guess,3,indices,values,INSERT_VALUES);
-        VecAssemblyBegin(solution_guess);
-        VecAssemblyEnd(solution_guess);
-        
-        Mat jacobian;
-        Mat preconditioner;
-        MatStructure mat_structure;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-        MatCreate(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, 3, 3, &jacobian);
-#else
-        MatCreate(PETSC_COMM_WORLD, &jacobian);
-        MatSetSizes(jacobian, PETSC_DECIDE, PETSC_DECIDE, 3, 3);
-#endif
-        MatSetFromOptions(jacobian);
-        
-        ComputeNumericalJacobian(snes, solution_guess, &jacobian, &preconditioner, &mat_structure, &backward_euler_structure);
-        
-        double true_jacobian[3][3] = {{ 0, 1,-1},
-                                      { 0, 0, 1},
-                                      { 0,-2, 2}};
-        for (int row=0; row<3; row++)
-        {
-            for (int col=0; col<3; col++)
-            {
-                int row_as_array[1];
-                row_as_array[0] = row;
-                int col_as_array[1];
-                col_as_array[0] = col;
-                
-                double ret_array[1];
-                
-                MatGetValues(jacobian, 1, row_as_array, 1, col_as_array, ret_array);
-                
-                TS_ASSERT_DELTA(ret_array[0],true_jacobian[row][col], 1e-3);
-            }
-        }
     }
     
     void testBackwardEulerSystemOf3EquationsWithEvents()
