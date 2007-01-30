@@ -9,8 +9,6 @@
 #include <vector>
 
 
-
-
 class BetterBackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
 {
 private:
