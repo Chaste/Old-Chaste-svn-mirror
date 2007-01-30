@@ -108,10 +108,11 @@ public:
         mForceUseOfNumericalJacobian = true;
     }
     
-    virtual ~BetterBackwardEulerIvpOdeSolver()
+  /* virtual ~BetterBackwardEulerIvpOdeSolver()
     {
     }   
     
+  */
     void ComputeResidual(AbstractOdeSystem* pAbstractOdeSystem,
                          double timeStep,
                          double time,
