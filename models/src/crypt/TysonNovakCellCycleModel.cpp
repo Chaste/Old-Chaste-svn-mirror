@@ -26,6 +26,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
  */
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime)
 {
+    mpSolver = new BackwardEulerIvpOdeSolver(6);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
     {
@@ -46,7 +47,7 @@ TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
 void TysonNovakCellCycleModel::ResetModel()
 {	// This model cycles itself and nothing needs to be reset.
 	mBirthTime = mDivideTime;
-    std::cout << "divide time = " << mDivideTime << std::endl;
+    // std::cout << "divide time = " << mDivideTime << std::endl;
     // Halve the mass of the cell
     mProteinConcentrations[5] = mProteinConcentrations[5]/2.0;
 	mReadyToDivide=false;	
@@ -77,8 +78,9 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
         if(current_time>mLastTime)
         {
         	double mesh_size = 0.1;
+            
     		OdeSolution solution = mpSolver->Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, mesh_size, mesh_size);
-    	
+    	    
             unsigned timeRows = solution.GetNumberOfTimeSteps();
     	 	
     	 	for (unsigned i=0 ; i<6 ; i++)

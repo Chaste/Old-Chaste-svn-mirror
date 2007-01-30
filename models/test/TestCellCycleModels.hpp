@@ -180,28 +180,25 @@ public:
         
         //double divide_time = p_simulation_time->GetDimensionalisedTime();
         cell_model.ResetModel();
+        TysonNovakCellCycleModel *p_cell_model2 = static_cast <TysonNovakCellCycleModel*> (cell_model.CreateCellCycleModel());
         
-        //TysonNovakCellCycleModel *p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (cell_model.CreateCellCycleModel());
-
-        //proteins = p_cell_model2->GetProteinConcentrations();
-
         for(int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            std::cout << "Time = " << time << "\n";
+            //std::cout << "Time = " << time << "\n";
             bool result = cell_model.ReadyToDivide();
-            //bool result2 = p_cell_model2->ReadyToDivide();
-            std::cout << result << "\n";
+            bool result2 = p_cell_model2->ReadyToDivide();
+            //std::cout << result << "\n";
             if(time> 2.0* standard_divide_time)
             {
                 TS_ASSERT(result==true);
-                //TS_ASSERT(result2==true);
+                TS_ASSERT(result2==true);
             }
             else
             {
                 TS_ASSERT(result==false);
-                //TS_ASSERT(result2==false);
+                TS_ASSERT(result2==false);
             }
         }        
         

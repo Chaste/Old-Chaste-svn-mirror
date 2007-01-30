@@ -8,6 +8,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
+#include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 
@@ -707,6 +708,84 @@ public:
         		TS_ASSERT(result1==false);
         		TS_ASSERT(result2==false);
            	}
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
+    /*
+     * We are checking that the MeinekeCryptCells work with the T&N cell cycle models here
+     * That division of wnt cells and stuff works OK.
+     * 
+     * It checks that the cell division thing works nicely too.
+     */
+    void TestWithTysonNovakCellCycleModel() throw(Exception)
+    {
+        
+        double standard_tyson_duration = 75.19;
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        
+        //CancerParameters *p_parameters = CancerParameters::Instance();
+        //double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        unsigned num_steps=100;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0, num_steps+1);
+        
+        MeinekeCryptCell tn_cell(TRANSIT, // type
+                                   1,    // generation
+                                   new TysonNovakCellCycleModel());
+        
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            if(time>=standard_tyson_duration)
+            {
+                TS_ASSERT(tn_cell.ReadyToDivide()==true);
+            }
+            else
+            {
+                TS_ASSERT(tn_cell.ReadyToDivide()==false);
+            }
+            //std::cout << "Time = " << time << " ready = " << tn_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+        }
+        
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(tn_cell.ReadyToDivide()==true);
+        TS_ASSERT(tn_cell.GetGeneration()==1);
+        
+        MeinekeCryptCell tn_cell2 = tn_cell.Divide();
+        
+        TS_ASSERT(tn_cell.GetGeneration()==2);
+        TS_ASSERT(tn_cell2.GetGeneration()==2);
+                
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        
+        double timeOfBirth = tn_cell.GetBirthTime();
+        double timeOfBirth2 = tn_cell2.GetBirthTime();
+        
+        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        
+        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            bool result1=tn_cell.ReadyToDivide();
+            bool result2=tn_cell2.ReadyToDivide();
+            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            if(time>=standard_tyson_duration+timeOfBirth)
+            {
+                TS_ASSERT(result1==true);
+                TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result1==false);
+                TS_ASSERT(result2==false);
+            }
         }
         
         SimulationTime::Destroy();
