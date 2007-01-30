@@ -4,6 +4,7 @@
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
+    mpSolver = new BetterBackwardEulerIvpOdeSolver(6);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
 	{
@@ -14,6 +15,11 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     mOdeSystem.SetStateVariables(mOdeSystem.GetInitialConditions());
     mProteinConcentrations = mOdeSystem.GetInitialConditions();
     mReadyToDivide=false;
+}
+
+TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
+{
+    delete mpSolver;
 }
 
 void TysonNovakCellCycleModel::ResetModel()
@@ -46,7 +52,7 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
         if(current_time>mLastTime)
         {
         	double mesh_size = 0.1;
-    		OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, mesh_size, mesh_size);
+    		OdeSolution solution = mpSolver->Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, mesh_size, mesh_size);
     	
             unsigned timeRows = solution.GetNumberOfTimeSteps();
     	 	
@@ -61,7 +67,7 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
     	 	}
     	 	
     	 	mLastTime = current_time;
-    	    mReadyToDivide = mSolver.StoppingEventOccured();
+    	    mReadyToDivide = mpSolver->StoppingEventOccured();
         }
     }
     

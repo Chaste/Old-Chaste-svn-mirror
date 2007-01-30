@@ -15,7 +15,7 @@ class TysonNovakCellCycleModel : public AbstractCellCycleModel
 {
 private:    
     TysonNovak2001OdeSystem mOdeSystem;
-    BetterBackwardEulerIvpOdeSolver<6> mSolver;
+    BetterBackwardEulerIvpOdeSolver* mpSolver;
     double mLastTime;
     std::vector <double> mProteinConcentrations;
 	bool mReadyToDivide;
@@ -23,7 +23,9 @@ private:
 public:
     
     TysonNovakCellCycleModel();
-
+    
+    ~TysonNovakCellCycleModel();
+        
     virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
     virtual void ResetModel();

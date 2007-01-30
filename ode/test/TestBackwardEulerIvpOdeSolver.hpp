@@ -23,7 +23,7 @@ public:
         double h_value=0.01;
         
         //Euler solver solution worked out
-        BetterBackwardEulerIvpOdeSolver<3> backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         
         // cover the SetEpsilonForNumericalJacobian() method
         backward_euler_solver.SetEpsilonForNumericalJacobian(1e-6);
@@ -267,7 +267,7 @@ public:
         double end_time = 1.0;
         
         //Euler solver solution worked out
-        BetterBackwardEulerIvpOdeSolver<1> backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
         OdeSolution solutions;
         
         std::vector<double> state_variables = ode_system.GetInitialConditions();

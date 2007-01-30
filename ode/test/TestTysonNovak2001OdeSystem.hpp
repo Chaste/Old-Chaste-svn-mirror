@@ -53,20 +53,8 @@ public:
 
         double h_value=0.1;
 
-        
         //Euler solver solution worked out
-        BetterBackwardEulerIvpOdeSolver<6> backward_euler_solver;
-
-
-        // NOTE:
-        // if we use the analytical jacobian the results are the same up to
-        // t=40, but at t=42 the nonlinear solver doesn't converge with the 
-        // analytical jacobian, but continues fine up to t=75.8 if the numerical
-        // jacobian is used. So, to pass the tests, we get the solver to 
-        // use the numerical jac even though an analytic one is available
-        backward_euler_solver.ForceUseOfNumericalJacobian();
-        
-        //RungeKutta4IvpOdeSolver rk4_solver;
+        BetterBackwardEulerIvpOdeSolver backward_euler_solver(6);
 
         OdeSolution solutions;
         

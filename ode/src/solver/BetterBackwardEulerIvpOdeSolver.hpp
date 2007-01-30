@@ -7,20 +7,26 @@
 #include <cassert>
 #include <vector>
 
-template<int SIZE>
+
 class BetterBackwardEulerIvpOdeSolver  : public AbstractOneStepIvpOdeSolver
 {
 private:
+    unsigned mSizeOfOdeSystem;
+    
     /** the epsilon to use in calculating numerical jacobians */
     double mNumericalJacobianEpsilon;
     bool mForceUseOfNumericalJacobian;
     
+    // NOTE: we use (unsafe) double pointers here rather than 
+    // std::vectors because they std::vectors would lead to a
+    // slow down by a factor of about ~4
+    
     /** Working memory : residual vector */
-    double mResidual[SIZE];
+    double* mResidual;
     /** Working memory : Jacobian matrix */
     double** mJacobian;
     /** Working memory : update vector */
-    double mUpdate[SIZE];
+    double* mUpdate;
 
 
     void ComputeResidual(AbstractOdeSystem* pAbstractOdeSystem,
@@ -29,9 +35,9 @@ private:
                          std::vector<double>& currentYValues,
                          std::vector<double>& currentGuess)
     {
-        std::vector<double> dy(SIZE);//For JC to optimize
+        std::vector<double> dy(mSizeOfOdeSystem);//For JC to optimize
         pAbstractOdeSystem->EvaluateYDerivatives(time, currentGuess, dy);
-        for(unsigned i=0; i<SIZE; i++)
+        for(unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             
             mResidual[i] = currentGuess[i] - timeStep * dy[i] - currentYValues[i];        
@@ -45,9 +51,9 @@ private:
                          std::vector<double>& currentYValues,
                          std::vector<double>& currentGuess)
     {
-        for(unsigned i = 0 ; i<SIZE ; i++)
+        for(unsigned i = 0 ; i<mSizeOfOdeSystem ; i++)
         {
-            for(unsigned j = 0 ; j <SIZE ; j++)
+            for(unsigned j = 0 ; j <mSizeOfOdeSystem ; j++)
             {
                 mJacobian[i][j]=0.0;
             }   
@@ -73,22 +79,22 @@ private:
     void SolveLinearSystem()
     {
         double fact;
-        for (unsigned i=0; i<SIZE; i++)
+        for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
-            for (unsigned ii=i+1; ii<SIZE; ii++)
+            for (unsigned ii=i+1; ii<mSizeOfOdeSystem; ii++)
             {
                 fact = mJacobian[ii][i]/mJacobian[i][i];
-                for (unsigned j=i; j<SIZE; j++)
+                for (unsigned j=i; j<mSizeOfOdeSystem; j++)
                 {
                     mJacobian[ii][j] -= fact*mJacobian[i][j];
                 }
                 mResidual[ii] -= fact*mResidual[i];
             }
         }
-        for (int i=SIZE-1; i>-1; i--)
+        for (int i=mSizeOfOdeSystem-1; i>-1; i--)
         {
             mUpdate[i] = mResidual[i];
-            for (unsigned j=i+1; j<SIZE; j++)
+            for (unsigned j=i+1; j<mSizeOfOdeSystem; j++)
             {
                 mUpdate[i] -= mJacobian[i][j]*mUpdate[j];
             }
@@ -96,10 +102,10 @@ private:
         }
     }
     
-    double ComputeNorm(double vector[SIZE])
+    double ComputeNorm(double* vector)
     {
         double norm = 0.0;
-        for (unsigned i=0; i<SIZE; i++)
+        for (unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             if (fabs(vector[i]) > norm)
             {
@@ -116,22 +122,22 @@ private:
                                   std::vector<double>& currentYValues,
                                   std::vector<double>& currentGuess)
     {
-        std::vector<double> residual(SIZE);
-        std::vector<double> residual_perturbed(SIZE);
-        std::vector<double> guess_perturbed(SIZE);
+        std::vector<double> residual(mSizeOfOdeSystem);
+        std::vector<double> residual_perturbed(mSizeOfOdeSystem);
+        std::vector<double> guess_perturbed(mSizeOfOdeSystem);
         
         double epsilon= mNumericalJacobianEpsilon;
 
         ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, currentGuess);
-        for(unsigned i=0; i<SIZE; i++)
+        for(unsigned i=0; i<mSizeOfOdeSystem; i++)
         {
             residual[i] = mResidual[i];
         }
 
 
-        for (unsigned global_column=0; global_column<SIZE; global_column++)
+        for (unsigned global_column=0; global_column<mSizeOfOdeSystem; global_column++)
         {
-            for(unsigned i=0; i<SIZE; i++)
+            for(unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 guess_perturbed[i] = currentGuess[i];
             }
@@ -139,14 +145,14 @@ private:
             guess_perturbed[global_column] += epsilon;
  
             ComputeResidual(pAbstractOdeSystem, timeStep, time, currentYValues, guess_perturbed);
-            for(unsigned i=0; i<SIZE; i++)
+            for(unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 residual_perturbed[i] = mResidual[i];
             }
             
             // compute residual_perturbed - residual
             double one_over_eps=1.0/epsilon;
-            for(unsigned i=0; i<SIZE; i++)
+            for(unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 mJacobian[i][global_column] = one_over_eps*(residual_perturbed[i] - residual[i]);
             }
@@ -164,7 +170,7 @@ protected:
                              std::vector<double>& nextYValues)
     {
         // check the size of the ode system matches the solvers expected
-        assert(SIZE == pAbstractOdeSystem->GetNumberOfStateVariables());
+        assert(mSizeOfOdeSystem == pAbstractOdeSystem->GetNumberOfStateVariables());
         
         
         unsigned counter = 0;
@@ -172,7 +178,7 @@ protected:
         const double eps = 1e-6; // JonW tolerance
         double norm = 2*eps;
         
-        std::vector<double> current_guess(SIZE);
+        std::vector<double> current_guess(mSizeOfOdeSystem);
         current_guess.assign(currentYValues.begin(), currentYValues.end());
         
         while (norm > eps)
@@ -190,7 +196,7 @@ protected:
             norm = ComputeNorm(mUpdate);
             
             // Update current guess
-            for (unsigned i=0; i<SIZE; i++)
+            for (unsigned i=0; i<mSizeOfOdeSystem; i++)
             {
                 current_guess[i] -= mUpdate[i];
             }
@@ -205,21 +211,32 @@ public:
 
 
     
-    BetterBackwardEulerIvpOdeSolver()
+    BetterBackwardEulerIvpOdeSolver(unsigned sizeOfOdeSystem)
     {
+        mSizeOfOdeSystem = sizeOfOdeSystem;
+        
         // default epsilon
         mNumericalJacobianEpsilon = 1e-6;
         mForceUseOfNumericalJacobian = false;
-        mJacobian = new double*[SIZE];
-        for(unsigned i=0 ; i<SIZE ; i++)
+
+        // allocate memory
+        mResidual = new double[mSizeOfOdeSystem];
+        mUpdate = new double[mSizeOfOdeSystem];
+        
+        mJacobian = new double*[mSizeOfOdeSystem];
+        for(unsigned i=0 ; i<mSizeOfOdeSystem ; i++)
         {
-            mJacobian[i] = new double[SIZE];
+            mJacobian[i] = new double[mSizeOfOdeSystem];
         }
     }
     
     ~BetterBackwardEulerIvpOdeSolver()
     {
-        for(unsigned i=0 ; i<SIZE ; i++)
+        // delete pointers
+        delete mResidual;
+        delete mUpdate;
+
+        for(unsigned i=0 ; i<mSizeOfOdeSystem ; i++)
         {
             delete mJacobian[i];
         }
