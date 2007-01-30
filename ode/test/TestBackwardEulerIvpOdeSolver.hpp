@@ -9,7 +9,6 @@
 #include "Ode4.hpp"
 #include "Ode5.hpp"
 #include "Ode5Jacobian.hpp"
-//#include "AnotherOde.hpp"
 #include "BackwardEulerIvpOdeSolver.cpp"
 #include "BetterBackwardEulerIvpOdeSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -24,7 +23,7 @@ public:
         double h_value=0.01;
         
         //Euler solver solution worked out
-        BackwardEulerIvpOdeSolver backward_euler_solver;
+        BetterBackwardEulerIvpOdeSolver<3> backward_euler_solver;
         
         // cover the SetEpsilonForNumericalJacobian() method
         backward_euler_solver.SetEpsilonForNumericalJacobian(1e-6);
