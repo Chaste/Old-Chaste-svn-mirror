@@ -137,16 +137,17 @@ public:
 		SimulationTime::Destroy();
     }
         
-    // Backward Euler solver is still broken so this won't work...
-    void no__TestTysonNovakCellCycleModel(void) throw(Exception)
+    
+    void TestTysonNovakCellCycleModel(void) throw(Exception)
     {
         //CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
         int num_timesteps = 100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(5, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(80, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
         TysonNovakCellCycleModel cell_model;
         
+                
         for(int i=0; i<num_timesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -154,8 +155,28 @@ public:
             std::cout << "Time = " << time << "\n";
             bool result = cell_model.ReadyToDivide();
             std::cout << result << "\n";
-            TS_ASSERT(result==false);
+            if(time>75.4)
+            {
+                TS_ASSERT(result==true);
+            }
+            else
+            {
+                TS_ASSERT(result==false);
+            }
         }
+        
+        
+        std::vector<double> proteins = cell_model.GetProteinConcentrations();
+        
+        TS_ASSERT(proteins.size()==6);
+        
+        TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
+        TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
+        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-2);
+        TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-1);
+        TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
+        TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
+        
         SimulationTime::Destroy();
     }
     
