@@ -3,6 +3,7 @@
 #include "AbstractCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
 /**
@@ -31,6 +32,8 @@ public:
     WntCellCycleModel();
     
     WntCellCycleModel(double InitialWntStimulus);
+    
+    ~WntCellCycleModel();
     
 	virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     

@@ -15,7 +15,7 @@ WntCellCycleModel::WntCellCycleModel()
  */
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 {
-	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
+    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
 	{
@@ -37,7 +37,7 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
  */
 WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
 {
-	double InitialWntStimulus = parentProteinConcentrations[7];
+    double InitialWntStimulus = parentProteinConcentrations[7];
 	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
 	// Set the cell cycle part of the model to start of G1 phase,
 	mProteinConcentrations = mOdeSystem.GetInitialConditions();
@@ -58,6 +58,10 @@ WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrat
     mReadyToDivide = false;
     
     mpCancerParams = CancerParameters::Instance();
+}
+
+WntCellCycleModel::~WntCellCycleModel()
+{
 }
 
 /**
