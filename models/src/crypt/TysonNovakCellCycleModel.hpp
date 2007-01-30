@@ -17,8 +17,12 @@ private:
     TysonNovak2001OdeSystem mOdeSystem;
     BetterBackwardEulerIvpOdeSolver* mpSolver;
     double mLastTime;
+    double mDivideTime;
     std::vector <double> mProteinConcentrations;
 	bool mReadyToDivide;
+    
+    TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime);
+    
     
 public:
     

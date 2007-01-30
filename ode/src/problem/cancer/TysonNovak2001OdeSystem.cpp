@@ -10,31 +10,41 @@ TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
 {
     /*
      * State variables
+     * 
+     * These Initial conditions arethe steady state (approximate) 
+     * solutions and the commented out conditions are from tyson 
+     * novak paper we think.
      */
     mVariableNames.push_back("CycB");
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(0.1-2.0*1.0e-2);
+    mInitialConditions.push_back(0.1);
     
     mVariableNames.push_back("Cdh1");
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(9.8770e-01);
+    //mInitialConditions.push_back(9.8770e-01);
+    mInitialConditions.push_back(0.98913);
     
     mVariableNames.push_back("Cdc20T");
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(1.5011e+00);
+    //mInitialConditions.push_back(1.5011e+00);
+    mInitialConditions.push_back(1.54217);
     
     mVariableNames.push_back("Cdc20A");
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(1.2924e+00);
+    //mInitialConditions.push_back(1.2924e+00);
+    mInitialConditions.push_back(1.40563);
     
     mVariableNames.push_back("IEP");
     mVariableUnits.push_back("nM");
-    mInitialConditions.push_back(6.5405e-01);
+    //mInitialConditions.push_back(6.5405e-01);
+    mInitialConditions.push_back(0.67083);
     
     mVariableNames.push_back("mass");
     mVariableUnits.push_back("");
-    mInitialConditions.push_back(4.7039e-01);
-    
+    //mInitialConditions.push_back(4.7039e-01);
+    mInitialConditions.push_back(0.95328/2.0);
+        
+  
     mNumberOfStateVariables=6;
     
     Init();

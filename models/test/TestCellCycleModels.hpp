@@ -143,19 +143,20 @@ public:
         //CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
+        double standard_divide_time = 75.19;
         int num_timesteps = 100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(80, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(160, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
         TysonNovakCellCycleModel cell_model;
         
                 
-        for(int i=0; i<num_timesteps; i++)
+        for(int i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
             std::cout << "Time = " << time << "\n";
             bool result = cell_model.ReadyToDivide();
             std::cout << result << "\n";
-            if(time>75.4)
+            if(time>standard_divide_time)
             {
                 TS_ASSERT(result==true);
             }
@@ -173,10 +174,49 @@ public:
         TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
         TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-2);
+        TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-2);
+        TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
+        TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
+        
+        //double divide_time = p_simulation_time->GetDimensionalisedTime();
+        cell_model.ResetModel();
+        
+        //TysonNovakCellCycleModel *p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (cell_model.CreateCellCycleModel());
+
+        //proteins = p_cell_model2->GetProteinConcentrations();
+
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::cout << "Time = " << time << "\n";
+            bool result = cell_model.ReadyToDivide();
+            //bool result2 = p_cell_model2->ReadyToDivide();
+            std::cout << result << "\n";
+            if(time> 2.0* standard_divide_time)
+            {
+                TS_ASSERT(result==true);
+                //TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result==false);
+                //TS_ASSERT(result2==false);
+            }
+        }        
+        
+        proteins = cell_model.GetProteinConcentrations();
+        
+        TS_ASSERT(proteins.size()==6);
+        
+        TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
+        TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
+        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-2);
         TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
+        //delete p_cell_model2;
         SimulationTime::Destroy();
     }
     
