@@ -29,7 +29,7 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-
+#include "Noble98FromCellml.hpp"
 
 
 class TestIonicModels : public CxxTest::TestSuite
@@ -39,34 +39,39 @@ public:
     void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
                                     double endTime,
                                     std::string filename,
-                                    int stepPerRow=100)
+                                    int stepPerRow=100,
+                                    bool doComputeExceptVoltage=true)
     {
         double start_time = 0.0;
         
-        // Store the current system state
-        std::vector<double> state_variables_ref = pOdeSystem->rGetStateVariables();
-        std::vector<double> state_variables_copy = state_variables_ref;
-        
-        // Test ComputeExceptVoltage
-        double v_init = pOdeSystem->GetVoltage();
-        OdeSolution solution = pOdeSystem->ComputeExceptVoltage(start_time, endTime);
-        double v_end = pOdeSystem->GetVoltage();
-        TS_ASSERT_DELTA(v_init, v_end, 1e-6);
-        
-        // Save results for comparison
-        SaveSolution(filename + "_ExceptVoltage", pOdeSystem, solution, stepPerRow);
-        
-        // Test SetVoltage
-        pOdeSystem->SetVoltage(1e6);
-        TS_ASSERT_DELTA(pOdeSystem->GetVoltage(), 1e6, 1e-6);
-        
-        // Reset the system
-        pOdeSystem->SetStateVariables(state_variables_copy);
+        if (doComputeExceptVoltage)
+        {
+            // Store the current system state
+            std::vector<double> state_variables_ref = pOdeSystem->rGetStateVariables();
+            std::vector<double> state_variables_copy = state_variables_ref;
+            
+            // Test ComputeExceptVoltage
+            double v_init = pOdeSystem->GetVoltage();
+            OdeSolution solution = pOdeSystem->ComputeExceptVoltage(start_time, endTime);
+            double v_end = pOdeSystem->GetVoltage();
+            TS_ASSERT_DELTA(v_init, v_end, 1e-6);
+            
+            // Save results for comparison
+            // This appears to be the only use of the return value of ComputeExceptVoltage
+            SaveSolution(filename + "_ExceptVoltage", pOdeSystem, solution, stepPerRow);
+            
+            // Test SetVoltage
+            pOdeSystem->SetVoltage(1e6);
+            TS_ASSERT_DELTA(pOdeSystem->GetVoltage(), 1e6, 1e-6);
+            
+            // Reset the system
+            pOdeSystem->SetStateVariables(state_variables_copy);
+        }
         
         /*
          * Solve 
          */
-        solution = pOdeSystem->Compute(start_time, endTime);
+        OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
         
         /*
          * Write data to a file using ColumnDataWriter
@@ -136,6 +141,8 @@ public:
          * Initially we assume the time series are the same; this will change.
          * If the time series differ, the finer resolution must be given first.
          */
+        std::cout << "Comparing " << baseResultsFilename1 << " with "
+            << baseResultsFilename2 << std::endl;
         
         ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
         std::vector<double> times1 = data_reader1.GetValues("Time");
@@ -358,6 +365,46 @@ public:
         
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
             << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
+    }
+    
+    void testNoble98WithDelayedInitialStimulus(void) throw (Exception)
+    {
+//        clock_t ck_start, ck_end;
+        // Set stimulus
+        double magnitude = -3;    // nA
+        double duration  = 2.0/1000;   // s
+        double when = 60.0/1000;       // s
+        InitialStimulus stimulus(magnitude, duration, when);
+        
+        double end_time = 0.2;   // seconds
+        double time_step = 2e-6; // seconds
+        
+        // Solve using backward euler.
+        // I think a small timestep is needed because of the forward Euler step for V,
+        // which means the numerical method isn't stable for large dt.
+        // This is annoying.
+        CML_noble_model_1998 n98_backward_euler(time_step, &stimulus);
+//        ck_start = clock();
+        RunOdeSolverWithIonicModel(&n98_backward_euler,
+                                   end_time,
+                                   "N98BackwardEuler", 300, false);
+//        ck_end = clock();
+//        double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
+        CheckCellModelResults("N98BackwardEuler");
+
+//        // Try with smaller timestep.
+//        CML_noble_model_1998 n98_backward_euler2(time_step/2, &stimulus);
+//        ck_start = clock();
+//        RunOdeSolverWithIonicModel(&n98_backward_euler2,
+//                                   end_time,
+//                                   "N98BackwardEuler2", 600, false);
+//        ck_end = clock();
+//        double backward2 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+//        CompareCellModelResults("N98BackwardEuler", "N98BackwardEuler2", 0.015);
+//        
+//        std::cout << "Run times:\n\tBackward: "
+//            << backward1 << "\n\tBackward (short dt): " << backward2 << std::endl;
     }
 };
 

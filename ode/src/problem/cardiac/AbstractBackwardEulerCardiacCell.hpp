@@ -92,7 +92,7 @@ public:
         // Check length of time interval
         double _n_steps = (tEnd - tStart) / mDt;
         int n_steps = (int) round(_n_steps);
-        assert(fabs(n_steps - _n_steps) < 1e-12);
+        assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
         
         // Initialise solution store
         OdeSolution solutions;
@@ -129,6 +129,12 @@ public:
      * 
      * The length of the time interval must be a multiple of the timestep.
      * 
+     * \todo I don't think anyone actually needs this method to return anything,
+     * since in a multi-cellular context (where this is used) we're only interested
+     * in the final value, which we read at each PDE timestep.  So we could remove
+     * all the code pertaining to OdeSolution objects, which would give a bit of a
+     * speedup.
+     * 
      * @return  the values of each state variable, at mDt intervals.
      */
     virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd)
@@ -138,7 +144,7 @@ public:
         // Check length of time interval
         double _n_steps = (tEnd - tStart) / mDt;
         int n_steps = (int) round(_n_steps);
-        assert(fabs(n_steps - _n_steps) < 1e-12);
+        assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
         
         // Initialise solution store
         OdeSolution solutions;
