@@ -631,7 +631,7 @@ public:
                 
         SimulationTime::Destroy();
         simulator.SetDt(0.001);
-        simulator.Solve();
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
     }
         
