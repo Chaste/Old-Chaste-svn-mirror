@@ -68,23 +68,18 @@ public:
             pOdeSystem->SetStateVariables(state_variables_copy);
         }
         
-        /*
-         * Solve 
-         */
+        // Solve 
         OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
         
-        /*
-         * Write data to a file using ColumnDataWriter
-         */
+        // Write data to a file using ColumnDataWriter
         SaveSolution(filename, pOdeSystem, solution, stepPerRow);
     }
     
     void SaveSolution(std::string baseResultsFilename, AbstractCardiacCell *pOdeSystem,
                       OdeSolution& solution, int stepPerRow)
     {
-        /*
-         * Write data to a file using ColumnDataWriter
-         */
+        // Write data to a file using ColumnDataWriter
+
         ColumnDataWriter writer("TestIonicModels",baseResultsFilename,false);
         int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
         
@@ -136,11 +131,9 @@ public:
     
     void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance)
     {
-        /*
-         * Compare 2 sets of results, e.g. from 2 different solvers for the same model.
-         * Initially we assume the time series are the same; this will change.
-         * If the time series differ, the finer resolution must be given first.
-         */
+        // Compare 2 sets of results, e.g. from 2 different solvers for the same model.
+        // Initially we assume the time series are the same; this will change.
+        // If the time series differ, the finer resolution must be given first.
         std::cout << "Comparing " << baseResultsFilename1 << " with "
             << baseResultsFilename2 << std::endl;
         
@@ -188,9 +181,7 @@ public:
     
     void testOdeSolverForHH52WithInitialStimulus(void)
     {
-        /*
-         * Set stimulus
-         */
+        // Set stimulus
         double magnitude_stimulus = 20.0;  // uA/cm2
         double duration_stimulus = 0.5;  // ms
         double start_stimulus = 10.0;   // ms
@@ -201,9 +192,7 @@ public:
         double time_step = 0.01;
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, time_step, &stimulus);
         
-        /*
-         * Solve and write to file
-         */
+        // Solve and write to file
         RunOdeSolverWithIonicModel(&hh52_ode_system,
                                    150.0,
                                    "HH52RegResult");
@@ -223,9 +212,7 @@ public:
     
     void testOdeSolverForFHN61WithInitialStimulus(void)
     {
-        /*
-         * Set stimulus
-         */
+        // Set stimulus
         double magnitude_stimulus = -80.0;   // dimensionless
         double duration_stimulus = 0.5 ;  // ms
         double start_stimulus = 0.0;   // ms
@@ -237,9 +224,7 @@ public:
         double time_step = 0.01;
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
         
-        /*
-         * Solve and write to file
-         */
+        // Solve and write to file
         RunOdeSolverWithIonicModel(&fhn61_ode_system,
                                    500.0,
                                    "FHN61RegResult");
@@ -251,14 +236,29 @@ public:
         // this verified that GetIionic has no errors, therefore we can test here
         // against a hardcoded result
         TS_ASSERT_DELTA( fhn61_ode_system.GetIIonic(), -0.0058, 1e-3);
+        
+        // some coverage
+        InitialStimulus another_stimulus(-200,1.0, 0.0);
+        InitialStimulus intra_stimulus(-100,1.0, 0.0);
+        InitialStimulus extra_stimulus(-50, 1.0, 0.0);
+        FitzHughNagumo1961OdeSystem another_fhn61_ode_system(&solver, time_step, &stimulus);
+
+        another_fhn61_ode_system.SetStimulusFunction(&another_stimulus);
+        TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -200, 1e-12);
+        TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -200, 1e-12);
+
+        another_fhn61_ode_system.SetIntracellularStimulusFunction(&intra_stimulus);
+        TS_ASSERT_DELTA(another_fhn61_ode_system.GetStimulus(0.5), -100, 1e-12);
+        TS_ASSERT_DELTA(another_fhn61_ode_system.GetIntracellularStimulus(0.5), -100, 1e-12);
+
+        another_fhn61_ode_system.SetExtracellularStimulusFunction(&extra_stimulus);
+        TS_ASSERT_DELTA(another_fhn61_ode_system.GetExtracellularStimulus(0.5), -50, 1e-12);
     }
     
     
     void testOdeSolverForLR91WithDelayedInitialStimulus(void)
     {
-        /*
-         * Set stimulus
-         */
+        // Set stimulus
         double magnitude = -25.5;
         double duration  = 2.0  ;  // ms
         double when = 50.0; // ms
@@ -270,9 +270,7 @@ public:
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
-        /*
-         * Solve and write to file
-         */
+        // Solve and write to file
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91DelayedStim");
@@ -291,9 +289,7 @@ public:
     
     void testOdeSolverForLR91WithRegularStimulus(void) throw (Exception)
     {
-        /*
-         * Set stimulus
-         */
+        // Set stimulus
         double magnitude = -25.5;
         double duration  = 2.0  ;  // ms
         double start = 50.0; // ms
@@ -306,9 +302,7 @@ public:
         EulerIvpOdeSolver solver;
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
-        /*
-         * Solve and write to file
-         */
+        // Solve and write to file
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91RegularStim");
@@ -365,6 +359,13 @@ public:
         
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
             << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
+            
+            
+        // cover and check GetIIonic() match for normal and backward euler lr91
+        LuoRudyIModel1991OdeSystem lr91(&solver, 0.01, &stimulus);
+        BackwardEulerLuoRudyIModel1991 backward_lr91(0.01, &stimulus);
+        // calc IIonic using initial conditions
+        TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-12);
     }
     
     void testNoble98WithDelayedInitialStimulus(void) throw (Exception)
