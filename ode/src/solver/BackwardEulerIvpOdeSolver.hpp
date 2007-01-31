@@ -234,14 +234,14 @@ public:
     ~BackwardEulerIvpOdeSolver()
     {
         // delete pointers
-        delete mResidual;
-        delete mUpdate;
+        delete[] mResidual;
+        delete[] mUpdate;
 
         for(unsigned i=0 ; i<mSizeOfOdeSystem ; i++)
         {
-            delete mJacobian[i];
+            delete[] mJacobian[i];
         }
-        delete mJacobian;
+        delete[] mJacobian;
     }
     
     void SetEpsilonForNumericalJacobian(double epsilon)

@@ -213,7 +213,7 @@ public:
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
-        //delete p_cell_model2;
+        delete p_cell_model2;
         SimulationTime::Destroy();
     }
     
