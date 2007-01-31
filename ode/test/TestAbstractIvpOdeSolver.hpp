@@ -501,9 +501,6 @@ public:
         global_error_adams_bashforth = (1.0/6.0)*pow(h_value,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_adams_bashforth,exact_solution,global_error_adams_bashforth);
     }
-    
-    
-    
 };
 
 #endif //_TESTABSTRACTIVPODESOLVER_HPP_

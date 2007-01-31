@@ -6,8 +6,8 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include "Jacobian1.hpp"
-#include "Jacobian2.hpp"
+#include "OdeWithJacobian1.hpp"
+#include "OdeWithJacobian2.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscException.hpp"
 
@@ -22,7 +22,7 @@ public:
     void TestJacobianOne(void)
     {
         // pointer to TestOde1 class
-        Jacobian1 ode_system;
+        OdeWithJacobian1 ode_system;
         
         std::vector<double>  solution_guess(1);
         solution_guess[0] = 2.0;
@@ -45,7 +45,7 @@ public:
     void TestJacobianTwo(void)
     {
         // pointer to TestOde1 class
-        Jacobian2 ode_system;
+        OdeWithJacobian2 ode_system;
         
         std::vector<double>  solution_guess(2);
         solution_guess[0] = 1.0;

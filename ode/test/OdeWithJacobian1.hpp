@@ -1,18 +1,18 @@
 /*
  * Concrete Jacobian class
  */
-#ifndef _JACOBIAN1_HPP_
-#define _JACOBIAN1_HPP_
+#ifndef _ODEWITHJACOBIAN1_HPP_
+#define _ODEWITHJACOBIAN1_HPP_
 #include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ReplicatableVector.hpp"
 #include "PetscException.hpp"
 
-class Jacobian1 : public AbstractOdeSystemWithAnalyticJacobian
+class OdeWithJacobian1 : public AbstractOdeSystemWithAnalyticJacobian
 {
 public :
 
-    Jacobian1()
+    OdeWithJacobian1()
             : AbstractOdeSystemWithAnalyticJacobian(1) // 1 here is the number of variables
     {
         mInitialConditions.push_back(0.0);
@@ -31,4 +31,4 @@ public :
 };
 
 
-#endif //_JACOBIAN1_HPP_
+#endif //_ODEWITHJACOBIAN1_HPP_
