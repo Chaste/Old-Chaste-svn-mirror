@@ -88,8 +88,10 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
     	 		mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
     	 		if (mProteinConcentrations[i]<0)
     	 		{
+                    #define COVERAGE_IGNORE
     	 			std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
     	 			EXCEPTION("A protein concentration has gone negative\nCHASTE predicts that the TysonNovakCellCycleModel numerical method is probably unstable.");
+                    #undef COVERAGE_IGNORE
     	 		}
     	 	}
     	 	

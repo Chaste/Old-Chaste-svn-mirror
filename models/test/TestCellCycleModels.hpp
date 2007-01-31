@@ -140,11 +140,24 @@ public:
     
     void TestTysonNovakCellCycleModel(void) throw(Exception)
     {
-        //CancerParameters *p_params = CancerParameters::Instance();
+        TS_ASSERT_THROWS_ANYTHING(TysonNovakCellCycleModel bad_cell_model);
+
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        int num_timesteps = 100;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(160, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+
+        // cover another exception: create a cell model, delete the time, then
+        // try to create another cell model
+        std::vector<double> some_proteins(1); // not used except in next line
+        TysonNovakCellCycleModel cell_model_1;
+        SimulationTime::Destroy();
+        TS_ASSERT_THROWS_ANYTHING(TysonNovakCellCycleModel* p_another_cell_model = static_cast<TysonNovakCellCycleModel*>(cell_model_1.CreateCellCycleModel());delete p_another_cell_model;)
+        
+        //CancerParameters *p_params = CancerParameters::Instance();
+        p_simulation_time = SimulationTime::Instance();
         
         double standard_divide_time = 75.19;
-        int num_timesteps = 100;
+        
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(160, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
         TysonNovakCellCycleModel cell_model;
         
@@ -213,6 +226,9 @@ public:
         TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5],0.95328206604519, 1e-2);
         
+        //coverage
+        cell_model.SetBirthTime(1.0);
+
         delete p_cell_model2;
         SimulationTime::Destroy();
     }
