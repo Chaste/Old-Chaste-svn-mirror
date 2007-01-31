@@ -110,15 +110,26 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 			
 			
 		    double meshSize = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
-			OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
+			
+//            for (unsigned i=0 ; i<8 ; i++)
+//            
+//                std::cout << "Before Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+//            }
+//            std::cout.flush();
+            OdeSolution solution = mSolver.Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, meshSize, meshSize);
+//            std::cout << "After Solve\n";
+//            std::cout.flush();
 		
 		 	unsigned timeRows = solution.GetNumberOfTimeSteps();
+//            std::cout << "last time = "<<mLastTime<<"current time = "<<current_time<<"Number time steps = "<<timeRows<<"\n";
+//            std::cout.flush();
 		 	
 		 	for (unsigned i=0 ; i<8 ; i++)
 		 	{
 		 		mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
-		 		//std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
-		 		if (mProteinConcentrations[i]<0)
+		 		std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+		 		std::cout.flush();
+                if (mProteinConcentrations[i]<0)
 		 		{
                     #define COVERAGE_IGNORE
 		 			std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
@@ -126,6 +137,11 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
                     #undef COVERAGE_IGNORE
 		 		}
 		 	}
+//            for (unsigned i=0 ; i<8 ; i++)
+//            {
+//                std::cout << "After Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+//            }
+//            std::cout.flush();
 						
 			//std::cout << "Beta-Catenin = " << mProteinConcentrations[6] << "\n";
 			if(mSolver.StoppingEventOccured())
@@ -137,16 +153,24 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 		 		//std::cout << " Divide time = " << mDivideTime << "\n" << std::endl;
 		 		mInSG2MPhase = true;
 		 	}
+//            std::cout << "After Stop check\n";
+//            std::cout.flush();
 		}
 		else
 		{	// WE ARE IN S-G2-M Phases, ODE model finished, just increasing time until division...
-			if(current_time >= mDivideTime)
+//	        std::cout << "In branch\n";
+//            std::cout.flush();
+    		if(current_time >= mDivideTime)
 			{
 				mReadyToDivide = true;
 			}
 		}
 		mLastTime = current_time;
+//    std::cout << "mLastTime updated to "<< mLastTime<<"\n";
+//    std::cout.flush();
 	}
+//    std::cout << "Returning\n";
+//    std::cout.flush();
     return mReadyToDivide;
 }
   
