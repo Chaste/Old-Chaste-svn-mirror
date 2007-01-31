@@ -1202,7 +1202,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     {
         binary_name="tetgen";
     }
-    std::string command   = "./bin/"+ binary_name +" -e " + full_name + "node";
+    std::string command   = "./bin/"+ binary_name +" -e " 
+        + full_name + "node"
+        + " > /dev/null";
     system(command.c_str());
     
     //Read the new mesh back from file
@@ -1355,11 +1357,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     
     
     std::string convert_command   = "./bin/mesh2nodal "+handler.GetTestOutputDirectory("")
-                            + "metis.mesh";
+                            + "metis.mesh" 
+                            + " > /dev/null";
     system(convert_command.c_str());
     
     std::string permute_command   = "./bin/onmetis "+handler.GetTestOutputDirectory("")
-                            + "metis.mesh.ngraph";
+                            + "metis.mesh.ngraph"
+                            + " > /dev/null";
     system(permute_command.c_str());
     
     //Read the permutation back into a std::vector

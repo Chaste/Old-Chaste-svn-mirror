@@ -1320,8 +1320,8 @@ public:
     }
     
     /**
-     * This function detects when a remesh has caused an internal cell to 
-     * join one of the periodic boundaries. It figures out where an image cell
+     * This function detects when a remesh has caused a cell to 
+     * join or leave one of the periodic boundaries. It figures out where an image cell
      * will have to be placed to match it on the other side, and which two
      * periodic nodes have been upset.
      */   
@@ -1349,13 +1349,13 @@ public:
 	        bool our_node_periodic = false;
 	        
 	        std::vector <unsigned > periodic;
-	        periodic.reserve(10);
 	        
 	        for (unsigned j = 0 ; j<nodes_on_left_boundary.size() ; j++)
 	        {
 	        	if(our_node == nodes_on_left_boundary[j] || our_node == nodes_on_right_boundary[j])
 	        	{
 	        		our_node_periodic = true;
+                    break;
 	        	}
 	        }
 	        
@@ -1414,16 +1414,24 @@ public:
 			
 				// Check we have actually broken into an edge that is periodic and 
 				// just sensed it from the top edge i.e. the two periodic neighbours are different.
-				if(periodic[0] == periodic[1])
-				{
-                    #define COVERAGE_IGNORE
-					number_of_left_periodic_neighbours=1;
-					number_of_right_periodic_neighbours=1;
-                    #undef COVERAGE_IGNORE
-				}
-				
-		        
-		        if(number_of_left_periodic_neighbours==2)
+				if(periodic.size()>2)
+                {
+                    EXCEPTION("Gary says this should not happen");   
+                }
+                if(periodic.size()==2)
+                {
+                    if(periodic[0] == periodic[1])
+    				{
+						#define COVERAGE_IGNORE
+    					number_of_left_periodic_neighbours=1;
+    					number_of_right_periodic_neighbours=1;
+						#undef COVERAGE_IGNORE
+    				}
+                }
+                
+		        //If there are no periodic neighbours then we are at the bottom/top edge
+                //If there is one perioic neighbour then we are at the corner?
+                if(number_of_left_periodic_neighbours==2)
 		        {
                     #define COVERAGE_IGNORE
 		        	// We should have a new periodic node
