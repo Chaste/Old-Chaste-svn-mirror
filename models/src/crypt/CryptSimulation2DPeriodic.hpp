@@ -378,8 +378,8 @@ public:
 			    	double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
 			    	cell_cycle_influences.push_back(wnt_stimulus);
 		        }
-				temp = mCells[i].ReadyToDivide(cell_cycle_influences);		
-	        }
+                temp = mCells[i].ReadyToDivide(cell_cycle_influences);		
+            }
 	    }
 	    
         /////////////////////////////////////////////////////////////////////
@@ -441,7 +441,6 @@ public:
 		                    cell_cycle_influences.push_back(wnt_stimulus);
 	                    }
 	                    
-
 						//std::cout << "On cell "<< i << std::endl;
 						if(mCells[i].ReadyToDivide(cell_cycle_influences))
 	                    {
