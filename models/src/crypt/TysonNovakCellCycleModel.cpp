@@ -77,9 +77,9 @@ bool TysonNovakCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
     {   
         if(current_time>mLastTime)
         {
-        	double mesh_size = 0.1;
+        	double dt = 0.1/60.0;
             
-    		OdeSolution solution = mpSolver->Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, mesh_size, mesh_size);
+    		OdeSolution solution = mpSolver->Solve(&mOdeSystem, mProteinConcentrations, mLastTime, current_time, dt, dt);
     	    
             unsigned timeRows = solution.GetNumberOfTimeSteps();
     	 	

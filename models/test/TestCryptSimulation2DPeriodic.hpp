@@ -563,7 +563,7 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         // Any old rubbish here just so the simulation time is set up to set up cell cycle models
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1000);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 100);
         
      // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
@@ -575,42 +575,41 @@ public:
             unsigned generation;
             double birth_time;
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            double typical_wnt_cycle = 16.0;
+            double typical_Tyson_Novak_cycle = 1.25;
             if (y <= 0.3)
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
             }
             else if (y < 4)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
             }
             else
              {  // There are no fully differentiated cells in a Wnt simulation!
                 cell_type = TRANSIT;
                 generation = 4;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
             }
-            
             //double wnt = 1.0 - y/p_params->GetCryptLength();
             MeinekeCryptCell cell(cell_type, generation, new TysonNovakCellCycleModel());
             cell.SetNodeIndex(i);
-            cell.SetBirthTime(0.0);
+            cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         std::cout << "Cells Ready." << std::endl;
@@ -631,8 +630,8 @@ public:
         simulator.SetGhostNodes(ghost_node_indices);
                 
         SimulationTime::Destroy();
-        
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.SetDt(0.001);
+        simulator.Solve();
         //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
     }
         

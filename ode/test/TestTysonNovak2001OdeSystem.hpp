@@ -36,12 +36,13 @@ public:
         tyson_novak_system.EvaluateYDerivatives(time, initial_conditions, derivs);
         
         // Test derivatives are correct
-        TS_ASSERT_DELTA(derivs[0],-4.400000000000000e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-6.047872340425530e+00, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],3.361442884485838e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[3],4.016602000735009e-02, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],8.400000000000001e-03, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03, 1e-5);
+        // Divided by 60 to change to hours
+        TS_ASSERT_DELTA(derivs[0],-4.400000000000000e-02*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[1],-6.047872340425530e+00*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[2],3.361442884485838e-02*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[3],4.016602000735009e-02*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[4],8.400000000000001e-03*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03*60.0, 1e-5);
     }
     
     void testTysonNovakSolver() throw(Exception)
@@ -50,7 +51,7 @@ public:
         // Solve system using backward Euler solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
-        double h_value=0.1;
+        double dt=0.1/60.0;
 
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(6);
@@ -64,7 +65,7 @@ public:
         state_variables = tyson_novak_system.GetInitialConditions();
         
         start_time = std::clock();
-        solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
+        solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350/60.0, dt, dt);
         end_time = std::clock();
         //solutions2 = rk4_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
         //TS_ASSERT_EQUALS(solutions.GetNumberOfTimeSteps(), 10);
@@ -72,7 +73,7 @@ public:
         std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
         
         
-        // If you run it up to about 75 the ode will stop, anything less and it will not and this test will fail
+        // If you run it up to about 75min  the ode will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
       
         

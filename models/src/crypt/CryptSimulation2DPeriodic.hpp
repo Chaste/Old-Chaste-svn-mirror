@@ -258,7 +258,6 @@ public:
         {
             EXCEPTION("OutputDirectory not set");
         }
-        
         ///////////////////////////////////////////////////////////
         // Set up Column Data Writer 
         ///////////////////////////////////////////////////////////
@@ -1414,10 +1413,10 @@ public:
 			
 				// Check we have actually broken into an edge that is periodic and 
 				// just sensed it from the top edge i.e. the two periodic neighbours are different.
-				if(periodic.size()>2)
-                {
-                    EXCEPTION("Gary says this should not happen");   
-                }
+//				if(periodic.size()>2)
+//                {
+//                    EXCEPTION("Gary says this should not happen");   
+//                }
                 if(periodic.size()==2)
                 {
                     if(periodic[0] == periodic[1])

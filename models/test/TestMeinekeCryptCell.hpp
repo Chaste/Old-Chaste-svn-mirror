@@ -722,7 +722,7 @@ public:
     void TestWithTysonNovakCellCycleModel() throw(Exception)
     {
         
-        double standard_tyson_duration = 75.19;
+        double standard_tyson_duration = 75.19/60.0;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         
@@ -730,7 +730,7 @@ public:
         //double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0, num_steps+1);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
         
         MeinekeCryptCell tn_cell(TRANSIT, // type
                                    1,    // generation

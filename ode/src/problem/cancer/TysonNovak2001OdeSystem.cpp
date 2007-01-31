@@ -158,19 +158,21 @@ void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vecto
     dx5 = mK9*x6*x1*(1.0-x5) - mK10*x5;
     
     dx6 = mMu*x6*(1.0-x6/mMstar);
-    
-    rDY[0] = dx1;
-    rDY[1] = dx2;
-    rDY[2] = dx3;
-    rDY[3] = dx4;
-    rDY[4] = dx5;
-    rDY[5] = dx6;
+    // multiplying by 60 beacuase the paper has time in minutes wheras we have hours.
+    rDY[0] = dx1*60.0;
+    rDY[1] = dx2*60.0;
+    rDY[2] = dx3*60.0;
+    rDY[3] = dx4*60.0;
+    rDY[4] = dx5*60.0;
+    rDY[5] = dx6*60.0;
 }
 
 
 
 void TysonNovak2001OdeSystem::AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) 
 {
+    
+    timeStep *=60.0; // to scale Jacobian so in hours not minutes
     double x1 = solutionGuess[0];
     double x2 = solutionGuess[1];
     double x3 = solutionGuess[2];
@@ -231,6 +233,9 @@ void TysonNovak2001OdeSystem::AnalyticJacobian(std::vector<double> &solutionGues
     double df6_dx6 = mMu - 2*mMu*x6/mMstar; 
     
     jacobian[5][5] = 1-timeStep*df6_dx6;
+    
+    
+      
 }
 
 

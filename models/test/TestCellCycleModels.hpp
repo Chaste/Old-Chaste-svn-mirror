@@ -144,7 +144,7 @@ public:
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(160, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
 
         // cover another exception: create a cell model, delete the time, then
         // try to create another cell model
@@ -156,9 +156,9 @@ public:
         //CancerParameters *p_params = CancerParameters::Instance();
         p_simulation_time = SimulationTime::Instance();
         
-        double standard_divide_time = 75.19;
+        double standard_divide_time = 75.19/60.0;
         
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(160, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
         TysonNovakCellCycleModel cell_model;
         
                 
