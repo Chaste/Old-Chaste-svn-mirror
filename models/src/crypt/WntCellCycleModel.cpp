@@ -121,14 +121,24 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 //            std::cout.flush();
 		
 		 	unsigned timeRows = solution.GetNumberOfTimeSteps();
+		 	if ( mSolver.StoppingEventOccured() == false )
+		 	{
+		 		//Check ODE solver for consistency
+		 		double last_time=solution.rGetTimes()[timeRows];
+		 		assert (last_time == current_time);
+		 	}
+		 	
+		 	//std::cout<<"Stopping event = "<<mSolver.StoppingEventOccured()<<"\n";
+		 	//std::cout<<"\n"<<last_time<<" == "<<current_time<<"\n";
+		 	//
 //            std::cout << "last time = "<<mLastTime<<"current time = "<<current_time<<"Number time steps = "<<timeRows<<"\n";
 //            std::cout.flush();
 		 	
 		 	for (unsigned i=0 ; i<8 ; i++)
 		 	{
 		 		mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
-		 		std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
-		 		std::cout.flush();
+//		 		std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
+//		 		std::cout.flush();
                 if (mProteinConcentrations[i]<0)
 		 		{
                     #define COVERAGE_IGNORE
