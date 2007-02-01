@@ -8,6 +8,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
 	{
+        delete mpSolver;
 		EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
 	}
     mLastTime = mpSimulationTime->GetDimensionalisedTime();
@@ -30,6 +31,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
     {
+        delete mpSolver;
         EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
     }
     mLastTime = divideTime;

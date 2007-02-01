@@ -21,6 +21,8 @@ public:
                          AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractBackwardEulerCardiacCell<12>(22, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
     {
+        // Note that this cell model considers time to be measured in seconds,
+        // not milliseconds.
         mVariableNames.push_back("V");
         mVariableUnits.push_back("millivolt");
         mInitialConditions.push_back(-92.849333);

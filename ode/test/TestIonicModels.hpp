@@ -393,6 +393,10 @@ public:
 //        double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
         CheckCellModelResults("N98BackwardEuler");
+        
+        // Check GetIIonic
+        double i_ion = n98_backward_euler.GetIIonic();
+        TS_ASSERT_DELTA(i_ion, 0.0228, 0.0001);
 
 //        // Try with smaller timestep.
 //        CML_noble_model_1998 n98_backward_euler2(time_step/2, &stimulus);
