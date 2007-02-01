@@ -1,3 +1,5 @@
+TestDecimation.hpp
+TestLiveDecimation.hpp
 TestConformingTetrahedralMesh.hpp
 TestFemlabMeshReader.hpp
 TestMemfemMeshReader.hpp
