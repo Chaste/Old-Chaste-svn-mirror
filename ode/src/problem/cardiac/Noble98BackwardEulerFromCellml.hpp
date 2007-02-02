@@ -1,5 +1,5 @@
-#ifndef _CML_noble_model_1998_
-#define _CML_noble_model_1998_
+#ifndef _CML_noble_model_1998_BE_
+#define _CML_noble_model_1998_BE_
 
 // Model: noble_model_1998
 // Processed by pycml - CellML Tools in Python
@@ -13,10 +13,10 @@
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
 
-class CML_noble_model_1998 : public AbstractBackwardEulerCardiacCell<12>
+class CML_noble_model_1998_BE : public AbstractBackwardEulerCardiacCell<12>
 {
 public:
-    CML_noble_model_1998(double dt,
+    CML_noble_model_1998_BE(double dt,
                          AbstractStimulusFunction *pIntracellularStimulus,
                          AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractBackwardEulerCardiacCell<12>(22, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
@@ -115,7 +115,7 @@ public:
 
     }
 
-    ~CML_noble_model_1998(void)
+    ~CML_noble_model_1998_BE(void)
     {
     }
 

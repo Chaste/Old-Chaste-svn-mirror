@@ -29,7 +29,8 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "Noble98FromCellml.hpp"
+#include "Noble98ForwardEulerFromCellml.hpp"
+#include "Noble98BackwardEulerFromCellml.hpp"
 
 
 class TestIonicModels : public CxxTest::TestSuite
@@ -161,7 +162,7 @@ public:
             }
             
             // Set tolerance higher in upstroke
-            if (fabs(voltages2[i] - last_v) > 0.1)
+            if (fabs(voltages2[i] - last_v) > 0.05)
             {
                 tol = tolerance * 25;
             }
@@ -370,7 +371,7 @@ public:
     
     void testNoble98WithDelayedInitialStimulus(void) throw (Exception)
     {
-//        clock_t ck_start, ck_end;
+        clock_t ck_start, ck_end;
         // Set stimulus
         double magnitude = -3;    // nA
         double duration  = 2.0/1000;   // s
@@ -380,26 +381,38 @@ public:
         double end_time = 0.2;   // seconds
         double time_step = 2e-6; // seconds
         
+        // Solve using forward euler.
+        EulerIvpOdeSolver solver;
+        CML_noble_model_1998 n98_forward_euler(&solver, time_step, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&n98_forward_euler,
+                                   end_time,
+                                   "N98ForwardEuler", 300, false);
+        ck_end = clock();
+        double forward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
         // Solve using backward euler.
         // I think a small timestep is needed because of the forward Euler step for V,
         // which means the numerical method isn't stable for large dt.
         // This is annoying.
-        CML_noble_model_1998 n98_backward_euler(time_step, &stimulus);
-//        ck_start = clock();
+        CML_noble_model_1998_BE n98_backward_euler(time_step, &stimulus);
+        ck_start = clock();
         RunOdeSolverWithIonicModel(&n98_backward_euler,
                                    end_time,
                                    "N98BackwardEuler", 300, false);
-//        ck_end = clock();
-//        double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        ck_end = clock();
+        double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
         CheckCellModelResults("N98BackwardEuler");
+        CompareCellModelResults("N98ForwardEuler", "N98BackwardEuler", 0.015);
         
         // Check GetIIonic
         double i_ion = n98_backward_euler.GetIIonic();
         TS_ASSERT_DELTA(i_ion, 0.0228, 0.0001);
+        TS_ASSERT_DELTA(i_ion, n98_forward_euler.GetIIonic(), 0.0001);
 
 //        // Try with smaller timestep.
-//        CML_noble_model_1998 n98_backward_euler2(time_step/2, &stimulus);
+//        CML_noble_model_1998_BE n98_backward_euler2(time_step/2, &stimulus);
 //        ck_start = clock();
 //        RunOdeSolverWithIonicModel(&n98_backward_euler2,
 //                                   end_time,
@@ -408,8 +421,10 @@ public:
 //        double backward2 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 //        CompareCellModelResults("N98BackwardEuler", "N98BackwardEuler2", 0.015);
 //        
-//        std::cout << "Run times:\n\tBackward: "
-//            << backward1 << "\n\tBackward (short dt): " << backward2 << std::endl;
+        std::cout << "Run times:\n\tForward: " << forward1
+            << "\n\tBackward: " << backward1
+//            << "\n\tBackward (half dt): " << backward2
+            << std::endl;
     }
 };
 
