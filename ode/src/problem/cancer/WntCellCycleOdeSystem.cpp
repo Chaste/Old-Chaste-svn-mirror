@@ -111,8 +111,11 @@ void WntCellCycleOdeSystem::Init()
 	double a4 = 10.0;
 	double a5 = 0.5;
 	double WntMax = 10.0;
-	double mitogenic_factorF = 5.0e-4;
-	double APC_Total = 0.02;
+	
+    //Gary's parameter to break the build... double mitogenic_factorF = 5.0e-4;
+    double mitogenic_factorF = 6.0e-4;
+    //\todo change this without breaking the build
+    double APC_Total = 0.02;
 
 //  Non-dimensionalise...
 	mk2d = k2/(Km2*phi_E2F1);

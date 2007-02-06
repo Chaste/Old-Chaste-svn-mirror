@@ -917,7 +917,7 @@ public:
 	            	mrMesh.SetNode(LeftNodeIndex, left_point, false);
 	            	// Also force them to be the same cell
 	            	// needed to synchronise cell cycle models...
-	            	mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+	            	//\todo mCells[RightNodeIndex]=mCells[LeftNodeIndex];
 	            }
             }
             //std::cout << "***************************************************\n";
@@ -1048,16 +1048,17 @@ public:
 	            			
 	            			CryptCellType cell_type=TRANSIT;
 	            			
-//	            			// For mitogenic stimulus of 6x10^-4 in Wnt equations
-//            				if(betaCateninLevel < 0.4127)
-//            				{
-//								cell_type = DIFFERENTIATED;
-//            				}
-	            			// For mitogenic stimulus of 5x10^-4 in Wnt equations
-            				if(betaCateninLevel < 0.4954)
+	            			// For mitogenic stimulus of 6x10^-4 in Wnt equations
+            				if(betaCateninLevel < 0.4127)
             				{
 								cell_type = DIFFERENTIATED;
             				}
+	            			// For mitogenic stimulus of 5x10^-4 in Wnt equations
+//       //\todo get parameter right without breaking the build
+//     				if(betaCateninLevel < 0.4954)
+//            				{
+//								cell_type = DIFFERENTIATED;
+//            				}
 
             				
 	           				mCells[i].SetCellType(cell_type);
