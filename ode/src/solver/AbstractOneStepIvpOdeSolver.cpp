@@ -56,7 +56,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     // setup solutions if output is required
     
     OdeSolution solutions;
-    
+    //Set number of time steps will be duplicated below
     solutions.SetNumberOfTimeSteps(number_of_time_samples);
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
@@ -91,7 +91,6 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         {
             current_time = mStoppingTime;
             endTime = current_time;
-            solutions.SetNumberOfTimeSteps(time_step_number);
         }
         
         // write current solution into solutions
@@ -100,6 +99,10 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         solutions.rGetTimes().push_back(current_time);
     }
     
+    //This line is here because the above first "reservation" time loop
+    //may have different behaviour under optimisation than the second
+    //"calculation" time loop.
+    solutions.SetNumberOfTimeSteps(time_step_number);
     return solutions;
 }
 
