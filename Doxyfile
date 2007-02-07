@@ -82,6 +82,7 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  =    coupled/src \
+							dealii/src \
 							global/src \
 							io/src \
 							linalg/src \
