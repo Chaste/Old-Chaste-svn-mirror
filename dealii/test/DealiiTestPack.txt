@@ -1,1 +1,3 @@
 TestDealii.hpp
+TestFiniteElasticityAssembler.hpp
+TestMaterialLaws.hpp

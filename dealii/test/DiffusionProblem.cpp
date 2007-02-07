@@ -227,15 +227,15 @@ void DiffusionProblem::Solve()
   
 void DiffusionProblem::OutputResults(int timeStepCounter) const
 {
-    DataOut<2> data_out;
-    data_out.attach_dof_handler(mDofHandler);
-    std::stringstream filename;
-    filename << "solution_" << timeStepCounter << ".gpl";
-    data_out.add_data_vector(mSolution, "solution");
-    data_out.build_patches();
-
-    std::ofstream output(filename.str().c_str());
-    data_out.write_gnuplot(output);
+//    DataOut<2> data_out;
+//    data_out.attach_dof_handler(mDofHandler);
+//    std::stringstream filename;
+//    filename << "solution_" << timeStepCounter << ".gpl";
+//    data_out.add_data_vector(mSolution, "solution");
+//    data_out.build_patches();
+//
+//    std::ofstream output(filename.str().c_str());
+//    data_out.write_gnuplot(output);
 }
   
   
