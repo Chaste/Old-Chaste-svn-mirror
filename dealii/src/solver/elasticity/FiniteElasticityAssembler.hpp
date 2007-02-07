@@ -63,7 +63,7 @@
 #include "OutputFileHandler.hpp"
 
 template<int DIM>
-class FiniteElasticity
+class FiniteElasticityAssembler
 {
 private:
     Triangulation<DIM>*   mpMesh;
@@ -110,16 +110,20 @@ private:
     
 
 public:
-    FiniteElasticity(Triangulation<DIM>* pMesh,
-                     AbstractIncompressibleMaterialLaw<DIM>*  pMaterialLaw,
-                     Vector<double> bodyForce,
-                     double density,
-                     std::string outputDirectory,
-                     unsigned orderOfBasesForPosition=2,
-                     unsigned orderOfBasesForPressure=1);
-    ~FiniteElasticity();
+    FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
+                              AbstractIncompressibleMaterialLaw<DIM>*  pMaterialLaw,
+                              Vector<double> bodyForce,
+                              double density,
+                              std::string outputDirectory,
+                              unsigned orderOfBasesForPosition=2,
+                              unsigned orderOfBasesForPressure=1);
+    ~FiniteElasticityAssembler();
     
     void Solve();
+    
+    Vector<double>& GetSolutionVector();
+    DoFHandler<DIM>& GetDofHandler();
+    
 };
 
 

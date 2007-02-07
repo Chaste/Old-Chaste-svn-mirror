@@ -6,13 +6,14 @@
 
 
 template<int DIM>
-FiniteElasticity<DIM>::FiniteElasticity(Triangulation<DIM>* pMesh,
-                                        AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                        Vector<double> bodyForce,
-                                        double density,
-                                        std::string outputDirectory,
-                                        unsigned orderOfBasesForPosition,
-                                        unsigned orderOfBasesForPressure)  :
+FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
+                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                          Vector<double> bodyForce,
+                                                          double density,
+                                                          std::string outputDirectory,
+                                                          unsigned orderOfBasesForPosition,
+                                                          unsigned orderOfBasesForPressure
+                                                          )  :
             // DIM bases for position, 1 for pressure
             mFeSystem(FE_Q<DIM>(orderOfBasesForPosition), DIM, FE_Q<DIM>(1), orderOfBasesForPressure),
             mDofHandler(*pMesh),                            // associate the mesh with the dof handler
@@ -102,7 +103,7 @@ FiniteElasticity<DIM>::FiniteElasticity(Triangulation<DIM>* pMesh,
 }
 
 template<int DIM>
-FiniteElasticity<DIM>::~FiniteElasticity()
+FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
 {
 }
 
@@ -111,12 +112,12 @@ FiniteElasticity<DIM>::~FiniteElasticity()
 // AssembleOnElement
 //////////////////////////////////////////////////////////////////////////////////////////
 template<int DIM>
-void FiniteElasticity<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
-                                              Vector<double>&                        elementRhs,
-                                              FullMatrix<double>&                    elementMatrix,
-                                              bool                                   assembleResidual,
-                                              bool                                   assembleJacobian
-                                              )
+void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
+                                                       Vector<double>&       elementRhs,
+                                                       FullMatrix<double>&   elementMatrix,
+                                                       bool                  assembleResidual,
+                                                       bool                  assembleJacobian
+                                                       )
 {
     static QGauss<DIM>   quadrature_formula(3);
     static QGauss<DIM-1> face_quadrature_formula(3);
@@ -352,7 +353,8 @@ void FiniteElasticity<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_c
 // AssembleSystem
 //////////////////////////////////////////////////////////////////////////////////////////
 template<int DIM>
-void FiniteElasticity<DIM>::AssembleSystem(bool assembleResidual, bool assembleJacobian)
+void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, 
+                                                    bool assembleJacobian)
 {
     const unsigned       dofs_per_element = mFeSystem.dofs_per_cell;
   
@@ -423,7 +425,7 @@ void FiniteElasticity<DIM>::AssembleSystem(bool assembleResidual, bool assembleJ
 
 
 template<int DIM>
-void FiniteElasticity<DIM>::ApplyDirichletBoundaryConditions()
+void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions()
 {
     std::map<unsigned,double> boundary_values;
     std::vector<bool> component_mask(DIM+1);
@@ -448,7 +450,7 @@ void FiniteElasticity<DIM>::ApplyDirichletBoundaryConditions()
 
 
 template<int DIM>
-void FiniteElasticity<DIM>::OutputResults(int newtonIteration)
+void FiniteElasticityAssembler<DIM>::OutputResults(int newtonIteration)
 {
     std::stringstream ss;
     ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << newtonIteration << ".gmv";
@@ -480,29 +482,8 @@ void FiniteElasticity<DIM>::OutputResults(int newtonIteration)
 
 
 template<int DIM>
-void FiniteElasticity<DIM>::Solve()
+void FiniteElasticityAssembler<DIM>::Solve()
 {
-    std::vector<bool> vertex_touched(mpMesh->n_vertices(),false);
-
-    typename DoFHandler<DIM>::active_cell_iterator cell = mDofHandler.begin_active();
-    while(cell != mDofHandler.end())
-    {
-        for (unsigned int v=0; v<GeometryInfo<DIM>::vertices_per_cell; v++)
-        {
-            if(vertex_touched[cell->vertex_index(v)] == false)
-            {
-                vertex_touched[cell->vertex_index(v)] = true;
-                
-//                Point<dim> vertex_displacement;
-//                for (unsigned int d=0; d<dim; ++d)
-//                    vertex_displacement[d]
-//                    = incremental_displacement(cell->vertex_dof_index(v,d));
-//              
-//                cell->vertex(v) += vertex_displacement;
-            }
-        }
-        cell++;
-    }
     
     
     OutputResults(0);
@@ -598,13 +579,64 @@ void FiniteElasticity<DIM>::Solve()
     {
         EXCEPTION("Failed to converge");
     }
+
+
+
+//    std::cout << "Node    X    Y    x    y\n";
+//
+//    std::vector<bool> vertex_touched(mpMesh->n_vertices(),false);
+//
+//    typename DoFHandler<DIM>::active_cell_iterator cell = mDofHandler.begin_active();
+//    while(cell != mDofHandler.end())
+//    {
+//        for (unsigned int v=0; v<GeometryInfo<DIM>::vertices_per_cell; v++)
+//        {
+//            if(vertex_touched[cell->vertex_index(v)] == false)
+//            {
+//                vertex_touched[cell->vertex_index(v)] = true;
+//
+//                std::cout << cell->vertex_index(v) << "  "
+//                          << cell->vertex(v)(0) << "   "  
+//                          << cell->vertex(v)(1) << "   ";  
+//
+//                unsigned dof = cell->vertex_dof_index(v,0);
+//                std::cout << mCurrentSolution(dof) << "   ";
+//                                
+//                dof = cell->vertex_dof_index(v,1);
+//                std::cout << mCurrentSolution(dof) << "\n";
+//            }
+//        }
+//        cell++;
+//    }
+
+
+
+
+
+
+
+
 }
 
 
 template<int DIM>
-double FiniteElasticity<DIM>::CalculateResidualNorm()
+double FiniteElasticityAssembler<DIM>::CalculateResidualNorm()
 {
     return mResidual.norm_sqr()/mDofHandler.n_dofs();
+}
+
+
+template<int DIM>
+Vector<double>& FiniteElasticityAssembler<DIM>::GetSolutionVector()
+{
+    return mCurrentSolution;
+}
+
+
+template<int DIM>
+DoFHandler<DIM>& FiniteElasticityAssembler<DIM>::GetDofHandler()
+{
+    return mDofHandler;
 }
 
 
