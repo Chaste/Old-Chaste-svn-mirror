@@ -9,6 +9,7 @@ TestElement.hpp
 TestNode.hpp
 TestPoint.hpp
 TestPointInclusion.hpp
+TestRefinedTetrahedralMesh.hpp
 TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRefineElement.hpp
