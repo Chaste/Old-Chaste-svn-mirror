@@ -67,7 +67,7 @@ public:
 
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(2);
+        mesh.refine_global(1);
 
         FiniteElasticityAssembler<3> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law,

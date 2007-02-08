@@ -27,7 +27,8 @@ protected :
 
 public :
     /**
-     *  Compute the stress T and the stress derivative dT/dE for a given strain.
+     *  Compute the (2nd Piola Kirchoff) stress T and the stress derivative dT/dE 
+     *  for a given strain.
      *  
      *  NOTE: the strain E is not expected to be passed in, instead the Lagrangian
      *  deformation tensor C is required (recall, E = 0.5(C-I)
@@ -46,12 +47,12 @@ public :
      *  This is the implemtation for an isotropic material law, so the stress etc is
      *  computed by calling methods returning dW/dI1, dW/dI2 etc.
      */  
-    void GetStressAndStressDerivative(Tensor<2,DIM>           C, 
-                                      Tensor<2,DIM>           invC,
-                                      double                  pressure,
-                                      SymmetricTensor<2,DIM>& T,
-                                      double                  dTdE[DIM][DIM][DIM][DIM],
-                                      bool                    computeDTdE)
+    void ComputeStressAndStressDerivative(Tensor<2,DIM>&          C, 
+                                          Tensor<2,DIM>&          invC,
+                                          double                  pressure,
+                                          SymmetricTensor<2,DIM>& T,
+                                          double                  dTdE[DIM][DIM][DIM][DIM],
+                                          bool                    computeDTdE)
     {
         assert((DIM==2) || (DIM==3)); 
         

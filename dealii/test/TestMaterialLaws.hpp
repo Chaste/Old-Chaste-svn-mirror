@@ -38,16 +38,18 @@ public:
         TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI2(1.0,0.0), 0.0, 1e-12);
         TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1I2(1.0,0.0), 0.0, 1e-12);
         
-        Tensor<2,3> C;
-        C[0][0] = 3.0;
-        C[0][1] = 1.0;
-        C[1][0] = 1.0;
-        C[0][2] = 2.0;
-        C[2][0] = 2.0;
-        C[1][1] = 6.0;
-        C[1][2] = -1.0;
-        C[2][1] = -1.0;
-        C[2][2] = 0.5;
+        Tensor<2,3> F;
+        F[0][0] = 3.0;
+        F[0][1] = 1.0;
+        F[1][0] = -1.0;
+        F[0][2] = 2.0;
+        F[2][0] = 1.0;
+        F[1][1] = 6.0;
+        F[1][2] = -1.0;
+        F[2][1] = 1.5;
+        F[2][2] = 0.5;
+        
+        Tensor<2,3> C = transpose(F)*F;
         
         double I1 = C[0][0]+C[1][1]+C[2][2];
         
@@ -56,10 +58,42 @@ public:
         double pressure = 5.0;
         
         SymmetricTensor<2,3> T;
+        SymmetricTensor<2,3> T2;
+        Tensor<2,3> S;
+        Tensor<2,3> sigma;
+
         double dTdE[3][3][3][3];
         
-        ml_law_3d.GetStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
+        ml_law_3d.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
+        ml_law_3d.Compute1stPiolaKirchoffStress(F,pressure,S);
+        ml_law_3d.Compute2ndPiolaKirchoffStress(C,pressure,T2);
+        ml_law_3d.ComputeCauchyStress(F,pressure,sigma);
         
+        // can't seem to do F*T where T is a SymmetricTensor<2,3>. Copy to
+        // a Tensor<2,3>
+        Tensor<2,3> T_as_unsym_tensor(T);
+        Tensor<2,3> F_T_tranF_over_detF = (1.0/determinant(F))*F*T_as_unsym_tensor*transpose(F);
+        Tensor<2,3> T_transposeF = T_as_unsym_tensor*transpose(F); 
+
+
+        // check sigma is correct - sigma should be (1/detF) F * T * trans(F)
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(sigma[i][j], F_T_tranF_over_detF[i][j], 1e-12);
+            }
+        }
+
+        // check S is correct
+        for(unsigned M=0; M<3; M++)
+        {
+            for(unsigned i=0; i<3; i++)
+            {
+                TS_ASSERT_DELTA(S[M][i], T_transposeF[M][i], 1e-12);
+            }
+        }
+
         for(unsigned M=0; M<3; M++)
         {
             for(unsigned N=0; N<3; N++)
@@ -67,7 +101,11 @@ public:
                 // check we gave a symmetric C
                 assert(C[M][N]==C[N][M]);
                 
+                // check the stress
                 TS_ASSERT_DELTA(T[M][N], (2*c1+2*c2*I1)*(M==N) - 2*c2*C[M][N] - pressure*invC[M][N], 1e-12);
+                
+                // check alternative computation of the stress
+                TS_ASSERT_DELTA(T[M][N], T2[M][N], 1e-12);
 
                 for(unsigned P=0;P<3;P++)
                 {
@@ -153,7 +191,7 @@ public:
     // Test the Polynomial Material Law with a quadratic law
     //   W = c20 (I1-3)^2  +  c11 (I1-3)(I2-3)  +  c02 (I2-3)^2   -   p C^{-1}/2
     // 
-    // We test GetStressAndStressDerivative() with this law because it uses all the
+    // We test ComputeStressAndStressDerivative() with this law because it uses all the
     // bits in that method. 
     void testQuadraticPolynomialLaw()
     {
@@ -214,7 +252,7 @@ public:
         SymmetricTensor<2,3> T;
         double dTdE[3][3][3][3];
 
-        poly_law.GetStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
+        poly_law.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
         
         for(unsigned M=0; M<3; M++)
         {

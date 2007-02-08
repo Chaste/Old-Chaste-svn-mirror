@@ -204,7 +204,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         double detF = determinant(F);
 
         static SymmetricTensor<2,DIM> T2;
-        mpMaterialLaw->GetStressAndStressDerivative(C,inv_C,p,T,dTdE,assembleJacobian);
+        mpMaterialLaw->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,assembleJacobian);
 
         for(unsigned i=0; i<dofs_per_element; i++)
         {
@@ -484,8 +484,6 @@ void FiniteElasticityAssembler<DIM>::OutputResults(int newtonIteration)
 template<int DIM>
 void FiniteElasticityAssembler<DIM>::Solve()
 {
-    
-    
     OutputResults(0);
     
     // compute residual
@@ -608,14 +606,6 @@ void FiniteElasticityAssembler<DIM>::Solve()
 //        }
 //        cell++;
 //    }
-
-
-
-
-
-
-
-
 }
 
 
