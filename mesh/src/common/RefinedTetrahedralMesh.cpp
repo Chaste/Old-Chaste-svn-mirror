@@ -13,6 +13,11 @@ private:
     NodeMap *mpNodeMap;
 
 public:
+    
+    ~RefinedTetrahedralMesh()
+    {
+    	delete mpNodeMap;
+    }
     void SetFineMesh(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pFineMesh)
     {
         mpFineMesh=pFineMesh;
