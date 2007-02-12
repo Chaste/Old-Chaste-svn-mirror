@@ -1043,7 +1043,7 @@ public:
             			{
 	            			// If we are in here the cell cycle model must be a WntCellCycleModel
 	            			WntCellCycleModel *this_Wnt_model = static_cast<WntCellCycleModel*>(mCells[i].GetCellCycleModel());
-	            			double betaCateninLevel = this_Wnt_model->GetProteinConcentrations()[6];
+	            			double betaCateninLevel = this_Wnt_model->GetProteinConcentrations()[6]+this_Wnt_model->GetProteinConcentrations()[7];
 	            			//std::cout << "Cell " << i << ", beta-cat = " << betaCateninLevel << "\n" << std::endl;
 	            			
 	            			CryptCellType cell_type=TRANSIT;

@@ -37,11 +37,12 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
  */
 WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
 {
-    double InitialWntStimulus = parentProteinConcentrations[7];
-	WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
+    double InitialWntStimulus = parentProteinConcentrations[8];
+    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
 	// Set the cell cycle part of the model to start of G1 phase,
 	mProteinConcentrations = mOdeSystem.GetInitialConditions();
 	// Set the Wnt pathway part of the model to be the same as the parent cell.
+	mProteinConcentrations[8] = parentProteinConcentrations[8];
 	mProteinConcentrations[7] = parentProteinConcentrations[7];
 	mProteinConcentrations[6] = parentProteinConcentrations[6];
 	mProteinConcentrations[5] = parentProteinConcentrations[5];
@@ -98,8 +99,11 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 	//std::cout << "Looking up a cell cycle model" << std::endl;
 	mpSimulationTime = SimulationTime::Instance();
 	assert(cellCycleInfluences.size()==1);
-	// Use the WntStimulus provided as an input
-	mProteinConcentrations[7] = cellCycleInfluences[0];
+	
+ // Use the WntStimulus provided as an input
+	mProteinConcentrations[8] = cellCycleInfluences[0];
+	//unsigned mutation_state = cellCycleInfluences[1];
+
 	double current_time = mpSimulationTime->GetDimensionalisedTime();
 	//std::cout << "Last time = " << mLastTime << ", Current Time = " << current_time << "\n" << std::endl;
 	if(current_time>mLastTime)
@@ -134,7 +138,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 //            std::cout << "last time = "<<mLastTime<<"current time = "<<current_time<<"Number time steps = "<<timeRows<<"\n";
 //            std::cout.flush();
 		 	
-		 	for (unsigned i=0 ; i<8 ; i++)
+		 	for (unsigned i=0 ; i<10 ; i++)
 		 	{
 		 		mProteinConcentrations[i] = solution.rGetSolutions()[timeRows][i];
 //		 		std::cout << "Protein["<< i <<"] = "<< mProteinConcentrations[i] << "\n";
@@ -230,7 +234,7 @@ void WntCellCycleModel::SetBirthTime(double birthTime)
 void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
 {
 	mLastTime = lastTime;
-	assert(proteinConcentrations.size()==8);
+	assert(proteinConcentrations.size()==10);
 	mProteinConcentrations = proteinConcentrations;
 }
 

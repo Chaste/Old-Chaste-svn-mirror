@@ -19,6 +19,7 @@
  5. c = destruction complex (Active)
  6. b = Beta-Catenin
  7. WntLevel 
+ 8. mutation state
  * 
  */
 class WntCellCycleOdeSystem: public AbstractOdeSystem
@@ -53,14 +54,14 @@ private:
     
 public:
     // Constructor
-    WntCellCycleOdeSystem(double WntStimulus = 0.0);
+    WntCellCycleOdeSystem(double WntStimulus = 0.0, unsigned mutationState = 0);
     
     // Destructor
     ~WntCellCycleOdeSystem();
     
     void Init(); //Sets up the parameter values
         
-    // Compute the RHS of the T&N system of ODEs
+    // Compute the RHS of the WntCellCycle system of ODEs
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
     
     bool CalculateStoppingEvent(double time, const std::vector<double> &rY)

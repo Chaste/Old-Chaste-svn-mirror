@@ -8,10 +8,10 @@
  * Constructor
  * 
  * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
- * 
+ * @param mutationState is an unsigned integer 0=healthy, 1 = APC 1 hit, 2 = beta-catenin 1 hit, 3 = APC two hit. (defaults to healthy)
  */
-WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel) 
-  : AbstractOdeSystem(8)
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, unsigned mutationState) 
+  : AbstractOdeSystem(10)
 {
     /*
      * State variables
@@ -24,12 +24,39 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel)
 	% 5. c = APC (Active)
 	% 6. b = Beta-Catenin
 	% 7. WntLevel 
+	% 8. Mutation State (0=healthy, 1=APC+/-, 2=BetaCat+/-, 3=APC-/-)
 	*/
-	Init();
+	Init(); //Set up parameters
 	
-	// These three lines set up a wnt signalling pathway in a steady state
 	double destruction_level = ma5d/(ma4d*WntLevel+ma5d);
-    double beta_cat_level = ma2d/(ma2d+ma3d*destruction_level);
+	double beta_cat_level_1 = -1.0;
+ 	double beta_cat_level_2 = -1.0;
+	// These three lines set up a wnt signalling pathway in a steady state
+	if(mutationState == 0)	// healthy
+	{
+    	beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+    	beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+	}
+	else if(mutationState == 1) // APC +/-
+	{
+    	beta_cat_level_1 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level); // only half are active
+    	beta_cat_level_2 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level); 
+	}
+	else if(mutationState == 2) // Beta-cat delta 45
+	{
+    	beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+    	beta_cat_level_2 = 0.5;
+	}
+	else if(mutationState == 3) // APC -/-
+	{
+		destruction_level = 0.0; // no active destruction complex
+    	beta_cat_level_1 = 0.5; // fully active beta-catenin
+    	beta_cat_level_2 = 0.5; // fully active beta-catenin
+	}
+	else
+	{
+		EXCEPTION("Wnt Cell Cycle Odes must be given a mutation state of unsigned 0,1,2 or 3");	
+	}
     	
 	mVariableNames.push_back("pRb");
     mVariableUnits.push_back("non_dim");
@@ -55,15 +82,23 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel)
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(destruction_level);
 
-    mVariableNames.push_back("Beta_Cat");
+    mVariableNames.push_back("Beta_Cat1");
     mVariableUnits.push_back("non_dim");
-    mInitialConditions.push_back(beta_cat_level);
+    mInitialConditions.push_back(beta_cat_level_1);
+    
+    mVariableNames.push_back("Beta_Cat2");
+    mVariableUnits.push_back("non_dim");
+    mInitialConditions.push_back(beta_cat_level_2);
     
     mVariableNames.push_back("Wnt");
     mVariableUnits.push_back("non_dim");
     mInitialConditions.push_back(WntLevel);
     
-    mNumberOfStateVariables=8;
+    mVariableNames.push_back("Mutation_State");
+    mVariableUnits.push_back("non_dim");
+    mInitialConditions.push_back((double)(mutationState));
+    
+    mNumberOfStateVariables=10;
 }
 
 
@@ -159,8 +194,10 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     double j = rY[3];
     double p = rY[4];
     double c = rY[5];
-    double b = rY[6];
-    double WntLevel = rY[7];
+    double b1 = rY[6];
+    double b2 = rY[7];
+    double WntLevel = rY[8];
+    double mutationState = rY[9];
     
     double dx1 = 0.0;
     double dx2 = 0.0;
@@ -169,6 +206,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     double dx5 = 0.0;
     double dx6 = 0.0;
     double dx7 = 0.0;
+    double dx8 = 0.0;
     
     /*
 	% The variables are
@@ -181,33 +219,65 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
 	% 7. b = Beta-Catenin
 	*/
 
+	// Bit back-to-front, but work out the Wnt section first...
+
+	// Mutations take effect by altering the level of beta-catenin
+	if (fabs(mutationState - 0.0)<1e-6)	// HEALTHY CELL
+	{
+		// da
+		dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
+		//db
+		dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
+		dx8 = ma2d*(0.5-b2) - ma3d*b2*c;
+	}
+	else if (fabs(mutationState - 1.0)<1e-6) // APC +/-
+	{
+		dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
+		dx7 = ma2d*(0.5-b1) - 0.5*ma3d*b1*c;
+		dx8 = ma2d*(0.5-b2) - 0.5*ma3d*b2*c;
+	}
+	else if (fabs(mutationState - 2.0)<1e-6) // Beta-Cat D45
+	{
+		dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
+		dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
+		dx8 = ma2d*(0.5-b2);
+	}
+	else if (fabs(mutationState - 3.0)<1e-6) // APC -/-
+	{
+		dx6 = 0.0;
+		dx7 = ma2d*(0.5-b1);
+		dx8 = ma2d*(0.5-b2);
+	}
+	else	// Shouldn't happen
+	{
+		EXCEPTION("Wnt Cell Cycle model using invalid mutation state");
+	}
+
+	// Now the cell cycle stuff...
+
 	// dr
 	dx1 = e/(mKm1d+e)*mJ11d/(mJ11d+r)*mJ61d/(mJ61d+p) - mk16d*r*j+mk61d*p-mphi_r*r;
 	// de
 	dx2 = mkpd+mk2d*(mad*mad+e*e)/(1+e*e)*mJ12d/(mJ12d+r)*mJ62d/(mJ62d+p) - e;
 	// di
-	dx3 = mk3d*b + mk23d*e*mJ13d/(mJ13d+r)*mJ63d/(mJ63d+p) + mk43d*j - mk34d*i*j/(1+j) - mphi_i*i;
+	dx3 = mk3d*(b1+b2) + mk23d*e*mJ13d/(mJ13d+r)*mJ63d/(mJ63d+p) + mk43d*j - mk34d*i*j/(1+j) - mphi_i*i;
 	// dj
 	dx4 = mk34d*i*j/(1+j) - (mk43d+mphi_j)*j;
 	// dp
 	dx5 = mk16d*r*j - mk61d*p - mphi_p*p;
-	// da
-	dx6 = ma5d*(1.0-c) - ma4d*WntLevel*c;
-	// db
-	dx7 = ma2d*(1.0-b) - ma3d*b*c;
 	
 	
 	double factor = mPhiE2F1*60.0;  // Convert non-dimensional d/dt s to d/dt in hours.
     
     rDY[0] = dx1*factor;
     rDY[1] = dx2*factor;
-//    std::cout << "d/dt E2F1 = " << dx2*factor << "\n";
     rDY[2] = dx3*factor;
     rDY[3] = dx4*factor;
     rDY[4] = dx5*factor;
     rDY[5] = dx6*factor;
-    rDY[6] = dx7*factor;
-    //std::cout << "d/dt beta = " << dx7*factor << "\n";
-    rDY[7] = 0.0; // Do not change the Wnt level.
+    rDY[6] = dx7*factor; // beta-cat allele 1
+    rDY[7] = dx8*factor; // beta-cat allele 2
+    rDY[8] = 0.0; // Do not change the Wnt level.
+    rDY[9] = 0.0; // Do not change the mutation state.
 }
 

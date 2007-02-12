@@ -271,8 +271,10 @@ public:
         TS_ASSERT_DELTA(testResults[3] , 1.549402358669023e-07 , 1e-5);
         TS_ASSERT_DELTA(testResults[4] , 4.579067802591843e-08 , 1e-5);
         TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
-        TS_ASSERT_DELTA(testResults[6] , 7.415537855270896e-03 , 1e-5);
-        TS_ASSERT_DELTA(testResults[7] , 0.0 , 1e-6);
+        TS_ASSERT_DELTA(testResults[6] , 0.5*7.415537855270896e-03 , 1e-5);
+        TS_ASSERT_DELTA(testResults[7] , 0.5*7.415537855270896e-03 , 1e-5);
+        TS_ASSERT_DELTA(testResults[8] , 0.0 , 1e-6);
+        TS_ASSERT_DELTA(testResults[9] , 0.0 , 1e-6);
         
         double diff = 1.0;
         testResults[6] = testResults[6] + diff;
@@ -281,8 +283,8 @@ public:
         
         testResults = cell_model.GetProteinConcentrations();
         
-        TS_ASSERT_DELTA(testResults[6] , diff + 7.415537855270896e-03 , 1e-5);
-        
+        TS_ASSERT_DELTA(testResults[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
+        TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
         SimulationTime::Destroy();
         
     }
