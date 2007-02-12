@@ -12,10 +12,11 @@ WntCellCycleModel::WntCellCycleModel()
  * Model constructor - an initial wnt stimulus must be provided to set up the wnt pathway in an equilibrium state.
  * 
  * @param InitialWntStimulus a value between 0 and 1.
+ * @param mutationStatus an unsigned taking the values 0 (healthy), 1 (APC+/-), 2 (BetaCat Delta45), 3 (APC-/-).
  */
-WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
+WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus)
 {
-    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
+    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutationStatus);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsSimulationTimeSetUp()==false)
 	{
@@ -38,10 +39,13 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus)
 WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
 {
     double InitialWntStimulus = parentProteinConcentrations[8];
-    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus);
+    unsigned mutation_status = (unsigned)parentProteinConcentrations[9];
+    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutation_status);
 	// Set the cell cycle part of the model to start of G1 phase,
 	mProteinConcentrations = mOdeSystem.GetInitialConditions();
-	// Set the Wnt pathway part of the model to be the same as the parent cell.
+	// Set the mutation state of the daughter to be the same as the parent cell.
+	mProteinConcentrations[9] = parentProteinConcentrations[9];
+	// Set the Wnt pathway parts of the model to be the same as the parent cell.
 	mProteinConcentrations[8] = parentProteinConcentrations[8];
 	mProteinConcentrations[7] = parentProteinConcentrations[7];
 	mProteinConcentrations[6] = parentProteinConcentrations[6];

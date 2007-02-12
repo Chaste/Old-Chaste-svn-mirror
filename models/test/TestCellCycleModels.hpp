@@ -289,7 +289,233 @@ public:
         
     }
     
-    void TestWntCellCycleModelForConstantWntStimulus(void) throw(Exception)
+    void TestWntCellCycleModelForAPCSingleHit(void) throw(Exception)
+    {
+        int num_timesteps = 500;
+    	double wnt_level = 1.0;
+        
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level,1));
+
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
+    	WntCellCycleModel cell_model_1(wnt_level);
+        SimulationTime::Destroy();
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel *p_cell_model_13 = static_cast<WntCellCycleModel*> (cell_model_1.CreateCellCycleModel()); delete p_cell_model_13;);
+      
+        p_simulation_time = SimulationTime::Instance();
+
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_2(wnt_level));
+
+        double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
+     
+        WntCellCycleModel cell_model(wnt_level,1);
+        
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
+
+
+        // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
+        // Model should enter S phase at 4.804 hrs and then finish dividing
+        // 10 hours later at 14.804 hours.
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            //std::cout << "Time = " << time << "\n";
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            bool result = cell_model.ReadyToDivide(cell_cycle_params);
+            //std::cout << "divide = " << result << "\n";
+            if (time < 4.804+SG2MDuration)
+            {
+            	TS_ASSERT(result==false);
+            }
+            else
+            {
+            	TS_ASSERT(result==true);
+            }
+        }
+        cell_model.ResetModel();
+        WntCellCycleModel cell_model_2 = cell_model;
+        double second_cycle_start = cell_model_2.GetBirthTime();
+        
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime() ;
+            //std::cout << "Time = " << time << "\n";
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
+            //std::cout << "divide = " << result << "\n";
+            if (time< second_cycle_start+4.804+SG2MDuration)
+            {
+            	TS_ASSERT(result==false);
+            }
+            else
+            {
+            	TS_ASSERT(result==true);
+            }
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
+    void TestWntCellCycleModelForBetaCatSingleHit(void) throw(Exception)
+    {
+        int num_timesteps = 500;
+    	double wnt_level = 0.0;
+        
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level));
+
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
+    	WntCellCycleModel cell_model_1(wnt_level);
+        SimulationTime::Destroy();
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel *p_cell_model_13 = static_cast<WntCellCycleModel*> (cell_model_1.CreateCellCycleModel()); delete p_cell_model_13;);
+      
+        p_simulation_time = SimulationTime::Instance();
+
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_2(wnt_level));
+
+        double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
+     
+        WntCellCycleModel cell_model(wnt_level,(unsigned)2);
+        
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
+
+
+        // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
+        // Model should enter S phase at 7.82 hrs and then finish dividing
+        // 10 hours later at 17.82 hours.
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            //std::cout << "Time = " << time << "\n";
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            bool result = cell_model.ReadyToDivide(cell_cycle_params);
+            //std::cout << "divide = " << result << "\n";
+            if (time < 7.82+SG2MDuration)
+            {
+            	TS_ASSERT(result==false);
+            }
+            else
+            {
+            	TS_ASSERT(result==true);
+            }
+        }
+        cell_model.ResetModel();
+        WntCellCycleModel cell_model_2 = cell_model;
+        double second_cycle_start = cell_model_2.GetBirthTime();
+        
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime() ;
+            //std::cout << "Time = " << time << "\n";
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
+            //std::cout << "divide = " << result << "\n";
+            if (time< second_cycle_start+7.82+SG2MDuration)
+            {
+            	TS_ASSERT(result==false);
+            }
+            else
+            {
+            	TS_ASSERT(result==true);
+            }
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
+    void TestWntCellCycleModelForAPCDoubleHit(void) throw(Exception)
+    {
+        int num_timesteps = 500;
+        
+    	double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
+        
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level,(unsigned)3));
+
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
+    	WntCellCycleModel cell_model_1(wnt_level);
+        SimulationTime::Destroy();
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel *p_cell_model_13 = static_cast<WntCellCycleModel*> (cell_model_1.CreateCellCycleModel()); delete p_cell_model_13;);
+      
+        p_simulation_time = SimulationTime::Instance();
+
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_2(wnt_level,(unsigned)3));
+
+        double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
+        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
+     
+        WntCellCycleModel cell_model(wnt_level,(unsigned) 3);
+        
+        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
+
+
+        // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
+        // Model should enter S phase at 3.943 hrs and then finish dividing
+        // 10 hours later at 13.9435 hours.
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            //std::cout << "Time = " << time << "\n";
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            bool result = cell_model.ReadyToDivide(cell_cycle_params);
+            //std::cout << "divide = " << result << "\n";
+            if (time < 3.9435+SG2MDuration)
+            {
+            	TS_ASSERT(result==false);
+            }
+            else
+            {
+            	TS_ASSERT(result==true);
+            }
+        }
+        cell_model.ResetModel();
+        WntCellCycleModel cell_model_2 = cell_model;
+        double second_cycle_start = cell_model_2.GetBirthTime();
+        
+        for(int i=0; i<num_timesteps/2; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime() ;
+            //std::cout << "Time = " << time << "\n";
+            std::vector <double> cell_cycle_params;
+            cell_cycle_params.push_back(wnt_level);
+            bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
+            //std::cout << "divide = " << result << "\n";
+            if (time< second_cycle_start+3.9435+SG2MDuration)
+            {
+            	TS_ASSERT(result==false);
+            }
+            else
+            {
+            	TS_ASSERT(result==true);
+            }
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
+    void TestWntCellCycleModelForConstantWntStimulusHealthyCell(void) throw(Exception)
     {
         int num_timesteps = 500;
     	double wnt_level = 1.0;

@@ -23,7 +23,7 @@ private:
     
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
-     * sometimes needed...
+     * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */ 
     WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime);
     
@@ -31,7 +31,7 @@ public:
     
     WntCellCycleModel();
     
-    WntCellCycleModel(double InitialWntStimulus);
+    WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);
     
     ~WntCellCycleModel();
     

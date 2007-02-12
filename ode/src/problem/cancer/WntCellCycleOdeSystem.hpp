@@ -17,9 +17,10 @@
  3. j = CycD (active)
  4. p = pRb-p
  5. c = destruction complex (Active)
- 6. b = Beta-Catenin
- 7. WntLevel 
- 8. mutation state
+ 6. b1 = Beta-Catenin (from 1st allele)
+ 7. b2 = Beta-Catenin (from 1st allele)
+ 8. WntLevel 
+ 9. mutation state (0/1/2/3)
  * 
  */
 class WntCellCycleOdeSystem: public AbstractOdeSystem

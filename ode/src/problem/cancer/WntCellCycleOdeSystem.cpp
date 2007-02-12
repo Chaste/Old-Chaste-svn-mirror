@@ -22,9 +22,10 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, unsigned mutationS
 	% 3. j = CycD (active)
 	% 4. p = pRb-p
 	% 5. c = APC (Active)
-	% 6. b = Beta-Catenin
-	% 7. WntLevel 
-	% 8. Mutation State (0=healthy, 1=APC+/-, 2=BetaCat+/-, 3=APC-/-)
+	% 6. b1 = Beta-Catenin (1st allele's copy)
+	% 7. b2 = Beta-Catenin (2nd allele's copy)
+	% 8. WntLevel 
+	% 9. Mutation State (0=healthy, 1=APC+/-, 2=BetaCat+/-, 3=APC-/-)
 	*/
 	Init(); //Set up parameters
 	
