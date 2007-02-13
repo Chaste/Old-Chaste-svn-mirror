@@ -4,6 +4,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "MeinekeCryptCellTypes.hpp"
+#include "CryptCellMutationStates.hpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -26,6 +27,7 @@ public:
         SimulationTime::Destroy();
         
         TS_ASSERT_THROWS_ANYTHING(MeinekeCryptCell bad_cell(STEM, // type
+        						   HEALTHY,//Mutation State
                                    0,    // generation
                                    &fixed_model));
                                    
@@ -35,6 +37,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
         
         MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
                                    0,    // generation
                                    new FixedCellCycleModel());
                                    
@@ -68,6 +71,7 @@ public:
         
         p_simulation_time->IncrementTimeOneStep();//t=6
         MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
                                    0,    // generation
                                    new FixedCellCycleModel());
         p_simulation_time->IncrementTimeOneStep();//t=12
@@ -132,6 +136,7 @@ public:
         // SimulationTime returns 6 hours
         
         MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
                                    0,    // generation
                                    new FixedCellCycleModel());
                                    
@@ -212,6 +217,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
         
         MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
                                    0,  // generation
                                    new FixedCellCycleModel());
                                    
@@ -301,20 +307,25 @@ public:
         
         //  Creating different types of Meineke crypt cells with different cell cycle models at SImulationTime = 6 hours.
         MeinekeCryptCell stem_cell(STEM, // type
+								   HEALTHY,//Mutation State
                                    0,    // generation
                                    new FixedCellCycleModel());
                                    
         MeinekeCryptCell stochastic_stem_cell(STEM, // type
-                                              0,    // generation
+                                              HEALTHY,//Mutation State
+                                   			  0,    // generation
                                               new StochasticCellCycleModel(&rand_gen));
         MeinekeCryptCell differentiated_cell(DIFFERENTIATED, // type
-                                             6,    // generation
+                                             HEALTHY,//Mutation State
+                                   			 6,    // generation
                                              new FixedCellCycleModel());
         MeinekeCryptCell stochastic_differentiated_cell(DIFFERENTIATED, // type
-                                                        6,    // generation
+                                                        HEALTHY,//Mutation State
+                                   			 			6,    // generation
                                                         new StochasticCellCycleModel(&rand_gen));
         MeinekeCryptCell transit_cell(TRANSIT, // type
-                                      2,    // generation
+                                      HEALTHY,//Mutation State
+                                   	  2,    // generation
                                       new FixedCellCycleModel());
                                       
                                       
@@ -378,7 +389,8 @@ public:
         }
         // now at t=6.00
         MeinekeCryptCell transit_cell(TRANSIT, // type
-                                      2,    // generation
+                                      HEALTHY,//Mutation State
+                                   	  2,    // generation
                                       new FixedCellCycleModel());
                                       
         for (int i=0; i<1199; i++)
@@ -451,7 +463,8 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
             
             MeinekeCryptCell stem_cell(STEM, // type
-                                       0,  // generation
+                                       HEALTHY,//Mutation State
+                                   	   0,  // generation
                                        new StochasticCellCycleModel(&rand_gen));
             cells.push_back(stem_cell);
             // produce the offspring of the cells
@@ -531,31 +544,36 @@ public:
         std::vector<MeinekeCryptCell> cells;
         
         MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
                                    0,  // generation
                                    new FixedCellCycleModel());
                                    
         cells.push_back(stem_cell);
         
         MeinekeCryptCell transit_cell_1(TRANSIT, // type
-                                        1,  // generation
+                                        HEALTHY,//Mutation State
+                                   	  	1,  // generation
                                         new FixedCellCycleModel());
                                         
         cells.push_back(transit_cell_1);
         
         MeinekeCryptCell transit_cell_2(TRANSIT, // type
-                                        2,  // generation
+                                        HEALTHY,//Mutation State
+                                   	  	2,  // generation
                                         new FixedCellCycleModel());
                                         
         cells.push_back(transit_cell_2);
         
         MeinekeCryptCell transit_cell_3(TRANSIT, // type
-                                        3,  // generation
+                                        HEALTHY,//Mutation State
+                                   	  	3,  // generation
                                         new FixedCellCycleModel());
                                         
         cells.push_back(transit_cell_3);
         
         MeinekeCryptCell differentiated_cell(DIFFERENTIATED, // type
-                                             4,  // generation
+                                             HEALTHY,//Mutation State
+                                   	  		 4,  // generation
                                              new FixedCellCycleModel());
                                              
         cells.push_back(differentiated_cell);
@@ -581,6 +599,9 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
+            	CryptCellMutationState this_cell_state;
+            	this_cell_state = cell_iterator->GetMutationState();
+				TS_ASSERT(this_cell_state==HEALTHY);
                 if (cell_iterator->ReadyToDivide())
                 {
                     newly_born.push_back(cell_iterator->Divide());
@@ -649,6 +670,7 @@ public:
         
         double wnt_stimulus = 1.0;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                   HEALTHY,//Mutation State
                                    1,    // generation
                                    new WntCellCycleModel(wnt_stimulus));
         
@@ -733,6 +755,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
         
         MeinekeCryptCell tn_cell(TRANSIT, // type
+                                   HEALTHY,//Mutation State
                                    1,    // generation
                                    new TysonNovakCellCycleModel());
         
@@ -803,6 +826,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
                                    0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
@@ -877,6 +901,259 @@ public:
         TS_ASSERT_EQUALS(differentiated_cells[59], 8u);
         SimulationTime::Destroy();
     }
+    
+    /*
+     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * That division of wnt cells and stuff works OK.
+     * 
+     * It checks that the cell division thing works nicely too.
+     */
+    void TestWithWntCellCycleModelAndMutationAPCONEHIT() throw(Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        unsigned num_steps=200;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
+        
+        double wnt_stimulus = 1.0;
+        MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                   APC_ONE_HIT,//Mutation State
+                                   1,    // generation
+                                   new WntCellCycleModel(wnt_stimulus,1));
+       
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	//std::cout << "time = " << time << std::endl;
+        	if(time>=4.804+SG2MDuration)
+        	{
+        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+           	}
+           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+        }
+        
+        std::vector<double> wnt;
+        wnt.push_back(wnt_stimulus);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        
+        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        
+        TS_ASSERT(wnt_cell.GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+                
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        
+        double timeOfBirth = wnt_cell.GetBirthTime();
+        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        
+        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        
+        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	bool result1=wnt_cell.ReadyToDivide(wnt);
+        	bool result2=wnt_cell2.ReadyToDivide(wnt);
+        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+        	if(time>=4.804+SG2MDuration+timeOfBirth)
+        	{
+        		TS_ASSERT(result1==true);
+        		TS_ASSERT(result2==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(result1==false);
+        		TS_ASSERT(result2==false);
+           	}
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
+    /*
+     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * That division of wnt cells and stuff works OK.
+     * 
+     * It checks that the cell division thing works nicely too.
+     */
+    void TestWithWntCellCycleModelAndMutationBetaCat() throw(Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        unsigned num_steps=200;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
+        
+        double wnt_stimulus = 0.0;
+        MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                   BETA_CATENIN_ONE_HIT,//Mutation State
+                                   1,    // generation
+                                   new WntCellCycleModel(wnt_stimulus,2));
+       
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	//std::cout << "time = " << time << std::endl;
+        	if(time>=7.82+SG2MDuration)
+        	{
+        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+           	}
+           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+        }
+        
+        std::vector<double> wnt;
+        wnt.push_back(wnt_stimulus);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        
+        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        
+        TS_ASSERT(wnt_cell.GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+                
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        
+        double timeOfBirth = wnt_cell.GetBirthTime();
+        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        
+        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        
+        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	bool result1=wnt_cell.ReadyToDivide(wnt);
+        	bool result2=wnt_cell2.ReadyToDivide(wnt);
+        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+        	if(time>=7.82+SG2MDuration+timeOfBirth)
+        	{
+        		TS_ASSERT(result1==true);
+        		TS_ASSERT(result2==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(result1==false);
+        		TS_ASSERT(result2==false);
+           	}
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
+    /*
+     * We are checking that the MeinekeCryptCells work with the Wnt cell cycle models here
+     * That division of wnt cells and stuff works OK.
+     * 
+     * It checks that the cell division thing works nicely too.
+     */
+    void TestWithWntCellCycleModelAndMutationAPC2() throw(Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        
+        CancerParameters *p_parameters = CancerParameters::Instance();
+        double SG2MDuration = p_parameters->GetSG2MDuration();
+        
+        unsigned num_steps=200;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
+        
+        double wnt_stimulus = 0.0;
+        MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                   APC_TWO_HIT,//Mutation State
+                                   1,    // generation
+                                   new WntCellCycleModel(wnt_stimulus,3));
+       
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	//std::cout << "time = " << time << std::endl;
+        	if(time>=3.9435+SG2MDuration)
+        	{
+        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+           	}
+           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+        }
+        
+        std::vector<double> wnt;
+        wnt.push_back(wnt_stimulus);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+        TS_ASSERT(wnt_cell.GetGeneration()==1);
+        
+        MeinekeCryptCell wnt_cell2 = wnt_cell.Divide();
+        
+        TS_ASSERT(wnt_cell.GetGeneration()==2);
+        TS_ASSERT(wnt_cell2.GetGeneration()==2);
+                
+        //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
+        
+        double timeOfBirth = wnt_cell.GetBirthTime();
+        double timeOfBirth2 = wnt_cell2.GetBirthTime();
+        
+        TS_ASSERT_DELTA(timeOfBirth, timeOfBirth2, 1e-9);
+        
+        //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
+        
+        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        {
+        	p_simulation_time->IncrementTimeOneStep();
+        	double time = p_simulation_time->GetDimensionalisedTime();
+        	std::vector<double> wnt;
+        	wnt.push_back(wnt_stimulus);
+        	bool result1=wnt_cell.ReadyToDivide(wnt);
+        	bool result2=wnt_cell2.ReadyToDivide(wnt);
+        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+        	if(time>=3.9435+SG2MDuration+timeOfBirth)
+        	{
+        		TS_ASSERT(result1==true);
+        		TS_ASSERT(result2==true);
+        	}
+        	else
+        	{
+        		TS_ASSERT(result1==false);
+        		TS_ASSERT(result2==false);
+           	}
+        }
+        
+        SimulationTime::Destroy();
+    }
+    
 };
 
 

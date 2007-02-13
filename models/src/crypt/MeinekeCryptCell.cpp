@@ -5,6 +5,7 @@
 
 
 MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
+								   CryptCellMutationState mutationState,
                                    unsigned int generation,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
@@ -18,6 +19,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
     mGeneration=generation;
     mCellType=cellType;
+    mMutationState = mutationState;
     mpCellCycleModel->SetCellType(cellType);
     mCanDivide = false;
 }
@@ -25,8 +27,9 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
 {
 	// Copy 'easy' data members
-    mGeneration = other_cell.mGeneration;
+	mGeneration = other_cell.mGeneration;
     mCellType = other_cell.mCellType;
+    mMutationState = other_cell.mMutationState;
     mCanDivide = other_cell.mCanDivide;
     mpSimulationTime = other_cell.mpSimulationTime;
     // Copy cell cycle model
@@ -101,14 +104,57 @@ CryptCellType MeinekeCryptCell::GetCellType()
     return mCellType;
 }
 
+CryptCellMutationState MeinekeCryptCell::GetMutationState()
+{
+    return mMutationState;
+}
+
 void MeinekeCryptCell::SetCellType(CryptCellType cellType)
 {
 	mCellType = cellType;
 	mpCellCycleModel->SetCellType(mCellType);
 }
 
+void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
+{
+	mMutationState = mutationState;
+}
+
+/**
+ * The MeinekeCryptCell ready to divide method
+ * 
+ * @param cellCycleInfluences a std::vector of doubles, with any relevant cell 
+ * cycle influences in it. This function pushes back the mutation state of this 
+ * cell onto the vector before sending it to the cell cycle models.
+ */
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {	
+	double mutation_state = -1;
+	if(mMutationState==HEALTHY)
+	{
+		//std::cout << "HEALTHY" << std::endl;
+		mutation_state=0;	
+	}
+	if(mMutationState==APC_ONE_HIT)	
+	{
+		//std::cout << "APC +/-" << std::endl;
+		mutation_state=1;	
+	}
+	if(mMutationState==BETA_CATENIN_ONE_HIT)	
+	{
+		//std::cout << "Beta-cat +/-" << std::endl;
+		mutation_state=2;	
+	}
+	if(mMutationState==APC_TWO_HIT)	
+	{
+		//std::cout << "APC -/-" << std::endl;
+		mutation_state=3;	
+	}
+	if(fabs(mutation_state+1)<1e-6)
+	{
+		EXCEPTION("This cell has an invalid mutation state");
+	}
+	cellCycleInfluences.push_back(mutation_state);
 	mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
     return mCanDivide;
 }
@@ -125,7 +171,7 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
         {
             mGeneration++;
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return MeinekeCryptCell(TRANSIT, mGeneration,
+            return MeinekeCryptCell(TRANSIT, mMutationState, mGeneration, 
                                     mpCellCycleModel->CreateCellCycleModel());
         }
         else
@@ -134,14 +180,14 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
             mCellType = DIFFERENTIATED;
             mpCellCycleModel->SetCellType(mCellType);
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return MeinekeCryptCell(DIFFERENTIATED, mGeneration,
+            return MeinekeCryptCell(DIFFERENTIATED, mMutationState, mGeneration,
                                     mpCellCycleModel->CreateCellCycleModel());
         }
     }
     else
     {
         mpCellCycleModel->ResetModel();// Cell goes back to age zero
-        return MeinekeCryptCell(TRANSIT, 1,
+        return MeinekeCryptCell(TRANSIT, mMutationState, 1, 
                                 mpCellCycleModel->CreateCellCycleModel());
     }
     mCanDivide = false;

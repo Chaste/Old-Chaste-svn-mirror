@@ -223,7 +223,7 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time=-p_params->GetStemCellCycleTime()+1.0*i; //hours
-            MeinekeCryptCell cell(cell_type, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -270,7 +270,7 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time= -1.0; //hours
-            MeinekeCryptCell cell(cell_type, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -339,7 +339,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(&rand_gen));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -407,7 +407,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -481,7 +481,7 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

@@ -223,7 +223,7 @@ public:
                 birth_time = -1; //hours
             }
             
-            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -309,7 +309,7 @@ public:
                 birth_time = -1; //hours
             }
             
-            MeinekeCryptCell cell(cell_type, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -507,7 +507,7 @@ public:
             }
             
             double wnt = 1.0 - y/p_params->GetCryptLength();
-            MeinekeCryptCell cell(cell_type, generation, new WntCellCycleModel(wnt));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(0.0);
             cells.push_back(cell);
@@ -607,7 +607,7 @@ public:
                 birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
             }
             //double wnt = 1.0 - y/p_params->GetCryptLength();
-            MeinekeCryptCell cell(cell_type, generation, new TysonNovakCellCycleModel());
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new TysonNovakCellCycleModel());
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

@@ -242,11 +242,13 @@ public:
         int numTimesteps = 1000*(int)endTime;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(endTime, numTimesteps);// 15.971 hours to go into S phase 
         double wnt_level = 1.0;
+        double mutation = 0.0;
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model(wnt_level));
         WntCellCycleModel cell_model(wnt_level);
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
         std::vector<double> cell_cycle_influences;
         cell_cycle_influences.push_back(wnt_level);
+        cell_cycle_influences.push_back(mutation);
         for(int i=0; i<numTimesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -293,6 +295,7 @@ public:
     {
         int num_timesteps = 500;
     	double wnt_level = 1.0;
+    	double mutation = 1.0;
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level,1));
 
@@ -312,7 +315,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
-        WntCellCycleModel cell_model(wnt_level,1);
+        WntCellCycleModel cell_model(wnt_level,(unsigned)mutation);
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
 
@@ -327,6 +330,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 4.804+SG2MDuration)
@@ -349,6 +353,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+4.804+SG2MDuration)
@@ -368,6 +373,7 @@ public:
     {
         int num_timesteps = 500;
     	double wnt_level = 0.0;
+    	double mutation = 2.0;
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level));
 
@@ -387,7 +393,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
-        WntCellCycleModel cell_model(wnt_level,(unsigned)2);
+        WntCellCycleModel cell_model(wnt_level,(unsigned)mutation);
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
 
@@ -402,6 +408,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 7.82+SG2MDuration)
@@ -424,6 +431,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+7.82+SG2MDuration)
@@ -444,6 +452,7 @@ public:
         int num_timesteps = 500;
         
     	double wnt_level = 0.738;// This shouldn't matter for this kind of cell!
+        double mutation = 3;
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level,(unsigned)3));
 
@@ -463,7 +472,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
-        WntCellCycleModel cell_model(wnt_level,(unsigned) 3);
+        WntCellCycleModel cell_model(wnt_level,(unsigned) mutation);
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
 
@@ -478,6 +487,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 3.9435+SG2MDuration)
@@ -500,6 +510,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+3.9435+SG2MDuration)
@@ -519,6 +530,7 @@ public:
     {
         int num_timesteps = 500;
     	double wnt_level = 1.0;
+    	double mutation = 0.0;
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level));
 
@@ -538,7 +550,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
-        WntCellCycleModel cell_model(wnt_level);
+        WntCellCycleModel cell_model(wnt_level, (unsigned) mutation);
         
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
 
@@ -553,6 +565,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time < 5.971+SG2MDuration)
@@ -575,6 +588,7 @@ public:
             //std::cout << "Time = " << time << "\n";
             std::vector <double> cell_cycle_params;
             cell_cycle_params.push_back(wnt_level);
+            cell_cycle_params.push_back(mutation);
             bool result = cell_model_2.ReadyToDivide(cell_cycle_params);
             //std::cout << "divide = " << result << "\n";
             if (time< second_cycle_start+5.971+SG2MDuration)

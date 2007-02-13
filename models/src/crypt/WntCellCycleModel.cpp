@@ -102,11 +102,12 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
 	//std::cout << "Looking up a cell cycle model" << std::endl;
 	mpSimulationTime = SimulationTime::Instance();
-	assert(cellCycleInfluences.size()==1);
+	assert(cellCycleInfluences.size()==2);
 	
  // Use the WntStimulus provided as an input
 	mProteinConcentrations[8] = cellCycleInfluences[0];
-	//unsigned mutation_state = cellCycleInfluences[1];
+ // Use the cell's current mutation status as another input
+	mProteinConcentrations[9] = cellCycleInfluences[1];
 
 	double current_time = mpSimulationTime->GetDimensionalisedTime();
 	//std::cout << "Last time = " << mLastTime << ", Current Time = " << current_time << "\n" << std::endl;

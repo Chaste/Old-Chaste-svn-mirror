@@ -3,6 +3,7 @@
 
 #include "Element.hpp"
 #include "MeinekeCryptCellTypes.hpp"
+#include "CryptCellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 
@@ -28,6 +29,7 @@ private:
 protected:
     unsigned int mGeneration;
     CryptCellType mCellType;
+    CryptCellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
     SimulationTime* mpSimulationTime;
@@ -42,11 +44,13 @@ public:
     /**
      * Create a new Meineke crypt cell.
      * @param cellType  the type of cell this is
+     * @param mutationState the mutation state of the cell
      * @param generation  its generation
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      */
     MeinekeCryptCell(CryptCellType cellType,
+    				 CryptCellMutationState mutationState,
                      unsigned int generation,
                      AbstractCellCycleModel *pCellCycleModel);
     /**
@@ -71,9 +75,12 @@ public:
     double GetAge();
     double GetBirthTime();
     unsigned int GetGeneration();
-    CryptCellType GetCellType();
-    void SetCellType(CryptCellType cellType);
     
+    CryptCellType GetCellType();
+    CryptCellMutationState GetMutationState();
+    void SetCellType(CryptCellType cellType);
+    void SetMutationState(CryptCellMutationState mutationState);
+        
     /**
      * Determine if this cell will be ready to divide at the given simulation time.
      * MUST be called before Divide().

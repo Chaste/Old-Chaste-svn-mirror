@@ -215,7 +215,7 @@ public:
                 CryptCellType cell_type=STEM ;
                 unsigned generation=0;
                 
-                MeinekeCryptCell new_cell(cell_type, generation, new StochasticCellCycleModel(mpGen));
+                MeinekeCryptCell new_cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(mpGen));
 
                 // Update cells vector
                 new_cell.SetNodeIndex(new_node_index);
