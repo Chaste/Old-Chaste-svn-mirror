@@ -152,7 +152,9 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 	}
 	if(fabs(mutation_state+1)<1e-6)
 	{
+#define COVERAGE_IGNORE
 		EXCEPTION("This cell has an invalid mutation state");
+#undef COVERAGE_IGNORE
 	}
 	cellCycleInfluences.push_back(mutation_state);
 	mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
