@@ -24,7 +24,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
     
     /* Read single line header which is the number of nodes */
     std::stringstream node_header_stream(this->mNodeRawData[0]);
-    unsigned int num_nodes;
+    unsigned num_nodes;
     node_header_stream >> num_nodes;
     
     /* All Memfem data is in 3-d. */
@@ -54,7 +54,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
     
     /* Read single line header which is the number of elements	 */
     std::stringstream element_header_stream(this->mElementRawData[0]);
-    unsigned int num_elements;
+    unsigned num_elements;
     element_header_stream >> num_elements;
     
     
@@ -113,7 +113,7 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
             std::vector<double> current_coords;
             
             //Form the vector which represents the position of this item
-            for (int i = 0; i < SPACE_DIM; i++)
+            for (unsigned i = 0; i < SPACE_DIM; i++)
             {
                 double item_coord;
                 line_stream >> item_coord;
@@ -143,12 +143,12 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
  */
 
 template <int ELEMENT_DIM, int SPACE_DIM>
-std::vector<std::vector<int> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
+std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
     std::vector<std::string> rawData,
-    int dimensionOfObject,
+    unsigned dimensionOfObject,
     bool readHeader)
 {
-    std::vector<std::vector<int> > tokenized_data;
+    std::vector<std::vector<unsigned> > tokenized_data;
     
     std::vector<std::string>::iterator the_iterator;
     for ( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
@@ -159,11 +159,11 @@ std::vector<std::vector<int> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Tokeniz
         
         if ( readHeader == false || the_iterator!=rawData.begin() )
         {
-            std::vector<int> current_indices;
+            std::vector<unsigned> current_indices;
             
-            for (int i = 0; i < dimensionOfObject; i++)
+            for (unsigned i = 0; i < dimensionOfObject; i++)
             {
-                int item_index;
+                unsigned item_index;
                 line_stream >> item_index;
                 //The nodes have been indexed from one so we need to shift the indices
                 item_index -= 1;

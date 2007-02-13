@@ -26,23 +26,23 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 class AbstractMeshReader
 {
 protected:
-    int mNumNodeAttributes; /**< Is the number of attributes stored at each node */
-    int mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
-    int mNumElementNodes; /** Is the number of nodes per element*/
-    int mNumElementAttributes; /**< Is the number of attributes stored for each element */
-    int mMaxFaceBdyMarker; /**< Is the maximum face (or edge) boundary marker */
+    unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
+    unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
+    unsigned mNumElementNodes; /** Is the number of nodes per element*/
+    unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
+    unsigned mMaxFaceBdyMarker; /**< Is the maximum face (or edge) boundary marker */
     
     std::vector<std::string> mNodeRawData;  /**< Contents of node input file with comments removed */
     std::vector<std::string> mElementRawData;  /**< Contents of element input file with comments removed */
     std::vector<std::string> mFaceRawData;  /**< Contents of face (or edge) input file with comments removed */
     
     std::vector< std::vector<double> > mNodeData; /**< Is an array of node coordinates ((i,j)th entry is the jth coordinate of node i)*/
-    std::vector< std::vector<int> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
-    std::vector< std::vector<int> > mFaceData; /**< Is an array of the nodes in each face ((i,j)th entry is the jth node of face i) */
+    std::vector< std::vector<unsigned> > mElementData; /**< Is an array of the nodes in each element ((i,j)th entry is the jth node of element i) */
+    std::vector< std::vector<unsigned> > mFaceData; /**< Is an array of the nodes in each face ((i,j)th entry is the jth node of face i) */
     
     std::vector< std::vector<double> >::iterator mpNodeIterator; /**< Is an iterator for the node data */
-    std::vector< std::vector<int> >::iterator mpElementIterator; /**< Is an iterator for the element data */
-    std::vector< std::vector<int> >::iterator mpFaceIterator; /**< Is an iterator for the face data */
+    std::vector< std::vector<unsigned> >::iterator mpElementIterator; /**< Is an iterator for the element data */
+    std::vector< std::vector<unsigned> >::iterator mpFaceIterator; /**< Is an iterator for the face data */
     
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     
@@ -66,31 +66,31 @@ public:
     {}
     
     
-    int GetNumElements() const
+    unsigned GetNumElements() const
     {
         return mElementData.size();
     } /**< Returns the number of elements in the mesh */
-    int GetNumNodes() const
+    unsigned GetNumNodes() const
     {
         return mNodeData.size();
     } /**< Returns the number of nodes in the mesh */
-    int GetNumFaces() const
+    unsigned GetNumFaces() const
     {
         return mFaceData.size();
     } /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
-    int GetNumEdges() const
+    unsigned GetNumEdges() const
     {
         return mFaceData.size();
     }	/**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     
     int GetMaxNodeIndex(); /**< Returns the maximum node index */
-    int GetMinNodeIndex(); /**< Returns the minimum node index */
+    unsigned GetMinNodeIndex(); /**< Returns the minimum node index */
     
     std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */
     void Reset(); /**< Resets pointers to beginning*/
-    std::vector<int> GetNextElement(); /**< Returns a vector of the nodes of each element in turn */
-    std::vector<int> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
-    std::vector<int> GetNextFace(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
+    std::vector<unsigned> GetNextElement(); /**< Returns a vector of the nodes of each element in turn */
+    std::vector<unsigned> GetNextEdge(); /**< Returns a vector of the nodes of each edge in turn (synonym of GetNextFace()) */
+    std::vector<unsigned> GetNextFace(); /**< Returns a vector of the nodes of each face in turn (synonym of GetNextEdge()) */
 };
 
 #endif //_ABSTRACTMESHREADER_HPP_

@@ -145,7 +145,7 @@ public:
             pMeshReader=new READER_2D(
                             "mesh/test/data/disk_522_elements"));
                             
-        TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), pMeshReader->GetNumNodes() - 1);
+        TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), (int) pMeshReader->GetNumNodes() - 1);
         
         TS_ASSERT_EQUALS(pMeshReader->GetMinNodeIndex(), 0);
         delete pMeshReader;
@@ -167,7 +167,7 @@ public:
             pMeshReader=new READER_2D(
                             "mesh/test/data/disk_522_elements_indexed_from_1"));
                             
-        TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), pMeshReader->GetNumNodes() - 1);
+        TS_ASSERT_EQUALS(pMeshReader->GetMaxNodeIndex(), (int) pMeshReader->GetNumNodes() - 1);
         
         TS_ASSERT_EQUALS(pMeshReader->GetMinNodeIndex(), 0);
         delete pMeshReader;
@@ -261,9 +261,9 @@ public:
         pMeshReader=new TrianglesMeshReader<2,2>(
                         "mesh/test/data/disk_984_elements");
                         
-        std::vector<int> NextElement;
+        std::vector<unsigned> NextElement;
         
-        for (int i = 0; i < pMeshReader->GetNumElements(); i++)
+        for (unsigned i = 0; i < pMeshReader->GetNumElements(); i++)
         {
             TS_ASSERT_THROWS_NOTHING(NextElement = pMeshReader->GetNextElement());
         }
@@ -286,12 +286,12 @@ public:
         pMeshReader=new TrianglesMeshReader<2,2>(
                         "mesh/test/data/disk_984_elements");
                         
-        std::vector<int> NextEdge;
+        std::vector<unsigned> NextEdge;
         
         TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextFace());
         TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextFace());
         
-        for (int i = 2; i < pMeshReader->GetNumEdges(); i++)
+        for (unsigned i = 2; i < pMeshReader->GetNumEdges(); i++)
         {
             TS_ASSERT_THROWS_NOTHING(NextEdge = pMeshReader->GetNextEdge());
         }

@@ -28,8 +28,8 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
      * http://www-2.cs.cmu.edu/~quake/triangle.node.html
      */
     std::stringstream node_header_stream(this->mNodeRawData[0]);
-    unsigned int num_nodes;
-    unsigned int dimension;
+    unsigned num_nodes;
+    unsigned dimension;
     node_header_stream >> num_nodes >> dimension >> this->mNumNodeAttributes >> this->mMaxNodeBdyMarker;
     
     if (SPACE_DIM != dimension)
@@ -68,7 +68,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     * http://www-2.cs.cmu.edu/~quake/triangle.ele.html
     */
     std::stringstream element_header_stream(this->mElementRawData[0]);
-    unsigned int num_elements;
+    unsigned num_elements;
     element_header_stream >> num_elements >> this->mNumElementNodes >> this->mNumElementAttributes;
     
     //Only order 1 triangles or tetrahedra are currently supported
@@ -115,10 +115,10 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
     {
         //There is no file
         //Set the mFaceData as all the nodes.
-        int num_faces = this->GetNumNodes();
-        for (int i=0; i<num_faces; i++)
+        unsigned num_faces = this->GetNumNodes();
+        for (unsigned i=0; i<num_faces; i++)
         {
-            std::vector<int> current_item;
+            std::vector<unsigned> current_item;
             current_item.push_back(i);
             this->mFaceData.push_back(current_item);
         }
@@ -133,7 +133,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
      * http://www-2.cs.cmu.edu/~quake/triangle.edge.html
      */
     std::stringstream face_header_stream(this->mFaceRawData[0]);
-    unsigned int num_faces;
+    unsigned num_faces;
     face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
     
     //mNumBoundaryFaces = mNumFaces; //temporary
@@ -177,52 +177,54 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
         if (the_iterator!=rawData.begin()) //Ignore the header string
         {
             std::vector<double> current_coords;
-            unsigned int item_number;
+            unsigned item_number;
             
             //Read item index
-            line_stream >> item_number;
-            
-            //Watch for item zero (this will only happen at most once!)
-            if (item_number == 0)
+            if (line_stream >> item_number)
             {
-                this->mIndexFromZero = true;
-            }
             
-            //Throw an error if the item numbers are out of order
-            if (this->mIndexFromZero == true)
-            {
-                if (item_number != tokenized_data.size())
-                {
-                    // ignored from coverage because otherwise would have to create files
-                    // for a bad mesh just to test this line - note that it is tested for
-                    // below in the case that the nodes are indexed from 1
-#define COVERAGE_IGNORE
-                    std::stringstream item_number_as_string;
-                    item_number_as_string << item_number;
-                    EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
-#undef COVERAGE_IGNORE
-                }
-            }
-            else
-            {
-                if (item_number-1 != tokenized_data.size())
-                {
-                    std::stringstream item_number_as_string;
-                    item_number_as_string << item_number;
-                    EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
-                }
-            }
-            
-            //Form the vector which represents the position of this item
-            for (int i = 0; i < SPACE_DIM; i++)
-            {
-                double item_coord;
-                line_stream >> item_coord;
-                current_coords.push_back(item_coord);
-            }
-            
-            //Put item onto main output vector
-            tokenized_data.push_back(current_coords);
+	            //Watch for item zero (this will only happen at most once!)
+	            if (item_number == 0)
+	            {
+	                this->mIndexFromZero = true;
+	            }
+	            
+	            //Throw an error if the item numbers are out of order
+	            if (this->mIndexFromZero == true)
+	            {
+	                if (item_number != tokenized_data.size())
+	                {
+	                    // ignored from coverage because otherwise would have to create files
+	                    // for a bad mesh just to test this line - note that it is tested for
+	                    // below in the case that the nodes are indexed from 1
+	#define COVERAGE_IGNORE
+	                    std::stringstream item_number_as_string;
+	                    item_number_as_string << item_number;
+	                    EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
+	#undef COVERAGE_IGNORE
+	                }
+	            }
+	            else
+	            {
+	                if (item_number-1 != tokenized_data.size())
+	                {
+	                    std::stringstream item_number_as_string;
+	                    item_number_as_string << item_number;
+	                    EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
+	                }
+	            }
+	            
+	            //Form the vector which represents the position of this item
+	            for (unsigned i = 0; i < SPACE_DIM; i++)
+	            {
+	                double item_coord;
+	                line_stream >> item_coord;
+	                current_coords.push_back(item_coord);
+	            }
+	            
+	            //Put item onto main output vector
+	            tokenized_data.push_back(current_coords);
+	        }
         }
         
     }
@@ -250,11 +252,11 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
  * indices of nodes.
  */
 template <int ELEMENT_DIM, int SPACE_DIM>
-std::vector<std::vector<int> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
+std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
     std::vector<std::string> rawData,
-    int dimensionOfObject)
+    unsigned dimensionOfObject)
 {
-    std::vector< std::vector<int> > tokenized_data;
+    std::vector< std::vector<unsigned> > tokenized_data;
     
     std::vector<std::string>::iterator the_iterator;
     for ( the_iterator = rawData.begin(); the_iterator != rawData.end(); the_iterator++ )
@@ -264,24 +266,26 @@ std::vector<std::vector<int> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
         
         if (the_iterator!=rawData.begin())
         {
-            std::vector<int> current_indices;
-            int item_number;
+            std::vector<unsigned> current_indices;
+            unsigned item_number;
             
-            line_stream >> item_number;
-            
-            for (int i = 0; i < dimensionOfObject; i++)
+            if (line_stream >> item_number)
             {
-                int item_index;
-                line_stream >> item_index;
-                //If the nodes have been indexed from one then we need to shift the indices
-                if (this->mIndexFromZero == false)
-                {
-                    item_index -= 1;
-                }
-                current_indices.push_back(item_index);
-            }
-            
-            tokenized_data.push_back(current_indices);
+	            
+	            for (unsigned i = 0; i < dimensionOfObject; i++)
+	            {
+	                unsigned item_index;
+	                line_stream >> item_index;
+	                //If the nodes have been indexed from one then we need to shift the indices
+	                if (this->mIndexFromZero == false)
+	                {
+	                    item_index -= 1;
+	                }
+	                current_indices.push_back(item_index);
+	            }
+	            
+	            tokenized_data.push_back(current_indices);
+	        }
         }
         
     }
@@ -310,7 +314,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
     this->mElementRawData=this->GetRawDataFromFile(face_file_name);
     
     std::stringstream face_header_stream(this->mElementRawData[0]);
-    unsigned int num_elements;
+    unsigned num_elements;
     face_header_stream >> num_elements >> this->mMaxFaceBdyMarker;
     
     // Read the rest of the element data using TokenizeStringsToInts method
@@ -340,10 +344,10 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
     {
         //There is no file
         //Set the mFaceData as all the nodes.
-        int num_faces = this->GetNumNodes();
-        for (int i=0; i<num_faces; i++)
+        unsigned num_faces = this->GetNumNodes();
+        for (unsigned i=0; i<num_faces; i++)
         {
-            std::vector<int> current_item;
+            std::vector<unsigned> current_item;
             current_item.push_back(i);
             this->mFaceData.push_back(current_item);
         }
@@ -368,7 +372,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
      */
     
     std::stringstream face_header_stream(this->mFaceRawData[0]);
-    unsigned int num_faces;
+    unsigned num_faces;
     face_header_stream >> num_faces >> this->mMaxFaceBdyMarker;
     
     

@@ -20,21 +20,21 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextNode(std::vector<double>
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<int> nextElement)
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextElement(std::vector<unsigned> nextElement)
 {
     assert (nextElement.size() == ELEMENT_DIM+1);
     mElementData.push_back(nextElement);
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<int> nextFace)
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector<unsigned> nextFace)
 {
     assert (nextFace.size() == ELEMENT_DIM);
     mBoundaryFaceData.push_back(nextFace);
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryEdge(std::vector<int> nextEdge)
+void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryEdge(std::vector<unsigned> nextEdge)
 {
     SetNextBoundaryFace(nextEdge);
 }
@@ -77,7 +77,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     {
         if ((*iter)->IsDeleted() == false)
         {
-            std::vector<int> indices(ELEMENT_DIM+1);
+            std::vector<unsigned> indices(ELEMENT_DIM+1);
             for (int j=0; j<ELEMENT_DIM+1; j++)
             {
                 int old_index=(*iter)->GetNodeGlobalIndex(j);
@@ -96,7 +96,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     {
         if ((*boundary_iter)->IsDeleted() == false)
         {
-            std::vector<int> indices(ELEMENT_DIM);
+            std::vector<unsigned> indices(ELEMENT_DIM);
             for (int j=0; j<ELEMENT_DIM; j++)
             {
                 int old_index=(*boundary_iter)->GetNodeGlobalIndex(j);
@@ -115,15 +115,15 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     AbstractMeshReader<ELEMENT_DIM,
     SPACE_DIM>& rMeshReader)
 {
-    for (int i=0; i<rMeshReader.GetNumNodes();i++)
+    for (unsigned i=0; i<rMeshReader.GetNumNodes();i++)
     {
         SetNextNode(rMeshReader.GetNextNode());
     }
-    for (int i=0; i<rMeshReader.GetNumElements();i++)
+    for (unsigned i=0; i<rMeshReader.GetNumElements();i++)
     {
         SetNextElement(rMeshReader.GetNextElement());
     }
-    for (int i=0; i<rMeshReader.GetNumFaces();i++)
+    for (unsigned i=0; i<rMeshReader.GetNumFaces();i++)
     {
         SetNextBoundaryFace(rMeshReader.GetNextFace());
     }

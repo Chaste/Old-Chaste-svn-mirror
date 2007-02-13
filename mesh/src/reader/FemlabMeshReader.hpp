@@ -18,9 +18,9 @@ private:
     std::vector<std::vector<double> > TokenizeStringsToDoubles(
         std::vector<std::string> rawData);
         
-    std::vector<std::vector<int> > TokenizeStringsToInts(
+    std::vector<std::vector<unsigned> > TokenizeStringsToInts(
         std::vector<std::string> rawData,
-        int dimensionOfObject);
+        unsigned dimensionOfObject);
 public:
     FemlabMeshReader(std::string pathBaseName, std::string nodeFileName, std::string elementFileName, std::string edgeFileName);
     virtual ~FemlabMeshReader();

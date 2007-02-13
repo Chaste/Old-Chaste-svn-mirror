@@ -48,7 +48,7 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
     
         // Remove comments
         
-        int hashLocation=RawLineFromFile.find('#',0);
+        unsigned hashLocation=RawLineFromFile.find('#',0);
         if (hashLocation >= 0)
         {
             RawLineFromFile=RawLineFromFile.substr(0,hashLocation);
@@ -57,7 +57,7 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
         
         // Remove blank lines
         
-        int notBlankLocation=RawLineFromFile.find_first_not_of(" \t",0);
+        unsigned notBlankLocation=RawLineFromFile.find_first_not_of(" \t",0);
         if (notBlankLocation >= 0)
         {
             RawDataFromFile.push_back(RawLineFromFile);
@@ -87,17 +87,17 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
 {
     //Initialize an interator for the vector of nodes
-    std::vector<std::vector<int> >::iterator the_iterator;
+    std::vector<std::vector<unsigned> >::iterator the_iterator;
     
-    int max_node_index = -1; // Must be negative
+    int max_node_index = -1; // Must be negative -- can't go unsigned yet
     
     for (the_iterator = mElementData.begin(); the_iterator < mElementData.end(); the_iterator++)
     {
-        std::vector<int> indices = *the_iterator; // the_iterator points at each line in turn
+        std::vector<unsigned> indices = *the_iterator; // the_iterator points at each line in turn
         
-        for (int i = 0; i < ELEMENT_DIM+1; i++)
+        for (unsigned i = 0; i < ELEMENT_DIM+1; i++)
         {
-            if (indices[i] > max_node_index)
+            if ((int) indices[i] >  max_node_index)
             {
                 max_node_index = indices[i];
             }
@@ -116,18 +116,18 @@ int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
  */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
 {
     //Initialize an interator for the vector of nodes
-    std::vector<std::vector<int> >::iterator the_iterator;
+    std::vector<std::vector<unsigned> >::iterator the_iterator;
     
-    int min_node_index = 1000000; // A large integer
+    unsigned min_node_index = 1000000; // A large integer
     
     for (the_iterator = mElementData.begin(); the_iterator < mElementData.end(); the_iterator++)
     {
-        std::vector<int> indices = *the_iterator; // the_iterator points at each line in turn
+        std::vector<unsigned> indices = *the_iterator; // the_iterator points at each line in turn
         
-        for (int i = 0; i < ELEMENT_DIM+1; i++)
+        for (unsigned i = 0; i < ELEMENT_DIM+1; i++)
         {
             if (indices[i] < min_node_index)
             {
@@ -178,7 +178,7 @@ std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
  */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
+std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 {
     /**
      * Checks that there are still some elements left to read. If not throws an
@@ -191,7 +191,7 @@ std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
         EXCEPTION("All elements already got");
     }
     
-    std::vector<int> next_element = *mpElementIterator;
+    std::vector<unsigned> next_element = *mpElementIterator;
     
     mpElementIterator++;
     
@@ -221,7 +221,7 @@ void AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
  */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
+std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
 {
     /**
      * Checks that there are still some faces left to read. If not throws an
@@ -234,7 +234,7 @@ std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
         EXCEPTION("All faces (or edges) already got");
     }
     
-    std::vector<int> next_face = *mpFaceIterator;
+    std::vector<unsigned> next_face = *mpFaceIterator;
     
     mpFaceIterator++;
     
@@ -253,7 +253,7 @@ std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
  */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-std::vector<int> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
+std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
 {
     // Call GetNextFace()
     return GetNextFace();

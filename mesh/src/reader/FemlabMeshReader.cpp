@@ -74,7 +74,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
     std::vector < std::vector < double > >tokenized_data;        // Output
     
     //Iterate over the lines of input
-    int dimension_count = 0;
+    unsigned dimension_count = 0;
     std::vector < std::string >::iterator the_iterator;
     for (the_iterator = rawData.begin (); the_iterator != rawData.end ();
          the_iterator++)
@@ -97,7 +97,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
         }
         else
         {
-            int current_node = 0;
+            unsigned current_node = 0;
             
             //Other iterations, push in coordinates other than x.
             while (!line_stream.eof ())
@@ -124,7 +124,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
 /**
  * TokenizeStringsToInts is for reading element, face or edge data which came from
  * a Femlab or Matlab PDE toolbox file.
- *  Each string is expected to be a series of int which represent:
+ *  Each string is expected to be a series of unsigned which represent:
  *  The first several lines denote the indices of nodes
  *  The rest contains extra information which are ignored currently.
  *  ( In 2-D: 2 indices for an edge, 3 for a triangle)
@@ -133,14 +133,14 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
  * indices of nodes.
  */
 template <int ELEMENT_DIM, int SPACE_DIM>
-std::vector < std::vector < int > >
+std::vector < std::vector < unsigned > >
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < std::string > rawData,
-        int dimensionOfObject)
+        unsigned dimensionOfObject)
 {
-    std::vector < std::vector < int > >tokenized_data;
+    std::vector < std::vector < unsigned > >tokenized_data;
     
     /* There are dimensionOfObject lines to be read */
-    for (int i = 0; i < dimensionOfObject; i++)
+    for (unsigned i = 0; i < dimensionOfObject; i++)
     {
         std::string line_of_data = rawData[i];
         std::stringstream line_stream (line_of_data);
@@ -152,15 +152,15 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
             {
                 double item_index;
                 
-                std::vector < int >first_index;
+                std::vector < unsigned >first_index;
                 line_stream >> item_index;
-                first_index.push_back ((int) (item_index - 0.5));       //item indices should be minus 1.
+                first_index.push_back ((unsigned) (item_index - 0.5));       //item indices should be minus 1.
                 tokenized_data.push_back (first_index);
             }
         }
         else
         {
-            int current_node = 0;
+            unsigned current_node = 0;
             
             //Other iterations, push in coordinates other than x.
             while (!line_stream.eof ())
@@ -168,7 +168,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
                 double item_index;
                 line_stream >> item_index;
                 tokenized_data[current_node].
-                push_back ((int) (item_index - 0.5));
+                push_back ((unsigned) (item_index - 0.5));
                 current_node++;
             }
         }
