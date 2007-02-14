@@ -13,6 +13,7 @@
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
+#include "WntGradient.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
@@ -113,8 +114,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     
 public:
 
-
-    // Test the spring system. There are no cells in this test, therefore no birth, although
+	// Test the spring system. There are no cells in this test, therefore no birth, although
     // nodes are sloughed. The mesh is initially a set of 10 by 10 squares, each square made
     // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
     // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
@@ -332,109 +332,6 @@ public:
         CheckAgainstPreviousRun("Crypt2DPeriodic", 200u, 500u);
     }
     
-    void TestCalculateCryptBoundaries()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        mesh.Translate(0.0,-2.0,0.0) ;
-        //Create Vector of ghost nodes
-        std::vector<int> ghost_node_indices;
-        for (int i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNode(i)->GetPoint().rGetLocation()[0];
-            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
-            if ((x<2.0)||(x>8.0)||(y>6.0)||(y<0.0))
-            {
-               ghost_node_indices.push_back(i);
-            }
-        }
-        
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->SetCryptLength(6.0);
-        p_params->SetCryptWidth(6.0);
-        CryptSimulation2DPeriodic simulator(mesh);
-        simulator.SetGhostNodes(ghost_node_indices);
-
-        simulator.CalculateCryptBoundary();
-        
-        //simulator.DetectNaughtyCellsJoiningPeriodicEdges();
-        
-        std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
-        
-        std::vector<unsigned> actual_boundary_nodes(24);
-      
-        actual_boundary_nodes[0] = 24;
-        actual_boundary_nodes[1] = 25;
-        actual_boundary_nodes[2] = 26;
-        actual_boundary_nodes[3] = 27;
-        actual_boundary_nodes[4] = 28;
-        actual_boundary_nodes[5] = 29;
-        actual_boundary_nodes[6] = 30;
-        actual_boundary_nodes[7] = 35;
-        actual_boundary_nodes[8] = 41;
-        actual_boundary_nodes[9] = 46;
-        actual_boundary_nodes[10] = 52;
-        actual_boundary_nodes[11] = 57;
-        actual_boundary_nodes[12] = 63;
-        actual_boundary_nodes[13] = 68;
-        actual_boundary_nodes[14] = 74;
-        actual_boundary_nodes[15] = 79;
-        actual_boundary_nodes[16] = 85;
-        actual_boundary_nodes[17] = 90;
-        actual_boundary_nodes[18] = 91;
-        actual_boundary_nodes[19] = 92;
-        actual_boundary_nodes[20] = 93;
-        actual_boundary_nodes[21] = 94;
-        actual_boundary_nodes[22] = 95;
-        actual_boundary_nodes[23] = 96;
-        
-        TS_ASSERT_EQUALS(actual_boundary_nodes.size(),calculated_boundary_nodes.size());
-        
-        
-        for(unsigned i=0; i<calculated_boundary_nodes.size(); i++)
-        {
-            TS_ASSERT_EQUALS(actual_boundary_nodes[i],calculated_boundary_nodes[i]);
-        }
-        
-        std::vector<unsigned> calculated_left_boundary_nodes = simulator.GetLeftCryptBoundary();
-        std::vector<unsigned> calculated_right_boundary_nodes = simulator.GetRightCryptBoundary();
-        
-        std::vector<unsigned> actual_left_boundary_nodes(7);
-        
-        actual_left_boundary_nodes[0] = 24;
-        actual_left_boundary_nodes[1] = 35;
-        actual_left_boundary_nodes[2] = 46;
-        actual_left_boundary_nodes[3] = 57;
-        actual_left_boundary_nodes[4] = 68;
-        actual_left_boundary_nodes[5] = 79;
-        actual_left_boundary_nodes[6] = 90;
-        
-        std::vector<unsigned> actual_right_boundary_nodes(7);
-        
-        actual_right_boundary_nodes[0] = 24+6;
-        actual_right_boundary_nodes[1] = 35+6;
-        actual_right_boundary_nodes[2] = 46+6;
-        actual_right_boundary_nodes[3] = 57+6;
-        actual_right_boundary_nodes[4] = 68+6;
-        actual_right_boundary_nodes[5] = 79+6;
-        actual_right_boundary_nodes[6] = 90+6;
-        
-                
-        TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
-        TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
-        
-        
-        for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
-        {
-            TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
-            TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
-        }
-    
-        
-    }
-    
-
 	// This is a rubbish test - all cells start at birthTime = 0.
 	// So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
 	// cell cycle and runs reasonably quickly...
@@ -505,8 +402,8 @@ public:
                 generation = 4;
                 birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
             }
-            
-            double wnt = 1.0 - y/p_params->GetCryptLength();
+            WntGradient wnt_gradient(LINEAR);
+            double wnt = wnt_gradient.GetWntLevel(y);
             MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(0.0);
@@ -526,7 +423,7 @@ public:
         // Set to re-mesh and birth
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(false);
-        simulator.SetWntIncluded(true);
+        simulator.SetWntGradient(LINEAR);
         
         simulator.SetGhostNodes(ghost_node_indices);
                 
@@ -631,8 +528,108 @@ public:
                 
         SimulationTime::Destroy();
         simulator.SetDt(0.001);
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Solve();
         //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
+    }
+    
+    void TestCalculateCryptBoundaries()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.Translate(0.0,-2.0,0.0) ;
+        //Create Vector of ghost nodes
+        std::vector<int> ghost_node_indices;
+        for (int i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint().rGetLocation()[0];
+            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
+            if ((x<2.0)||(x>8.0)||(y>6.0)||(y<0.0))
+            {
+               ghost_node_indices.push_back(i);
+            }
+        }
+        
+        CancerParameters *p_params = CancerParameters::Instance();
+        p_params->SetCryptLength(6.0);
+        p_params->SetCryptWidth(6.0);
+        CryptSimulation2DPeriodic simulator(mesh);
+        simulator.SetGhostNodes(ghost_node_indices);
+
+        simulator.CalculateCryptBoundary();
+        
+        //simulator.DetectNaughtyCellsJoiningPeriodicEdges();
+        
+        std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
+        
+        std::vector<unsigned> actual_boundary_nodes(24);
+      
+        actual_boundary_nodes[0] = 24;
+        actual_boundary_nodes[1] = 25;
+        actual_boundary_nodes[2] = 26;
+        actual_boundary_nodes[3] = 27;
+        actual_boundary_nodes[4] = 28;
+        actual_boundary_nodes[5] = 29;
+        actual_boundary_nodes[6] = 30;
+        actual_boundary_nodes[7] = 35;
+        actual_boundary_nodes[8] = 41;
+        actual_boundary_nodes[9] = 46;
+        actual_boundary_nodes[10] = 52;
+        actual_boundary_nodes[11] = 57;
+        actual_boundary_nodes[12] = 63;
+        actual_boundary_nodes[13] = 68;
+        actual_boundary_nodes[14] = 74;
+        actual_boundary_nodes[15] = 79;
+        actual_boundary_nodes[16] = 85;
+        actual_boundary_nodes[17] = 90;
+        actual_boundary_nodes[18] = 91;
+        actual_boundary_nodes[19] = 92;
+        actual_boundary_nodes[20] = 93;
+        actual_boundary_nodes[21] = 94;
+        actual_boundary_nodes[22] = 95;
+        actual_boundary_nodes[23] = 96;
+        
+        TS_ASSERT_EQUALS(actual_boundary_nodes.size(),calculated_boundary_nodes.size());
+        
+        
+        for(unsigned i=0; i<calculated_boundary_nodes.size(); i++)
+        {
+            TS_ASSERT_EQUALS(actual_boundary_nodes[i],calculated_boundary_nodes[i]);
+        }
+        
+        std::vector<unsigned> calculated_left_boundary_nodes = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> calculated_right_boundary_nodes = simulator.GetRightCryptBoundary();
+        
+        std::vector<unsigned> actual_left_boundary_nodes(7);
+        
+        actual_left_boundary_nodes[0] = 24;
+        actual_left_boundary_nodes[1] = 35;
+        actual_left_boundary_nodes[2] = 46;
+        actual_left_boundary_nodes[3] = 57;
+        actual_left_boundary_nodes[4] = 68;
+        actual_left_boundary_nodes[5] = 79;
+        actual_left_boundary_nodes[6] = 90;
+        
+        std::vector<unsigned> actual_right_boundary_nodes(7);
+        
+        actual_right_boundary_nodes[0] = 24+6;
+        actual_right_boundary_nodes[1] = 35+6;
+        actual_right_boundary_nodes[2] = 46+6;
+        actual_right_boundary_nodes[3] = 57+6;
+        actual_right_boundary_nodes[4] = 68+6;
+        actual_right_boundary_nodes[5] = 79+6;
+        actual_right_boundary_nodes[6] = 90+6;
+        
+                
+        TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
+        TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
+        
+        
+        for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
+        {
+            TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
+            TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
+        }
     }
         
 };

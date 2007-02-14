@@ -25,8 +25,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 }
 
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
-{
-	// Copy 'easy' data members
+{	// Copy 'easy' data members
 	mGeneration = other_cell.mGeneration;
     mCellType = other_cell.mCellType;
     mMutationState = other_cell.mMutationState;
@@ -37,7 +36,6 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
-    
 }
 
 MeinekeCryptCell::MeinekeCryptCell(const MeinekeCryptCell &other_cell)

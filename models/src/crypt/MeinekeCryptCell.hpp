@@ -59,6 +59,11 @@ public:
     ~MeinekeCryptCell();
     
     MeinekeCryptCell(const MeinekeCryptCell &other_cell);
+    
+    /**
+     * Copy all the attributes of one cell to another
+     * (used for periodic boundaries - does not copy node or position information)
+     */
     void operator=(const MeinekeCryptCell &other_cell);
     
     void SetBirthTime(double birthTime);

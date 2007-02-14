@@ -15,6 +15,7 @@
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 #include "CryptHoneycombMeshGenerator.hpp"
+#include "WntGradient.hpp"
 
 class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
 {
@@ -608,8 +609,8 @@ public:
                 generation = 4;
                 birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
             }
-            
-            double wnt = 1.0 - y/p_params->GetCryptLength();
+            WntGradient wnt_gradient(LINEAR);
+            double wnt = wnt_gradient.GetWntLevel(y);
             MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
@@ -629,7 +630,7 @@ public:
         // Set to re-mesh and birth
         simulator.SetReMeshRule(true);
         simulator.SetNoBirth(false);
-        simulator.SetWntIncluded(true);
+        simulator.SetWntGradient(LINEAR);
         
         simulator.SetGhostNodes(ghost_node_indices);
                 

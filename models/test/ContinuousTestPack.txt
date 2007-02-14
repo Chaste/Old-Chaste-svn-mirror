@@ -4,3 +4,4 @@ TestCryptSimulation.hpp
 TestCryptSimulation2DPeriodic.hpp
 TestCellCycleModels.hpp
 TestMeinekeCryptCell.hpp
+TestWntGradient.hpp

@@ -15,7 +15,7 @@
 #include "ColumnDataWriter.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 #include "WntCellCycleModel.hpp"
-
+#include "WntGradient.hpp"
 
 /**
  * Solve a 2D crypt simulation based on the Meineke paper.
@@ -91,6 +91,8 @@ private:
     
     CancerParameters *mpParams;
     
+    WntGradientType mWntGradient;
+    
 public:
 
     /** Constructor
@@ -146,6 +148,7 @@ public:
         mMaxElements = 10*mrMesh.GetNumElements();
         mWntIncluded = false;
         mPeriodicSides = true;
+        mWntGradient=NONE;
     }
     
     /**
@@ -247,6 +250,14 @@ public:
     {
         return mCryptBoundary;
     }
+    
+    // This automatically sets this to be a wnt dependent simulation
+    // you should supply cells with a wnt cell cycle...
+    void SetWntGradient(WntGradientType wntGradient)
+    {
+    	mWntIncluded = true;
+    	mWntGradient = wntGradient;
+    }
     /**
      * Main Solve method.
      * 
@@ -254,6 +265,7 @@ public:
      */
     void Solve()
     {
+    	WntGradient wnt_gradient(mWntGradient);
         if (mOutputDirectory=="")
         {
             EXCEPTION("OutputDirectory not set");
@@ -374,7 +386,7 @@ public:
 		        std::vector<double> cell_cycle_influences;
 		        if(mWntIncluded)
 		        {
-			    	double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
+			    	double wnt_stimulus = wnt_gradient.GetWntLevel(y);
 			    	cell_cycle_influences.push_back(wnt_stimulus);
 		        }
                 temp = mCells[i].ReadyToDivide(cell_cycle_influences);		
@@ -414,7 +426,6 @@ public:
 		                    	}	
 		                    	if (mLeftCryptBoundary[j]==i)
 		                    	{
-		                    		//skip = true;
 		                    		if(periodic_division_buffer>0)
 		                    		{
                                         #define COVERAGE_IGNORE
@@ -436,7 +447,7 @@ public:
 	                    
 	                    if(mWntIncluded)
 	                    {
-		                    double wnt_stimulus = 1.0 - y/mpParams->GetCryptLength();
+		                    double wnt_stimulus = wnt_gradient.GetWntLevel(y);
 		                    cell_cycle_influences.push_back(wnt_stimulus);
 	                    }
 	                    
@@ -450,7 +461,7 @@ public:
 	                        {	
                                 #define COVERAGE_IGNORE
 	                        	std::cout << "Periodic Division\n";
-	                        	periodic_division_buffer=5;
+	                        	periodic_division_buffer=3;
 	                        	//Make sure the image cell knows it has just divided and aged a generation
 	                        	mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
                                 #undef COVERAGE_IGNORE
@@ -916,8 +927,8 @@ public:
 	            	left_point.rGetLocation()[1] = right_point[1];
 	            	mrMesh.SetNode(LeftNodeIndex, left_point, false);
 	            	// Also force them to be the same cell
-	            	// needed to synchronise cell cycle models...
-	            	//\todo mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+	            	// needed to synchronise cell cycle models (as R periodic cell cycle models are not run)...
+	            	mCells[RightNodeIndex]=mCells[LeftNodeIndex];
 	            }
             }
             //std::cout << "***************************************************\n";
@@ -1118,6 +1129,7 @@ public:
                     if(index < (int) mCells.size())
                     {
                         CryptCellType type = mCells[index].GetCellType();
+                        CryptCellMutationState mutation = mCells[index].GetMutationState();
                         
                         if(type == STEM)
                         {
@@ -1130,6 +1142,11 @@ public:
                         else
                         {
                             colour = 2;
+                        }
+                        
+                        if(mutation!=HEALTHY)
+                        {
+                        	colour = 3;	
                         }
                     }
                     else
@@ -1225,16 +1242,6 @@ public:
     void SetNoBirth(bool nobirth)
     {
         mNoBirth = nobirth;
-    }
-    
-    /**
-     * Set the simulation to run with Wnt signalling.
-     * (still needs a set of wnt dependent cells as input)
-     * This allows cells to change type on the fly
-     */   
-    void SetWntIncluded(bool wntIncluded)
-    {
-        mWntIncluded = wntIncluded;
     }
     
     
@@ -1514,15 +1521,15 @@ public:
 				}
 			}
 			
-			if(this_left_node_missing)
-			{	// The left node has been internalised so the right node should be spooked
+			if(this_left_node_missing && (!mIsGhostNode[old_node_on_left_boundary]))
+			{	// The left node has been internalised (was periodic and is not a ghost) so the right node should be spooked
 				mIsGhostNode[old_node_on_right_boundary]=true;
 				std::cout << "Periodic Node "<< old_node_on_left_boundary <<" internalised \n Right Node " << old_node_on_right_boundary << " spooked\n";
 				CalculateCryptBoundary();
 
 			}
-			if(this_right_node_missing)
-			{	// The right node has been internalised so the right node should be spooked
+			if(this_right_node_missing && (!mIsGhostNode[old_node_on_right_boundary]))
+			{	// The right node has been internalised (was periodic and is not a ghost) so the right node should be spooked
 				mIsGhostNode[old_node_on_left_boundary]=true;
 				std::cout << "Periodic Node " << old_node_on_right_boundary << " internalised \n Left Node " << old_node_on_left_boundary << " spooked\n";
 				CalculateCryptBoundary();
@@ -1532,13 +1539,6 @@ public:
 		mOldLeftCryptBoundary = mLeftCryptBoundary;
 		mOldRightCryptBoundary = mRightCryptBoundary;
 		mOldCryptBoundary = mCryptBoundary;
-		
-//		for(unsigned i=0; i<mLeftCryptBoundary.size() ; i++)
-//		{
-//			std::cout << mLeftCryptBoundary[i] << "\t" << mRightCryptBoundary[i] << "\n";
-//			
-//		}
-		
 	}
 	
 	
