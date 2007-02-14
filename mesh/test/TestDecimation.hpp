@@ -5,7 +5,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include "TrianglesMeshWriter.cpp"
-#include "Decimator.cpp"
+#include "Decimator.hpp"
 #include "QualityDecimator.hpp"
 #include "SequenceDecimator.hpp"
 #include "MinimumElementDecimator.hpp"

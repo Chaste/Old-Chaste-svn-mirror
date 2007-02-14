@@ -25,10 +25,10 @@ protected:
             {
                 //Need to watch out for where it's going
                 double weight=0.0;
-                for (int j=0; j<=SPACE_DIM;j++)
+                for (unsigned j=0; j<=SPACE_DIM;j++)
                 {
-                    int index=p_element->GetNodeGlobalIndex(j);
-                    if (before == false && index==p_node->GetIndex())
+                    unsigned index=p_element->GetNodeGlobalIndex(j);
+                    if (before == false && index==(unsigned)p_node->GetIndex())
                     {
                         index=pNodeInfo->GetPossibleTargetIndex();
                     }
@@ -61,7 +61,7 @@ protected:
         return fabs(measure);
     }
     
-    int GetTag(int index)
+    unsigned GetTag(unsigned index)
     {
         if (this->mpMesh->GetNode(index)->IsBoundaryNode())
         {

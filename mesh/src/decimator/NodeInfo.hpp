@@ -21,7 +21,7 @@ protected:
     double mScore;
     double mNeighbourhoodVolume;
     double mMeasureBefore;
-    int mPossibleTargetIndex;
+    unsigned mPossibleTargetIndex;
     NodeInfo<SPACE_DIM> *mpBestNeighbourNode;
     Node<SPACE_DIM> *mpNode;
     std::set<NodeInfo<SPACE_DIM> *> mNeighbourNodes;
@@ -34,7 +34,7 @@ public:
     NodeInfo(Node<SPACE_DIM> *pNode) : mScore(INFINITY), mpBestNeighbourNode(0),mpNode(pNode)
 {}
     
-    int GetPossibleTargetIndex()
+    unsigned GetPossibleTargetIndex()
     {
         return mPossibleTargetIndex;
     }
@@ -93,7 +93,7 @@ public:
         mNeighbourElementIterator = mNeighbourElements.begin();//Perhaps?
     }
     
-    const int GetNumNeighbourElements()
+    const unsigned GetNumNeighbourElements()
     {
         return mNeighbourElements.size();
     }
@@ -111,7 +111,7 @@ public:
     }
     */
     
-    int GetIndex()
+    unsigned GetIndex()
     {
         return mpNode->GetIndex();
     }

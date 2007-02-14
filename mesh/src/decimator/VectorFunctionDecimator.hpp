@@ -25,10 +25,10 @@ protected:
             if (volume != 0.0)
             {
                 c_vector<double, SPACE_DIM> weight=zero_vector<double>(SPACE_DIM);
-                for (int j=0; j<=SPACE_DIM;j++)
+                for (unsigned j=0; j<=SPACE_DIM;j++)
                 {
-                    int index=p_element->GetNodeGlobalIndex(j);
-                    if (before == false && index==p_node->GetIndex())
+                    unsigned index=p_element->GetNodeGlobalIndex(j);
+                    if (before == false && index==(unsigned)p_node->GetIndex())
                     {
                         index=pNodeInfo->GetPossibleTargetIndex();
                     }
@@ -85,7 +85,7 @@ protected:
         
         (*mFibreFile)<<time<<"\t";
         
-        for (int i=0; i<this->mpMesh->GetNumAllNodes();i++)
+        for (unsigned i=0; i<(unsigned)this->mpMesh->GetNumAllNodes();i++)
         {
             Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(i);
         

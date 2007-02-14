@@ -36,7 +36,7 @@ protected:
         {
             unsigned element_index=pNode->GetNextContainingElementIndex();
             Element <SPACE_DIM, SPACE_DIM> *p_element= mpMesh->GetElement(element_index);
-            for (int j=0; j<SPACE_DIM+1; j++)
+            for (unsigned j=0; j<SPACE_DIM+1; j++)
             {
                 unsigned index=p_element->GetNodeGlobalIndex(j);
                 pNodeInfo->AddToNeighbourNodes(mQueue[index]);
@@ -233,21 +233,21 @@ protected:
         }
         NodeMap node_map(mpMesh->GetNumAllNodes());
         
-        int new_index=0;
-        for (int i=0; i<mpMesh->GetNumAllNodes();i++)
+        unsigned new_index=0;
+        for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
             Node<SPACE_DIM>* p_node = mpMesh->GetNode(i);
         
             if (p_node->IsDeleted() == false)
             {
-                for (int j=0; j<SPACE_DIM; j++)
+                for (unsigned j=0; j<SPACE_DIM; j++)
                 {
                     (*mNodeFile)<<p_node->GetPoint()[j]<<"\t";
                 }
                 node_map.SetNewIndex(i,new_index++);
                 if (SPACE_DIM == 2)
                 {
-                    int tag=GetTag(i);
+                    unsigned tag=GetTag(i);
                     (*mNodeFile)<<tag<<"\t";
                 }
             }
@@ -259,14 +259,14 @@ protected:
         (*mNodeFile)<<"\n";
         if (SPACE_DIM==2)
         {
-            for (int i=0; i<mpMesh->GetNumAllElements();i++)
+            for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllElements();i++)
             {
                 Element<SPACE_DIM,SPACE_DIM> *element=mpMesh->GetElement(i);
                 if (element->IsDeleted() == false)
                 {
-                    for (int j=0; j<SPACE_DIM+1; j++)
+                    for (unsigned j=0; j<SPACE_DIM+1; j++)
                     {
-                        int old_index=element->GetNodeGlobalIndex(j);
+                        unsigned old_index=element->GetNodeGlobalIndex(j);
                         (*mElementFile)<<node_map.GetNewIndex(old_index)<<"\t";
                     }
                 }
@@ -276,7 +276,7 @@ protected:
         
     }
        
-    virtual int GetTag(int index)
+    virtual unsigned GetTag(unsigned index)
     {
         if (mpMesh->GetNode(index)->IsBoundaryNode())
         {
@@ -303,9 +303,9 @@ public:
             //Interrogate();
         }
     }
-    void DecimateAnimate(std::string filePathName, int step=1)
+    void DecimateAnimate(std::string filePathName, unsigned step=1)
     {
-        int time=0;
+        unsigned time=0;
         assert(SPACE_DIM<=2);
         OpenAnimationFiles(filePathName);
         
@@ -335,12 +335,12 @@ public:
         mThresholdScore = INFINITY;
         mVolumeLeakage = 1e-5;
         mQueue.reserve(mpMesh->GetNumAllNodes());
-        for (int i=0; i<mpMesh->GetNumAllNodes();i++)
+        for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
             NodeInfo<SPACE_DIM> *p_node_info=new NodeInfo<SPACE_DIM>(mpMesh->GetNode(i));
             mQueue.push_back(p_node_info);
         }
-        for (int i=0; i<mpMesh->GetNumAllNodes();i++)
+        for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
             Initialise(mQueue[i]);
         }
@@ -348,7 +348,7 @@ public:
     }
     void Rescore()
     {
-        for (int i=0; i<mpMesh->GetNumAllNodes();i++)
+        for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
             Rescore(mQueue[i]);
         }
@@ -382,7 +382,7 @@ public:
             {
                 std::cout<<"(not set)\n";
             }
-            for (int i=0;i<p_node_info->GetNumNeighbourNodes();i++)
+            for (unsigned i=0;i<p_node_info->GetNumNeighbourNodes();i++)
             {
                 std::cout<<" "<<p_node_info->GetNextNeighbourNode()->GetIndex();
             }
