@@ -121,7 +121,7 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
     //Initialize an interator for the vector of nodes
     std::vector<std::vector<unsigned> >::iterator the_iterator;
     
-    unsigned min_node_index = 1000000; // A large integer
+    unsigned min_node_index = UINT_MAX; // A large integer
     
     for (the_iterator = mElementData.begin(); the_iterator < mElementData.end(); the_iterator++)
     {

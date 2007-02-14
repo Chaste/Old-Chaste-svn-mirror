@@ -103,7 +103,7 @@ public:
         need_initialisation = true;
         
         // Test the RHF of the mesh
-        for (int i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
+        for (unsigned i = 0; i < monodomain_problem.rGetMesh().GetNumNodes(); i++)
         {
             if (monodomain_problem.rGetMesh().GetNode(i)->GetPoint()[0] == 0.1)
             {

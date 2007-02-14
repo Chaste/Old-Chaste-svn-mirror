@@ -26,28 +26,28 @@ public:
         mpNodeMap = new NodeMap(this->GetNumNodes());
         
         std::vector<Node<SPACE_DIM> * > coarse_nodes;
-        for (int i=0;i<this->GetNumNodes();i++)
+        for (unsigned i=0;i<this->GetNumNodes();i++)
         {
             coarse_nodes.push_back(this->GetNode(i));
         }
         std::sort(coarse_nodes.begin(), coarse_nodes.end(), CompareNodesLex());
         
         std::vector<Node<SPACE_DIM> * > fine_nodes;
-        for (int i=0;i<mpFineMesh->GetNumNodes();i++)
+        for (unsigned i=0;i<mpFineMesh->GetNumNodes();i++)
         {
             fine_nodes.push_back(mpFineMesh->GetNode(i));
         }
         std::sort(fine_nodes.begin(), fine_nodes.end(), CompareNodesLex());
         
        
-        int fine_mesh_index=0;
+        unsigned fine_mesh_index=0;
         //.. update node map
-        for (int coarse_mesh_index=0;coarse_mesh_index<this->GetNumNodes();coarse_mesh_index++)
+        for (unsigned coarse_mesh_index=0;coarse_mesh_index<this->GetNumNodes();coarse_mesh_index++)
         {
             while (!EqualNodes(fine_nodes[fine_mesh_index], coarse_nodes[coarse_mesh_index]) )
             {
                 fine_mesh_index++;
-                if (fine_mesh_index==(int)fine_nodes.size())
+                if (fine_mesh_index==fine_nodes.size())
                 {
                     EXCEPTION("Coarse mesh node doesn't have a partner in the fine mesh.");
                 }

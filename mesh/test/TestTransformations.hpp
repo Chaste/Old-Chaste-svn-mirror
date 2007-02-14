@@ -25,7 +25,7 @@ public:
         
         //Change coordinates
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3> *p_node=mesh.GetNode(i);
             Point<3> point=p_node->GetPoint();
@@ -160,7 +160,7 @@ public:
         
         original_mesh.ConstructFromMeshReader(mesh_reader);
         
-        for (int i=0; i<mesh.GetNumNodes();i++)
+        for (unsigned i=0; i<mesh.GetNumNodes();i++)
         {
         
             // Find new coordinates of the translated node
@@ -213,7 +213,7 @@ public:
         TS_ASSERT_EQUALS(corner_before[1], 1.0);
         TS_ASSERT_EQUALS(corner_before[2], 1.0);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3> *p_node=mesh.GetNode(i);
             Point<3> point=p_node->GetPoint();
@@ -359,7 +359,7 @@ public:
         transformation_matrix = prod (transformation_matrix, translation_matrix);
         
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Node<3> *p_node=mesh.GetNode(i);
             Point<3> point=p_node->GetPoint();
@@ -446,7 +446,7 @@ public:
         
         original_mesh.ConstructFromMeshReader(mesh_reader);
         
-        for (int i=0; i<mesh.GetNumNodes();i++)
+        for (unsigned i=0; i<mesh.GetNumNodes();i++)
         {
         
             Node<3> * node = mesh.GetNode(i) ;
@@ -486,7 +486,7 @@ public:
         
         original_mesh.ConstructFromMeshReader(mesh_reader);
         
-        for (int i=0; i<mesh.GetNumNodes();i++)
+        for (unsigned i=0; i<mesh.GetNumNodes();i++)
         {
         
             // Find new coordinates of the translated node

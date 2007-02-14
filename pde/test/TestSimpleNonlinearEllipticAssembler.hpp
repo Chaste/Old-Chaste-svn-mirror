@@ -122,7 +122,7 @@ public:
                 
         // Set 'solution' to 1 and compute residual
         double h = 0.01;
-        for (int global_index = 0; global_index<mesh.GetNumNodes(); global_index++)
+        for (unsigned global_index = 0; global_index<mesh.GetNumNodes(); global_index++)
         {
             VecSetValue(solution, global_index, (PetscReal) 1, INSERT_VALUES);
         }
@@ -152,7 +152,7 @@ public:
             double value2 = p_residual[local_index];
             TS_ASSERT(fabs(value2 + h) < 0.001);
         }
-        if (lo<=mesh.GetNumNodes()-1 && mesh.GetNumNodes()-1<hi)
+        if (lo<=(int)mesh.GetNumNodes()-1 && (int)mesh.GetNumNodes()-1<hi)
         {
             int local_index = mesh.GetNumNodes()-1-lo;
             double valueLast = p_residual[local_index];
@@ -284,7 +284,7 @@ public:
 
         // Set up initial guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             VecSetValue(initial_guess, i, (-0.01*i*i), INSERT_VALUES);
         }
@@ -382,7 +382,7 @@ public:
         
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             VecSetValue(initial_guess, i, (1.0+0.01*i*i), INSERT_VALUES);
         }
@@ -430,7 +430,7 @@ public:
         
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
-        for (int global_index=0; global_index<mesh.GetNumNodes(); global_index++)
+        for (unsigned global_index=0; global_index<mesh.GetNumNodes(); global_index++)
         {
             VecSetValue(initial_guess, global_index, (1.5-0.15*global_index), INSERT_VALUES);
         }
@@ -481,7 +481,7 @@ public:
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
         double x1;
-        for (int global_index=0; global_index<mesh.GetNumNodes(); global_index++)
+        for (unsigned global_index=0; global_index<mesh.GetNumNodes(); global_index++)
         {
             x1=0.1*(double)(global_index);
             VecSetValue(initial_guess, global_index, 0.35*(1-x1*x1), INSERT_VALUES);
@@ -535,7 +535,7 @@ public:
         // Set up initial Guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
         double x1;
-        for (int global_index=0; global_index<mesh.GetNumNodes(); global_index++)
+        for (unsigned global_index=0; global_index<mesh.GetNumNodes(); global_index++)
         {
             x1=0.1*(double)(global_index);
             VecSetValue(initial_guess, global_index, 0.35*(1-x1*x1), INSERT_VALUES);

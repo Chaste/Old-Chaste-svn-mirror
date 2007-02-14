@@ -445,7 +445,7 @@ public:
         int lo, hi;
         VecGetOwnershipRange(result, &lo, &hi);
         VecGetArray(result, &p_result);
-        for (int global_index=0; global_index < mesh.GetNumNodes(); global_index++)
+        for (unsigned global_index=0; global_index < mesh.GetNumNodes(); global_index++)
         {
             int local_index=global_index - lo;
             double r = mesh.GetNode(global_index)->GetPoint()[0];

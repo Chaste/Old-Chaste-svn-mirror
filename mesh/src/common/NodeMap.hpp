@@ -7,15 +7,15 @@
 class NodeMap
 {
 private:
-    std::vector<int > mMap;
+    std::vector<unsigned > mMap;
     
 public:
-    NodeMap(int size)
+    NodeMap(unsigned size)
     {
         mMap.reserve(size);
     }
     
-    void Reserve(int size)
+    void Reserve(unsigned size)
     {
         mMap.reserve(size);
     }
@@ -24,22 +24,22 @@ public:
     {
         for (unsigned oldIndex=0; oldIndex<mMap.size(); oldIndex++)
         {
-            mMap[oldIndex] = (int) oldIndex;
+            mMap[oldIndex] = oldIndex;
         }
     }
     void SetNewIndex(unsigned oldIndex, unsigned newIndex)
     {
-        mMap[oldIndex] = (int) newIndex;
+        mMap[oldIndex] = newIndex;
     }
     
     void SetDeleted(unsigned index)
     {
-        mMap[index] = -1;
+        mMap[index] = UINT_MAX;
     }
     
     unsigned GetNewIndex(unsigned oldIndex)
     {
-        if (mMap[oldIndex] < 0)
+        if (mMap[oldIndex] == UINT_MAX)
         {
             EXCEPTION("Node has been deleted");
         }

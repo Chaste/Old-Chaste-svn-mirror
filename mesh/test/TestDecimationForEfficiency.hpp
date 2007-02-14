@@ -26,7 +26,7 @@ public:
         
         decimator.DecimateAnimate("RandomAnimation");
         
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
     }
     void TestRandomDecimator3D() throw (Exception)
@@ -41,7 +41,7 @@ public:
         
         decimator.Decimate();
         
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
     }
 };

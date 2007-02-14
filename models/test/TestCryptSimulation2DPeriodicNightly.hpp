@@ -447,7 +447,7 @@ public:
         mesh.Translate(0.0,-2.0,0.0) ;
         //Create Vector of ghost nodes
         std::vector<int> ghost_node_indices;
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint().rGetLocation()[0];
             double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];

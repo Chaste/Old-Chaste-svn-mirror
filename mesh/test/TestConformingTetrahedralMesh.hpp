@@ -270,10 +270,10 @@ public:
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100);
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100U);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 100);
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
-        TS_ASSERT_EQUALS( (int) mesh_reader.GetNumFaces(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
         
     }
@@ -285,10 +285,10 @@ public:
         ConformingTetrahedralMesh<1,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51);
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51U);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 50);
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
-        TS_ASSERT_EQUALS( (int) mesh_reader.GetNumFaces(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         //Culled "faces"
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2);
     }
@@ -300,7 +300,7 @@ public:
         ConformingTetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 132);
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 132U);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 224);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
     }
@@ -311,7 +311,7 @@ public:
         ConformingTetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 312);
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 312U);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 522);
         
         
@@ -775,7 +775,7 @@ public:
         // Yes, it's confusing.
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 10);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 9);
         // Check the boundary lists are correct
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2);
@@ -804,7 +804,7 @@ public:
         TS_ASSERT(p_old_lhs_node->IsDeleted());
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 10);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 8);
         // Check the boundary lists are correct
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2);
@@ -981,7 +981,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         double area=mesh.CalculateMeshVolume();
         double perim=mesh.CalculateMeshSurface();
-        int num_nodes=mesh.GetNumNodes();
+        unsigned num_nodes=mesh.GetNumNodes();
         int num_elements=mesh.GetNumElements();
         unsigned num_boundary_elements=mesh.GetNumBoundaryElements();
         const int node_index=19;
@@ -993,7 +993,7 @@ public:
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.24e-4, 1e-6);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 6.20e-5, 1e-7);
-        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
     }
@@ -1017,7 +1017,7 @@ public:
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 0.00, 1e-6);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 0.00, 1e-7);
-        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
         
@@ -1027,7 +1027,7 @@ public:
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.25e-5, 1e-7);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 2.92893e-3, 1e-7);
-        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 2);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 2U);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 2);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2u);
         
@@ -1041,7 +1041,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         double volume=mesh.CalculateMeshVolume();
         double surface=mesh.CalculateMeshSurface();
-        int num_nodes=mesh.GetNumNodes();
+        unsigned num_nodes=mesh.GetNumNodes();
         int num_elements=mesh.GetNumElements();
         int num_boundary_elements=mesh.GetNumBoundaryElements();
         const int node_index=147;
@@ -1053,7 +1053,7 @@ public:
         
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
         TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
-        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1);
+        TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
         TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2);
         
@@ -1107,7 +1107,7 @@ public:
         mesh.ConstructRectangularMesh(width,height);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width+height)));
         TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*width*height));
         
@@ -1122,7 +1122,7 @@ public:
         mesh.ConstructRectangularMesh(width,height,false);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width+height)));
         TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*width*height));
         
@@ -1257,7 +1257,7 @@ public:
         unsigned depth=5;
         
         mesh.ConstructCuboid(width,height,depth);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),  (int) ((width+1)*(height+1)*(depth+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)*(depth+1)));
       
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
@@ -1326,7 +1326,7 @@ public:
         //Make identity permuation
         std::vector<unsigned> perm;
         
-        for (unsigned i=0; i<(unsigned)mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             perm.push_back(i);
         }

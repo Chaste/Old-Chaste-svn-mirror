@@ -14,7 +14,7 @@ public:
         
         // check the mesh
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),12*26);
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),12U*26U);
 
         // zeroth node
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-2.0, 1e-12); 

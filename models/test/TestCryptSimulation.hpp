@@ -138,7 +138,7 @@ public:
         simulator.Solve();
         
         // Note: converges very slowly so large tolerance of 0.1
-        for (int index = 0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index = 0; index<mesh.GetNumNodes(); index++)
         {
             Node<1> *p_node = mesh.GetNode(index);
             TS_ASSERT(!p_node->IsDeleted());

@@ -987,7 +987,7 @@ public:
             ///////////////////////////////////////////////////////////////////////////////////
             // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
             ///////////////////////////////////////////////////////////////////////////////////
-            for (int i=0; i<mrMesh.GetNumNodes(); i++)
+            for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
             {
                 Node<2> *p_node = mrMesh.GetNode(i);
                 if(!p_node->IsDeleted())
@@ -1046,7 +1046,7 @@ public:
              *////////////////////////////////////////////////////////
             if(mWntIncluded)
             {	// Cycle through each cell
-            	for (int i=0; i<mrMesh.GetNumNodes(); i++)
+            	for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
             	{
             		if(!mIsGhostNode[i])
             		{

@@ -260,7 +260,7 @@ private:
     {
         assert(mpMesh!=NULL);
         
-        for (int i=0; i<mpMesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)
         {
             double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];

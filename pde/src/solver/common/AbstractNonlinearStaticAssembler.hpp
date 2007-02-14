@@ -258,9 +258,9 @@ public:
         assert(this->mpBoundaryConditions!=NULL);
 
         // check size of initial guess is correct
-        int size_of_init_guess;
+        PetscInt size_of_init_guess;
         VecGetSize(initialGuess, &size_of_init_guess);
-        if(size_of_init_guess!=PROBLEM_DIM * this->mpMesh->GetNumNodes())
+        if(size_of_init_guess!=PROBLEM_DIM * (int) this->mpMesh->GetNumNodes())
         {
             std::stringstream error_message;
             error_message << "Size of initial guess vector, " << size_of_init_guess 
@@ -307,7 +307,7 @@ public:
     {
         assert(this->mpMesh!=NULL);
         
-        int size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+        unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
         Vec initial_guess;
         VecCreate(PETSC_COMM_WORLD, &initial_guess);
@@ -344,7 +344,7 @@ public:
      */
     bool VerifyJacobian(double tol=1e-4, bool print=false)
     {
-        int size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+        unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
         Vec initial_guess;
         VecCreate(PETSC_COMM_WORLD, &initial_guess);
@@ -352,7 +352,7 @@ public:
         VecSetFromOptions(initial_guess);
         
         RandomNumberGenerator random_num_gen;
-        for(int i=0; i<size ; i++)
+        for(unsigned i=0; i<size ; i++)
         {
 //            double value = random_num_gen.ranf();
             VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
@@ -389,14 +389,14 @@ public:
         {
             std::cout << "Difference between numerical and analyical Jacobians:\n\n";
         }
-        for(int i=0; i<size; i++)
+        for(unsigned i=0; i<size; i++)
         {
-            for(int j=0; j<size; j++)
+            for(unsigned j=0; j<size; j++)
             {
                 double val_a[1];
                 double val_n[1];
-                int row[1];
-                int col[1];
+                PetscInt row[1];
+                PetscInt col[1];
                 row[0] = i;
                 col[0] = j;
                 

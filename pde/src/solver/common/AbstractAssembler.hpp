@@ -503,7 +503,7 @@ protected:
             {
                 int size;
                 VecGetSize(residualVector,&size);
-                assert(size==PROBLEM_DIM * this->mpMesh->GetNumNodes());
+                assert(size==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
             
                 // Set residual vector to zero
                 PetscScalar zero = 0.0;
@@ -517,8 +517,8 @@ protected:
             {
                 int size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
-                assert(size1==PROBLEM_DIM * this->mpMesh->GetNumNodes());
-                assert(size2==PROBLEM_DIM * this->mpMesh->GetNumNodes());
+                assert(size1==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
+                assert(size2==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
    
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);

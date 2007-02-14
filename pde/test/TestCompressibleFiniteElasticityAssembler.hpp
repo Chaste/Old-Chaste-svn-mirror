@@ -52,7 +52,7 @@ public:
         Vec result = assembler.Solve( assembler.CreateConstantInitialGuess(0.0) );
         ReplicatableVector result_repl(result);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             
@@ -131,7 +131,7 @@ public:
         ConformingTetrahedralMesh<2,2> deformed_mesh;
         deformed_mesh.ConstructFromMeshReader(mesh_reader);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x_new = mesh.GetNode(i)->GetPoint()[0] + result_repl[2*i];
             double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[2*i+1];
@@ -248,7 +248,7 @@ public:
         ConformingTetrahedralMesh<3,3> deformed_mesh;
         deformed_mesh.ConstructFromMeshReader(mesh_reader);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x_new = mesh.GetNode(i)->GetPoint()[0] + result_repl[3*i];
             double y_new = mesh.GetNode(i)->GetPoint()[1] + result_repl[3*i+1];
@@ -272,7 +272,7 @@ public:
         
         
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
 //                double x = mesh.GetNode(i)->GetPoint()[0];
 //                double y = mesh.GetNode(i)->GetPoint()[1];

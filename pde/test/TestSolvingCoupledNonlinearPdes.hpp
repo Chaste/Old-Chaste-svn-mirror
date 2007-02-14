@@ -314,7 +314,7 @@ private :
         // (result_repl[2*i+1]) equal to 2 times the 1-unknown
         // solution (as lambda=4))
         //////////////////////////////////////////////////////////////////////////
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             // note the residuals were from a different problem when lambda = 1, so 
             // should agree
@@ -429,7 +429,7 @@ public:
         // solution of the 1-unknown problem and the v solutions
         // (result_repl[2*i+1]) are equal to the 1-unknown
         // solution
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(result_repl[2*i]  , result_1unknown_repl[i], 1e-6);
             TS_ASSERT_DELTA(result_repl[2*i+1], result_1unknown_repl[i], 1e-6);
@@ -500,11 +500,11 @@ public:
         int size;     
         VecGetSize(result,&size);
 
-        TS_ASSERT_EQUALS(size, mesh.GetNumNodes()*2);
+        TS_ASSERT_EQUALS(size, (int)mesh.GetNumNodes()*2);
     
         ReplicatableVector result_repl(result);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];

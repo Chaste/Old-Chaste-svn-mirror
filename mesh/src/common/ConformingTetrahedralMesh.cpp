@@ -349,7 +349,7 @@ Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(long
 
 /// Returns the number of nodes that are actually in use
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
 {
     return mNodes.size() - mDeletedNodeIndices.size();
 }
@@ -1240,7 +1240,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     mDeletedNodeIndices.clear();
     mBoundaryNodes.clear();
     
-    for (int i=0; i<temporary_mesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<temporary_mesh.GetNumNodes(); i++)
     {
         c_vector<double, SPACE_DIM> node_loc = temporary_mesh.GetNode(i)->rGetLocation();
         bool is_boundary=temporary_mesh.GetNode(i)->IsBoundaryNode();
@@ -1305,7 +1305,7 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned> perm)
 {
     //Let's not do this if there are any deleted nodes
-    assert( GetNumAllNodes() == GetNumNodes());
+    assert( GetNumAllNodes() == (int) GetNumNodes());
     
     //Copy the node pointers
     std::vector <Node <SPACE_DIM> *> copy_m_nodes;
@@ -1328,7 +1328,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
     assert( GetNumAllElements() == GetNumElements());
-    assert( GetNumAllNodes() == GetNumNodes());
+    assert( GetNumAllNodes() == (int) GetNumNodes());
     
     //Open a file for the elements
     OutputFileHandler handler("");

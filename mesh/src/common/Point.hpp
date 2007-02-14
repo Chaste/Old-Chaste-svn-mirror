@@ -50,7 +50,7 @@ public:
      */
     Point(std::vector<double> coords)
     {
-        for (int i=0; i<DIM; i++)
+        for (unsigned i=0; i<DIM; i++)
         {
             mLocation(i) = coords.at(i);
         }

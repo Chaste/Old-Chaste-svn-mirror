@@ -24,13 +24,13 @@ public:
         
         double area=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(0.01, area, 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),77);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),77U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),141);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),11);
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t2\t0\t0\n";
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             const c_vector<double, 2> node_loc = mesh.GetNode(i)->rGetLocation();
             (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\n";
@@ -50,7 +50,7 @@ public:
         
         //Test to see whether triangle/ tetgen is renumbering the nodes
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             const c_vector<double, 2> node_loc1 = mesh.GetNode(i)->rGetLocation();
             const c_vector<double, 2> node_loc2 = mesh2.GetNode(i)->rGetLocation();
@@ -72,13 +72,13 @@ public:
         
         double volume=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),375);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),1626);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390);
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             const c_vector<double, 3> node_loc = mesh.GetNode(i)->rGetLocation();
             (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\t"<<node_loc[2]<<"\n";
@@ -98,7 +98,7 @@ public:
         
         //Test to see whether triangle/ tetgen is renumbering the nodes
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             const c_vector<double, 3> node_loc1 = mesh.GetNode(i)->rGetLocation();
             const c_vector<double, 3> node_loc2 = mesh2.GetNode(i)->rGetLocation();
@@ -119,7 +119,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             Point<3> point=mesh.GetNode(i)->GetPoint();
             for (int j=0; j<3; j++)
@@ -138,13 +138,13 @@ public:
         
         double volume=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),375);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),1626);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390);
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             const c_vector<double, 3> node_loc=mesh.GetNode(i)->rGetLocation();
             (*node_file)<<i<<"\t"<<node_loc[0]<<"\t"<<node_loc[1]<<"\t"<<node_loc[2]<<"\n";
@@ -164,7 +164,7 @@ public:
         
         //Test to see whether triangle/ tetgen is renumbering the nodes
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             const c_vector<double, 3> node_loc1=mesh.GetNode(i)->rGetLocation();
             const c_vector<double, 3> node_loc2=mesh2.GetNode(i)->rGetLocation();
@@ -197,7 +197,7 @@ public:
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int)mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
@@ -211,7 +211,7 @@ public:
             }
         }
         
-        int new_index = 0;
+        unsigned new_index = 0;
         NodeMap map(mesh.GetNumAllNodes());
         for (int i=0; i<mesh.GetNumAllNodes(); i++)
         {
@@ -275,7 +275,7 @@ public:
         const int node_index=432;
         const int target_index=206;
         
-        int num_nodes_before=mesh.GetNumNodes();
+        unsigned num_nodes_before=mesh.GetNumNodes();
         int num_elements_before=mesh.GetNumElements();
         int num_boundary_elements_before=mesh.GetNumBoundaryElements();
         
@@ -284,18 +284,18 @@ public:
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int)mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
         
         NodeMap map(1);
         mesh.ReMesh(map);
         
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int)mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
         
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int) num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
     }

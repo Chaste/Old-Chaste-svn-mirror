@@ -232,7 +232,7 @@ public:
         // solution of the 1-unknown problem and the v solutions
         // (result_2unknowns_repl[2*i+1]) are equal to two times the 1-unknown
         // solution
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i]  ,   result_1unknown_repl[i], 1e-10);
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i+1], 2*result_1unknown_repl[i], 1e-10);
@@ -317,7 +317,7 @@ public:
         // solution of the 1-unknown problem and the v solutions
         // (result_2unknowns_repl[2*i+1]) are equal to the 1-unknown
         // solution
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i]  , result_1unknown_repl[i], 1e-6);
             TS_ASSERT_DELTA(result_2unknowns_repl[2*i+1], result_1unknown_repl[i], 1e-6);
@@ -353,7 +353,7 @@ public:
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
         
-        for (int i=0; i<mesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint()[0];
             double y = mesh.GetNode(i)->GetPoint()[1];

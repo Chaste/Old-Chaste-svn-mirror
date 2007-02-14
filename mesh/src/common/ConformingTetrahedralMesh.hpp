@@ -71,7 +71,7 @@ public:
     
     Node<SPACE_DIM> *GetNode(long index);
     
-    long GetNumNodes();
+    unsigned GetNumNodes();
     long GetNumElements();
     long GetNumBoundaryElements();
     long GetNumAllNodes();

@@ -24,9 +24,9 @@ public:
         
         TS_ASSERT_EQUALS(magic.compare("P5"), 0);
         
-        int x, y, levels;
+        unsigned x, y, levels;
         input_ppm >> x >> y >> levels;
-        TS_ASSERT_EQUALS(levels, 255);
+        TS_ASSERT_EQUALS(levels, 255U);
         
         char data;
         input_ppm.read(&data,1);
@@ -34,9 +34,9 @@ public:
         
         //Make a payload
         //This is binary state
-        int num_nodes=x*y;
+        unsigned num_nodes=x*y;
         std::vector<double> values(num_nodes);
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             input_ppm.read(&data,1);
             if (data == '\x00'){
@@ -62,8 +62,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(0.001);
         decimator.DecimateAnimate("ColonAnimation", 15);
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 412);
-        TS_ASSERT_LESS_THAN_EQUALS(400, mesh.GetNumNodes());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 412U);
+        TS_ASSERT_LESS_THAN_EQUALS(400U, mesh.GetNumNodes());
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 810);
         TS_ASSERT_LESS_THAN_EQUALS(786, mesh.GetNumElements());
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 12);
@@ -78,9 +78,9 @@ public:
         
         TS_ASSERT_EQUALS(magic.compare("P5"), 0);
         
-        int x, y, levels;
+        unsigned x, y, levels;
         input_ppm >> x >> y >> levels;
-        TS_ASSERT_EQUALS(levels, 255);
+        TS_ASSERT_EQUALS(levels, 255U);
         
         char data;
         input_ppm.read(&data,1);
@@ -88,9 +88,9 @@ public:
         
         //Make a payload
         //This is binary state
-        int num_nodes=x*y;
+        unsigned num_nodes=x*y;
         std::vector<double> values(num_nodes);
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             input_ppm.read(&data,1);
             if (data == '\x00'){
@@ -116,8 +116,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(0.001);
         decimator.DecimateAnimate("JoeAnimation", 15);
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 301);
-        TS_ASSERT_LESS_THAN_EQUALS(297, mesh.GetNumNodes());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 301U);
+        TS_ASSERT_LESS_THAN_EQUALS(297U, mesh.GetNumNodes());
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 588);
         TS_ASSERT_LESS_THAN_EQUALS(581, mesh.GetNumElements());
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14);
@@ -131,9 +131,9 @@ public:
         
         TS_ASSERT_EQUALS(magic.compare("P5"), 0);
         
-        int x, y, levels;
+        unsigned x, y, levels;
         input_ppm >> x >> y >> levels;
-        TS_ASSERT_EQUALS(levels, 255);
+        TS_ASSERT_EQUALS(levels, 255U);
         
         char data;
         input_ppm.read(&data,1);
@@ -141,9 +141,9 @@ public:
         
         //Make a payload
         //This is binary state
-        int num_nodes=x*y;
+        unsigned num_nodes=x*y;
         std::vector<double> values(num_nodes);
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             input_ppm.read(&data,1);
             if (data == '\x00'){
@@ -169,8 +169,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(0.001);
         decimator.DecimateAnimate("EndAnimation", 100);
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 346);
-        TS_ASSERT_LESS_THAN_EQUALS(346, mesh.GetNumNodes());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 346U);
+        TS_ASSERT_LESS_THAN_EQUALS(346U, mesh.GetNumNodes());
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 679);
         TS_ASSERT_LESS_THAN_EQUALS(679, mesh.GetNumElements());
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14);
@@ -182,20 +182,20 @@ public:
         std::ifstream input_fibres("mesh/test/data/fibres/Hist_Fibre_Vectors.txt");
         
         
-        int width=19;
-        int height=19;
+        unsigned width=19;
+        unsigned height=19;
         
-        int num_nodes=width*height;
+        unsigned num_nodes=width*height;
         std::vector<c_vector<double, 2> > values(num_nodes);
         //Read x values
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             double data;
             input_fibres>>data;
             values[i](0) = data;
         }
         //Read y values
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             double data;
             input_fibres>>data;
@@ -203,14 +203,14 @@ public:
         }
 
         //Normalise directions
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             double norm=norm_2(values[i]);
            
             TS_ASSERT_LESS_THAN(0.3, norm);
             values[i]=values[i]/norm;
         }
-        for (int i=0;i<num_nodes;i++)
+        for (unsigned i=0;i<num_nodes;i++)
         {
             
             TS_ASSERT_DELTA(norm_2(values[i]), 1.0, 1e-7);
@@ -229,7 +229,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(2.0);
         decimator.DecimateAnimate("Tahir", 10);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 60);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 60U);
         //decimator.Interrogate();
         
     }

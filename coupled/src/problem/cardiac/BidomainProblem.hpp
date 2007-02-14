@@ -520,7 +520,7 @@ public:
         voltage_replicated.ReplicatePetscVector(mVoltage);
         
         double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
-        for (int i=0; i<mMesh.GetNumNodes(); i++)
+        for (unsigned i=0; i<mMesh.GetNumNodes(); i++)
         {
             if ( voltage_replicated[2*i] > v_max)
             {

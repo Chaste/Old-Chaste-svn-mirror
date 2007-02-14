@@ -92,7 +92,7 @@ private:
                 mResidual[ii] -= fact*mResidual[i];
             }
         }
-        for (int i=mSizeOfOdeSystem-1; i>-1; i--)
+        for (int i=mSizeOfOdeSystem-1; i>=0; i--)
         {
             mUpdate[i] = mResidual[i];
             for (unsigned j=i+1; j<mSizeOfOdeSystem; j++)
