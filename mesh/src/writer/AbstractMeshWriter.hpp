@@ -50,19 +50,19 @@ public:
     void SetNextBoundaryFace(std::vector<unsigned> nextFace);
     void SetNextBoundaryEdge(std::vector<unsigned> nextEdge);
     virtual void WriteFiles()=0;
-    int GetNumNodes()
+    unsigned GetNumNodes()
     {
         return mNodeData.size();
     }
-    int GetNumElements()
+    unsigned GetNumElements()
     {
         return mElementData.size();
     }
-    int GetNumBoundaryFaces()
+    unsigned GetNumBoundaryFaces()
     {
         return mBoundaryFaceData.size();
     }
-    int GetNumBoundaryEdges()
+    unsigned GetNumBoundaryEdges()
     {
         return mBoundaryFaceData.size();
     }

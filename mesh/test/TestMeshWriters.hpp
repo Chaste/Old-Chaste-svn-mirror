@@ -180,12 +180,12 @@ public:
         
         TrianglesMeshReader<1,2> mesh_reader2(
             output_dir+"1dClosedMeshIn2dSpace");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 100U);
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(),100);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(),100U);
         
         //By default all nodes are read as potential "faces"
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);
     }
     
     void TestTriangles1DMeshIn2DSpace()
@@ -203,11 +203,11 @@ public:
         
         TrianglesMeshReader<1,2> mesh_reader2(
             output_dir+"1dMeshIn2dSpace");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 51);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 51U);
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 50);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 50U);
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 51);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 51U);
         
         
     }
@@ -228,11 +228,11 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,3> mesh_reader2(
             output_dir+"2dClosedMeshIn3dSpace");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 132);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 132U);
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 224);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 224U);
         
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 0U);
         
         
     }
@@ -253,14 +253,14 @@ public:
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,3> mesh_reader2(
             output_dir+"2dMeshIn3dSpace");
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 312);
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 522);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 312U);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 522U);
         TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), mesh_reader.GetNumNodes());
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), mesh_reader.GetNumElements());
         
         //Note that this not a straight conversion, since we have culled internal data
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833);
-        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833U);
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 100U);
         
     }
     

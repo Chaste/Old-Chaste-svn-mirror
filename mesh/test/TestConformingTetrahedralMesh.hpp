@@ -273,7 +273,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 100);
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS( (int) mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
         
     }
@@ -288,7 +288,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51);
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 50);
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS( (int) mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         //Culled "faces"
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2);
     }
@@ -316,7 +316,7 @@ public:
         
         
         ///Check that the mesh_reader has the unculled "faces" (which are edges)
-        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833U);
         //These are the 100 edges around the perimeter of the circle
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100);
     }

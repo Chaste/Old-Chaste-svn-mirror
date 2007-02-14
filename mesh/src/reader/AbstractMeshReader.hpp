@@ -83,7 +83,7 @@ public:
         return mFaceData.size();
     }	/**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
     
-    int GetMaxNodeIndex(); /**< Returns the maximum node index */
+    unsigned GetMaxNodeIndex(); /**< Returns the maximum node index */
     unsigned GetMinNodeIndex(); /**< Returns the minimum node index */
     
     std::vector<double> GetNextNode(); /**< Returns a vector of the coordinates of each node in turn */

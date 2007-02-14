@@ -36,14 +36,14 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
     
     //Write the node header
-    int num_nodes = this->GetNumNodes();
+    unsigned num_nodes = this->GetNumNodes();
     *p_node_file << num_nodes << "\n";
     
     //Write each node's data
-    for (int item_num=0; item_num<num_nodes; item_num++)
+    for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->mNodeData[item_num];
-        for (unsigned int i=0;i<SPACE_DIM;i++)
+        for (unsigned i=0;i<SPACE_DIM;i++)
         {
             *p_node_file << current_item[i] << "\t";
             if (SPACE_DIM==2)
@@ -76,16 +76,16 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     out_stream p_element_file = this->mpOutputFileHandler->OpenOutputFile(element_file_name);
     
     //Write the element header
-    int num_elements = this->GetNumElements();
+    unsigned num_elements = this->GetNumElements();
     
     *p_element_file << num_elements << "\n";
     
     //Write each element's data
-    int nodes_per_element = ELEMENT_DIM+1;
-    for (int item_num=0; item_num<num_elements; item_num++)
+    unsigned nodes_per_element = ELEMENT_DIM+1;
+    for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->mElementData[item_num];
-        for (int i=0;i<nodes_per_element;i++)
+        for (unsigned i=0;i<nodes_per_element;i++)
         {
             if (this->mIndexFromZero)
             {
@@ -108,16 +108,16 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         out_stream p_face_file = this->mpOutputFileHandler->OpenOutputFile(face_file_name);
         
         //Write the boundary face header
-        int num_faces = this->GetNumBoundaryFaces();
+        unsigned num_faces = this->GetNumBoundaryFaces();
         
         *p_face_file<< num_faces << "\n";
         
         //Write each face's data
         double material_property= 0.0;
-        for (int item_num=0; item_num<num_faces; item_num++)
+        for (unsigned item_num=0; item_num<num_faces; item_num++)
         {
             std::vector<unsigned> current_item = this->mBoundaryFaceData[item_num];
-            for (unsigned int i=0;i<ELEMENT_DIM;i++)
+            for (unsigned i=0;i<ELEMENT_DIM;i++)
             {
                 if (this->mIndexFromZero)
                 {

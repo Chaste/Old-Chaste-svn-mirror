@@ -47,15 +47,15 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 
 
     NodeMap node_map(rMesh.GetNumAllNodes()); 
-    int new_index=0;
-    for (int i=0; i<rMesh.GetNumAllNodes();i++)
+    unsigned new_index=0;
+    for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes();i++)
     {
         Node<SPACE_DIM>* p_node = rMesh.GetNode(i);
         
         if (p_node->IsDeleted() == false)
         {
             std::vector<double> coords(SPACE_DIM);
-            for (int j=0; j<SPACE_DIM; j++)
+            for (unsigned j=0; j<SPACE_DIM; j++)
             {
                 coords[j] = p_node->GetPoint()[j];
             }
@@ -67,7 +67,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
              node_map.SetDeleted(i);
         }
     }
-     assert(new_index==rMesh.GetNumNodes());
+     assert(new_index==(unsigned)rMesh.GetNumNodes());
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
@@ -78,9 +78,9 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         if ((*iter)->IsDeleted() == false)
         {
             std::vector<unsigned> indices(ELEMENT_DIM+1);
-            for (int j=0; j<ELEMENT_DIM+1; j++)
+            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
-                int old_index=(*iter)->GetNodeGlobalIndex(j);
+                unsigned old_index=(*iter)->GetNodeGlobalIndex(j);
                 indices[j] = node_map.GetNewIndex(old_index); 
             }
             SetNextElement(indices);
@@ -97,9 +97,9 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         if ((*boundary_iter)->IsDeleted() == false)
         {
             std::vector<unsigned> indices(ELEMENT_DIM);
-            for (int j=0; j<ELEMENT_DIM; j++)
+            for (unsigned j=0; j<ELEMENT_DIM; j++)
             {
-                int old_index=(*boundary_iter)->GetNodeGlobalIndex(j);
+                unsigned old_index=(*boundary_iter)->GetNodeGlobalIndex(j);
                 indices[j] = node_map.GetNewIndex(old_index); 
             }
             SetNextBoundaryFace(indices);

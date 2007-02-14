@@ -84,12 +84,12 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
  */
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
 {
     //Initialize an interator for the vector of nodes
     std::vector<std::vector<unsigned> >::iterator the_iterator;
     
-    int max_node_index = -1; // Must be negative -- can't go unsigned yet
+    unsigned max_node_index = 0; // Nice if it were negative
     
     for (the_iterator = mElementData.begin(); the_iterator < mElementData.end(); the_iterator++)
     {
@@ -97,7 +97,7 @@ int AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
         
         for (unsigned i = 0; i < ELEMENT_DIM+1; i++)
         {
-            if ((int) indices[i] >  max_node_index)
+            if ( indices[i] >  max_node_index)
             {
                 max_node_index = indices[i];
             }
