@@ -240,7 +240,7 @@ public:
             mesh.GetBoundaryElementIteratorBegin();
         while (it != mesh.GetBoundaryElementIteratorEnd())
         {
-            for (int i=0; i<(*it)->GetNumNodes(); i++)
+            for (unsigned i=0; i<(*it)->GetNumNodes(); i++)
             {
                 TS_ASSERT((*it)->GetNode(i)->IsBoundaryNode());
             }
@@ -780,13 +780,13 @@ public:
         // Check the boundary lists are correct
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2);
         b_node_iter = mesh.GetBoundaryNodeIteratorBegin();
-        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 0);
-        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 9);
+        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 0U);
+        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 9U);
         // NB: New boundary elements not added
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 1);
         b_elt_iter = mesh.GetBoundaryElementIteratorBegin();
-        TS_ASSERT_EQUALS((*b_elt_iter)->GetNumNodes(), 1);
-        TS_ASSERT_EQUALS((*b_elt_iter++)->GetNode(0)->GetIndex(), 0);
+        TS_ASSERT_EQUALS((*b_elt_iter)->GetNumNodes(), 1U);
+        TS_ASSERT_EQUALS((*b_elt_iter++)->GetNode(0)->GetIndex(), 0U);
         
         // Check the new boundary node
         Node<1> *p_new_rhs_node = mesh.GetNode(9);
@@ -809,8 +809,8 @@ public:
         // Check the boundary lists are correct
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2);
         b_node_iter = mesh.GetBoundaryNodeIteratorBegin();
-        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 9); // Note that the boundary is now
-        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 1); // 'reversed'
+        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 9U); // Note that the boundary is now
+        TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 1U); // 'reversed'
         // NB: New boundary elements not added
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0);
         
@@ -835,7 +835,7 @@ public:
         Element<1,1>* p_first_element = mesh.GetElement(0);
         
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element, new_point));
-        TS_ASSERT_EQUALS(p_first_element->GetNode(1)->GetIndex(), 11);
+        TS_ASSERT_EQUALS(p_first_element->GetNode(1)->GetIndex(), 11U);
         // Check the new element is index 10, by comparing nodes
         TS_ASSERT_EQUALS(mesh.GetElement(10)->GetNode(0),
                          p_first_element->GetNode(1));
@@ -849,7 +849,7 @@ public:
         
         mesh.RefineElement(p_sixth_element, new_point2);
         
-        TS_ASSERT_EQUALS(p_sixth_element->GetNode(1)->GetIndex(), 10);
+        TS_ASSERT_EQUALS(p_sixth_element->GetNode(1)->GetIndex(), 10U);
         // Check the new element is index 9, by comparing nodes
         TS_ASSERT_EQUALS(mesh.GetElement(9)->GetNode(0),
                          p_sixth_element->GetNode(1));
@@ -1078,15 +1078,15 @@ public:
         RandomNumberGenerator rng;
         mesh.PermuteNodes(rng);
         
-        TS_ASSERT_EQUALS(mesh.GetNode(  0)->GetIndex(),   0);
-        TS_ASSERT_EQUALS(mesh.GetNode(121)->GetIndex(), 121);
-        TS_ASSERT_EQUALS(mesh.GetNode(125)->GetIndex(), 125);
-        TS_ASSERT_EQUALS(mesh.GetNode(273)->GetIndex(), 273);
+        TS_ASSERT_EQUALS(mesh.GetNode(  0)->GetIndex(),   0U);
+        TS_ASSERT_EQUALS(mesh.GetNode(121)->GetIndex(), 121U);
+        TS_ASSERT_EQUALS(mesh.GetNode(125)->GetIndex(), 125U);
+        TS_ASSERT_EQUALS(mesh.GetNode(273)->GetIndex(), 273U);
         
-        TS_ASSERT_EQUALS(p_node0->GetIndex(), 357);
-        TS_ASSERT_EQUALS(p_node121->GetIndex(), 35);
-        TS_ASSERT_EQUALS(p_node125->GetIndex(), 219);
-        TS_ASSERT_EQUALS(p_node273->GetIndex(), 319);
+        TS_ASSERT_EQUALS(p_node0->GetIndex(), 357U);
+        TS_ASSERT_EQUALS(p_node121->GetIndex(), 35U);
+        TS_ASSERT_EQUALS(p_node125->GetIndex(), 219U);
+        TS_ASSERT_EQUALS(p_node273->GetIndex(), 319U);
         TS_ASSERT_EQUALS(mesh.GetNode(p_node0->GetIndex()), p_node0);
         TS_ASSERT_EQUALS(mesh.GetNode(p_node121->GetIndex()), p_node121);
         TS_ASSERT_EQUALS(mesh.GetNode(p_node125->GetIndex()), p_node125);
@@ -1339,8 +1339,8 @@ public:
         
         mesh.PermuteNodes(perm);
         
-        TS_ASSERT_EQUALS(mesh.GetNode(0)->GetIndex(), 0);
-        TS_ASSERT_EQUALS(mesh.GetNode(7)->GetIndex(), 7);
+        TS_ASSERT_EQUALS(mesh.GetNode(0)->GetIndex(), 0U);
+        TS_ASSERT_EQUALS(mesh.GetNode(7)->GetIndex(), 7U);
 
         //Was node 0
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[0], 0.0);

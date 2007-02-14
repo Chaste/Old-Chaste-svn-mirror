@@ -324,10 +324,10 @@ public:
         Element<1,1> e_1d_incorrect_orientation(INDEX_IS_NOT_USED, nodes_1d_incorrect);
         
         // index of second node should be 1
-        TS_ASSERT_EQUALS( e_1d_correct_orientation.GetNode(1)->GetIndex(), 1);
+        TS_ASSERT_EQUALS( e_1d_correct_orientation.GetNode(1)->GetIndex(), 1U);
         // index of second node for incorrect orientation element should also be 1
         // because the element should have swapped the nodes around
-        TS_ASSERT_EQUALS( e_1d_incorrect_orientation.GetNode(1)->GetIndex(), 1);
+        TS_ASSERT_EQUALS( e_1d_incorrect_orientation.GetNode(1)->GetIndex(), 1U);
         
         
         ////////////////////////////////////////////
@@ -347,11 +347,11 @@ public:
         Element<2,2> e_2d_incorrect_orientation(INDEX_IS_NOT_USED, nodes_2d_incorrect);
         
         // index of last node should be 2
-        TS_ASSERT_EQUALS( e_2d_correct_orientation.GetNode(2)->GetIndex(), 2);
+        TS_ASSERT_EQUALS( e_2d_correct_orientation.GetNode(2)->GetIndex(), 2U);
         
         // index of last node for incorrect orientation element should be 0
         // because the element should have swapped the last two nodes around
-        TS_ASSERT_EQUALS( e_2d_incorrect_orientation.GetNode(2)->GetIndex(), 0);
+        TS_ASSERT_EQUALS( e_2d_incorrect_orientation.GetNode(2)->GetIndex(), 0U);
         
         
         ////////////////////////////////////////////
@@ -373,11 +373,11 @@ public:
         Element<3,3> e_3d_incorrect_orientation(INDEX_IS_NOT_USED, nodes_3d_incorrect);
         
         // index of last node should be 3
-        TS_ASSERT_EQUALS( e_3d_correct_orientation.GetNode(3)->GetIndex(), 3);
+        TS_ASSERT_EQUALS( e_3d_correct_orientation.GetNode(3)->GetIndex(), 3U);
         
         // index of last node for incorrect orientation element should be 3
         // because the element should have swapped the last two nodes around
-        TS_ASSERT_EQUALS( e_3d_incorrect_orientation.GetNode(3)->GetIndex(), 3);
+        TS_ASSERT_EQUALS( e_3d_incorrect_orientation.GetNode(3)->GetIndex(), 3U);
         
     }
     

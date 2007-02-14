@@ -350,7 +350,7 @@ protected:
             Point<SPACE_DIM> x(0,0,0);
             
             ResetInterpolatedQuantities();
-            for (int i=0; i<rSurfaceElement.GetNumNodes(); i++)
+            for (unsigned i=0; i<rSurfaceElement.GetNumNodes(); i++)
             {
                 const c_vector<double, SPACE_DIM> node_loc = rSurfaceElement.GetNode(i)->rGetLocation();
                 x.rGetLocation() += phi(i)*node_loc;

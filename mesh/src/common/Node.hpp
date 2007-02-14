@@ -8,7 +8,7 @@ template<int SPACE_DIM>
 class Node
 {
 private:
-    int mIndex;
+    unsigned mIndex;
     
 //    Point<SPACE_DIM> mPoint;
     c_vector<double, SPACE_DIM> mLocation;
@@ -36,7 +36,7 @@ public:
 //        delete mBoundaryElementIterator;
         
     }
-    Node(int index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
+    Node(unsigned index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
         mLocation = point.rGetLocation();
 //        mPoint = point;
@@ -45,10 +45,10 @@ public:
         mIsDeleted = false;
     }
     
-    Node(int index, std::vector<double> coords, bool isBoundaryNode=false)
+    Node(unsigned index, std::vector<double> coords, bool isBoundaryNode=false)
     {
         mIndex = index;
-        for (int i=0; i<SPACE_DIM; i++)
+        for (unsigned i=0; i<SPACE_DIM; i++)
         {
             mLocation(i) = coords.at(i);
         }
@@ -56,7 +56,7 @@ public:
         mIsDeleted = false;
     }
     
-    Node(int index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
+    Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false)
     {
         mLocation = location;
 //        mPoint = Point<SPACE_DIM>(location);
@@ -65,7 +65,7 @@ public:
         mIsDeleted = false;
     }
     
-    Node(int index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
+    Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0)
     {
         mLocation[0] = v1;
         if (SPACE_DIM > 1)
@@ -106,7 +106,7 @@ public:
     /**
      * This method should only be called during mesh generation.
      */
-    void SetIndex(int index)
+    void SetIndex(unsigned index)
     {
         mIndex = index;
     }
@@ -141,7 +141,7 @@ public:
         return mLocation;
     }
     
-    int GetIndex() const
+    unsigned GetIndex() const
     {
         return mIndex;
     }
@@ -171,7 +171,7 @@ public:
     
     void RemoveElement(unsigned index)
     {
-        int count = mElementIndices.erase(index);
+        unsigned count = mElementIndices.erase(index);
         if (count == 0)
         {
             EXCEPTION("Tried to remove an index which was not in the set");
@@ -187,7 +187,7 @@ public:
     
     void RemoveBoundaryElement(unsigned index)
     {
-        int count = mBoundaryElementIndices.erase(index);
+        unsigned count = mBoundaryElementIndices.erase(index);
         if (count == 0)
         {
             EXCEPTION("Tried to remove an index which was not in the set");

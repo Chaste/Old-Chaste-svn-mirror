@@ -997,7 +997,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(lon
     while (element_indices_iterator != element_indices.end())
     {
         Element<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(*element_indices_iterator);
-        for (int i=0 ; i< p_element->GetNumNodes();i++)
+        for (unsigned i=0 ; i< p_element->GetNumNodes();i++)
         {
             Node<SPACE_DIM>* p_node = p_element->GetNode(i);
             if (!p_node->IsDeleted())
@@ -1618,7 +1618,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(uns
 	{
 		Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
 		p_element->SetOwnership(false); 
-		for (int local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
+		for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
 		{
 			unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
             if (lo<=global_node_index && global_node_index<hi) 

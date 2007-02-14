@@ -11,7 +11,7 @@ class Element : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 public:
     Element(unsigned index,
             std::vector<Node<SPACE_DIM>*> nodes,
-            int orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
+            unsigned orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
     {
         this->mIsDeleted=false;
         RegisterWithNodes();
@@ -40,7 +40,7 @@ public:
         this->mIsDeleted = true;
         this->mJacobianDeterminant = 0.0;
         // Update nodes in this element so they know they are not contained by us
-        for (int i=0; i<this->GetNumNodes(); i++)
+        for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
             this->mNodes[i]->RemoveElement(this->mIndex);
         }
@@ -64,9 +64,9 @@ public:
         this->mNodes[rIndex]->AddElement(this->mIndex);
     }
     
-    void ResetIndex(int index)
+    void ResetIndex(unsigned index)
     {
-        for (int i=0; i<this->GetNumNodes(); i++)
+        for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
             this->mNodes[i]->RemoveElement(this->mIndex);
         }
@@ -90,10 +90,10 @@ public:
         assert (ELEMENT_DIM == SPACE_DIM);
         c_vector <double, ELEMENT_DIM> rhs;
         
-        for (int j=0; j<ELEMENT_DIM; j++)
+        for (unsigned j=0; j<ELEMENT_DIM; j++)
         {
             double squared_location=0.0;
-            for (int i=0; i<SPACE_DIM; i++)
+            for (unsigned i=0; i<SPACE_DIM; i++)
             {
                 //mJacobian(i,j) is the i-th component of j-th vertex (relative to vertex 0)
                 squared_location += this->mJacobian(i,j)*this->mJacobian(i,j);
@@ -104,7 +104,7 @@ public:
         c_vector <double, ELEMENT_DIM> centre=prod(rhs, this->mInverseJacobian);
         c_vector <double, ELEMENT_DIM+1> circum;
         double squared_radius=0.0;
-        for (int i=0; i<SPACE_DIM; i++)
+        for (unsigned i=0; i<SPACE_DIM; i++)
         {
             circum[i]=centre[i] + this->GetNodeLocation(0,i);
             squared_radius += centre[i]*centre[i];

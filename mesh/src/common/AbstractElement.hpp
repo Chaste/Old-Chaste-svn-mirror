@@ -25,7 +25,7 @@ class AbstractElement
 protected:
     unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
-    int mOrderOfBasisFunctions;
+    unsigned mOrderOfBasisFunctions;
     bool mIsDeleted;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
@@ -58,12 +58,12 @@ protected:
     
     
 public:
-    static const int NUM_CORNER_NODES = ELEMENT_DIM+1;
+    static const unsigned NUM_CORNER_NODES = ELEMENT_DIM+1;
     
     virtual void RegisterWithNodes()=0;
     
     ///Main constructor
-    AbstractElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes, int orderOfBasisFunctions=1);
+    AbstractElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes, unsigned orderOfBasisFunctions=1);
     
     /**
      * Copy constructor. This is needed so that copies of an element don't
@@ -105,7 +105,7 @@ public:
         mNodes.push_back(internalNodeToAdd);
     }
     
-    double GetNodeLocation(int localIndex, int dimension) const
+    double GetNodeLocation(unsigned localIndex, unsigned dimension) const
     {
         assert(dimension < SPACE_DIM);
         assert((unsigned)localIndex < mNodes.size());
@@ -117,7 +117,7 @@ public:
      * weird error arose where it compiled, ran and passed on some machines
      * but failed the tests (bad_size errors) on another machine.
      */
-    c_vector<double, SPACE_DIM> GetNodeLocation(int localIndex) const
+    c_vector<double, SPACE_DIM> GetNodeLocation(unsigned localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex]->rGetLocation();
@@ -125,26 +125,26 @@ public:
     c_vector<double, SPACE_DIM> CalculateCentroid() const
     {
         c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
-        for (int i=0; i<=ELEMENT_DIM; i++)
+        for (unsigned i=0; i<=ELEMENT_DIM; i++)
         {
             centroid += mNodes[i]->rGetLocation();
         }
         return centroid/((double)(ELEMENT_DIM + 1));
     }
     
-    long GetNodeGlobalIndex(int localIndex) const
+    long GetNodeGlobalIndex(unsigned localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex]->GetIndex();
     }
     
-    Node<SPACE_DIM>* GetNode(int localIndex) const
+    Node<SPACE_DIM>* GetNode(unsigned localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex];
     }
     
-    int GetNumNodes() const
+    unsigned GetNumNodes() const
     {
         return mNodes.size();
     }
@@ -217,7 +217,7 @@ public:
         return mIsDeleted;
     }
     
-    void SetIndex(int index)
+    void SetIndex(unsigned index)
     {
         mIndex=index;
     }

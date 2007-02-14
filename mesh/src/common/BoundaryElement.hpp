@@ -10,7 +10,7 @@ class BoundaryElement : public AbstractElement<ELEMENT_DIM, SPACE_DIM>
 public:
     BoundaryElement(unsigned index,
                     std::vector<Node<SPACE_DIM>*> nodes,
-                    int orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
+                    unsigned orderOfBasisFunctions=1): AbstractElement<ELEMENT_DIM, SPACE_DIM>(index,nodes,orderOfBasisFunctions)
     {
         RegisterWithNodes();
     }
@@ -46,9 +46,9 @@ public:
         }
     }
     
-    void ResetIndex(int index)
+    void ResetIndex(unsigned index)
     {
-        for (int i=0; i<this->GetNumNodes(); i++)
+        for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
             this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
         }
@@ -61,7 +61,7 @@ public:
         this->mIsDeleted = true;
         this->mJacobianDeterminant = 0.0;
         // Update nodes in this element so they know they are not contained by us
-        for (int i=0; i<this->GetNumNodes(); i++)
+        for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
             this->mNodes[i]->RemoveBoundaryElement(this->mIndex);
         }

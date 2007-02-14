@@ -6,7 +6,7 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
                                                          std::vector<Node<SPACE_DIM>*> nodes,
-                                                         int orderOfBasisFunctions)
+                                                         unsigned orderOfBasisFunctions)
         : mIndex(index)
 {
     mIsDeleted = false;
@@ -67,9 +67,9 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
     {
         EXCEPTION("Attempting to Refresh a deleted element");
     }
-    for (int i=0; i<SPACE_DIM; i++)
+    for (unsigned i=0; i<SPACE_DIM; i++)
     {
-        for (int j=0; j<ELEMENT_DIM; j++)
+        for (unsigned j=0; j<ELEMENT_DIM; j++)
         {
             mJacobian(i,j) = GetNodeLocation(j+1,i) - GetNodeLocation(0,i);
         }
