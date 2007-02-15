@@ -600,6 +600,21 @@ class CustomCanvas2D extends Canvas {
 				{
 					g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
 				}
+				Color garysSlinkySilver = new Color(231,231,231);
+				g2.setColor(garysSlinkySilver);
+				if( (vis.cell_type[vis.timeStep][index[0]]>=4) || (vis.cell_type[vis.timeStep][index[1]]>=4))
+				{
+					g2.drawLine(vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[1]]>=4) || (vis.cell_type[vis.timeStep][index[2]]>=4))
+				{
+					g2.drawLine(vertex[1].x, vertex[1].y, vertex[2].x, vertex[2].y);
+				}
+				if( (vis.cell_type[vis.timeStep][index[2]]>=4) || (vis.cell_type[vis.timeStep][index[0]]>=4))
+				{
+					g2.drawLine(vertex[2].x, vertex[2].y, vertex[0].x, vertex[0].y);
+				}
+				g2.setColor(Color.black);
 			} 
 		}
 		
