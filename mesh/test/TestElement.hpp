@@ -46,7 +46,7 @@ public:
         Element<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
         
         // Check nodes on the new element have the right indices
-        for (int i=0; i<10; i++)
+        for (unsigned i=0; i<10; i++)
         {
             TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
         }
@@ -67,7 +67,7 @@ public:
         Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
         
         // Check nodes on the new element have the right indices
-        for (int i=0; i<4; i++)
+        for (unsigned i=0; i<4; i++)
         {
             TS_ASSERT_EQUALS(element.GetNodeGlobalIndex(i), i);
         }

@@ -64,10 +64,10 @@ public:
         decimator.DecimateAnimate("ColonAnimation", 15);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 412U);
         TS_ASSERT_LESS_THAN_EQUALS(400U, mesh.GetNumNodes());
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 810);
-        TS_ASSERT_LESS_THAN_EQUALS(786, mesh.GetNumElements());
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 12);
-        TS_ASSERT_LESS_THAN_EQUALS(11, mesh.GetNumBoundaryElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 810U);
+        TS_ASSERT_LESS_THAN_EQUALS(786U, mesh.GetNumElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 12U);
+        TS_ASSERT_LESS_THAN_EQUALS(11U, mesh.GetNumBoundaryElements());
         
     }
     void TestJoeExample() throw (Exception)
@@ -118,10 +118,10 @@ public:
         decimator.DecimateAnimate("JoeAnimation", 15);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 301U);
         TS_ASSERT_LESS_THAN_EQUALS(297U, mesh.GetNumNodes());
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 588);
-        TS_ASSERT_LESS_THAN_EQUALS(581, mesh.GetNumElements());
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14);
-        TS_ASSERT_LESS_THAN_EQUALS(10, mesh.GetNumBoundaryElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 588U);
+        TS_ASSERT_LESS_THAN_EQUALS(581U, mesh.GetNumElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14U);
+        TS_ASSERT_LESS_THAN_EQUALS(10U, mesh.GetNumBoundaryElements());
     }
     void TestEndExample() throw (Exception)
     {
@@ -171,10 +171,10 @@ public:
         decimator.DecimateAnimate("EndAnimation", 100);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 346U);
         TS_ASSERT_LESS_THAN_EQUALS(346U, mesh.GetNumNodes());
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 679);
-        TS_ASSERT_LESS_THAN_EQUALS(679, mesh.GetNumElements());
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14);
-        TS_ASSERT_LESS_THAN_EQUALS(10, mesh.GetNumBoundaryElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 679U);
+        TS_ASSERT_LESS_THAN_EQUALS(679U, mesh.GetNumElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14U);
+        TS_ASSERT_LESS_THAN_EQUALS(10U, mesh.GetNumBoundaryElements());
     }
     
     void TestTahirExample() throw (Exception)

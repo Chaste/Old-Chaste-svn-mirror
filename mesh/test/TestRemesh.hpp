@@ -25,8 +25,8 @@ public:
         double area=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(0.01, area, 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),77U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),141);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),11);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),141U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),11U);
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t2\t0\t0\n";
@@ -73,8 +73,8 @@ public:
         double volume=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),1626);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),1626U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390U);
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
@@ -139,8 +139,8 @@ public:
         double volume=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),1626);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),1626U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390U);
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t3\t0\t0\n";
@@ -197,7 +197,7 @@ public:
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int)mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
@@ -276,26 +276,26 @@ public:
         const int target_index=206;
         
         unsigned num_nodes_before=mesh.GetNumNodes();
-        int num_elements_before=mesh.GetNumElements();
-        int num_boundary_elements_before=mesh.GetNumBoundaryElements();
+        unsigned num_elements_before=mesh.GetNumElements();
+        unsigned num_boundary_elements_before=mesh.GetNumBoundaryElements();
         
         mesh.SetNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int)mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes()+1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
         
         NodeMap map(1);
         mesh.ReMesh(map);
         
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int)mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),mesh.GetNumNodes());
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
         
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-2);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),(int) num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
     }

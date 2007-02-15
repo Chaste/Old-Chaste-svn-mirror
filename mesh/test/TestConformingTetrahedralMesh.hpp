@@ -23,8 +23,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader,1);
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
+        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
         
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
@@ -34,9 +34,9 @@ public:
         
         // Check first element has the right nodes
         ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
         
     }
@@ -59,9 +59,9 @@ public:
         }
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 4);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 9);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2);
+        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 4U);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 9U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2U);
         
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
@@ -85,20 +85,20 @@ public:
         
         // Check all elements have the right nodes
         ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 3);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 0);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 1);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 4);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 6);
-//		TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 3U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 0U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 1U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 4U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 6U);
+//		TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144U));
         it++;
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 1);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 2);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 3);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 7);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 8);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 1U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 2U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 3U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 7U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 5U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 8U);
         
     }
     
@@ -120,9 +120,9 @@ public:
         }
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543);
+        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 543U);
         //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 984U);
         
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
@@ -132,16 +132,16 @@ public:
         
         // Check first element has the right nodes
         ConformingTetrahedralMesh<2,2>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 543);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 544);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 545);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 309U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 144U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 310U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 543U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 544U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 545U);
         TS_ASSERT_EQUALS((*it)->GetNode(1), mesh.GetNode(144));
         it++;
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 546);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 547);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 546U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 547U);
         
     }
     
@@ -163,9 +163,9 @@ public:
         }
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51);
+        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51U);
         //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
         
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
@@ -195,9 +195,9 @@ public:
         }
         
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51);
+        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(), 51U);
         //TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 136U);
         
         // Check some node co-ordinates
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], 0.0, 1e-6);
@@ -209,20 +209,20 @@ public:
         
         // Check first element has the right nodes
         ConformingTetrahedralMesh<3,3>::ElementIterator it = mesh.GetElementIteratorBegin();
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 17);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 10);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 16);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 18);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 51);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 52);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 53);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(7), 54);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(8), 55);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(9), 56);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(0), 17U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(1), 10U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(2), 16U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(3), 18U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(4), 51U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 52U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 53U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(7), 54U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(8), 55U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(9), 56U);
         TS_ASSERT_EQUALS((*it)->GetNode(5), mesh.GetNode(52));
         it++;
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 58);
-        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 59);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(5), 58U);
+        TS_ASSERT_EQUALS((*it)->GetNodeGlobalIndex(6), 59U);
         
     }
     
@@ -233,7 +233,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Check for the right number of boundary edges
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100U);
         
         // Check all boundary elements have nodes on the boundary
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator it =
@@ -271,10 +271,10 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 100U);
-        TS_ASSERT_EQUALS( mesh.GetNumElements(), 100);
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 100U);
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0U);
         
     }
     
@@ -286,11 +286,11 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 51U);
-        TS_ASSERT_EQUALS( mesh.GetNumElements(), 50);
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 50U);
         //Check that the mesh_reader has the unculled "faces" (which are nodes)
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), mesh.GetNumNodes());
         //Culled "faces"
-        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2);
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 2U);
     }
     
     
@@ -301,8 +301,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 132U);
-        TS_ASSERT_EQUALS( mesh.GetNumElements(), 224);
-        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0);
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 224U);
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0U);
     }
     
     void Test2DMeshIn3DSpace()
@@ -312,13 +312,13 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         TS_ASSERT_EQUALS( mesh.GetNumNodes(), 312U);
-        TS_ASSERT_EQUALS( mesh.GetNumElements(), 522);
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 522U);
         
         
         ///Check that the mesh_reader has the unculled "faces" (which are edges)
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 833U);
         //These are the 100 edges around the perimeter of the circle
-        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100);
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100U);
     }
     
     
@@ -339,8 +339,8 @@ public:
         TS_ASSERT_EQUALS(element_index, 0u);
         
         Element<1,1> * p_element = mesh.GetElement(element_index);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
         
         Node<1> *p_node2=mesh.GetNode(1);
@@ -348,18 +348,18 @@ public:
         TS_ASSERT_EQUALS(p_node2->GetNumBoundaryElements(), 0u);
         
         p_element = mesh.GetElement(p_node2->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
         
         p_element =mesh.GetElement(p_node2->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),1U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),2U);
         TS_ASSERT_DELTA(p_element->GetJacobianDeterminant(), 0.1, 1e-6);
         
         // This should wrap back to 1st element
         p_element = mesh.GetElement(p_node2->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),0U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),1U);
     }
     void Test2DMeshCrossReference()
     {
@@ -375,29 +375,29 @@ public:
         Element<2,2> *p_element;
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),474);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),290);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),474U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),290U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),234);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),460);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),234U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),460U);
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),290);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),459);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),290U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),459U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),459);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),459U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),461U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),460);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),474);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),460U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),474U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),234U);
         
         //Now look at a boundary node
         p_node=mesh.GetNode(99);
@@ -405,11 +405,11 @@ public:
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 2u);
         const BoundaryElement<1,2> *p_boundary_element;
         p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),98);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),99);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),98U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),99U);
         p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),99);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),0);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),99U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),0U);
     }
     
     void Test3DMeshCrossReference()
@@ -427,46 +427,46 @@ public:
         Element<3,3> *p_element;
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10U);
         
         p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),35);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),34);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),35U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),34U);
         
         for (int i=0; i<9; i++)
         {
             p_element = mesh.GetElement(p_node->GetNextContainingElementIndex());
         }
         
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33);
-        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0),22U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1),34U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2),33U);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3),10U);
         
         //Now look at a boundary node
         TS_ASSERT_EQUALS(p_node->GetNumBoundaryElements(), 4u);
         const BoundaryElement<2,3> *p_boundary_element;
         p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),6);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),34);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),24);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),6U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),34U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),24U);
         p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),6);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),34);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),6U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),34U);
         p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),24);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),34);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),24U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),34U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10U);
         p_boundary_element = mesh.GetBoundaryElement(p_node->GetNextBoundaryElementIndex());
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),34);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30);
-        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(0),34U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1),30U);
+        TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2),10U);
         
         
         
@@ -773,17 +773,17 @@ public:
         // Number of *all* nodes & elements should be unchanged, even though we've deleted one,
         // since this is the size of the vector, not the number of active nodes/elements.
         // Yes, it's confusing.
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11);
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 10);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11U);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 10U);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 9U);
         // Check the boundary lists are correct
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2U);
         b_node_iter = mesh.GetBoundaryNodeIteratorBegin();
         TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 0U);
         TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 9U);
         // NB: New boundary elements not added
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 1);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 1U);
         b_elt_iter = mesh.GetBoundaryElementIteratorBegin();
         TS_ASSERT_EQUALS((*b_elt_iter)->GetNumNodes(), 1U);
         TS_ASSERT_EQUALS((*b_elt_iter++)->GetNode(0)->GetIndex(), 0U);
@@ -802,17 +802,17 @@ public:
         mesh.DeleteBoundaryNodeAt(0);
         
         TS_ASSERT(p_old_lhs_node->IsDeleted());
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11);
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 10);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 11U);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 10U);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 8);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 8U);
         // Check the boundary lists are correct
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2U);
         b_node_iter = mesh.GetBoundaryNodeIteratorBegin();
         TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 9U); // Note that the boundary is now
         TS_ASSERT_EQUALS((*b_node_iter++)->GetIndex(), 1U); // 'reversed'
         // NB: New boundary elements not added
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 0U);
         
         // Check the new boundary node
         Node<1> *p_new_lhs_node = mesh.GetNode(1);
@@ -982,7 +982,7 @@ public:
         double area=mesh.CalculateMeshVolume();
         double perim=mesh.CalculateMeshSurface();
         unsigned num_nodes=mesh.GetNumNodes();
-        int num_elements=mesh.GetNumElements();
+        unsigned num_elements=mesh.GetNumElements();
         unsigned num_boundary_elements=mesh.GetNumBoundaryElements();
         const int node_index=19;
         const int target_index=20;
@@ -994,7 +994,7 @@ public:
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.24e-4, 1e-6);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 6.20e-5, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
-        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1U);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
     }
     
@@ -1006,7 +1006,7 @@ public:
         double area=mesh.CalculateMeshVolume();
         double perim=mesh.CalculateMeshSurface();
         int num_nodes=mesh.GetNumNodes();
-        int num_elements=mesh.GetNumElements();
+        unsigned num_elements=mesh.GetNumElements();
         unsigned num_boundary_elements=mesh.GetNumBoundaryElements();
         const int node_index=9;
         const int target_index=10;
@@ -1018,7 +1018,7 @@ public:
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 0.00, 1e-6);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 0.00, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
-        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 1U);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 1u);
         
         const int corner_index=20;
@@ -1028,7 +1028,7 @@ public:
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.25e-5, 1e-7);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 2.92893e-3, 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 2U);
-        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 2);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 2U);
         TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2u);
         
     }
@@ -1042,8 +1042,8 @@ public:
         double volume=mesh.CalculateMeshVolume();
         double surface=mesh.CalculateMeshSurface();
         unsigned num_nodes=mesh.GetNumNodes();
-        int num_elements=mesh.GetNumElements();
-        int num_boundary_elements=mesh.GetNumBoundaryElements();
+        unsigned num_elements=mesh.GetNumElements();
+        unsigned num_boundary_elements=mesh.GetNumBoundaryElements();
         const int node_index=147;
         const int target_index=9;
         //const int not_boundary_index=400;
@@ -1054,8 +1054,8 @@ public:
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
         TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
         TS_ASSERT_EQUALS(num_nodes-mesh.GetNumNodes(), 1U);
-        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3);
-        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2);
+        TS_ASSERT_EQUALS(num_elements-mesh.GetNumElements(), 3U);
+        TS_ASSERT_EQUALS(num_boundary_elements-mesh.GetNumBoundaryElements(), 2U);
         
         
         //Can't move corner nodes since this forces some zero volume elements which aren't on the shared list...
@@ -1108,8 +1108,8 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width+height)));
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*width*height));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*width*height);
         
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -1123,8 +1123,8 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (2*(width+height)));
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (2*width*height));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*width*height );
         
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshNoStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
@@ -1204,7 +1204,7 @@ public:
         
         mesh.SetElementOwnerships(lo, hi);
         
-        for (unsigned ele_num=0; ele_num< (unsigned) mesh.GetNumElements(); ele_num++)
+        for (unsigned ele_num=0; ele_num< mesh.GetNumElements(); ele_num++)
         {
         	bool owned = mesh.GetElement(ele_num)->GetOwnership();
         	if (ele_num==26  ||
@@ -1262,9 +1262,9 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  (int) (4*(width*height+height*depth+depth*width)));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
         //Assuming that each cube is split into 6 tetrahedra
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (6*width*height*depth));
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*width*height*depth );
 
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {

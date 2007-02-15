@@ -78,7 +78,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
         Decimator<2> base_decimator;
         base_decimator.Initialise(&mesh);
@@ -112,7 +112,7 @@ public:
         mesh.ConstructRectangularMesh(20,20);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
         Decimator<2> base_decimator;
         base_decimator.Initialise(&mesh);
         
@@ -139,8 +139,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1.0e-5);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390U);
         TrianglesMeshWriter<3,3> mesh_writer("", "CubeNoDecimation");
         mesh_writer.WriteFilesUsingMesh(mesh);
         
@@ -150,8 +150,8 @@ public:
         base_decimator.Decimate();
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 195U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 923);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 154);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 923U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 154U);
         TrianglesMeshWriter<3,3> mesh_writer1("", "CubePartDecimation");
         mesh_writer1.WriteFilesUsingMesh(mesh);
         
@@ -159,8 +159,8 @@ public:
         base_decimator.Decimate();
         //  base_decimator.Interrogate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 12);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 12U);
         TrianglesMeshWriter<3,3> mesh_writer2("", "CubeFullDecimation");
         mesh_writer2.WriteFilesUsingMesh(mesh);
     }
