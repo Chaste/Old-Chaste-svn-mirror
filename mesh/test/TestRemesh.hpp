@@ -202,7 +202,7 @@ public:
         
         out_stream node_file=handler.OpenOutputFile("temp.node");
         (*node_file)<<mesh.GetNumNodes()<<"\t2\t0\t0\n";
-        for (int i=0; i<mesh.GetNumAllNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
             if (!mesh.GetNode(i)->IsDeleted())
             {
@@ -213,7 +213,7 @@ public:
         
         unsigned new_index = 0;
         NodeMap map(mesh.GetNumAllNodes());
-        for (int i=0; i<mesh.GetNumAllNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
             if (mesh.GetNode(i)->IsDeleted())
             {
@@ -243,7 +243,7 @@ public:
         
         //Test to see whether triangle/ tetgen is renumbering the nodes
         
-        for (int i=0; i<mesh.GetNumAllNodes(); i++)
+        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
         {
             if (mesh.GetNode(i)->IsDeleted())
             {

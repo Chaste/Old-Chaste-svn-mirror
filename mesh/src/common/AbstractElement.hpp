@@ -132,7 +132,7 @@ public:
         return centroid/((double)(ELEMENT_DIM + 1));
     }
     
-    long GetNodeGlobalIndex(unsigned localIndex) const
+    unsigned GetNodeGlobalIndex(unsigned localIndex) const
     {
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex]->GetIndex();

@@ -273,7 +273,7 @@ public:
         int num_transit = 0;
         int num_differentiated = 0;
         
-        for (int index = 0; index<p_mesh->GetNumAllNodes(); index++)
+        for (unsigned index = 0; index<p_mesh->GetNumAllNodes(); index++)
         {
             if(!is_ghost_node[index])   //!mesh.GetNode(index)->IsDeleted())
             {

@@ -10,7 +10,7 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(long numElements)
+ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(unsigned numElements)
 {
     mElements.reserve(numElements);
 }
@@ -20,7 +20,7 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(lon
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
-    int orderOfBasisFunctions)
+    unsigned orderOfBasisFunctions)
 {
 
     // We only use linear or quadratic basis functions
@@ -39,21 +39,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
     else if (orderOfBasisFunctions == 2)
     {
-        typename std::map<std::pair<int,int>,int>::const_iterator iterator;
-        std::map<std::pair<int,int>,int> internal_nodes_map;
+        typename std::map<std::pair<unsigned,unsigned>,unsigned>::const_iterator iterator;
+        std::map<std::pair<unsigned,unsigned>,unsigned> internal_nodes_map;
         
         std::vector<Node<SPACE_DIM> > temp_nodes;
         temp_nodes.reserve(mNumCornerNodes);
         
         // Add corner nodes to temporary nodes vector
         std::vector<double> coords;
-        for (int i=0; i < mNumCornerNodes; i++)
+        for (unsigned i=0; i < mNumCornerNodes; i++)
         {
             coords = rMeshReader.GetNextNode();
             temp_nodes.push_back(Node<SPACE_DIM>(i, coords, false));
         }
         
-        int new_node_index = mNumCornerNodes;
+        unsigned new_node_index = mNumCornerNodes;
         
         // Create the map of internal node indices
         for (unsigned i=0; i < rMeshReader.GetNumElements(); i++)
@@ -62,32 +62,32 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             std::vector<const Node<SPACE_DIM>*> nodes;
             
             //Debugging code
-            int nodes_size = node_indices.size();
+            unsigned nodes_size = node_indices.size();
             
-            for (int j=0; j < nodes_size; j++)
+            for (unsigned j=0; j < nodes_size; j++)
             {
                 assert(node_indices[j] < temp_nodes.size());
                 nodes.push_back(&temp_nodes[node_indices[j]]);
             }
             
-            for (int j=0; j < ELEMENT_DIM + 1; j++)
+            for (unsigned j=0; j < ELEMENT_DIM + 1; j++)
             {
-                for (int k=j+1; k < ELEMENT_DIM + 1; k++)
+                for (unsigned k=j+1; k < ELEMENT_DIM + 1; k++)
                 {
                     assert(j < nodes_size && k < nodes_size);
-                    int node_i = nodes[j]->GetIndex();
-                    int node_j = nodes[k]->GetIndex();
+                    unsigned node_i = nodes[j]->GetIndex();
+                    unsigned node_j = nodes[k]->GetIndex();
                     if (node_j < node_i)
                     {
-                        int temp = node_i;
+                        unsigned temp = node_i;
                         node_i = node_j;
                         node_j = temp;
                     }
-                    iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
+                    iterator = internal_nodes_map.find(std::pair<unsigned,unsigned>(node_i, node_j));
                     if (iterator == internal_nodes_map.end())
                     {
                         // add node to map
-                        internal_nodes_map[(std::pair<int,int>(node_i, node_j))] = new_node_index;
+                        internal_nodes_map[(std::pair<unsigned,unsigned>(node_i, node_j))] = new_node_index;
                         new_node_index++;
                     }
                 }
@@ -98,18 +98,18 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     
     rMeshReader.Reset();
     
-    typename std::map<std::pair<int,int>,int>::const_iterator iterator;
-    std::map<std::pair<int,int>,int> internal_nodes_map;
+    typename std::map<std::pair<unsigned,unsigned>,unsigned>::const_iterator iterator;
+    std::map<std::pair<unsigned,unsigned>,unsigned> internal_nodes_map;
     
     // Add corner nodes
     std::vector<double> coords;
-    for (int i=0; i < mNumCornerNodes; i++)
+    for (unsigned i=0; i < mNumCornerNodes; i++)
     {
         coords = rMeshReader.GetNextNode();
         mNodes.push_back(new Node<SPACE_DIM>(i, coords, false));
     }
     
-    int new_node_index = mNumCornerNodes;
+    unsigned new_node_index = mNumCornerNodes;
     
     if (orderOfBasisFunctions == 2)
     {
@@ -119,32 +119,32 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             std::vector<const Node<SPACE_DIM>*> nodes;
             
             //Debugging code
-            int nodes_size = node_indices.size();
+            unsigned nodes_size = node_indices.size();
             
-            for (int j=0; j < nodes_size; j++)
+            for (unsigned j=0; j < nodes_size; j++)
             {
                 assert(node_indices[j] < mNodes.size());
                 nodes.push_back(mNodes[node_indices[j]]);
             }
             
-            for (int j=0; j < ELEMENT_DIM + 1; j++)
+            for (unsigned j=0; j < ELEMENT_DIM + 1; j++)
             {
-                for (int k=j+1; k < ELEMENT_DIM + 1; k++)
+                for (unsigned k=j+1; k < ELEMENT_DIM + 1; k++)
                 {
                     assert(j < nodes_size && k < nodes_size);
-                    int node_i = nodes[j]->GetIndex();
-                    int node_j = nodes[k]->GetIndex();
+                    unsigned node_i = nodes[j]->GetIndex();
+                    unsigned node_j = nodes[k]->GetIndex();
                     if (node_j < node_i)
                     {
-                        int temp = node_i;
+                        unsigned temp = node_i;
                         node_i = node_j;
                         node_j = temp;
                     }
-                    iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
+                    iterator = internal_nodes_map.find(std::pair<unsigned,unsigned>(node_i, node_j));
                     if (iterator == internal_nodes_map.end())
                     {
                         // add node to map
-                        internal_nodes_map[(std::pair<int,int>(node_i, node_j))] = new_node_index;
+                        internal_nodes_map[(std::pair<unsigned,unsigned>(node_i, node_j))] = new_node_index;
                         // add node to mesh
                         const Node<SPACE_DIM>* p_node1 = GetNode(node_i);
                         const Node<SPACE_DIM>* p_node2 = GetNode(node_j);
@@ -170,8 +170,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextElement();
         std::vector<Node<SPACE_DIM>*> nodes;
-        int nodes_size = node_indices.size();
-        for (int j=0; j<nodes_size; j++)
+        unsigned nodes_size = node_indices.size();
+        for (unsigned j=0; j<nodes_size; j++)
         {
             assert(node_indices[j] <  mNodes.size());
             nodes.push_back(mNodes[node_indices[j]]);
@@ -179,20 +179,20 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         
         if (orderOfBasisFunctions == 2)
         {
-            for (int j=0; j < ELEMENT_DIM + 1; j++)
+            for (unsigned j=0; j < ELEMENT_DIM + 1; j++)
             {
-                for (int k=j+1; k < ELEMENT_DIM + 1; k++)
+                for (unsigned k=j+1; k < ELEMENT_DIM + 1; k++)
                 {
                     assert(j < nodes_size && k < nodes_size);
-                    int node_i = nodes[j]->GetIndex();
-                    int node_j = nodes[k]->GetIndex();
+                    unsigned node_i = nodes[j]->GetIndex();
+                    unsigned node_j = nodes[k]->GetIndex();
                     if (node_j < node_i)
                     {
-                        int temp = node_i;
+                        unsigned temp = node_i;
                         node_i = node_j;
                         node_j = temp;
                     }
-                    iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
+                    iterator = internal_nodes_map.find(std::pair<unsigned,unsigned>(node_i, node_j));
                     assert(iterator != internal_nodes_map.end());
                     // add node to element
                     nodes.push_back(this->GetNode(iterator->second));
@@ -204,7 +204,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
     
     // Add boundary elements & nodes
-    int actual_face_index=0;
+    unsigned actual_face_index=0;
     for (unsigned face_index=0; face_index<(unsigned)rMeshReader.GetNumFaces(); face_index++)
     {
         std::vector<unsigned> node_indices = rMeshReader.GetNextFace();
@@ -260,21 +260,21 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             
             if (orderOfBasisFunctions == 2)
             {
-                int nodes_size = node_indices.size();
-                for (int j=0; j < ELEMENT_DIM; j++)
+                unsigned nodes_size = node_indices.size();
+                for (unsigned j=0; j < ELEMENT_DIM; j++)
                 {
-                    for (int k=j+1; k < ELEMENT_DIM; k++)
+                    for (unsigned k=j+1; k < ELEMENT_DIM; k++)
                     {
                         assert(j < nodes_size && k < nodes_size);
-                        int node_i = nodes[j]->GetIndex();
-                        int node_j = nodes[k]->GetIndex();
+                        unsigned node_i = nodes[j]->GetIndex();
+                        unsigned node_j = nodes[k]->GetIndex();
                         if (node_j < node_i)
                         {
-                            int temp = node_i;
+                            unsigned temp = node_i;
                             node_i = node_j;
                             node_j = temp;
                         }
-                        iterator = internal_nodes_map.find(std::pair<int,int>(node_i, node_j));
+                        iterator = internal_nodes_map.find(std::pair<unsigned,unsigned>(node_i, node_j));
                         assert(iterator != internal_nodes_map.end());
                         // add node to element
                         nodes.push_back(this->GetNode(iterator->second));
@@ -314,7 +314,7 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ConformingTetrahedralMesh()
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 {
 
     if (mDeletedNodeIndices.empty())
@@ -341,9 +341,9 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
 template<int ELEMENT_DIM, int SPACE_DIM>
-Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(long index)
+Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
-    assert(index < (long) mNodes.size());
+    assert(index < mNodes.size());
     return (mNodes[index]);
 }
 
@@ -354,43 +354,43 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
     return mNodes.size() - mDeletedNodeIndices.size();
 }
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
 {
     return mNodes.size();
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
     return mElements.size() - mDeletedElementIndices.size();
 }
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
     return mElements.size();
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
 {
     return mBoundaryNodes.size();
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
 {
     return mBoundaryElements.size() - mDeletedBoundaryElementIndices.size();
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
 {
     return mBoundaryElements.size();
 }
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 {
     return mNumCornerNodes;
 }
@@ -398,12 +398,12 @@ long ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, unsigned boundaryNodeIndex)
 {
     assert(GetNode(boundaryNodeIndex)->IsBoundaryNode());
     double scaleFactor = updatedPoint[0] / GetNode(boundaryNodeIndex)->GetPoint()[0];
     double temp;
-    for (int i=0; i < boundaryNodeIndex+1; i++)
+    for (unsigned i=0; i < boundaryNodeIndex+1; i++)
     {
         temp = scaleFactor * mNodes[i]->GetPoint()[0];
         Point<1> newPoint(temp);
@@ -631,7 +631,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 }
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Element<ELEMENT_DIM,SPACE_DIM>* pElement,
     Point<SPACE_DIM> point)
 {
@@ -643,7 +643,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     }
 
     // Add a new node from the point that is passed to RefineElement
-    int new_node_index = AddNode(new Node<SPACE_DIM>(0, point.rGetLocation()));
+    unsigned new_node_index = AddNode(new Node<SPACE_DIM>(0, point.rGetLocation()));
     // Note: the first argument is the index of the node, which is going to be
     //       overriden by AddNode, so it can safely be ignored
     
@@ -652,7 +652,7 @@ int ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     {
         
         // First, make a copy of the current element making sure we update its index
-        int new_elt_index;
+        unsigned new_elt_index;
         if (mDeletedElementIndices.empty())
         {
             new_elt_index = mElements.size();
@@ -740,7 +740,7 @@ template<int ELEMENT_DIM, int SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
-    int bound_element_dim=ELEMENT_DIM-1;
+    unsigned bound_element_dim=ELEMENT_DIM-1;
     assert(bound_element_dim < 3 &&  bound_element_dim>=0);
     if ( bound_element_dim == 0)
     {
@@ -781,9 +781,9 @@ template <int ELEMENT_DIM, int SPACE_DIM>
                 const double yScale,
                 const double zScale)
 {
-    long num_nodes=GetNumAllNodes();
+    unsigned num_nodes=GetNumAllNodes();
     
-    for (int i=0; i<num_nodes; i++)
+    for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
         if (SPACE_DIM>=3)
@@ -835,9 +835,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
 template<int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
 {
-    long num_nodes=GetNumAllNodes();
+    unsigned num_nodes=GetNumAllNodes();
     
-    for (int i=0; i<num_nodes; i++)
+    for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
         r_location += transVec;
@@ -858,8 +858,8 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
     c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix)
 {
-    long num_nodes=GetNumAllNodes();
-    for (int i=0; i<num_nodes; i++)
+    unsigned num_nodes=GetNumAllNodes();
+    for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = mNodes[i]->rGetModifiableLocation();
         r_location = prod(rotation_matrix, r_location);
@@ -966,7 +966,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateZ(const double the
 
 
 template<int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(long index)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
 {
     if (!mNodes[index]->IsBoundaryNode() )
     {
@@ -1163,10 +1163,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
     
     
-    int new_index = 0;
+    unsigned new_index = 0;
     
     
-    for (int i=0; i<GetNumAllNodes(); i++)
+    for (unsigned i=0; i<GetNumAllNodes(); i++)
     {
         if (mNodes[i]->IsDeleted())
         {
@@ -1252,12 +1252,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         }
     }
     
-    for (int i=0; i<temporary_mesh.GetNumElements(); i++)
+    for (unsigned i=0; i<temporary_mesh.GetNumElements(); i++)
     {
         std::vector<Node<SPACE_DIM>* > nodes;
-        for (int j=0; j<SPACE_DIM+1; j++)
+        for (unsigned j=0; j<SPACE_DIM+1; j++)
         {
-            int index=(temporary_mesh.GetElement(i))->GetNodeGlobalIndex(j);
+            unsigned index=(temporary_mesh.GetElement(i))->GetNodeGlobalIndex(j);
             nodes.push_back(mNodes[index]);
         }
         Element<ELEMENT_DIM,SPACE_DIM> *p_element=
@@ -1265,12 +1265,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         mElements.push_back(p_element);
     }
     
-    for (int i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
+    for (unsigned i=0; i<temporary_mesh.GetNumBoundaryElements(); i++)
     {
         std::vector<Node<SPACE_DIM>* > nodes;
-        for (int j=0; j<SPACE_DIM; j++)
+        for (unsigned j=0; j<SPACE_DIM; j++)
         {
-            int index=(temporary_mesh.GetBoundaryElement(i))->GetNodeGlobalIndex(j);
+            unsigned index=(temporary_mesh.GetBoundaryElement(i))->GetNodeGlobalIndex(j);
             nodes.push_back(mNodes[index]);
         }
         BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> *p_b_element=
@@ -1305,7 +1305,7 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned> perm)
 {
     //Let's not do this if there are any deleted nodes
-    assert( GetNumAllNodes() == (int) GetNumNodes());
+    assert( GetNumAllNodes() == GetNumNodes());
     
     //Copy the node pointers
     std::vector <Node <SPACE_DIM> *> copy_m_nodes;
@@ -1328,7 +1328,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
     assert( GetNumAllElements() == GetNumElements());
-    assert( GetNumAllNodes() == (int) GetNumNodes());
+    assert( GetNumAllNodes() == GetNumNodes());
     
     //Open a file for the elements
     OutputFileHandler handler("");
@@ -1373,7 +1373,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     std::vector<unsigned> perm;
     for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
     {
-        int new_index;
+        unsigned new_index;
         perm_file>>new_index;
         perm.push_back(new_index);
     }
@@ -1387,13 +1387,13 @@ template <int ELEMENT_DIM, int SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
 {
      assert (ELEMENT_DIM == SPACE_DIM);
-     int num_nodes = pElement->GetNumNodes();
+     unsigned num_nodes = pElement->GetNumNodes();
      std::set<unsigned> neighbouring_elements_indices;
      std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;
      std::set<unsigned> neighbouring_nodes_indices;
 
      //Form a set of neighbouring elements via the nodes
-     for(int i = 0 ; i < num_nodes; i++)
+     for(unsigned i = 0 ; i < num_nodes; i++)
      {
          Node<SPACE_DIM>* node = pElement->GetNode(i);
          neighbouring_elements_indices = node->rGetContainingElementIndices();
@@ -1413,13 +1413,13 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
      for (ElementIterator it = neighbouring_elements.begin();
         it != neighbouring_elements.end(); ++it)
      {
-        for(int i = 0 ; i < num_nodes; i++)
+        for(unsigned i = 0 ; i < num_nodes; i++)
         {
             neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));
         }
      }
      //Remove the nodes that support this element
-     for(int i = 0 ; i < num_nodes; i++)
+     for(unsigned i = 0 ; i < num_nodes; i++)
      {
         neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));
      }
@@ -1431,7 +1431,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
 
      //Copy the actualy circumcentre into a smaller vector
      c_vector <double, ELEMENT_DIM> circum_centre;
-     for (int i=0;i<ELEMENT_DIM;i++)
+     for (unsigned i=0;i<ELEMENT_DIM;i++)
      {
          circum_centre[i]=this_circum_centre[i];
      }
@@ -1486,19 +1486,19 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxP
 
 
 template <int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(int width, int height, bool stagger)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
 {
     assert(SPACE_DIM == 2);
     assert(ELEMENT_DIM == 2);
 
     //Construct the nodes
-    int node_index=0;
-    for (int j=height;j>=0;j--)
+    unsigned node_index=0;
+    for (int j=(int)height;j>=0;j--) //j must be signed for this loop to terminate
     {
-        for (int i=0;i<width+1;i++)
+        for (unsigned i=0;i<width+1;i++)
         {
             bool is_boundary=false;
-            if (i==0 || j==0 || i==width || j==height)
+            if (i==0 || j==0 || i==width || j==(int)height)
             {
                 is_boundary=true;
             }
@@ -1507,9 +1507,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
     }
 
     //Construct the boundary elements
-    int belem_index=0;
+    unsigned belem_index=0;
     //Top
-    for (int i=0;i<width;i++)
+    for (unsigned i=0;i<width;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(mNodes[i]);
@@ -1517,7 +1517,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Right
-    for (int i=1;i<height+1;i++)
+    for (unsigned i=1;i<height+1;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(mNodes[(width+1)*i-1]);
@@ -1525,7 +1525,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Bottom
-    for (int i=0;i<width;i++)
+    for (unsigned i=0;i<width;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(mNodes[height*(width+1)+i+1]);
@@ -1533,7 +1533,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
     //Left
-    for (int i=0;i<height;i++)
+    for (unsigned i=0;i<height;i++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
         nodes.push_back(mNodes[(width+1)*(i+1)]);
@@ -1542,12 +1542,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
     }
 
     //Construct the elements
-    int elem_index=0;
-    for (int j=0;j<height;j++)
+    unsigned elem_index=0;
+    for (unsigned j=0;j<height;j++)
     {
-        for (int i=0; i<width; i++)
+        for (unsigned i=0; i<width; i++)
         {
-            int parity=(i+j)%2;
+            unsigned parity=(i+j)%2;
             std::vector<Node<SPACE_DIM>*> upper_nodes;
             upper_nodes.push_back(mNodes[j*(width+1)+i]);
             upper_nodes.push_back(mNodes[j*(width+1)+i+1]);
@@ -1633,20 +1633,20 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(uns
 }
 
 template <int ELEMENT_DIM, int SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int width,
-                                                                        int height,
-                                                                        int depth)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
+                                                                        unsigned height,
+                                                                        unsigned depth)
 {                                                                       
     assert(SPACE_DIM == 3);
     assert(ELEMENT_DIM == 3);
    //Construct the nodes
     
-    int node_index=0;
-    for (int k=0;k<depth+1;k++)
+    unsigned node_index=0;
+    for (unsigned k=0;k<depth+1;k++)
     {
-   		for (int j=0;j<height+1;j++)
+   		for (unsigned j=0;j<height+1;j++)
     	{
-        	for (int i=0;i<width+1;i++)
+        	for (unsigned i=0;i<width+1;i++)
         	{
             	bool is_boundary=false;
             	if (i==0 || j==0 || k==0 || i==width || j==height || k==depth)
@@ -1660,28 +1660,28 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int widt
 
 	// Construct the elements
 
-    int elem_index=0;
-    int belem_index=0;
+    unsigned elem_index=0;
+    unsigned belem_index=0;
     unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
     								{0, 2, 3, 7}, {0, 2, 6, 7},
     								{0, 4, 6, 7}, {0, 4, 5, 7}};
 	std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
     
-    for (int k=0;k<depth;k++)
+    for (unsigned k=0;k<depth;k++)
     {
-   		for (int j=0;j<height;j++)
+   		for (unsigned j=0;j<height;j++)
     	{
-        	for (int i=0;i<width;i++)
+        	for (unsigned i=0;i<width;i++)
         	{
         		// Compute the nodes' index
-				int global_node_indices[8];
-				int local_node_index = 0;
+				unsigned global_node_indices[8];
+				unsigned local_node_index = 0;
 				
-				for (int z = 0; z < 2; z++)
+				for (unsigned z = 0; z < 2; z++)
 				{
-					for (int y = 0; y < 2; y++)
+					for (unsigned y = 0; y < 2; y++)
 					{
-						for (int x = 0; x < 2; x++)
+						for (unsigned x = 0; x < 2; x++)
 						{
 							global_node_indices[local_node_index] = i+x+(width+1)*(j+y+(height+1)*(k+z));
 				
@@ -1690,13 +1690,13 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(int widt
 					}
 				}
 
-			    for (int m = 0; m < 6; m++)
+			    for (unsigned m = 0; m < 6; m++)
 			    {
 			    	// Tetrahedra #m
 			    	
  	            	tetrahedra_nodes.clear();
 	            
-				    for (int n = 0; n < 4; n++)
+				    for (unsigned n = 0; n < 4; n++)
 				    {
 		                tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[m][n]]]);
 				    }

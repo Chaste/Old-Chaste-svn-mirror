@@ -174,7 +174,7 @@ public:
         
         unsigned dead_cells = 0;
         // Note: converges very slowly so small tolerance of 0.1
-        for (int index = 0; index<mesh.GetNumAllNodes(); index++)
+        for (unsigned index = 0; index<mesh.GetNumAllNodes(); index++)
         {
             Node<1> *p_node = mesh.GetNode(index);
             if (!p_node->IsDeleted())
@@ -501,7 +501,7 @@ public:
         //Warning - there are 6 live cells and one dead one sloughed off still in existance.
         //n.b. throughout the simulation 2 cells are sloughed off but one place is reused
         TS_ASSERT_EQUALS((int) cells_after_simulation.size(),7);
-        for (int index = 0; index<mesh.GetNumAllNodes(); index++)
+        for (unsigned index = 0; index<mesh.GetNumAllNodes(); index++)
         {
             if (!mesh.GetNode(index)->IsDeleted())
             {

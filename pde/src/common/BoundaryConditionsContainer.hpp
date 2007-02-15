@@ -275,7 +275,7 @@ public:
             
             while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
             {
-                long node_index = dirichIterator->first->GetIndex();
+                unsigned node_index = dirichIterator->first->GetIndex();
                 
                 double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
                 

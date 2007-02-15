@@ -1235,7 +1235,7 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        for (int i=0; i<mesh.GetNumBoundaryElements(); i++)
+        for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal=*(b_element->pGetWeightedDirection());
@@ -1266,7 +1266,7 @@ public:
         //Assuming that each cube is split into 6 tetrahedra
         TS_ASSERT_EQUALS(mesh.GetNumElements(), (int) (6*width*height*depth));
 
-        for (int i=0; i<mesh.GetNumBoundaryElements(); i++)
+        for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
             c_vector<double, 3> normal=*(b_element->pGetWeightedDirection());

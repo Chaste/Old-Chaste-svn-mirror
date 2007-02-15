@@ -269,7 +269,7 @@ public:
             {
                 //std::cout<< "elements" << mrMesh.GetNumAllElements() <<std::endl<< std::flush;
                 
-                for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+                for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
                 {
                     Element<1,1>* element = mrMesh.GetElement(elem_index);
                     if (!element->IsDeleted())
@@ -304,7 +304,7 @@ public:
             }
             else
             {
-                for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+                for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
                 {
                     Element<1,1>* element = mrMesh.GetElement(elem_index);
                     if (!element->IsDeleted())
@@ -324,7 +324,7 @@ public:
             }
             
             // update node positions
-            for (int index = 1; index<mrMesh.GetNumAllNodes(); index++)
+            for (unsigned index = 1; index<mrMesh.GetNumAllNodes(); index++)
             {
                 // assume stem cells are fixed, or if there are no cells, fix node 0
                 //if(
@@ -370,7 +370,7 @@ public:
             (*p_results_file) << mpSimulationTime->GetDimensionalisedTime() << "\t";
             
             int cell=0; // NB this is not the index in mCells, but the index in the mesh!
-            for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
+            for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 if (!mrMesh.GetNode(index)->IsDeleted())
                 {

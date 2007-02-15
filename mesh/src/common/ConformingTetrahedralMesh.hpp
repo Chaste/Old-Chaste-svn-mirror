@@ -29,7 +29,7 @@ public:
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
     typedef typename std::vector<Node<SPACE_DIM> *>::const_iterator BoundaryNodeIterator;
 private:
-    int mNumCornerNodes;
+    unsigned mNumCornerNodes;
     // Note that since these are vectors of objects, not pointers, push_back
     // will copy the objects.
     std::vector<Element<ELEMENT_DIM, SPACE_DIM> *> mElements;
@@ -48,7 +48,7 @@ private:
     //BoundaryElementIterator mpBoundaryElementIter;
     //BoundaryNodeIterator mpBoundaryNodeIter;
     
-    int AddNode(Node<SPACE_DIM> *pNewNode);
+    unsigned AddNode(Node<SPACE_DIM> *pNewNode);
     
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
@@ -61,24 +61,24 @@ private:
 public:
 
     ConformingTetrahedralMesh();
-    ConformingTetrahedralMesh(long numElements);
+    ConformingTetrahedralMesh(unsigned numElements);
     
     ~ConformingTetrahedralMesh();
     
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader, int orderOfBasisFunctions=1);
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader, unsigned orderOfBasisFunctions=1);
     
-    void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, int boundaryNodeIndex);
+    void RescaleMeshFromBoundaryNode(Point<1> updatedPoint, unsigned boundaryNodeIndex);
     
-    Node<SPACE_DIM> *GetNode(long index);
+    Node<SPACE_DIM> *GetNode(unsigned index);
     
     unsigned GetNumNodes();
-    long GetNumElements();
-    long GetNumBoundaryElements();
-    long GetNumAllNodes();
-    long GetNumAllElements();
-    long GetNumAllBoundaryElements();
-    long GetNumBoundaryNodes();
-    long GetNumCornerNodes();
+    unsigned GetNumElements();
+    unsigned GetNumBoundaryElements();
+    unsigned GetNumAllNodes();
+    unsigned GetNumAllElements();
+    unsigned GetNumAllBoundaryElements();
+    unsigned GetNumBoundaryNodes();
+    unsigned GetNumCornerNodes();
     
     /**
      * Return a pointer to the first element in the mesh.
@@ -129,12 +129,12 @@ public:
         return mBoundaryNodes.end();
     }
     
-    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(int index)
+    Element<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index)
     {
         return (mElements[index]);
     }
     
-    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(int index)
+    BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* GetBoundaryElement(unsigned index)
     {
         return (mBoundaryElements[index]);
     }
@@ -142,7 +142,7 @@ public:
     void SetNode(unsigned index, Point<SPACE_DIM> point, bool verify=true);
     void SetNode(unsigned index, unsigned targetIndex, bool crossReference=true);
     
-    int RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> Point);
+    unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> Point);
     void RefreshMesh(void);
     
     /**
@@ -178,7 +178,7 @@ public:
      * 
      * @param index  The index of the node to remove.
      */
-    void DeleteBoundaryNodeAt(long index);
+    void DeleteBoundaryNodeAt(unsigned index);
     
     /**
      * Re-index a mesh so that it has no deleted elements or nodes
@@ -227,14 +227,14 @@ public:
       * diagonals can be staggered so that there is no prefered diffusion propagation
       * direction.
       */
-     void ConstructRectangularMesh(int width, int height, bool stagger=true);
+     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
  
      /**
       * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
       * diagonals can be staggered so that there is no prefered diffusion propagation
       * direction.
       */
-     void ConstructCuboid(int width, int height, int depth);
+     void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
      
      /**
       *  Returns the element index for the first element that is known to contain a test point

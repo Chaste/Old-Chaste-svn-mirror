@@ -610,7 +610,7 @@ public:
             //                    calculate node velocities
             //////////////////////////////////////////////////////////////////////////
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
-            for (int i=0; i<mrMesh.GetNumAllNodes(); i++)
+            for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
             {
                 drdt[i].resize(2);
             }
@@ -619,7 +619,7 @@ public:
             ////////////////////////////////////////////////////////////////////
             // loop over element and for each one loop over it's three edges
             ////////////////////////////////////////////////////////////////////
-            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+            for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
                 Element<2,2>* p_element = mrMesh.GetElement(elem_index);
                 if(!p_element->IsDeleted())
@@ -829,7 +829,7 @@ public:
             ////////////////////////////////////////////////////////////////////////////////////
 
             
-            for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
+            for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {       
             	//std::cout << "Node " << index << "\t x_force = " << drdt[index][0] << "\t y_force = " << drdt[index][1] << "\n";
                      
@@ -1116,7 +1116,7 @@ public:
             /////////////////////////////////
             // write node files
             /////////////////////////////////
-            for (int index = 0; index<mrMesh.GetNumAllNodes(); index++)
+            for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 int colour = 0; // all green if no cells have been passed in
                 
@@ -1126,7 +1126,7 @@ public:
                 }
                 else if(mCells.size()>0)
                 {
-                    if(index < (int) mCells.size())
+                    if(index < mCells.size())
                     {
                         CryptCellType type = mCells[index].GetCellType();
                         CryptCellMutationState mutation = mCells[index].GetMutationState();
@@ -1178,7 +1178,7 @@ public:
             /////////////////////////////////
             // write element data files
             /////////////////////////////////
-            for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+            for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
                 if (!mrMesh.GetElement(elem_index)->IsDeleted())
                 {
@@ -1264,7 +1264,7 @@ public:
 		}
        
         // Loop over elements and find boundary nodes of crypt
-        for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+        for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
         {
             Element<2,2>* p_element = mrMesh.GetElement(elem_index);
     
@@ -1377,7 +1377,7 @@ public:
 	        
 	        if(!our_node_periodic)
 	        {
-	        	for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+	        	for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
 		        {
 		            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
 		    		unsigned node[3];
@@ -1588,7 +1588,7 @@ public:
         std::vector <unsigned > ghosts_on_node_0;
         std::vector <unsigned > ghosts_on_node_1;
         // Search all the elements connected to periodic_node[0] for ghost nodes
-        for (int elim_index = 0 ; elim_index<mrMesh.GetNumAllElements(); elim_index++ )
+        for (unsigned elim_index = 0 ; elim_index<mrMesh.GetNumAllElements(); elim_index++ )
         {
         	Element<2,2>* p_element = mrMesh.GetElement(elim_index);
         	unsigned node[3];
