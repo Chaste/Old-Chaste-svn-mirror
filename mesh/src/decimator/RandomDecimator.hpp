@@ -28,13 +28,11 @@ public:
     {
         if (pRanGen)
         {
-        	std::cout<<"That branch\n";
         	mpRanGen=pRanGen;
         }
         else
         {
-        	std::cout<<"This branch\n";
-        	mpRanGen=new RandomNumberGenerator;
+         	mpRanGen=new RandomNumberGenerator;
         }
         Decimator<SPACE_DIM>::Initialise(pMesh);
     }
