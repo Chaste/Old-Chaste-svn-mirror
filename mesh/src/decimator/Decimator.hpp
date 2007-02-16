@@ -173,14 +173,18 @@ protected:
         {
             p_target_node_info->AddToNeighbourNodes(p_moving_node_info->GetNextNeighbourNode());
         }
+        
+        /*
         //Add neighbour elements to target
+        //This is unnecessary since the moving node has already de-registered from
+        // its containing elements (when marked for deletion  
         Node<SPACE_DIM> *p_moving_node=p_moving_node_info->mpNode;
         Node<SPACE_DIM> *p_target_node=p_target_node_info->mpNode;
         for (unsigned i=0; i<p_moving_node->GetNumContainingElements(); i++)
         {
             p_target_node->AddElement(                 p_moving_node->GetNextContainingElementIndex());
         }
-        
+        */
         //Swap moving node for target in all neigbours
         for (unsigned i=0; i<p_moving_node_info->GetNumNeighbourNodes(); i++)
         {

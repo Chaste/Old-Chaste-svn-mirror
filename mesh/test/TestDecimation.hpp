@@ -11,6 +11,7 @@
 #include "MinimumElementDecimator.hpp"
 #include "LinearFunctionDecimator.hpp"
 #include "VectorFunctionDecimator.hpp"
+#include "RandomDecimator.hpp"
 #include <cxxtest/TestSuite.h>
 //#include <iostream>
 
@@ -84,15 +85,15 @@ public:
         base_decimator.Initialise(&mesh);
         
         //base_decimator.Interrogate();
-        TrianglesMeshWriter<2,2> mesh_writer("", "SquareNoDecimation");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer("", "SquareNoDecimation");
+        //mesh_writer.WriteFilesUsingMesh(mesh);
         
         base_decimator.SetThreshold(0.0005);
         base_decimator.Decimate();
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 80U);
         TS_ASSERT_LESS_THAN_EQUALS(73U, mesh.GetNumNodes());
-        TrianglesMeshWriter<2,2> mesh_writer1("", "SquarePartDecimation");
-        mesh_writer1.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer1("", "SquarePartDecimation");
+        //mesh_writer1.WriteFilesUsingMesh(mesh);
         
         
         //    base_decimator.Interrogate();
@@ -100,8 +101,8 @@ public:
         base_decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        TrianglesMeshWriter<2,2> mesh_writer2("", "SquareFullDecimation");
-        mesh_writer2.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer2("", "SquareFullDecimation");
+        //mesh_writer2.WriteFilesUsingMesh(mesh);
         //     base_decimator.Interrogate();
     } 
     
@@ -122,14 +123,58 @@ public:
         base_decimator.SetThreshold(6.000);
         base_decimator.DecimateAnimate("StructuredSquare");
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 221U);
-        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
-        TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
+        //TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
+        //TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
         
         
         base_decimator.SetThreshold(INFINITY);
         base_decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
+       
+    }
+
+    void TestRandom2DOnSquareWithAutoMeshGeneration()
+    {
+       
+        /*ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(20,20);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
+        RandomDecimator<2> decimator;
+        RandomNumberGenerator rand;
+        decimator.Initialise(&mesh, &rand);
+        
+        
+        //decimator.Interrogate();
+        
+        decimator.SetThreshold(0.2);
+        decimator.DecimateAnimate("RandomSquare");
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 254U);
+        //TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
+        //TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
+        
+        */
+        ConformingTetrahedralMesh<2,2> mesh2;
+        mesh2.ConstructRectangularMesh(20,20);
+        RandomDecimator<2> decimator2;
+        decimator2.Initialise(&mesh2);
+        
+        
+        //decimator.Interrogate();
+        
+        decimator2.SetThreshold(0.2);
+        decimator2.Decimate();
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 254U);
+        //TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
+        //TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
+        
+        //Note that each re-score gives a 50% chance of a node falling below 0.5
+        decimator2.SetThreshold(0.75);
+        decimator2.Decimate();
+        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 4U);
+        TS_ASSERT_DELTA(mesh2.CalculateMeshVolume(), 400, 1.0e-5);
        
     }
     void TestBase3D()
@@ -182,8 +227,8 @@ public:
         decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 241U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        TrianglesMeshWriter<2,2> mesh_writer1("", "SquareSeqDecimation");
-        mesh_writer1.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer1("", "SquareSeqDecimation");
+        //mesh_writer1.WriteFilesUsingMesh(mesh);
         decimator.SetThreshold(302);
         decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 141U);

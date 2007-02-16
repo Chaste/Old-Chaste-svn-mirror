@@ -16,6 +16,7 @@
 class TestLiveDecimation : public CxxTest::TestSuite
 {
 public:
+
     void TestCancerExample() throw (Exception)
     {
         std::ifstream input_ppm("mesh/test/data/filled_colon_downsized.pgm", std::ios::binary);
@@ -70,7 +71,7 @@ public:
         TS_ASSERT_LESS_THAN_EQUALS(11U, mesh.GetNumBoundaryElements());
         
     }
-    void TestJoeExample() throw (Exception)
+ /*   void xTestJoeExample() throw (Exception)
     {
         std::ifstream input_ppm("mesh/test/data/joe.pgm", std::ios::binary);
         std::string magic;
@@ -123,7 +124,7 @@ public:
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14U);
         TS_ASSERT_LESS_THAN_EQUALS(10U, mesh.GetNumBoundaryElements());
     }
-    void TestEndExample() throw (Exception)
+    void xTestEndExample() throw (Exception)
     {
         std::ifstream input_ppm("mesh/test/data/end.pgm", std::ios::binary);
         std::string magic;
@@ -176,7 +177,7 @@ public:
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 14U);
         TS_ASSERT_LESS_THAN_EQUALS(10U, mesh.GetNumBoundaryElements());
     }
-    
+   */ 
     void TestTahirExample() throw (Exception)
     {
         std::ifstream input_fibres("mesh/test/data/fibres/Hist_Fibre_Vectors.txt");
