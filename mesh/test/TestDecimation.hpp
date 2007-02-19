@@ -137,7 +137,7 @@ public:
     void TestRandom2DOnSquareWithAutoMeshGeneration()
     {
        
-        /*ConformingTetrahedralMesh<2,2> mesh;
+        ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(20,20);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
@@ -151,11 +151,11 @@ public:
         
         decimator.SetThreshold(0.2);
         decimator.DecimateAnimate("RandomSquare");
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 254U);
-        //TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
-        //TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
+        //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 254U);
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 263U);
+        TS_ASSERT_LESS_THAN_EQUALS(254U, mesh.GetNumNodes());
         
-        */
+        
         ConformingTetrahedralMesh<2,2> mesh2;
         mesh2.ConstructRectangularMesh(20,20);
         RandomDecimator<2> decimator2;
@@ -166,9 +166,9 @@ public:
         
         decimator2.SetThreshold(0.2);
         decimator2.Decimate();
-        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 254U);
-        //TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
-        //TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
+        //TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 254U);
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 263U);
+        TS_ASSERT_LESS_THAN_EQUALS(254U, mesh.GetNumNodes());
         
         //Note that each re-score gives a 50% chance of a node falling below 0.5
         decimator2.SetThreshold(0.75);
