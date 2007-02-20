@@ -32,7 +32,7 @@ public:
         
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
         
-        TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 1);
+        TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 1U);
         
         ode_system.SetInitialConditionsComponent(0,0.0);
         
@@ -45,7 +45,7 @@ public:
         
         TS_ASSERT_DELTA(testvalue,2.0,0.01);
         
-        TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 2);
+        TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 2U);
         
     }
     

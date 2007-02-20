@@ -19,10 +19,10 @@ public :
     {
         // 0d
         GaussianQuadratureRule<0> quadRule01(1);
-        TS_ASSERT_EQUALS(quadRule01.GetNumQuadPoints(),1);
+        TS_ASSERT_EQUALS(quadRule01.GetNumQuadPoints(),1U);
         
         GaussianQuadratureRule<0> quadRule02(2);
-        TS_ASSERT_EQUALS(quadRule02.GetNumQuadPoints(),1);
+        TS_ASSERT_EQUALS(quadRule02.GetNumQuadPoints(),1U);
         
         TS_ASSERT_DELTA(quadRule01.GetWeight(0),1,1e-12);
         
