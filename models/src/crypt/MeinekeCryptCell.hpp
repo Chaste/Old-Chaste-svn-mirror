@@ -7,7 +7,7 @@
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 
-const unsigned int MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
+const unsigned MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
 
 class MeinekeCryptCell
 {
@@ -27,7 +27,7 @@ private:
     }
     
 protected:
-    unsigned int mGeneration;
+    unsigned mGeneration;
     CryptCellType mCellType;
     CryptCellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
@@ -51,7 +51,7 @@ public:
      */
     MeinekeCryptCell(CryptCellType cellType,
     				 CryptCellMutationState mutationState,
-                     unsigned int generation,
+                     unsigned generation,
                      AbstractCellCycleModel *pCellCycleModel);
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
@@ -79,7 +79,7 @@ public:
     
     double GetAge();
     double GetBirthTime();
-    unsigned int GetGeneration();
+    unsigned GetGeneration();
     
     CryptCellType GetCellType();
     CryptCellMutationState GetMutationState();

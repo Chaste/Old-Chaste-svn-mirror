@@ -13,7 +13,7 @@
  * @return The solution Vec x.
  */
 
-Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace matNullSpace)
+Vec SimpleLinearSolver::Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace matNullSpace)
 {
     Vec lhs_vector;
     VecDuplicate(rhsVector, &lhs_vector);

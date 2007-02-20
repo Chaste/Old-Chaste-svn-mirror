@@ -122,7 +122,7 @@ public:
 
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth); 
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
@@ -215,7 +215,7 @@ public:
 
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth); 
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
 
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
@@ -319,7 +319,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);  
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh(); 
-        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices(); 
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices(); 
 
 		double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
         p_params->SetCryptLength(crypt_length);
@@ -446,7 +446,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         mesh.Translate(0.0,-2.0,0.0) ;
         //Create Vector of ghost nodes
-        std::vector<int> ghost_node_indices;
+        std::vector<unsigned> ghost_node_indices;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double x = mesh.GetNode(i)->GetPoint().rGetLocation()[0];
@@ -558,7 +558,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);  
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh(); 
-        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices(); 
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices(); 
 
 		double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
         p_params->SetCryptLength(crypt_length);

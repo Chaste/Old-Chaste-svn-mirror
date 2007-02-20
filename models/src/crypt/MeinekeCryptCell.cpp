@@ -6,7 +6,7 @@
 
 MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 								   CryptCellMutationState mutationState,
-                                   unsigned int generation,
+                                   unsigned generation,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
 {
@@ -92,7 +92,7 @@ double MeinekeCryptCell::GetBirthTime()
 	return mpCellCycleModel->GetBirthTime();
 }
 
-unsigned int MeinekeCryptCell::GetGeneration()
+unsigned MeinekeCryptCell::GetGeneration()
 {
     return mGeneration;
 }

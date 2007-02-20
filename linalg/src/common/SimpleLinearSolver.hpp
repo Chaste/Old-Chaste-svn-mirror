@@ -13,7 +13,7 @@ private:
 
 public:
 
-    Vec Solve(Mat lhsMatrix, Vec rhsVector, int size, MatNullSpace matNullSpace=NULL);
+    Vec Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace matNullSpace=NULL);
     SimpleLinearSolver(double relTolerance): mRelativeTolerance(relTolerance)
     {
         mLinearSystemKnown=false;

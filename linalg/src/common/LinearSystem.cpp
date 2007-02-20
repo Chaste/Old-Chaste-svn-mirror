@@ -13,7 +13,7 @@
 
 
 
-LinearSystem::LinearSystem(int lhsVectorSize)
+LinearSystem::LinearSystem(PetscInt lhsVectorSize)
 {
 
     VecCreate(PETSC_COMM_WORLD, &mRhsVector);
@@ -53,7 +53,7 @@ LinearSystem::LinearSystem(Vec templateVector)
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
-    int local_size = mOwnershipRangeHi - mOwnershipRangeLo;
+    PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
     
 #if (PETSC_VERSION_MINOR == 2) //Old API
     MatCreate(PETSC_COMM_WORLD,local_size,local_size,mSize,mSize,&mLhsMatrix);
@@ -89,7 +89,7 @@ LinearSystem::~LinearSystem()
 //
 //   return(testValue == PETSC_TRUE);
 //}
-void LinearSystem::SetMatrixElement(int row, int col, double value)
+void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
 {
     if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {
@@ -97,7 +97,7 @@ void LinearSystem::SetMatrixElement(int row, int col, double value)
     }
 }
 
-void LinearSystem::AddToMatrixElement(int row, int col, double value)
+void LinearSystem::AddToMatrixElement(PetscInt row, PetscInt col, double value)
 {
     if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {
@@ -129,7 +129,7 @@ void LinearSystem::AssembleRhsVector()
 
 
 
-void LinearSystem::SetRhsVectorElement(int row, double value)
+void LinearSystem::SetRhsVectorElement(PetscInt row, double value)
 {
     if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {
@@ -137,7 +137,7 @@ void LinearSystem::SetRhsVectorElement(int row, double value)
     }
 }
 
-void LinearSystem::AddToRhsVectorElement(int row, double value)
+void LinearSystem::AddToRhsVectorElement(PetscInt row, double value)
 {
     if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {
@@ -155,20 +155,20 @@ void LinearSystem::DisplayRhs()
     VecView(mRhsVector,PETSC_VIEWER_STDOUT_WORLD);
 }
 
-void LinearSystem::SetMatrixRow(int row, double value)
+void LinearSystem::SetMatrixRow(PetscInt row, double value)
 {
     if (row >= mOwnershipRangeLo && row < mOwnershipRangeHi)
     {
-        int rows, cols;
+        PetscInt rows, cols;
         MatGetSize(mLhsMatrix, &rows, &cols);
-        for (int i=0; i<cols; i++)
+        for (PetscInt i=0; i<cols; i++)
         {
             this->SetMatrixElement(row, i, value);
         }
     }
 }
 
-void LinearSystem::ZeroMatrixRow(int row)
+void LinearSystem::ZeroMatrixRow(PetscInt row)
 {
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
@@ -192,7 +192,7 @@ void LinearSystem::ZeroRhsVector()
 {
     double *p_rhs_vector_array;
     VecGetArray(mRhsVector, &p_rhs_vector_array);
-    for (int local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
+    for (PetscInt local_index=0; local_index<mOwnershipRangeHi - mOwnershipRangeLo; local_index++)
     {
         p_rhs_vector_array[local_index]=0.0;
     }
@@ -216,9 +216,9 @@ Vec LinearSystem::Solve(AbstractLinearSolver *solver)
     return solver->Solve(mLhsMatrix, mRhsVector, mSize, mMatNullSpace);
 }
 
-int LinearSystem::GetSize()
+unsigned LinearSystem::GetSize()
 {
-    return mSize;
+    return (unsigned) mSize;
 }
 
 void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
@@ -244,12 +244,12 @@ void LinearSystem::GetOwnershipRange(PetscInt &lo, PetscInt &hi)
  * Return an element of the matrix.
  * May only be called for elements you own.
  */
-double LinearSystem::GetMatrixElement(int row, int col)
+double LinearSystem::GetMatrixElement(PetscInt row, PetscInt col)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
-    int row_as_array[1];
+    PetscInt row_as_array[1];
     row_as_array[0] = row;
-    int col_as_array[1];
+    PetscInt col_as_array[1];
     col_as_array[0] = col;
     
     double ret_array[1];
@@ -263,12 +263,12 @@ double LinearSystem::GetMatrixElement(int row, int col)
  * Return an element of the RHS vector.
  * May only be called for elements you own.
  */
-double LinearSystem::GetRhsVectorElement(int row)
+double LinearSystem::GetRhsVectorElement(PetscInt row)
 {
     assert(mOwnershipRangeLo <= row && row < mOwnershipRangeHi);
     
     double *p_rhs_vector;
-    int local_index=row-mOwnershipRangeLo;
+    PetscInt local_index=row-mOwnershipRangeLo;
     VecGetArray(mRhsVector, &p_rhs_vector);
     double answer=p_rhs_vector[local_index];
     VecRestoreArray(mRhsVector, &p_rhs_vector);
@@ -301,9 +301,9 @@ void LinearSystem::WriteLinearSystem(std::string matFile, std::string rhsVectorF
     out_stream matrix_file = output_file_handler.OpenOutputFile(matFile);
     out_stream vector_file = output_file_handler.OpenOutputFile(rhsVectorFile);
 
-    for(int i=0; i<mSize; i++)
+    for(PetscInt i=0; i<mSize; i++)
     {
-        for(int j=0; j<mSize; j++)
+        for(PetscInt j=0; j<mSize; j++)
         {
             (*matrix_file) << GetMatrixElement(i,j) << " ";
         }

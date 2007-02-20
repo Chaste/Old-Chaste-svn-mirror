@@ -36,8 +36,8 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], 24.0*sqrt(3)/2.0,1e-6); 
 
         // check the ghost nodes
-        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
-        for(int i=0; i<13; i++)
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        for(unsigned i=0; i<13; i++)
         {
            TS_ASSERT(ghost_node_indices[i]==i);
         }
@@ -68,11 +68,11 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-spooky*F, 1e-6); 
         TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-spooky*F*sqrt(3)/2,1e-6); 
         
-        int ThisManyGhostsAtStart = ((2*ghosts+num_cells_width+1)*ghosts+ghosts);
+        unsigned this_many_ghosts_at_start = ((2*ghosts+num_cells_width+1)*ghosts+ghosts);
         
         // first real node
-        TS_ASSERT_DELTA(p_mesh->GetNode(ThisManyGhostsAtStart)->GetPoint()[0], 0.0,1e-6); 
-        TS_ASSERT_DELTA(p_mesh->GetNode(ThisManyGhostsAtStart)->GetPoint()[1], 0.0,1e-6); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[0], 0.0,1e-6); 
+        TS_ASSERT_DELTA(p_mesh->GetNode(this_many_ghosts_at_start)->GetPoint()[1], 0.0,1e-6); 
 
 		// last real node
 		int index = (2*ghosts+num_cells_width+1)*(ghosts+num_cells_depth)+ghosts+num_cells_width;
@@ -86,14 +86,14 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-6); 
 
         // check the ghost nodes
-        std::vector<int> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        for(int i=0; i<ThisManyGhostsAtStart; i++)
+        for(unsigned i=0; i<this_many_ghosts_at_start; i++)
         {
            TS_ASSERT(ghost_node_indices[i]==i);
         }
         // Check that the next ghost node is the other side of the stem cells...
-        TS_ASSERT_EQUALS(ghost_node_indices[ThisManyGhostsAtStart],ThisManyGhostsAtStart+num_cells_width+1)
+        TS_ASSERT_EQUALS(ghost_node_indices[this_many_ghosts_at_start],this_many_ghosts_at_start+num_cells_width+1)
         delete p_mesh;
     } 
 };

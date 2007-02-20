@@ -11,7 +11,7 @@ SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver(double linearSolverRela
     
     mTestDampingValues.push_back(-0.1);
     mTestDampingValues.push_back(0.05);
-    for(int i=1;i<=12;i++)
+    for(unsigned i=1;i<=12;i++)
     {
         double val = double(i)/10;
         mTestDampingValues.push_back(val);
@@ -27,7 +27,7 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
                                        Vec initialGuess,
                                        void* pContext)
 {
-    int size;
+    PetscInt size;
     VecGetSize(initialGuess, &size);
     
     Vec current_solution;     

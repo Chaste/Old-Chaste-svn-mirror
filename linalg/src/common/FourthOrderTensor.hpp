@@ -30,16 +30,16 @@ public:
         
         // allocate memory and zero entries
         mVal.resize(SPACE_DIM);
-        for (int M=0; M<SPACE_DIM; M++)
+        for (unsigned M=0; M<SPACE_DIM; M++)
         {
             mVal[M].resize(SPACE_DIM);
-            for (int N=0; N<SPACE_DIM; N++)
+            for (unsigned N=0; N<SPACE_DIM; N++)
             {
                 mVal[M][N].resize(SPACE_DIM);
-                for (int P=0; P<SPACE_DIM; P++)
+                for (unsigned P=0; P<SPACE_DIM; P++)
                 {
                     mVal[M][N][P].resize(SPACE_DIM);
-                    for (int Q=0; Q<SPACE_DIM; Q++)
+                    for (unsigned Q=0; Q<SPACE_DIM; Q++)
                     {
                         mVal[M][N][P][Q] = 0;
                     }
@@ -51,9 +51,9 @@ public:
     
     void SetAsTensorProductOfIdentities()
     {
-        for (int M=0; M<SPACE_DIM; M++)
+        for (unsigned M=0; M<SPACE_DIM; M++)
         {
-            for (int P=0; P<SPACE_DIM; P++)
+            for (unsigned P=0; P<SPACE_DIM; P++)
             {
                 mVal[M][M][P][P] = 1;
             }

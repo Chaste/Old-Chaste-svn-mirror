@@ -52,7 +52,7 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     
     Mat J; //Jacobian Matrix
     
-    int N; //number of elements
+    PetscInt N; //number of elements
     //get the size of the jacobian from the residual
     VecGetSize(initialGuess,&N);
     

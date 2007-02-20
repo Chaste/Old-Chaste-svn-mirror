@@ -34,7 +34,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,1,1> &m)
  * Return the determinant of a submatrix after removing a particular row and column
  */
 template<class T>
-T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,1> &m, const int missrow, const int misscol)
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,1,1> &m, const unsigned missrow, const unsigned misscol)
 {
     using namespace boost::numeric::ublas;
     
@@ -56,15 +56,15 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,2,2> &m)
  * Return the determinant of a submatrix after removing a particular row and column
  */
 template<class T>
-T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,2> &m, const int missrow, const int misscol)
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,2,2> &m, const unsigned missrow, const unsigned misscol)
 {
     using namespace boost::numeric::ublas;
     
     assert(missrow>=0 && missrow<2);
     assert(misscol>=0 && misscol<2);
     
-    int row=(missrow==1)?0:1;
-    int col=(misscol==1)?0:1;
+    unsigned row=(missrow==1)?0:1;
+    unsigned col=(misscol==1)?0:1;
     return m(row,col);
 };
 
@@ -85,17 +85,17 @@ T Determinant(const boost::numeric::ublas::c_matrix<T,3,3> &m)
  * Return the determinant of a submatrix after removing a particular row and column
  */
 template<class T>
-T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,3> &m, const int missrow, const int misscol)
+T SubDeterminant(const boost::numeric::ublas::c_matrix<T,3,3> &m, const unsigned missrow, const unsigned misscol)
 {
     using namespace boost::numeric::ublas;
     
     assert(missrow>=0 && missrow<3);
     assert(misscol>=0 && misscol<3);
     
-    int lorow=(missrow==0)?1:0;
-    int hirow=(missrow==2)?1:2;
-    int locol=(misscol==0)?1:0;
-    int hicol=(misscol==2)?1:2;
+    unsigned lorow=(missrow==0)?1:0;
+    unsigned hirow=(missrow==2)?1:2;
+    unsigned locol=(misscol==0)?1:0;
+    unsigned hicol=(misscol==2)?1:2;
     return (m(lorow,locol)*m(hirow,hicol) - m(lorow,hicol)*m(hirow,locol));
 };
 

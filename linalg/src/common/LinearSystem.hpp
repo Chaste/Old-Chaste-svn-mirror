@@ -27,7 +27,7 @@ private:
     Mat mLhsMatrix;
     Vec mRhsVector;
     //Vec mLhsVector;
-    int mSize;
+    PetscInt mSize;
     /** \todo
      * Verify claim that ownership range for Vec and Mat is same.
         * This should only matter for efficiency if the claim is false.
@@ -38,27 +38,27 @@ private:
     MatNullSpace mMatNullSpace;
     
 public:
-    LinearSystem(int lhsVectorSize);
+    LinearSystem(PetscInt lhsVectorSize);
     LinearSystem(Vec templateVector);
     ~LinearSystem();
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
-    void SetMatrixElement(int row, int col, double value);
-    void AddToMatrixElement(int row, int col, double value);
+    void SetMatrixElement(PetscInt row, PetscInt col, double value);
+    void AddToMatrixElement(PetscInt row, PetscInt col, double value);
     void AssembleFinalLinearSystem();         // Call before solve
     void AssembleIntermediateLinearSystem();  // Should be called before AddToMatrixElement
     void AssembleRhsVector();
     void DisplayMatrix();
     void DisplayRhs() ;
-    void SetMatrixRow(int row, double value);
-    void ZeroMatrixRow(int row);
+    void SetMatrixRow(PetscInt row, double value);
+    void ZeroMatrixRow(PetscInt row);
     void ZeroLhsMatrix();
     void ZeroRhsVector();
     void ZeroLinearSystem();
     Vec Solve(AbstractLinearSolver *pSolver);
-    void SetRhsVectorElement(int row, double value);
-    void AddToRhsVectorElement(int row, double value);
-    int GetSize();
+    void SetRhsVectorElement(PetscInt row, double value);
+    void AddToRhsVectorElement(PetscInt row, double value);
+    unsigned GetSize();
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
     Vec& rGetRhsVector();
     Mat& rGetLhsMatrix();
@@ -66,8 +66,8 @@ public:
     
     // DEBUGGING CODE:
     void GetOwnershipRange(PetscInt &lo, PetscInt &hi);
-    double GetMatrixElement(int row, int col);
-    double GetRhsVectorElement(int row);
+    double GetMatrixElement(PetscInt row, PetscInt col);
+    double GetRhsVectorElement(PetscInt row);
     //void WriteLinearSystem(std::string matrixFile, std::string rhsVectorFile);
     
 };

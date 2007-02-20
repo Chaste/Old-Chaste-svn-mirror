@@ -165,7 +165,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 			//std::cout << "Beta-Catenin = " << mProteinConcentrations[6] << "\n";
 			if(mSolver.StoppingEventOccured())
 		 	{
-		 		int end = solution.rGetSolutions().size() - 1;
+		 		unsigned end = solution.rGetSolutions().size() - 1;
     			// Tests the simulation is ending at the right time...(going into S phase at 5.971 hours)
     			double time_entering_S_phase = solution.rGetTimes()[end];
 		 		mDivideTime = time_entering_S_phase + mpCancerParams->GetSG2MDuration();

@@ -19,7 +19,7 @@ class CryptHoneycombMeshGenerator
 {
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
-    std::vector<int> mGhostNodeIndices;
+    std::vector<unsigned> mGhostNodeIndices;
     std::string mMeshFilename; 
     double mCryptWidth;
     double mCryptDepth;
@@ -49,7 +49,7 @@ private:
         {
             for (unsigned j = 0; j < num_nodes_along_width; j++)
             {
-                int b = 0;
+                unsigned b = 0;
                 if ((i==0) || (i==num_nodes_along_depth-1) || (j==0) || (j==num_nodes_along_width-1))
                 {
                     b = 1;
@@ -75,9 +75,9 @@ private:
         {
             for (unsigned j = 0; j < num_elem_along_width; j++)
             {
-                int node0 =     i*num_nodes_along_width + j;
-                int node1 =     i*num_nodes_along_width + j+1;
-                int node2 = (i+1)*num_nodes_along_width + j;
+                unsigned node0 =     i*num_nodes_along_width + j;
+                unsigned node1 =     i*num_nodes_along_width + j+1;
+                unsigned node2 = (i+1)*num_nodes_along_width + j;
                 if (i%2 != 0)
                 {
                     node2 = node2 + 1;
@@ -85,8 +85,8 @@ private:
                 
                 (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
                 
-                int horizontal_edge_is_boundary_edge = 0;
-                int vertical_edge_is_boundary_edge = 0;
+                unsigned horizontal_edge_is_boundary_edge = 0;
+                unsigned vertical_edge_is_boundary_edge = 0;
                 if (i==0)
                 {
                     horizontal_edge_is_boundary_edge = 1;
@@ -115,15 +115,15 @@ private:
         
         for (unsigned i = 0; i < num_elem_along_depth; i++)
         {
-            int node0 = (i+1)*num_nodes_along_width-1;
-            int node1 = (i+2)*num_nodes_along_width-1;
+            unsigned node0 = (i+1)*num_nodes_along_width-1;
+            unsigned node1 = (i+2)*num_nodes_along_width-1;
             (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
         }
         
         for (unsigned j = 0; j < num_elem_along_width; j++)
         {
-            int node0 =  num_nodes_along_width*(num_nodes_along_depth-1) + j;
-            int node1 =  num_nodes_along_width*(num_nodes_along_depth-1) + j+1;
+            unsigned node0 =  num_nodes_along_width*(num_nodes_along_depth-1) + j;
+            unsigned node1 =  num_nodes_along_width*(num_nodes_along_depth-1) + j+1;
             (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << 1 << std::endl;
         }
         
@@ -173,7 +173,7 @@ private:
         {
             for (unsigned j = 0; j < numNodesAlongWidth; j++)
             {
-                int b = 0;
+                unsigned b = 0;
                 if ((i==0) || (i==numNodesAlongLength-1) || (j==0) || (j==numNodesAlongWidth-1))
                 {
                     b = 1;
@@ -199,9 +199,9 @@ private:
         {
             for (unsigned j = 0; j < num_elem_along_width; j++)
             {
-                int node0 =     i*numNodesAlongWidth + j;
-                int node1 =     i*numNodesAlongWidth + j+1;
-                int node2 = (i+1)*numNodesAlongWidth + j;
+                unsigned node0 =     i*numNodesAlongWidth + j;
+                unsigned node1 =     i*numNodesAlongWidth + j+1;
+                unsigned node2 = (i+1)*numNodesAlongWidth + j;
                 if (i%2 != 0)
                 {
                     node2 = node2 + 1;
@@ -209,8 +209,8 @@ private:
                 
                 (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
                 
-                int horizontal_edge_is_boundary_edge = 0;
-                int vertical_edge_is_boundary_edge = 0;
+                unsigned horizontal_edge_is_boundary_edge = 0;
+                unsigned vertical_edge_is_boundary_edge = 0;
                 if (i==0)
                 {
                     horizontal_edge_is_boundary_edge = 1;
@@ -239,15 +239,15 @@ private:
         
         for (unsigned i = 0; i < num_elem_along_length; i++)
         {
-            int node0 = (i+1)*numNodesAlongWidth-1;
-            int node1 = (i+2)*numNodesAlongWidth-1;
+            unsigned node0 = (i+1)*numNodesAlongWidth-1;
+            unsigned node1 = (i+2)*numNodesAlongWidth-1;
             (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
         }
         
         for (unsigned j = 0; j < num_elem_along_width; j++)
         {
-            int node0 =  numNodesAlongWidth*(numNodesAlongLength-1) + j;
-            int node1 =  numNodesAlongWidth*(numNodesAlongLength-1) + j+1;
+            unsigned node0 =  numNodesAlongWidth*(numNodesAlongLength-1) + j;
+            unsigned node1 =  numNodesAlongWidth*(numNodesAlongLength-1) + j+1;
             (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << 1 << std::endl;
         }
         
@@ -273,7 +273,7 @@ private:
 
 
 public:
-    CryptHoneycombMeshGenerator(int numCellWidth, int numCellDepth)
+    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth)
     {
     	mNumCellWidth = numCellWidth;
         mCryptWidth = numCellWidth*1; //*1 because cells are considered to be size one
@@ -328,7 +328,7 @@ public:
         return mpMesh;   
     }
     
-    std::vector<int> GetGhostNodeIndices()
+    std::vector<unsigned> GetGhostNodeIndices()
     {
         return mGhostNodeIndices;
     }

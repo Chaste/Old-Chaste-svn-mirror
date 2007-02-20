@@ -276,11 +276,11 @@ public:
         ColumnDataWriter tabulated_node_writer(mOutputDirectory+"Results", "tabulated_node_results");
         ColumnDataWriter tabulated_element_writer(mOutputDirectory+"Results", "tabulated_element_results");
         
-        int time_var_id = tabulated_node_writer.DefineUnlimitedDimension("Time","hours");
-        int time_var_id_elem = tabulated_element_writer.DefineUnlimitedDimension("Time","hours");
+        unsigned time_var_id = tabulated_node_writer.DefineUnlimitedDimension("Time","hours");
+        unsigned time_var_id_elem = tabulated_element_writer.DefineUnlimitedDimension("Time","hours");
         
-        std::vector<int> type_var_ids;
-        std::vector<int> x_position_var_ids, y_position_var_ids;
+        std::vector<unsigned> type_var_ids;
+        std::vector<unsigned> x_position_var_ids, y_position_var_ids;
         
         type_var_ids.resize(mMaxCells);
         x_position_var_ids.resize(mMaxCells);
@@ -306,8 +306,8 @@ public:
         
         // Set up columns for element writer
         
-        //std::vector<int> type_var_ids;
-        std::vector<int> nodeA_var_ids, nodeB_var_ids, nodeC_var_ids;
+        //std::vector<unsigned> type_var_ids;
+        std::vector<unsigned> nodeA_var_ids, nodeB_var_ids, nodeC_var_ids;
         
         
         //type_var_ids.resize(mMaxCells);
@@ -335,19 +335,19 @@ public:
         
         
 
-        int num_time_steps = (int)(mEndTime/mDt+0.5);
+        unsigned num_time_steps = (unsigned) (mEndTime/mDt+0.5);
         
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);        
          
-        int num_births = 0;
-        int num_deaths = 0;
+        unsigned num_births = 0;
+        unsigned num_deaths = 0;
         std::cout << num_births << "\n" ;
         
         std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
         
         
-        static int step_number=0;
+        static unsigned step_number=0;
         
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory);
@@ -356,9 +356,9 @@ public:
         out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
 
 
-        int counter = 0;
+        unsigned counter = 0;
         
-		int periodic_division_buffer = 0;
+		unsigned periodic_division_buffer = 0;
         
         if(mPeriodicSides)
         {
@@ -396,7 +396,7 @@ public:
         /////////////////////////////////////////////////////////////////////
         // Main time loop
         /////////////////////////////////////////////////////////////////////
-        while ((int) p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
+        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
 		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **\n";
             
@@ -583,7 +583,7 @@ public:
 	                        //mCells[new_node_index].SetBirthTime();
 	                        
 	                        // Update size of IsGhostNode if necessary
-	                        if((int)mrMesh.GetNumNodes() > (int)mIsGhostNode.size())
+	                        if(mrMesh.GetNumNodes() > mIsGhostNode.size())
 	                        {
                                 #define COVERAGE_IGNORE
 	                            mIsGhostNode.resize(mrMesh.GetNumNodes());
@@ -624,9 +624,9 @@ public:
                 Element<2,2>* p_element = mrMesh.GetElement(elem_index);
                 if(!p_element->IsDeleted())
                 {
-                    for (int k=0; k<3; k++)
+                    for (unsigned k=0; k<3; k++)
                     {
-                        int nodeA, nodeB;
+                        unsigned nodeA, nodeB;
                         if(k<2)
                         {
                             nodeA=k;
@@ -740,8 +740,8 @@ public:
                     
                     c_vector<double, 2> unit_difference;
                     
-                    int nodeA = 0;
-                    int nodeB = 1;
+                    unsigned nodeA = 0;
+                    unsigned nodeB = 1;
                     
                     unit_difference(0)=p_edge->GetNodeLocation(nodeB,0)-p_edge->GetNodeLocation(nodeA,0);
                     unit_difference(1)=p_edge->GetNodeLocation(nodeB,1)-p_edge->GetNodeLocation(nodeA,1);
@@ -919,8 +919,8 @@ public:
             {
 	            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
 	            {
-	            	int RightNodeIndex = mRightCryptBoundary[i];
-	            	int LeftNodeIndex = mLeftCryptBoundary[i];
+	            	unsigned RightNodeIndex = mRightCryptBoundary[i];
+	            	unsigned LeftNodeIndex = mLeftCryptBoundary[i];
 	            	c_vector<double,2> right_point = mrMesh.GetNode(RightNodeIndex)->rGetLocation();
 	            	Point<2> left_point;
 	            	left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
@@ -1086,7 +1086,7 @@ public:
             
             std::cout << " " << std::endl;
             
-//            for (int i=0; i<mrMesh.GetNumAllNodes(); i++)
+//            for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
 //            {
 //            	std::cout<<"\t"<<mIsGhostNode[i]<<"\t"<<mIsGhostNode[map.GetNewIndex(i)]<<"\t"<<47*(mIsGhostNode[i]-mIsGhostNode[map.GetNewIndex(i)])<<"\n";
 //            }
@@ -1118,7 +1118,7 @@ public:
             /////////////////////////////////
             for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
-                int colour = 0; // all green if no cells have been passed in
+                unsigned colour = 0; // all green if no cells have been passed in
                 
                 if(mIsGhostNode[index]==true)
                 {
@@ -1214,7 +1214,7 @@ public:
      * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
      * the constructor and the class is told about the ghost nodes by using this method. 
      */     
-    void SetGhostNodes(std::vector<int> ghostNodeIndices)
+    void SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
     {
     	// First set all to not be ghost nodes
     	for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)

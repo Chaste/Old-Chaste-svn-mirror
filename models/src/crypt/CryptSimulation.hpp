@@ -167,10 +167,10 @@ public:
         
         //Creating Column Data Writer Handler
         ColumnDataWriter tabulated_writer(mOutputDirectory, "tabulated_results");
-        int time_var_id = tabulated_writer.DefineUnlimitedDimension("Time","hours");
+        unsigned time_var_id = tabulated_writer.DefineUnlimitedDimension("Time","hours");
         
-        std::vector<int> type_var_ids;
-        std::vector<int> position_var_ids;
+        std::vector<unsigned> type_var_ids;
+        std::vector<unsigned> position_var_ids;
         
         type_var_ids.resize(mMaxCells);
         position_var_ids.resize(mMaxCells);
@@ -187,22 +187,22 @@ public:
         }
         tabulated_writer.EndDefineMode();
         
-        int num_time_steps = (int)(mEndTime/mDt+0.5);
+        unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
         mpSimulationTime = SimulationTime::Instance();
         mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
                                      
         //double time = 0.0;
         double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
         
-        int num_births = 0;
-        int num_deaths = 0;
+        unsigned num_births = 0;
+        unsigned num_deaths = 0;
         
         std::vector<double> new_point_position(mrMesh.GetNumAllNodes());
         
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory, false);
         out_stream p_results_file = output_file_handler.OpenOutputFile("results");
-        while ((int) mpSimulationTime->GetTimeStepsElapsed() < num_time_steps)
+        while ( mpSimulationTime->GetTimeStepsElapsed() < num_time_steps)
         {
             //std::cout << "Simulation time = " << mpSimulationTime->GetDimensionalisedTime() << "\n" << std::endl;
             // Cell birth
@@ -369,7 +369,7 @@ public:
             tabulated_writer.PutVariable(time_var_id, mpSimulationTime->GetDimensionalisedTime());
             (*p_results_file) << mpSimulationTime->GetDimensionalisedTime() << "\t";
             
-            int cell=0; // NB this is not the index in mCells, but the index in the mesh!
+            unsigned cell=0; // NB this is not the index in mCells, but the index in the mesh!
             for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
                 if (!mrMesh.GetNode(index)->IsDeleted())
@@ -424,7 +424,7 @@ private:
     {
     
         //Pick an element
-        int random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
+        unsigned random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
         Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
         double element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
         //std::cout << "length " <<element_length << "\n";
@@ -448,7 +448,7 @@ private:
     }
     
     
-    int AddNodeToElement(Element<1,1>* pElement, double time)
+    unsigned AddNodeToElement(Element<1,1>* pElement, double time)
     {
     
         double displacement;
