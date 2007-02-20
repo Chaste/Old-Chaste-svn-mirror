@@ -52,15 +52,17 @@
 #include <sstream>
 #include <base/symmetric_tensor.h>
 
-#define DIRICHLET_BOUNDARY 0
-#define NEUMANN_BOUNDARY 1
+#define FIXED_BOUNDARY 10
+#define NEUMANN_BOUNDARY 11
+#define DIRICHLET_BOUNDARY 12
 
-#define NEWTON_ABS_TOL 1e-9
-#define NEWTON_REL_TOL 1e-6
+#define NEWTON_ABS_TOL 1e-11
+#define NEWTON_REL_TOL 1e-7
 
-#include "MooneyRivlinMaterialLaw.hpp"
-#include "ExponentialMaterialLaw.hpp"
+#include "AbstractIncompressibleMaterialLaw.hpp"
 #include "OutputFileHandler.hpp"
+#include "Exception.hpp"
+#include "DofVertexIterator.hpp"
 
 template<int DIM>
 class FiniteElasticityAssembler
@@ -96,6 +98,9 @@ private:
                                                    // the pressure index is 2
 
 
+    std::map<unsigned,double> mBoundaryValues;
+
+
     void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                            Vector<double>&                                 elementRhs,
                            FullMatrix<double>&                             elementMatrix,
@@ -103,12 +108,12 @@ private:
                            bool                                            assembleJacobian);
 
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
-    void ApplyDirichletBoundaryConditions();
+    void ApplyDirichletBoundaryConditions(bool assembleResidual, bool assembleJacobian);
     
     void OutputResults(unsigned newtonIteration);
     double CalculateResidualNorm();
     
-
+    
 public:
     FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
                               AbstractIncompressibleMaterialLaw<DIM>*  pMaterialLaw,
@@ -119,6 +124,21 @@ public:
                               unsigned orderOfBasesForPressure=1);
     ~FiniteElasticityAssembler();
     
+    
+    //// this type of function doesn't really work
+    //void SetDisplacementBoundaryConditions(std::vector<unsigned> nodes, 
+    //                                       std::vector<unsigned> coordinates, 
+    //                                       std::vector<double>   values);
+
+    //// this type of function doesn't really work
+    //void SetFixedNodes(std::vector<unsigned> nodes);
+    
+    // Setting boundary conditions is a hassle. Currently, assuming the 
+    // default boundary conditions are not required, the user has to set 
+    // up the dof->value map themselves and pass it in using this method. 
+    // Note: call GetDofHandler() to get the dof handler first.
+    void SetBoundaryValues(std::map<unsigned, double> boundary_values);
+
     void Solve();
     
     Vector<double>& GetSolutionVector();

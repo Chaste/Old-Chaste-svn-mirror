@@ -158,6 +158,22 @@ public :
             
         mAlpha = alpha;
     }
+    
+    static std::vector<std::vector<double> > GetZeroedAlpha(unsigned N)
+    {
+        std::vector<std::vector<double> > alpha(N+1);
+        
+        for(unsigned i=0; i<N+1; i++)
+        {
+            alpha[i].resize(N+1);
+            for(unsigned j=0; j<N+1; j++)
+            {
+                alpha[i][j] = 0.0;
+            }
+        }
+        
+        return alpha;
+    }
 };
 
 

@@ -159,19 +159,24 @@ public:
     void testPolynomailMaterialLawAgainstMooneyRivlin()
     {
         unsigned N = 1;
-        std::vector< std::vector<double> > alpha(2);
-        for(unsigned i=0; i<=N; i++)
-        {
-            alpha[i].resize(2);
-        }
+        std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d::GetZeroedAlpha(N);
         
+        // test GetZeroedAlpha
+        TS_ASSERT_EQUALS(alpha.size(),2);
+        TS_ASSERT_EQUALS(alpha[0].size(),2);
+        TS_ASSERT_EQUALS(alpha[1].size(),2);
+
+        TS_ASSERT_DELTA(alpha[0][0],0.0,1e-12);
+        TS_ASSERT_DELTA(alpha[0][1],0.0,1e-12);
+        TS_ASSERT_DELTA(alpha[1][0],0.0,1e-12);
+        TS_ASSERT_DELTA(alpha[1][1],0.0,1e-12);
+        
+
         double c1 = 3.0;
         double c2 = 2.0;
-        
-        alpha[0][0] = 0.0;
+
         alpha[1][0] = c1;
         alpha[0][1] = c2;
-        alpha[1][1] = 0.0;
         
         PolynomialMaterialLaw3d poly_mr_law(N,alpha);
         MooneyRivlinMaterialLaw<3> mooney_rivlin_law(c1,c2);
@@ -196,15 +201,7 @@ public:
     void testQuadraticPolynomialLaw()
     {
         unsigned N = 2;
-        std::vector< std::vector<double> > alpha(3);
-        for(unsigned p=0; p<=N; p++)
-        {
-            alpha[p].resize(3);
-            for(unsigned q=0; q<3; q++)
-            {
-                alpha[p][q] = 0.0;
-            }
-        }
+        std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d::GetZeroedAlpha(N);
         
         double c20 = 3.0;
         double c11 = 4.0;
