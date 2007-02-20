@@ -29,13 +29,13 @@ public:
         
         
         // check that number of time steps starts at 0
-        TS_ASSERT_EQUALS(p_simulation_time->GetTimeStepsElapsed(), 0);
+        TS_ASSERT_EQUALS(p_simulation_time->GetTimeStepsElapsed(), 0U);
         
         // increment the time
         p_simulation_time->IncrementTimeOneStep();
         
         // check the number of time steps
-        TS_ASSERT_EQUALS(p_simulation_time->GetTimeStepsElapsed(), 1);
+        TS_ASSERT_EQUALS(p_simulation_time->GetTimeStepsElapsed(), 1U);
         
         // check the simulation time from the second instance
         TS_ASSERT_DELTA(p_simulation_time2->GetDimensionalisedTime(), 3.33333333, 1e-6);
