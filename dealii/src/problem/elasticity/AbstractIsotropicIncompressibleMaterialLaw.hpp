@@ -60,9 +60,9 @@ public :
         static bool first=true;
         if(first)
         {
-            for(int i=0; i<DIM; i++)
+            for(unsigned i=0; i<DIM; i++)
             {
-                for(int j=0; j<DIM; j++)
+                for(unsigned j=0; j<DIM; j++)
                 {
                     identity[i][j] = i==j ? 1.0 : 0.0;
                 }
@@ -131,13 +131,13 @@ public :
                 d2W_dI1I2 = Get_d2W_dI1I2(I1,I2);
             }
 
-            for(int M=0;M<DIM;M++)
+            for(unsigned M=0;M<DIM;M++)
             {
-                for(int N=0;N<DIM;N++)
+                for(unsigned N=0;N<DIM;N++)
                 {
-                    for(int P=0;P<DIM;P++)
+                    for(unsigned P=0;P<DIM;P++)
                     {
-                        for(int Q=0;Q<DIM;Q++)
+                        for(unsigned Q=0;Q<DIM;Q++)
                         {
                             dTdE[M][N][P][Q]  =    4 * d2W_dI1  * (M==N) * (P==Q)
                                                  + 2 * pressure * invC[M][P] * invC[Q][N];

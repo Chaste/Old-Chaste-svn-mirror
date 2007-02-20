@@ -122,8 +122,8 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     static QGauss<DIM>   quadrature_formula(3);
     static QGauss<DIM-1> face_quadrature_formula(3);
     
-    const unsigned int n_q_points    = quadrature_formula.n_quadrature_points;
-    const unsigned int n_face_q_points = face_quadrature_formula.n_quadrature_points;
+    const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
+    const unsigned n_face_q_points = face_quadrature_formula.n_quadrature_points;
     
     static FEValues<DIM> fe_values(mFeSystem, quadrature_formula, 
                                    UpdateFlags(update_values    |
@@ -141,7 +141,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
 
 
-    static std::vector< unsigned int >                    local_dof_indices(dofs_per_element);
+    static std::vector< unsigned >                    local_dof_indices(dofs_per_element);
     static std::vector< Vector<double> >                  local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
 
@@ -157,9 +157,9 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
             local_solution_values[q_point].reinit(DIM+1);
             local_solution_gradients[q_point].resize(DIM+1);
         }
-        for(int i=0; i<DIM; i++)
+        for(unsigned i=0; i<DIM; i++)
         {
-            for(int j=0; j<DIM; j++)
+            for(unsigned j=0; j<DIM; j++)
             {
                 identity[i][j] = i==j ? 1.0 : 0.0;
             }
@@ -189,9 +189,9 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         static Tensor<2,DIM> inv_F;
         static SymmetricTensor<2,DIM> T;
 
-        for(int i=0; i<DIM; i++)
+        for(unsigned i=0; i<DIM; i++)
         {
-            for(int j=0; j<DIM; j++)
+            for(unsigned j=0; j<DIM; j++)
             {
                 F[i][j] = identity[i][j] + grad_u_p[i][j];
             }
@@ -377,7 +377,7 @@ void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
         mJacobianMatrix = 0;
     }
 
-    int elem_counter = 0;
+    unsigned elem_counter = 0;
     
     while(element_iter!=mDofHandler.end())   // huh? mDof.end() returns an element iterator?
     {
@@ -430,7 +430,7 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions()
     std::map<unsigned,double> boundary_values;
     std::vector<bool> component_mask(DIM+1);
 
-    for(int i=0; i<DIM; i++)
+    for(unsigned i=0; i<DIM; i++)
     {
         component_mask[i] = true;
     }
@@ -450,7 +450,7 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions()
 
 
 template<int DIM>
-void FiniteElasticityAssembler<DIM>::OutputResults(int newtonIteration)
+void FiniteElasticityAssembler<DIM>::OutputResults(unsigned newtonIteration)
 {
     std::stringstream ss;
     ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << newtonIteration << ".gmv";
@@ -491,7 +491,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
     double norm_resid = CalculateResidualNorm();
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
     
-    int counter = 1;
+    unsigned counter = 1;
     
     // use the larger of the tolerances formed from the absolute or 
     // relative possibilities
@@ -530,7 +530,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         
         std::vector<double> damping_values;
         damping_values.push_back(0.05);
-        for(int i=1; i<=10; i++)
+        for(unsigned i=1; i<=10; i++)
         {
             damping_values.push_back((double)i/10.0);
         }
@@ -587,7 +587,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
 //    typename DoFHandler<DIM>::active_cell_iterator cell = mDofHandler.begin_active();
 //    while(cell != mDofHandler.end())
 //    {
-//        for (unsigned int v=0; v<GeometryInfo<DIM>::vertices_per_cell; v++)
+//        for (unsigned v=0; v<GeometryInfo<DIM>::vertices_per_cell; v++)
 //        {
 //            if(vertex_touched[cell->vertex_index(v)] == false)
 //            {

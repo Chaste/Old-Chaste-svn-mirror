@@ -10,12 +10,12 @@ public:
     double StandardNormalRandomDeviate(void);
     double NormalRandomDeviate(double mean, double sd);
     double ranf(void);
-    int randMod(int base);
+    unsigned randMod(unsigned base);
     
     /**
      * @param seed Is the new seed which defaults to zero.
      */
-    RandomNumberGenerator(int seed=0)
+    RandomNumberGenerator(unsigned seed=0)
     {
         srandom(seed);
     }

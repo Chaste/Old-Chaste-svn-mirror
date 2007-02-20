@@ -396,7 +396,7 @@ public:
         /////////////////////////////////////////////////////////////////////
         // Main time loop
         /////////////////////////////////////////////////////////////////////
-        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
+        while ((int) p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
 		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **\n";
             

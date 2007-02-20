@@ -1,7 +1,7 @@
 #include "PetscException.hpp"
 
-void PetscException(int petscError,
-                    int line,
+void PetscException(PetscInt petscError,
+                    unsigned line,
                     const char* funct,
                     const char* file)
 {
@@ -28,8 +28,8 @@ void PetscException(int petscError,
     EXCEPTION(err_string);
 }
 
-void KspException(int kspError,
-                  int line,
+void KspException(PetscInt kspError,
+                  unsigned line,
                   const char* funct,
                   const char* file)
 {

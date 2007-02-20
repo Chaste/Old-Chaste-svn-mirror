@@ -6,10 +6,10 @@
 
 #include "Exception.hpp"
 
-extern void PetscException(int petscError, int line,
+extern void PetscException(PetscInt petscError, unsigned line,
                                const char* funct, const char* file);
                                
-extern void KspException(int kspError, int line,
+extern void KspException(PetscInt kspError, unsigned line,
                              const char* funct, const char* file);
                              
 //Positive codes mean that there's an error

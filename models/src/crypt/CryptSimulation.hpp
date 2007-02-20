@@ -202,7 +202,7 @@ public:
         // Creating Simple File Handler
         OutputFileHandler output_file_handler(mOutputDirectory, false);
         out_stream p_results_file = output_file_handler.OpenOutputFile("results");
-        while (mpSimulationTime->GetTimeStepsElapsed() < num_time_steps)
+        while ((int) mpSimulationTime->GetTimeStepsElapsed() < num_time_steps)
         {
             //std::cout << "Simulation time = " << mpSimulationTime->GetDimensionalisedTime() << "\n" << std::endl;
             // Cell birth

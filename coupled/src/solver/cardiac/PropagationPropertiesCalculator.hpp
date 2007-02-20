@@ -29,7 +29,7 @@ public:
      * 
      * @param globalNodeIndex  The cell at which to calculate.
      */
-    double CalculateMaximumUpstrokeVelocity(int globalNodeIndex);
+    double CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex);
     /**
      * Calculate the conduction velocity between two cells, i.e. the time
      * taken for an AP to propagate from one to the other.
@@ -44,8 +44,8 @@ public:
      * @param euclideanDistance  The distance the AP travels between the cells,
      *     along the tissue.
      */
-    double CalculateConductionVelocity(int globalNearNodeIndex,
-                                       int globalFarNodeIndex,
+    double CalculateConductionVelocity(unsigned globalNearNodeIndex,
+                                       unsigned globalFarNodeIndex,
                                        const double euclideanDistance);
     /**
      * Calculate the action potential duration at a single cell.
@@ -55,7 +55,7 @@ public:
      * @param globalNodeIndex  The cell at which to calculate.
      */
     double CalculateActionPotentialDuration(const double percentage,
-                                            int globalNodeIndex);
+                                            unsigned globalNodeIndex);
     /**
      * Calculate the maximum transmembrane potential (maximum systolic
      * potential) at a single cell.
@@ -63,7 +63,7 @@ public:
      * 
      * @param globalNodeIndex  The cell at which to calculate.
      */
-    double CalculatePeakMembranePotential(int globalNodeIndex);
+    double CalculatePeakMembranePotential(unsigned globalNodeIndex);
     
 };
 

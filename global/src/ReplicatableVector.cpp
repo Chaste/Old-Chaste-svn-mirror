@@ -105,9 +105,11 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
 void ReplicatableVector::ReplicatePetscVector(Vec vec)
 {
     //If the size has changed then we'll need to make a new context
-    int size;
-    VecGetSize(vec, &size);
-    if ((int) this->size() != size)
+    PetscInt isize;
+    VecGetSize(vec, &isize);
+    unsigned size=isize;
+    
+    if (this->size() != size)
     {
         resize(size);
     }
@@ -125,7 +127,7 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     //Copy into mData
     double *p_replicated;
     VecGetArray(mReplicated, &p_replicated);
-    for (int i=0; i<size; i++)
+    for (unsigned i=0; i<size; i++)
     {
         mData[i]=p_replicated[i];
     }

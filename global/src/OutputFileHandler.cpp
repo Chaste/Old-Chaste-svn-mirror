@@ -16,7 +16,7 @@ OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
     PetscInitialized(&is_there);
     if (is_there == PETSC_TRUE)
     {
-        int my_rank;
+        PetscInt my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if (my_rank==0)
         {

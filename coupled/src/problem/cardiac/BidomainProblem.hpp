@@ -307,7 +307,7 @@ public:
                 delete p_test_writer;
             }
         
-            int my_rank;
+            PetscInt my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
             if ((my_rank==0) && (write_files)) // ie only if master process and results files were written
             {

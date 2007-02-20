@@ -182,7 +182,7 @@ private:
         double D_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
         
         c_vector<double, 2*ELEMENT_DIM> ret;
-        for (int i=0; i<ELEMENT_DIM; i++)
+        for (unsigned i=0; i<ELEMENT_DIM; i++)
         {
             ret(2*i)   = rPhi(i)*D_times_grad_v_dot_n;
             ret(2*i+1) = rPhi(i)*D_times_grad_phi_e_dot_n;
@@ -208,12 +208,12 @@ private:
         
         if(rElement.GetOwnershipIsKnown()==false)
         {
-            int mLo, mHi;
+            PetscInt mLo, mHi;
             this->mpAssembledLinearSystem->GetOwnershipRange(mLo,mHi);
         
-            for (int i=0; i< rElement.GetNumNodes(); i++)
+            for (unsigned i=0; i< rElement.GetNumNodes(); i++)
             {
-                int node_global_index = rElement.GetNodeGlobalIndex(i);
+                unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (mLo<=node_global_index && node_global_index<mHi)
                 {
                     rElement.SetOwnership(true);
@@ -250,10 +250,10 @@ private:
         //}
         
         
-        const int num_elem_nodes = rElement.GetNumNodes();
+        const unsigned num_elem_nodes = rElement.GetNumNodes();
         
         // loop over guass points
-        for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
+        for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
         
@@ -277,16 +277,16 @@ private:
             double I_extra_stim = 0;
         
             // interpolate x, Vm, and currents
-            for (int i=0; i<num_elem_nodes; i++)
+            for (unsigned i=0; i<num_elem_nodes; i++)
             {
                 const Node<SPACE_DIM> *node = rElement.GetNode(i);
                 const Point<SPACE_DIM> node_loc = node->rGetPoint();
-                for (int j=0; j<SPACE_DIM; j++)
+                for (unsigned j=0; j<SPACE_DIM; j++)
                 {
                     x.SetCoordinate(j, x[j] + basis_func(i)*node_loc[j]);
                 }
         
-                int node_global_index = rElement.GetNodeGlobalIndex(i);
+                unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
         
                 Vm           += basis_func(i) * this->mCurrentSolutionReplicated[ 2*node_global_index ];
                 I_ionic      += basis_func(i) * pde->GetIionicCacheReplicated()[ node_global_index ];
@@ -421,7 +421,7 @@ public:
      */
     BidomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          BidomainPde<SPACE_DIM>* pPde,
-                         int numQuadPoints = 2,
+                         unsigned numQuadPoints = 2,
                          double linearSolverRelativeTolerance = 1e-6) :
             AbstractLinearDynamicProblemAssembler<ELEMENT_DIM,SPACE_DIM,2>(numQuadPoints, linearSolverRelativeTolerance)
     {

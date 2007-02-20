@@ -30,9 +30,9 @@ void CellProperties::CalculateProperties()
     mOnset = -1.0, mPrevOnset = -1.0;
     APPhases ap_phase = undefined;
     
-    int time_steps = mTime.size()-1; //The number of time steps is the number of intervals
+    unsigned time_steps = mTime.size()-1; //The number of time steps is the number of intervals
     
-    for (int i=1; i<=time_steps; i++)
+    for (unsigned i=1; i<=time_steps; i++)
     {
         double v = mVoltage[i];
         double t = mTime[i];
@@ -133,8 +133,8 @@ double CellProperties::CalculateActionPotentialDuration(
     double target_v = 0.01*percentage*(maxPotential-minPotential);
     
     APPhases ap_phase = undefined;
-    int time_steps = mTime.size();
-    for (int i=0; i<time_steps; i++)
+    unsigned time_steps = mTime.size();
+    for (unsigned i=0; i<time_steps; i++)
     {
         double t = mTime[i];
         

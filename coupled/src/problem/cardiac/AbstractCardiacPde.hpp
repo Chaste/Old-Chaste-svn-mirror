@@ -106,7 +106,7 @@ public:
         
         mIntracellularConductivityTensor.clear();
         
-        for (int i=0;i<SPACE_DIM;i++)
+        for (unsigned i=0;i<SPACE_DIM;i++)
         {
             mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
         }
@@ -282,9 +282,9 @@ public:
     
     void ReplicateException(bool flag)
     {
-        int my_error = (int) flag;
-        int anyones_error;
-        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_INT, MPI_SUM, PETSC_COMM_WORLD);
+        unsigned my_error = (unsigned) flag;
+        unsigned anyones_error;
+        MPI_Allreduce(&my_error, &anyones_error, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         if (flag)
         {
             // Return control to exception thrower

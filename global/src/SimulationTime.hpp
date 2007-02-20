@@ -9,10 +9,10 @@ class SimulationTime
 {
 public:
     static SimulationTime* Instance();
-    void SetEndTimeAndNumberOfTimeSteps(double, int);
+    void SetEndTimeAndNumberOfTimeSteps(double, unsigned);
     double GetTimeStep();
     void IncrementTimeOneStep();
-    int GetTimeStepsElapsed();
+    unsigned GetTimeStepsElapsed();
     double GetDimensionalisedTime();
     static void Destroy();
     bool IsSimulationTimeSetUp();
@@ -23,8 +23,8 @@ protected:
 private:
     static SimulationTime* mpInstance;
     double mDurationOfSimulation;
-    int mTotalTimeStepsInSimulation;
-    int mTimeStepsElapsed;
+    unsigned mTotalTimeStepsInSimulation;
+    unsigned mTimeStepsElapsed;
     bool mEndTimeAndNumberOfTimeStepsSet;
 };
 

@@ -1,7 +1,7 @@
 #include "Exception.hpp"
 
 Exception::Exception(std::string message,
-                     std::string filename, const int& rLineNumber)
+                     std::string filename, const unsigned& rLineNumber)
 {
     std::stringstream line_number;
     line_number << rLineNumber;

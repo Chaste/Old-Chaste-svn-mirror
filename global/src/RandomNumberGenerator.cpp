@@ -6,7 +6,7 @@
  * Generate a random number modulo base (ie an integer
  * within the range 0,..,base-1)
  */
-int RandomNumberGenerator::randMod(int base)
+unsigned RandomNumberGenerator::randMod(unsigned base)
 {
     return (random()%base);
 }

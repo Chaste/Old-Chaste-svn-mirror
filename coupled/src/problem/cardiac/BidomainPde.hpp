@@ -50,7 +50,7 @@ public:
         double const_extra_conductivity = 7.0;
         
         mExtracellularConductivityTensor.clear();
-        for (int i=0;i<SPACE_DIM;i++)
+        for (unsigned i=0;i<SPACE_DIM;i++)
         {
             mExtracellularConductivityTensor(i,i) = const_extra_conductivity;
         }

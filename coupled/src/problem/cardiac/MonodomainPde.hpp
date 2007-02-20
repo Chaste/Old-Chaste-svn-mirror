@@ -84,7 +84,7 @@ public:
     
     double ComputeNonlinearSourceTermAtNode(const Node<SPACE_DIM>& node, double )
     {
-        int index = node.GetIndex();
+        unsigned index = node.GetIndex();
         return  -(this->mSurfaceAreaToVolumeRatio)*(this->mIionicCacheReplicated[index])
                 - this->mIntracellularStimulusCacheReplicated[index];
     }

@@ -84,7 +84,7 @@ public:
      */
     MonodomainDg0Assembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            MonodomainPde<SPACE_DIM>* pPde,
-                           int numQuadPoints = 2) :
+                           unsigned numQuadPoints = 2) :
             SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, numQuadPoints)
     {
         mpMonodomainPde = pPde;
@@ -106,7 +106,7 @@ public:
                            MonodomainPde<SPACE_DIM>* pPde,
                            AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                            AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                           int numQuadPoints = 2) :
+                           unsigned numQuadPoints = 2) :
             SimpleDg0ParabolicAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh, pPde, NULL /*bcs - set below*/, pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         this->mpMesh = pMesh;

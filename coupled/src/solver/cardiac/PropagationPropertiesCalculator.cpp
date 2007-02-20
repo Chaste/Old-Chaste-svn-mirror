@@ -13,7 +13,7 @@ PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
     // We don't own the data reader, so we don't destroy it.
 }
 
-double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(int globalNodeIndex)
+double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetValues(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
@@ -22,7 +22,7 @@ double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(int glo
 }
 
 double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const double percentage,
-        int globalNodeIndex)
+        unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetValues(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
@@ -30,7 +30,7 @@ double PropagationPropertiesCalculator::CalculateActionPotentialDuration(const d
     return cell_props.GetActionPotentialDuration(percentage);
 }
 
-double PropagationPropertiesCalculator::CalculatePeakMembranePotential(int globalNodeIndex)
+double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetValues(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
@@ -38,8 +38,8 @@ double PropagationPropertiesCalculator::CalculatePeakMembranePotential(int globa
     return cell_props.GetMaxPotential();
 }
 
-double PropagationPropertiesCalculator::CalculateConductionVelocity(int globalNearNodeIndex,
-        int globalFarNodeIndex,
+double PropagationPropertiesCalculator::CalculateConductionVelocity(unsigned globalNearNodeIndex,
+        unsigned globalFarNodeIndex,
         const double euclideanDistance)
 {
     std::vector<double> near_voltages = mpDataReader->GetValues(mVoltageName, globalNearNodeIndex);

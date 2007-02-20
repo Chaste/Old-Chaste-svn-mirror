@@ -68,7 +68,7 @@ void SimulationTime::IncrementTimeOneStep()
  * Get the number of time steps that have elapsed.
  * @return number of time steps
  */
-int SimulationTime::GetTimeStepsElapsed()
+unsigned SimulationTime::GetTimeStepsElapsed()
 {
     assert(mEndTimeAndNumberOfTimeStepsSet);
     return mTimeStepsElapsed;
@@ -93,7 +93,7 @@ double SimulationTime::GetDimensionalisedTime()
  * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
  * 
  */
-void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation, int totalTimeStepsInSimulation)
+void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation, unsigned totalTimeStepsInSimulation)
 {    
     assert(!mEndTimeAndNumberOfTimeStepsSet);
     mDurationOfSimulation = durationOfSimulation;
