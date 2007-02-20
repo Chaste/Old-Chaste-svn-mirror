@@ -31,7 +31,7 @@ public :
         {
             GaussianQuadratureRule<1> quadRule(numberOfPoints);
             
-            for (int i=0; i<quadRule.GetNumQuadPoints(); i++)
+            for (unsigned i=0; i<quadRule.GetNumQuadPoints(); i++)
             {
                 TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
                 TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
@@ -46,7 +46,7 @@ public :
         {
             GaussianQuadratureRule<2> quadRule(numberOfPoints);
             
-            for (int i=0; i<quadRule.GetNumQuadPoints(); i++)
+            for (unsigned i=0; i<quadRule.GetNumQuadPoints(); i++)
             {
                 TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
                 TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
@@ -62,7 +62,7 @@ public :
         {
             GaussianQuadratureRule<3> quadRule(numberOfPoints);
             
-            for (int i=0; i<quadRule.GetNumQuadPoints(); i++)
+            for (unsigned i=0; i<quadRule.GetNumQuadPoints(); i++)
             {
                 TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
                 TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
@@ -104,7 +104,7 @@ public :
                 double x1 = element.GetNodeLocation(0,0);
                 double x2 = element.GetNodeLocation(1,0);
                 
-                for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+                for (unsigned quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
                 {
                     Point<1> quad_point=quad_rule.GetQuadPoint(quad_index);
                     Point<1> transformed_quad_point =
@@ -153,7 +153,7 @@ public :
                 {
                     double integral = 0.0;
                     
-                    for (int quad_index=0;
+                    for (unsigned quad_index=0;
                          quad_index<quad_rule.GetNumQuadPoints();
                          quad_index++)
                     {
@@ -241,7 +241,7 @@ public :
                     {
                         double integral = 0.0;
                         
-                        for (int quad_index=0;
+                        for (unsigned quad_index=0;
                              quad_index<quad_rule.GetNumQuadPoints();
                              quad_index++)
                         {

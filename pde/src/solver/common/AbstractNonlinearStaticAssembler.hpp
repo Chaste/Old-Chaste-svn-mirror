@@ -122,7 +122,7 @@ protected:
      */
     PetscErrorCode AssembleJacobianNumerically(const Vec currentGuess, Mat *pJacobian)
     {
-        int num_nodes = PROBLEM_DIM*this->mpMesh->GetNumNodes();
+        unsigned num_nodes = PROBLEM_DIM*this->mpMesh->GetNumNodes();
         
         // Set up working vectors
         Vec residual;
@@ -154,10 +154,13 @@ protected:
         PetscScalar subtract = -1;
         PetscScalar one_over_h = 1.0/h;
         
-        int lo, hi;
-        VecGetOwnershipRange(current_guess_copy, &lo, &hi);
+        PetscInt ilo, ihi;
+        VecGetOwnershipRange(current_guess_copy, &ilo, &ihi);
+        unsigned lo=ilo;
+        unsigned hi=ihi;
+        
         // Iterate over entries in the input vector.
-        for (int global_index_outer = 0; global_index_outer < num_nodes; global_index_outer++)
+        for (unsigned global_index_outer = 0; global_index_outer < num_nodes; global_index_outer++)
         {
             //Only perturb if we own it
             if (lo<=global_index_outer && global_index_outer<hi)
@@ -177,9 +180,9 @@ protected:
             
             double *p_result;
             PETSCEXCEPT( VecGetArray(result, &p_result) );
-            for (int global_index=lo; global_index < hi; global_index++)
+            for (unsigned global_index=lo; global_index < hi; global_index++)
             {
-                int local_index = global_index - lo;
+                unsigned local_index = global_index - lo;
                 PETSCEXCEPT( MatSetValue(*pJacobian, global_index, global_index_outer,
                                          p_result[local_index], INSERT_VALUES) );
             }
@@ -209,7 +212,7 @@ public:
    /**
     * Constructors just call the base class versions.
     */
-    AbstractNonlinearStaticAssembler(int numQuadPoints = 2) :
+    AbstractNonlinearStaticAssembler(unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;  
@@ -222,7 +225,7 @@ public:
     
     AbstractNonlinearStaticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                        AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                       int numQuadPoints = 2) :
+                                       unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;

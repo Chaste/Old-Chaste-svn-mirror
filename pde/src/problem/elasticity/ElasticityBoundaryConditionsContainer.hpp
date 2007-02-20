@@ -71,7 +71,7 @@ public :
     /**
      *  Constructor just calls base class constructor
      */
-    ElasticityBoundaryConditionsContainer(int numNodes)
+    ElasticityBoundaryConditionsContainer(unsigned numNodes)
             : BoundaryConditionsContainer<DIM,DIM,DIM>(numNodes)
     {}
 };

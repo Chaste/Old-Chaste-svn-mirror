@@ -21,7 +21,7 @@
 template <>
 double LinearBasisFunction<3>::ComputeBasisFunction(
     const Point<3> &rPoint,
-    int basisIndex) const
+    unsigned basisIndex) const
 {
     assert(basisIndex <= 3);
     assert(basisIndex >= 0);
@@ -60,7 +60,7 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
 template <>
 double LinearBasisFunction<2>::ComputeBasisFunction(
     const Point<2> &rPoint,
-    int basisIndex) const
+    unsigned basisIndex) const
 {
     assert(basisIndex <= 2);
     assert(basisIndex >= 0);
@@ -96,7 +96,7 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
 template <>
 double LinearBasisFunction<1>::ComputeBasisFunction(
     const Point<1> &rPoint,
-    int basisIndex) const
+    unsigned basisIndex) const
 {
     assert(basisIndex <= 1);
     assert(basisIndex >= 0);
@@ -124,7 +124,7 @@ double LinearBasisFunction<1>::ComputeBasisFunction(
  *     within a canonical element.
  * @return The value of the basis function.
  */
-double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int basisIndex) const
+double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, unsigned basisIndex) const
 {
     assert(basisIndex == 0);
     return 1.0;
@@ -147,7 +147,7 @@ double LinearBasisFunction<0>::ComputeBasisFunction(const Point<0> &rPoint, int 
 template <>
 c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
     const Point<3>&,
-    int basisIndex) const
+    unsigned basisIndex) const
 {
     assert(basisIndex <= 3);
     assert(basisIndex >= 0);
@@ -198,7 +198,7 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
 template <>
 c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
     const Point<2>&,
-    int basisIndex) const
+    unsigned basisIndex) const
 {
     assert(basisIndex <= 2);
     assert(basisIndex >= 0);
@@ -241,7 +241,7 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
 template <>
 c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
     const Point<1>&,
-    int basisIndex) const
+    unsigned basisIndex) const
 {
     assert(basisIndex <= 1);
     assert(basisIndex >= 0);
@@ -275,7 +275,7 @@ c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunction
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
     c_vector<double, ELEM_DIM+1> basisValues;
-    for (int i=0; i<ELEM_DIM+1; i++)
+    for (unsigned i=0; i<ELEM_DIM+1; i++)
     {
         basisValues(i) = ComputeBasisFunction(rPoint, i);
     }

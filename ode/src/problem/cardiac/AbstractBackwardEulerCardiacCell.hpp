@@ -44,8 +44,8 @@ public:
      *    to revisit this design decision at a later date.
      */
     AbstractBackwardEulerCardiacCell(
-                        unsigned int numberOfStateVariables,
-                        unsigned int voltageIndex,
+                        unsigned numberOfStateVariables,
+                        unsigned voltageIndex,
                         double dt,
                         AbstractStimulusFunction* intracellularStimulus,
                         AbstractStimulusFunction* extracellularStimulus = NULL)
@@ -91,7 +91,7 @@ public:
         //     using backward Euler
         // Check length of time interval
         double _n_steps = (tEnd - tStart) / mDt;
-        int n_steps = (int) round(_n_steps);
+        unsigned n_steps = (unsigned) round(_n_steps);
         assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
         
         // Initialise solution store
@@ -102,7 +102,7 @@ public:
         
         // Loop over time
         double curr_time;
-        for (int i=0; i<n_steps; i++)
+        for (unsigned i=0; i<n_steps; i++)
         {
             curr_time = tStart + i*mDt;
             
@@ -143,7 +143,7 @@ public:
         // each one, to update all state variables except for V, using backward Euler.
         // Check length of time interval
         double _n_steps = (tEnd - tStart) / mDt;
-        int n_steps = (int) round(_n_steps);
+        unsigned n_steps = (unsigned) round(_n_steps);
         assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
         
         // Initialise solution store
@@ -154,7 +154,7 @@ public:
         
         // Loop over time
         double curr_time;
-        for (int i=0; i<n_steps; i++)
+        for (unsigned i=0; i<n_steps; i++)
         {
             curr_time = tStart + i*mDt;
             

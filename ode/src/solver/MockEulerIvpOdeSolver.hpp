@@ -14,7 +14,7 @@
 class MockEulerIvpOdeSolver : public EulerIvpOdeSolver
 {
 private:
-    int mCallCount;
+    unsigned mCallCount;
 
 protected:
     virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
@@ -27,7 +27,7 @@ protected:
 public:
     MockEulerIvpOdeSolver();
     
-    int GetCallCount();
+    unsigned GetCallCount();
                        
     virtual ~MockEulerIvpOdeSolver()
     {}

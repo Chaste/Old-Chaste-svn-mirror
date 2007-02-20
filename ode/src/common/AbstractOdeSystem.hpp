@@ -19,7 +19,7 @@ protected:
     std::vector<std::string> mVariableNames;
     std::vector<std::string> mVariableUnits;
     
-    unsigned int mNumberOfStateVariables;
+    unsigned mNumberOfStateVariables;
     std::vector<double> mInitialConditions;
     bool mUseAnalytic;
     

@@ -92,6 +92,8 @@ private:
                 mResidual[ii] -= fact*mResidual[i];
             }
         }
+        /* This needs to int, since a downloop in unsigned won't
+         * terminate properly*/
         for (int i=mSizeOfOdeSystem-1; i>=0; i--)
         {
             mUpdate[i] = mResidual[i];

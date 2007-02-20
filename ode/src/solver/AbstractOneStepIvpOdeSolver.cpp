@@ -32,7 +32,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         EXCEPTION("Stopping event is true for initial condition");
     }
     
-    int number_of_time_samples;
+    unsigned number_of_time_samples;
     double current_time;
     
     number_of_time_samples = 0;
@@ -66,7 +66,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     
     // Solve the ODE system
     
-    int time_step_number = 0;
+    unsigned time_step_number = 0;
     
     current_time = startTime;
     
@@ -129,7 +129,7 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeS
     // Solve the ODE system
     
     double real_time_step = timeStep;
-    int time_step_number = 0;
+    unsigned time_step_number = 0;
     double current_time = startTime;
     
     // Which of our vectors holds the current solution?

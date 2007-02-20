@@ -80,7 +80,7 @@ public:
     SimpleLinearEllipticAssembler(ConformingTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                   AbstractLinearEllipticPde<SPACE_DIM>* pPde,
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                  int numQuadPoints = 2) :
+                                  unsigned numQuadPoints = 2) :
             AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),
@@ -98,7 +98,7 @@ public:
                                   BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                   AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                   AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                  int numQuadPoints = 2) :
+                                  unsigned numQuadPoints = 2) :
             AbstractLinearStaticProblemAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // note - we don't check any of these are NULL here (that is done in Solve() instead),

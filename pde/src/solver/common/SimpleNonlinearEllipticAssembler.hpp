@@ -144,7 +144,7 @@ public :
     SimpleNonlinearEllipticAssembler( ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
-                                      int numQuadPoints = 2) :  
+                                      unsigned numQuadPoints = 2) :  
             AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // Store data structures
@@ -167,7 +167,7 @@ public :
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                       AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                       AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                      int numQuadPoints = 2) :
+                                      unsigned numQuadPoints = 2) :
             AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         // Store data structures

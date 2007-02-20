@@ -46,7 +46,7 @@ private:
     typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
     neumannIterator; /**< Internal iterator over neumann boundary conditions */
     
-    int mNumNodes; /**< Number of nodes in the mesh */
+    unsigned mNumNodes; /**< Number of nodes in the mesh */
     
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
     
@@ -56,11 +56,11 @@ public:
      * @param size is the number of dependent variables, ie. the number of the unknown (or dimension of the	unknown)
      * @param numNodes is the number of nodes in the mesh
      */
-    BoundaryConditionsContainer(int numNodes)
+    BoundaryConditionsContainer(unsigned numNodes)
     {
         mNumNodes = numNodes;
         
-        for (int index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             mpDirichletMap[index_of_unknown] =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
             mpNeumannMap[index_of_unknown]   =  new std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>;
@@ -75,7 +75,7 @@ public:
      */
     ~BoundaryConditionsContainer()
     {
-        for (int i=0; i<PROBLEM_DIM; i++)
+        for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
             // Keep track of what boundary condition objects we've deleted
             std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
@@ -232,10 +232,10 @@ public:
                 unsigned node_index = dirichIterator->first->GetIndex();
                 double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
                 
-                int row = PROBLEM_DIM*node_index + index_of_unknown;
+                unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 
                 //old version equivalent to:
-                //int row = node_index+index_of_unknown*mNumNodes;
+                //unsigned row = node_index+index_of_unknown*mNumNodes;
                 
                 if (!MatrixIsAssembled)
                 {
@@ -264,8 +264,11 @@ public:
         {
             dirichIterator = mpDirichletMap[index_of_unknown]->begin();
             
-            int lo, hi;
-            VecGetOwnershipRange(currentSolution, &lo, &hi);
+            PetscInt ilo, ihi;
+            VecGetOwnershipRange(currentSolution, &ilo, &ihi);
+            unsigned lo=ilo;
+            unsigned hi=ihi;
+            
             
             double *p_current_solution;
             PETSCEXCEPT(VecGetArray(currentSolution, &p_current_solution));
@@ -279,11 +282,11 @@ public:
                 
                 double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
                 
-                int global_index = PROBLEM_DIM*node_index + index_of_unknown;
+                unsigned global_index = PROBLEM_DIM*node_index + index_of_unknown;
                 
                 if (lo <= global_index && global_index < hi)
                 {
-                    int local_index = global_index - lo;
+                    unsigned local_index = global_index - lo;
                     p_residual[local_index] = p_current_solution[local_index] - value;
                 }
                 dirichIterator++;
@@ -309,18 +312,20 @@ public:
         {
             //if(index_of_unknown==1) assert(0);
             dirichIterator = mpDirichletMap[index_of_unknown]->begin();
-            int rows, cols;
+            PetscInt irows, icols;
             double value;
-            MatGetSize(jacobian, &rows, &cols);
+            MatGetSize(jacobian, &irows, &icols);
+            unsigned rows=irows;
+            unsigned cols=icols;
             
             while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
             {
-                int node_index = dirichIterator->first->GetIndex();
+                unsigned node_index = dirichIterator->first->GetIndex();
                                
-                int row_index = PROBLEM_DIM*node_index + index_of_unknown;
+                unsigned row_index = PROBLEM_DIM*node_index + index_of_unknown;
                 assert(row_index<rows); 
                 
-                for (int col_index=0; col_index<cols; col_index++)
+                for (unsigned col_index=0; col_index<cols; col_index++)
                 {
                     value = (col_index == row_index) ? 1.0 : 0.0;
                     MatSetValue(jacobian, row_index, col_index, value, INSERT_VALUES);
@@ -443,7 +448,7 @@ public:
     bool AnyNonZeroNeumannConditions()
     {
         bool ret = false;
-        for (int index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             if (mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] == true)
             {

@@ -7,7 +7,7 @@ MockEulerIvpOdeSolver::MockEulerIvpOdeSolver() : EulerIvpOdeSolver()
     mCallCount=0;
 }
 
-int MockEulerIvpOdeSolver::GetCallCount()
+unsigned MockEulerIvpOdeSolver::GetCallCount()
 {
     return mCallCount;
 }

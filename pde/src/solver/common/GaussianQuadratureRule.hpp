@@ -17,7 +17,7 @@
 template<int ELEM_DIM>
 class GaussianQuadratureRule
 {
-    int mNumQuadPoints;
+    unsigned mNumQuadPoints;
     std::vector<double>            mWeights;
     std::vector<Point<ELEM_DIM> >  mPoints;
     
@@ -31,9 +31,9 @@ public:
      * An exception is thrown if data is not available for the requested
      * parameters.
      */
-    GaussianQuadratureRule(int numPointsInEachDimension)
+    GaussianQuadratureRule(unsigned numPointsInEachDimension)
     {
-        mNumQuadPoints = (int) pow((double) numPointsInEachDimension,(ELEM_DIM));
+        mNumQuadPoints = (unsigned) pow((double) numPointsInEachDimension,(ELEM_DIM));
         
         mWeights.reserve(mNumQuadPoints);
         mPoints.reserve(mNumQuadPoints);
@@ -366,7 +366,7 @@ public:
      * @param index The index of the point to return.
      * @return A gaussian quadrature point.
      */
-    Point<ELEM_DIM> GetQuadPoint(int index) const
+    Point<ELEM_DIM> GetQuadPoint(unsigned index) const
     {
         assert(index < mNumQuadPoints);
         return mPoints[index];
@@ -375,7 +375,7 @@ public:
     /**
      * Get the weight associated with a quadrature point.
      */
-    double GetWeight(int index) const
+    double GetWeight(unsigned index) const
     {
         assert(index < mNumQuadPoints);
         return mWeights[index];
@@ -385,7 +385,7 @@ public:
      * Get the number of quadrature points. This is the number of points in 
      * each dimension, raised to the power of the number of dimensions.
      */
-    int GetNumQuadPoints() const
+    unsigned GetNumQuadPoints() const
     {
         return mNumQuadPoints;
     }

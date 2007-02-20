@@ -26,8 +26,8 @@ protected:
 public:
 
     AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
-                        unsigned int numberOfStateVariables,
-                        unsigned int voltageIndex,
+                        unsigned numberOfStateVariables,
+                        unsigned voltageIndex,
                         double dt,
                         AbstractStimulusFunction* intracellularStimulus,
                         AbstractStimulusFunction* extracellularStimulus = NULL);

@@ -223,10 +223,10 @@ protected:
         rBElem.clear();
         
         
-        const int num_nodes = rElement.GetNumNodes();
+        const unsigned num_nodes = rElement.GetNumNodes();
         
         // loop over Gauss points
-        for (int quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
+        for (unsigned quad_index=0; quad_index < quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM> quad_point = quad_rule.GetQuadPoint(quad_index);
             
@@ -254,7 +254,7 @@ protected:
             /////////////////////////////////////////////////////////////
             // interpolation
             /////////////////////////////////////////////////////////////
-            for (int i=0; i<num_nodes; i++)
+            for (unsigned i=0; i<num_nodes; i++)
             {
                 const Node<SPACE_DIM> *p_node = rElement.GetNode(i);
                 const c_vector<double, SPACE_DIM> node_loc = p_node->rGetLocation();
@@ -263,7 +263,7 @@ protected:
                 x.rGetLocation() += phi(i)*node_loc;
                 
                 // interpolate u and grad u if a current solution or guess exists
-                int node_global_index = rElement.GetNodeGlobalIndex(i);
+                unsigned node_global_index = rElement.GetNodeGlobalIndex(i);
                 if (mCurrentSolutionOrGuessReplicated.size()>0)
                 {
                     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
@@ -334,7 +334,7 @@ protected:
         rBSurfElem.clear();
         
         // loop over Gauss points
-        for (int quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
+        for (unsigned quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
         {
             Point<ELEMENT_DIM-1> quad_point=quad_rule.GetQuadPoint(quad_index);
             
@@ -448,7 +448,7 @@ protected:
         // work to be done before assembly
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
         
-        int lo, hi;
+        unsigned lo, hi;
         
         if(mProblemIsLinear)
         {
@@ -501,9 +501,10 @@ protected:
             // been asked for     
             if(residualVector)
             {
-                int size;
-                VecGetSize(residualVector,&size);
-                assert(size==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
+                PetscInt isize;
+                VecGetSize(residualVector,&isize);
+                unsigned size=isize;
+                assert(size==PROBLEM_DIM * this->mpMesh->GetNumNodes());
             
                 // Set residual vector to zero
                 PetscScalar zero = 0.0;
@@ -515,7 +516,7 @@ protected:
             }
             else 
             {
-                int size1, size2;
+                PetscInt size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
                 assert(size1==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
                 assert(size2==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
@@ -525,7 +526,10 @@ protected:
             }        
         
             // Get our ownership range
-            VecGetOwnershipRange(currentSolutionOrGuess, &lo, &hi);
+            PetscInt ilo, ihi;
+            VecGetOwnershipRange(currentSolutionOrGuess, &ilo, &ihi);
+            lo=ilo;
+            hi=ihi;
             //Set the elements' ownerships according to the node ownership
             //\todo - This ought not to happen every time through
  			//Note that this ought to use the number of nodes to set the ownership
@@ -545,7 +549,7 @@ protected:
             iter = this->mpMesh->GetElementIteratorBegin();
         
         // Assume all elements have the same number of nodes...
-        const int num_elem_nodes = (*iter)->GetNumNodes();
+        const unsigned num_elem_nodes = (*iter)->GetNumNodes();
         c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
         c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
         
@@ -566,19 +570,19 @@ protected:
              
 	            AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
 	            
-	            for (int i=0; i<num_elem_nodes; i++)
+	            for (unsigned i=0; i<num_elem_nodes; i++)
 	            {
-	                int node1 = element.GetNodeGlobalIndex(i);
+	                unsigned node1 = element.GetNodeGlobalIndex(i);
 	                                
 	                if (assemble_matrix)
 	                {                    
-	                    for (int j=0; j<num_elem_nodes; j++)
+	                    for (unsigned j=0; j<num_elem_nodes; j++)
 	                    {
-	                        int node2 = element.GetNodeGlobalIndex(j);
+	                        unsigned node2 = element.GetNodeGlobalIndex(j);
 	                        
-	                        for (int k=0; k<PROBLEM_DIM; k++)
+	                        for (unsigned k=0; k<PROBLEM_DIM; k++)
 	                        {
-	                            for (int m=0; m<PROBLEM_DIM; m++)
+	                            for (unsigned m=0; m<PROBLEM_DIM; m++)
 	                            {
 	                                if(mProblemIsLinear)
 	                                {  
@@ -595,10 +599,10 @@ protected:
 	                                {
 	                                    assert(pJacobian!=NULL); // extra check
 	                                           
-	                                    int matrix_index_1 = PROBLEM_DIM*node1+k;
+	                                    unsigned matrix_index_1 = PROBLEM_DIM*node1+k;
 	                                    if (lo<=matrix_index_1 && matrix_index_1<hi)
 	                                    {
-	                                        int matrix_index_2 = PROBLEM_DIM*node2+m;
+	                                        unsigned matrix_index_2 = PROBLEM_DIM*node2+m;
 	                                        PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
 	                                        MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);                                
 	                                    }
@@ -610,7 +614,7 @@ protected:
 	
 	                if(assemble_vector)
 	                {
-	                    for (int k=0; k<PROBLEM_DIM; k++)
+	                    for (unsigned k=0; k<PROBLEM_DIM; k++)
 	                    {
 	                        if(mProblemIsLinear)
 	                        {
@@ -620,7 +624,7 @@ protected:
 	                        {
 	                            assert(residualVector!=NULL); // extra check
 	
-	                            int matrix_index = PROBLEM_DIM*node1+k;
+	                            unsigned matrix_index = PROBLEM_DIM*node1+k;
 	                            //Make sure it's only done once
 	                            if (lo<=matrix_index && matrix_index<hi)
 	                            {
@@ -649,7 +653,7 @@ protected:
         {
             if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
             {
-                const int num_surf_nodes = (*surf_iter)->GetNumNodes();
+                const unsigned num_surf_nodes = (*surf_iter)->GetNumNodes();
                 c_vector<double, PROBLEM_DIM*ELEMENT_DIM> b_surf_elem;
                 
                 while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
@@ -662,11 +666,11 @@ protected:
                     {
                         AssembleOnSurfaceElement(surf_element, b_surf_elem);
                         
-                        for (int i=0; i<num_surf_nodes; i++)
+                        for (unsigned i=0; i<num_surf_nodes; i++)
                         {
-                            int node_index = surf_element.GetNodeGlobalIndex(i);
+                            unsigned node_index = surf_element.GetNodeGlobalIndex(i);
                             
-                            for (int k=0; k<PROBLEM_DIM; k++)
+                            for (unsigned k=0; k<PROBLEM_DIM; k++)
                             {
                                 if(mProblemIsLinear)
                                 {
@@ -674,7 +678,7 @@ protected:
                                 }
                                 else if(residualVector!=NULL)
                                 {
-                                    int matrix_index = PROBLEM_DIM*node_index + k;
+                                    unsigned matrix_index = PROBLEM_DIM*node_index + k;
 
                                     PetscScalar value = b_surf_elem(PROBLEM_DIM*i+k);
                                     if (lo<=matrix_index && matrix_index<hi)
@@ -787,7 +791,7 @@ public:
      * 
      * @param numQuadPoints Number of quadrature points to use per dimension.
      */
-    AbstractAssembler(int numQuadPoints = 2)
+    AbstractAssembler(unsigned numQuadPoints = 2)
     {
         // Initialise mesh and bcs to null, so we can check they
         // have been set before attempting to solve
@@ -817,7 +821,7 @@ public:
      */
     AbstractAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                       AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                      int numQuadPoints = 2)
+                      unsigned numQuadPoints = 2)
     {
         // Initialise mesh and bcs to null, so we can check they
         // have been set before attempting to solve
@@ -864,7 +868,7 @@ public:
      * 
      * @param numQuadPoints Number of quadrature points to use per dimension.
      */
-    void SetNumberOfQuadraturePointsPerDimension(int numQuadPoints)
+    void SetNumberOfQuadraturePointsPerDimension(unsigned numQuadPoints)
     {
         if (mpQuadRule) delete mpQuadRule;
         mpQuadRule = new GaussianQuadratureRule<ELEMENT_DIM>(numQuadPoints);

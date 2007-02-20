@@ -32,12 +32,12 @@ public:
     /**
      * Constructors just call the base class versions.
      */
-    AbstractLinearStaticProblemAssembler(int numQuadPoints = 2) :
+    AbstractLinearStaticProblemAssembler(unsigned numQuadPoints = 2) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {}
     AbstractLinearStaticProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
                                          AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                         int numQuadPoints = 2) :
+                                         unsigned numQuadPoints = 2) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {}
     

@@ -43,13 +43,13 @@ private:
         FourthOrderTensor<DIM> dTdE;   // BAD!!!!!!!!!!!!!!!!!!!!!!!! change 4thOrderTensor to not use std::vectors, or use some better written code
         c_matrix<double,DIM,DIM> eye = identity_matrix<double>(DIM);
         
-        for(int M=0;M<DIM;M++)
+        for(unsigned M=0;M<DIM;M++)
         {
-            for(int N=0;N<DIM;N++)
+            for(unsigned N=0;N<DIM;N++)
             {
-                for(int P=0;P<DIM;P++)
+                for(unsigned P=0;P<DIM;P++)
                 {
-                    for(int Q=0;Q<DIM;Q++)
+                    for(unsigned Q=0;Q<DIM;Q++)
                     {
                         dTdE.rGetVal()[M][N][P][Q] =   4*c2*eye(M,N)*eye(P,Q)
                                                      - 4*c2*eye(M,P)*eye(N,Q)
