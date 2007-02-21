@@ -448,7 +448,9 @@ protected:
         // work to be done before assembly
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
         
-        unsigned lo, hi;
+        //Only set and used in non-linear solution
+        unsigned lo=0;
+        unsigned hi=0;
         
         if(mProblemIsLinear)
         {
