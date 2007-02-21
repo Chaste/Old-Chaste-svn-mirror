@@ -33,39 +33,34 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     OutputFileHandler output_file_handler(outputDirectory);
     mOutputDirectoryFullPath = output_file_handler.GetTestOutputDirectory(outputDirectory);
     
-/////////////////////////////
-// need to get rid of this      - replace with a check for a fixed_boundary
-/////////////////////////////   
-    //loop over surface elements and set indicator as dirichlet or neumman
-//    typename Triangulation<DIM>::cell_iterator element_iter = mpMesh->begin();
-//    
-//    while(element_iter!=mpMesh->end())
-//    {
-//        for(unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
-//        {
-//            // note: the boundary_indicator is set to be 255 for internal faces, at_boundary()
-//            // essentially checks whether face->boundary_indicator()==255.
-//            if(element_iter->face(face_index)->at_boundary()) 
-//            {
-//                double x = element_iter->face(face_index)->center()(0);
-//                //double y = element_iter->face(face_index)->center()(1);
-//
-//                // if x=0 label as dirichlet boundary, else label as neumann
-//                if(fabs(x)<1e-7)
-//                {
-//                    // boundary_indicator != 255, safe to change it
-//                    element_iter->face(face_index)->set_boundary_indicator(DIRICHLET_BOUNDARY);
-//                }
-//                else
-//                {
-//                    // boundary_indicator != 255, safe to change it
-//                    element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
-//                }
-//            }
-//        }
-//        element_iter++;
-//    }
+    // check the mesh has a region on the surface which has been set to 
+    // be the fixed boudary.
+
+    bool found_fixed_boundary = false;
     
+    //loop over surface elements and set indicator as dirichlet or neumman
+    typename Triangulation<DIM>::cell_iterator element_iter = mpMesh->begin();
+    while(element_iter!=mpMesh->end())
+    {
+        for(unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
+        {
+            // note: the boundary_indicator is set to be 255 for internal faces, at_boundary()
+            // essentially checks whether face->boundary_indicator()==255.
+            if(element_iter->face(face_index)->at_boundary()) 
+            {
+                if(element_iter->face(face_index)->boundary_indicator()==FIXED_BOUNDARY)
+                {
+                    found_fixed_boundary = true;
+                }
+            }
+       }
+        element_iter++;
+    }
+    
+    if(!found_fixed_boundary)
+    {
+        EXCEPTION("No fixed surface found. (no surface elements in the mesh have had their boundary indicator set to be FIXED_BOUNDARY");
+    }         
 
     // distribute dofs
     /* mDofHandler.distribute_dofs(mFe);*/
@@ -551,39 +546,31 @@ template<int DIM>
 void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions(bool assembleResidual,
                                                                       bool assembleJacobian)
 {
-    // !!!! losing sparsity????????????????
-    
-    double scale = 0.01;    // <--------------------------------
-
+    // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values 
+    // on the boundary nodes. However:
+    // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the 
+    // u the negative update vector and f is the residual is 
+    // u=current_soln-boundary_values on the boundary nodes
+    std::map<unsigned,double>  applied_boundary_values;
 
     std::map<unsigned,double>::iterator iter = mBoundaryValues.begin();
     while(iter!=mBoundaryValues.end())
     {
         unsigned dof = iter->first;
         double value = iter->second;
-        
-        if(assembleResidual)
-        {
-            mResidual(dof) = scale*(mCurrentSolution(dof)-value);
-        }
-                
-        if(assembleJacobian)
-        {
-            for(unsigned j=0; j<mJacobianMatrix.n(); j++)
-            {
-                mJacobianMatrix.set(dof,j,0.0);
-            }
-
-            mJacobianMatrix.set(dof,dof,scale);
-        }
-
-
+   
+        applied_boundary_values[dof] = mCurrentSolution(dof)-mBoundaryValues[dof];
         iter++;
     }
-//    MatrixTools::apply_boundary_values(mBoundaryValues,
-//                                       mJacobianMatrix,
-//                                       mCurrentSolution,
-//                                       mResidual);
+    
+    // don't have access to u (the solution of the linear system) at the moment,
+    // so pass in a dummy vector 
+    Vector<double> dummy(mResidual.size());
+
+    MatrixTools::apply_boundary_values(applied_boundary_values,
+                                       mJacobianMatrix,
+                                       dummy,
+                                       mResidual);
 }
 
 

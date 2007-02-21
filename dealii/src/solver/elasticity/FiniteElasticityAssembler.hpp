@@ -93,7 +93,7 @@ private:
     Vector<double>       mBodyForce;
     double               mDensity;
 
-    const unsigned unsigned   PRESSURE_COMPONENT_INDEX; // just set to be DIM, ie if DIM==2, 
+    const unsigned       PRESSURE_COMPONENT_INDEX; // just set to be DIM, ie if DIM==2, 
                                                    // the spatial indices are 0 and 1,
                                                    // the pressure index is 2
 
