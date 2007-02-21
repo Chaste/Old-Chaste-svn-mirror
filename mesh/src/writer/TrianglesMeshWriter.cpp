@@ -6,8 +6,9 @@
 template<int ELEMENT_DIM, int SPACE_DIM>
 TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshWriter(
     const std::string &rDirectory,
-    const std::string &rBaseName)
-        : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName)
+    const std::string &rBaseName,
+    const bool clearOutputDir)
+        : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, clearOutputDir)
 {}
 
 template<int ELEMENT_DIM, int SPACE_DIM>

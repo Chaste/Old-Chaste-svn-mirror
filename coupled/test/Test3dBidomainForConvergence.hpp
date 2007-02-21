@@ -67,7 +67,9 @@ public:
         double space_steps[number_of_meshes];
 
     	// Create the meshes on which the test will be based
-
+        const std::string mesh_dir = "BidomainConvergenceMesh";
+        OutputFileHandler output_file_handler(mesh_dir);
+        
     	for (unsigned i = 0; i < number_of_meshes; i++)
     	{
     		unsigned mesh_size = (unsigned) pow(2, i);
@@ -92,7 +94,7 @@ public:
        	    file_name_stream<< "cube_2mm_"<< (int) 6*pow(2,i) <<"_elements";
 	        file_name[i]=file_name_stream.str();
 	        
-	        TrianglesMeshWriter<3,3> mesh_writer("", file_name[i]);
+	        TrianglesMeshWriter<3,3> mesh_writer(mesh_dir, file_name[i], false);
 	        
 	        mesh_writer.WriteFilesUsingMesh(mesh);
 	    }
@@ -117,7 +119,8 @@ public:
             
             time_step = 0.04;  // ms 
             
-            std::string mesh_pathname = "/tmp/chaste/testoutput/"+ file_name[current_file_num];
+            std::string mesh_pathname = output_file_handler.GetTestOutputDirectory()
+                + file_name[current_file_num];
 
             std::cout<<"================================================================================"<<std::endl  << std::flush;
             std::cout<<"Solving with a space step of "<< space_steps[current_file_num] << " cm - mesh " << current_file_num <<std::endl  << std::flush;

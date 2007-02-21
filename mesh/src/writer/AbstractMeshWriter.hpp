@@ -33,10 +33,11 @@ protected:
 public:
     /** Constructor */
     AbstractMeshWriter(const std::string &rDirectory,
-                       const std::string &rBaseName)
+                       const std::string &rBaseName,
+                       const bool clearOutputDir=true)
             : mBaseName(rBaseName)
     {
-        mpOutputFileHandler = new OutputFileHandler(rDirectory);
+        mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
     }
     /** Destructor */
     virtual ~AbstractMeshWriter()
