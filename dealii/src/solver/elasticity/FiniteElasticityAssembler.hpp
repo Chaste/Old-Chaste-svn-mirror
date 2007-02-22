@@ -11,7 +11,7 @@
 //     or probably not.
 
 
-// todos: useful output, bcc object, read in dirichlet/neumann?, heterogeneity, nondim?
+// todos: useful output, bcc object, read in sneumann?, heterogeneity, nondim?
 
 
 #include <grid/grid_out.h>
@@ -67,7 +67,7 @@
 template<int DIM>
 class FiniteElasticityAssembler
 {
-private:
+protected:
     Triangulation<DIM>*   mpMesh;
 
     // an FE_Q object seems to be equivalent to our basis functions
@@ -101,18 +101,19 @@ private:
     std::map<unsigned,double> mBoundaryValues;
 
 
-    void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
-                           Vector<double>&                                 elementRhs,
-                           FullMatrix<double>&                             elementMatrix,
-                           bool                                            assembleResidual,
-                           bool                                            assembleJacobian);
+    virtual void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
+                                   Vector<double>&                                 elementRhs,
+                                   FullMatrix<double>&                             elementMatrix,
+                                   bool                                            assembleResidual,
+                                   bool                                            assembleJacobian);
 
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
     void ApplyDirichletBoundaryConditions(bool assembleResidual, bool assembleJacobian);
     
-    void OutputResults(unsigned newtonIteration);
+    void OutputResults(unsigned counter);
     double CalculateResidualNorm();
     
+    void TakeNewtonStep();
     
 public:
     FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
@@ -122,7 +123,9 @@ public:
                               std::string outputDirectory,
                               unsigned orderOfBasesForPosition=2,
                               unsigned orderOfBasesForPressure=1);
-    ~FiniteElasticityAssembler();
+
+    virtual ~FiniteElasticityAssembler();
+
     
     
     //// this type of function doesn't really work
@@ -139,7 +142,7 @@ public:
     // Note: call GetDofHandler() to get the dof handler first.
     void SetBoundaryValues(std::map<unsigned, double> boundary_values);
 
-    void Solve();
+    virtual void Solve();
     
     Vector<double>& GetSolutionVector();
     DoFHandler<DIM>& GetDofHandler();

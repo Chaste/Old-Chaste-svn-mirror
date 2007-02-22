@@ -575,10 +575,10 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions(bool assem
 
 
 template<int DIM>
-void FiniteElasticityAssembler<DIM>::OutputResults(unsigned newtonIteration)
+void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
 {
     std::stringstream ss;
-    ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << newtonIteration << ".gmv";
+    ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".gmv";
     std::string filename = ss.str();
     std::ofstream output(filename.c_str());
   
@@ -604,6 +604,68 @@ void FiniteElasticityAssembler<DIM>::OutputResults(unsigned newtonIteration)
     data_out.write_gmv(output);
 }
 
+                  
+template<int DIM>
+void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
+{
+    // compute Jacobian
+    AssembleSystem(false, true);
+
+    // solve the linear system
+    SolverControl  solver_control(20000, 1e-6, false, false);
+    PrimitiveVectorMemory<> vector_memory;
+
+    Vector<double> update;
+    update.reinit(mDofHandler.n_dofs());
+
+    SolverGMRES<>::AdditionalData gmres_additional_data(200);
+    SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);    
+    gmres.solve(mJacobianMatrix, update, mResidual, PreconditionIdentity());
+    
+    // save the old current solution
+    Vector<double> old_solution = mCurrentSolution;
+
+    double best_norm_resid = 1e10;
+    double best_damping_value = 0.0;
+    
+    std::vector<double> damping_values;
+    damping_values.push_back(0.0);
+    damping_values.push_back(0.05);
+    for(unsigned i=1; i<=10; i++)
+    {
+        damping_values.push_back((double)i/10.0);
+    }
+
+    for(unsigned i=0; i<damping_values.size(); i++)
+    {
+        mCurrentSolution.equ(1.0, old_solution, -damping_values[i], update);
+        
+        // compute residual
+        AssembleSystem(true, false);
+        double norm_resid = CalculateResidualNorm();
+        
+        std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n";
+        
+        if(norm_resid < best_norm_resid)
+        {
+            best_norm_resid = norm_resid;
+            best_damping_value = damping_values[i];
+        }
+    }
+    
+    if(best_damping_value == 0.0)
+    {
+        std::cout << "\nResidual does not decrease in newton direction, quitting\n";
+        assert(0);
+    }
+    else
+    {
+        std::cout << "\tBest s = " << best_damping_value << "\n";
+    }
+    
+    // implement best update and recalculate residual
+    mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
+}
 
 
 template<int DIM>
@@ -628,70 +690,14 @@ void FiniteElasticityAssembler<DIM>::Solve()
     std::cout << "Solving with tolerance " << tol << "\n";                                            
     
      
-    while(norm_resid > tol && counter < 10)
+    while(norm_resid > tol)
     {
         std::cout <<  "\n-------------------\n"
                   <<   "Newton iteration " << counter
                   << ":\n-------------------\n";
 
-        // compute Jacobian
-        AssembleSystem(false, true);
+        TakeNewtonStep();
 
-        // solve the linear system
-        SolverControl  solver_control(20000, 1e-6, false, false);
-        PrimitiveVectorMemory<> vector_memory;
-
-        Vector<double> update;
-        update.reinit(mDofHandler.n_dofs());
-    
-        SolverGMRES<>::AdditionalData gmres_additional_data(200);
-        SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);    
-        gmres.solve(mJacobianMatrix, update, mResidual, PreconditionIdentity());
-        
-
-        // save the old current solution
-        Vector<double> old_solution = mCurrentSolution;
-
-        double best_norm_resid = norm_resid;
-        double best_damping_value = 0.0;
-        
-        std::vector<double> damping_values;
-        damping_values.push_back(0.0);
-        damping_values.push_back(0.05);
-        for(unsigned i=1; i<=10; i++)
-        {
-            damping_values.push_back((double)i/10.0);
-        }
-
-        for(unsigned i=0; i<damping_values.size(); i++)
-        {
-            mCurrentSolution.equ(1.0, old_solution, -damping_values[i], update);
-            
-            // compute residual
-            AssembleSystem(true, false);
-            norm_resid = CalculateResidualNorm();
-            
-            std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n";
-            
-            if(norm_resid < best_norm_resid)
-            {
-                best_norm_resid = norm_resid;
-                best_damping_value = damping_values[i];
-            }
-        }
-        
-        if(best_damping_value == 0.0)
-        {
-            std::cout << "\nResidual does not decrease in newton direction, quitting\n";
-            assert(0);
-        }
-        else
-        {
-            std::cout << "\tBest s = " << best_damping_value << "\n";
-        }
-        
-        // implement best update and recalculate residual
-        mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
         AssembleSystem(true, false);
         norm_resid = CalculateResidualNorm();
 
@@ -700,40 +706,16 @@ void FiniteElasticityAssembler<DIM>::Solve()
         OutputResults(counter);
 
         counter++;
+        if(counter==20)
+        {
+            EXCEPTION("Not converged after 20 newton iterations, quitting");
+        }
     }
     
     if(norm_resid > tol)
     {
         EXCEPTION("Failed to converge");
     }
-    
-
-//    std::cout << "Node    X    Y    x    y\n";
-//
-//    std::vector<bool> vertex_touched(mpMesh->n_vertices(),false);
-//
-//    typename DoFHandler<DIM>::active_cell_iterator cell = mDofHandler.begin_active();
-//    while(cell != mDofHandler.end())
-//    {
-//        for (unsigned v=0; v<GeometryInfo<DIM>::vertices_per_cell; v++)
-//        {
-//            if(vertex_touched[cell->vertex_index(v)] == false)
-//            {
-//                vertex_touched[cell->vertex_index(v)] = true;
-//
-//                std::cout << cell->vertex_index(v) << "  "
-//                          << cell->vertex(v)(0) << "   "  
-//                          << cell->vertex(v)(1) << "   ";  
-//
-//                unsigned dof = cell->vertex_dof_index(v,0);
-//                std::cout << mCurrentSolution(dof) << "   ";
-//                                
-//                dof = cell->vertex_dof_index(v,1);
-//                std::cout << mCurrentSolution(dof) << "\n";
-//            }
-//        }
-//        cell++;
-//    }
 }
 
 
