@@ -11,13 +11,6 @@
 #include "PolynomialMaterialLaw3d.hpp"
 #include "ExponentialMaterialLaw.hpp"
 
-#define DIMENSION 2
-
-
-
-
-
-
 
 class TestFiniteElasticityAssembler : public CxxTest::TestSuite
 {
@@ -77,7 +70,6 @@ public :
         body_force(0) = 6.0;
     
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
-
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
@@ -139,7 +131,6 @@ public :
         }
         
         TS_ASSERT_DELTA(deformed_volume, 1.0, 1e-2);
-        
     }
     
 
@@ -307,7 +298,6 @@ public :
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
         mesh.refine_global(1);
 
-
         Triangulation<3>::cell_iterator element_iter = mesh.begin();
         while(element_iter!=mesh.end())
         {
@@ -365,13 +355,10 @@ public :
 
         VectorTools::interpolate_boundary_values(dof_handler,
                                                  DIRICHLET_BOUNDARY,
-//                                                 ZeroFunction<3>(4),
                                                  ComponentSelectFunction<3>(2,-0.1,4),
-//                                                 ConstantFunction<3>(0.05,3+1),
                                                  boundary_values,
                                                  component_mask);
 
-        assert(!boundary_values.empty());
 
 
         finite_elasticity.SetBoundaryValues(boundary_values);
@@ -429,12 +416,6 @@ public :
         }
         
         TS_ASSERT_DELTA(deformed_volume, 1.0, 0.05);
-
-
     }
-
-
-
-
 };
 #endif /*TESTFINITEELASTICITYASSEMBLER_HPP_*/
