@@ -1,12 +1,13 @@
-#ifndef DYNAMICFINITEELASTICITYASSEMBLER_CPP_
-#define DYNAMICFINITEELASTICITYASSEMBLER_CPP_
+#ifndef FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
+#define FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
 
-#include "DynamicFiniteElasticityAssembler.hpp"
+#include "FiniteElasticityAssemblerWithGrowth.hpp"
+#include "TriangulationVertexIterator.hpp"
 
 #include <dofs/dof_tools.h>
 
 template<int DIM>
-DynamicFiniteElasticityAssembler<DIM>::DynamicFiniteElasticityAssembler(Triangulation<DIM>* pMesh,
+FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
                                                                         AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                                                         Vector<double> bodyForce,
                                                                         double density,
@@ -24,21 +25,22 @@ DynamicFiniteElasticityAssembler<DIM>::DynamicFiniteElasticityAssembler(Triangul
 {
     mTimesSet = false;
     
-    mSolutionAtLastTimestep.reinit( this->mCurrentSolution.size() );
-    mSolutionAtLastTimestep = 0;
+    mGrowthValuesAtVertices.reinit(this->mpMesh->n_vertices());
 }
 
 template<int DIM>
-DynamicFiniteElasticityAssembler<DIM>::~DynamicFiniteElasticityAssembler()
+FiniteElasticityAssemblerWithGrowth<DIM>::~FiniteElasticityAssemblerWithGrowth()
 {
 }
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // AssembleOnElement
 //////////////////////////////////////////////////////////////////////////////////////////
 template<int DIM>
-void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
+void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                                                               Vector<double>&       elementRhs,
                                                               FullMatrix<double>&   elementMatrix,
                                                               bool                  assembleResidual,
@@ -46,6 +48,7 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                                                               )
 {    
     static QGauss<DIM>   quadrature_formula(3);
+    
 
     static QGauss<DIM-1> face_quadrature_formula(3);
     
@@ -73,13 +76,11 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
     const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
 
 
-    static std::vector< unsigned >                        local_dof_indices(dofs_per_element);
-    static std::vector< Vector<double> >                  local_solution_values(n_q_points);
-    static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
+    static std::vector< unsigned >                     local_dof_indices(dofs_per_element);
+    static std::vector< Vector<double> >               local_solution_values(n_q_points);
+    static std::vector< std::vector< Tensor<1,DIM> > > local_solution_gradients(n_q_points);
 
-    static std::vector< Vector<double> >                  local_solution_values_last_timestep(n_q_points);
-
-    static Tensor<2,DIM> identity;         // how do you do this properly??
+    static Tensor<2,DIM> identity;         
 
     static bool first = true;
 
@@ -89,8 +90,6 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
         for(unsigned q_point=0; q_point<n_q_points; q_point++)
         {
             local_solution_values[q_point].reinit(DIM+1);
-            local_solution_values_last_timestep[q_point].reinit(DIM+1);
-            
             local_solution_gradients[q_point].resize(DIM+1);
         }
         for(unsigned i=0; i<DIM; i++)
@@ -110,9 +109,6 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
 
     fe_values.reinit(elementIter); // compute fe values for this element
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
-    fe_values.get_function_values(mSolutionAtLastTimestep, local_solution_values_last_timestep);
-
-
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);        
 
 
@@ -121,30 +117,55 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
         
         double p = local_solution_values[q_point](this->PRESSURE_COMPONENT_INDEX);
-        
-        static Tensor<2,DIM> F;
-        static Tensor<2,DIM> C;
+
+        ////////////////////////////////////////////////////////
+        //      this is the part that changes for growth      //
+        ////////////////////////////////////////////////////////
+        static Tensor<2,DIM> full_F;       // F_e*F_g (F for both elastic and growth parts
+        static Tensor<2,DIM> F;            // just F_e, the elastic part
+        static Tensor<2,DIM> C;            // everything else defined from F_e
         static Tensor<2,DIM> inv_C;
         static Tensor<2,DIM> inv_F;
         static SymmetricTensor<2,DIM> T;
+        
+        unsigned n0 = elementIter->vertex_index(0);
+        unsigned n1 = elementIter->vertex_index(1);
+        unsigned n2 = elementIter->vertex_index(2);
+        unsigned n3 = elementIter->vertex_index(3);
+        
+        // std::cout << n0 << " " << n1 << " " << n2 << " "<< n3 << "\n";
+
+/// TODO: proper interpolation:
+  
+        double growth_term_g = 0.25*(   mGrowthValuesAtVertices(n0)
+                                      + mGrowthValuesAtVertices(n1)
+                                      + mGrowthValuesAtVertices(n2)
+                                      + mGrowthValuesAtVertices(n3) 
+                                    );
+
+        
 
         for(unsigned i=0; i<DIM; i++)
         {
             for(unsigned j=0; j<DIM; j++)
             {
-                F[i][j] = identity[i][j] + grad_u_p[i][j];
+                full_F[i][j] = identity[i][j] + grad_u_p[i][j];
+                F[i][j] = full_F[i][j]/growth_term_g;
             }
         }
+        ////////////////////////////////////////////////////////
+        //              no more changes after this            //
+        ////////////////////////////////////////////////////////
+        
         
         C = transpose(F) * F;
         inv_C = invert(C);
         inv_F = invert(F);
 
         double detF = determinant(F);
-
+        
         static SymmetricTensor<2,DIM> T2;
         this->mpMaterialLaw->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
-
 
         for(unsigned i=0; i<dofs_per_element; i++)
         {
@@ -156,29 +177,18 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                 {
                     const unsigned component_j = this->mFeSystem.system_to_component_index(j).first;
         
-                    if( (component_i<this->PRESSURE_COMPONENT_INDEX) && (component_j<this->PRESSURE_COMPONENT_INDEX) )
+                    if((component_i<this->PRESSURE_COMPONENT_INDEX) &&(component_j<this->PRESSURE_COMPONENT_INDEX) )
                     {
-                        // time derivative part
-                        elementMatrix(i,j) +=    this->mDensity
-                                               * mDtInverse
-                                               * fe_values.shape_value(i,q_point)
-                                               * fe_values.shape_value(j,q_point)
-                                               * identity[component_i][component_j]
-                                               * fe_values.JxW(q_point);
-
-                        // stress part
                         for(unsigned M=0; M<DIM; M++)
                         {
                             for(unsigned N=0; N<DIM; N++)
                             {
-                                // dFdU part
                                 elementMatrix(i,j) +=   T[M][N] 
                                                       * fe_values.shape_grad(j,q_point)[M]
                                                       * fe_values.shape_grad(i,q_point)[N]
                                                       * identity[component_i][component_j]
                                                       * fe_values.JxW(q_point);
-   
-                                // dTdE part 
+    
                                 for(unsigned P=0; P<DIM; P++)
                                 {
                                     for(unsigned Q=0; Q<DIM; Q++)
@@ -200,7 +210,7 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                             }
                         }
                     }
-                    else if((component_i<this->PRESSURE_COMPONENT_INDEX) && (component_j==this->PRESSURE_COMPONENT_INDEX) )
+                    else if((component_i<this->PRESSURE_COMPONENT_INDEX) &&(component_j==this->PRESSURE_COMPONENT_INDEX) )
                     {
                         for(unsigned M=0; M<DIM; M++)
                         {
@@ -236,24 +246,10 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
             {
                 if(component_i<this->PRESSURE_COMPONENT_INDEX)
                 {
-                    // time derivative part
-                    elementRhs(i) +=   this->mDensity 
-                                     * (
-                                          local_solution_values[q_point](component_i)
-                                        - local_solution_values_last_timestep[q_point](component_i) 
-                                       )
-                                     * mDtInverse
-                                     * fe_values.shape_value(i,q_point)
-                                     * fe_values.JxW(q_point);
-                    
-                        
-                    
-                    // body force part
                     elementRhs(i) += - this->mDensity * this->mBodyForce(component_i)
                                      * fe_values.shape_value(i,q_point)
                                      * fe_values.JxW(q_point);
                                 
-                    // stress part
                     for(unsigned M=0; M<DIM; M++)
                     {
                         for(unsigned N=0; N<DIM; N++)
@@ -313,116 +309,97 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
 }
 
 
+    
+
+
 template<int DIM>
-void DynamicFiniteElasticityAssembler<DIM>::SetTimes(double Tstart, double Tend, double dt)
+void FiniteElasticityAssemblerWithGrowth<DIM>::SetTimes(double Tstart, double Tend, double odeDt)
 {
     mTstart = Tstart;
     mTend   = Tend;
-    mDt     = dt;
-    mDtInverse = 1.0/dt;
+    mOdeDt     = odeDt;
     
     if (mTstart >= mTend)
     {
         EXCEPTION("Starting time has to less than ending time");
     }
-    if (mDt <= 0)
+    if (mOdeDt <= 0)
     {
         EXCEPTION("Time step has to be greater than zero");
     }
     
-    assert(mDt <= mTend - mTstart + 1e-10);
+    assert(mOdeDt <= mTend - mTstart + 1e-10);
     
     mTimesSet = true;
 }
-    
-    
+
+
 template<int DIM>
-void DynamicFiniteElasticityAssembler<DIM>::Solve()
+void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 {
     if(!mTimesSet)
     {
         EXCEPTION("Start time, end time, dt have not been set. Call SetTimes() before Solve()");
     }
-        
     
-    double time = mTstart;
-    
-    this->OutputResults(0);
-    unsigned time_counter=1;
+    assert(DIM==2);
+    Point<DIM> centre;
+    centre(0) = 0.5;
+    centre(1) = 0.5;
 
-    mSolutionAtLastTimestep = this->mCurrentSolution;
-
-
-    // compute residual
-    this->AssembleSystem(true, false);
-    double norm_resid = this->CalculateResidualNorm();
-    std::cout << "\nNorm of residual is " << norm_resid << "\n";
-
-    // use the larger of the tolerances formed from the absolute or 
-    // relative possibilities
-    double tol = NEWTON_ABS_TOL;
-    if( tol < NEWTON_REL_TOL*norm_resid )
+    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
+    while(!vertex_iter.ReachedEnd())
     {
-        tol = NEWTON_REL_TOL*norm_resid;
+      Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
+        double distance_from_centre = std::sqrt(vector_to_centre.square());
+
+        if( distance_from_centre < 0.2)
+        {
+            mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) = 1.1;
+        }
+        else
+        {
+            mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) = 1.0;
+        }
+        vertex_iter.Next();
     }
-    std::cout << "Solving with tolerance " << tol << "\n";
-    
-    
-    
+
+
+    this->OutputResults(0);
+
+    unsigned counter=1;
+    double time = mTstart;
     while(time < mTend)
     {
-        std::cout << "\n===================\n"
-                  <<   "Time = " << time
-                  << "\n===================\n";
+        std::cout << "===========================\n";
+        std::cout << "Time = " << time << "\n"; 
+        std::cout << "===========================\n";
         
-        // compute residual
-        this->AssembleSystem(true, false);
-        double norm_resid = this->CalculateResidualNorm();
-        std::cout << "\nNorm of residual is " << norm_resid << "\n";
         
-        unsigned newton_counter = 1;
- 
-        while(norm_resid > tol)
+        TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
+        while(!vertex_iter.ReachedEnd())
         {
-            std::cout <<  "\n-------------------\n"
-                      <<   "Newton iteration " << newton_counter
-                      << ":\n-------------------\n";
+            Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
+            double distance_from_centre = std::sqrt(vector_to_centre.square());
 
-            this->TakeNewtonStep();
-
-            this->AssembleSystem(true, false);
-            norm_resid = this->CalculateResidualNorm();
-
-            std::cout << "Norm of residual is " << norm_resid << "\n";
-
-            newton_counter++;
-            if(newton_counter==20)
+            if( distance_from_centre < 0.2)
             {
-                #define COVERAGE_IGNORE
-                EXCEPTION("Not converged after 20 newton iterations, quitting");
-                #undef COVERAGE_IGNORE
+                mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) += 0.1;
             }
+            vertex_iter.Next();
         }
-    
-        if(norm_resid > tol)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("Failed to converge");
-            #undef COVERAGE_IGNORE
-        }
-        
-        time += mDt;
 
-        mSolutionAtLastTimestep = this->mCurrentSolution;
+    
+        this->mWriteOutput = false;
+        this->Solve();
+
+        this->mWriteOutput = true;
+        this->OutputResults(counter);
+        counter++;
         
-        this->OutputResults(time_counter);
-        time_counter++;
+        time += mOdeDt;
     }
 }
-
-
-
-
-#endif // DYNAMICFINITEELASTICITYASSEMBLER_CPP_
+#endif // FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
 
 

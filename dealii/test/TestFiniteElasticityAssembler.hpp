@@ -11,59 +11,60 @@
 #include "PolynomialMaterialLaw3d.hpp"
 #include "ExponentialMaterialLaw.hpp"
 
+#include "FiniteElasticityTools.hpp"
+
+
+// todos: proper test of answers, fix compare numerical jacobian, test exceptions. 
+
 
 class TestFiniteElasticityAssembler : public CxxTest::TestSuite
 {
-private :
-    // helper function: takes in a mesh and sets all surface elements for which
-    // x_i = value (where i is 'component', the second parameter, value the third 
-    // parameter, which defaults to 0) as the fixed surface and all other
-    // surface elements as the neumann surface  
-    //
-    //  NOTE: probably want to move this to a static member function of
-    //  FiniteElasticityAssembler or a FiniteElasticityTools class
-    template<int DIM>
-    void SetFixedBoundary(Triangulation<DIM>& mesh, unsigned component, double value=0.0)
-    {
-        assert(component<DIM);
-    
-        bool found_element_on_requested_surface = false;
-    
-        
-        typename Triangulation<DIM>::cell_iterator element_iter = mesh.begin();
-    
-        while(element_iter!=mesh.end())
-        {
-            for(unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
-            {
-                if(element_iter->face(face_index)->at_boundary()) 
-                {
-                    double component_val = element_iter->face(face_index)->center()(0);
-                    if(fabs(component_val)<1e-4)
-                    {
-                        // x_i=0, label as fixed boundary
-                        element_iter->face(face_index)->set_boundary_indicator(FIXED_BOUNDARY);
-                        found_element_on_requested_surface = true;
-                    }
-                    else 
-                    {
-                        // else label as neumann boundary
-                        element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
-                    }
-                }
-            }
-            element_iter++;
-        }
-        
-        if(!found_element_on_requested_surface)
-        {
-            EXCEPTION("No elements were found on the requested surface");
-        }
-    }    
-    
-    
-        
 public :
+    void testExceptions() throw(Exception)
+    {
+        Vector<double> body_force(2);
+        Vector<double> bad_body_force(3);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
+        mesh.refine_global(3);
+        
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe1(&mesh,&mooney_rivlin_law,body_force,1.0,""));
+
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe2(&mesh,&mooney_rivlin_law,body_force,-1.0,""));
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe3(&mesh,&mooney_rivlin_law,bad_body_force,1.0,""));
+
+        TS_ASSERT_THROWS_NOTHING(FiniteElasticityAssembler<2> bad_fe3(&mesh,&mooney_rivlin_law,body_force,1.0,""));
+
+    }
+    
+    
+    void testCompareJacobians() throw(Exception)
+    {
+        Vector<double> body_force(2);
+        body_force(0) = 6.0;
+    
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        
+
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       &mooney_rivlin_law,
+                                                       body_force,
+                                                       1.0,
+                                                       "finite_elas/simple2d");
+
+        // to be fixed                                             
+        //finite_elasticity.CompareJacobians();
+    }
+
+
     void test2dProblemOnSquare() throw(Exception)
     {
         Vector<double> body_force(2);
@@ -74,7 +75,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
         mesh.refine_global(3);
-        SetFixedBoundary<2>(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
         
 
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
@@ -150,7 +151,7 @@ public :
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
         mesh.refine_global(3);
-        SetFixedBoundary<2>(mesh, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
 
 
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
@@ -195,7 +196,7 @@ public :
         Triangulation<2> mesh_refined;
         GridGenerator::hyper_cube(mesh_refined, 0.0, 1.0); 
         mesh_refined.refine_global(4);
-        SetFixedBoundary<2>(mesh_refined, 0);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh_refined, 0);
 
         FiniteElasticityAssembler<2> finite_elasticity_ref(&mesh_refined,
                                                            &mooney_rivlin_law,
@@ -251,7 +252,7 @@ public :
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 0.1); 
         mesh.refine_global(2);
-        SetFixedBoundary<3>(mesh,0);
+        FiniteElasticityTools<3>::SetFixedBoundary(mesh,0);
 
         FiniteElasticityAssembler<3> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law,

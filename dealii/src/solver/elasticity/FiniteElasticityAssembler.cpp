@@ -11,11 +11,11 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                                           Vector<double> bodyForce,
                                                           double density,
                                                           std::string outputDirectory,
-                                                          unsigned orderOfBasesForPosition,
-                                                          unsigned orderOfBasesForPressure
+                                                          unsigned degreeOfBasesForPosition,
+                                                          unsigned degreeOfBasesForPressure
                                                           )  :
             // DIM bases for position, 1 for pressure
-            mFeSystem(FE_Q<DIM>(orderOfBasesForPosition), DIM, FE_Q<DIM>(1), orderOfBasesForPressure),
+            mFeSystem(FE_Q<DIM>(degreeOfBasesForPosition), DIM, FE_Q<DIM>(1), degreeOfBasesForPressure),
             mDofHandler(*pMesh),                            // associate the mesh with the dof handler
             mBodyForce(bodyForce),
             mDensity(density),
@@ -27,11 +27,25 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     assert(pMaterialLaw != NULL);
     mpMaterialLaw = pMaterialLaw;
 
-    assert(bodyForce.size()==DIM);
-    assert(density > 0.0);
+    if(bodyForce.size()!=DIM)
+    {
+        EXCEPTION("Body force dimension does not match dimension of assembler");
+    }
+    if(density <= 0.0)
+    {
+        EXCEPTION("Density must be strictly positive");
+    }
     
-    OutputFileHandler output_file_handler(outputDirectory);
-    mOutputDirectoryFullPath = output_file_handler.GetTestOutputDirectory(outputDirectory);
+    if(outputDirectory!="")
+    {
+        mWriteOutput = true;
+        OutputFileHandler output_file_handler(outputDirectory);
+        mOutputDirectoryFullPath = output_file_handler.GetTestOutputDirectory(outputDirectory);
+    }
+    else
+    {
+        mWriteOutput = false;
+    }
     
     // check the mesh has a region on the surface which has been set to 
     // be the fixed boudary.
@@ -99,6 +113,8 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
 
     std::map<unsigned,double>::iterator iter = mBoundaryValues.begin();
 
+    
+    mNumericalJacobianMatrix.reinit(this->mSparsityPattern);
 
 // random inputing code
 //    GridIn<DIM> grid_in;
@@ -263,7 +279,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     static std::vector< Vector<double> >                  local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
 
-    static Tensor<2,DIM> identity;         // how do you do this properly??
+    static Tensor<2,DIM> identity;         
 
     static bool first = true;
 
@@ -575,8 +591,151 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions(bool assem
 
 
 template<int DIM>
+void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
+{
+    unsigned size = this->mCurrentSolution.size();
+
+    // save the current solution
+    Vector<double> current_guess = this->mCurrentSolution;
+    
+    Vector<double> residual(size);
+    Vector<double> residual_perturbed(size);
+    
+    double epsilon= 1e-6;
+
+    // save the residual for the current guess
+    this->AssembleSystem(true,false);
+    residual = this->mResidual;
+
+    for (unsigned global_column=0; global_column<size; global_column++)
+    {
+        // reset mCurrentSolution...
+        this->mCurrentSolution = current_guess;
+        //.. and then perturb
+        this->mCurrentSolution(global_column) += epsilon;
+
+        // compute and store the perturbed residual
+        this->AssembleSystem(true,false);
+        residual_perturbed = this->mResidual;
+
+        // compute residual_perturbed - residual
+        double one_over_eps=1.0/epsilon;
+        for(unsigned i=0; i<size; i++)
+        {
+            // if value != 0 set in the matrix
+            double value = one_over_eps*(residual_perturbed(i) - residual(i));
+            if(fabs(value)>1e-12)
+            {
+                mNumericalJacobianMatrix.set(i,global_column,value);
+            }
+        }
+    }
+    
+    // reset mCurrentSolution to what it was initially
+    this->mCurrentSolution = current_guess;
+    
+    
+    /// apply bcs to numerical jac
+    std::map<unsigned,double>  applied_boundary_values;
+    std::map<unsigned,double>::iterator iter = this->mBoundaryValues.begin();
+    while(iter!=this->mBoundaryValues.end())
+    {
+        unsigned dof = iter->first;
+        double value = iter->second;
+   
+        applied_boundary_values[dof] = this->mCurrentSolution(dof)-this->mBoundaryValues[dof];
+        iter++;
+    }
+    
+    // don't have access to u (the solution of the linear system) at the moment,
+    // so pass in a dummy vector. Also, pass in as the final parameter, so the 
+    // residual isn't altered.
+    Vector<double> dummy = this->mResidual;
+    Vector<double> dummy_resid = this->mResidual;
+
+    MatrixTools::apply_boundary_values(applied_boundary_values,
+                                       mNumericalJacobianMatrix,
+                                       dummy,
+                                       dummy_resid);
+    
+}
+
+template<int DIM>
+void FiniteElasticityAssembler<DIM>::CompareJacobians()
+{
+    ComputeNumericalJacobian();    
+    
+    // compute analytic Jacobian
+    this->AssembleSystem(false, true);
+    
+
+    std::cout << "\nAnalytic Jacobian:\n";
+    for(unsigned i=0; i<this->mJacobianMatrix.m(); i++)
+    {
+        for(unsigned j=0; j<this->mJacobianMatrix.n(); j++)
+        {
+            double value = this->mJacobianMatrix.el(i,j);
+            if(fabs(value)<1e-8)
+            {
+                value = 0.0;
+            }
+            std::cout << value << " ";
+        }
+        std::cout << "\n";
+    }
+    
+    std::cout << "\nNumerical Jacobian:\n";
+    for(unsigned i=0; i<this->mJacobianMatrix.m(); i++)
+    {
+        for(unsigned j=0; j<this->mJacobianMatrix.n(); j++)
+        {
+            double value = mNumericalJacobianMatrix.el(i,j);
+            if(fabs(value)<1e-8)
+            {
+                value = 0.0;
+            }
+            std::cout << value << " ";
+        }
+        std::cout << "\n";
+    }
+    
+    bool no_difference = true;
+
+    std::cout << "\nDifference matrix:\n";
+    for(unsigned i=0; i<this->mJacobianMatrix.m(); i++)
+    {
+        for(unsigned j=0; j<this->mJacobianMatrix.n(); j++)
+        {
+            double value = this->mJacobianMatrix.el(i,j)-mNumericalJacobianMatrix.el(i,j);
+            if(fabs(value)<1e-8)
+            {
+                value = 0.0;
+            }
+            else
+            {
+                no_difference = false;
+            }
+            std::cout << value << " ";
+        }
+        std::cout << "\n";
+    }
+    
+    if(!no_difference)
+    {
+        EXCEPTION("Numerical and analytical Jacobians do not match");
+    }
+}    
+
+
+template<int DIM>
 void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
 {
+    // only write output if the flag mWriteOutput has been set
+    if(!mWriteOutput)
+    {
+        return;
+    }
+    
     std::stringstream ss;
     ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".gmv";
     std::string filename = ss.str();
@@ -708,13 +867,17 @@ void FiniteElasticityAssembler<DIM>::Solve()
         counter++;
         if(counter==20)
         {
+            #define COVERAGE_IGNORE
             EXCEPTION("Not converged after 20 newton iterations, quitting");
+            #undef COVERAGE_IGNORE
         }
     }
     
     if(norm_resid > tol)
     {
+        #define COVERAGE_IGNORE
         EXCEPTION("Failed to converge");
+        #undef COVERAGE_IGNORE
     }
 }
 

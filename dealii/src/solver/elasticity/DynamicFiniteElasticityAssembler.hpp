@@ -47,8 +47,9 @@ private:
 
     double CalculateResidualNorm();
     void OutputResults(unsigned newtonIteration);
-*/
     SparseMatrix<double> mNumericalJacobianMatrix;
+ */
+
 
     Vector<double> mSolutionAtLastTimestep;
 
@@ -66,27 +67,44 @@ private:
 
 
 public:
+    /** 
+     *  Constructor
+     *  
+     *  @param pMesh A pointer to a dealii mesh. Note, the mesh must have some surface
+     *   elements which have had their boundary indicator set to FIXED_BOUNDARY
+     *  @param pMaterialLaw A pointer to an incompressible material law
+     *  @bodyForce A vector of size DIM represents the body force (force per unit volume)
+     *  @density The mass density. Must be strictly positive
+     *  @outputDirectory The output directory, relative the the testoutput directory. If 
+     *   empty no output is written
+     *  @degreeOfBasesForPosition Degree of the polynomials used for interpolating positions.
+     *   Defaults to 2, ie quadratic interpolation 
+     *  @degreeOfBasesForPressure Degree of the polynomials used for interpolating pressue.
+     *   Defaults to 2, ie linear interpolation
+     */
     DynamicFiniteElasticityAssembler(Triangulation<DIM>* pMesh,
                                      AbstractIncompressibleMaterialLaw<DIM>*  pMaterialLaw,
                                      Vector<double> bodyForce,
                                      double density,
                                      std::string outputDirectory,
-                                     unsigned orderOfBasesForPosition=2,
-                                     unsigned orderOfBasesForPressure=1);
+                                     unsigned degreeOfBasesForPosition=2,
+                                     unsigned degreeOfBasesForPressure=1);
     virtual ~DynamicFiniteElasticityAssembler();
     
-
+    /**
+     *  Set the start and end times, and dt, for the simulation. Must be called before Solve()
+     */
     void SetTimes(double Tstart, double Tend, double dt);
 
     void Solve();
 
-    void ComputeNumericalJacobian();
-    void CompareJacobians();
 
 /* Inherited
     void SetBoundaryValues(std::map<unsigned, double> boundary_values);
     Vector<double>& GetSolutionVector();
     DoFHandler<DIM>& GetDofHandler();
+    void ComputeNumericalJacobian();
+    void CompareJacobians();
 */    
 };
 
