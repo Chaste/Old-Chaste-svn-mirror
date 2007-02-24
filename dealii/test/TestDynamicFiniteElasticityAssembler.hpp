@@ -37,7 +37,7 @@ public :
         // start time > end time
         TS_ASSERT_THROWS_ANYTHING(dynamic_fe.SetTimes(1.0, 0.0, 0.01));
         
-        // dt too large
+        // dt negative
         TS_ASSERT_THROWS_ANYTHING(dynamic_fe.SetTimes(0.0, 1.0, -0.01));
 
         TS_ASSERT_THROWS_NOTHING(dynamic_fe.SetTimes(0.0, 1.0, 0.01));
@@ -153,7 +153,7 @@ public :
             double tol;
             
             // quick dirty check to see if solution(i) corresponds to
-            // displacement of pressure:
+            // displacement or pressure:
             if(fabs(dynamic_solution(i))<1)
             {
                 //probably displacement
