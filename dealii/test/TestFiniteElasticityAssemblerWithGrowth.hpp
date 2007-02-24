@@ -28,18 +28,19 @@ public :
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(3);
+        mesh.refine_global(1);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
         
         FiniteElasticityAssemblerWithGrowth<2> fe_with_growth(&mesh,&mooney_rivlin_law,body_force,1.0,"");
 
         // set times not been called
-        TS_ASSERT_THROWS_ANYTHING(fe_with_growth.Solve());
+        TS_ASSERT_THROWS_ANYTHING(fe_with_growth.Run());
         
         // start time > end time
         TS_ASSERT_THROWS_ANYTHING(fe_with_growth.SetTimes(1.0, 0.0, 0.01));
         
         // dt too large
-        TS_ASSERT_THROWS_ANYTHING(fe_with_growth.SetTimes(0.0, 1.0, 2.0));
+        TS_ASSERT_THROWS_ANYTHING(fe_with_growth.SetTimes(0.0, 1.0, -0.01));
 
         TS_ASSERT_THROWS_NOTHING(fe_with_growth.SetTimes(0.0, 1.0, 0.01));
     }
