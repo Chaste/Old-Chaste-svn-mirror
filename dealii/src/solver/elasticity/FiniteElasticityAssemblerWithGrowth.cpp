@@ -21,7 +21,7 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
                                                                               std::string outputDirectory,
                                                                               unsigned degreeOfBasesForPosition,
                                                                               unsigned degreeOfBasesForPressure
-                                                                        )  :
+                                                                              )  :
         FiniteElasticityAssembler<DIM>(pMesh,
                                        pMaterialLaw,
                                        bodyForce,
