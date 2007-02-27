@@ -13,6 +13,7 @@ public :
     Ode1()  : AbstractOdeSystem(1) // 1 here is the number of variables
     {
         mInitialConditions.push_back(0.0);
+        mStateVariables = mInitialConditions;
     }
     
     

@@ -22,6 +22,7 @@
 
 #define PI 3.14159265
 
+#include <cassert>
 
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -136,10 +137,15 @@ public:
         testGenericSolver(euler_solver,  0.0, 0.4, 0.01,  0.34);
         
         testSolverOnOdesWithEvents(euler_solver);
+
+        // test SolveAndUpdateStateVariable()
+        Ode1 ode_system;
+        euler_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+        TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0],1.0,1e-2);
     }
     
     void testAdamsBashforthSolver()
-    {
+    {        
         AdamsBashforthIvpOdeSolver adams_bashforth_solver;
         
         testGenericSolver(adams_bashforth_solver,  0.0, 2.0, 0.001, 0.001);
@@ -151,6 +157,13 @@ public:
         
         // check exception thrown if number of timesteps <= 4
         TS_ASSERT_THROWS_ANYTHING( testGenericSolver(adams_bashforth_solver,0.0,0.04,0.01,0.01) );
+
+        // test SolveAndUpdateStateVariable(): THIS METHOD DOESN'T WORK WITH
+        // ADAM'S BASHFORTH, SO HAS BEEN CHANGED TO THROW AN EXCEPTION 
+        // INSTEAD. 
+        // TODO: fix this. here we just cover the exception
+        Ode1 ode_system;
+        TS_ASSERT_THROWS_ANYTHING(adams_bashforth_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01));
     }
     
     void testRungeKutta2Solver()
@@ -163,6 +176,11 @@ public:
         testGenericSolver(rk2_solver,  0.0, 0.4, 0.01,  0.34);
         
         testSolverOnOdesWithEvents(rk2_solver);
+
+        // test SolveAndUpdateStateVariable()
+        Ode1 ode_system;
+        rk2_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+        TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0],1.0,1e-2);
     }
     
     void testRungeKutta4Solver()
@@ -175,6 +193,11 @@ public:
         testGenericSolver(rk4_solver,  0.0, 0.4, 0.01,  0.34);
         
         testSolverOnOdesWithEvents(rk4_solver);
+
+        // test SolveAndUpdateStateVariable()
+        Ode1 ode_system;
+        rk4_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
+        TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0],1.0,1e-2);
     }
     
     

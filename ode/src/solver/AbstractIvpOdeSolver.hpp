@@ -54,6 +54,21 @@ public :
                        double endTime,
                        double timeStep)=0;
                        
+
+    virtual void SolveAndUpdateStateVariable(AbstractOdeSystem* pAbstractOdeSystem,
+                                             double startTime,
+                                             double endTime,
+                                             double timeStep)
+    {
+        if((pAbstractOdeSystem->rGetStateVariables().size()!=pAbstractOdeSystem->GetNumberOfStateVariables())
+           || (pAbstractOdeSystem->rGetStateVariables().size()==0) )
+        {
+            EXCEPTION("SolveAndUpdateStateVariable() called but the state variable vector in the ode system is not set up");
+        }
+        Solve(pAbstractOdeSystem, pAbstractOdeSystem->rGetStateVariables(), startTime, endTime, timeStep);
+    }
+                                     
+
                        
     /**
      * Determine whether the solver quit due to the ODE's stopping event 

@@ -381,10 +381,21 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         {
             Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
             double distance_from_centre = std::sqrt(vector_to_centre.square());
+            
+            double change;
+            if( time < (mTend+mTstart)/2 )
+            {
+                change = 0.1;
+            }
+            else
+            {
+                change = -0.1;
+            }
+
 
             if( distance_from_centre < 0.2)
             {
-                mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) += 0.1;
+                mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) += change;
             }
             vertex_iter.Next();
         }

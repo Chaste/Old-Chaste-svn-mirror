@@ -65,7 +65,7 @@ public :
                                                                       density,
                                                                       "finite_elas_growth/simple2d");
     
-        finiteelas_with_growth.SetTimes(0.0, 0.5, 0.1);                                 
+        finiteelas_with_growth.SetTimes(0.0, 1.0, 0.1);                                 
                                                          
         finiteelas_with_growth.Run();
 
