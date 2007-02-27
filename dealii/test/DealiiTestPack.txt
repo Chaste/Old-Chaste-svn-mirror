@@ -2,5 +2,6 @@ TestDealii.hpp
 TestDynamicFiniteElasticityAssembler.hpp
 TestFiniteElasticityAssembler.hpp
 TestFiniteElasticityAssemblerWithGrowth.hpp
+TestFiniteElasticityTools.hpp
 TestMaterialLaws.hpp
 TestVertexIterators.hpp
