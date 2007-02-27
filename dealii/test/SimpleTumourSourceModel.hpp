@@ -1,5 +1,5 @@
-#ifndef UNITYTUMOURSOURCEMODEL_HPP_
-#define UNITYTUMOURSOURCEMODEL_HPP_
+#ifndef SIMPLETUMOURSOURCEMODEL_HPP_
+#define SIMPLETUMOURSOURCEMODEL_HPP_
 
 #include "AbstractGrowingTumourSourceModel.hpp"
 
@@ -24,4 +24,4 @@ public :
     }
 };
 
-#endif /*UNITYTUMOURSOURCEMODEL_HPP_*/
+#endif /*SIMPLETUMOURSOURCEMODEL_HPP_*/

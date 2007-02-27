@@ -39,5 +39,26 @@ public:
         // no evaluation point corresponding to index=10 exists
         TS_ASSERT_THROWS_ANYTHING(simple_model.GetSourceValue(10));
     }
+
+    void TestWithConstantModel()
+    {
+        value = 0.343234;
+        ConstantTumourSourceModel<2> constant_model(value);
+        
+        // add a points to watch
+        Point<2> position;
+        simple_model.AddEvaluationPoint(0, position, 0);
+
+        // run
+        simple_model.Run(0,1);
+        
+        // this source model just return s = index,
+        TS_ASSERT_DELTA(simple_model.GetSourceValue(0), value, 1e-12);
+
+    }
+
+
 };
+
+
 #endif /*TESTABSTRACTGROWINGTUMOURSOURCEMODEL_HPP_*/

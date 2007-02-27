@@ -2,6 +2,9 @@
 #define FINITEELASTICITYASSEMBLERWITHGROWTH_HPP_
 
 #include "FiniteElasticityAssembler.cpp"
+#include "AbstractGrowingTumourSourceModel.hpp"
+#include "GrowthByConstantMassOdeSystem.hpp"
+#include "EulerIvpOdeSolver.hpp"
 
 template<int DIM>
 class FiniteElasticityAssemblerWithGrowth : public FiniteElasticityAssembler<DIM>
@@ -36,6 +39,12 @@ protected:
     bool   mTimesSet;
     
     Vector<double> mGrowthValuesAtVertices;
+    std::vector<GrowthByConstantMassOdeSystem<DIM>*> mpGrowthOdeSystems;
+    EulerIvpOdeSolver mOdeSolver;
+
+    AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
+
+
 
     /**
      *  Reimplemented to include growth term (only a minor change)

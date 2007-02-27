@@ -6,14 +6,21 @@
 
 #include <dofs/dof_tools.h>
 
+
+// to be removed later
+#include "ConstantTumourSourceModel.hpp"
+
+//todo: use something like simulation time?
+
+
 template<int DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
-                                                                        AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                                        Vector<double> bodyForce,
-                                                                        double density,
-                                                                        std::string outputDirectory,
-                                                                        unsigned degreeOfBasesForPosition,
-                                                                        unsigned degreeOfBasesForPressure
+                                                                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                              Vector<double> bodyForce,
+                                                                              double density,
+                                                                              std::string outputDirectory,
+                                                                              unsigned degreeOfBasesForPosition,
+                                                                              unsigned degreeOfBasesForPressure
                                                                         )  :
         FiniteElasticityAssembler<DIM>(pMesh,
                                        pMaterialLaw,
@@ -25,12 +32,67 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
 {
     mTimesSet = false;
     
+    ///////////////////////////////////////////////////////////
+    // initialise growth variables
+    ///////////////////////////////////////////////////////////
     mGrowthValuesAtVertices.reinit(this->mpMesh->n_vertices());
+    mpGrowthOdeSystems.reserve(this->mpMesh->n_vertices());
+    
+    for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
+    {
+        mpGrowthOdeSystems[i] = NULL;
+        mGrowthValuesAtVertices(i) = 1.0;
+    }
+
+
+    mpSourceModel = new ConstantTumourSourceModel<DIM>(0.1);
+
+    /////////////////////////////////////////////////////////////
+    // find growing region on create odes for each node in the
+    // region 
+    /////////////////////////////////////////////////////////////
+    assert(DIM==2);
+    Point<DIM> centre;
+    centre(0) = 0.5;
+    centre(1) = 0.5;
+
+
+    unsigned eval_point_index = 0;
+
+
+    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
+    while(!vertex_iter.ReachedEnd())
+    {
+        Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
+        double distance_from_centre = std::sqrt(vector_to_centre.square());
+
+        if( distance_from_centre < 0.2)
+        {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            Point<DIM> position = vertex_iter.GetVertex();
+
+            mpSourceModel->AddEvaluationPoint(eval_point_index,
+                                             position,
+                                             vertex_index);
+  
+            mpGrowthOdeSystems[vertex_index] 
+               = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
+                                                        eval_point_index,
+                                                        mpSourceModel);
+
+            eval_point_index++;
+        }
+        vertex_iter.Next();
+    }
 }
 
 template<int DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::~FiniteElasticityAssemblerWithGrowth()
-{
+{       
+    for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
+    {
+        delete mpGrowthOdeSystems[i];
+    }
 }
 
 
@@ -342,27 +404,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         EXCEPTION("Start time, end time, dt have not been set. Call SetTimes() before Solve()");
     }
     
-    assert(DIM==2);
-    Point<DIM> centre;
-    centre(0) = 0.5;
-    centre(1) = 0.5;
 
-    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while(!vertex_iter.ReachedEnd())
-    {
-      Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
-        double distance_from_centre = std::sqrt(vector_to_centre.square());
 
-        if( distance_from_centre < 0.2)
-        {
-            mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) = 1.1;
-        }
-        else
-        {
-            mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) = 1.0;
-        }
-        vertex_iter.Next();
-    }
 
 
     this->OutputResults(0);
@@ -375,42 +418,66 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         std::cout << "Time = " << time << "\n"; 
         std::cout << "===========================\n";
         
+        //////////////////////////////////////////////////////
+        // Run the source model up to the next timestep
+        //////////////////////////////////////////////////////
+        mpSourceModel->Run(time, time+mOdeDt);
+
+
+        //////////////////////////////////////////////////////
+        // integrate the odes
+        //////////////////////////////////////////////////////
+        for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
+        {
+            if(mpGrowthOdeSystems[i]!=NULL)
+            {
+                mOdeSolver.SolveAndUpdateStateVariable(mpGrowthOdeSystems[i],
+                                                       time,
+                                                       time+mOdeDt,
+                                                       mOdeDt);
+            }
+        }
         
+        
+        //////////////////////////////////////////////////////
+        // update the growth values
+        //////////////////////////////////////////////////////
         TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
         while(!vertex_iter.ReachedEnd())
         {
-            Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
-            double distance_from_centre = std::sqrt(vector_to_centre.square());
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            if(mpGrowthOdeSystems[vertex_index]!=NULL)
+            {
+                mGrowthValuesAtVertices(vertex_index) = mpGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
+            }
             
-            double change;
-            if( time < (mTend+mTstart)/2 )
-            {
-                change = 0.1;
-            }
-            else
-            {
-                change = -0.1;
-            }
-
-
-            if( distance_from_centre < 0.2)
-            {
-                mGrowthValuesAtVertices( vertex_iter.GetVertexGlobalIndex() ) += change;
-            }
             vertex_iter.Next();
         }
 
+
+//        for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
+//        {
+//            std::cout << mGrowthValuesAtVertices(i) << " ";
+//        }
+//        std::cout << "\n";
     
+    
+        ////////////////////////////////////////////////////////
+        // solve the (quasi-static) finite elasticity problem
+        ////////////////////////////////////////////////////////
         this->mWriteOutput = false;
         this->Solve();
 
+        ////////////////////////////////////////////////////////
+        // output results
+        ////////////////////////////////////////////////////////
         this->mWriteOutput = true;
         this->OutputResults(counter);
         counter++;
         
         time += mOdeDt;
     }
-}
+};
 #endif // FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
 
 
