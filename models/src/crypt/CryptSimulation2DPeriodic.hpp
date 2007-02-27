@@ -148,7 +148,7 @@ public:
         mMaxElements = 10*mrMesh.GetNumElements();
         mWntIncluded = false;
         mPeriodicSides = true;
-        mWntGradient=NONE;
+        mWntGradient = NONE;
     }
     
     /**
@@ -398,12 +398,15 @@ public:
         /////////////////////////////////////////////////////////////////////
         while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
-		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **\n";
-            
+		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
+		                
             ///////////////////////////////////////////////////////
             // Cell birth
             ///////////////////////////////////////////////////////
-            periodic_division_buffer--;
+            if(periodic_division_buffer>0)
+            {
+            	periodic_division_buffer--;
+            }
             if (mNoBirth==false)
             {
 	            if (!mCells.empty())
@@ -416,7 +419,7 @@ public:
 	                    if(mIsGhostNode[i]) skip=true; // Skip Ghost nodes
 						bool periodic_cell=false;
 						unsigned periodic_index = 0;
-						if(mPeriodicSides)
+						if(skip==false && mPeriodicSides)
 						{
 							for (unsigned j=0 ; j < mRightCryptBoundary.size() ; j++)
 		                    {
@@ -428,11 +431,10 @@ public:
 		                    	{
 		                    		if(periodic_division_buffer>0)
 		                    		{
-                                        #define COVERAGE_IGNORE
-                                        // Only allow one periodic cell division per timestep so that mesh can catch up with it.
+                                     // Only allow one periodic cell division per 
+                                     // timestep so that mesh can catch up with it.
 		                    			skip=true;	
-                                        #undef COVERAGE_IGNORE
-		                    		}
+                            		}
 		                    		periodic_cell = true;
 									periodic_index = j;
 		                    	}
@@ -459,13 +461,11 @@ public:
 	                        MeinekeCryptCell new_cell = mCells[i].Divide();
 							if(mPeriodicSides && periodic_cell)
 	                        {	
-                                #define COVERAGE_IGNORE
-	                        	std::cout << "Periodic Division\n";
+                                std::cout << "Periodic Division\n";
 	                        	periodic_division_buffer=3;
 	                        	//Make sure the image cell knows it has just divided and aged a generation
 	                        	mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
-                                #undef COVERAGE_IGNORE
-	                        }
+                            }
 	                        
 	
 	                        // Add new node to mesh
@@ -496,8 +496,7 @@ public:
 			                unsigned counter = 0;
 	                        while (is_ghost_element || is_periodic_element)
 	                        {
-                                #define COVERAGE_IGNORE 
-	                            p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
+                                p_element = mrMesh.GetElement(p_our_node->GetNextContainingElementIndex());
 	                            is_ghost_element = (    (mIsGhostNode[p_element->GetNodeGlobalIndex(0)]) 
 	                                                 || (mIsGhostNode[p_element->GetNodeGlobalIndex(1)]) 
 	                                                 || (mIsGhostNode[p_element->GetNodeGlobalIndex(2)]) );
@@ -529,8 +528,7 @@ public:
 	            				    	assert(0);
 	            					}
 	            				}
-                                #undef COVERAGE_IGNORE
-	                        }
+                            }
 	                        
 	                        std::cout << "New cell being intoduced into element with nodes \n";
 	                        std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
@@ -863,8 +861,8 @@ public:
                 }
                 else if(mCells.size()>0)
                 {
-                    // move any node as long as it is not a stem cell.
-                    if(mCells[index].GetCellType()!=STEM)
+                    // move any node as long as it is not a real stem cell.
+                    if(mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
                     {
                         if(!mrMesh.GetNode(index)->IsDeleted())
                         {
@@ -1194,7 +1192,7 @@ public:
             }
             (*p_element_file) << "\n";
             tabulated_element_writer.AdvanceAlongUnlimitedDimension();
-
+			
             counter++; 
             if(counter > 80)
             {
@@ -1344,10 +1342,6 @@ public:
     void DetectNaughtyCellsAtPeriodicEdges()
     {
         assert(mPeriodicSides);
-
-		//std::cout << "Nodes on Boundary : \n";
-    	// Check for any surplus cells to remove...
-		RemoveSurplusCellsFromPeriodicBoundary();
 		
 		/* For each node see if it has broken onto a periodic boundary
     	 * If it has create an image node at the other side
@@ -1360,9 +1354,10 @@ public:
         	std::vector< unsigned > nodes_on_boundary = mCryptBoundary;
 	        unsigned our_node = nodes_on_boundary[i];
 	        //std::cout << our_node << "\n";
-	        unsigned number_of_left_periodic_neighbours = 0;
-	        unsigned number_of_right_periodic_neighbours = 0;
 	        bool our_node_periodic = false;
+	        bool left_break=false;
+	        bool right_break = false;
+	        
 	        
 	        std::vector <unsigned > periodic;
 	        
@@ -1377,84 +1372,120 @@ public:
 	        
 	        if(!our_node_periodic)
 	        {
+	        	// Cycle through each pair of elements attached to this node
+				// are they attached to a shared ghost node?
+				// are they each attached to a different periodic node?
+				// If so they are the periodic nodes of interest.
+				bool culprit_found = false;
+				
+				//\TODO replace this section with a method that just scans the elements attached to the node of interest.
 	        	for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
 		        {
-		            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
-		    		unsigned node[3];
-		    		node[0] = (unsigned)p_element->GetNode(0)->GetIndex();
-		    		node[1] = (unsigned)p_element->GetNode(1)->GetIndex();
-		    		node[2] = (unsigned)p_element->GetNode(2)->GetIndex();
+		        	Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+		    		unsigned element1_node[3];
+		    		element1_node[0] = (unsigned)p_element->GetNode(0)->GetIndex();
+		    		element1_node[1] = (unsigned)p_element->GetNode(1)->GetIndex();
+		    		element1_node[2] = (unsigned)p_element->GetNode(2)->GetIndex();
 		    		
-		    		unsigned periodic_left_nodes_in_this_element = 0;
-		    		unsigned periodic_right_nodes_in_this_element = 0;
-		    		
-		        	if(node[0]==our_node || node[1]==our_node || node[2]==our_node)
-		        	{
-		        		if(mIsGhostNode[node[0]] || mIsGhostNode[node[1]] || mIsGhostNode[node[2]])
-			    		{	// If this is one of the new nodes (or top or bottom edges)
-							for(unsigned j = 0 ; j<nodes_on_left_boundary.size() ; j++)
-							{	//Cycle through periodic nodes and check for periodic neighbours
-			    				unsigned periodic_node = nodes_on_left_boundary[j];
-								if(node[0]==periodic_node || node[1]==periodic_node || node[2]==periodic_node)
-								{
-									periodic_left_nodes_in_this_element++;
-									periodic.push_back(periodic_node);
-								}
-								periodic_node = nodes_on_right_boundary[j];
-								if(node[0]==periodic_node || node[1]==periodic_node || node[2]==periodic_node)
-								{
-									periodic_right_nodes_in_this_element++;
-									periodic.push_back(periodic_node);
-								}
-			    			}
-			    		}	
-		        	}
-		        	
-					//If both periodic nodes are in this element we are at 
-					//the top or bottom corner and shouldn't count it.
-					if(periodic_left_nodes_in_this_element==2)
-					{
-                        #define COVERAGE_IGNORE
-						periodic_left_nodes_in_this_element=0;	
-                        #undef COVERAGE_IGNORE
-					}
-					if(periodic_right_nodes_in_this_element==2)
-					{
-                        #define COVERAGE_IGNORE
-						periodic_right_nodes_in_this_element=0;	
-                        #undef COVERAGE_IGNORE
-					}
-					number_of_right_periodic_neighbours += periodic_right_nodes_in_this_element;
-					number_of_left_periodic_neighbours += periodic_left_nodes_in_this_element;
-				}// next element
-			
-				// Check we have actually broken into an edge that is periodic and 
-				// just sensed it from the top edge i.e. the two periodic neighbours are different.
-//				if(periodic.size()>2)
-//                {
-//                    EXCEPTION("Gary says this should not happen");   
-//                }
-                if(periodic.size()==2)
-                {
-                    if(periodic[0] == periodic[1])
-    				{
-						#define COVERAGE_IGNORE
-    					number_of_left_periodic_neighbours=1;
-    					number_of_right_periodic_neighbours=1;
-						#undef COVERAGE_IGNORE
-    				}
-                }
-                
-		        //If there are no periodic neighbours then we are at the bottom/top edge
-                //If there is one perioic neighbour then we are at the corner?
-                if(number_of_left_periodic_neighbours==2)
+		    		if(element1_node[0]==our_node || element1_node[1]==our_node || element1_node[2]==our_node)
+		    		{
+		    			for (unsigned element2_index = 0; element2_index<mrMesh.GetNumAllElements() ; element2_index++)	
+		    			{	
+		    				if (elem_index!=element2_index)
+			    			{
+			    				Element<2,2>* p_element2 = mrMesh.GetElement(element2_index);
+					    		unsigned element2_node[3];
+						    	element2_node[0] = (unsigned)p_element2->GetNode(0)->GetIndex();
+						    	element2_node[1] = (unsigned)p_element2->GetNode(1)->GetIndex();
+			    				element2_node[2] = (unsigned)p_element2->GetNode(2)->GetIndex();
+			    				if(element2_node[0]==our_node || element2_node[1]==our_node || element2_node[2]==our_node)
+			    				{
+			    					unsigned ghost_node_element1 = 0;//it will never be this because this will be in bottom left corner of ghosts
+			    					unsigned ghost_node_element2 = 0;//it will never be this because this will be in bottom left corner of ghosts
+		    						for(unsigned index = 0 ; index <3 ; index++)
+		    						{
+		    							if(mIsGhostNode[element1_node[index]])
+		    							{
+		    								ghost_node_element1 = element1_node[index];
+		    							}
+		    						}
+		    						for(unsigned index = 0 ; index <3 ; index++)
+		    						{
+		    							if(mIsGhostNode[element2_node[index]])
+		    							{
+		    								ghost_node_element2 = element2_node[index];
+		    							}
+		    						}
+		    						// this mucked up periodic births - new cell attached to more than one ghost node.
+		    						//if(ghost_node_element1==ghost_node_element2 && ghost_node_element1>0)
+		    	 					if(ghost_node_element1>0 && ghost_node_element2>0)
+		    						{
+		    							//Now check they are both attached to different periodic nodes
+		    							unsigned other_node_element1 = 0;
+		    							unsigned other_node_element2 = 0;
+		    							
+		    							bool left_nodes=false;
+		    							for(unsigned j = 0 ; j<nodes_on_left_boundary.size() ; j++)
+										{	//Cycle through periodic nodes and check for periodic neighbours
+						    				unsigned periodic_node = nodes_on_left_boundary[j];
+											if(element1_node[0]==periodic_node || element1_node[1]==periodic_node || element1_node[2]==periodic_node)
+											{
+												other_node_element1 = periodic_node;
+												left_nodes=true;
+											}
+											if(element2_node[0]==periodic_node || element2_node[1]==periodic_node || element2_node[2]==periodic_node)
+											{
+												other_node_element2 = periodic_node;
+												left_nodes=true;
+											}
+											periodic_node = nodes_on_right_boundary[j];
+											if(element1_node[0]==periodic_node || element1_node[1]==periodic_node || element1_node[2]==periodic_node)
+											{
+												other_node_element1 = periodic_node;
+											}
+											if(element2_node[0]==periodic_node || element2_node[1]==periodic_node || element2_node[2]==periodic_node)
+											{
+												other_node_element2 = periodic_node;
+											}
+											if(other_node_element1!=other_node_element2 && other_node_element1>0 && other_node_element2>0 && !culprit_found)
+											{
+												std::cout << "\nElement " << elem_index << " contains nodes " << element1_node[0] << ", " << element1_node[1] << ", " << element1_node[2] << ".\n";
+												std::cout << "Element " << element2_index << " contains nodes " << element2_node[0] << ", " << element2_node[1] << ", " << element2_node[2] << ".\n";
+												std::cout << "We are considering node " << our_node << "\n";
+		    									std::cout << "attached to ghost node " << ghost_node_element1 << "\n";
+		    									std::cout << "attached to ghost node " << ghost_node_element2 << "\n";
+		    									std::cout << "and periodic node " << other_node_element1 << " by element "<< elem_index <<"\n";
+		    									std::cout << "and periodic node " << other_node_element2 << " by element "<< element2_index <<"\n";
+		    									//assert(0);
+		    									periodic.push_back(other_node_element1);
+		    									periodic.push_back(other_node_element2);
+		    									if(left_nodes)
+		    									{
+		    										left_break = true;	
+		    									}
+		    									else
+		    									{
+		    										right_break = true;	
+		    									}
+		    									culprit_found=true;
+											}
+						    			}// end of loop through periodic nodes
+		    						}// end of if our node and shared ghosts are in these two elements
+								}// end of if our node is in both elements
+		    				}// end of if elements are different
+		    			}// end of element 2 loop
+		    		} // end of if our node is in this element
+				}// end of element 1 loop
+					
+				if(left_break)
 		        {
                     #define COVERAGE_IGNORE
 		        	// We should have a new periodic node
 		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
 		        	double old_y = mrMesh.GetNode(our_node)->rGetLocation()[1];
 		        	double crypt_width = mpParams->GetCryptWidth();
-		        	std::cout << "LEFT Node "<< our_node << " has broken into the periodic edge between nodes\n";for(unsigned k=0 ; k<periodic.size() ; k++)
+		        	std::cout << "LEFT Node "<< our_node << " has broken into the periodic edge between nodes\n";
+		        	for(unsigned k=0 ; k<periodic.size() ; k++)
 					{
 						std::cout << periodic[k] << "\t";
 					}
@@ -1467,7 +1498,7 @@ public:
                     #undef COVERAGE_IGNORE
 				}
 		        
-		        if(number_of_right_periodic_neighbours==2)
+		        if(right_break)
 		        {
 		        	// We should have a new periodic node
 		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
@@ -1492,6 +1523,167 @@ public:
             i++;
 		}// next node on boundary.
 	}// end of function
+    
+//    /**
+//     * This function detects when a remesh has caused a cell to 
+//     * join or leave one of the periodic boundaries. It figures out where an image cell
+//     * will have to be placed to match it on the other side, and which two
+//     * periodic nodes have been upset.
+//     */   
+//    void DetectNaughtyCellsAtPeriodicEdges()
+//    {
+//        assert(mPeriodicSides);
+//
+//		//std::cout << "Nodes on Boundary : \n";
+//    	// Check for any surplus cells to remove...
+//		RemoveSurplusCellsFromPeriodicBoundary();
+//		
+//		/* For each node see if it has broken onto a periodic boundary
+//    	 * If it has create an image node at the other side
+//    	 */
+//    	unsigned i = 0;
+//    	while(i<mCryptBoundary.size())
+//        {
+//        	std::vector< unsigned > nodes_on_left_boundary = mLeftCryptBoundary;
+//        	std::vector< unsigned > nodes_on_right_boundary = mRightCryptBoundary;
+//        	std::vector< unsigned > nodes_on_boundary = mCryptBoundary;
+//	        unsigned our_node = nodes_on_boundary[i];
+//	        //std::cout << our_node << "\n";
+//	        unsigned number_of_left_periodic_neighbours = 0;
+//	        unsigned number_of_right_periodic_neighbours = 0;
+//	        bool our_node_periodic = false;
+//	        
+//	        std::vector <unsigned > periodic;
+//	        
+//	        for (unsigned j = 0 ; j<nodes_on_left_boundary.size() ; j++)
+//	        {
+//	        	if(our_node == nodes_on_left_boundary[j] || our_node == nodes_on_right_boundary[j])
+//	        	{
+//	        		our_node_periodic = true;
+//                    break;
+//	        	}
+//	        }
+//	        
+//	        if(!our_node_periodic)
+//	        {
+//	        	for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+//		        {
+//		            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+//		    		unsigned node[3];
+//		    		node[0] = (unsigned)p_element->GetNode(0)->GetIndex();
+//		    		node[1] = (unsigned)p_element->GetNode(1)->GetIndex();
+//		    		node[2] = (unsigned)p_element->GetNode(2)->GetIndex();
+//		    		
+//		    		unsigned periodic_left_nodes_in_this_element = 0;
+//		    		unsigned periodic_right_nodes_in_this_element = 0;
+//		    		
+//		        	if(node[0]==our_node || node[1]==our_node || node[2]==our_node)
+//		        	{
+//		        		if(mIsGhostNode[node[0]] || mIsGhostNode[node[1]] || mIsGhostNode[node[2]])
+//			    		{	// If this is one of the new nodes (or top or bottom edges)
+//							for(unsigned j = 0 ; j<nodes_on_left_boundary.size() ; j++)
+//							{	//Cycle through periodic nodes and check for periodic neighbours
+//			    				unsigned periodic_node = nodes_on_left_boundary[j];
+//								if(node[0]==periodic_node || node[1]==periodic_node || node[2]==periodic_node)
+//								{
+//									periodic_left_nodes_in_this_element++;
+//									periodic.push_back(periodic_node);
+//								}
+//								periodic_node = nodes_on_right_boundary[j];
+//								if(node[0]==periodic_node || node[1]==periodic_node || node[2]==periodic_node)
+//								{
+//									periodic_right_nodes_in_this_element++;
+//									periodic.push_back(periodic_node);
+//								}
+//			    			}
+//			    		}	
+//		        	}
+//		        	
+//					//If both periodic nodes are in this element we are at 
+//					//the top or bottom corner and shouldn't count it.
+//					if(periodic_left_nodes_in_this_element==2)
+//					{
+//                        #define COVERAGE_IGNORE
+//						periodic_left_nodes_in_this_element=0;	
+//                        #undef COVERAGE_IGNORE
+//					}
+//					if(periodic_right_nodes_in_this_element==2)
+//					{
+//                        #define COVERAGE_IGNORE
+//						periodic_right_nodes_in_this_element=0;	
+//                        #undef COVERAGE_IGNORE
+//					}
+//					number_of_right_periodic_neighbours += periodic_right_nodes_in_this_element;
+//					number_of_left_periodic_neighbours += periodic_left_nodes_in_this_element;
+//				}// next element
+//
+//				if(periodic.size()>2)
+//                {
+//                    std::cout << "*************Gary says this should not happen***************\n";   
+//                }
+//
+//				// Check we have actually broken into an edge that is periodic and 
+//				// just sensed it from the top edge i.e. the two periodic neighbours are different.
+//                if(periodic.size()==2)
+//                {
+//                    if(periodic[0] == periodic[1])
+//    				{
+//						#define COVERAGE_IGNORE
+//    					number_of_left_periodic_neighbours=1;
+//    					number_of_right_periodic_neighbours=1;
+//						#undef COVERAGE_IGNORE
+//    				}
+//                }
+//                
+//                
+//                
+//		        //If there are no periodic neighbours then we are at the bottom/top edge
+//                //If there is one perioic neighbour then we are at the corner?
+//                if(number_of_left_periodic_neighbours==2)
+//		        {
+//                    #define COVERAGE_IGNORE
+//		        	// We should have a new periodic node
+//		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
+//		        	double old_y = mrMesh.GetNode(our_node)->rGetLocation()[1];
+//		        	double crypt_width = mpParams->GetCryptWidth();
+//		        	std::cout << "LEFT Node "<< our_node << " has broken into the periodic edge between nodes\n";for(unsigned k=0 ; k<periodic.size() ; k++)
+//					{
+//						std::cout << periodic[k] << "\t";
+//					}
+//					std::cout << "\n";
+//					AddACellToPeriodicBoundary(our_node,old_x+crypt_width,old_y,periodic);
+//					//NodeMap map(mrMesh.GetNumAllNodes());
+//	    			//mrMesh.ReMesh(map);
+//					CalculateCryptBoundary();
+//					RemoveSurplusCellsFromPeriodicBoundary();
+//                    #undef COVERAGE_IGNORE
+//				}
+//		        
+//		        if(number_of_right_periodic_neighbours==2)
+//		        {
+//		        	// We should have a new periodic node
+//		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
+//		        	double old_y = mrMesh.GetNode(our_node)->rGetLocation()[1];
+//		        	double crypt_width = mpParams->GetCryptWidth();
+//		        	std::cout << "RIGHT Node "<< our_node << " has broken into the periodic edge between nodes\n";
+//					for(unsigned k=0 ; k<periodic.size() ; k++)
+//					{
+//						std::cout << periodic[k] << "\t";
+//					}
+//					std::cout << "\n";
+//					AddACellToPeriodicBoundary(our_node,old_x-crypt_width,old_y,periodic);
+//					//NodeMap map(mrMesh.GetNumAllNodes());
+//	    			//mrMesh.ReMesh(map);	// it is possible that the only ghost node a
+//	    			// periodic node was attached to is now real and so we need to remesh so that
+//	    			// the crypt boundary can still be recognised.
+//					CalculateCryptBoundary();
+//					RemoveSurplusCellsFromPeriodicBoundary();
+//				}
+//			}// end of if(!our_node_periodic)
+//            
+//            i++;
+//		}// next node on boundary.
+//	}// end of function
 	
 	/**
 	 * For each of the old periodic boundary nodes check they are still 
@@ -1714,13 +1906,18 @@ public:
 			mOldLeftCryptBoundary = mLeftCryptBoundary;
 			mOldRightCryptBoundary = mRightCryptBoundary;
 			mOldCryptBoundary = mCryptBoundary;
+		    
 		    CalculateCryptBoundary();
-    	
-			if(mOldCryptBoundary!=mCryptBoundary)
+		    
+    		if(mOldCryptBoundary!=mCryptBoundary)
 	        {	// There has been a change in the boundary
 	        	std::cout << "Boundary has changed\n";
-	        	DetectNaughtyCellsAtPeriodicEdges();
+	        	RemoveSurplusCellsFromPeriodicBoundary();
+				//DetectNaughtyCellsAtPeriodicEdges();
 			}
+			
+			//RemoveSurplusCellsFromPeriodicBoundary();
+			DetectNaughtyCellsAtPeriodicEdges();// do this every time
 		}
 	}
 };

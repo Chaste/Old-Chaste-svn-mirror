@@ -539,11 +539,8 @@ public:
         
     }
     
-    // This is a rubbish test - all cells start at birthTime = 0.
-    // So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
-    // cell cycle and runs reasonably quickly...
-    // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    
+    // This is strange test -- all cells divide within a quick time, it gives
+    // good testing of the periodic boundaries though...
     void TestWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -636,6 +633,47 @@ public:
         simulator.SetDt(0.001);
         simulator.Solve();
         //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
+        std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+        
+        std::cout << "Periodic Cell indices at the end of the simulation:\n";
+        for(unsigned i=0 ; i<leftBoundary.size(); i++)
+        {
+        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
+        }
+        
+        TS_ASSERT_EQUALS(leftBoundary.size(),15u);
+      		
+       	TS_ASSERT_EQUALS(leftBoundary[0], 64u);
+		TS_ASSERT_EQUALS(rightBoundary[0], 70u);
+		TS_ASSERT_EQUALS(leftBoundary[1], 79u);
+		TS_ASSERT_EQUALS(rightBoundary[1], 85u);
+		TS_ASSERT_EQUALS(leftBoundary[2], 95u);
+		TS_ASSERT_EQUALS(rightBoundary[2], 101u);
+		TS_ASSERT_EQUALS(leftBoundary[3], 110u);
+		TS_ASSERT_EQUALS(rightBoundary[3], 118u);
+		TS_ASSERT_EQUALS(leftBoundary[4], 126u);
+		TS_ASSERT_EQUALS(rightBoundary[4], 134u);
+		TS_ASSERT_EQUALS(leftBoundary[5], 140u);
+		TS_ASSERT_EQUALS(rightBoundary[5], 161u);
+		TS_ASSERT_EQUALS(leftBoundary[6], 155u);
+		TS_ASSERT_EQUALS(rightBoundary[6], 176u);
+		TS_ASSERT_EQUALS(leftBoundary[7], 169u);
+		TS_ASSERT_EQUALS(rightBoundary[7], 175u);
+		TS_ASSERT_EQUALS(leftBoundary[8], 184u);
+		TS_ASSERT_EQUALS(rightBoundary[8], 190u);
+		TS_ASSERT_EQUALS(leftBoundary[9], 199u);
+		TS_ASSERT_EQUALS(rightBoundary[9], 205u);
+		TS_ASSERT_EQUALS(leftBoundary[10], 229u);
+		TS_ASSERT_EQUALS(rightBoundary[10], 235u);
+		TS_ASSERT_EQUALS(leftBoundary[11], 323u);
+		TS_ASSERT_EQUALS(rightBoundary[11], 102u);
+		TS_ASSERT_EQUALS(leftBoundary[12], 325u);
+		TS_ASSERT_EQUALS(rightBoundary[12], 147u);
+		TS_ASSERT_EQUALS(leftBoundary[13], 340u);
+		TS_ASSERT_EQUALS(rightBoundary[13], 221u);
+		TS_ASSERT_EQUALS(leftBoundary[14], 342u);
+		TS_ASSERT_EQUALS(rightBoundary[14], 236u);
     }
     
     void TestCalculateCryptBoundaries()
