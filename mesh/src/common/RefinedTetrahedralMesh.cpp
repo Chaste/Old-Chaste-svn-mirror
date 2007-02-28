@@ -11,8 +11,13 @@ class RefinedTetrahedralMesh :
 private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpFineMesh;
     NodeMap *mpNodeMap;
+    std::vector <std::set <Element <ELEMENT_DIM,SPACE_DIM>* > > mCoarseFineElementsMap;
 
 public:
+    RefinedTetrahedralMesh() : ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>()
+    {
+        mpNodeMap = NULL; 
+    }
     
     ~RefinedTetrahedralMesh()
     {
@@ -56,7 +61,49 @@ public:
             mpNodeMap->SetNewIndex(coarse_mesh_index, fine_mesh_index);
         } 
             
+        mCoarseFineElementsMap.resize(this->GetNumElements());
+        typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
+        for (i_fine_element=mpFineMesh->GetElementIteratorBegin();
+             i_fine_element< mpFineMesh->GetElementIteratorEnd();
+             i_fine_element++)
+        {
+            bool coarse_elements_found=false;
+            for (unsigned node_local_index = 0; node_local_index <= ELEMENT_DIM; node_local_index++)
+            {
+                Point<SPACE_DIM> vertex = (*i_fine_element)->GetNode(node_local_index)->GetPoint();
+                try
+                {
+                    unsigned coarse_element_index = this->GetContainingElementIndex(vertex, true);
+                    coarse_elements_found=true;
+                    mCoarseFineElementsMap[coarse_element_index].insert(*i_fine_element);
+                }
+                catch (Exception &e)
+                {
+                    // vertex must coincide with coarse node
+                } 
+            }
+            if (!coarse_elements_found)
+            {
+                // fine element must coincide with coarse element
+                Point<SPACE_DIM> centroid = Point<SPACE_DIM>((*i_fine_element)->CalculateCentroid());
+                try
+                {
+                    unsigned coarse_element_index = this->GetContainingElementIndex(centroid, true);
+                    mCoarseFineElementsMap[coarse_element_index].insert(*i_fine_element);
+                }
+                catch (Exception &e)
+                {
+                    EXCEPTION("Fine mesh contains an element which does not overlap any coarse mesh element");
+                }
+            }    
+        }
         
+        
+    }
+    
+    std::set< Element<ELEMENT_DIM, SPACE_DIM>* > GetFineElementsForCoarseElementIndex(unsigned coarse_element_index)
+    {
+        return mCoarseFineElementsMap[coarse_element_index];
     }
     
     NodeMap& rGetCoarseFineNodeMap()
@@ -76,29 +123,29 @@ public:
     public:
         bool operator () (const Node<SPACE_DIM>* pNode1, const Node<SPACE_DIM>* pNode2)
         {
-            if (pNode1->rGetLocation()[2] < pNode2->rGetLocation()[2])
+            //Test if node1 is strictly less than node2.
+            //Lexigraphical ordering tests the highest dimension first.
+            unsigned dimension=SPACE_DIM;
+            do 
             {
-                return true;
-            }
-            if (pNode1->rGetLocation()[2] > pNode2->rGetLocation()[2])
-            {
-                return false;
-            }
-            if (pNode1->rGetLocation()[1] < pNode2->rGetLocation()[1])
-            {
-                return true;
-            }
-            if (pNode1->rGetLocation()[1] > pNode2->rGetLocation()[1])
-            {
-                return false;
-            }
-            if (pNode1->rGetLocation()[0] < pNode2->rGetLocation()[0])
-            {
-                return true;
-            }
-            return false;
+                dimension--;
+                
+                if (pNode1->rGetLocation()[dimension] < pNode2->rGetLocation()[dimension])
+                {
+                    return true;
+                }
+                if (pNode1->rGetLocation()[dimension] > pNode2->rGetLocation()[dimension])
+                {
+                    return false;
+                }
             
-        }
+            
+            }
+            while (dimension>0);
+            
+            //Otherwise the nodes are colocated  
+            return false;
+         }
     };
 };
 

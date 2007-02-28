@@ -238,9 +238,11 @@ public:
      
      /**
       *  Returns the element index for the first element that is known to contain a test point
-      *  @param testPoint 
+      *  @param testPoint
+      *  @param strict Should the element returned contain the point in the interior and
+      *  not on an edge/face/vertex (default = not strict)
       */
-     unsigned GetContainingElement(Point<SPACE_DIM> testPoint);
+     unsigned GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict=false);
      /**
       *  Returns all element indices for elements that are known to contain a test point
       *  @param testPoint 

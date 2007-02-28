@@ -1130,6 +1130,11 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
    
+    void TestConstruct1x1RectangularMesh(void)
+    {   
+        ConformingTetrahedralMesh<2,2> rect_mesh;
+        rect_mesh.ConstructRectangularMesh(1, 1, false);
+    }
     
     void TestCheckVoronoiDisk()
     {
@@ -1242,8 +1247,8 @@ public:
             c_vector<double, 3> centroid=b_element->CalculateCentroid();
             Point<3> out(centroid+normal);
             Point<3> in(centroid-normal);
-            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElement(in));
-            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(out));
+            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
+            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
         }
     }
 
@@ -1292,8 +1297,8 @@ public:
             if (fabs(centroid[2] - depth) < 1e-5){
                 TS_ASSERT_DELTA( normal[2], 1.0, 1e-16);   
             }
-            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElement(in));
-            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(out));
+            TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
+            TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
         }
         
         TrianglesMeshWriter<3,3> mesh_writer("","CuboidMesh");

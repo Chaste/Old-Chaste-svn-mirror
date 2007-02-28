@@ -71,9 +71,9 @@ public:
         Point<1> point1(0.15);
         Point<1> point2(-0.1);
         Point<1> point3(0.2);
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),1U);
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(point2));
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point3),1U);  //in elements 1 and 2
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),1U);
+        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),1U);  //in elements 1 and 2
         
         std::vector<unsigned> indices;
         indices=mesh.GetContainingElementIndices(point1);
@@ -140,9 +140,9 @@ public:
         Point<2> point1(0.051, 0.051);
         Point<2> point2(0.2,0.2);
         Point<2> point3(0.05, 0.05); //Node 60 of mesh
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),110U);
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(point2));
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point3),89U);  //in elements 89,90,91,108,109, 110
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),110U);
+        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),89U);  //in elements 89,90,91,108,109, 110
         
         
         std::vector<unsigned> indices;
@@ -217,13 +217,17 @@ public:
         Point<3> point2(0.2,0.2,0.2);
         Point<3> point3(0.050000000000000003,  0.050000000000000003,  0.050000000000000003);
         //Node 665 of mesh
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point1),2992U);
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElement(point2));
-        TS_ASSERT_EQUALS(mesh.GetContainingElement(point3),2044U);  
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),2992U);
+        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),2044U);  
         /*in elements 2044, 2047. 2058, 2192, 2268, 2286, 2392, 2414, 2415,
          * 2424, 2426, 2452, 2661, 2704, 2734, 2745, 2846, 2968, 2990, 2992,
          * 3015, 3022, 3024, 3026
          */
+         
+        //should throw because vertex is not strictly contained in any element
+        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point3, true));  
+        
         
         std::vector<unsigned> indices;
         indices=mesh.GetContainingElementIndices(point1);
