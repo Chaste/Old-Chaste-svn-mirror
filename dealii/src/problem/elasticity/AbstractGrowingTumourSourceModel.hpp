@@ -20,6 +20,7 @@ class AbstractGrowingTumourSourceModel
 protected :
     std::map< unsigned, EvaluationPointInfo<DIM> > mEvaluationPoints; 
 
+//    std::vector<bool> mVertexToEvalPointMap;
     
     
 public :
@@ -63,14 +64,60 @@ public :
         mEvaluationPoints[index] = evaluation_point_info;
  
         mEvaluationPoints[index].OldPosition = initialPosition;
+        mEvaluationPoints[index].NewPosition = initialPosition;
         mEvaluationPoints[index].MeshGlobalIndex = meshGlobalIndex;
         mEvaluationPoints[index].SourceValue = 0.0;
     }
 
-    void UpdateEvaluationPointNewPosition(FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
+
+    void UpdateEvaluationPointsNewPosition(FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
-        // loop over tumour points and update new position
+//        // loop over tumour points and update new position
+//        Triangulation<DIM>* p_mesh = pFiniteElasticityAssembler->GetMesh();
+//
+//        // this isn't efficient is it?!
+//        mVertexToEvalPointMap.resize(p_mesh->n_vertices());
+//        for(unsigned vertex_index=0; vertex_index<mVertexToEvalPointMap.size(); vertex_index++)
+//        {
+//            mVertexToEvalPointMap[vertex_index] = -1;
+//        }
+//
+//        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter 
+//           = mEvaluationPoints.begin();
+//        while(iter!=mEvaluationPoints.end())
+//        {
+//            unsigned eval_pt_index = iter->first;
+//            unsigned vertex_index = iter->second.MeshGlobalIndex;
+//            mVertexToEvalPointMap[vertex_index] = eval_pt_index;
+// 
+//            iter++;
+//        }
+//
+//        Vector<double>& solution = pFiniteElasticityAssembler->GetSolutionVector();
+//        DoFHandler<DIM>& dof_handler = pFiniteElasticityAssembler->GetDofHandler();
+//
+//        DofVertexIterator<DIM> vertex_iter(p_mesh, &dof_handler);
+//        
+//        while(!vertex_iter.ReachedEnd())
+//        {
+//            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+//            if(mVertexToEvalPointMap[vertex_index]!=-1)
+//            {
+//                unsigned eval_pt_index = mVertexToEvalPointMap[vertex_index];
+//                
+//                Point<DIM> old_posn = vertex_iter.GetVertex();
+//            
+//                for(unsigned i=0; i<DIM; i++)
+//                {
+//                    mEvaluationPoints[eval_pt_index].NewPosition[i]
+//                        = old_posn(i)+solution(vertex_iter.GetDof(i));
+//                }
+//            }
+//            vertex_iter.Next();
+//        }
     }
+
+
     
     unsigned GetNumEvaluationPoints()
     {

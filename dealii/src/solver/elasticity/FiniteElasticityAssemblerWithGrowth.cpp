@@ -371,6 +371,11 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
 }
 
 
+
+template<int DIM>
+void FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements()
+{
+}
     
 
 
@@ -404,9 +409,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         EXCEPTION("Start time, end time, dt have not been set. Call SetTimes() before Solve()");
     }
     
-
-
-
 
     this->OutputResults(0);
 

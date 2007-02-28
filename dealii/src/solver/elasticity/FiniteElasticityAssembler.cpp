@@ -575,7 +575,7 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions(bool assem
         unsigned dof = iter->first;
         double value = iter->second;
    
-        applied_boundary_values[dof] = mCurrentSolution(dof)-mBoundaryValues[dof];
+        applied_boundary_values[dof] = mCurrentSolution(dof)-value;
         iter++;
     }
     
@@ -643,7 +643,7 @@ void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
         unsigned dof = iter->first;
         double value = iter->second;
    
-        applied_boundary_values[dof] = this->mCurrentSolution(dof)-this->mBoundaryValues[dof];
+        applied_boundary_values[dof] = this->mCurrentSolution(dof)-value;
         iter++;
     }
     
@@ -902,6 +902,11 @@ DoFHandler<DIM>& FiniteElasticityAssembler<DIM>::GetDofHandler()
     return mDofHandler;
 }
 
+template<int DIM>
+Triangulation<DIM>* FiniteElasticityAssembler<DIM>::GetMesh()
+{
+    return mpMesh;
+}
 
 #endif // FINITEELASTICITYASSEMBLER_CPP_
 

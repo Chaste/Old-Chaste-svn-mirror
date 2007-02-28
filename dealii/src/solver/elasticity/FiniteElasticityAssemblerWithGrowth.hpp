@@ -6,6 +6,9 @@
 #include "GrowthByConstantMassOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
+/**
+ *  INSERT COMMENTS
+ */
 template<int DIM>
 class FiniteElasticityAssemblerWithGrowth : public FiniteElasticityAssembler<DIM>
 {
@@ -55,6 +58,10 @@ protected:
                                    bool                                            assembleResidual,
                                    bool                                            assembleJacobian);
 
+    /**
+     *  Refine the elements which have gotten too large
+     */
+    void RefineOvergrownElements();
     
 public:
     /** 

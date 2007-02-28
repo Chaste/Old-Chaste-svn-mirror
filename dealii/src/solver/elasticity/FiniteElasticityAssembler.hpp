@@ -162,6 +162,7 @@ public:
     
     Vector<double>& GetSolutionVector();
     DoFHandler<DIM>& GetDofHandler();
+    Triangulation<DIM>* GetMesh();
 
     void ComputeNumericalJacobian();
     void CompareJacobians();    
