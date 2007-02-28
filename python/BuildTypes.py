@@ -209,9 +209,12 @@ class BuildType(object):
      * The build_dir - alter this directly
      * The libraries linked against, and search paths for them
         - set a flag that SConstruct can check
+     * The default test pack - use DealiiContinuous
     """
     self.using_dealii = use_dealii
     self.build_dir = 'dealii_' + self.build_dir
+    if 'Continuous' in self._test_packs:
+      self._test_packs[self._test_packs.index('Continuous')] = 'DealiiContinuous'
 
   def GetDealiiLibraries(self, dealii_basepath):
     """Return a list of Deal.II libraries to link against.
@@ -252,6 +255,14 @@ class Coverage(GccDebug):
     self._num_processes = 2
     self._test_packs.append('Failing')
     #self.UseDealii(True)
+
+  def UseDealii(self, use_dealii):
+    """Set whether this build should link against Deal.II.
+
+    Extends the base method so both continuous test packs are run.
+    """
+    super(Coverage, self).UseDealii(use_dealii)
+    self._test_packs.append('Continuous')
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test on 1 processor then on 2 processors"
