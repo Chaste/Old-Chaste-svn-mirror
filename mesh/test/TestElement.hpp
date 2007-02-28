@@ -411,7 +411,7 @@ public:
         TS_ASSERT_EQUALS(another_copied_element.GetIndex(), 2345u);
         
         // update a node of the element
-	Node<3>* update_for_node= new Node<3>(4, false, 0.0, 0.0, 2.0);
+	    Node<3>* update_for_node= new Node<3>(4, false, 0.0, 0.0, 2.0);
         another_copied_element.UpdateNode(1, update_for_node);
         TS_ASSERT_EQUALS(another_copied_element.GetNodeLocation(1, 2), 2.0);
 
@@ -419,7 +419,7 @@ public:
         {
             delete corner_nodes[i];
         }
-	delete update_for_node;
+	    delete update_for_node;
 
     }
     
@@ -438,7 +438,7 @@ public:
         nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
         BoundaryElement<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
         
-	for (unsigned i=0; i<nodes.size(); i++)
+	    for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
@@ -460,7 +460,7 @@ public:
         TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 5.0, 1e-7);
         TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
 
-	for (unsigned i=0; i<nodes.size(); i++)
+	    for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
@@ -497,11 +497,11 @@ public:
         TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 4.0*sqrt(3.0)/9.0, 1e-7);
         
-	for (unsigned i=0; i<equilateral_nodes.size(); i++)
+	    for (unsigned i=0; i<equilateral_nodes.size(); i++)
         {
             delete equilateral_nodes[i];
         }
-	for (unsigned i=0; i<right_angle_nodes.size(); i++)
+	    for (unsigned i=0; i<right_angle_nodes.size(); i++)
         {
             delete right_angle_nodes[i];
         }
@@ -555,7 +555,7 @@ public:
         }
     }
     
-     void TestCentroidAndDirection(void)
+    void TestCentroidAndDirection(void)
     {
         c_vector<double,3> direction;
         c_vector<double,3> centroid;
@@ -603,15 +603,36 @@ public:
         TS_ASSERT_DELTA(centroid[1], 0.25, 1e-8);
         TS_ASSERT_EQUALS(centroid[2], 0.25 );
         
-         for (unsigned i=0; i<nodes.size(); i++)
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
-    
-
-
     }
     
+    void TestFlagging()
+    {
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+        Element<3,3> element(INDEX_IS_NOT_USED, nodes, 1);
+        
+        TS_ASSERT_EQUALS(element.IsFlagged(), false);
+        
+        element.Flag();
+        TS_ASSERT_EQUALS(element.IsFlagged(), true);
+        
+        element.Unflag();
+        TS_ASSERT_EQUALS(element.IsFlagged(), false);
+
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+    }
+
+
 };
 
 #endif //_TESTELEMENT_HPP_

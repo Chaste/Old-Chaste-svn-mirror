@@ -32,7 +32,7 @@ protected:
     c_vector<double, SPACE_DIM> mWeightedDirection; //Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM
     double mJacobianDeterminant;
     bool mOwnership;
-    
+    bool mFlag;
     
     
     
@@ -54,6 +54,8 @@ protected:
         mInverseJacobian = element.mInverseJacobian;
         mWeightedDirection = element.mWeightedDirection;
         
+        // initialise the user flag
+        mFlag = element.mFlag;        
     }
     
     
@@ -122,6 +124,7 @@ public:
         assert((unsigned)localIndex < mNodes.size());
         return mNodes[localIndex]->rGetLocation();
     }
+    
     c_vector<double, SPACE_DIM> CalculateCentroid() const
     {
         c_vector<double, SPACE_DIM> centroid=zero_vector<double>(SPACE_DIM);
@@ -237,7 +240,20 @@ public:
         mOwnership=ownership;
     }
     
-
+    void Flag()
+    {
+        mFlag = true;
+    }
+    
+    void Unflag()
+    {
+        mFlag = false;
+    }
+    
+    bool IsFlagged()
+    {
+        return mFlag;
+    }
 };
 
 

@@ -34,8 +34,9 @@ public:
         this->mWeightedDirection(0) = 1.0;
         this->mJacobianDeterminant = 1.0;
         
+        this->mFlag = false;
+
         RegisterWithNodes();
-        
     }
     
     void RegisterWithNodes()

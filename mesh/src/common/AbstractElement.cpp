@@ -44,10 +44,9 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
     // We want them anticlockwise.
     assert(mJacobianDeterminant > 0.0);
     
-    
-    
-    
+    mFlag = false;
 }
+
 
 template<int ELEMENT_DIM, int SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroJacobianDeterminant(void)
