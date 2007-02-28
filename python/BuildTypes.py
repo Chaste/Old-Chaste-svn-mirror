@@ -20,13 +20,14 @@ class BuildType(object):
     Here we set member variables for each method to use.
     """
     self._compiler_type = 'gcc'
-    self._cc_flags = '-Wall -Werror'
+    self._cc_flags = '-Wall'
     self._link_flags = ''
     self._test_packs = ['Continuous']
     self._revision = ''
     self.build_dir = 'default'
     self._num_processes = 1
     self.using_dealii = False
+    self._dealii_debugging = False
     self.is_optimised = False
   
   def CompilerType(self):
@@ -42,6 +43,17 @@ class BuildType(object):
     Note that this does not cover include paths or library search paths.
     """
     return self._cc_flags
+
+  def ComponentSpecificCcFlags(self, component):
+    """Return compiler flags that depend on the component being compiled.
+
+    This is only used at present to stop warnings being reported as errors
+    for Deal.II code, since the Deal.II headers generate warnings.
+    """
+    if component != 'dealii':
+      return " -Werror "
+    else:
+      return ""
   
   def LinkFlags(self):
     """
@@ -210,7 +222,7 @@ class BuildType(object):
     metis_libs = ['metis']
     dealii_libs = ['deal_II_1d', 'deal_II_2d', 'deal_II_3d', 'lac', 'base']
     dealii_petsc = dealii_basepath + 'lib/libpetsc'
-    if not self.is_optimised:
+    if self._dealii_debugging:
       dealii_libs = map(lambda s: s + '.g', dealii_libs)
       dealii_petsc = dealii_petsc + '.g'
     dealii_petsc = dealii_petsc + '.so'
@@ -564,6 +576,12 @@ class Intel(BuildType):
     # Intel compiler uses optimisation by default
     self.is_optimised = True
 
+  def ComponentSpecificCcFlags(self, component):
+    """There are no component-specific compiler flags when using the
+    Intel compilers.
+    """
+    return ""
+
   def SetReporting(self, vec=1):
     """
     Set the reporting level.
@@ -633,6 +651,8 @@ def GetBuildType(buildType):
       obj.build_dir += '_ndebug'
     elif extra == 'dealii':
       obj.UseDealii(True)
+    elif extra == 'debug':
+      obj._dealii_debugging = True
     else:
       # Assume it's a test pack
       obj.AddTestPacks(extra)
