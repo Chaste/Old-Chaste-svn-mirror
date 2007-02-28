@@ -46,6 +46,7 @@ private:
         VecSetFromOptions(initial_condition);
         return initial_condition;
     }
+    
     Vec CreateConstantConditionVec(int size, double value)
     {
         Vec initial_condition = CreateInitialConditionVec(size);
