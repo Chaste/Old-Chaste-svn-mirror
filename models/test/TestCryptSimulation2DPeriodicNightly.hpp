@@ -676,8 +676,6 @@ public:
 		TS_ASSERT_EQUALS(rightBoundary[11], 116u);
 		TS_ASSERT_EQUALS(leftBoundary[12], 323u);
 		TS_ASSERT_EQUALS(rightBoundary[12], 86u);
-		TS_ASSERT_EQUALS(leftBoundary[13], 17u);
-		TS_ASSERT_EQUALS(rightBoundary[13], 25u);
 		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
     }
     

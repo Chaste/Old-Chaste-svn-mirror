@@ -79,7 +79,9 @@ private:
     std::vector <unsigned> mCryptBoundary;
     std::vector <unsigned> mOldCryptBoundary;
     
+    /**< An unsigned int giving the maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
+    /**< An unsigned int giving the maximum number of elements that this simulation will include (for use by datawriter). */
     unsigned mMaxElements;
     
     std::string mOutputDirectory;
@@ -193,14 +195,30 @@ public:
         mIncludeVariableRestLength = true;
     }
     
+    /**
+     * Sets the maximum number of cells that the simulation will contain (for use by the datawriter)
+     * default value is set to 10x the initial mesh value by the constructor. 
+     */
     void SetMaxCells(unsigned maxCells)
     {
         mMaxCells = maxCells;
+        if(maxCells<mrMesh.GetNumAllNodes())
+        {
+        	EXCEPTION("mMaxCells is less than the number of cells in the mesh.");	
+        }
     }
     
+    /**
+     * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
+     * default value is set to 10x the initial mesh value by the constructor.     
+     */
     void SetMaxElements(unsigned maxElements)
     {
         mMaxElements = maxElements;
+        if(maxElements<mrMesh.GetNumAllElements())
+        {
+        	EXCEPTION("mMaxElements is less than the number of elements in the mesh.");	
+        }
     }
     
     /**
@@ -371,7 +389,7 @@ public:
         /* Age the cells to the correct time (cells set up with negative birth dates 
          * to gives some that are almost ready to divide).
          * 
-         * For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
+         * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
          * Not sure why - when the same thing was evaluated in a test it seemed almost instant.
          */
         bool temp;
@@ -515,7 +533,9 @@ public:
 	            						//non-periodic element to put new cell into.
 	            						if(i==mRightCryptBoundary[periodic_index])
 	            						{
+	            							#define COVERAGE_IGNORE
 	            							assert(0);	
+	            							#undef COVERAGE_IGNORE
 	            						}
 	            						p_our_node = mrMesh.GetNode(mRightCryptBoundary[periodic_index]);
 	                        			x = p_our_node->GetPoint()[0];
@@ -525,7 +545,9 @@ public:
 	            					{
 	            				    	// somehow every connecting element is a ghost element. quit to
 	            				    	// avoid infinite loop
+	            				    	#define COVERAGE_IGNORE
 	            				    	assert(0);
+	            				    	#undef COVERAGE_IGNORE
 	            					}
 	            				}
                             }
@@ -881,9 +903,7 @@ public:
                             {
                             	// Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
                             	// it is a bit of a hack to make it work nicely!
-                                #define COVERAGE_IGNORE
                                 new_point.rGetLocation()[1] = 0.01;
-                                #undef COVERAGE_IGNORE
                             }
 
                             mrMesh.SetNode(index, new_point, false);
@@ -1116,6 +1136,12 @@ public:
             /////////////////////////////////
             for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
             {
+            	if(index>mMaxCells)
+            	{
+            		#define COVERAGE_IGNORE
+            		EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
+            		#undef COVERAGE_IGNORE
+            	}
                 unsigned colour = 0; // all green if no cells have been passed in
                 
                 if(mIsGhostNode[index]==true)
@@ -1178,10 +1204,15 @@ public:
             /////////////////////////////////
             for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
             {
+            	if (elem_index>mMaxElements)
+            	{
+            		#define COVERAGE_IGNORE
+            		EXCEPTION("Maximum number of elements (mMaxElements) exceeded.\nUse SetMaxElements(unsigned) to increase it.\n");
+            		#undef COVERAGE_IGNORE
+            	}
                 if (!mrMesh.GetElement(elem_index)->IsDeleted())
                 {
                     (*p_element_file) << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0)<< " " << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1)<< " "<< mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2)<< " ";
-                    
                     if(counter==0)
                     {
                         tabulated_element_writer.PutVariable(nodeA_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0));
@@ -1479,8 +1510,7 @@ public:
 					
 				if(left_break)
 		        {
-                    #define COVERAGE_IGNORE
-		        	// We should have a new periodic node
+                    // We should have a new periodic node
 		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
 		        	double old_y = mrMesh.GetNode(our_node)->rGetLocation()[1];
 		        	double crypt_width = mpParams->GetCryptWidth();
@@ -1495,8 +1525,7 @@ public:
 	    			//mrMesh.ReMesh(map);
 					CalculateCryptBoundary();
 					RemoveSurplusCellsFromPeriodicBoundary();
-                    #undef COVERAGE_IGNORE
-				}
+                }
 		        
 		        if(right_break)
 		        {
@@ -1764,10 +1793,8 @@ public:
         	{
 	        	if (periodic[j]==mLeftCryptBoundary[i])
 	        	{
-                    #define COVERAGE_IGNORE
-        			periodic_nodes[j] = mRightCryptBoundary[i];
-                    #undef COVERAGE_IGNORE
-	        	}
+                	periodic_nodes[j] = mRightCryptBoundary[i];
+                }
 	        	if (periodic[j]==mRightCryptBoundary[i])
         		{
         			periodic_nodes[j] = mLeftCryptBoundary[i];
@@ -1848,8 +1875,7 @@ public:
         {	
             // There are no shared ghost nodes - this could happen if two cells have
         	// broken into boundary at the same time. Make nearest ghost node a real one.
-        	#define COVERAGE_IGNORE
-            unsigned nearest_node = 0;
+        	unsigned nearest_node = 0;
         	double nearest_distance = 100.0;
         	for (unsigned i=0 ; i<ghosts_on_node_0.size() ; i++)
         	{
@@ -1877,7 +1903,6 @@ public:
         	}
         	node_index = nearest_node;
         	image_created=true;
-            #define COVERAGE_IGNORE
         }
         
         if(image_created==false)

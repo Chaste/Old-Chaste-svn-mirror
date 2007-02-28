@@ -143,7 +143,9 @@ public:
         //simulator.SetEndTime(24.0);
         // We need faster tests
         simulator.SetEndTime(1.0);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(90));
         simulator.SetMaxCells(400);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(90));
         simulator.SetMaxElements(400);
 
         simulator.SetReMeshRule(false);
@@ -631,7 +633,9 @@ public:
                 
         SimulationTime::Destroy();
         simulator.SetDt(0.001);
+        
         simulator.Solve();
+        
         //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
         std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
