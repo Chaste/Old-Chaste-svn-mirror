@@ -176,6 +176,7 @@ elif system_name == 'new_chaste':
     petsc_base = '../../../petsc-2.2.1/'
     dealii_base = '../../../deal.II/'
     Export('dealii_base')
+    petsc_bmake = petsc_base+'bmake/linux-gnu'
     if build.is_optimised:
         petsc_libpath = os.path.abspath(petsc_base+'lib/libO_c++/linux-gnu/')
     else:
@@ -191,16 +192,14 @@ elif system_name == 'new_chaste':
     petsc_base = '../../../petsc-2.3.2-p4/'
     if build.is_optimised:
         petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu-opt/')
+        petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
     else:
         petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+        petsc_bmake = petsc_base+'bmake/linux-gnu'
     blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
     other_libpaths = [petsc_libpath, blas_libpath]
     other_libs = ['f2clapack', 'f2cblas']
   petsc_inc = petsc_base+'include'
-  if build.is_optimised:
-    petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
-  else:
-    petsc_bmake = petsc_base+'bmake/linux-gnu'
   # TODO: Make sure Chaste paths come first in the -I list.
   other_includepaths.extend([petsc_inc, petsc_bmake])
 elif system_name == 'Nottingham':
