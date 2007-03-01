@@ -107,9 +107,9 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     mCurrentSolution.reinit(mDofHandler.n_dofs());
     mResidual.reinit(mDofHandler.n_dofs());
     
-    std::cerr << "Number of active cells: " << mpMesh->n_active_cells() << std::endl;
-    std::cerr << "Total number of cells: "  << mpMesh->n_cells() << std::endl;
-    std::cerr << "Number of degrees of freedom: " << mDofHandler.n_dofs() << std::endl;    
+//    std::cerr << "Number of active cells: " << mpMesh->n_active_cells() << std::endl;
+//    std::cerr << "Total number of cells: "  << mpMesh->n_cells() << std::endl;
+//    std::cerr << "Number of degrees of freedom: " << mDofHandler.n_dofs() << std::endl;    
     
     std::vector<bool> component_mask(DIM+1);
 

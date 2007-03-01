@@ -13,6 +13,9 @@
 
 //todo: use something like simulation time?
 
+#define NON_GROWING_REGION 98
+#define GROWING_REGION 99
+
 
 /**
  *  INSERT COMMENTS
@@ -50,7 +53,7 @@ protected:
     bool   mTimesSet;
     
     Vector<double> mGrowthValuesAtVertices;
-    std::vector<GrowthByConstantMassOdeSystem<DIM>*> mpGrowthOdeSystems;
+    std::vector<GrowthByConstantMassOdeSystem<DIM>*> mGrowthOdeSystems;
     EulerIvpOdeSolver mOdeSolver;
 
     AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
@@ -100,6 +103,13 @@ public:
 
     void SetTimes(double Tstart, double Tend, double odeDt);
     void Run();
+
+
+    /** 
+     *  Returns true if there is an growth ode system associated with
+     *  this vertex in the mesh. Mainly for testing purposes
+     */ 
+    bool IsGrowingNode(unsigned vertexIndex);
 
 /* Inherited    
     virtual void Solve();

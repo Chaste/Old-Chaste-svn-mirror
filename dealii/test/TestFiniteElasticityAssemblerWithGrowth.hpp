@@ -13,7 +13,7 @@
 
 #include "FiniteElasticityTools.hpp"
 
-#define GROWING_REGION 99
+
 // todos: proper test of answers, compare numerical jacobian, test exceptions. 
 // sensible test once s set up. change constructor
 
@@ -31,6 +31,19 @@ public :
         mesh.refine_global(1);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
         
+        // elements haven't been set as GROWING_REGION or NON_GROWING_REGION
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssemblerWithGrowth<2> bad_fe_with_growth(&mesh,&mooney_rivlin_law,body_force,1.0,""));
+
+        FiniteElasticityTools<2>::SetAllElementsAsNonGrowingRegion(mesh);
+
+        // no elements set as GROWING_REGION 
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssemblerWithGrowth<2> bad_fe_with_growth2(&mesh,&mooney_rivlin_law,body_force,1.0,""));
+
+        // set the first element as growing
+        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        element_iter->set_material_id(GROWING_REGION);            
+
+        // should construct ok now
         FiniteElasticityAssemblerWithGrowth<2> fe_with_growth(&mesh,&mooney_rivlin_law,body_force,1.0,"");
 
         // set times not been called
@@ -42,6 +55,7 @@ public :
         // dt negative
         TS_ASSERT_THROWS_ANYTHING(fe_with_growth.SetTimes(0.0, 1.0, -0.01));
 
+        // none of the above should throw now
         TS_ASSERT_THROWS_NOTHING(fe_with_growth.SetTimes(0.0, 1.0, 0.01));
     }
     
@@ -55,46 +69,42 @@ public :
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(2);
+        mesh.refine_global(3);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
             
-    Point<2> centre;
-    centre(0) = 0.5;
-    centre(1) = 0.5;
-        
-        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
-        while(element_iter!=mesh.end())
-        {
-            element_iter->set_material_id(GROWING_REGION);
-            for (unsigned int vertex=0;vertex < GeometryInfo<2>::vertices_per_cell; vertex++)
-            {
-                const Point<2> vector_to_centre = (element_iter->vertex(vertex) - centre);
-                const double distance_from_centre = std::sqrt(vector_to_centre.square());
-              
-                if (distance_from_centre < 0.2)
-                {
-                    element_iter->set_refine_flag();
-                    std::cout << "refining element ";
-                    break;
-                };
-            };
-            
-            element_iter++;    
-        }
-  
-        mesh.execute_coarsening_and_refinement();
-          
-        
-        
+        Point<2> centre;
+        centre[0]=0.5;
+        centre[1]=0.5;
 
+        // set all elements as non growing initially, then set circular region as growing
+        FiniteElasticityTools<2>::SetAllElementsAsNonGrowingRegion(mesh);
+        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, centre, 0.2);
+
+          
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
                                                                       &mooney_rivlin_law,
                                                                       body_force,
                                                                       density,
                                                                       "finite_elas_growth/simple2d");
-    
 
-    
+
+        // loop over all the elements, and if it is in the growing region, check
+        // each node has an ode system associated with it...        
+        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        while(element_iter!=mesh.end())
+        {
+            if(element_iter->material_id()==GROWING_REGION)            
+            {
+                for (unsigned int i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
+                {
+                    unsigned vertex_index = element_iter->vertex_index(i);
+                    TS_ASSERT_EQUALS(finiteelas_with_growth.IsGrowingNode(vertex_index), true);
+                }
+            }
+            element_iter++;    
+        }
+
+
         finiteelas_with_growth.SetTimes(0.0, 1.0, 0.1);                                 
                                                          
         finiteelas_with_growth.Run();
@@ -127,25 +137,6 @@ public :
                                       
             vertex_iter.Next();
         }
-
-        // compute the deformed volume 
-        // NOTE: this aren't very accurate volumes, since we have lost the
-        // positions of the extra nodes (those used with quadratic basis functions)
-        // and the measure() function below must use linear interpolation. Hence
-        // the high tolerances
-        double deformed_volume = 0.0;
-        //Triangulation<2>::active_cell_iterator 
-        element_iter = mesh.begin_active();
-        while(element_iter!=mesh.end())
-        {
-            double element_volume = element_iter->measure();
-         //   TS_ASSERT_DELTA(element_volume, 1.0/mesh.n_active_cells(), 1e-2); 
-            
-            deformed_volume += element_volume;
-            element_iter++;
-        }
-        
-        //TS_ASSERT_DELTA(deformed_volume, 1.0, 1e-2);
     }
 };
 #endif /*TESTFINITEELASTICITYASSEMBLERWITHGROWTH_HPP_*/

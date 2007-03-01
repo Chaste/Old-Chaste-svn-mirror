@@ -35,53 +35,80 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
     // initialise growth variables
     ///////////////////////////////////////////////////////////
     mGrowthValuesAtVertices.reinit(this->mpMesh->n_vertices());
-    mpGrowthOdeSystems.reserve(this->mpMesh->n_vertices());
+    mGrowthOdeSystems.resize(this->mpMesh->n_vertices());
     
     for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
     {
-        mpGrowthOdeSystems[i] = NULL;
+        mGrowthOdeSystems[i] = NULL;
         mGrowthValuesAtVertices(i) = 1.0;
     }
-
-
+    
     mpSourceModel = new ConstantTumourSourceModel<DIM>(0.1);
 
     /////////////////////////////////////////////////////////////
-    // find growing region on create odes for each node in the
+    // find growing region and create odes for each node in the
     // region 
     /////////////////////////////////////////////////////////////
-    assert(DIM==2);
-    Point<DIM> centre;
-    centre(0) = 0.5;
-    centre(1) = 0.5;
-
-
+    bool found_growing_region = false;
     unsigned eval_point_index = 0;
+    
+    Triangulation<2>::active_cell_iterator element_iter = this->mpMesh->begin_active();
 
-
-    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-    while(!vertex_iter.ReachedEnd())
+    // loop over all the elements in the mesh..
+    while(element_iter!=this->mpMesh->end())
     {
-        Point<DIM> vector_to_centre =  vertex_iter.GetVertex() - centre;
-        double distance_from_centre = std::sqrt(vector_to_centre.square());
-
-        if( distance_from_centre < 0.2)
+        unsigned region = element_iter->material_id();
+        // check the element is set as GROWING_REGION or NON_GROWING_REGION
+        if( (region!=GROWING_REGION) && (region!=NON_GROWING_REGION))
         {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<DIM> position = vertex_iter.GetVertex();
-
-            mpSourceModel->AddEvaluationPoint(eval_point_index,
-                                             position,
-                                             vertex_index);
-  
-            mpGrowthOdeSystems[vertex_index] 
-               = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
-                                                        eval_point_index,
-                                                        mpSourceModel);
-
-            eval_point_index++;
+            std::string err_message("Found element in mesh with is does not have it's material ");
+            err_message += "id set to either GROWING_REGION or NON_GROWING_REGION";
+            EXCEPTION(err_message);
         }
-        vertex_iter.Next();
+        
+        // if the element is a growing region element (eg tumour)
+        if(region == GROWING_REGION)
+        {
+            found_growing_region = true;
+            
+            // loop over all vertices..
+            for (unsigned i=0; i<GeometryInfo<DIM>::vertices_per_cell; i++)
+            {
+                unsigned vertex_index = element_iter->vertex_index(i);
+                // create a growth ode system for the vertex, assuming one has not
+                // been created already, and an evaluation point in the source model
+                if(mGrowthOdeSystems[vertex_index]==NULL)
+                {
+                    mGrowthOdeSystems[vertex_index] 
+                         = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
+                                                                  eval_point_index,
+                                                                  mpSourceModel);
+
+                    Point<DIM> position = element_iter->vertex(i);
+                    mpSourceModel->AddEvaluationPoint(eval_point_index,
+                                                      position,
+                                                      vertex_index);
+                    eval_point_index++;                
+                }
+            }
+        }        
+//            const Point<2> vector_to_centre = (element_iter->vertex(vertex) - centre);
+//            const double distance_from_centre = std::sqrt(vector_to_centre.square());
+//          
+//            if (distance_from_centre < 0.2)
+//            {
+//                element_iter->set_refine_flag();
+//                std::cout << "refining element ";
+//                break;
+//            }
+        element_iter++;    
+    }
+      //  mesh.execute_coarsening_and_refinement();
+
+    // check there was at least one growing element...
+    if(!found_growing_region)
+    {
+        EXCEPTION("No elements in the mesh was labelled as growing");
     }
 }
 
@@ -90,11 +117,16 @@ FiniteElasticityAssemblerWithGrowth<DIM>::~FiniteElasticityAssemblerWithGrowth()
 {       
     for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
     {
-        delete mpGrowthOdeSystems[i];
+        delete mGrowthOdeSystems[i];
     }
 }
 
-
+template<int DIM>
+bool FiniteElasticityAssemblerWithGrowth<DIM>::IsGrowingNode(unsigned vertexIndex)
+{
+    assert(vertexIndex < mGrowthOdeSystems.size());
+    return (mGrowthOdeSystems[vertexIndex]!=NULL);
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -431,9 +463,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         //////////////////////////////////////////////////////
         for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
         {
-            if(mpGrowthOdeSystems[i]!=NULL)
+            if(mGrowthOdeSystems[i]!=NULL)
             {
-                mOdeSolver.SolveAndUpdateStateVariable(mpGrowthOdeSystems[i],
+                mOdeSolver.SolveAndUpdateStateVariable(mGrowthOdeSystems[i],
                                                        time,
                                                        time+mOdeDt,
                                                        mOdeDt);
@@ -448,9 +480,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         while(!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            if(mpGrowthOdeSystems[vertex_index]!=NULL)
+            if(mGrowthOdeSystems[vertex_index]!=NULL)
             {
-                mGrowthValuesAtVertices(vertex_index) = mpGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
+                mGrowthValuesAtVertices(vertex_index) = mGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
             }
             
             vertex_iter.Next();
