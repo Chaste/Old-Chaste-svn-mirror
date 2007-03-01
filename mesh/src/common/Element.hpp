@@ -212,7 +212,7 @@ public:
             if (strict)
             {
                 //Points can't be close to a face
-                if (weights[i] <= DBL_EPSILON)
+                if (weights[i] <= 2*DBL_EPSILON)
                 {
                     return false;
                 }
@@ -220,7 +220,7 @@ public:
             else
             {
                 //Allow point to be close to a face
-                if (weights[i] < -DBL_EPSILON)
+                if (weights[i] < -2*DBL_EPSILON)
                 {
                     return false;
                 }

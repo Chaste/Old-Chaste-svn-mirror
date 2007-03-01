@@ -12,7 +12,8 @@ class TestPointInclusion : public CxxTest::TestSuite
 {
 public:
 
-    void TestPointWeightsInElement1D()
+         
+   void TestPointWeightsInElement1D()
     {
         std::vector<Node<1>*> nodes1d;
         nodes1d.push_back(new Node<1>(0, false, 2.0));
@@ -245,6 +246,31 @@ public:
         TS_ASSERT_EQUALS(indices[23], 3026U); 
          
     }
+     
+    void TestFloatingPointIn3D()
+    {
+        //There's some weird failing behaviour in the refined mesh test
+        //This test duplicates it
+        
+        ConformingTetrahedralMesh<3,3> mesh;
+        
+        mesh.ConstructCuboid(3, 3, 3);
+        double third=1.0L/3.0L;
+        mesh.Scale(third, third, third);
+       
+        Point<3> point_on_edge1(5.0/6.0,   0.5,       1.0); 
+        Point<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0); 
+        Point<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L); 
+        Point<3> point_on_edge4(5.0L/6.0L, 3.0L/6.0L, 1.0L); 
+        Point<3> point_on_edge5(5.0L/6.0L, 0.5L,      6.0L/6.0L); 
+        Point<3> point_on_edge6(5.0L/6.0L, 3.0L/6.0L, 6.0L/6.0L); 
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge1),142U);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge2),142U);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge3),142U);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge4),142U);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge5),142U);
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6),142U);    
+    }   
           
 };
 

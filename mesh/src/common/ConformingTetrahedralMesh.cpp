@@ -1585,11 +1585,12 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElement
     for (unsigned i=0; i < mElements.size();i++)
     {
     	///\todo What if the element is deleted?
-    	if (mElements[i]->IncludesPoint(testPoint, strict))
+     	if (mElements[i]->IncludesPoint(testPoint, strict))
     	{
     		return i;
     	}
     }
+    
     
     //If it's in none of the elements, then throw
     EXCEPTION("Point is not in mesh");

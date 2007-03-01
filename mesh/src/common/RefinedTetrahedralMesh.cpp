@@ -12,6 +12,7 @@ private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpFineMesh;
     NodeMap *mpNodeMap;
     std::vector <std::set <Element <ELEMENT_DIM,SPACE_DIM>* > > mCoarseFineElementsMap;
+    std::vector <Element <ELEMENT_DIM,SPACE_DIM>* > mFineNodeToCoarseElementMap;
 
 public:
     RefinedTetrahedralMesh() : ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>()
@@ -30,6 +31,7 @@ public:
         assert(this->GetNumNodes() > 0);
         mpNodeMap = new NodeMap(this->GetNumNodes());
         
+        //Construct sorted lists of nodes from each mesh
         std::vector<Node<SPACE_DIM> * > coarse_nodes;
         for (unsigned i=0;i<this->GetNumNodes();i++)
         {
@@ -60,7 +62,17 @@ public:
             //Same node, set map
             mpNodeMap->SetNewIndex(coarse_mesh_index, fine_mesh_index);
         } 
-            
+          
+       //Calculate a map from fine nodes to coarse elements
+        mFineNodeToCoarseElementMap.resize(mpFineMesh->GetNumNodes());
+        for (unsigned i=0; i<mpFineMesh->GetNumNodes(); i++)
+        {
+            //Find a representative coarse element for this node and put it in the map
+            unsigned coarse_element_index = this->GetContainingElementIndex(mpFineMesh->GetNode(i)->GetPoint());
+            mFineNodeToCoarseElementMap[i]=this->GetElement(coarse_element_index);    
+        }
+ 
+        //Calculate the map from coarse elements to fine ones    
         mCoarseFineElementsMap.resize(this->GetNumElements());
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
         for (i_fine_element=mpFineMesh->GetElementIteratorBegin();
@@ -98,12 +110,17 @@ public:
             }    
         }
         
-        
+          
     }
     
     std::set< Element<ELEMENT_DIM, SPACE_DIM>* > GetFineElementsForCoarseElementIndex(unsigned coarse_element_index)
     {
         return mCoarseFineElementsMap[coarse_element_index];
+    }
+    
+    Element<ELEMENT_DIM, SPACE_DIM>* GetACoarseElementForFineNodeIndex(unsigned fine_node_index)
+    {
+        return mFineNodeToCoarseElementMap[fine_node_index];
     }
     
     NodeMap& rGetCoarseFineNodeMap()

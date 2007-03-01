@@ -11,7 +11,9 @@ class TestRefinedTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
 
-    void TestMeshConstructionFromMeshReader(void)
+ //   void TestMeshConstructionFromMeshReader(void)
+ // is not yet implemented
+    void TestConstructionFromCuboidMeshes3D()
     {
         // create fine mesh as CTM
         
@@ -41,7 +43,7 @@ public:
         //Top node is 4^3-1 and 7^3-1 respectively
     }
         
-    void TestCoarseFineElementsMap(void)
+    void TestCoarseFineElementsMap2D(void)
     {   
         ConformingTetrahedralMesh<2,2> fine_mesh;        
         fine_mesh.ConstructRectangularMesh(2, 2, false);
@@ -68,7 +70,29 @@ public:
                          coarse_mesh.GetFineElementsForCoarseElementIndex(0)); 
     }
     
-    void TestFineMeshIncorrect(void)
+    void TestFineNodesCoarseElementsMap2D(void)
+    {   
+        ConformingTetrahedralMesh<2,2> fine_mesh;        
+        fine_mesh.ConstructRectangularMesh(2, 2, false);
+        double half=1.0L/2.0L;
+        fine_mesh.Scale(half, half, 0.0);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        coarse_mesh.ConstructRectangularMesh(1, 1, false);
+       
+        // give fine mesh to coarse mesh and calculate node map
+        coarse_mesh.SetFineMesh(&fine_mesh);
+        
+        //node 1 is on the top edge of the fine mesh 
+        TS_ASSERT(coarse_mesh.GetElement(0) ==
+                         coarse_mesh.GetACoarseElementForFineNodeIndex(1)); 
+        //node 3 is on the left edge of the fine mesh 
+        TS_ASSERT(coarse_mesh.GetElement(1) ==
+                         coarse_mesh.GetACoarseElementForFineNodeIndex(3)); 
+    }
+    
+    void TestFineMeshIncorrect3D(void)
     {
         ConformingTetrahedralMesh<3,3> fine_mesh;
         
