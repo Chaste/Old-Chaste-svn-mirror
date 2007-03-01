@@ -344,7 +344,7 @@ if test_summary and not compile_only:
   #for oldfile in os.listdir(output_dir):
   #  os.remove(os.path.join(output_dir, oldfile))
   # Add a summary generator to the list of things for scons to do
-  if build_type == 'Coverage':
+  if isinstance(build, BuildTypes.Coverage):
     # Remove old .gcda files before running more tests
     # First, find appropriate build directories
     build_dirs = glob.glob('*/build/' + build.build_dir)
