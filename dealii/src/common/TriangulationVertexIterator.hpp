@@ -14,6 +14,10 @@
  *  elements (cells), then loop over each vertex of that cell, checking you haven't
  *  already done that vertex. This class takes care of this for you. 
  * 
+ *  Note: this class doesn't act like a typical std::iterator class, in that the
+ *  result doesn't point to a vertex, you don't call ++ etc. (although in the 
+ *  future ++ might be implemented to call Next()
+ * 
  *  See also DofVertexIterator
  *  
  *  Usage:

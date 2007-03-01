@@ -22,6 +22,10 @@
  *  Triangulation<DIM>::active_cell_iterator, which means the dofs for the vertex
  *  can be obtained.
  * 
+ *  Note: this class doesn't act like a typical std::iterator class, in that the
+ *  result doesn't point to a vertex, you don't call ++ etc. (although in the 
+ *  future ++ might be implemented to call Next()
+ * 
  *  Usage:
  * 
  *  DofVertexIterator<2> iter(&mesh,&dof);

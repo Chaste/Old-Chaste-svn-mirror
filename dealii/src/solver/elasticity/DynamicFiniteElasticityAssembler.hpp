@@ -11,7 +11,7 @@
 //     or probably not.
 
 
-// todos: useful output, bcc object, neumann?, heterogeneity, nondim?
+// todos: see finite elas assembler
 
 #include "FiniteElasticityAssembler.cpp"   //cpp!
 

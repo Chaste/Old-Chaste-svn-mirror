@@ -11,7 +11,15 @@
 //     or probably not.
 
 
-// todos: chaste style output, nonzero neumann, heterogeneity, nondim
+
+// TODO: TEST AGAINST RESULTS FROM SOMEWHERE ELSE
+
+// todo: possibly important: initial guess is the zero displacement solution,
+//  which isn't p=0
+// refactor the assembler stuff into a dealii abstract assembler class?
+// refactor out the newton solver?
+
+// other todos: doxygen,chaste style output, nonzero neumann, heterogeneity, nondim. 
 
 
 #include <grid/grid_out.h>

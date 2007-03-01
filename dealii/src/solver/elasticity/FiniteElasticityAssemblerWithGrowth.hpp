@@ -6,6 +6,10 @@
 #include "GrowthByConstantMassOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
+//todos: don't fix whole side, use flag or material id to determine tumour,
+// refine overgrown elements+hanging node constraints, doxygen 
+
+
 /**
  *  INSERT COMMENTS
  */

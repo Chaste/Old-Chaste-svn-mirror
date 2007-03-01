@@ -469,6 +469,13 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         ////////////////////////////////////////////////////////
         this->mWriteOutput = false;
         this->Solve();
+        
+        
+        ////////////////////////////////////////////////////////
+        // update the new position at the evaluation points 
+        // in the source model
+        ////////////////////////////////////////////////////////
+        mpSourceModel->UpdateEvaluationPointsNewPosition(this);
 
         ////////////////////////////////////////////////////////
         // output results
