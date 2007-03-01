@@ -76,16 +76,30 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
         EXCEPTION("No fixed surface found. (no surface elements in the mesh have had their boundary indicator set to be FIXED_BOUNDARY");
     }         
 
+  
+
     // distribute dofs
-    /* mDofHandler.distribute_dofs(mFe);*/
     mDofHandler.distribute_dofs(mFeSystem);
-    
+
+    // HANGIGN NODES, SEE DEALII TUTORIAL 2
+    // clear the constrait matrix
+    mHangingNodeConstraints.clear();
+    // form constraints 
+    DoFTools::make_hanging_node_constraints(mDofHandler, mHangingNodeConstraints);
+    // some postprocessing
+    mHangingNodeConstraints.close();
+
     // form sparsity pattern
     mSparsityPattern.reinit(mDofHandler.n_dofs(), 
                             mDofHandler.n_dofs(),
                             mDofHandler.max_couplings_between_dofs());
 
     DoFTools::make_sparsity_pattern(mDofHandler, mSparsityPattern);
+
+    // see dealii tutorial 2
+    mHangingNodeConstraints.condense(mSparsityPattern);
+
+
     mSparsityPattern.compress();
     
     // initialise vectors and matrices
@@ -554,6 +568,16 @@ void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
     }
     if(assembleJacobian) { std::cout << "\n"; }
     
+    // note this has to be done before applying dirichlet bcs
+    if(assembleJacobian)
+    {   
+        mHangingNodeConstraints.condense(mJacobianMatrix);
+    }
+    if(assembleResidual)
+    {
+        mHangingNodeConstraints.condense(mResidual);
+    }
+    
     ApplyDirichletBoundaryConditions(assembleResidual,assembleJacobian);
 }
 
@@ -780,6 +804,10 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
     SolverGMRES<>::AdditionalData gmres_additional_data(200);
     SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);    
     gmres.solve(mJacobianMatrix, update, mResidual, PreconditionIdentity());
+    
+    // deal with hanging nodes - form a continuous solutions
+    mHangingNodeConstraints.distribute(update);
+    
     
     // save the old current solution
     Vector<double> old_solution = mCurrentSolution;

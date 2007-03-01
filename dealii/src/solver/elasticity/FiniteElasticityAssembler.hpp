@@ -18,6 +18,9 @@
 //  which isn't p=0
 // refactor the assembler stuff into a dealii abstract assembler class?
 // refactor out the newton solver?
+// change quad rule if linears
+// tobefixed: numerical jacobian: works but the boundary condition is wrong for some
+// reason
 
 // other todos: doxygen,chaste style output, nonzero neumann, heterogeneity, nondim. 
 
@@ -60,6 +63,9 @@
 #include <sstream>
 #include <base/symmetric_tensor.h>
 
+// for dealing with hanging nodes..
+#include <dofs/dof_constraints.h>
+
 #define FIXED_BOUNDARY 10
 #define NEUMANN_BOUNDARY 11
 #define DIRICHLET_BOUNDARY 12
@@ -81,11 +87,14 @@ protected:
     // an FE_Q object seems to be equivalent to our basis functions
     // It is templated over dimension, with the order of the bases taken 
     // in the contructor
-    /*FE_Q<DIM>            mFe;*/            // note that this must be defined before mDofHandler!
+    // note that this must be defined before mDofHandler!
+    /*FE_Q<DIM>            mFe;*/            
 
     // an Fe system seems to be, loosely, a set of fe_q objects
     FESystem<DIM>        mFeSystem;          // note that this must be defined before mDofHandler!
     DoFHandler<DIM>      mDofHandler;
+
+    ConstraintMatrix     mHangingNodeConstraints;
 
     SparsityPattern      mSparsityPattern;
 

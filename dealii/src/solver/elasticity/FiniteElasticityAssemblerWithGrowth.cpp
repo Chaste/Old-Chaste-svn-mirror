@@ -10,7 +10,6 @@
 // to be removed later
 #include "ConstantTumourSourceModel.hpp"
 
-//todo: use something like simulation time?
 
 
 template<int DIM>
@@ -411,6 +410,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
     
 
     this->OutputResults(0);
+
 
     unsigned counter=1;
     double time = mTstart;

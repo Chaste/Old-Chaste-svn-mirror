@@ -9,6 +9,10 @@
 //todos: don't fix whole side, use flag or material id to determine tumour,
 // refine overgrown elements+hanging node constraints, doxygen 
 
+// todo: proper interpolation of g
+
+//todo: use something like simulation time?
+
 
 /**
  *  INSERT COMMENTS

@@ -13,7 +13,7 @@
 
 #include "FiniteElasticityTools.hpp"
 
-
+#define GROWING_REGION 99
 // todos: proper test of answers, compare numerical jacobian, test exceptions. 
 // sensible test once s set up. change constructor
 
@@ -55,8 +55,36 @@ public :
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(4);
+        mesh.refine_global(2);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+            
+    Point<2> centre;
+    centre(0) = 0.5;
+    centre(1) = 0.5;
+        
+        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        while(element_iter!=mesh.end())
+        {
+            element_iter->set_material_id(GROWING_REGION);
+            for (unsigned int vertex=0;vertex < GeometryInfo<2>::vertices_per_cell; vertex++)
+            {
+                const Point<2> vector_to_centre = (element_iter->vertex(vertex) - centre);
+                const double distance_from_centre = std::sqrt(vector_to_centre.square());
+              
+                if (distance_from_centre < 0.2)
+                {
+                    element_iter->set_refine_flag();
+                    std::cout << "refining element ";
+                    break;
+                };
+            };
+            
+            element_iter++;    
+        }
+  
+        mesh.execute_coarsening_and_refinement();
+          
+        
         
 
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
@@ -64,6 +92,8 @@ public :
                                                                       body_force,
                                                                       density,
                                                                       "finite_elas_growth/simple2d");
+    
+
     
         finiteelas_with_growth.SetTimes(0.0, 1.0, 0.1);                                 
                                                          
@@ -104,7 +134,8 @@ public :
         // and the measure() function below must use linear interpolation. Hence
         // the high tolerances
         double deformed_volume = 0.0;
-        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        //Triangulation<2>::active_cell_iterator 
+        element_iter = mesh.begin_active();
         while(element_iter!=mesh.end())
         {
             double element_volume = element_iter->measure();
