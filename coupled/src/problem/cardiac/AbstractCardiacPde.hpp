@@ -28,7 +28,7 @@
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance
 // of the member variables in A
 
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class AbstractCardiacPde
 {
 protected:

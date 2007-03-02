@@ -12,7 +12,7 @@
  * c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)
  *
  */
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class AbstractLinearParabolicPde : public AbstractLinearEllipticPde<SPACE_DIM>
 {
 public:

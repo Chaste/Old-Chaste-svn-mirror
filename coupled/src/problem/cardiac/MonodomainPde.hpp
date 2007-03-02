@@ -37,7 +37,7 @@ const double BETA = 0.00014;
  *
  * Note that default values of A, C and sigma_i are stored in the parent class
  */
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class MonodomainPde : public AbstractCardiacPde<SPACE_DIM>, public AbstractLinearParabolicPde<SPACE_DIM>
 {
 private:

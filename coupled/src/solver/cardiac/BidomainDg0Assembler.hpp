@@ -36,7 +36,7 @@
  *  nodes (using SetFixedExtracellularPotentialNodes() ), else no solution is possible.
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainDg0Assembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 2>
 {
 private:

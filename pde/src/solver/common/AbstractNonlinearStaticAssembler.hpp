@@ -33,13 +33,13 @@
  * 
  * [The implementations are at the bottom of this file]
  */
-template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, 
                                                                  Vec currentGuess, 
                                                                  Vec residualVector,
                                                                  void *pContext);
                                     
-template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes,
                                                                  Vec currentGuess,
                                                                  Mat *pGlobalJacobian, 
@@ -54,7 +54,7 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes,
  * 
  *  to become AbstractNonlinearStaticAssembler ?
  */
-template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractNonlinearStaticAssembler : public AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 protected:
@@ -263,7 +263,8 @@ public:
         // check size of initial guess is correct
         PetscInt size_of_init_guess;
         VecGetSize(initialGuess, &size_of_init_guess);
-        if(size_of_init_guess!=PROBLEM_DIM * (int) this->mpMesh->GetNumNodes())
+        PetscInt problem_size=PROBLEM_DIM * this->mpMesh->GetNumNodes();
+        if(size_of_init_guess !=  problem_size)
         {
             std::stringstream error_message;
             error_message << "Size of initial guess vector, " << size_of_init_guess 
@@ -462,7 +463,7 @@ public:
  * Note: this is a global function, hence the need for a long name to avoid
  * potential conflicting names later
  */
-template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, Vec currentGuess,
                                                                  Vec residualVector, void *pContext)
 {
@@ -496,7 +497,7 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, Vec 
  * Note: this is a global function, hence the need a long name to avoid
  * potential conflicting names later
  */
-template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes, Vec currentGuess,
                                                                  Mat *pGlobalJacobian, Mat *pPreconditioner,
                                                                  MatStructure *pMatStructure, void *pContext)

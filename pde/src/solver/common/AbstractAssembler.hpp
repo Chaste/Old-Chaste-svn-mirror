@@ -48,7 +48,7 @@
  *  to add to the element stiffness matrix/vector).
  * 
  */
-template <int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractAssembler
 {
 protected:
@@ -520,8 +520,9 @@ protected:
             {
                 PetscInt size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
-                assert(size1==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
-                assert(size2==PROBLEM_DIM * (int)this->mpMesh->GetNumNodes());
+                PetscInt problem_size=PROBLEM_DIM * this->mpMesh->GetNumNodes();
+                assert(size1==problem_size);
+                assert(size2==problem_size);
    
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);

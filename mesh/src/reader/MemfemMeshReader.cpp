@@ -13,7 +13,7 @@
  * Also calls the superclass AbstractMeshReader's constructor
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseName)
         : AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>()
 {
@@ -94,7 +94,7 @@ MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::MemfemMeshReader(std::string pathBaseN
  * position.  Indices are implicit in the vector.
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
     std::vector<std::string> rawData)
 {
@@ -142,7 +142,7 @@ std::vector<std::vector<double> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::Toke
  * indices of nodes.
  */
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
     std::vector<std::string> rawData,
     unsigned dimensionOfObject,
@@ -179,7 +179,7 @@ std::vector<std::vector<unsigned> > MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::To
 }
 
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>::~MemfemMeshReader()
 {}
 #endif //_MEMFEMMESHREADER_CPP_

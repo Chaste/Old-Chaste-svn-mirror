@@ -10,7 +10,7 @@
  *  A boundary conditions container with some added functionality for use in
  *  linear and finite elasticity problems.
  */
-template <int DIM>
+template <unsigned DIM>
 class ElasticityBoundaryConditionsContainer : public BoundaryConditionsContainer<DIM,DIM,DIM>
 {
 

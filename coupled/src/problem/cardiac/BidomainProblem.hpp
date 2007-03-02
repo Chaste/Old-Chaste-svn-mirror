@@ -20,7 +20,7 @@
  * where V_j is the voltage at node j and phi_j is the
  * extracellular potential at node j.
  */
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class BidomainProblem
 {
 private:

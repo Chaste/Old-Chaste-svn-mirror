@@ -3,7 +3,7 @@
 #include "AbstractElement.hpp"
 #include "UblasCustomFunctions.hpp"
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
                                                          std::vector<Node<SPACE_DIM>*> nodes,
                                                          unsigned orderOfBasisFunctions)
@@ -48,18 +48,18 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
 }
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroJacobianDeterminant(void)
 {
     mJacobianDeterminant=0.0;
 }
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
 {
     mWeightedDirection=zero_vector<double>(SPACE_DIM);
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
 {
     if (mIsDeleted)

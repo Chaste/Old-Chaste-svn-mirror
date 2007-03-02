@@ -4,7 +4,7 @@
 #include "Point.hpp"
 #include <set>
 
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class Node
 {
 private:

@@ -4,7 +4,7 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "NodeMap.hpp"
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class RefinedTetrahedralMesh : 
                   public ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {

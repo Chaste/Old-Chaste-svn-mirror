@@ -17,7 +17,7 @@
  * 						  "femlab_lshape_edges.dat",);
  * Also calls the superclass AbstractMeshReader's constructor
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBaseName,
                                                             std::string nodeFileName,
                                                             std::string elementFileName,
@@ -66,7 +66,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::FemlabMeshReader (std::string pathBase
  * position.  Indices are implicit in the vector.
  */
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector < std::vector < double > >
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector < std::string >
         rawData)
@@ -132,7 +132,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles (std::vector 
  * Return value is a vector where each item is a vector of ints which represents
  * indices of nodes.
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector < std::vector < unsigned > >
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < std::string > rawData,
         unsigned dimensionOfObject)
@@ -180,7 +180,7 @@ FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts (std::vector < s
 /**
  * Destructor
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 FemlabMeshReader<ELEMENT_DIM, SPACE_DIM>::~FemlabMeshReader ()
 {}
 #endif //_FEMLABMESHREADER_CPP_

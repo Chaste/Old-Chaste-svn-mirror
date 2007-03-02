@@ -10,7 +10,7 @@
 
 #include "AbstractMeshReader.cpp"
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class FemlabMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 
 {

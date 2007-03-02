@@ -6,12 +6,12 @@
 
 //const double INFINITY=DBL_MAX;
 
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class Decimator;
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class CompNodeInfo;
 
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class NodeInfo
 {
 private:
@@ -122,7 +122,7 @@ public:
     }
 };
 
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class CompNodeInfo : public std::binary_function<NodeInfo<SPACE_DIM>*, NodeInfo<SPACE_DIM> *, bool>
 {
 public:

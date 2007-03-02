@@ -4,7 +4,7 @@
 #include "AbstractMeshWriter.cpp"
 #include "OutputFileHandler.hpp"
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 public:

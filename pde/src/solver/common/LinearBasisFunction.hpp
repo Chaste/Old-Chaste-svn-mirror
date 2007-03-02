@@ -4,7 +4,7 @@
 #include "AbstractBasisFunction.hpp"
 #include "Point.hpp"
 
-template <int ELEM_DIM>
+template <unsigned ELEM_DIM>
 class LinearBasisFunction : public AbstractBasisFunction<ELEM_DIM>
 {
 public:

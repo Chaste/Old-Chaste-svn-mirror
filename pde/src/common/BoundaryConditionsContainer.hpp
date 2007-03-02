@@ -21,7 +21,7 @@
  * Various operations are currently very inefficient - there is certainly scope for
  * optimisation here!
  */
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 struct LessThanNode
 {
     bool operator()(const Node<SPACE_DIM> * const &n1, const Node<SPACE_DIM> * const &n2)
@@ -30,7 +30,7 @@ struct LessThanNode
     }
 };
 
-template<int ELEM_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class BoundaryConditionsContainer
 {
 private:

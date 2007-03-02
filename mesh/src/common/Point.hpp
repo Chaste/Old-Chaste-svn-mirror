@@ -9,7 +9,7 @@
 using namespace boost::numeric::ublas;
 
 
-template<int DIM>
+template<unsigned DIM>
 class Point
 {
 private:
@@ -68,7 +68,7 @@ public:
     
     double operator[] (unsigned i) const
     {
-        assert((int)i<DIM);
+        assert(i<DIM);
         return mLocation(i);
     }
     

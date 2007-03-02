@@ -28,7 +28,7 @@
  *
  *  The user should call Solve() from the superclass AbstractLinearDynamicProblemAssembler.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainDg0Assembler : public SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM>
 {
 private:

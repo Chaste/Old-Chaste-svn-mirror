@@ -30,7 +30,7 @@
 // of the member variables in A
 
 
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class AbstractLinearEllipticPde
 {
 public:

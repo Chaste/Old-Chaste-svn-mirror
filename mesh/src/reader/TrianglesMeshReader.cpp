@@ -16,7 +16,7 @@
  *		                  "pdes/tests/meshdata/disk_522_elements");
  * Also calls the superclass AbstractMeshReader's constructor
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pathBaseName)
 {
     //Open node file and store the lines as a vector of strings (minus the comments)
@@ -161,7 +161,7 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
  * position.  Indices are implicit in the vector.
  */
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToDoubles(
     std::vector<std::string> rawData)
 {
@@ -251,7 +251,7 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
  * Return value is a vector where each item is a vector of ints which represents
  * indices of nodes.
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TokenizeStringsToInts(
     std::vector<std::string> rawData,
     unsigned dimensionOfObject)
@@ -293,7 +293,7 @@ std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>:
     return tokenized_data;
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::string pathBaseName)
 {
     std::string face_file_name;
@@ -336,7 +336,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadFacesAsElements(std::strin
  * This method is specific to reading a mesh of trianges in 3D
  *
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string pathBaseName)
 {
 
@@ -394,7 +394,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadEdgesAsFaces(std::string p
 /**
  * Destructor
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::~TrianglesMeshReader()
 {}
 

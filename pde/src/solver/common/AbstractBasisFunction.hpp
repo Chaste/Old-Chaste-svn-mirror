@@ -16,7 +16,7 @@
  *
  * @see LinearBasisFunction
  */
-template <int ELEM_DIM>
+template <unsigned ELEM_DIM>
 class AbstractBasisFunction
 {
 

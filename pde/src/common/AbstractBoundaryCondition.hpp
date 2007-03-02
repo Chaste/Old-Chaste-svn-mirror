@@ -7,7 +7,7 @@
 /**
  * Abstract base class for boundary conditions.
  */
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class AbstractBoundaryCondition
 {
 public:

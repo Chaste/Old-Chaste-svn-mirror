@@ -4,12 +4,12 @@
 #include "ConformingTetrahedralMesh.hpp"
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
 {}
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(unsigned numElements)
 {
     mElements.reserve(numElements);
@@ -17,7 +17,7 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(uns
 
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM> &rMeshReader,
     unsigned orderOfBasisFunctions)
@@ -291,7 +291,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     }
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ConformingTetrahedralMesh()
 {
     // Iterate over nodes and free the memory
@@ -313,7 +313,7 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ConformingTetrahedralMesh()
 }
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 {
 
@@ -340,7 +340,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
  *
  * Note that this may become invalid if nodes are subsequently added to the mesh.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
     assert(index < mNodes.size());
@@ -348,48 +348,48 @@ Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsi
 }
 
 /// Returns the number of nodes that are actually in use
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
 {
     return mNodes.size() - mDeletedNodeIndices.size();
 }
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
 {
     return mNodes.size();
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
     return mElements.size() - mDeletedElementIndices.size();
 }
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
     return mElements.size();
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryNodes()
 {
     return mBoundaryNodes.size();
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements()
 {
     return mBoundaryElements.size() - mDeletedBoundaryElementIndices.size();
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllBoundaryElements()
 {
     return mBoundaryElements.size();
 }
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 {
     return mNumCornerNodes;
@@ -397,7 +397,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumCornerNodes()
 
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryNode(Point<1> updatedPoint, unsigned boundaryNodeIndex)
 {
     assert(GetNode(boundaryNodeIndex)->IsBoundaryNode());
@@ -419,7 +419,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
   * @param verify is set to false if we want to skip the signed area tests
   *
   */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         Point<SPACE_DIM> point,
         bool verify)
@@ -469,7 +469,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
  * @param crossReference can be set to false if you just want to check whether this will work.
  *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         unsigned targetIndex,
         bool crossReference)
@@ -601,7 +601,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
  * or more node have been moved.
  *
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
 {
     for (unsigned i=0; i<mElements.size();i++)
@@ -630,7 +630,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshMesh()
     
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     Element<ELEMENT_DIM,SPACE_DIM>* pElement,
     Point<SPACE_DIM> point)
@@ -712,7 +712,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
 }
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshVolume()
 {
     double mesh_volume = 0.0;
@@ -736,7 +736,7 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshVolume()
     return mesh_volume;
 }
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
 {
     //ELEMENT_DIM-1 is the dimension of the boundary element
@@ -775,7 +775,7 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
  * @param yFactor is the scale in the y-direction,
  * @param zFactor is the scale in the z-direction
  **/
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
         void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
                 const double xScale,
                 const double yScale,
@@ -806,7 +806,7 @@ template <int ELEMENT_DIM, int SPACE_DIM>
  * @param yMovement is the y-displacement,
  * @param zMovement is the z-displacement,
  **/
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
          const double xMovement,
          const double yMovement,
@@ -832,7 +832,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
  * Translate mesh using the BOOST ublas library - this is the method that actually does the work
  * @param transVec is a translation vector of the correct size
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
 {
     unsigned num_nodes=GetNumAllNodes();
@@ -854,7 +854,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<doubl
  * This is the method that actually does the work
  * @param rotation_matrix is a Ublas rotation matrix of the correct form
  **/
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
     c_matrix<double , SPACE_DIM, SPACE_DIM> rotation_matrix)
 {
@@ -873,7 +873,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(
 * @param axis is the axis of rotation (does not need to be normalised)
 * @param angle is the angle in radians
  **/
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(c_vector<double,3> axis, double angle)
 {
     assert(SPACE_DIM == 3);
@@ -903,7 +903,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Rotate(c_vector<double,3
  * Rotate the mesh about the x-axis
  * @param theta is the angle in radians
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateX(const double theta)
 {
     if (SPACE_DIM != 3)
@@ -924,7 +924,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateX(const double the
  * Rotate the mesh about the y-axis
  * @param theta is the angle in radians
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateY(const double theta)
 {
     if (SPACE_DIM != 3)
@@ -946,7 +946,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateY(const double the
  * Rotate the mesh about the z-axis
  * @param theta is the angle in radians
  */
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateZ(const double theta)
 {
     if (SPACE_DIM < 2)
@@ -965,7 +965,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RotateZ(const double the
 }
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(unsigned index)
 {
     if (!mNodes[index]->IsBoundaryNode() )
@@ -1013,7 +1013,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(uns
     }
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
 {
 
@@ -1147,7 +1147,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
     }
     
 }
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 {
     //Make sure the map is big enough
@@ -1281,7 +1281,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumberGenerator &rRng)
 {
     //Working from the back, each node is swapped with a random node that precedes it in the array
@@ -1301,7 +1301,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(RandomNumbe
     }
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned> perm)
 {
     //Let's not do this if there are any deleted nodes
@@ -1323,7 +1323,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector
         mNodes[index]->SetIndex(index);
     }
 }
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries()
 {
     assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 );
@@ -1383,7 +1383,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM> *pElement, double maxPenetration)
 {
      assert (ELEMENT_DIM == SPACE_DIM);
@@ -1465,7 +1465,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     return true;
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxPenetration)
 {
     // Looping through all the elements in the mesh
@@ -1485,7 +1485,7 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxP
 }
 
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
 {
     assert(SPACE_DIM == 2);
@@ -1577,7 +1577,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict)
 {
 	///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
@@ -1596,7 +1596,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElement
     EXCEPTION("Point is not in mesh");
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(Point<SPACE_DIM> testPoint)
 {
     std::vector<unsigned> element_indices;
@@ -1611,7 +1611,7 @@ std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetCont
     return element_indices;
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
 	assert(hi>=lo);
@@ -1633,7 +1633,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(uns
 	
 }
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
                                                                         unsigned height,
                                                                         unsigned depth)

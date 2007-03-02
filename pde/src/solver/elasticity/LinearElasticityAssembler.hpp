@@ -32,7 +32,7 @@
  *
  *  NOTE: currently only solves heterogeneous problems.
  */
-template <int DIM>
+template <unsigned DIM>
 class LinearElasticityAssembler : public AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>
 {
 private :

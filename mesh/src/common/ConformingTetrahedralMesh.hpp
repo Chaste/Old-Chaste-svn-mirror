@@ -21,7 +21,7 @@
  * Work still needs to be done with boundary nodes & elements?
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ConformingTetrahedralMesh
 {
 public:

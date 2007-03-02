@@ -20,7 +20,7 @@
  * by the pde instead.
  */
 
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class AbstractCardiacCellFactory
 {
 protected:

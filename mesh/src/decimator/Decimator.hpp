@@ -15,7 +15,7 @@
 */
 
 ///Note ELEMENT_DIM matches SPACE_DIM
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class Decimator
 {
 protected:

@@ -13,7 +13,7 @@
 /**
  *  AbstractLinearAssembler. See AbstractAssembler for usage.
  */
-template<int ELEMENT_DIM, int SPACE_DIM, int PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
 

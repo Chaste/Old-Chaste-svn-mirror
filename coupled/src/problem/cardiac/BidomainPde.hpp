@@ -27,7 +27,7 @@
  *       I_intra_stim is the internal stimulus                          (uA/cm^3),
  *       I_extra_stim is the external stimulus (a shock)                (uA/cm^3).
  */
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class BidomainPde : public AbstractCardiacPde<SPACE_DIM>
 {
     c_matrix<double, SPACE_DIM, SPACE_DIM> mExtracellularConductivityTensor;

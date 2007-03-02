@@ -13,7 +13,7 @@
 /**
  * Class which specifies and solves a monodomain problem.
  */
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class MonodomainProblem
 {
 private:

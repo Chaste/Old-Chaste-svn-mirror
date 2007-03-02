@@ -270,7 +270,7 @@ c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
  *     results are undefined if this is not within the canonical element.
  * @return The values of the basis functions, in local index order.
  */
-template <int ELEM_DIM>
+template <unsigned ELEM_DIM>
 c_vector<double, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctions(const Point<ELEM_DIM> &rPoint) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -305,7 +305,7 @@ c_vector<double, 1> LinearBasisFunction<0>::ComputeBasisFunctions(const Point<0>
  * @return The derivatives of the basis functions as the column vectors of
  *     a matrix in local index order.
  */
-template <int ELEM_DIM>
+template <unsigned ELEM_DIM>
 c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);
@@ -335,7 +335,7 @@ c_matrix<double, ELEM_DIM, ELEM_DIM+1>  LinearBasisFunction<ELEM_DIM>::ComputeBa
  *     entry is a vector (c_vector<double, SPACE_DIM> instance) giving the
  *     derivative along each axis.
  */
-template <int ELEM_DIM>
+template <unsigned ELEM_DIM>
 c_matrix<double, ELEM_DIM, ELEM_DIM+1> LinearBasisFunction<ELEM_DIM>::ComputeTransformedBasisFunctionDerivatives(const Point<ELEM_DIM> &rPoint, const c_matrix<double, ELEM_DIM, ELEM_DIM> &rInverseJacobian) const
 {
     assert(ELEM_DIM < 4 && ELEM_DIM > 0);

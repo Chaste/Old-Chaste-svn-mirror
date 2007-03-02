@@ -26,7 +26,7 @@
  * This class could do with some tidying. More (3D) tests are also needed.
  * It probably needs re-writing to take advantage of parallel machines.
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class SimpleNonlinearEllipticAssembler : public AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
     // Allow tests to access private members, in order to test computation of

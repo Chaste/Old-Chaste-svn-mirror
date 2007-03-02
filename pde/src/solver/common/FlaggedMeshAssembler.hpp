@@ -3,7 +3,7 @@
 
 #include "SimpleDg0ParabolicAssembler.hpp"
 
-template<int DIM>
+template<unsigned DIM>
 class FlaggedMeshAssembler : public SimpleDg0ParabolicAssembler<DIM,DIM>
 {
 private:
@@ -111,8 +111,9 @@ protected :
             {
                 PetscInt size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
-                assert(size1==1 * (int)this->mpMesh->GetNumNodes());
-                assert(size2==1 * (int)this->mpMesh->GetNumNodes());
+                PetscInt problem_size=this->mpMesh->GetNumNodes();
+                assert(size1==problem_size);
+                assert(size2==problem_size);
    
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);

@@ -5,7 +5,7 @@
 #include "Decimator.hpp"
 #include "RandomNumberGenerator.hpp"
 ///Note ELEMENT_DIM matches SPACE_DIM
-template <int SPACE_DIM>
+template <unsigned SPACE_DIM>
 class RandomDecimator : public Decimator<SPACE_DIM>
 {
     RandomNumberGenerator * mpRanGen;

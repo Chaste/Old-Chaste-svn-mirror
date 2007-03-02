@@ -8,7 +8,7 @@
  * evaluates the function to determine the value of the condition at a given
  * point.
  */
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class FunctionalBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private :

@@ -79,9 +79,9 @@ private:
     std::vector <unsigned> mCryptBoundary;
     std::vector <unsigned> mOldCryptBoundary;
     
-    /**< An unsigned int giving the maximum number of cells that this simulation will include (for use by datawriter). */
+    /**< An unsigned giving the maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
-    /**< An unsigned int giving the maximum number of elements that this simulation will include (for use by datawriter). */
+    /**< An unsigned giving the maximum number of elements that this simulation will include (for use by datawriter). */
     unsigned mMaxElements;
     
     std::string mOutputDirectory;
@@ -1595,7 +1595,7 @@ public:
 //	        
 //	        if(!our_node_periodic)
 //	        {
-//	        	for (int elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+//	        	for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
 //		        {
 //		            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
 //		    		unsigned node[3];

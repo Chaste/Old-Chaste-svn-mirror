@@ -15,7 +15,7 @@
  */
 
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataFromFile(std::string fileName)
 {
     // Open raw data file
@@ -83,7 +83,7 @@ std::vector<std::string> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetRawDataF
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
 {
     //Initialize an interator for the vector of nodes
@@ -115,7 +115,7 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMaxNodeIndex()
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
 {
     //Initialize an interator for the vector of nodes
@@ -147,7 +147,7 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetMinNodeIndex()
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     /**
@@ -177,7 +177,7 @@ std::vector<double> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 {
     /**
@@ -202,7 +202,7 @@ std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElement
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
 {
     mpElementIterator = mElementData.begin();
@@ -220,7 +220,7 @@ void AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::Reset()
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
 {
     /**
@@ -252,7 +252,7 @@ std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFace()
  *
  */
 
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextEdge()
 {
     // Call GetNextFace()

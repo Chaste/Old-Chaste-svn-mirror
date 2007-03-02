@@ -18,7 +18,7 @@
  *
  *  Assembler for solving AbstractLinearParabolicPdes
  */
-template<int ELEMENT_DIM, int SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class SimpleDg0ParabolicAssembler : public AbstractLinearDynamicProblemAssembler<ELEMENT_DIM, SPACE_DIM, 1>
 {
 private :

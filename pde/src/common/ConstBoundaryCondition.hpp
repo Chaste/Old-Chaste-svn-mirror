@@ -6,7 +6,7 @@
 /**
  * Boundary condition that takes a constant value wherever it is applied.
  */
-template<int SPACE_DIM>
+template<unsigned SPACE_DIM>
 class ConstBoundaryCondition : public AbstractBoundaryCondition<SPACE_DIM>
 {
 private:

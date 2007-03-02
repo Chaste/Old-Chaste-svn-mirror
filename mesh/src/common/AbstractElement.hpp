@@ -19,7 +19,7 @@
 const unsigned INDEX_IS_NOT_USED=0;
 
 
-template <int ELEMENT_DIM, int SPACE_DIM>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractElement
 {
 protected:

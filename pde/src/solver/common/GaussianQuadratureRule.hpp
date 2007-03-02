@@ -14,7 +14,7 @@
  * with between 1 and 3 (inclusive) gauss points in each dimension.
  */
 
-template<int ELEM_DIM>
+template<unsigned ELEM_DIM>
 class GaussianQuadratureRule
 {
     unsigned mNumQuadPoints;

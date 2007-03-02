@@ -7,7 +7,7 @@
 #include "FourthOrderTensor.hpp"
 
 
-template<int DIM>
+template<unsigned DIM>
 class CompressibleFiniteElasticityAssembler : public AbstractNonlinearStaticAssembler<DIM,DIM,DIM>
 {
 private:
