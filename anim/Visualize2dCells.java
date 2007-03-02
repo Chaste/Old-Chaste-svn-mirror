@@ -66,6 +66,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	static CustomCanvas2D canvas;
 
 	Button run;
+	
+	public static Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1, 1, 100);
+	public static Scrollbar time_slider = new Scrollbar(Scrollbar.HORIZONTAL, timeStep, 1, 0, 2);
 
 	public static int numSteps = 0;
 
@@ -78,6 +81,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 		//canvas.setSize(1000, 400);
 		canvas.setPreferredSize(new Dimension(frame.getWidth(),frame.getHeight()));
 		addButtons(frame);
+		addTimeSlider(frame);
 		JPanel canvasPanel = new JPanel();
 		canvasPanel.add(canvas);
 		frame.add(canvasPanel, BorderLayout.CENTER);
@@ -121,7 +125,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	}
 
 	public void adjustmentValueChanged(AdjustmentEvent e) {
-		delay = e.getValue();
+		delay = delay_slider.getValue();
+		timeStep = time_slider.getValue();
+		//System.out.println("delay = "+delay);
+		//System.out.println("timeStep = "+timeStep);
+		canvas.drawBufferedImage();
+        canvas.repaint();
 	}
 
 	public void run() 
@@ -180,8 +189,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 		// box2.setLayout(new BorderLayout());
 		
 		JPanel scrollPanel = new JPanel();
-		Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1,
-				1, 100);
+		
 		// delay_slider.setSize(800,25);
 		delay_slider.setPreferredSize(new Dimension(frame.getWidth(),20));
 		delay_slider.addAdjustmentListener(this);
@@ -196,11 +204,35 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 		scrollPanel.add(slow);
 		scrollPanel.add(delay_slider);
 		scrollPanel.add(fast);
-		
+				
 		JPanel northPanel = new JPanel(new GridLayout(2,0));
 		northPanel.add(buttonPanel);
 		northPanel.add(scrollPanel);
+		
 		frame.add(northPanel,BorderLayout.NORTH);
+	}
+	
+	public void addTimeSlider(Frame frame) 
+	{
+		JPanel scrollPanel_time = new JPanel();
+		
+		
+		time_slider.setPreferredSize(new Dimension(frame.getWidth(),20));
+		time_slider.addAdjustmentListener(this);
+		
+		Label start_time = new Label("Start");
+		
+		Label end_time = new Label("End");
+		
+		scrollPanel_time.add(start_time);
+		scrollPanel_time.add(time_slider);
+		scrollPanel_time.add(end_time);
+						
+		JPanel southPanel = new JPanel(new GridLayout(1,0));
+		
+		southPanel.add(scrollPanel_time);
+		
+		frame.add(southPanel,BorderLayout.SOUTH);
 	}
 
 	public static void main(String args[]) {
@@ -274,6 +306,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 			}
 
 			numSteps = num_lines;
+			time_slider.setMaximum(numSteps);
 			times = new double[num_lines];
 			positions = new RealPoint[num_lines][];
 			cell_type = new int [num_lines][];
@@ -505,6 +538,8 @@ class CustomCanvas2D extends Canvas {
 		int tick_length = 10;
 		int num_ticks = 10;
 		
+		vis.time_slider.setValue(vis.timeStep);
+			
 		if (g2==null)
 		{
 			height = getHeight();
