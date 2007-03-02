@@ -47,16 +47,23 @@ TysonNovakCellCycleModel::~TysonNovakCellCycleModel()
 }
 
 void TysonNovakCellCycleModel::ResetModel()
-{	// This model cycles itself and nothing needs to be reset.
+{	// This model should cycle itself and nothing needs to be reset.
+	// but at the moment we are resetting to initial conditions because it 
+	// breaks after a while and will not converge.
 	mBirthTime = mDivideTime;
+	mLastTime = mDivideTime;
     // std::cout << "divide time = " << mDivideTime << std::endl;
+
+    //\TODO:Figure out why this goes unstable after a while...
     // Halve the mass of the cell
-    mProteinConcentrations[5] = mProteinConcentrations[5]/2.0;
+	//mProteinConcentrations[5] = mProteinConcentrations[5]/2.0;
+
+	mProteinConcentrations = mOdeSystem.GetInitialConditions();
 	mReadyToDivide=false;	
 }
 
 /**
- * Returns a new Tyson NovakCellCycleModel created with the correct initial conditions.
+ * Returns a new TysonNovakCellCycleModel created with the correct initial conditions.
  * 
  * Should only be used in tests
  * 

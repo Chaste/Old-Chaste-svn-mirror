@@ -620,7 +620,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
 
         // Set length of simulation here
-        simulator.SetEndTime(0.20);
+        simulator.SetEndTime(0.1);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
@@ -646,39 +646,37 @@ public:
         	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
         }
         
-        TS_ASSERT_EQUALS(leftBoundary.size(),15u);
+        TS_ASSERT_EQUALS(leftBoundary.size(),14u);
       		
        	TS_ASSERT_EQUALS(leftBoundary[0], 64u);
 		TS_ASSERT_EQUALS(rightBoundary[0], 70u);
 		TS_ASSERT_EQUALS(leftBoundary[1], 79u);
 		TS_ASSERT_EQUALS(rightBoundary[1], 85u);
-		TS_ASSERT_EQUALS(leftBoundary[2], 95u);
-		TS_ASSERT_EQUALS(rightBoundary[2], 101u);
-		TS_ASSERT_EQUALS(leftBoundary[3], 110u);
-		TS_ASSERT_EQUALS(rightBoundary[3], 118u);
-		TS_ASSERT_EQUALS(leftBoundary[4], 126u);
-		TS_ASSERT_EQUALS(rightBoundary[4], 134u);
-		TS_ASSERT_EQUALS(leftBoundary[5], 140u);
-		TS_ASSERT_EQUALS(rightBoundary[5], 161u);
-		TS_ASSERT_EQUALS(leftBoundary[6], 155u);
-		TS_ASSERT_EQUALS(rightBoundary[6], 176u);
-		TS_ASSERT_EQUALS(leftBoundary[7], 169u);
-		TS_ASSERT_EQUALS(rightBoundary[7], 175u);
-		TS_ASSERT_EQUALS(leftBoundary[8], 184u);
-		TS_ASSERT_EQUALS(rightBoundary[8], 190u);
-		TS_ASSERT_EQUALS(leftBoundary[9], 199u);
-		TS_ASSERT_EQUALS(rightBoundary[9], 205u);
-		TS_ASSERT_EQUALS(leftBoundary[10], 229u);
-		TS_ASSERT_EQUALS(rightBoundary[10], 235u);
-		TS_ASSERT_EQUALS(leftBoundary[11], 323u);
-		TS_ASSERT_EQUALS(rightBoundary[11], 102u);
-		TS_ASSERT_EQUALS(leftBoundary[12], 325u);
-		TS_ASSERT_EQUALS(rightBoundary[12], 147u);
-		TS_ASSERT_EQUALS(leftBoundary[13], 340u);
+		TS_ASSERT_EQUALS(leftBoundary[2], 94u);
+		TS_ASSERT_EQUALS(rightBoundary[2], 100u);
+		TS_ASSERT_EQUALS(leftBoundary[3], 109u);
+		TS_ASSERT_EQUALS(rightBoundary[3], 115u);
+		TS_ASSERT_EQUALS(leftBoundary[4], 124u);
+		TS_ASSERT_EQUALS(rightBoundary[4], 130u);
+		TS_ASSERT_EQUALS(leftBoundary[5], 137u);
+		TS_ASSERT_EQUALS(rightBoundary[5], 144u);
+		TS_ASSERT_EQUALS(leftBoundary[6], 138u);
+		TS_ASSERT_EQUALS(rightBoundary[6], 341u);
+		TS_ASSERT_EQUALS(leftBoundary[7], 153u);
+		TS_ASSERT_EQUALS(rightBoundary[7], 337u);
+		TS_ASSERT_EQUALS(leftBoundary[8], 154u);
+		TS_ASSERT_EQUALS(rightBoundary[8], 160u);
+		TS_ASSERT_EQUALS(leftBoundary[9], 169u);
+		TS_ASSERT_EQUALS(rightBoundary[9], 175u);
+		TS_ASSERT_EQUALS(leftBoundary[10], 184u);
+		TS_ASSERT_EQUALS(rightBoundary[10], 190u);
+		TS_ASSERT_EQUALS(leftBoundary[11], 199u);
+		TS_ASSERT_EQUALS(rightBoundary[11], 205u);
+		TS_ASSERT_EQUALS(leftBoundary[12], 229u);
+		TS_ASSERT_EQUALS(rightBoundary[12], 235u);
+		TS_ASSERT_EQUALS(leftBoundary[13], 339u);
 		TS_ASSERT_EQUALS(rightBoundary[13], 221u);
-		TS_ASSERT_EQUALS(leftBoundary[14], 342u);
-		TS_ASSERT_EQUALS(rightBoundary[14], 236u);
-    }
+	}
     
     void TestCalculateCryptBoundaries()
     {

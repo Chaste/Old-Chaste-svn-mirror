@@ -12,6 +12,7 @@
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+#include <iostream>
 
 class TestMeinekeCryptCell: public CxxTest::TestSuite
 {
@@ -814,13 +815,64 @@ public:
         SimulationTime::Destroy();
     }
     
-    
+    void TestTysonNovakImmortalStemCell()
+    {
+        double end_time=100.0; // A good load of divisions to make sure nothing mucks up..
+        // one division = 1.26 hours.
+        int time_steps=1000;
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
+        
+        MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   new TysonNovakCellCycleModel());
+                                   
+        
+        std::vector<MeinekeCryptCell> cells;
+        std::vector<MeinekeCryptCell> newly_born;
+        std::vector<unsigned> stem_cells(time_steps);
+        std::vector<unsigned> transit_cells(time_steps);
+        std::vector<unsigned> differentiated_cells(time_steps);
+        std::vector<double> times(time_steps);
+        
+        cells.push_back(stem_cell);
+        std::vector<MeinekeCryptCell>::iterator cell_iterator;
+        
+        unsigned i=0;
+        unsigned divisions=0;
+        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        {
+            // produce the offspring of the cells
+            
+            p_simulation_time->IncrementTimeOneStep();
+            times[i]=p_simulation_time->GetDimensionalisedTime();
+            cell_iterator = cells.begin();
+            unsigned j=0;
+            while (cell_iterator < cells.end())
+            {
+            	//std::cout << "Cell Cycle Model called" << std::endl;
+            	if (cell_iterator->ReadyToDivide())
+                {
+                    MeinekeCryptCell new_cell = cell_iterator->Divide();
+                    divisions++;
+                    //std::cout << "Division of stem cell at time = " << times[i] << std::endl;
+                }
+                cell_iterator++;
+                j++;
+            }
+            i++;
+        }
+        TS_ASSERT_DELTA(divisions,(unsigned)(end_time/1.26),1);
+        SimulationTime::Destroy();
+    }
     
     void Test0DBucketWithTysonNovak()
     {
-        double end_time=5.0; // not very long because cell cycle time is only 1.2 
+        double end_time=7.0; // not very long because cell cycle time is only 1.2 
                              // (75 mins) because Tyson Novaks is for yeast
-        int time_steps=60;
+        int time_steps=100;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
@@ -847,16 +899,21 @@ public:
             // produce the offspring of the cells
             
             p_simulation_time->IncrementTimeOneStep();
+            times[i]=p_simulation_time->GetDimensionalisedTime();
             cell_iterator = cells.begin();
+            unsigned j=0;
             while (cell_iterator < cells.end())
             {
+            	
+            	//std::cout << "Cell " << j << " is generation " << cell_iterator->GetGeneration() << std::endl;
                 if (cell_iterator->ReadyToDivide())
                 {
                     newly_born.push_back(cell_iterator->Divide());
+                    //std::cout << "Division of cell "<<j<<" at time = " << times[i] << std::endl;
                 }
                 cell_iterator++;
+                j++;
             }
-            
             // copy offspring in newly_born vector to cells vector
             cell_iterator = newly_born.begin();
             while (cell_iterator < newly_born.end())
@@ -885,20 +942,13 @@ public:
                 
                 cell_iterator++;
             }
-            times[i]=p_simulation_time->GetDimensionalisedTime();
+            
             i++;
         }
         
-        
-//        for(int i=0; i<60; i++)
-//        {
-//            std::cout << i << ": " << stem_cells[i] << " " << transit_cells[i] 
-//                      << " " << differentiated_cells[i] << "\n";
-//        }
-        
-        TS_ASSERT_EQUALS(stem_cells[59], 1u);
-        TS_ASSERT_EQUALS(transit_cells[59], 7u);
-        TS_ASSERT_EQUALS(differentiated_cells[59], 8u);
+        TS_ASSERT_EQUALS(stem_cells[time_steps-1], 1u);
+        TS_ASSERT_EQUALS(transit_cells[time_steps-1], 7u);
+        TS_ASSERT_EQUALS(differentiated_cells[time_steps-1], 24u);
         SimulationTime::Destroy();
     }
     
