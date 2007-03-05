@@ -24,10 +24,17 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     assert(pMesh!=NULL); // probably will fail in the mDofHandler(*pMesh) line above before here if pMesh==NULL
     mpMesh = pMesh;
     
-    assert(pMaterialLaw != NULL);
-    mMaterialLaws.resize(1);
-    mMaterialLaws[0] = pMaterialLaw;
-    mHeterogeneous = false;
+    
+    if(pMaterialLaw != NULL)
+    {
+        mMaterialLaws.resize(1);
+        mMaterialLaws[0] = pMaterialLaw;
+        mHeterogeneous = false;
+    }
+    else
+    {
+        mHeterogeneous = true;
+    }
 
     if(bodyForce.size()!=DIM)
     {
@@ -147,11 +154,81 @@ FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
 {
 }
 
+template<int DIM>
+void FiniteElasticityAssembler<DIM>::SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
+                                                                            std::vector<unsigned> materialIds)
+{
+    // check sizes match
+    if(materialLaws.size()!=materialIds.size())
+    {
+        EXCEPTION("materialLaws and materialIds must be the same size");
+    }
+    
+    // set as heterogeneous (no checking that the sizes of these
+    // vectors is greater than one at the moment
+    mHeterogeneous = true;
+
+    // copy the material laws
+    assert(materialLaws.size()>0);
+    mMaterialLaws = materialLaws;
+
+    // check that every element in the mesh has material id which is in
+    // the materialIds vector
+    typename Triangulation<DIM>::cell_iterator element_iter = mpMesh->begin_active();
+    while(element_iter!=mpMesh->end())
+    {
+        bool found_id = false;
+        for(unsigned i=0; i<materialIds.size(); i++)
+        {
+            if(element_iter->material_id()==materialIds[i])
+            {
+                found_id = true;
+            }
+        }
+        if(!found_id)
+        {
+            EXCEPTION("Found element in mesh whose material id does not correspond to any in materialIds");
+        }
+        element_iter++;
+    }
+    
+    unsigned max_material_id = 0;
+    for(unsigned i=0; i<materialIds.size(); i++)
+    {
+        if(materialIds[i]>max_material_id)
+        {
+            max_material_id = materialIds[i];
+        }
+    } 
+
+    mMaterialIdToMaterialLawIndexMap.resize(max_material_id+1);
+    for(unsigned i=0; i<mMaterialIdToMaterialLawIndexMap.size(); i++)
+    {
+        mMaterialIdToMaterialLawIndexMap[i] = -1;
+    }
+    
+    for(unsigned i=0; i<materialIds.size(); i++)
+    {
+        mMaterialIdToMaterialLawIndexMap[ materialIds[i] ]  = i;
+    }
+}
+
+
+
 
 template<int DIM>
 unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsigned materialId)
 {
-    return 0;
+    // something gone wrong in setting up this map if the 
+    // following assertion fails
+    assert(mMaterialIdToMaterialLawIndexMap[materialId]!=-1);
+
+    // another check    
+    assert(mMaterialIdToMaterialLawIndexMap[materialId]>=0);
+
+    // convert int to unsigned, we know it is positive from above checks
+    unsigned index = abs(mMaterialIdToMaterialLawIndexMap[materialId]);
+    return index;
 }
 
 //template<int DIM>
@@ -874,6 +951,11 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
 template<int DIM>
 void FiniteElasticityAssembler<DIM>::Solve()
 {
+    if(mMaterialLaws.size()==0)
+    {
+        EXCEPTION("No material laws have been set");
+    }
+    
     OutputResults(0);
     
     // compute residual

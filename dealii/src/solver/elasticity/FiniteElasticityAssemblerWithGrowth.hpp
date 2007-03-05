@@ -6,12 +6,14 @@
 #include "GrowthByConstantMassOdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 
-//todos: don't fix whole side, use flag or material id to determine tumour,
-// refine overgrown elements+hanging node constraints, doxygen 
+//todos: 
+// doxygen, 
+// proper interpolation of g
+// interpolate g onto the refined mesh
+// writebasicoutput method - move outside?
 
-// todo: proper interpolation of g
+// use something like simulation time?
 
-//todo: use something like simulation time?
 
 #define NON_GROWING_REGION 98
 #define GROWING_REGION 99

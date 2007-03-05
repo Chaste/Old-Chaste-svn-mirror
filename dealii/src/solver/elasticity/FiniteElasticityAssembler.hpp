@@ -110,7 +110,7 @@ protected:
 
     bool mHeterogeneous;
     std::vector<AbstractIncompressibleMaterialLaw<DIM>*>  mMaterialLaws;
-    std::vector<unsigned> mMaterialIdToMaterialLawIndexMap;
+    std::vector<int> mMaterialIdToMaterialLawIndexMap;
     
     Vector<double>       mBodyForce;
     double               mDensity;
@@ -145,7 +145,8 @@ public:
      *  
      *  @param pMesh A pointer to a dealii mesh. Note, the mesh must have some surface
      *   elements which have had their boundary indicator set to FIXED_BOUNDARY
-     *  @param pMaterialLaw A pointer to an incompressible material law
+     *  @param pMaterialLaw A pointer to an incompressible material law. If this is null
+     *   SetMaterialLawsForHeterogeneousProblem() must be called before Solve()
      *  @bodyForce A vector of size DIM represents the body force (force per unit volume)
      *  @density The mass density. Must be strictly positive
      *  @outputDirectory The output directory, relative the the testoutput directory. If 
@@ -180,6 +181,10 @@ public:
     // up the dof->value map themselves and pass it in using this method. 
     // Note: call GetDofHandler() to get the dof handler first.
     void SetBoundaryValues(std::map<unsigned, double> boundary_values);
+
+
+    void SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
+                                                std::vector<unsigned> materialIds);
 
     virtual void Solve();
     

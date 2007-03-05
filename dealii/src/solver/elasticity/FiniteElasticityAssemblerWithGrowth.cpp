@@ -262,8 +262,11 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                 F[i][j] = full_F[i][j]/growth_term_g;
             }
         }
+
+        assert(DIM==2);
+        element_volume +=  determinant(full_F) * fe_values.JxW(q_point);
         ////////////////////////////////////////////////////////
-        //      no more changes after this, until later       //
+        // no more changes after this, until userflag setting //
         ////////////////////////////////////////////////////////
         
         
@@ -272,7 +275,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         inv_F = invert(F);
 
         double detF = determinant(F);
-        double def_full_F = determinant(full_F);
+
         
         static SymmetricTensor<2,DIM> T2;
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
@@ -354,12 +357,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
             
             if(assembleResidual)
             {
-// why this 1/3?
-                assert(DIM==2);
-                element_volume +=    (1.0/3.0)*def_full_F
-                                   * fe_values.shape_value(i,q_point)
-                                   * fe_values.JxW(q_point);
-                
                 if(component_i<this->PRESSURE_COMPONENT_INDEX)
                 {
                     elementRhs(i) += - this->mDensity * this->mBodyForce(component_i)
@@ -420,6 +417,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
             }
         }
     }
+
 
 
     if(element_volume > 1.7*mAverageElementVolume)
