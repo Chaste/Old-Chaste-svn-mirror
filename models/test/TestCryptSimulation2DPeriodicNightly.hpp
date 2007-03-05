@@ -12,6 +12,7 @@
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
+#include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 #include "CryptHoneycombMeshGenerator.hpp"
@@ -680,6 +681,151 @@ public:
 		TS_ASSERT_EQUALS(rightBoundary[12], 85u);
 		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
     }
+    
+    // This is strange test -- all cells divide within a quick time, it gives
+    // good testing of the periodic boundaries though...
+    void no_TestCrypt2DTysonNovakNightly() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        // There is no limit on transit cells in Wnt simulation
+        p_params->SetMaxTransitGenerations(1000);
+        RandomNumberGenerator random_num_gen;
+        
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 6.0;
+        unsigned thickness_of_ghost_layer = 4;
+        
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);  
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh(); 
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices(); 
+
+        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 100);
+        
+     // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = p_mesh->GetNumAllNodes();
+        std::cout << "Num Cells = " << num_cells << std::endl;
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
+            double typical_Tyson_Novak_cycle = 1.25;
+            if (y <= 0.3)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours - doesn't matter for stem cell;
+            }
+            else if (y < 2)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+            }
+            else if (y < 3)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+            }
+            else if (y < 4)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+            }
+            else
+             {  // There are no fully differentiated cells in a Wnt simulation!
+                cell_type = TRANSIT;
+                generation = 4;
+                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+            }
+            //double wnt = 1.0 - y/p_params->GetCryptLength();
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new TysonNovakCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        std::cout << "Cells Ready." << std::endl;
+
+        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        simulator.SetOutputDirectory("Crypt2DTysonNovakNightly");
+
+        // Set length of simulation here
+        simulator.SetEndTime(0.5);
+        
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+        
+        // Set to re-mesh and birth
+        simulator.SetReMeshRule(true);
+        simulator.SetNoBirth(false);
+        
+        simulator.SetGhostNodes(ghost_node_indices);
+                
+        SimulationTime::Destroy();
+        simulator.SetDt(0.001);
+        
+        simulator.Solve();
+        
+        //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
+        std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+        
+        std::cout << "Periodic Cell indices at the end of the simulation:\n";
+        for(unsigned i=0 ; i<leftBoundary.size(); i++)
+        {
+        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
+        }
+        
+        TS_ASSERT_EQUALS(leftBoundary.size(),18u);
+      		
+       	TS_ASSERT_EQUALS(leftBoundary[0], 64u);
+		TS_ASSERT_EQUALS(rightBoundary[0], 70u);
+		TS_ASSERT_EQUALS(leftBoundary[1], 79u);
+		TS_ASSERT_EQUALS(rightBoundary[1], 85u);
+		TS_ASSERT_EQUALS(leftBoundary[2], 94u);
+		TS_ASSERT_EQUALS(rightBoundary[2], 100u);
+		TS_ASSERT_EQUALS(leftBoundary[3], 108u);
+		TS_ASSERT_EQUALS(rightBoundary[3], 114u);
+		TS_ASSERT_EQUALS(leftBoundary[4], 123u);
+		TS_ASSERT_EQUALS(rightBoundary[4], 129u);
+		TS_ASSERT_EQUALS(leftBoundary[5], 153u);
+		TS_ASSERT_EQUALS(rightBoundary[5], 130u);
+		TS_ASSERT_EQUALS(leftBoundary[6], 154u);
+		TS_ASSERT_EQUALS(rightBoundary[6], 160u);
+		TS_ASSERT_EQUALS(leftBoundary[7], 168u);
+		TS_ASSERT_EQUALS(rightBoundary[7], 337u);
+		TS_ASSERT_EQUALS(leftBoundary[8], 169u);
+		TS_ASSERT_EQUALS(rightBoundary[8], 175u);
+		TS_ASSERT_EQUALS(leftBoundary[9], 184u);
+		TS_ASSERT_EQUALS(rightBoundary[9], 190u);
+		TS_ASSERT_EQUALS(leftBoundary[10], 199u);
+		TS_ASSERT_EQUALS(rightBoundary[10], 205u);
+		TS_ASSERT_EQUALS(leftBoundary[11], 229u);
+		TS_ASSERT_EQUALS(rightBoundary[11], 235u);
+		TS_ASSERT_EQUALS(leftBoundary[12], 339u);
+		TS_ASSERT_EQUALS(rightBoundary[12], 221u);
+		TS_ASSERT_EQUALS(leftBoundary[13], 349u);
+		TS_ASSERT_EQUALS(rightBoundary[13], 144u);
+		TS_ASSERT_EQUALS(leftBoundary[14], 357u);
+		TS_ASSERT_EQUALS(rightBoundary[14], 101u);
+		TS_ASSERT_EQUALS(leftBoundary[15], 378u);
+		TS_ASSERT_EQUALS(rightBoundary[15], 71u);
+		TS_ASSERT_EQUALS(leftBoundary[16], 382u);
+		TS_ASSERT_EQUALS(rightBoundary[16], 206u);
+		TS_ASSERT_EQUALS(leftBoundary[17], 393u);
+		TS_ASSERT_EQUALS(rightBoundary[17], 114u);
+	}
     
 };
 

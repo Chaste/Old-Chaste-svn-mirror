@@ -323,12 +323,12 @@ public:
         simulator.SetEndTime(0.2);
         simulator.SetMaxCells(200);
         simulator.SetMaxElements(500);
-        
-        simulator.SetReMeshRule(true);
         simulator.SetNoBirth(false);
-        
         simulator.SetGhostNodes(ghost_node_indices);
-        
+                
+        simulator.SetReMeshRule(true);
+		
+
         SimulationTime::Destroy();
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         CheckAgainstPreviousRun("Crypt2DPeriodic", 200u, 500u);
@@ -654,18 +654,18 @@ public:
 		TS_ASSERT_EQUALS(rightBoundary[1], 85u);
 		TS_ASSERT_EQUALS(leftBoundary[2], 94u);
 		TS_ASSERT_EQUALS(rightBoundary[2], 100u);
-		TS_ASSERT_EQUALS(leftBoundary[3], 109u);
-		TS_ASSERT_EQUALS(rightBoundary[3], 115u);
+		TS_ASSERT_EQUALS(leftBoundary[3], 108u);
+		TS_ASSERT_EQUALS(rightBoundary[3], 114u);
 		TS_ASSERT_EQUALS(leftBoundary[4], 124u);
-		TS_ASSERT_EQUALS(rightBoundary[4], 130u);
+		TS_ASSERT_EQUALS(rightBoundary[4], 341u);
 		TS_ASSERT_EQUALS(leftBoundary[5], 137u);
-		TS_ASSERT_EQUALS(rightBoundary[5], 144u);
+		TS_ASSERT_EQUALS(rightBoundary[5], 329u);
 		TS_ASSERT_EQUALS(leftBoundary[6], 138u);
-		TS_ASSERT_EQUALS(rightBoundary[6], 341u);
+		TS_ASSERT_EQUALS(rightBoundary[6], 130u);
 		TS_ASSERT_EQUALS(leftBoundary[7], 153u);
-		TS_ASSERT_EQUALS(rightBoundary[7], 337u);
-		TS_ASSERT_EQUALS(leftBoundary[8], 154u);
-		TS_ASSERT_EQUALS(rightBoundary[8], 160u);
+		TS_ASSERT_EQUALS(rightBoundary[7], 144u);
+		TS_ASSERT_EQUALS(leftBoundary[8], 168u);
+		TS_ASSERT_EQUALS(rightBoundary[8], 337u);
 		TS_ASSERT_EQUALS(leftBoundary[9], 169u);
 		TS_ASSERT_EQUALS(rightBoundary[9], 175u);
 		TS_ASSERT_EQUALS(leftBoundary[10], 184u);

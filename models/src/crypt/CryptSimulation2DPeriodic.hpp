@@ -98,6 +98,8 @@ private:
     
     WntGradientType mWntGradient;
     
+    unsigned mRemeshesThisTimeStep;
+    
 public:
 
     /** Constructor
@@ -155,6 +157,7 @@ public:
         mPeriodicSides = true;
         mWntGradient = NONE;
         mNodesMoved=false;
+        mRemeshesThisTimeStep=0;
     }
     
     /**
@@ -387,9 +390,16 @@ public:
         	CalculateCryptBoundary();
         	if(mLeftCryptBoundary.size()<1 || mRightCryptBoundary.size()<1)
         	{
-        			EXCEPTION("Periodic Simulation but mesh is not periodic\nIf you want a non-periodic simulation use SetPeriodicSides(false)");
+        		EXCEPTION("Periodic Simulation but mesh is not periodic\nIf you want a non-periodic simulation use SetPeriodicSides(false)");
+        	}
+        	if(!mReMesh)
+        	{
+        		#define COVERAGE_IGNORE
+        		EXCEPTION("A periodic simulation requires active remeshing\n");
+        		#undef COVERAGE_IGNORE
         	}
         }
+        
         /* Age the cells to the correct time (cells set up with negative birth dates 
          * to gives some that are almost ready to divide).
          * 
@@ -420,6 +430,7 @@ public:
         /////////////////////////////////////////////////////////////////////
         while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
         {
+        	mRemeshesThisTimeStep = 0; // To avoid infinite loops
 		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
 		                
             ///////////////////////////////////////////////////////
@@ -455,6 +466,7 @@ public:
 		                    		{
                                      // Only allow one periodic cell division per 
                                      // timestep so that mesh can catch up with it.
+                                     // it will divide next timestep anyway
 		                    			skip=true;	
                             		}
 		                    		periodic_cell = true;
@@ -478,8 +490,7 @@ public:
 						//std::cout << "On cell "<< i << std::endl;
 						if(mCells[i].ReadyToDivide(cell_cycle_influences))
 	                    {
-	                    	std::cout << "cell division at node " << i << "\n";
-	                        // Create new cell
+	                    	// Create new cell
 	                        MeinekeCryptCell new_cell = mCells[i].Divide();
 							if(mPeriodicSides && periodic_cell)
 	                        {	
@@ -487,6 +498,10 @@ public:
 	                        	periodic_division_buffer=3;
 	                        	//Make sure the image cell knows it has just divided and aged a generation
 	                        	mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
+                            }
+                            else
+                            {
+                            	std::cout << "Cell division at node " << i << "\n";
                             }
 	                        
 	
@@ -556,8 +571,8 @@ public:
 	            				}
                             }
 	                        
-	                        std::cout << "New cell being intoduced into element with nodes \n";
-	                        std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
+	                        //std::cout << "New cell being intoduced into element with nodes \n";
+	                        //std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
 	                        	
 	                        double x_centroid = (1.0/3.0)*(p_element->GetNode(0)->GetPoint().rGetLocation()[0]
 	                                                        +  p_element->GetNode(1)->GetPoint().rGetLocation()[0]
@@ -586,8 +601,8 @@ public:
 	                        double new_x_value = x + distance_of_new_cell_from_parent*(x_centroid-x);
 	                        double new_y_value = y + distance_of_new_cell_from_parent*(y_centroid-y);
 	                        
-	                        std::cout << "Parent node at x = " << x << "  y = " << y << "\n";
-	                        std::cout << "Daughter node at x = " << new_x_value << "  y = " << new_y_value << "\n";
+	                        //std::cout << "Parent node at x = " << x << "  y = " << y << "\n";
+	                        //std::cout << "Daughter node at x = " << new_x_value << "  y = " << new_y_value << "\n";
 	
 	                        Point<2> new_point(new_x_value, new_y_value);
 	                        unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
@@ -616,7 +631,7 @@ public:
 	                        }
 	                        num_births++;
 	                        //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
-	                        if( mReMesh )
+	                        if( mReMesh  && periodic_cell)
 	            			{
 	                			ReMesh();
 	            			}
@@ -626,11 +641,7 @@ public:
 	            }
         	}
 
-			
-			
-            
-            
-            //////////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////
             //                    calculate node velocities
             //////////////////////////////////////////////////////////////////////////
             std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
@@ -639,7 +650,6 @@ public:
                 drdt[i].resize(2);
             }
             
-                        
             ////////////////////////////////////////////////////////////////////
             // loop over element and for each one loop over it's three edges
             ////////////////////////////////////////////////////////////////////
@@ -682,7 +692,7 @@ public:
                                 // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
                                 rest_length=(0.1+0.9*ageA);
                                 assert(rest_length<=1.0);
-                               // std::cout<<p_element->GetNode(nodeA)->GetIndex()<<"\t"<<ageA<<"\t"<<p_simulation_time->GetDimensionalisedTime()<<std::endl;
+                                //std::cout<<p_element->GetNode(nodeA)->GetIndex()<<"\t age = "<<ageA<<"\t"<<p_simulation_time->GetDimensionalisedTime()<<std::endl;
                             }
                          }
                         
@@ -1106,8 +1116,6 @@ public:
     			ReMesh();
 			}
             
-            std::cout << " " << std::endl;
-            
 //            for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
 //            {
 //            	std::cout<<"\t"<<mIsGhostNode[i]<<"\t"<<mIsGhostNode[map.GetNewIndex(i)]<<"\t"<<47*(mIsGhostNode[i]-mIsGhostNode[map.GetNewIndex(i)])<<"\n";
@@ -1506,14 +1514,14 @@ public:
 											}
 											if(other_node_element1!=other_node_element2 && other_node_element1>0 && other_node_element2>0 && !culprit_found)
 											{
-												std::cout << "\nElement " << elem_index << " contains nodes " << element1_node[0] << ", " << element1_node[1] << ", " << element1_node[2] << ".\n";
-												std::cout << "Element " << element2_index << " contains nodes " << element2_node[0] << ", " << element2_node[1] << ", " << element2_node[2] << ".\n";
-												std::cout << "We are considering node " << our_node << "\n";
-		    									std::cout << "attached to ghost node " << ghost_node_element1 << "\n";
-		    									std::cout << "attached to ghost node " << ghost_node_element2 << "\n";
-		    									std::cout << "and periodic node " << other_node_element1 << " by element "<< elem_index <<"\n";
-		    									std::cout << "and periodic node " << other_node_element2 << " by element "<< element2_index <<"\n";
-		    									//assert(0);
+//												std::cout << "\nElement " << elem_index << " contains nodes " << element1_node[0] << ", " << element1_node[1] << ", " << element1_node[2] << ".\n";
+//												std::cout << "Element " << element2_index << " contains nodes " << element2_node[0] << ", " << element2_node[1] << ", " << element2_node[2] << ".\n";
+//												std::cout << "We are considering node " << our_node << "\n";
+//		    									std::cout << "attached to ghost node " << ghost_node_element1 << "\n";
+//		    									std::cout << "attached to ghost node " << ghost_node_element2 << "\n";
+//		    									std::cout << "and periodic node " << other_node_element1 << " by element "<< elem_index <<"\n";
+//		    									std::cout << "and periodic node " << other_node_element2 << " by element "<< element2_index <<"\n";
+//		    									//assert(0);
 		    									periodic.push_back(other_node_element1);
 		    									periodic.push_back(other_node_element2);
 		    									if(left_nodes)
@@ -1540,18 +1548,16 @@ public:
 		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
 		        	double old_y = mrMesh.GetNode(our_node)->rGetLocation()[1];
 		        	double crypt_width = mpParams->GetCryptWidth();
-		        	std::cout << "LEFT Node "<< our_node << " has broken into the periodic edge between nodes\n";
-		        	for(unsigned k=0 ; k<periodic.size() ; k++)
-					{
-						std::cout << periodic[k] << "\t";
-					}
-					std::cout << "\n";
+//		        	std::cout << "LEFT Node "<< our_node << " has broken into the periodic edge between nodes\n";
+//		        	for(unsigned k=0 ; k<periodic.size() ; k++)
+//					{
+//						std::cout << periodic[k] << "\t";
+//					}
+//					std::cout << "\n";
 					AddACellToPeriodicBoundary(our_node,old_x+crypt_width,old_y,periodic);
-					//NodeMap map(mrMesh.GetNumAllNodes());
-	    			//mrMesh.ReMesh(map);
-					CalculateCryptBoundary();
-					RemoveSurplusCellsFromPeriodicBoundary();
-                }
+					
+					ReMesh();
+				}
 		        
 		        if(right_break)
 		        {
@@ -1559,19 +1565,15 @@ public:
 		        	double old_x = mrMesh.GetNode(our_node)->rGetLocation()[0];
 		        	double old_y = mrMesh.GetNode(our_node)->rGetLocation()[1];
 		        	double crypt_width = mpParams->GetCryptWidth();
-		        	std::cout << "RIGHT Node "<< our_node << " has broken into the periodic edge between nodes\n";
-					for(unsigned k=0 ; k<periodic.size() ; k++)
-					{
-						std::cout << periodic[k] << "\t";
-					}
-					std::cout << "\n";
+//		        	std::cout << "RIGHT Node "<< our_node << " has broken into the periodic edge between nodes\n";
+//					for(unsigned k=0 ; k<periodic.size() ; k++)
+//					{
+//						std::cout << periodic[k] << "\t";
+//					}
+//					std::cout << "\n";
 					AddACellToPeriodicBoundary(our_node,old_x-crypt_width,old_y,periodic);
-					//NodeMap map(mrMesh.GetNumAllNodes());
-	    			//mrMesh.ReMesh(map);	// it is possible that the only ghost node a
-	    			// periodic node was attached to is now real and so we need to remesh so that
-	    			// the crypt boundary can still be recognised.
-					CalculateCryptBoundary();
-					RemoveSurplusCellsFromPeriodicBoundary();
+					
+					ReMesh();
 				}
 			}// end of if(!our_node_periodic)
             
@@ -1612,14 +1614,14 @@ public:
 			if(this_left_node_missing && (!mIsGhostNode[old_node_on_left_boundary]))
 			{	// The left node has been internalised (was periodic and is not a ghost) so the right node should be spooked
 				mIsGhostNode[old_node_on_right_boundary]=true;
-				std::cout << "Periodic Node "<< old_node_on_left_boundary <<" internalised \n Right Node " << old_node_on_right_boundary << " spooked\n";
+				std::cout << "Right Node " << old_node_on_right_boundary << " spooked\n";
 				//mNodesMoved=true;
 				CalculateCryptBoundary();
 			}
 			if(this_right_node_missing && (!mIsGhostNode[old_node_on_right_boundary]))
 			{	// The right node has been internalised (was periodic and is not a ghost) so the right node should be spooked
 				mIsGhostNode[old_node_on_left_boundary]=true;
-				std::cout << "Periodic Node " << old_node_on_right_boundary << " internalised \n Left Node " << old_node_on_left_boundary << " spooked\n";
+				std::cout << "Left Node " << old_node_on_left_boundary << " spooked\n";
 		    	//mNodesMoved=true;
 				CalculateCryptBoundary();
 			}
@@ -1791,62 +1793,48 @@ public:
     
     void ReMesh()
     {
-    	CallReMesher();
-
-		if(mPeriodicSides)
-		{
-			mOldLeftCryptBoundary = mLeftCryptBoundary;
-			mOldRightCryptBoundary = mRightCryptBoundary;
-			mOldCryptBoundary = mCryptBoundary;
-		    
-		    CalculateCryptBoundary();
-		    
-		    // do this once every time (sometimes mCryptBoundary does not change
-		    // but the connections between the nodes have changed)
-		    RemoveSurplusCellsFromPeriodicBoundary();
-			DetectNaughtyCellsAtPeriodicEdges();  
-			
-			if(mNodesMoved)
+    	if(mReMesh)
+    	{
+	    	CallReMesher();
+	
+			if(mPeriodicSides)
 			{
-				CallReMesher();
-			}
-			
-			mOldLeftCryptBoundary = mLeftCryptBoundary;
-			mOldRightCryptBoundary = mRightCryptBoundary;
-			mOldCryptBoundary = mCryptBoundary;
-			
-			CalculateCryptBoundary();
-		    
-		    unsigned counter = 0;
-    		while(mOldCryptBoundary!=mCryptBoundary || mOldLeftCryptBoundary!=mLeftCryptBoundary||mOldRightCryptBoundary != mRightCryptBoundary)
-	        {	// There has been a change in the boundary
-	        	
-	        	//std::cout << "Boundary has changed\n";
-	        	RemoveSurplusCellsFromPeriodicBoundary();
-	        	DetectNaughtyCellsAtPeriodicEdges();
-	        	//DetectNaughtyCellsAtPeriodicEdges();
-	        	
-	        	mOldLeftCryptBoundary = mLeftCryptBoundary;
+				mOldLeftCryptBoundary = mLeftCryptBoundary;
 				mOldRightCryptBoundary = mRightCryptBoundary;
 				mOldCryptBoundary = mCryptBoundary;
+			    
+			    CalculateCryptBoundary();
+			    
+			    // do this once every time (sometimes mCryptBoundary does not change
+			    // but the connections between the nodes have changed)
+			    RemoveSurplusCellsFromPeriodicBoundary();
+				DetectNaughtyCellsAtPeriodicEdges();  
 				
-				CallReMesher();
-	        	
-	        	CalculateCryptBoundary();
-	        	
-	        	counter++;
-	        	// to avoid an infinite loop:
-				assert(counter < 10);// if this ever fails try increasing it a bit
+				while(mNodesMoved)
+				{
+					CallReMesher();
+				
+					mOldLeftCryptBoundary = mLeftCryptBoundary;
+					mOldRightCryptBoundary = mRightCryptBoundary;
+					mOldCryptBoundary = mCryptBoundary;
+				
+					CalculateCryptBoundary();
+			    	
+		        	RemoveSurplusCellsFromPeriodicBoundary();
+		        	DetectNaughtyCellsAtPeriodicEdges();
+				}
 			}
-			
-		}
+    	}
 	}
 	
 	void CallReMesher()
 	{
+		std::cout << "Remeshing \n"<<std::endl;
 		NodeMap map(mrMesh.GetNumAllNodes());
     	mrMesh.ReMesh(map);
     	mNodesMoved=false;
+    	mRemeshesThisTimeStep++;
+    	assert(mRemeshesThisTimeStep < 1000); //to avoid an infinite loop. If this ever throws try increasing it a bit.
 	}
 };
 

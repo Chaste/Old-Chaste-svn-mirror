@@ -35,8 +35,8 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
         EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
     }
     mLastTime = divideTime;
-    mBirthTime = mLastTime;
-    mDivideTime = mBirthTime;
+    mBirthTime = divideTime;
+    mDivideTime = divideTime;
     mProteinConcentrations = parentProteinConcentrations;
     mReadyToDivide=false;
 }
