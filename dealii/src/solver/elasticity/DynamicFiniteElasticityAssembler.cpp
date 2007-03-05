@@ -115,6 +115,17 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
 
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);        
 
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;        
+    if(!this->mHeterogeneous)
+    {
+        p_material_law = this->mMaterialLaws[0];
+    }
+    else
+    {
+        unsigned index = this->GetMaterialLawIndexFromMaterialId(elementIter->material_id());
+        p_material_law = this->mMaterialLaws[index];
+    }
+
 
     for(unsigned q_point=0; q_point<n_q_points; q_point++)
     {       
@@ -143,7 +154,7 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
         double detF = determinant(F);
 
         static SymmetricTensor<2,DIM> T2;
-        this->mpMaterialLaw->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
+        p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,assembleJacobian);
 
 
         for(unsigned i=0; i<dofs_per_element; i++)

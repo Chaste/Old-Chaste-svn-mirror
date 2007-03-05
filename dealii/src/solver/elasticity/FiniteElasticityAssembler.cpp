@@ -25,7 +25,9 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     mpMesh = pMesh;
     
     assert(pMaterialLaw != NULL);
-    mpMaterialLaw = pMaterialLaw;
+    mMaterialLaws.resize(1);
+    mMaterialLaws[0] = pMaterialLaw;
+    mHeterogeneous = false;
 
     if(bodyForce.size()!=DIM)
     {
@@ -145,6 +147,12 @@ FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
 {
 }
 
+
+template<int DIM>
+unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsigned materialId)
+{
+    return 0;
+}
 
 //template<int DIM>
 //void FiniteElasticityAssembler<DIM>::SetDisplacementBoundaryConditions(std::vector<unsigned> node,
@@ -322,6 +330,19 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     fe_values.get_function_grads(mCurrentSolution, local_solution_gradients);        
 
 
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;        
+    if(!mHeterogeneous)
+    {
+        p_material_law = mMaterialLaws[0];
+    }
+    else
+    {
+        unsigned index = GetMaterialLawIndexFromMaterialId(elementIter->material_id());
+        p_material_law = mMaterialLaws[index];
+    }
+
+
+
     for(unsigned q_point=0; q_point<n_q_points; q_point++)
     {       
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
@@ -349,7 +370,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         double detF = determinant(F);
 
         static SymmetricTensor<2,DIM> T2;
-        mpMaterialLaw->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,assembleJacobian);
+        p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,assembleJacobian);
 
         for(unsigned i=0; i<dofs_per_element; i++)
         {

@@ -107,7 +107,11 @@ protected:
 
     double dTdE[DIM][DIM][DIM][DIM]; 
 
-    AbstractIncompressibleMaterialLaw<DIM>*  mpMaterialLaw;
+
+    bool mHeterogeneous;
+    std::vector<AbstractIncompressibleMaterialLaw<DIM>*>  mMaterialLaws;
+    std::vector<unsigned> mMaterialIdToMaterialLawIndexMap;
+    
     Vector<double>       mBodyForce;
     double               mDensity;
 
@@ -132,6 +136,8 @@ protected:
     double CalculateResidualNorm();
     
     void TakeNewtonStep();
+    
+    unsigned GetMaterialLawIndexFromMaterialId(unsigned materialId);
     
 public:
     /** 
