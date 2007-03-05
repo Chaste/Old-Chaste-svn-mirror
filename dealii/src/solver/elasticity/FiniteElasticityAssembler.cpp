@@ -124,9 +124,6 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                              ZeroFunction<DIM>(DIM+1),  // note the "+1" here! - number of components
                                              mBoundaryValues,
                                              component_mask);
-
-    std::map<unsigned,double>::iterator iter = mBoundaryValues.begin();
-
     
     mNumericalJacobianMatrix.reinit(this->mSparsityPattern);
 
@@ -541,10 +538,10 @@ void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
                           assembleResidual,                     
                           assembleJacobian);                    
 
-        if(assembleJacobian)
-        {
-            std::cout << elem_counter++ << " " << std::flush;
-        }
+//        if(assembleJacobian)
+//        {
+//            std::cout << elem_counter++ << " of " << mpMesh->n_active_cells() << "\n" << std::flush;
+//        }
 
         for(unsigned i=0; i<dofs_per_element; i++)
         {
@@ -556,8 +553,7 @@ void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
                                         local_dof_indices[j], 
                                         element_matrix(i,j));
                 }
-            }
-            
+            }          
             if(assembleResidual)
             {
                 mResidual(local_dof_indices[i]) += element_rhs(i);
@@ -566,7 +562,7 @@ void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 
         element_iter++;
     }
-    if(assembleJacobian) { std::cout << "\n"; }
+//    if(assembleJacobian) { std::cout << "\n"; }
     
     // note this has to be done before applying dirichlet bcs
     if(assembleJacobian)
@@ -666,6 +662,7 @@ void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
     {
         unsigned dof = iter->first;
         double value = iter->second;
+
    
         applied_boundary_values[dof] = this->mCurrentSolution(dof)-value;
         iter++;
@@ -759,7 +756,7 @@ void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
     {
         return;
     }
-    
+ 
     std::stringstream ss;
     ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".gmv";
     std::string filename = ss.str();
@@ -807,8 +804,7 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
     
     // deal with hanging nodes - form a continuous solutions
     mHangingNodeConstraints.distribute(update);
-    
-    
+
     // save the old current solution
     Vector<double> old_solution = mCurrentSolution;
 
@@ -831,25 +827,24 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
         AssembleSystem(true, false);
         double norm_resid = CalculateResidualNorm();
         
-        std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n";
-        
+        std::cout << "\tTesting s = " << damping_values[i] << ", |f| = " << norm_resid << "\n" << std::flush;
         if(norm_resid < best_norm_resid)
         {
             best_norm_resid = norm_resid;
             best_damping_value = damping_values[i];
         }
     }
+
     
     if(best_damping_value == 0.0)
     {
-        std::cout << "\nResidual does not decrease in newton direction, quitting\n";
+        std::cout << "\nResidual does not decrease in newton direction, quitting\n" << std::flush;
         assert(0);
     }
     else
     {
-        std::cout << "\tBest s = " << best_damping_value << "\n";
+        std::cout << "\tBest s = " << best_damping_value << "\n"  << std::flush;
     }
-    
     // implement best update and recalculate residual
     mCurrentSolution.equ(1.0, old_solution, -best_damping_value, update);
 }
@@ -891,7 +886,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         std::cout << "Norm of residual is " << norm_resid << "\n";
 
         OutputResults(counter);
-
+    
         counter++;
         if(counter==20)
         {

@@ -58,7 +58,9 @@ protected:
 
     AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
 
-
+    double mAverageElementVolume;
+    
+    void WriteBasicOutput(unsigned counter);
 
     /**
      *  Reimplemented to include growth term (only a minor change)
@@ -72,7 +74,7 @@ protected:
     /**
      *  Refine the elements which have gotten too large
      */
-    void RefineOvergrownElements();
+    bool RefineOvergrownElements(unsigned);
     
 public:
     /** 

@@ -14,14 +14,14 @@
 #include "FiniteElasticityTools.hpp"
 
 
-// todos: proper test of answers, compare numerical jacobian, test exceptions. 
+// todos: proper test of answers, compare numerical jacobian 
 // sensible test once s set up. change constructor
 
 
 class TestFiniteElasticityAssemblerWithGrowth : public CxxTest::TestSuite
 {
 public :
-    void testExceptions() throw(Exception)
+    void TestExceptions() throw(Exception)
     {
         Vector<double> body_force(2);
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
@@ -60,7 +60,11 @@ public :
     }
     
 
-    void test2dProblemOnSquare() throw(Exception)
+
+
+
+
+    void Test2dProblemOnSquare() throw(Exception)
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
@@ -69,9 +73,12 @@ public :
 
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
-            
+        mesh.refine_global(4);  
+
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+
+
         Point<2> centre;
         centre[0]=0.5;
         centre[1]=0.5;
@@ -80,7 +87,6 @@ public :
         FiniteElasticityTools<2>::SetAllElementsAsNonGrowingRegion(mesh);
         FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, centre, 0.2);
 
-          
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
                                                                       &mooney_rivlin_law,
                                                                       body_force,
@@ -105,38 +111,40 @@ public :
         }
 
 
-        finiteelas_with_growth.SetTimes(0.0, 1.0, 0.1);                                 
+        finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);                                 
                                                          
-        finiteelas_with_growth.Run();
+//        finiteelas_with_growth.Run();
 
-        Vector<double>& solution = finiteelas_with_growth.GetSolutionVector();
-        DoFHandler<2>& dof_handler = finiteelas_with_growth.GetDofHandler();
 
-        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
-        while(!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<2> old_posn = vertex_iter.GetVertex();
-            
-            Point<2> new_posn;
-            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-            
-            // todo: TEST THESE!!
 
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-                                      << " " << new_posn(0) << " " << new_posn(1) << "\n";
-                                      
-
-            //// UPDATE THE NODE POSITIONS
-            // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
-            // directly. Do this so the new volume can be computed
-            vertex_iter.GetVertex()[0] = new_posn(0);         
-            vertex_iter.GetVertex()[1] = new_posn(1);         
-                                      
-            vertex_iter.Next();
-        }
+//        Vector<double>& solution = finiteelas_with_growth.GetSolutionVector();
+//        DoFHandler<2>& dof_handler = finiteelas_with_growth.GetDofHandler();
+//
+//        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
+//        
+//        while(!vertex_iter.ReachedEnd())
+//        {
+//            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+//            Point<2> old_posn = vertex_iter.GetVertex();
+//            
+//            Point<2> new_posn;
+//            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
+//            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
+//            
+//            // todo: TEST THESE!!
+//
+//            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
+//                                      << " " << new_posn(0) << " " << new_posn(1) << "\n";
+//                                      
+//
+//            //// UPDATE THE NODE POSITIONS
+//            // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
+//            // directly. Do this so the new volume can be computed
+//            vertex_iter.GetVertex()[0] = new_posn(0);         
+//            vertex_iter.GetVertex()[1] = new_posn(1);         
+//                                      
+//            vertex_iter.Next();
+//        }
     }
 };
 #endif /*TESTFINITEELASTICITYASSEMBLERWITHGROWTH_HPP_*/

@@ -19,7 +19,7 @@ public:
     
         bool found_element_on_requested_surface = false;
 
-        typename Triangulation<DIM>::cell_iterator element_iter = mesh.begin();
+        typename Triangulation<DIM>::cell_iterator element_iter = mesh.begin_active();
     
         while(element_iter!=mesh.end())
         {
@@ -30,7 +30,7 @@ public:
                     double component_val = element_iter->face(face_index)->center()(component);
                     if(fabs(component_val - value)<1e-4)
                     {
-                        // x_i=0, label as fixed boundary
+                        // x_i=value, label as fixed boundary
                         element_iter->face(face_index)->set_boundary_indicator(FIXED_BOUNDARY);
                         found_element_on_requested_surface = true;
                     }
@@ -47,6 +47,63 @@ public:
         if(!found_element_on_requested_surface)
         {
             EXCEPTION("No elements were found on the requested surface");
+        }
+    }
+    
+    
+    /**
+     *  Takes in a mesh and sets all surface elements for contain the given point as a vertex, as the
+     *  fixed surface, and all other surface elements as the neumann surface. The condition to be satisfied
+     *  is for any vertex to be within TOL of the given point (in the 2-norm), where TOL is
+     *  the third parameter (defaults to 1e-6).
+     */   
+    static void FixFacesContainingPoint(Triangulation<DIM>& mesh, Point<DIM>& point, double tol=1e-6)
+    {
+        assert(DIM>1);
+        
+        bool found_element_on_requested_surface = false;
+
+        typename Triangulation<DIM>::cell_iterator element_iter = mesh.begin_active();
+    
+        while(element_iter!=mesh.end())
+        {
+            for(unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
+            {
+                if(element_iter->face(face_index)->at_boundary()) 
+                {
+                    bool face_contains_point = false;
+    
+                    for(unsigned i=0; i<GeometryInfo<DIM-1>::vertices_per_cell; i++)
+                    {
+                        Point<DIM> vertex_point = element_iter->face(face_index)->vertex(i);
+                        Point<DIM> diff = vertex_point-point;
+                        double distance = std::sqrt(diff.square());
+                        
+                        if(distance < tol)
+                        {
+                            face_contains_point = true;
+                        }
+                    }
+
+                    if(face_contains_point)
+                    {   
+                        // label as fixed boundary
+                        element_iter->face(face_index)->set_boundary_indicator(FIXED_BOUNDARY);
+                        found_element_on_requested_surface = true;
+                    }
+                    else 
+                    {
+                        // else label as neumann boundary
+                        element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
+                    }
+                }
+            }
+            element_iter++;
+        }
+        
+        if(!found_element_on_requested_surface)
+        {
+            EXCEPTION("No face elements were found containing the given point");
         }
     }
     

@@ -19,7 +19,7 @@ public :
         ////////////////////////////
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
 
-        Triangulation<2>::cell_iterator element_iter = mesh.begin();
+        Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
         while(element_iter!=mesh.end())
         {
             for(unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
@@ -47,7 +47,7 @@ public :
         double value = 1.0;
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 1, value);
         
-        element_iter = mesh.begin();
+        element_iter = mesh.begin_active();
         while(element_iter!=mesh.end())
         {
             for(unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
@@ -83,7 +83,7 @@ public :
         mesh.refine_global(1);
         FiniteElasticityTools<3>::SetFixedBoundary(mesh, 2);
 
-        Triangulation<3>::cell_iterator element_iter = mesh.begin();
+        Triangulation<3>::cell_iterator element_iter = mesh.begin_active();
     
         while(element_iter!=mesh.end())
         {
@@ -135,7 +135,7 @@ public :
     }
     
     
-    void TestSetCircularRegionAsGrowingRegion2d()
+    void TestSetCircularRegionAsGrowingRegion2d() throw(Exception)
     {
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
@@ -179,7 +179,7 @@ public :
         }
     }
 
-    void TestSetCircularRegionAsGrowingRegion3d()
+    void TestSetCircularRegionAsGrowingRegion3d() throw(Exception)
     {
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
@@ -222,6 +222,104 @@ public :
             }            
             element_iter++;    
         }
+    }
+    
+    void TestFixFacesContainingPoint() throw(Exception)
+    {
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
+        mesh.refine_global(1);
+        
+        // set all elements as non growing initially
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+        
+        
+        // check the results
+        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
+        
+        // bottom element - all faces which are surface elements should be fixed
+        for(unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
+        {
+            if(element_iter->face(face_index)->at_boundary()) 
+            {
+                unsigned boundary_val = element_iter->face(face_index)->boundary_indicator();
+                TS_ASSERT_EQUALS(boundary_val, FIXED_BOUNDARY);
+            }
+        }
+        element_iter++;
+        
+        // for all other elements - the face doesn't contain the zero point, so should be
+        // labelled as neumann
+        while(element_iter!=mesh.end())
+        {  
+            for(unsigned face_index=0; face_index<GeometryInfo<2>::faces_per_cell; face_index++)
+            {
+                if(element_iter->face(face_index)->at_boundary()) 
+                {
+                    unsigned boundary_val = element_iter->face(face_index)->boundary_indicator();
+                    TS_ASSERT_EQUALS(boundary_val, NEUMANN_BOUNDARY);
+                }
+            }
+            element_iter++;    
+        }
+        
+        // exceptions
+        Point<2> point_not_in_mesh;
+        point_not_in_mesh[0] = -1;
+        point_not_in_mesh[1] = -1;
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, point_not_in_mesh));
+        
+        // also check that the third parameter is used
+        Point<2> another_point;
+        another_point[0] = 0.49;
+        another_point[1] = 0.0;
+        //  - won't find the point as tol too small
+        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityTools<2>::FixFacesContainingPoint(mesh,another_point,0.009));
+        //  - will find the point 
+        TS_ASSERT_THROWS_NOTHING(FiniteElasticityTools<2>::FixFacesContainingPoint(mesh,another_point,0.011));
+
+    }
+    
+    
+    void TestFixFacesContainingPoint3d() throw(Exception)
+    {
+        Triangulation<3> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
+        mesh.refine_global(1);
+        
+        // set all elements as non growing initially
+        Point<3> zero;
+        FiniteElasticityTools<3>::FixFacesContainingPoint(mesh, zero);
+                
+        // check the results
+        Triangulation<3>::active_cell_iterator element_iter = mesh.begin_active();
+        
+        // bottom element - all faces which are surface elements should be fixed
+        for(unsigned face_index=0; face_index<GeometryInfo<3>::faces_per_cell; face_index++)
+        {
+            if(element_iter->face(face_index)->at_boundary()) 
+            {
+                unsigned boundary_val = element_iter->face(face_index)->boundary_indicator();
+                TS_ASSERT_EQUALS(boundary_val, FIXED_BOUNDARY);
+            }
+        }
+        element_iter++;
+        
+        // for all other elements - the face doesn't contain the zero point, so should be
+        // labelled as neumann
+        while(element_iter!=mesh.end())
+        {  
+            for(unsigned face_index=0; face_index<GeometryInfo<3>::faces_per_cell; face_index++)
+            {
+                if(element_iter->face(face_index)->at_boundary()) 
+                {
+                    unsigned boundary_val = element_iter->face(face_index)->boundary_indicator();
+                    TS_ASSERT_EQUALS(boundary_val, NEUMANN_BOUNDARY);
+                }
+            }
+            element_iter++;    
+        }    
     }
 };
 #endif /*TESTFINITEELASTICITYTOOLS_HPP_*/
