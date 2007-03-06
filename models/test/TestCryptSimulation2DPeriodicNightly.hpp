@@ -684,7 +684,7 @@ public:
     
     // This is strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though...
-    void no_TestCrypt2DTysonNovakNightly() throw (Exception)
+    void TestCrypt2DTysonNovakNightly() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
