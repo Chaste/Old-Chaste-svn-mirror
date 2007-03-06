@@ -6,6 +6,9 @@
 #include "AbstractGrowingTumourSourceModel.hpp"
 #include "SimpleTumourSourceModel.hpp"
 #include "ConstantTumourSourceModel.hpp"
+#include "ConcentrationBasedTumourSourceModel.hpp"
+
+
 #include "FiniteElasticityAssembler.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
@@ -31,7 +34,7 @@ public:
         TS_ASSERT_DELTA(simple_model.GetSourceValue(1), 0.0, 1e-12);        
 
         // run
-        simple_model.Run(0,1);
+        simple_model.Run(0,1,NULL);
         
         // this source model just return s = index,
         TS_ASSERT_DELTA(simple_model.GetSourceValue(0), 0.0, 1e-12);
@@ -54,7 +57,7 @@ public:
         constant_model.AddEvaluationPoint(0, position, 0);
 
         // run
-        constant_model.Run(0,1);
+        constant_model.Run(0,1,NULL);
         
         // this source model just return s = index,
         TS_ASSERT_DELTA(constant_model.GetSourceValue(0), value, 1e-12);
@@ -76,7 +79,7 @@ public:
                                                        &mooney_rivlin_law,
                                                        body_force,
                                                        1.0,
-                                                       "temp");
+                                                       "");
 
         double value = 2.5;
         ConstantTumourSourceModel<2> constant_model(value);
@@ -169,6 +172,39 @@ public:
         TS_ASSERT_DELTA(old_posn_pt[1], 0.5,    1e-12);
         TS_ASSERT_DELTA(new_posn_pt[1], 0.4999, 1e-3);
     } 
+
+    void TestConcentrationBasedTumourSourceModel()
+    {
+        Vector<double> body_force(2);
+        body_force(0) = 1.0;
+    
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
+        mesh.refine_global(1);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       &mooney_rivlin_law,
+                                                       body_force,
+                                                       1.0,
+                                                       "");
+
+        ConcentrationBasedTumourSourceModel<2> source_model(mesh);
+        
+        // add the first few nodes
+        TriangulationVertexIterator<2> iter(&mesh); 
+
+        //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";  
+        source_model.AddEvaluationPoint(0, iter.GetVertex(), iter.GetVertexGlobalIndex());
+        iter.Next();
+
+        //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";  
+        source_model.AddEvaluationPoint(1, iter.GetVertex(), iter.GetVertexGlobalIndex());
+
+        source_model.Run(0,1,&finite_elasticity);
+    }
 };
 
 

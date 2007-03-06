@@ -890,7 +890,7 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
     AssembleSystem(false, true);
 
     // solve the linear system
-    SolverControl  solver_control(20000, 1e-6, false, false);
+    SolverControl  solver_control(200000, 1e-6, false, true);
     PrimitiveVectorMemory<> vector_memory;
 
     Vector<double> update;

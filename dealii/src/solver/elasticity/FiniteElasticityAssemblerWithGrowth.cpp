@@ -7,9 +7,6 @@
 #include <dofs/dof_tools.h>
 
 
-// to be removed later
-#include "ConstantTumourSourceModel.hpp"
-
 
   
 #include <numerics/solution_transfer.h>
@@ -22,6 +19,7 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
                                                                               Vector<double> bodyForce,
                                                                               double density,
                                                                               std::string outputDirectory,
+                                                                              AbstractGrowingTumourSourceModel<DIM>* pSourceModel,  
                                                                               unsigned degreeOfBasesForPosition,
                                                                               unsigned degreeOfBasesForPressure
                                                                               )  :
@@ -33,6 +31,9 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
                                        degreeOfBasesForPosition,
                                        degreeOfBasesForPressure)
 {
+    assert(pSourceModel!=NULL);
+    mpSourceModel = pSourceModel;
+    
     mTimesSet = false;
     
     ///////////////////////////////////////////////////////////
@@ -47,7 +48,9 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
         mGrowthValuesAtVertices(i) = 1.0;
     }
     
-    mpSourceModel = new ConstantTumourSourceModel<DIM>(1.0);
+
+
+
 
     /////////////////////////////////////////////////////////////
     // find growing region and create odes for each node in the
@@ -113,7 +116,7 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
         EXCEPTION("No elements in the mesh was labelled as growing");
     }
     
-    
+    mUseRefinement = true;
 }
 
 template<int DIM>
@@ -130,6 +133,18 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::IsGrowingNode(unsigned vertexInde
 {
     assert(vertexIndex < mGrowthOdeSystems.size());
     return (mGrowthOdeSystems[vertexIndex]!=NULL);
+}
+
+template<int DIM>
+void FiniteElasticityAssemblerWithGrowth<DIM>::DoNotUseRefinement()
+{
+    mUseRefinement = false;
+}
+
+template<int DIM>
+void FiniteElasticityAssemblerWithGrowth<DIM>::UseRefinement()
+{
+    mUseRefinement = true;
 }
 
 
@@ -420,7 +435,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
 
 
 
-    if(element_volume > 1.7*mAverageElementVolume)
+    if(element_volume > pow(2,DIM)*mAverageElementVolume)
     {
         elementIter->set_user_flag();
     }
@@ -515,7 +530,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter
 template<int DIM>
 bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned i)
 {
-    Triangulation<2>::active_cell_iterator element_iter = this->mpMesh->begin_active();
+    typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
 
     // determine if there any elements to refine
     bool elements_to_refine = false;
@@ -687,7 +702,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 
     this->OutputResults(0);
     WriteBasicOutput(0);
-
+    
     unsigned counter=1;
     double time = mTstart;
     while(time < mTend)
@@ -704,7 +719,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         //////////////////////////////////////////////////////
         // Run the source model up to the next timestep
         //////////////////////////////////////////////////////
-        mpSourceModel->Run(time, time+mOdeDt);
+        mpSourceModel->Run(time, time+mOdeDt, this);
 
         //////////////////////////////////////////////////////
         // integrate the odes

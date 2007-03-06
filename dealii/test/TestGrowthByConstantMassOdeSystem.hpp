@@ -26,7 +26,7 @@ public:
         double start_time = 0;
         double end_time = 1;
         double dt = 0.01;
-        source_model.Run(start_time, end_time);
+        source_model.Run(start_time, end_time, NULL);
         
         EulerIvpOdeSolver solver;
         solver.SolveAndUpdateStateVariable(&ode_system_0, start_time, end_time, dt);
@@ -59,7 +59,7 @@ public:
         double start_time = 0;
         double end_time = 1;
         double dt = 0.01;
-        source_model.Run(start_time, end_time);
+        source_model.Run(start_time, end_time, NULL);
         
         EulerIvpOdeSolver solver;
         solver.SolveAndUpdateStateVariable(&ode_system, start_time, end_time, dt);

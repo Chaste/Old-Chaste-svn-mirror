@@ -1,4 +1,5 @@
 TestAbstractGrowingTumourSourceModel.hpp
+TestConcentrationBasedTumourSourceModel.hpp
 TestDealii.hpp
 TestDynamicFiniteElasticityAssembler.hpp
 TestFiniteElasticityAssembler.hpp

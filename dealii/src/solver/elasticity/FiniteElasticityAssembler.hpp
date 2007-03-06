@@ -22,6 +22,8 @@
 // tobefixed: numerical jacobian: works but the boundary condition is wrong for some
 // reason
 
+// store new position here so outsider don't have to use the dofvertexiter
+
 // other todos: doxygen,chaste style output, nonzero neumann, heterogeneity, nondim. 
 
 
@@ -188,6 +190,7 @@ public:
 
     virtual void Solve();
     
+// should be rGet.. etc
     Vector<double>& GetSolutionVector();
     DoFHandler<DIM>& GetDofHandler();
     Triangulation<DIM>* GetMesh();

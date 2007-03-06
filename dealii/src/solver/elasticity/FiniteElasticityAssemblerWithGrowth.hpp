@@ -77,6 +77,8 @@ protected:
      *  Refine the elements which have gotten too large
      */
     bool RefineOvergrownElements(unsigned);
+    bool mUseRefinement;
+
     
 public:
     /** 
@@ -99,6 +101,7 @@ public:
                                         Vector<double> bodyForce,
                                         double density,
                                         std::string outputDirectory,
+                                        AbstractGrowingTumourSourceModel<DIM>* pSourceModel,  
                                         unsigned degreeOfBasesForPosition=2,
                                         unsigned degreeOfBasesForPressure=1);
 
@@ -114,6 +117,9 @@ public:
      *  this vertex in the mesh. Mainly for testing purposes
      */ 
     bool IsGrowingNode(unsigned vertexIndex);
+
+    void DoNotUseRefinement();
+    void UseRefinement();
 
 /* Inherited    
     virtual void Solve();

@@ -11,7 +11,7 @@ template<int DIM>
 class SimpleTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
 {
 public :
-    void Run(double tStart, double tEnd)
+    void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
         typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter 
            = this->mEvaluationPoints.begin();

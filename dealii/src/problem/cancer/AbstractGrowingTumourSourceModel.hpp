@@ -28,7 +28,7 @@ protected :
     
     
 public :
-    virtual void Run(double tStart, double tEnd)=0;
+    virtual void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)=0;
 
     
     virtual double GetSourceValue(unsigned index)
