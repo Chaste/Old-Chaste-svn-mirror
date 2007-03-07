@@ -1,7 +1,9 @@
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include <cassert>
 #include <iostream>
+#include <math.h>
 
+const double smidge=1e-10;
 
 OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
                                                std::vector<double>& rYValues,
@@ -32,32 +34,16 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         EXCEPTION("Stopping event is true for initial condition");
     }
     
-    unsigned number_of_time_samples;
-    double current_time;
     
-    number_of_time_samples = 0;
+    unsigned guess_number_of_time_samples = (unsigned) ceil((endTime - startTime)/timeSampling);
     
-    current_time = startTime;
-    
-    while (current_time < endTime)
-    {
-        number_of_time_samples++;
-        
-        if (startTime+number_of_time_samples*timeSampling >= endTime)
-        {
-            current_time = endTime;
-        }
-        else
-        {
-            current_time = startTime+number_of_time_samples*timeSampling;
-        }
-    }
+ 
     
     // setup solutions if output is required
     
     OdeSolution solutions;
     //Set number of time steps will be duplicated below
-    solutions.SetNumberOfTimeSteps(number_of_time_samples);
+    solutions.SetNumberOfTimeSteps(guess_number_of_time_samples);
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     
@@ -68,10 +54,15 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     
     unsigned time_step_number = 0;
     
-    current_time = startTime;
+    double current_time = startTime;
     
     double to_time;
     
+    /* We'll trap for stopping times that are close to the end time
+     * in order to avoid having a timestep of 1e-14 (or whatever) at
+     * the end in the case of rounding errors.
+     */
+    double close_to_end_time = endTime - smidge*timeSampling;
     
     while ( (current_time < endTime) && (!mStoppingEventOccured) )
     {
@@ -79,7 +70,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         
         to_time = startTime+time_step_number*timeSampling;
         
-        if (to_time >= endTime)
+        if (to_time >= /*endTime*/ close_to_end_time)
         {
             to_time = endTime;
         }
@@ -139,15 +130,23 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeS
     // should never get here if this bool has been set to true;
     assert(!mStoppingEventOccured);
     
+    /* We'll trap for stopping times that are close to the end time
+     * in order to avoid having a timestep of 1e-14 (or whatever) at
+     * the end in the case of rounding errors.
+     */
+    double close_to_end_time = endTime - smidge*timeStep;
+    
     while ( (current_time < endTime) && (!mStoppingEventOccured) )
     {
         time_step_number++;
         
         // Determine what the value time step should really be like
         double to_time = startTime+time_step_number*timeStep; 
-        if (to_time >= endTime)
+        
+        if (to_time >= close_to_end_time)
         {
             real_time_step = endTime - current_time;
+           // std::cout<<"InternalSolve "<<timeStep<<" "<<real_time_step<<"\n";
             to_time = endTime;
         }
         

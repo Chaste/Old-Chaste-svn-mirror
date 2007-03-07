@@ -4,7 +4,6 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "CancerParameters.hpp"
-#include "ColumnDataWriter.hpp"
 #include <cmath>
 #include <ctime>
 #include <iostream>

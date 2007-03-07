@@ -52,14 +52,28 @@ void TysonNovakCellCycleModel::ResetModel()
 	// breaks after a while and will not converge.
 	mBirthTime = mDivideTime;
 	mLastTime = mDivideTime;
-    // std::cout << "divide time = " << mDivideTime << std::endl;
 
     //\TODO:Figure out why this goes unstable after a while...
     // Halve the mass of the cell
-	//mProteinConcentrations[5] = mProteinConcentrations[5]/2.0;
-
-	mProteinConcentrations = mOdeSystem.GetInitialConditions();
-	mReadyToDivide=false;	
+	if (false)
+    {
+        mProteinConcentrations[5] = mProteinConcentrations[5]/2.0;
+    }
+    else
+    {
+        //double new_mass=mProteinConcentrations[5]/2.0;
+        mProteinConcentrations = mOdeSystem.GetInitialConditions();
+        //mProteinConcentrations[5]=new_mass;
+    }
+    /*
+     * 
+    std::cout << "divide time = " << mDivideTime << std::endl;
+    for (unsigned i=0; i< mProteinConcentrations.size(); i++)
+    {
+        std::cout << "protein[" << i <<"] = " <<  mProteinConcentrations[i] << "\n";
+    }
+    */
+    mReadyToDivide=false;	
 }
 
 /**
