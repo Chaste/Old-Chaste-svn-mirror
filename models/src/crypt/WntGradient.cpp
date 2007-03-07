@@ -4,10 +4,6 @@
 #include <cassert>
 #include "CancerParameters.hpp"
 
-WntGradient::WntGradient()
-{
-	EXCEPTION("A type should be supplied with WntGradient constructor - see WntGradientTypes.hpp");
-}
 
 WntGradient::WntGradient(WntGradientType type)
 {

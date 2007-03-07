@@ -14,7 +14,7 @@ public:
     {
     	WntGradientType this_type = LINEAR;
         
-        TS_ASSERT_THROWS_ANYTHING(WntGradient wnt_gradient1);
+        TS_ASSERT_THROWS_NOTHING(WntGradient wnt_gradient1);
         
         TS_ASSERT_THROWS_NOTHING(WntGradient wnt_gradient2(this_type));
     }

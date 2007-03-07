@@ -13,10 +13,7 @@ private:
     WntGradientType mGradientType;
     
 public:
-    
-    WntGradient();
-    
-    WntGradient(WntGradientType gradientType);
+    WntGradient(WntGradientType gradientType = NONE);
     
     ~WntGradient();
 
