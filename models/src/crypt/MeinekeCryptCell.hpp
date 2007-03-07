@@ -33,6 +33,8 @@ protected:
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
     SimulationTime* mpSimulationTime;
+    bool mUndergoingApoptosis;
+    double mDeathTime;
     
     /**
      * Contains code common to both the copy constructor and operator=.
@@ -94,7 +96,10 @@ public:
      */
     bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
-    
+    void StartApoptosis();
+    bool HasApoptosisBegun();
+    double TimeUntilDeath();
+    bool IsDead();
 	/**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide must have been called with the given simulationTime, and returned true.

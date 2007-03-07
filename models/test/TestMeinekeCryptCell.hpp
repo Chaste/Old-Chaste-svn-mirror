@@ -1216,6 +1216,44 @@ public:
         SimulationTime::Destroy();
     }
     
+    void TestApoptosisAndDeath()
+    {
+        // We are going to start at t=0 and jump up in steps of 0.2
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
+        
+        // this test needs particular apoptosis time
+        CancerParameters *p_params = CancerParameters::Instance();
+        TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
+        
+        
+        MeinekeCryptCell cell(TRANSIT, // type
+                              HEALTHY,//Mutation State
+                              0,    // generation
+                              new FixedCellCycleModel());
+        
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
+        TS_ASSERT_EQUALS(cell.IsDead(),false);
+        TS_ASSERT_THROWS_ANYTHING(cell.TimeUntilDeath());
+        
+        p_simulation_time->IncrementTimeOneStep();//t=0.2
+        
+        cell.StartApoptosis();
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
+        TS_ASSERT_EQUALS(cell.IsDead(),false);
+        TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.25,1e-12);
+        
+        p_simulation_time->IncrementTimeOneStep();//t=0.4
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
+        TS_ASSERT_EQUALS(cell.IsDead(),false);
+        TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.05,1e-12);
+        
+        p_simulation_time->IncrementTimeOneStep();//t=0.6
+        TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
+        TS_ASSERT_EQUALS(cell.IsDead(),true);
+        
+    }
+    
 };
 
 

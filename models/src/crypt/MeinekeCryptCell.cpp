@@ -22,20 +22,24 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mMutationState = mutationState;
     mpCellCycleModel->SetCellType(cellType);
     mCanDivide = false;
+    mUndergoingApoptosis = false;
 }
 
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
-{	// Copy 'easy' data members
+{
+    // Copy 'easy' data members
 	mGeneration = other_cell.mGeneration;
     mCellType = other_cell.mCellType;
     mMutationState = other_cell.mMutationState;
     mCanDivide = other_cell.mCanDivide;
     mpSimulationTime = other_cell.mpSimulationTime;
+    mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
     // Copy cell cycle model
     // First create a new object
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();
     // Then copy its state
     *mpCellCycleModel = *(other_cell.mpCellCycleModel);
+    
 }
 
 MeinekeCryptCell::MeinekeCryptCell(const MeinekeCryptCell &other_cell)
@@ -127,6 +131,8 @@ void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
  */
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {	
+    assert(!IsDead());
+    
 	double mutation_state = -1;
 	if(mMutationState==HEALTHY)
 	{
@@ -156,11 +162,51 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 	}
 	cellCycleInfluences.push_back(mutation_state);
 	mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
+    if (mUndergoingApoptosis)
+    {
+        mCanDivide = false;
+    }
     return mCanDivide;
 }
 
+
+void MeinekeCryptCell::StartApoptosis()
+{
+    assert(!IsDead());
+
+    mUndergoingApoptosis = true;
+
+    CancerParameters *p_params = CancerParameters::Instance();
+    mDeathTime = mpSimulationTime->GetDimensionalisedTime() + p_params->GetApoptosisTime();
+}
+
+
+bool MeinekeCryptCell::HasApoptosisBegun()
+{
+    return mUndergoingApoptosis;
+}
+    
+double MeinekeCryptCell::TimeUntilDeath()
+{
+    if (!mUndergoingApoptosis)
+    {
+        EXCEPTION("Shouldn't be checking time until apoptosis as it isn't undergoing apoptosis");
+    }
+    return mDeathTime - mpSimulationTime->GetDimensionalisedTime();
+}
+
+bool MeinekeCryptCell::IsDead()
+{
+    return ( (mUndergoingApoptosis) && (mpSimulationTime->GetDimensionalisedTime() >= mDeathTime));
+}
+
+
+
 MeinekeCryptCell MeinekeCryptCell::Divide()
-{	//Copy this cell and give new one relevant attributes...
+{	
+    assert(!IsDead());
+    
+    //Copy this cell and give new one relevant attributes...
 	assert(mpSimulationTime!=NULL);
     assert(mCanDivide);
     CancerParameters *p_params = CancerParameters::Instance();

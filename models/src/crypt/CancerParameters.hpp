@@ -18,6 +18,7 @@ public:
     double GetCryptLength();
     double GetCryptWidth();
     double GetMeinekeLambda();
+    double GetApoptosisTime();
    
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
@@ -26,6 +27,7 @@ public:
     void SetCryptLength(double);
     void SetCryptWidth(double);
     void SetMeinekeLambda(double);
+    void SetApoptosisTime(double);
     
 protected:
     CancerParameters();
@@ -73,6 +75,11 @@ private:
      * Has dimensions 1/time.
      */
     double mMeinekeLambda;
+    
+    /**
+     * The time it takes to fully undergo apoptosis
+     */
+    double mApoptosisTime;
 };
 
 #endif /*CANCERPARAMETERS_HPP_*/

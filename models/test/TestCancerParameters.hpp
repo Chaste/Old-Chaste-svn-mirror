@@ -18,6 +18,7 @@ public:
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(-1.0);
         inst1->SetMeinekeLambda(-2.0);
+        inst1->SetApoptosisTime(0.3);
         
         CancerParameters *inst2 = CancerParameters::Instance();
         
@@ -27,6 +28,7 @@ public:
         TS_ASSERT_EQUALS(inst2->GetMaxTransitGenerations(), 666u);
         TS_ASSERT_DELTA(inst2->GetCryptLength(), -1.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetMeinekeLambda(), -2.0, 1e-12);
+        TS_ASSERT_DELTA(inst2->GetApoptosisTime(), 0.3, 1e-12);
     }
 };
 

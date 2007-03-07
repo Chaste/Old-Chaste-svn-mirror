@@ -28,7 +28,7 @@ CancerParameters::CancerParameters()
     mMaxTransitGenerations = 3u;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
     mMeinekeLambda = 30.0;       // Meineke uses 0.01
-    
+    mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
     // Calculated parameters
     //mAlpha = mStemCellCycleTime * mMeinekeLambda;
     // This was used in non-dimensional case
@@ -66,6 +66,10 @@ double CancerParameters::GetMeinekeLambda()
 {
     return mMeinekeLambda;
 }
+double CancerParameters::GetApoptosisTime()
+{
+    return mApoptosisTime;
+}
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -98,4 +102,8 @@ void CancerParameters::SetCryptWidth(double cryptWidth)
 void CancerParameters::SetMeinekeLambda(double meinekeLambda)
 {
     mMeinekeLambda = meinekeLambda;
+}
+void CancerParameters::SetApoptosisTime(double apoptosisTime)
+{
+    mApoptosisTime = apoptosisTime;
 }
