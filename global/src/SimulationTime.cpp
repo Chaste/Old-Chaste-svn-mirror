@@ -23,6 +23,7 @@ SimulationTime::SimulationTime()
 {
     mEndTimeAndNumberOfTimeStepsSet = false;
     mTimeStepsElapsed = 0;
+    mCurrentDimensionalisedTime = 0.0;
 }
 
 
@@ -38,8 +39,8 @@ void SimulationTime::Destroy()
 {
     if (mpInstance)
     {
-	delete mpInstance;
-	mpInstance = NULL;
+	   delete mpInstance;
+	   mpInstance = NULL;
     }
 }
 
@@ -62,6 +63,8 @@ void SimulationTime::IncrementTimeOneStep()
 {
     assert(mEndTimeAndNumberOfTimeStepsSet);
     mTimeStepsElapsed++;
+    mCurrentDimensionalisedTime = ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
+                                 * mDurationOfSimulation;
 }
 
 /**
@@ -81,9 +84,13 @@ unsigned SimulationTime::GetTimeStepsElapsed()
  */
 double SimulationTime::GetDimensionalisedTime()
 {
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
+    // wasn't called in the previous test                                   //
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     assert(mEndTimeAndNumberOfTimeStepsSet);
-    return ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
-           * mDurationOfSimulation;
+
+    return mCurrentDimensionalisedTime;
 }
 
 /**

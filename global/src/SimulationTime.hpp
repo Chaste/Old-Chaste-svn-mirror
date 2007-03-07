@@ -26,6 +26,7 @@ private:
     unsigned mTotalTimeStepsInSimulation;
     unsigned mTimeStepsElapsed;
     bool mEndTimeAndNumberOfTimeStepsSet;
+    double mCurrentDimensionalisedTime;
 };
 
 #endif /*SIMULATIONTIME_HPP_*/
