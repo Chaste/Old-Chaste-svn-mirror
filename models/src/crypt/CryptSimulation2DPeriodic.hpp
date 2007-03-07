@@ -18,6 +18,28 @@
 #include "WntGradient.hpp"
 
 /**
+ * Structure encapsulating variable identifiers for the node datawriter
+ */
+typedef struct node_writer_ids_t
+{
+    unsigned time;               /**< The simulation time */
+    std::vector<unsigned> types; /**< Cell types */
+    /** Cell positions */
+    std::vector<unsigned> x_positions, y_positions;
+} node_writer_ids_t;
+
+/**
+ * Structure encapsulating variable identifiers for the element datawriter
+ */
+typedef struct element_writer_ids_t
+{
+    unsigned time;/**< The simulation time */
+    /** Node indices */
+    std::vector<unsigned> nodeAs, nodeBs, nodeCs;
+} element_writer_ids_t;
+
+
+/**
  * Solve a 2D crypt simulation based on the Meineke paper.
  *
  * The spring lengths are governed by the equations
@@ -39,7 +61,6 @@
  * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
  * the constructor and the class is told about the ghost nodes by using the method SetGhostNodes. 
  */
-
 class CryptSimulation2DPeriodic
 {
 private:
@@ -50,55 +71,248 @@ private:
     bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
 
-    /**< A boolean saying to fix all four boundaries.*/  
+    /** Whether to fix all four boundaries (defaults to false).*/  
     bool mFixedBoundaries;    
     
-    /**< A boolean saying to run the simulation with no birth (defaults to false). */
+    /** Whether to run the simulation with no birth (defaults to false). */
     bool mNoBirth;
 
-    /**< A boolean saying whether to remesh at each timestep or not (defaults to true).*/    
+    /** Whether to remesh at each timestep or not (defaults to true).*/    
     bool mReMesh;
     
-    /**< A boolean saying whether Wnt signalling is included or not (defaults to false).*/    
+    /** Whether Wnt signalling is included or not (defaults to false).*/    
     bool mWntIncluded;
 
-    /**< A boolean saying whether the remeshing has made our periodic handlers do anything and whether it is worth remeshing again (defaults to false).*/    
+    /** Whether the remeshing has made our periodic handlers do anything and
+     *  whether it is worth remeshing again (defaults to false).*/    
 	bool mNodesMoved;
     
-    /**< A boolean saying whether the mesh is periodic or not (defaults to false).*/    
+    /** Whether the mesh is periodic or not (defaults to false).*/    
     bool mPeriodicSides;
 
-     /**< A vector of bools saying whether a node is ghosted-ified or not.*/  
+    /** Whether each node is ghosted-ified or not.*/  
     std::vector <bool> mIsGhostNode; 
     std::vector <bool> mIsPeriodicNode;
     
-    /**< A std::vector of unsigned integers giving the node indexes of nodes on the left boundary. */ 
+    /** The node indexes of nodes on the left boundary. */ 
     std::vector <unsigned> mLeftCryptBoundary;
     std::vector <unsigned> mOldLeftCryptBoundary;
-    /**< A std::vector of unsigned integers giving the node indexes of nodes on the right boundary. */
+    /** The node indexes of nodes on the right boundary. */
     std::vector <unsigned> mRightCryptBoundary;
     std::vector <unsigned> mOldRightCryptBoundary;
-    /**< A std::vector of unsigned integers giving the node indexes of nodes on the boundary. */
+    /** The node indexes of nodes on the whole boundary. */
     std::vector <unsigned> mCryptBoundary;
     std::vector <unsigned> mOldCryptBoundary;
     
-    /**< An unsigned int giving the maximum number of cells that this simulation will include (for use by datawriter). */
+    /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
-    /**< An unsigned int giving the maximum number of elements that this simulation will include (for use by datawriter). */
+    /** The maximum number of elements that this simulation will include (for use by datawriter). */
     unsigned mMaxElements;
     
     std::string mOutputDirectory;
-    
+    /** Every cell in the simulation*/
     std::vector<MeinekeCryptCell> mCells;
 
     RandomNumberGenerator *mpRandomNumberGenerator;    
+    /** Whether the random number generator was created by our constructor*/
     bool mCreatedRng;
     
+    /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
     
+    /** The Type of Wnt gradient - defaults to NONE */
     WntGradientType mWntGradient;
     
+    /** Number of remeshes performed in the current time step */
     unsigned mRemeshesThisTimeStep;
+    
+    /**
+     * Define the variable identifiers in the data writer used to write node-based results.
+     * 
+     * Uses mMaxCells to decide how many variables to define.
+     */
+    void SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds)
+    {
+        rVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
+        
+        rVarIds.types.resize(mMaxCells);
+        rVarIds.x_positions.resize(mMaxCells);
+        rVarIds.y_positions.resize(mMaxCells);
+
+        // set up per-cell variables
+        for (unsigned cell=0; cell<mMaxCells; cell++)
+        {
+            std::stringstream cell_type_var_name, cell_x_position_var_name, cell_y_position_var_name;
+            cell_type_var_name << "cell_type_" << cell;
+            cell_x_position_var_name << "cell_x_position_" << cell;
+            cell_y_position_var_name << "cell_y_position_" << cell;            
+            rVarIds.types[cell]=rNodeWriter.DefineVariable(cell_type_var_name.str(),"dimensionless");
+            rVarIds.x_positions[cell]=rNodeWriter.DefineVariable(cell_x_position_var_name.str(),"rest_spring_length");
+            rVarIds.y_positions[cell]=rNodeWriter.DefineVariable(cell_y_position_var_name.str(),"rest_spring_length");
+        }
+        
+        rNodeWriter.EndDefineMode();
+    }
+    
+    /**
+     * Define the variable identifiers in the data writer used to write element-based results.
+     * 
+     * Uses mMaxCells to decide how many variables to define.
+     */
+    void SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds)
+    {
+        rVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
+        
+        // Set up columns for element writer      
+        rVarIds.nodeAs.resize(mMaxElements);
+        rVarIds.nodeBs.resize(mMaxElements);
+        rVarIds.nodeCs.resize(mMaxElements);
+        
+        for (unsigned elem_index = 0; elem_index<mMaxElements; elem_index++)
+        {
+            std::stringstream nodeA_var_name;
+            std::stringstream nodeB_var_name;
+            std::stringstream nodeC_var_name;
+            
+            nodeA_var_name << "nodeA_" << elem_index;
+            nodeB_var_name << "nodeB_" << elem_index;
+            nodeC_var_name << "nodeC_" << elem_index;
+            
+            rVarIds.nodeAs[elem_index] = rElementWriter.DefineVariable(nodeA_var_name.str(),"dimensionless");
+            rVarIds.nodeBs[elem_index] = rElementWriter.DefineVariable(nodeB_var_name.str(),"dimensionless");
+            rVarIds.nodeCs[elem_index] = rElementWriter.DefineVariable(nodeC_var_name.str(),"dimensionless");
+        }
+        
+        rElementWriter.EndDefineMode();
+    }
+    
+    
+    void WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
+                             ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
+                             std::ofstream& rNodeFile, std::ofstream& rElementFile,
+                             bool writeTabulatedResults,
+                             bool writeVisualizerResults)
+    {
+        // Write current simulation time
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        double time = p_simulation_time->GetDimensionalisedTime();
+        
+        if(writeVisualizerResults)
+        {
+            rNodeFile <<  time << "\t";
+            rElementFile <<  time << "\t";
+        }
+        
+        if (writeTabulatedResults)
+        {
+            rNodeWriter.PutVariable(rNodeVarIds.time, time);
+            rElementWriter.PutVariable(rElementVarIds.time, time);
+        }
+        
+        /////////////////////////////////
+        // write node files
+        /////////////////////////////////
+        for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+        {
+            if(index>mMaxCells)
+            {
+                #define COVERAGE_IGNORE
+                EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
+                #undef COVERAGE_IGNORE
+            }
+            unsigned colour = 0; // all green if no cells have been passed in
+            
+            if(mIsGhostNode[index]==true)
+            {
+                colour = 4; // visualizer treats '4' these as invisible
+            }
+            else if(mCells.size()>0)
+            {
+                if(index < mCells.size())
+                {
+                    CryptCellType type = mCells[index].GetCellType();
+                    CryptCellMutationState mutation = mCells[index].GetMutationState();
+                    
+                    if(type == STEM)
+                    {
+                        colour = 0;
+                    }
+                    else if(type == TRANSIT)
+                    {
+                        colour = 1;
+                    }
+                    else
+                    {
+                        colour = 2;
+                    }
+                    
+                    if(mutation!=HEALTHY)
+                    {
+                        colour = 3; 
+                    }
+                }
+                else
+                {
+                    #define COVERAGE_IGNORE
+                    colour = 2; //Fix for segmentation fault
+                    #undef COVERAGE_IGNORE
+                }
+                
+            }
+            
+            if(!mrMesh.GetNode(index)->IsDeleted())
+            {
+                const c_vector<double,2>& r_node_loc = mrMesh.GetNode(index)->rGetLocation();
+                if(writeVisualizerResults)
+                {
+                    rNodeFile << r_node_loc[0] << " "<< r_node_loc[1] << " " << colour << " ";
+                }
+                if(writeTabulatedResults)
+                {   
+                    rNodeWriter.PutVariable(rNodeVarIds.x_positions[index], r_node_loc[0]);
+                    rNodeWriter.PutVariable(rNodeVarIds.y_positions[index], r_node_loc[1]);
+                    rNodeWriter.PutVariable(rNodeVarIds.types[index], colour);
+                }
+            }
+        }
+
+        /////////////////////////////////
+        // write element data files
+        /////////////////////////////////
+        for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+        {
+            if (elem_index>mMaxElements)
+            {
+                #define COVERAGE_IGNORE
+                EXCEPTION("Maximum number of elements (mMaxElements) exceeded.\nUse SetMaxElements(unsigned) to increase it.\n");
+                #undef COVERAGE_IGNORE
+            }
+            if (!mrMesh.GetElement(elem_index)->IsDeleted())
+            {
+                if(writeVisualizerResults)
+                {
+                    rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0)<< " " << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1)<< " "<< mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2)<< " ";
+                }
+                if(writeTabulatedResults)
+                {
+                    rElementWriter.PutVariable(rElementVarIds.nodeAs[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0));
+                    rElementWriter.PutVariable(rElementVarIds.nodeBs[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1));
+                    rElementWriter.PutVariable(rElementVarIds.nodeCs[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2));
+                }
+            }
+        }
+
+        if(writeVisualizerResults)
+        {
+            rNodeFile << "\n";
+            rElementFile << "\n";
+        }
+        if(writeTabulatedResults)
+        {
+            rNodeWriter.AdvanceAlongUnlimitedDimension();
+            rElementWriter.AdvanceAlongUnlimitedDimension();
+        }   
+    }
     
 public:
 
@@ -172,7 +386,9 @@ public:
         SimulationTime::Destroy();
     }
     
-    
+    /** 
+     * Set the timestep of the simulation
+     */
     void SetDt(double dt)
     {
         assert(dt>0);
@@ -229,7 +445,8 @@ public:
     }
     
     /**
-     *  Call this before Solve() to fix the boundary of the mesh
+     * Call this before Solve() to fix the boundary of the mesh.
+     * \todo figure out what this does!
      */
     void SetFixedBoundaries()
     {
@@ -238,6 +455,7 @@ public:
     
     /**
      *  Call this before Solve() to set the boundary conditions
+     * i.e. whether the left and right boundaries should be periodic
      */
     void SetPeriodicSides(bool periodicSides)
     {
@@ -245,7 +463,10 @@ public:
     }
     
     /** 
-     *  Get the cells vector
+     * Get the cells vector
+     * N.B. Returns a copy of the cells - any operations on them will not go back into the
+     * simulation.
+     * \todo change this to return a const reference
      */
     std::vector<MeinekeCryptCell> GetCells()
     {
@@ -253,36 +474,53 @@ public:
         return mCells;
     }
     
-    /** A standard vector of booleans saying whether
-     *  a node is a ghost or not
+    /** 
+     * Whether each node is a ghost or not.
+     * \todo change this to return a const reference
      */
     std::vector <bool> GetGhostNodes()
     {
         return mIsGhostNode;
     }
     
+    /** 
+     * Return the index of each node on the left periodic boundary
+     * \todo change this to return a const reference
+     */
     std::vector<unsigned> GetLeftCryptBoundary()
     {
         return mLeftCryptBoundary;
     }
     
+    /** 
+     * Return the index of each node on the right periodic boundary
+     * \todo change this to return a const reference
+     */
     std::vector<unsigned> GetRightCryptBoundary()
     {
         return mRightCryptBoundary;
     }
     
+    /** 
+     * Return the index of each node on the whole boundary
+     * \todo change this to return a const reference
+     */    
     std::vector<unsigned> GetCryptBoundary()
     {
         return mCryptBoundary;
     }
     
-    // This automatically sets this to be a wnt dependent simulation
-    // you should supply cells with a wnt cell cycle...
+    /** 
+     * This automatically sets this to be a wnt dependent simulation.
+     * You should supply cells with a wnt cell cycle...
+     * 
+     */
     void SetWntGradient(WntGradientType wntGradient)
     {
     	mWntIncluded = true;
     	mWntGradient = wntGradient;
     }
+    
     /**
      * Main Solve method.
      * 
@@ -290,72 +528,30 @@ public:
      */
     void Solve()
     {
-    	WntGradient wnt_gradient(mWntGradient);
+    	
+        
+        WntGradient wnt_gradient(mWntGradient);
         if (mOutputDirectory=="")
         {
             EXCEPTION("OutputDirectory not set");
         }
+        
         ///////////////////////////////////////////////////////////
-        // Set up Column Data Writer 
+        // Set up Simulation
         ///////////////////////////////////////////////////////////
+        
+        // Data writers for tabulated results data, used in tests
         ColumnDataWriter tabulated_node_writer(mOutputDirectory+"Results", "tabulated_node_results");
         ColumnDataWriter tabulated_element_writer(mOutputDirectory+"Results", "tabulated_element_results");
         
-        unsigned time_var_id = tabulated_node_writer.DefineUnlimitedDimension("Time","hours");
-        unsigned time_var_id_elem = tabulated_element_writer.DefineUnlimitedDimension("Time","hours");
+        node_writer_ids_t node_writer_ids;
+        SetupNodeWriter(tabulated_node_writer, node_writer_ids);
         
-        std::vector<unsigned> type_var_ids;
-        std::vector<unsigned> x_position_var_ids, y_position_var_ids;
+        element_writer_ids_t element_writer_ids;
+        SetupElementWriter(tabulated_element_writer, element_writer_ids);
         
-        type_var_ids.resize(mMaxCells);
-        x_position_var_ids.resize(mMaxCells);
-        y_position_var_ids.resize(mMaxCells);
-
-        // set up columns
-        for (unsigned cell=0; cell<mMaxCells; cell++)
-        {
-            std::stringstream cell_type_var_name;
-            std::stringstream cell_x_position_var_name;
-            std::stringstream cell_y_position_var_name;
-            cell_type_var_name << "cell_type_" << cell;
-            cell_x_position_var_name << "cell_x_position_" << cell;
-            cell_y_position_var_name << "cell_y_position_" << cell;            
-            x_position_var_ids[cell]=tabulated_node_writer.DefineVariable(cell_x_position_var_name.str(),"rest_spring_length");
-            y_position_var_ids[cell]=tabulated_node_writer.DefineVariable(cell_y_position_var_name.str(),"rest_spring_length");
-            type_var_ids[cell]=tabulated_node_writer.DefineVariable(cell_type_var_name.str(),"dimensionless");
-        }
-        
-        
-        tabulated_node_writer.EndDefineMode();
-        
-        
-        // Set up columns for element writer
-        
-        //std::vector<unsigned> type_var_ids;
-        std::vector<unsigned> nodeA_var_ids, nodeB_var_ids, nodeC_var_ids;
-        
-        
-        //type_var_ids.resize(mMaxCells);
-        nodeA_var_ids.resize(mMaxElements);
-        nodeB_var_ids.resize(mMaxElements);
-        nodeC_var_ids.resize(mMaxElements);
-        
-        // set up columns
-        for (unsigned elem_index = 0; elem_index<mMaxElements; elem_index++)
-        {
-            std::stringstream nodeA_var_name;
-            std::stringstream nodeB_var_name;
-            std::stringstream nodeC_var_name;
-            
-            nodeA_var_name << "nodeA_" << elem_index;
-            nodeB_var_name << "nodeB_" << elem_index;
-            nodeC_var_name << "nodeC_" << elem_index;
-            
-            nodeA_var_ids[elem_index] = tabulated_element_writer.DefineVariable(nodeA_var_name.str(),"dimensionless");
-            nodeB_var_ids[elem_index] = tabulated_element_writer.DefineVariable(nodeB_var_name.str(),"dimensionless");
-            nodeC_var_ids[elem_index] = tabulated_element_writer.DefineVariable(nodeC_var_name.str(),"dimensionless");
-        }
-        tabulated_element_writer.EndDefineMode();
+        // This keeps track of when tabulated results were last output
+        unsigned tabulated_output_counter = 0;
         
         
         
@@ -381,7 +577,6 @@ public:
         out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
 
 
-        unsigned counter = 0;
         
 		unsigned periodic_division_buffer = 0;
         
@@ -1122,126 +1317,26 @@ public:
 //            }
 //            
             
+
             ////////////////////////////////////////////////////////////////////////////////
             // Write results to file
             ////////////////////////////////////////////////////////////////////////////////
             
             // Increment simulation time here, so results files look sensible
-            p_simulation_time->IncrementTimeOneStep();
-
-            double time = p_simulation_time->GetDimensionalisedTime();
+            p_simulation_time->IncrementTimeOneStep();            
             
-            (*p_node_file) <<  time << "\t";
-            (*p_element_file) <<  time << "\t";
-
-
-            
-            if(counter==0)
-            {
-                tabulated_node_writer.PutVariable(time_var_id, time);
-                tabulated_element_writer.PutVariable(time_var_id_elem, time);
-            }    
-                
-            
-            /////////////////////////////////
-            // write node files
-            /////////////////////////////////
-            for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-            {
-            	if(index>mMaxCells)
-            	{
-            		#define COVERAGE_IGNORE
-            		EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
-            		#undef COVERAGE_IGNORE
-            	}
-                unsigned colour = 0; // all green if no cells have been passed in
-                
-                if(mIsGhostNode[index]==true)
-                {
-                    colour = 4; // visualizer treats '4' these as invisible
-                }
-                else if(mCells.size()>0)
-                {
-                    if(index < mCells.size())
-                    {
-                        CryptCellType type = mCells[index].GetCellType();
-                        CryptCellMutationState mutation = mCells[index].GetMutationState();
-                        
-                        if(type == STEM)
-                        {
-                            colour = 0;
-                        }
-                        else if(type == TRANSIT)
-                        {
-                            colour = 1;
-                        }
-                        else
-                        {
-                            colour = 2;
-                        }
-                        
-                        if(mutation!=HEALTHY)
-                        {
-                        	colour = 3;	
-                        }
-                    }
-                    else
-                    {
-                        #define COVERAGE_IGNORE
-                        colour = 2; //Fix for segmentation fault
-                        #undef COVERAGE_IGNORE
-                    }
-                    
-                }
-                
-                if(!mrMesh.GetNode(index)->IsDeleted())
-                {
-                    const c_vector<double,2>& r_node_loc = mrMesh.GetNode(index)->rGetLocation();
-                    (*p_node_file) << r_node_loc[0] << " "<< r_node_loc[1] << " " << colour << " ";
-
-                    if(counter==0)
-                    {   
-                        tabulated_node_writer.PutVariable(x_position_var_ids[index], r_node_loc[0]);
-                        tabulated_node_writer.PutVariable(y_position_var_ids[index], r_node_loc[1]);
-                        tabulated_node_writer.PutVariable(type_var_ids[index], colour);
-                    }
-                }
-            }
-            (*p_node_file) << "\n";
-            tabulated_node_writer.AdvanceAlongUnlimitedDimension();
-            
-
-            /////////////////////////////////
-            // write element data files
-            /////////////////////////////////
-            for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-            {
-            	if (elem_index>mMaxElements)
-            	{
-            		#define COVERAGE_IGNORE
-            		EXCEPTION("Maximum number of elements (mMaxElements) exceeded.\nUse SetMaxElements(unsigned) to increase it.\n");
-            		#undef COVERAGE_IGNORE
-            	}
-                if (!mrMesh.GetElement(elem_index)->IsDeleted())
-                {
-                    (*p_element_file) << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0)<< " " << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1)<< " "<< mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2)<< " ";
-                    if(counter==0)
-                    {
-                        tabulated_element_writer.PutVariable(nodeA_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0));
-                        tabulated_element_writer.PutVariable(nodeB_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1));
-                        tabulated_element_writer.PutVariable(nodeC_var_ids[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2));
-                    }
-                }
-            }
-            (*p_element_file) << "\n";
-            tabulated_element_writer.AdvanceAlongUnlimitedDimension();
+            WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
+                                tabulated_element_writer, element_writer_ids,
+                                *p_node_file, *p_element_file,
+                                tabulated_output_counter==0,
+                                true);
 			
-            counter++; 
-            if(counter > 80)
+            tabulated_output_counter++; 
+            if(tabulated_output_counter > 80) // TODO: make this configurable!
             {
-                counter = 0;
+                tabulated_output_counter = 0;
             }
-        }
+        } // End main time loop
 
         
         tabulated_node_writer.Close();
