@@ -198,7 +198,7 @@ elif system_name == 'new_chaste':
         petsc_bmake = petsc_base+'bmake/linux-gnu'
     blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
     other_libpaths = [petsc_libpath, blas_libpath]
-    other_libs = ['f2clapack', 'f2cblas']
+    other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
   petsc_inc = petsc_base+'include'
   # TODO: Make sure Chaste paths come first in the -I list.
   other_includepaths.extend([petsc_inc, petsc_bmake])
