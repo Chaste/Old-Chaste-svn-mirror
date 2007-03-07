@@ -174,6 +174,10 @@ void MeinekeCryptCell::StartApoptosis()
 {
     assert(!IsDead());
 
+    if(mUndergoingApoptosis)
+    {
+        EXCEPTION("StartApoptosis() called when already undergoing apoptosis");
+    }
     mUndergoingApoptosis = true;
 
     CancerParameters *p_params = CancerParameters::Instance();

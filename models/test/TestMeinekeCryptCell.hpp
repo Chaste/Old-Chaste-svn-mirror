@@ -214,8 +214,11 @@ public:
     
     void Test0DBucket()
     {
+        double end_time=61.0;
+        int time_steps=61;
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         MeinekeCryptCell stem_cell(STEM, // type
                                    HEALTHY,//Mutation State
@@ -223,8 +226,7 @@ public:
                                    new FixedCellCycleModel());
                                    
                                    
-        double end_time=60.0;
-        int time_steps=60;
+
         
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
@@ -1239,6 +1241,8 @@ public:
         p_simulation_time->IncrementTimeOneStep();//t=0.2
         
         cell.StartApoptosis();
+        TS_ASSERT_THROWS_ANYTHING(cell.StartApoptosis());
+
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.25,1e-12);
@@ -1252,6 +1256,108 @@ public:
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
         TS_ASSERT_EQUALS(cell.IsDead(),true);
         
+        SimulationTime::Destroy();
+    }
+
+
+    void Test0DBucketWithDeath()
+    {
+        double end_time=92.0;
+        int time_steps=92;
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
+        
+        MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   new FixedCellCycleModel());
+                                                        
+
+        
+        std::vector<MeinekeCryptCell> cells;
+        std::vector<MeinekeCryptCell> newly_born;
+        std::vector<unsigned> stem_cells(time_steps);
+        std::vector<unsigned> transit_cells(time_steps);
+        std::vector<unsigned> differentiated_cells(time_steps);
+        std::vector<unsigned> dead_cells(time_steps);
+        std::vector<double> times(time_steps);
+        
+        cells.push_back(stem_cell);
+        std::vector<MeinekeCryptCell>::iterator cell_iterator;
+        
+        unsigned i=0;
+        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        {
+            // produce the offspring of the cells
+            
+            p_simulation_time->IncrementTimeOneStep();
+            cell_iterator = cells.begin();
+            while(cell_iterator < cells.end())
+            {
+                if(!cell_iterator->IsDead())
+                {
+                    if(cell_iterator->ReadyToDivide())
+                    {
+                        newly_born.push_back(cell_iterator->Divide());
+                    }
+                    
+                    if((cell_iterator->GetAge() > 30))
+                    {
+                        cell_iterator->StartApoptosis();    
+                    }
+                }
+                
+                
+                cell_iterator++;
+            }
+            
+            // copy offspring in newly_born vector to cells vector
+            cell_iterator = newly_born.begin();
+            while (cell_iterator < newly_born.end())
+            {
+                cells.push_back(*cell_iterator);
+                cell_iterator++;
+            }
+            newly_born.clear();
+            
+            // update cell counts
+            cell_iterator = cells.begin();
+            while (cell_iterator < cells.end())
+            {
+                if(!cell_iterator->IsDead())
+                {
+                    switch (cell_iterator->GetCellType())
+                    {
+                        case STEM:
+                            stem_cells[i]++;
+                            break;
+                        case TRANSIT:
+                            transit_cells[i]++;
+                            break;
+                        default:
+                            differentiated_cells[i]++;
+                            break;
+                    }
+                }
+                else
+                {
+                    dead_cells[i]++;
+                }
+                
+                cell_iterator++;
+            }
+            times[i]=p_simulation_time->GetDimensionalisedTime();
+            i++;
+        }
+
+        
+        TS_ASSERT_EQUALS(stem_cells[time_steps-1], 1u);
+        TS_ASSERT_EQUALS(transit_cells[time_steps-1], 2u);
+        TS_ASSERT_EQUALS(differentiated_cells[time_steps-1], 8u);
+        TS_ASSERT_EQUALS(dead_cells[time_steps-1], 8u);
+
+        SimulationTime::Destroy();
     }
     
 };
