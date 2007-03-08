@@ -473,6 +473,71 @@ private:
         
         return num_births;
     }
+    
+    /**
+     * During a simulation time step, process any cell sloughing or death
+     * 
+     * At the moment we just slough cells by turning them into ghost nodes
+     * 
+     * CELL DEATH TO BE ADDED INTO THIS METHOD
+     * 
+     * @return the number of deaths that occurred.
+     */
+    unsigned DoCellRemoval()
+    {
+        unsigned num_deaths=0;
+        
+        ///////////////////////////////////////////////////////////////////////////////////
+        // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
+        ///////////////////////////////////////////////////////////////////////////////////
+        for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+        {
+            Node<2> *p_node = mrMesh.GetNode(i);
+            if(!p_node->IsDeleted())
+            {
+                double x = p_node->rGetLocation()[0];
+                double y = p_node->rGetLocation()[1];
+                
+                double crypt_length=mpParams->GetCryptLength();
+                double crypt_width=mpParams->GetCryptWidth();
+                
+                if(!mPeriodicSides)
+                {
+                    if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
+                    {
+                        mIsGhostNode[p_node->GetIndex()] = true;
+                        num_deaths++;
+                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+                    }
+                }
+                else
+                {
+                    if(y>crypt_length)
+                    {
+                        mIsGhostNode[p_node->GetIndex()] = true;
+                        num_deaths++;
+                        if(mPeriodicSides)
+                        {
+                            // And delete the periodic image if appropriate.(don't count as a death since it is an image)
+                            for(unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
+                            {
+                                if((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
+                                {
+                                    mIsGhostNode[mRightCryptBoundary[j]]=true;
+                                }   
+                                if((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
+                                {
+                                    mIsGhostNode[mLeftCryptBoundary[j]]=true;
+                                }   
+                            }
+                        }
+                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+                    }
+                }
+            }
+        }
+        return num_deaths;
+    }
 
     /**
      * Find a suitable element for a new cell to be born in, i.e. to be refined with the new node.
@@ -717,6 +782,15 @@ private:
                 drdt[mRightCryptBoundary[i]][1] = y_force;
             }
         }
+        
+        // Here we divide all the foces on the nodes by a factor of two because
+        // we looped over them all twice to deal with the boundaries above.
+        for(unsigned i=0 ; i<mrMesh.GetNumAllNodes(); i++)
+        {
+            drdt[i][0]=drdt[i][0]/2.0;
+            drdt[i][1]=drdt[i][1]/2.0;
+        }
+        
         return drdt;    
     }
     
@@ -784,12 +858,14 @@ private:
         return drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
     }
     
+    
+    
     /**
      * Moves each node to a new position for this timestep
      * 
-     * @param drdt the x and y force components on each node.
+     * @param rDrDt the x and y force components on each node.
      */
-    void UpdateNodePositions(std::vector< std::vector<double> >& rDrDt)
+    void UpdateNodePositions(const std::vector< std::vector<double> >& rDrDt)
     {
         for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
         {       
@@ -808,14 +884,7 @@ private:
                             {
                                 if(!mrMesh.GetNode(index)->IsDeleted())
                                 {
-                                    //  std::cerr<<"Updating index "<<index<<"\n";
-                                    c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
-                                    Point<2> new_point;
-                                    
-                                    // note factor of 0.5 in the update because drdt was twice
-                                    // as large as it should be since edges were looped over twice.
-                                    new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*rDrDt[index][0]; // new_point_position[index];
-                                    new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*rDrDt[index][1]; // new_point_position[index];
+                                    Point<2> new_point = GetNewNodeLocation(index,rDrDt);
                                     mrMesh.SetNode(index, new_point, false);
                                 }
                             }
@@ -830,15 +899,7 @@ private:
                 {
                     if(!mrMesh.GetNode(index)->IsDeleted())
                     {
-                        //  std::cerr<<"Updating index "<<index<<"\n";
-                        c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
-                        Point<2> new_point;
-
-                        // note factor of 0.5 in the update because drdt was twice
-                        // as large as it should be since edges were looped over twice.
-                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*rDrDt[index][0]; // new_point_position[index];
-                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*rDrDt[index][1]; // new_point_position[index];
-
+                        Point<2> new_point = GetNewNodeLocation(index,rDrDt);
                         // if a cell wants to move below y<0 (most likely because it was 
                         // just born from a stem cell), stop it doing so
                         if( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
@@ -859,15 +920,7 @@ private:
                 {
                     if(!mrMesh.GetNode(index)->IsDeleted())
                     {
-                        //  std::cerr<<"Updating index "<<index<<"\n";
-                        c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
-                        Point<2> new_point;
-                        
-                        
-                        // note factor of 0.5 in the update because drdt was twice
-                        // as large as it should be since edges were looped over twice.
-                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*rDrDt[index][0]; // new_point_position[index];
-                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*rDrDt[index][1]; // new_point_position[index];
+                        Point<2> new_point = GetNewNodeLocation(index,rDrDt);
                         mrMesh.SetNode(index, new_point, false);
                     }
                 }
@@ -889,6 +942,71 @@ private:
                 // Also force them to be the same cell
                 // needed to synchronise cell cycle models (as R periodic cell cycle models are not run)...
                 mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+            }
+        }
+    }
+    
+    Point<2> GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< std::vector<double> >& rDrDt)
+    {
+        c_vector<double,2> old_point = mrMesh.GetNode(rOldNodeIndex)->rGetLocation();
+        Point<2> new_point;
+                                    
+        // Euler style update to node position
+        new_point.rGetLocation()[0] = old_point[0] + mDt*rDrDt[rOldNodeIndex][0]; 
+        new_point.rGetLocation()[1] = old_point[1] + mDt*rDrDt[rOldNodeIndex][1]; 
+                            
+        return new_point;   
+    }
+    
+    /**
+     * Change the state of cells
+     * 
+     * At the moment this turns cells to be differentiated 
+     * dependent on a protein concentration when using the Wnt model. 
+     */
+    void UpdateCellTypes()
+    {
+        /*/////////////////////////////////////////////////////////
+         * 
+         * Designate cells as proliferating (transit) or
+         * quiescent (differentiated) according to protein concentrations
+         * 
+         * If the betaCatenin level falls below a certain concentration then
+         * the cell will (probably) be differentiated - if it later increases
+         * it could become a transit cell again. This is just for visualization...
+         * 
+         *////////////////////////////////////////////////////////
+        if(mWntIncluded)
+        {   // Cycle through each cell
+            for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+            {
+                if(!mIsGhostNode[i])
+                {
+                    if(!(mCells[i].GetCellType()==STEM))
+                    {
+                        // If we are in here the cell cycle model must be a WntCellCycleModel
+                        WntCellCycleModel *this_Wnt_model = static_cast<WntCellCycleModel*>(mCells[i].GetCellCycleModel());
+                        double betaCateninLevel = this_Wnt_model->GetProteinConcentrations()[6]+this_Wnt_model->GetProteinConcentrations()[7];
+                        //std::cout << "Cell " << i << ", beta-cat = " << betaCateninLevel << "\n" << std::endl;
+                        
+                        CryptCellType cell_type=TRANSIT;
+                        
+                        // For mitogenic stimulus of 6x10^-4 in Wnt equations
+                        if(betaCateninLevel < 0.4127)
+                        {
+                            cell_type = DIFFERENTIATED;
+                        }
+                        // For mitogenic stimulus of 5x10^-4 in Wnt equations
+//       //\todo get parameter right without breaking the build
+//                  if(betaCateninLevel < 0.4954)
+//                          {
+//                              cell_type = DIFFERENTIATED;
+//                          }
+
+                        
+                        mCells[i].SetCellType(cell_type);
+                    }
+                }
             }
         }
     }
@@ -1212,120 +1330,22 @@ public:
             // update node positions
             UpdateNodePositions(drdt);
             
-            ///////////////////////////////////////////////////////////////////////////////////
-            // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
-            ///////////////////////////////////////////////////////////////////////////////////
-            for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
-            {
-                Node<2> *p_node = mrMesh.GetNode(i);
-                if(!p_node->IsDeleted())
-                {
-                    double x = p_node->rGetLocation()[0];
-                    double y = p_node->rGetLocation()[1];
-                    
-                    double crypt_length=mpParams->GetCryptLength();
-                    double crypt_width=mpParams->GetCryptWidth();
-                    
-                    if(!mPeriodicSides)
-                    {
-	                    if( (x>crypt_width) || (x<0.0) || (y>crypt_length))
-	                    {
-	                        mIsGhostNode[p_node->GetIndex()] = true;
-	                        num_deaths++;
-	                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
-	                    }
-                    }
-                    else
-                    {
-						if(y>crypt_length)
-	                    {
-	                        mIsGhostNode[p_node->GetIndex()] = true;
-	                        num_deaths++;
-	                        if(mPeriodicSides)
-	                        {
-		                        // And delete the periodic image if appropriate.(don't count as a death since it is an image)
-		                        for(unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
-		                        {
-		                        	if((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
-		                        	{
-		                        		mIsGhostNode[mRightCryptBoundary[j]]=true;
-		                        	}	
-		                        	if((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
-		                        	{
-		                        		mIsGhostNode[mLeftCryptBoundary[j]]=true;
-		                        	}	
-		                        }
-	                        }
-	                        //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
-	                    }
-                    }
-                }
-            }
+            //////////////////////////////////////////////
+            // Cell death should be included in this method
+            /////////////////////////////////////////////
+            num_deaths += DoCellRemoval();
             
-            /*/////////////////////////////////////////////////////////
-             * 
-             * Designate cells as proliferating (transit) or
-             * quiescent (differentiated) according to protein concentrations
-             * 
-             * If the betaCatenin level falls below a certain concentration then
-             * the cell will (probably) be differentiated - if it later increases
-             * it could become a transit cell again. This is just for visualization...
-             * 
-             *////////////////////////////////////////////////////////
-            if(mWntIncluded)
-            {	// Cycle through each cell
-            	for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
-            	{
-            		if(!mIsGhostNode[i])
-            		{
-            			if(!(mCells[i].GetCellType()==STEM))
-            			{
-	            			// If we are in here the cell cycle model must be a WntCellCycleModel
-	            			WntCellCycleModel *this_Wnt_model = static_cast<WntCellCycleModel*>(mCells[i].GetCellCycleModel());
-	            			double betaCateninLevel = this_Wnt_model->GetProteinConcentrations()[6]+this_Wnt_model->GetProteinConcentrations()[7];
-	            			//std::cout << "Cell " << i << ", beta-cat = " << betaCateninLevel << "\n" << std::endl;
-	            			
-	            			CryptCellType cell_type=TRANSIT;
-	            			
-	            			// For mitogenic stimulus of 6x10^-4 in Wnt equations
-            				if(betaCateninLevel < 0.4127)
-            				{
-								cell_type = DIFFERENTIATED;
-            				}
-	            			// For mitogenic stimulus of 5x10^-4 in Wnt equations
-//       //\todo get parameter right without breaking the build
-//     				if(betaCateninLevel < 0.4954)
-//            				{
-//								cell_type = DIFFERENTIATED;
-//            				}
-
-            				
-	           				mCells[i].SetCellType(cell_type);
-            			}
-            		}
-            	}
-            }
-             
+            // Change the state of some cells
+            // Only active for WntCellCycleModel at the moment
+            // but mutations etc. could occur in this function
+            UpdateCellTypes();
             
-            if( mReMesh )
-			{
-    			ReMesh();
-			}
-            
-//            for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
-//            {
-//            	std::cout<<"\t"<<mIsGhostNode[i]<<"\t"<<mIsGhostNode[map.GetNewIndex(i)]<<"\t"<<47*(mIsGhostNode[i]-mIsGhostNode[map.GetNewIndex(i)])<<"\n";
-//            }
-//            
-            
-
-            ////////////////////////////////////////////////////////////////////////////////
-            // Write results to file
-            ////////////////////////////////////////////////////////////////////////////////
+    		ReMesh();
             
             // Increment simulation time here, so results files look sensible
             p_simulation_time->IncrementTimeOneStep();            
             
+            // Write results to file
             WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
                                 tabulated_element_writer, element_writer_ids,
                                 *p_node_file, *p_element_file,
