@@ -6,3 +6,4 @@ TestCellCycleModels.hpp
 TestMeinekeCryptCell.hpp
 TestWntGradient.hpp
 TestCheckpointMeinekeCryptCell.hpp
+TestCellKillers.hpp

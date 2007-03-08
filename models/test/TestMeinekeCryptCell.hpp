@@ -541,6 +541,8 @@ public:
      */
     void TestInitialise0DBucket()
     {
+        //double end_time=60.0;
+        //int time_steps=60;
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
         
@@ -582,20 +584,19 @@ public:
         cells.push_back(differentiated_cell);
         
         //double time=0.0;
-        double end_time=60.0;
-        int time_steps=60;
+        
         //double time_step= end_time/(double) time_steps;
         
         std::vector<MeinekeCryptCell> newly_born;
-        std::vector<unsigned> stem_cells(time_steps);
-        std::vector<unsigned> transit_cells(time_steps);
-        std::vector<unsigned> differentiated_cells(time_steps);
-        std::vector<double> times(time_steps);
+        std::vector<unsigned> stem_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
+        std::vector<unsigned> transit_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
+        std::vector<unsigned> differentiated_cells(p_simulation_time->GetTotalNumberOfTimeSteps());
+        std::vector<double> times(p_simulation_time->GetTotalNumberOfTimeSteps());
         
         std::vector<MeinekeCryptCell>::iterator cell_iterator;
         
         unsigned i=0;
-        while (p_simulation_time->GetDimensionalisedTime()< end_time)
+        while (!p_simulation_time->IsFinished())
         {
             p_simulation_time->IncrementTimeOneStep();
             // produce the offspring of the cells

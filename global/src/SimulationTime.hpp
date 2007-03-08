@@ -20,6 +20,8 @@ public:
     double GetDimensionalisedTime();
     static void Destroy();
     bool IsSimulationTimeSetUp();
+    bool IsFinished();
+    unsigned GetTotalNumberOfTimeSteps();
 protected:
     SimulationTime();
     SimulationTime(const SimulationTime&);

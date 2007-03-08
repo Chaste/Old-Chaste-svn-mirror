@@ -120,3 +120,13 @@ bool SimulationTime::IsSimulationTimeSetUp()
 {
 	return mEndTimeAndNumberOfTimeStepsSet;
 }
+
+bool SimulationTime::IsFinished()
+{
+    return(mCurrentDimensionalisedTime>=mDurationOfSimulation);
+}
+
+unsigned SimulationTime::GetTotalNumberOfTimeSteps()
+{
+    return mTotalTimeStepsInSimulation;
+}
