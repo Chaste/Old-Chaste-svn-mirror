@@ -23,7 +23,6 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
         archive & mpCancerParams;
-        archive & mpGen;        
     }
     
 public:

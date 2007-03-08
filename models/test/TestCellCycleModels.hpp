@@ -615,7 +615,7 @@ public:
     {
         OutputFileHandler handler("archive");
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "int.arch";
+        archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
         
         // Create an ouput archive 
         {
@@ -664,7 +664,7 @@ public:
     {
         OutputFileHandler handler("archive");
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "int.arch";
+        archive_filename = handler.GetTestOutputDirectory() + "tyson_novak.arch";
         
         // Create an ouput archive 
         {
@@ -711,6 +711,69 @@ public:
         }
     }
     
+    void TestArchiveWntCellCycleModels()
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "wnt.arch";
+        
+        // Create an ouput archive 
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
+            
+            WntCellCycleModel model(1.0);
+            p_simulation_time->IncrementTimeOneStep();
+            std::vector<double> cell_cycle_influence;
+            cell_cycle_influence.push_back(1.0);
+            cell_cycle_influence.push_back(0.0);
+            TS_ASSERT_EQUALS(model.ReadyToDivide(cell_cycle_influence),false);
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(model.ReadyToDivide(cell_cycle_influence),true);
+            
+            model.SetCellType(TRANSIT);
+            model.SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+                        
+            output_arch << static_cast<const WntCellCycleModel&>(model);
+            
+            SimulationTime::Destroy();
+        }
+        
+        {  
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(101.0);
+            
+            WntCellCycleModel model(0.0);
+            model.SetCellType(STEM);
+            model.SetBirthTime(-2.0);
+
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> model;
+            
+            // Check 
+            std::vector<double> cell_cycle_influence;
+            cell_cycle_influence.push_back(1.0);
+            cell_cycle_influence.push_back(0.0);
+            TS_ASSERT_EQUALS(model.ReadyToDivide(cell_cycle_influence),true);
+            TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
+            TS_ASSERT_DELTA(model.GetAge(),17.0,1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SimulationTime::Destroy();
+        }
+    }
     
 };
 

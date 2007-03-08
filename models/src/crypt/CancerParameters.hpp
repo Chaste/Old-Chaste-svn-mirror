@@ -1,6 +1,9 @@
 #ifndef CANCERPARAMETERS_HPP_
 #define CANCERPARAMETERS_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 class CancerParameters
 {
 public:
@@ -80,6 +83,21 @@ private:
      * The time it takes to fully undergo apoptosis
      */
     double mApoptosisTime;
+
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        CancerParameters* p_instance = CancerParameters::Instance();
+        archive & p_instance->mStemCellCycleTime;
+        archive & p_instance->mTransitCellCycleTime;
+        archive & p_instance->mSG2MDuration;
+        archive & p_instance->mMaxTransitGenerations;
+        archive & p_instance->mCryptLength;
+        archive & p_instance->mCryptWidth;
+        archive & p_instance->mMeinekeLambda;
+        archive & p_instance->mApoptosisTime;
+    }
 };
 
 #endif /*CANCERPARAMETERS_HPP_*/

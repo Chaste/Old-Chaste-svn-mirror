@@ -27,6 +27,24 @@ private:
      */ 
     WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime);
     
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        //archive & mOdeSystem;
+        archive & mLastTime;
+        
+        for(unsigned i=0; i<mProteinConcentrations.size(); i++)
+        {
+            archive & mProteinConcentrations[i];
+        }
+        archive & mpCancerParams;
+        archive & mDivideTime;
+        archive & mInSG2MPhase;
+        archive & mReadyToDivide;
+    }
+    
 public:
     
     WntCellCycleModel();
