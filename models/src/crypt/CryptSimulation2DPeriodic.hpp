@@ -728,7 +728,7 @@ private:
                 assert(!p_edge->GetNode(nodeA)->IsDeleted());
                 assert(!p_edge->GetNode(nodeB)->IsDeleted());
                 
-                c_vector<double, 2> drdt_contribution = CalculateForceInThisBoundarySpring(p_edge,nodeA,nodeB);
+                c_vector<double, 2> drdt_contribution = CalculateForceInThisBoundarySpring(p_edge);
                                
                 // Assume that if both nodes are real, or both are ghosts, then they both
                 // exert forces on each other, but if one is real and one is ghost then
@@ -797,22 +797,22 @@ private:
     /**
      * @return the x and y forces in this spring
      */
-    c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPEdge,const unsigned& rNodeA,const unsigned& rNodeB)
+    c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
     {
         c_vector<double, 2> drdt_contribution;
         c_vector<double, 2> unit_difference;
-        unit_difference(0)=rPEdge->GetNodeLocation(rNodeB,0)-rPEdge->GetNodeLocation(rNodeA,0);
-        unit_difference(1)=rPEdge->GetNodeLocation(rNodeB,1)-rPEdge->GetNodeLocation(rNodeA,1);
+        unit_difference(0)=rPElement->GetNodeLocation(rNodeB,0)-rPElement->GetNodeLocation(rNodeA,0);
+        unit_difference(1)=rPElement->GetNodeLocation(rNodeB,1)-rPElement->GetNodeLocation(rNodeA,1);
         double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
         
         unit_difference=unit_difference/distance_between_nodes;
 
         double rest_length = 1.0;
         
-        if( (mCells.size()>0) &&  (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeA)]) && (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeB)]) )
+        if( (mCells.size()>0) &&  (!mIsGhostNode[rPElement->GetNodeGlobalIndex(rNodeA)]) && (!mIsGhostNode[rPElement->GetNodeGlobalIndex(rNodeB)]) )
         {
-            double ageA = mCells[rPEdge->GetNode(rNodeA)->GetIndex()].GetAge();
-            double ageB = mCells[rPEdge->GetNode(rNodeB)->GetIndex()].GetAge();
+            double ageA = mCells[rPElement->GetNode(rNodeA)->GetIndex()].GetAge();
+            double ageB = mCells[rPElement->GetNode(rNodeB)->GetIndex()].GetAge();
             if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
             {
                // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
@@ -829,22 +829,24 @@ private:
     /**
      * @return the x and y forces in this boundary spring
      */
-    c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge,const unsigned& rNodeA,const unsigned& rNodeB)
+    c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge)
     {
+        const unsigned nodeA = 0;
+        const unsigned nodeB = 1;
         c_vector<double, 2> drdt_contribution;
         c_vector<double, 2> unit_difference;
-        unit_difference(0)=rPEdge->GetNodeLocation(rNodeB,0)-rPEdge->GetNodeLocation(rNodeA,0);
-        unit_difference(1)=rPEdge->GetNodeLocation(rNodeB,1)-rPEdge->GetNodeLocation(rNodeA,1);
+        unit_difference(0)=rPEdge->GetNodeLocation(nodeB,0)-rPEdge->GetNodeLocation(nodeA,0);
+        unit_difference(1)=rPEdge->GetNodeLocation(nodeB,1)-rPEdge->GetNodeLocation(nodeA,1);
         double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
         
         unit_difference=unit_difference/distance_between_nodes;
 
         double rest_length = 1.0;
         
-        if( (mCells.size()>0) &&  (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeA)]) && (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeB)]) )
+        if( (mCells.size()>0) &&  (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(nodeB)]) )
         {
-            double ageA = mCells[rPEdge->GetNode(rNodeA)->GetIndex()].GetAge();
-            double ageB = mCells[rPEdge->GetNode(rNodeB)->GetIndex()].GetAge();
+            double ageA = mCells[rPEdge->GetNode(nodeA)->GetIndex()].GetAge();
+            double ageB = mCells[rPEdge->GetNode(nodeB)->GetIndex()].GetAge();
             if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
             {
                // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
