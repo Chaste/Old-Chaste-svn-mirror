@@ -37,6 +37,14 @@ public:
     void SetCellType(CryptCellType cellType);
     
     /**
+     * Set the cell's type.
+     * 
+     * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
+     */
+    CryptCellType GetCellType();
+
+    
+    /**
      * Set the cell's time of birth (usually not required as it should be inside
      * the indivdual cell-cycle-model-constructor, but useful for tests)
      * 

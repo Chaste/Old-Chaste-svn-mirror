@@ -102,6 +102,10 @@ double SimulationTime::GetDimensionalisedTime()
  */
 void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation, unsigned totalTimeStepsInSimulation)
 {    
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
+    // wasn't called in the previous test                                   //
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//   
     assert(!mEndTimeAndNumberOfTimeStepsSet);
     mDurationOfSimulation = durationOfSimulation;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;

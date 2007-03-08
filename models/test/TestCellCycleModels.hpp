@@ -3,6 +3,11 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <fstream>
+
+#include "OutputFileHandler.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
 #include "CancerParameters.hpp"
@@ -29,6 +34,7 @@ public:
         
         FixedCellCycleModel our_fixed_stem_cell_cycle_model;
         our_fixed_stem_cell_cycle_model.SetCellType(STEM);
+        TS_ASSERT_EQUALS(our_fixed_stem_cell_cycle_model.GetCellType(),STEM);
         
         FixedCellCycleModel our_fixed_transit_cell_cycle_model;
         our_fixed_transit_cell_cycle_model.SetCellType(TRANSIT);
@@ -605,6 +611,105 @@ public:
     }
     
     
+    void TestArchiveFixedCellCycleModels()
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "int.arch";
+        
+        // Create an ouput archive 
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            FixedCellCycleModel model;
+            p_simulation_time->IncrementTimeOneStep();
+            
+            model.SetCellType(TRANSIT);
+            model.SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+                        
+            output_arch << static_cast<const FixedCellCycleModel&>(model);
+            
+            SimulationTime::Destroy();
+        }
+        
+        {  
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            FixedCellCycleModel model;
+            model.SetCellType(STEM);
+            model.SetBirthTime(-2.0);
+
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> model;
+            
+            // Check         
+            TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
+            TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
+            
+            SimulationTime::Destroy();
+        }
+    }
+    
+    void TestArchiveTysonNovakCellCycleModels()
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "int.arch";
+        
+        // Create an ouput archive 
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
+            TysonNovakCellCycleModel model;
+            p_simulation_time->IncrementTimeOneStep();
+            
+            TS_ASSERT_EQUALS(model.ReadyToDivide(),true);
+            
+            model.SetCellType(TRANSIT);
+            model.SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+                        
+            output_arch << static_cast<const TysonNovakCellCycleModel&>(model);
+            
+            SimulationTime::Destroy();
+        }
+        
+        {  
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            TysonNovakCellCycleModel model;
+            model.SetCellType(STEM);
+            model.SetBirthTime(-2.0);
+
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> model;
+            
+            // Check         
+            TS_ASSERT_EQUALS(model.ReadyToDivide(),true);
+            TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
+            TS_ASSERT_DELTA(model.GetAge(),101.0,1e-12);
+            SimulationTime::Destroy();
+        }
+    }
     
     
 };

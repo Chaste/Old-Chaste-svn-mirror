@@ -1,7 +1,14 @@
 #ifndef TESTSIMULATIONTIME_HPP_
 #define TESTSIMULATIONTIME_HPP_
+
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
+#include <fstream>
+
+#include "OutputFileHandler.hpp"
 #include "SimulationTime.hpp"
 
 class TestSimulationTime : public CxxTest::TestSuite
@@ -55,6 +62,48 @@ public:
         
         SimulationTime::Destroy();
     }
+
+    void TestArchiveSimulationTime()
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "time.arch";
+        
+        // Create and archive simulation time
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            p_simulation_time->IncrementTimeOneStep();
+            
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
+            
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 1.0);
+            
+            SimulationTime::Destroy();
+        }
+        
+        // Restore
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(5.0, 5);
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
+            
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+            input_arch >> *p_simulation_time;
+            
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
+            TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
+
+            SimulationTime::Destroy();
+        }
+    }
+
     
 };
 #endif /*TESTSIMULATIONTIME_HPP_*/

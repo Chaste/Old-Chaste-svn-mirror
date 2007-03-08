@@ -3,6 +3,7 @@
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include "Exception.hpp"
 
 /**
  * Simulation time object stores the simulation time, uses the
@@ -37,11 +38,16 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & mDurationOfSimulation;
-        archive & mTotalTimeStepsInSimulation;
-        archive & mTimeStepsElapsed;
-        archive & mEndTimeAndNumberOfTimeStepsSet;
-        archive & mCurrentDimensionalisedTime;
+        //archive & mpInstance;
+        if(mpInstance==NULL)
+        {
+            EXCEPTION("Trying to save or load an instance of simulation time\n when the simulation time object does not exist");   
+        }
+        archive & mpInstance->mDurationOfSimulation;
+        archive & mpInstance->mTotalTimeStepsInSimulation;
+        archive & mpInstance->mTimeStepsElapsed;
+        archive & mpInstance->mEndTimeAndNumberOfTimeStepsSet;
+        archive & mpInstance->mCurrentDimensionalisedTime;
     }
 };
 

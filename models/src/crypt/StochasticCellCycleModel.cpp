@@ -4,6 +4,10 @@
 #include <cassert>
 
 
+// declare identifier for the serializer
+// note that this has to be in the cpp file not the hpp
+//BOOST_CLASS_EXPORT_GUID(StochasticCellCycleModel, "StochasticCellCycleModel")
+
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 {
     return new StochasticCellCycleModel(mpGen);
@@ -17,7 +21,7 @@ StochasticCellCycleModel::StochasticCellCycleModel(RandomNumberGenerator *pGen)
 	{
 		EXCEPTION("StochasticCellCycleModel is being created but SimulationTime has not been set up");
 	}
-	mp_params = CancerParameters::Instance();
+	mpCancerParams = CancerParameters::Instance();
 	mBirthTime = mpSimulationTime->GetDimensionalisedTime();
     mpGen=pGen;
 }
@@ -44,10 +48,10 @@ bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
     switch (mCellType)
     {
         case STEM:
-            ready = (timeSinceBirth >= mp_params->GetStemCellCycleTime());
+            ready = (timeSinceBirth >= mpCancerParams->GetStemCellCycleTime());
             break;
         case TRANSIT:
-            ready = (timeSinceBirth >= mpGen->NormalRandomDeviate(mp_params->GetTransitCellCycleTime(), 1.0));
+            ready = (timeSinceBirth >= mpGen->NormalRandomDeviate(mpCancerParams->GetTransitCellCycleTime(), 1.0));
             break;
         default:
             ready = false;

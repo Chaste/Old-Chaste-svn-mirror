@@ -30,6 +30,4 @@ public:
     FixedCellCycleModel();
 };
 
-
-
 #endif /*FIXEDCELLCYCLEMODEL_HPP_*/

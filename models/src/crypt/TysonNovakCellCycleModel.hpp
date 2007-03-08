@@ -23,6 +23,20 @@ private:
     
     TysonNovakCellCycleModel(std::vector<double> parentProteinConcentrations, double divideTime);
     
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+        //archive & mOdeSystem;
+        archive & mLastTime;
+        archive & mDivideTime;
+        for(unsigned i=0; i<mProteinConcentrations.size(); i++)
+        {
+            archive & mProteinConcentrations[i];
+        }
+        archive & mReadyToDivide;
+    }
     
 public:
     
