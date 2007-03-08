@@ -35,8 +35,8 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
         // if the Jacobian is negative the orientation of the element is probably
         // wrong, so swap the last two nodes around.
         
-        mNodes[nodes.size()-1] = nodes[nodes.size()-2];
-        mNodes[nodes.size()-2] = nodes[nodes.size()-1];
+        mNodes[total_nodes-1] = nodes[total_nodes-2];
+        mNodes[total_nodes-2] = nodes[total_nodes-1];
         RefreshJacobianDeterminant();
     }
     

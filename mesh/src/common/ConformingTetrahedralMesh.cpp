@@ -261,6 +261,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
             if (orderOfBasisFunctions == 2)
             {
                 unsigned nodes_size = node_indices.size();
+                UNUSED_OPT(nodes_size);
                 for (unsigned j=0; j < ELEMENT_DIM; j++)
                 {
                     for (unsigned k=j+1; k < ELEMENT_DIM; k++)

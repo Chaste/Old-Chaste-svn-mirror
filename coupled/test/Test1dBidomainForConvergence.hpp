@@ -103,7 +103,7 @@ public:
         bool converging_in_space = false;
         double space_step;   // cm
         double time_step;   // ms
-        double probe_voltage;
+        double probe_voltage = -999;
         ReplicatableVector voltage_replicated;
         
         int middle_node = 4;

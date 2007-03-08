@@ -133,8 +133,7 @@ bool WntCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 		 	if ( mSolver.StoppingEventOccured() == false )
 		 	{
 		 		//Check ODE solver for consistency
-		 		double last_time=solution.rGetTimes()[timeRows];
-		 		assert (last_time == current_time);
+		 		assert (solution.rGetTimes()[timeRows] == current_time);
 		 	}
 		 	
 		 	//std::cout<<"Stopping event = "<<mSolver.StoppingEventOccured()<<"\n";

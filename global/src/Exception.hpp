@@ -29,4 +29,14 @@ public:
 
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
+
+// This is to cope with NDEBUG causing variables to not be used, since they are only
+// used in assert()s
+#ifdef NDEBUG
+  #define UNUSED_OPT(var) var=var
+#else
+  #define UNUSED_OPT(var)
+#endif
+
+
 #endif // _EXCEPTION_HPP_

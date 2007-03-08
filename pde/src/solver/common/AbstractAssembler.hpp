@@ -505,8 +505,7 @@ protected:
             {
                 PetscInt isize;
                 VecGetSize(residualVector,&isize);
-                unsigned size=isize;
-                assert(size==PROBLEM_DIM * this->mpMesh->GetNumNodes());
+                assert((unsigned)isize == PROBLEM_DIM * this->mpMesh->GetNumNodes());
             
                 // Set residual vector to zero
                 PetscScalar zero = 0.0;
@@ -521,6 +520,7 @@ protected:
                 PetscInt size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
                 PetscInt problem_size=PROBLEM_DIM * this->mpMesh->GetNumNodes();
+                UNUSED_OPT(problem_size);
                 assert(size1==problem_size);
                 assert(size2==problem_size);
    

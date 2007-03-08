@@ -203,8 +203,9 @@ protected:
             {
                 current_guess[i] -= mUpdate[i];
             }
-                    
-            assert(counter++ < 20); // avoid infinite loops
+            
+            counter++;
+            assert(counter < 20); // avoid infinite loops
         }
         nextYValues.assign(current_guess.begin(), current_guess.end());
         

@@ -66,8 +66,9 @@ public:
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
-                    
-            assert(counter++ < 15); // avoid infinite loops
+            
+            counter++;
+            assert(counter < 15); // avoid infinite loops
         }
     }
     

@@ -315,7 +315,6 @@ public:
             PetscInt irows, icols;
             double value;
             MatGetSize(jacobian, &irows, &icols);
-            unsigned rows=irows;
             unsigned cols=icols;
             
             while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
@@ -323,7 +322,7 @@ public:
                 unsigned node_index = dirichIterator->first->GetIndex();
                                
                 unsigned row_index = PROBLEM_DIM*node_index + index_of_unknown;
-                assert(row_index<rows); 
+                assert(row_index<(unsigned)irows); 
                 
                 for (unsigned col_index=0; col_index<cols; col_index++)
                 {
