@@ -549,6 +549,350 @@ private:
         return p_element;
     }
     
+    /**
+     * Calculates the forces on each node
+     * 
+     * @return drdt the x and y force components on each node
+     */
+    std::vector<std::vector<double> > CalculateForcesOnEachNode()
+    {
+        std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
+        for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
+        {
+            drdt[i].resize(2);
+        }
+        //////////////////////////////////////////////////////////////////
+        // loop over element and for each one loop over it's three edges
+        ////////////////////////////////////////////////////////////////////
+        for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
+        {
+            Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+            if(!p_element->IsDeleted())
+            {
+                for (unsigned k=0; k<3; k++)
+                {
+                    unsigned nodeA, nodeB;
+                    if(k<2)
+                    {
+                        nodeA=k;
+                        nodeB=k+1;
+                    }
+                    else
+                    {
+                        nodeA=2;
+                        nodeB=0;
+                    }
+                    
+                    assert(!p_element->GetNode(nodeA)->IsDeleted());
+                    assert(!p_element->GetNode(nodeB)->IsDeleted());
+                    
+                    c_vector<double, 2> drdt_contribution = CalculateForceInThisSpring(p_element,nodeA,nodeB);
+                              
+                    bool AandBInLeftEdge = false;
+                    // Lookup whether node A and node B are both in a left edge element...
+                    if(mPeriodicSides)
+                    {
+                        for(unsigned i=0; i< mLeftCryptBoundary.size();i++)
+                        {
+                            //std::cout << "i = " << i << "\n";
+                            if(mLeftCryptBoundary[i]==(unsigned)p_element->GetNode(nodeA)->GetIndex())
+                            {
+                                for(unsigned j=0; j<mLeftCryptBoundary.size(); j++)
+                                {
+                                    if(mLeftCryptBoundary[j]==(unsigned)p_element->GetNode(nodeB)->GetIndex())
+                                    {
+                                        AandBInLeftEdge = true;
+                                        //std::cout << "Left Boundary; Node A = " << mLeftCryptBoundary[i] << "\tNode B = "<< mLeftCryptBoundary[j] << "\n";
+                                        break;
+                                    }   
+                                }
+                            }
+                        }
+                    }
+
+                    // Assume that if both nodes are real, or both are ghosts, then they both
+                    // exert forces on each other, but if one is real and one is ghost then
+                    // the real node exerts a force on the ghost node, but the ghost node 
+                    // does NOT exert a force on the real node.  
+                    if(!AandBInLeftEdge) // If A and B are in the left periodic edge ignore them (it will be handled by right edge)
+                    {
+                        if(!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)])
+                        {
+                            drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
+                            drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+
+                            if(!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
+                            {
+                                drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
+                                drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+                            }
+                        }
+                        else
+                        {
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+ 
+                            if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
+                            {
+                               drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
+                               drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+                            }
+                        }
+                    }       
+                }
+            }
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // Also loop over boundary edges so that all edges have been looped over exactly twice.
+        ////////////////////////////////////////////////////////////////////////////////////////
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter
+           = mrMesh.GetBoundaryElementIteratorBegin();
+        
+        
+        
+        // this iterates over the outer edge elements (i.e. ghost nodes NOT real edge elements)
+        while ( elem_iter != mrMesh.GetBoundaryElementIteratorEnd() )
+        {
+            BoundaryElement<1,2>* p_edge = *elem_iter;
+            if(!p_edge->IsDeleted())
+            {
+                unsigned nodeA = 0;
+                unsigned nodeB = 1;
+                
+                assert(!p_edge->GetNode(nodeA)->IsDeleted());
+                assert(!p_edge->GetNode(nodeB)->IsDeleted());
+                
+                c_vector<double, 2> drdt_contribution = CalculateForceInThisBoundarySpring(p_edge,nodeA,nodeB);
+                               
+                // Assume that if both nodes are real, or both are ghosts, then they both
+                // exert forces on each other, but if one is real and one is ghost then
+                // the real node exerts a force on the ghost node, but the ghost node 
+                // does NOT exert a force on the real node.   
+                if(!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)])
+                {
+                        // Real A force on any B
+                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
+                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+
+                        // B exerts a force back if it is real.
+                        if(!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
+                        {
+                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
+                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+                        }
+                }
+                else
+                {
+                    // Ghost A receives a force
+                        drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
+                        drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+ 
+                        // Only a ghost B also receives a force
+                    if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
+                    {
+                       drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
+                       drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+                    }
+                }                            
+            }
+            elem_iter++;
+        }            
+
+        //assert(0);            
+        ///////////////
+        //  sum forces for periodic nodes
+        ////////////////
+        if(mPeriodicSides)
+        {
+            // Add up the forces on paired up nodes
+            // loop through size of left boundaries
+            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+            {
+                double x_force = drdt[mLeftCryptBoundary[i]][0] + drdt[mRightCryptBoundary[i]][0];
+                double y_force = drdt[mLeftCryptBoundary[i]][1] + drdt[mRightCryptBoundary[i]][1];
+                drdt[mLeftCryptBoundary[i]][0] = x_force;
+                drdt[mLeftCryptBoundary[i]][1] = y_force;
+                drdt[mRightCryptBoundary[i]][0] = x_force;
+                drdt[mRightCryptBoundary[i]][1] = y_force;
+            }
+        }
+        return drdt;    
+    }
+    
+    /**
+     * @return the x and y forces in this spring
+     */
+    c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPEdge,const unsigned& rNodeA,const unsigned& rNodeB)
+    {
+        c_vector<double, 2> drdt_contribution;
+        c_vector<double, 2> unit_difference;
+        unit_difference(0)=rPEdge->GetNodeLocation(rNodeB,0)-rPEdge->GetNodeLocation(rNodeA,0);
+        unit_difference(1)=rPEdge->GetNodeLocation(rNodeB,1)-rPEdge->GetNodeLocation(rNodeA,1);
+        double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
+        
+        unit_difference=unit_difference/distance_between_nodes;
+
+        double rest_length = 1.0;
+        
+        if( (mCells.size()>0) &&  (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeA)]) && (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeB)]) )
+        {
+            double ageA = mCells[rPEdge->GetNode(rNodeA)->GetIndex()].GetAge();
+            double ageB = mCells[rPEdge->GetNode(rNodeB)->GetIndex()].GetAge();
+            if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+            {
+               // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+               #define COVERAGE_IGNORE
+               rest_length=(0.1+0.9*ageA);
+               assert(rest_length<=1.0);
+               #undef COVERAGE_IGNORE
+           }                          
+        }
+
+        return drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
+    }
+    
+    /**
+     * @return the x and y forces in this boundary spring
+     */
+    c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge,const unsigned& rNodeA,const unsigned& rNodeB)
+    {
+        c_vector<double, 2> drdt_contribution;
+        c_vector<double, 2> unit_difference;
+        unit_difference(0)=rPEdge->GetNodeLocation(rNodeB,0)-rPEdge->GetNodeLocation(rNodeA,0);
+        unit_difference(1)=rPEdge->GetNodeLocation(rNodeB,1)-rPEdge->GetNodeLocation(rNodeA,1);
+        double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
+        
+        unit_difference=unit_difference/distance_between_nodes;
+
+        double rest_length = 1.0;
+        
+        if( (mCells.size()>0) &&  (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeA)]) && (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(rNodeB)]) )
+        {
+            double ageA = mCells[rPEdge->GetNode(rNodeA)->GetIndex()].GetAge();
+            double ageB = mCells[rPEdge->GetNode(rNodeB)->GetIndex()].GetAge();
+            if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
+            {
+               // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+               #define COVERAGE_IGNORE
+               rest_length=(0.1+0.9*ageA);
+               assert(rest_length<=1.0);
+               #undef COVERAGE_IGNORE
+           }                          
+        }
+
+        return drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
+    }
+    
+    /**
+     * Moves each node to a new position for this timestep
+     * 
+     * @param drdt the x and y force components on each node.
+     */
+    void UpdateNodePositions(std::vector< std::vector<double> >& rDrDt)
+    {
+        for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+        {       
+            //std::cout << "Node " << index << "\t x_force = " << drdt[index][0] << "\t y_force = " << drdt[index][1] << "\n";
+                 
+            if(mFixedBoundaries)
+            {
+                // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
+                if(mrMesh.GetNode(index)->rGetLocation()[1]>0)
+                {
+                    if(mrMesh.GetNode(index)->rGetLocation()[1]<mpParams->GetCryptLength())
+                    {
+                        if(mrMesh.GetNode(index)->rGetLocation()[0]>0)
+                        {
+                            if(mrMesh.GetNode(index)->rGetLocation()[0]<mpParams->GetCryptWidth())
+                            {
+                                if(!mrMesh.GetNode(index)->IsDeleted())
+                                {
+                                    //  std::cerr<<"Updating index "<<index<<"\n";
+                                    c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
+                                    Point<2> new_point;
+                                    
+                                    // note factor of 0.5 in the update because drdt was twice
+                                    // as large as it should be since edges were looped over twice.
+                                    new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*rDrDt[index][0]; // new_point_position[index];
+                                    new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*rDrDt[index][1]; // new_point_position[index];
+                                    mrMesh.SetNode(index, new_point, false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if(mCells.size()>0)
+            {
+                // move any node as long as it is not a real stem cell.
+                if(mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
+                {
+                    if(!mrMesh.GetNode(index)->IsDeleted())
+                    {
+                        //  std::cerr<<"Updating index "<<index<<"\n";
+                        c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
+                        Point<2> new_point;
+
+                        // note factor of 0.5 in the update because drdt was twice
+                        // as large as it should be since edges were looped over twice.
+                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*rDrDt[index][0]; // new_point_position[index];
+                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*rDrDt[index][1]; // new_point_position[index];
+
+                        // if a cell wants to move below y<0 (most likely because it was 
+                        // just born from a stem cell), stop it doing so
+                        if( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
+                        {
+                            // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
+                            // it is a bit of a hack to make it work nicely!
+                            new_point.rGetLocation()[1] = 0.01;
+                        }
+
+                        mrMesh.SetNode(index, new_point, false);
+                    }
+                }
+            }
+            else
+            {
+                // no cells, just fix any node on line y=0
+                if(mrMesh.GetNode(index)->rGetLocation()[1]>0)
+                {
+                    if(!mrMesh.GetNode(index)->IsDeleted())
+                    {
+                        //  std::cerr<<"Updating index "<<index<<"\n";
+                        c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
+                        Point<2> new_point;
+                        
+                        
+                        // note factor of 0.5 in the update because drdt was twice
+                        // as large as it should be since edges were looped over twice.
+                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*rDrDt[index][0]; // new_point_position[index];
+                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*rDrDt[index][1]; // new_point_position[index];
+                        mrMesh.SetNode(index, new_point, false);
+                    }
+                }
+            }
+        }
+        
+        // Ensure no errors can creep in and move left nodes to same position as right ones
+        if(mPeriodicSides)
+        {
+            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+            {
+                unsigned RightNodeIndex = mRightCryptBoundary[i];
+                unsigned LeftNodeIndex = mLeftCryptBoundary[i];
+                c_vector<double,2> right_point = mrMesh.GetNode(RightNodeIndex)->rGetLocation();
+                Point<2> left_point;
+                left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
+                left_point.rGetLocation()[1] = right_point[1];
+                mrMesh.SetNode(LeftNodeIndex, left_point, false);
+                // Also force them to be the same cell
+                // needed to synchronise cell cycle models (as R periodic cell cycle models are not run)...
+                mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+            }
+        }
+    }
+    
 public:
 
     /** Constructor
@@ -861,330 +1205,12 @@ public:
 		                
             // Cell birth
             num_births += DoCellBirth(periodic_division_buffer);
-
-			//////////////////////////////////////////////////////////////////////////
-            //                    calculate node velocities
-            //////////////////////////////////////////////////////////////////////////
-            std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
-            for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
-            {
-                drdt[i].resize(2);
-            }
             
-            ////////////////////////////////////////////////////////////////////
-            // loop over element and for each one loop over it's three edges
-            ////////////////////////////////////////////////////////////////////
-            for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-            {
-                Element<2,2>* p_element = mrMesh.GetElement(elem_index);
-                if(!p_element->IsDeleted())
-                {
-                    for (unsigned k=0; k<3; k++)
-                    {
-                        unsigned nodeA, nodeB;
-                        if(k<2)
-                        {
-                            nodeA=k;
-                            nodeB=k+1;
-                        }
-                        else
-                        {
-                            nodeA=2;
-                            nodeB=0;
-                        }
-                        
-                        c_vector<double, 2> drdt_contribution;
-                        
-                        c_vector<double, 2> unit_difference;
-                        unit_difference(0)=p_element->GetNodeLocation(nodeB,0)-p_element->GetNodeLocation(nodeA,0);
-                        unit_difference(1)=p_element->GetNodeLocation(nodeB,1)-p_element->GetNodeLocation(nodeA,1);
-                        double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
-                        
-                        unit_difference = unit_difference/distance_between_nodes;
-                        
-                        double rest_length = 1.0;
-                        
-                        if( (mCells.size()>0) && (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)]) )
-                        {
-                            double ageA = mCells[p_element->GetNode(nodeA)->GetIndex()].GetAge();
-                            double ageB = mCells[p_element->GetNode(nodeB)->GetIndex()].GetAge();
-                            if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-                            {
-                                // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-                                rest_length=(0.1+0.9*ageA);
-                                assert(rest_length<=1.0);
-                                //std::cout<<p_element->GetNode(nodeA)->GetIndex()<<"\t age = "<<ageA<<"\t"<<p_simulation_time->GetDimensionalisedTime()<<std::endl;
-                            }
-                         }
-                        
-                        drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length) ;
-                        
-                        assert(!p_element->GetNode(nodeA)->IsDeleted());
-                        assert(!p_element->GetNode(nodeB)->IsDeleted());
-                        
-                        bool AandBInLeftEdge = false;
-	                    // Lookup whether node A and node B are both in a left edge element...
-	                    if(mPeriodicSides)
-	                    {
-		                    for(unsigned i=0; i< mLeftCryptBoundary.size();i++)
-		                    {
-		                    	//std::cout << "i = " << i << "\n";
-			                    if(mLeftCryptBoundary[i]==(unsigned)p_element->GetNode(nodeA)->GetIndex())
-			                    {
-			                    	for(unsigned j=0; j<mLeftCryptBoundary.size(); j++)
-			                    	{
-			                    		if(mLeftCryptBoundary[j]==(unsigned)p_element->GetNode(nodeB)->GetIndex())
-			                    		{
-			                    			AandBInLeftEdge = true;
-			                    			//std::cout << "Left Boundary; Node A = " << mLeftCryptBoundary[i] << "\tNode B = "<< mLeftCryptBoundary[j] << "\n";
-			                    			break;
-			                    		}	
-			                    	}
-			                    }
-			                }
-	                    }
-
-                        // Assume that if both nodes are real, or both are ghosts, then they both
-                        // exert forces on each other, but if one is real and one is ghost then
-                        // the real node exerts a force on the ghost node, but the ghost node 
-                        // does NOT exert a force on the real node.  
-                        if(!AandBInLeftEdge) // If A and B are in the left periodic edge ignore them (it will be handled by right edge)
-                        {
-	                        if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)] == false)
-	                        {
-	                            drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-	                            drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
-	
-	                            if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)] == false)
-	                            {
-	                                drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-	                                drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
-	                            }
-	                        }
-	                        else
-	                        {
-	                            drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-	                            drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
-	 
-	                            if(mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)] == true)
-	                            {
-	                               drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-	                               drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
-	                            }
-	                        }
-                        }       
-                    }
-                }
-            }
+            //  calculate node velocities
+            std::vector<std::vector<double> > drdt = CalculateForcesOnEachNode();
             
-            ////////////////////////////////////////////////////////////////////////////////////////
-            // Also loop over boundary edges so that all edges have been looped over exactly twice.
-            ////////////////////////////////////////////////////////////////////////////////////////
-            ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter
-               = mrMesh.GetBoundaryElementIteratorBegin();
-            
-            
-            
-            // this iterates over the outer edge elements (i.e. ghost nodes NOT real edge elements)
-            while ( elem_iter != mrMesh.GetBoundaryElementIteratorEnd() )
-            {
-                BoundaryElement<1,2>* p_edge = *elem_iter;
-                if(!p_edge->IsDeleted())
-                {
-                    c_vector<double, 2> drdt_contribution;
-                    
-                    c_vector<double, 2> unit_difference;
-                    
-                    unsigned nodeA = 0;
-                    unsigned nodeB = 1;
-                    
-                    unit_difference(0)=p_edge->GetNodeLocation(nodeB,0)-p_edge->GetNodeLocation(nodeA,0);
-                    unit_difference(1)=p_edge->GetNodeLocation(nodeB,1)-p_edge->GetNodeLocation(nodeA,1);
-                    double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
-                    
-                    unit_difference=unit_difference/distance_between_nodes;
-
-                    double rest_length = 1.0;
-                    
-                    if( (mCells.size()>0) &&  (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)]) )
-                    {
-                        double ageA = mCells[p_edge->GetNode(nodeA)->GetIndex()].GetAge();
-                        double ageB = mCells[p_edge->GetNode(nodeB)->GetIndex()].GetAge();
-                        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-                        {
-                           // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-                           #define COVERAGE_IGNORE
-                           rest_length=(0.1+0.9*ageA);
-                           assert(rest_length<=1.0);
-                           #undef COVERAGE_IGNORE
-                       }                          
-                    }
-
-                    drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
-                       
-                    assert(!p_edge->GetNode(nodeA)->IsDeleted());
-                    assert(!p_edge->GetNode(nodeB)->IsDeleted());
-                    
-
-
-                    // Assume that if both nodes are real, or both are ghosts, then they both
-                    // exert forces on each other, but if one is real and one is ghost then
-                    // the real node exerts a force on the ghost node, but the ghost node 
-                    // does NOT exert a force on the real node.   
-                    if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)] == false)
-                    {
-	                    	// Real A force on any B
-	                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-	                        drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
-	
-							// B exerts a force back if it is real.
-	                        if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == false)
-	                        {
-	                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-	                            drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
-	                        }
-                    }
-                    else
-                    {
-                    	// Ghost A receives a force
-                        drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-                        drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
- 
- 						// Only a ghost B also receives a force
-                        if(mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)] == true)
-                        {
-                           drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-                           drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
-                        }
-                    }                            
-                }
-                elem_iter++;
-            }            
-
-			//assert(0);            
-            ///////////////
-            //  sum forces for periodic nodes
-            ////////////////
-            if(mPeriodicSides)
-            {
-	            // Add up the forces on paired up nodes
-	            // loop through size of left boundaries
-	            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
-	            {
-	            	double x_force = drdt[mLeftCryptBoundary[i]][0] + drdt[mRightCryptBoundary[i]][0];
-	            	double y_force = drdt[mLeftCryptBoundary[i]][1] + drdt[mRightCryptBoundary[i]][1];
-	            	drdt[mLeftCryptBoundary[i]][0] = x_force;
-	            	drdt[mLeftCryptBoundary[i]][1] = y_force;
-	            	drdt[mRightCryptBoundary[i]][0] = x_force;
-	            	drdt[mRightCryptBoundary[i]][1] = y_force;
-	            }
-            }
-            ////////////////////////////////////////////////////////////////////////////////////
             // update node positions
-            ////////////////////////////////////////////////////////////////////////////////////
-
-            
-            for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-            {       
-            	//std::cout << "Node " << index << "\t x_force = " << drdt[index][0] << "\t y_force = " << drdt[index][1] << "\n";
-                     
-                if(mFixedBoundaries)
-                {
-                    // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-                    if(mrMesh.GetNode(index)->rGetLocation()[1]>0)
-                    {
-                        if(mrMesh.GetNode(index)->rGetLocation()[1]<mpParams->GetCryptLength())
-                        {
-                            if(mrMesh.GetNode(index)->rGetLocation()[0]>0)
-                            {
-                                if(mrMesh.GetNode(index)->rGetLocation()[0]<mpParams->GetCryptWidth())
-                                {
-                                    if(!mrMesh.GetNode(index)->IsDeleted())
-                                    {
-                                        //  std::cerr<<"Updating index "<<index<<"\n";
-                                        c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
-                                        Point<2> new_point;
-                                        
-                                        // note factor of 0.5 in the update because drdt was twice
-                                        // as large as it should be since edges were looped over twice.
-                                        new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
-                                        new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
-                                        mrMesh.SetNode(index, new_point, false);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else if(mCells.size()>0)
-                {
-                    // move any node as long as it is not a real stem cell.
-                    if(mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
-                    {
-                        if(!mrMesh.GetNode(index)->IsDeleted())
-                        {
-                            //  std::cerr<<"Updating index "<<index<<"\n";
-                            c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
-                            Point<2> new_point;
-
-                            // note factor of 0.5 in the update because drdt was twice
-                            // as large as it should be since edges were looped over twice.
-                            new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
-                            new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
-
-                            // if a cell wants to move below y<0 (most likely because it was 
-                            // just born from a stem cell), stop it doing so
-                            if( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
-                            {
-                            	// Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
-                            	// it is a bit of a hack to make it work nicely!
-                                new_point.rGetLocation()[1] = 0.01;
-                            }
-
-                            mrMesh.SetNode(index, new_point, false);
-                        }
-                    }
-                }
-                else
-                {
-                    // no cells, just fix any node on line y=0
-                    if(mrMesh.GetNode(index)->rGetLocation()[1]>0)
-                    {
-                        if(!mrMesh.GetNode(index)->IsDeleted())
-                        {
-                            //  std::cerr<<"Updating index "<<index<<"\n";
-                            c_vector<double,2> old_point = mrMesh.GetNode(index)->rGetLocation();
-                            Point<2> new_point;
-                            
-                            
-                            // note factor of 0.5 in the update because drdt was twice
-                            // as large as it should be since edges were looped over twice.
-                            new_point.rGetLocation()[0] = old_point[0] + 0.5*mDt*drdt[index][0]; // new_point_position[index];
-                            new_point.rGetLocation()[1] = old_point[1] + 0.5*mDt*drdt[index][1]; // new_point_position[index];
-                            mrMesh.SetNode(index, new_point, false);
-                        }
-                    }
-                }
-            }
-            
-            // Ensure no errors can creep in and move left nodes to same position as right ones
-            if(mPeriodicSides)
-            {
-	            for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
-	            {
-	            	unsigned RightNodeIndex = mRightCryptBoundary[i];
-	            	unsigned LeftNodeIndex = mLeftCryptBoundary[i];
-	            	c_vector<double,2> right_point = mrMesh.GetNode(RightNodeIndex)->rGetLocation();
-	            	Point<2> left_point;
-	            	left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
-	            	left_point.rGetLocation()[1] = right_point[1];
-	            	mrMesh.SetNode(LeftNodeIndex, left_point, false);
-	            	// Also force them to be the same cell
-	            	// needed to synchronise cell cycle models (as R periodic cell cycle models are not run)...
-	            	mCells[RightNodeIndex]=mCells[LeftNodeIndex];
-	            }
-            }
-
+            UpdateNodePositions(drdt);
             
             ///////////////////////////////////////////////////////////////////////////////////
             // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
