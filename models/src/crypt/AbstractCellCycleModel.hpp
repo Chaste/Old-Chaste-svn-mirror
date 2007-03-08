@@ -1,12 +1,25 @@
 #ifndef ABSTRACTCELLCYCLEMODEL_HPP_
 #define ABSTRACTCELLCYCLEMODEL_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/export.hpp>
+
 #include "MeinekeCryptCellTypes.hpp"
 #include "SimulationTime.hpp"
 #include <vector>
 
 class AbstractCellCycleModel
 {
+private:        
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mCellType;
+        archive & mBirthTime;
+        archive & mpSimulationTime;
+    }
 protected:
     CryptCellType mCellType;
     double mBirthTime; // Time to start model from
@@ -59,6 +72,7 @@ public:
      * instance of that subclass.
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
+
 };
 
 

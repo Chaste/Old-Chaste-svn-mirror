@@ -11,6 +11,13 @@
  */
 class FixedCellCycleModel : public AbstractCellCycleModel
 {
+private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
+    }
 public:
     virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
@@ -22,5 +29,7 @@ public:
     
     FixedCellCycleModel();
 };
+
+
 
 #endif /*FIXEDCELLCYCLEMODEL_HPP_*/

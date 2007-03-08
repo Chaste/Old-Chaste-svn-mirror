@@ -1,6 +1,9 @@
 #ifndef MEINEKECRYPTCELL_HPP_
 #define MEINEKECRYPTCELL_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include "Element.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 #include "CryptCellMutationStates.hpp"
@@ -25,6 +28,23 @@ private:
     {
         assert(false);
     }
+   
+    friend class boost::serialization::access;
+    
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // If Archive is an output archive, then '&' resolves to '<<'
+        // If Archive is an input archive, then '&' resolves to '>>'
+        archive & mpSimulationTime;
+        archive & mGeneration;
+        archive & mCellType;
+        archive & mMutationState;
+        archive & mpCellCycleModel;
+        archive & mCanDivide;
+        archive & mUndergoingApoptosis;
+    }
+
     
 protected:
     unsigned mGeneration;
@@ -40,6 +60,8 @@ protected:
      * Contains code common to both the copy constructor and operator=.
      */
     void CommonCopy(const MeinekeCryptCell &other_cell);
+    
+    
 
     
 public:
