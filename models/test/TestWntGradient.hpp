@@ -2,7 +2,11 @@
 #define TESTWNTGRADIENT_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <fstream>
 
+#include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
 #include "WntGradient.hpp"
 #include "WntGradientTypes.hpp"
@@ -83,6 +87,49 @@ public:
         wnt_level = wnt_gradient3.GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level , 1.0 - 1.5*height/params->GetCryptLength() , 1e-9);
         
+    }
+    
+    void TestArchiveWntGradient()
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "wnt.arch";
+        
+        // Create an ouput archive 
+        {
+            WntGradientType this_type = LINEAR;
+            
+            WntGradient wnt_gradient(this_type);
+    
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+                        
+            output_arch << static_cast<const WntGradient&>(wnt_gradient);
+            
+        }
+        
+        {  
+            WntGradientType this_type = NONE;
+            WntGradient wnt_gradient(this_type);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(101.0);
+            
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            // restore from the archive
+            input_arch >> wnt_gradient;
+            
+            // Check 
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            double height = 21.0;
+            double wnt_level = wnt_gradient.GetWntLevel(height);
+        
+            TS_ASSERT_DELTA(wnt_level, 1.0-height/inst1->GetCryptLength(), 1e-9);
+        }
     }
 };
 

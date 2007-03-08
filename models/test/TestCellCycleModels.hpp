@@ -660,6 +660,62 @@ public:
         }
     }
     
+    void TestArchiveStochasticCellCycleModels()
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
+        
+        // Create an ouput archive 
+        {
+            RandomNumberGenerator rand_gen;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            StochasticCellCycleModel model(&rand_gen);
+            p_simulation_time->IncrementTimeOneStep();
+            
+            model.SetCellType(TRANSIT);
+            model.SetBirthTime(-1.0);
+            
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+                        
+            output_arch << static_cast<const StochasticCellCycleModel&>(model);
+            
+            SimulationTime::Destroy();
+        }
+        
+        {  
+            RandomNumberGenerator rand_gen;
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            StochasticCellCycleModel model(&rand_gen);
+            model.SetCellType(STEM);
+            model.SetBirthTime(-2.0);
+
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+            
+            CancerParameters *inst1 = CancerParameters::Instance();
+            
+            inst1->SetSG2MDuration(101.0);
+            
+            // restore from the archive
+            input_arch >> model;
+            
+            // Check         
+            TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
+            TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
+            TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
+            
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            SimulationTime::Destroy();
+        }
+    }
+    
     void TestArchiveTysonNovakCellCycleModels()
     {
         OutputFileHandler handler("archive");
