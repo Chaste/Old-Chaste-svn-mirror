@@ -187,7 +187,7 @@ elif system_name == 'new_chaste':
     metis_includepath = metis_libpath + '/Lib' # Bizarre, I know!
     dealii_includepaths = ['base/include', 'lac/include', 'deal.II/include']
     other_includepaths.extend(map(lambda s: dealii_base + s, dealii_includepaths))
-    other_libs = build.GetDealiiLibraries(dealii_base) + ['blas', 'lapack']
+    other_libs = build.GetDealiiLibraries(dealii_base) + ['blas', 'lapack', 'boost_serialization']
   else:
     petsc_base = '../../../petsc-2.3.2-p4/'
     if build.is_optimised:
