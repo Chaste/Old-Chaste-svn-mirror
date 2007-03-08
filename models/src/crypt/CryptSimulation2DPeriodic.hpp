@@ -62,6 +62,9 @@ typedef struct element_writer_ids_t
  */
 class CryptSimulation2DPeriodic
 {
+    // Allow tests to access private members, in order to test computation of
+    // private functions eg. DoCellBirth
+    friend class TestCryptSimulation2DPeriodic;
 private:
     double mDt;
     double mEndTime;

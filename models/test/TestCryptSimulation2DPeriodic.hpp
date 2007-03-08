@@ -777,6 +777,163 @@ public:
             TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
         }
     }
+    
+    
+    
+    void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator random_num_gen;
+        
+        double crypt_length = 9.3;
+        double crypt_width = 10.0;
+        
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            //double birth_time;
+            
+            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
+            if (y == 0.0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                //birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+            }
+            else if (y < 3)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                //birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else if (y < 6.5)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+               // birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else if (y < 8)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                //birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                //birth_time = -1; //hours
+            }
+            
+            
+            
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            if ( i == 60u)
+            {
+               cell.SetBirthTime(-50.0 );  
+            }
+            
+            cells.push_back(cell);
+        }
+        
+        
+        CryptSimulation2DPeriodic simulator(mesh,cells,&random_num_gen);
+        //simulator.SetOutputDirectory("ghg");
+        //simulator.SetMaxCells(200);
+        //simulator.SetMaxElements(400);
+        simulator.SetFixedBoundaries();
+        simulator.SetPeriodicSides(false);
+        // sim time destroy needs to be below where we move cells around 
+        // (because it makes new ones from copies of old ones??)
+        
+        std::vector<std::vector<double> > forces_on_each_node(mesh.GetNumAllNodes());
+        
+        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
+        {
+            forces_on_each_node[i].resize(2);
+        }
+        
+        forces_on_each_node = simulator.CalculateForcesOnEachNode();
+        //std::cout << "d test \n " << std::endl;
+//        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
+//        {
+//            std::cout << " i " << i << "forces x " << forces_on_each_node[i][0] << ", y " << forces_on_each_node[i][1] << "\n" << std::endl;
+//            //TS_ASSERT_DELTA(forces_on_each_node[i][0], 0.0, 1e-8);
+//            //TS_ASSERT_DELTA(forces_on_each_node[i][1], 0.0, 1e-8);
+//        }
+        
+        unsigned num_deaths = simulator.DoCellRemoval();
+        unsigned periodic_index = 0;
+        unsigned num_births = simulator.DoCellBirth(periodic_index);
+        Node<2> *p_node = mesh.GetNode(60);
+        Element<2,2>* p_element = simulator.FindElementForBirth(p_node, 60u,
+                                      false, 0u);
+        
+        TS_ASSERT_EQUALS(num_births, 1u);
+        TS_ASSERT_EQUALS(num_deaths,11u);
+        TS_ASSERT_EQUALS(p_element->GetIndex(),110u);
+        
+        p_params->SetCryptLength(10.1);
+        CryptSimulation2DPeriodic simulator2(mesh,cells,&random_num_gen);
+        //simulator.SetOutputDirectory("ghg");
+        
+        simulator2.SetFixedBoundaries();
+        simulator2.SetPeriodicSides(false);
+        // sim time destroy needs to be below where we move cells around 
+        // (because it makes new ones from copies of old ones??)
+        SimulationTime::Destroy();
+        
+        num_deaths = simulator2.DoCellRemoval();
+        TS_ASSERT_EQUALS(num_deaths,0u);
+        
+//        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
+//        simulator.SetEndTime(0.2); //hours
+//        simulator.SetMaxCells(800);
+//        simulator.SetMaxElements(800);
+//        simulator.SetFixedBoundaries();
+//        simulator.SetPeriodicSides(false);
+//        // sim time destroy needs to be below where we move cells around 
+//        // (because it makes new ones from copies of old ones??)
+//        SimulationTime::Destroy();
+//        simulator.Solve();
+//        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
+//        
+//        
+        
+//        SetupNodeWriter
+//        SetupElementWriter
+//        WriteResultsToFiles
+//       
+
+
+//        CalculateForcesOnEachNode
+//        CalculateForceInThisSpring
+//        CalculateForceInThisBoundarySpring
+//        UpdateNodePositions
+//        GetNewNodeLocation
+//        UpdateCellTypes
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      Get rid of NOTest....
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        
+    }
         
 };
 
