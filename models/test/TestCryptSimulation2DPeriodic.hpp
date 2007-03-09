@@ -1085,9 +1085,11 @@ public:
         num_deaths = simulator2.DoCellRemoval();
         TS_ASSERT_EQUALS(num_deaths,0u);
         
-        
+        SimulationTime::Destroy();
+    }   
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
+void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
+  {      
         unsigned cells_across2 = 6;
         unsigned cells_up2 = 5;
         double crypt_width2 = 6.0;
@@ -1098,8 +1100,13 @@ public:
         std::vector<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices(); 
         unsigned num_cells2 = p_mesh2->GetNumAllNodes();
         
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator random_num_gen;
         
-        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+         
+        // Set up cells by iterating through the mesh nodes
         std::vector<MeinekeCryptCell> cells2;
         for (unsigned i=0; i<num_cells2; i++)
         {
@@ -1140,7 +1147,7 @@ public:
             
             
             
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(0.0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells2.push_back(cell);
@@ -1203,34 +1210,70 @@ public:
                 TS_ASSERT_DELTA(forces_on_each_node[i][1], 0.0, 1e-4);
             }
         }
-//        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
-//        simulator.SetEndTime(0.2); //hours
-//        simulator.SetMaxCells(800);
-//        simulator.SetMaxElements(800);
-//        simulator.SetFixedBoundaries();
-//        simulator.SetPeriodicSides(false);
-//        // sim time destroy needs to be below where we move cells around 
-//        // (because it makes new ones from copies of old ones??)
-//        SimulationTime::Destroy();
-//        simulator.Solve();
-//        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
-//        
-//        
         
-//        
-//       
-
-
-//        CalculateForcesOnEachNode
-//        CalculateForceInThisSpring
-//        CalculateForceInThisBoundarySpring
-//        UpdateNodePositions
-//        GetNewNodeLocation
-//        UpdateCellTypes
+        // Move a node along the x-axis and calculate the force exerted on a neighbour
+        c_vector<double,2> old_point = p_mesh2->GetNode(59)->rGetLocation();
+        Point<2> new_point;
+        new_point.rGetLocation()[0] = old_point[0]+0.5;
+        new_point.rGetLocation()[1] = old_point[1] ;
+        p_mesh2->SetNode(59, new_point, false);
+        forces_on_each_node = simulator3.CalculateForcesOnEachNode();
+        TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
+        TS_ASSERT_DELTA(forces_on_each_node[60][1], 0.0, 1e-4);
+  
+        c_vector<double,2> force_on_spring ; // between nodes 59 and 60
+        
+        // Find one of the elements that nodes 59 and 60 live on
+        Point<2> new_point2;
+        new_point2.rGetLocation()[0] = new_point[0]+0.01;
+        new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
+        
+        unsigned elem_index = p_mesh2->GetContainingElementIndex(new_point2,false);
+        Element<2,2>* p_element = p_mesh2->GetElement(elem_index);
+        
+        force_on_spring = simulator3.CalculateForceInThisSpring(p_element,1,0);
+  
+        TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
+        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);   
+        
+        Point<2> point_of_node60 = p_mesh2->GetNode(60)->rGetLocation();
+        
+        simulator3.SetDt(0.01);
+        simulator3.UpdateNodePositions(forces_on_each_node);
+                
+        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]*0.01, 1e-4);
+        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
+        
+        
+        
+        std::vector<MeinekeCryptCell> cells3;
+        simulator3.UpdateCellTypes();
+        cells3 = simulator3.GetCells();
+        
+        for (unsigned i=0; i<num_cells2; i++)
+        {
+            CryptCellType cell_type;
+            cell_type = cells3[i].GetCellType();
+            TS_ASSERT_EQUALS(cell_type,TRANSIT);
+            
+        }
 //      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      Get rid of NOTest....
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      THESE SHOULD BE DIFFERENTIATED NOT TRANSIT
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+//        CalculateForceInThisBoundarySpring
+
+
+
         SimulationTime::Destroy();
     }
         
