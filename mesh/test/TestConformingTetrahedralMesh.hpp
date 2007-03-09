@@ -1394,5 +1394,34 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh2);
     }
     
+    void TestDeleteNodes()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(2,3);
+        
+        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12U);
+        
+        
+        //Delete from interior
+        mesh.DeleteNode(7);
+        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11U);
+ 
+        //Delete from edge
+        mesh.DeleteNode(5);
+        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10U);
+ 
+        //Delete from corner
+        mesh.DeleteNode(2);
+        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 5.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9U);
+        
+        // deleting a deleted node should throw an exception
+        TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(2));
+        
+        
+    }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

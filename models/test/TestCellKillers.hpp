@@ -86,7 +86,7 @@ public:
             }
             
             MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
+            cell.SetNodeIndex(num_cells-i-1);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
             
@@ -113,21 +113,13 @@ public:
         
         bool apoptosis_cell_found=false;
         unsigned count=1;
-        while(count<cells.size())
+        while(count<cells.size() && apoptosis_cell_found ==  false)
         {
             if (cells[count].HasApoptosisBegun())
             {
                 apoptosis_cell_found = true;
             }
-            else
-            {
-                // store 'locations' of cells which have not started apoptosis
-                Node<2>* p_node = mesh.GetNode(count);
-                c_vector< double, 2 > location = p_node->rGetLocation();
-                old_locations.insert(location[0]+location[1]*1000);
-            }
-            
-            count++;    
+            count++;
         }
             
         TS_ASSERT(apoptosis_cell_found);
@@ -139,20 +131,34 @@ public:
             p_simulation_time->IncrementTimeOneStep();
         }
         
+        // store 'locations' of cells which are not dead
+        for (count=0; count<cells.size(); count++)
+        {
+            if (!cells[count].IsDead())
+            {
+                Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
+                c_vector< double, 2 > location = p_node->rGetLocation();
+                old_locations.insert(location[0]+location[1]*1000);
+            }  
+        }
+        
+        
         // remove dead cells...
+        random_cell_killer.RemoveDeadCells();
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        count=0;
-        while(count<cells.size())
+        for( count=0; count<cells.size(); count++)
         {
-            Node<2>* p_node = mesh.GetNode(count);
+            TS_ASSERT(!cells[count].IsDead());
+            Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
             c_vector< double, 2 > location = p_node->rGetLocation();
             new_locations.insert(location[0]+location[1]*1000);
-            count++;
         }
         
-        //TS_ASSERT(new_locations == old_locations);
+        TS_ASSERT(new_locations == old_locations);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes());
     }
     
     

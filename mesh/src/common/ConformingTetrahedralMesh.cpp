@@ -460,7 +460,45 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
     }
 }
 
-
+/**
+ * DeleteNode deletes a node from the mesh by finding an appropriate neighbour node
+ * to merge it with.
+ *
+ * @param index is the index of the node to be deleted
+ * 
+**/
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
+{
+        unsigned target_index;
+        bool found_target=false;
+        if (mNodes[index]->IsDeleted())
+        {
+            EXCEPTION("Trying to delete a deleted node");
+        }
+        while (!found_target)
+        {
+            Element <ELEMENT_DIM,SPACE_DIM> *p_element=
+                mElements[mNodes[index]->GetNextContainingElementIndex()];
+            for (unsigned i=0; i<=ELEMENT_DIM && !found_target; i++)
+            {
+                target_index=p_element->GetNodeGlobalIndex(i);
+                try 
+                {
+                    SetNode(index, target_index, false);
+                    found_target=true;
+                }
+                catch (Exception e)
+                {
+                    //Just go round the loops and try again
+                }
+            }
+        }
+        
+         
+        SetNode(index, target_index);
+          
+}
 /**
  * SetNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
  * appropriate. 
@@ -475,6 +513,16 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         unsigned targetIndex,
         bool crossReference)
 {
+    
+    if (mNodes[index]->IsDeleted())
+    {
+        EXCEPTION("Trying to move a deleted node");
+    }
+    
+    if (index == targetIndex)
+    {
+        EXCEPTION("Trying to merge a node with itself");
+    }
     if (mNodes[index]->IsBoundaryNode())
     {
         if (!mNodes[targetIndex]->IsBoundaryNode())

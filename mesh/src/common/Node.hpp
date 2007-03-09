@@ -127,6 +127,7 @@ public:
      */
     const c_vector<double, SPACE_DIM> &rGetLocation() const
     {
+        assert(!mIsDeleted);
         return mLocation;
     }
     
@@ -138,6 +139,7 @@ public:
      */
     c_vector<double, SPACE_DIM> &rGetModifiableLocation()
     {
+        assert(!mIsDeleted);
         return mLocation;
     }
     

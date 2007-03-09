@@ -34,6 +34,7 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mCanDivide = other_cell.mCanDivide;
     mpSimulationTime = other_cell.mpSimulationTime;
     mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
+    mNodeIndex = other_cell.mNodeIndex;
     // Copy cell cycle model
     // First create a new object
     mpCellCycleModel = other_cell.mpCellCycleModel->CreateCellCycleModel();

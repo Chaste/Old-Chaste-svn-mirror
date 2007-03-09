@@ -41,16 +41,36 @@ public:
     }
   
     
-//    void RemoveDeadCell(MeinekeCryptCell *pCell)
-//    {
-//        if(pCell.IsDead())
-//        {
-//            // to be continued...
-//            // delete cell from list of cells
-//            // merge node into another node.
-//        }
-//        
-//    }
+    void RemoveDeadCells()
+    {
+        std::vector< MeinekeCryptCell > living_cells;
+        for (unsigned i=0; i<this->mrCells.size(); i++)
+        {
+            //std::cout << i  << " "<< this->mrCells[i].GetNodeIndex()<< std::endl;
+            if(this->mrCells[i].IsDead())
+            {
+                this->mpMesh->DeleteNode(this->mrCells[i].GetNodeIndex());
+            }
+            else
+            {
+                living_cells.push_back(this->mrCells[i]);
+            }
+        }
+        
+        this->mrCells=living_cells;
+        //Remesh and re-index
+        NodeMap map(1);
+        this->mpMesh->ReMesh(map);
+        
+        for (unsigned i=0; i<this->mrCells.size(); i++)
+        {
+            unsigned old_index = this->mrCells[i].GetNodeIndex();
+            unsigned new_index = map.GetNewIndex(old_index);
+            this->mrCells[i].SetNodeIndex(new_index);
+        }
+        
+        
+    }
     
     
     
