@@ -17,7 +17,7 @@ AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
 FixedCellCycleModel::FixedCellCycleModel()
 {
 	mpSimulationTime = SimulationTime::Instance();
-	if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+	if(mpSimulationTime->IsStartTimeSetUp()==false)
 	{
 		EXCEPTION("FixedCellCycleModel is being created but SimulationTime has not been set up");
 	}

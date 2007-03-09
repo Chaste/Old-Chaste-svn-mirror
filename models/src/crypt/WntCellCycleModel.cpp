@@ -25,7 +25,7 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
 {
     WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutationStatus);
     mpSimulationTime = SimulationTime::Instance();
-    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+    if(mpSimulationTime->IsStartTimeSetUp()==false)
 	{
 		EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
 	}
@@ -59,7 +59,7 @@ WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrat
 	mProteinConcentrations[5] = parentProteinConcentrations[5];
     
     mpSimulationTime = SimulationTime::Instance();
-    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+    if(mpSimulationTime->IsStartTimeSetUp()==false)
 	{
 		EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
 	}

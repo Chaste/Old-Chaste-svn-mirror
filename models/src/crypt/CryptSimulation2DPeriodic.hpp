@@ -1323,6 +1323,7 @@ public:
         // Set up the simulation time
         unsigned num_time_steps = (unsigned) (mEndTime/mDt+0.5);
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
             
         
@@ -2036,6 +2037,7 @@ public:
     void Load()
     {
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, 1);
         
         std::string archive_directory = "/tmp/chaste/testoutput/Crypt2DPeriodicWntSaveAndLoad/archive/";

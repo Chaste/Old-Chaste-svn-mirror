@@ -189,6 +189,7 @@ public:
         
         unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
         mpSimulationTime = SimulationTime::Instance();
+        mpSimulationTime->SetStartTime(0.0);
         mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
                                      
         //double time = 0.0;

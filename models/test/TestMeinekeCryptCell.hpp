@@ -28,7 +28,7 @@ public:
         // These lines are added to cover the exception case that a cell is 
         // created without simulation time being set up...
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+        p_simulation_time->SetStartTime(0.0);
     	FixedCellCycleModel fixed_model;
         SimulationTime::Destroy();
         
@@ -40,6 +40,7 @@ public:
         // Proper test again
     	
         p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -67,6 +68,7 @@ public:
     void TestCellDivision()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         // We are going to start at t=0 and jump up in steps of 6.0
         CancerParameters *p_params = CancerParameters::Instance();
@@ -127,6 +129,7 @@ public:
     void TestCellDivisionStops()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -223,6 +226,7 @@ public:
         int time_steps=61;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -301,6 +305,7 @@ public:
         // Simulation time is 6000 because we want to test that differentiated cells never divide.
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -382,6 +387,7 @@ public:
     
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
         CancerParameters *p_params = CancerParameters::Instance();
         
@@ -468,6 +474,7 @@ public:
         for (int simulation_number=0; simulation_number<number_of_simulations; simulation_number++)
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
             
             MeinekeCryptCell stem_cell(STEM, // type
@@ -549,6 +556,7 @@ public:
         //double end_time=60.0;
         //int time_steps=60;
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
         
         std::vector<MeinekeCryptCell> cells;
@@ -675,6 +683,7 @@ public:
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=100;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
@@ -761,6 +770,7 @@ public:
         //double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=100;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
         
         MeinekeCryptCell tn_cell(TRANSIT, // type
@@ -830,6 +840,7 @@ public:
         int time_steps=1000;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -883,6 +894,7 @@ public:
         int time_steps=100;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -974,6 +986,7 @@ public:
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=200;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 1.0;
@@ -1058,6 +1071,7 @@ public:
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=200;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
@@ -1142,6 +1156,7 @@ public:
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
         unsigned num_steps=200;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
         
         double wnt_stimulus = 0.0;
@@ -1228,6 +1243,7 @@ public:
     {
         // We are going to start at t=0 and jump up in steps of 0.2
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
         
         // this test needs particular apoptosis time
@@ -1272,6 +1288,7 @@ public:
         int time_steps=92;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         
         MeinekeCryptCell stem_cell(STEM, // type
@@ -1377,6 +1394,7 @@ public:
         // Archive a Meinke Crypt cell
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
             
             MeinekeCryptCell stem_cell(STEM, // type
@@ -1404,7 +1422,8 @@ public:
         {
             // need to set up time to initialise a cell
             SimulationTime* p_simulation_time = SimulationTime::Instance();
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1); // will be restored
+            p_simulation_time->SetStartTime(1.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 1); // will be restored
 
             // Initialise a cell
             MeinekeCryptCell stem_cell(TRANSIT, // the type will be restored soon

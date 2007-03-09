@@ -19,9 +19,10 @@ public:
     unsigned GetTimeStepsElapsed();
     double GetDimensionalisedTime();
     static void Destroy();
-    bool IsSimulationTimeSetUp();
+    bool IsStartTimeSetUp();
     bool IsFinished();
     unsigned GetTotalNumberOfTimeSteps();
+    void SetStartTime(double currentTime);
 protected:
     SimulationTime();
     SimulationTime(const SimulationTime&);
@@ -33,6 +34,8 @@ private:
     unsigned mTimeStepsElapsed;
     bool mEndTimeAndNumberOfTimeStepsSet;
     double mCurrentDimensionalisedTime;
+    double mEndTime;
+    bool mStartTimeSet;
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -50,6 +53,8 @@ private:
         archive & mpInstance->mTimeStepsElapsed;
         archive & mpInstance->mEndTimeAndNumberOfTimeStepsSet;
         archive & mpInstance->mCurrentDimensionalisedTime;
+        archive & mpInstance->mEndTime;
+        archive & mpInstance->mStartTimeSet;
     }
 };
 

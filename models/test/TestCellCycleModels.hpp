@@ -28,6 +28,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(FixedCellCycleModel model2);
         
         unsigned num_steps = 100;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_params->GetStemCellCycleTime(), num_steps);
         
         TS_ASSERT_THROWS_NOTHING(FixedCellCycleModel model3);
@@ -89,6 +90,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model2(&rand_gen));
         
         unsigned num_steps = 100;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_params->GetStemCellCycleTime(), num_steps);
         		
         TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3(&rand_gen));
@@ -150,6 +152,7 @@ public:
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         int num_timesteps = 100;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
 
         // cover another exception: create a cell model, delete the time, then
@@ -164,6 +167,7 @@ public:
         
         double standard_divide_time = 75.19/60.0;
         
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, num_timesteps);// just choosing 5 hours for now - in the Tyson and Novak model cells are yeast and cycle in 75 mins
         TysonNovakCellCycleModel cell_model;
         
@@ -246,6 +250,7 @@ public:
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         double endTime = 10.0; //hours
         int numTimesteps = 1000*(int)endTime;
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(endTime, numTimesteps);// 15.971 hours to go into S phase 
         double wnt_level = 1.0;
         double mutation = 0.0;
@@ -306,6 +311,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level,1));
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
     	WntCellCycleModel cell_model_1(wnt_level);
         SimulationTime::Destroy();
@@ -318,6 +324,7 @@ public:
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
@@ -382,6 +389,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level));
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
     	WntCellCycleModel cell_model_1(wnt_level);
         SimulationTime::Destroy();
@@ -394,6 +402,7 @@ public:
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
@@ -459,6 +468,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level,(unsigned)3));
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
     	WntCellCycleModel cell_model_1(wnt_level);
         SimulationTime::Destroy();
@@ -471,6 +481,7 @@ public:
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
@@ -534,6 +545,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel cell_model_15(wnt_level));
 
         SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
     	WntCellCycleModel cell_model_1(wnt_level);
         SimulationTime::Destroy();
@@ -546,6 +558,7 @@ public:
 
         double SG2MDuration = p_parameters->GetSG2MDuration();
         
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(40, num_timesteps);// 15.971 hours to go into S phase 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
@@ -610,6 +623,7 @@ public:
         // Create an ouput archive 
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
             FixedCellCycleModel model;
             p_simulation_time->IncrementTimeOneStep();
@@ -627,6 +641,7 @@ public:
         
         {  
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
             FixedCellCycleModel model;
@@ -660,6 +675,7 @@ public:
         {
             RandomNumberGenerator rand_gen;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
             StochasticCellCycleModel model(&rand_gen);
             p_simulation_time->IncrementTimeOneStep();
@@ -678,6 +694,7 @@ public:
         {  
             RandomNumberGenerator rand_gen;
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
             StochasticCellCycleModel model(&rand_gen);
@@ -715,6 +732,7 @@ public:
         // Create an ouput archive 
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(100.0, 1);
             TysonNovakCellCycleModel model;
             p_simulation_time->IncrementTimeOneStep();
@@ -734,6 +752,7 @@ public:
         
         {  
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
             TysonNovakCellCycleModel model;
@@ -766,6 +785,7 @@ public:
         // Create an ouput archive 
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
             
             WntCellCycleModel model(1.0);
@@ -790,6 +810,7 @@ public:
         
         {  
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
             CancerParameters *inst1 = CancerParameters::Instance();

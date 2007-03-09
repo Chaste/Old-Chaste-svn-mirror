@@ -20,12 +20,13 @@ public:
         // set the simulation length and number of time steps
         SimulationTime *p_simulation_time = SimulationTime :: Instance();
         
-        TS_ASSERT(p_simulation_time->IsSimulationTimeSetUp()==false);
+        TS_ASSERT(p_simulation_time->IsStartTimeSetUp()==false);
+        
+        p_simulation_time->SetStartTime(0.0);
+        
+        TS_ASSERT(p_simulation_time->IsStartTimeSetUp()==true);
         
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 3);
-        
-        TS_ASSERT(p_simulation_time->IsSimulationTimeSetUp()==true);
-        
         // get the time step
         TS_ASSERT_DELTA(p_simulation_time->GetTimeStep(), 3.33333333, 1e-6);
         
@@ -57,8 +58,16 @@ public:
         SimulationTime::Destroy();
         
         SimulationTime *p_simulation_time3 = SimulationTime :: Instance();
+        p_simulation_time->SetStartTime(0.0);
         p_simulation_time3->SetEndTimeAndNumberOfTimeSteps(10.0,5);
         TS_ASSERT_DELTA(p_simulation_time3->GetTimeStep(), 2.0, 1e-6);
+        
+        SimulationTime::Destroy();
+        
+        p_simulation_time3 = SimulationTime :: Instance();
+        p_simulation_time3->SetStartTime(5.0);
+        p_simulation_time3->SetEndTimeAndNumberOfTimeSteps(10.0,5);
+        TS_ASSERT_DELTA(p_simulation_time3->GetTimeStep(), 1.0, 1e-6);
         
         SimulationTime::Destroy();
     }
@@ -72,6 +81,7 @@ public:
         // Create and archive simulation time
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
             p_simulation_time->IncrementTimeOneStep();
             
@@ -90,8 +100,9 @@ public:
         // Restore
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(-100.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(5.0, 5);
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.0);
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), -100.0);
             
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
             boost::archive::text_iarchive input_arch(ifs);

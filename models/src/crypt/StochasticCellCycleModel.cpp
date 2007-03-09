@@ -18,7 +18,7 @@ AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 StochasticCellCycleModel::StochasticCellCycleModel(RandomNumberGenerator *pGen)
 {
 	mpSimulationTime = SimulationTime::Instance();
-	if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+	if(mpSimulationTime->IsStartTimeSetUp()==false)
 	{
 		EXCEPTION("StochasticCellCycleModel is being created but SimulationTime has not been set up");
 	}

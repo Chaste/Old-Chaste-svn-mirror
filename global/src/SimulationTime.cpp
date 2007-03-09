@@ -24,6 +24,7 @@ SimulationTime::SimulationTime()
     mEndTimeAndNumberOfTimeStepsSet = false;
     mTimeStepsElapsed = 0;
     mCurrentDimensionalisedTime = 0.0;
+    mStartTimeSet = false;
 }
 
 
@@ -44,6 +45,13 @@ void SimulationTime::Destroy()
     }
 }
 
+void SimulationTime::SetStartTime(double startTime)
+{
+    assert(mStartTimeSet==false);
+    mCurrentDimensionalisedTime = startTime;
+    mStartTimeSet = true;
+}
+
 /**
  * Get the simlation time step.
  * Warning: Use of this method may result in round errors
@@ -52,6 +60,7 @@ void SimulationTime::Destroy()
  */
 double SimulationTime::GetTimeStep()
 {
+    assert(mStartTimeSet);
     assert(mEndTimeAndNumberOfTimeStepsSet);
     return mDurationOfSimulation/mTotalTimeStepsInSimulation;
 }
@@ -61,6 +70,7 @@ double SimulationTime::GetTimeStep()
  */
 void SimulationTime::IncrementTimeOneStep()
 {
+    assert(mStartTimeSet);
     assert(mEndTimeAndNumberOfTimeStepsSet);
     mTimeStepsElapsed++;
     mCurrentDimensionalisedTime = ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
@@ -88,7 +98,7 @@ double SimulationTime::GetDimensionalisedTime()
     // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
     // wasn't called in the previous test                                   //
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
-    assert(mEndTimeAndNumberOfTimeStepsSet);
+    assert(mStartTimeSet);
 
     return mCurrentDimensionalisedTime;
 }
@@ -100,14 +110,17 @@ double SimulationTime::GetDimensionalisedTime()
  * @param totalTimeStepsInSimulation the number of time steps into which the above will be broken
  * 
  */
-void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation, unsigned totalTimeStepsInSimulation)
+void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned totalTimeStepsInSimulation)
 {    
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
     // wasn't called in the previous test                                   //
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//   
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    assert(mStartTimeSet);
     assert(!mEndTimeAndNumberOfTimeStepsSet);
-    mDurationOfSimulation = durationOfSimulation;
+    assert(endTime>mCurrentDimensionalisedTime);
+    mEndTime = endTime;
+    mDurationOfSimulation = mEndTime - mCurrentDimensionalisedTime;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
@@ -116,14 +129,14 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double durationOfSimulation,
 /**
  * Allows lower classes to check whether the simulation time class has been set up before using it
  */
-bool SimulationTime::IsSimulationTimeSetUp()
+bool SimulationTime::IsStartTimeSetUp()
 {
-	return mEndTimeAndNumberOfTimeStepsSet;
+	return mStartTimeSet;
 }
 
 bool SimulationTime::IsFinished()
 {
-    return(mCurrentDimensionalisedTime>=mDurationOfSimulation);
+    return(mCurrentDimensionalisedTime>=mEndTime);
 }
 
 unsigned SimulationTime::GetTotalNumberOfTimeSteps()

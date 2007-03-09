@@ -130,7 +130,7 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         // Any old rubbish here just so the simulation time is set up to set up cell cycle models
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
@@ -223,7 +223,7 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         // Any old rubbish here just so the simulation time is set up to set up cell cycle models
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        p_simulation_time->SetStartTime(0.0);
         
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
@@ -328,7 +328,7 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         // Any old rubbish here just so the simulation time is set up to set up cell cycle models
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
+        p_simulation_time->SetStartTime(0.0);
         
      // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
@@ -567,7 +567,7 @@ public:
         
 		SimulationTime* p_simulation_time = SimulationTime::Instance();
         // Any old rubbish here just so the simulation time is set up to set up cell cycle models
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1000);
+        p_simulation_time->SetStartTime(0.0);
         
      // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
@@ -706,7 +706,7 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         // Any old rubbish here just so the simulation time is set up to set up cell cycle models
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 100);
+        p_simulation_time->SetStartTime(0.0);
         
      // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();

@@ -10,7 +10,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
     mpSolver = new BackwardEulerIvpOdeSolver(6);
     mpSimulationTime = SimulationTime::Instance();
-    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+    if(mpSimulationTime->IsStartTimeSetUp()==false)
 	{
         delete mpSolver;
 		EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");
@@ -33,7 +33,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(std::vector<double> parentPro
 {
     mpSolver = new BackwardEulerIvpOdeSolver(6);
     mpSimulationTime = SimulationTime::Instance();
-    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+    if(mpSimulationTime->IsStartTimeSetUp()==false)
     {
         delete mpSolver;
         EXCEPTION("TysonNovakCellCycleModel is being created but SimulationTime has not been set up");

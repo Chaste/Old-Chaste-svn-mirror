@@ -11,7 +11,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
         : mpCellCycleModel(pCellCycleModel)
 {
     mpSimulationTime = SimulationTime::Instance();
-    if(mpSimulationTime->IsSimulationTimeSetUp()==false)
+    if(mpSimulationTime->IsStartTimeSetUp()==false)
     {
     	EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");	
     }
