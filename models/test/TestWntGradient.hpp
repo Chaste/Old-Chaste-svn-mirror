@@ -106,6 +106,8 @@ public:
                         
             output_arch << static_cast<const WntGradient&>(wnt_gradient);
             
+            CancerParameters *inst1 = CancerParameters::Instance();
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
         }
         
         {  
@@ -122,6 +124,9 @@ public:
             
             // restore from the archive
             input_arch >> wnt_gradient;
+            
+            CancerParameters *inst2 = CancerParameters::Instance();
+            TS_ASSERT_EQUALS(inst1, inst2);
             
             // Check 
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);

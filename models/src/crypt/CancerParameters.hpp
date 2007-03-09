@@ -38,6 +38,8 @@ protected:
     CancerParameters& operator= (const CancerParameters&);
     
 private:
+    /** The single instance of the class */
+    static CancerParameters *mpInstance;
 
     /**
      * Stem cell cycle time, used to non-dimensionalise the problem
@@ -88,16 +90,17 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        CancerParameters* p_instance = CancerParameters::Instance();
-        archive & p_instance->mStemCellCycleTime;
-        archive & p_instance->mTransitCellCycleTime;
-        archive & p_instance->mSG2MDuration;
-        archive & p_instance->mMaxTransitGenerations;
-        archive & p_instance->mCryptLength;
-        archive & p_instance->mCryptWidth;
-        archive & p_instance->mMeinekeLambda;
-        archive & p_instance->mApoptosisTime;
+        assert(mpInstance != NULL);
+        archive & mpInstance->mStemCellCycleTime;
+        archive & mpInstance->mTransitCellCycleTime;
+        archive & mpInstance->mSG2MDuration;
+        archive & mpInstance->mMaxTransitGenerations;
+        archive & mpInstance->mCryptLength;
+        archive & mpInstance->mCryptWidth;
+        archive & mpInstance->mMeinekeLambda;
+        archive & mpInstance->mApoptosisTime;
     }
 };
+
 
 #endif /*CANCERPARAMETERS_HPP_*/

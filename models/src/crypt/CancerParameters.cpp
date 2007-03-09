@@ -1,10 +1,14 @@
 #include "CancerParameters.hpp"
 
+CancerParameters* CancerParameters::mpInstance = NULL;
 
 CancerParameters* CancerParameters::Instance()
 {
-    static CancerParameters inst;
-    return &inst;
+    if (mpInstance == NULL)
+    {
+        mpInstance = new CancerParameters;
+    }
+    return mpInstance;
 }
 
 CancerParameters::CancerParameters()
@@ -26,6 +30,7 @@ CancerParameters::CancerParameters()
     mTransitCellCycleTime = 12.0;
     mSG2MDuration = 10.0;	// This is a guess for Wnt Model
     mMaxTransitGenerations = 3u;
+    mCryptWidth = 10.0;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
     mMeinekeLambda = 30.0;       // Meineke uses 0.01
     mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis

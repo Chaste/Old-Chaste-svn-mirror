@@ -6,6 +6,7 @@
 
 #include "CancerParameters.hpp"
 #include "WntGradientTypes.hpp"
+
 /**
  *  Wnt gradient getter and setters.
  */
@@ -18,9 +19,10 @@ private:
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {
+    {        
         archive & mGradientType;
         archive & mpCancerParams;
+        mpCancerParams = CancerParameters::Instance();
     }
     
 public:

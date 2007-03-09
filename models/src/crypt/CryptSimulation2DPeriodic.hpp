@@ -1,6 +1,13 @@
 #ifndef CRYPTSIMULATION2DPERIODIC_HPP_
 #define CRYPTSIMULATION2DPERIODIC_HPP_
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp> // for archiving vectors
+#include <boost/serialization/string.hpp>
+
+#include <fstream>
+
 #include "ConformingTetrahedralMesh.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "CancerParameters.hpp"
@@ -15,6 +22,8 @@
 #include "MeinekeCryptCellTypes.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
+#include "OutputFileHandler.hpp"
+
 
 /**
  * Structure encapsulating variable identifiers for the node datawriter
@@ -126,6 +135,62 @@ private:
     
     /** Number of remeshes performed in the current time step */
     unsigned mRemeshesThisTimeStep;
+
+    /** Counts the number of births during the simulation */
+    unsigned mNumBirths;
+    
+    /** Counts the number of deaths during the simulation */
+    unsigned mNumDeaths;
+    
+    /**
+     * Prevents multiple near-simultaneous cell divisions on the periodic boundary -
+     * once one cell has divided, other divisions are postponed for a couple of 
+     * timesteps, until this counter reaches 0.  This is to cope with re-meshing 
+     * issues; would be nice to get rid of it eventually.
+     */
+    unsigned mPeriodicDivisionBuffer;
+        
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        mpParams = CancerParameters::Instance();
+        
+        // If Archive is an output archive, then & resolves to <<
+        // If Archive is an input archive, then & resolves to >>
+        archive & mDt;
+        archive & mEndTime; 
+        archive & mIncludeRandomBirth;
+        archive & mIncludeVariableRestLength;
+        archive & mFixedBoundaries;
+        archive & mNoBirth;
+        archive & mReMesh;
+        archive & mNodesMoved;
+        archive & mPeriodicSides;
+        archive & mIsGhostNode;
+        archive & mIsPeriodicNode;
+        archive & mLeftCryptBoundary;
+        archive & mOldLeftCryptBoundary;
+        archive & mRightCryptBoundary;
+        archive & mOldRightCryptBoundary;
+        archive & mCryptBoundary;
+        archive & mOldCryptBoundary;
+        archive & mMaxCells;
+        archive & mMaxElements;
+//        archive & mOutputDirectory;
+        archive & mCells;
+//        archive & mpRandomNumberGenerator; 
+        archive & mCreatedRng;
+        archive & mpParams;
+        archive & mWntIncluded;
+        archive & mWntGradient;
+        archive & mRemeshesThisTimeStep;
+        archive & mNumBirths;
+        archive & mNumDeaths;
+        archive & mPeriodicDivisionBuffer;
+    }
+   
+    
     
     /**
      * Define the variable identifiers in the data writer used to write node-based results.
@@ -322,16 +387,16 @@ private:
      * 
      * Some divisions are postponed to work around issues with remeshing.  Specifically, only
      * one division on the periodic boundary is allowed within any 3 consecutive time steps.
-     * This is controlled by the rPeriodicDivisionBuffer parameter.
+     * This is controlled by the mPeriodicDivisionBuffer attribute.
      * 
      * @return the number of births that occurred.
      */
-    unsigned DoCellBirth(unsigned& rPeriodicDivisionBuffer)
+    unsigned DoCellBirth()
     {
         unsigned num_births = 0;
-        if(rPeriodicDivisionBuffer>0)
+        if(mPeriodicDivisionBuffer>0)
         {
-            rPeriodicDivisionBuffer--;
+            mPeriodicDivisionBuffer--;
         }
         if (!mNoBirth && !mCells.empty())
         {
@@ -355,13 +420,15 @@ private:
                         }
                         if (mLeftCryptBoundary[j]==i)
                         {
-                            if(rPeriodicDivisionBuffer>0)
+                            if(mPeriodicDivisionBuffer>0)
                             {
                                 // Only allow one periodic cell division per 
                                 // timestep so that mesh can catch up with it.
                                 // it will divide next timestep anyway
                                 skip=true;  
-                            } else {
+                            } 
+                            else 
+                            {
                                 periodic_cell = true;
                                 periodic_index = j;
                             }
@@ -390,7 +457,7 @@ private:
                     if(mPeriodicSides && periodic_cell)
                     {   
                         std::cout << "Periodic Division\n";
-                        rPeriodicDivisionBuffer=3;
+                        mPeriodicDivisionBuffer=3;
                         //Make sure the image cell knows it has just divided and aged a generation
                         mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
                     }
@@ -1065,6 +1132,10 @@ public:
         mPeriodicSides = true;
         mNodesMoved=false;
         mRemeshesThisTimeStep=0;
+
+        mNumBirths = 0;
+        mNumDeaths = 0;
+        mPeriodicDivisionBuffer = 0;
     }
     
     /**
@@ -1255,16 +1326,6 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
             
         
-        // Counts the number of births during the simulation
-        unsigned num_births = 0;
-        // Counts the number of deaths during the simulation
-        unsigned num_deaths = 0;
-        // Prevents multiple near-simultaneous cell divisions on the periodic boundary -
-        // once one cell has divided, other divisions are postponed for a couple of timesteps,
-        // until this counter reaches 0.  This is to cope with re-meshing issues; would be nice
-        // to get rid of it eventually.
-        unsigned periodic_division_buffer = 0;
-        
         // Check some parameters for a periodic simulation
         if(mPeriodicSides)
         {
@@ -1319,7 +1380,7 @@ public:
 		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
 		                
             // Cell birth
-            num_births += DoCellBirth(periodic_division_buffer);
+            mNumBirths += DoCellBirth();
             
             //  calculate node velocities
             std::vector<std::vector<double> > drdt = CalculateForcesOnEachNode();
@@ -1330,13 +1391,15 @@ public:
             //////////////////////////////////////////////
             // Cell death should be included in this method
             /////////////////////////////////////////////
-            num_deaths += DoCellRemoval();
+            mNumDeaths += DoCellRemoval();
+            
             
             // Change the state of some cells
             // Only active for WntCellCycleModel at the moment
             // but mutations etc. could occur in this function
             UpdateCellTypes();
-            
+
+
     		ReMesh();
             
             // Increment simulation time here, so results files look sensible
@@ -1949,6 +2012,54 @@ public:
     	mRemeshesThisTimeStep++;
     	assert(mRemeshesThisTimeStep < 1000); //to avoid an infinite loop. If this ever throws try increasing it a bit.
 	}
+    
+    void Save()
+    {
+        // todo: remesh, save mesh
+
+        std::string archive_directory = mOutputDirectory + "/archive/";
+        
+        // create an output file handler in order to get the full path of the 
+        // archive directory. Note the false is so the handler doesn't clean
+        // the directory
+        OutputFileHandler handler(archive_directory, false);
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "crypt_sim_periodic_2d.arch";
+        
+        std::ofstream ofs(archive_filename.c_str());       
+        boost::archive::text_oarchive output_arch(ofs);
+
+        // cast to const.
+        output_arch << static_cast<const CryptSimulation2DPeriodic&>(*this);        
+    }
+    
+    void Load()
+    {
+        SimulationTime *p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, 1);
+        
+        std::string archive_directory = "/tmp/chaste/testoutput/Crypt2DPeriodicWntSaveAndLoad/archive/";
+        std::string archive_filename = archive_directory + "crypt_sim_periodic_2d.arch";
+        
+        // Create an input archive
+        std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+        boost::archive::text_iarchive input_arch(ifs);
+
+        // read the archive
+        input_arch >> *this;
+
+        std::cout << "crypt width = " << mpParams->GetCryptWidth() << "\n" << std::flush;
+        std::cout << "crypt length = " << mpParams->GetCryptLength() << "\n" << std::flush;
+        
+
+        mOutputDirectory = "load_temp";
+
+        if(mrMesh.GetNumNodes()!=mCells.size())
+        {
+            EXCEPTION("Number of Nodes is not equal to number of cells. This is very bad.");   
+        }
+        SimulationTime::Destroy();
+    }
 };
 
 #endif /*CRYPTSIMULATION2DPERIODIC_HPP_*/

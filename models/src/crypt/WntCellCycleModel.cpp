@@ -9,7 +9,10 @@ BOOST_CLASS_EXPORT_GUID(WntCellCycleModel, "WntCellCycleModel")
 
 WntCellCycleModel::WntCellCycleModel()
 {
-	EXCEPTION("A Wnt cell cycle model must be given a steady state of Wnt (double)\n to set steady state of wnt pathway at start of model");	
+    mpSimulationTime = SimulationTime::Instance();
+    mpCancerParams = CancerParameters::Instance();
+    mProteinConcentrations.resize(mOdeSystem.GetNumberOfStateVariables());
+	//EXCEPTION("A Wnt cell cycle model must be given a steady state of Wnt (double)\n to set steady state of wnt pathway at start of model");	
 }
 
 /**

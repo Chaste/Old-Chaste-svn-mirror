@@ -9,6 +9,7 @@
 #include "CryptCellMutationStates.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
+#include "FixedCellCycleModel.hpp"
 
 const unsigned MAX_TRANSIT_GENS = 4; // NOT USED ANYWHERE USEFUL AT PRESENT
 
@@ -26,7 +27,11 @@ private:
      */
     MeinekeCryptCell()
     {
-        assert(false);
+        //assert(false); Had to get rid of this for serializer...
+        mpSimulationTime = SimulationTime::Instance();
+        // hack to get serialization to work... probably get big memory leak
+        // here
+        mpCellCycleModel = new FixedCellCycleModel();
     }
    
     friend class boost::serialization::access;

@@ -251,7 +251,7 @@ public:
         double mutation = 0.0;
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model(wnt_level));
         WntCellCycleModel cell_model(wnt_level);
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
+        //TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
         std::vector<double> cell_cycle_influences;
         cell_cycle_influences.push_back(wnt_level);
         cell_cycle_influences.push_back(mutation);
@@ -322,8 +322,6 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
         WntCellCycleModel cell_model(wnt_level,(unsigned)mutation);
-        
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
 
 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -400,8 +398,6 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
         WntCellCycleModel cell_model(wnt_level,(unsigned)mutation);
-        
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
 
 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -480,9 +476,6 @@ public:
      
         WntCellCycleModel cell_model(wnt_level,(unsigned) mutation);
         
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
-
-
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 3.943 hrs and then finish dividing
         // 10 hours later at 13.9435 hours.
@@ -557,10 +550,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3(wnt_level));
      
         WntCellCycleModel cell_model(wnt_level, (unsigned) mutation);
-        
-        TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
-
-
+       
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
         // Model should enter S phase at 5.971 hrs and then finish dividing
         // 10 hours later at 15.971 hours.
