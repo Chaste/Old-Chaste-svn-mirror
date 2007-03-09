@@ -28,7 +28,6 @@ private:
     MeinekeCryptCell()
     {
         //assert(false); Had to get rid of this for serializer...
-        mpSimulationTime = SimulationTime::Instance();
         // hack to get serialization to work... probably get big memory leak
         // here
         mpCellCycleModel = new FixedCellCycleModel();
@@ -41,7 +40,6 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        archive & mpSimulationTime;
         archive & mGeneration;
         archive & mCellType;
         archive & mMutationState;
@@ -57,7 +55,6 @@ protected:
     CryptCellMutationState mMutationState;
     AbstractCellCycleModel *mpCellCycleModel;
     unsigned mNodeIndex;
-    SimulationTime* mpSimulationTime;
     bool mUndergoingApoptosis;
     double mDeathTime;
     

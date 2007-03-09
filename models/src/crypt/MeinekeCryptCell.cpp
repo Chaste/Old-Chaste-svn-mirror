@@ -10,8 +10,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
 {
-    mpSimulationTime = SimulationTime::Instance();
-    if(mpSimulationTime->IsStartTimeSetUp()==false)
+    if(SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
     	EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");	
     }
@@ -32,7 +31,6 @@ void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
     mCellType = other_cell.mCellType;
     mMutationState = other_cell.mMutationState;
     mCanDivide = other_cell.mCanDivide;
-    mpSimulationTime = other_cell.mpSimulationTime;
     mUndergoingApoptosis = other_cell.mUndergoingApoptosis;
     mNodeIndex = other_cell.mNodeIndex;
     // Copy cell cycle model
@@ -182,7 +180,10 @@ void MeinekeCryptCell::StartApoptosis()
     mUndergoingApoptosis = true;
 
     CancerParameters *p_params = CancerParameters::Instance();
-    mDeathTime = mpSimulationTime->GetDimensionalisedTime() + p_params->GetApoptosisTime();
+    
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    
+    mDeathTime = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
 }
 
 
@@ -197,12 +198,14 @@ double MeinekeCryptCell::TimeUntilDeath()
     {
         EXCEPTION("Shouldn't be checking time until apoptosis as it isn't undergoing apoptosis");
     }
-    return mDeathTime - mpSimulationTime->GetDimensionalisedTime();
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    return mDeathTime - p_simulation_time->GetDimensionalisedTime();
 }
 
 bool MeinekeCryptCell::IsDead()
 {
-    return ( (mUndergoingApoptosis) && (mpSimulationTime->GetDimensionalisedTime() >= mDeathTime));
+   SimulationTime *p_simulation_time = SimulationTime::Instance();
+   return ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime));
 }
 
 
@@ -212,7 +215,6 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
     assert(!IsDead());
     
     //Copy this cell and give new one relevant attributes...
-	assert(mpSimulationTime!=NULL);
     assert(mCanDivide);
     CancerParameters *p_params = CancerParameters::Instance();
     //std::cout<< "Divide time" << mpSimulationTime->GetDimensionalisedTime() << "\n" ;

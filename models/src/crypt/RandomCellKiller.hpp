@@ -13,27 +13,27 @@ class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 public:    
     
     // constructor  
-    RandomCellKiller (std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
-    : AbstractCellKiller<SPACE_DIM>(pCells,pMesh)
-    {
-        RandomNumberGenerator random_num_gen;
-        mRandomNumberGenerator = random_num_gen;
-    }
+//    RandomCellKiller (std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
+//    : AbstractCellKiller<SPACE_DIM>(pCells,pMesh)
+//    {
+//        RandomNumberGenerator random_num_gen;
+//        mRandomNumberGenerator = random_num_gen;
+//    }
     
     void TestAndLabelSingleCellForApoptosis(unsigned cell_index)
     {
-        MeinekeCryptCell* pCell=&((this->mrCells)[cell_index]);
+        MeinekeCryptCell* p_cell=&((*(this->mpCells))[cell_index]);
         
-        if(!pCell->HasApoptosisBegun() && mRandomNumberGenerator.ranf() > 0.95)
+        if(!p_cell->HasApoptosisBegun() && mRandomNumberGenerator.ranf() > 0.95)
         {
-            pCell->StartApoptosis();
+            p_cell->StartApoptosis();
         }
                
     }
     
     void TestAndLabelCellsForApoptosis()
     {
-        for (unsigned i=0; i<this->mrCells.size(); i++)
+        for (unsigned i=0; i<this->mpCells->size(); i++)
         {
             TestAndLabelSingleCellForApoptosis(i);        
         }
@@ -44,31 +44,23 @@ public:
     void RemoveDeadCells()
     {
         std::vector< MeinekeCryptCell > living_cells;
-        for (unsigned i=0; i<this->mrCells.size(); i++)
+        for (unsigned i=0; i<this->mpCells->size(); i++)
         {
+            MeinekeCryptCell* p_cell=&((*(this->mpCells))[i]);
             //std::cout << i  << " "<< this->mrCells[i].GetNodeIndex()<< std::endl;
-            if(this->mrCells[i].IsDead())
+            if(p_cell->IsDead())
             {
-                this->mpMesh->DeleteNode(this->mrCells[i].GetNodeIndex());
+                this->mpMesh->DeleteNode(p_cell->GetNodeIndex());
             }
             else
             {
-                living_cells.push_back(this->mrCells[i]);
+                living_cells.push_back(*p_cell);
             }
         }
         
-        this->mrCells=living_cells;
-        //Remesh and re-index
-        NodeMap map(1);
-        this->mpMesh->ReMesh(map);
-        
-        for (unsigned i=0; i<this->mrCells.size(); i++)
-        {
-            unsigned old_index = this->mrCells[i].GetNodeIndex();
-            unsigned new_index = map.GetNewIndex(old_index);
-            this->mrCells[i].SetNodeIndex(new_index);
-        }
-        
+        *(this->mpCells)=living_cells;
+        //Remesh and re-index (is moved to caller)
+ 
         
     }
     

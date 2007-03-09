@@ -22,8 +22,9 @@
 #include "MeinekeCryptCellTypes.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
+//TODO: This should become abstract
+#include "RandomCellKiller.hpp"
 #include "OutputFileHandler.hpp"
-
 
 /**
  * Structure encapsulating variable identifiers for the node datawriter
@@ -191,6 +192,10 @@ private:
     }
    
     
+    
+    /** Cell killer */
+    //TODO: Should become an abstract cell killer
+    RandomCellKiller<2> *mpCellKiller;
     
     /**
      * Define the variable identifiers in the data writer used to write node-based results.
@@ -608,6 +613,14 @@ private:
                 }
             }
         }
+        
+         if (mpCellKiller)
+        {
+            mpCellKiller->TestAndLabelCellsForApoptosis();
+            mpCellKiller->RemoveDeadCells();
+            CallReMesher();
+        }
+        
         return num_deaths;
     }
 
@@ -1132,7 +1145,7 @@ public:
         mPeriodicSides = true;
         mNodesMoved=false;
         mRemeshesThisTimeStep=0;
-
+        mpCellKiller=NULL;
         mNumBirths = 0;
         mNumDeaths = 0;
         mPeriodicDivisionBuffer = 0;
@@ -1224,6 +1237,12 @@ public:
     void SetPeriodicSides(bool periodicSides)
     {
         mPeriodicSides = periodicSides;
+    }
+    
+    void SetCellKiller(RandomCellKiller<2>* pCellKiller)
+    {
+        mpCellKiller=pCellKiller;
+        mpCellKiller->SetCellsAndMesh(&mCells, &mrMesh);
     }
     
     /** 
@@ -2009,6 +2028,15 @@ public:
 		std::cout << "Remeshing \n"<<std::endl;
 		NodeMap map(mrMesh.GetNumAllNodes());
     	mrMesh.ReMesh(map);
+        
+        for (unsigned i=0; i<mCells.size(); i++)
+        {
+            
+            unsigned old_index = mCells[i].GetNodeIndex();
+            unsigned new_index = map.GetNewIndex(old_index);
+            mCells[i].SetNodeIndex(new_index);
+        }
+        
     	mNodesMoved=false;
     	mRemeshesThisTimeStep++;
     	assert(mRemeshesThisTimeStep < 1000); //to avoid an infinite loop. If this ever throws try increasing it a bit.

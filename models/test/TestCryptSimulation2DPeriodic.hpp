@@ -317,7 +317,7 @@ public:
         }
         
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DPeriodic");
+         simulator.SetOutputDirectory("Crypt2DPeriodic");
         //simulator.SetEndTime(24.0);
         simulator.SetEndTime(0.2);
         simulator.SetMaxCells(200);
@@ -327,9 +327,15 @@ public:
                 
         simulator.SetReMeshRule(true);
 		
+        //\todo : This is where we got to with killers
+        //RandomCellKiller<2> cell_killer;
+        //simulator.SetCellKiller(&cell_killer);
+        
 
-        SimulationTime::Destroy();
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        SimulationTime::Destroy(); //Only needed while we set up the cells
+        //TS_ASSERT_THROWS_NOTHING(
+        simulator.Solve();
+        //);
         CheckAgainstPreviousRun("Crypt2DPeriodic", 200u, 500u);
     }
     

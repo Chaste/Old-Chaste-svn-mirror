@@ -14,14 +14,20 @@ public:
     virtual ~AbstractCellKiller()
     {}
     
-    AbstractCellKiller(std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
-        : mrCells(*pCells)
+//    AbstractCellKiller(std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
+//        : mrCells(*pCells)
+//    {
+//        mpMesh=pMesh;
+//    }
+    
+    void SetCellsAndMesh(std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
     {
+        mpCells=pCells;
         mpMesh=pMesh;
     }
     
 protected:
-    std::vector<MeinekeCryptCell>& mrCells;
+    std::vector<MeinekeCryptCell>* mpCells;
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *mpMesh;
     
     

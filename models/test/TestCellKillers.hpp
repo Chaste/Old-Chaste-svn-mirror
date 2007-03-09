@@ -94,7 +94,8 @@ public:
             
         }
         
-        RandomCellKiller<2> random_cell_killer(&cells, &mesh);
+        RandomCellKiller<2> random_cell_killer;
+        random_cell_killer.SetCellsAndMesh(&cells, &mesh);
         
         // check that a single cell reaches apoptosis    
         unsigned max_tries=0;
@@ -159,8 +160,7 @@ public:
         
         TS_ASSERT(new_locations == old_locations);
         
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh.GetNumAllNodes());
-    }
+   }
     
     
 };
