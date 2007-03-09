@@ -791,6 +791,7 @@ public:
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
+        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -862,14 +863,6 @@ public:
         // sim time destroy needs to be below where we move cells around 
         // (because it makes new ones from copies of old ones??)
         
-        std::vector<std::vector<double> > forces_on_each_node(mesh.GetNumAllNodes());
-        
-        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
-        {
-            forces_on_each_node[i].resize(2);
-        }
-        
-        forces_on_each_node = simulator.CalculateForcesOnEachNode();
         //std::cout << "d test \n " << std::endl;
 //        for (unsigned i=0; i<mesh.GetNumAllNodes(); i++)
 //        {
@@ -897,11 +890,133 @@ public:
         simulator2.SetPeriodicSides(false);
         // sim time destroy needs to be below where we move cells around 
         // (because it makes new ones from copies of old ones??)
-        SimulationTime::Destroy();
+        
         
         num_deaths = simulator2.DoCellRemoval();
         TS_ASSERT_EQUALS(num_deaths,0u);
         
+        
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        unsigned cells_across2 = 6;
+        unsigned cells_up2 = 5;
+        double crypt_width2 = 6.0;
+        unsigned thickness_of_ghost_layer2 = 3;
+        
+        CryptHoneycombMeshGenerator generator(cells_across2, cells_up2, crypt_width2,thickness_of_ghost_layer2);  
+        ConformingTetrahedralMesh<2,2>* p_mesh2=generator.GetMesh(); 
+        std::vector<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices(); 
+        unsigned num_cells2 = p_mesh2->GetNumAllNodes();
+        
+        
+        
+        std::vector<MeinekeCryptCell> cells2;
+        for (unsigned i=0; i<num_cells2; i++)
+        {
+            double birth_time;
+            CryptCellType cell_type;
+            unsigned generation;
+            double y = p_mesh2->GetNode(i)->GetPoint().rGetLocation()[1];
+            if (y == 0.0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -2.0; //hours - doesn't matter for stem cell;
+            }
+            else if (y < 3)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time = -2.0; //hours
+            }
+            else if (y < 6.5)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time = -2.0;  //hours
+            }
+            else if (y < 8)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time = -2.0;  //hours
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = -2.0;  //hours
+            }
+            
+            
+            
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells2.push_back(cell);
+        }
+        
+        CryptSimulation2DPeriodic simulator3(*p_mesh2,cells2,&random_num_gen);
+        simulator3.SetGhostNodes(ghost_node_indices2);
+        simulator3.SetPeriodicSides(false);
+        
+        simulator3.SetMaxCells(400);
+        simulator3.SetMaxElements(400);
+        simulator3.SetOutputDirectory("TestPrivateMemberDirectory");
+        std::string output_directory = "TestPrivateMemberDirectory";
+        ColumnDataWriter tabulated_node_writer(output_directory+"Results", "tabulated_node_results");
+        ColumnDataWriter tabulated_element_writer(output_directory+"Results", "tabulated_element_results");
+        
+        
+        node_writer_ids_t node_writer_ids;
+        TS_ASSERT_THROWS_NOTHING(simulator3.SetupNodeWriter(tabulated_node_writer, node_writer_ids));
+        
+        element_writer_ids_t element_writer_ids;
+        TS_ASSERT_THROWS_NOTHING(simulator3.SetupElementWriter(tabulated_element_writer, element_writer_ids));
+        
+        OutputFileHandler output_file_handler(output_directory);
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+        unsigned tabulated_output_counter = 0;
+        
+        simulator3.WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
+                                tabulated_element_writer, element_writer_ids,
+                                *p_node_file, *p_element_file,
+                                tabulated_output_counter==0,
+                                true);
+                                
+        
+        
+        
+        // sim time destroy needs to be below where we move cells around 
+        // (because it makes new ones from copies of old ones??)
+        
+        std::vector<std::vector<double> > forces_on_each_node(p_mesh2->GetNumAllNodes());
+        
+        forces_on_each_node = simulator3.CalculateForcesOnEachNode();
+        //std::cout << "d test \n " << std::endl;
+        bool is_a_ghost_node;
+        
+        
+        
+        
+        for (unsigned i=0; i<p_mesh2->GetNumAllNodes(); i++)
+        {
+            //std::cout << " i " << i << "forces x " << forces_on_each_node[i][0] << ", y " << forces_on_each_node[i][1] << "\n" << std::endl;
+            is_a_ghost_node = false;
+            for (unsigned j=0; j<ghost_node_indices2.size(); j++)
+            {
+                if(ghost_node_indices2[j]==i)
+                {
+                    is_a_ghost_node = true;
+                }
+            }
+            if(!is_a_ghost_node)
+            {
+                TS_ASSERT_DELTA(forces_on_each_node[i][0], 0.0, 1e-4);
+                TS_ASSERT_DELTA(forces_on_each_node[i][1], 0.0, 1e-4);
+            }
+        }
 //        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
 //        simulator.SetEndTime(0.2); //hours
 //        simulator.SetMaxCells(800);
@@ -916,9 +1031,7 @@ public:
 //        
 //        
         
-//        SetupNodeWriter
-//        SetupElementWriter
-//        WriteResultsToFiles
+//        
 //       
 
 
@@ -932,7 +1045,7 @@ public:
 //      Get rid of NOTest....
 //      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
-        
+        SimulationTime::Destroy();
     }
         
 };

@@ -641,17 +641,7 @@ private:
             {
                 for (unsigned k=0; k<3; k++)
                 {
-                    unsigned nodeA, nodeB;
-                    if(k<2)
-                    {
-                        nodeA=k;
-                        nodeB=k+1;
-                    }
-                    else
-                    {
-                        nodeA=2;
-                        nodeB=0;
-                    }
+                    unsigned nodeA = k, nodeB = (k+1)%3;
                     
                     assert(!p_element->GetNode(nodeA)->IsDeleted());
                     assert(!p_element->GetNode(nodeB)->IsDeleted());
