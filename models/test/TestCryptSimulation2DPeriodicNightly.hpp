@@ -129,7 +129,6 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -188,11 +187,12 @@ public:
         simulator.SetPeriodicSides(false);
         simulator.SetGhostNodes(ghost_node_indices);
 
-		SimulationTime::Destroy();
         simulator.Solve();
         
         delete p_mesh;
         CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
+
+        SimulationTime::Destroy();
     }
     
     
@@ -222,7 +222,6 @@ public:
         double crypt_length = num_cells_depth - 1.0;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         p_params->SetCryptLength(crypt_length);
@@ -263,7 +262,7 @@ public:
 
         simulator.SetGhostNodes(ghost_node_indices);
         simulator.SetPeriodicSides(false);
-        SimulationTime::Destroy();
+        
         simulator.Solve();
         
         // now count the number of each type of cell
@@ -306,6 +305,8 @@ public:
         TS_ASSERT_LESS_THAN(num_differentiated, 23);
         TS_ASSERT_LESS_THAN(18, num_differentiated);
         delete p_mesh;
+
+        SimulationTime::Destroy();
     } 
     
     void noTestWithBirthOnHoneycombMeshPeriodic() throw (Exception)
@@ -327,10 +328,9 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
-     // Set up cells by iterating through the mesh nodes
+        // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::cout << "Num Cells = " << num_cells << "\n";
         std::vector<MeinekeCryptCell> cells;
@@ -394,8 +394,6 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
         
-        SimulationTime::Destroy();
-        
         simulator.Solve();
         
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
@@ -438,6 +436,7 @@ public:
 		TS_ASSERT_EQUALS(rightBoundary[11], 102u);
         
         //CheckAgainstPreviousRun("Crypt2DPeriodicNightly", 500u, 1000u);
+        SimulationTime::Destroy();
     }
     
     void TestCalculateCryptBoundaries()
@@ -461,6 +460,10 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->SetCryptLength(6.0);
         p_params->SetCryptWidth(6.0);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         CryptSimulation2DPeriodic simulator(mesh);
         simulator.SetGhostNodes(ghost_node_indices);
 
@@ -541,8 +544,7 @@ public:
             TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
             TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
         }
-    
-        
+        SimulationTime::Destroy();
     }
     
     void TestWithWntDependentCells() throw (Exception)
@@ -566,10 +568,9 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
 		SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
-     // Set up cells by iterating through the mesh nodes
+        // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::cout << "Num Cells = " << num_cells << std::endl;
         std::vector<MeinekeCryptCell> cells;
@@ -635,8 +636,6 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
                 
-        SimulationTime::Destroy();
-        
         simulator.Solve();
         
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
@@ -680,6 +679,7 @@ public:
 		TS_ASSERT_EQUALS(leftBoundary[12], 325u);
 		TS_ASSERT_EQUALS(rightBoundary[12], 85u);
 		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
+        SimulationTime::Destroy();
     }
     
     // This is strange test -- all cells divide within a quick time, it gives
@@ -705,10 +705,9 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
-     // Set up cells by iterating through the mesh nodes
+        // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::cout << "Num Cells = " << num_cells << std::endl;
         std::vector<MeinekeCryptCell> cells;
@@ -772,7 +771,6 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
                 
-        SimulationTime::Destroy();
         simulator.SetDt(0.001);
         
         simulator.Solve();
@@ -825,8 +823,9 @@ public:
 		TS_ASSERT_EQUALS(rightBoundary[16], 206u);
 		TS_ASSERT_EQUALS(leftBoundary[17], 393u);
 		TS_ASSERT_EQUALS(rightBoundary[17], 114u);
+
+        SimulationTime::Destroy();
 	}
-    
 };
 
 

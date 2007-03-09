@@ -1449,8 +1449,6 @@ public:
         
         tabulated_node_writer.Close();
         tabulated_element_writer.Close();
-        
-        SimulationTime::Destroy();
     }
     
     
@@ -2067,17 +2065,18 @@ public:
         std::ofstream ofs(archive_filename.c_str());       
         boost::archive::text_oarchive output_arch(ofs);
 
+        SimulationTime* p_sim_time = SimulationTime::Instance();
+        assert(p_sim_time->IsStartTimeSetUp());
+
         // cast to const.
-        const SimulationTime* p_sim_time = SimulationTime::Instance();
-        output_arch << *p_sim_time;
+        const SimulationTime* p_simulation_time = SimulationTime::Instance();
+        output_arch << *p_simulation_time;
         output_arch << static_cast<const CryptSimulation2DPeriodic&>(*this);        
     }
     
     void Load()
     {
         SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, 1);
         
         std::string archive_directory = "/tmp/chaste/testoutput/Crypt2DPeriodicWntSaveAndLoad/archive/";
         std::string archive_filename = archive_directory + "crypt_sim_periodic_2d.arch";
@@ -2088,7 +2087,9 @@ public:
 
         // read the archive
         input_arch >> *p_simulation_time;
+        assert(p_simulation_time->IsStartTimeSetUp());
         input_arch >> *this;
+
 
         std::cout << "crypt width = " << mpParams->GetCryptWidth() << "\n" << std::flush;
         std::cout << "crypt length = " << mpParams->GetCryptLength() << "\n" << std::flush;
