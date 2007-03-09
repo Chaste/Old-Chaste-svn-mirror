@@ -134,10 +134,21 @@ public:
 
         RandomNumberGenerator random_num_gen; // passed into crypt sim for coverage
         
+        // throws because start time not set on simulation time
+        TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/, &random_num_gen));
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/, &random_num_gen);
 
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
 
+        // destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         simulator.SetOutputDirectory("Crypt2DSprings");
 
         //simulator.SetEndTime(24.0);
@@ -154,10 +165,12 @@ public:
         // on a non-periodic mesh
         simulator.SetPeriodicSides(true);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
-        // a simulation time object was created in the failed Solve attempt
-        // above, need to destroy it else an exception will be thrown
-        SimulationTime::Destroy(); 
 
+        // destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         simulator.SetPeriodicSides(false);
         simulator.Solve();
               
@@ -181,7 +194,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -238,9 +250,7 @@ public:
         simulator.SetMaxElements(800);
         simulator.SetFixedBoundaries();
         simulator.SetPeriodicSides(false);
-        // sim time destroy needs to be below where we move cells around 
-        // (because it makes new ones from copies of old ones??)
-        SimulationTime::Destroy();
+
         simulator.Solve();
         CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
     }
@@ -265,7 +275,6 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);        
         
         // Set up cells by iterating through the mesh nodes
@@ -317,7 +326,7 @@ public:
         }
         
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
-         simulator.SetOutputDirectory("Crypt2DPeriodic");
+        simulator.SetOutputDirectory("Crypt2DPeriodic");
         //simulator.SetEndTime(24.0);
         simulator.SetEndTime(0.2);
         simulator.SetMaxCells(200);
@@ -327,15 +336,7 @@ public:
                 
         simulator.SetReMeshRule(true);
 		
-        //\todo : This is where we got to with killers
-        //RandomCellKiller<2> cell_killer;
-        //simulator.SetCellKiller(&cell_killer);
-        
-
-        SimulationTime::Destroy(); //Only needed while we set up the cells
-        //TS_ASSERT_THROWS_NOTHING(
-        simulator.Solve();
-        //);
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         CheckAgainstPreviousRun("Crypt2DPeriodic", 200u, 500u);
     }
     
@@ -364,7 +365,6 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
 		SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -434,13 +434,11 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
         
-        SimulationTime::Destroy();
-        
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt", 500u, 1000u);
     }
     
-    // Testing Save and Load (based on previous test
+    // Testing Save (based on previous test)
     void TestSave() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -462,7 +460,6 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -532,21 +529,17 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
         
-        SimulationTime::Destroy();
-        
+
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         // save the results..        
         simulator.Save();
-        
-//        simulator.Load();
-
 
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt", 500u, 1000u);
     }
     
     // Testing Load (based on previous test)
-    void no_TestLoad() throw (Exception)
+    void xTestLoad() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -571,7 +564,6 @@ public:
         
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -626,7 +618,6 @@ public:
         std::cout << "Cells Ready." << std::endl;
 
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
-        SimulationTime::Destroy();
 
         simulator.Load();
 
@@ -665,7 +656,6 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
 		SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -739,8 +729,6 @@ public:
                 
         simulator.SetEndTime(0.05);
 
-        SimulationTime::Destroy();
-
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
     
@@ -767,10 +755,9 @@ public:
         p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
-     // Set up cells by iterating through the mesh nodes
+        // Set up cells by iterating through the mesh nodes
         unsigned num_cells = p_mesh->GetNumAllNodes();
         std::cout << "Num Cells = " << num_cells << std::endl;
         std::vector<MeinekeCryptCell> cells;
@@ -834,7 +821,6 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
                 
-        SimulationTime::Destroy();
         simulator.SetDt(0.001);
         
         simulator.Solve();
@@ -902,6 +888,10 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         p_params->SetCryptLength(6.0);
         p_params->SetCryptWidth(6.0);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         CryptSimulation2DPeriodic simulator(mesh);
         simulator.SetGhostNodes(ghost_node_indices);
 
@@ -910,7 +900,6 @@ public:
         //simulator.DetectNaughtyCellsJoiningPeriodicEdges();
         
         std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
-        
         std::vector<unsigned> actual_boundary_nodes(24);
       
         actual_boundary_nodes[0] = 24;
@@ -1000,7 +989,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -1096,11 +1084,10 @@ public:
         
         num_deaths = simulator2.DoCellRemoval();
         TS_ASSERT_EQUALS(num_deaths,0u);
-        SimulationTime::Destroy();
-    }   
+        
+        
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
-  {      
+        
         unsigned cells_across2 = 6;
         unsigned cells_up2 = 5;
         double crypt_width2 = 6.0;
@@ -1111,14 +1098,9 @@ public:
         std::vector<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices(); 
         unsigned num_cells2 = p_mesh2->GetNumAllNodes();
         
-        CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator random_num_gen;
         
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-         
-        // Set up cells by iterating through the mesh nodes
-       std::vector<MeinekeCryptCell> cells2;
+        
+        std::vector<MeinekeCryptCell> cells2;
         for (unsigned i=0; i<num_cells2; i++)
         {
             double birth_time;
@@ -1195,15 +1177,14 @@ public:
                                 
         
         
-        
-        // sim time destroy needs to be below where we move cells around 
-        // (because it makes new ones from copies of old ones??)
-        
         std::vector<std::vector<double> > forces_on_each_node(p_mesh2->GetNumAllNodes());
         
         forces_on_each_node = simulator3.CalculateForcesOnEachNode();
         //std::cout << "d test \n " << std::endl;
         bool is_a_ghost_node;
+        
+        
+        
         
         for (unsigned i=0; i<p_mesh2->GetNumAllNodes(); i++)
         {
@@ -1222,48 +1203,29 @@ public:
                 TS_ASSERT_DELTA(forces_on_each_node[i][1], 0.0, 1e-4);
             }
         }
+//        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
+//        simulator.SetEndTime(0.2); //hours
+//        simulator.SetMaxCells(800);
+//        simulator.SetMaxElements(800);
+//        simulator.SetFixedBoundaries();
+//        simulator.SetPeriodicSides(false);
+//        // sim time destroy needs to be below where we move cells around 
+//        // (because it makes new ones from copies of old ones??)
+//        SimulationTime::Destroy();
+//        simulator.Solve();
+//        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
+//        
+//        
         
-        // Move a node along the x-axis and calculate the force exerted on a neighbour
-        c_vector<double,2> old_point = p_mesh2->GetNode(59)->rGetLocation();
-        Point<2> new_point;
-        new_point.rGetLocation()[0] = old_point[0]+0.5;
-        new_point.rGetLocation()[1] = old_point[1] ;
-        p_mesh2->SetNode(59, new_point, false);
-        forces_on_each_node = simulator3.CalculateForcesOnEachNode();
-        TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
-        TS_ASSERT_DELTA(forces_on_each_node[60][1], 0.0, 1e-4);
-  
-        c_vector<double,2> force_on_spring ; // between nodes 59 and 60
-        
-        // Find one of the elements that nodes 59 and 60 live on
-        Point<2> new_point2;
-        new_point2.rGetLocation()[0] = new_point[0]+0.01;
-        new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
-        
-        unsigned elem_index = p_mesh2->GetContainingElementIndex(new_point2,false);
-        Element<2,2>* p_element = p_mesh2->GetElement(elem_index);
-        
-        force_on_spring = simulator3.CalculateForceInThisSpring(p_element,1,0);
-  
-        TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
-        TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);   
-        
-        Point<2> point_of_node60 = p_mesh2->GetNode(60)->rGetLocation();
-        
-        simulator3.SetDt(0.01);
-        simulator3.UpdateNodePositions(forces_on_each_node);
-                
-        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]*0.01, 1e-4);
-        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
-        
+//        
+//       
 
 
-
-
-
+//        CalculateForcesOnEachNode
+//        CalculateForceInThisSpring
 //        CalculateForceInThisBoundarySpring
-
-
+//        UpdateNodePositions
+//        GetNewNodeLocation
 //        UpdateCellTypes
 //      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //      Get rid of NOTest....

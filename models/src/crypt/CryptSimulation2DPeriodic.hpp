@@ -156,6 +156,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         mpParams = CancerParameters::Instance();
+        archive & *mpParams;
+        archive & mpParams;
         
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
@@ -182,7 +184,6 @@ private:
         archive & mCells;
 //        archive & mpRandomNumberGenerator; 
         archive & mCreatedRng;
-        archive & mpParams;
         archive & mWntIncluded;
         archive & mWntGradient;
         archive & mRemeshesThisTimeStep;
@@ -1149,6 +1150,13 @@ public:
         mNumBirths = 0;
         mNumDeaths = 0;
         mPeriodicDivisionBuffer = 0;
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        if(!p_simulation_time->IsStartTimeSetUp())
+        {
+            EXCEPTION("Start time not set in simulation time singleton object");
+        }
+        
     }
     
     /**
@@ -1340,9 +1348,8 @@ public:
         
         
         // Set up the simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_time_steps = (unsigned) (mEndTime/mDt+0.5);
-        SimulationTime *p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
             
         
@@ -1442,6 +1449,8 @@ public:
         
         tabulated_node_writer.Close();
         tabulated_element_writer.Close();
+        
+        SimulationTime::Destroy();
     }
     
     
@@ -2059,6 +2068,8 @@ public:
         boost::archive::text_oarchive output_arch(ofs);
 
         // cast to const.
+        const SimulationTime* p_sim_time = SimulationTime::Instance();
+        output_arch << *p_sim_time;
         output_arch << static_cast<const CryptSimulation2DPeriodic&>(*this);        
     }
     
@@ -2076,6 +2087,7 @@ public:
         boost::archive::text_iarchive input_arch(ifs);
 
         // read the archive
+        input_arch >> *p_simulation_time;
         input_arch >> *this;
 
         std::cout << "crypt width = " << mpParams->GetCryptWidth() << "\n" << std::flush;
@@ -2088,7 +2100,6 @@ public:
         {
             EXCEPTION("Number of Nodes is not equal to number of cells. This is very bad.");   
         }
-        SimulationTime::Destroy();
     }
 };
 

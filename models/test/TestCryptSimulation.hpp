@@ -106,6 +106,9 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         CryptSimulation simulator(mesh);
         simulator.SetEndTime(0.25);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
@@ -130,6 +133,9 @@ public:
         Point<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
         
         CryptSimulation simulator(mesh);
         simulator.SetOutputDirectory("CryptWithNoBirthAndNoDeath");
@@ -165,7 +171,10 @@ public:
         Point<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
-        
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+                
         CryptSimulation simulator(mesh);
         simulator.SetOutputDirectory("CryptWithDeathButNoBirth");
         simulator.SetMaxCells(23);
@@ -229,10 +238,8 @@ public:
             cells.push_back(cell);
         }
         
-        //SimulationTime::Destroy();
-        
         CryptSimulation simulator(mesh, cells);
-        SimulationTime::Destroy();
+
         simulator.SetOutputDirectory("CryptWithBirthConstantRestLength");
         simulator.SetMaxCells(33);
         simulator.SetIncludeRandomBirth();
@@ -259,7 +266,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -278,7 +284,7 @@ public:
         
         
         CryptSimulation simulator(mesh, cells);
-        SimulationTime::Destroy();
+
         simulator.SetOutputDirectory("CryptWithBirthVariableRestLength");
         simulator.SetMaxCells(25);
         simulator.SetIncludeRandomBirth();
@@ -310,7 +316,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -347,7 +352,7 @@ public:
         
         
         CryptSimulation simulator(mesh, cells, &rand_gen);
-        SimulationTime::Destroy();
+
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
@@ -378,7 +383,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -416,7 +420,7 @@ public:
         
         
         CryptSimulation simulator(mesh, cells);
-        SimulationTime::Destroy();
+
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
@@ -458,7 +462,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        // Any old rubbish here just so the simulation time is set up to set up cell cycle models
         p_simulation_time->SetStartTime(0.0);
         
         // Set up cells by iterating through the mesh nodes
@@ -494,7 +497,7 @@ public:
         simulator.SetEndTime(40);
         
         simulator.SetIncludeVariableRestLength();
-        SimulationTime::Destroy();
+
         simulator.Solve();
 
         std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();

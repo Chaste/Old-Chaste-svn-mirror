@@ -87,6 +87,12 @@ public:
         mIncludeRandomBirth = false;
         mIncludeVariableRestLength = false;
         mOutputDirectory = "";
+        
+        mpSimulationTime = SimulationTime::Instance();
+        if(!mpSimulationTime->IsStartTimeSetUp())
+        {
+            EXCEPTION("Start time not set in simulation time singleton object");
+        }
     }
     
     /**
@@ -188,8 +194,6 @@ public:
         tabulated_writer.EndDefineMode();
         
         unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
-        mpSimulationTime = SimulationTime::Instance();
-        mpSimulationTime->SetStartTime(0.0);
         mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
                                      
         //double time = 0.0;
