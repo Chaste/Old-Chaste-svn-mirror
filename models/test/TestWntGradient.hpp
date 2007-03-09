@@ -93,7 +93,7 @@ public:
     {
         OutputFileHandler handler("archive");
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "wnt.arch";
+        archive_filename = handler.GetTestOutputDirectory() + "wnt_grad.arch";
         
         // Create an ouput archive 
         {

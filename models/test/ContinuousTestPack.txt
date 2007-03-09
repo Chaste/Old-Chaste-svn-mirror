@@ -1,3 +1,4 @@
+TestArchiving.hpp
 TestCancerParameters.hpp
 TestCryptHoneycombMeshGenerator.hpp
 TestCryptSimulation.hpp
@@ -5,5 +6,4 @@ TestCryptSimulation2DPeriodic.hpp
 TestCellCycleModels.hpp
 TestMeinekeCryptCell.hpp
 TestWntGradient.hpp
-TestCheckpointMeinekeCryptCell.hpp
 TestCellKillers.hpp

@@ -2,7 +2,12 @@
 #define TESTMEINEKECRYPTCELL_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
+#include <fstream>
+
+#include "OutputFileHandler.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 #include "CryptCellMutationStates.hpp"
 #include "MeinekeCryptCell.hpp"
@@ -1361,6 +1366,71 @@ public:
         SimulationTime::Destroy();
     }
     
+    
+    
+    void TestArchiveCell() throw(Exception)
+    {
+        OutputFileHandler handler("archive");
+        std::string archive_filename;
+        archive_filename = handler.GetTestOutputDirectory() + "cell.arch";
+        
+        // Archive a Meinke Crypt cell
+        {
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            
+            MeinekeCryptCell stem_cell(STEM, // type
+                                       HEALTHY,//Mutation State
+                                       0,    // generation
+                                       new FixedCellCycleModel());
+                                       
+            p_simulation_time->IncrementTimeOneStep();
+            
+            TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
+            
+            stem_cell.SetNodeIndex(3);
+    
+            // Create an ouput archive 
+            std::ofstream ofs(archive_filename.c_str());       
+            boost::archive::text_oarchive output_arch(ofs);
+            
+            // and write the cell to the archive
+
+            output_arch << static_cast<const MeinekeCryptCell&>(stem_cell);
+            SimulationTime::Destroy();
+        }
+
+        // Restore Meineke Crypt Cell
+        {
+            // need to set up time to initialise a cell
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1); // will be restored
+
+            // Initialise a cell
+            MeinekeCryptCell stem_cell(TRANSIT, // the type will be restored soon
+                                       HEALTHY,//Mutation State
+                                       1,    // generation
+                                       new FixedCellCycleModel()); //memory leak?
+ 
+            
+            // restore the cell
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            boost::archive::text_iarchive input_arch(ifs);
+
+            input_arch >> stem_cell;
+            
+            // check the simulation time has been restored (through the cell)
+            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
+            TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
+                            
+            TS_ASSERT_EQUALS(stem_cell.GetNodeIndex(), 3u);
+            TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
+            TS_ASSERT_EQUALS(stem_cell.GetGeneration(), 0u);
+            TS_ASSERT_EQUALS(stem_cell.GetCellType(), STEM);
+            
+            SimulationTime::Destroy();
+        } 
+    }
 };
 
 

@@ -664,7 +664,7 @@ public:
     {
         OutputFileHandler handler("archive");
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "fixed.arch";
+        archive_filename = handler.GetTestOutputDirectory() + "stoch_cycle.arch";
         
         // Create an ouput archive 
         {
