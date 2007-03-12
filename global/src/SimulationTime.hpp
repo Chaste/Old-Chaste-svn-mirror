@@ -14,6 +14,7 @@ class SimulationTime
 public:
     static SimulationTime* Instance();
     void SetEndTimeAndNumberOfTimeSteps(double, unsigned);
+    void ResetEndTimeAndNumberOfTimeSteps(const double&, const unsigned&);
     double GetTimeStep();
     void IncrementTimeOneStep();
     unsigned GetTimeStepsElapsed();
@@ -35,6 +36,7 @@ private:
     bool mEndTimeAndNumberOfTimeStepsSet;
     double mCurrentDimensionalisedTime;
     double mEndTime;
+    double mTimeAtEndOfLastRun;
     bool mStartTimeSet;
 
     friend class boost::serialization::access;
@@ -55,6 +57,7 @@ private:
         archive & mpInstance->mCurrentDimensionalisedTime;
         archive & mpInstance->mEndTime;
         archive & mpInstance->mStartTimeSet;
+        archive & mpInstance->mTimeAtEndOfLastRun;
     }
 };
 

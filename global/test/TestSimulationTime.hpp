@@ -71,6 +71,40 @@ public:
         
         SimulationTime::Destroy();
     }
+    
+    void TestResetTime()
+    {
+        // create the simulation time object
+        // set the simulation length and number of time steps
+        SimulationTime *p_simulation_time = SimulationTime :: Instance();
+        p_simulation_time->SetStartTime(0.0);
+        unsigned num_steps = 4;
+        double first_end = 10.0;
+        double second_end = 20.0;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(first_end, num_steps);
+        
+        for (unsigned i=0 ; i<num_steps ; i++)
+        {
+        	double time_should_be = i*first_end/(double)num_steps;
+        	TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), time_should_be, 1e-9);	
+        	p_simulation_time->IncrementTimeOneStep();
+        }
+        //Reset the end time and number of steps
+        num_steps = 20;
+        p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(second_end , num_steps);
+        
+        for (unsigned i=0 ; i<num_steps ; i++)
+        {
+        	double time_should_be = first_end + i*(second_end-first_end)/(double)num_steps;
+        	TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), time_should_be, 1e-9);	
+        	p_simulation_time->IncrementTimeOneStep();
+        }
+
+        TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), second_end, 1e-9);	
+        
+        
+        SimulationTime::Destroy();
+    }
 
     void TestArchiveSimulationTime()
     {
@@ -88,11 +122,15 @@ public:
             std::ofstream ofs(archive_filename.c_str());       
             boost::archive::text_oarchive output_arch(ofs);
             
+            p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(2.0,6);
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 0.75, 1e-9);
+            
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
+            TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 0.75, 1e-9);
             
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 1.0);
+            TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 1.0, 1e-9);
             
             SimulationTime::Destroy();
         }
@@ -102,16 +140,19 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(-100.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(5.0, 5);
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), -100.0);
+            TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), -100.0, 1e-9);
             
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
             boost::archive::text_iarchive input_arch(ifs);
             input_arch >> *p_simulation_time;
             
-            TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
-            TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
-
-            SimulationTime::Destroy();
+            TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 0.75,1e-9);
+            TS_ASSERT_DELTA(p_simulation_time->GetTimeStep(), 0.25, 1e-9);
+            
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_DELTA(p_simulation_time->GetDimensionalisedTime(), 1.0, 1e-9);
+            
+			SimulationTime::Destroy();
         }
     }
 

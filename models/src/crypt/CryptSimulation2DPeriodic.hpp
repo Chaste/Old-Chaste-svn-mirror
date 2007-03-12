@@ -615,11 +615,11 @@ private:
             }
         }
         
-         if (mpCellKiller)
+        if (mpCellKiller)
         {
             mpCellKiller->TestAndLabelCellsForApoptosis();
             mpCellKiller->RemoveDeadCells();
-            CallReMesher();
+            ReMesh();
         }
         
         return num_deaths;
@@ -1349,9 +1349,20 @@ public:
         
         // Set up the simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        unsigned num_time_steps = (unsigned) (mEndTime/mDt+0.5);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
-            
+        double current_time = p_simulation_time->GetDimensionalisedTime();
+        std::cout << "Time at start of Solve Method = " << current_time << std::endl;
+        
+        unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
+        std::cout << "num timesteps = " << num_time_steps << std::endl;
+        if(current_time>0)//use the reset function if necessary
+        {
+        	p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
+        }
+        else
+        {
+       		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
+        }
+        
         
         // Check some parameters for a periodic simulation
         if(mPeriodicSides)
@@ -1428,8 +1439,8 @@ public:
 
 
     		ReMesh();
-            
-            // Increment simulation time here, so results files look sensible
+    		
+    		// Increment simulation time here, so results files look sensible
             p_simulation_time->IncrementTimeOneStep();            
             
             // Write results to file
@@ -1994,6 +2005,12 @@ public:
         
 	}
     
+    
+    /**
+     * This method should be called by all other methods that require a re-mesh
+     * it looks for changes in the periodic boundaries that could require
+     * more remeshes and carries out the correct number.     * 
+     */
     void ReMesh()
     {
     	if(mReMesh)
@@ -2030,25 +2047,41 @@ public:
     	}
 	}
 	
+	/**
+	 * This method actually calls the remesh command on the mesh.
+	 * It should only be called by the method above (ReMesh) which ensures
+	 * that periodic boundaries are handled properly.
+	 */
 	void CallReMesher()
 	{
-		std::cout << "Remeshing \n"<<std::endl;
+		std::cout << "Remeshing \n"<< std::flush;
 		NodeMap map(mrMesh.GetNumAllNodes());
     	mrMesh.ReMesh(map);
         
-        for (unsigned i=0; i<mCells.size(); i++)
-        {
-            
-            unsigned old_index = mCells[i].GetNodeIndex();
-            unsigned new_index = map.GetNewIndex(old_index);
-            mCells[i].SetNodeIndex(new_index);
-        }
+        // TODO: These commented out because they caused a segmentation 
+        // fault after the Load function has been called.
+        // Possibly necessary for cell death - but missing a method to actually
+        // make the cells vector smaller.
+//        for (unsigned i=0; i<mCells.size(); i++)
+//        {
+//            
+//            unsigned old_index = mCells[i].GetNodeIndex();
+//            unsigned new_index = map.GetNewIndex(old_index);
+//            mCells[i].SetNodeIndex(new_index);
+//        }
         
     	mNodesMoved=false;
     	mRemeshesThisTimeStep++;
     	assert(mRemeshesThisTimeStep < 1000); //to avoid an infinite loop. If this ever throws try increasing it a bit.
-	}
+    }
     
+    /**
+     * Saves the whole crypt simulation for restarting later.
+     * 
+     * Puts it in the folder mOutputDirectory/archive/
+     * 
+     * First archives simulation time then the simulation itself.
+     */
     void Save()
     {
         // todo: remesh, save mesh
@@ -2074,11 +2107,17 @@ public:
         output_arch << static_cast<const CryptSimulation2DPeriodic&>(*this);        
     }
     
+    /**
+     * Loads a saved crypt simulation
+     * 
+     * @param rArchiveDirectory the name of the simulation to load 
+     * (specified originally by simulator.SetOutputDirectory("wherever"); )
+     */
     void Load(const std::string& rArchiveDirectory)
     {
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
-        OutputFileHandler any_old_handler("");
+        OutputFileHandler any_old_handler("",false);
 		std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
         
         std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/crypt_sim_periodic_2d.arch";
@@ -2088,18 +2127,12 @@ public:
         boost::archive::text_iarchive input_arch(ifs);
 
         // read the archive
-        //assert(0);
         assert(p_simulation_time->IsStartTimeSetUp());
         input_arch >> *p_simulation_time;        
-        //assert(0);
         input_arch >> *this;
 		
-		//assert(0);
 		
-        std::cout << "crypt width = " << mpParams->GetCryptWidth() << "\n" << std::flush;
-        std::cout << "crypt length = " << mpParams->GetCryptLength() << "\n" << std::flush;
-        
-        mOutputDirectory = "load_temp";
+        mOutputDirectory = rArchiveDirectory+"/load_temp";
 
         if(mrMesh.GetNumNodes()!=mCells.size())
         {

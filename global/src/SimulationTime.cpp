@@ -2,6 +2,7 @@
 #include "SimulationTime.hpp"
 #include "Exception.hpp"
 #include <assert.h>
+//#include <iostream>
 
 /** Pointer to the single instance */
 SimulationTime* SimulationTime::mpInstance = NULL;
@@ -24,6 +25,7 @@ SimulationTime::SimulationTime()
     mEndTimeAndNumberOfTimeStepsSet = false;
     mTimeStepsElapsed = 0;
     mCurrentDimensionalisedTime = 0.0;
+    mTimeAtEndOfLastRun = 0.0;
     mStartTimeSet = false;
 }
 
@@ -73,7 +75,8 @@ void SimulationTime::IncrementTimeOneStep()
     assert(mStartTimeSet);
     assert(mEndTimeAndNumberOfTimeStepsSet);
     mTimeStepsElapsed++;
-    mCurrentDimensionalisedTime = ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
+    mCurrentDimensionalisedTime = mTimeAtEndOfLastRun 
+    	+ ((double)mTimeStepsElapsed / (double)mTotalTimeStepsInSimulation)
                                  * mDurationOfSimulation;
 }
 
@@ -100,6 +103,8 @@ double SimulationTime::GetDimensionalisedTime()
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
     assert(mStartTimeSet);
 
+	//std::cout << "Current Time = " << mCurrentDimensionalisedTime << "\n" << std::flush;
+
     return mCurrentDimensionalisedTime;
 }
 
@@ -122,6 +127,34 @@ void SimulationTime::SetEndTimeAndNumberOfTimeSteps(double endTime, unsigned tot
     mEndTime = endTime;
     mDurationOfSimulation = mEndTime - mCurrentDimensionalisedTime;
     mTotalTimeStepsInSimulation = totalTimeStepsInSimulation;
+    mEndTimeAndNumberOfTimeStepsSet = true;
+}
+
+/**
+ * Reset method for the end time and the number of time steps.
+ * 
+ * @param rEndTime The new end time for this simulation (probably now extended)
+ * note that the simulation will run from the current time to this new end time
+ * NOT from 0 to this end time.
+ * @param rNumberOfTimeStepsInThisRun the number of time steps to 
+ * split the next run into.
+ */
+void SimulationTime::ResetEndTimeAndNumberOfTimeSteps(const double& rEndTime, const unsigned& rNumberOfTimeStepsInThisRun)
+{    
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    // IMPORTANT NOTE: if this assertion fails, it may be because Destroy   //
+    // wasn't called in the previous test                                   //
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+    assert(mStartTimeSet);
+    assert(rEndTime>mCurrentDimensionalisedTime);
+    assert(mTimeStepsElapsed>0); // if this throws you should be using set rather than reset.
+    //reset the machinery that works out the time
+    mTimeAtEndOfLastRun = mCurrentDimensionalisedTime;
+    mTimeStepsElapsed = 0;
+    // set up the new end time and stuff
+    mEndTime = rEndTime;
+    mDurationOfSimulation = mEndTime - mCurrentDimensionalisedTime;
+    mTotalTimeStepsInSimulation = rNumberOfTimeStepsInThisRun;
     mEndTimeAndNumberOfTimeStepsSet = true;
 }
 

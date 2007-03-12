@@ -568,10 +568,6 @@ public:
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
         
-        std::cout << "crypt width = " << p_params->GetCryptWidth() << "\n" << std::flush;
-        std::cout << "crypt length = " << p_params->GetCryptLength() << "\n" << std::flush;
-        
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -593,10 +589,10 @@ public:
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
 
 		simulator.Load("Crypt2DPeriodicWntSaveAndLoad");
+        
         simulator.SetEndTime(0.2);
 
-// fails here because mEndTimeAndNumTimeSteps==true from restored sim time
-//        simulator.Solve();
+        simulator.Solve();
 
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt", 500u, 1000u);
         SimulationTime::Destroy();
