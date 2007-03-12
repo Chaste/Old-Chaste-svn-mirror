@@ -2074,27 +2074,31 @@ public:
         output_arch << static_cast<const CryptSimulation2DPeriodic&>(*this);        
     }
     
-    void Load()
+    void Load(const std::string& rArchiveDirectory)
     {
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
-        std::string archive_directory = "/tmp/chaste/testoutput/Crypt2DPeriodicWntSaveAndLoad/archive/";
-        std::string archive_filename = archive_directory + "crypt_sim_periodic_2d.arch";
+        OutputFileHandler any_old_handler("");
+		std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
+        
+        std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/crypt_sim_periodic_2d.arch";
         
         // Create an input archive
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
         boost::archive::text_iarchive input_arch(ifs);
 
         // read the archive
-        input_arch >> *p_simulation_time;
+        //assert(0);
         assert(p_simulation_time->IsStartTimeSetUp());
+        input_arch >> *p_simulation_time;        
+        //assert(0);
         input_arch >> *this;
-
-
+		
+		//assert(0);
+		
         std::cout << "crypt width = " << mpParams->GetCryptWidth() << "\n" << std::flush;
         std::cout << "crypt length = " << mpParams->GetCryptLength() << "\n" << std::flush;
         
-
         mOutputDirectory = "load_temp";
 
         if(mrMesh.GetNumNodes()!=mCells.size())

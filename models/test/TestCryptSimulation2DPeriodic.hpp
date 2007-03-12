@@ -538,7 +538,7 @@ public:
         simulator.SetGhostNodes(ghost_node_indices);
         
 
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Solve();
 
         // save the results..        
         simulator.Save();
@@ -581,54 +581,18 @@ public:
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            CryptCellType cell_type;
-            unsigned generation;
-            double birth_time;
-            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            double typical_wnt_cycle = 16.0;
-            if (y <= 0.3)
-            {
-                cell_type = STEM;
-                generation = 0;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
-            }
-            else if (y < 2)
-            {
-                cell_type = TRANSIT;
-                generation = 1;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
-            }
-            else if (y < 3)
-            {
-                cell_type = TRANSIT;
-                generation = 2;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
-            }
-            else if (y < 4)
-            {
-                cell_type = TRANSIT;
-                generation = 3;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
-            }
-            else
-            {   
-                // There are no fully differentiated cells in a Wnt simulation!
-                cell_type = TRANSIT;
-                generation = 4;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
-            }
-            WntGradient wnt_gradient(LINEAR);
-            double wnt = wnt_gradient.GetWntLevel(y);
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(wnt,0));
+            unsigned generation = 0;
+            double wnt_level = 0;
+            unsigned mutation_state = 0;
+            MeinekeCryptCell cell(STEM, HEALTHY, generation, new WntCellCycleModel(wnt_level,mutation_state));
             cell.SetNodeIndex(i);
-            cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
-        std::cout << "Cells Ready." << std::endl;
+        std::cout << "Empty cells prepared for Load to fill with information" << std::endl;
 
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
 
-        simulator.Load();
+		simulator.Load("Crypt2DPeriodicWntSaveAndLoad");
         simulator.SetEndTime(0.2);
 
 // fails here because mEndTimeAndNumTimeSteps==true from restored sim time
