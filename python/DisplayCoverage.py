@@ -82,6 +82,28 @@ for src_dir in src_dirs:
            if filename[-4:] in ['.cpp', '.hpp']:
                src_files.append({'dir': dirpath, 'file': filename})
 
+def coverage_ignore(src_file):
+    """Whether to ignore the fact that a source file is not used.
+    
+    If a file contains only typedefs, for example, this is not an error. 
+    For .hpp files we check this by looking for the presence of either
+    'template' or 'class' at the start of a line.  If neither are found,
+    we assume the file contains no real code.
+    
+    This will only work if header files don't contain non-template function
+    definitions, which should be the case if we're being good programmers.
+    """
+    ignore = False
+    if src_file['file'][-4:] == '.hpp':
+        ignore = True
+        fp = open(os.path.join(src_file['dir'], src_file['file']))
+        for line in fp:
+            if line.startswith('template') or line.startswith('class '):
+                ignore = False
+                break
+        fp.close()
+    return ignore
+
 for src_file in src_files:
     # Mangle the name like gcov does
     mangled_dir = src_file['dir'].replace(os.path.sep, '#')
@@ -129,8 +151,8 @@ for src_file in src_files:
         if src_file['file'][-4:] == '.hpp' and \
             os.path.exists(os.path.join(src_file['dir'], src_file['file'][:-3]+'cpp')):
             status = '' # So output file will be deleted
-        elif src_file['file'] == 'MeinekeCryptCellTypes.hpp':
-            # Special case - this file contains a single typedef
+        elif coverage_ignore(src_file):
+            # Other special case ignorable files
             status = ''
         else:
             out_file.write("This source file wasn't used at all!\n\nFailed 1 of 1 test\n")

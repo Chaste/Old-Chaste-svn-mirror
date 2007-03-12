@@ -630,7 +630,21 @@ class IntelP4(Intel):
     self._link_flags = self._link_flags + ' -ipo -lsvml -L/opt/intel_cc_80/lib -static'
     self.build_dir = 'intel_p4'
 
+class StyleCheck(GccDebug):
+    """Check the code against Effective C++ style guidelines."""
+    def __init__(self):
+        GccDebug.__init__(self)
+        self._cc_flags = '-Weffc++'
+        self.build_dir = 'style_check'
+        self._test_packs.extend(['Failing', 'Profile', 'Nightly'])
+    
+    def ComponentSpecificCcFlags(self, component):
+        """No component-specific flags for this build type."""
+        return ""
 
+    def GetTestRunnerCommand(self, exefile, exeflags=''):
+        """This build shouldn't be used to run tests."""
+        return ""
 
 
 
