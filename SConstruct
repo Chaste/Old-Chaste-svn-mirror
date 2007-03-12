@@ -210,8 +210,9 @@ elif system_name == 'Nottingham':
   boost_path = '/opt/boost/include/boost-1_33_1'
   other_includepaths = [petsc_inc, petsc_bmake,  boost_path]
 #  other_includepaths = [petsc_inc, petsc_bmake]
-  other_libs = ['lapack', 'blas']
-  other_libpaths = [petsc_base+'lib/libO_c++/linux-gnu/']
+  other_libs = ['lapack', 'blas', 'boost_serialization-gcc']
+  other_libpaths = [petsc_base+'lib/libO_c++/linux-gnu/',
+                    '/opt/boost/lib/']
 else:
   # Default for cancer course in the DTC
   petsc_base = '/usr/local/petsc-2.3.1-p15/'
