@@ -1061,7 +1061,14 @@ public:
     }   
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
-  {      
+  {       
+ /*
+  ************************************************************************
+  ************************************************************************ 
+  *     Set up a simulation class to run the individual tests on.
+  ************************************************************************
+  ************************************************************************ 
+  */
         unsigned cells_across2 = 6;
         unsigned cells_up2 = 5;
         double crypt_width2 = 6.0;
@@ -1117,9 +1124,10 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
                 birth_time = -2.0;  //hours
             }
             
+            WntGradient wnt_gradient(LINEAR);
+            double wnt = wnt_gradient.GetWntLevel(y);
             
-            
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(0.0));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells2.push_back(cell);
@@ -1136,7 +1144,13 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
         ColumnDataWriter tabulated_node_writer(output_directory+"Results", "tabulated_node_results");
         ColumnDataWriter tabulated_element_writer(output_directory+"Results", "tabulated_element_results");
         
-        
+ /*
+  ************************************************************************
+  ************************************************************************ 
+  *  Test results file writers
+  ************************************************************************
+  ************************************************************************ 
+  */
         node_writer_ids_t node_writer_ids;
         TS_ASSERT_THROWS_NOTHING(simulator3.SetupNodeWriter(tabulated_node_writer, node_writer_ids));
         
@@ -1153,7 +1167,13 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
                                 *p_node_file, *p_element_file,
                                 tabulated_output_counter==0,
                                 true);
-                                
+ /*
+  ************************************************************************
+  ************************************************************************ 
+  *  Test Calculate forces on each node
+  ************************************************************************
+  ************************************************************************ 
+  */                       
         
         
         std::vector<std::vector<double> > forces_on_each_node(p_mesh2->GetNumAllNodes());
@@ -1193,6 +1213,14 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
         TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
         TS_ASSERT_DELTA(forces_on_each_node[60][1], 0.0, 1e-4);
   
+   /*
+  ************************************************************************
+  ************************************************************************ 
+  *  Test Calculate force on a spring
+  ************************************************************************
+  ************************************************************************ 
+  */  
+  
         c_vector<double,2> force_on_spring ; // between nodes 59 and 60
         
         // Find one of the elements that nodes 59 and 60 live on
@@ -1208,6 +1236,14 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);   
         
+ /*
+  ************************************************************************
+  ************************************************************************ 
+  *  Test UpdateNodePositions
+  ************************************************************************
+  ************************************************************************ 
+  */ 
+        
         Point<2> point_of_node60 = p_mesh2->GetNode(60)->rGetLocation();
         
         simulator3.SetDt(0.01);
@@ -1216,35 +1252,52 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
         TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]*0.01, 1e-4);
         TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
         
-        
+ /*
+  ************************************************************************
+  ************************************************************************ 
+  * Test UpdateCellTypes 
+  ************************************************************************
+  ************************************************************************ 
+  */
         
         std::vector<MeinekeCryptCell> cells3;
+        simulator3.SetWntGradient(LINEAR);
         simulator3.UpdateCellTypes();
         cells3 = simulator3.GetCells();
         
-        for (unsigned i=0; i<num_cells2; i++)
+        std::vector<bool> is_node_a_ghost = simulator3.GetGhostNodes();
+        
+		for (unsigned i=0; i<num_cells2; i++)
         {
-            CryptCellType cell_type;
-            cell_type = cells3[i].GetCellType();
-            TS_ASSERT_EQUALS(cell_type,TRANSIT);
-            
+            if(!is_node_a_ghost[i])
+            {
+	            CryptCellType cell_type;
+	            cell_type = cells3[i].GetCellType();
+	            if(!cell_type==STEM)
+	            {
+		            //std::cout << "Cell type = " << cell_type << std::endl;
+		            WntCellCycleModel *p_this_model = static_cast<WntCellCycleModel*>(cells3[i].GetCellCycleModel());
+		            double beta_cat_level = p_this_model->GetProteinConcentrations()[6]+ p_this_model->GetProteinConcentrations()[7];
+		            //std::cout << "Cell " << i << ", beta-cat = " << beta_cat_level << std::endl;
+		            if (beta_cat_level > 0.4127)
+		            {
+		            	TS_ASSERT_EQUALS(cell_type,TRANSIT);
+		            }
+		            else
+		            {
+		            	TS_ASSERT_EQUALS(cell_type,DIFFERENTIATED);
+		            }
+	            }
+            }
         }
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      THESE SHOULD BE DIFFERENTIATED NOT TRANSIT
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-//        CalculateForceInThisBoundarySpring
-
-
+        
+ /*
+  ************************************************************************
+  ************************************************************************ 
+  * Test CalculateForceInThisBoundarySpring
+  ************************************************************************
+  ************************************************************************ 
+  */
 
         SimulationTime::Destroy();
     }
