@@ -95,7 +95,7 @@ public:
     virtual ~AbstractElement()
     {}
     
-    void RefreshJacobianDeterminant(void);
+    void RefreshJacobianDeterminant(bool concreteMove=true);
     void ZeroJacobianDeterminant(void);
     void ZeroWeightedDirection(void);
     

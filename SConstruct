@@ -123,7 +123,7 @@ elif system_name == 'joe':
   other_includepaths = [petsc_inc, petsc_bmake, boost]
   petsc_libpath = petsc_base+'lib/linux-gnu/'
   blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
-  other_libs = ['f2clapack', 'f2cblas']
+  other_libs = ['f2clapack', 'f2cblas','boost_serialization']
   other_libpaths = [petsc_libpath, blas_libpath]
 elif system_name == 'zuse':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'

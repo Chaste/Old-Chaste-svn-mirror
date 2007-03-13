@@ -100,18 +100,20 @@ protected:
         //pNodeInfo->mPossibleTargetIndex=pNodeInfo->GetIndex();
         CalculateLocalMeasure(pNodeInfo, true);
         Point<SPACE_DIM> point=pNodeInfo->mpNode->GetPoint();
-        
+
+
         mNeighbourhoodVolume=CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
         
+
         for (unsigned i=0; i<pNodeInfo->GetNumNeighbourNodes();i++)
         {
             NodeInfo<SPACE_DIM> *p_neighbour=pNodeInfo->GetNextNeighbourNode();
             pNodeInfo->mPossibleTargetIndex=p_neighbour->GetIndex();
             try
             {
-                mpMesh->SetNode(pNodeInfo->GetIndex(),
+                mpMesh->MoveMergeNode(pNodeInfo->GetIndex(),
                                 pNodeInfo->mPossibleTargetIndex, false);
-                double score=0.0;
+        		double score=0.0;
                 if (pNodeInfo->mpNode->IsBoundaryNode())
                 {
                     double neighbourhood_volume
@@ -142,6 +144,7 @@ protected:
             catch (Exception e)
             {
                 //If the move is not feasible then we ignore it
+  
             }
         }
         mpMesh->SetNode(pNodeInfo->GetIndex(), point);
@@ -161,7 +164,7 @@ protected:
         
         
         //std::cout<<"Moving "<<moving_node_index<<" to "<<target_node_index<<"\n";
-        mpMesh->SetNode(moving_node_index, target_node_index);
+        mpMesh->MoveMergeNode(moving_node_index, target_node_index);
         
         //Update the neighbour information
         //The target node will have all the moving nodes neighbours added to its set

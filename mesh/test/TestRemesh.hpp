@@ -192,7 +192,7 @@ public:
         const int target_index=206;
         
         
-        mesh.SetNode(node_index, target_index);
+        mesh.MoveMergeNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
@@ -279,7 +279,7 @@ public:
         unsigned num_elements_before=mesh.GetNumElements();
         unsigned num_boundary_elements_before=mesh.GetNumBoundaryElements();
         
-        mesh.SetNode(node_index, target_index);
+        mesh.MoveMergeNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);

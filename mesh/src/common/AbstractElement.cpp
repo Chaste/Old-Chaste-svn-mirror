@@ -60,7 +60,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ZeroWeightedDirection(void)
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
+void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool concreteMove)
 {
     if (mIsDeleted)
     {
@@ -84,8 +84,9 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
         return;
     }
     
+ 
     bool refresh=false;
-    c_vector<double, SPACE_DIM> direction=mWeightedDirection;
+    c_vector<double, SPACE_DIM> weighted_direction;
     
     if (mJacobianDeterminant > 0)
     {
@@ -96,38 +97,42 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(void)
     {
         case 0:
             // End point of a line
-            mWeightedDirection(0)=1.0;
+            weighted_direction(0)=1.0;
             if (SPACE_DIM == 2)
             {
-                mWeightedDirection(1)=0.0;
+                weighted_direction(1)=0.0;
             }
             break;
         case 1:
             // Linear edge in a 2D plane or in 3D
             
-            mWeightedDirection=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(mJacobian,0);
+            weighted_direction=matrix_column<c_matrix<double,SPACE_DIM,SPACE_DIM> >(mJacobian,0);
             break;
         case 2:
             // Surface triangle in a 3d mesh
             assert(SPACE_DIM == 3);
-            mWeightedDirection(0)=-SubDeterminant(mJacobian,0,2);
-            mWeightedDirection(1)= SubDeterminant(mJacobian,1,2);
-            mWeightedDirection(2)=-SubDeterminant(mJacobian,2,2);
+            weighted_direction(0)=-SubDeterminant(mJacobian,0,2);
+            weighted_direction(1)= SubDeterminant(mJacobian,1,2);
+            weighted_direction(2)=-SubDeterminant(mJacobian,2,2);
             break;
         default:
             ; // Not going to happen
     }
-    mJacobianDeterminant = norm_2(mWeightedDirection);
+    mJacobianDeterminant = norm_2(weighted_direction);
     if (mJacobianDeterminant < DBL_EPSILON)
     {
         EXCEPTION("Jacobian determinant is zero");
     }
     if (refresh == true)
     {
-        if ( inner_prod(mWeightedDirection,direction)/inner_prod(direction,direction) < 0)
+        if ( inner_prod(mWeightedDirection,weighted_direction) < 0)
         {
             EXCEPTION("Subspace element has changed direction");
         }
+    }
+    if (concreteMove)
+    {
+    	mWeightedDirection = weighted_direction;
     }
     
 }

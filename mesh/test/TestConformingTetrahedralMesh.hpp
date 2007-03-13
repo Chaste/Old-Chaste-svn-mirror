@@ -873,10 +873,10 @@ public:
         const int not_neighbour_index=5;
         
         //Cannot merge node 3 with node 5 since they are not neighbours
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
         
         //Merge node 3 with node 4
-        mesh.SetNode(node_index, target_index);
+        mesh.MoveMergeNode(node_index, target_index);
         
         Element<1,1> *p_element;
         p_element = mesh.GetElement(2);
@@ -915,15 +915,15 @@ public:
         TS_ASSERT_DELTA(mesh.GetElement(762)->GetJacobianDeterminant(),
                         0.00825652, 1e-6);
         //Cannot merge since they are not neighbours
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
         
         //Cannot merge since an element goes negative
         //The element 763 shared by moving node (432), reflex node (206) and the
         //other neighbour to the reflex node goes negative
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index, false));
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_feasible_index, false));
         //Added "crossReference=false" to stop elements deregistering
         
-        mesh.SetNode(node_index, target_index);
+        mesh.MoveMergeNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area, mesh.CalculateMeshVolume(), 1e-6);
@@ -949,11 +949,11 @@ public:
         const int not_neighbour_index=204;
         const int not_feasible_index=103;
         
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_neighbour_index));
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_feasible_index, false));
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_neighbour_index));
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_feasible_index, false));
         //Added "crossReference=false" to stop elements deregistering
         
-        TS_ASSERT_THROWS_NOTHING( mesh.SetNode(node_index, target_index));
+        TS_ASSERT_THROWS_NOTHING( mesh.MoveMergeNode(node_index, target_index));
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-6);
         
         //Ten elements share 22 and 310.  See:
@@ -987,8 +987,8 @@ public:
         const int node_index=19;
         const int target_index=20;
         const int not_boundary_index=400;
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_boundary_index));
-        mesh.SetNode(node_index, target_index);
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
+        mesh.MoveMergeNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.24e-4, 1e-6);
@@ -1011,8 +1011,8 @@ public:
         const int node_index=9;
         const int target_index=10;
         const int not_boundary_index=31;
-        TS_ASSERT_THROWS_ANYTHING(mesh.SetNode(node_index, not_boundary_index));
-        mesh.SetNode(node_index, target_index);
+        TS_ASSERT_THROWS_ANYTHING(mesh.MoveMergeNode(node_index, not_boundary_index));
+        mesh.MoveMergeNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 0.00, 1e-6);
@@ -1023,7 +1023,7 @@ public:
         
         const int corner_index=20;
         const int corner_target_index=19;
-        mesh.SetNode(corner_index, corner_target_index);
+        mesh.MoveMergeNode(corner_index, corner_target_index);
         
         TS_ASSERT_DELTA(area - mesh.CalculateMeshVolume(), 1.25e-5, 1e-7);
         TS_ASSERT_DELTA(perim - mesh.CalculateMeshSurface(), 2.92893e-3, 1e-7);
@@ -1048,7 +1048,7 @@ public:
         const int target_index=9;
         //const int not_boundary_index=400;
         
-        mesh.SetNode(node_index, target_index);
+        mesh.MoveMergeNode(node_index, target_index);
         
         
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);

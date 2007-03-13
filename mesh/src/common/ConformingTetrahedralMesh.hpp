@@ -139,8 +139,8 @@ public:
         return (mBoundaryElements[index]);
     }
     
-    void SetNode(unsigned index, Point<SPACE_DIM> point, bool verify=true);
-    void SetNode(unsigned index, unsigned targetIndex, bool crossReference=true);
+    void SetNode(unsigned index, Point<SPACE_DIM> point, bool concreteMove=true);
+    void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
     void DeleteNode(unsigned index);
     
     unsigned RefineElement(Element<ELEMENT_DIM,SPACE_DIM>* pElement, Point<SPACE_DIM> Point);

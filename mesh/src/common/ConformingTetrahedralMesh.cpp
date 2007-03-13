@@ -417,16 +417,16 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RescaleMeshFromBoundaryN
   * verifies that the signed areas of the supporting Elements are positive
   * @param index is the index of the node to be moved
   * @param point is the new target location of the node
-  * @param verify is set to false if we want to skip the signed area tests
+  * @param concreteMove is set to false if we want to skip the signed area tests
   *
   */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
         Point<SPACE_DIM> point,
-        bool verify)
+        bool concreteMove)
 {
     mNodes[index]->SetPoint(point);
-    if (verify)
+    if (concreteMove)
     {
         for (unsigned i=0; i<mNodes[index]->GetNumContainingElements(); i++)
         {
@@ -485,7 +485,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
                 target_index=p_element->GetNodeGlobalIndex(i);
                 try 
                 {
-                    SetNode(index, target_index, false);
+                    MoveMergeNode(index, target_index, false);
                     found_target=true;
                 }
                 catch (Exception e)
@@ -496,22 +496,22 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
         }
         
          
-        SetNode(index, target_index);
+        MoveMergeNode(index, target_index);
           
 }
 /**
- * SetNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
+ * MoveMergeNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
  * appropriate. 
  * 
  * @param index is the index of the node to be moved
  * @param targetIndex is the index of the node to move to
- * @param crossReference can be set to false if you just want to check whether this will work.
+ * @param concreteMove can be set to false if you just want to check whether this will work.
  *     Set it to true if you're doing the merger for real, in order to do all the bookkeeping.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned index,
         unsigned targetIndex,
-        bool crossReference)
+        bool concreteMove)
 {
     
     if (mNodes[index]->IsDeleted())
@@ -569,8 +569,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
             try
             {
             
-                GetElement(*element_iter)->RefreshJacobianDeterminant();
-                if (crossReference)
+                GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove);
+                if (concreteMove)
                 {
                     GetElement(*element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
                 }
@@ -587,8 +587,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
              boundary_element_iter++)
         {
         
-            GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant();
-            if (crossReference)
+            GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove);
+            if (concreteMove)
             {
                 GetBoundaryElement(*boundary_element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
             }
@@ -604,7 +604,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
              element_iter != shared_element_indices.end();
              element_iter++)
         {
-            if (crossReference)
+            if (concreteMove)
             {
                 GetElement(*element_iter)->MarkAsDeleted();
                 mDeletedElementIndices.push_back(*element_iter);
@@ -626,7 +626,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
              boundary_element_iter != shared_boundary_element_indices.end();
              boundary_element_iter++)
         {
-            if (crossReference)
+            if (concreteMove)
             {
                 GetBoundaryElement(*boundary_element_iter)->MarkAsDeleted();
                 mDeletedBoundaryElementIndices.push_back(*boundary_element_iter);
@@ -637,7 +637,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
                 GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
             }
         }
-    if (crossReference)
+    if (concreteMove)
     {
         mNodes[index]->MarkAsDeleted();
         mDeletedNodeIndices.push_back(index);
