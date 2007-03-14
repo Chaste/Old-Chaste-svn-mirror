@@ -422,8 +422,29 @@ def _getTestSummary(test_set_dir, build):
           parsed_ok = True
           break
       index_file.close()
+    if parsed_ok:
+      # Check for build failure
+      overall_status, colour = _checkBuildFailure(test_set_dir, overall_status, colour)
   if not parsed_ok:
     overall_status, colour = _getTestStatus(test_set_dir, build, True)
+  return overall_status, colour
+
+_buildFailedRegexp = re.compile('scons: building terminated because of errors.')
+def _checkBuildFailure(test_set_dir, overall_status, colour):
+  """Check whether the build failed, and return a new status if it did."""
+  import re
+  try:
+    log = file(os.path.join(test_set_dir, 'build.log'), 'r')
+    for line in log:
+      m = _buildFailedRegexp.match(line)
+      if m:
+        overall_status = 'Build failed.  ' + overall_status
+        colour = 'red'
+        break
+    log.close()
+  except:
+    # Build log may not exists for old builds
+    pass
   return overall_status, colour
 
 def _getTestStatus(test_set_dir, build, summary=False):
@@ -455,20 +476,7 @@ def _getTestStatus(test_set_dir, build, summary=False):
                                           build)
 
   # Check for build failure
-  import re
-  build_failed = re.compile('scons: building terminated because of errors.')
-  try:
-    log = file(os.path.join(test_set_dir, 'build.log'), 'r')
-    for line in log:
-      m = build_failed.match(line)
-      if m:
-        overall_status = 'Build failed.  ' + overall_status
-        colour = 'red'
-        break
-    log.close()
-  except:
-    # Build log may not exists for old builds
-    pass
+  overall_status, colour = _checkBuildFailure(test_set_dir, overall_status, colour)
   
   if summary:
     return overall_status, colour
