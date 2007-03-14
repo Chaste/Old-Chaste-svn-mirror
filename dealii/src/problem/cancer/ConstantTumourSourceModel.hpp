@@ -7,7 +7,7 @@
  * A simple tumour source model for which s = constant at every evaluation 
  * point, where the constant is taken in in the constructor
  */
-template<int DIM>
+template<unsigned DIM>
 class ConstantTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
 {
 private :

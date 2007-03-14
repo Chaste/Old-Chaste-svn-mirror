@@ -4,7 +4,7 @@
 #include "FiniteElasticityAssembler.cpp" // needed to include the macros FIXED_BOUNDARY and NEUMANN_BOUNDARY
 #include "FiniteElasticityAssemblerWithGrowth.cpp" // needed to include the macros GROWING_REGION and NON_GROWING_REGION
 
-template<int DIM>
+template<unsigned DIM>
 class FiniteElasticityTools
 {
 public:

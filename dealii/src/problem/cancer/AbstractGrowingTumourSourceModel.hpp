@@ -6,7 +6,7 @@
 // todo: lots of doxygen, refactor to take in mesh at the beginning?
 
 
-template<int DIM>
+template<unsigned DIM>
 struct EvaluationPointInfo
 {
     Point<DIM> OldPosition;
@@ -16,7 +16,7 @@ struct EvaluationPointInfo
 }; 
 
 
-template<int DIM>
+template<unsigned DIM>
 class AbstractGrowingTumourSourceModel
 {
 private:

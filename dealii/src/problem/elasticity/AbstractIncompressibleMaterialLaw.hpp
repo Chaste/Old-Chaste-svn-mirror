@@ -17,7 +17,7 @@
  *  The law is given by a strain energy function W(E), where E is the strain, such
  *  that the stress T = dW/dE
  */
-template<int DIM>
+template<unsigned DIM>
 class AbstractIncompressibleMaterialLaw
 {
 public :

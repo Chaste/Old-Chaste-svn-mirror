@@ -80,7 +80,7 @@
 #include "Exception.hpp"
 #include "DofVertexIterator.hpp"
 
-template<int DIM>
+template<unsigned DIM>
 class FiniteElasticityAssembler
 {
 protected:

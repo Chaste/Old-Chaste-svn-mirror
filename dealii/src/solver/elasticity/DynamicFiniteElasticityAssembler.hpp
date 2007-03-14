@@ -15,7 +15,7 @@
 
 #include "FiniteElasticityAssembler.cpp"   //cpp!
 
-template<int DIM>
+template<unsigned DIM>
 class DynamicFiniteElasticityAssembler : public FiniteElasticityAssembler<DIM>
 {
 private:

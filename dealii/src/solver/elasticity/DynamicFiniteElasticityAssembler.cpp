@@ -5,7 +5,7 @@
 
 #include <dofs/dof_tools.h>
 
-template<int DIM>
+template<unsigned DIM>
 DynamicFiniteElasticityAssembler<DIM>::DynamicFiniteElasticityAssembler(Triangulation<DIM>* pMesh,
                                                                         AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                                                         Vector<double> bodyForce,
@@ -28,7 +28,7 @@ DynamicFiniteElasticityAssembler<DIM>::DynamicFiniteElasticityAssembler(Triangul
     mSolutionAtLastTimestep = 0;
 }
 
-template<int DIM>
+template<unsigned DIM>
 DynamicFiniteElasticityAssembler<DIM>::~DynamicFiniteElasticityAssembler()
 {
 }
@@ -37,7 +37,7 @@ DynamicFiniteElasticityAssembler<DIM>::~DynamicFiniteElasticityAssembler()
 //////////////////////////////////////////////////////////////////////////////////////////
 // AssembleOnElement
 //////////////////////////////////////////////////////////////////////////////////////////
-template<int DIM>
+template<unsigned DIM>
 void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                                                               Vector<double>&       elementRhs,
                                                               FullMatrix<double>&   elementMatrix,
@@ -324,7 +324,7 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 void DynamicFiniteElasticityAssembler<DIM>::SetTimes(double Tstart, double Tend, double dt)
 {
     mTstart = Tstart;
@@ -347,7 +347,7 @@ void DynamicFiniteElasticityAssembler<DIM>::SetTimes(double Tstart, double Tend,
 }
     
     
-template<int DIM>
+template<unsigned DIM>
 void DynamicFiniteElasticityAssembler<DIM>::Solve()
 {
     if(!mTimesSet)

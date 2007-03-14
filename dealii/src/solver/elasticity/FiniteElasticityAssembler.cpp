@@ -5,7 +5,7 @@
 
 #include <dofs/dof_tools.h>
 
-template<int DIM>
+template<unsigned DIM>
 FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pMesh,
                                                           AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                                           Vector<double> bodyForce,
@@ -122,7 +122,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     
     std::vector<bool> component_mask(DIM+1);
 
-    for(int i=0; i<DIM; i++)
+    for(unsigned i=0; i<DIM; i++)
     {
         component_mask[i] = true;
     }
@@ -149,12 +149,12 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
 
 }
 
-template<int DIM>
+template<unsigned DIM>
 FiniteElasticityAssembler<DIM>::~FiniteElasticityAssembler()
 {
 }
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::SetMaterialLawsForHeterogeneousProblem(std::vector<AbstractIncompressibleMaterialLaw<DIM>*> materialLaws,
                                                                             std::vector<unsigned> materialIds)
 {
@@ -216,7 +216,7 @@ void FiniteElasticityAssembler<DIM>::SetMaterialLawsForHeterogeneousProblem(std:
 
 
 
-template<int DIM>
+template<unsigned DIM>
 unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsigned materialId)
 {
     // something gone wrong in setting up this map if the 
@@ -231,7 +231,7 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
     return index;
 }
 
-//template<int DIM>
+//template<unsigned DIM>
 //void FiniteElasticityAssembler<DIM>::SetDisplacementBoundaryConditions(std::vector<unsigned> node,
 //                                                                       std::vector<unsigned> coordinate,
 //                                                                       std::vector<double> value)
@@ -267,7 +267,7 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
 //    }
 //}    
 //
-//template<int DIM>
+//template<unsigned DIM>
 //void FiniteElasticityAssembler<DIM>::SetFixedNodes(std::vector<unsigned> nodes)                                        
 //{
 //    mBoundaryValues.clear();
@@ -313,7 +313,7 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
 //    }    
 //}    
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::SetBoundaryValues(std::map<unsigned,double> boundaryValues)
 {
     assert(!boundaryValues.empty());
@@ -334,7 +334,7 @@ void FiniteElasticityAssembler<DIM>::SetBoundaryValues(std::map<unsigned,double>
 //////////////////////////////////////////////////////////////////////////////////////////
 // AssembleOnElement
 //////////////////////////////////////////////////////////////////////////////////////////
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                                                        Vector<double>&       elementRhs,
                                                        FullMatrix<double>&   elementMatrix,
@@ -595,7 +595,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 //////////////////////////////////////////////////////////////////////////////////////////
 // AssembleSystem
 //////////////////////////////////////////////////////////////////////////////////////////
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual, 
                                                     bool assembleJacobian)
 {
@@ -676,7 +676,7 @@ void FiniteElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions(bool assembleResidual,
                                                                       bool assembleJacobian)
 {
@@ -708,7 +708,7 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions(bool assem
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
 {
     unsigned size = this->mCurrentSolution.size();
@@ -779,7 +779,7 @@ void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
     
 }
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::CompareJacobians()
 {
     ComputeNumericalJacobian();    
@@ -846,7 +846,7 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
 }    
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
 {
     // only write output if the flag mWriteOutput has been set
@@ -883,7 +883,7 @@ void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
 }
 
                   
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
 {
     // compute Jacobian
@@ -948,7 +948,7 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::Solve()
 {
     if(mMaterialLaws.size()==0)
@@ -1008,27 +1008,27 @@ void FiniteElasticityAssembler<DIM>::Solve()
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 double FiniteElasticityAssembler<DIM>::CalculateResidualNorm()
 {
     return mResidual.norm_sqr()/mDofHandler.n_dofs();
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 Vector<double>& FiniteElasticityAssembler<DIM>::GetSolutionVector()
 {
     return mCurrentSolution;
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 DoFHandler<DIM>& FiniteElasticityAssembler<DIM>::GetDofHandler()
 {
     return mDofHandler;
 }
 
-template<int DIM>
+template<unsigned DIM>
 Triangulation<DIM>* FiniteElasticityAssembler<DIM>::GetMesh()
 {
     return mpMesh;

@@ -22,7 +22,7 @@
 /**
  *  INSERT COMMENTS
  */
-template<int DIM>
+template<unsigned DIM>
 class FiniteElasticityAssemblerWithGrowth : public FiniteElasticityAssembler<DIM>
 {
 protected:

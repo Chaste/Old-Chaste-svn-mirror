@@ -9,7 +9,7 @@
 
 /**
  */
-template<int DIM>
+template<unsigned DIM>
 class GrowthByConstantMassOdeSystem : public AbstractOdeSystem
 {
 private:

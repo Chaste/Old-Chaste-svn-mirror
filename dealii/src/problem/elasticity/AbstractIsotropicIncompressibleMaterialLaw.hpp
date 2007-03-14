@@ -15,7 +15,7 @@
  * 
  *  Note: only dimension equals 2 or 3 should be permitted. 
  */
-template<int DIM>
+template<unsigned DIM>
 class AbstractIsotropicIncompressibleMaterialLaw : public AbstractIncompressibleMaterialLaw<DIM>
 {
 protected :

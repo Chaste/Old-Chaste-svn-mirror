@@ -22,7 +22,7 @@
  *  Note: only dimension equals 2 or 3 is permitted. 
  */
 
-template<int DIM>
+template<unsigned DIM>
 class ExponentialMaterialLaw : public AbstractIsotropicIncompressibleMaterialLaw<DIM>
 {
 private :

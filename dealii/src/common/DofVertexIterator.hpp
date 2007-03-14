@@ -44,7 +44,7 @@
  *  TODO: extract commonality between this and TriangulationVertexIterator. (although 
  *  the code  is almost identical mpCell are different types in the two classes)
  */
-template<int DIM>
+template<unsigned DIM>
 class DofVertexIterator
 {
 private :

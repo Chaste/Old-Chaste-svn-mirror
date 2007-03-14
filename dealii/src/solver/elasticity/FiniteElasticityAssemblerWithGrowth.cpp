@@ -13,7 +13,7 @@
 
 
 
-template<int DIM>
+template<unsigned DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
                                                                               AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                                                               Vector<double> bodyForce,
@@ -119,7 +119,7 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
     mUseRefinement = true;
 }
 
-template<int DIM>
+template<unsigned DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::~FiniteElasticityAssemblerWithGrowth()
 {       
     for(unsigned i=0; i<this->mpMesh->n_vertices(); i++)
@@ -128,20 +128,20 @@ FiniteElasticityAssemblerWithGrowth<DIM>::~FiniteElasticityAssemblerWithGrowth()
     }
 }
 
-template<int DIM>
+template<unsigned DIM>
 bool FiniteElasticityAssemblerWithGrowth<DIM>::IsGrowingNode(unsigned vertexIndex)
 {
     assert(vertexIndex < mGrowthOdeSystems.size());
     return (mGrowthOdeSystems[vertexIndex]!=NULL);
 }
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::DoNotUseRefinement()
 {
     mUseRefinement = false;
 }
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::UseRefinement()
 {
     mUseRefinement = true;
@@ -151,7 +151,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::UseRefinement()
 //////////////////////////////////////////////////////////////////////////////////////////
 // AssembleOnElement
 //////////////////////////////////////////////////////////////////////////////////////////
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                                                               Vector<double>&       elementRhs,
                                                               FullMatrix<double>&   elementMatrix,
@@ -449,7 +449,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
 
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter)
 {
     // only write output if the flag mWriteOutput has been set
@@ -527,7 +527,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter
 
 
 
-template<int DIM>
+template<unsigned DIM>
 bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned i)
 {
     typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
@@ -629,7 +629,7 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned 
         ///////////////////////////////////////////////////////////////
         this->mBoundaryValues.clear();
         std::vector<bool> component_mask(DIM+1);
-        for(int i=0; i<DIM; i++)
+        for(unsigned i=0; i<DIM; i++)
         {
             component_mask[i] = true;
         }
@@ -669,7 +669,7 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned 
     
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::SetTimes(double Tstart, double Tend, double odeDt)
 {
     mTstart = Tstart;
@@ -691,7 +691,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::SetTimes(double Tstart, double Te
 }
 
 
-template<int DIM>
+template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 {
     if(!mTimesSet)

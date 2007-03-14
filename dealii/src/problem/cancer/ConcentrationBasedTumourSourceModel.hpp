@@ -8,7 +8,7 @@
 // this, test update mesh, test copy mesh, test source terms.
 
 
-template<int DIM>
+template<unsigned DIM>
 class LaplacesEquation
 {
 protected:
@@ -248,7 +248,7 @@ public :
  * A simple tumour source model for which s = constant at every evaluation 
  * point, where the constant is taken in in the constructor
  */
-template<int DIM>
+template<unsigned DIM>
 class ConcentrationBasedTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
 {
 private :
