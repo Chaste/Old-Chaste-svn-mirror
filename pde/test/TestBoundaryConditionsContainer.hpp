@@ -21,7 +21,7 @@ public:
         //////////////////////////////////////////////////////////////
         
         int numNodes = 10;
-        BoundaryConditionsContainer<1,1,1> bcc1(numNodes);
+        BoundaryConditionsContainer<1,1,1> bcc1;
         
         Node<1>* nodes[numNodes];
         for (int i=0; i<numNodes; i++)
@@ -72,7 +72,7 @@ public:
         // test in 2d
         //////////////////////////////////////////////////////////////
         numNodes = 10;
-        BoundaryConditionsContainer<2,2,1> bcc2(numNodes);
+        BoundaryConditionsContainer<2,2,1> bcc2;
         
         Node<2>* nodes2[numNodes];
         for (int i=0; i<numNodes; i++)
@@ -127,7 +127,7 @@ public:
         // test in 3d
         //////////////////////////////////////////////////////////////
         numNodes = 10;
-        BoundaryConditionsContainer<3,3,1> bcc3(numNodes);
+        BoundaryConditionsContainer<3,3,1> bcc3;
         
         Node<3>* nodes3[numNodes];
         for (int i=0; i<numNodes; i++)
@@ -198,7 +198,7 @@ public:
         some_system.AssembleIntermediateLinearSystem();
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3,1> bcc3(SIZE);
+        BoundaryConditionsContainer<3,3,1> bcc3;
         
         // Apply dirichlet boundary conditions to all but last node
         for (int i = 0; i < SIZE-1; i++)
@@ -275,7 +275,7 @@ public:
         VecRestoreArray(residual, &p_residual);
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3,1> bcc3(SIZE);
+        BoundaryConditionsContainer<3,3,1> bcc3;
         
         for (int i = 0; i < SIZE-1; i++)
         {
@@ -324,7 +324,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
         
@@ -345,8 +345,8 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
-        BoundaryConditionsContainer<2,2,2> bcc_2unknowns(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
+        BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
         
         TS_ASSERT_EQUALS(bcc.AnyNonZeroNeumannConditions(), false);
         
@@ -382,7 +382,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         
         // No BCs yet, so shouldn't validate
         TS_ASSERT(!bcc.Validate(&mesh));
@@ -420,7 +420,7 @@ public:
         some_system.AssembleIntermediateLinearSystem();
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3,2> bcc32(SIZE);
+        BoundaryConditionsContainer<3,3,2> bcc32;
         
         // Apply dirichlet boundary conditions to all but last node
         for (int i = 0; i < SIZE-1; i++)
@@ -505,7 +505,7 @@ public:
         some_system.AssembleIntermediateLinearSystem();
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3,3> bcc33(SIZE);
+        BoundaryConditionsContainer<3,3,3> bcc33;
         
         // Apply dirichlet boundary conditions to all but last node
         for (int i = 0; i < SIZE-1; i++)
@@ -599,7 +599,7 @@ public:
         VecRestoreArray(residual, &p_residual);
         
         Node<3>* nodes_array[SIZE];
-        BoundaryConditionsContainer<3,3,3> bcc33(SIZE);
+        BoundaryConditionsContainer<3,3,3> bcc33;
         
         for (int i = 0; i < SIZE; i++)
         {

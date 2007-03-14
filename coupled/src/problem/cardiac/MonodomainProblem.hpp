@@ -2,8 +2,6 @@
 #define MONODOMAINPROBLEM_HPP_
 
 #include "ConformingTetrahedralMesh.cpp"
-#include "SimpleLinearSolver.hpp"
-#include "BoundaryConditionsContainer.hpp"
 #include "MonodomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "ParallelColumnDataWriter.hpp"

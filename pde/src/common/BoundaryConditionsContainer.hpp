@@ -33,10 +33,9 @@ public:
     /**
      * Constructor calls base constuctor and allocates memory for the neumann boundary 
      * conditions lists.
-     * @param numNodes is the number of nodes in the mesh
      */
-    BoundaryConditionsContainer(unsigned numNodes)
-      : AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>(numNodes)
+    BoundaryConditionsContainer()
+      : AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>()
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {

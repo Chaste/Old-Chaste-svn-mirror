@@ -92,7 +92,7 @@ public:
         this->mpMesh = pMesh;
         
         // set up boundary conditions
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>( this->mpMesh->GetNumNodes() );
+        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
         
         this->SetMatrixIsConstant();
@@ -113,7 +113,7 @@ public:
         mpMonodomainPde = pPde;
         
         // set up boundary conditions
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );
+        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>;
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh);
         
         this->SetMatrixIsConstant();

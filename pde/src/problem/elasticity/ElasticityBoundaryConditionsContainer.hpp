@@ -71,8 +71,8 @@ public :
     /**
      *  Constructor just calls base class constructor
      */
-    ElasticityBoundaryConditionsContainer(unsigned numNodes)
-            : BoundaryConditionsContainer<DIM,DIM,DIM>(numNodes)
+    ElasticityBoundaryConditionsContainer()
+            : BoundaryConditionsContainer<DIM,DIM,DIM>()
     {}
 };
 #endif /*ELASTICITYBOUNDARYCONDITIONSCONTAINER_HPP_*/

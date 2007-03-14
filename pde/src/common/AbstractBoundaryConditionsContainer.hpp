@@ -29,18 +29,12 @@ protected:
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
        mDirichIterator; /**< Internal iterator over dirichlet boundary conditions */
     
-    unsigned mNumNodes; /**< Number of nodes in the mesh */
-
-
 public:
     /**
      * Constructor allocates memory for the dirichlet boundary conditions lists.
-     * @param numNodes is the number of nodes in the mesh
      */
-    AbstractBoundaryConditionsContainer(unsigned numNodes)
+    AbstractBoundaryConditionsContainer()
     {
-        mNumNodes = numNodes;
-        
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             mpDirichletMap[index_of_unknown] =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;

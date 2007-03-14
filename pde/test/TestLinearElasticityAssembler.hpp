@@ -38,7 +38,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // fix the lhs node
-        ElasticityBoundaryConditionsContainer<1> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<1> bcc;
         bcc.FixNode(mesh.GetNode(0));
         
         double lambda = 2.0;
@@ -99,7 +99,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         
-        ElasticityBoundaryConditionsContainer<2> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<2> bcc;
         
         // must fix both coordinate of at least one node, else solution would only
         // be defined up to a y-translation
@@ -206,7 +206,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        ElasticityBoundaryConditionsContainer<3> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<3> bcc;
         
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter
         = mesh.GetBoundaryNodeIteratorBegin();
@@ -295,7 +295,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        ElasticityBoundaryConditionsContainer<3> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<3> bcc;
         
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator node_iter
         = mesh.GetBoundaryNodeIteratorBegin();
@@ -397,7 +397,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // fix the lhs node
-        ElasticityBoundaryConditionsContainer<1> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<1> bcc;
         bcc.FixNode(mesh.GetNode(0));
         
         LinearElasticityAssembler<1> assembler(&mesh,&bcc);

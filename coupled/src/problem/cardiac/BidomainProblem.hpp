@@ -3,8 +3,6 @@
 
 
 #include "ConformingTetrahedralMesh.cpp"
-#include "SimpleLinearSolver.hpp"
-#include "BoundaryConditionsContainer.hpp"
 #include "BidomainDg0Assembler.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "ParallelColumnDataWriter.hpp"

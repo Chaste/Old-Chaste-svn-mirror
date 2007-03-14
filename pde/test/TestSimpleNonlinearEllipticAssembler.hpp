@@ -97,7 +97,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         //Adding Dirichlet BC at node 0
         double DirichletBCValue = 5.0;
         ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
@@ -194,7 +194,7 @@ public:
 
 
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -275,7 +275,7 @@ public:
         NonlinearHeatEquationPde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -321,7 +321,7 @@ public:
         NonlinearHeatEquationPde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         // u(0) = 0
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
@@ -372,7 +372,7 @@ public:
         NonlinearHeatEquation2Pde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(exp(1.0));
@@ -420,7 +420,7 @@ public:
         NonlinearHeatEquation3Pde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(2.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
@@ -467,7 +467,7 @@ public:
         NonlinearHeatEquation4Pde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = exp(1.0)
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -519,7 +519,7 @@ public:
         NonlinearHeatEquation5Pde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = exp(-1.0)
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(exp(-1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -573,7 +573,7 @@ public:
         NonlinearHeatEquationPde<1> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         // u(1) = sqrt(3)
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(sqrt(3));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
@@ -633,7 +633,7 @@ public:
         NonlinearLinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition;
@@ -683,7 +683,7 @@ public:
         NonlinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         // u(y=0) = 0
         ConstBoundaryCondition<2>* zero_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
@@ -753,7 +753,7 @@ public:
         Example2DNonlinearEllipticPde pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
         while (node_iter != mesh.GetBoundaryNodeIteratorEnd())
@@ -857,7 +857,7 @@ public:
         ExampleNasty2dNonlinearEllipticPde pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition;
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator node_iter = mesh.GetBoundaryNodeIteratorBegin();
         while (node_iter != mesh.GetBoundaryNodeIteratorEnd())

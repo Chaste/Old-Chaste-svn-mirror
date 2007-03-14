@@ -432,7 +432,7 @@ public:
         this->mpMesh = pMesh;
         
         // set up boundary conditions
-        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>( this->mpMesh->GetNumNodes() );
+        this->mpBoundaryConditions = new BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>;
         
         // define zero neumann boundary conditions everywhere
         this->mpBoundaryConditions->DefineZeroNeumannOnMeshBoundary(this->mpMesh,0); // first unknown, ie voltage

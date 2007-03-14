@@ -19,7 +19,7 @@ public:
      * Constructor calls base constuctor
      */
     FlaggedMeshBoundaryConditionsContainer()
-      : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>(0)
+      : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
     {
     }
     

@@ -247,7 +247,7 @@ private :
         ////////////////////////////////////////////////////////////////
         
         // boundary conditions for 2-unknown problem
-        BoundaryConditionsContainer<DIM,DIM,2> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<DIM,DIM,2> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
         
@@ -372,7 +372,7 @@ public:
         ////////////////////////////////////////////////////////////////
         
         // boundary conditions for 2-unknown problem
-        BoundaryConditionsContainer<2,2,2> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,2> bcc;
         
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
@@ -460,7 +460,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);    
         
         // boundary conditions for 2-unknown problem
-        BoundaryConditionsContainer<2,2,2> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,2> bcc;
 
         ConformingTetrahedralMesh<2,2>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         while (iter != mesh.GetBoundaryNodeIteratorEnd())

@@ -201,7 +201,7 @@ public:
         ////////////////////////////////////////////////////////////////
         
         // boundary conditions for 2-unknown problem
-        BoundaryConditionsContainer<2,2,2> bcc_2unknowns(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
         
@@ -219,7 +219,7 @@ public:
         MySimplePde pde;  //defined above
         
         // boundary conditions for 1-unknown problem
-        BoundaryConditionsContainer<2,2,1> bcc_1unknown(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc_1unknown;
         bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
         
         // Assembler
@@ -260,7 +260,7 @@ public:
         ////////////////////////////////////////////////////////////////
         
         // boundary conditions for 2-unknown problem
-        BoundaryConditionsContainer<2,2,2> bcc_2unknowns(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,2> bcc_2unknowns;
         
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
@@ -294,7 +294,7 @@ public:
         MySimplePde pde;  //defined above
         
         // boundary conditions for 1-unknown problem
-        BoundaryConditionsContainer<2,2,1> bcc_1unknown(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc_1unknown;
         
         iter = mesh.GetBoundaryElementIteratorBegin();
         p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);
@@ -343,7 +343,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         // boundary conditions for 2-unknown problem
-        BoundaryConditionsContainer<2,2,2> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,2> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
         

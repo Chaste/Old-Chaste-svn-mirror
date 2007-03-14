@@ -145,7 +145,7 @@ public:
         TS_ASSERT_DELTA(value1, value2, 1e-10);
         
         // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         
@@ -182,7 +182,7 @@ public:
         LinearHeatEquationPde<1> pde;
         
         // Boundary conditions u(-1)=1, u'(-3)=0
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         
@@ -224,7 +224,7 @@ public:
         LinearHeatEquationPde<1> pde;
         
         // Boundary conditions u(-1)=1 u'(-3)=1
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(1.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         TS_ASSERT_DELTA(mesh.GetNode(0)->GetPoint()[0], -1, 1e-12);
@@ -268,7 +268,7 @@ public:
         LinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
@@ -305,7 +305,7 @@ public:
         LinearHeatEquationPde<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         // du/dn = -0.5 on r=1
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         ConstBoundaryCondition<2>* p_boundary_condition;
@@ -352,7 +352,7 @@ public:
         VaryingDiffusionAndSourceTermPde<1> pde;
         
         // Boundary conditions u(1)=4
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<1>(4.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_dirichlet_condition);
@@ -398,7 +398,7 @@ public:
         LinearPdeWithZeroSource<2> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         // u = 0 on r<=1, z=0
         ConstBoundaryCondition<2>* p_boundary_dirichlet_condition =
             new ConstBoundaryCondition<2>(0.0);
@@ -483,7 +483,7 @@ public:
         LinearHeatEquationPde<3> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc;
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
@@ -534,7 +534,7 @@ public:
         LinearHeatEquationPde<3> pde;
         
         // Boundary conditions
-        BoundaryConditionsContainer<3,3,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<3,3,1> bcc;
         ConformingTetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
         
         while (iter < mesh.GetBoundaryNodeIteratorEnd())

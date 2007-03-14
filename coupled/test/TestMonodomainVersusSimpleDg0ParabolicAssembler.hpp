@@ -117,7 +117,7 @@ public:
         FischerPde<1> pde(&cell_factory);
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_zero_condition = new ConstBoundaryCondition<1>(0.0);
         ConformingTetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())
@@ -203,7 +203,7 @@ public:
         FischerPde<2> pde(&cell_factory);
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
-        BoundaryConditionsContainer<2,2,1> bcc(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc;
         ConstBoundaryCondition<2>* p_neumann_boundary_condition = new ConstBoundaryCondition<2>(0.0);
         ConformingTetrahedralMesh<2,2>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         while (iter != mesh.GetBoundaryElementIteratorEnd())

@@ -18,7 +18,7 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        ElasticityBoundaryConditionsContainer<1> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<1> bcc;
         
         Node<1>* p_node_0 = mesh.GetNode(0);
         Node<1>* p_node_1 = mesh.GetNode(10);
@@ -42,7 +42,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        ElasticityBoundaryConditionsContainer<2> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<2> bcc;
         
         Node<2>* p_node_0 = mesh.GetNode(0);
         Node<2>* p_node_1 = mesh.GetNode(1);
@@ -69,7 +69,7 @@ public:
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        ElasticityBoundaryConditionsContainer<3> bcc(mesh.GetNumNodes());
+        ElasticityBoundaryConditionsContainer<3> bcc;
         
         Node<3>* p_node_0 = mesh.GetNode(0);
         Node<3>* p_node_1 = mesh.GetNode(1);
