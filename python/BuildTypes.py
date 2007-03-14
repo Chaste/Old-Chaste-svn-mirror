@@ -33,6 +33,13 @@ class BuildType(object):
     import socket
     machine_fqdn = socket.getfqdn()
     self.output_dir = os.path.join(self.GetTestReportDir(), machine_fqdn+'.'+buildType)
+    # Where tools such as mpirun can be found; by default assume they're on the PATH
+    # The SConstruct file can then override these as appropriate
+    self.tools = {'mpirun': 'mpirun', 'mpicxx': 'mpicxx',
+                  'ar': 'ar', 'cxx': 'cxx',
+                  'valgrind': 'valgrind',
+                  'gprof': 'gprof', 'pprof': 'pprof',
+                  'rm': 'rm', 'cat': 'cat'}
   
   def CompilerType(self):
     """
@@ -270,7 +277,8 @@ class Coverage(GccDebug):
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test on 1 processor then on 2 processors"
-    return exefile + ' ' + exeflags + '; mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
+    return exefile + ' ' + exeflags + '; ' + self.tools['mpirun'] + \
+        ' -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
 
   def DisplayStatus(self, status):
     """
@@ -318,7 +326,7 @@ class Profile(GccDebug):
   
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a profiler and rename gmon.out"
-    return exefile + ' ' + exeflags + ' ; gprof ' + exefile
+    return exefile + ' ' + exeflags + ' ; ' + self.tools['gprof'] + ' ' + exefile
 
 
 class GoogleProfile(GccDebug):
@@ -341,9 +349,9 @@ class GoogleProfile(GccDebug):
     base = os.path.basename(exefile)
     profileFile = '/tmp/'+base+'.prof'
     return "export HOME='.' ;export CPUPROFILE=" + profileFile + '; ' \
-      + exefile + ' ' + exeflags  + ' ; pprof -gif ' \
-      + exefile + ' ' + profileFile + ' > ' +self.output_dir+'/'+base+'.gif ; rm ' \
-      + profileFile
+      + exefile + ' ' + exeflags  + ' ; ' + self.tools['pprof'] + ' -gif ' \
+      + exefile + ' ' + profileFile + ' > ' +self.output_dir+'/'+base+'.gif ; ' \
+      + self.tools['rm'] + ' ' + profileFile
 
   def StatusColour(self, status):
     """
@@ -397,7 +405,8 @@ class Parallel(GccDebug):
   
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test with a two processor environment"
-    return 'mpirun -np ' + str(self._num_processes) + ' ' + exefile + ' ' + exeflags
+    return self.tools['mpirun'] + ' -np ' + str(self._num_processes) \
+      + ' ' + exefile + ' ' + exeflags
 
 
 class Parallel10(Parallel):
@@ -415,7 +424,6 @@ class MemoryTesting(GccDebug):
   """
   _petsc_flags = "-trmalloc -trdebug -trdump"
   _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes"
-  _valgrind_exe = "/usr/bin/valgrind"
 
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
@@ -425,10 +433,10 @@ class MemoryTesting(GccDebug):
     "Run all tests using valgrind to check for memory leaks."
     test_suite = os.path.basename(exefile)
     log_prefix = self.GetTestReportDir() + test_suite
-    cmd = ' '.join([self._valgrind_exe, self._valgrind_flags % log_prefix,
+    cmd = ' '.join([self.tools['valgrind'], self._valgrind_flags % log_prefix,
                     exefile, exeflags, self._petsc_flags,
-                    '; cat', log_prefix + '.*',
-                    '; rm', log_prefix + '.*'])
+                    ';', self.tools['cat'], log_prefix + '.*',
+                    ';', self.tools['rm'], log_prefix + '.*'])
     return cmd
 
   def DisplayStatus(self, status):
@@ -520,7 +528,7 @@ class ParallelMemoryTesting(MemoryTesting, Parallel):
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test within a two processor environment"
-    cmd = 'mpirun -np ' + str(self._num_processes) + ' ' + \
+    cmd = self.tools['mpirun'] + ' -np ' + str(self._num_processes) + ' ' + \
         MemoryTesting.GetTestRunnerCommand(self, exefile, exeflags)
     return cmd
 

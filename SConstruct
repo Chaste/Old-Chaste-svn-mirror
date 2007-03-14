@@ -280,8 +280,10 @@ else:
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
 
-
-Export("mpicxx", "mpirun", "cxx", "ar")
+build.tools['mpicxx'] = mpicxx
+build.tools['mpirun'] = mpirun
+build.tools['cxx'] = cxx
+build.tools['ar'] = ar
 
 
 ## Any extra CCFLAGS and LINKFLAGS

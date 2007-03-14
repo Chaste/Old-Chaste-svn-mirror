@@ -106,8 +106,8 @@ opt.Append(CCFLAGS = '-I' + ' -I'.join(other_includepaths)
            + ' ' + extra_flags + build.ComponentSpecificCcFlags(toplevel_dir))
 opt.Append(LINKFLAGS = link_flags)
 opt.Append(BOPT = 'g_c++')
-opt.Replace(CXX = mpicxx)
-opt.Replace(AR = ar)
+opt.Replace(CXX = build.tools['mpicxx'])
+opt.Replace(AR = build.tools['ar'])
 opt.Replace(CPPPATH = cpppath)
 
 # Create Builders for generating test .cpp files, and running test executables
