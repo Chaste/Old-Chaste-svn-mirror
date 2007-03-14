@@ -113,8 +113,7 @@ opt.Replace(CPPPATH = cpppath)
 # Create Builders for generating test .cpp files, and running test executables
 test = Builder(action = 'cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 runtests = Builder(action = 'python/TestRunner.py $SOURCE $TARGET ' +
-                   build_type + ' ' + build.GetTestReportDir() + 
-                   ' ' + run_time_flags)
+                   build_type + ' ' + run_time_flags)
 
 opt['BUILDERS']['Test'] = test
 opt['BUILDERS']['RunTests'] = runtests

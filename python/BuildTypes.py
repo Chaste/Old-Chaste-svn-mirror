@@ -14,7 +14,7 @@ class BuildType(object):
   Also gives the default build options.
   """
   
-  def __init__(self):
+  def __init__(self, buildType):
     """
     Do any setup.
     Here we set member variables for each method to use.
@@ -29,6 +29,10 @@ class BuildType(object):
     self.using_dealii = False
     self._dealii_debugging = False
     self.is_optimised = False
+    # Where test output will go
+    import socket
+    machine_fqdn = socket.getfqdn()
+    self.output_dir = os.path.join(self.GetTestReportDir(), machine_fqdn+'.'+buildType)
   
   def CompilerType(self):
     """
@@ -238,8 +242,8 @@ class GccDebug(Gcc):
   """
   gcc compiler with debug enabled.
   """
-  def __init__(self):
-    Gcc.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Gcc.__init__(self, *args, **kwargs)
     self._cc_flags += ' -g'
     self.build_dir = 'debug'
     
@@ -247,8 +251,8 @@ class Coverage(GccDebug):
   """
   gcc compiler with options to allow for coverage testing.
   """
-  def __init__(self):
-    GccDebug.__init__(self)
+  def __init__(self, *args, **kwargs):
+    GccDebug.__init__(self, *args, **kwargs)
     self._cc_flags += ' -fprofile-arcs -ftest-coverage'
     self._link_flags += ' -fprofile-arcs -ftest-coverage'
     self.build_dir = 'coverage'
@@ -305,8 +309,8 @@ class Profile(GccDebug):
   """
   gcc compiler with profiling enabled (and optimisation).
   """
-  def __init__(self):
-    GccDebug.__init__(self)
+  def __init__(self, *args, **kwargs):
+    GccDebug.__init__(self, *args, **kwargs)
     self._cc_flags += ' -O3 -pg'
     self._link_flags += ' -pg'
     self._test_packs = ['Profile']
@@ -321,15 +325,12 @@ class GoogleProfile(GccDebug):
   """
   gcc compiler with profiling enabled (and optimisation).
   """
-  def __init__(self):
-    GccDebug.__init__(self)
+  def __init__(self, *args, **kwargs):
+    GccDebug.__init__(self, *args, **kwargs)
     self._cc_flags += ' -O3'
     self._link_flags += ' -lprofiler'
     self._test_packs = ['Profile']
     self.build_dir = 'google_profile'
-    import socket
-    machine = socket.getfqdn()
-    self.output_dir = os.path.join(self.GetTestReportDir(), machine+'.'+self.__class__.__name__)
  
   def ParseGraphFilename(self, filename):
     "Remove the string 'Runner.gif' from the end of a filename, thus returning test_suite name"
@@ -389,8 +390,8 @@ class Parallel(GccDebug):
   """
   Run using mpi run for tests which run in a parallel environment
   """
-  def __init__(self):
-    GccDebug.__init__(self)
+  def __init__(self, *args, **kwargs):
+    GccDebug.__init__(self, *args, **kwargs)
     self._test_packs = ['Parallel']
     self._num_processes = 2
   
@@ -403,8 +404,8 @@ class Parallel10(Parallel):
   """
   Run using mpi run for tests which run in a parallel environment
   """
-  def __init__(self):
-    Parallel.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Parallel.__init__(self, *args, **kwargs)
     self._num_processes = 10
     
 
@@ -416,8 +417,8 @@ class MemoryTesting(GccDebug):
   _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes"
   _valgrind_exe = "/usr/bin/valgrind"
 
-  def __init__(self):
-    GccDebug.__init__(self)
+  def __init__(self, *args, **kwargs):
+    GccDebug.__init__(self, *args, **kwargs)
     #self._cc_flags = self._cc_flags + ' -DPETSC_MEMORY_TRACING'
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
@@ -514,8 +515,8 @@ class MemoryTesting(GccDebug):
 class ParallelMemoryTesting(MemoryTesting, Parallel):
   """
   """
-  def __init__(self):
-    Parallel.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Parallel.__init__(self, *args, **kwargs)
 
   def GetTestRunnerCommand(self, exefile, exeflags=''):
     "Run test within a two processor environment"
@@ -560,8 +561,8 @@ class GccOpt(Gcc):
   """
   gcc compiler with some optimisations enabled.
   """
-  def __init__(self):
-    Gcc.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Gcc.__init__(self, *args, **kwargs)
     self._cc_flags = '-O3'
     self.build_dir = 'optimised'
     self.is_optimised = True
@@ -570,15 +571,15 @@ class GccOptP4(GccOpt):
   """
   gcc compiler with optimisations for Pentium 4.
   """
-  def __init__(self):
-    GccOpt.__init__(self)
+  def __init__(self, *args, **kwargs):
+    GccOpt.__init__(self, *args, **kwargs)
     self._cc_flags = self._cc_flags+' -march=pentium4 -mmmx -msse -msse2 -mfpmath=sse'
     self.build_dir = 'optimised_P4'
     
 class Intel(BuildType):
   "Intel compiler tools."
-  def __init__(self):
-    BuildType.__init__(self)
+  def __init__(self, *args, **kwargs):
+    BuildType.__init__(self, *args, **kwargs)
     self._compiler_type = 'intel'
     # Turn off some warnings
     self._cc_flags = '-wr470 -wr186'
@@ -608,32 +609,32 @@ class Intel(BuildType):
 
 class IntelNonopt(Intel):
   "Intel compilers with no optimisation."
-  def __init__(self):
-    Intel.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Intel.__init__(self, *args, **kwargs)
     self._cc_flags = self._cc_flags + ' -O0 -xK'
     self.build_dir = 'intel_nonopt'
     self.is_optimised = False
 
 class IntelP3(Intel):
   "Intel compilers optimised for Pentium 3."
-  def __init__(self):
-    Intel.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Intel.__init__(self, *args, **kwargs)
     self._cc_flags = self._cc_flags + ' -xK -O3 -ip -ipo0 -ipo_obj'
     self._link_flags = self._link_flags + ' -ipo'
     self.build_dir = 'intel_p3'
 
 class IntelP4(Intel):
   "Intel compilers optimised for Pentium 4."
-  def __init__(self):
-    Intel.__init__(self)
+  def __init__(self, *args, **kwargs):
+    Intel.__init__(self, *args, **kwargs)
     self._cc_flags = self._cc_flags + ' -xN -O3 -ip -ipo0 -ipo_obj -static'
     self._link_flags = self._link_flags + ' -ipo -lsvml -L/opt/intel_cc_80/lib -static'
     self.build_dir = 'intel_p4'
 
 class StyleCheck(GccDebug):
     """Check the code against Effective C++ style guidelines."""
-    def __init__(self):
-        GccDebug.__init__(self)
+    def __init__(self, *args, **kwargs):
+        GccDebug.__init__(self, *args, **kwargs)
         self._cc_flags = '-Weffc++'
         self.build_dir = 'style_check'
         self._test_packs.extend(['Failing', 'Profile', 'Nightly'])
@@ -663,7 +664,7 @@ def GetBuildType(buildType):
   if classname == '' or classname == 'default':
     # Default build type
     classname = 'GccDebug'
-  exec "obj = %s()" % classname
+  exec "obj = %s('%s')" % (classname, buildType)
   
   for extra in extras:
     if extra == 'report':

@@ -11,21 +11,28 @@
 # The first is the executable to run.
 # The second is the name of the output .log file, in which the output
 #  of the program will be stored.
-# The 3rd is the short name for the type of build performed.   
-# The 4th is the directory in which to store copies of the log files
-#  with altered names encoding the status, as determined by the
-#  BuildTypes module. If not provided then this isn't done.
-#  Files will be stored in a subfolder machine.build_type.
-#  The .log file basename, without extension, will be prepended to the status.
-# The 5th is any extra flags to pass to the executable.
+# The 3rd is the short name for the type of build performed.
+# The 4th, if present, is any extra flags to pass to the executable.
+
+# The directory in which to store copies of the log files
+# with altered names encoding the status, as determined by the
+# BuildTypes module, is determined from the build object.
+# It will be created if necessary.
+# The .log file basename, without extension, will be prepended to the status.
 
 import os, sys, time
 
 def help():
     print "Usage:",sys.argv[0],\
-        "<test exe> <.log file> <build type> [output dir] [run time flags] [--no-stdout]"
+        "<test exe> <.log file> <build type> [run time flags] [--no-stdout]"
 
 # Check for valid arguments.
+if '--no-stdout' in sys.argv:
+    echo = False
+    sys.argv.remove('--no-stdout')
+else:
+    echo = True
+
 if len(sys.argv) < 4:
     print "Syntax error: insufficient arguments."
     help()
@@ -33,20 +40,10 @@ if len(sys.argv) < 4:
 
 exefile, logfile, build_type = sys.argv[1:4]
 
-# Check the output directory given
+# Get any extra command line args for the test
 if len(sys.argv) > 4:
-    outputdir = sys.argv[4]
-    if not os.path.isdir(outputdir):
-        print "Output directory",outputdir,"does not exist."
-        help()
-        sys.exit(1)
-    import socket, glob  # These modules only needed if we have an output dir
-    if len(sys.argv) > 5:
-        run_time_flags = sys.argv[5]
-    else:
-        run_time_flags = ''
+    run_time_flags = sys.argv[4]
 else:
-    outputdir = None
     run_time_flags = ''
 
 # Get a build object for this build type
@@ -69,7 +66,7 @@ start_time = time.time()
 test_fp = os.popen(command, 'r')
 for line in test_fp:
     log_fp.write(line)
-    if not '--no-stdout' in sys.argv:
+    if echo:
         print line,
 exit_code = test_fp.close()
 end_time = time.time()
@@ -77,14 +74,14 @@ log_fp.close()
 
 #print "Time",end_time,start_time
 
-if outputdir:
+if True:
+    import glob
     # Get the test status and copy log file
-    machine  = socket.getfqdn()
-    test_dir = os.path.join(outputdir, machine+'.'+build_type)
+    test_dir = build.output_dir
     if not os.path.exists(test_dir):
         os.mkdir(test_dir)
     if not os.path.isdir(test_dir):
-        print test_dir,"is not a directory; unable to copy output."
+        print test_dir, "is not a directory; unable to copy output."
         sys.exit(1)
     test_name = os.path.splitext(os.path.basename(logfile))[0]
     log_fp = open(logfile, 'r')

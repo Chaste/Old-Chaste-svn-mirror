@@ -19,8 +19,8 @@ Export('build', 'build_type')
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
 test_summary = ARGUMENTS.get('test_summary', 1)
 
-machine_fqdn = socket.getfqdn()
 # Allow the system_name to be derived automatically
+machine_fqdn = socket.getfqdn()
 if machine_fqdn in ["userpc30.comlab.ox.ac.uk", "userpc33.comlab.ox.ac.uk"]:
     system_name = 'joe'
 elif machine_fqdn in ["userpc44.comlab.ox.ac.uk", "userpc60.comlab.ox.ac.uk",
@@ -313,12 +313,10 @@ Export("cpppath")
 
 # Check for orphaned test files
 os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
-          build.GetTestReportDir() + 'OrphanedTests.log ' + build_type + ' ' +
-          build.GetTestReportDir() + ' --no-stdout')
+          build.GetTestReportDir() + 'OrphanedTests.log ' + build_type + ' --no-stdout')
 # Check for duplicate file names in multiple directories
 os.system('python/TestRunner.py python/CheckForDuplicateFileNames.py ' +
-          build.GetTestReportDir() + 'DuplicateFileNames.log ' + build_type + ' ' +
-          build.GetTestReportDir() + ' --no-stdout')
+          build.GetTestReportDir() + 'DuplicateFileNames.log ' + build_type + ' --no-stdout')
 
 build_dir = build.build_dir
 test_depends = [File(build.GetTestReportDir() + 'OrphanedTests.log'),
@@ -340,7 +338,7 @@ Clean('.', test_output_files)
 # Test summary generation
 if test_summary and not compile_only:
   # Get the directory to put results & summary in
-  output_dir = os.path.join(build.GetTestReportDir(), machine_fqdn+'.'+build_type)
+  output_dir = build.output_dir
   # Remove old results. Note that this command gets run before anything is built.
   #for oldfile in os.listdir(output_dir):
   #  os.remove(os.path.join(output_dir, oldfile))
