@@ -112,6 +112,13 @@ public :
         TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 1), 0.0, 1e-8);
         TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 3), 0.0, 1e-8);
         TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 4), 1.0, 1e-8);
+        
+        
+        // Check that if we add a boundary condition to an unflagged node
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
+        // and then assemble the system
+        TS_ASSERT_THROWS_ANYTHING(assembler.AssembleSystem(initial_condition, 0.0));
+        // ...
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

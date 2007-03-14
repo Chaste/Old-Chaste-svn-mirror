@@ -74,7 +74,12 @@ public:
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
                 
-                unsigned smasrm_node_index = rSmasrmIndexMap[node_index];
+                std::map<unsigned, unsigned>::iterator it=rSmasrmIndexMap.find(node_index);
+                if (it == rSmasrmIndexMap.end())
+                {
+                    EXCEPTION("A boundary node was found for an unflagged element");
+                }
+                unsigned smasrm_node_index = it->second;
                 
                 unsigned row = PROBLEM_DIM * smasrm_node_index + index_of_unknown;
                 
