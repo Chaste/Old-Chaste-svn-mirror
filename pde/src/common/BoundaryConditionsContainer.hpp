@@ -1,14 +1,7 @@
 #ifndef _BOUNDARYCONDITIONSCONTAINER_HPP_
 #define _BOUNDARYCONDITIONSCONTAINER_HPP_
 
-#include <map>
-#include <set>
-#include <algorithm>
-#include "AbstractBoundaryCondition.hpp"
-#include "ConstBoundaryCondition.hpp"
-#include "ConformingTetrahedralMesh.cpp"
-#include "LinearSystem.hpp"
-#include "PetscException.hpp"
+#include "AbstractBoundaryConditionsContainer.hpp"
 
 /**
  * Boundary Conditions Container
@@ -21,49 +14,33 @@
  * Various operations are currently very inefficient - there is certainly scope for
  * optimisation here!
  */
-template<unsigned SPACE_DIM>
-struct LessThanNode
-{
-    bool operator()(const Node<SPACE_DIM> * const &n1, const Node<SPACE_DIM> * const &n2)
-    {
-        return (n1->GetIndex() < n2->GetIndex() );
-    }
-};
+
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class BoundaryConditionsContainer
+class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 private:
-    std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >
-    *mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
     
     std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >
-    *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
-    
-    typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
-    dirichIterator; /**< Internal iterator over dirichlet boundary conditions */
-    
+      *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
+          
     typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
-    neumannIterator; /**< Internal iterator over neumann boundary conditions */
-    
-    unsigned mNumNodes; /**< Number of nodes in the mesh */
-    
+      mNeumannIterator; /**< Internal iterator over neumann boundary conditions */
+          
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
     
 public:
     /**
-     * Constructor allocates memory for the boundary conditions lists.
-     * @param size is the number of dependent variables, ie. the number of the unknown (or dimension of the	unknown)
+     * Constructor calls base constuctor and allocates memory for the neumann boundary 
+     * conditions lists.
      * @param numNodes is the number of nodes in the mesh
      */
     BoundaryConditionsContainer(unsigned numNodes)
+      : AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>(numNodes)
     {
-        mNumNodes = numNodes;
-        
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
-            mpDirichletMap[index_of_unknown] =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
-            mpNeumannMap[index_of_unknown]   =  new std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>;
+            mpNeumannMap[index_of_unknown]  =  new std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>;
             
             mAnyNonZeroNeumannConditionsForUnknown[index_of_unknown] = false;
         }
@@ -75,36 +52,25 @@ public:
      */
     ~BoundaryConditionsContainer()
     {
+        // Keep track of what boundary condition objects we've deleted
+        std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
         for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
-            // Keep track of what boundary condition objects we've deleted
-            std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deleted_conditions;
-            
-            dirichIterator = mpDirichletMap[i]->begin();
-            while (dirichIterator != mpDirichletMap[i]->end() )
+            mNeumannIterator = mpNeumannMap[i]->begin();
+            while (mNeumannIterator != mpNeumannMap[i]->end() )
             {
-                if (deleted_conditions.count(dirichIterator->second) == 0)
+                if (deleted_conditions.count(mNeumannIterator->second) == 0)
                 {
-                    deleted_conditions.insert(dirichIterator->second);
-                    delete dirichIterator->second;
+                    deleted_conditions.insert(mNeumannIterator->second);
+                    delete mNeumannIterator->second;
                 }
-                dirichIterator++;
+                mNeumannIterator++;
             }
             
-            neumannIterator = mpNeumannMap[i]->begin();
-            while (neumannIterator != mpNeumannMap[i]->end() )
-            {
-                if (deleted_conditions.count(neumannIterator->second) == 0)
-                {
-                    deleted_conditions.insert(neumannIterator->second);
-                    delete neumannIterator->second;
-                }
-                neumannIterator++;
-            }
-            
-            delete(mpDirichletMap[i]);
             delete(mpNeumannMap[i]);
         }
+        
+        this->DeleteDirichletBoundaryConditions(deleted_conditions);
     }
     
     /**
@@ -124,7 +90,7 @@ public:
         assert(indexOfUnknown < PROBLEM_DIM);
         assert( pBoundaryNode->IsBoundaryNode() );
         
-        (*(mpDirichletMap[indexOfUnknown]))[pBoundaryNode] = pBoundaryCondition;
+        (*(this->mpDirichletMap[indexOfUnknown]))[pBoundaryNode] = pBoundaryCondition;
     }
     
     
@@ -225,12 +191,12 @@ public:
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
-            dirichIterator = mpDirichletMap[index_of_unknown]->begin();
+            this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
             
-            while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
+            while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
-                unsigned node_index = dirichIterator->first->GetIndex();
-                double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+                unsigned node_index = this->mDirichIterator->first->GetIndex();
+                double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
                 
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
                 
@@ -244,7 +210,7 @@ public:
                 }
                 rLinearSystem.SetRhsVectorElement(row, value);
                 
-                dirichIterator++;
+                this->mDirichIterator++;
             }
         }
     }
@@ -262,7 +228,7 @@ public:
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
-            dirichIterator = mpDirichletMap[index_of_unknown]->begin();
+            this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
             
             PetscInt ilo, ihi;
             VecGetOwnershipRange(currentSolution, &ilo, &ihi);
@@ -276,11 +242,11 @@ public:
             double *p_residual;
             PETSCEXCEPT(VecGetArray(residual, &p_residual));
             
-            while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
+            while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
-                unsigned node_index = dirichIterator->first->GetIndex();
+                unsigned node_index = this->mDirichIterator->first->GetIndex();
                 
-                double value = dirichIterator->second->GetValue(dirichIterator->first->GetPoint());
+                double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
                 
                 unsigned global_index = PROBLEM_DIM*node_index + index_of_unknown;
                 
@@ -289,7 +255,7 @@ public:
                     unsigned local_index = global_index - lo;
                     p_residual[local_index] = p_current_solution[local_index] - value;
                 }
-                dirichIterator++;
+                this->mDirichIterator++;
             }
             
             PETSCEXCEPT(VecRestoreArray(currentSolution, &p_current_solution));
@@ -311,15 +277,15 @@ public:
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
             //if(index_of_unknown==1) assert(0);
-            dirichIterator = mpDirichletMap[index_of_unknown]->begin();
+            this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
             PetscInt irows, icols;
             double value;
             MatGetSize(jacobian, &irows, &icols);
             unsigned cols=icols;
             
-            while (dirichIterator != mpDirichletMap[index_of_unknown]->end() )
+            while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
-                unsigned node_index = dirichIterator->first->GetIndex();
+                unsigned node_index = this->mDirichIterator->first->GetIndex();
                                
                 unsigned row_index = PROBLEM_DIM*node_index + index_of_unknown;
                 assert(row_index<(unsigned)irows); 
@@ -329,7 +295,7 @@ public:
                     value = (col_index == row_index) ? 1.0 : 0.0;
                     MatSetValue(jacobian, row_index, col_index, value, INSERT_VALUES);
                 }
-                dirichIterator++;
+                this->mDirichIterator++;
             }
         }
     }
@@ -376,39 +342,7 @@ public:
         return valid;
     }
     
-    
-    /**
-     * Obtain value of dirichlet boundary condition at specified node
-     * 
-     * This is unlikely to be needed by the user, the methods ApplyDirichletToLinearProblem or
-     * ApplyDirichletToNonlinearProblem can be called instead to apply all dirichlet boundary conditions 
-     * at the same time 
-     */
-    double GetDirichletBCValue(const Node<SPACE_DIM>* pBoundaryNode, unsigned indexOfUnknown = 0)
-    {
-        assert(indexOfUnknown < PROBLEM_DIM);
-        //assert(pBoundaryNode->IsBoundaryNode());
-        
-        dirichIterator = mpDirichletMap[indexOfUnknown]->find(pBoundaryNode);
-        assert(dirichIterator!=mpDirichletMap[indexOfUnknown]->end());
-        
-        return dirichIterator->second->GetValue(pBoundaryNode->GetPoint());
-    }
-    
-    /**
-     * Test if there is a Dirichlet boundary condition defined on the given node.
-     * 
-     * \todo Perhaps have flag in node object for efficiency?
-     */
-    bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode, unsigned indexOfUnknown = 0)
-    {
-        assert(indexOfUnknown < PROBLEM_DIM);
-        
-        dirichIterator = mpDirichletMap[indexOfUnknown]->find(pNode);
-        
-        return (dirichIterator != mpDirichletMap[indexOfUnknown]->end());
-    }
-    
+
     /**
      * Obtain value of neumann boundary condition at a specified point in a given surface element
      * 
@@ -420,10 +354,10 @@ public:
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         
-        neumannIterator = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
-        assert(neumannIterator!=mpNeumannMap[indexOfUnknown]->end());
+        mNeumannIterator = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
+        assert(mNeumannIterator!=mpNeumannMap[indexOfUnknown]->end());
         
-        return neumannIterator->second->GetValue(x);
+        return mNeumannIterator->second->GetValue(x);
     }
     
     /**
@@ -438,9 +372,9 @@ public:
     {
         assert(indexOfUnknown < PROBLEM_DIM);
         
-        neumannIterator = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
+        mNeumannIterator = mpNeumannMap[indexOfUnknown]->find(pSurfaceElement);
         
-        return (neumannIterator != mpNeumannMap[indexOfUnknown]->end());
+        return (mNeumannIterator != mpNeumannMap[indexOfUnknown]->end());
     }
     
     

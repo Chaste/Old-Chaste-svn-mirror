@@ -45,6 +45,7 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
     assert(mJacobianDeterminant > 0.0);
     
     mFlag = false;
+    mOwnership = true;
 }
 
 

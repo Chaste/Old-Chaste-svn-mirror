@@ -50,50 +50,68 @@ public :
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // flag four middle elements         
+        // Flag four middle elements         
         ConformingTetrahedralMesh<1,1>::ElementIterator iter
            = mesh.GetElementIteratorBegin();
           
-        while(iter!=mesh.GetElementIteratorEnd())
+        while (iter!=mesh.GetElementIteratorEnd())
         {
-            if((4<=(*iter)->GetIndex()) && ((*iter)->GetIndex()<=7))
+            if ((4<=(*iter)->GetIndex()) && ((*iter)->GetIndex()<=7))
             {
                 (*iter)->Flag();
+                TS_ASSERT((*iter)->GetOwnership());
+                TS_ASSERT((*iter)->IsFlagged());
             }
             
             iter++;
         }
 
-
         // Instantiate PDE object
         TimeDependentDiffusionEquationPde<1> pde;
         
-        // Boundary conditions - zero dirichlet at first and last node;
-        BoundaryConditionsContainer<1,1,1> bcc(mesh.GetNumNodes());
+        // Boundary conditions - zero dirichlet at first and last node of flagged region
+        FlaggedMeshBoundaryConditionsContainer<1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition =
             new ConstBoundaryCondition<1>(0.0);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode( mesh.GetNumNodes()-1 ), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(4), p_boundary_condition);
+        bcc.AddDirichletBoundaryCondition(mesh.GetNode(8), p_boundary_condition);
         
         // Assembler
         FlaggedMeshAssembler<1> assembler(&mesh,&pde,&bcc);
-// need this?
-        assembler.SetMatrixIsConstant();
+        assembler.SetTimes(0.0, 1.0, 0.01);
 
-// change this from 11 to 5        
-        Vec initial_condition = CreateConstantConditionVec(11,0.0);
+        const size_t full_size = 11u;
+        const size_t smasrm_size = 5u;
+        Vec initial_condition = CreateConstantConditionVec(full_size, 0.0);
         
-        assembler.AssembleSystem(initial_condition,0.0);
+        assembler.AssembleSystem(initial_condition, 0.0);
         
-//        unsigned size_of_linear_system = assembler.mpLinearSystem->GetSize();
-        
-//        TS_ASSERT_EQUALS(size_of_linear_system,5u); 
+        const unsigned size_of_linear_system = assembler.mpLinearSystem->GetSize();
+        TS_ASSERT_EQUALS(size_of_linear_system, smasrm_size);
         
         std::cout << "smasrm vector:\n";
         assembler.mpLinearSystem->DisplayRhs();
         std::cout << "smasrm matrix:\n";
-        assembler.mpLinearSystem->DisplayMatrix();                                  
-                               
+        assembler.mpLinearSystem->DisplayMatrix();
+        
+        // Test SMASRM values
+        // It should have -8.3.., 26.6.., -8.3.. on the centre diagonals, except for the boundaries
+        PetscInt lo, hi;
+        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        for (unsigned i=1; i<smasrm_size-1; i++)
+        {
+            if ((unsigned)lo <= i && i < (unsigned)hi)
+            {
+                TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(i, i-1), -8.3333333333, 1e-8);
+                TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(i, i),   26.6666666666, 1e-8);
+                TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(i, i+1), -8.3333333333, 1e-8);
+            }
+        }
+        // Dirichlet boundaries
+        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 0), 1.0, 1e-8);
+        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 1), 0.0, 1e-8);
+        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 3), 0.0, 1e-8);
+        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 4), 1.0, 1e-8);
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

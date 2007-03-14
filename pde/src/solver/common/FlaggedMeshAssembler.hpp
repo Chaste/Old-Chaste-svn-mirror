@@ -2,25 +2,26 @@
 #define FLAGGEDMESHASSEMBLER_HPP_
 
 #include "SimpleDg0ParabolicAssembler.hpp"
+#include "FlaggedMeshBoundaryConditionsContainer.hpp"
 
 template<unsigned DIM>
 class FlaggedMeshAssembler : public SimpleDg0ParabolicAssembler<DIM,DIM>
 {
 private:
     friend class TestFlaggedMeshAssembler;
+    FlaggedMeshBoundaryConditionsContainer<DIM,1>* mpFlaggedMeshBcc;
     
 protected :
 
     virtual void AssembleSystem(Vec currentSolutionOrGuess=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
     {
+        // This assembler only works with linear problems.
+        assert(this->mProblemIsLinear);
+        
         // if a linear problem there mustn't be a residual or jacobian specified
         // otherwise one of them MUST be specifed
-        assert(    (this->mProblemIsLinear && !residualVector && !pJacobian) 
-                || (!this->mProblemIsLinear && (residualVector || pJacobian) ) );
+        assert( this->mProblemIsLinear && !residualVector && !pJacobian );
         
-        // if the problem is nonlinear the currentSolutionOrGuess MUST be specifed
-        assert( this->mProblemIsLinear || (!this->mProblemIsLinear && currentSolutionOrGuess ) );
-                        
         // Replicate the current solution and store so can be used in
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
@@ -33,116 +34,81 @@ protected :
         // check the size is zero if there isn't a current solution
         assert(    ( currentSolutionOrGuess && this->mCurrentSolutionOrGuessReplicated.size()>0)
                 || ( !currentSolutionOrGuess && this->mCurrentSolutionOrGuessReplicated.size()==0));
-        
 
         // the concrete class can override this following method if there is
         // work to be done before assembly
         this->PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
         
-        //Only set and used in non-linear solution
-        unsigned lo=0;
-        unsigned hi=0;
-        
-        if(this->mProblemIsLinear)
+        // Figure out the SMASRM size, and generate a map from global node number
+        // to SMASRM index.
+        std::map<unsigned, unsigned> smasrm_index_map;
+        typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
+            iter = this->mpMesh->GetElementIteratorBegin();
+        unsigned smasrm_size = 0;
+        while (iter != this->mpMesh->GetElementIteratorEnd())
         {
-            // linear problem - set up the Linear System if necessary, otherwise zero
-            // it.
-            if (this->mpLinearSystem == NULL)
+            Element<DIM, DIM>& element = **iter;
+            
+            if (element.IsFlagged())
             {
-                if (currentSolutionOrGuess == NULL)
+                // Add this element's nodes to the map
+                const unsigned num_nodes = element.GetNumNodes();
+                for (unsigned i=0; i<num_nodes; i++)
                 {
-                    // static problem, create linear system using the size
-                    unsigned size = 1 * this->mpMesh->GetNumNodes();
-                    this->mpLinearSystem = new LinearSystem(size);
+                    unsigned node_index = element.GetNodeGlobalIndex(i);
+                    if (smasrm_index_map.count(node_index) == 0)
+                    {
+                        // This is a new node
+                        smasrm_index_map[node_index] = smasrm_size++;
+                    }
                 }
-                else
-                {
-                    // use the currrent solution (ie the initial solution)
-                    // as the template in the alternative constructor of
-                    // LinearSystem. This appears to avoid problems with
-                    // VecScatter.
-                    this->mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
-                }
-                
-                //If this is the first time through then it's appropriate to set the 
-                //element ownerships
-                //Note that this ought to use the number of nodes to set the ownership
-                PetscInt node_lo, node_hi;
-                Vec temp_vec;
-                VecCreate(PETSC_COMM_WORLD, &temp_vec);
-                VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
-                VecSetFromOptions(temp_vec);
-                VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
-                this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
+            }
+            ++iter;
+        }
+        
+        // Debugging: display index map
+        std::cout << "SMASRM index map" << std::endl;
+        std::map<unsigned, unsigned>::iterator smasrm_map_iter = smasrm_index_map.begin();
+        while (smasrm_map_iter != smasrm_index_map.end())
+        {
+            std::cout << smasrm_map_iter->first << " " << smasrm_map_iter->second << std::endl;
+            ++smasrm_map_iter;
+        }
+        
+        // linear problem - set up the Linear System if necessary, otherwise zero
+        // it.
+        if (this->mpLinearSystem == NULL)
+        {
+            this->mpLinearSystem = new LinearSystem(smasrm_size);
+        }
+        else
+        {
+            if (this->mpLinearSystem->GetSize() == smasrm_size)
+            {
+                this->mpLinearSystem->ZeroLinearSystem();
             }
             else
             {
-                if (this->mMatrixIsConstant && this->mMatrixIsAssembled)
-                {
-                    this->mpLinearSystem->ZeroRhsVector();
-                }
-                else
-                {
-                    this->mpLinearSystem->ZeroLinearSystem();
-                    this->mMatrixIsAssembled = false;
-                }
+                delete this->mpLinearSystem;
+                this->mpLinearSystem = new LinearSystem(smasrm_size);
             }
         }
-        else
-        {   
-            // nonlinear problem - zero residual or jacobian depending on which has
-            // been asked for     
-            if(residualVector)
-            {
-                PetscInt isize;
-                VecGetSize(residualVector,&isize);
-                unsigned size=isize;
-                assert(size==1 * this->mpMesh->GetNumNodes());
+        this->mMatrixIsAssembled = false;
             
-                // Set residual vector to zero
-                PetscScalar zero = 0.0;
-#if (PETSC_VERSION_MINOR == 2) //Old API
-                PETSCEXCEPT( VecSet(&zero, residualVector) );
-#else
-                PETSCEXCEPT( VecSet(residualVector, zero) );
-#endif
-            }
-            else 
-            {
-                PetscInt size1, size2;
-                MatGetSize(*pJacobian,&size1,&size2);
-                PetscInt problem_size=this->mpMesh->GetNumNodes();
-                assert(size1==problem_size);
-                assert(size2==problem_size);
-   
-                // Set all entries of jacobian to 0
-                MatZeroEntries(*pJacobian);
-            }        
-        
-            // Get our ownership range
-            PetscInt ilo, ihi;
-            VecGetOwnershipRange(currentSolutionOrGuess, &ilo, &ihi);
-            lo=ilo;
-            hi=ihi;
-            //Set the elements' ownerships according to the node ownership
-            //\todo - This ought not to happen every time through
-            //Note that this ought to use the number of nodes to set the ownership
-            PetscInt node_lo, node_hi;
-            Vec temp_vec;
-            VecCreate(PETSC_COMM_WORLD, &temp_vec);
-            VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
-            VecSetFromOptions(temp_vec);
-            VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
-            this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
-                 
-        }
-        
-                 
-        // Get an iterator over the elements of the mesh
-        typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
-            iter = this->mpMesh->GetElementIteratorBegin();
+//        //If this is the first time through then it's appropriate to set the 
+//        //element ownerships
+//        //Note that this ought to use the number of nodes to set the ownership
+//        PetscInt node_lo, node_hi;
+//        Vec temp_vec;
+//        VecCreate(PETSC_COMM_WORLD, &temp_vec);
+//        VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
+//        VecSetFromOptions(temp_vec);
+//        VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
+//        this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
+
         
         // Assume all elements have the same number of nodes...
+        iter = this->mpMesh->GetElementIteratorBegin();
         const unsigned num_elem_nodes = (*iter)->GetNumNodes();
         c_matrix<double, 1*(DIM+1), 1*(DIM+1)> a_elem;
         c_vector<double, 1*(DIM+1)> b_elem;
@@ -159,191 +125,59 @@ protected :
         {
             Element<DIM, DIM>& element = **iter;
             
-            if (element.GetOwnership() == true)
-            {             
+            // Only assemble flagged elements that we own
+            if (element.GetOwnership() && element.IsFlagged())
+            {
                 this->AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
                 
                 for (unsigned i=0; i<num_elem_nodes; i++)
                 {
-                    unsigned node1 = element.GetNodeGlobalIndex(i);
+                    unsigned index1 = smasrm_index_map[element.GetNodeGlobalIndex(i)];
                                     
                     if (assemble_matrix)
                     {                    
                         for (unsigned j=0; j<num_elem_nodes; j++)
                         {
-                            unsigned node2 = element.GetNodeGlobalIndex(j);
-                            
-                            for (unsigned k=0; k<1; k++)
-                            {
-                                for (unsigned m=0; m<1; m++)
-                                {
-                                    if(this->mProblemIsLinear)
-                                    {  
-                                        // the following expands to, for (eg) the case of two unknowns:
-                                        // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
-                                        // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
-                                        // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
-                                        // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
-                                        this->mpLinearSystem->AddToMatrixElement( 1*node1+k,
-                                                                                  1*node2+m,
-                                                                                  a_elem(1*i+k,1*j+m) );
-                                    }
-                                    else 
-                                    {
-                                        assert(pJacobian!=NULL); // extra check
-                                               
-                                        unsigned matrix_index_1 = 1*node1+k;
-                                        if (lo<=matrix_index_1 && matrix_index_1<hi)
-                                        {
-                                            unsigned matrix_index_2 = 1*node2+m;
-                                            PetscScalar value = a_elem(1*i+k,1*j+m);
-                                            MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);                                
-                                        }
-                                    }
-                                }
-                            }
+                            unsigned index2 = smasrm_index_map[element.GetNodeGlobalIndex(j)];
+                            this->mpLinearSystem->AddToMatrixElement( index1,
+                                                                      index2,
+                                                                      a_elem(i,j) );
                         }
                     }
     
-                    if(assemble_vector)
+                    if (assemble_vector)
                     {
-                        for (unsigned k=0; k<1; k++)
-                        {
-                            if(this->mProblemIsLinear)
-                            {
-                                this->mpLinearSystem->AddToRhsVectorElement(1*node1+k,b_elem(1*i+k));
-                            }
-                            else 
-                            {
-                                assert(residualVector!=NULL); // extra check
-    
-                                unsigned matrix_index = 1*node1+k;
-                                //Make sure it's only done once
-                                if (lo<=matrix_index && matrix_index<hi)
-                                {
-                                    PetscScalar value = b_elem(1*i+k);
-                                    PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
-                                }
-                            }
-                        }
+                        this->mpLinearSystem->AddToRhsVectorElement(index1, b_elem(i));
                     }
                 }
             }
             iter++;
         }
                 
-        // add the integrals associated with Neumann boundary conditions to the linear system
-        typename ConformingTetrahedralMesh<DIM, DIM>::BoundaryElementIterator
-        surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
-        
-
-        ////////////////////////////////////////////////////////
-        // loop over surface elements
-        ////////////////////////////////////////////////////////
-
-        // note, the following condition is not true of Bidomain or Monodomain
-        if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
+        if (this->mMatrixIsAssembled)
         {
-            if (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
-            {
-                const unsigned num_surf_nodes = (*surf_iter)->GetNumNodes();
-                c_vector<double, 1*DIM> b_surf_elem;
-                
-                while (surf_iter != this->mpMesh->GetBoundaryElementIteratorEnd())
-                {
-                    const BoundaryElement<DIM-1,DIM>& surf_element = **surf_iter;
-                    
-                    ///\todo Check surf_element is in the Neumann surface in an efficient manner
-                    /// e.g. by iterating over boundary conditions!
-                    if (this->mpBoundaryConditions->HasNeumannBoundaryCondition(&surf_element))
-                    {
-                        this->AssembleOnSurfaceElement(surf_element, b_surf_elem);
-                        
-                        for (unsigned i=0; i<num_surf_nodes; i++)
-                        {
-                            unsigned node_index = surf_element.GetNodeGlobalIndex(i);
-                            
-                            for (unsigned k=0; k<1; k++)
-                            {
-                                if(this->mProblemIsLinear)
-                                {
-                                    this->mpLinearSystem->AddToRhsVectorElement(1*node_index + k, b_surf_elem(1*i+k));
-                                }
-                                else if(residualVector!=NULL)
-                                {
-                                    unsigned matrix_index = 1*node_index + k;
-
-                                    PetscScalar value = b_surf_elem(1*i+k);
-                                    if (lo<=matrix_index && matrix_index<hi)
-                                    {
-                                        PETSCEXCEPT( VecSetValue(residualVector, matrix_index, value, ADD_VALUES) );
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    surf_iter++;
-                }
-            }
+            this->mpLinearSystem->AssembleRhsVector();
         }
-
-        
-        if(this->mProblemIsLinear)
+        else
         {
-            if (this->mMatrixIsAssembled)
-            {
-                this->mpLinearSystem->AssembleRhsVector();
-            }
-            else
-            {
-                this->mpLinearSystem->AssembleIntermediateLinearSystem();
-            }
-        }
-        else if(pJacobian)
-        {
-            MatAssemblyBegin(*pJacobian, MAT_FLUSH_ASSEMBLY);
-            MatAssemblyEnd(*pJacobian, MAT_FLUSH_ASSEMBLY);
+            this->mpLinearSystem->AssembleIntermediateLinearSystem();
         }
         
         
-        // Apply dirichlet boundary conditions
-        if(this->mProblemIsLinear)
-        {
-            this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*this->mpLinearSystem, this->mMatrixIsAssembled);
-        }
-        else if(residualVector)
-        {
-            this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolutionOrGuess, residualVector);
-        }        
-        else if(pJacobian)
-        {
-            this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pJacobian);
-        }
+        // Apply dirichlet boundary conditions.
+        // This may well need to change to make use of the smasrm_index_map;
+        // might be better to put the code in here rather than the container.
+        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*this->mpLinearSystem, smasrm_index_map, this->mMatrixIsAssembled);
         
-        
-                    
-        if(this->mProblemIsLinear)
-        {        
-            if (this->mMatrixIsAssembled)
-            {
-                this->mpLinearSystem->AssembleRhsVector();
-            }
-            else
-            {
-                this->mpLinearSystem->AssembleFinalLinearSystem();
-            }
-            this->mMatrixIsAssembled = true;
-        }
-        else if(residualVector)
+        if (this->mMatrixIsAssembled)
         {
-            VecAssemblyBegin(residualVector);
-            VecAssemblyEnd(residualVector);
+            this->mpLinearSystem->AssembleRhsVector();
         }
-        else if(pJacobian)
+        else
         {
-            MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
-            MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
-        }        
+            this->mpLinearSystem->AssembleFinalLinearSystem();
+        }
+        this->mMatrixIsAssembled = true;
         
         // overload this method if the assembler has to do anything else
         // required (like setting up a null basis (see BidomainDg0Assembler))
@@ -355,10 +189,11 @@ protected :
 public :
     FlaggedMeshAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                          AbstractLinearParabolicPde<DIM>* pPde,
-                         BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
+                         FlaggedMeshBoundaryConditionsContainer<DIM,1>* pBoundaryConditions,
                          unsigned numQuadPoints = 2) :
-            SimpleDg0ParabolicAssembler<DIM,DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
+            SimpleDg0ParabolicAssembler<DIM,DIM>(pMesh,pPde,NULL,numQuadPoints)
     {
+        mpFlaggedMeshBcc=pBoundaryConditions;
     }
 
 };

@@ -54,6 +54,8 @@ protected:
         mInverseJacobian = element.mInverseJacobian;
         mWeightedDirection = element.mWeightedDirection;
         
+        mOwnership = element.mOwnership;
+        
         // initialise the user flag
         mFlag = element.mFlag;        
     }
@@ -78,7 +80,9 @@ public:
         CommonConstructor(element);
     }
     
-    
+    /**
+     * Why does the default constructor not do anything?
+     */
     AbstractElement()
     {}
     
