@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"

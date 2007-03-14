@@ -10,26 +10,42 @@ class RefinedTetrahedralMesh :
 {
 private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpFineMesh;
-    NodeMap *mpNodeMap;
+    NodeMap *mpCoarseFineNodeMap;
     std::vector <std::set <Element <ELEMENT_DIM,SPACE_DIM>* > > mCoarseFineElementsMap;
     std::vector <Element <ELEMENT_DIM,SPACE_DIM>* > mFineNodeToCoarseElementMap;
 
 public:
     RefinedTetrahedralMesh() : ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>()
     {
-        mpNodeMap = NULL; 
+        mpCoarseFineNodeMap = NULL;
+        mpFineMesh = NULL;
     }
     
     ~RefinedTetrahedralMesh()
     {
-    	delete mpNodeMap;
+    	delete mpCoarseFineNodeMap;
     }
+    
+    /***
+     * SetFineMesh
+     * 
+     * Set the fine mesh associated with this coarse mesh
+     * The following constraints should be satisfied:
+     * 1) The coarse mesh nodes should be a subset of the fine mesh nodes
+     * 2) All internal fine mesh nodes should be contained within a coarse element
+     * 
+     * @params pFineMesh pointer to a fine mesh
+     */
     void SetFineMesh(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pFineMesh)
     {
+        if (mpFineMesh != NULL)
+        {
+            EXCEPTION("SetFineMesh can be called at most once.");
+        }
         mpFineMesh=pFineMesh;
         
         assert(this->GetNumNodes() > 0);
-        mpNodeMap = new NodeMap(this->GetNumNodes());
+        mpCoarseFineNodeMap = new NodeMap(this->GetNumNodes());
         
         //Construct sorted lists of nodes from each mesh
         std::vector<Node<SPACE_DIM> * > coarse_nodes;
@@ -56,19 +72,32 @@ public:
                 fine_mesh_index++;
                 if (fine_mesh_index==fine_nodes.size())
                 {
-                    EXCEPTION("Coarse mesh node doesn't have a partner in the fine mesh.");
+                    std::stringstream exception_string;
+                    exception_string << "Coarse mesh node: "
+                                     << coarse_nodes[coarse_mesh_index]->GetIndex()
+                                     << " doesn't have a partner in the fine mesh.";
+                    EXCEPTION(exception_string.str());
                 }
             }
             //Same node, set map
-            mpNodeMap->SetNewIndex(coarse_mesh_index, fine_mesh_index);
+            mpCoarseFineNodeMap->SetNewIndex(coarse_mesh_index, fine_mesh_index);
         } 
           
-       //Calculate a map from fine nodes to coarse elements
+        //Calculate a map from fine nodes to coarse elements
         mFineNodeToCoarseElementMap.resize(mpFineMesh->GetNumNodes());
         for (unsigned i=0; i<mpFineMesh->GetNumNodes(); i++)
         {
             //Find a representative coarse element for this node and put it in the map
-            unsigned coarse_element_index = this->GetContainingElementIndex(mpFineMesh->GetNode(i)->GetPoint());
+            unsigned coarse_element_index;
+            try
+            {
+                coarse_element_index = this->GetContainingElementIndex(mpFineMesh->GetNode(i)->GetPoint());
+            }
+            catch (Exception &e)
+            {
+                // find nearest coarse element
+               coarse_element_index = this->GetNearestElementIndex(mpFineMesh->GetNode(i)->GetPoint());
+            }
             mFineNodeToCoarseElementMap[i]=this->GetElement(coarse_element_index);    
         }
  
@@ -120,12 +149,13 @@ public:
     
     Element<ELEMENT_DIM, SPACE_DIM>* GetACoarseElementForFineNodeIndex(unsigned fine_node_index)
     {
+        
         return mFineNodeToCoarseElementMap[fine_node_index];
     }
     
-    NodeMap& rGetCoarseFineNodeMap()
+    const NodeMap& rGetCoarseFineNodeMap()
     {
-        return *mpNodeMap;
+        return *mpCoarseFineNodeMap;
     }
     
     bool EqualNodes (const Node<SPACE_DIM>* pNode1, const Node<SPACE_DIM>* pNode2)

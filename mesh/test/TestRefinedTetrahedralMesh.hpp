@@ -33,7 +33,7 @@ public:
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
-        NodeMap &node_map = coarse_mesh.rGetCoarseFineNodeMap();
+        const NodeMap &node_map = coarse_mesh.rGetCoarseFineNodeMap();
         
         TS_ASSERT_EQUALS(node_map.GetNewIndex(0), 0u);
         TS_ASSERT_EQUALS(node_map.GetNewIndex(1), 2u);
@@ -41,6 +41,9 @@ public:
         
         TS_ASSERT_EQUALS(node_map.GetNewIndex(63), 342u);
         //Top node is 4^3-1 and 7^3-1 respectively
+        
+        // We're not allowed to call SetFineMesh twice
+        TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
         
     void TestCoarseFineElementsMap2D(void)
@@ -112,6 +115,18 @@ public:
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
     
+    void TestFineAndCoarseDisc(void)
+    {
+        TrianglesMeshReader<2,2> fine_mesh_reader("mesh/test/data/disk_984_elements");
+        ConformingTetrahedralMesh<2,2> fine_mesh;
+        fine_mesh.ConstructFromMeshReader(fine_mesh_reader,1);
+        
+        TrianglesMeshReader<2,2> coarse_mesh_reader("mesh/test/data/DecimatedDisk");
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader,1);
+        
+        coarse_mesh.SetFineMesh(&fine_mesh);
+    }
 };
 
 

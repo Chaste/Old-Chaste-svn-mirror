@@ -302,6 +302,15 @@ public:
         return mThresholdScore;
     }
     
+    void SetVolumeLeakage(double leakage)
+    {
+        mVolumeLeakage= leakage;
+    }
+    double GetVolumeLeakage()
+    {
+        return mVolumeLeakage;
+    }
+    
     void Decimate()
     {
         while (mQueue[0]->mScore < mThresholdScore)

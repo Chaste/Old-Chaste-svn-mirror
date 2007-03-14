@@ -142,7 +142,9 @@ public:
         Point<2> point2(0.2,0.2);
         Point<2> point3(0.05, 0.05); //Node 60 of mesh
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),110U);
+        TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point1),110U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
+        TS_ASSERT_EQUALS(mesh.GetNearestElementIndex(point2),199U); //Contains top-right corner
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),89U);  //in elements 89,90,91,108,109, 110
         
         

@@ -37,7 +37,7 @@ public:
         mMap[index] = UINT_MAX;
     }
     
-    unsigned GetNewIndex(unsigned oldIndex)
+    unsigned GetNewIndex(unsigned oldIndex) const
     {
         if (mMap[oldIndex] == UINT_MAX)
         {

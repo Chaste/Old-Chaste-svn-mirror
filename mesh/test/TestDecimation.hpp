@@ -72,6 +72,43 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
         TrianglesMeshWriter<2,2> mesh_writer2("", "DiskFullDecimation");
         mesh_writer2.WriteFilesUsingMesh(mesh);
+    }    
+    
+    void TestBase2DOnDiskWithVolumeLeak()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
+        Decimator<2> decimator;
+        decimator.Initialise(&mesh);
+        
+        
+        
+        TS_ASSERT_DELTA(decimator.GetVolumeLeakage(), 1e-5, 1.0e-10);
+        decimator.SetVolumeLeakage(1e-2);
+        
+        decimator.SetThreshold(0.5);
+        decimator.Decimate();
+        
+       
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
+       
+       
+        //\todo run a couple of steps of the quality decimator
+        QualityDecimator<2> quality_decimator;
+        quality_decimator.Initialise(&mesh);
+        quality_decimator.SetThreshold(0.3);
+        quality_decimator.Decimate();
+         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
+       
+        TrianglesMeshWriter<2,2> mesh_writer1("", "DiskLeakage");
+        mesh_writer1.WriteFilesUsingMesh(mesh);
+        
+        
+       
     }
     void TestBase2DOnSquare()
     {

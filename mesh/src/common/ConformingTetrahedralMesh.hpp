@@ -244,6 +244,16 @@ public:
       *  not on an edge/face/vertex (default = not strict)
       */
      unsigned GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict=false);
+
+     /**
+      *  Returns the element index for an element is closest to the testPoint
+      * "Closest" means that the minimum interpolation weights for the testPoint are 
+      * maximised for this element
+      *  @param testPoint
+      * 
+      */
+     unsigned GetNearestElementIndex(Point<SPACE_DIM> testPoint);
+
      /**
       *  Returns all element indices for elements that are known to contain a test point
       *  @param testPoint 

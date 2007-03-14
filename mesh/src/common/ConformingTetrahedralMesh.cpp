@@ -1629,20 +1629,50 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict)
 {
-	///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
-	///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
+    ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
+    ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
     for (unsigned i=0; i < mElements.size();i++)
     {
-    	///\todo What if the element is deleted?
-     	if (mElements[i]->IncludesPoint(testPoint, strict))
-    	{
-    		return i;
-    	}
+        ///\todo What if the element is deleted?
+        if (mElements[i]->IncludesPoint(testPoint, strict))
+        {
+            return i;
+        }
     }
     
     
     //If it's in none of the elements, then throw
     EXCEPTION("Point is not in mesh");
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(Point<SPACE_DIM> testPoint)
+{
+    ///\todo This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
+    ///\todo Polling every element is unnecessary.  We ought to start from a likely place and hill climb
+    
+    double max_min_weight=-INFINITY;
+    unsigned closest_index=0;
+    for (unsigned i=0; i < mElements.size();i++)
+    {
+        ///\todo What if the element is deleted?
+        c_vector<double, ELEMENT_DIM+1> weight=mElements[i]->CalculateInterpolationWeights(testPoint);
+        double min_weight=1.0;
+        for (unsigned j=0; j<=ELEMENT_DIM; j++)
+        {
+            if (weight[j]<min_weight)
+            {
+                min_weight=weight[j];
+            }
+        }
+        if (min_weight > max_min_weight)
+        {
+            max_min_weight = min_weight;
+            closest_index=i;
+        }
+        
+    }
+    return closest_index;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
