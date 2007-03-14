@@ -143,7 +143,7 @@ public :
         {
             if(element_iter->material_id()==GROWING_REGION)            
             {
-                for (unsigned int i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
+                for (unsigned i=0; i<GeometryInfo<2>::vertices_per_cell; i++)
                 {
                     unsigned vertex_index = element_iter->vertex_index(i);
                     TS_ASSERT_EQUALS(finiteelas_with_growth.IsGrowingNode(vertex_index), true);

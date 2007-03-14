@@ -41,7 +41,7 @@ private:
     void MakeGridAndDofs();
     void AssembleSystem();
     void Solve();
-    void OutputResults(int timeStepCounter) const;
+    void OutputResults(unsigned timeStepCounter) const;
   
     Triangulation<2>     mMesh;
     FE_Q<2>              mFe;
@@ -225,7 +225,7 @@ void DiffusionProblem::Solve()
 }
   
   
-void DiffusionProblem::OutputResults(int timeStepCounter) const
+void DiffusionProblem::OutputResults(unsigned timeStepCounter) const
 {
 //    DataOut<2> data_out;
 //    data_out.attach_dof_handler(mDofHandler);
@@ -244,7 +244,7 @@ void DiffusionProblem::Run()
     MakeGridAndDofs();
     
     double t=0;
-    int time_step_counter=0;
+    unsigned time_step_counter=0;
     OutputResults(time_step_counter);
   
     while(t < 2)

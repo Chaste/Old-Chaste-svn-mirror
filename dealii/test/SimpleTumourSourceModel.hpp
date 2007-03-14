@@ -7,7 +7,7 @@
  * s = n, at an evaluation point, where n is the index of the evaluation
  * point 
  */
-template<int DIM>
+template<unsigned DIM>
 class SimpleTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
 {
 public :
