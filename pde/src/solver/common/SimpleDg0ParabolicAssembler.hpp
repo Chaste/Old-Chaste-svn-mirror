@@ -92,6 +92,7 @@ public:
         
         this->mTimesSet = false;
         this->mInitialConditionSet = false;
+        this->mMatrixIsConstant = true;
     }
     
     /**

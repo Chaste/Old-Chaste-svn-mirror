@@ -18,61 +18,61 @@ public :
     void TestTheGaussianQuadratureRule()
     {
         // 0d
-        GaussianQuadratureRule<0> quadRule01(1);
-        TS_ASSERT_EQUALS(quadRule01.GetNumQuadPoints(),1U);
+        GaussianQuadratureRule<0> quad_rule1(1);
+        TS_ASSERT_EQUALS(quad_rule1.GetNumQuadPoints(),1U);
         
-        GaussianQuadratureRule<0> quadRule02(2);
-        TS_ASSERT_EQUALS(quadRule02.GetNumQuadPoints(),1U);
+        GaussianQuadratureRule<0> quad_rule2(2);
+        TS_ASSERT_EQUALS(quad_rule2.GetNumQuadPoints(),1U);
         
-        TS_ASSERT_DELTA(quadRule01.GetWeight(0),1,1e-12);
+        TS_ASSERT_DELTA(quad_rule1.GetWeight(0),1,1e-12);
         
         // 1d
-        for (int numberOfPoints=1; numberOfPoints<4; numberOfPoints++)
+        for (int number_of_points=1; number_of_points<4; number_of_points++)
         {
-            GaussianQuadratureRule<1> quadRule(numberOfPoints);
+            GaussianQuadratureRule<1> quad_rule(number_of_points);
             
-            for (unsigned i=0; i<quadRule.GetNumQuadPoints(); i++)
+            for (unsigned i=0; i<quad_rule.GetNumQuadPoints(); i++)
             {
-                TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
-                TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
+                TS_ASSERT_LESS_THAN_EQUALS( quad_rule.GetWeight(i),1);
+                TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
-                TS_ASSERT_LESS_THAN( quadRule.GetQuadPoint(i)[0],1); // x<1
-                TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[0],0); // x>0
+                TS_ASSERT_LESS_THAN( quad_rule.GetQuadPoint(i)[0],1); // x<1
+                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0); // x>0
             }
         }
         
         // 2d
-        for (int numberOfPoints=1; numberOfPoints<4; numberOfPoints++)
+        for (int number_of_points=1; number_of_points<4; number_of_points++)
         {
-            GaussianQuadratureRule<2> quadRule(numberOfPoints);
+            GaussianQuadratureRule<2> quad_rule(number_of_points);
             
-            for (unsigned i=0; i<quadRule.GetNumQuadPoints(); i++)
+            for (unsigned i=0; i<quad_rule.GetNumQuadPoints(); i++)
             {
-                TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
-                TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
+                TS_ASSERT_LESS_THAN_EQUALS( quad_rule.GetWeight(i),1);
+                TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
-                TS_ASSERT_LESS_THAN(-(1-quadRule.GetQuadPoint(i)[0]
-                                      -quadRule.GetQuadPoint(i)[1]),0); // 1-x-y>0
-                TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[0],0);  // x>0
-                TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[1],0);  // y>0
+                TS_ASSERT_LESS_THAN(-(1-quad_rule.GetQuadPoint(i)[0]
+                                       -quad_rule.GetQuadPoint(i)[1]),0); // 1-x-y>0
+                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0);  // x>0
+                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[1],0);  // y>0
             }
         }
         
-        for (int numberOfPoints=1; numberOfPoints<4; numberOfPoints++)
+        for (int number_of_points=1; number_of_points<4; number_of_points++)
         {
-            GaussianQuadratureRule<3> quadRule(numberOfPoints);
+            GaussianQuadratureRule<3> quad_rule(number_of_points);
             
-            for (unsigned i=0; i<quadRule.GetNumQuadPoints(); i++)
+            for (unsigned i=0; i<quad_rule.GetNumQuadPoints(); i++)
             {
-                TS_ASSERT_LESS_THAN_EQUALS( quadRule.GetWeight(i),1);
-                TS_ASSERT_LESS_THAN_EQUALS(-quadRule.GetWeight(i),0);
+                TS_ASSERT_LESS_THAN_EQUALS( quad_rule.GetWeight(i),1);
+                TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
-                TS_ASSERT_LESS_THAN(-(1-quadRule.GetQuadPoint(i)[0]
-                                      -quadRule.GetQuadPoint(i)[1]
-                                      -quadRule.GetQuadPoint(i)[2]),0); // 1-x-y-z>0
-                TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[0],0);  // x>0
-                TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[1],0);  // y>0
-                TS_ASSERT_LESS_THAN(-quadRule.GetQuadPoint(i)[2],0);  // z>0
+                TS_ASSERT_LESS_THAN(-(1-quad_rule.GetQuadPoint(i)[0]
+                                       -quad_rule.GetQuadPoint(i)[1]
+                                       -quad_rule.GetQuadPoint(i)[2]),0); // 1-x-y-z>0
+                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0);  // x>0
+                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[1],0);  // y>0
+                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[2],0);  // z>0
             }
         }
         

@@ -112,11 +112,11 @@ public:
         LinearBasisFunction<1> basis_func;
         Point<1> one(1);
         
-        c_matrix<double, 1, 1> invJ;
-        invJ(0,0)=0.5;
+        c_matrix<double, 1, 1> inv_J;
+        inv_J(0,0)=0.5;
         
         c_matrix<double, 1, 2> transDeriv =
-            basis_func.ComputeTransformedBasisFunctionDerivatives(one, invJ);
+            basis_func.ComputeTransformedBasisFunctionDerivatives(one, inv_J);
             
         TS_ASSERT_DELTA(transDeriv(0,0), -0.5, 1e-12);
         TS_ASSERT_DELTA(transDeriv(0,1),  0.5, 1e-12);
@@ -125,24 +125,24 @@ public:
         LinearBasisFunction<2> basis_func2;
         Point<2> oneone(1,1);
         
-        c_matrix<double, 2, 2> invJ2 = 0.5 * identity_matrix<double>(2);
+        c_matrix<double, 2, 2> inv_J2 = 0.5 * identity_matrix<double>(2);
         
-        c_matrix<double, 2, 3> transDeriv2 =
-            basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone, invJ2);
+        c_matrix<double, 2, 3> trans_deriv =
+            basis_func2.ComputeTransformedBasisFunctionDerivatives(oneone, inv_J2);
             
-        TS_ASSERT_DELTA(transDeriv2(0,0), -0.5, 1e-12);
-        TS_ASSERT_DELTA(transDeriv2(0,1),  0.5, 1e-12);
-        TS_ASSERT_DELTA(transDeriv2(0,2),    0, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,0), -0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,1),  0.5, 1e-12);
+        TS_ASSERT_DELTA(trans_deriv(0,2),    0, 1e-12);
         
         
         //3D
         LinearBasisFunction<3> basis_func3;
         Point<3> oneoneone(1,1,1);
         
-        c_matrix<double, 3, 3> invJ3 = 0.5 * identity_matrix<double>(3);
+        c_matrix<double, 3, 3> inv_J3 = 0.5 * identity_matrix<double>(3);
         
         c_matrix<double, 3, 4> transDeriv3 =
-            basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,invJ3);
+            basis_func3.ComputeTransformedBasisFunctionDerivatives(oneoneone,inv_J3);
             
         TS_ASSERT_DELTA(transDeriv3(0,0), -0.5, 1e-12);
         TS_ASSERT_DELTA(transDeriv3(0,1),  0.5, 1e-12);

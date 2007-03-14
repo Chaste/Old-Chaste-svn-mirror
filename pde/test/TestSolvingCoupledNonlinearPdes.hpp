@@ -406,7 +406,7 @@ public:
         NonlinearHeatEquationPde<2> pde;  
         
         // boundary conditions for 1-unknown problem
-        BoundaryConditionsContainer<2,2,1> bcc_1unknown(mesh.GetNumNodes());
+        BoundaryConditionsContainer<2,2,1> bcc_1unknown;
         
         iter = mesh.GetBoundaryElementIteratorBegin();
         p_boundary_condition = new ConstBoundaryCondition<2>(-0.5);

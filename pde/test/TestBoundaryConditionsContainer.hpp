@@ -20,11 +20,11 @@ public:
         // test in 1d
         //////////////////////////////////////////////////////////////
         
-        int numNodes = 10;
+        int num_nodes = 10;
         BoundaryConditionsContainer<1,1,1> bcc1;
         
-        Node<1>* nodes[numNodes];
-        for (int i=0; i<numNodes; i++)
+        Node<1>* nodes[num_nodes];
+        for (int i=0; i<num_nodes; i++)
         {
             nodes[i] = new Node<1>(i,true,0);
             ConstBoundaryCondition<1>* p_boundary_condition =
@@ -32,20 +32,20 @@ public:
             bcc1.AddDirichletBoundaryCondition(nodes[i], p_boundary_condition);
         }
         
-        for (int i=0; i<numNodes; i++)
+        for (int i=0; i<num_nodes; i++)
         {
             double value = bcc1.GetDirichletBCValue(nodes[i]);
             TS_ASSERT_DELTA( value, i, 1e-12 );
         }
         
-        for (int i=0; i<numNodes; i++)
+        for (int i=0; i<num_nodes; i++)
         {
             delete nodes[i];
         }
         
-        int numElem = 10;
+        int num_elem = 10;
         std::vector<BoundaryElement<0,1> > elements;
-        for (unsigned element_index=0; element_index< (unsigned) numElem; element_index++)
+        for (unsigned element_index=0; element_index< (unsigned) num_elem; element_index++)
         {
             std::vector<Node<1>* > nodes;
             Node<1>* node = new Node<1>(element_index,true,0);
@@ -54,14 +54,14 @@ public:
             BoundaryElement<0,1> element(element_index, nodes);
             elements.push_back(element);
         }
-        for (int i=0; i<numElem; i++)
+        for (int i=0; i<num_elem; i++)
         {
             ConstBoundaryCondition<1>* p_boundary_condition =
                 new ConstBoundaryCondition<1>((double)i);
             bcc1.AddNeumannBoundaryCondition(&elements[i], p_boundary_condition);
         }
         
-        for (int i=0; i<numElem; i++)
+        for (int i=0; i<num_elem; i++)
         {
             double value = bcc1.GetNeumannBCValue(&elements[i], elements[i].GetNode(0)->GetIndex() );
             TS_ASSERT_DELTA( value, i, 1e-12 );
@@ -71,11 +71,11 @@ public:
         //////////////////////////////////////////////////////////////
         // test in 2d
         //////////////////////////////////////////////////////////////
-        numNodes = 10;
+        num_nodes = 10;
         BoundaryConditionsContainer<2,2,1> bcc2;
         
-        Node<2>* nodes2[numNodes];
-        for (int i=0; i<numNodes; i++)
+        Node<2>* nodes2[num_nodes];
+        for (int i=0; i<num_nodes; i++)
         {
             nodes2[i] = new Node<2>(i,true,0,0);
             ConstBoundaryCondition<2>* p_boundary_condition =
@@ -83,20 +83,20 @@ public:
             bcc2.AddDirichletBoundaryCondition(nodes2[i], p_boundary_condition);
         }
         
-        for (int i=0; i<numNodes; i++)
+        for (int i=0; i<num_nodes; i++)
         {
             double value = bcc2.GetDirichletBCValue(nodes2[i]);
             TS_ASSERT_DELTA( value, i, 1e-12 );
         }
         
-        for (int i=0; i<numNodes; i++)
+        for (int i=0; i<num_nodes; i++)
         {
             delete nodes2[i];
         }
         
-        numElem = 10;
+        num_elem = 10;
         std::vector<BoundaryElement<1,2> > elements2;
-        for (unsigned element_index=0; element_index< (unsigned) numElem; element_index++)
+        for (unsigned element_index=0; element_index< (unsigned) num_elem; element_index++)
         {
             std::vector<Node<2>* > nodes;
             Node<2>* node0 = new Node<2>(element_index,true,0,0);
@@ -108,14 +108,14 @@ public:
             
             elements2.push_back(element);
         }
-        for (int i=0; i<numElem; i++)
+        for (int i=0; i<num_elem; i++)
         {
             ConstBoundaryCondition<2>* p_boundary_condition =
                 new ConstBoundaryCondition<2>((double)i);
             bcc2.AddNeumannBoundaryCondition(&elements2[i], p_boundary_condition);
         }
         
-        for (int i=0; i<numElem; i++)
+        for (int i=0; i<num_elem; i++)
         {
             double value = bcc2.GetNeumannBCValue(&elements2[i], elements2[i].GetNode(0)->GetIndex() );
             TS_ASSERT_DELTA( value, i, 1e-12 );
@@ -126,11 +126,11 @@ public:
         //////////////////////////////////////////////////////////////
         // test in 3d
         //////////////////////////////////////////////////////////////
-        numNodes = 10;
+        num_nodes = 10;
         BoundaryConditionsContainer<3,3,1> bcc3;
         
-        Node<3>* nodes3[numNodes];
-        for (int i=0; i<numNodes; i++)
+        Node<3>* nodes3[num_nodes];
+        for (int i=0; i<num_nodes; i++)
         {
             nodes3[i] = new Node<3>(i,true,0,0);
             ConstBoundaryCondition<3>* p_boundary_condition =
@@ -138,19 +138,19 @@ public:
             bcc3.AddDirichletBoundaryCondition(nodes3[i], p_boundary_condition);
         }
         
-        for (int i=0; i<numNodes; i++)
+        for (int i=0; i<num_nodes; i++)
         {
             double value = bcc3.GetDirichletBCValue(nodes3[i]);
             TS_ASSERT_DELTA( value, i, 1e-12 );
         }
-        for (int i=0; i<numNodes; i++)
+        for (int i=0; i<num_nodes; i++)
         {
             delete nodes3[i];
         }
         
-        numElem = 10;
+        num_elem = 10;
         std::vector<BoundaryElement<2,3> > elements3;
-        for (int element_index=0; element_index<numElem; element_index++)
+        for (int element_index=0; element_index<num_elem; element_index++)
         {
             std::vector<Node<3>* > nodes;
             Node<3>* node0 = new Node<3>(element_index,true,0,0,0);
@@ -163,14 +163,14 @@ public:
             
             elements3.push_back(element);
         }
-        for (int i=0; i<numElem; i++)
+        for (int i=0; i<num_elem; i++)
         {
             ConstBoundaryCondition<3>* p_boundary_condition =
                 new ConstBoundaryCondition<3>((double)i);
             bcc3.AddNeumannBoundaryCondition(&elements3[i], p_boundary_condition);
         }
         
-        for (int i=0; i<numElem; i++)
+        for (int i=0; i<num_elem; i++)
         {
             double value = bcc3.GetNeumannBCValue(&elements3[i], elements3[i].GetNode(0)->GetIndex() );
             TS_ASSERT_DELTA( value, i, 1e-12 );
