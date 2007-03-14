@@ -229,12 +229,7 @@ public:
         mIndex=index;
     }
     
-    bool IsDeleted()
-    {
-        return mIsDeleted;
-    }
-    
-    bool GetOwnership()
+    bool GetOwnership() const
     {
         return mOwnership;
     }
@@ -254,7 +249,7 @@ public:
         mFlag = false;
     }
     
-    bool IsFlagged()
+    bool IsFlagged() const
     {
         return mFlag;
     }

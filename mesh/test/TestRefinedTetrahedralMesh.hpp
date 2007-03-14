@@ -68,9 +68,62 @@ public:
         // Elements 0,2,3 and 6 form the upper right half of the space
         // (added in a funny order since set equality ought to cope with this)
         
-        
         TS_ASSERT(expected_elements ==
-                         coarse_mesh.GetFineElementsForCoarseElementIndex(0)); 
+                         coarse_mesh.GetFineElementsForCoarseElementIndex(0));
+    }
+    
+    void TestTransferFlags()
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;        
+        fine_mesh.ConstructRectangularMesh(4, 4, false);
+        double half=1.0L/2.0L;
+        fine_mesh.Scale(half, half, 0.0);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        coarse_mesh.ConstructRectangularMesh(2, 2, false);
+       
+        // give fine mesh to coarse mesh and calculate node map
+        coarse_mesh.SetFineMesh(&fine_mesh);
+        
+        // Flag the right half of the coarse mesh
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
+        for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+             i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+             i_coarse_element++)
+        {
+            Element<2,2> &element = **i_coarse_element;
+            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            if (centroid[0] > 1.0)
+            {
+                element.Flag();
+            }
+            else
+            {
+                element.Unflag();
+            }
+        }
+        
+        // Flag the corresponding region of the fine mesh
+        coarse_mesh.TransferFlags();
+        
+        // Check
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_fine_element;
+        for (i_fine_element = fine_mesh.GetElementIteratorBegin();
+             i_fine_element != fine_mesh.GetElementIteratorEnd();
+             i_fine_element++)
+        {
+            Element<2,2> &element = **i_fine_element;
+            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            if (centroid[0] > 1.0)
+            {
+                TS_ASSERT(element.IsFlagged());
+            }
+            else
+            {
+                TS_ASSERT(!element.IsFlagged());
+            }
+        }
     }
     
     void TestFineNodesCoarseElementsMap2D(void)
@@ -125,7 +178,65 @@ public:
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructFromMeshReader(coarse_mesh_reader,1);
         
+        TS_ASSERT_THROWS_ANYTHING(coarse_mesh.TransferFlags());
+        
         coarse_mesh.SetFineMesh(&fine_mesh);
+        
+        // Flag the right semicircle of the coarse mesh
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
+        for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+             i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+             i_coarse_element++)
+        {
+            Element<2,2> &element = **i_coarse_element;
+            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            if (centroid[0] > 0)
+            {
+                element.Flag();
+            }
+            else
+            {
+                element.Unflag();
+            }
+        }
+        
+        // Flag the corresponding region of the fine mesh
+        coarse_mesh.TransferFlags();
+        
+        // Check - flagged fine elements must have at least one node in a flagged coarse element
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_fine_element;
+        for (i_fine_element = fine_mesh.GetElementIteratorBegin();
+             i_fine_element != fine_mesh.GetElementIteratorEnd();
+             i_fine_element++)
+        {
+            Element<2,2> &fine_element = **i_fine_element;
+            
+            unsigned count = 0;
+            for (unsigned i=0; i<fine_element.GetNumNodes(); i++)
+            {
+                unsigned node_index = fine_element.GetNodeGlobalIndex(i);
+                const Element<2,2> *p_coarse_element = coarse_mesh.GetACoarseElementForFineNodeIndex(node_index);
+                if (p_coarse_element->IsFlagged())
+                {
+                    count++;
+                }
+            }
+            if (count == 0)
+            {
+                TS_ASSERT(!fine_element.IsFlagged());
+            }
+            else if (count > 1)
+            {
+                if (fine_element.GetIndex() != 421)
+                {
+                    TS_ASSERT(fine_element.IsFlagged());
+                }
+            }
+            // Some fine elements just have 1 node touching the edge of the flagged
+            // region in the coarse mesh, so are not flagged.
+            // Element 421 is a special case - one edge lies on the border of the
+            // flagged region.
+        }
     }
 };
 

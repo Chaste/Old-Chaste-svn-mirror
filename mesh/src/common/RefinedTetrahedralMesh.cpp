@@ -96,7 +96,7 @@ public:
             catch (Exception &e)
             {
                 // find nearest coarse element
-               coarse_element_index = this->GetNearestElementIndex(mpFineMesh->GetNode(i)->GetPoint());
+                coarse_element_index = this->GetNearestElementIndex(mpFineMesh->GetNode(i)->GetPoint());
             }
             mFineNodeToCoarseElementMap[i]=this->GetElement(coarse_element_index);    
         }
@@ -104,8 +104,8 @@ public:
         //Calculate the map from coarse elements to fine ones    
         mCoarseFineElementsMap.resize(this->GetNumElements());
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
-        for (i_fine_element=mpFineMesh->GetElementIteratorBegin();
-             i_fine_element< mpFineMesh->GetElementIteratorEnd();
+        for (i_fine_element = mpFineMesh->GetElementIteratorBegin();
+             i_fine_element != mpFineMesh->GetElementIteratorEnd();
              i_fine_element++)
         {
             bool coarse_elements_found=false;
@@ -141,6 +141,14 @@ public:
         
           
     }
+    
+    
+    /**
+     * Transfer flags from the coarse mesh to the fine mesh.  The flagged region
+     * in the fine mesh will cover the flagged region of the coarse mesh.
+     */
+    void TransferFlags();
+    
     
     std::set< Element<ELEMENT_DIM, SPACE_DIM>* > GetFineElementsForCoarseElementIndex(unsigned coarse_element_index)
     {
@@ -197,6 +205,39 @@ public:
 };
 
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
+{
+    if (mpFineMesh == NULL)
+    {
+        EXCEPTION("You need a fine mesh to transfer flags to.");
+    }
+    
+    // Unflag all elements in the fine mesh
+    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
+    for (i_fine_element = mpFineMesh->GetElementIteratorBegin();
+         i_fine_element != mpFineMesh->GetElementIteratorEnd();
+         i_fine_element++)
+    {
+        (*i_fine_element)->Unflag();
+    }
+    
+    // Iterate over coarse elements, flagging the counterparts of those that are flagged
+    for (unsigned coarse_mesh_index=0;coarse_mesh_index<this->GetNumElements();coarse_mesh_index++)
+    {
+        if (this->GetElement(coarse_mesh_index)->IsFlagged())
+        {
+            std::set <Element <ELEMENT_DIM,SPACE_DIM>* >& r_fine_elements = mCoarseFineElementsMap[coarse_mesh_index];
+            for (typename std::set <Element <ELEMENT_DIM,SPACE_DIM>* >::iterator i_fine_element = r_fine_elements.begin();
+                 i_fine_element != r_fine_elements.end();
+                 i_fine_element++)
+            {
+                (*i_fine_element)->Flag();
+            }
+        }
+    }
+}
 
 
 #endif // _REFINEDTETRAHEDRALMESH_CPP_
