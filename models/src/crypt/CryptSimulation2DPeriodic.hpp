@@ -1318,34 +1318,6 @@ public:
      */
     void Solve()
     {
-        if (mOutputDirectory=="")
-        {
-            EXCEPTION("OutputDirectory not set");
-        }
-        
-        ///////////////////////////////////////////////////////////
-        // Set up Simulation
-        ///////////////////////////////////////////////////////////
-        
-        // Data writers for tabulated results data, used in tests
-        ColumnDataWriter tabulated_node_writer(mOutputDirectory+"Results", "tabulated_node_results");
-        ColumnDataWriter tabulated_element_writer(mOutputDirectory+"Results", "tabulated_element_results");
-        
-        node_writer_ids_t node_writer_ids;
-        SetupNodeWriter(tabulated_node_writer, node_writer_ids);
-        
-        element_writer_ids_t element_writer_ids;
-        SetupElementWriter(tabulated_element_writer, element_writer_ids);
-        
-        // This keeps track of when tabulated results were last output
-        unsigned tabulated_output_counter = 0;
-        
-        // Create output files for the visualizer
-        OutputFileHandler output_file_handler(mOutputDirectory);
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-        
-        
         // Set up the simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double current_time = p_simulation_time->GetDimensionalisedTime();
@@ -1362,8 +1334,42 @@ public:
        		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
         }
         
+        if (mOutputDirectory=="")
+        {
+            EXCEPTION("OutputDirectory not set");
+        }
         
-        // Check some parameters for a periodic simulation
+        double time_now = p_simulation_time->GetDimensionalisedTime();
+		std::ostringstream time_string;
+		time_string << time_now;
+		
+        std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
+        
+        
+        ///////////////////////////////////////////////////////////
+        // Set up Simulation
+        ///////////////////////////////////////////////////////////
+        
+        // Data writers for tabulated results data, used in tests
+        // first construction clears out the folder
+        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
+        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
+        
+        node_writer_ids_t node_writer_ids;
+        SetupNodeWriter(tabulated_node_writer, node_writer_ids);
+        
+        element_writer_ids_t element_writer_ids;
+        SetupElementWriter(tabulated_element_writer, element_writer_ids);
+        
+        // This keeps track of when tabulated results were last output
+        unsigned tabulated_output_counter = 0;
+        
+        // Create output files for the visualizer
+        OutputFileHandler output_file_handler(results_directory+"/vis_results/",true);
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+        
+		// Check some parameters for a periodic simulation
         if(mPeriodicSides)
         {
         	CalculateCryptBoundary();
@@ -2078,27 +2084,32 @@ public:
      * Saves the whole crypt simulation for restarting later.
      * 
      * Puts it in the folder mOutputDirectory/archive/
+     * and the file "2dCrypt_at_time_<SIMULATION TIME>.arch"
      * 
      * First archives simulation time then the simulation itself.
      */
     void Save()
     {
         // todo: remesh, save mesh
-
+        SimulationTime* p_sim_time = SimulationTime::Instance();
+        assert(p_sim_time->IsStartTimeSetUp());
+        
         std::string archive_directory = mOutputDirectory + "/archive/";
+        
+        std::ostringstream time_stamp;
+		time_stamp << p_sim_time->GetDimensionalisedTime();
         
         // create an output file handler in order to get the full path of the 
         // archive directory. Note the false is so the handler doesn't clean
         // the directory
         OutputFileHandler handler(archive_directory, false);
         std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "crypt_sim_periodic_2d.arch";
+        archive_filename = handler.GetTestOutputDirectory() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
         
         std::ofstream ofs(archive_filename.c_str());       
         boost::archive::text_oarchive output_arch(ofs);
 
-        SimulationTime* p_sim_time = SimulationTime::Instance();
-        assert(p_sim_time->IsStartTimeSetUp());
+
 
         // cast to const.
         const SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -2107,19 +2118,24 @@ public:
     }
     
     /**
-     * Loads a saved crypt simulation
+     * Loads a saved crypt simulation to run further.
      * 
      * @param rArchiveDirectory the name of the simulation to load 
      * (specified originally by simulator.SetOutputDirectory("wherever"); )
+     * @param rTimeStamp the time at which to load the simulation (this must
+     * be one of the times at which the simulation.Save() was called)
      */
-    void Load(const std::string& rArchiveDirectory)
+    void Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
     {
+    	std::ostringstream time_stamp;
+		time_stamp << rTimeStamp;
+    	
         SimulationTime *p_simulation_time = SimulationTime::Instance();
         
         OutputFileHandler any_old_handler("",false);
 		std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
         
-        std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/crypt_sim_periodic_2d.arch";
+        std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch";
         
         // Create an input archive
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
@@ -2130,8 +2146,11 @@ public:
         input_arch >> *p_simulation_time;        
         input_arch >> *this;
 		
+		double time_now = p_simulation_time->GetDimensionalisedTime();
+		std::ostringstream time_string;
+		time_string << time_now;
 		
-        mOutputDirectory = rArchiveDirectory+"/load_temp";
+        mOutputDirectory = rArchiveDirectory;
 
         if(mrMesh.GetNumNodes()!=mCells.size())
         {

@@ -23,18 +23,18 @@
 
 class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
 {
-	void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
+	void CheckAgainstPreviousRun(std::string resultDirectory,std::string resultSet, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
         
-        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"Results",
+        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
                                                              "tabulated_node_results",
                                                              true);
                                                              
         ColumnDataReader expected_node_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
                                                              "tabulated_node_results",
                                                              false);
-        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"Results",
+        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
                                                              "tabulated_element_results",
                                                              true);
                                                              
@@ -174,7 +174,7 @@ public:
         simulator.SetPeriodicSides(false);
         simulator.Solve();
               
-        CheckAgainstPreviousRun("Crypt2DSprings", 400u, 400u);
+        CheckAgainstPreviousRun("Crypt2DSprings","results_from_time_0", 400u, 400u);
                 
         SimulationTime::Destroy();
     }
@@ -254,7 +254,7 @@ public:
         simulator.SetPeriodicSides(false);
 
         simulator.Solve();
-        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries", 400u, 800u);
+        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries","results_from_time_0", 400u, 800u);
 
         SimulationTime::Destroy();
     }
@@ -341,7 +341,7 @@ public:
         simulator.SetReMeshRule(true);
 		
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        CheckAgainstPreviousRun("Crypt2DPeriodic", 200u, 500u);
+        CheckAgainstPreviousRun("Crypt2DPeriodic","results_from_time_0", 200u, 500u);
 
         SimulationTime::Destroy();
     }
@@ -428,7 +428,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
 
 		// Set length of simulation here
-        simulator.SetEndTime(0.2);
+        simulator.SetEndTime(0.3);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
@@ -441,7 +441,7 @@ public:
         simulator.SetGhostNodes(ghost_node_indices);
         
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        CheckAgainstPreviousRun("Crypt2DPeriodicWnt", 500u, 1000u);
+        CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
 
         SimulationTime::Destroy();
     }
@@ -543,7 +543,7 @@ public:
         // save the results..        
         simulator.Save();
 
-        CheckAgainstPreviousRun("Crypt2DPeriodicWnt", 500u, 1000u);
+        CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
         SimulationTime::Destroy();
     }
     
@@ -588,14 +588,30 @@ public:
 
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
 
-		simulator.Load("Crypt2DPeriodicWntSaveAndLoad");
+		// Load the simulation from the TestSave method above and 
+		// run it from 0.1 to 0.2
+		simulator.Load("Crypt2DPeriodicWntSaveAndLoad",0.1);
         
         simulator.SetEndTime(0.2);
 
         simulator.Solve();
+        
+        // save that then reload
+        // and run from 0.2 to 0.3.
+        
+        simulator.Save();
+        
+   		simulator.Load("Crypt2DPeriodicWntSaveAndLoad",0.2);
+   		
+   		simulator.SetEndTime(0.3);
+   		
+   		simulator.Solve();
 
-        CheckAgainstPreviousRun("Crypt2DPeriodicWnt", 500u, 1000u);
         SimulationTime::Destroy();
+        
+        // When the mesh is archived we need a good test here 
+      	// to ensure these results are the same as the ones 
+      	// from TestWithWntDependentCells().
     }
 
 
@@ -795,7 +811,6 @@ public:
         
         simulator.Solve();
         
-        //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
         std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
         
@@ -1141,8 +1156,8 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
         simulator3.SetMaxElements(400);
         simulator3.SetOutputDirectory("TestPrivateMemberDirectory");
         std::string output_directory = "TestPrivateMemberDirectory";
-        ColumnDataWriter tabulated_node_writer(output_directory+"Results", "tabulated_node_results");
-        ColumnDataWriter tabulated_element_writer(output_directory+"Results", "tabulated_element_results");
+        ColumnDataWriter tabulated_node_writer(output_directory+"/tab_results", "tabulated_node_results");
+        ColumnDataWriter tabulated_element_writer(output_directory+"/tab_results", "tabulated_element_results");
         
  /*
   ************************************************************************

@@ -265,27 +265,26 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 			}
 
 		}
-		File node_file = new File(args[0]+".viznodes");
-		File element_file = new File(args[0]+".vizelements");
+		File node_file = new File(args[0]+"/vis_results/results.viznodes");
+		File element_file = new File(args[0]+"/vis_results/results.vizelements");
 		if (!node_file.isFile())
 		{
-			System.out.println("The file "+args[0]+".viznodes doesn't exist");
+			System.out.println("The file "+args[0]+"/vis_results/results.viznodes doesn't exist");
 			return;
 		}
 		if (!element_file.isFile())
 		{
-			System.out.println("The file "+args[0]+".vizelements doesn't exist");
+			System.out.println("The file "+args[0]+"/vis_results/results.vizelements doesn't exist");
 			return;
 		}
 		
 	
-		
 		File fibre_file=null;		
 		if (drawFibres){
-		    fibre_file= new File(args[0]+".vizfibres");
+		    fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
 	            if (!fibre_file.isFile())
 		    {
-			System.out.println("The file "+args[0]+".vizfibres doesn't exist");
+			System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
 			return;
 		    }
 		}

@@ -20,18 +20,18 @@
 
 class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
 {
-	void CheckAgainstPreviousRun(std::string resultDirectory, unsigned maxCells, unsigned maxElements)
+	void CheckAgainstPreviousRun(std::string resultSet,std::string resultDirectory, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
         
-        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"Results",
+        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
                                                              "tabulated_node_results",
                                                              true);
                                                              
         ColumnDataReader expected_node_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
                                                              "tabulated_node_results",
                                                              false);
-        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"Results",
+        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
                                                              "tabulated_element_results",
                                                              true);
                                                              
@@ -190,7 +190,7 @@ public:
         simulator.Solve();
         
         delete p_mesh;
-        CheckAgainstPreviousRun("Crypt2DHoneycombMesh", 400u, 800u);
+        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 400u, 800u);
 
         SimulationTime::Destroy();
     }
@@ -435,7 +435,7 @@ public:
 		TS_ASSERT_EQUALS(leftBoundary[11], 322u);
 		TS_ASSERT_EQUALS(rightBoundary[11], 102u);
         
-        //CheckAgainstPreviousRun("Crypt2DPeriodicNightly", 500u, 1000u);
+        //CheckAgainstPreviousRun("Crypt2DPeriodicNightly","results_from_time_0", 500u, 1000u);
         SimulationTime::Destroy();
     }
     
@@ -678,7 +678,7 @@ public:
 		TS_ASSERT_EQUALS(rightBoundary[11], 116u);
 		TS_ASSERT_EQUALS(leftBoundary[12], 325u);
 		TS_ASSERT_EQUALS(rightBoundary[12], 85u);
-		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly", 500u, 1000u);
+		//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly","results_from_time_0", 500u, 1000u);
         SimulationTime::Destroy();
     }
     
