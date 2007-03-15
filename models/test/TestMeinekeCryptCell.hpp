@@ -1264,7 +1264,7 @@ public:
         
         cell.StartApoptosis();
         TS_ASSERT_THROWS_ANYTHING(cell.StartApoptosis());
-
+        
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.25,1e-12);
@@ -1280,6 +1280,28 @@ public:
         
         SimulationTime::Destroy();
     }
+    
+    
+    void TestCantDivideIfUndergoingApoptosis()
+    {
+        // We are going to start at t=0 and jump up to t=25
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
+                
+        MeinekeCryptCell cell(TRANSIT, // type
+                              HEALTHY,//Mutation State
+                              0,    // generation
+                              new FixedCellCycleModel());
+        
+        p_simulation_time->IncrementTimeOneStep();//t=25
+        
+        TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
+        cell.StartApoptosis();
+        TS_ASSERT_EQUALS(cell.ReadyToDivide(), false);
+        SimulationTime::Destroy();
+    }
+        
 
 
     void Test0DBucketWithDeath()

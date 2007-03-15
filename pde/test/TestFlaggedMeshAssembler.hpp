@@ -93,11 +93,14 @@ public :
         assembler.mpLinearSystem->DisplayRhs();
         std::cout << "smasrm matrix:\n";
         assembler.mpLinearSystem->DisplayMatrix();
+
         
         // Test SMASRM values
         // It should have -8.3.., 26.6.., -8.3.. on the centre diagonals, except for the boundaries
+        // These numbers come from looking at the matrix of an equivalent problem
+        // using the simple dg0 parabolic assembler 
         PetscInt lo, hi;
-        VecGetOwnershipRange(initial_condition, &lo, &hi);
+        assembler.mpLinearSystem->GetOwnershipRange(lo, hi);
         for (unsigned i=1; i<smasrm_size-1; i++)
         {
             if ((unsigned)lo <= i && i < (unsigned)hi)
@@ -107,18 +110,25 @@ public :
                 TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(i, i+1), -8.3333333333, 1e-8);
             }
         }
-        // Dirichlet boundaries
-        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 0), 1.0, 1e-8);
-        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 1), 0.0, 1e-8);
-        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 3), 0.0, 1e-8);
-        TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 4), 1.0, 1e-8);
         
+        // Dirichlet boundaries
+        unsigned i=0;
+        if ((unsigned)lo <= i && i < (unsigned)hi)
+        {
+            TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 0), 1.0, 1e-8);
+            TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(0, 1), 0.0, 1e-8);
+        }
+        i=4;
+        if ((unsigned)lo <= i && i < (unsigned)hi)
+        {
+            TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 3), 0.0, 1e-8);
+            TS_ASSERT_DELTA(assembler.mpLinearSystem->GetMatrixElement(4, 4), 1.0, 1e-8);
+        }
         
         // Check that if we add a boundary condition to an unflagged node
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
         // and then assemble the system
         TS_ASSERT_THROWS_ANYTHING(assembler.AssembleSystem(initial_condition, 0.0));
-        // ...
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

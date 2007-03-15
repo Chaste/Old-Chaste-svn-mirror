@@ -106,6 +106,9 @@ public:
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
+        // throws because start time not set on simulation time
+        TS_ASSERT_THROWS_ANYTHING(CryptSimulation bad_simulator(mesh));
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         

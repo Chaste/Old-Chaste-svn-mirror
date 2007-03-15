@@ -142,6 +142,12 @@ public:
         Ode1 ode_system;
         euler_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0],1.0,1e-2);
+        
+        // cover an exception. this throws because SolveAndUpdateStateVar
+        // called but the state is not set up in this ode system.
+        OdeSecondOrder ode2;
+        TS_ASSERT_THROWS_ANYTHING(euler_solver.SolveAndUpdateStateVariable(&ode2, 0, 1, 0.01));
+        
     }
     
     void testAdamsBashforthSolver()

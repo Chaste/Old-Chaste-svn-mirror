@@ -48,7 +48,7 @@ private:
         //archive & mpInstance;
         if(mpInstance==NULL)
         {
-            EXCEPTION("Trying to save or load an instance of simulation time\n when the simulation time object does not exist");   
+            EXCEPTION("Trying to save or load an instance of simulation time when the simulation time object does not exist");   
         }
         archive & mpInstance->mDurationOfSimulation;
         archive & mpInstance->mTotalTimeStepsInSimulation;

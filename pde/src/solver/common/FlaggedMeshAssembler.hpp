@@ -66,14 +66,14 @@ protected :
             ++iter;
         }
         
-        // Debugging: display index map
-        std::cout << "SMASRM index map" << std::endl;
-        std::map<unsigned, unsigned>::iterator smasrm_map_iter = smasrm_index_map.begin();
-        while (smasrm_map_iter != smasrm_index_map.end())
-        {
-            std::cout << smasrm_map_iter->first << " " << smasrm_map_iter->second << std::endl;
-            ++smasrm_map_iter;
-        }
+        //// Debugging: display index map
+        //std::cout << "SMASRM index map" << std::endl;
+        //std::map<unsigned, unsigned>::iterator smasrm_map_iter = smasrm_index_map.begin();
+        //while (smasrm_map_iter != smasrm_index_map.end())
+        //{
+        //    std::cout << smasrm_map_iter->first << " " << smasrm_map_iter->second << std::endl;
+        //    ++smasrm_map_iter;
+        //}
         
         // linear problem - set up the Linear System if necessary, otherwise zero
         // it.

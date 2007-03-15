@@ -162,7 +162,7 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 	cellCycleInfluences.push_back(mutation_state);
 	mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
     if (mUndergoingApoptosis)
-    {
+    { 
         mCanDivide = false;
     }
     return mCanDivide;
