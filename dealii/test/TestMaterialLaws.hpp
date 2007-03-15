@@ -25,6 +25,32 @@ public:
         TS_ASSERT_DELTA(ml_law_2d.GetC1(), c1, 1e-12);
         TS_ASSERT_DELTA(ml_law_2d.Get_dW_dI1(1.0,0.0), c1, 1e-12);
         TS_ASSERT_DELTA(ml_law_2d.Get_d2W_dI1(1.0,0.0), 0.0, 1e-12);
+        
+        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
+        // obviously it should be zero
+        TS_ASSERT_DELTA(ml_law_2d.GetZeroStrainPressure(), 2*c1, 1e-12);
+        Tensor<2,2> identity_strain_2d;
+        for(unsigned i=0; i<2; i++)
+        {
+            for(unsigned j=0; j<2; j++)
+            {
+                identity_strain_2d[i][j]=0;
+            }
+            identity_strain_2d[i][i]=1;
+        }
+
+        SymmetricTensor<2,2> T_2d;
+        ml_law_2d.Compute2ndPiolaKirchoffStress(identity_strain_2d,
+                                                ml_law_2d.GetZeroStrainPressure(),
+                                                T_2d);
+        for(unsigned i=0; i<2; i++)
+        {
+            for(unsigned j=0; j<2; j++)
+            {
+                TS_ASSERT_DELTA(T_2d[i][j],0.0,1e-12);
+            }
+        }
+                
                 
         double c2 = 3.0;
         
@@ -38,6 +64,32 @@ public:
         TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI2(1.0,0.0), 0.0, 1e-12);
         TS_ASSERT_DELTA(ml_law_3d.Get_d2W_dI1I2(1.0,0.0), 0.0, 1e-12);
         
+        TS_ASSERT_DELTA(ml_law_3d.GetZeroStrainPressure(), 2*c1+4*c2, 1e-12);
+
+        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
+        // obviously it should be zero
+        Tensor<2,3> identity_strain_3d;
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                identity_strain_3d[i][j]=0;
+            }
+            identity_strain_3d[i][i]=1;
+        }
+        SymmetricTensor<2,3> T_3d;
+        ml_law_3d.Compute2ndPiolaKirchoffStress(identity_strain_3d,
+                                                ml_law_3d.GetZeroStrainPressure(),
+                                                T_3d);
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(T_3d[i][j],0.0,1e-12);
+            }
+        }
+
+        // compute stress given a non-zero deformation
         Tensor<2,3> F;
         F[0][0] = 3.0;
         F[0][1] = 1.0;
@@ -151,6 +203,32 @@ public:
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI1(I1,I2),  b*exp_law_3d.Get_dW_dI1(I1,I2), 1e-12);
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI2(I1,I2),  0.0,                 1e-12);
         TS_ASSERT_DELTA(exp_law_3d.Get_d2W_dI1I2(I1,I2),0.0,                 1e-12);
+
+
+        TS_ASSERT_DELTA(exp_law_3d.GetZeroStrainPressure(), 2*a*b, 1e-12);
+
+        // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
+        // obviously it should be zero
+        Tensor<2,3> identity_strain_3d;
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                identity_strain_3d[i][j]=0;
+            }
+            identity_strain_3d[i][i]=1;
+        }
+        SymmetricTensor<2,3> T_3d;
+        exp_law_3d.Compute2ndPiolaKirchoffStress(identity_strain_3d,
+                                                exp_law_3d.GetZeroStrainPressure(),
+                                                T_3d);
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(T_3d[i][j],0.0,1e-12);
+            }
+        }
     }
     
     
@@ -225,8 +303,8 @@ public:
         C[2][2] = 0.5;
         
         double I1 =   C[0][0]+C[1][1]+C[2][2];
-        double I2 =   C[0][1]*C[1][0] + C[1][2]*C[2][1] + C[2][0]*C[0][2]
-                    - C[0][0]*C[1][1] - C[1][1]*C[2][2] - C[2][2]*C[0][0];
+        double I2 =   C[0][0]*C[1][1] - C[1][1]*C[2][2] - C[2][2]*C[0][0]
+                     -C[0][1]*C[1][0] + C[1][2]*C[2][1] + C[2][0]*C[0][2];
 
 
         double true_dWdI1    = 2*c20*(I1-3) +   c11*(I2-3);
@@ -317,6 +395,32 @@ public:
         // check exception thrown if alpha[p][q]!=0, when p+q>N
         alpha[2][2] = 1.0;
         TS_ASSERT_THROWS_ANYTHING(PolynomialMaterialLaw3d bad_poly3(2,alpha));
+     
+       // compute the stress given C=delta_{MN} and p=zero_strain_pressure,
+        // obviously it should be zero
+        Tensor<2,3> identity_strain_3d;
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                identity_strain_3d[i][j]=0;
+            }
+            identity_strain_3d[i][i]=1;
+        }
+        SymmetricTensor<2,3> T_3d;
+        
+
+        poly_law.Compute2ndPiolaKirchoffStress(identity_strain_3d,
+                                               poly_law.GetZeroStrainPressure(),
+                                               T_3d);
+        for(unsigned i=0; i<3; i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                std::cout << T_3d[i][j] << " "; //TS_ASSERT_DELTA(T_3d[i][j],0.0,1e-12);
+            }
+        }
+        
     }
 };
 

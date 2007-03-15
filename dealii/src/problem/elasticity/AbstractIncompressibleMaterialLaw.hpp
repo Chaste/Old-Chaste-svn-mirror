@@ -167,6 +167,7 @@ public :
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
     }
 
+    virtual double GetZeroStrainPressure()=0;
 
     virtual ~AbstractIncompressibleMaterialLaw()
     {

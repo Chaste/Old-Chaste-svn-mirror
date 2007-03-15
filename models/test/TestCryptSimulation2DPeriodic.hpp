@@ -1074,9 +1074,12 @@ public:
         
         SimulationTime::Destroy();
     }   
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
-  {       
+
+
+
+
+    void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
+    {
  /*
   ************************************************************************
   ************************************************************************ 
@@ -1228,7 +1231,7 @@ void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
         TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
         TS_ASSERT_DELTA(forces_on_each_node[60][1], 0.0, 1e-4);
   
-   /*
+ /*
   ************************************************************************
   ************************************************************************ 
   *  Test Calculate force on a spring

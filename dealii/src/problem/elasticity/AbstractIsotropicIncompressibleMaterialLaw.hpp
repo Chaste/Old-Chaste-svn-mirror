@@ -76,8 +76,8 @@ public :
         double I2 = 0.0;
         if(DIM==3)
         {
-            I2 =  C[0][1]*C[1][0] + C[1][2]*C[2][1] + C[2][0]*C[0][2]
-                - C[0][0]*C[1][1] - C[1][1]*C[2][2] - C[2][2]*C[0][0];
+            I2 =   C[0][0]*C[1][1] - C[1][1]*C[2][2] - C[2][2]*C[0][0] 
+                 - C[0][1]*C[1][0] + C[1][2]*C[2][1] + C[2][0]*C[0][2];
         }        
         
         double  dW_dI1 = Get_dW_dI1(I1,I2);
@@ -92,6 +92,7 @@ public :
         //  T = dW_dE
         //    = 2 * dI1_dC_MN * dI1_dC_MN   +   2 * dI1_dC_MN * dI1_dC_MN  -  p * invC
         //    = 2 * dI1_dC_MN * delta_MN    +   2 * dI1_dC_MN * (I1 delta_MN - C_MN)  -  p * invC         
+
         T = 2*dW_dI1*identity - pressure*invC;
         if(DIM==3)
         {
@@ -158,7 +159,19 @@ public :
     virtual ~AbstractIsotropicIncompressibleMaterialLaw()
     {
     }
-
+    
+        
+    double GetZeroStrainPressure()
+    {
+        assert(DIM>=2 && DIM<=3);
+        if(DIM==2)
+        {
+            return 2*Get_dW_dI1(2,0);
+        }
+        
+        // else DIM==3
+        return 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3);
+    }
 };
 
 
