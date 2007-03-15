@@ -16,7 +16,8 @@
 #include "ReplicatableVector.hpp"
 #include "NonlinearHeatEquationPde.hpp"
 
-#define PI 3.14159265
+#define PI M_PI
+
 
 
 #include "SimpleNewtonNonlinearSolver.hpp"
@@ -284,7 +285,7 @@ private :
         NonlinearHeatEquationPde<DIM> pde;  //defined above
         
         // boundary conditions for 1-unknown problem
-        BoundaryConditionsContainer<DIM,DIM,1> bcc_1unknown(mesh.GetNumNodes());
+        BoundaryConditionsContainer<DIM,DIM,1> bcc_1unknown;
         bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
      
         // Assembler
