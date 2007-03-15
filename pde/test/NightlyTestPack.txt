@@ -1,3 +1,2 @@
-TestCompressibleFiniteElasticityAssembler.hpp
 TestSimpleDg0ParabolicAssemblerLong.hpp
 TestSolvingCoupledNonlinearPdes.hpp
