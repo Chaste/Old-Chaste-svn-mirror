@@ -30,7 +30,7 @@ public:
     void TestRandomCellKiller(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator random_num_gen; // passed into crypt sim for coverage
+    	RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
@@ -59,25 +59,25 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 6.5)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 8)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -159,10 +159,11 @@ public:
         }
         
         TS_ASSERT(new_locations == old_locations);
+        RandomNumberGenerator::Destroy();
         
    }
     
-    
+     
 };
 
 #endif /*TESTCELLKILLERS_HPP_*/

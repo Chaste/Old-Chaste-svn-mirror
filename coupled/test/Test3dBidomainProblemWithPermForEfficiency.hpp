@@ -67,8 +67,9 @@ public:
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
     
-        RandomNumberGenerator rng;
-        bidomain_problem.rGetMesh().PermuteNodes(rng);
+        RandomNumberGenerator::Instance();
+        bidomain_problem.rGetMesh().PermuteNodes();
+        RandomNumberGenerator::Destroy();
         
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");

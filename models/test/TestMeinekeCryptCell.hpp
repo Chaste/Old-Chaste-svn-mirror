@@ -313,7 +313,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator::Instance();
         
         p_simulation_time->IncrementTimeOneStep();
         
@@ -327,7 +327,7 @@ public:
         MeinekeCryptCell stochastic_stem_cell(STEM, // type
                                               HEALTHY,//Mutation State
                                    			  0,    // generation
-                                              new StochasticCellCycleModel(&rand_gen));
+                                              new StochasticCellCycleModel);
         MeinekeCryptCell differentiated_cell(DIFFERENTIATED, // type
                                              HEALTHY,//Mutation State
                                    			 6,    // generation
@@ -335,7 +335,7 @@ public:
         MeinekeCryptCell stochastic_differentiated_cell(DIFFERENTIATED, // type
                                                         HEALTHY,//Mutation State
                                    			 			6,    // generation
-                                                        new StochasticCellCycleModel(&rand_gen));
+                                                        new StochasticCellCycleModel);
         MeinekeCryptCell transit_cell(TRANSIT, // type
                                       HEALTHY,//Mutation State
                                    	  2,    // generation
@@ -377,6 +377,7 @@ public:
         TS_ASSERT(!stochastic_differentiated_cell.ReadyToDivide());
         
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
         
     }
     
@@ -395,8 +396,8 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerator rand_gen;
-        
+		RandomNumberGenerator::Instance();
+	    
         for (int i=0; i<600; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -414,7 +415,7 @@ public:
         // now at t = 17.99, cell is 11.99 old
         TS_ASSERT(!transit_cell.ReadyToDivide());
         
-        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel(&rand_gen);
+        StochasticCellCycleModel *cell_cycle_model = new StochasticCellCycleModel;
         // this now re-sets the age of the cell to 0.0 so more time added in underneath
         transit_cell.SetCellCycleModel(cell_cycle_model);
         TS_ASSERT_EQUALS(transit_cell.GetCellCycleModel(), cell_cycle_model);
@@ -441,6 +442,7 @@ public:
         MeinekeCryptCell daughter_cell2 = transit_cell.Divide();
         TS_ASSERT(typeid(daughter_cell2.GetCellCycleModel()) == typeid(transit_cell.GetCellCycleModel()));
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     
@@ -454,7 +456,7 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator::Instance();
         
         const double end_time = 70.0;
         //const int time_steps = 70;
@@ -480,7 +482,7 @@ public:
             MeinekeCryptCell stem_cell(STEM, // type
                                        HEALTHY,//Mutation State
                                    	   0,  // generation
-                                       new StochasticCellCycleModel(&rand_gen));
+                                       new StochasticCellCycleModel);
             cells.push_back(stem_cell);
             // produce the offspring of the cells
             std::vector<MeinekeCryptCell>::iterator cell_iterator = cells.begin();
@@ -545,7 +547,7 @@ public:
         
         TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12.0, 1e-12);
         
-        
+        RandomNumberGenerator::Destroy();
     }
     
     /* We are setting up a 0d bucket with some initial cell population

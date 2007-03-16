@@ -11,11 +11,11 @@
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 {
-    return new StochasticCellCycleModel(mpGen);
+    return new StochasticCellCycleModel();
 }
 
 
-StochasticCellCycleModel::StochasticCellCycleModel(RandomNumberGenerator *pGen)
+StochasticCellCycleModel::StochasticCellCycleModel()
 {
 	mpSimulationTime = SimulationTime::Instance();
 	if(mpSimulationTime->IsStartTimeSetUp()==false)
@@ -24,7 +24,7 @@ StochasticCellCycleModel::StochasticCellCycleModel(RandomNumberGenerator *pGen)
 	}
 	mpCancerParams = CancerParameters::Instance();
 	mBirthTime = mpSimulationTime->GetDimensionalisedTime();
-    mpGen=pGen;
+
 }
 
 void StochasticCellCycleModel::SetBirthTime(double birthTime)
@@ -52,7 +52,7 @@ bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInflue
             ready = (timeSinceBirth >= mpCancerParams->GetStemCellCycleTime());
             break;
         case TRANSIT:
-            ready = (timeSinceBirth >= mpGen->NormalRandomDeviate(mpCancerParams->GetTransitCellCycleTime(), 1.0));
+            ready = (timeSinceBirth >= RandomNumberGenerator::Instance()->NormalRandomDeviate(mpCancerParams->GetTransitCellCycleTime(), 1.0));
             break;
         default:
             ready = false;

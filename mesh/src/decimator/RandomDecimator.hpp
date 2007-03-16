@@ -8,14 +8,13 @@
 template <unsigned SPACE_DIM>
 class RandomDecimator : public Decimator<SPACE_DIM>
 {
-    RandomNumberGenerator * mpRanGen;
 protected:
 
     void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
     {
         if (before)
         {
-            this->mMeasureBefore=mpRanGen->ranf();
+            this->mMeasureBefore=RandomNumberGenerator::Instance()->ranf();
         } else {
             this->mMeasureAfter=this->mMeasureBefore;
         }
@@ -23,19 +22,7 @@ protected:
     }
     
     //double CalculateScore returns mMeasureAfter as in the base class
-public:
-	void Initialise(ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM> *pMesh, RandomNumberGenerator *pRanGen=NULL)
-    {
-        if (pRanGen)
-        {
-        	mpRanGen=pRanGen;
-        }
-        else
-        {
-         	mpRanGen=new RandomNumberGenerator;
-        }
-        Decimator<SPACE_DIM>::Initialise(pMesh);
-    }
+
 };
 
 

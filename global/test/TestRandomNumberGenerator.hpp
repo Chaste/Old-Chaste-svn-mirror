@@ -14,17 +14,22 @@ public:
         srandom(0);
         ran1=(double)random()/RAND_MAX;
         
-        RandomNumberGenerator gen;
+        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
         
-        double ran2=gen.ranf();
+        double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
+        
+        RandomNumberGenerator::Destroy();
     }
     
     void TestNewMethodSeed()
     {
-        RandomNumberGenerator gen;
-        double ran2=gen.ranf();
+        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+        double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);
+        
+        RandomNumberGenerator::Destroy();
+        
     }
     
     void TestDifferentRandomSeed()
@@ -32,10 +37,15 @@ public:
         srandom(36);
         ran1=(double)random()/RAND_MAX;
         
-        RandomNumberGenerator gen(36);
+        RandomNumberGenerator *p_gen=RandomNumberGenerator::Instance();
+        p_gen->Reseed(36);
         
-        double ran2=gen.ranf();
+         
+        double ran2=p_gen->ranf();
         TS_ASSERT_DELTA(ran1,ran2,1e-7);        
+
+        RandomNumberGenerator::Destroy();
+
     }
 };
 

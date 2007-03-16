@@ -11,7 +11,6 @@
 /*** \todo
 * makeheap efficiency
 * inner product interpolation
-* zero area surface?
 */
 
 ///Note ELEMENT_DIM matches SPACE_DIM
@@ -382,7 +381,7 @@ public:
     {
         std::cout<<"Number of nodes in queue is now "<<mQueue.size()<<"\t";
         std::cout<<"Lowest score is "<<mQueue[0]->mScore<<"\n";
-        //return;
+        return;
         std::vector<NodeInfo<SPACE_DIM> *> queue=mQueue;
         while ( !queue.empty() )
         {

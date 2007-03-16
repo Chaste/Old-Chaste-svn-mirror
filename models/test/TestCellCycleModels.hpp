@@ -82,20 +82,20 @@ public:
     
     void TestStochasticCellCycleModel(void) throw(Exception)
     {
-    	RandomNumberGenerator rand_gen;
-    	TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model1(&rand_gen));
+   		TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model1);
     	
+     	RandomNumberGenerator::Instance();
         CancerParameters *p_params = CancerParameters::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model2(&rand_gen));
+        TS_ASSERT_THROWS_ANYTHING(StochasticCellCycleModel cell_model2);
         
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_params->GetStemCellCycleTime(), num_steps);
         		
-        TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3(&rand_gen));
+        TS_ASSERT_THROWS_NOTHING(StochasticCellCycleModel cell_model3);
         
-		StochasticCellCycleModel cell_model(&rand_gen);
+		StochasticCellCycleModel cell_model;
         
         for(unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -141,7 +141,7 @@ public:
 	        	TS_ASSERT(ready_count==54)	
 	        } 
         }   
-        
+        RandomNumberGenerator::Destroy();
 		SimulationTime::Destroy();
     }
         
@@ -673,11 +673,11 @@ public:
         
         // Create an ouput archive 
         {
-            RandomNumberGenerator rand_gen;
+            RandomNumberGenerator::Instance();
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
-            StochasticCellCycleModel model(&rand_gen);
+            StochasticCellCycleModel model;
             p_simulation_time->IncrementTimeOneStep();
             
             model.SetCellType(TRANSIT);
@@ -688,16 +688,17 @@ public:
                         
             output_arch << static_cast<const StochasticCellCycleModel&>(model);
             
+            RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
         
         {  
-            RandomNumberGenerator rand_gen;
+            RandomNumberGenerator::Instance();
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
             
-            StochasticCellCycleModel model(&rand_gen);
+            StochasticCellCycleModel model;
             model.SetCellType(STEM);
             model.SetBirthTime(-2.0);
 
@@ -719,6 +720,7 @@ public:
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
             
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
+            RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
     }

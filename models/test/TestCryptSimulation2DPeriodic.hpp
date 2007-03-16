@@ -132,15 +132,15 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        RandomNumberGenerator random_num_gen; // passed into crypt sim for coverage
+        RandomNumberGenerator::Instance();
         
         // throws because start time not set on simulation time
-        TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/, &random_num_gen));
+        TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/, &random_num_gen);
+        CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/);
 
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
 
@@ -177,13 +177,14 @@ public:
         CheckAgainstPreviousRun("Crypt2DSprings","results_from_time_0", 400u, 400u);
                 
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     
     void Test2DSpringsFixedBoundaries() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         double crypt_length = 10;
         double crypt_width = 10;
@@ -212,25 +213,25 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 6.5)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 8)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -257,12 +258,13 @@ public:
         CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries","results_from_time_0", 400u, 800u);
 
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
 	
 	void TestWithFixedBirthOnPeriodicMesh() throw (Exception)
     {
     	CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         unsigned cells_across = 7;
 		unsigned cells_up = 5;
@@ -296,25 +298,25 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = 0;//-random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = 0;//-p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 4)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
              {
@@ -344,6 +346,7 @@ public:
         CheckAgainstPreviousRun("Crypt2DPeriodic","results_from_time_0", 200u, 500u);
 
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
 	// This is a rubbish test - all cells start at birthTime = 0.
@@ -355,7 +358,7 @@ public:
     	CancerParameters *p_params = CancerParameters::Instance();
 		// There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         unsigned cells_across = 6;
 		unsigned cells_up = 12;
@@ -388,32 +391,32 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else if (y < 3)
             {
             	cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else if (y < 4)
             {
             	cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else
             {	
                 // There are no fully differentiated cells in a Wnt simulation!
                 cell_type = TRANSIT;
                 generation = 4;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
@@ -444,6 +447,7 @@ public:
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
 
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     // Testing Save (based on previous test)
@@ -452,7 +456,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -485,32 +489,32 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else if (y < 4)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else
             {   
                 // There are no fully differentiated cells in a Wnt simulation!
                 cell_type = TRANSIT;
                 generation = 4;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
@@ -545,6 +549,7 @@ public:
 
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     // Testing Load (based on previous test)
@@ -553,7 +558,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator::Instance();
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -608,6 +613,7 @@ public:
    		simulator.Solve();
 
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
         
         // When the mesh is archived we need a good test here 
       	// to ensure these results are the same as the ones 
@@ -625,7 +631,7 @@ public:
     	CancerParameters *p_params = CancerParameters::Instance();
 		// There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         unsigned cells_across = 6;
 		unsigned cells_up = 12;
@@ -658,32 +664,32 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else if (y < 3)
             {
             	cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else if (y < 4)
             {
             	cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             else
             {	
                 // There are no fully differentiated cells in a Wnt simulation!
                 cell_type = TRANSIT;
                 generation = 4;
-                birth_time = -random_num_gen.ranf()*typical_wnt_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_wnt_cycle; //hours
             }
             WntGradientType this_type=LINEAR;
             WntGradient wnt_gradient(this_type);
@@ -716,6 +722,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
     
     // This is strange test -- all cells divide within a quick time, it gives
@@ -725,7 +732,7 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
         p_params->SetMaxTransitGenerations(1000);
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         unsigned cells_across = 6;
         unsigned cells_up = 12;
@@ -758,31 +765,31 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours - doesn't matter for stem cell;
+                birth_time = -p_random_num_gen->ranf()*typical_Tyson_Novak_cycle; //hours - doesn't matter for stem cell;
             }
             else if (y < 2)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_Tyson_Novak_cycle; //hours
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_Tyson_Novak_cycle; //hours
             }
             else if (y < 4)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_Tyson_Novak_cycle; //hours
             }
             else
              {  // There are no fully differentiated cells in a Wnt simulation!
                 cell_type = TRANSIT;
                 generation = 4;
-                birth_time = -random_num_gen.ranf()*typical_Tyson_Novak_cycle; //hours
+                birth_time = -p_random_num_gen->ranf()*typical_Tyson_Novak_cycle; //hours
             }
             //double wnt = 1.0 - y/p_params->GetCryptLength();
             MeinekeCryptCell cell(cell_type, HEALTHY, generation, new TysonNovakCellCycleModel());
@@ -851,6 +858,7 @@ public:
 		TS_ASSERT_EQUALS(leftBoundary[13], 339u);
 		TS_ASSERT_EQUALS(rightBoundary[13], 221u);
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
 	}
     
     void TestCalculateCryptBoundaries()
@@ -962,7 +970,7 @@ public:
     void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator::Instance();
         
         double crypt_length = 9.3;
         double crypt_width = 10.0;
@@ -992,25 +1000,25 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                //birth_time = -random_num_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                //birth_time = -p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (y < 3)
             {
                 cell_type = TRANSIT;
                 generation = 1;
-                //birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                //birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 6.5)
             {
                 cell_type = TRANSIT;
                 generation = 2;
-               // birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+               // birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else if (y < 8)
             {
                 cell_type = TRANSIT;
                 generation = 3;
-                //birth_time = -random_num_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                //birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -1032,7 +1040,7 @@ public:
         }
         
         
-        CryptSimulation2DPeriodic simulator(mesh,cells,&random_num_gen);
+        CryptSimulation2DPeriodic simulator(mesh,cells);
         //simulator.SetOutputDirectory("ghg");
         //simulator.SetMaxCells(200);
         //simulator.SetMaxElements(400);
@@ -1060,7 +1068,7 @@ public:
         TS_ASSERT_EQUALS(p_element->GetIndex(),110u);
         
         p_params->SetCryptLength(10.1);
-        CryptSimulation2DPeriodic simulator2(mesh,cells,&random_num_gen);
+        CryptSimulation2DPeriodic simulator2(mesh,cells);
         //simulator.SetOutputDirectory("ghg");
         
         simulator2.SetFixedBoundaries();
@@ -1073,6 +1081,7 @@ public:
         TS_ASSERT_EQUALS(num_deaths,0u);
         
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }   
 
 
@@ -1098,7 +1107,7 @@ public:
         unsigned num_cells2 = p_mesh2->GetNumAllNodes();
         
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator random_num_gen;
+        RandomNumberGenerator::Instance();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1151,7 +1160,7 @@ public:
             cells2.push_back(cell);
         }
         
-        CryptSimulation2DPeriodic simulator3(*p_mesh2,cells2,&random_num_gen);
+        CryptSimulation2DPeriodic simulator3(*p_mesh2,cells2);
         simulator3.SetGhostNodes(ghost_node_indices2);
         simulator3.SetPeriodicSides(false);
         
@@ -1318,6 +1327,7 @@ public:
   */
 
         SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
     }
         
 };

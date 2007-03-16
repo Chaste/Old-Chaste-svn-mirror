@@ -20,7 +20,6 @@
 
 #include "PetscSetupAndFinalize.hpp"
 
-#define PI 3.14159265
 
 #include <cassert>
 
@@ -81,7 +80,7 @@ private :
         int num_timesteps = solutions.GetNumberOfTimeSteps();
         
         // final time should be around pi/2
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01);
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], M_PI_2, 0.01);
         
         // penultimate y0 should be greater than zero
         TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);
@@ -103,7 +102,7 @@ private :
         num_timesteps = solutions.GetNumberOfTimeSteps();
         
         // final time should be around pi/2
-        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], PI/2, 0.01);
+        TS_ASSERT_DELTA( solutions.rGetTimes()[num_timesteps], M_PI_2, 0.01);
         
         // penultimate y0 should be greater than zero
         TS_ASSERT_LESS_THAN( 0, solutions.rGetSolutions()[num_timesteps-1][0]);

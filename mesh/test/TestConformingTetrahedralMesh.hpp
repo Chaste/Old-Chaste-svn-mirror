@@ -1075,8 +1075,8 @@ public:
         Node<3>*  p_node125=mesh.GetNode(125);
         Node<3>*  p_node273=mesh.GetNode(273);
         
-        RandomNumberGenerator rng;
-        mesh.PermuteNodes(rng);
+        RandomNumberGenerator::Instance();
+        mesh.PermuteNodes();
         
         TS_ASSERT_EQUALS(mesh.GetNode(  0)->GetIndex(),   0U);
         TS_ASSERT_EQUALS(mesh.GetNode(121)->GetIndex(), 121U);
@@ -1095,7 +1095,7 @@ public:
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
         TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
       
-        
+        RandomNumberGenerator::Destroy();
     }
     
         

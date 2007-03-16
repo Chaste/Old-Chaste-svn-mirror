@@ -180,8 +180,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
         RandomDecimator<2> decimator;
-        RandomNumberGenerator rand;
-        decimator.Initialise(&mesh, &rand);
+        RandomNumberGenerator::Instance();
+        decimator.Initialise(&mesh);
         
         
         //decimator.Interrogate();
@@ -212,6 +212,7 @@ public:
         decimator2.Decimate();
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh2.CalculateMeshVolume(), 400, 1.0e-5);
+        RandomNumberGenerator::Destroy();
        
     }
     void TestBase3D()

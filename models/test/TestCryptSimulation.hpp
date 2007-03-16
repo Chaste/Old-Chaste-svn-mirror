@@ -122,7 +122,7 @@ public:
     // No death because the initial length is 21 and only cells
     // with position greater than 22 (=default crypt length)
     // are sloughed off.
-    void test1dChainWithNoBirth(void) throw(Exception)
+    void Test1dChainWithNoBirth(void) throw(Exception)
     {
         Make1dCryptMesh("1D_crypt_mesh", 22, 21);
         std::string testoutput_dir;
@@ -212,7 +212,7 @@ public:
     void Test1DChainWithBirthConstantRestLength() throw (Exception)
     {
         // Note that random numbers are reseeded with srandom(0) by the following constructor.
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator::Instance();
         CancerParameters *p_params = CancerParameters::Instance();
         
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
@@ -235,7 +235,7 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time=-p_params->GetStemCellCycleTime()+1.0*i; //hours
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -250,6 +250,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
         CheckAgainstPreviousRun("CryptWithBirthConstantRestLength",33);
+        RandomNumberGenerator::Destroy();
     }
     
     // Includes variable rest length but not fully working in the class (see
@@ -257,7 +258,7 @@ public:
     // "(age1<1.0/time_scale && age2<1.0/time_scale && fabs(age1-age2)<1e-6)" if.
     void Test1DChainWithBirthVariableRestLength() throw (Exception)
     {
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator::Instance();
         Make1dCryptMesh("1D_crypt_mesh", 23, 22);
         
         std::string testoutput_dir;
@@ -279,7 +280,7 @@ public:
             CryptCellType cell_type=STEM;
             unsigned generation=0;
             double birth_time= -1.0; //hours
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -296,6 +297,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
 
         CheckAgainstPreviousRun("CryptWithBirthVariableRestLength",25);
+        RandomNumberGenerator::Destroy();
     }
     
     
@@ -303,7 +305,8 @@ public:
     // and pass into the simulation class
     void Test1DChainWithMeinekeCells() throw (Exception)
     {
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator *p_rand_gen=RandomNumberGenerator::Instance();
+        
         CancerParameters *p_params = CancerParameters::Instance();
         
         double crypt_length = 22.0;
@@ -333,13 +336,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -rand_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_rand_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -rand_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_rand_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -347,14 +350,14 @@ public:
                 generation = 4;
                 birth_time = 0; //hours
             }
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(&rand_gen));
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
         
         
-        CryptSimulation simulator(mesh, cells, &rand_gen);
+        CryptSimulation simulator(mesh, cells);
 
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
@@ -363,6 +366,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
 
         CheckAgainstPreviousRun("CryptWithCells",50);
+        RandomNumberGenerator::Destroy();
     }
     
     
@@ -371,7 +375,7 @@ public:
     void Test1DChainWithMeinekeCellsAndGrowth() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator *p_rand_gen = RandomNumberGenerator::Instance();
         
         double crypt_length = 22.0;
         p_params->SetCryptLength(crypt_length);
@@ -400,13 +404,13 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -rand_gen.ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+                birth_time = -p_rand_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -rand_gen.ranf()*p_params->GetTransitCellCycleTime(); //hours
+                birth_time = -p_rand_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
             }
             else
             {
@@ -433,6 +437,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
 
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
+        RandomNumberGenerator::Destroy();
     }
     
     
@@ -444,7 +449,7 @@ public:
     void Test1dChainCorrectCellNumbers()
     {
         CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator rand_gen;
+        RandomNumberGenerator::Instance();
         
         // check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
@@ -535,6 +540,7 @@ public:
                 }
             }
         }
+        RandomNumberGenerator::Destroy();
     }
 };
 

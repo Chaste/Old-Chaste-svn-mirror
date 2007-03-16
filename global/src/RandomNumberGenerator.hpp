@@ -12,13 +12,26 @@ public:
     double ranf(void);
     unsigned randMod(unsigned base);
     
-    /**
+ 
+    
+    static RandomNumberGenerator* Instance();
+    static void Destroy();
+	void Reseed(int seed)
+	{
+		srandom(seed);
+	}
+protected:
+   /**
      * @param seed Is the new seed which defaults to zero.
      */
-    RandomNumberGenerator(unsigned seed=0)
+    RandomNumberGenerator()
     {
-        srandom(seed);
+        srandom(0);
     }
     
+private:
+
+
+    static RandomNumberGenerator* mpInstance;
 };
 #endif /*RANDOMNUMBERGENERATORS_HPP_*/

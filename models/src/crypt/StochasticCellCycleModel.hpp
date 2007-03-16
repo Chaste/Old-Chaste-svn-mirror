@@ -15,7 +15,6 @@ class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 private:
 	CancerParameters* mpCancerParams;
-    RandomNumberGenerator* mpGen;
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -26,7 +25,7 @@ private:
     }
     
 public:
-    StochasticCellCycleModel(RandomNumberGenerator *pGen);
+    StochasticCellCycleModel();
     
     virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     

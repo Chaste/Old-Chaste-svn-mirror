@@ -64,22 +64,12 @@ public:
      *  constructed and random numbers are reseeded with srandom(0).
      */
     CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
-                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
-                    RandomNumberGenerator *pGen = NULL)
+                    std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
             : mrMesh(rMesh),
             mCells(cells)
     {
     	mpSimulationTime = SimulationTime::Instance();
-    	if (pGen!=NULL)
-        {
-            mpGen = pGen;
-            mCreatedRng = false;
-        }
-        else
-        {
-            mpGen = new RandomNumberGenerator;
-            mCreatedRng = true;
-        }
+    	mpGen = RandomNumberGenerator::Instance();
         mpParams = CancerParameters::Instance();
         mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
         mEndTime = 120.0; //hours
@@ -100,10 +90,6 @@ public:
      */
     ~CryptSimulation()
     {
-        if (mCreatedRng)
-        {
-            delete mpGen;
-        }
         SimulationTime::Destroy();
     }
     
@@ -220,7 +206,7 @@ public:
                 CryptCellType cell_type=STEM ;
                 unsigned generation=0;
                 
-                MeinekeCryptCell new_cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel(mpGen));
+                MeinekeCryptCell new_cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
 
                 // Update cells vector
                 new_cell.SetNodeIndex(new_node_index);

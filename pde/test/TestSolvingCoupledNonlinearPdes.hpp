@@ -16,7 +16,7 @@
 #include "ReplicatableVector.hpp"
 #include "NonlinearHeatEquationPde.hpp"
 
-#define PI M_PI
+
 
 
 

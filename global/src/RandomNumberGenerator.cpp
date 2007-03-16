@@ -2,6 +2,37 @@
 
 
 
+/** Pointer to the single instance */
+RandomNumberGenerator* RandomNumberGenerator::mpInstance = NULL;
+
+/**
+ * Return a pointer to the simulation time object.
+ * The first time this is called the simulation time object is created. 
+ * */
+RandomNumberGenerator* RandomNumberGenerator::Instance()
+{
+    if(mpInstance == NULL)
+    {
+        mpInstance = new RandomNumberGenerator();
+    }
+    return mpInstance;
+}
+
+/**
+ * Destroy the current RandomNumberGenerator instance.  The next call to
+ * Instance will create a new instance and re-seed
+ *
+ * This method *must* be called before program exit, to avoid a memory
+ * leak.
+ */
+void RandomNumberGenerator::Destroy()
+{
+    if (mpInstance)
+    {
+	   delete mpInstance;
+	   mpInstance = NULL;
+    }
+}
 /**
  * Generate a random number modulo base (ie an integer
  * within the range 0,..,base-1)

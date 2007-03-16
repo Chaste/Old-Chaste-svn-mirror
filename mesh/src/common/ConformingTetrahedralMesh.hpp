@@ -195,10 +195,9 @@ public:
     /**
      * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
-     * @param rRng is a random number generators instance (so that the caller can seed
-     * the permutation
+     * 
      */
-    void PermuteNodes(RandomNumberGenerator &rRng);
+    void PermuteNodes();
    
    /**
      * Permute the nodes so that they appear in a different order in mNodes

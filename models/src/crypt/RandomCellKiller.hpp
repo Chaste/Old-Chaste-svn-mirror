@@ -12,19 +12,13 @@ class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 public:    
     
-    // constructor  
-//    RandomCellKiller (std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
-//    : AbstractCellKiller<SPACE_DIM>(pCells,pMesh)
-//    {
-//        RandomNumberGenerator random_num_gen;
-//        mRandomNumberGenerator = random_num_gen;
-//    }
-    
+
     void TestAndLabelSingleCellForApoptosis(unsigned cell_index)
     {
         MeinekeCryptCell* p_cell=&((*(this->mpCells))[cell_index]);
         
-        if(!p_cell->HasApoptosisBegun() && mRandomNumberGenerator.ranf() > 0.95)
+        if(!p_cell->HasApoptosisBegun() && 
+        	RandomNumberGenerator::Instance()->ranf() > 0.95)
         {
             p_cell->StartApoptosis();
         }
@@ -67,8 +61,7 @@ public:
     
     
     
-private:
-    RandomNumberGenerator mRandomNumberGenerator;
+
        
 };
 

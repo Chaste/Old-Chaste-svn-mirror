@@ -122,9 +122,6 @@ private:
     /** Every cell in the simulation*/
     std::vector<MeinekeCryptCell> mCells;
 
-    RandomNumberGenerator *mpRandomNumberGenerator;    
-    /** Whether the random number generator was created by our constructor*/
-    bool mCreatedRng;
     
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
@@ -182,8 +179,6 @@ private:
         archive & mMaxElements;
 //        archive & mOutputDirectory;
         archive & mCells;
-//        archive & mpRandomNumberGenerator; 
-        archive & mCreatedRng;
         archive & mWntIncluded;
         archive & mWntGradient;
         archive & mRemeshesThisTimeStep;
@@ -642,7 +637,7 @@ private:
     {
         // Pick a random element to start with
         Element<2,2>* p_element = mrMesh.GetElement(rpOurNode->GetNextContainingElementIndex());
-        unsigned element_number = mpRandomNumberGenerator->randMod(rpOurNode->GetNumContainingElements());
+        unsigned element_number = RandomNumberGenerator::Instance()->randMod(rpOurNode->GetNumContainingElements());
         for(unsigned j=0; j<element_number; j++)
         {
             p_element = mrMesh.GetElement(rpOurNode->GetNextContainingElementIndex());
@@ -1095,21 +1090,11 @@ public:
      *  should be called for any birth to happen.
      */
     CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
-                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>(),
-                      RandomNumberGenerator *pGen = NULL)
+                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
             : mrMesh(rMesh),
               mCells(cells)
     {
-        if (pGen!=NULL)
-        {
-            mpRandomNumberGenerator = pGen;
-            mCreatedRng = false;
-        }
-        else
-        {
-            mpRandomNumberGenerator = new RandomNumberGenerator;
-            mCreatedRng = true;
-        }
+        
         
         mpParams = CancerParameters::Instance();
     
@@ -1163,10 +1148,6 @@ public:
      */
     ~CryptSimulation2DPeriodic()
     {
-        if (mCreatedRng)
-        {
-            delete mpRandomNumberGenerator;
-        }
         SimulationTime::Destroy();
     }
     

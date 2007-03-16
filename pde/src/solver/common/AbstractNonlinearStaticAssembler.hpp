@@ -355,10 +355,9 @@ public:
         VecSetSizes(initial_guess, PETSC_DECIDE, size);
         VecSetFromOptions(initial_guess);
         
-        RandomNumberGenerator random_num_gen;
+
         for(unsigned i=0; i<size ; i++)
         {
-//            double value = random_num_gen.ranf();
             VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
         }
  
