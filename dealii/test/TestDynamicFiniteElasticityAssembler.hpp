@@ -103,6 +103,35 @@ public :
 
             std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
                                       << " " << new_posn(0) << " " << new_posn(1) << "\n";
+
+
+
+            // some hardcoded tests
+            if(vertex_index==62)
+            {
+                TS_ASSERT_DELTA(new_posn(0),0.23440,1e-4);
+                TS_ASSERT_DELTA(new_posn(1),0.95301,1e-4);
+            }
+            if(vertex_index==38)
+            {
+                TS_ASSERT_DELTA(new_posn(0),0.33002,1e-4);
+                TS_ASSERT_DELTA(new_posn(1),1.10915,1e-4);
+            }
+            if(vertex_index==15)
+            {
+                TS_ASSERT_DELTA(new_posn(0),0.20985,1e-4);
+                TS_ASSERT_DELTA(new_posn(1),1.08222,1e-4);
+            }
+            if(vertex_index==80)
+            {
+                TS_ASSERT_DELTA(new_posn(0),0.12028,1e-4);
+                TS_ASSERT_DELTA(new_posn(1),0.91553,1e-4);
+            }
+            if(vertex_index==32)
+            {
+                TS_ASSERT_DELTA(new_posn(0),0.00000,1e-4);
+                TS_ASSERT_DELTA(new_posn(1),0.87500,1e-4);
+            }
                                                                             
             
             vertex_iter.Next();
