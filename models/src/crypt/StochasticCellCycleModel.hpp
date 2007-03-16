@@ -36,4 +36,8 @@ public:
     AbstractCellCycleModel *CreateCellCycleModel();
 };
 
+// declare identifier for the serializer
+BOOST_CLASS_EXPORT(StochasticCellCycleModel)
+
+
 #endif /*STOCHASTICCELLCYCLEMODEL_HPP_*/

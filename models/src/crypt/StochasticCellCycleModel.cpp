@@ -3,11 +3,6 @@
 #include "Exception.hpp"
 #include <cassert>
 
-// For some reason(??) the archiver doesn't want the following lines for this class!
-
-// declare identifier for the serializer
-// note that this has to be in the cpp file not the hpp
-BOOST_CLASS_EXPORT(StochasticCellCycleModel)
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 {

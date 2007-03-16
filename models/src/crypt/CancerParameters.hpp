@@ -1,8 +1,8 @@
 #ifndef CANCERPARAMETERS_HPP_
 #define CANCERPARAMETERS_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/access.hpp>
+#include <cassert>
 
 class CancerParameters
 {

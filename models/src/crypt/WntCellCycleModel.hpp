@@ -1,11 +1,13 @@
 #ifndef WNTCELLCYCLEMODEL_HPP_
 #define WNTCELLCYCLEMODEL_HPP_
+
 #include "AbstractCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+
 /**
  *  Wnt-dependent cell cycle model
  */
@@ -66,8 +68,7 @@ public:
     void SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations);
 };
 
-
-
-
+// declare identifier for the serializer
+BOOST_CLASS_EXPORT(WntCellCycleModel)
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

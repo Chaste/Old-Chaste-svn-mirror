@@ -30,4 +30,8 @@ public:
     FixedCellCycleModel();
 };
 
+// declare identifier for the serializer
+BOOST_CLASS_EXPORT(FixedCellCycleModel)
+
+
 #endif /*FIXEDCELLCYCLEMODEL_HPP_*/

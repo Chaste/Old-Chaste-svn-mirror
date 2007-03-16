@@ -3,10 +3,6 @@
 #include <iostream>
 #include <cassert>
 
-// declare identifier for the serializer
-// note that this has to be in the cpp file not the hpp
-BOOST_CLASS_EXPORT_GUID(WntCellCycleModel, "WntCellCycleModel")
-
 WntCellCycleModel::WntCellCycleModel()
 {
     mpSimulationTime = SimulationTime::Instance();

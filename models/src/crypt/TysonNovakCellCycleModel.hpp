@@ -1,10 +1,12 @@
 #ifndef TYSONNOVAKCELLCYCLEMODEL_HPP_
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
+
 #include "AbstractCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CancerParameters.hpp"
 #include "SimulationTime.hpp"
+
 /**
  *  Tyson Novak cell cycle model
  *
@@ -57,7 +59,8 @@ public:
 };
 
 
-
+// declare identifier for the serializer
+BOOST_CLASS_EXPORT(TysonNovakCellCycleModel)
 
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

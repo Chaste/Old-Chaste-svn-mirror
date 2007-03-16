@@ -2,9 +2,6 @@
 #include "Exception.hpp"
 #include <iostream>
 
-// declare identifier for the serializer
-// note that this has to be in the cpp file not the hpp
-BOOST_CLASS_EXPORT_GUID(TysonNovakCellCycleModel, "TysonNovakCellCycleModel")
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {

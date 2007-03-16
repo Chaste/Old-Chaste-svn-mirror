@@ -1,9 +1,6 @@
 #ifndef ABSTRACTCELLCYCLEMODEL_HPP_
 #define ABSTRACTCELLCYCLEMODEL_HPP_
 
-//We want independence from archive type
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 
@@ -92,7 +89,8 @@ public:
 
 
 // Avoid compiler errors on some systems
-BOOST_IS_ABSTRACT(AbstractCellCycleModel)
+// Seems to break things on the Chaste machines, unfortunately :(
+//BOOST_IS_ABSTRACT(AbstractCellCycleModel)
 
 
 #endif /*ABSTRACTCELLCYCLEMODEL_HPP_*/

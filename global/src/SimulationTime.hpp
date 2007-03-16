@@ -1,8 +1,8 @@
 #ifndef SIMULATIONTIME_HPP_
 #define SIMULATIONTIME_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/access.hpp>
+
 #include "Exception.hpp"
 
 /**
