@@ -3,33 +3,29 @@
 #include <iostream>
 #include <cassert>
 
-WntCellCycleModel::WntCellCycleModel()
-{
-    mpSimulationTime = SimulationTime::Instance();
-    mpCancerParams = CancerParameters::Instance();
-    mProteinConcentrations.resize(mOdeSystem.GetNumberOfStateVariables());
-	//EXCEPTION("A Wnt cell cycle model must be given a steady state of Wnt (double)\n to set steady state of wnt pathway at start of model");	
-}
-
 /**
- * Model constructor - an initial wnt stimulus must be provided to set up the wnt pathway in an equilibrium state.
+ * Model constructor - an initial wnt stimulus must be provided to set up the
+ * wnt pathway in an equilibrium state.
+ *
+ * Note that since we provide our own constructor, the compiler will *not*
+ * generate a default one for us.
  * 
  * @param InitialWntStimulus a value between 0 and 1.
  * @param mutationStatus an unsigned taking the values 0 (healthy), 1 (APC+/-), 2 (BetaCat Delta45), 3 (APC-/-).
+ *
+ * \todo consider using an enum for the mutation state.
  */
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus)
     : mOdeSystem(InitialWntStimulus, mutationStatus),
       mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
-    //WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutationStatus);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsStartTimeSetUp()==false)
-	{
-		EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
-	}
+    {
+        EXCEPTION("WntCellCycleModel is being created but SimulationTime has not been set up");
+    }
     mBirthTime = mpSimulationTime->GetDimensionalisedTime();
     mLastTime = mBirthTime;
-    //mProteinConcentrations = mOdeSystem.GetInitialConditions();
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mpCancerParams = CancerParameters::Instance();
@@ -39,24 +35,21 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
  * A private constructor for daughter cells called only by the CreateCellCycleModel function
  * 
  * @param parentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
- * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
+ * @param birthTime the simulation time when the cell divided (birth time of parent cell)
  */
-WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
-    : mOdeSystem(parentProteinConcentrations[8], (unsigned)parentProteinConcentrations[9]),
+WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime)
+    : mOdeSystem(rParentProteinConcentrations[8], (unsigned)rParentProteinConcentrations[9]),
       mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
-    //double InitialWntStimulus = parentProteinConcentrations[8];
-    //unsigned mutation_status = (unsigned)parentProteinConcentrations[9];
-    //WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutation_status);
-	// Set the cell cycle part of the model to start of G1 phase,
-	//mProteinConcentrations = mOdeSystem.GetInitialConditions();
+    // Protein concentrations are initialised such that the cell cycle part of
+    // the model is at the start of G1 phase.
 	// Set the mutation state of the daughter to be the same as the parent cell.
-	mProteinConcentrations[9] = parentProteinConcentrations[9];
+	mProteinConcentrations[9] = rParentProteinConcentrations[9];
 	// Set the Wnt pathway parts of the model to be the same as the parent cell.
-	mProteinConcentrations[8] = parentProteinConcentrations[8];
-	mProteinConcentrations[7] = parentProteinConcentrations[7];
-	mProteinConcentrations[6] = parentProteinConcentrations[6];
-	mProteinConcentrations[5] = parentProteinConcentrations[5];
+	mProteinConcentrations[8] = rParentProteinConcentrations[8];
+	mProteinConcentrations[7] = rParentProteinConcentrations[7];
+	mProteinConcentrations[6] = rParentProteinConcentrations[6];
+	mProteinConcentrations[5] = rParentProteinConcentrations[5];
     
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsStartTimeSetUp()==false)
@@ -248,8 +241,4 @@ void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, st
 	assert(proteinConcentrations.size()==10);
 	mProteinConcentrations = proteinConcentrations;
 }
-
-
-
-
 

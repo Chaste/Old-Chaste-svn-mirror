@@ -27,7 +27,7 @@ private:
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
      */ 
-    WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime);
+    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime);
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -49,13 +49,11 @@ private:
     
 public:
     
-    WntCellCycleModel();
-    
     WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);
     
     virtual ~WntCellCycleModel();
     
-	virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
+    virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
     virtual void ResetModel();
     
@@ -70,5 +68,24 @@ public:
 
 // declare identifier for the serializer
 BOOST_CLASS_EXPORT(WntCellCycleModel)
+
+
+namespace boost { namespace serialization {
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a WntCellCycleModel instance.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, WntCellCycleModel * t, const unsigned int file_version)
+{
+    // It doesn't actually matter what values we pass to our standard
+    // constructor, provided they are valid parameter values, since the
+    // state loaded later from the archive will overwrite their effect in
+    // this case.
+    // Invoke inplace constructor to initialize instance of my_class
+    ::new(t)WntCellCycleModel(0.0, 0u);
+}
+}} // namespace ...
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

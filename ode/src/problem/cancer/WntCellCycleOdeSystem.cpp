@@ -2,13 +2,14 @@
 #include <cmath>
 #include <cassert>
 #include <vector>
-#include "ReplicatableVector.hpp"
 
 /**
- * Constructor
+ * Constructor.
  * 
  * @param WntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
  * @param mutationState is an unsigned integer 0=healthy, 1 = APC 1 hit, 2 = beta-catenin 1 hit, 3 = APC two hit. (defaults to healthy)
+ *
+ * \todo consider using an enum for the mutation state.
  */
 WntCellCycleOdeSystem::WntCellCycleOdeSystem(double WntLevel, unsigned mutationState) 
   : AbstractOdeSystem(10)
