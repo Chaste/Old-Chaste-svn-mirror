@@ -1,166 +1,24 @@
-#ifndef TESTFINITEELASTICITYASSEMBLER_HPP_
-#define TESTFINITEELASTICITYASSEMBLER_HPP_
+#ifndef TESTFINITEELASTICITYASSEMBLERLONG_HPP_
+#define TESTFINITEELASTICITYASSEMBLERLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "FiniteElasticityAssembler.cpp"
-
 #include "TriangulationVertexIterator.hpp"
 #include "DofVertexIterator.hpp"
-
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "PolynomialMaterialLaw3d.hpp"
 #include "ExponentialMaterialLaw.hpp"
-
 #include "FiniteElasticityTools.hpp"
 
 
-// todos: proper test of answers, fix compare numerical jacobian 
-
-
-class TestFiniteElasticityAssembler : public CxxTest::TestSuite
+// longer tests, including 3d tests, for nightly runs
+class TestFiniteElasticityAssemblerLong : public CxxTest::TestSuite
 {
 public :
-    void testExceptions() throw(Exception)
-    {
-        Vector<double> body_force(2);
-        Vector<double> bad_body_force(3);
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
-
-        Triangulation<2> mesh;
-        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(3);
-
-        // should throw because the mesh has no surface elements set as the fixed boundary                
-        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe1(&mesh,&mooney_rivlin_law,body_force,1.0,""));
-
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
-
-        // should throw because of the negative density
-        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe2(&mesh,&mooney_rivlin_law,body_force,-1.0,""));
-        // should throw because the body force is the wrong size
-        TS_ASSERT_THROWS_ANYTHING(FiniteElasticityAssembler<2> bad_fe3(&mesh,&mooney_rivlin_law,bad_body_force,1.0,""));
-
-        // should be ok now
-        TS_ASSERT_THROWS_NOTHING(FiniteElasticityAssembler<2> fe3(&mesh,&mooney_rivlin_law,body_force,1.0,""));
-
-        std::vector<unsigned> material_ids;
-        material_ids.push_back(0);
-
-        std::vector<AbstractIncompressibleMaterialLaw<2>*> material_laws;
-        material_laws.push_back(&mooney_rivlin_law);
-        material_laws.push_back(&mooney_rivlin_law);
-        
-        FiniteElasticityAssembler<2> fe(&mesh,&mooney_rivlin_law,body_force,1.0,"");
-        
-        // should thrown because material_laws and material_ids are not the same size
-        TS_ASSERT_THROWS_ANYTHING(fe.SetMaterialLawsForHeterogeneousProblem(material_laws,material_ids));
-
-        // check for exception is mesh contains elements whose material id is not
-        // equal to either of those passed in in material_ids
-        material_ids.clear();
-        material_ids.push_back(5);
-        material_ids.push_back(6);
-        TS_ASSERT_THROWS_ANYTHING(fe.SetMaterialLawsForHeterogeneousProblem(material_laws,material_ids));
-    }
-    
-    
-    void TestCompareJacobians() throw(Exception)
-    {
-        Vector<double> body_force(2);
-        body_force(0) = 6.0;
-    
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
-
-        Triangulation<2> mesh;
-        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
-        
-
-        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       &mooney_rivlin_law,
-                                                       body_force,
-                                                       1.0,
-                                                       "finite_elas/simple2d");
-
-        // to be fixed                                             
-        //finite_elasticity.CompareJacobians();
-    }
-
-
-    void Test2dProblemOnSquare() throw(Exception)
-    {
-        Vector<double> body_force(2);
-        body_force(0) = 6.0;
-    
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
-
-        Triangulation<2> mesh;
-        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
-        mesh.refine_global(3);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
-        
-
-        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       &mooney_rivlin_law,
-                                                       body_force,
-                                                       1.0,
-                                                       "finite_elas/simple2d");
-                                                         
-        finite_elasticity.Solve();
-
-        Vector<double>& solution = finite_elasticity.GetSolutionVector();
-        DoFHandler<2>& dof_handler = finite_elasticity.GetDofHandler();
-
-        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
-        while(!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<2> old_posn = vertex_iter.GetVertex();
-            
-            Point<2> new_posn;
-            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-            
-            // todo: TEST THESE!!
-
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-                                      << " " << new_posn(0) << " " << new_posn(1) << "\n";
-                                      
-
-            //// UPDATE THE NODE POSITIONS
-            // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
-            // directly. Do this so the new volume can be computed
-            vertex_iter.GetVertex()[0] = new_posn(0);         
-            vertex_iter.GetVertex()[1] = new_posn(1);         
-                                      
-            vertex_iter.Next();
-        }
-
-        // compute the deformed volume 
-        // NOTE: this aren't very accurate volumes, since we have lost the
-        // positions of the extra nodes (those used with quadratic basis functions)
-        // and the measure() function below must use linear interpolation. Hence
-        // the high tolerances
-        double deformed_volume = 0.0;
-        Triangulation<2>::active_cell_iterator element_iter = mesh.begin_active();
-        while(element_iter!=mesh.end())
-        {
-            double element_volume = element_iter->measure();
-            TS_ASSERT_DELTA(element_volume, 1.0/mesh.n_active_cells(), 1e-2); 
-            
-            deformed_volume += element_volume;
-            element_iter++;
-        }
-        
-        TS_ASSERT_DELTA(deformed_volume, 1.0, 1e-2);
-    }
-    
-
 
     // Run same simulation on two meshes (one more refined than the other)
     // and test they agree on shared gridpoints
-    void xTest2dProblemOnSquareForConvergence() throw(Exception)
+    void Test2dProblemOnSquareForConvergence() throw(Exception)
     {
         ////////////////////////////////////////////////
         // run 1: on a mesh which is refined 3 times..
@@ -264,7 +122,7 @@ public :
 
 
     
-    void xTest3dProblemOnCube() throw(Exception)
+    void Test3dProblemOnCube() throw(Exception)
     {
         Vector<double> body_force(3);
         body_force(1) = 10.0;
@@ -310,7 +168,7 @@ public :
 
 
 
-    void xTest3dProblemOnCubeFixedDisplacement() throw(Exception)
+    void Test3dProblemOnCubeFixedDisplacement() throw(Exception)
     {
         Vector<double> body_force(3); // zero vector
         body_force(2)=5;
@@ -543,4 +401,4 @@ public :
 //        TS_ASSERT_DELTA(deformed_volume, 1.0, 1e-2);
     }
 };
-#endif /*TESTFINITEELASTICITYASSEMBLER_HPP_*/
+#endif /*TESTFINITEELASTICITYASSEMBLERLONG_HPP_*/
