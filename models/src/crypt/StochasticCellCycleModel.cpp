@@ -7,7 +7,7 @@
 
 // declare identifier for the serializer
 // note that this has to be in the cpp file not the hpp
-// BOOST_CLASS_EXPORT_GUID(StochasticCellCycleModel, "StochasticCellCycleModel")
+BOOST_CLASS_EXPORT(StochasticCellCycleModel)
 
 AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 {

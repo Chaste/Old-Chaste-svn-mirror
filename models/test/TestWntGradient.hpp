@@ -103,7 +103,8 @@ public:
     
             std::ofstream ofs(archive_filename.c_str());       
             boost::archive::text_oarchive output_arch(ofs);
-                        
+            
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
             output_arch << static_cast<const WntGradient&>(wnt_gradient);
             
             CancerParameters *inst1 = CancerParameters::Instance();
@@ -123,6 +124,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore from the archive
+            input_arch >> *inst1;
             input_arch >> wnt_gradient;
             
             CancerParameters *inst2 = CancerParameters::Instance();

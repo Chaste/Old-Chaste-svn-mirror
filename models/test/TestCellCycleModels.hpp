@@ -633,7 +633,8 @@ public:
             
             std::ofstream ofs(archive_filename.c_str());       
             boost::archive::text_oarchive output_arch(ofs);
-                        
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
             output_arch << static_cast<const FixedCellCycleModel&>(model);
             
             SimulationTime::Destroy();
@@ -654,6 +655,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore from the archive
+            input_arch >> *p_simulation_time;
             input_arch >> model;
             
             // Check         
@@ -685,7 +687,9 @@ public:
             
             std::ofstream ofs(archive_filename.c_str());       
             boost::archive::text_oarchive output_arch(ofs);
-                        
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
             output_arch << static_cast<const StochasticCellCycleModel&>(model);
             
             RandomNumberGenerator::Destroy();
@@ -712,6 +716,8 @@ public:
             inst1->SetSG2MDuration(101.0);
             
             // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> *inst1;
             input_arch >> model;
             
             // Check         
@@ -746,7 +752,8 @@ public:
             
             std::ofstream ofs(archive_filename.c_str());       
             boost::archive::text_oarchive output_arch(ofs);
-                        
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
             output_arch << static_cast<const TysonNovakCellCycleModel&>(model);
             
             SimulationTime::Destroy();
@@ -767,6 +774,7 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore from the archive
+            input_arch >> *p_simulation_time;
             input_arch >> model;
             
             // Check         
@@ -804,7 +812,9 @@ public:
             
             std::ofstream ofs(archive_filename.c_str());       
             boost::archive::text_oarchive output_arch(ofs);
-                        
+            
+            output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
+            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
             output_arch << static_cast<const WntCellCycleModel&>(model);
             
             SimulationTime::Destroy();
@@ -829,6 +839,8 @@ public:
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore from the archive
+            input_arch >> *p_simulation_time;
+            input_arch >> *inst1;
             input_arch >> model;
             
             // Check 

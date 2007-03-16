@@ -51,7 +51,7 @@ public:
     
     WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);
     
-    ~WntCellCycleModel();
+    virtual ~WntCellCycleModel();
     
 	virtual bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     

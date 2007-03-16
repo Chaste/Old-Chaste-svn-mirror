@@ -1,13 +1,18 @@
 #ifndef ABSTRACTCELLCYCLEMODEL_HPP_
 #define ABSTRACTCELLCYCLEMODEL_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/export.hpp>
+//We want independence from archive type
+//#include <boost/archive/text_oarchive.hpp>
+//#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "MeinekeCryptCellTypes.hpp"
 #include "SimulationTime.hpp"
 #include <vector>
+
+// Needs to be included last
+#include <boost/serialization/export.hpp>
 
 class AbstractCellCycleModel
 {
@@ -26,8 +31,10 @@ protected:
     SimulationTime* mpSimulationTime;
     
 public:
-    virtual ~AbstractCellCycleModel()
-    {}
+    /**
+     * Base class with virtual methods needs a virtual destructor.
+     */
+    virtual ~AbstractCellCycleModel();
     
     /**
      * Set the cell's type.
@@ -84,6 +91,8 @@ public:
 };
 
 
+// Avoid compiler errors on some systems
+BOOST_IS_ABSTRACT(AbstractCellCycleModel)
+
+
 #endif /*ABSTRACTCELLCYCLEMODEL_HPP_*/
-
-

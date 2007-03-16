@@ -168,7 +168,7 @@ elif system_name == 'chaste':
   blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
   petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
   other_libpaths = [petsc_libpath, blas_libpath]
-  other_libs = ['f2clapack', 'f2cblas']
+  other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
 elif system_name == 'new_chaste':
   # New Chaste machines in comlab
   other_includepaths = []

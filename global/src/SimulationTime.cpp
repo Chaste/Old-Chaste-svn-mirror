@@ -22,6 +22,9 @@ SimulationTime* SimulationTime::Instance()
 
 SimulationTime::SimulationTime()
 {
+    // Make sure there's only one instance - enforces correct serialization
+    assert(mpInstance == NULL);
+    
     mEndTimeAndNumberOfTimeStepsSet = false;
     mTimeStepsElapsed = 0;
     mCurrentDimensionalisedTime = 0.0;

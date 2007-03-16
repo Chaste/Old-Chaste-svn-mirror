@@ -13,6 +13,9 @@ CancerParameters* CancerParameters::Instance()
 
 CancerParameters::CancerParameters()
 {
+    // Make sure there's only one instance - enforces correct serialization
+    assert(mpInstance == NULL);
+    
     /**
      * @param mStemCellCycleTime has units of hours
      * @param mTransitCellCycleTime has units of hours

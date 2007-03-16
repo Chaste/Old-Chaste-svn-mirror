@@ -2,8 +2,12 @@
 
 // declare identifier for the serializer
 // note that this has to be in the cpp file not the hpp
-BOOST_CLASS_EXPORT_GUID(AbstractCellCycleModel, "AbstractCellCycleModel")
+// Should only be needed for derived classes I think.
+//BOOST_CLASS_EXPORT(AbstractCellCycleModel)
 
+AbstractCellCycleModel::~AbstractCellCycleModel()
+{
+}
 
 void AbstractCellCycleModel::SetCellType(CryptCellType cellType)
 {
@@ -27,7 +31,6 @@ double AbstractCellCycleModel::GetBirthTime()
 
 double AbstractCellCycleModel::GetAge()
 {
-	mpSimulationTime = SimulationTime::Instance();
-    return mpSimulationTime->GetDimensionalisedTime() - mBirthTime;
+    return SimulationTime::Instance()->GetDimensionalisedTime() - mBirthTime;
 }
 

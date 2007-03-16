@@ -22,8 +22,10 @@ WntCellCycleModel::WntCellCycleModel()
  * @param mutationStatus an unsigned taking the values 0 (healthy), 1 (APC+/-), 2 (BetaCat Delta45), 3 (APC-/-).
  */
 WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus)
+    : mOdeSystem(InitialWntStimulus, mutationStatus),
+      mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
-    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutationStatus);
+    //WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutationStatus);
     mpSimulationTime = SimulationTime::Instance();
     if(mpSimulationTime->IsStartTimeSetUp()==false)
 	{
@@ -31,7 +33,7 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
 	}
     mBirthTime = mpSimulationTime->GetDimensionalisedTime();
     mLastTime = mBirthTime;
-    mProteinConcentrations = mOdeSystem.GetInitialConditions();
+    //mProteinConcentrations = mOdeSystem.GetInitialConditions();
     mInSG2MPhase = false;
     mReadyToDivide = false;
     mpCancerParams = CancerParameters::Instance();
@@ -44,12 +46,14 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
  * @param birthTime the SimulationTime when the cell divided (birth time of parent cell)
  */
 WntCellCycleModel::WntCellCycleModel(std::vector<double> parentProteinConcentrations, double birthTime)
+    : mOdeSystem(parentProteinConcentrations[8], (unsigned)parentProteinConcentrations[9]),
+      mProteinConcentrations(mOdeSystem.GetInitialConditions())
 {
-    double InitialWntStimulus = parentProteinConcentrations[8];
-    unsigned mutation_status = (unsigned)parentProteinConcentrations[9];
-    WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutation_status);
+    //double InitialWntStimulus = parentProteinConcentrations[8];
+    //unsigned mutation_status = (unsigned)parentProteinConcentrations[9];
+    //WntCellCycleOdeSystem mOdeSystem(InitialWntStimulus, mutation_status);
 	// Set the cell cycle part of the model to start of G1 phase,
-	mProteinConcentrations = mOdeSystem.GetInitialConditions();
+	//mProteinConcentrations = mOdeSystem.GetInitialConditions();
 	// Set the mutation state of the daughter to be the same as the parent cell.
 	mProteinConcentrations[9] = parentProteinConcentrations[9];
 	// Set the Wnt pathway parts of the model to be the same as the parent cell.

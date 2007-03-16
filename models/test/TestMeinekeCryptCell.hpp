@@ -1437,7 +1437,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
             
             // and write the cell to the archive
-
+            output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
             output_arch << static_cast<const MeinekeCryptCell&>(stem_cell);
             SimulationTime::Destroy();
         }
@@ -1460,6 +1460,7 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
             boost::archive::text_iarchive input_arch(ifs);
 
+            input_arch >> *p_simulation_time;
             input_arch >> stem_cell;
             
             // check the simulation time has been restored (through the cell)
