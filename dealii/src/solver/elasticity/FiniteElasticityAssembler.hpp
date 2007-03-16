@@ -2,6 +2,8 @@
 #define FINITEELASTICITYASSEMBLER_HPP_
 
 
+#include "AbstractDealiiAssembler.hpp"
+
 // speed notes:
 //  - don't use Tensor<4,DIM>, use double[][][][] - factor of about 2 difference
 //  - compile using OPTIMISATION!!!!!! - factor of about 200 difference when 
@@ -14,59 +16,21 @@
 
 // TODO: TEST AGAINST RESULTS FROM SOMEWHERE ELSE
 
-// todo: possibly important: initial guess is the zero displacement solution,
-//  which isn't p=0
-// refactor the assembler stuff into a dealii abstract assembler class?
+// initial guess is the zero displacement solution, p!=0
+// fix heterogeneity
+// doxygen
+// nondim. 
+
+// nonzero neumann
 // refactor out the newton solver?
+// chaste style output
 // change quad rule if linears
-// tobefixed: numerical jacobian: works but the boundary condition is wrong for some
-// reason
-
-// store new position here so outsider don't have to use the dofvertexiter
-
-// other todos: doxygen,chaste style output, nonzero neumann, heterogeneity, nondim. 
 
 
-#include <grid/grid_out.h>
-#include <grid/grid_in.h>
-#include <grid/tria.h>
-#include <dofs/dof_handler.h>
-#include <grid/grid_generator.h>
-
-#include <grid/tria_accessor.h>
-#include <grid/tria_iterator.h>
-#include <dofs/dof_accessor.h>
-
-#include <fe/fe_q.h>
-#include <fe/fe_system.h>
-
-#include <dofs/dof_tools.h>
- 
-#include <fe/fe_values.h>
-#include <base/quadrature_lib.h>
-
-#include <base/function.h>
-#include <numerics/vectors.h>
-#include <numerics/matrices.h>
-
-#include <lac/vector.h>
-#include <lac/full_matrix.h>
-#include <lac/sparse_matrix.h>
-#include <lac/solver_cg.h>
-#include <lac/solver_gmres.h>
-
-#include <lac/vector_memory.h>
-#include <lac/precondition.h>
-
-#include <numerics/data_out.h>
 #include <fstream>
 #include <iostream>
-
 #include <sstream>
 #include <base/symmetric_tensor.h>
-
-// for dealing with hanging nodes..
-#include <dofs/dof_constraints.h>
 
 #define FIXED_BOUNDARY 10
 #define NEUMANN_BOUNDARY 11
@@ -81,38 +45,21 @@
 #include "DofVertexIterator.hpp"
 
 template<unsigned DIM>
-class FiniteElasticityAssembler
+class FiniteElasticityAssembler : public AbstractDealiiAssembler<DIM>
 {
 protected:
-    Triangulation<DIM>*   mpMesh;
+    // note that this must be defined before mDofHandler. except this doesn't
+    // matter now that the dof handler is in the abstract class
+    FESystem<DIM>        mFeSystem;         
 
-    // an FE_Q object seems to be equivalent to our basis functions
-    // It is templated over dimension, with the order of the bases taken 
-    // in the contructor
-    // note that this must be defined before mDofHandler!
-    /*FE_Q<DIM>            mFe;*/            
-
-    // an Fe system seems to be, loosely, a set of fe_q objects
-    FESystem<DIM>        mFeSystem;          // note that this must be defined before mDofHandler!
-    DoFHandler<DIM>      mDofHandler;
-
-    ConstraintMatrix     mHangingNodeConstraints;
-
-    SparsityPattern      mSparsityPattern;
-
-    SparseMatrix<double> mJacobianMatrix;
-    Vector<double>       mCurrentSolution;
-    Vector<double>       mResidual;
-    
     std::string          mOutputDirectoryFullPath;
     bool                 mWriteOutput;
 
-    double dTdE[DIM][DIM][DIM][DIM]; 
+    double               dTdE[DIM][DIM][DIM][DIM]; 
 
-
-    bool mHeterogeneous;
+    bool                 mHeterogeneous;
     std::vector<AbstractIncompressibleMaterialLaw<DIM>*>  mMaterialLaws;
-    std::vector<int> mMaterialIdToMaterialLawIndexMap;
+    std::vector<int>     mMaterialIdToMaterialLawIndexMap;
     
     Vector<double>       mBodyForce;
     double               mDensity;
@@ -121,9 +68,11 @@ protected:
                                                    // the spatial indices are 0 and 1,
                                                    // the pressure index is 2
 
-
     std::map<unsigned,double> mBoundaryValues;
     SparseMatrix<double> mNumericalJacobianMatrix;
+
+    std::vector<Vector<double> > mDeformedPosition;
+    std::vector<Vector<double> > mUndeformedPosition;
 
     virtual void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                                    Vector<double>&                                 elementRhs,
@@ -131,8 +80,7 @@ protected:
                                    bool                                            assembleResidual,
                                    bool                                            assembleJacobian);
 
-    void AssembleSystem(bool assembleResidual, bool assembleJacobian);
-    void ApplyDirichletBoundaryConditions(bool assembleResidual, bool assembleJacobian);
+    void ApplyDirichletBoundaryConditions();
     
     void OutputResults(unsigned counter);
     double CalculateResidualNorm();
@@ -190,10 +138,16 @@ public:
 
     virtual void Solve();
     
+    std::vector<Vector<double> >& rGetDeformedPosition();
+    std::vector<Vector<double> >& rGetUndeformedPosition();
+    
 // should be rGet.. etc
     Vector<double>& GetSolutionVector();
     DoFHandler<DIM>& GetDofHandler();
     Triangulation<DIM>* GetMesh();
+
+
+
 
     void ComputeNumericalJacobian();
     void CompareJacobians();    

@@ -41,27 +41,23 @@ public :
                                                          
         dynamic_finite_elasticity.Solve();
 
-        Vector<double>& solution = dynamic_finite_elasticity.GetSolutionVector();
-        DoFHandler<2>& dof_handler = dynamic_finite_elasticity.GetDofHandler();
+        // get undeformed position
+        std::vector<Vector<double> >& undeformed_position 
+            = dynamic_finite_elasticity.rGetUndeformedPosition(); 
 
-        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
-        while(!vertex_iter.ReachedEnd())
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position 
+            = dynamic_finite_elasticity.rGetDeformedPosition(); 
+            
+        for(unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
         {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<2> old_posn = vertex_iter.GetVertex();
-            
-            Point<2> new_posn;
-            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-            
             // todo: TEST THESE!!
-
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-                                      << " " << new_posn(0) << " " << new_posn(1) << "\n";
-                                                                            
-            
-            vertex_iter.Next();
+            double X = undeformed_position[0](vertex_index);
+            double Y = undeformed_position[1](vertex_index);
+            double x = deformed_position[0](vertex_index);
+            double y = deformed_position[1](vertex_index);
+            std::cout << vertex_index << " " << X << " " << Y
+                                      << " " << x << " " << y << "\n";
         }
     }
 

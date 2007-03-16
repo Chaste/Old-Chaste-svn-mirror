@@ -43,33 +43,10 @@ public :
                                                        
         finite_elasticity.Solve();
 
-        Vector<double>& solution = finite_elasticity.GetSolutionVector();
-        DoFHandler<2>& dof_handler = finite_elasticity.GetDofHandler();
-        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
-        unsigned num_vertices = mesh.n_vertices(); 
-        std::vector<double> new_x(num_vertices);
-        std::vector<double> new_y(num_vertices);
-
-        for(unsigned i=0; i<num_vertices; i++)
-        {
-            new_x[i] = 0.0;
-            new_y[i] = 0.0;
-        }
-        
-        // store the new position
-        while(!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<2> old_posn = vertex_iter.GetVertex();
-            
-            new_x[vertex_index] = old_posn(0)+solution(vertex_iter.GetDof(0));                          
-            new_y[vertex_index] = old_posn(1)+solution(vertex_iter.GetDof(1));
-
-            vertex_iter.Next();
-        }
-
-
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position 
+            = finite_elasticity.rGetDeformedPosition(); 
+ 
         //////////////////////////////////////////////////////////////
         // run 2: same problem, on a mesh which is refined 4 times..
         //////////////////////////////////////////////////////////////
@@ -85,39 +62,23 @@ public :
                                                            "finite_elas/simple2d");
         finite_elasticity_ref.Solve();
 
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position_ref 
+            = finite_elasticity_ref.rGetDeformedPosition(); 
 
 
         //////////////////////////////////////////////////////////////
         // compare the solution with that on the previous mesh
         //////////////////////////////////////////////////////////////
-        Vector<double>& solution_ref = finite_elasticity_ref.GetSolutionVector();
-        DoFHandler<2>& dof_handler_ref = finite_elasticity_ref.GetDofHandler();
-
-        DofVertexIterator<2> vertex_iter_ref(&mesh_refined, &dof_handler_ref);
-        while(!vertex_iter_ref.ReachedEnd())
+        for(unsigned i=0; i<deformed_position[0].size(); i++)
         {
-            unsigned vertex_index = vertex_iter_ref.GetVertexGlobalIndex();
-            
-            // if vertex_index < num_vertices (in the first mesh), this
-            // node is in both meshes, so compare the results
-            if(vertex_index < num_vertices)
-            {
-                Point<2> old_posn = vertex_iter_ref.GetVertex();
-            
-                Point<2> new_posn;
-                new_posn(0) = old_posn(0)+solution_ref(vertex_iter_ref.GetDof(0));
-                new_posn(1) = old_posn(1)+solution_ref(vertex_iter_ref.GetDof(1));
-                
-                TS_ASSERT_DELTA( new_posn(0), new_x[vertex_index], 1e-2 );
-                TS_ASSERT_DELTA( new_posn(1), new_y[vertex_index], 1e-2 );
-            }
-            
-            vertex_iter_ref.Next();
+            TS_ASSERT_DELTA(deformed_position[0](i), deformed_position_ref[0](i), 1e-2);
+            TS_ASSERT_DELTA(deformed_position[1](i), deformed_position_ref[1](i), 1e-2);
         }
         
         // check nothing has changed
-        TS_ASSERT_DELTA( new_x[6], 1.2158, 1e-3); 
-        TS_ASSERT_DELTA( new_y[6], 0.5, 1e-3); 
+        TS_ASSERT_DELTA( deformed_position[0](6), 1.2158, 1e-3); 
+        TS_ASSERT_DELTA( deformed_position[1](6), 0.5,    1e-3); 
     }
 
 
@@ -141,29 +102,29 @@ public :
                                                        "finite_elas/simple3d");
         finite_elasticity.Solve();
 
-        Vector<double>& solution = finite_elasticity.GetSolutionVector();
-        DoFHandler<3>& dof_handler = finite_elasticity.GetDofHandler();
+        // get undeformed position
+        std::vector<Vector<double> >& undeformed_position 
+            = finite_elasticity.rGetUndeformedPosition(); 
 
-
-        DofVertexIterator<3> vertex_iter(&mesh, &dof_handler);
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position 
+            = finite_elasticity.rGetDeformedPosition(); 
         
-        while(!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<3> old_posn = vertex_iter.GetVertex();
-            
-            Point<3> new_posn;
-            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-            new_posn(2) = old_posn(2)+solution(vertex_iter.GetDof(2));
-            
-            // todo: TEST THESE!!
+        TS_ASSERT_EQUALS(deformed_position.size(),3);
 
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1) << " " << old_posn(2) 
-                                      << " " << new_posn(0) << " " << new_posn(1) << " " << new_posn(2)
-                                      << "\n";
-            vertex_iter.Next();
+        for(unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
+        {
+            // todo: TEST THESE!!
+            double X = undeformed_position[0](vertex_index);
+            double Y = undeformed_position[1](vertex_index);
+            double Z = undeformed_position[2](vertex_index);
+            double x = deformed_position[0](vertex_index);
+            double y = deformed_position[1](vertex_index);
+            double z = deformed_position[2](vertex_index);
+            std::cout << vertex_index << " " << X << " " << Y << " " << Z
+                                      << " " << x << " " << y << " " << z << "\n";
         }
+
     }
 
 
@@ -352,53 +313,25 @@ public :
                                                          
         finite_elasticity.Solve();
 
-        Vector<double>& solution = finite_elasticity.GetSolutionVector();
-        DoFHandler<2>& dof_handler = finite_elasticity.GetDofHandler();
+        // get undeformed position
+        std::vector<Vector<double> >& undeformed_position 
+            = finite_elasticity.rGetUndeformedPosition(); 
 
-        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
-        while(!vertex_iter.ReachedEnd())
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position 
+            = finite_elasticity.rGetDeformedPosition(); 
+
+        for(unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
         {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<2> old_posn = vertex_iter.GetVertex();
-            
-            Point<2> new_posn;
-            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-            
             // todo: TEST THESE!!
+            double X = undeformed_position[0](vertex_index);
+            double Y = undeformed_position[1](vertex_index);
+            double x = deformed_position[0](vertex_index);
+            double y = deformed_position[1](vertex_index);
 
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-                                      << " " << new_posn(0) << " " << new_posn(1) << "\n";
-                                      
-
-            //// UPDATE THE NODE POSITIONS
-            // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
-            // directly. Do this so the new volume can be computed
-            vertex_iter.GetVertex()[0] = new_posn(0);         
-            vertex_iter.GetVertex()[1] = new_posn(1);         
-                                      
-            vertex_iter.Next();
+            std::cout << vertex_index << " " << X << " " << Y 
+                                      << " " << x << " " << y << "\n";
         }
-
-//        // compute the deformed volume 
-//        // NOTE: this aren't very accurate volumes, since we have lost the
-//        // positions of the extra nodes (those used with quadratic basis functions)
-//        // and the measure() function below must use linear interpolation. Hence
-//        // the high tolerances
-//        double deformed_volume = 0.0;
-//        //Triangulation<2>::active_cell_iterator 
-//        element_iter = mesh.begin_active();
-//        while(element_iter!=mesh.end())
-//        {
-//            double element_volume = element_iter->measure();
-//            TS_ASSERT_DELTA(element_volume, 1.0/mesh.n_active_cells(), 1e-2); 
-//            
-//            deformed_volume += element_volume;
-//            element_iter++;
-//        }
-//        
-//        TS_ASSERT_DELTA(deformed_volume, 1.0, 1e-2);
     }
 };
 #endif /*TESTFINITEELASTICITYASSEMBLERLONG_HPP_*/

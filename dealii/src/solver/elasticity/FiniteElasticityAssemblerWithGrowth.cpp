@@ -554,7 +554,7 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned 
         solution_transfer.prepare_for_coarsening_and_refinement(this->mCurrentSolution);
     
         SolutionTransfer<DIM,double> solution_transfer2(this->mDofHandler);
-        solution_transfer2.prepare_for_coarsening_and_refinement(this->mResidual);
+        solution_transfer2.prepare_for_coarsening_and_refinement(this->mRhsVector);
     
         SolutionTransfer<DIM,double> solution_transfer3(this->mDofHandler);
         solution_transfer3.prepare_for_coarsening_and_refinement(mGrowthValuesAtVertices);
@@ -573,8 +573,8 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned 
         this->mCurrentSolution = temp;
         
         temp = 0;
-        solution_transfer2.interpolate(this->mResidual, temp);
-        this->mResidual = temp;
+        solution_transfer2.interpolate(this->mRhsVector, temp);
+        this->mRhsVector = temp;
     
     
       
@@ -618,8 +618,8 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned 
         this->mSparsityPattern.compress();
         
         // initialise vectors and matrices
-        this->mJacobianMatrix.reinit(this->mSparsityPattern);
-        this->mResidual.reinit(this->mDofHandler.n_dofs());
+        this->mSystemMatrix.reinit(this->mSparsityPattern);
+        this->mRhsVector.reinit(this->mDofHandler.n_dofs());
     
 
     

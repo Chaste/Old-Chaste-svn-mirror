@@ -13,8 +13,7 @@
 
 #include "FiniteElasticityTools.hpp"
 
-// todos: proper test of answers, compare numerical jacobian, test exceptions. 
-// nightly tests
+// todos: proper test of answers
 
 class TestDynamicFiniteElasticityAssembler : public CxxTest::TestSuite
 {
@@ -55,9 +54,8 @@ public :
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
         
         DynamicFiniteElasticityAssembler<2> dynamic_fe(&mesh,&mooney_rivlin_law,body_force,1.0,"");
-
-        // to be fixed                                             
-        //dynamic_fe.CompareJacobians();
+                                            
+        dynamic_fe.CompareJacobians();
     }
 
 
@@ -85,6 +83,16 @@ public :
                                                          
         dynamic_finite_elasticity.Solve();
 
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position 
+            = dynamic_finite_elasticity.rGetDeformedPosition(); 
+
+        TS_ASSERT_EQUALS(deformed_position.size(), 2);
+        TS_ASSERT_EQUALS(deformed_position[0].size(), mesh.n_vertices());
+        TS_ASSERT_EQUALS(deformed_position[1].size(), mesh.n_vertices());
+        
+        
+        // also get the solution directly...    
         Vector<double>& solution = dynamic_finite_elasticity.GetSolutionVector();
         DoFHandler<2>& dof_handler = dynamic_finite_elasticity.GetDofHandler();
 
@@ -98,6 +106,10 @@ public :
             Point<2> new_posn;
             new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
             new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
+            
+                        
+            TS_ASSERT_DELTA(deformed_position[0](vertex_index), new_posn(0), 1e-12);
+            TS_ASSERT_DELTA(deformed_position[1](vertex_index), new_posn(1), 1e-12);
             
             // todo: TEST THESE!!
 
@@ -175,6 +187,7 @@ public :
         dynamic_fe_long_dt.SetTimes(0.0, 0.2, 0.05);
         dynamic_fe_long_dt.Solve();
        
+        // get full solutions (incl pressure) and compare
         Vector<double>& small_dt_solution = dynamic_fe_small_dt.GetSolutionVector();
         Vector<double>& long_dt_solution  = dynamic_fe_long_dt.GetSolutionVector();
 

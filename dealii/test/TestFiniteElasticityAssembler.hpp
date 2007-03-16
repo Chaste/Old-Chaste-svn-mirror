@@ -14,7 +14,7 @@
 #include "FiniteElasticityTools.hpp"
 
 
-// todos: proper test of answers, fix compare numerical jacobian 
+// todos: proper test of answers
 
 
 class TestFiniteElasticityAssembler : public CxxTest::TestSuite
@@ -80,11 +80,48 @@ public :
                                                        &mooney_rivlin_law,
                                                        body_force,
                                                        1.0,
-                                                       "finite_elas/simple2d");
-
-        // to be fixed                                             
-        //finite_elasticity.CompareJacobians();
+                                                       "");                                    
+        finite_elasticity.CompareJacobians();
     }
+
+
+    // just tests whether the method rGetUndeformedPosition() returns a data structure 
+    // that consistent with the mesh..
+    void TestGetUndeformedPosition() throw(Exception)
+    {
+        Vector<double> body_force(2);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       &mooney_rivlin_law,
+                                                       body_force,
+                                                       1.0,
+                                                       "");
+
+
+        // get undeformed position
+        std::vector<Vector<double> >& undeformed_position = finite_elasticity.rGetUndeformedPosition(); 
+        TS_ASSERT_EQUALS(undeformed_position.size(), 2);
+        TS_ASSERT_EQUALS(undeformed_position[0].size(), mesh.n_vertices());
+        TS_ASSERT_EQUALS(undeformed_position[1].size(), mesh.n_vertices());
+        
+        TriangulationVertexIterator<2> vertex_iter(&mesh);
+        
+        while(!vertex_iter.ReachedEnd())
+        {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            Point<2> posn = vertex_iter.GetVertex();
+
+            TS_ASSERT_DELTA(undeformed_position[0](vertex_index), posn(0), 1e-12);
+            TS_ASSERT_DELTA(undeformed_position[1](vertex_index), posn(1), 1e-12);
+            
+            vertex_iter.Next();
+        } 
+    }   
 
 
     void Test2dProblemOnSquare() throw(Exception)
@@ -108,6 +145,16 @@ public :
                                                          
         finite_elasticity.Solve();
 
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position = finite_elasticity.rGetDeformedPosition(); 
+        TS_ASSERT_EQUALS(deformed_position.size(), 2);
+        TS_ASSERT_EQUALS(deformed_position[0].size(), mesh.n_vertices());
+        TS_ASSERT_EQUALS(deformed_position[1].size(), mesh.n_vertices());
+        
+
+
+        // also get the solution vector directly and check the deformed position
+        // object was set up correctly...
         Vector<double>& solution = finite_elasticity.GetSolutionVector();
         DoFHandler<2>& dof_handler = finite_elasticity.GetDofHandler();
 
@@ -121,6 +168,9 @@ public :
             Point<2> new_posn;
             new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
             new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
+            
+            TS_ASSERT_DELTA(deformed_position[0](vertex_index), new_posn(0), 1e-12);
+            TS_ASSERT_DELTA(deformed_position[1](vertex_index), new_posn(1), 1e-12);
             
             // todo: TEST THESE!!
 
