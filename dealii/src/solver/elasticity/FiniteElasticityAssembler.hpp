@@ -16,7 +16,6 @@
 
 // TODO: TEST AGAINST RESULTS FROM SOMEWHERE ELSE
 
-// initial guess is the zero displacement solution, p!=0
 // fix heterogeneity
 // doxygen
 // nondim. 
@@ -68,6 +67,8 @@ protected:
                                                    // the spatial indices are 0 and 1,
                                                    // the pressure index is 2
 
+    unsigned mNumNewtonIterations;
+
     std::map<unsigned,double> mBoundaryValues;
     SparseMatrix<double> mNumericalJacobianMatrix;
 
@@ -88,6 +89,9 @@ protected:
     void TakeNewtonStep();
     
     unsigned GetMaterialLawIndexFromMaterialId(unsigned materialId);
+    
+    void FormInitialGuess();
+    
     
 public:
     /** 
@@ -147,6 +151,7 @@ public:
     Triangulation<DIM>* GetMesh();
 
 
+    unsigned GetNumNewtonIterations();
 
 
     void ComputeNumericalJacobian();

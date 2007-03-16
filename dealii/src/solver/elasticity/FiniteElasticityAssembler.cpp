@@ -115,7 +115,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                              mBoundaryValues,
                                              component_mask);
     
-    mNumericalJacobianMatrix.reinit(this->mSparsityPattern);
+    mNumNewtonIterations = 0;
 
 // random inputing code
 //    GridIn<DIM> grid_in;
@@ -210,6 +210,31 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
     // convert int to unsigned, we know it is positive from above checks
     unsigned index = abs(mMaterialIdToMaterialLawIndexMap[materialId]);
     return index;
+}
+
+
+template<unsigned DIM>
+void FiniteElasticityAssembler<DIM>::FormInitialGuess()
+{
+    double zero_strain_pressure = mMaterialLaws[0]->GetZeroStrainPressure();
+    
+    std::vector<unsigned> local_dof_indices(this->mDofsPerElement);
+
+    typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
+    while(element_iter!=this->mDofHandler.end()) 
+    {
+        element_iter->get_dof_indices(local_dof_indices);
+        
+        for(unsigned i=0; i<this->mDofsPerElement; i++)
+        {
+            const unsigned component_i = mFeSystem.system_to_component_index(i).first;
+            if(component_i == PRESSURE_COMPONENT_INDEX)
+            {
+                this->mCurrentSolution(local_dof_indices[i]) = zero_strain_pressure;
+            }
+        }
+        element_iter++;
+    }
 }
 
 //template<unsigned DIM>
@@ -352,7 +377,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
 
 
-    static std::vector< unsigned >                    local_dof_indices(dofs_per_element);
+    static std::vector< unsigned >                        local_dof_indices(dofs_per_element);
     static std::vector< Vector<double> >                  local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
 
@@ -610,6 +635,11 @@ void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions()//bool as
 template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::ComputeNumericalJacobian()
 {
+    if(mNumericalJacobianMatrix.empty())
+    {
+        mNumericalJacobianMatrix.reinit(this->mSparsityPattern);
+    }
+    
     unsigned size = this->mCurrentSolution.size();
 
     // save the current solution
@@ -857,11 +887,14 @@ void FiniteElasticityAssembler<DIM>::Solve()
     
     OutputResults(0);
     
+    FormInitialGuess();
+    
     // compute residual
     this->AssembleSystem(true, false);
     double norm_resid = CalculateResidualNorm();
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
     
+    mNumNewtonIterations = 0;
     unsigned counter = 1;
     
     // use the larger of the tolerances formed from the absolute or 
@@ -888,6 +921,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         std::cout << "Norm of residual is " << norm_resid << "\n";
 
         OutputResults(counter);
+        mNumNewtonIterations = counter;
     
         counter++;
         if(counter==20)
@@ -984,6 +1018,12 @@ std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetUndeformedPosi
     }
 
     return mUndeformedPosition;
+}
+
+template<unsigned DIM>
+unsigned FiniteElasticityAssembler<DIM>::GetNumNewtonIterations()
+{
+    return mNumNewtonIterations;
 }
 
 #endif // FINITEELASTICITYASSEMBLER_CPP_

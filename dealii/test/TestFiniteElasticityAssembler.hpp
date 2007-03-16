@@ -121,7 +121,44 @@ public :
             
             vertex_iter.Next();
         } 
-    }   
+    }
+    
+    // A test where the solution should be zero displacement
+    // It mainly tests that the initial guess was set up correctly to
+    // the final correct solution, ie u=0, p=zero_strain_pressure (!=0)
+    void TestWithZeroDisplacement() throw(Exception)   
+    {
+        Vector<double> body_force(2); //zero
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(3.0);
+
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0); 
+        mesh.refine_global(3);
+        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
+        
+        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
+                                                       &mooney_rivlin_law,
+                                                       body_force,
+                                                       1.0,
+                                                       "");
+                                                         
+        finite_elasticity.Solve();
+
+        TS_ASSERT_EQUALS(finite_elasticity.GetNumNewtonIterations(), 0);
+
+        // get undeformed position
+        std::vector<Vector<double> >& undeformed_position 
+            = finite_elasticity.rGetUndeformedPosition();
+
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position 
+            = finite_elasticity.rGetDeformedPosition();
+        for(unsigned i=0; i<deformed_position[0].size(); i++)
+        {
+            TS_ASSERT_DELTA(undeformed_position[0](i), deformed_position[0](i), 1e-8);
+            TS_ASSERT_DELTA(undeformed_position[1](i), deformed_position[1](i), 1e-8);
+        }
+    }
 
 
     void Test2dProblemOnSquare() throw(Exception)
