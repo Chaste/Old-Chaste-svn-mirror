@@ -1450,12 +1450,12 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 1); // will be restored
 
             // Initialise a cell
+            AbstractCellCycleModel *temp_model = new FixedCellCycleModel();
             MeinekeCryptCell stem_cell(TRANSIT, // the type will be restored soon
                                        HEALTHY,//Mutation State
                                        1,    // generation
-                                       new FixedCellCycleModel()); //memory leak?
- 
-            
+                                       temp_model);
+             
             // restore the cell
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
             boost::archive::text_iarchive input_arch(ifs);
@@ -1463,6 +1463,9 @@ public:
             input_arch >> *p_simulation_time;
             input_arch >> stem_cell;
             
+            // Free memory
+            delete temp_model;
+
             // check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);

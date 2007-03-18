@@ -273,6 +273,12 @@ private:
 
 
 public:
+
+    ~CryptHoneycombMeshGenerator()
+    {
+        delete mpMesh;
+    }
+
     CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth)
     {
     	mNumCellWidth = numCellWidth;

@@ -2,6 +2,7 @@
 #define ABSTRACTCELLCYCLEMODEL_HPP_
 
 #include <boost/serialization/access.hpp>
+#include <boost/serialization/is_abstract.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include "MeinekeCryptCellTypes.hpp"
@@ -90,7 +91,7 @@ public:
 
 // Avoid compiler errors on some systems
 // Seems to break things on the Chaste machines, unfortunately :(
-//BOOST_IS_ABSTRACT(AbstractCellCycleModel)
+BOOST_IS_ABSTRACT(AbstractCellCycleModel)
 
 
 #endif /*ABSTRACTCELLCYCLEMODEL_HPP_*/

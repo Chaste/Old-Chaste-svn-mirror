@@ -1,6 +1,8 @@
 #ifndef WNTCELLCYCLEMODEL_HPP_
 #define WNTCELLCYCLEMODEL_HPP_
 
+#include <boost/serialization/vector.hpp>
+
 #include "AbstractCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
@@ -37,10 +39,7 @@ private:
         //archive & mOdeSystem;
         archive & mLastTime;
         
-        for(unsigned i=0; i<mProteinConcentrations.size(); i++)
-        {
-            archive & mProteinConcentrations[i];
-        }
+        archive & mProteinConcentrations;
         archive & mpCancerParams;
         archive & mDivideTime;
         archive & mInSG2MPhase;

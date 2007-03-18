@@ -1,8 +1,7 @@
 #ifndef MEINEKECRYPTCELL_HPP_
 #define MEINEKECRYPTCELL_HPP_
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/access.hpp>
 
 #include "Element.hpp"
 #include "MeinekeCryptCellTypes.hpp"
@@ -20,26 +19,13 @@ private:
     /// Caches the result of ReadyToDivide() so Divide() can look at it
     bool mCanDivide;
     
-    /**
-     * Disallow the use of a default constructor.
-     * 
-     * Is this needed? seems to work ok without it. 
-     */
-    MeinekeCryptCell()
-    {
-        //assert(false); Had to get rid of this for serializer...
-        // hack to get serialization to work... probably get big memory leak
-        // here
-        mpCellCycleModel = new FixedCellCycleModel();
-    }
-   
     friend class boost::serialization::access;
-    
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
+        // These first 4 are dealt with by {load,save}_construct_data
         archive & mGeneration;
         archive & mCellType;
         archive & mMutationState;
@@ -48,7 +34,6 @@ private:
         archive & mUndergoingApoptosis;
     }
 
-    
 protected:
     unsigned mGeneration;
     CryptCellType mCellType;
@@ -76,7 +61,7 @@ public:
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      */
     MeinekeCryptCell(CryptCellType cellType,
-    				 CryptCellMutationState mutationState,
+    	             CryptCellMutationState mutationState,
                      unsigned generation,
                      AbstractCellCycleModel *pCellCycleModel);
     /**
@@ -90,7 +75,7 @@ public:
      * Copy all the attributes of one cell to another
      * (used for periodic boundaries - does not copy node or position information)
      */
-    void operator=(const MeinekeCryptCell &other_cell);
+    MeinekeCryptCell& operator=(const MeinekeCryptCell &other_cell);
     
     void SetBirthTime(double birthTime);
 
@@ -98,17 +83,17 @@ public:
      * Change the cell cycle model used.  This takes effect immediately.
      */
     void SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel);
-    AbstractCellCycleModel *GetCellCycleModel();
+    AbstractCellCycleModel *GetCellCycleModel() const;
     
     void SetNodeIndex(unsigned index);
-    unsigned GetNodeIndex();
+    unsigned GetNodeIndex() const;
     
-    double GetAge();
-    double GetBirthTime();
-    unsigned GetGeneration();
+    double GetAge() const;
+    double GetBirthTime() const;
+    unsigned GetGeneration() const;
     
-    CryptCellType GetCellType();
-    CryptCellMutationState GetMutationState();
+    CryptCellType GetCellType() const;
+    CryptCellMutationState GetMutationState() const;
     void SetCellType(CryptCellType cellType);
     void SetMutationState(CryptCellMutationState mutationState);
         
@@ -121,9 +106,9 @@ public:
     bool ReadyToDivide(std::vector<double> cellCycleInfluences = std::vector<double>());
     
     void StartApoptosis();
-    bool HasApoptosisBegun();
-    double TimeUntilDeath();
-    bool IsDead();
+    bool HasApoptosisBegun() const;
+    double TimeUntilDeath() const;
+    bool IsDead() const;
 	/**
      * Divide this cell to produce a daughter cell.
      * ReadyToDivide must have been called with the given simulationTime, and returned true.
@@ -131,5 +116,47 @@ public:
     MeinekeCryptCell Divide();
     
 };
+
+
+namespace boost { namespace serialization {
+/**
+ * Serialize information required to construct a Meineke cell.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const MeinekeCryptCell * t, const BOOST_PFTO unsigned int file_version)
+{
+    // save data required to construct instance
+    const CryptCellType cell_type = t->GetCellType();
+    const CryptCellMutationState mutation_state = t->GetMutationState();
+    const unsigned generation = t->GetGeneration();
+    const AbstractCellCycleModel * const p_cell_cycle_model = t->GetCellCycleModel();
+    ar << cell_type;
+    ar << mutation_state;
+    ar << generation;
+    ar << p_cell_cycle_model;
+}
+
+/**
+ * De-serialize constructor parameters and initialise Meineke cell.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, MeinekeCryptCell * t, const unsigned int file_version)
+{
+    // retrieve data from archive required to construct new instance
+    CryptCellType cell_type;
+    CryptCellMutationState mutation_state;
+    unsigned generation;
+    AbstractCellCycleModel *p_cell_cycle_model;
+    ar >> cell_type;
+    ar >> mutation_state;
+    ar >> generation;
+    ar >> p_cell_cycle_model;
+    // invoke inplace constructor to initialize instance
+    ::new(t)MeinekeCryptCell(cell_type, mutation_state, generation,
+			     p_cell_cycle_model);
+}
+}} // namespace ...
 
 #endif /*MEINEKECRYPTCELL_HPP_*/

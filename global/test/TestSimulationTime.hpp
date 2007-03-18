@@ -58,7 +58,7 @@ public:
         SimulationTime::Destroy();
         
         SimulationTime *p_simulation_time3 = SimulationTime :: Instance();
-        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time3->SetStartTime(0.0);
         p_simulation_time3->SetEndTimeAndNumberOfTimeSteps(10.0,5);
         TS_ASSERT_DELTA(p_simulation_time3->GetTimeStep(), 2.0, 1e-6);
         

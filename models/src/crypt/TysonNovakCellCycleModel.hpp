@@ -1,6 +1,8 @@
 #ifndef TYSONNOVAKCELLCYCLEMODEL_HPP_
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
 
+#include <boost/serialization/vector.hpp>
+
 #include "AbstractCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
@@ -33,10 +35,7 @@ private:
         //archive & mOdeSystem;
         archive & mLastTime;
         archive & mDivideTime;
-        for(unsigned i=0; i<mProteinConcentrations.size(); i++)
-        {
-            archive & mProteinConcentrations[i];
-        }
+        archive & mProteinConcentrations;
         archive & mReadyToDivide;
     }
     

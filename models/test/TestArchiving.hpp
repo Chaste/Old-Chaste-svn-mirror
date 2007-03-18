@@ -41,12 +41,11 @@ public:
                            std::string string, 
                            std::vector<double> doubles, 
                            std::vector<bool> bools)
+      : mString(string),
+	mVectorOfDoubles(doubles),
+	mVectorOfBools(bools)
     {
         mNumber = initial;
-        mString = string;
-        
-        mVectorOfDoubles = doubles;
-        mVectorOfBools = bools;
     }
     
     int GetNumber() const
@@ -101,7 +100,7 @@ public:
         
         {  
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
             std::vector<double> bad_doubles(1);

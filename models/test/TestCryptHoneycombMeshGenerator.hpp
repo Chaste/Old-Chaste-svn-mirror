@@ -41,8 +41,6 @@ public:
         {
            TS_ASSERT(ghost_node_indices[i]==i);
         }
-        
-        delete p_mesh;
     } 
     
     void testCryptPeriodicHoneycombMeshGenerator() throw(Exception)
@@ -94,7 +92,6 @@ public:
         }
         // Check that the next ghost node is the other side of the stem cells...
         TS_ASSERT_EQUALS(ghost_node_indices[this_many_ghosts_at_start],this_many_ghosts_at_start+num_cells_width+1)
-        delete p_mesh;
     } 
 };
 

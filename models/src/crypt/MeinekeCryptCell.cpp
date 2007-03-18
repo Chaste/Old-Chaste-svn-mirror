@@ -5,7 +5,7 @@
 
 
 MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
-								   CryptCellMutationState mutationState,
+                                   CryptCellMutationState mutationState,
                                    unsigned generation,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
@@ -27,7 +27,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
 {
     // Copy 'easy' data members
-	mGeneration = other_cell.mGeneration;
+    mGeneration = other_cell.mGeneration;
     mCellType = other_cell.mCellType;
     mMutationState = other_cell.mMutationState;
     mCanDivide = other_cell.mCanDivide;
@@ -46,10 +46,14 @@ MeinekeCryptCell::MeinekeCryptCell(const MeinekeCryptCell &other_cell)
     CommonCopy(other_cell);
 }
 
-void MeinekeCryptCell::operator=(const MeinekeCryptCell &other_cell)
+MeinekeCryptCell& MeinekeCryptCell::operator=(const MeinekeCryptCell &other_cell)
 {
-    delete mpCellCycleModel;
+    // In case this is self-assignment, don't delete the cell cycle model...
+    AbstractCellCycleModel* temp = mpCellCycleModel;
     CommonCopy(other_cell);
+    // ...until after we've copied it.
+    delete temp;
+    return *this;
 }
 
 MeinekeCryptCell::~MeinekeCryptCell()
@@ -65,12 +69,15 @@ void MeinekeCryptCell::SetBirthTime(double birthTime)
 
 void MeinekeCryptCell::SetCellCycleModel(AbstractCellCycleModel *pCellCycleModel)
 {
-    delete mpCellCycleModel;
+    if (mpCellCycleModel != pCellCycleModel)
+    {
+        delete mpCellCycleModel;
+    }
     mpCellCycleModel = pCellCycleModel;
     mpCellCycleModel->SetCellType(mCellType);
 }
 
-AbstractCellCycleModel *MeinekeCryptCell::GetCellCycleModel()
+AbstractCellCycleModel *MeinekeCryptCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
 }
@@ -80,32 +87,32 @@ void MeinekeCryptCell::SetNodeIndex(unsigned index)
     mNodeIndex = index;
 }
 
-unsigned MeinekeCryptCell::GetNodeIndex()
+unsigned MeinekeCryptCell::GetNodeIndex() const
 {
     return mNodeIndex;
 }
 
-double MeinekeCryptCell::GetAge()
+double MeinekeCryptCell::GetAge() const
 {
 	return mpCellCycleModel->GetAge();
 }
 
-double MeinekeCryptCell::GetBirthTime()
+double MeinekeCryptCell::GetBirthTime() const
 {
 	return mpCellCycleModel->GetBirthTime();
 }
 
-unsigned MeinekeCryptCell::GetGeneration()
+unsigned MeinekeCryptCell::GetGeneration() const
 {
     return mGeneration;
 }
 
-CryptCellType MeinekeCryptCell::GetCellType()
+CryptCellType MeinekeCryptCell::GetCellType() const
 {
     return mCellType;
 }
 
-CryptCellMutationState MeinekeCryptCell::GetMutationState()
+CryptCellMutationState MeinekeCryptCell::GetMutationState() const
 {
     return mMutationState;
 }
@@ -129,7 +136,7 @@ void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
  * cell onto the vector before sending it to the cell cycle models.
  */
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
-{	
+{
     assert(!IsDead());
     
 	double mutation_state = -1;
@@ -187,12 +194,12 @@ void MeinekeCryptCell::StartApoptosis()
 }
 
 
-bool MeinekeCryptCell::HasApoptosisBegun()
+bool MeinekeCryptCell::HasApoptosisBegun() const
 {
     return mUndergoingApoptosis;
 }
     
-double MeinekeCryptCell::TimeUntilDeath()
+double MeinekeCryptCell::TimeUntilDeath() const
 {
     if (!mUndergoingApoptosis)
     {
@@ -202,7 +209,7 @@ double MeinekeCryptCell::TimeUntilDeath()
     return mDeathTime - p_simulation_time->GetDimensionalisedTime();
 }
 
-bool MeinekeCryptCell::IsDead()
+bool MeinekeCryptCell::IsDead() const
 {
    SimulationTime *p_simulation_time = SimulationTime::Instance();
    return ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime));
