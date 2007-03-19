@@ -160,7 +160,13 @@ public :
     {
     }
     
-        
+
+    /** 
+     *  Get the pressure corresponding to E=0, ie corresponding to C=identity
+     * 
+     *  Since T = 2*Get_dW_dI1 identity + 4*Get_dW_dI2 (I1*identity - C) - p inverse(C),
+     *  this is equal to 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3) in 3D
+     */        
     double GetZeroStrainPressure()
     {
         assert(DIM>=2 && DIM<=3);

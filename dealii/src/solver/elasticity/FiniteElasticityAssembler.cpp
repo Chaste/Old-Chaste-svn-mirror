@@ -970,14 +970,14 @@ double FiniteElasticityAssembler<DIM>::CalculateResidualNorm()
 
 
 template<unsigned DIM>
-Vector<double>& FiniteElasticityAssembler<DIM>::GetSolutionVector()
+Vector<double>& FiniteElasticityAssembler<DIM>::rGetSolutionVector()
 {
     return this->mCurrentSolution;
 }
 
 
 template<unsigned DIM>
-DoFHandler<DIM>& FiniteElasticityAssembler<DIM>::GetDofHandler()
+DoFHandler<DIM>& FiniteElasticityAssembler<DIM>::rGetDofHandler()
 {
     return this->mDofHandler;
 }

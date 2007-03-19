@@ -37,10 +37,15 @@
 // for dealing with hanging nodes..
 #include <dofs/dof_constraints.h>
 
+
+/**
+ *  Abstract assembler with common functionality for most assemblers.
+ */
 template<unsigned DIM>
 class AbstractDealiiAssembler
 {
 protected:
+    /*< The mesh to be solve on */
     Triangulation<DIM>*   mpMesh;
 
     // an FE_Q object seems to be equivalent to our basis functions
@@ -49,25 +54,63 @@ protected:
     // note that this must be defined before mDofHandler!
     /*FE_Q<DIM>            mFe;*/            
 
-    // an Fe system seems to be, loosely, a set of fe_q objects
+    /*< Degrees of freedom handler */
     DoFHandler<DIM>      mDofHandler;
 
+    /*< A structure needed for handling hanging nodes */
     ConstraintMatrix     mHangingNodeConstraints;
 
+    /*< A structure needed for setting up a sparse matrix
+     */
     SparsityPattern      mSparsityPattern;
 
+    /** 
+     *  The main system matrix. Eg, the global stiffness matrix in a static linear problem
+     *  or the Jacobian in a nonlinear problem
+     */
     SparseMatrix<double> mSystemMatrix;
-    Vector<double>       mCurrentSolution;
+    /**
+     *  The main rhs vector. Eg the global load vector in a static linear problem, or
+     *  the residual in a nonlinear problem
+     */
     Vector<double>       mRhsVector;
+    /** 
+     *  The current solution in a time-dependent problem, or current guess in a nonlinear
+     *  static problem (or both in a time-dependent nonlinear problem), or final solution 
+     *  in a static linear problem
+     */
+    Vector<double>       mCurrentSolution;
     
+    /**
+     *  The size of element stiffness vector. Depends on the FeSystem object (which
+     *  depends on the concrete class). Must be set up to the correct value in the 
+     *  constructor of the concrete class
+     */
     unsigned             mDofsPerElement;
 
+    /**
+     *  The main function to be implemented in the concrete class
+     * 
+     *  Assemble of the element matrix and/or element vector for the given element. Called
+     *  by AssembleSystem
+     * 
+     *  @elementIter Iterator pointing at current element
+     *  @elementRhs Small vector to be filled in. Should be of size AbstractDealiiAssembler::mDofsPerElement
+     *  @elementMatrix Small matrix to be filled in. Should be of square, of size AbstractDealiiAssembler::mDofsPerElement
+     *  @assembleVector Whether to assemble the small vector
+     *  @assembleMatrix Whether to assemble the small matrix
+     */
     virtual void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                                    Vector<double>&        elementRhs,
                                    FullMatrix<double>&    elementMatrix,
                                    bool                   assembleVector,
                                    bool                   assembleMatrix)=0;
 
+    /**
+     *  A pure method which needs to implemented in the concrete class which 
+     *  applies the dirichlet boundary conditions to the system matrix and 
+     *  system vector. Called at the end of AssembleSystem()
+     */
     virtual void ApplyDirichletBoundaryConditions()=0;
 
     /** 

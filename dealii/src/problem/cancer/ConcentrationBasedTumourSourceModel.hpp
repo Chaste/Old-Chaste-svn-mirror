@@ -260,8 +260,8 @@ private :
     void UpdateMesh(FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
         
-        Vector<double>& solution = pFiniteElasticityAssembler->GetSolutionVector();
-        DoFHandler<DIM>& dof_handler = pFiniteElasticityAssembler->GetDofHandler();
+        Vector<double>& solution = pFiniteElasticityAssembler->rGetSolutionVector();
+        DoFHandler<DIM>& dof_handler = pFiniteElasticityAssembler->rGetDofHandler();
 
         
         TriangulationVertexIterator<DIM> vertex_iter(&mMesh);        

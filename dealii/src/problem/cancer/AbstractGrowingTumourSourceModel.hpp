@@ -99,8 +99,8 @@ public :
         }
 
 
-        Vector<double>& solution = pFiniteElasticityAssembler->GetSolutionVector();
-        DoFHandler<DIM>& dof_handler = pFiniteElasticityAssembler->GetDofHandler();
+        Vector<double>& solution = pFiniteElasticityAssembler->rGetSolutionVector();
+        DoFHandler<DIM>& dof_handler = pFiniteElasticityAssembler->rGetDofHandler();
 
         DofVertexIterator<DIM> vertex_iter(p_mesh, &dof_handler);
         

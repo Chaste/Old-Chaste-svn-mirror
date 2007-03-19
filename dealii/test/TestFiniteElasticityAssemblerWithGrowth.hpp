@@ -159,8 +159,8 @@ public :
 
 
 
-//        Vector<double>& solution = finiteelas_with_growth.GetSolutionVector();
-//        DoFHandler<2>& dof_handler = finiteelas_with_growth.GetDofHandler();
+//        Vector<double>& solution = finiteelas_with_growth.rGetSolutionVector();
+//        DoFHandler<2>& dof_handler = finiteelas_with_growth.rGetDofHandler();
 //
 //        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
 //        

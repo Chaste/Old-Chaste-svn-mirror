@@ -123,8 +123,8 @@ public:
 
 /* Inherited    
     virtual void Solve();
-    Vector<double>& GetSolutionVector();
-    DoFHandler<DIM>& GetDofHandler();
+    Vector<double>& rGetSolutionVector();
+    DoFHandler<DIM>& rGetDofHandler();
     void ComputeNumericalJacobian();
     void CompareJacobians();
 */    

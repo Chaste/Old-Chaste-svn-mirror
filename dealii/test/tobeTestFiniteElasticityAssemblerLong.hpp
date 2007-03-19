@@ -175,7 +175,7 @@ public :
                                                        1.0,
                                                        "finite_elas/fixeddisp3d");
 
-        DoFHandler<3>& dof_handler = finite_elasticity.GetDofHandler();
+        DoFHandler<3>& dof_handler = finite_elasticity.rGetDofHandler();
 
 
         std::map<unsigned,double> boundary_values;
@@ -209,7 +209,7 @@ public :
         finite_elasticity.Solve();
 
 
-        Vector<double>& solution = finite_elasticity.GetSolutionVector();
+        Vector<double>& solution = finite_elasticity.rGetSolutionVector();
 
 
         DofVertexIterator<3> dof_vertex_iter(&mesh, &dof_handler);

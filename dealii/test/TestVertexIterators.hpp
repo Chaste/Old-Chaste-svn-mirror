@@ -120,7 +120,7 @@ public :
                                                        body_force, 1.0, "finite_elas/simple");
 
 
-        DoFHandler<2>& dof_handler = finite_elasticity.GetDofHandler();
+        DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
 
         DofVertexIterator<2>  vertex_iter(&mesh,&dof_handler);
         unsigned initial_index = vertex_iter.GetVertexGlobalIndex();

@@ -192,8 +192,8 @@ public :
 
         // also get the solution vector directly and check the deformed position
         // object was set up correctly...
-        Vector<double>& solution = finite_elasticity.GetSolutionVector();
-        DoFHandler<2>& dof_handler = finite_elasticity.GetDofHandler();
+        Vector<double>& solution = finite_elasticity.rGetSolutionVector();
+        DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
 
         DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
         

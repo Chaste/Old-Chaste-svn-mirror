@@ -15,6 +15,42 @@
 
 #include "FiniteElasticityAssembler.cpp"   //cpp!
 
+
+
+/**
+ *  DynamicFiniteElasticityAssembler
+ *  
+ *  Solve a time-dependent incompressible finite elasticity problem. In the Lagrangian 
+ *  coordinates, this is 
+ *  \f[
+ *  \frac{\partial T_{MN} F^i_M}{\partial X^N} + \rho \g^i = \rho \frac{\partial{v^i}}{\partial t}
+ *  \f]
+ *  where
+ *  \f$ T^{MN} \f$ is the second Piola-Kirchoff stress tensor,
+ *  \f$ F^i_M \f$ is the deformation gradient tensor
+ *  \f$ \rho \f$ is the body mass density, 
+ *  \f$ g^i \f$ is the body force per unit volume (eg. gravitational acceleration),
+ *  and \f$ v^i \f$ is the velocity
+ * 
+ *  See FiniteElasticityAssembler for time-independent problems.
+ *  
+ *  The mesh, material law for the material, body force and density are passed in in the
+ *  constructor. Alternative methods are available in order to specify material laws
+ *  on different regions of the mesh. 
+ *  
+ *  Note that the mesh must have some surface elements with their boundary indicator 
+ *  set to FIXED_BOUNDARY. Zero-valued dirichlet boundary conditions will be specified
+ *  on this region. 
+ * 
+ *  Neumann boundary conditions are not implemented yet.
+ * 
+ *  Call SetTimes(), and then Solve() to compute the deformed shape, and rGetDeformedPosition()
+ *  (in the base class) to get the solution.
+ * 
+ *  The Newton method is used to solve the nonlinear set of finite element equations. 
+ *  The default degree of the basis functions is quadratic for displacement and linear
+ *  for pressure.  
+ */
 template<unsigned DIM>
 class DynamicFiniteElasticityAssembler : public FiniteElasticityAssembler<DIM>
 {
@@ -50,15 +86,32 @@ private:
     SparseMatrix<double> mNumericalJacobianMatrix;
  */
 
-
+    /*< Stored solution at the previous time step */
     Vector<double> mSolutionAtLastTimestep;
 
+    /*< Start time */
     double mTstart;
+    /*< End time */
     double mTend;
+    /*< Timestep */
     double mDt;
+    /*< 1.0/timestep */
     double mDtInverse;
-    bool mTimesSet;
+    /*< Whether the start time, end time and timestep have been set */
+    bool   mTimesSet;
     
+    /** 
+     *  AssembleOnElement
+     *  
+     *  Assemble of the element matrix and/or element vector for the given element. Called
+     *  by AssembleSystem in the base class
+     * 
+     *  @elementIter Iterator pointing at current element
+     *  @elementRhs Small vector to be filled in. Should be of size AbstractDealiiAssembler::mDofsPerElement
+     *  @elementMatrix Small matrix to be filled in. Should be of square, of size AbstractDealiiAssembler::mDofsPerElement
+     *  @assembleResidual Whether to assemble the small vector
+     *  @assembleJacobian Whether to assemble the small matrix
+     */
     void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter, 
                            Vector<double>&                                 elementRhs,
                            FullMatrix<double>&                             elementMatrix,
@@ -96,13 +149,18 @@ public:
      */
     void SetTimes(double Tstart, double Tend, double dt);
 
+    /** 
+     *  Solve the dynamic finite elasticity problem. Note, SetTimes() must be called before
+     *  this. rGetDeformedPosition() in the base class can be used to get the deformed
+     *  positions post-solve.
+     */  
     void Solve();
 
 
 /* Inherited
     void SetBoundaryValues(std::map<unsigned, double> boundary_values);
-    Vector<double>& GetSolutionVector();
-    DoFHandler<DIM>& GetDofHandler();
+    Vector<double>& rGetSolutionVector();
+    DoFHandler<DIM>& rGetDofHandler();
     void ComputeNumericalJacobian();
     void CompareJacobians();
 */    

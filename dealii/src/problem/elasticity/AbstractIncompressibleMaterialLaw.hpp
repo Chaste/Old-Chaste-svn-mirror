@@ -167,6 +167,9 @@ public :
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
     }
 
+    /** 
+     *  Get the pressure corresponding to E=0, ie C=identity
+     */
     virtual double GetZeroStrainPressure()=0;
 
     virtual ~AbstractIncompressibleMaterialLaw()
