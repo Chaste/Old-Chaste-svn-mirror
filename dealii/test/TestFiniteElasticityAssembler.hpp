@@ -81,7 +81,7 @@ public :
                                                        body_force,
                                                        1.0,
                                                        "");                                    
-        finite_elasticity.CompareJacobians();
+        TS_ASSERT_THROWS_NOTHING( finite_elasticity.CompareJacobians() );
     }
 
 

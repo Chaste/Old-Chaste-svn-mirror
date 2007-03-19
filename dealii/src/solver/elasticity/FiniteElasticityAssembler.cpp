@@ -763,9 +763,9 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
                 no_difference = false;
                 #undef COVERAGE_IGNORE
             }
-            //std::cout << value << " ";
+            std::cout << value << " ";
         }
-        //std::cout << "\n";
+        std::cout << "\n";
     }
     
     if(!no_difference)
