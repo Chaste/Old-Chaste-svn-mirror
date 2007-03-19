@@ -12,15 +12,18 @@
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
+#include "WntGradient.hpp"
+#include "WntCellCycleOdeSystem.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "CancerParameters.hpp"
 #include "ColumnDataReader.hpp"
 #include "CryptHoneycombMeshGenerator.hpp"
-#include "WntGradient.hpp"
+#include "SimulationTime.hpp"
 
 class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
 {
-	void CheckAgainstPreviousRun(std::string resultSet,std::string resultDirectory, unsigned maxCells, unsigned maxElements)
+	void CheckAgainstPreviousRun(std::string resultDirectory, std::string resultSet, unsigned maxCells, unsigned maxElements)
     {
         std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
         
@@ -38,7 +41,9 @@ class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
         ColumnDataReader expected_element_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
                                                              "tabulated_element_results",
                                                              false);
-                                                                                                                  
+		std::cout << "Got to here \n" << std::flush;                           
+
+                                                                                         
         for (unsigned cell=0; cell<maxCells; cell++)
         {
             std::stringstream cell_type_var_name;
@@ -72,7 +77,7 @@ class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
                 TS_ASSERT_DELTA(expected_cell_y_positions[time_step], computed_cell_y_positions[time_step],1e-6);
             }
         }
-        
+        std::cout << "Got to here 2\n" << std::flush; 
         for (unsigned element=0; element<maxElements; element++)
         {
             std::stringstream nodeA_var_name;
@@ -104,14 +109,256 @@ class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
                 TS_ASSERT_EQUALS(expected_NodeB_numbers[time_step], computed_NodeB_numbers[time_step]);
                 TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
             }
+            
         }
+        std::cout << "Got to here 3\n" << std::flush; 
     }
     
     
     
 public:
 
-    void noTestWithBirthOnHoneycombMeshNotPeriodic() throw (Exception)
+	// Test the spring system. There are no cells in this test, therefore no birth, although
+    // nodes are sloughed. The mesh is initially a set of 10 by 10 squares, each square made
+    // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
+    // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
+    // triangle trying to become equilateral.
+    void Test2DSpringSystemWithSloughing() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        
+        double crypt_length = 10;
+        double crypt_width = 10;
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        RandomNumberGenerator::Instance();
+        
+        // throws because start time not set on simulation time
+        TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/);
+
+        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
+
+        // destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        simulator.SetOutputDirectory("Crypt2DSprings");
+
+        //simulator.SetEndTime(24.0);
+        // We need faster tests
+        simulator.SetEndTime(1.0);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(90));
+        simulator.SetMaxCells(400);
+        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(90));
+        simulator.SetMaxElements(400);
+
+        simulator.SetReMeshRule(false);
+        
+        // check an exception is thrown if periodic sim is asked for 
+        // on a non-periodic mesh
+        simulator.SetPeriodicSides(true);
+        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
+
+        // destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        simulator.SetPeriodicSides(false);
+        simulator.Solve();
+        
+        std::vector<double> node_0_location = simulator.GetNodeLocation(0);
+        TS_ASSERT_DELTA(node_0_location[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(node_0_location[1], 0.0, 1e-12);
+              
+        CheckAgainstPreviousRun("Crypt2DSprings","results_from_time_0", 400u, 400u);
+                
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+    
+    
+    void Test2DSpringsFixedBoundaries() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
+        
+        double crypt_length = 10;
+        double crypt_width = 10;
+        
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            
+            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
+            if (y == 0.0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+            }
+            else if (y < 3)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else if (y < 6.5)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else if (y < 8)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = -1; //hours
+            }
+            
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        CryptSimulation2DPeriodic simulator(mesh,cells);
+        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
+        simulator.SetEndTime(0.2); //hours
+        simulator.SetMaxCells(800);
+        simulator.SetMaxElements(800);
+        simulator.SetFixedBoundaries();
+        simulator.SetPeriodicSides(false);
+
+        simulator.Solve();
+        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries","results_from_time_0", 400u, 800u);
+
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+	
+	void TestWithFixedBirthOnPeriodicMesh() throw (Exception)
+    {
+    	CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
+        
+        unsigned cells_across = 7;
+		unsigned cells_up = 5;
+        double crypt_width = 6.0;
+        unsigned thickness_of_ghost_layer = 3;
+        
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);  
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh(); 
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices(); 
+
+//		double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
+		double crypt_length = 4.0;
+        p_params->SetCryptLength(crypt_length);
+        p_params->SetCryptWidth(crypt_width);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);        
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = p_mesh->GetNumAllNodes();
+        std::cout << "Num Cells = " << num_cells << "\n";
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            double birth_time;
+            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
+          
+            if (y <= 0.3)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = 0;//-p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
+            }
+            else if (y < 2)
+            {
+                cell_type = TRANSIT;
+                generation = 1;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else if (y < 3)
+            {
+                cell_type = TRANSIT;
+                generation = 2;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else if (y < 4)
+            {
+                cell_type = TRANSIT;
+                generation = 3;
+                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
+            }
+            else
+             {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = -1; //hours
+            }
+            
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+        
+        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        simulator.SetOutputDirectory("Crypt2DPeriodic");
+        //simulator.SetEndTime(24.0);
+        simulator.SetEndTime(0.2);
+        simulator.SetMaxCells(200);
+        simulator.SetMaxElements(500);
+        simulator.SetNoBirth(false);
+        simulator.SetGhostNodes(ghost_node_indices);
+                
+        simulator.SetReMeshRule(true);
+		
+        simulator.Solve();
+        CheckAgainstPreviousRun("Crypt2DPeriodic","results_from_time_0", 200u, 500u);
+
+		//delete p_mesh;
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+
+    void Test2DHoneycombMesh_NotPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
@@ -189,11 +436,15 @@ public:
 
         simulator.Solve();
         
-        delete p_mesh;
-        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 400u, 800u);
-
+        
+        CheckAgainstPreviousRun("Crypt2DHoneycombMesh","results_from_time_0", 500u, 1000u);
+		std::cout << "Got to here 4\n" << std::flush;
+		
+		//delete p_mesh;
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        
+        std::cout << "Got to here 5\n" << std::flush;
     }
     
     
@@ -202,8 +453,9 @@ public:
     // differentiated, check the number of cells at the end of the 
     // simulation is as expected.
     //////////////////////////////////////////////////////////////////
-    void noTest2DCorrectCellNumbers() throw (Exception)
+    void Test2DCorrectCellNumbers() throw (Exception)
     {
+    	std::cout << "Got to here 6\n" << std::flush;
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
         
@@ -305,13 +557,13 @@ public:
         
         TS_ASSERT_LESS_THAN(num_differentiated, 23);
         TS_ASSERT_LESS_THAN(18, num_differentiated);
-        delete p_mesh;
+        //delete p_mesh;
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     } 
     
-    void noTestWithBirthOnHoneycombMeshPeriodic() throw (Exception)
+    void Test2DPeriodic() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
@@ -401,7 +653,7 @@ public:
         std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
         std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
         
-        delete p_mesh;
+        //delete p_mesh;
         
 //        std::cout << "Periodic Cell indices at the end of the simulation:\n";
 //        
@@ -442,114 +694,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void TestCalculateCryptBoundaries()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        mesh.Translate(0.0,-2.0,0.0) ;
-        //Create Vector of ghost nodes
-        std::vector<unsigned> ghost_node_indices;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNode(i)->GetPoint().rGetLocation()[0];
-            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
-            if ((x<2.0)||(x>8.0)||(y>6.0)||(y<0.0))
-            {
-               ghost_node_indices.push_back(i);
-            }
-        }
-        
-        CancerParameters *p_params = CancerParameters::Instance();
-        p_params->SetCryptLength(6.0);
-        p_params->SetCryptWidth(6.0);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        CryptSimulation2DPeriodic simulator(mesh);
-        simulator.SetGhostNodes(ghost_node_indices);
-
-        simulator.CalculateCryptBoundary();
-        
-        //simulator.DetectNaughtyCellsJoiningPeriodicEdges();
-        
-        std::vector<unsigned> calculated_boundary_nodes  = simulator.GetCryptBoundary();
-        
-        std::vector<unsigned> actual_boundary_nodes(24);
-      
-        actual_boundary_nodes[0] = 24;
-        actual_boundary_nodes[1] = 25;
-        actual_boundary_nodes[2] = 26;
-        actual_boundary_nodes[3] = 27;
-        actual_boundary_nodes[4] = 28;
-        actual_boundary_nodes[5] = 29;
-        actual_boundary_nodes[6] = 30;
-        actual_boundary_nodes[7] = 35;
-        actual_boundary_nodes[8] = 41;
-        actual_boundary_nodes[9] = 46;
-        actual_boundary_nodes[10] = 52;
-        actual_boundary_nodes[11] = 57;
-        actual_boundary_nodes[12] = 63;
-        actual_boundary_nodes[13] = 68;
-        actual_boundary_nodes[14] = 74;
-        actual_boundary_nodes[15] = 79;
-        actual_boundary_nodes[16] = 85;
-        actual_boundary_nodes[17] = 90;
-        actual_boundary_nodes[18] = 91;
-        actual_boundary_nodes[19] = 92;
-        actual_boundary_nodes[20] = 93;
-        actual_boundary_nodes[21] = 94;
-        actual_boundary_nodes[22] = 95;
-        actual_boundary_nodes[23] = 96;
-        
-        TS_ASSERT_EQUALS(actual_boundary_nodes.size(),calculated_boundary_nodes.size());
-        
-        
-        for(unsigned i=0; i<calculated_boundary_nodes.size(); i++)
-        {
-            TS_ASSERT_EQUALS(actual_boundary_nodes[i],calculated_boundary_nodes[i]);
-        }
-        
-        std::vector<unsigned> calculated_left_boundary_nodes = simulator.GetLeftCryptBoundary();
-        std::vector<unsigned> calculated_right_boundary_nodes = simulator.GetRightCryptBoundary();
-        
-        std::vector<unsigned> actual_left_boundary_nodes(7);
-        
-        actual_left_boundary_nodes[0] = 24;
-        actual_left_boundary_nodes[1] = 35;
-        actual_left_boundary_nodes[2] = 46;
-        actual_left_boundary_nodes[3] = 57;
-        actual_left_boundary_nodes[4] = 68;
-        actual_left_boundary_nodes[5] = 79;
-        actual_left_boundary_nodes[6] = 90;
-        
-        std::vector<unsigned> actual_right_boundary_nodes(7);
-        
-        actual_right_boundary_nodes[0] = 24+6;
-        actual_right_boundary_nodes[1] = 35+6;
-        actual_right_boundary_nodes[2] = 46+6;
-        actual_right_boundary_nodes[3] = 57+6;
-        actual_right_boundary_nodes[4] = 68+6;
-        actual_right_boundary_nodes[5] = 79+6;
-        actual_right_boundary_nodes[6] = 90+6;
-        
-        //* Must uncomment and include this test
-        
-        TS_ASSERT_EQUALS(actual_left_boundary_nodes.size(),calculated_left_boundary_nodes.size());
-        TS_ASSERT_EQUALS(actual_right_boundary_nodes.size(),calculated_right_boundary_nodes.size());
-        
-        
-        for(unsigned i=0; i<calculated_left_boundary_nodes.size(); i++)
-        {
-            //std::cout<< "calculated_left_boundary_nodes "<< calculated_left_boundary_nodes[i] <<"\n" << std::flush;
-            
-            TS_ASSERT_EQUALS(actual_left_boundary_nodes[i],calculated_left_boundary_nodes[i]);
-            TS_ASSERT_EQUALS(actual_right_boundary_nodes[i],calculated_right_boundary_nodes[i]);
-        }
-        SimulationTime::Destroy();
-    }
-    
+   
     void TestWithWntDependentCells() throw (Exception)
     {
     	CancerParameters *p_params = CancerParameters::Instance();
@@ -645,7 +790,7 @@ public:
         std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
         std::vector<unsigned> cryptBoundary = simulator.GetCryptBoundary();
         
-        delete p_mesh;
+        //delete p_mesh;
 //        std::cout << "Periodic Cell indices at the end of the simulation:\n";
 //        
 //        for(unsigned i=0 ; i<leftBoundary.size(); i++)
@@ -830,6 +975,7 @@ public:
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
+        
 	}
 };
 

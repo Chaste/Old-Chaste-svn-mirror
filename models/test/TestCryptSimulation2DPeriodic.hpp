@@ -114,240 +114,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     
 public:
 
-	// Test the spring system. There are no cells in this test, therefore no birth, although
-    // nodes are sloughed. The mesh is initially a set of 10 by 10 squares, each square made
-    // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
-    // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
-    // triangle trying to become equilateral.
-    void Test2DSpringSystemWithSloughing() throw (Exception)
-    {
-        CancerParameters *p_params = CancerParameters::Instance();
-        
-        double crypt_length = 10;
-        double crypt_width = 10;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
 
-        RandomNumberGenerator::Instance();
-        
-        // throws because start time not set on simulation time
-        TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/);
-
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
-
-        // destroy the simulation time class because of failed solve
-        SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        simulator.SetOutputDirectory("Crypt2DSprings");
-
-        //simulator.SetEndTime(24.0);
-        // We need faster tests
-        simulator.SetEndTime(1.0);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(90));
-        simulator.SetMaxCells(400);
-        TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(90));
-        simulator.SetMaxElements(400);
-
-        simulator.SetReMeshRule(false);
-        
-        // check an exception is thrown if periodic sim is asked for 
-        // on a non-periodic mesh
-        simulator.SetPeriodicSides(true);
-        TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
-
-        // destroy the simulation time class because of failed solve
-        SimulationTime::Destroy();
-        p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        simulator.SetPeriodicSides(false);
-        simulator.Solve();
-              
-        CheckAgainstPreviousRun("Crypt2DSprings","results_from_time_0", 400u, 400u);
-                
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
-    
-    
-    void Test2DSpringsFixedBoundaries() throw (Exception)
-    {
-        CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
-        
-        double crypt_length = 10;
-        double crypt_width = 10;
-        
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<MeinekeCryptCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            CryptCellType cell_type;
-            unsigned generation;
-            double birth_time;
-            
-            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
-            if (y == 0.0)
-            {
-                cell_type = STEM;
-                generation = 0;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
-            }
-            else if (y < 3)
-            {
-                cell_type = TRANSIT;
-                generation = 1;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
-            }
-            else if (y < 6.5)
-            {
-                cell_type = TRANSIT;
-                generation = 2;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
-            }
-            else if (y < 8)
-            {
-                cell_type = TRANSIT;
-                generation = 3;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
-            }
-            else
-            {
-                cell_type = DIFFERENTIATED;
-                generation = 4;
-                birth_time = -1; //hours
-            }
-            
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
-        CryptSimulation2DPeriodic simulator(mesh,cells);
-        simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
-        simulator.SetEndTime(0.2); //hours
-        simulator.SetMaxCells(800);
-        simulator.SetMaxElements(800);
-        simulator.SetFixedBoundaries();
-        simulator.SetPeriodicSides(false);
-
-        simulator.Solve();
-        CheckAgainstPreviousRun("Crypt2DSpringsFixedBoundaries","results_from_time_0", 400u, 800u);
-
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
-	
-	void TestWithFixedBirthOnPeriodicMesh() throw (Exception)
-    {
-    	CancerParameters *p_params = CancerParameters::Instance();
-        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
-        
-        unsigned cells_across = 7;
-		unsigned cells_up = 5;
-        double crypt_width = 6.0;
-        unsigned thickness_of_ghost_layer = 3;
-        
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);  
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh(); 
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices(); 
-
-//		double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-		double crypt_length = 4.0;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);        
-        
-        // Set up cells by iterating through the mesh nodes
-        unsigned num_cells = p_mesh->GetNumAllNodes();
-        std::cout << "Num Cells = " << num_cells << "\n";
-        std::vector<MeinekeCryptCell> cells;
-        for (unsigned i=0; i<num_cells; i++)
-        {
-            CryptCellType cell_type;
-            unsigned generation;
-            double birth_time;
-            double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
-          
-            if (y <= 0.3)
-            {
-                cell_type = STEM;
-                generation = 0;
-                birth_time = 0;//-p_random_num_gen->ranf()*p_params->GetStemCellCycleTime(); //hours - doesn't matter for stem cell;
-            }
-            else if (y < 2)
-            {
-                cell_type = TRANSIT;
-                generation = 1;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
-            }
-            else if (y < 3)
-            {
-                cell_type = TRANSIT;
-                generation = 2;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
-            }
-            else if (y < 4)
-            {
-                cell_type = TRANSIT;
-                generation = 3;
-                birth_time = -p_random_num_gen->ranf()*p_params->GetTransitCellCycleTime(); //hours
-            }
-            else
-             {
-                cell_type = DIFFERENTIATED;
-                generation = 4;
-                birth_time = -1; //hours
-            }
-            
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
-            cell.SetNodeIndex(i);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
-        }
-        
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DPeriodic");
-        //simulator.SetEndTime(24.0);
-        simulator.SetEndTime(0.2);
-        simulator.SetMaxCells(200);
-        simulator.SetMaxElements(500);
-        simulator.SetNoBirth(false);
-        simulator.SetGhostNodes(ghost_node_indices);
-                
-        simulator.SetReMeshRule(true);
-		
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        CheckAgainstPreviousRun("Crypt2DPeriodic","results_from_time_0", 200u, 500u);
-
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-    }
     
 	// This is a rubbish test - all cells start at birthTime = 0.
 	// So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
@@ -446,6 +213,27 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
 
+// The following commented out lines provide test results for TestLoad() to check against.
+
+//		std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
+//        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+//        
+//        std::cout << "Periodic Cell indices at the end of the simulation:\n";
+//        for(unsigned i=0 ; i<leftBoundary.size(); i++)
+//        {
+//        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
+//        }
+//        
+//        // A node on the top edge - used for testing load function
+//        std::vector<double> node_248_location = simulator.GetNodeLocation(248);
+//        std::vector<double> node_219_location = simulator.GetNodeLocation(219);
+//        
+//        std::cout << "Node 248 location: x = " << node_248_location[0] << ",y = " 
+//        	<< node_248_location[1] << std::endl;
+//        std::cout << "Node 219 location: x = " << node_219_location[0] << ",y = " 
+//        	<< node_219_location[1] << std::endl;
+        
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -611,6 +399,27 @@ public:
    		simulator.SetEndTime(0.3);
    		
    		simulator.Solve();
+
+		/*
+		 * test for Pras to get to work!
+		 * still worth comparing visually with the output from Crypt2DPeriodicWnt
+		 */ 
+//   		{
+//	   		std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
+//	        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+//	        
+//	        TS_ASSERT_EQUALS(leftBoundary.size(),12u);
+//	       	TS_ASSERT_EQUALS(leftBoundary[10], 229u);
+//			TS_ASSERT_EQUALS(rightBoundary[10], 221u);
+//	
+//	        std::vector<double> node_248_location = simulator.GetNodeLocation(248);
+//	        std::vector<double> node_219_location = simulator.GetNodeLocation(219);
+//	        
+//			TS_ASSERT_DELTA(node_248_location[0], 4.00000 , 1e-5);
+//			TS_ASSERT_DELTA(node_248_location[1], 8.09225 , 1e-5);
+//			TS_ASSERT_DELTA(node_219_location[0], 5.00000 , 1e-5);
+//			TS_ASSERT_DELTA(node_219_location[1], 7.69802 , 1e-5);
+//	   	}
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -966,8 +775,7 @@ public:
     }
     
     
-    
-    void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
+	void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();

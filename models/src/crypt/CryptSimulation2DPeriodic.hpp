@@ -1083,410 +1083,7 @@ private:
         }
     }
     
-public:
-
-    /** Constructor
-     *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
-     *  should be called for any birth to happen.
-     */
-    CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
-                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
-            : mrMesh(rMesh),
-              mCells(cells)
-    {
-        
-        
-        mpParams = CancerParameters::Instance();
-    
-        mDt = 1.0/(120.0);
-        mEndTime = 120.0; //hours
-        
-        
-        //srandom(time(NULL));
-        srandom(0);
-        mpParams->SetMeinekeLambda(15.0);
-        
-        mIncludeRandomBirth = false;
-        mIncludeVariableRestLength = false;
-        mFixedBoundaries = false;
-        mOutputDirectory = "";
-        
-        // Set up the ghost nodes bool.  Assume initially that the maximum number of nodes is
-        // ten times the mesh size.  Note that more memory is allocated later, if necessary.
-        mIsGhostNode.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
-        mIsPeriodicNode.resize(mIsGhostNode.size());
-        for (unsigned i=0; i<mIsGhostNode.size(); i++)
-        {
-            mIsGhostNode[i] = false;
-            mIsPeriodicNode[i] = false;
-        }
-
-        // defaults
-        mReMesh = true;
-        mNoBirth = false;
-        mMaxCells = 10*mrMesh.GetNumNodes();
-        mMaxElements = 10*mrMesh.GetNumElements();
-        mWntIncluded = false;
-        mPeriodicSides = true;
-        mNodesMoved=false;
-        mRemeshesThisTimeStep=0;
-        mpCellKiller=NULL;
-        mNumBirths = 0;
-        mNumDeaths = 0;
-        mPeriodicDivisionBuffer = 0;
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        if(!p_simulation_time->IsStartTimeSetUp())
-        {
-            EXCEPTION("Start time not set in simulation time singleton object");
-        }
-        
-    }
-    
-    /**
-     * Free any memory allocated by the constructor
-     */
-    ~CryptSimulation2DPeriodic()
-    {
-        SimulationTime::Destroy();
-    }
-    
-    /** 
-     * Set the timestep of the simulation
-     */
-    void SetDt(double dt)
-    {
-        assert(dt>0);
-        mDt=dt;
-    }
-    
-    /** 
-     * Sets the end time and resets the timestep to be endtime/100
-     */
-    void SetEndTime(double endTime)
-    {
-        assert(endTime>0);
-        mEndTime=endTime;
-    }
-    
-    void SetOutputDirectory(std::string outputDirectory)
-    {
-        mOutputDirectory = outputDirectory;
-    }
-    
-    /**
-     *  Call this before Solve() to simulate cell growth after cell division.
-     *  (will eventually become SetIncludeCellBirth() and then become the default)
-     */
-    void SetIncludeVariableRestLength()
-    {
-        mIncludeVariableRestLength = true;
-    }
-    
-    /**
-     * Sets the maximum number of cells that the simulation will contain (for use by the datawriter)
-     * default value is set to 10x the initial mesh value by the constructor. 
-     */
-    void SetMaxCells(unsigned maxCells)
-    {
-        mMaxCells = maxCells;
-        if(maxCells<mrMesh.GetNumAllNodes())
-        {
-        	EXCEPTION("mMaxCells is less than the number of cells in the mesh.");	
-        }
-    }
-    
-    /**
-     * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
-     * default value is set to 10x the initial mesh value by the constructor.     
-     */
-    void SetMaxElements(unsigned maxElements)
-    {
-        mMaxElements = maxElements;
-        if(maxElements<mrMesh.GetNumAllElements())
-        {
-        	EXCEPTION("mMaxElements is less than the number of elements in the mesh.");	
-        }
-    }
-    
-    /**
-     * Call this before Solve() to fix the boundary of the mesh.
-     * \todo figure out what this does!
-     */
-    void SetFixedBoundaries()
-    {
-        mFixedBoundaries = true;
-    }
-    
-    /**
-     *  Call this before Solve() to set the boundary conditions
-     * i.e. whether the left and right boundaries should be periodic
-     */
-    void SetPeriodicSides(bool periodicSides)
-    {
-        mPeriodicSides = periodicSides;
-    }
-    
-    void SetCellKiller(RandomCellKiller<2>* pCellKiller)
-    {
-        mpCellKiller=pCellKiller;
-        mpCellKiller->SetCellsAndMesh(&mCells, &mrMesh);
-    }
-    
-    /** 
-     * Get the cells vector
-     * N.B. Returns a copy of the cells - any operations on them will not go back into the
-     * simulation.
-     * \todo change this to return a const reference
-     */
-    std::vector<MeinekeCryptCell> GetCells()
-    {
-        assert(mCells.size()>0);
-        return mCells;
-    }
-    
-    /** 
-     * Whether each node is a ghost or not.
-     * \todo change this to return a const reference
-     */
-    std::vector <bool> GetGhostNodes()
-    {
-        return mIsGhostNode;
-    }
-    
-    /** 
-     * Return the index of each node on the left periodic boundary
-     * \todo change this to return a const reference
-     */
-    std::vector<unsigned> GetLeftCryptBoundary()
-    {
-        return mLeftCryptBoundary;
-    }
-    
-    /** 
-     * Return the index of each node on the right periodic boundary
-     * \todo change this to return a const reference
-     */
-    std::vector<unsigned> GetRightCryptBoundary()
-    {
-        return mRightCryptBoundary;
-    }
-    
-    /** 
-     * Return the index of each node on the whole boundary
-     * \todo change this to return a const reference
-     */    
-    std::vector<unsigned> GetCryptBoundary()
-    {
-        return mCryptBoundary;
-    }
-    
-    /** 
-     * This automatically sets this to be a wnt dependent simulation.
-     * You should supply cells with a wnt cell cycle...
-     * 
-     */
-    void SetWntGradient(WntGradientType wntGradientType)
-    {
-    	mWntIncluded = true;
-    	mWntGradient = WntGradient(wntGradientType);
-    }
-    
-    /**
-     * Main Solve method.
-     * 
-     * Once CryptSimulation object has been set up, call this to run simulation
-     */
-    void Solve()
-    {
-        // Set up the simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        double current_time = p_simulation_time->GetDimensionalisedTime();
-        std::cout << "Time at start of Solve Method = " << current_time << std::endl;
-        
-        unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
-        std::cout << "num timesteps = " << num_time_steps << std::endl;
-        if(current_time>0)//use the reset function if necessary
-        {
-        	p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
-        }
-        else
-        {
-       		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
-        }
-        
-        if (mOutputDirectory=="")
-        {
-            EXCEPTION("OutputDirectory not set");
-        }
-        
-        double time_now = p_simulation_time->GetDimensionalisedTime();
-		std::ostringstream time_string;
-		time_string << time_now;
-		
-        std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
-        
-        
-        ///////////////////////////////////////////////////////////
-        // Set up Simulation
-        ///////////////////////////////////////////////////////////
-        
-        // Data writers for tabulated results data, used in tests
-        // first construction clears out the folder
-        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
-        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
-        
-        node_writer_ids_t node_writer_ids;
-        SetupNodeWriter(tabulated_node_writer, node_writer_ids);
-        
-        element_writer_ids_t element_writer_ids;
-        SetupElementWriter(tabulated_element_writer, element_writer_ids);
-        
-        // This keeps track of when tabulated results were last output
-        unsigned tabulated_output_counter = 0;
-        
-        // Create output files for the visualizer
-        OutputFileHandler output_file_handler(results_directory+"/vis_results/",true);
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-        
-		// Check some parameters for a periodic simulation
-        if(mPeriodicSides)
-        {
-        	CalculateCryptBoundary();
-        	if(mLeftCryptBoundary.size()<1 || mRightCryptBoundary.size()<1)
-        	{
-        		EXCEPTION("Periodic Simulation but mesh is not periodic\nIf you want a non-periodic simulation use SetPeriodicSides(false)");
-        	}
-        	if(!mReMesh)
-        	{
-        		#define COVERAGE_IGNORE
-        		EXCEPTION("A periodic simulation requires active remeshing\n");
-        		#undef COVERAGE_IGNORE
-        	}
-        }
-        
-        /* Age the cells to the correct time (cells set up with negative birth dates 
-         * to give some that are almost ready to divide).
-         * 
-         * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
-         * Not sure why - when the same code was evaluated in a test it seemed almost instant.
-         */
-        if (!mCells.empty())
-	    {
-            bool temp;
-	    	for(unsigned i=0; i<mCells.size(); i++)
-        	{
-		    	if(mIsGhostNode[i]) continue;
-		    	//std::cout << "Preparing Cell "<< i << std::endl;
-		    	Node<2> *p_our_node = mrMesh.GetNode(i);
-		        double y = p_our_node->rGetLocation()[1];
-		        std::vector<double> cell_cycle_influences;
-		        if(mWntIncluded)
-		        {
-			    	double wnt_stimulus = mWntGradient.GetWntLevel(y);
-			    	cell_cycle_influences.push_back(wnt_stimulus);
-		        }
-                // We don't use the result; this call is just to force the cells to age to time 0,
-                // running their cell cycle models to get there.
-                temp = mCells[i].ReadyToDivide(cell_cycle_influences);
-            }
-	    }
-	    
-        
-        /////////////////////////////////////////////////////////////////////
-        // Main time loop
-        /////////////////////////////////////////////////////////////////////
-        
-        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
-        {
-        	mRemeshesThisTimeStep = 0; // To avoid infinite loops
-		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
-		                
-            // Cell birth
-            mNumBirths += DoCellBirth();
-            
-            //  calculate node velocities
-            std::vector<std::vector<double> > drdt = CalculateForcesOnEachNode();
-            
-            // update node positions
-            UpdateNodePositions(drdt);
-            
-            //////////////////////////////////////////////
-            // Cell death should be included in this method
-            /////////////////////////////////////////////
-            mNumDeaths += DoCellRemoval();
-            
-            
-            // Change the state of some cells
-            // Only active for WntCellCycleModel at the moment
-            // but mutations etc. could occur in this function
-            UpdateCellTypes();
-
-
-    		ReMesh();
-    		
-    		// Increment simulation time here, so results files look sensible
-            p_simulation_time->IncrementTimeOneStep();            
-            
-            // Write results to file
-            WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
-                                tabulated_element_writer, element_writer_ids,
-                                *p_node_file, *p_element_file,
-                                tabulated_output_counter==0,
-                                true);
-			
-            tabulated_output_counter++; 
-            if(tabulated_output_counter > 80) // TODO: make this configurable!
-            {
-                tabulated_output_counter = 0;
-            }
-        } // End main time loop
-
-        
-        tabulated_node_writer.Close();
-        tabulated_element_writer.Close();
-    }
-    
-    
-    /**
-     * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which 
-     * do not correspond to a cell, but are necessary for remeshing (because the remesher tries to 
-     * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
-     * the constructor and the class is told about the ghost nodes by using this method. 
-     */     
-    void SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
-    {
-    	// First set all to not be ghost nodes
-    	for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)
-    	{
-    		mIsGhostNode[i] = false;
-    	}
-    	// then update which ones are.
-        for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
-        {
-            mIsGhostNode[ghostNodeIndices[i]]=true;
-        }
-    } 
-    
-    /**
-     * Get the mesh to be remeshed at every time step.
-     */   
-    void SetReMeshRule(bool remesh)
-    {
-        mReMesh = remesh;
-    }
-    
-    /**
-     * Set the simulation to run with no birth.
-     */   
-    void SetNoBirth(bool nobirth)
-    {
-        mNoBirth = nobirth;
-    }
-    
-    
-    /**
+        /**
      * Method to calculate the boundary of the crypt within the whole mesh ie the interface 
      * between normal and ghost nodes.
      */    
@@ -1995,7 +1592,7 @@ public:
     /**
      * This method should be called by all other methods that require a re-mesh
      * it looks for changes in the periodic boundaries that could require
-     * more remeshes and carries out the correct number.     * 
+     * more remeshes and carries out the correct number.
      */
     void ReMesh()
     {
@@ -2060,6 +1657,438 @@ public:
     	mRemeshesThisTimeStep++;
     	assert(mRemeshesThisTimeStep < 1000); //to avoid an infinite loop. If this ever throws try increasing it a bit.
     }
+    
+public:
+
+    /** Constructor
+     *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
+     *  should be called for any birth to happen.
+     */
+    CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
+                      std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>())
+            : mrMesh(rMesh),
+              mCells(cells)
+    {
+        
+        
+        mpParams = CancerParameters::Instance();
+    
+        mDt = 1.0/(120.0);
+        mEndTime = 120.0; //hours
+        
+        
+        //srandom(time(NULL));
+        srandom(0);
+        mpParams->SetMeinekeLambda(15.0);
+        
+        mIncludeRandomBirth = false;
+        mIncludeVariableRestLength = false;
+        mFixedBoundaries = false;
+        mOutputDirectory = "";
+        
+        // Set up the ghost nodes bool.  Assume initially that the maximum number of nodes is
+        // ten times the mesh size.  Note that more memory is allocated later, if necessary.
+        mIsGhostNode.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
+        mIsPeriodicNode.resize(mIsGhostNode.size());
+        for (unsigned i=0; i<mIsGhostNode.size(); i++)
+        {
+            mIsGhostNode[i] = false;
+            mIsPeriodicNode[i] = false;
+        }
+
+        // defaults
+        mReMesh = true;
+        mNoBirth = false;
+        mMaxCells = 10*mrMesh.GetNumNodes();
+        mMaxElements = 10*mrMesh.GetNumElements();
+        mWntIncluded = false;
+        mPeriodicSides = true;
+        mNodesMoved=false;
+        mRemeshesThisTimeStep=0;
+        mpCellKiller=NULL;
+        mNumBirths = 0;
+        mNumDeaths = 0;
+        mPeriodicDivisionBuffer = 0;
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        if(!p_simulation_time->IsStartTimeSetUp())
+        {
+            EXCEPTION("Start time not set in simulation time singleton object");
+        }
+        
+    }
+    
+    /**
+     * Free any memory allocated by the constructor
+     */
+    ~CryptSimulation2DPeriodic()
+    {
+        SimulationTime::Destroy();
+    }
+    
+    /** 
+     * Set the timestep of the simulation
+     */
+    void SetDt(double dt)
+    {
+        assert(dt>0);
+        mDt=dt;
+    }
+    
+    /** 
+     * Sets the end time and resets the timestep to be endtime/100
+     */
+    void SetEndTime(double endTime)
+    {
+        assert(endTime>0);
+        mEndTime=endTime;
+    }
+    
+    void SetOutputDirectory(std::string outputDirectory)
+    {
+        mOutputDirectory = outputDirectory;
+    }
+    
+    /**
+     *  Call this before Solve() to simulate cell growth after cell division.
+     *  (will eventually become SetIncludeCellBirth() and then become the default)
+     */
+    void SetIncludeVariableRestLength()
+    {
+        mIncludeVariableRestLength = true;
+    }
+    
+    /**
+     * Sets the maximum number of cells that the simulation will contain (for use by the datawriter)
+     * default value is set to 10x the initial mesh value by the constructor. 
+     */
+    void SetMaxCells(unsigned maxCells)
+    {
+        mMaxCells = maxCells;
+        if(maxCells<mrMesh.GetNumAllNodes())
+        {
+        	EXCEPTION("mMaxCells is less than the number of cells in the mesh.");	
+        }
+    }
+    
+    /**
+     * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
+     * default value is set to 10x the initial mesh value by the constructor.     
+     */
+    void SetMaxElements(unsigned maxElements)
+    {
+        mMaxElements = maxElements;
+        if(maxElements<mrMesh.GetNumAllElements())
+        {
+        	EXCEPTION("mMaxElements is less than the number of elements in the mesh.");	
+        }
+    }
+    
+    /**
+     * Call this before Solve() to fix the boundary of the mesh.
+     * \todo figure out what this does!
+     */
+    void SetFixedBoundaries()
+    {
+        mFixedBoundaries = true;
+    }
+    
+    /**
+     *  Call this before Solve() to set the boundary conditions
+     * i.e. whether the left and right boundaries should be periodic
+     */
+    void SetPeriodicSides(bool periodicSides)
+    {
+        mPeriodicSides = periodicSides;
+    }
+    
+    /**
+     * The mesh should be surrounded by at least one layer of ghost nodes.  These are nodes which 
+     * do not correspond to a cell, but are necessary for remeshing (because the remesher tries to 
+     * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
+     * the constructor and the class is told about the ghost nodes by using this method. 
+     */     
+    void SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
+    {
+    	// First set all to not be ghost nodes
+    	for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)
+    	{
+    		mIsGhostNode[i] = false;
+    	}
+    	// then update which ones are.
+        for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
+        {
+            mIsGhostNode[ghostNodeIndices[i]]=true;
+        }
+    } 
+    
+    /**
+     * Get the mesh to be remeshed at every time step.
+     */   
+    void SetReMeshRule(bool remesh)
+    {
+        mReMesh = remesh;
+    }
+    
+    /**
+     * Set the simulation to run with no birth.
+     */   
+    void SetNoBirth(bool nobirth)
+    {
+        mNoBirth = nobirth;
+    }
+    
+    /** 
+     * This automatically sets this to be a wnt dependent simulation.
+     * You should supply cells with a wnt cell cycle...
+     */
+    void SetWntGradient(WntGradientType wntGradientType)
+    {
+    	mWntIncluded = true;
+    	mWntGradient = WntGradient(wntGradientType);
+    }
+    
+    /**
+     * Set this simulation to use a cell killer
+     */
+    void SetCellKiller(RandomCellKiller<2>* pCellKiller)
+    {
+        mpCellKiller=pCellKiller;
+        mpCellKiller->SetCellsAndMesh(&mCells, &mrMesh);
+    }
+    
+    /** 
+     * Get the cells vector
+     * N.B. Returns a copy of the cells - any operations on them will not go back into the
+     * simulation.
+     * \todo change this to return a const reference
+     */
+    std::vector<MeinekeCryptCell> GetCells()
+    {
+        assert(mCells.size()>0);
+        return mCells;
+    }
+    
+    /** 
+     * Whether each node is a ghost or not.
+     * \todo change this to return a const reference
+     */
+    std::vector <bool> GetGhostNodes()
+    {
+        return mIsGhostNode;
+    }
+    
+    /** 
+     * Return the index of each node on the left periodic boundary
+     * \todo change this to return a const reference
+     */
+    std::vector<unsigned> GetLeftCryptBoundary()
+    {
+        return mLeftCryptBoundary;
+    }
+    
+    /** 
+     * Return the index of each node on the right periodic boundary
+     * \todo change this to return a const reference
+     */
+    std::vector<unsigned> GetRightCryptBoundary()
+    {
+        return mRightCryptBoundary;
+    }
+    
+    /** 
+     * Return the index of each node on the whole boundary
+     * \todo change this to return a const reference
+     */    
+    std::vector<unsigned> GetCryptBoundary()
+    {
+        return mCryptBoundary;
+    }
+    
+    /**
+     * Get a node's location (ONLY FOR TESTING)
+     *  
+     * @param the node index
+     * @return the x and y co-ordinates of this node.
+     */
+	std::vector<double> GetNodeLocation(const unsigned& rNodeIndex)
+	{
+		double x = mrMesh.GetNode(rNodeIndex)->rGetLocation()[0];
+		double y = mrMesh.GetNode(rNodeIndex)->rGetLocation()[1];
+		std::vector<double> location;
+		location.push_back(x);
+		location.push_back(y);
+		return location;
+	}
+    
+    /**
+     * Main Solve method.
+     * 
+     * Once CryptSimulation object has been set up, call this to run simulation
+     */
+    void Solve()
+    {
+        // Set up the simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        double current_time = p_simulation_time->GetDimensionalisedTime();
+        std::cout << "Time at start of Solve Method = " << current_time << std::endl;
+        
+        unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
+        std::cout << "num timesteps = " << num_time_steps << std::endl;
+        if(current_time>0)//use the reset function if necessary
+        {
+        	p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
+        }
+        else
+        {
+       		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);    
+        }
+        
+        if (mOutputDirectory=="")
+        {
+            EXCEPTION("OutputDirectory not set");
+        }
+        
+        double time_now = p_simulation_time->GetDimensionalisedTime();
+		std::ostringstream time_string;
+		time_string << time_now;
+		
+        std::string results_directory = mOutputDirectory +"/results_from_time_" + time_string.str();
+        
+        
+        ///////////////////////////////////////////////////////////
+        // Set up Simulation
+        ///////////////////////////////////////////////////////////
+        
+        // Data writers for tabulated results data, used in tests
+        // first construction clears out the folder
+        ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
+        ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
+        
+        node_writer_ids_t node_writer_ids;
+        SetupNodeWriter(tabulated_node_writer, node_writer_ids);
+        
+        element_writer_ids_t element_writer_ids;
+        SetupElementWriter(tabulated_element_writer, element_writer_ids);
+        
+        // This keeps track of when tabulated results were last output
+        unsigned tabulated_output_counter = 0;
+        
+        // Create output files for the visualizer
+        OutputFileHandler output_file_handler(results_directory+"/vis_results/",true);
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+        
+		// Check some parameters for a periodic simulation
+        if(mPeriodicSides)
+        {
+        	CalculateCryptBoundary();
+        	if(mLeftCryptBoundary.size()<1 || mRightCryptBoundary.size()<1)
+        	{
+        		EXCEPTION("Periodic Simulation but mesh is not periodic\nIf you want a non-periodic simulation use SetPeriodicSides(false)");
+        	}
+        	if(!mReMesh)
+        	{
+        		#define COVERAGE_IGNORE
+        		EXCEPTION("A periodic simulation requires active remeshing\n");
+        		#undef COVERAGE_IGNORE
+        	}
+        }
+        
+        /* Age the cells to the correct time (cells set up with negative birth dates 
+         * to give some that are almost ready to divide).
+         * 
+         * TODO:For some strange reason this seems to take about 3 minutes for a realistic Wnt-Crypt.
+         * Not sure why - when the same code was evaluated in a test it seemed almost instant.
+         */
+        if (!mCells.empty())
+	    {
+            bool temp;
+	    	for(unsigned i=0; i<mCells.size(); i++)
+        	{
+		    	if(mIsGhostNode[i]) continue;
+		    	//std::cout << "Preparing Cell "<< i << std::endl;
+		    	Node<2> *p_our_node = mrMesh.GetNode(i);
+		        double y = p_our_node->rGetLocation()[1];
+		        std::vector<double> cell_cycle_influences;
+		        if(mWntIncluded)
+		        {
+			    	double wnt_stimulus = mWntGradient.GetWntLevel(y);
+			    	cell_cycle_influences.push_back(wnt_stimulus);
+		        }
+                // We don't use the result; this call is just to force the cells to age to time 0,
+                // running their cell cycle models to get there.
+                temp = mCells[i].ReadyToDivide(cell_cycle_influences);
+            }
+	    }
+	    
+        
+        /////////////////////////////////////////////////////////////////////
+        // Main time loop
+        /////////////////////////////////////////////////////////////////////
+        
+        while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
+        {
+        	mRemeshesThisTimeStep = 0; // To avoid infinite loops
+		    std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
+		                
+            // Cell birth
+            mNumBirths += DoCellBirth();
+            
+            //  calculate node velocities
+            std::vector<std::vector<double> > drdt = CalculateForcesOnEachNode();
+            
+            // update node positions
+            UpdateNodePositions(drdt);
+            
+            //////////////////////////////////////////////
+            // Cell death should be included in this method
+            /////////////////////////////////////////////
+            mNumDeaths += DoCellRemoval();
+            
+            
+            // Change the state of some cells
+            // Only active for WntCellCycleModel at the moment
+            // but mutations etc. could occur in this function
+            UpdateCellTypes();
+
+
+    		ReMesh();
+    		
+    		// Increment simulation time here, so results files look sensible
+            p_simulation_time->IncrementTimeOneStep();            
+            
+            // Write results to file
+            WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
+                                tabulated_element_writer, element_writer_ids,
+                                *p_node_file, *p_element_file,
+                                tabulated_output_counter==0,
+                                true);
+			
+            tabulated_output_counter++; 
+            if(tabulated_output_counter > 80) // TODO: make this configurable!
+            {
+                tabulated_output_counter = 0;
+            }
+        } // End main time loop
+            
+        // Write end state to tabulated files (not visualizer - this
+        // is taken care of in the main loop).
+        WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
+                                tabulated_element_writer, element_writer_ids,
+                                *p_node_file, *p_element_file,
+                                true,
+                                false);
+        
+        tabulated_node_writer.Close();
+        tabulated_element_writer.Close();
+    }
+    
+    
+
+    
+    
+
     
     /**
      * Saves the whole crypt simulation for restarting later.
