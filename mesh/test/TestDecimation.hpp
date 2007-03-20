@@ -28,21 +28,27 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1.0e-5);
         Decimator<1> base_decimator;
         base_decimator.Initialise(&mesh);
-        TrianglesMeshWriter<1,1> mesh_writer("", "LineNoDecimation");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1.0e-5);
+        //TrianglesMeshWriter<1,1> mesh_writer("", "LineNoDecimation");
+        //mesh_writer.WriteFilesUsingMesh(mesh);
         
         base_decimator.SetThreshold(0.5);
         base_decimator.Decimate();
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1.0e-5);
         //base_decimator.Interrogate();
         
-        TrianglesMeshWriter<1,1> mesh_writer1("", "LinePartDecimation");
-        mesh_writer1.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<1,1> mesh_writer1("", "LinePartDecimation");
+        //mesh_writer1.WriteFilesUsingMesh(mesh);
         //base_decimator.Interrogate();
         
         base_decimator.SetThreshold(2.0);
         base_decimator.Decimate();
-        TrianglesMeshWriter<1,1> mesh_writer2("", "LineFullDecimation");
-        mesh_writer2.WriteFilesUsingMesh(mesh);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 1.0, 1.0e-5);
+        //TrianglesMeshWriter<1,1> mesh_writer2("", "LineFullDecimation");
+        //mesh_writer2.WriteFilesUsingMesh(mesh);
         
     }
     void TestBase2DOnDisk()
@@ -54,24 +60,24 @@ public:
         Decimator<2> base_decimator;
         base_decimator.Initialise(&mesh);
         
-        TrianglesMeshWriter<2,2> mesh_writer("", "DiskNoDecimation");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer("", "DiskNoDecimation");
+        //mesh_writer.WriteFilesUsingMesh(mesh);
         base_decimator.SetThreshold(0.5);
         base_decimator.Decimate();
         
-        //exit(1);
+       
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 113U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        TrianglesMeshWriter<2,2> mesh_writer1("", "DiskPartDecimation");
-        mesh_writer1.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer1("", "DiskPartDecimation");
+        //mesh_writer1.WriteFilesUsingMesh(mesh);
         
         base_decimator.SetThreshold(INFINITY);
         base_decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 100U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        TrianglesMeshWriter<2,2> mesh_writer2("", "DiskFullDecimation");
-        mesh_writer2.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<2,2> mesh_writer2("", "DiskFullDecimation");
+        //mesh_writer2.WriteFilesUsingMesh(mesh);
     }    
     
     void TestBase2DOnDiskWithVolumeLeak()
@@ -96,20 +102,18 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
        
        
-        //\todo run a couple of steps of the quality decimator
         QualityDecimator<2> quality_decimator;
         quality_decimator.Initialise(&mesh);
         quality_decimator.SetThreshold(0.3);
         quality_decimator.Decimate();
-         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
        
-        TrianglesMeshWriter<2,2> mesh_writer1("", "DiskLeakage");
-        mesh_writer1.WriteFilesUsingMesh(mesh);
-        
-        
+        //TrianglesMeshWriter<2,2> mesh_writer1("", "DiskLeakage");
+        //mesh_writer1.WriteFilesUsingMesh(mesh);        
        
     }
+    
     void TestBase2DOnSquare()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
@@ -143,33 +147,7 @@ public:
         //     base_decimator.Interrogate();
     } 
     
-    void TestBase2DOnSquareWithAutoMeshGeneration()
-    {
-       
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructRectangularMesh(20,20);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
-        Decimator<2> base_decimator;
-        base_decimator.Initialise(&mesh);
-        
-        
-        
-        
-        base_decimator.SetThreshold(6.000);
-        base_decimator.DecimateAnimate("StructuredSquare");
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 221U);
-        //TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 221U);
-        //TS_ASSERT_LESS_THAN_EQUALS(221U, mesh.GetNumNodes());
-        
-        
-        base_decimator.SetThreshold(INFINITY);
-        base_decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
-       
-    }
+    
 
     void TestRandom2DOnSquareWithAutoMeshGeneration()
     {
@@ -208,7 +186,7 @@ public:
         TS_ASSERT_LESS_THAN_EQUALS(254U, mesh.GetNumNodes());
         
         //Note that each re-score gives a 50% chance of a node falling below 0.5
-        decimator2.SetThreshold(0.75);
+        decimator2.SetThreshold(0.8);
         decimator2.Decimate();
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh2.CalculateMeshVolume(), 400, 1.0e-5);
@@ -224,8 +202,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390U);
-        TrianglesMeshWriter<3,3> mesh_writer("", "CubeNoDecimation");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<3,3> mesh_writer("", "CubeNoDecimation");
+        //mesh_writer.WriteFilesUsingMesh(mesh);
         
         Decimator<3> base_decimator;
         base_decimator.Initialise(&mesh);
@@ -235,8 +213,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 195U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 923U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 154U);
-        TrianglesMeshWriter<3,3> mesh_writer1("", "CubePartDecimation");
-        mesh_writer1.WriteFilesUsingMesh(mesh);
+        //TrianglesMeshWriter<3,3> mesh_writer1("", "CubePartDecimation");
+        //mesh_writer1.WriteFilesUsingMesh(mesh);
         
         base_decimator.SetThreshold(INFINITY);
         base_decimator.Decimate();
@@ -244,46 +222,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6U);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 12U);
-        TrianglesMeshWriter<3,3> mesh_writer2("", "CubeFullDecimation");
-        mesh_writer2.WriteFilesUsingMesh(mesh);
-    }
-    void TestSequence2D()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        SequenceDecimator<2> decimator;
-        decimator.Initialise(&mesh);
-        
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
-        decimator.SetThreshold(102);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 341U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        decimator.SetThreshold(202);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 241U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        //TrianglesMeshWriter<2,2> mesh_writer1("", "SquareSeqDecimation");
-        //mesh_writer1.WriteFilesUsingMesh(mesh);
-        decimator.SetThreshold(302);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 141U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        decimator.SetThreshold(402);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 41U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        decimator.SetThreshold(440);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-        
-        decimator.SetThreshold(INFINITY);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
+        //TrianglesMeshWriter<3,3> mesh_writer2("", "CubeFullDecimation");
+        //mesh_writer2.WriteFilesUsingMesh(mesh);
     }
     void TestSequence2DWithReIndex()
     {
@@ -342,27 +282,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
     }
-    void TestDiskQuality2D()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        QualityDecimator<2> decimator;
-        decimator.Initialise(&mesh);
-        
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
-        decimator.SetThreshold(0.99);
-        decimator.DecimateAnimate("DiskQuality");
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 506U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        
-        decimator.SetThreshold(INFINITY);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 506U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-    }   
     void TestQuality2D()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/SquareSeqDecimation");
@@ -387,32 +306,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 160U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
     }   
-    void TestMinimumElement2D()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-        ConformingTetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        MinimumElementDecimator<2> decimator;
-        decimator.Initialise(&mesh);
-        
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543U);
-        //decimator.Interrogate();
-        decimator.SetThreshold(1e-2);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 196U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        TrianglesMeshWriter<2,2> mesh_writer("", "DiskMimumumPartDecimation");
-        mesh_writer.WriteFilesUsingMesh(mesh);
-        
-        decimator.SetThreshold(INFINITY);
-        decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 101U);
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
-        TrianglesMeshWriter<2,2> mesh_writer2("", "DiskMimumumFullDecimation");
-        mesh_writer2.WriteFilesUsingMesh(mesh);
-        
-    }
+    
     void TestMinimumElement2DAnimate()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
@@ -431,7 +325,7 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
     }
 
-    void Test1DLinearFunctionAnimate()
+    void Test1DLinearFunction()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -452,7 +346,7 @@ public:
         decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 101U);
         decimator.SetThreshold(2e-6);
-        decimator.DecimateAnimate("LinearAnimation");
+        decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2U);
         
         
@@ -566,6 +460,119 @@ public:
         decimator.SetThreshold(1e-6);
          decimator.DecimateAnimate("SquareVectorAnimation",10);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 16U);
+        
+    }
+    
+    
+    void xTestCancerExample() throw (Exception)
+    {
+        std::ifstream input_ppm("mesh/test/data/filled_colon_downsized.pgm", std::ios::binary);
+        std::string magic;
+        input_ppm >> magic;
+        
+        TS_ASSERT_EQUALS(magic.compare("P5"), 0);
+        
+        unsigned x, y, levels;
+        input_ppm >> x >> y >> levels;
+        TS_ASSERT_EQUALS(levels, 255U);
+        
+        char data;
+        input_ppm.read(&data,1);
+        TS_ASSERT_EQUALS(data,'\n');
+        
+        //Make a payload
+        //This is binary state
+        unsigned num_nodes=x*y;
+        std::vector<double> values(num_nodes);
+        for (unsigned i=0;i<num_nodes;i++)
+        {
+            input_ppm.read(&data,1);
+            if (data == '\x00'){
+                values[i]=-1.0;
+            } else {
+                TS_ASSERT_EQUALS(data, '\xff');
+                values[i]=1.0;
+            }
+           
+          
+        }
+        
+        //Make a mesh
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(x-1,y-1);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), (x-1)*(y-1), 1.0e-5);
+        
+   
+        
+        LinearFunctionDecimator<2> decimator;
+        decimator.Initialise(&mesh, values);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
+        decimator.SetThreshold(0.001);
+        decimator.DecimateAnimate("ColonAnimation", 15);
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 412U);
+        TS_ASSERT_LESS_THAN_EQUALS(400U, mesh.GetNumNodes());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumElements(), 810U);
+        TS_ASSERT_LESS_THAN_EQUALS(786U, mesh.GetNumElements());
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumBoundaryElements(), 12U);
+        TS_ASSERT_LESS_THAN_EQUALS(11U, mesh.GetNumBoundaryElements());
+        
+    }
+    
+    void xTestTahirExample() throw (Exception)
+    {
+        std::ifstream input_fibres("mesh/test/data/fibres/Hist_Fibre_Vectors.txt");
+        
+        
+        unsigned width=19;
+        unsigned height=19;
+        
+        unsigned num_nodes=width*height;
+        std::vector<c_vector<double, 2> > values(num_nodes);
+        //Read x values
+        for (unsigned i=0;i<num_nodes;i++)
+        {
+            double data;
+            input_fibres>>data;
+            values[i](0) = data;
+        }
+        //Read y values
+        for (unsigned i=0;i<num_nodes;i++)
+        {
+            double data;
+            input_fibres>>data;
+            values[i](1) = data;
+        }
+
+        //Normalise directions
+        for (unsigned i=0;i<num_nodes;i++)
+        {
+            double norm=norm_2(values[i]);
+           
+            TS_ASSERT_LESS_THAN(0.3, norm);
+            values[i]=values[i]/norm;
+        }
+        for (unsigned i=0;i<num_nodes;i++)
+        {
+            
+            TS_ASSERT_DELTA(norm_2(values[i]), 1.0, 1e-7);
+        }
+                
+        //Make a mesh
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(width-1,height-1);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), (width-1)*(height-1), 1.0e-5);
+        
+   
+        
+        VectorFunctionDecimator<2> decimator;
+        decimator.Initialise(&mesh, values);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
+        decimator.SetThreshold(2.0);
+        decimator.DecimateAnimate("Tahir", 10);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 60U);
+        //decimator.Interrogate();
         
     }
     
