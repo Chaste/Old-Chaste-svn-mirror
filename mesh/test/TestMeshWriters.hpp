@@ -89,7 +89,7 @@ public:
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         bool set_CG_format=true;
         
-        MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgen", "CGFromTetgen", set_CG_format);
+        MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgen", "CGFromTetgen", true, set_CG_format);
         
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
@@ -156,7 +156,7 @@ public:
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         bool set_CG_format=true;
-        MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgenViaMesh", "CGFromTetgenViaMesh", set_CG_format);
+        MeshalyzerMeshWriter<3,3> mesh_writer("CGFromTetgenViaMesh", "CGFromTetgenViaMesh", true, set_CG_format);
         
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(import_mesh_reader);

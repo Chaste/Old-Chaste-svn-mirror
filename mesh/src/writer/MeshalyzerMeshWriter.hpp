@@ -10,6 +10,7 @@ class MeshalyzerMeshWriter : public AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>
 public:
     MeshalyzerMeshWriter(const std::string &rDirectory,
                          const std::string &rBaseName,
+                         const bool &rCleanDirectory=true,
                          const bool &rSetCoolGraphics=false);
     void WriteFiles();
     virtual ~MeshalyzerMeshWriter();

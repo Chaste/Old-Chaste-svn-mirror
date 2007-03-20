@@ -6,8 +6,9 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::MeshalyzerMeshWriter(const std::string &rDirectory,
         const std::string &rBaseName,
+        const bool &rCleanDirectory,
         const bool &rSetCoolGraphics)
-        : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName)
+        : AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
 {
     if (ELEMENT_DIM != SPACE_DIM)
     {

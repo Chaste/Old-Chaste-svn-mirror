@@ -164,12 +164,9 @@ public:
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if (my_rank==0) // if master process
         {
-            MeshalyzerMeshWriter<2,2> writer_undeformed("LinearElasticity", "simple2d_undeformed");
+            MeshalyzerMeshWriter<2,2> writer_undeformed("LinearElasticity/simple2d","undeformed");
             writer_undeformed.WriteFilesUsingMesh(mesh);
-            
-            ///\todo: figure out why everything written in the folder LinearElasticity is
-            // deleted when this is called again on the deformed mesh.
-            MeshalyzerMeshWriter<2,2> writer_deformed("LinearElasticity", "simple2d_deformed");
+            MeshalyzerMeshWriter<2,2> writer_deformed("LinearElasticity/simple2d","deformed",false);
             writer_deformed.WriteFilesUsingMesh(deformed_mesh);
         }
         
@@ -256,10 +253,10 @@ public:
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if (my_rank==0) // if master process
         {
-            MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity", "simple3d_undeformed");
+            MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity/simple3d","undeformed");
             writer_undeformed.WriteFilesUsingMesh(mesh);
             
-            MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity", "simple3d_deformed");
+            MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity/simple3d","deformed",false);
             writer_deformed.WriteFilesUsingMesh(deformed_mesh);
         }
         
@@ -363,10 +360,10 @@ public:
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if (my_rank==0) // if master process
         {
-            MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity", "simple3d_traction_undeformed");
+            MeshalyzerMeshWriter<3,3> writer_undeformed("LinearElasticity/simple3d_traction","undeformed");
             writer_undeformed.WriteFilesUsingMesh(mesh);
             
-            MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity", "simple3d_traction_deformed");
+            MeshalyzerMeshWriter<3,3> writer_deformed("LinearElasticity/simple3d_traction","deformed",false);
             writer_deformed.WriteFilesUsingMesh(deformed_mesh);
         }
         
