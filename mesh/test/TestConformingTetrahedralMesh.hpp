@@ -1420,8 +1420,25 @@ public:
         
         // deleting a deleted node should throw an exception
         TS_ASSERT_THROWS_ANYTHING(mesh.DeleteNode(2));
+    }
+    
+    void TestClear()
+    {        
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(2,3);
         
+        TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
         
+        mesh.Clear();
+            
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),0u);
+        TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(),0u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(),0u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),0u);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(),0u);
     }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

@@ -25,6 +25,8 @@
 //TODO: This should become abstract
 #include "RandomCellKiller.hpp"
 #include "OutputFileHandler.hpp"
+#include "TrianglesMeshWriter.hpp"
+
 
 /**
  * Structure encapsulating variable identifiers for the node datawriter
@@ -2100,7 +2102,6 @@ public:
      */
     void Save()
     {
-        // todo: remesh, save mesh
         SimulationTime* p_sim_time = SimulationTime::Instance();
         assert(p_sim_time->IsStartTimeSetUp());
         
@@ -2113,13 +2114,18 @@ public:
         // archive directory. Note the false is so the handler doesn't clean
         // the directory
         OutputFileHandler handler(archive_directory, false);
-        std::string archive_filename;
-        archive_filename = handler.GetTestOutputDirectory() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
+        std::string archive_filename = handler.GetTestOutputDirectory() + "2dCrypt_at_time_"+time_stamp.str()+".arch";
+        std::string mesh_filename = std::string("mesh_") + time_stamp.str();
+
+        NodeMap map(mrMesh.GetNumAllNodes());
+        mrMesh.ReMesh(map);
+        
+        // the false is so the directory isn't cleaned
+        TrianglesMeshWriter<2,2> mesh_writer(archive_directory, mesh_filename, false);
+        mesh_writer.WriteFilesUsingMesh(mrMesh);
         
         std::ofstream ofs(archive_filename.c_str());       
         boost::archive::text_oarchive output_arch(ofs);
-
-
 
         // cast to const.
         const SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -2146,6 +2152,11 @@ public:
 		std::string test_output_directory = any_old_handler.GetTestOutputDirectory();
         
         std::string archive_filename = test_output_directory + rArchiveDirectory + "/archive/2dCrypt_at_time_"+time_stamp.str() +".arch";
+        std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
+
+        mrMesh.Clear();
+        TrianglesMeshReader<2,2> mesh_reader(mesh_filename);
+        mrMesh.ConstructFromMeshReader(mesh_reader);
         
         // Create an input archive
         std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
@@ -2164,7 +2175,7 @@ public:
 
         if(mrMesh.GetNumNodes()!=mCells.size())
         {
-            EXCEPTION("Number of Nodes is not equal to number of cells. This is very bad.");   
+            EXCEPTION(" Error in Load: number of nodes is not equal to number of cells.");   
         }
     }
 };

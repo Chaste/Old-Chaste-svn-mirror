@@ -213,25 +213,25 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
 
-// The following commented out lines provide test results for TestLoad() to check against.
-
-//		std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
-//        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
-//        
-//        std::cout << "Periodic Cell indices at the end of the simulation:\n";
-//        for(unsigned i=0 ; i<leftBoundary.size(); i++)
-//        {
-//        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
-//        }
-//        
-//        // A node on the top edge - used for testing load function
-//        std::vector<double> node_248_location = simulator.GetNodeLocation(248);
-//        std::vector<double> node_219_location = simulator.GetNodeLocation(219);
-//        
-//        std::cout << "Node 248 location: x = " << node_248_location[0] << ",y = " 
-//        	<< node_248_location[1] << std::endl;
-//        std::cout << "Node 219 location: x = " << node_219_location[0] << ",y = " 
-//        	<< node_219_location[1] << std::endl;
+        // The following commented out lines provide test results for TestLoad() to check against.
+        
+        //		std::vector<unsigned> left_boundary = simulator.GetLeftCryptBoundary();
+        //      std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
+        //        
+        //      std::cout << "Periodic Cell indices at the end of the simulation:\n";
+        //      for(unsigned i=0 ; i<left_boundary.size(); i++)
+        //      {
+        //          std::cout << "Left " << left_boundary[i] << ", Right " << right_boundary[i] << "\n" << std::endl;
+        //      }
+        //        
+        //      // A node on the top edge - used for testing load function
+        //      std::vector<double> node_248_location = simulator.GetNodeLocation(248);
+        //      std::vector<double> node_219_location = simulator.GetNodeLocation(219);
+        //        
+        //      std::cout << "Node 248 location: x = " << node_248_location[0] << ",y = " 
+        //                << node_248_location[1] << std::endl;
+        //      std::cout << "Node 219 location: x = " << node_219_location[0] << ",y = " 
+        //                << node_219_location[1] << std::endl;
         
         
         SimulationTime::Destroy();
@@ -329,7 +329,6 @@ public:
         
         simulator.SetGhostNodes(ghost_node_indices);
         
-
         simulator.Solve();
 
         // save the results..        
@@ -400,26 +399,22 @@ public:
    		
    		simulator.Solve();
 
-		/*
-		 * test for Pras to get to work!
-		 * still worth comparing visually with the output from Crypt2DPeriodicWnt
-		 */ 
-//   		{
-//	   		std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
-//	        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
-//	        
-//	        TS_ASSERT_EQUALS(leftBoundary.size(),12u);
-//	       	TS_ASSERT_EQUALS(leftBoundary[10], 229u);
-//			TS_ASSERT_EQUALS(rightBoundary[10], 221u);
-//	
-//	        std::vector<double> node_248_location = simulator.GetNodeLocation(248);
-//	        std::vector<double> node_219_location = simulator.GetNodeLocation(219);
-//	        
-//			TS_ASSERT_DELTA(node_248_location[0], 4.00000 , 1e-5);
-//			TS_ASSERT_DELTA(node_248_location[1], 8.09225 , 1e-5);
-//			TS_ASSERT_DELTA(node_219_location[0], 5.00000 , 1e-5);
-//			TS_ASSERT_DELTA(node_219_location[1], 7.69802 , 1e-5);
-//	   	}
+		// compare the results with what they should be after complete of 0.3 hours
+        // still worth comparing visually with the output from Crypt2DPeriodicWnt
+        std::vector<unsigned> left_boundary = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
+        
+        TS_ASSERT_EQUALS(left_boundary.size(),12u);
+	    TS_ASSERT_EQUALS(left_boundary[10], 229u);
+		TS_ASSERT_EQUALS(right_boundary[10], 221u);
+	
+        std::vector<double> node_248_location = simulator.GetNodeLocation(248);
+        std::vector<double> node_219_location = simulator.GetNodeLocation(219);
+
+        TS_ASSERT_DELTA(node_248_location[0], 4.00000 , 1e-5);
+        TS_ASSERT_DELTA(node_248_location[1], 8.09225 , 1e-5);
+        TS_ASSERT_DELTA(node_219_location[0], 5.00000 , 1e-5);
+        TS_ASSERT_DELTA(node_219_location[1], 7.69802 , 1e-5);
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -627,45 +622,45 @@ public:
         
         simulator.Solve();
         
-        std::vector<unsigned> leftBoundary = simulator.GetLeftCryptBoundary();
-        std::vector<unsigned> rightBoundary = simulator.GetRightCryptBoundary();
+        std::vector<unsigned> left_boundary = simulator.GetLeftCryptBoundary();
+        std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
         
         std::cout << "Periodic Cell indices at the end of the simulation:\n";
-        for(unsigned i=0 ; i<leftBoundary.size(); i++)
+        for(unsigned i=0 ; i<left_boundary.size(); i++)
         {
-        	std::cout << "Left " << leftBoundary[i] << ", Right " << rightBoundary[i] << "\n" << std::endl;
+        	std::cout << "Left " << left_boundary[i] << ", Right " << right_boundary[i] << "\n" << std::endl;
         }
         
-        TS_ASSERT_EQUALS(leftBoundary.size(),14u);
+        TS_ASSERT_EQUALS(left_boundary.size(),14u);
       		
-       	TS_ASSERT_EQUALS(leftBoundary[0], 64u);
-		TS_ASSERT_EQUALS(rightBoundary[0], 70u);
-		TS_ASSERT_EQUALS(leftBoundary[1], 79u);
-		TS_ASSERT_EQUALS(rightBoundary[1], 85u);
-		TS_ASSERT_EQUALS(leftBoundary[2], 94u);
-		TS_ASSERT_EQUALS(rightBoundary[2], 100u);
-		TS_ASSERT_EQUALS(leftBoundary[3], 108u);
-		TS_ASSERT_EQUALS(rightBoundary[3], 114u);
-		TS_ASSERT_EQUALS(leftBoundary[4], 124u);
-		TS_ASSERT_EQUALS(rightBoundary[4], 341u);
-		TS_ASSERT_EQUALS(leftBoundary[5], 137u);
-		TS_ASSERT_EQUALS(rightBoundary[5], 329u);
-		TS_ASSERT_EQUALS(leftBoundary[6], 138u);
-		TS_ASSERT_EQUALS(rightBoundary[6], 130u);
-		TS_ASSERT_EQUALS(leftBoundary[7], 153u);
-		TS_ASSERT_EQUALS(rightBoundary[7], 144u);
-		TS_ASSERT_EQUALS(leftBoundary[8], 168u);
-		TS_ASSERT_EQUALS(rightBoundary[8], 337u);
-		TS_ASSERT_EQUALS(leftBoundary[9], 169u);
-		TS_ASSERT_EQUALS(rightBoundary[9], 175u);
-		TS_ASSERT_EQUALS(leftBoundary[10], 184u);
-		TS_ASSERT_EQUALS(rightBoundary[10], 190u);
-		TS_ASSERT_EQUALS(leftBoundary[11], 199u);
-		TS_ASSERT_EQUALS(rightBoundary[11], 205u);
-		TS_ASSERT_EQUALS(leftBoundary[12], 229u);
-		TS_ASSERT_EQUALS(rightBoundary[12], 235u);
-		TS_ASSERT_EQUALS(leftBoundary[13], 339u);
-		TS_ASSERT_EQUALS(rightBoundary[13], 221u);
+       	TS_ASSERT_EQUALS(left_boundary[0], 64u);
+		TS_ASSERT_EQUALS(right_boundary[0], 70u);
+		TS_ASSERT_EQUALS(left_boundary[1], 79u);
+		TS_ASSERT_EQUALS(right_boundary[1], 85u);
+		TS_ASSERT_EQUALS(left_boundary[2], 94u);
+		TS_ASSERT_EQUALS(right_boundary[2], 100u);
+		TS_ASSERT_EQUALS(left_boundary[3], 108u);
+		TS_ASSERT_EQUALS(right_boundary[3], 114u);
+		TS_ASSERT_EQUALS(left_boundary[4], 124u);
+		TS_ASSERT_EQUALS(right_boundary[4], 341u);
+		TS_ASSERT_EQUALS(left_boundary[5], 137u);
+		TS_ASSERT_EQUALS(right_boundary[5], 329u);
+		TS_ASSERT_EQUALS(left_boundary[6], 138u);
+		TS_ASSERT_EQUALS(right_boundary[6], 130u);
+		TS_ASSERT_EQUALS(left_boundary[7], 153u);
+		TS_ASSERT_EQUALS(right_boundary[7], 144u);
+		TS_ASSERT_EQUALS(left_boundary[8], 168u);
+		TS_ASSERT_EQUALS(right_boundary[8], 337u);
+		TS_ASSERT_EQUALS(left_boundary[9], 169u);
+		TS_ASSERT_EQUALS(right_boundary[9], 175u);
+		TS_ASSERT_EQUALS(left_boundary[10], 184u);
+		TS_ASSERT_EQUALS(right_boundary[10], 190u);
+		TS_ASSERT_EQUALS(left_boundary[11], 199u);
+		TS_ASSERT_EQUALS(right_boundary[11], 205u);
+		TS_ASSERT_EQUALS(left_boundary[12], 229u);
+		TS_ASSERT_EQUALS(right_boundary[12], 235u);
+		TS_ASSERT_EQUALS(left_boundary[13], 339u);
+		TS_ASSERT_EQUALS(right_boundary[13], 221u);
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
 	}
@@ -1125,7 +1120,8 @@ public:
 	            }
             }
         }
-        
+
+//TODO:        
  /*
   ************************************************************************
   ************************************************************************ 

@@ -56,7 +56,7 @@ private:
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
      * circumsphere of the element, as a proportion of the circumsphere radius.
      */
-      bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
+    bool CheckVoronoi(Element<ELEMENT_DIM, SPACE_DIM>  *pElement, double maxPenetration);
     
 public:
 
@@ -211,7 +211,7 @@ public:
       * (and their mIndex's are altered accordingly).
      * @param perm is a vector containing the new indices
      */
-     void PermuteNodes(std::vector<unsigned> perm);
+    void PermuteNodes(std::vector<unsigned> perm);
     
     /**    
      * Checks the entire mesh element by element and checkes whether any neighbouring node
@@ -222,27 +222,27 @@ public:
      */
     bool CheckVoronoi(double maxPenetration=0.0);
     
-     /**
-      * Construct a rectangular grid on [0,width]x[0,height]
-      * diagonals can be staggered so that there is no prefered diffusion propagation
-      * direction.
-      */
-     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
+    /**
+     * Construct a rectangular grid on [0,width]x[0,height]
+     * diagonals can be staggered so that there is no prefered diffusion propagation
+     * direction.
+     */
+    void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
  
-     /**
-      * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
-      * diagonals can be staggered so that there is no prefered diffusion propagation
-      * direction.
-      */
-     void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
+    /**
+     * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
+     * diagonals can be staggered so that there is no prefered diffusion propagation
+     * direction.
+     */
+    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
      
-     /**
-      *  Returns the element index for the first element that is known to contain a test point
-      *  @param testPoint
-      *  @param strict Should the element returned contain the point in the interior and
-      *  not on an edge/face/vertex (default = not strict)
-      */
-     unsigned GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict=false);
+    /**
+     *  Returns the element index for the first element that is known to contain a test point
+     *  @param testPoint
+     *  @param strict Should the element returned contain the point in the interior and
+     *  not on an edge/face/vertex (default = not strict)
+     */
+    unsigned GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict=false);
 
      /**
       *  Returns the element index for an element is closest to the testPoint
@@ -251,13 +251,13 @@ public:
       *  @param testPoint
       * 
       */
-     unsigned GetNearestElementIndex(Point<SPACE_DIM> testPoint);
+    unsigned GetNearestElementIndex(Point<SPACE_DIM> testPoint);
 
-     /**
-      *  Returns all element indices for elements that are known to contain a test point
-      *  @param testPoint 
-      */
-     std::vector<unsigned> GetContainingElementIndices(Point<SPACE_DIM> testPoint);
+    /**
+     *  Returns all element indices for elements that are known to contain a test point
+     *  @param testPoint 
+     */
+    std::vector<unsigned> GetContainingElementIndices(Point<SPACE_DIM> testPoint);
 
 
 	/**
@@ -268,8 +268,12 @@ public:
 	 * ie. this process owns nodes [lo..hi)
 	 * and element is "owned" if one or more of its nodes are owned
 	 */
-	 void SetElementOwnerships(unsigned lo, unsigned hi);
+	void SetElementOwnerships(unsigned lo, unsigned hi);
 	 
+    /** 
+     *  Clear all the data in the mesh
+     */
+    void Clear();
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_
