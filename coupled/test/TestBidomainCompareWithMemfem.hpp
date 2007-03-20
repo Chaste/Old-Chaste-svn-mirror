@@ -46,7 +46,7 @@ class TestBidomainCompareWithMemfem :  public CxxTest::TestSuite
 {
 public:
 
-    void testBidomainCompareWithMemfem()
+    void TestBidomainCompareWithMemfemBasic()
     {
         BidomainPointStimulusCellFactory bidomain_cell_factory;
         

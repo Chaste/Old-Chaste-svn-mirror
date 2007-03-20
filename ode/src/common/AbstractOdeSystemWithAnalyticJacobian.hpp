@@ -13,20 +13,20 @@
 
 /**
  * Abstract Analytic Jacobian
- * 
+ *
  * Represents an ODE system with an analytic Jacobian available,
  * which can be computed using the method AnalyticJacobian.
  */
 class AbstractOdeSystemWithAnalyticJacobian: public AbstractOdeSystem
 {
 protected:
-        
+
 public:
     AbstractOdeSystemWithAnalyticJacobian(unsigned numberOfStateVariables = 0)
-        :AbstractOdeSystem(numberOfStateVariables)
-        {
-            mUseAnalytic = true;
-        }
+            :AbstractOdeSystem(numberOfStateVariables)
+    {
+        mUseAnalytic = true;
+    }
     
     virtual void AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep) = 0;
     

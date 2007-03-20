@@ -20,13 +20,13 @@ template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class BoundaryConditionsContainer : public AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>
 {
 private:
-    
+
     std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >
-      *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
-          
+    *mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions */
+    
     typename std::map< const BoundaryElement<ELEM_DIM-1, SPACE_DIM> *,  const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
-      mNeumannIterator; /**< Internal iterator over neumann boundary conditions */
-          
+    mNeumannIterator; /**< Internal iterator over neumann boundary conditions */
+    
     bool mAnyNonZeroNeumannConditionsForUnknown[PROBLEM_DIM];
     
 public:
@@ -35,7 +35,7 @@ public:
      * conditions lists.
      */
     BoundaryConditionsContainer()
-      : AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>()
+            : AbstractBoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>()
     {
         for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
         {
@@ -285,9 +285,9 @@ public:
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
-                               
+                
                 unsigned row_index = PROBLEM_DIM*node_index + index_of_unknown;
-                assert(row_index<(unsigned)irows); 
+                assert(row_index<(unsigned)irows);
                 
                 for (unsigned col_index=0; col_index<cols; col_index++)
                 {
@@ -321,7 +321,7 @@ public:
         {
             // Iterate over surface elements
             typename ConformingTetrahedralMesh<ELEM_DIM,SPACE_DIM>::BoundaryElementIterator elt_iter
-               = pMesh->GetBoundaryElementIteratorBegin();
+            = pMesh->GetBoundaryElementIteratorBegin();
             while (valid && elt_iter != pMesh->GetBoundaryElementIteratorEnd())
             {
                 if (!HasNeumannBoundaryCondition(*elt_iter, index_of_unknown))
@@ -341,7 +341,7 @@ public:
         return valid;
     }
     
-
+    
     /**
      * Obtain value of neumann boundary condition at a specified point in a given surface element
      * 

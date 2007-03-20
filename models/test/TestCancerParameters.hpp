@@ -34,14 +34,14 @@ public:
         TS_ASSERT_DELTA(inst2->GetMeinekeLambda(), -2.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetApoptosisTime(), 0.3, 1e-12);
     }
-
+    
     void TestArchiveCancerParameters()
     {
         OutputFileHandler handler("archive");
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "cancer_params.arch";
         
-        // Create an ouput archive 
+        // Create an ouput archive
         {
             CancerParameters *inst1 = CancerParameters::Instance();
             // Mess up the cancer parameters
@@ -53,15 +53,15 @@ public:
             inst1->SetMeinekeLambda(-2.0);
             inst1->SetApoptosisTime(0.3);
             
-                       
-            std::ofstream ofs(archive_filename.c_str());       
+            
+            std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            // save messed up parameters           
+            // save messed up parameters
             output_arch << static_cast<const CancerParameters&>(*inst1);
             
         }
         
-        {  
+        {
             CancerParameters *inst1 = CancerParameters::Instance();
             // restore to nice parameters
             inst1->SetSG2MDuration(10.0);
@@ -71,9 +71,9 @@ public:
             inst1->SetCryptLength(22.0);
             inst1->SetMeinekeLambda(30.0);
             inst1->SetApoptosisTime(0.25);
-
+            
             // Create an input archive
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             
             // restore messed up parameters from the archive
@@ -88,7 +88,7 @@ public:
             TS_ASSERT_DELTA(inst1->GetApoptosisTime(), 0.3, 1e-12);
         }
     }
-
+    
 };
 
 #endif /*TESTCANCERPARAMETERS_HPP_*/

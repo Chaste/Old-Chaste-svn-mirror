@@ -31,7 +31,7 @@ public:
                         double dt,
                         AbstractStimulusFunction* intracellularStimulus,
                         AbstractStimulusFunction* extracellularStimulus = NULL);
-    
+                        
     virtual ~AbstractCardiacCell();
     
     /**

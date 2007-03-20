@@ -17,20 +17,20 @@
  *  AbstractAssembler
  *
  *  Base class from which all solvers for linear and nonlinear PDEs inherit.
- *  Templated over the PROBLEM_DIM so also handles problems with more than one 
+ *  Templated over the PROBLEM_DIM so also handles problems with more than one
  *  unknown variable (ie those of the form u_xx + v = 0, v_xx + 2u = 1, where
  *  PROBLEM_DIM is equal to 2)
  *
  *  It defines a common interface and default code for AssembleSystem,
  *  AssembleOnElement and AssembleOnSurfaceElement. Each of these work
- *  for any PROBLEM_DIM>=1. Each of these methods work in both the 
- *  dynamic case (when there is a current solution available) and the static 
+ *  for any PROBLEM_DIM>=1. Each of these methods work in both the
+ *  dynamic case (when there is a current solution available) and the static
  *  case. The same code is used for the nonlinear and linear cases
  *
  *  user calls:
  *
- *  Solve() (in the linear case implemented in 
- *  AbsLin[Dynamic/Static]ProblemAssembler). In the linear case Solve() calls 
+ *  Solve() (in the linear case implemented in
+ *  AbsLin[Dynamic/Static]ProblemAssembler). In the linear case Solve() calls
  *  AssembleSystem() directly, in the nonlinear case Solve() calls the PETSc nonlinear
  *  solver which then calls AssembleResidual or AssembleJacobian, both of which
  *  call AssembleSystem():
@@ -39,14 +39,14 @@
  *  linear system or residual vector or jacobian matrix) AssembleSystem() calls:
  *
  *  AssembleOnElement() and AssembleOnSurfaceElement() (implemented here. These
- *  loop over gauss points and create the element stiffness matrix and vector in 
+ *  loop over gauss points and create the element stiffness matrix and vector in
  *  the linear case ). They call:
  *
  *  ComputeMatrixTerm(), ComputeVectorTerm(), ComputeVectorSurfaceTerm() (implemented in
  *  the concrete assembler class (eg SimpleDg0ParabolicAssembler), which tells
  *  this assembler exactly what function of bases, position, pde constants etc
  *  to add to the element stiffness matrix/vector).
- * 
+ *
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractAssembler
@@ -69,18 +69,18 @@ protected:
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
     /*< Quadrature rule for use on boundary elements */
     GaussianQuadratureRule<ELEMENT_DIM-1> *mpSurfaceQuadRule;
-
+    
     /**
      *  The CURRENT SOLUTION as a replicated vector for linear dynamic problems. 
      *  (Empty for a static problem). The CURRENT GUESS for nonlinear problems
      */
     ReplicatableVector mCurrentSolutionOrGuessReplicated;
     
-
+    
     /*< bool stating whether the problem is a linear or nonlinear one */
-    bool mProblemIsLinear; 
-
-    /** 
+    bool mProblemIsLinear;
+    
+    /**
      *  The linear system that is assembled in linear pde problems. Not used in
      *  nonlinear problems
      */
@@ -98,7 +98,7 @@ protected:
      */
     bool mMatrixIsAssembled;
     
-
+    
     /**
      *  This method returns the matrix to be added to element stiffness matrix
      *  for a given gauss point. The arguments are the bases, bases gradients, 
@@ -124,7 +124,7 @@ protected:
         Point<SPACE_DIM> &rX,
         c_vector<double,PROBLEM_DIM> &u,
         c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
-
+        
         
     /**
      *  This method returns the vector to be added to element stiffness vector
@@ -143,14 +143,14 @@ protected:
      *   @param rX The point in space
      *   @param u The unknown as a vector, u(i) = u_i
      *   @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
-     */        
+     */
     virtual c_vector<double,PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeVectorTerm(
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         Point<SPACE_DIM> &rX,
         c_vector<double,PROBLEM_DIM> &u,
         c_matrix<double, PROBLEM_DIM, SPACE_DIM> &rGradU)=0;
-
+        
         
         
     /**
@@ -169,7 +169,7 @@ protected:
     virtual c_vector<double, PROBLEM_DIM*ELEMENT_DIM> ComputeVectorSurfaceTerm(
         const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
         c_vector<double, ELEMENT_DIM> &rPhi,
-        Point<SPACE_DIM> &rX)=0; 
+        Point<SPACE_DIM> &rX)=0;
         
         
     /**
@@ -232,7 +232,7 @@ protected:
             
             c_vector<double, ELEMENT_DIM+1> phi = rBasisFunction.ComputeBasisFunctions(quad_point);
             c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> grad_phi;
-
+            
             if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
             {
                 grad_phi = rBasisFunction.ComputeTransformedBasisFunctionDerivatives
@@ -277,15 +277,15 @@ protected:
                         // are stored in the curren solution vector as
                         // [U1 V1 U2 V2 ... U_n V_n]
                         u(index_of_unknown) += phi(i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
-
+                        
                         if (! (mProblemIsLinear && mMatrixIsAssembled) ) // don't need to construct grad_phi or grad_u in that case
                         {
-                            for(unsigned j=0; j<SPACE_DIM; j++)
+                            for (unsigned j=0; j<SPACE_DIM; j++)
                             {
-                               grad_u(index_of_unknown,j) += grad_phi(j,i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
+                                grad_u(index_of_unknown,j) += grad_phi(j,i)*this->mCurrentSolutionOrGuessReplicated[ PROBLEM_DIM*node_global_index + index_of_unknown];
                             }
                         }
-                    }        
+                    }
                 }
                 
                 // allow the concrete version of the assembler to interpolate any
@@ -298,12 +298,12 @@ protected:
             ////////////////////////////////////////////////////////////
             // create rAElem and rBElem
             ////////////////////////////////////////////////////////////
-            if(assembleMatrix) 
+            if (assembleMatrix)
             {
                 noalias(rAElem) += ComputeMatrixTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
             
-            if(assembleVector)
+            if (assembleVector)
             {
                 noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u) * wJ;
             }
@@ -387,10 +387,10 @@ protected:
      */
     virtual void IncrementInterpolatedQuantities(double phi_i, const Node<SPACE_DIM> *pNode)
     {}
-
-
-
-
+    
+    
+    
+    
     /**
      *  AssembleSystem - the major method for all assemblers
      * 
@@ -424,12 +424,12 @@ protected:
     {
         // if a linear problem there mustn't be a residual or jacobian specified
         // otherwise one of them MUST be specifed
-        assert(    (mProblemIsLinear && !residualVector && !pJacobian) 
-                || (!mProblemIsLinear && (residualVector || pJacobian) ) );
-        
+        assert(    (mProblemIsLinear && !residualVector && !pJacobian)
+                   || (!mProblemIsLinear && (residualVector || pJacobian) ) );
+                   
         // if the problem is nonlinear the currentSolutionOrGuess MUST be specifed
         assert( mProblemIsLinear || (!mProblemIsLinear && currentSolutionOrGuess ) );
-                        
+        
         // Replicate the current solution and store so can be used in
         // AssembleOnElement
         if (currentSolutionOrGuess != NULL)
@@ -438,12 +438,12 @@ protected:
         }
         
         // the AssembleOnElement type methods will determine if a current solution or
-        // current guess exists by looking at the size of the replicated vector, so 
+        // current guess exists by looking at the size of the replicated vector, so
         // check the size is zero if there isn't a current solution
         assert(    ( currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()>0)
-                || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
-        
-
+                   || ( !currentSolutionOrGuess && mCurrentSolutionOrGuessReplicated.size()==0));
+                   
+                   
         // the concrete class can override this following method if there is
         // work to be done before assembly
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
@@ -452,7 +452,7 @@ protected:
         unsigned lo=0;
         unsigned hi=0;
         
-        if(mProblemIsLinear)
+        if (mProblemIsLinear)
         {
             // linear problem - set up the Linear System if necessary, otherwise zero
             // it.
@@ -473,7 +473,7 @@ protected:
                     mpLinearSystem = new LinearSystem(currentSolutionOrGuess);
                 }
                 
-                //If this is the first time through then it's appropriate to set the 
+                //If this is the first time through then it's appropriate to set the
                 //element ownerships
                 //Note that this ought to use the number of nodes to set the ownership
                 PetscInt node_lo, node_hi;
@@ -498,15 +498,15 @@ protected:
             }
         }
         else
-        {   
+        {
             // nonlinear problem - zero residual or jacobian depending on which has
-            // been asked for     
-            if(residualVector)
+            // been asked for
+            if (residualVector)
             {
                 PetscInt isize;
                 VecGetSize(residualVector,&isize);
                 assert((unsigned)isize == PROBLEM_DIM * this->mpMesh->GetNumNodes());
-            
+                
                 // Set residual vector to zero
                 PetscScalar zero = 0.0;
 #if (PETSC_VERSION_MINOR == 2) //Old API
@@ -515,7 +515,7 @@ protected:
                 PETSCEXCEPT( VecSet(residualVector, zero) );
 #endif
             }
-            else 
+            else
             {
                 PetscInt size1, size2;
                 MatGetSize(*pJacobian,&size1,&size2);
@@ -523,11 +523,11 @@ protected:
                 UNUSED_OPT(problem_size);
                 assert(size1==problem_size);
                 assert(size2==problem_size);
-   
+                
                 // Set all entries of jacobian to 0
                 MatZeroEntries(*pJacobian);
-            }        
-        
+            }
+            
             // Get our ownership range
             PetscInt ilo, ihi;
             VecGetOwnershipRange(currentSolutionOrGuess, &ilo, &ihi);
@@ -535,7 +535,7 @@ protected:
             hi=ihi;
             //Set the elements' ownerships according to the node ownership
             //\todo - This ought not to happen every time through
- 			//Note that this ought to use the number of nodes to set the ownership
+            //Note that this ought to use the number of nodes to set the ownership
             PetscInt node_lo, node_hi;
             Vec temp_vec;
             VecCreate(PETSC_COMM_WORLD, &temp_vec);
@@ -543,24 +543,24 @@ protected:
             VecSetFromOptions(temp_vec);
             VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
             this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
-                 
+            
         }
         
-                 
+        
         // Get an iterator over the elements of the mesh
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator
-            iter = this->mpMesh->GetElementIteratorBegin();
+        iter = this->mpMesh->GetElementIteratorBegin();
         
         // Assume all elements have the same number of nodes...
         const unsigned num_elem_nodes = (*iter)->GetNumNodes();
         c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1)> a_elem;
         c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)> b_elem;
         
-
-        // decide what we want to assemble. 
+        
+        // decide what we want to assemble.
         bool assemble_vector = ((mProblemIsLinear) || ((!mProblemIsLinear) && (residualVector!=NULL)));
         bool assemble_matrix = ( (mProblemIsLinear && !mMatrixIsAssembled) || ((!mProblemIsLinear) && (pJacobian!=NULL)) );
-       
+        
         ////////////////////////////////////////////////////////
         // loop over elements
         ////////////////////////////////////////////////////////
@@ -570,87 +570,87 @@ protected:
             
             if (element.GetOwnership() == true)
             {
-             
-	            AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
-	            
-	            for (unsigned i=0; i<num_elem_nodes; i++)
-	            {
-	                unsigned node1 = element.GetNodeGlobalIndex(i);
-	                                
-	                if (assemble_matrix)
-	                {                    
-	                    for (unsigned j=0; j<num_elem_nodes; j++)
-	                    {
-	                        unsigned node2 = element.GetNodeGlobalIndex(j);
-	                        
-	                        for (unsigned k=0; k<PROBLEM_DIM; k++)
-	                        {
-	                            for (unsigned m=0; m<PROBLEM_DIM; m++)
-	                            {
-	                                if(mProblemIsLinear)
-	                                {  
-	                                    // the following expands to, for (eg) the case of two unknowns:
-	                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
-	                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
-	                                    // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
-	                                    // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
-	                                    mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
-	                                                                        PROBLEM_DIM*node2+m,
-	                                                                        a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
-	                                }
-	                                else 
-	                                {
-	                                    assert(pJacobian!=NULL); // extra check
-	                                           
-	                                    unsigned matrix_index_1 = PROBLEM_DIM*node1+k;
-	                                    if (lo<=matrix_index_1 && matrix_index_1<hi)
-	                                    {
-	                                        unsigned matrix_index_2 = PROBLEM_DIM*node2+m;
-	                                        PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
-	                                        MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);                                
-	                                    }
-	                                }
-	                            }
-	                        }
-	                    }
-	                }
-	
-	                if(assemble_vector)
-	                {
-	                    for (unsigned k=0; k<PROBLEM_DIM; k++)
-	                    {
-	                        if(mProblemIsLinear)
-	                        {
-	                            mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
-	                        }
-	                        else 
-	                        {
-	                            assert(residualVector!=NULL); // extra check
-	
-	                            unsigned matrix_index = PROBLEM_DIM*node1+k;
-	                            //Make sure it's only done once
-	                            if (lo<=matrix_index && matrix_index<hi)
-	                            {
-	                                PetscScalar value = b_elem(PROBLEM_DIM*i+k);
-	                                PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
-	                            }
-	                        }
-	                    }
-	                }
-	            }
+            
+                AssembleOnElement(element, a_elem, b_elem, assemble_vector, assemble_matrix);
+                
+                for (unsigned i=0; i<num_elem_nodes; i++)
+                {
+                    unsigned node1 = element.GetNodeGlobalIndex(i);
+                    
+                    if (assemble_matrix)
+                    {
+                        for (unsigned j=0; j<num_elem_nodes; j++)
+                        {
+                            unsigned node2 = element.GetNodeGlobalIndex(j);
+                            
+                            for (unsigned k=0; k<PROBLEM_DIM; k++)
+                            {
+                                for (unsigned m=0; m<PROBLEM_DIM; m++)
+                                {
+                                    if (mProblemIsLinear)
+                                    {
+                                        // the following expands to, for (eg) the case of two unknowns:
+                                        // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2,   a_elem(2*i,   2*j));
+                                        // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2,   a_elem(2*i+1, 2*j));
+                                        // mpLinearSystem->AddToMatrixElement(2*node1,   2*node2+1, a_elem(2*i,   2*j+1));
+                                        // mpLinearSystem->AddToMatrixElement(2*node1+1, 2*node2+1, a_elem(2*i+1, 2*j+1));
+                                        mpLinearSystem->AddToMatrixElement( PROBLEM_DIM*node1+k,
+                                                                            PROBLEM_DIM*node2+m,
+                                                                            a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m) );
+                                    }
+                                    else
+                                    {
+                                        assert(pJacobian!=NULL); // extra check
+                                        
+                                        unsigned matrix_index_1 = PROBLEM_DIM*node1+k;
+                                        if (lo<=matrix_index_1 && matrix_index_1<hi)
+                                        {
+                                            unsigned matrix_index_2 = PROBLEM_DIM*node2+m;
+                                            PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
+                                            MatSetValue(*pJacobian, matrix_index_1, matrix_index_2, value, ADD_VALUES);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (assemble_vector)
+                    {
+                        for (unsigned k=0; k<PROBLEM_DIM; k++)
+                        {
+                            if (mProblemIsLinear)
+                            {
+                                mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node1+k,b_elem(PROBLEM_DIM*i+k));
+                            }
+                            else
+                            {
+                                assert(residualVector!=NULL); // extra check
+                                
+                                unsigned matrix_index = PROBLEM_DIM*node1+k;
+                                //Make sure it's only done once
+                                if (lo<=matrix_index && matrix_index<hi)
+                                {
+                                    PetscScalar value = b_elem(PROBLEM_DIM*i+k);
+                                    PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
+                                }
+                            }
+                        }
+                    }
+                }
             }
             iter++;
         }
-                
+        
         // add the integrals associated with Neumann boundary conditions to the linear system
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
         surf_iter = this->mpMesh->GetBoundaryElementIteratorBegin();
         
-
+        
         ////////////////////////////////////////////////////////
         // loop over surface elements
         ////////////////////////////////////////////////////////
-
+        
         // note, the following condition is not true of Bidomain or Monodomain
         if (this->mpBoundaryConditions->AnyNonZeroNeumannConditions()==true)
         {
@@ -675,14 +675,14 @@ protected:
                             
                             for (unsigned k=0; k<PROBLEM_DIM; k++)
                             {
-                                if(mProblemIsLinear)
+                                if (mProblemIsLinear)
                                 {
                                     mpLinearSystem->AddToRhsVectorElement(PROBLEM_DIM*node_index + k, b_surf_elem(PROBLEM_DIM*i+k));
                                 }
-                                else if(residualVector!=NULL)
+                                else if (residualVector!=NULL)
                                 {
                                     unsigned matrix_index = PROBLEM_DIM*node_index + k;
-
+                                    
                                     PetscScalar value = b_surf_elem(PROBLEM_DIM*i+k);
                                     if (lo<=matrix_index && matrix_index<hi)
                                     {
@@ -696,9 +696,9 @@ protected:
                 }
             }
         }
-
         
-        if(mProblemIsLinear)
+        
+        if (mProblemIsLinear)
         {
             if (mMatrixIsAssembled)
             {
@@ -709,7 +709,7 @@ protected:
                 mpLinearSystem->AssembleIntermediateLinearSystem();
             }
         }
-        else if(pJacobian)
+        else if (pJacobian)
         {
             MatAssemblyBegin(*pJacobian, MAT_FLUSH_ASSEMBLY);
             MatAssemblyEnd(*pJacobian, MAT_FLUSH_ASSEMBLY);
@@ -717,23 +717,23 @@ protected:
         
         
         // Apply dirichlet boundary conditions
-        if(mProblemIsLinear)
+        if (mProblemIsLinear)
         {
             this->mpBoundaryConditions->ApplyDirichletToLinearProblem(*mpLinearSystem, mMatrixIsAssembled);
         }
-        else if(residualVector)
+        else if (residualVector)
         {
             this->mpBoundaryConditions->ApplyDirichletToNonlinearResidual(currentSolutionOrGuess, residualVector);
-        }        
-        else if(pJacobian)
+        }
+        else if (pJacobian)
         {
             this->mpBoundaryConditions->ApplyDirichletToNonlinearJacobian(*pJacobian);
         }
         
         
-                    
-        if(mProblemIsLinear)
-        {        
+        
+        if (mProblemIsLinear)
+        {
             if (mMatrixIsAssembled)
             {
                 mpLinearSystem->AssembleRhsVector();
@@ -744,16 +744,16 @@ protected:
             }
             mMatrixIsAssembled = true;
         }
-        else if(residualVector)
+        else if (residualVector)
         {
             VecAssemblyBegin(residualVector);
             VecAssemblyEnd(residualVector);
         }
-        else if(pJacobian)
+        else if (pJacobian)
         {
             MatAssemblyBegin(*pJacobian, MAT_FINAL_ASSEMBLY);
             MatAssemblyEnd(*pJacobian, MAT_FINAL_ASSEMBLY);
-        }        
+        }
         
         // overload this method if the assembler has to do anything else
         // required (like setting up a null basis (see BidomainDg0Assembler))
@@ -785,8 +785,8 @@ protected:
      */
     virtual void FinaliseAssembleSystem(Vec currentSolutionOrGuess, double currentTime)
     {}
-
-
+    
+    
     
 public:
     /**
@@ -810,7 +810,7 @@ public:
         mpQuadRule = NULL;
         mpSurfaceQuadRule = NULL;
         SetNumberOfQuadraturePointsPerDimension(numQuadPoints);
-
+        
         mMatrixIsAssembled = false;
     }
     
@@ -830,7 +830,7 @@ public:
         // have been set before attempting to solve
         mpMesh = NULL;
         mpBoundaryConditions = NULL;
-       
+        
         mWeAllocatedBasisFunctionMemory = false;
         SetBasisFunctions(pBasisFunction, pSurfaceBasisFunction);
         

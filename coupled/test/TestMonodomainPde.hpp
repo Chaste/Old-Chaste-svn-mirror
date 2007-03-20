@@ -57,7 +57,7 @@ public:
 class TestMonodomainPde : public CxxTest::TestSuite
 {
 public:
-    void testMonodomainPde( void )
+    void TestMonodomainPdeBasic( void )
     {
     
         unsigned num_nodes=2;
@@ -203,7 +203,7 @@ public:
     }
     
     
-    void testMonodomainPdeGetCardiacCell( void )
+    void TestMonodomainPdeGetCardiacCell( void )
     {
         unsigned num_nodes = 2;
         MyCardiacCellFactory cell_factory;

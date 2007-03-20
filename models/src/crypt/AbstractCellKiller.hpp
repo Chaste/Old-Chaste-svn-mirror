@@ -19,7 +19,7 @@ public:
 //    {
 //        mpMesh=pMesh;
 //    }
-    
+
     void SetCellsAndMesh(std::vector<MeinekeCryptCell> *pCells, ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> *pMesh=NULL)
     {
         mpCells=pCells;
@@ -32,6 +32,6 @@ protected:
     
     
     
- };
+};
 
 #endif /*ABSTRACTCELLKILLER_HPP_*/

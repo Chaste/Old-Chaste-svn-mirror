@@ -22,10 +22,10 @@
  */
 
 void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-        double timeStep,
-        double time,
-        std::vector<double>& currentYValues,
-        std::vector<double>& nextYValues)
+                                                  double timeStep,
+                                                  double time,
+                                                  std::vector<double>& currentYValues,
+                                                  std::vector<double>& nextYValues)
 {
     // Apply Runge-Kutta 4th Order method for each timestep in AbstractOneStepIvpSolver.
     // Calculates a vector containing the next Y value from the current one for each

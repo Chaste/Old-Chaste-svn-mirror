@@ -23,10 +23,10 @@
  */
 
 void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
-        double timeStep,
-        double time,
-        std::vector<double>& currentYValues,
-        std::vector<double>& nextYValues)
+                                                  double timeStep,
+                                                  double time,
+                                                  std::vector<double>& currentYValues,
+                                                  std::vector<double>& nextYValues)
 {
     const unsigned num_equations = pAbstractOdeSystem->GetNumberOfStateVariables();
     

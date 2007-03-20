@@ -296,7 +296,7 @@ public:
     }
     
     // 3D test
-    void testBidomain3dWithShock()
+    void TestBidomain3dWithShock()
     {
         // initial stimulus at a single node in centre of front face at t=0,
         // extracellular stimulus at whole of front face at t=5ms

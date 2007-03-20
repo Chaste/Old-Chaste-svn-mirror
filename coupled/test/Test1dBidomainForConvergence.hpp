@@ -24,8 +24,8 @@ private:
 public:
     PointStimulusCellFactory(double timeStep, double spaceStep) : AbstractCardiacCellFactory<1>(timeStep)
     {
-    	// since we are refinig the mesh, the stimulus should be inversely proportional
-    	// to element volume (length)
+        // since we are refinig the mesh, the stimulus should be inversely proportional
+        // to element volume (length)
         mpStimulus = new InitialStimulus(-1500000/spaceStep*0.01, 0.5);
     }
     

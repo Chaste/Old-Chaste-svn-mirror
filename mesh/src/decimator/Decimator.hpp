@@ -41,7 +41,7 @@ protected:
                 pNodeInfo->AddToNeighbourNodes(mQueue[index]);
             }
         }
-       
+        
     }
     
     virtual void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
@@ -57,7 +57,9 @@ protected:
         if (before)
         {
             mMeasureBefore=measure;
-        } else {
+        }
+        else
+        {
             mMeasureAfter=measure;
         }
     }
@@ -70,16 +72,16 @@ protected:
             Element<SPACE_DIM,SPACE_DIM> *p_element=mpMesh->GetElement(pNode->GetNextContainingElementIndex());
             measure += p_element->GetJacobianDeterminant();
         }
-  
+        
         return measure;
     }
     
     virtual double CalculateScore()
     {
         //Double check for volume leakage in base decimator
-        assert( fabs(mMeasureBefore-mMeasureAfter)/fabs(mMeasureBefore+mMeasureAfter) 
+        assert( fabs(mMeasureBefore-mMeasureAfter)/fabs(mMeasureBefore+mMeasureAfter)
                 <  mVolumeLeakage);
-
+                
         return mMeasureBefore;
     }
     
@@ -99,11 +101,11 @@ protected:
         //pNodeInfo->mPossibleTargetIndex=pNodeInfo->GetIndex();
         CalculateLocalMeasure(pNodeInfo, true);
         Point<SPACE_DIM> point=pNodeInfo->mpNode->GetPoint();
-
-
+        
+        
         mNeighbourhoodVolume=CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
         
-
+        
         for (unsigned i=0; i<pNodeInfo->GetNumNeighbourNodes();i++)
         {
             NodeInfo<SPACE_DIM> *p_neighbour=pNodeInfo->GetNextNeighbourNode();
@@ -111,14 +113,14 @@ protected:
             try
             {
                 mpMesh->MoveMergeNode(pNodeInfo->GetIndex(),
-                                pNodeInfo->mPossibleTargetIndex, false);
-        		double score=0.0;
+                                      pNodeInfo->mPossibleTargetIndex, false);
+                double score=0.0;
                 if (pNodeInfo->mpNode->IsBoundaryNode())
                 {
                     double neighbourhood_volume
-                                =CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
+                    =CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
                     score += CalculateBoundaryScore(mNeighbourhoodVolume,
-                            neighbourhood_volume);
+                                                    neighbourhood_volume);
                 }
                 if (score != INFINITY)
                 {
@@ -143,7 +145,7 @@ protected:
             catch (Exception e)
             {
                 //If the move is not feasible then we ignore it
-  
+                
             }
         }
         mpMesh->SetNode(pNodeInfo->GetIndex(), point);
@@ -228,7 +230,7 @@ protected:
         mNodeFile->close();
         mElementFile->close();
     }
-   
+    
     
     virtual void WriteVisualiseFiles(double time)
     {
@@ -243,7 +245,7 @@ protected:
         for (unsigned i=0; i<(unsigned)mpMesh->GetNumAllNodes();i++)
         {
             Node<SPACE_DIM>* p_node = mpMesh->GetNode(i);
-        
+            
             if (p_node->IsDeleted() == false)
             {
                 for (unsigned j=0; j<SPACE_DIM; j++)
@@ -281,7 +283,7 @@ protected:
         }
         
     }
-       
+    
     virtual unsigned GetTag(unsigned index)
     {
         if (mpMesh->GetNode(index)->IsBoundaryNode())
@@ -289,7 +291,7 @@ protected:
             return 0;
         }
         //else
-        return 1; 
+        return 1;
     }
 public:
     void SetThreshold(double threshold)
@@ -329,13 +331,15 @@ public:
         {
             ActivateOnce();
             time++;
-            if ( time%step == 0){
+            if ( time%step == 0)
+            {
                 WriteVisualiseFiles(time);
             }
         }
         
         //Make sure that the final step is always shown
-        if (step != 1 && time%step != 0){
+        if (step != 1 && time%step != 0)
+        {
             WriteVisualiseFiles(time);
         }
         CloseAnimationFiles();

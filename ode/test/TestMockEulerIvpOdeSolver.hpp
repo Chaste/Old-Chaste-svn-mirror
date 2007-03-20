@@ -13,7 +13,7 @@ class TestMockEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
 
-    void testMockEulerSolver()
+    void TestMockEulerSolver()
     {
         Ode1 ode_system;
         

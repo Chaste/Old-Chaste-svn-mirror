@@ -110,11 +110,11 @@ public:
             squared_radius += centre[i]*centre[i];
         }
         circum[SPACE_DIM]=squared_radius;
-          
+        
         return circum;
         
     }
-            
+    
     double CalculateCircumsphereVolume()
     {
         c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere();
@@ -130,11 +130,11 @@ public:
         return 4.0*M_PI*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM])/3.0; //4*Pi*r^3/3
     }
     
-    /* The quality of a triangle/tetrahedron is the ratio between the 
+    /* The quality of a triangle/tetrahedron is the ratio between the
      * volume of the shape and the volume of its circumsphere.
      * This is normalised by dividing through by the Platonic ratio.
      */
-     
+    
     double CalculateQuality()
     {
         assert (SPACE_DIM == ELEMENT_DIM);
@@ -152,33 +152,33 @@ public:
              * Area_Eq_Tri = (3*sqrt(3)/4)*R^2
              * Area_Eq_Tri = Pi * R^2
              * Q= (2*|Jacobian|)/ (    bool CalculateVoronoiElement(c_vector <double, 3> first_node, c_vector <double, 3> second_node)
-    {
-        double x_diff_sqr = ((first_node[0] - second_node[0])*(first_node[0] - second_node[0]));
-        double y_diff_sqr = ((first_node[1] - second_node[1])*(first_node[1] - second_node[1]));
-        
-        return ((x_diff_sqr + y_diff_sqr) > first_node[2]);
-    }3*sqrt(3)*r^2)
+            {
+            double x_diff_sqr = ((first_node[0] - second_node[0])*(first_node[0] - second_node[0]));
+            double y_diff_sqr = ((first_node[1] - second_node[1])*(first_node[1] - second_node[1]));
+            
+            return ((x_diff_sqr + y_diff_sqr) > first_node[2]);
+            }3*sqrt(3)*r^2)
              */
             return 2.0*this->mJacobianDeterminant/(3.0*sqrt(3)*circum[SPACE_DIM]);
         }
         assert (SPACE_DIM == 3);
-       /* Want Q=(Vol_Tet / Vol_CirS) / (Vol_Plat_Tet / Vol_Plat_CirS)
-         *  Vol_Tet  = |Jacobian| /6
-         *  Vol_CirS = 4*Pi*r^3/3
-         *  Vol_Plat_Tet  = 8*sqrt(3)*R^3/27
-         *  Vol_Plat_CirS = 4*Pi*R^3/3
-        * Q= 3*sqrt(3)*|Jacobian|/ (16*r^3)
-         */
+        /* Want Q=(Vol_Tet / Vol_CirS) / (Vol_Plat_Tet / Vol_Plat_CirS)
+          *  Vol_Tet  = |Jacobian| /6
+          *  Vol_CirS = 4*Pi*r^3/3
+          *  Vol_Plat_Tet  = 8*sqrt(3)*R^3/27
+          *  Vol_Plat_CirS = 4*Pi*R^3/3
+         * Q= 3*sqrt(3)*|Jacobian|/ (16*r^3)
+          */
         
         return (3.0*sqrt(3.0)*this->mJacobianDeterminant)
-                /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));          
+               /(16.0*circum[SPACE_DIM]*sqrt(circum[SPACE_DIM]));
     }
     
     
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(Point <SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
-        assert (ELEMENT_DIM == SPACE_DIM);      
+        assert (ELEMENT_DIM == SPACE_DIM);
         
         c_vector<double, SPACE_DIM+1> weights;
         
@@ -200,11 +200,11 @@ public:
     
     bool IncludesPoint(Point<SPACE_DIM> testPoint, bool strict=false)
     {
-	   //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+        //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
-
+        
         c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(testPoint);
-		
+        
         //If the point is in the simplex then all the weights should be positive
         
         for (unsigned i=0;i<=SPACE_DIM;i++)
@@ -225,10 +225,10 @@ public:
                     return false;
                 }
             }
-        }	    	
-    	return true;
+        }
+        return true;
     }
-
+    
     
 };
 

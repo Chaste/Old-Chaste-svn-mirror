@@ -14,11 +14,11 @@ private :
     bool mWriteStats;
     
     std::vector<double> mTestDampingValues;
-
+    
 public :
     SimpleNewtonNonlinearSolver(double linearSolverRelativeTolerance = 1e-6);
     virtual ~SimpleNewtonNonlinearSolver();
-
+    
     /**
      * Solve()
      * 
@@ -63,12 +63,12 @@ public :
      *
      * In the same file, but outside this class the functions ComputeResidual and
      * ComputeJacobian must sit, using the input arguments specified above.
-     */ 
+     */
     virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
                       void *pContext);
-    
+                      
     /*< Set a tolerance other than the default */
     void SetTolerance(double tolerance);
     

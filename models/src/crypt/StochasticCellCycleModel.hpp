@@ -14,8 +14,8 @@
 class StochasticCellCycleModel : public AbstractCellCycleModel
 {
 private:
-	CancerParameters* mpCancerParams;
-
+    CancerParameters* mpCancerParams;
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

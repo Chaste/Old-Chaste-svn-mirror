@@ -27,7 +27,7 @@ private:
     
 public:
 
-    void testParallelColumnWriter(void)
+    void TestParallelColumnWriter(void)
     {
     
     
@@ -153,7 +153,7 @@ public:
     }
     
     // Read back the data written in the test above
-    void testColumnReader(void)
+    void TestColumnReader(void)
     {
         //There is no *Parallel* ColumnDataReader.  Since everyone might
         //need to know everything there's no point in only one processor opening the

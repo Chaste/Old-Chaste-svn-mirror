@@ -9,7 +9,7 @@
 
 class Ode5Jacobian : public AbstractOdeSystemWithAnalyticJacobian
 {
-private : 
+private :
     double mAlpha;
     
 public :

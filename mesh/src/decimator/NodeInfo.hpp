@@ -33,7 +33,7 @@ protected:
 public:
     NodeInfo(Node<SPACE_DIM> *pNode) : mScore(INFINITY), mpBestNeighbourNode(0),mpNode(pNode)
 {}
-    
+
     unsigned GetPossibleTargetIndex()
     {
         return mPossibleTargetIndex;

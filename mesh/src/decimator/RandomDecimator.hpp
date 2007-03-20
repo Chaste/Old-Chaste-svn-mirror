@@ -15,14 +15,16 @@ protected:
         if (before)
         {
             this->mMeasureBefore=RandomNumberGenerator::Instance()->ranf();
-        } else {
+        }
+        else
+        {
             this->mMeasureAfter=this->mMeasureBefore;
         }
-
+        
     }
     
     //double CalculateScore returns mMeasureAfter as in the base class
-
+    
 };
 
 

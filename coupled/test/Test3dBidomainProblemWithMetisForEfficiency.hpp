@@ -20,7 +20,7 @@ class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 private:
     InitialStimulus *mpStimulus;
     RegularStimulus *mpRegStimulus;
- 
+    
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.001 (10:1)
@@ -66,13 +66,13 @@ public:
         bidomain_problem.SetOutputFilenamePrefix("");
         bidomain_problem.PrintOutput(false);
         bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
-    
-       
+        
+        
         PetscOptionsSetValue("-ksp_type", "symmlq");
         PetscOptionsSetValue("-pc_type", "bjacobi");
         PetscOptionsSetValue("-options_table", "");
         PetscOptionsSetValue("-log_summary", "");
-     
+        
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
         
@@ -114,7 +114,7 @@ public:
                 
                 // Check against hard coded value
                 // For 50 ms test TS_ASSERT_DELTA(voltage_replicated[2*i],  7.3, 0.2);
-                // For 150 ms test 
+                // For 150 ms test
                 TS_ASSERT_DELTA(voltage_replicated[2*i],  -1.735, 0.001);
             }
         }

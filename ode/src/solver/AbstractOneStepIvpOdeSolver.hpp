@@ -23,20 +23,20 @@ protected:
      */
     virtual void InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
                                std::vector<double>& rCurrentYValues,
-                               std::vector<double>& rWorkingMemory,        
+                               std::vector<double>& rWorkingMemory,
                                double startTime,
                                double endTime,
                                double timeStep);
-
+                               
     /**
      * Calculate the next time step.  Concrete subclasses should provide this method.
-     */                       
+     */
     virtual void CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem,
                                      double timeStep,
                                      double time,
                                      std::vector<double>& currentYValues,
                                      std::vector<double>& nextYValues)=0;
-    
+                                     
 public:
     /**
      * Solves a system of ODEs using a specified one-step ODE solver
@@ -111,7 +111,7 @@ public:
                        double startTime,
                        double endTime,
                        double timeStep);
-                                                                           
+                       
     virtual ~AbstractOneStepIvpOdeSolver()
     {}
 };

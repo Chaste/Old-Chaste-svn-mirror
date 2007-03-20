@@ -65,7 +65,7 @@ public:
         base_decimator.SetThreshold(0.5);
         base_decimator.Decimate();
         
-       
+        
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 113U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
@@ -78,7 +78,7 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
         //TrianglesMeshWriter<2,2> mesh_writer2("", "DiskFullDecimation");
         //mesh_writer2.WriteFilesUsingMesh(mesh);
-    }    
+    }
     
     void TestBase2DOnDiskWithVolumeLeak()
     {
@@ -97,21 +97,21 @@ public:
         decimator.SetThreshold(0.5);
         decimator.Decimate();
         
-       
+        
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 46U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
-       
-       
+        
+        
         QualityDecimator<2> quality_decimator;
         quality_decimator.Initialise(&mesh);
         quality_decimator.SetThreshold(0.3);
         quality_decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
-       
+        
         //TrianglesMeshWriter<2,2> mesh_writer1("", "DiskLeakage");
-        //mesh_writer1.WriteFilesUsingMesh(mesh);        
-       
+        //mesh_writer1.WriteFilesUsingMesh(mesh);
+        
     }
     
     void TestBase2DOnSquare()
@@ -145,13 +145,13 @@ public:
         //TrianglesMeshWriter<2,2> mesh_writer2("", "SquareFullDecimation");
         //mesh_writer2.WriteFilesUsingMesh(mesh);
         //     base_decimator.Interrogate();
-    } 
+    }
     
     
-
+    
     void TestRandom2DOnSquareWithAutoMeshGeneration()
     {
-       
+    
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(20,20);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 400, 1.0e-5);
@@ -191,7 +191,7 @@ public:
         TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 4U);
         TS_ASSERT_DELTA(mesh2.CalculateMeshVolume(), 400, 1.0e-5);
         RandomNumberGenerator::Destroy();
-       
+        
     }
     void TestBase3D()
     {
@@ -247,7 +247,7 @@ public:
         mesh.ReIndex();
         TrianglesMeshWriter<2,2> mesh_writer1("", "SquareSeqDecimation");
         mesh_writer1.WriteFilesUsingMesh(mesh);
-
+        
         decimator.Rescore();
         decimator.SetThreshold(102);
         decimator.Decimate();
@@ -305,7 +305,7 @@ public:
         decimator.Decimate();
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 160U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
-    }   
+    }
     
     void TestMinimumElement2DAnimate()
     {
@@ -324,7 +324,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 101U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
     }
-
+    
     void Test1DLinearFunction()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
@@ -385,7 +385,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.13953, 1.0e-5);
         //mesh.Translate(1.0,1.0);
-   
+        
         //Make a payload
         //This is binary state - a square in the middle has value 1 (like tumour)
         //                     - the surrounding disk has value -1 (like normal tissue)
@@ -399,7 +399,7 @@ public:
             {
                 values[i]=1.0;
             }
-            else 
+            else
             {
                 values[i]=-1.0;
             }
@@ -416,8 +416,8 @@ public:
     
     void Test2DVectorFunctionAnimate()
     {
-        
-        
+    
+    
         int width=40;
         int height=40;
         //int width=11;
@@ -438,7 +438,7 @@ public:
             {
                 values[i](0) = sqrt_two;
             }
-            else 
+            else
             {
                 values[i](0) = -sqrt_two;
             }
@@ -446,19 +446,19 @@ public:
             {
                 values[i](1) = sqrt_two;
             }
-            else 
+            else
             {
                 values[i](1) = -sqrt_two;
             }
         }
         
-      
+        
         VectorFunctionDecimator<2> decimator;
         decimator.Initialise(&mesh, values);
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         decimator.SetThreshold(1e-6);
-         decimator.DecimateAnimate("SquareVectorAnimation",10);
+        decimator.DecimateAnimate("SquareVectorAnimation",10);
         TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 16U);
         
     }
@@ -487,14 +487,17 @@ public:
         for (unsigned i=0;i<num_nodes;i++)
         {
             input_ppm.read(&data,1);
-            if (data == '\x00'){
+            if (data == '\x00')
+            {
                 values[i]=-1.0;
-            } else {
+            }
+            else
+            {
                 TS_ASSERT_EQUALS(data, '\xff');
                 values[i]=1.0;
             }
-           
-          
+            
+            
         }
         
         //Make a mesh
@@ -502,7 +505,7 @@ public:
         mesh.ConstructRectangularMesh(x-1,y-1);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), (x-1)*(y-1), 1.0e-5);
         
-   
+        
         
         LinearFunctionDecimator<2> decimator;
         decimator.Initialise(&mesh, values);
@@ -543,27 +546,27 @@ public:
             input_fibres>>data;
             values[i](1) = data;
         }
-
+        
         //Normalise directions
         for (unsigned i=0;i<num_nodes;i++)
         {
             double norm=norm_2(values[i]);
-           
+            
             TS_ASSERT_LESS_THAN(0.3, norm);
             values[i]=values[i]/norm;
         }
         for (unsigned i=0;i<num_nodes;i++)
         {
-            
+        
             TS_ASSERT_DELTA(norm_2(values[i]), 1.0, 1e-7);
         }
-                
+        
         //Make a mesh
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(width-1,height-1);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), (width-1)*(height-1), 1.0e-5);
         
-   
+        
         
         VectorFunctionDecimator<2> decimator;
         decimator.Initialise(&mesh, values);

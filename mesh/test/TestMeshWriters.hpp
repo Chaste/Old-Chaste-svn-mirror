@@ -119,7 +119,7 @@ public:
     }
     
     
-    void TestTrianglesToMeshalyzerViaMesh_1d(void)
+    void TestTrianglesToMeshalyzerViaMesh1d(void)
     {
         TrianglesMeshReader<1,1> import_mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         MeshalyzerMeshWriter<1,1> mesh_writer("", "MeshFromTetgenViaMesh");
@@ -130,7 +130,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
     }
     
-    void TestTrianglesToMeshalyzerViaMesh_2d(void)
+    void TestTrianglesToMeshalyzerViaMesh2d(void)
     {
         TrianglesMeshReader<2,2> import_mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
         MeshalyzerMeshWriter<2,2> mesh_writer("", "MeshFromTetgenViaMesh");
@@ -141,7 +141,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
     }
     
-    void TestTrianglesToMeshalyzerViaMesh_3d(void)
+    void TestTrianglesToMeshalyzerViaMesh3d(void)
     {
         TrianglesMeshReader<3,3> import_mesh_reader("mesh/test/data/slab_138_elements");
         MeshalyzerMeshWriter<3,3> mesh_writer("", "MeshFromTetgenViaMesh");

@@ -12,14 +12,14 @@
  */
 class WntGradient
 {
-private:    
+private:
     CancerParameters* mpCancerParams;
     WntGradientType mGradientType;
     
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {        
+    {
         archive & mGradientType;
         archive & mpCancerParams;
         mpCancerParams = CancerParameters::Instance();
@@ -29,8 +29,8 @@ public:
     WntGradient(WntGradientType gradientType = NONE);
     
     ~WntGradient();
-
-	double GetWntLevel(double height);
+    
+    double GetWntLevel(double height);
 };
 
 

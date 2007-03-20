@@ -3,13 +3,13 @@
 #include <cassert>
 
 AbstractCardiacCell::AbstractCardiacCell(AbstractIvpOdeSolver *pOdeSolver,
-                        unsigned numberOfStateVariables,
-                        unsigned voltageIndex,
-                        double dt,
-                        AbstractStimulusFunction* intracellularStimulus,
-                        AbstractStimulusFunction* extracellularStimulus)
+                                         unsigned numberOfStateVariables,
+                                         unsigned voltageIndex,
+                                         double dt,
+                                         AbstractStimulusFunction* intracellularStimulus,
+                                         AbstractStimulusFunction* extracellularStimulus)
         : AbstractOdeSystem(numberOfStateVariables),
-          mVoltageIndex(voltageIndex)
+        mVoltageIndex(voltageIndex)
 {
     mpOdeSolver = pOdeSolver;
     

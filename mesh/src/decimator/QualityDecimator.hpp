@@ -30,7 +30,9 @@ protected:
         if (before)
         {
             this->mMeasureBefore=measure;
-        } else {
+        }
+        else
+        {
             this->mMeasureAfter=measure;
         }
     }
@@ -38,7 +40,7 @@ protected:
     double CalculateScore()
     {
         if (this->mMeasureBefore < this->mMeasureAfter)
-        {   
+        {
             //A bad quality element will be removed
             return this->mMeasureBefore;
         }

@@ -9,9 +9,9 @@ template <unsigned SPACE_DIM>
 class LinearFunctionDecimator : public Decimator<SPACE_DIM>
 {
 private:
-    std::vector<double> mPayload; 
+    std::vector<double> mPayload;
 protected:
-    
+
     void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
     {
         double measure=0.0;
@@ -19,7 +19,7 @@ protected:
         for (unsigned i=0; i<p_node->GetNumContainingElements();i++)
         {
             Element<SPACE_DIM,SPACE_DIM> *p_element=
-                    this->mpMesh->GetElement(p_node->GetNextContainingElementIndex());
+                this->mpMesh->GetElement(p_node->GetNextContainingElementIndex());
             double volume = p_element->GetJacobianDeterminant();
             if (volume != 0.0)
             {
@@ -40,7 +40,9 @@ protected:
         if (before)
         {
             this->mMeasureBefore=measure;
-        } else {
+        }
+        else
+        {
             this->mMeasureAfter=measure;
         }
     }
@@ -53,10 +55,11 @@ protected:
         double measure=fabs(this->mMeasureBefore-this->mMeasureAfter);
         
         //Is the measure negligible when compared to the volume?
-        if (measure/this->mNeighbourhoodVolume < 1e-3){
+        if (measure/this->mNeighbourhoodVolume < 1e-3)
+        {
             //std::cout<<"NEG\n";
             measure += this->mNeighbourhoodVolume*1e-6;
-        
+            
         }
         return fabs(measure);
     }
@@ -68,10 +71,10 @@ protected:
             return 0;
         }
         if (mPayload[index]<0)
-        {   
+        {
             return 1;
         }
-        return 2; 
+        return 2;
     }
 public:
     void Initialise(ConformingTetrahedralMesh<SPACE_DIM, SPACE_DIM> *pMesh, std::vector<double> payload)

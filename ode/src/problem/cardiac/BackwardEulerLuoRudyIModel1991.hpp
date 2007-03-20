@@ -34,7 +34,7 @@ public:
     BackwardEulerLuoRudyIModel1991(double dt,
                                    AbstractStimulusFunction *pIntracellularStimulus,
                                    AbstractStimulusFunction *pExtracellularStimulus = NULL);
-                               
+                                   
     // Destructor
     ~BackwardEulerLuoRudyIModel1991();
     
@@ -51,11 +51,11 @@ protected:
      * Perform a forward Euler step to update the transmembrane potential.
      */
     void UpdateTransmembranePotential(double time);
-
+    
 public:
     void ComputeResidual(const double rCurrentGuess[1], double rResidual[1]);
     void ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1]);
-
+    
     /**
      * Compute the ionic current at the current instant in time
      * (i.e. using the current values of the state variables).

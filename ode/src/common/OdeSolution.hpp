@@ -17,7 +17,7 @@ private:
     std::vector<std::vector<double> > mSolutions;  /**< Solutions for each variable at each timestep. */
     
 public:
-    
+
     unsigned GetNumberOfTimeSteps(void)
     {
         return mNumberOfTimeSteps;

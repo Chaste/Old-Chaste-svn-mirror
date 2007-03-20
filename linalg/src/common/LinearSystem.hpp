@@ -22,7 +22,7 @@ class AbstractLinearSolver;
 class LinearSystem
 {
 
-    
+
 private:
     Mat mLhsMatrix;
     Vec mRhsVector;

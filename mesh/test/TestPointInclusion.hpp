@@ -12,8 +12,8 @@ class TestPointInclusion : public CxxTest::TestSuite
 {
 public:
 
-         
-   void TestPointWeightsInElement1D()
+
+    void TestPointWeightsInElement1D()
     {
         std::vector<Node<1>*> nodes1d;
         nodes1d.push_back(new Node<1>(0, false, 2.0));
@@ -35,7 +35,7 @@ public:
         TS_ASSERT_EQUALS(weights[0], 2.5);
         TS_ASSERT_EQUALS(weights[1], -1.5);
         
-      
+        
         
         delete nodes1d[0];
         delete nodes1d[1];
@@ -80,25 +80,25 @@ public:
         indices=mesh.GetContainingElementIndices(point1);
         TS_ASSERT_EQUALS(indices.size(), 1U);
         TS_ASSERT_EQUALS(indices[0], 1U);
-
+        
         indices=mesh.GetContainingElementIndices(point2);
         TS_ASSERT_EQUALS(indices.size(), 0U);
-
+        
         indices=mesh.GetContainingElementIndices(point3);
         TS_ASSERT_EQUALS(indices.size(), 2U);
         TS_ASSERT_EQUALS(indices[0], 1U);
         TS_ASSERT_EQUALS(indices[1], 2U);
     }
-  
-        
-   	void TestPointWeightsAndInclusion2D()
-	{
+    
+    
+    void TestPointWeightsAndInclusion2D()
+    {
         std::vector<Node<2>*> nodes2d;
         nodes2d.push_back(new Node<2>(0, false, 0.0, 0.0));
         nodes2d.push_back(new Node<2>(1, false, 2.0, 1.0));
         nodes2d.push_back(new Node<2>(2, false, 0.0, 3.0));
         Element<2,2> element2d(INDEX_IS_NOT_USED, nodes2d);
-       
+        
         Point<2> on_point(0., 2.);
         c_vector <double, 3> weights;
         bool strict=true;
@@ -108,27 +108,27 @@ public:
         TS_ASSERT_DELTA(weights[0], 1.0/3.0, 1e-5);
         TS_ASSERT_DELTA(weights[1], 0.0, 1e-5);
         TS_ASSERT_DELTA(weights[2], 2.0/3.0, 1e-5);
-
+        
         Point<2> in_point(1., 1.);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(in_point), true);
         weights=element2d.CalculateInterpolationWeights(in_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(0.0, weights[2]);
-
+        
         Point<2> out_point(1., 0.);
         TS_ASSERT_EQUALS(element2d.IncludesPoint(out_point), false);
         weights=element2d.CalculateInterpolationWeights(out_point);
         TS_ASSERT_LESS_THAN(0.0, weights[0]);
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(weights[2], 0.0);
-
+        
         delete nodes2d[0];
         delete nodes2d[1];
         delete nodes2d[2];
         
-         	
-	}
+        
+    }
     
     
     void TestPointinMesh2D(void)
@@ -152,28 +152,28 @@ public:
         indices=mesh.GetContainingElementIndices(point1);
         TS_ASSERT_EQUALS(indices.size(), 1U);
         TS_ASSERT_EQUALS(indices[0], 110U);
-
+        
         indices=mesh.GetContainingElementIndices(point2);
         TS_ASSERT_EQUALS(indices.size(), 0U);
-
+        
         indices=mesh.GetContainingElementIndices(point3);
         TS_ASSERT_EQUALS(indices.size(), 6U);
         TS_ASSERT_EQUALS(indices[0], 89U);
         TS_ASSERT_EQUALS(indices[1], 90U);
         TS_ASSERT_EQUALS(indices[5], 110U);
     }
-  
-  
-        
-   	void TestPointInElement3D()
-	{
+    
+    
+    
+    void TestPointInElement3D()
+    {
         std::vector<Node<3>*> nodes3d;
         nodes3d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
         nodes3d.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
         nodes3d.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         nodes3d.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
         Element<3,3> element3d(INDEX_IS_NOT_USED, nodes3d);
-    
+        
         bool strict=true;
         Point<3> on_point(0., 0.2, 0.);
         c_vector <double, 4> weights;
@@ -184,7 +184,7 @@ public:
         TS_ASSERT_DELTA(weights[1], 0.0, 1e-5);
         TS_ASSERT_DELTA(weights[2], 0.2, 1e-5);
         TS_ASSERT_DELTA(weights[3], 0.0, 1e-5);
-
+        
         Point<3> in_point(.25, .25, .25);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(in_point), true);
         weights=element3d.CalculateInterpolationWeights(in_point);
@@ -192,7 +192,7 @@ public:
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(0.0, weights[2]);
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
-
+        
         Point<3> out_point(0.1, -10., 0.1);
         TS_ASSERT_EQUALS(element3d.IncludesPoint(out_point), false);
         weights=element3d.CalculateInterpolationWeights(out_point);
@@ -200,14 +200,14 @@ public:
         TS_ASSERT_LESS_THAN(0.0, weights[1]);
         TS_ASSERT_LESS_THAN(weights[2], 0.0);
         TS_ASSERT_LESS_THAN(0.0, weights[3]);
- 
- 
- 
+        
+        
+        
         delete nodes3d[0];
         delete nodes3d[1];
         delete nodes3d[2];
         delete nodes3d[3];
-	}
+    }
     
     void TestPointinMesh3D(void)
     {
@@ -222,33 +222,33 @@ public:
         //Node 665 of mesh
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1),2992U);
         TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point2));
-        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),2044U);  
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point3),2044U);
         /*in elements 2044, 2047. 2058, 2192, 2268, 2286, 2392, 2414, 2415,
          * 2424, 2426, 2452, 2661, 2704, 2734, 2745, 2846, 2968, 2990, 2992,
          * 3015, 3022, 3024, 3026
          */
-         
+        
         //should throw because vertex is not strictly contained in any element
-        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point3, true));  
+        TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(point3, true));
         
         
         std::vector<unsigned> indices;
         indices=mesh.GetContainingElementIndices(point1);
         TS_ASSERT_EQUALS(indices.size(), 1U);
         TS_ASSERT_EQUALS(indices[0], 2992U);
-
+        
         indices=mesh.GetContainingElementIndices(point2);
         TS_ASSERT_EQUALS(indices.size(), 0U);
-
+        
         indices=mesh.GetContainingElementIndices(point3);
         TS_ASSERT_EQUALS(indices.size(), 24U);
         TS_ASSERT_EQUALS(indices[0], 2044U);
         TS_ASSERT_EQUALS(indices[1], 2047U);
-        TS_ASSERT_EQUALS(indices[5], 2286U);   
-        TS_ASSERT_EQUALS(indices[23], 3026U); 
-         
+        TS_ASSERT_EQUALS(indices[5], 2286U);
+        TS_ASSERT_EQUALS(indices[23], 3026U);
+        
     }
-     
+    
     void TestFloatingPointIn3D()
     {
         //There's some weird failing behaviour in the refined mesh test
@@ -259,21 +259,21 @@ public:
         mesh.ConstructCuboid(3, 3, 3);
         double third=1.0L/3.0L;
         mesh.Scale(third, third, third);
-       
-        Point<3> point_on_edge1(5.0/6.0,   0.5,       1.0); 
-        Point<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0); 
-        Point<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L); 
-        Point<3> point_on_edge4(5.0L/6.0L, 3.0L/6.0L, 1.0L); 
-        Point<3> point_on_edge5(5.0L/6.0L, 0.5L,      6.0L/6.0L); 
-        Point<3> point_on_edge6(5.0L/6.0L, 3.0L/6.0L, 6.0L/6.0L); 
+        
+        Point<3> point_on_edge1(5.0/6.0,   0.5,       1.0);
+        Point<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0);
+        Point<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L);
+        Point<3> point_on_edge4(5.0L/6.0L, 3.0L/6.0L, 1.0L);
+        Point<3> point_on_edge5(5.0L/6.0L, 0.5L,      6.0L/6.0L);
+        Point<3> point_on_edge6(5.0L/6.0L, 3.0L/6.0L, 6.0L/6.0L);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge1),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge2),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge3),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge4),142U);
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge5),142U);
-        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6),142U);    
-    }   
-          
+        TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6),142U);
+    }
+    
 };
 
 #endif /*TESTPOINTINCLUSION_HPP_*/

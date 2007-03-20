@@ -26,7 +26,7 @@
 class TestAbstractIvpOdeSolver: public CxxTest::TestSuite
 {
 private :
-    void testGenericSolver(AbstractIvpOdeSolver& rSolver, double startTime, double endTime, double dt, double samplingTime)
+    void MyTestGenericSolver(AbstractIvpOdeSolver& rSolver, double startTime, double endTime, double dt, double samplingTime)
     {
         // Initialise the instances of our ode system and solution classes
         Ode1 ode_system;
@@ -67,7 +67,7 @@ private :
     
     
     // test a given solver on an ode which has a stopping event defined
-    void testSolverOnOdesWithEvents(AbstractIvpOdeSolver& rSolver)
+    void MyTestSolverOnOdesWithEvents(AbstractIvpOdeSolver& rSolver)
     {
         // ode which has solution y0 = cos(t), and stopping event y0<0,
         // ie should stop when t = pi/2;
@@ -126,17 +126,17 @@ private :
     
 public:
 
-    void testEulerSolver()
+    void TestEulerSolver()
     {
         EulerIvpOdeSolver euler_solver;
         
-        testGenericSolver(euler_solver,  0.0, 2.0, 0.001, 0.001);
-        testGenericSolver(euler_solver,  1.0, 2.0, 0.001, 0.01);
-        testGenericSolver(euler_solver, -1.0, 2.0, 0.001, 2);
-        testGenericSolver(euler_solver,  0.0, 0.4, 0.01,  0.34);
+        MyTestGenericSolver(euler_solver,  0.0, 2.0, 0.001, 0.001);
+        MyTestGenericSolver(euler_solver,  1.0, 2.0, 0.001, 0.01);
+        MyTestGenericSolver(euler_solver, -1.0, 2.0, 0.001, 2);
+        MyTestGenericSolver(euler_solver,  0.0, 0.4, 0.01,  0.34);
         
-        testSolverOnOdesWithEvents(euler_solver);
-
+        MyTestSolverOnOdesWithEvents(euler_solver);
+        
         // test SolveAndUpdateStateVariable()
         Ode1 ode_system;
         euler_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
@@ -149,56 +149,56 @@ public:
         
     }
     
-    void testAdamsBashforthSolver()
-    {        
+    void TestAdamsBashforthSolver()
+    {
         AdamsBashforthIvpOdeSolver adams_bashforth_solver;
         
-        testGenericSolver(adams_bashforth_solver,  0.0, 2.0, 0.001, 0.001);
-        testGenericSolver(adams_bashforth_solver,  1.0, 2.0, 0.001, 0.01);
-        testGenericSolver(adams_bashforth_solver, -1.0, 2.0, 0.001, 2);
-        testGenericSolver(adams_bashforth_solver,  0.0, 0.4, 0.01,  0.34);
+        MyTestGenericSolver(adams_bashforth_solver,  0.0, 2.0, 0.001, 0.001);
+        MyTestGenericSolver(adams_bashforth_solver,  1.0, 2.0, 0.001, 0.01);
+        MyTestGenericSolver(adams_bashforth_solver, -1.0, 2.0, 0.001, 2);
+        MyTestGenericSolver(adams_bashforth_solver,  0.0, 0.4, 0.01,  0.34);
         
-        testSolverOnOdesWithEvents(adams_bashforth_solver);
+        MyTestSolverOnOdesWithEvents(adams_bashforth_solver);
         
         // check exception thrown if number of timesteps <= 4
-        TS_ASSERT_THROWS_ANYTHING( testGenericSolver(adams_bashforth_solver,0.0,0.04,0.01,0.01) );
-
+        TS_ASSERT_THROWS_ANYTHING( MyTestGenericSolver(adams_bashforth_solver,0.0,0.04,0.01,0.01) );
+        
         // test SolveAndUpdateStateVariable(): THIS METHOD DOESN'T WORK WITH
-        // ADAM'S BASHFORTH, SO HAS BEEN CHANGED TO THROW AN EXCEPTION 
-        // INSTEAD. 
+        // ADAM'S BASHFORTH, SO HAS BEEN CHANGED TO THROW AN EXCEPTION
+        // INSTEAD.
         // TODO: fix this. here we just cover the exception
         Ode1 ode_system;
         TS_ASSERT_THROWS_ANYTHING(adams_bashforth_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01));
     }
     
-    void testRungeKutta2Solver()
+    void TestRungeKutta2Solver()
     {
         RungeKutta2IvpOdeSolver rk2_solver;
         
-        testGenericSolver(rk2_solver,  0.0, 2.0, 0.001, 0.001);
-        testGenericSolver(rk2_solver,  1.0, 2.0, 0.001, 0.01);
-        testGenericSolver(rk2_solver, -1.0, 2.0, 0.001, 2);
-        testGenericSolver(rk2_solver,  0.0, 0.4, 0.01,  0.34);
+        MyTestGenericSolver(rk2_solver,  0.0, 2.0, 0.001, 0.001);
+        MyTestGenericSolver(rk2_solver,  1.0, 2.0, 0.001, 0.01);
+        MyTestGenericSolver(rk2_solver, -1.0, 2.0, 0.001, 2);
+        MyTestGenericSolver(rk2_solver,  0.0, 0.4, 0.01,  0.34);
         
-        testSolverOnOdesWithEvents(rk2_solver);
-
+        MyTestSolverOnOdesWithEvents(rk2_solver);
+        
         // test SolveAndUpdateStateVariable()
         Ode1 ode_system;
         rk2_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode_system.rGetStateVariables()[0],1.0,1e-2);
     }
     
-    void testRungeKutta4Solver()
+    void TestRungeKutta4Solver()
     {
         RungeKutta4IvpOdeSolver rk4_solver;
         
-        testGenericSolver(rk4_solver,  0.0, 2.0, 0.001, 0.001);
-        testGenericSolver(rk4_solver,  1.0, 2.0, 0.001, 0.01);
-        testGenericSolver(rk4_solver, -1.0, 2.0, 0.001, 2);
-        testGenericSolver(rk4_solver,  0.0, 0.4, 0.01,  0.34);
+        MyTestGenericSolver(rk4_solver,  0.0, 2.0, 0.001, 0.001);
+        MyTestGenericSolver(rk4_solver,  1.0, 2.0, 0.001, 0.01);
+        MyTestGenericSolver(rk4_solver, -1.0, 2.0, 0.001, 2);
+        MyTestGenericSolver(rk4_solver,  0.0, 0.4, 0.01,  0.34);
         
-        testSolverOnOdesWithEvents(rk4_solver);
-
+        MyTestSolverOnOdesWithEvents(rk4_solver);
+        
         // test SolveAndUpdateStateVariable()
         Ode1 ode_system;
         rk4_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01);
@@ -206,7 +206,7 @@ public:
     }
     
     
-    void testLastTimeStep()
+    void TestLastTimeStep()
     {
         Ode1 ode_system;
         
@@ -229,7 +229,7 @@ public:
     
     
     
-    void testGlobalError()
+    void TestGlobalError()
     {
         OdeFirstOrder ode_system;
         
@@ -292,7 +292,7 @@ public:
     }
     
     
-    void testGlobalErrorSystemOf2Equations()
+    void TestGlobalErrorSystemOf2Equations()
     {
         OdeSecondOrder ode_system;
         
@@ -374,7 +374,7 @@ public:
     }
     
     
-    void testGlobalErrorSystemOf3Equations()
+    void TestGlobalErrorSystemOf3Equations()
     {
         OdeThirdOrder ode_system;
         
@@ -467,7 +467,7 @@ public:
         
     }
     
-    void testGlobalError2()
+    void TestGlobalError2()
     {
         Ode4 ode_system;
         

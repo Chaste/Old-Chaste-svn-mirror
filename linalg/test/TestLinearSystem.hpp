@@ -18,7 +18,7 @@ public:
         LinearSystem ls(3);
         
         TS_ASSERT_EQUALS(ls.GetSize(),3U);
-
+        
         
         for (int row=0; row<3; row++)
         {

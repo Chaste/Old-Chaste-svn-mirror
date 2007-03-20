@@ -85,11 +85,11 @@ std::string OutputFileHandler::GetTestOutputDirectory()
 {
     return mDirectory;
 }
-    
+
 /**
  * Open an output file in our directory, and check it was opened successfully.
  * Throws an Exception if not.
- * 
+ *
  * @param filename  the name of the file to open, relative to the output directory.
  * @param mode  optionally, flags to use when opening the file (defaults are as for
  *         std::ofstream).

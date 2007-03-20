@@ -18,7 +18,7 @@ protected:
                              double time,
                              std::vector<double>& currentYValues,
                              std::vector<double>& nextYValues);
-
+                             
 public:
     EulerIvpOdeSolver()
     {}; //Constructor-does nothing

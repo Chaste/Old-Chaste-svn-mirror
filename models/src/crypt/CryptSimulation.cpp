@@ -16,16 +16,16 @@
  *  @param rMesh
  *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
  *  should be called for any birth to happen.
- *  @param pGen is a RandomNumberGenerator class.  If it's not given then a new one is 
+ *  @param pGen is a RandomNumberGenerator class.  If it's not given then a new one is
  *  constructed and random numbers are reseeded with srandom(0).
  */
 CryptSimulation::CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
-                std::vector<MeinekeCryptCell> cells)
+                                 std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
         mCells(cells)
 {
-	mpSimulationTime = SimulationTime::Instance();
-	mpGen = RandomNumberGenerator::Instance();
+    mpSimulationTime = SimulationTime::Instance();
+    mpGen = RandomNumberGenerator::Instance();
     mpParams = CancerParameters::Instance();
     mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
     mEndTime = 120.0; //hours
@@ -35,7 +35,7 @@ CryptSimulation::CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
     mOutputDirectory = "";
     
     mpSimulationTime = SimulationTime::Instance();
-    if(!mpSimulationTime->IsStartTimeSetUp())
+    if (!mpSimulationTime->IsStartTimeSetUp())
     {
         EXCEPTION("Start time not set in simulation time singleton object");
     }
@@ -63,7 +63,7 @@ void CryptSimulation::SetEndTime(double endTime)
 
 
 /**
- *  Call this before Solve() if no cells have been specified. Randomly adds a new 
+ *  Call this before Solve() if no cells have been specified. Randomly adds a new
  *  node every 1 time unit, starting 0.1
  */
 void CryptSimulation::SetIncludeRandomBirth()
@@ -91,24 +91,24 @@ void CryptSimulation::SetMaxCells(unsigned maxCells)
 }
 
 
-/** 
+/**
  *  Get the cells vector
  */
 std::vector<MeinekeCryptCell> CryptSimulation::GetCells()
 {
     assert(mCells.size()>0);
     return mCells;
-}   
+}
 
 
 /**
  * Main Solve method.
- * 
+ *
  * Once CryptSimulation object has been set up, call this to run simulation
  */
 void CryptSimulation::Solve()
 {
-	if (mOutputDirectory=="")
+    if (mOutputDirectory=="")
     {
         EXCEPTION("OutputDirectory not set");
     }
@@ -137,7 +137,7 @@ void CryptSimulation::Solve()
     
     unsigned num_time_steps = (unsigned)(mEndTime/mDt+0.5);
     mpSimulationTime->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
-                                 
+    
     //double time = 0.0;
     double time_since_last_birth = 15.0;//15 hours - only used in non-random birth
     
@@ -163,7 +163,7 @@ void CryptSimulation::Solve()
             unsigned generation=0;
             
             MeinekeCryptCell new_cell(cell_type, HEALTHY, generation, new StochasticCellCycleModel);
-
+            
             // Update cells vector
             new_cell.SetNodeIndex(new_node_index);
             if (new_node_index == mCells.size())
@@ -307,7 +307,7 @@ void CryptSimulation::Solve()
         }
         // Check nodes havent crossed
         mrMesh.RefreshMesh();
-       
+        
         
         // Increment simulation time here, so results files look sensible
         mpSimulationTime->IncrementTimeOneStep();
@@ -341,7 +341,7 @@ void CryptSimulation::Solve()
                         // should be impossible to get here, until cancer cells
                         // are implemented
 #define COVERAGE_IGNORE
-                            assert(0);
+                        assert(0);
 #undef COVERAGE_IGNORE
                     }
                 }
@@ -353,23 +353,23 @@ void CryptSimulation::Solve()
                 const c_vector<double, 1> node_loc = mrMesh.GetNode(index)->rGetLocation();
                 tabulated_writer.PutVariable(position_var_ids[cell], node_loc[0]);
                 (*p_results_file) << node_loc[0] << " ";
-            
-            cell++;
+                
+                cell++;
+            }
         }
-    }
-    tabulated_writer.AdvanceAlongUnlimitedDimension();
-    (*p_results_file) << "\n";
+        tabulated_writer.AdvanceAlongUnlimitedDimension();
+        (*p_results_file) << "\n";
         
         time_since_last_birth += mDt;
     }
 }
-    
-    
-    
+
+
+
 unsigned CryptSimulation::AddRandomNode(double time)
 {
-    
-        //Pick an element
+
+    //Pick an element
     unsigned random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
     Element<1,1>* p_random_element = mrMesh.GetElement(random_element_number);
     double element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
@@ -381,11 +381,11 @@ unsigned CryptSimulation::AddRandomNode(double time)
         // the following is ignored in coverage as there is a random
         // chance of it not happening
 #define COVERAGE_IGNORE
-            random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
-            p_random_element = mrMesh.GetElement(random_element_number);
-            element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
+        random_element_number = mpGen->randMod(mrMesh.GetNumAllElements());
+        p_random_element = mrMesh.GetElement(random_element_number);
+        element_length = fabs(p_random_element->GetNodeLocation(1,0) - p_random_element->GetNodeLocation(0,0));
 #undef COVERAGE_IGNORE
-            //std::cout << "..too small, trying: length " <<element_length << "\n";
+        //std::cout << "..too small, trying: length " <<element_length << "\n";
         //double random_displacement = 0.2+mpGen->randf()*0.6;
     }
     // Reset age of left node to zero
@@ -417,9 +417,9 @@ unsigned CryptSimulation::AddNodeToElement(Element<1,1>* pElement, double time)
         }
         else
         {
-            #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
             EXCEPTION("No cell has divided in this element");
-            #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
         }
     }
     else

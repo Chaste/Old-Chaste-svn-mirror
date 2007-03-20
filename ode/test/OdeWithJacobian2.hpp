@@ -30,8 +30,8 @@ public :
         jacobian[0][1] =   - 2.0*timeStep*solutionGuess[1];
         jacobian[1][0] =   - 2.0*timeStep*solutionGuess[0];
         jacobian[1][1] = 1 - 4.0*timeStep*solutionGuess[1];
-    } 
-        
+    }
+    
 };
 
 

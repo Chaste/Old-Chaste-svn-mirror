@@ -11,8 +11,8 @@ class TestRefinedTetrahedralMesh : public CxxTest::TestSuite
 {
 public:
 
- //   void TestMeshConstructionFromMeshReader(void)
- // is not yet implemented
+//   void TestMeshConstructionFromMeshReader(void)
+// is not yet implemented
     void TestConstructionFromCuboidMeshes3D()
     {
         // create fine mesh as CTM
@@ -29,7 +29,7 @@ public:
         coarse_mesh.ConstructCuboid(3, 3, 3);
         double third=1.0L/3.0L;
         coarse_mesh.Scale(third, third, third);
-       
+        
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
@@ -45,10 +45,10 @@ public:
         // We're not allowed to call SetFineMesh twice
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
-        
+    
     void TestCoarseFineElementsMap2D(void)
-    {   
-        ConformingTetrahedralMesh<2,2> fine_mesh;        
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
         double half=1.0L/2.0L;
         fine_mesh.Scale(half, half, 0.0);
@@ -56,7 +56,7 @@ public:
         // create coarse mesh as RTM
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(1, 1, false);
-       
+        
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
@@ -69,12 +69,12 @@ public:
         // (added in a funny order since set equality ought to cope with this)
         
         TS_ASSERT(expected_elements ==
-                         coarse_mesh.GetFineElementsForCoarseElementIndex(0));
+                  coarse_mesh.GetFineElementsForCoarseElementIndex(0));
     }
     
     void TestTransferFlags()
     {
-        ConformingTetrahedralMesh<2,2> fine_mesh;        
+        ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(4, 4, false);
         double half=1.0L/2.0L;
         fine_mesh.Scale(half, half, 0.0);
@@ -82,7 +82,7 @@ public:
         // create coarse mesh as RTM
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(2, 2, false);
-       
+        
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
@@ -127,8 +127,8 @@ public:
     }
     
     void TestFineNodesCoarseElementsMap2D(void)
-    {   
-        ConformingTetrahedralMesh<2,2> fine_mesh;        
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
         double half=1.0L/2.0L;
         fine_mesh.Scale(half, half, 0.0);
@@ -136,16 +136,16 @@ public:
         // create coarse mesh as RTM
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         coarse_mesh.ConstructRectangularMesh(1, 1, false);
-       
+        
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
-        //node 1 is on the top edge of the fine mesh 
+        //node 1 is on the top edge of the fine mesh
         TS_ASSERT(coarse_mesh.GetElement(0) ==
-                         coarse_mesh.GetACoarseElementForFineNodeIndex(1)); 
-        //node 3 is on the left edge of the fine mesh 
+                  coarse_mesh.GetACoarseElementForFineNodeIndex(1));
+        //node 3 is on the left edge of the fine mesh
         TS_ASSERT(coarse_mesh.GetElement(1) ==
-                         coarse_mesh.GetACoarseElementForFineNodeIndex(3)); 
+                  coarse_mesh.GetACoarseElementForFineNodeIndex(3));
     }
     
     void TestFineMeshIncorrect3D(void)
@@ -162,7 +162,7 @@ public:
         coarse_mesh.ConstructCuboid(3, 3, 3);
         double third=1.0L/3.0L;
         coarse_mesh.Scale(third, third, third);
-       
+        
         // give fine mesh to coarse mesh and calculate node map
         // should throw because not every coarse node has a coincident fine node
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));

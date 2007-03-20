@@ -338,7 +338,7 @@ public:
         TS_ASSERT(!bcc.HasDirichletBoundaryCondition(mesh.GetNode(4)));
     }
     
-    void Test_AnyNonZeroNeumannConditions_and_ApplyNeumannToMeshBoundary()
+    void TestAnyNonZeroNeumannConditionsAndApplyNeumannToMeshBoundary()
     {
         // Load a 2D square mesh with 1 central non-boundary node
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");

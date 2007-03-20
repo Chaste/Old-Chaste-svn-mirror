@@ -25,23 +25,23 @@ double LinearBasisFunction<3>::ComputeBasisFunction(
 {
     assert(basisIndex <= 3);
     assert(basisIndex >= 0);
-
+    
     switch (basisIndex)
     {
-    case 0:
-	return 1.0 - rPoint[0] - rPoint[1] - rPoint[2];
-	break;
-    case 1:
-	return rPoint[0];
-	break;
-    case 2:
-	return rPoint[1];
-	break;
-    case 3:
-	return rPoint[2];
-	break;
-    default:
-	; //not possible to get here because of assertions above
+        case 0:
+            return 1.0 - rPoint[0] - rPoint[1] - rPoint[2];
+            break;
+        case 1:
+            return rPoint[0];
+            break;
+        case 2:
+            return rPoint[1];
+            break;
+        case 3:
+            return rPoint[2];
+            break;
+        default:
+            ; //not possible to get here because of assertions above
     }
     return 0.0; // Avoid compiler warning
 }
@@ -64,20 +64,20 @@ double LinearBasisFunction<2>::ComputeBasisFunction(
 {
     assert(basisIndex <= 2);
     assert(basisIndex >= 0);
-
+    
     switch (basisIndex)
     {
-    case 0:
-	return 1.0 - rPoint[0] - rPoint[1];
-	break;
-    case 1:
-	return rPoint[0];
-	break;
-    case 2:
-	return rPoint[1];
-	break;
-    default:
-	; //not possible to get here because of assertions above
+        case 0:
+            return 1.0 - rPoint[0] - rPoint[1];
+            break;
+        case 1:
+            return rPoint[0];
+            break;
+        case 2:
+            return rPoint[1];
+            break;
+        default:
+            ; //not possible to get here because of assertions above
     }
     return 0.0; // Avoid compiler warning
 }
@@ -100,17 +100,17 @@ double LinearBasisFunction<1>::ComputeBasisFunction(
 {
     assert(basisIndex <= 1);
     assert(basisIndex >= 0);
-
+    
     switch (basisIndex)
     {
-    case 0:
-	return 1.0 - rPoint[0];
-	break;
-    case 1:
-	return rPoint[0];
-	break;
-    default:
-	; //not possible to get here because of assertions above
+        case 0:
+            return 1.0 - rPoint[0];
+            break;
+        case 1:
+            return rPoint[0];
+            break;
+        default:
+            ; //not possible to get here because of assertions above
     }
     return 0.0; // Avoid compiler warning
 }
@@ -151,32 +151,32 @@ c_vector<double, 3> LinearBasisFunction<3>::ComputeBasisFunctionDerivative(
 {
     assert(basisIndex <= 3);
     assert(basisIndex >= 0);
-
+    
     c_vector<double, 3> gradN;
     switch (basisIndex)
     {
-    case 0:
-	gradN(0) = -1;
-	gradN(1) = -1;
-	gradN(2) = -1;
-	break;
-    case 1:
-	gradN(0) =  1;
-	gradN(1) =  0;
-	gradN(2) =  0;
-	break;
-    case 2:
-	gradN(0) =  0;
-	gradN(1) =  1;
-	gradN(2) =  0;
-	break;
-    case 3:
-	gradN(0) =  0;
-	gradN(1) =  0;
-	gradN(2) =  1;
-	break;
-    default:
-	; //not possible to get here because of assertions above
+        case 0:
+            gradN(0) = -1;
+            gradN(1) = -1;
+            gradN(2) = -1;
+            break;
+        case 1:
+            gradN(0) =  1;
+            gradN(1) =  0;
+            gradN(2) =  0;
+            break;
+        case 2:
+            gradN(0) =  0;
+            gradN(1) =  1;
+            gradN(2) =  0;
+            break;
+        case 3:
+            gradN(0) =  0;
+            gradN(1) =  0;
+            gradN(2) =  1;
+            break;
+        default:
+            ; //not possible to get here because of assertions above
     }
     return gradN;
 }
@@ -202,24 +202,24 @@ c_vector<double, 2> LinearBasisFunction<2>::ComputeBasisFunctionDerivative(
 {
     assert(basisIndex <= 2);
     assert(basisIndex >= 0);
-
+    
     c_vector<double, 2> gradN;
     switch (basisIndex)
     {
-    case 0:
-	gradN(0) = -1;
-	gradN(1) = -1;
-	break;
-    case 1:
-	gradN(0) =  1;
-	gradN(1) =  0;
-	break;
-    case 2:
-	gradN(0) =  0;
-	gradN(1) =  1;
-	break;
-    default:
-	; //not possible to get here because of assertions above
+        case 0:
+            gradN(0) = -1;
+            gradN(1) = -1;
+            break;
+        case 1:
+            gradN(0) =  1;
+            gradN(1) =  0;
+            break;
+        case 2:
+            gradN(0) =  0;
+            gradN(1) =  1;
+            break;
+        default:
+            ; //not possible to get here because of assertions above
     }
     return gradN;
 }
@@ -245,18 +245,18 @@ c_vector<double, 1> LinearBasisFunction<1>::ComputeBasisFunctionDerivative(
 {
     assert(basisIndex <= 1);
     assert(basisIndex >= 0);
-
+    
     c_vector<double, 1> gradN;
     switch (basisIndex)
     {
-    case 0:
-	gradN(0) = -1;
-	break;
-    case 1:
-	gradN(0) =  1;
-	break;
-    default:
-	; //not possible to get here because of assertions above
+        case 0:
+            gradN(0) = -1;
+            break;
+        case 1:
+            gradN(0) =  1;
+            break;
+        default:
+            ; //not possible to get here because of assertions above
     }
     return gradN;
 }

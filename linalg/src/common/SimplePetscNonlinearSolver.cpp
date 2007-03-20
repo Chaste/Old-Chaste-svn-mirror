@@ -27,8 +27,8 @@
  *
  * @param initialGuess A PETSc Vec of the correct size, containing initial guesses
  *  for the nonlinear solver.
- * 
- * @param pContext [optional] A pointer to a class that may have to be used in the 
+ *
+ * @param pContext [optional] A pointer to a class that may have to be used in the
  *  ComputeResidual and ComputeJacobian functions
  *
  * @return Returns a PETSc Vec of the solution.
@@ -40,9 +40,9 @@
  * ComputeJacobian must sit, using the input arguments specified above.
  */
 Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
-                                 PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
-                                 Vec initialGuess, 
-                                 void *pContext)
+                                      PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
+                                      Vec initialGuess,
+                                      void *pContext)
 {
     SNES snes;
     

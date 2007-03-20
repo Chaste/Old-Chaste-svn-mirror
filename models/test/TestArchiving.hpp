@@ -16,9 +16,9 @@
 
 class ClassOfSimpleVariables
 {
-private:    
+private:
     friend class boost::serialization::access;
-
+    
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
@@ -34,16 +34,16 @@ private:
     std::string mString;
     std::vector<double> mVectorOfDoubles;
     std::vector<bool> mVectorOfBools;
-
+    
 public:
 
-    ClassOfSimpleVariables(int initial, 
-                           std::string string, 
-                           std::vector<double> doubles, 
+    ClassOfSimpleVariables(int initial,
+                           std::string string,
+                           std::vector<double> doubles,
                            std::vector<bool> bools)
-      : mString(string),
-	mVectorOfDoubles(doubles),
-	mVectorOfBools(bools)
+            : mString(string),
+            mVectorOfDoubles(doubles),
+            mVectorOfBools(bools)
     {
         mNumber = initial;
     }
@@ -62,7 +62,7 @@ public:
     {
         return mVectorOfDoubles;
     }
-
+    
     std::vector<bool>& GetVectorOfBools()
     {
         return mVectorOfBools;
@@ -78,52 +78,52 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "simple_vars.arch";
         
-        // Create an ouput archive 
+        // Create an ouput archive
         {
-            std::ofstream ofs(archive_filename.c_str());       
+            std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-                        
+            
             std::vector<double> doubles(3);
             doubles[0] = 1.1;
             doubles[1] = 1.2;
             doubles[2] = 1.3;
-                        
+            
             std::vector<bool> bools(2);
             bools[0] = true;
             bools[1] = true;
-
+            
             ClassOfSimpleVariables i(42,"hello",doubles,bools);
-
+            
             // cast to const.
             output_arch << static_cast<const ClassOfSimpleVariables&>(i);
         }
         
-        {  
+        {
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-
+            
             std::vector<double> bad_doubles(1);
             bad_doubles[0] = 10.3;
-                        
+            
             std::vector<bool> bad_bools(1);
             bad_bools[0] = false;
-    
+            
             ClassOfSimpleVariables j(0,"bye",bad_doubles,bad_bools);
-
+            
             // read the archive
             input_arch >> j ;
-
-            // Check that the values         
+            
+            // Check that the values
             TS_ASSERT_EQUALS(j.GetNumber(),42);
             TS_ASSERT_EQUALS(j.GetString(),"hello");
             TS_ASSERT_EQUALS(j.GetVectorOfDoubles().size(),3u);
             TS_ASSERT_EQUALS(j.GetVectorOfBools().size(),2u);
-
+            
             TS_ASSERT_DELTA(j.GetVectorOfDoubles()[0],1.1,1e-12);
             TS_ASSERT_DELTA(j.GetVectorOfDoubles()[1],1.2,1e-12);
             TS_ASSERT_DELTA(j.GetVectorOfDoubles()[2],1.3,1e-12);
-
+            
             TS_ASSERT_EQUALS(j.GetVectorOfBools()[0],true);
             TS_ASSERT_EQUALS(j.GetVectorOfBools()[1],true);
         }

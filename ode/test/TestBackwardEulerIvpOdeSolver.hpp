@@ -15,7 +15,7 @@
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
 public:
-    void testBackwardEulerSystemOf3Equations()
+    void TestBackwardEulerSystemOf3Equations()
     {
         OdeThirdOrder ode_system;
         
@@ -51,7 +51,7 @@ public:
         TS_ASSERT_DELTA(numerical_solution[2],analytical_solution[2],global_error_euler);
     }
     
-    void testBackwardEulerNonlinearEquation()
+    void TestBackwardEulerNonlinearEquation()
     {
         Ode4 ode_system;
         
@@ -75,7 +75,7 @@ public:
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-4);
     }
     
-    void testBackwardEulerAnotherNonlinearEquation()
+    void TestBackwardEulerAnotherNonlinearEquation()
     {
         Ode5 ode_system;
         
@@ -100,7 +100,7 @@ public:
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
     }
     
-    void testBackwardEulerSystemOf3EquationsWithEvents()
+    void TestBackwardEulerSystemOf3EquationsWithEvents()
     {
         OdeThirdOrderWithEvents ode_system_with_events;
         
@@ -126,7 +126,7 @@ public:
         TS_ASSERT_EQUALS(backward_euler_solver.StoppingEventOccured(), true);
     }
     
-    void testBackwardEulerAnotherNonlinearEquationAnalytic() throw(Exception)
+    void TestBackwardEulerAnotherNonlinearEquationAnalytic() throw(Exception)
     {
         Ode5Jacobian ode_system;
         

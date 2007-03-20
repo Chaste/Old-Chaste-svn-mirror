@@ -11,7 +11,7 @@
 class TysonNovak2001OdeSystem: public AbstractOdeSystemWithAnalyticJacobian
 {
 private:
-	// Constants for the Tyson Novak Model
+    // Constants for the Tyson Novak Model
     double mK1;
     double mK2d;
     double mK2dd;
@@ -67,7 +67,7 @@ public:
     {
         std::vector<double> dy(rY.size());
         EvaluateYDerivatives(time, rY, dy);
-        // Only call this a stopping condition if the mass of the cell is over 0.6 
+        // Only call this a stopping condition if the mass of the cell is over 0.6
         // (normally cycles from 0.5-1.0 ish!)
         return ( (rY[5] > 0.6 )&& (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && dy[0] < 0.0));
     }

@@ -30,11 +30,11 @@ protected :
         }
         
         // the AssembleOnElement type methods will determine if a current solution or
-        // current guess exists by looking at the size of the replicated vector, so 
+        // current guess exists by looking at the size of the replicated vector, so
         // check the size is zero if there isn't a current solution
         assert(    ( currentSolutionOrGuess && this->mCurrentSolutionOrGuessReplicated.size()>0)
-                || ( !currentSolutionOrGuess && this->mCurrentSolutionOrGuessReplicated.size()==0));
-
+                   || ( !currentSolutionOrGuess && this->mCurrentSolutionOrGuessReplicated.size()==0));
+                   
         // the concrete class can override this following method if there is
         // work to be done before assembly
         this->PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
@@ -43,7 +43,7 @@ protected :
         // to SMASRM index.
         std::map<unsigned, unsigned> smasrm_index_map;
         typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
-            iter = this->mpMesh->GetElementIteratorBegin();
+        iter = this->mpMesh->GetElementIteratorBegin();
         unsigned smasrm_size = 0;
         while (iter != this->mpMesh->GetElementIteratorEnd())
         {
@@ -94,8 +94,8 @@ protected :
             }
         }
         this->mMatrixIsAssembled = false;
-            
-//        //If this is the first time through then it's appropriate to set the 
+        
+//        //If this is the first time through then it's appropriate to set the
 //        //element ownerships
 //        //Note that this ought to use the number of nodes to set the ownership
 //        PetscInt node_lo, node_hi;
@@ -106,18 +106,18 @@ protected :
 //        VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
 //        this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
 
-        
+
         // Assume all elements have the same number of nodes...
         iter = this->mpMesh->GetElementIteratorBegin();
         const unsigned num_elem_nodes = (*iter)->GetNumNodes();
         c_matrix<double, 1*(DIM+1), 1*(DIM+1)> a_elem;
         c_vector<double, 1*(DIM+1)> b_elem;
         
-
-        // decide what we want to assemble. 
+        
+        // decide what we want to assemble.
         bool assemble_vector = ((this->mProblemIsLinear) || ((!this->mProblemIsLinear) && (residualVector!=NULL)));
         bool assemble_matrix = ( (this->mProblemIsLinear && !this->mMatrixIsAssembled) || ((!this->mProblemIsLinear) && (pJacobian!=NULL)) );
-       
+        
         ////////////////////////////////////////////////////////
         // loop over elements
         ////////////////////////////////////////////////////////
@@ -133,9 +133,9 @@ protected :
                 for (unsigned i=0; i<num_elem_nodes; i++)
                 {
                     unsigned index1 = smasrm_index_map[element.GetNodeGlobalIndex(i)];
-                                    
+                    
                     if (assemble_matrix)
-                    {                    
+                    {
                         for (unsigned j=0; j<num_elem_nodes; j++)
                         {
                             unsigned index2 = smasrm_index_map[element.GetNodeGlobalIndex(j)];
@@ -144,7 +144,7 @@ protected :
                                                                       a_elem(i,j) );
                         }
                     }
-    
+                    
                     if (assemble_vector)
                     {
                         this->mpLinearSystem->AddToRhsVectorElement(index1, b_elem(i));
@@ -153,7 +153,7 @@ protected :
             }
             iter++;
         }
-                
+        
         if (this->mMatrixIsAssembled)
         {
             this->mpLinearSystem->AssembleRhsVector();
@@ -184,8 +184,8 @@ protected :
         this->FinaliseAssembleSystem(currentSolutionOrGuess, currentTime);
     }
     
-
-
+    
+    
 public :
     FlaggedMeshAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                          AbstractLinearParabolicPde<DIM>* pPde,
@@ -195,6 +195,6 @@ public :
     {
         mpFlaggedMeshBcc=pBoundaryConditions;
     }
-
+    
 };
 #endif /*FLAGGEDMESHASSEMBLER_HPP_*/

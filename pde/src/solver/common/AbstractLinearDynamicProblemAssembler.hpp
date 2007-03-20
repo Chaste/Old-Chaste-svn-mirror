@@ -42,7 +42,7 @@ public :
      * Constructors just call the base class versions.
      */
     AbstractLinearDynamicProblemAssembler(unsigned numQuadPoints = 2,
-                                            double linearSolverRelativeTolerance = 1e-6) :
+                                          double linearSolverRelativeTolerance = 1e-6) :
             AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints, linearSolverRelativeTolerance)
     {}
     AbstractLinearDynamicProblemAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,

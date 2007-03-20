@@ -276,7 +276,7 @@ double LinearSystem::GetRhsVectorElement(PetscInt row)
     return answer;
 }
 
-/** 
+/**
  * Get access to the rhs vector directly. Shouldn't generally need to be called.
  */
 Vec& LinearSystem::rGetRhsVector()
@@ -284,7 +284,7 @@ Vec& LinearSystem::rGetRhsVector()
     return mRhsVector;
 }
 
-/** 
+/**
  * Get access to the lhs matrix directly. Shouldn't generally need to be called.
  */
 Mat& LinearSystem::rGetLhsMatrix()

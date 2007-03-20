@@ -11,10 +11,13 @@ public:
     void TestGetMessage()
     {
         std::string msg("This is an exception");
-
-        try {
+        
+        try
+        {
             EXCEPTION(msg);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             std::string e_msg = e.GetMessage();
             std::string::size_type e_len = e_msg.length();
             std::string::size_type len = msg.length();

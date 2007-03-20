@@ -85,7 +85,7 @@ private:
         VecSetFromOptions(initial_guess);
         return initial_guess;
     }
-   
+    
     
 public:
 
@@ -119,7 +119,7 @@ public:
         NonlinearHeatEquationPde<1> pde;
         
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-                
+        
         // Set 'solution' to 1 and compute residual
         double h = 0.01;
         for (unsigned global_index = 0; global_index<mesh.GetNumNodes(); global_index++)
@@ -188,24 +188,24 @@ public:
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
+        
         // Instantiate PDE object
         NonlinearHeatEquationPde<1> pde;
-
-
+        
+        
         // Boundary conditions
         BoundaryConditionsContainer<1,1,1> bcc;
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
-
-
+        
+        
         // assembler
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-
+        
         // cover VerifyJacobian
         TS_ASSERT( assembler.VerifyJacobian(1e-3,true) );
-
+        
         // Set up initial solution guess for residuals
         int length=mesh.GetNumNodes();
         Vec initial_guess;
@@ -218,7 +218,7 @@ public:
         }
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-
+        
         int errcode = assembler.AssembleJacobianNumerically(initial_guess, &numerical_jacobian);
         TS_ASSERT_EQUALS(errcode, 0);
         
@@ -281,7 +281,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
         
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-
+        
         // Set up initial guess
         Vec initial_guess = CreateInitialGuessVec(mesh.GetNumNodes());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -808,7 +808,7 @@ public:
         // Set up initial Guess
         Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
         
-
+        
         // Numerical Jacobian
         Vec answer = assembler.Solve(initial_guess);
         

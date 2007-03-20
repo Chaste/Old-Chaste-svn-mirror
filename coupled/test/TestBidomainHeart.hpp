@@ -79,14 +79,14 @@ public:
         bidomain_problem.SetMeshFilename("mesh/test/data/halfheart");
         bidomain_problem.SetOutputDirectory("BiDg0Heart");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_Heart");
-
-        bidomain_problem.SetEndTime(end_time);   
+        
+        bidomain_problem.SetEndTime(end_time);
         bidomain_problem.SetPdeTimeStep(pde_time_step);
         bidomain_problem.SetPrintingTimeStep(printing_time_step);
-
+        
         bidomain_problem.SetWriteInfo();
         
-        bidomain_problem.Initialise();        
+        bidomain_problem.Initialise();
         bidomain_problem.Solve();
     }
 };

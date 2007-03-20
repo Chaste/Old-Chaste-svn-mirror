@@ -10,7 +10,7 @@ class SimpleLinearSolver : public AbstractLinearSolver
 {
 private:
     double mRelativeTolerance;
-
+    
 public:
 
     Vec Solve(Mat lhsMatrix, Vec rhsVector, unsigned size, MatNullSpace matNullSpace=NULL);

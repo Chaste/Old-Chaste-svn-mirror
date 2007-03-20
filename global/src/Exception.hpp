@@ -33,9 +33,9 @@ public:
 // This is to cope with NDEBUG causing variables to not be used, since they are only
 // used in assert()s
 #ifdef NDEBUG
-  #define UNUSED_OPT(var) var=var
+#define UNUSED_OPT(var) var=var
 #else
-  #define UNUSED_OPT(var)
+#define UNUSED_OPT(var)
 #endif
 
 

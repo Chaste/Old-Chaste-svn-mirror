@@ -183,48 +183,48 @@ std::vector<std::vector<double> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::T
             if (line_stream >> item_number)
             {
             
-	            //Watch for item zero (this will only happen at most once!)
-	            if (item_number == 0)
-	            {
-	                this->mIndexFromZero = true;
-	            }
-	            
-	            //Throw an error if the item numbers are out of order
-	            if (this->mIndexFromZero == true)
-	            {
-	                if (item_number != tokenized_data.size())
-	                {
-	                    // ignored from coverage because otherwise would have to create files
-	                    // for a bad mesh just to test this line - note that it is tested for
-	                    // below in the case that the nodes are indexed from 1
-	#define COVERAGE_IGNORE
-	                    std::stringstream item_number_as_string;
-	                    item_number_as_string << item_number;
-	                    EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
-	#undef COVERAGE_IGNORE
-	                }
-	            }
-	            else
-	            {
-	                if (item_number-1 != tokenized_data.size())
-	                {
-	                    std::stringstream item_number_as_string;
-	                    item_number_as_string << item_number;
-	                    EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
-	                }
-	            }
-	            
-	            //Form the vector which represents the position of this item
-	            for (unsigned i = 0; i < SPACE_DIM; i++)
-	            {
-	                double item_coord;
-	                line_stream >> item_coord;
-	                current_coords.push_back(item_coord);
-	            }
-	            
-	            //Put item onto main output vector
-	            tokenized_data.push_back(current_coords);
-	        }
+                //Watch for item zero (this will only happen at most once!)
+                if (item_number == 0)
+                {
+                    this->mIndexFromZero = true;
+                }
+                
+                //Throw an error if the item numbers are out of order
+                if (this->mIndexFromZero == true)
+                {
+                    if (item_number != tokenized_data.size())
+                    {
+                        // ignored from coverage because otherwise would have to create files
+                        // for a bad mesh just to test this line - note that it is tested for
+                        // below in the case that the nodes are indexed from 1
+#define COVERAGE_IGNORE
+                        std::stringstream item_number_as_string;
+                        item_number_as_string << item_number;
+                        EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
+#undef COVERAGE_IGNORE
+                    }
+                }
+                else
+                {
+                    if (item_number-1 != tokenized_data.size())
+                    {
+                        std::stringstream item_number_as_string;
+                        item_number_as_string << item_number;
+                        EXCEPTION("Node number " + item_number_as_string.str() + " is out of order in input file.");
+                    }
+                }
+                
+                //Form the vector which represents the position of this item
+                for (unsigned i = 0; i < SPACE_DIM; i++)
+                {
+                    double item_coord;
+                    line_stream >> item_coord;
+                    current_coords.push_back(item_coord);
+                }
+                
+                //Put item onto main output vector
+                tokenized_data.push_back(current_coords);
+            }
         }
         
     }
@@ -271,21 +271,21 @@ std::vector<std::vector<unsigned> > TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>:
             
             if (line_stream >> item_number)
             {
-	            
-	            for (unsigned i = 0; i < dimensionOfObject; i++)
-	            {
-	                unsigned item_index;
-	                line_stream >> item_index;
-	                //If the nodes have been indexed from one then we need to shift the indices
-	                if (this->mIndexFromZero == false)
-	                {
-	                    item_index -= 1;
-	                }
-	                current_indices.push_back(item_index);
-	            }
-	            
-	            tokenized_data.push_back(current_indices);
-	        }
+            
+                for (unsigned i = 0; i < dimensionOfObject; i++)
+                {
+                    unsigned item_index;
+                    line_stream >> item_index;
+                    //If the nodes have been indexed from one then we need to shift the indices
+                    if (this->mIndexFromZero == false)
+                    {
+                        item_index -= 1;
+                    }
+                    current_indices.push_back(item_index);
+                }
+                
+                tokenized_data.push_back(current_indices);
+            }
         }
         
     }

@@ -38,7 +38,7 @@ private:
     double mEndTime;
     double mTimeAtEndOfLastRun;
     bool mStartTimeSet;
-
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -46,9 +46,9 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         //archive & mpInstance;
-        if(mpInstance==NULL)
+        if (mpInstance==NULL)
         {
-            EXCEPTION("Trying to save or load an instance of simulation time when the simulation time object does not exist");   
+            EXCEPTION("Trying to save or load an instance of simulation time when the simulation time object does not exist");
         }
         archive & mpInstance->mDurationOfSimulation;
         archive & mpInstance->mTotalTimeStepsInSimulation;

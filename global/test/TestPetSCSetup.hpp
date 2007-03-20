@@ -16,14 +16,14 @@
 class TestPetSCSetup : public CxxTest::TestSuite
 {
 public:
-    void testPetscIsThere()
+    void TestPetscIsThere()
     {
         PetscTruth is_there;
         PetscInitialized(&is_there);
         TS_ASSERT( is_there == PETSC_TRUE );
     }
     
-    void testPetscExceptions()
+    void TestPetscExceptions()
     {
         int err=0;
         TS_ASSERT_THROWS_NOTHING(PETSCEXCEPT(err));
@@ -46,7 +46,7 @@ public:
     }
     
     
-    void testKspExceptionsForCoverage()
+    void TestKspExceptionsForCoverage()
     {
         TS_ASSERT_THROWS_NOTHING(  KSPEXCEPT(2) );
         //These next few lines are designed to force the coverage test to pass.

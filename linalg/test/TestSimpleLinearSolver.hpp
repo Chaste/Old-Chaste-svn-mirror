@@ -249,7 +249,7 @@ public:
         MatDestroy(lhs_matrix);
     }
     
-    void testLinearSolverWithMatrixIsConstantAndNullSpace()
+    void TestLinearSolverWithMatrixIsConstantAndNullSpace()
     {
         // Solve Ax=b. 5x5 matrix
         SimpleLinearSolver solver(1e-6);

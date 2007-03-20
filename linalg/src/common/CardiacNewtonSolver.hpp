@@ -8,11 +8,11 @@
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
  * simulating a cardiac cell using Backward Euler.
- * 
+ *
  * The class is templated by the size of the nonlinear system, and uses the
  * singleton pattern to ensure only 1 solver for any given system size is created.
  * This allows us to be both computationally and memory efficient.
- * 
+ *
  * It would be nice to have a test of this class directly, but you need a cardiac
  * cell in order to test it.  So all tests occur when testing particular cardiac
  * cells, e.g. the BackwardEulerLuoRudyIModel1991.
@@ -54,10 +54,10 @@ public:
             
 //            // Update norm (our style)
 //            norm = ComputeNorm(mResidual);
-            
+
             // Solve Newton linear system
             SolveLinearSystem();
-    
+            
             // Update norm (JonW style)
             norm = ComputeNorm(mUpdate);
             
@@ -74,8 +74,7 @@ public:
     
 protected:
     CardiacNewtonSolver()
-    {
-    }
+    {}
     CardiacNewtonSolver(const CardiacNewtonSolver<SIZE>&);
     CardiacNewtonSolver<SIZE>& operator= (const CardiacNewtonSolver<SIZE>&);
     
@@ -124,7 +123,7 @@ protected:
             mUpdate[i] /= mJacobian[i][i];
         }
     }
-
+    
 private:
     /** Working memory : residual vector */
     double mResidual[SIZE];

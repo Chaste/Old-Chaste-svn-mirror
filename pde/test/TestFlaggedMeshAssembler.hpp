@@ -24,7 +24,7 @@ private :
         VecSetFromOptions(initial_condition);
         return initial_condition;
     }
-
+    
     Vec CreateConstantConditionVec(int size, double value)
     {
         Vec initial_condition = CreateInitialConditionVec(size);
@@ -39,9 +39,9 @@ private :
         VecAssemblyEnd(initial_condition);
         return initial_condition;
     }
-
-
-
+    
+    
+    
 public :
     void TestAssembleSystem() throw(Exception)
     {
@@ -49,11 +49,11 @@ public :
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Flag four middle elements         
+        
+        // Flag four middle elements
         ConformingTetrahedralMesh<1,1>::ElementIterator iter
-           = mesh.GetElementIteratorBegin();
-          
+        = mesh.GetElementIteratorBegin();
+        
         while (iter!=mesh.GetElementIteratorEnd())
         {
             if ((4<=(*iter)->GetIndex()) && ((*iter)->GetIndex()<=7))
@@ -65,7 +65,7 @@ public :
             
             iter++;
         }
-
+        
         // Instantiate PDE object
         TimeDependentDiffusionEquationPde<1> pde;
         
@@ -79,7 +79,7 @@ public :
         // Assembler
         FlaggedMeshAssembler<1> assembler(&mesh,&pde,&bcc);
         assembler.SetTimes(0.0, 1.0, 0.01);
-
+        
         const size_t full_size = 11u;
         const size_t smasrm_size = 5u;
         Vec initial_condition = CreateConstantConditionVec(full_size, 0.0);
@@ -93,12 +93,12 @@ public :
         assembler.mpLinearSystem->DisplayRhs();
         std::cout << "smasrm matrix:\n";
         assembler.mpLinearSystem->DisplayMatrix();
-
+        
         
         // Test SMASRM values
         // It should have -8.3.., 26.6.., -8.3.. on the centre diagonals, except for the boundaries
         // These numbers come from looking at the matrix of an equivalent problem
-        // using the simple dg0 parabolic assembler 
+        // using the simple dg0 parabolic assembler
         PetscInt lo, hi;
         assembler.mpLinearSystem->GetOwnershipRange(lo, hi);
         for (unsigned i=1; i<smasrm_size-1; i++)

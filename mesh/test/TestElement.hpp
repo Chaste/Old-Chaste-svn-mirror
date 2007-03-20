@@ -122,10 +122,10 @@ public:
         corner_nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
         corner_nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
         Element<3,3> element(INDEX_IS_NOT_USED, corner_nodes, 1);
-                
+        
         element.SetOwnership(true);
         
-        TS_ASSERT_EQUALS(element.GetOwnership(),true);        
+        TS_ASSERT_EQUALS(element.GetOwnership(),true);
         
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
@@ -411,16 +411,16 @@ public:
         TS_ASSERT_EQUALS(another_copied_element.GetIndex(), 2345u);
         
         // update a node of the element
-	    Node<3>* update_for_node= new Node<3>(4, false, 0.0, 0.0, 2.0);
+        Node<3>* update_for_node= new Node<3>(4, false, 0.0, 0.0, 2.0);
         another_copied_element.UpdateNode(1, update_for_node);
         TS_ASSERT_EQUALS(another_copied_element.GetNodeLocation(1, 2), 2.0);
-
+        
         for (unsigned i=0; i<corner_nodes.size(); i++)
         {
             delete corner_nodes[i];
         }
-	    delete update_for_node;
-
+        delete update_for_node;
+        
     }
     
     void TestBoundaryElement()
@@ -438,7 +438,7 @@ public:
         nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
         BoundaryElement<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
         
-	    for (unsigned i=0; i<nodes.size(); i++)
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
@@ -459,8 +459,8 @@ public:
         
         TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 5.0, 1e-7);
         TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
-
-	    for (unsigned i=0; i<nodes.size(); i++)
+        
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
@@ -497,11 +497,11 @@ public:
         TS_ASSERT_DELTA(right_angle_element.CalculateCircumsphereVolume(), M_PI_2, 1e-7);
         TS_ASSERT_DELTA(right_angle_element.CalculateQuality(), 4.0*sqrt(3.0)/9.0, 1e-7);
         
-	    for (unsigned i=0; i<equilateral_nodes.size(); i++)
+        for (unsigned i=0; i<equilateral_nodes.size(); i++)
         {
             delete equilateral_nodes[i];
         }
-	    for (unsigned i=0; i<right_angle_nodes.size(); i++)
+        for (unsigned i=0; i<right_angle_nodes.size(); i++)
         {
             delete right_angle_nodes[i];
         }
@@ -523,7 +523,7 @@ public:
         TS_ASSERT_DELTA(circum[1], 0.0, 1e-7);
         TS_ASSERT_DELTA(circum[2], 0.0, 1e-7);
         TS_ASSERT_DELTA(sqrt(circum[3]), sqrt(3.0), 1e-7);
-    
+        
         TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 4.0*M_PI*sqrt(3), 1e-7);
         TS_ASSERT_DELTA(element.CalculateCircumsphereVolume(), 4.0*M_PI*sqrt(3), 1e-7);
         TS_ASSERT_DELTA(element.CalculateQuality(), 1.0, 1e-7);
@@ -549,7 +549,7 @@ public:
         {
             delete right_angle_nodes[i];
         }
-     	for (unsigned i=0; i<nodes.size(); i++)
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
@@ -566,7 +566,7 @@ public:
         BoundaryElement<1,3> element_1d(0, nodes, 1);
         
         direction = *(element_1d.pGetWeightedDirection());
-        //1D element in higher space is orientated by vector between endpoints 
+        //1D element in higher space is orientated by vector between endpoints
         TS_ASSERT_EQUALS(direction[0],1.0);
         TS_ASSERT_EQUALS(direction[1],0.0);
         TS_ASSERT_EQUALS(direction[2],0.0);
@@ -575,13 +575,13 @@ public:
         TS_ASSERT_EQUALS(centroid[0], 0.5);
         TS_ASSERT_EQUALS(centroid[1], 0.0);
         TS_ASSERT_EQUALS(centroid[2], 0.0);
-         
+        
         
         nodes.push_back(new Node<3>(3, false, 0.0, 1.0, 0.0));
         BoundaryElement<2,3> element_2d(0, nodes, 1);
         
         direction = *(element_2d.pGetWeightedDirection());
-        //2D element in higher space is orientated by a normal 
+        //2D element in higher space is orientated by a normal
         TS_ASSERT_EQUALS(direction[0],0.0);
         TS_ASSERT_EQUALS(direction[1],0.0);
         TS_ASSERT_EQUALS(direction[2],-1.0);
@@ -591,12 +591,12 @@ public:
         TS_ASSERT_DELTA(centroid[0], 1.0/3.0, 1e-8);
         TS_ASSERT_DELTA(centroid[1], 1.0/3.0, 1e-8);
         TS_ASSERT_EQUALS(centroid[2], 0.0);
-
+        
         nodes.push_back(new Node<3>(2, false, 0.0, 0.0, 1.0));
         Element<3,3> element_3d(0, nodes, 1);
         
         TS_ASSERT_THROWS_ANYTHING(direction = *(element_3d.pGetWeightedDirection()));
-        //3D element in 3D space has no orientation (other than JacobianDeterminant) 
+        //3D element in 3D space has no orientation (other than JacobianDeterminant)
         
         centroid=element_3d.CalculateCentroid();
         TS_ASSERT_DELTA(centroid[0], 0.25, 1e-8);
@@ -625,14 +625,14 @@ public:
         
         element.Unflag();
         TS_ASSERT_EQUALS(element.IsFlagged(), false);
-
+        
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
     }
-
-
+    
+    
 };
 
 #endif //_TESTELEMENT_HPP_

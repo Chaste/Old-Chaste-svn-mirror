@@ -10,30 +10,30 @@
 template <unsigned SPACE_DIM>
 class RandomCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
-public:    
-    
+public:
+
 
     void TestAndLabelSingleCellForApoptosis(unsigned cell_index)
     {
         MeinekeCryptCell* p_cell=&((*(this->mpCells))[cell_index]);
         
-        if(!p_cell->HasApoptosisBegun() && 
-        	RandomNumberGenerator::Instance()->ranf() > 0.95)
+        if (!p_cell->HasApoptosisBegun() &&
+            RandomNumberGenerator::Instance()->ranf() > 0.95)
         {
             p_cell->StartApoptosis();
         }
-               
+        
     }
     
     void TestAndLabelCellsForApoptosis()
     {
         for (unsigned i=0; i<this->mpCells->size(); i++)
         {
-            TestAndLabelSingleCellForApoptosis(i);        
+            TestAndLabelSingleCellForApoptosis(i);
         }
         
     }
-  
+    
     
     void RemoveDeadCells()
     {
@@ -42,7 +42,7 @@ public:
         {
             MeinekeCryptCell* p_cell=&((*(this->mpCells))[i]);
             //std::cout << i  << " "<< this->mrCells[i].GetNodeIndex()<< std::endl;
-            if(p_cell->IsDead())
+            if (p_cell->IsDead())
             {
                 this->mpMesh->DeleteNode(p_cell->GetNodeIndex());
             }
@@ -54,15 +54,15 @@ public:
         
         *(this->mpCells)=living_cells;
         //Remesh and re-index (is moved to caller)
- 
+        
         
     }
     
     
     
     
-
-       
+    
+    
 };
 
 

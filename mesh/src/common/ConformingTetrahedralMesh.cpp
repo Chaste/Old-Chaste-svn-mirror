@@ -148,9 +148,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
                         // add node to mesh
                         const Node<SPACE_DIM>* p_node1 = GetNode(node_i);
                         const Node<SPACE_DIM>* p_node2 = GetNode(node_j);
-                        c_vector<double,SPACE_DIM> mid_point 
-                           =  0.5 * (p_node1->rGetLocation() + p_node2->rGetLocation());
-
+                        c_vector<double,SPACE_DIM> mid_point
+                        =  0.5 * (p_node1->rGetLocation() + p_node2->rGetLocation());
+                        
                         Node<SPACE_DIM> *p_new_node=new Node<SPACE_DIM>(new_node_index,
                                                                         mid_point,
                                                                         p_node1->IsBoundaryNode() && p_node2->IsBoundaryNode());
@@ -465,7 +465,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetNode(unsigned index,
  * to merge it with.
  *
  * @param index is the index of the node to be deleted
- * 
+ *
 **/
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned index)
@@ -483,7 +483,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
         for (unsigned i=0; i<=ELEMENT_DIM && !found_target; i++)
         {
             target_index=p_element->GetNodeGlobalIndex(i);
-            try 
+            try
             {
                 MoveMergeNode(index, target_index, false);
                 found_target=true;
@@ -499,8 +499,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
 }
 /**
  * MoveMergeNode moves one node to another (i.e. merges the nodes), refreshing/deleting elements as
- * appropriate. 
- * 
+ * appropriate.
+ *
  * @param index is the index of the node to be moved
  * @param targetIndex is the index of the node to move to
  * @param concreteMove can be set to false if you just want to check whether this will work.
@@ -511,7 +511,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
         unsigned targetIndex,
         bool concreteMove)
 {
-    
+
     if (mNodes[index]->IsDeleted())
     {
         EXCEPTION("Trying to move a deleted node");
@@ -563,35 +563,35 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
     for (std::set<unsigned>::const_iterator element_iter=unshared_element_indices.begin();
              element_iter != unshared_element_indices.end();
              element_iter++)
-    {
-        try
+        {
+            try
+            {
+            
+                GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove);
+                if (concreteMove)
+                {
+                    GetElement(*element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
+                }
+                
+            }
+            catch (Exception e)
+            {
+                EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
+            }
+        }
+    for (std::set<unsigned>::const_iterator boundary_element_iter=
+                 unshared_boundary_element_indices.begin();
+             boundary_element_iter != unshared_boundary_element_indices.end();
+             boundary_element_iter++)
         {
         
-            GetElement(*element_iter)->RefreshJacobianDeterminant(concreteMove);
+            GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove);
             if (concreteMove)
             {
-                GetElement(*element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
+                GetBoundaryElement(*boundary_element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
             }
-            
         }
-        catch (Exception e)
-        {
-            EXCEPTION("Moving node caused an element to have a non-positive Jacobian determinant");
-        }
-    }
-    for (std::set<unsigned>::const_iterator boundary_element_iter=
-             unshared_boundary_element_indices.begin();
-         boundary_element_iter != unshared_boundary_element_indices.end();
-         boundary_element_iter++)
-    {
-    
-        GetBoundaryElement(*boundary_element_iter)->RefreshJacobianDeterminant(concreteMove);
-        if (concreteMove)
-        {
-            GetBoundaryElement(*boundary_element_iter)->ReplaceNode(mNodes[index], mNodes[targetIndex]);
-        }
-    }
-    
+        
     std::set<unsigned> shared_element_indices;
     std::set_intersection(mNodes[index]->rGetContainingElementIndices().begin(),
                           mNodes[index]->rGetContainingElementIndices().end(),
@@ -601,17 +601,17 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
     for (std::set<unsigned>::const_iterator element_iter=shared_element_indices.begin();
              element_iter != shared_element_indices.end();
              element_iter++)
-    {
-        if (concreteMove)
         {
-            GetElement(*element_iter)->MarkAsDeleted();
-            mDeletedElementIndices.push_back(*element_iter);
+            if (concreteMove)
+            {
+                GetElement(*element_iter)->MarkAsDeleted();
+                mDeletedElementIndices.push_back(*element_iter);
+            }
+            else
+            {
+                GetElement(*element_iter)->ZeroJacobianDeterminant();
+            }
         }
-        else
-        {
-            GetElement(*element_iter)->ZeroJacobianDeterminant();
-        }
-    }
         
         
     std::set<unsigned> shared_boundary_element_indices;
@@ -623,19 +623,19 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MoveMergeNode(unsigned i
     for (std::set<unsigned>::const_iterator boundary_element_iter=shared_boundary_element_indices.begin();
              boundary_element_iter != shared_boundary_element_indices.end();
              boundary_element_iter++)
-    {
-        if (concreteMove)
         {
-            GetBoundaryElement(*boundary_element_iter)->MarkAsDeleted();
-            mDeletedBoundaryElementIndices.push_back(*boundary_element_iter);
+            if (concreteMove)
+            {
+                GetBoundaryElement(*boundary_element_iter)->MarkAsDeleted();
+                mDeletedBoundaryElementIndices.push_back(*boundary_element_iter);
+            }
+            else
+            {
+                GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();
+                GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
+            }
         }
-        else
-        {
-            GetBoundaryElement(*boundary_element_iter)->ZeroJacobianDeterminant();
-            GetBoundaryElement(*boundary_element_iter)->ZeroWeightedDirection();
-        }
-    }
-    
+        
     if (concreteMove)
     {
         mNodes[index]->MarkAsDeleted();
@@ -689,7 +689,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     {
         EXCEPTION("RefineElement could not be started (point is not in element)");
     }
-
+    
     // Add a new node from the point that is passed to RefineElement
     unsigned new_node_index = AddNode(new Node<SPACE_DIM>(0, point.rGetLocation()));
     // Note: the first argument is the index of the node, which is going to be
@@ -698,7 +698,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefineElement(
     //This loop constructs the extra elements which are going to fill the space
     for (unsigned i = 0; i < ELEMENT_DIM; i++)
     {
-        
+    
         // First, make a copy of the current element making sure we update its index
         unsigned new_elt_index;
         if (mDeletedElementIndices.empty())
@@ -821,10 +821,10 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMeshSurface()
  * @param zFactor is the scale in the z-direction
  **/
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-        void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
-                const double xScale,
-                const double yScale,
-                const double zScale)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(
+    const double xScale,
+    const double yScale,
+    const double zScale)
 {
     unsigned num_nodes=GetNumAllNodes();
     
@@ -853,9 +853,9 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
  **/
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
-         const double xMovement,
-         const double yMovement,
-         const double zMovement)
+    const double xMovement,
+    const double yMovement,
+    const double zMovement)
 {
     c_vector<double , SPACE_DIM> displacement;
     
@@ -1225,15 +1225,15 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
                 (*node_file)<<"\t"<<node_loc[2];
             }
             (*node_file)<<"\n";
-         }
+        }
     }
     
     node_file->close();
- 
- 
+    
+    
     //system("cat /tmp/chaste/testoutput/temp.node");
- 
- 
+    
+    
     std::string full_name = handler.GetTestOutputDirectory("")+"temp.";
     std::string binary_name;
     if (SPACE_DIM==2)
@@ -1244,9 +1244,9 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     {
         binary_name="tetgen";
     }
-    std::string command   = "./bin/"+ binary_name +" -e " 
-        + full_name + "node"
-        + " > /dev/null";
+    std::string command   = "./bin/"+ binary_name +" -e "
+                            + full_name + "node"
+                            + " > /dev/null";
     system(command.c_str());
     
     //Read the new mesh back from file
@@ -1334,7 +1334,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
         Node<SPACE_DIM> *temp=mNodes[index];
         mNodes[index]=mNodes[other];
         mNodes[other]=temp;
-    } 
+    }
     
     //Update indices
     for (unsigned index=0; index<mNodes.size(); index++)
@@ -1358,7 +1358,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector
     {
         mNodes[ perm[i] ] = copy_m_nodes[i];
     }
-       
+    
     //Update indices
     for (unsigned index=0; index<mNodes.size(); index++)
     {
@@ -1400,18 +1400,18 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
     
     
     std::string convert_command   = "./bin/mesh2nodal "+handler.GetTestOutputDirectory("")
-                            + "metis.mesh" 
-                            + " > /dev/null";
+                                    + "metis.mesh"
+                                    + " > /dev/null";
     system(convert_command.c_str());
     
     std::string permute_command   = "./bin/onmetis "+handler.GetTestOutputDirectory("")
-                            + "metis.mesh.ngraph"
-                            + " > /dev/null";
+                                    + "metis.mesh.ngraph"
+                                    + " > /dev/null";
     system(permute_command.c_str());
     
     //Read the permutation back into a std::vector
     std::string perm_file_name   = handler.GetTestOutputDirectory("")
-                            + "metis.mesh.ngraph.iperm";
+                                   + "metis.mesh.ngraph.iperm";
     std::ifstream perm_file(perm_file_name.c_str());
     std::vector<unsigned> perm;
     for (unsigned i=0; i<(unsigned)GetNumNodes(); i++)
@@ -1420,8 +1420,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBin
         perm_file>>new_index;
         perm.push_back(new_index);
     }
-    perm_file.close();   
-   
+    perm_file.close();
+    
     PermuteNodes(perm);
     
 }
@@ -1434,75 +1434,75 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(Element<ELE
     std::set<unsigned> neighbouring_elements_indices;
     std::set< Element<ELEMENT_DIM,SPACE_DIM> *> neighbouring_elements;
     std::set<unsigned> neighbouring_nodes_indices;
-
+    
     //Form a set of neighbouring elements via the nodes
-    for(unsigned i = 0 ; i < num_nodes; i++)
+    for (unsigned i = 0 ; i < num_nodes; i++)
     {
         Node<SPACE_DIM>* node = pElement->GetNode(i);
         neighbouring_elements_indices = node->rGetContainingElementIndices();
         ///\todo Should use a set union operation here
         for (std::set<unsigned>::const_iterator it = neighbouring_elements_indices.begin();
-        it != neighbouring_elements_indices.end(); ++it)
-        {
-            neighbouring_elements.insert(GetElement(*it));
-        }
+                 it != neighbouring_elements_indices.end(); ++it)
+            {
+                neighbouring_elements.insert(GetElement(*it));
+            }
     }
     neighbouring_elements.erase(pElement);
-
+    
     //For each neighbouring element find the supporting nodes
     typedef typename std::set<Element<ELEMENT_DIM,SPACE_DIM> *>::const_iterator ElementIterator;
-
+    
     for (ElementIterator it = neighbouring_elements.begin();
-       it != neighbouring_elements.end(); ++it)
+         it != neighbouring_elements.end(); ++it)
     {
-        for(unsigned i = 0 ; i < num_nodes; i++)
+        for (unsigned i = 0 ; i < num_nodes; i++)
         {
             neighbouring_nodes_indices.insert((*it)->GetNodeGlobalIndex(i));
         }
     }
     //Remove the nodes that support this element
-    for(unsigned i = 0 ; i < num_nodes; i++)
+    for (unsigned i = 0 ; i < num_nodes; i++)
     {
         neighbouring_nodes_indices.erase(pElement->GetNodeGlobalIndex(i));
     }
-
+    
     //Get the circumsphere information
     c_vector <double, ELEMENT_DIM+1> this_circum_centre;
     this_circum_centre = pElement->CalculateCircumsphere();
-
+    
     //Copy the actualy circumcentre into a smaller vector
     c_vector <double, ELEMENT_DIM> circum_centre;
     for (unsigned i=0;i<ELEMENT_DIM;i++)
     {
         circum_centre[i]=this_circum_centre[i];
     }
-
+    
     for (std::set<unsigned>::const_iterator it = neighbouring_nodes_indices.begin();
-         it != neighbouring_nodes_indices.end(); ++it)
-    {
-        c_vector <double, ELEMENT_DIM> node_location = GetNode(*it)->rGetLocation();
-
-        // Calculate vector from circumcenter to node
-        node_location -= circum_centre;
-        // This is to calculate the squared distance betweeen them
-        double squared_distance = inner_prod(node_location, node_location);
-
-        // If the squared idstance is less than the elements circum-radius(squared),
-        // then the voronoi property is violated.
-
-        if(squared_distance < this_circum_centre[ELEMENT_DIM])
+             it != neighbouring_nodes_indices.end(); ++it)
         {
-            // We know the node is inside the circumsphere, but we don't know how far
-            double radius = sqrt(this_circum_centre[ELEMENT_DIM]);
-            double distance = radius - sqrt(squared_distance);
-
-            // If the node penetration is greater than supplied maximum penetration factor
-            if(distance/radius > maxPenetration)
+            c_vector <double, ELEMENT_DIM> node_location = GetNode(*it)->rGetLocation();
+            
+            // Calculate vector from circumcenter to node
+            node_location -= circum_centre;
+            // This is to calculate the squared distance betweeen them
+            double squared_distance = inner_prod(node_location, node_location);
+            
+            // If the squared idstance is less than the elements circum-radius(squared),
+            // then the voronoi property is violated.
+            
+            if (squared_distance < this_circum_centre[ELEMENT_DIM])
             {
-                return false;
+                // We know the node is inside the circumsphere, but we don't know how far
+                double radius = sqrt(this_circum_centre[ELEMENT_DIM]);
+                double distance = radius - sqrt(squared_distance);
+                
+                // If the node penetration is greater than supplied maximum penetration factor
+                if (distance/radius > maxPenetration)
+                {
+                    return false;
+                }
             }
         }
-    }
     return true;
 }
 
@@ -1513,10 +1513,10 @@ bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CheckVoronoi(double maxP
     for (unsigned i=0; i < mElements.size();i++)
     {
         // Check if the element is not deleted
-        if(!mElements[i]->IsDeleted())
+        if (!mElements[i]->IsDeleted())
         {
             // Checking the Voronoi of the Element
-            if(CheckVoronoi(mElements[i], maxPenetration) == false)
+            if (CheckVoronoi(mElements[i], maxPenetration) == false)
             {
                 return false;
             }
@@ -1531,7 +1531,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
 {
     assert(SPACE_DIM == 2);
     assert(ELEMENT_DIM == 2);
-
+    
     //Construct the nodes
     unsigned node_index=0;
     for (int j=(int)height;j>=0;j--) //j must be signed for this loop to terminate
@@ -1546,7 +1546,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
             mNodes.push_back(new Node<2>(node_index++, is_boundary, i, j));
         }
     }
-
+    
     //Construct the boundary elements
     unsigned belem_index=0;
     //Top
@@ -1581,7 +1581,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
         nodes.push_back(mNodes[(width+1)*(i)]);
         mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,nodes));
     }
-
+    
     //Construct the elements
     unsigned elem_index=0;
     for (unsigned j=0;j<height;j++)
@@ -1615,7 +1615,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
             mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++,lower_nodes));
         }
     }
-
+    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1677,102 +1677,102 @@ std::vector<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetCont
         {
             element_indices.push_back(i);
         }
-    }   
+    }
     return element_indices;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
-	assert(hi>=lo);
-	for (unsigned element_index=0; element_index<mElements.size(); element_index++)
-	{
-		Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
-		p_element->SetOwnership(false); 
-		for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
-		{
-			unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
-            if (lo<=global_node_index && global_node_index<hi) 
- 			{ 
- 				p_element->SetOwnership(true); 
-                break; 
- 		    } 
-		} 
-		
-	}	
+    assert(hi>=lo);
+    for (unsigned element_index=0; element_index<mElements.size(); element_index++)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element=mElements[element_index];
+        p_element->SetOwnership(false);
+        for (unsigned local_node_index=0; local_node_index< p_element->GetNumNodes(); local_node_index++)
+        {
+            unsigned global_node_index = p_element->GetNodeGlobalIndex(local_node_index);
+            if (lo<=global_node_index && global_node_index<hi)
+            {
+                p_element->SetOwnership(true);
+                break;
+            }
+        }
+        
+    }
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
-                                                                        unsigned height,
-                                                                        unsigned depth)
-{                                                                       
+        unsigned height,
+        unsigned depth)
+{
     assert(SPACE_DIM == 3);
     assert(ELEMENT_DIM == 3);
-   //Construct the nodes
+    //Construct the nodes
     
     unsigned node_index=0;
     for (unsigned k=0;k<depth+1;k++)
     {
-   		for (unsigned j=0;j<height+1;j++)
-    	{
-        	for (unsigned i=0;i<width+1;i++)
-        	{
-            	bool is_boundary=false;
-            	if (i==0 || j==0 || k==0 || i==width || j==height || k==depth)
-            	{
-                	is_boundary=true;
-            	}
-           		mNodes.push_back(new Node<3>(node_index++, is_boundary, i, j, k));
-        	}
-    	}
+        for (unsigned j=0;j<height+1;j++)
+        {
+            for (unsigned i=0;i<width+1;i++)
+            {
+                bool is_boundary=false;
+                if (i==0 || j==0 || k==0 || i==width || j==height || k==depth)
+                {
+                    is_boundary=true;
+                }
+                mNodes.push_back(new Node<3>(node_index++, is_boundary, i, j, k));
+            }
+        }
     }
-
-	// Construct the elements
-
+    
+    // Construct the elements
+    
     unsigned elem_index=0;
     unsigned belem_index=0;
     unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
-    								{0, 2, 3, 7}, {0, 2, 6, 7},
-    								{0, 4, 6, 7}, {0, 4, 5, 7}};
-	std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
+                                    {0, 2, 3, 7}, {0, 2, 6, 7},
+                                    {0, 4, 6, 7}, {0, 4, 5, 7}};
+    std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
     
     for (unsigned k=0;k<depth;k++)
     {
-   		for (unsigned j=0;j<height;j++)
-    	{
-        	for (unsigned i=0;i<width;i++)
-        	{
-        		// Compute the nodes' index
-				unsigned global_node_indices[8];
-				unsigned local_node_index = 0;
-				
-				for (unsigned z = 0; z < 2; z++)
-				{
-					for (unsigned y = 0; y < 2; y++)
-					{
-						for (unsigned x = 0; x < 2; x++)
-						{
-							global_node_indices[local_node_index] = i+x+(width+1)*(j+y+(height+1)*(k+z));
-				
-							local_node_index++;
-						}
-					}
-				}
-
-			    for (unsigned m = 0; m < 6; m++)
-			    {
-			    	// Tetrahedra #m
-			    	
- 	            	tetrahedra_nodes.clear();
-	            
-				    for (unsigned n = 0; n < 4; n++)
-				    {
-		                tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[m][n]]]);
-				    }
-	
-		            mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
-			    }
+        for (unsigned j=0;j<height;j++)
+        {
+            for (unsigned i=0;i<width;i++)
+            {
+                // Compute the nodes' index
+                unsigned global_node_indices[8];
+                unsigned local_node_index = 0;
+                
+                for (unsigned z = 0; z < 2; z++)
+                {
+                    for (unsigned y = 0; y < 2; y++)
+                    {
+                        for (unsigned x = 0; x < 2; x++)
+                        {
+                            global_node_indices[local_node_index] = i+x+(width+1)*(j+y+(height+1)*(k+z));
+                            
+                            local_node_index++;
+                        }
+                    }
+                }
+                
+                for (unsigned m = 0; m < 6; m++)
+                {
+                    // Tetrahedra #m
+                    
+                    tetrahedra_nodes.clear();
+                    
+                    for (unsigned n = 0; n < 4; n++)
+                    {
+                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[m][n]]]);
+                    }
+                    
+                    mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));
+                }
                 
                 //Are we at a boundary?
                 std::vector<Node<SPACE_DIM>*> triangle_nodes;
@@ -1866,15 +1866,15 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
 {
     // three loops, just like the destructor. note we don't delete boundary nodes.
-    for(unsigned i=0; i<mBoundaryElements.size(); i++)
+    for (unsigned i=0; i<mBoundaryElements.size(); i++)
     {
         delete mBoundaryElements[i];
     }
-    for(unsigned i=0; i<mElements.size(); i++)
+    for (unsigned i=0; i<mElements.size(); i++)
     {
         delete mElements[i];
     }
-    for(unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned i=0; i<mNodes.size(); i++)
     {
         delete mNodes[i];
     }
@@ -1885,7 +1885,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mDeletedElementIndices.clear();
     mDeletedBoundaryElementIndices.clear();
     mDeletedNodeIndices.clear();
-    mBoundaryNodes.clear();  
+    mBoundaryNodes.clear();
     
     mNumCornerNodes = 0;
 }

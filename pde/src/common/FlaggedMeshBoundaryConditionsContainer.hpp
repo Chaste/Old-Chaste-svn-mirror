@@ -19,14 +19,13 @@ public:
      * Constructor calls base constuctor
      */
     FlaggedMeshBoundaryConditionsContainer()
-      : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
-    {
-    }
+            : AbstractBoundaryConditionsContainer<SPACE_DIM,SPACE_DIM,PROBLEM_DIM>()
+    {}
     
 //    ~FlaggedMeshBoundaryConditionsContainer()
 //    {
 //    }
-    
+
     /**
      * Add a dirichlet boundary condition specifying two parameters, a pointer to a node,
      * and a pointer to a boundary condition object associated with that node.
@@ -98,9 +97,9 @@ public:
             }
         }
     }
-
-
-
+    
+    
+    
 };
 
 #endif /*FLAGGEDMESHBOUNDARYCONDITIONSCONTAINER_HPP_*/

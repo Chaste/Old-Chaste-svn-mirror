@@ -12,7 +12,7 @@ class TestBoundaryConditionsContainer : public CxxTest::TestSuite
 {
 public:
 
-    void test_FixNode_and_SetDisplacement_1d() throw(Exception)
+    void TestFixNodeAndSetDisplacement1d() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -36,7 +36,7 @@ public:
     }
     
     
-    void test_FixNode_and_SetDisplacement_2d() throw(Exception)
+    void TestFixNodeAndSetDisplacement2d() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         ConformingTetrahedralMesh<2,2> mesh;
@@ -63,7 +63,7 @@ public:
     }
     
     
-    void test_FixNode_and_SetDisplacement_3d() throw(Exception)
+    void TestFixNodeAndSetDisplacement3d() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         ConformingTetrahedralMesh<3,3> mesh;

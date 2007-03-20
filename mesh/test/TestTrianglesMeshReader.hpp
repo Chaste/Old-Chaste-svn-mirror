@@ -29,7 +29,7 @@ public:
      * 
      */
     
-    void testFilesOpen(void)
+    void TestFilesOpen(void)
     {
         AbstractMeshReader<2,2> *pMeshReader;
         TS_ASSERT_THROWS_NOTHING(

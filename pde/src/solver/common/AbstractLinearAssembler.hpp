@@ -23,7 +23,7 @@ protected:
      */
     AbstractLinearSolver *mpLinearSolver;
     bool mWeAllocatedSolverMemory;
- 
+    
     
 public:
     AbstractLinearAssembler(unsigned numQuadPoints = 2,
@@ -53,7 +53,7 @@ public:
         this->mpLinearSystem = NULL;
         this->mMatrixIsConstant = false;
         this->mMatrixIsAssembled = false;
-
+        
         this->mProblemIsLinear = true;
     }
     
@@ -69,7 +69,7 @@ public:
         
         this->mpLinearSystem=NULL;
         
-        if(mWeAllocatedSolverMemory)
+        if (mWeAllocatedSolverMemory)
         {
             delete mpLinearSolver;
         }
@@ -81,7 +81,7 @@ public:
      */
     void SetLinearSolver(AbstractLinearSolver *pLinearSolver)
     {
-        if(mWeAllocatedSolverMemory)
+        if (mWeAllocatedSolverMemory)
         {
             delete mpLinearSolver;
         }

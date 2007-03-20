@@ -55,7 +55,7 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
     double recovery_variable = rY[1]; // w
     
     double i_stim = GetStimulus(time);
-        
+    
     // dV/dt
     double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
@@ -63,7 +63,7 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
     {
         membrane_V_prime = 0;
     }
-        
+    
     // dw/dt
     double recovery_variable_prime = mEpsilon*(membrane_V-mGamma*recovery_variable);
     

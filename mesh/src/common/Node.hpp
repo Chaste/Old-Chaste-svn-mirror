@@ -24,7 +24,7 @@ private:
     //TODO:
     //bool mIsDirichletNode;
     Node()
-    {}
+{}
 
 public:
     ~Node()
@@ -34,7 +34,7 @@ public:
 //        delete mElementIterator;
 //        delete mBoundaryElementIndices;
 //        delete mBoundaryElementIterator;
-        
+
     }
     Node(unsigned index, Point<SPACE_DIM> point, bool isBoundaryNode=false)
     {
@@ -77,7 +77,7 @@ public:
             }
         }
 //        mPoint.rGetLocation() = mLocation;
-        
+
         mIndex = index;
         mIsBoundaryNode = isBoundaryNode;
         mIsDeleted = false;
@@ -92,7 +92,7 @@ public:
         mLocation = point.rGetLocation();
 //        mPoint = point;
     }
-
+    
 //    /**
 //     * Note setting the location in space is dangerous
 //     * Jacobian and JacobianDeterminant of element need to be updated
@@ -102,7 +102,7 @@ public:
 //        mLocation = location;
 //    }
 
-   
+
     /**
      * This method should only be called during mesh generation.
      */

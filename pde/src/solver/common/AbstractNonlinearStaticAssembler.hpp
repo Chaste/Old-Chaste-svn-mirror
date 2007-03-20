@@ -27,31 +27,31 @@
  * and cast it within the function to access data members.
  *
  * All the functions are defined as stubs which call methods on *pContext.
- * 
+ *
  * Note: these are global functions, hence the need for long names to avoid
  * potential conflicting names later
- * 
+ *
  * [The implementations are at the bottom of this file]
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, 
-                                                                 Vec currentGuess, 
-                                                                 Vec residualVector,
-                                                                 void *pContext);
-                                    
+PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes,
+        Vec currentGuess,
+        Vec residualVector,
+        void *pContext);
+        
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes,
-                                                                 Vec currentGuess,
-                                                                 Mat *pGlobalJacobian, 
-                                                                 Mat *pPreconditioner,
-                                                                 MatStructure *pMatStructure,
-                                                                 void *pContext);
-                                    
-
-
+        Vec currentGuess,
+        Mat *pGlobalJacobian,
+        Mat *pPreconditioner,
+        MatStructure *pMatStructure,
+        void *pContext);
+        
+        
+        
 /**
  *  AbstractNonlinearStaticAssembler
- * 
+ *
  *  to become AbstractNonlinearStaticAssembler ?
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -110,7 +110,7 @@ public :
         }
     }
     
-protected:  
+protected:
     /**
      * Computes the Jacobian numerically i.e. an approximation, using numerical
      * partial derivatives.
@@ -204,72 +204,72 @@ protected:
         
         return 0; // No error
     }
-
-
+    
+    
 public:
 
 
-   /**
-    * Constructors just call the base class versions.
-    */
+    /**
+     * Constructors just call the base class versions.
+     */
     AbstractNonlinearStaticAssembler(unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(numQuadPoints)
     {
-        mpSolver = new SimplePetscNonlinearSolver;  
+        mpSolver = new SimplePetscNonlinearSolver;
         mWeAllocatedSolverMemory = true;
-
+        
         this->mProblemIsLinear = false;
         
         mUseAnalyticalJacobian = true;
     }
     
     AbstractNonlinearStaticAssembler(AbstractBasisFunction<ELEMENT_DIM> *pBasisFunction,
-                                       AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
-                                       unsigned numQuadPoints = 2) :
+                                     AbstractBasisFunction<ELEMENT_DIM-1> *pSurfaceBasisFunction,
+                                     unsigned numQuadPoints = 2) :
             AbstractAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>(pBasisFunction, pSurfaceBasisFunction, numQuadPoints)
     {
         mpSolver = new SimplePetscNonlinearSolver;
         mWeAllocatedSolverMemory = true;
-
+        
         this->mpProblemIsLinear = false;
-
+        
         mUseAnalyticalJacobian = true;
     }
-
+    
     ~AbstractNonlinearStaticAssembler()
     {
-        if(mWeAllocatedSolverMemory)
+        if (mWeAllocatedSolverMemory)
         {
             delete mpSolver;
         }
     }
     
     
-
     
-   /**
-     * Assemble and solve the system for a nonlinear elliptic PDE.
-     *
-     * @param initialGuess An initial guess for the iterative solver
-     * @param UseAnalyticalJacobian Set to true to use an analytically calculated
-     *     jacobian matrix rather than a numerically approximated one.
-     * @return A PETSc vector giving the solution at each mesh node.
-     */
+    
+    /**
+      * Assemble and solve the system for a nonlinear elliptic PDE.
+      *
+      * @param initialGuess An initial guess for the iterative solver
+      * @param UseAnalyticalJacobian Set to true to use an analytically calculated
+      *     jacobian matrix rather than a numerically approximated one.
+      * @return A PETSc vector giving the solution at each mesh node.
+      */
     virtual Vec Solve(Vec initialGuess, bool useAnalyticalJacobian = false)
     {
         assert(this->mpMesh!=NULL);
         assert(this->mpBoundaryConditions!=NULL);
-
+        
         // check size of initial guess is correct
         PetscInt size_of_init_guess;
         VecGetSize(initialGuess, &size_of_init_guess);
         PetscInt problem_size=PROBLEM_DIM * this->mpMesh->GetNumNodes();
-        if(size_of_init_guess !=  problem_size)
+        if (size_of_init_guess !=  problem_size)
         {
             std::stringstream error_message;
-            error_message << "Size of initial guess vector, " << size_of_init_guess 
-                          << ", does not match size of problem, " 
-                          << PROBLEM_DIM * this->mpMesh->GetNumNodes();
+            error_message << "Size of initial guess vector, " << size_of_init_guess
+            << ", does not match size of problem, "
+            << PROBLEM_DIM * this->mpMesh->GetNumNodes();
             
             EXCEPTION(error_message.str());
         }
@@ -280,31 +280,31 @@ public:
         // run the solver, telling it which global functions to call in order to assemble
         // the residual or jacobian
         Vec answer = this->mpSolver->Solve( &AbstractNonlinearStaticAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
-                                            &AbstractNonlinearStaticAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>, 
-                                            initialGuess, 
+                                            &AbstractNonlinearStaticAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+                                            initialGuess,
                                             this);
         return answer;
     }
-                                                             
-
-    /** 
+    
+    
+    /**
      *  SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
      *  and used in this class, this method can be called to use a different
      *  AbstractNonlinearSolver
      */
     void SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver)
-    {                     
-        if(mWeAllocatedSolverMemory)
+    {
+        if (mWeAllocatedSolverMemory)
         {
             delete mpSolver;
         }
         mpSolver = pNonlinearSolver;
         mWeAllocatedSolverMemory = false;
-    }                        
+    }
     
     
     
-    /** 
+    /**
      *  A helpful method for creating an initial guess vector
      */
     Vec CreateConstantInitialGuess(double value)
@@ -312,7 +312,7 @@ public:
         assert(this->mpMesh!=NULL);
         
         unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-
+        
         Vec initial_guess;
         VecCreate(PETSC_COMM_WORLD, &initial_guess);
         VecSetSizes(initial_guess, PETSC_DECIDE, size);
@@ -330,7 +330,7 @@ public:
     }
     
     
-    /** 
+    /**
      *  VerifyJacobian
      * 
      *  A helper method for use when writing concrete assemblers. Once the user has calculated
@@ -349,22 +349,22 @@ public:
     bool VerifyJacobian(double tol=1e-4, bool print=false)
     {
         unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-
+        
         Vec initial_guess;
         VecCreate(PETSC_COMM_WORLD, &initial_guess);
         VecSetSizes(initial_guess, PETSC_DECIDE, size);
         VecSetFromOptions(initial_guess);
         
-
-        for(unsigned i=0; i<size ; i++)
+        
+        for (unsigned i=0; i<size ; i++)
         {
             VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
         }
- 
+        
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-
+        
         Mat analytic_jacobian; //Jacobian Matrix
         Mat numerical_jacobian; //Jacobian Matrix
         
@@ -382,19 +382,19 @@ public:
         
         mUseAnalyticalJacobian = true;
         AssembleJacobian(initial_guess, &analytic_jacobian);
-
+        
         mUseAnalyticalJacobian = false;
         AssembleJacobian(initial_guess, &numerical_jacobian);
         
         bool all_less_than_tol = true;
-
-        if(print)
+        
+        if (print)
         {
             std::cout << "Difference between numerical and analyical Jacobians:\n\n";
         }
-        for(unsigned i=0; i<size; i++)
+        for (unsigned i=0; i<size; i++)
         {
-            for(unsigned j=0; j<size; j++)
+            for (unsigned j=0; j<size; j++)
             {
                 double val_a[1];
                 double val_n[1];
@@ -406,19 +406,19 @@ public:
                 MatGetValues(numerical_jacobian,1,row,1,col,val_n);
                 MatGetValues(analytic_jacobian,1,row,1,col,val_a);
                 
-                if(print)
+                if (print)
                 {
                     std::cout << val_n[0] - val_a[0]<< " ";
                 }
                 
-                if(fabs(val_n[0]-val_a[0]) > tol)
+                if (fabs(val_n[0]-val_a[0]) > tol)
                 {
-                    #define COVERAGE_IGNORE // would have to write a bad concrete assembler class just to cover this line
+#define COVERAGE_IGNORE // would have to write a bad concrete assembler class just to cover this line
                     all_less_than_tol = false;
-                    #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
                 }
             }
-            if(print)
+            if (print)
             {
                 std::cout << "\n" <<std::flush;
             }
@@ -432,7 +432,8 @@ public:
         return all_less_than_tol;
     }
     
-}; //end of class AbstractNonlinearStaticAssembler
+}
+; //end of class AbstractNonlinearStaticAssembler
 
 
 
@@ -458,13 +459,13 @@ public:
  * @param residualVector We fill this with the residual vector.
  * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
  * @return An error code if any PETSc routines fail.
- * 
+ *
  * Note: this is a global function, hence the need for a long name to avoid
  * potential conflicting names later
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, Vec currentGuess,
-                                                                 Vec residualVector, void *pContext)
+        Vec residualVector, void *pContext)
 {
     // Extract an assembler from the void*
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
@@ -492,24 +493,24 @@ PetscErrorCode AbstractNonlinearStaticAssembler_AssembleResidual(SNES snes, Vec 
  * @param pMatStructure This is not used by us, but required by PETSc.
  * @param pContext Pointer to a SimpleNonlinearEllipticAssembler object.
  * @return An error code if any PETSc routines fail.
- * 
+ *
  * Note: this is a global function, hence the need a long name to avoid
  * potential conflicting names later
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearStaticAssembler_AssembleJacobian(SNES snes, Vec currentGuess,
-                                                                 Mat *pGlobalJacobian, Mat *pPreconditioner,
-                                                                 MatStructure *pMatStructure, void *pContext)
+        Mat *pGlobalJacobian, Mat *pPreconditioner,
+        MatStructure *pMatStructure, void *pContext)
 {
     //std::cout << "begin assemble jacobian\n";
-
+    
     // Extract an assembler from the void*
     AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> *pAssembler =
         (AbstractNonlinearStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
-
+        
     PetscErrorCode ierr = pAssembler->AssembleJacobian(currentGuess, pGlobalJacobian);
     //std::cout << "end assemble jacobian\n";
-        
+    
     return ierr;
 }
 

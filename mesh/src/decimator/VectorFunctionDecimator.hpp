@@ -9,18 +9,18 @@ template <unsigned SPACE_DIM>
 class VectorFunctionDecimator : public Decimator<SPACE_DIM>
 {
 private:
-    std::vector<c_vector<double, SPACE_DIM> > mPayload; 
+    std::vector<c_vector<double, SPACE_DIM> > mPayload;
     out_stream mFibreFile;
     c_vector<double, SPACE_DIM> mVectorMeasureBefore, mVectorMeasureAfter;
 protected:
     void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
-    {    
+    {
         c_vector<double, SPACE_DIM> measure=zero_vector<double>(SPACE_DIM);
         Node<SPACE_DIM> *p_node=pNodeInfo->pGetNode();
         for (unsigned i=0; i<p_node->GetNumContainingElements();i++)
         {
             Element<SPACE_DIM,SPACE_DIM> *p_element=
-                    this->mpMesh->GetElement(p_node->GetNextContainingElementIndex());
+                this->mpMesh->GetElement(p_node->GetNextContainingElementIndex());
             double volume = p_element->GetJacobianDeterminant();
             if (volume != 0.0)
             {
@@ -41,24 +41,29 @@ protected:
         if (before)
         {
             this->mVectorMeasureBefore=measure;
-        } else {
+        }
+        else
+        {
             this->mVectorMeasureAfter=measure;
         }
     }
     
     double CalculateScore()
     {
-        
-        
+    
+    
         double measure=norm_2(mVectorMeasureBefore-mVectorMeasureAfter);
         //Is the measure negligible when compared to the volume?
-        if (measure/this->mNeighbourhoodVolume < 1e-3){
-            //std::cout<<measure<<"\t"<<this->mNeighbourhoodVolume<<"\t"<<"Small\n"; 
+        if (measure/this->mNeighbourhoodVolume < 1e-3)
+        {
+            //std::cout<<measure<<"\t"<<this->mNeighbourhoodVolume<<"\t"<<"Small\n";
             //measure += this->mNeighbourhoodVolume;
-            //std::cout<<measure<<"\t"<<this->mNeighbourhoodVolume<<"\t"<<"Small after fudge\n"; 
-         
-        } else {
-            //std::cout<<measure<<"\t"<<this->mNeighbourhoodVolume<<"\t"<<"Large\n"; 
+            //std::cout<<measure<<"\t"<<this->mNeighbourhoodVolume<<"\t"<<"Small after fudge\n";
+            
+        }
+        else
+        {
+            //std::cout<<measure<<"\t"<<this->mNeighbourhoodVolume<<"\t"<<"Large\n";
         }
         return measure;
     }
@@ -88,7 +93,7 @@ protected:
         for (unsigned i=0; i<(unsigned)this->mpMesh->GetNumAllNodes();i++)
         {
             Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(i);
-        
+            
             if (p_node->IsDeleted() == false)
             {
                 (*mFibreFile) << mPayload[i](0) <<"\t"<<mPayload[i](1)<<"\t";

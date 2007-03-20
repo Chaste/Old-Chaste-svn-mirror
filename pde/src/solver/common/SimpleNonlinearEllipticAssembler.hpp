@@ -13,12 +13,12 @@
 #include "AbstractBasisFunction.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
 
-                                    
-                                    
+
+
 /**
  * Concrete simple class that assembles and solves the nonlinear system
- * for a nonlinear elliptic PDE. 
- * 
+ * for a nonlinear elliptic PDE.
+ *
  * USAGE: call the constructor with the mesh, pde and boundary conditions,
  * then call Solve() with the initial guess.
  *
@@ -35,9 +35,9 @@ class SimpleNonlinearEllipticAssembler : public AbstractNonlinearStaticAssembler
     
 private:
     /*< The pde to be solved */
-    AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;      
- 
- 
+    AbstractNonlinearEllipticPde<SPACE_DIM> *mpNonlinearEllipticPde;
+    
+    
     /**
      *  This method returns the matrix to be added to element stiffness matrix
      *  for a given gauss point. The arguments are the bases, bases gradients, 
@@ -50,16 +50,16 @@ private:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         Point<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU) 
+        c_matrix<double,1,SPACE_DIM> &rGradU)
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
-
+        
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX,u(0));
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX,u(0));
         
         //LinearSourceTerm(x)   not needed as it is a constant wrt u
         double forcing_term_prime = mpNonlinearEllipticPde->ComputeNonlinearSourceTermPrime(rX, u(0));
-
+        
         // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
         // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector
         matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
@@ -75,8 +75,8 @@ private:
         
         return ret;
     }
-       
-
+    
+    
     /**
      *  This method returns the vector to be added to element stiffness vector
      *  for a given gauss point. The arguments are the bases, 
@@ -89,11 +89,11 @@ private:
         c_matrix<double, ELEMENT_DIM, ELEMENT_DIM+1> &rGradPhi,
         Point<SPACE_DIM> &rX,
         c_vector<double,1> &u,
-        c_matrix<double,1,SPACE_DIM> &rGradU) 
+        c_matrix<double,1,SPACE_DIM> &rGradU)
     {
         c_vector<double, 1*(ELEMENT_DIM+1)> ret;
         
-       //c_vector<double, SPACE_DIM> gradU = prod(grad_phi, Ui);
+        //c_vector<double, SPACE_DIM> gradU = prod(grad_phi, Ui);
         
         // For solving NonlinearEllipticEquation
         // which should be defined in/by NonlinearEllipticEquation.hpp:
@@ -110,12 +110,12 @@ private:
         matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0( rGradU, 0);
         c_vector<double, ELEMENT_DIM+1> integrand_values1 =
             prod(c_vector<double, ELEMENT_DIM>(prod(rGradU0, FOfU)), rGradPhi);
-           
+            
         ret = integrand_values1 - (ForcingTerm * rPhi);
         return ret;
-    }        
-        
-        
+    }
+    
+    
     /**
      *  This method returns the vector to be added to element stiffness vector
      *  for a given gauss point in BoundaryElement. The arguments are the bases, 
@@ -133,30 +133,30 @@ private:
         // I'm not sure why we want -phi, but it seems to work:)
         return  (-Dgradu_dot_n)* rPhi ;
     }
-           
-
+    
+    
 public :
 
-    /** 
+    /**
      * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
      * also define the number of quad points (in each dimension), the default value of which is 2
      */
     SimpleNonlinearEllipticAssembler( ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                       AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
                                       BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
-                                      unsigned numQuadPoints = 2) :  
+                                      unsigned numQuadPoints = 2) :
             AbstractNonlinearStaticAssembler<ELEMENT_DIM,SPACE_DIM,1>(numQuadPoints)
     {
         // Store data structures
         assert(pMesh!=NULL);
         assert(pPde!=NULL);
         assert(pBoundaryConditions!=NULL);
-
+        
         this->mpMesh = pMesh;
         mpNonlinearEllipticPde = pPde;
         this->mpBoundaryConditions = pBoundaryConditions;
     }
-
+    
     /**
      * Alternative constructor - takes in the mesh, pde and boundary conditions container to be solved, and 
      * basis functions to use. Can also define the number of quad points (in each dimension), the default 
@@ -174,11 +174,11 @@ public :
         assert(pMesh!=NULL);
         assert(pPde!=NULL);
         assert(pBoundaryConditions!=NULL);
-
+        
         this->mpMesh = pMesh;
         mpNonlinearEllipticPde = pPde;
         this->mpBoundaryConditions = pBoundaryConditions;
-    }  
+    }
 };
 
 

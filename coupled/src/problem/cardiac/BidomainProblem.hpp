@@ -130,9 +130,9 @@ public:
         
         // Assembler
         BidomainDg0Assembler<SPACE_DIM,SPACE_DIM> bidomain_assembler(
-                            &mMesh, mpBidomainPde, 
-                            2, mLinearSolverRelativeTolerance);
-        
+            &mMesh, mpBidomainPde,
+            2, mLinearSolverRelativeTolerance);
+            
         if (mFixedExtracellularPotentialNodes.size()>0)
         {
             bidomain_assembler.SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
@@ -176,7 +176,7 @@ public:
         bool write_files = false;
         
         double current_time = mStartTime;
-
+        
         if (mPrintOutput)
         {
             if (mOutputFilenamePrefix.length() > 0)
@@ -204,9 +204,9 @@ public:
             }
             
             
-    // at the moment the tend-tstart must be a multiple of the printing timestep
-    // because the 'next_printing_time = mEndTime' line below has been commented
-    // out (see comment below). remove this assert when this is sorted out
+            // at the moment the tend-tstart must be a multiple of the printing timestep
+            // because the 'next_printing_time = mEndTime' line below has been commented
+            // out (see comment below). remove this assert when this is sorted out
             assert( fabs(        ( (mEndTime-mStartTime)/mPrintingTimeStep )
                                  - round( (mEndTime-mStartTime)/mPrintingTimeStep ) ) < 1e-10 );
                                  
@@ -214,10 +214,10 @@ public:
             // check the printing time step is a multiple of the pde timestep.
             assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
                                  -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
-        }                             
-                             
+        }
+        
         double next_printing_time;
-
+        
         while ( current_time < mEndTime )
         {
             if (mPrintOutput)
@@ -226,12 +226,12 @@ public:
                 next_printing_time = current_time + mPrintingTimeStep;
                 if (next_printing_time > mEndTime)
                 {
-    // this line is needed but it's use leads to assertions tripping due to
-    // floating point errors.
-    ///\todo: sort this out! then change TestPrintsOnlyAtRequestedTimes in
-    // TestMonodomainDg0Assembler and TestBidomainProblem to have an endtime that
-    // is not a multiple of the printing time...
-    //                next_printing_time = mEndTime;
+                    // this line is needed but it's use leads to assertions tripping due to
+                    // floating point errors.
+                    ///\todo: sort this out! then change TestPrintsOnlyAtRequestedTimes in
+                    // TestMonodomainDg0Assembler and TestBidomainProblem to have an endtime that
+                    // is not a multiple of the printing time...
+                    //                next_printing_time = mEndTime;
                 }
             }
             else
@@ -262,7 +262,7 @@ public:
                         delete p_test_writer;
                     }
                 }
-
+                
                 throw e;
             }
 #undef COVERAGE_IGNORE
@@ -279,12 +279,12 @@ public:
             if (mPrintOutput)
             {
                 // print out details at current time if asked for
-
+                
                 if (mWriteInfo)
                 {
                     WriteInfo(current_time);
                 }
-            
+                
                 // Writing data out to the file <mOutputFilenamePrefix>.dat
                 if (write_files)
                 {
@@ -296,7 +296,7 @@ public:
         }
         
         // close the file that stores voltage values
-
+        
         if (mPrintOutput)
         {
             if (write_files)
@@ -304,7 +304,7 @@ public:
                 p_test_writer->Close();
                 delete p_test_writer;
             }
-        
+            
             PetscInt my_rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
             if ((my_rank==0) && (write_files)) // ie only if master process and results files were written
@@ -363,7 +363,7 @@ public:
     {
         mStartTime = rStartTime;
     }
-  
+    
     void SetLinearSolverRelativeTolerance(const double &rRelTol)
     {
         mLinearSolverRelativeTolerance = rRelTol;

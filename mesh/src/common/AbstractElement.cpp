@@ -85,7 +85,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
         return;
     }
     
- 
+    
     bool refresh=false;
     c_vector<double, SPACE_DIM> weighted_direction;
     
@@ -133,7 +133,7 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     }
     if (concreteMove)
     {
-    	mWeightedDirection = weighted_direction;
+        mWeightedDirection = weighted_direction;
     }
     
 }

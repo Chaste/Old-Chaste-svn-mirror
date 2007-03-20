@@ -19,7 +19,7 @@ class TestTysonNovak2001OdeSystem : public CxxTest::TestSuite
 {
 public:
 
-    void testTysonNovakEquation()
+    void TestTysonNovakEquation()
     {
         TysonNovak2001OdeSystem tyson_novak_system;
         
@@ -45,17 +45,17 @@ public:
         TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03*60.0, 1e-5);
     }
     
-    void testTysonNovakSolver() throw(Exception)
+    void TestTysonNovakSolver() throw(Exception)
     {
         TysonNovak2001OdeSystem tyson_novak_system;
         // Solve system using backward Euler solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
-
+        
         double dt=0.1/60.0;
-
+        
         //Euler solver solution worked out
         BackwardEulerIvpOdeSolver backward_euler_solver(6);
-
+        
         OdeSolution solutions;
         
         std::vector<double> state_variables = tyson_novak_system.GetInitialConditions();
@@ -75,25 +75,25 @@ public:
         
         // If you run it up to about 75min  the ode will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
-      
+        
         
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
         if (my_rank==0) // if master process
         {
-
+        
             int step_per_row = 1;
             ColumnDataWriter writer("TysonNovak","TysonNovak");
             int time_var_id = writer.DefineUnlimitedDimension("Time","s");
-
+            
             std::vector<int> var_ids;
             for (unsigned i=0; i<tyson_novak_system.rGetVariableNames().size(); i++)
             {
                 var_ids.push_back(writer.DefineVariable(tyson_novak_system.rGetVariableNames()[i],
-                                                    tyson_novak_system.rGetVariableUnits()[i]));
+                                                        tyson_novak_system.rGetVariableUnits()[i]));
             }
             writer.EndDefineMode();
-
+            
             for (unsigned i = 0; i < solutions.rGetSolutions().size(); i+=step_per_row)
             {
                 writer.PutVariable(time_var_id, solutions.rGetTimes()[i]);
@@ -106,19 +106,19 @@ public:
             writer.Close();
         }
         MPI_Barrier(PETSC_COMM_WORLD);
-
+        
         // Test backward euler solutions are OK for a very small time increase...
         int end = solutions.rGetSolutions().size() - 1;
-
-
+        
+        
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.59995781827316, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.09406711653612, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2],1.50003361032032, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],0.60004016820575, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],0.60000839905560, 1e-5);
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.85000777753272, 1e-5);
-//        
-    
+//
+
         // Proper values from MatLab ode15s - shocking tolerances to pass though.
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1],0.98913684535843, 1e-2);
@@ -126,7 +126,7 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.95328206604519, 1e-2);
-           
+        
     }
 };
 

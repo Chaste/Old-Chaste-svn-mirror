@@ -114,7 +114,7 @@ public:
                 
                 // Check against hard coded value
                 // For 50 ms test TS_ASSERT_DELTA(voltage_replicated[2*i],  7.3, 0.2);
-                // For 150 ms test 
+                // For 150 ms test
                 TS_ASSERT_DELTA(voltage_replicated[2*i], -1.735, 0.005);
             }
         }

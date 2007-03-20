@@ -108,14 +108,14 @@ public:
         
         // throws because start time not set on simulation time
         TS_ASSERT_THROWS_ANYTHING(CryptSimulation bad_simulator(mesh));
-
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
         CryptSimulation simulator(mesh);
         simulator.SetEndTime(0.25);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
-
+        
     }
     
     // No birth because SetIncludeRandomBirth() was not called.
@@ -154,7 +154,7 @@ public:
             const c_vector<double,1>& r_node_loc = p_node->rGetLocation();
             TS_ASSERT_DELTA(r_node_loc[0], index, 1e-1);
         }
-
+        
         CheckAgainstPreviousRun("CryptWithNoBirthAndNoDeath", 22);
     }
     
@@ -174,10 +174,10 @@ public:
         Point<1> shifted_point;
         shifted_point.rGetLocation()[0]=10.5;
         mesh.SetNode(10, shifted_point);
-
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-                
+        
         CryptSimulation simulator(mesh);
         simulator.SetOutputDirectory("CryptWithDeathButNoBirth");
         simulator.SetMaxCells(23);
@@ -203,7 +203,7 @@ public:
         }
         
         TS_ASSERT_LESS_THAN(0u, dead_cells);
-
+        
         CheckAgainstPreviousRun("CryptWithDeathButNoBirth", 23);
     }
     
@@ -226,7 +226,7 @@ public:
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-              
+        
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<MeinekeCryptCell> cells;
@@ -242,13 +242,13 @@ public:
         }
         
         CryptSimulation simulator(mesh, cells);
-
+        
         simulator.SetOutputDirectory("CryptWithBirthConstantRestLength");
         simulator.SetMaxCells(33);
         simulator.SetIncludeRandomBirth();
         simulator.SetEndTime(10.0);
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
+        
         CheckAgainstPreviousRun("CryptWithBirthConstantRestLength",33);
         RandomNumberGenerator::Destroy();
     }
@@ -288,14 +288,14 @@ public:
         
         
         CryptSimulation simulator(mesh, cells);
-
+        
         simulator.SetOutputDirectory("CryptWithBirthVariableRestLength");
         simulator.SetMaxCells(25);
         simulator.SetIncludeRandomBirth();
         simulator.SetIncludeVariableRestLength();
         simulator.SetEndTime(10.0);
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-
+        
         CheckAgainstPreviousRun("CryptWithBirthVariableRestLength",25);
         RandomNumberGenerator::Destroy();
     }
@@ -358,13 +358,13 @@ public:
         
         
         CryptSimulation simulator(mesh, cells);
-
+        
         simulator.SetOutputDirectory("CryptWithCells");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
         
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-
+        
         CheckAgainstPreviousRun("CryptWithCells",50);
         RandomNumberGenerator::Destroy();
     }
@@ -427,7 +427,7 @@ public:
         
         
         CryptSimulation simulator(mesh, cells);
-
+        
         simulator.SetOutputDirectory("CryptWithCellsAndGrowth");
         simulator.SetMaxCells(50);
         simulator.SetEndTime(10.0);
@@ -435,16 +435,16 @@ public:
         simulator.SetIncludeVariableRestLength();
         
         TS_ASSERT_THROWS_NOTHING( simulator.Solve() );
-
+        
         CheckAgainstPreviousRun("CryptWithCellsAndGrowth",50);
         RandomNumberGenerator::Destroy();
     }
     
     
-
+    
     /////////////////////////////////////////////////////////////////////////////
     // create a chain of 1 stem cell and the test differentiated and check
-    // that there is correct number of cells and they are in the correct order 
+    // that there is correct number of cells and they are in the correct order
     /////////////////////////////////////////////////////////////////////////////
     void Test1dChainCorrectCellNumbers()
     {
@@ -453,10 +453,10 @@ public:
         
         // check the stem cell cycle time is still 24 hrs, otherwise
         // this test might not pass
-        TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);  
-        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);  
+        TS_ASSERT_DELTA(p_params->GetStemCellCycleTime(), 24, 1e-12);
+        TS_ASSERT_DELTA(p_params->GetTransitCellCycleTime(), 12, 1e-12);
         
-
+        
         double crypt_length = 5.0;
         p_params->SetCryptLength(crypt_length);
         
@@ -505,9 +505,9 @@ public:
         simulator.SetEndTime(40);
         
         simulator.SetIncludeVariableRestLength();
-
+        
         simulator.Solve();
-
+        
         std::vector<MeinekeCryptCell> cells_after_simulation = simulator.GetCells();
         //Warning - there are 6 live cells and one dead one sloughed off still in existance.
         //n.b. throughout the simulation 2 cells are sloughed off but one place is reused
@@ -535,7 +535,7 @@ public:
                 }
                 else
                 {
-                    //There shouldn't be any cells at non-integer positions provided resting length =1 
+                    //There shouldn't be any cells at non-integer positions provided resting length =1
                     TS_ASSERT(false);
                 }
             }

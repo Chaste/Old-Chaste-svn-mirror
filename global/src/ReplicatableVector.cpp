@@ -52,7 +52,7 @@ ReplicatableVector::ReplicatableVector(unsigned size)
     mDistributed=NULL;
     resize(size);
 }
-    
+
 ReplicatableVector::~ReplicatableVector()
 {
     RemovePetscContext();
@@ -65,7 +65,7 @@ unsigned ReplicatableVector::size(void)
 {
     return mData.size();
 }
-    
+
 void ReplicatableVector::resize(unsigned size)
 {
     //PETSc stuff will be out of date
@@ -101,7 +101,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
     //Now do the real replication
     ReplicatePetscVector(mDistributed);
 }
-    
+
 void ReplicatableVector::ReplicatePetscVector(Vec vec)
 {
     //If the size has changed then we'll need to make a new context

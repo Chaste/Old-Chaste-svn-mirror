@@ -20,7 +20,7 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-  PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
+    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
     {
         // set the new stimulus
         mpStimulus = new InitialStimulus(-600, 0.5);
@@ -58,7 +58,7 @@ public:
         bidomain_problem.SetOutputDirectory("bidomainDg01d");
         bidomain_problem.SetOutputFilenamePrefix("BidomainLR91_1d");
         
-	bidomain_problem.Initialise();
+        bidomain_problem.Initialise();
         
         bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
@@ -366,7 +366,7 @@ public:
         
         //Throws because mesh filename is unset
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.Initialise());
-        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));        
+        TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename(""));
         bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
         TS_ASSERT_THROWS_ANYTHING(bidomain_problem.SetMeshFilename("AnyOldRandomStringWillDo"));
         TS_ASSERT_THROWS_NOTHING(bidomain_problem.Initialise());

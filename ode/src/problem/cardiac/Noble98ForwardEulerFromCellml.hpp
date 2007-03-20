@@ -18,108 +18,108 @@ public:
     CML_noble_model_1998(AbstractIvpOdeSolver *pSolver, double dt,
                          AbstractStimulusFunction *pIntracellularStimulus,
                          AbstractStimulusFunction *pExtracellularStimulus=NULL)
-        : AbstractCardiacCell(pSolver, 22, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
+            : AbstractCardiacCell(pSolver, 22, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
     {
         // Time units: second
-
+        
         mVariableNames.push_back("V");
         mVariableUnits.push_back("millivolt");
         mInitialConditions.push_back(-92.849333);
-
+        
         mVariableNames.push_back("xr1");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(1.03e-5);
-
+        
         mVariableNames.push_back("xr2");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(2e-7);
-
+        
         mVariableNames.push_back("xs");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.001302);
-
+        
         mVariableNames.push_back("m");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.0016203);
-
+        
         mVariableNames.push_back("h");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9944036);
-
+        
         mVariableNames.push_back("d");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0);
-
+        
         mVariableNames.push_back("f");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(1);
-
+        
         mVariableNames.push_back("f2");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9349197);
-
+        
         mVariableNames.push_back("f2ds");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9651958);
-
+        
         mVariableNames.push_back("s");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.9948645);
-
+        
         mVariableNames.push_back("r");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0);
-
+        
         mVariableNames.push_back("ActFrac");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.0042614);
-
+        
         mVariableNames.push_back("ProdFrac");
         mVariableUnits.push_back("dimensionless");
         mInitialConditions.push_back(0.4068154);
-
+        
         mVariableNames.push_back("Na_i");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(7.3321223);
-
+        
         mVariableNames.push_back("K_i");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(136.5644281);
-
+        
         mVariableNames.push_back("CaI");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(1.4e-5);
-
+        
         mVariableNames.push_back("Ca_ds");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(1.88e-5);
-
+        
         mVariableNames.push_back("Ca_up");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(0.4531889);
-
+        
         mVariableNames.push_back("Ca_rel");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(0.4481927);
-
+        
         mVariableNames.push_back("Ca_Calmod");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(0.0005555);
-
+        
         mVariableNames.push_back("Ca_Trop");
         mVariableUnits.push_back("millimolar");
         mInitialConditions.push_back(0.0003542);
-
+        
         Init();
-
+        
     }
-
+    
     ~CML_noble_model_1998(void)
-    {
-    }
-
-    void VerifyGatingVariables() {}
-
+    {}
+    
+    void VerifyGatingVariables()
+    {}
+    
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();
@@ -290,11 +290,11 @@ public:
         
         return var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_Ca_L_K_cyt+var_membrane__i_Ca_L_K_ds+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_p_Na+var_membrane__i_Ca_L_Na_cyt+var_membrane__i_Ca_L_Na_ds+var_membrane__i_NaCa_cyt+var_membrane__i_NaCa_ds+var_membrane__i_Ca_L_Ca_cyt+var_membrane__i_Ca_L_Ca_ds+var_membrane__i_b_Ca;
     }
-
+    
     void EvaluateYDerivatives (
-            double var_environment__time,
-            const std::vector<double> &rY,
-            std::vector<double> &rDY)
+        double var_environment__time,
+        const std::vector<double> &rY,
+        std::vector<double> &rDY)
     {
         // Inputs:
         // Time units: second
@@ -613,7 +613,7 @@ public:
         double d_dt_intracellular_calcium_concentration__Ca_up = ((var_intracellular_calcium_concentration__V_i_ratio / var_intracellular_calcium_concentration__V_up_ratio) * var_intracellular_calcium_concentration__i_up) - var_intracellular_calcium_concentration__i_trans;
         double d_dt_intracellular_calcium_concentration__Ca_rel = ((var_intracellular_calcium_concentration__V_up_ratio / var_intracellular_calcium_concentration__V_rel_ratio) * var_intracellular_calcium_concentration__i_trans) - var_intracellular_calcium_concentration__i_rel;
         
-
+        
         rDY[0] = d_dt_membrane__V;
         rDY[1] = d_dt_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1;
         rDY[2] = d_dt_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2;
@@ -637,7 +637,7 @@ public:
         rDY[20] = d_dt_intracellular_calcium_concentration__Ca_Calmod;
         rDY[21] = d_dt_intracellular_calcium_concentration__Ca_Trop;
     }
-
+    
 };
 
 #endif

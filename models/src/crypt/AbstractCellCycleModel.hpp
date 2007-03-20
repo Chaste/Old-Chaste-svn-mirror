@@ -14,7 +14,7 @@
 
 class AbstractCellCycleModel
 {
-private:        
+private:
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -47,7 +47,7 @@ public:
      * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp
      */
     CryptCellType GetCellType();
-
+    
     
     /**
      * Set the cell's time of birth (usually not required as it should be inside
@@ -85,7 +85,7 @@ public:
      * instance of that subclass.
      */
     virtual AbstractCellCycleModel *CreateCellCycleModel()=0;
-
+    
 };
 
 

@@ -10,9 +10,9 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
                                    AbstractCellCycleModel *pCellCycleModel)
         : mpCellCycleModel(pCellCycleModel)
 {
-    if(SimulationTime::Instance()->IsStartTimeSetUp()==false)
+    if (SimulationTime::Instance()->IsStartTimeSetUp()==false)
     {
-    	EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");	
+        EXCEPTION("MeinekeCryptCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
     // Stem cells are the only ones with generation = 0
     //assert( (generation == 0) == (cellType == STEM) ); Not for Wnt cells
@@ -94,12 +94,12 @@ unsigned MeinekeCryptCell::GetNodeIndex() const
 
 double MeinekeCryptCell::GetAge() const
 {
-	return mpCellCycleModel->GetAge();
+    return mpCellCycleModel->GetAge();
 }
 
 double MeinekeCryptCell::GetBirthTime() const
 {
-	return mpCellCycleModel->GetBirthTime();
+    return mpCellCycleModel->GetBirthTime();
 }
 
 unsigned MeinekeCryptCell::GetGeneration() const
@@ -119,57 +119,57 @@ CryptCellMutationState MeinekeCryptCell::GetMutationState() const
 
 void MeinekeCryptCell::SetCellType(CryptCellType cellType)
 {
-	mCellType = cellType;
-	mpCellCycleModel->SetCellType(mCellType);
+    mCellType = cellType;
+    mpCellCycleModel->SetCellType(mCellType);
 }
 
 void MeinekeCryptCell::SetMutationState(CryptCellMutationState mutationState)
 {
-	mMutationState = mutationState;
+    mMutationState = mutationState;
 }
 
 /**
  * The MeinekeCryptCell ready to divide method
- * 
- * @param cellCycleInfluences a std::vector of doubles, with any relevant cell 
- * cycle influences in it. This function pushes back the mutation state of this 
+ *
+ * @param cellCycleInfluences a std::vector of doubles, with any relevant cell
+ * cycle influences in it. This function pushes back the mutation state of this
  * cell onto the vector before sending it to the cell cycle models.
  */
 bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
     assert(!IsDead());
     
-	double mutation_state = -1;
-	if(mMutationState==HEALTHY)
-	{
-		//std::cout << "HEALTHY" << std::endl;
-		mutation_state=0;	
-	}
-	if(mMutationState==APC_ONE_HIT)	
-	{
-		//std::cout << "APC +/-" << std::endl;
-		mutation_state=1;	
-	}
-	if(mMutationState==BETA_CATENIN_ONE_HIT)	
-	{
-		//std::cout << "Beta-cat +/-" << std::endl;
-		mutation_state=2;	
-	}
-	if(mMutationState==APC_TWO_HIT)	
-	{
-		//std::cout << "APC -/-" << std::endl;
-		mutation_state=3;	
-	}
-	if(fabs(mutation_state+1)<1e-6)
-	{
+    double mutation_state = -1;
+    if (mMutationState==HEALTHY)
+    {
+        //std::cout << "HEALTHY" << std::endl;
+        mutation_state=0;
+    }
+    if (mMutationState==APC_ONE_HIT)
+    {
+        //std::cout << "APC +/-" << std::endl;
+        mutation_state=1;
+    }
+    if (mMutationState==BETA_CATENIN_ONE_HIT)
+    {
+        //std::cout << "Beta-cat +/-" << std::endl;
+        mutation_state=2;
+    }
+    if (mMutationState==APC_TWO_HIT)
+    {
+        //std::cout << "APC -/-" << std::endl;
+        mutation_state=3;
+    }
+    if (fabs(mutation_state+1)<1e-6)
+    {
 #define COVERAGE_IGNORE
-		EXCEPTION("This cell has an invalid mutation state");
+        EXCEPTION("This cell has an invalid mutation state");
 #undef COVERAGE_IGNORE
-	}
-	cellCycleInfluences.push_back(mutation_state);
-	mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
+    }
+    cellCycleInfluences.push_back(mutation_state);
+    mCanDivide = mpCellCycleModel->ReadyToDivide(cellCycleInfluences);
     if (mUndergoingApoptosis)
-    { 
+    {
         mCanDivide = false;
     }
     return mCanDivide;
@@ -179,13 +179,13 @@ bool MeinekeCryptCell::ReadyToDivide(std::vector<double> cellCycleInfluences)
 void MeinekeCryptCell::StartApoptosis()
 {
     assert(!IsDead());
-
-    if(mUndergoingApoptosis)
+    
+    if (mUndergoingApoptosis)
     {
         EXCEPTION("StartApoptosis() called when already undergoing apoptosis");
     }
     mUndergoingApoptosis = true;
-
+    
     CancerParameters *p_params = CancerParameters::Instance();
     
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -198,7 +198,7 @@ bool MeinekeCryptCell::HasApoptosisBegun() const
 {
     return mUndergoingApoptosis;
 }
-    
+
 double MeinekeCryptCell::TimeUntilDeath() const
 {
     if (!mUndergoingApoptosis)
@@ -211,14 +211,14 @@ double MeinekeCryptCell::TimeUntilDeath() const
 
 bool MeinekeCryptCell::IsDead() const
 {
-   SimulationTime *p_simulation_time = SimulationTime::Instance();
-   return ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime));
+    SimulationTime *p_simulation_time = SimulationTime::Instance();
+    return ( (mUndergoingApoptosis) && (p_simulation_time->GetDimensionalisedTime() >= mDeathTime));
 }
 
 
 
 MeinekeCryptCell MeinekeCryptCell::Divide()
-{	
+{
     assert(!IsDead());
     
     //Copy this cell and give new one relevant attributes...
@@ -231,7 +231,7 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
         {
             mGeneration++;
             mpCellCycleModel->ResetModel();// Cell goes back to age zero
-            return MeinekeCryptCell(TRANSIT, mMutationState, mGeneration, 
+            return MeinekeCryptCell(TRANSIT, mMutationState, mGeneration,
                                     mpCellCycleModel->CreateCellCycleModel());
         }
         else
@@ -247,7 +247,7 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
     else
     {
         mpCellCycleModel->ResetModel();// Cell goes back to age zero
-        return MeinekeCryptCell(TRANSIT, mMutationState, 1, 
+        return MeinekeCryptCell(TRANSIT, mMutationState, 1,
                                 mpCellCycleModel->CreateCellCycleModel());
     }
     mCanDivide = false;

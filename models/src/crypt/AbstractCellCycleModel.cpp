@@ -6,8 +6,7 @@
 //BOOST_CLASS_EXPORT(AbstractCellCycleModel)
 
 AbstractCellCycleModel::~AbstractCellCycleModel()
-{
-}
+{}
 
 void AbstractCellCycleModel::SetCellType(CryptCellType cellType)
 {
@@ -26,7 +25,7 @@ CryptCellType AbstractCellCycleModel::GetCellType()
 
 double AbstractCellCycleModel::GetBirthTime()
 {
-	return mBirthTime;
+    return mBirthTime;
 }
 
 double AbstractCellCycleModel::GetAge()

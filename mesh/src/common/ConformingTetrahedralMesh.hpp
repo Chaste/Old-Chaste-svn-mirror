@@ -198,14 +198,14 @@ public:
      * 
      */
     void PermuteNodes();
-   
-   /**
-     * Permute the nodes so that they appear in a different order in mNodes
-     * (and their mIndex's are altered accordingly) using Metis binaries.
-     * 
-     */
+    
+    /**
+      * Permute the nodes so that they appear in a different order in mNodes
+      * (and their mIndex's are altered accordingly) using Metis binaries.
+      * 
+      */
     void PermuteNodesWithMetisBinaries();
-   
+    
     /**
       * Permute the nodes so that they appear in a different order in mNodes
       * (and their mIndex's are altered accordingly).
@@ -213,7 +213,7 @@ public:
      */
     void PermuteNodes(std::vector<unsigned> perm);
     
-    /**    
+    /**
      * Checks the entire mesh element by element and checkes whether any neighbouring node
      * inside the circumsphere of this element.
      * @param maxPenetration is the maximum distance a node is allowed to be inside the
@@ -228,14 +228,14 @@ public:
      * direction.
      */
     void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
- 
+    
     /**
      * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
      * diagonals can be staggered so that there is no prefered diffusion propagation
      * direction.
      */
     void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
-     
+    
     /**
      *  Returns the element index for the first element that is known to contain a test point
      *  @param testPoint
@@ -243,34 +243,34 @@ public:
      *  not on an edge/face/vertex (default = not strict)
      */
     unsigned GetContainingElementIndex(Point<SPACE_DIM> testPoint, bool strict=false);
-
-     /**
-      *  Returns the element index for an element is closest to the testPoint
-      * "Closest" means that the minimum interpolation weights for the testPoint are 
-      * maximised for this element
-      *  @param testPoint
-      * 
-      */
+    
+    /**
+     *  Returns the element index for an element is closest to the testPoint
+     * "Closest" means that the minimum interpolation weights for the testPoint are 
+     * maximised for this element
+     *  @param testPoint
+     * 
+     */
     unsigned GetNearestElementIndex(Point<SPACE_DIM> testPoint);
-
+    
     /**
      *  Returns all element indices for elements that are known to contain a test point
      *  @param testPoint 
      */
     std::vector<unsigned> GetContainingElementIndices(Point<SPACE_DIM> testPoint);
-
-
-	/**
-	 * Sets the ownership of each element according to which nodes are owned by the
-	 * process.
-	 * @param lo is the lowest node number owned by the process
-	 * @param hi is one higher than the highest node number owned by the process
-	 * ie. this process owns nodes [lo..hi)
-	 * and element is "owned" if one or more of its nodes are owned
-	 */
-	void SetElementOwnerships(unsigned lo, unsigned hi);
-	 
-    /** 
+    
+    
+    /**
+     * Sets the ownership of each element according to which nodes are owned by the
+     * process.
+     * @param lo is the lowest node number owned by the process
+     * @param hi is one higher than the highest node number owned by the process
+     * ie. this process owns nodes [lo..hi)
+     * and element is "owned" if one or more of its nodes are owned
+     */
+    void SetElementOwnerships(unsigned lo, unsigned hi);
+    
+    /**
      *  Clear all the data in the mesh
      */
     void Clear();

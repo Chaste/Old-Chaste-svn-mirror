@@ -5,15 +5,15 @@
 #include "NodeMap.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class RefinedTetrahedralMesh : 
-                  public ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
+class RefinedTetrahedralMesh :
+            public ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
 {
 private:
     ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *mpFineMesh;
     NodeMap *mpCoarseFineNodeMap;
     std::vector <std::set <Element <ELEMENT_DIM,SPACE_DIM>* > > mCoarseFineElementsMap;
     std::vector <Element <ELEMENT_DIM,SPACE_DIM>* > mFineNodeToCoarseElementMap;
-
+    
 public:
     RefinedTetrahedralMesh() : ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>()
     {
@@ -23,7 +23,7 @@ public:
     
     ~RefinedTetrahedralMesh()
     {
-    	delete mpCoarseFineNodeMap;
+        delete mpCoarseFineNodeMap;
     }
     
     /***
@@ -62,7 +62,7 @@ public:
         }
         std::sort(fine_nodes.begin(), fine_nodes.end(), CompareNodesLex());
         
-       
+        
         unsigned fine_mesh_index=0;
         //.. update node map
         for (unsigned coarse_mesh_index=0;coarse_mesh_index<this->GetNumNodes();coarse_mesh_index++)
@@ -74,15 +74,15 @@ public:
                 {
                     std::stringstream exception_string;
                     exception_string << "Coarse mesh node: "
-                                     << coarse_nodes[coarse_mesh_index]->GetIndex()
-                                     << " doesn't have a partner in the fine mesh.";
+                    << coarse_nodes[coarse_mesh_index]->GetIndex()
+                    << " doesn't have a partner in the fine mesh.";
                     EXCEPTION(exception_string.str());
                 }
             }
             //Same node, set map
             mpCoarseFineNodeMap->SetNewIndex(coarse_mesh_index, fine_mesh_index);
-        } 
-          
+        }
+        
         //Calculate a map from fine nodes to coarse elements
         mFineNodeToCoarseElementMap.resize(mpFineMesh->GetNumNodes());
         for (unsigned i=0; i<mpFineMesh->GetNumNodes(); i++)
@@ -98,10 +98,10 @@ public:
                 // find nearest coarse element
                 coarse_element_index = this->GetNearestElementIndex(mpFineMesh->GetNode(i)->GetPoint());
             }
-            mFineNodeToCoarseElementMap[i]=this->GetElement(coarse_element_index);    
+            mFineNodeToCoarseElementMap[i]=this->GetElement(coarse_element_index);
         }
- 
-        //Calculate the map from coarse elements to fine ones    
+        
+        //Calculate the map from coarse elements to fine ones
         mCoarseFineElementsMap.resize(this->GetNumElements());
         typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
         for (i_fine_element = mpFineMesh->GetElementIteratorBegin();
@@ -121,7 +121,7 @@ public:
                 catch (Exception &e)
                 {
                     // vertex must coincide with coarse node
-                } 
+                }
             }
             if (!coarse_elements_found)
             {
@@ -136,10 +136,10 @@ public:
                 {
                     EXCEPTION("Fine mesh contains an element which does not overlap any coarse mesh element");
                 }
-            }    
+            }
         }
         
-          
+        
     }
     
     
@@ -157,7 +157,7 @@ public:
     
     Element<ELEMENT_DIM, SPACE_DIM>* GetACoarseElementForFineNodeIndex(unsigned fine_node_index)
     {
-        
+    
         return mFineNodeToCoarseElementMap[fine_node_index];
     }
     
@@ -168,12 +168,12 @@ public:
     
     bool EqualNodes (const Node<SPACE_DIM>* pNode1, const Node<SPACE_DIM>* pNode2)
     {
-       return (norm_2(pNode1->rGetLocation() - pNode2->rGetLocation()) < DBL_EPSILON*10);
-       
-    
+        return (norm_2(pNode1->rGetLocation() - pNode2->rGetLocation()) < DBL_EPSILON*10);
+        
+        
         
     }
-    class CompareNodesLex : public std::binary_function<Node<SPACE_DIM>*, Node<SPACE_DIM> *, bool>
+class CompareNodesLex : public std::binary_function<Node<SPACE_DIM>*, Node<SPACE_DIM> *, bool>
     {
     public:
         bool operator () (const Node<SPACE_DIM>* pNode1, const Node<SPACE_DIM>* pNode2)
@@ -181,7 +181,7 @@ public:
             //Test if node1 is strictly less than node2.
             //Lexigraphical ordering tests the highest dimension first.
             unsigned dimension=SPACE_DIM;
-            do 
+            do
             {
                 dimension--;
                 
@@ -193,14 +193,14 @@ public:
                 {
                     return false;
                 }
-            
-            
+                
+                
             }
             while (dimension>0);
             
-            //Otherwise the nodes are colocated  
+            //Otherwise the nodes are colocated
             return false;
-         }
+        }
     };
 };
 
@@ -230,11 +230,11 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
         {
             std::set <Element <ELEMENT_DIM,SPACE_DIM>* >& r_fine_elements = mCoarseFineElementsMap[coarse_mesh_index];
             for (typename std::set <Element <ELEMENT_DIM,SPACE_DIM>* >::iterator i_fine_element = r_fine_elements.begin();
-                 i_fine_element != r_fine_elements.end();
-                 i_fine_element++)
-            {
-                (*i_fine_element)->Flag();
-            }
+                     i_fine_element != r_fine_elements.end();
+                     i_fine_element++)
+                {
+                    (*i_fine_element)->Flag();
+                }
         }
     }
 }

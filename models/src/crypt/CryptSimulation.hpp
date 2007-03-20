@@ -49,9 +49,9 @@ private:
     
 public:
 
-	CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
+    CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
                     std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
-    
+                    
     ~CryptSimulation();
     
     void SetDt(double dt);
@@ -61,7 +61,7 @@ public:
     void SetIncludeVariableRestLength();
     void SetMaxCells(unsigned maxCells);
     std::vector<MeinekeCryptCell> GetCells();
-
+    
     void Solve();
 };
 

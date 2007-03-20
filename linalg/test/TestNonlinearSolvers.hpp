@@ -30,7 +30,7 @@ public:
         SimplePetscNonlinearSolver solver_petsc;
         SimpleNewtonNonlinearSolver solver_newton;
         
-
+        
         // Set up solution guess for residuals
         int length=2;
         
@@ -45,23 +45,23 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-
+        
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
                                               initial_guess, NULL);
-                              
+                                              
         // solve using newton method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual, &ComputeTestJacobian,
                                                 initial_guess, NULL);
-
+                                                
         // cover the residual increases exception (note the ComputeBADTestJacobian is passed in here)
         TS_ASSERT_THROWS_ANYTHING(solver_newton.Solve(&ComputeTestResidual, &ComputeBadTestJacobian, initial_guess, NULL));
-
-
+        
+        
         // replicate the answers so we can access them without worrying about parallel stuff
         ReplicatableVector answer_petsc_repl(answer_petsc);
         ReplicatableVector answer_newton_repl(answer_newton);
-                              
+        
         double tol = 1e-4;
         
         for (int i=0; i<2; i++)
@@ -70,8 +70,8 @@ public:
             TS_ASSERT_DELTA(answer_petsc_repl[i] ,1/sqrt(2),tol);
             TS_ASSERT_DELTA(answer_newton_repl[i],1/sqrt(2),tol);
         }
-
-
+        
+        
         VecDestroy(initial_guess);
         VecDestroy(answer_petsc);
         VecDestroy(answer_newton);
@@ -98,22 +98,22 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
         
-
+        
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
                                               initial_guess, NULL);
-
+                                              
         // solve using newton method
         solver_newton.SetTolerance(1e-10);                      // to cover this method
         solver_newton.SetWriteStats();                          // to cover this method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
                                                 initial_guess, NULL);
-
-
-                                
+                                                
+                                                
+                                                
         // replicate the answers so we can access them without worrying about parallel stuff
         ReplicatableVector answer_petsc_repl(answer_petsc);
-        ReplicatableVector answer_newton_repl(answer_newton);        
+        ReplicatableVector answer_newton_repl(answer_newton);
         
         double tol = 1e-6;
         

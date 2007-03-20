@@ -24,10 +24,10 @@ class AbstractBoundaryConditionsContainer
 {
 protected:
     std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >
-       *mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
-
+    *mpDirichletMap[PROBLEM_DIM]; /**< List (map) of Dirichlet boundary conditions */
+    
     typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
-       mDirichIterator; /**< Internal iterator over dirichlet boundary conditions */
+    mDirichIterator; /**< Internal iterator over dirichlet boundary conditions */
     
 public:
     /**
@@ -40,8 +40,8 @@ public:
             mpDirichletMap[index_of_unknown] =  new std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >;
         }
     }
-
-
+    
+    
     ~AbstractBoundaryConditionsContainer()
     {
         DeleteDirichletBoundaryConditions();
@@ -49,29 +49,29 @@ public:
     
     
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>())
-    {
-        for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
-            if(mpDirichletMap[i])
+            for (unsigned i=0; i<PROBLEM_DIM; i++)
             {
-                mDirichIterator = mpDirichletMap[i]->begin();
-                while (mDirichIterator != mpDirichletMap[i]->end() )
+                if (mpDirichletMap[i])
                 {
-                    if (deletedConditions.count(mDirichIterator->second) == 0)
+                    mDirichIterator = mpDirichletMap[i]->begin();
+                    while (mDirichIterator != mpDirichletMap[i]->end() )
                     {
-                        deletedConditions.insert(mDirichIterator->second);
-                        delete mDirichIterator->second;
+                        if (deletedConditions.count(mDirichIterator->second) == 0)
+                        {
+                            deletedConditions.insert(mDirichIterator->second);
+                            delete mDirichIterator->second;
+                        }
+                        mDirichIterator++;
                     }
-                    mDirichIterator++;
+                    
+                    delete(mpDirichletMap[i]);
+                    mpDirichletMap[i] = NULL;
                 }
-            
-                delete(mpDirichletMap[i]);
-                mpDirichletMap[i] = NULL;
             }
         }
-    }
-
-    
+        
+        
     /**
      * Obtain value of dirichlet boundary condition at specified node
      * 
@@ -89,7 +89,7 @@ public:
         
         return mDirichIterator->second->GetValue(pBoundaryNode->GetPoint());
     }
-
+    
     /**
      * Test if there is a Dirichlet boundary condition defined on the given node.
      * 

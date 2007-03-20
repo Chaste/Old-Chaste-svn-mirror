@@ -1094,11 +1094,11 @@ public:
         
         TS_ASSERT_DELTA(volume, mesh.CalculateMeshVolume(), 1e-7);
         TS_ASSERT_DELTA(surface, mesh.CalculateMeshSurface(), 1e-7);
-      
+        
         RandomNumberGenerator::Destroy();
     }
     
-        
+    
     void TestConstructRectangle()
     {
         ConformingTetrahedralMesh<2,2> mesh;
@@ -1114,7 +1114,7 @@ public:
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
-   void TestConstructRectangleNoStagger()
+    void TestConstructRectangleNoStagger()
     {
         ConformingTetrahedralMesh<2,2> mesh;
         unsigned width=39;
@@ -1129,9 +1129,9 @@ public:
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshNoStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
-   
+    
     void TestConstruct1x1RectangularMesh(void)
-    {   
+    {
         ConformingTetrahedralMesh<2,2> rect_mesh;
         rect_mesh.ConstructRectangularMesh(1, 1, false);
     }
@@ -1145,7 +1145,7 @@ public:
         
         TS_ASSERT_EQUALS(mesh.CheckVoronoi(),true);
         
-    } 
+    }
     
     
     
@@ -1181,13 +1181,13 @@ public:
         
         Point<2> point=p_node->GetPoint();
         
-        for(double x = 1.1; x >= 0.9; x-= 0.01)
+        for (double x = 1.1; x >= 0.9; x-= 0.01)
         {
             point.SetCoordinate(0,x);
             point.SetCoordinate(1,x);
             mesh.SetNode(1, point);
             
-            if(x >= 0.91)
+            if (x >= 0.91)
             {
                 TS_ASSERT_EQUALS(mesh.CheckVoronoi(0.2),true);
             }
@@ -1200,7 +1200,7 @@ public:
     
     void TestSetOwnerships()
     {
-    	TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
@@ -1211,30 +1211,30 @@ public:
         
         for (unsigned ele_num=0; ele_num< mesh.GetNumElements(); ele_num++)
         {
-        	bool owned = mesh.GetElement(ele_num)->GetOwnership();
-        	if (ele_num==26  ||
-        	    ele_num==195 ||
-        	    ele_num==330 ||
-        	    ele_num==351 ||
-        	    ele_num==498 ||
-        	    ele_num==499 || //...these contain node 300
-        	    ele_num==186 ||
-        	    ele_num==208 ||
-        	    ele_num==480 ||
-        	    ele_num==500 ||
-        	    ele_num==501)  //... these contain node 301
-        	{
-        		TS_ASSERT_EQUALS(owned, true);
-        	}
-        	else
-        	{
-        		TS_ASSERT_EQUALS(owned, false);
-        	}	
+            bool owned = mesh.GetElement(ele_num)->GetOwnership();
+            if (ele_num==26  ||
+                ele_num==195 ||
+                ele_num==330 ||
+                ele_num==351 ||
+                ele_num==498 ||
+                ele_num==499 || //...these contain node 300
+                ele_num==186 ||
+                ele_num==208 ||
+                ele_num==480 ||
+                ele_num==500 ||
+                ele_num==501)  //... these contain node 301
+            {
+                TS_ASSERT_EQUALS(owned, true);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(owned, false);
+            }
         }
         
     }
     
-   
+    
     void TestOutwardNormal3D()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
@@ -1251,11 +1251,11 @@ public:
             TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
         }
     }
-
-
+    
+    
     void TestConstructCuboid()
     {
-        
+    
         ConformingTetrahedralMesh<3,3> mesh;
         unsigned width=7;
         unsigned height=4;
@@ -1263,14 +1263,14 @@ public:
         
         mesh.ConstructCuboid(width,height,depth);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)*(depth+1)));
-      
+        
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  4*(width*height+height*depth+depth*width) );
         //Assuming that each cube is split into 6 tetrahedra
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*width*height*depth );
-
+        
         for (unsigned i=0; i<mesh.GetNumBoundaryElements(); i++)
         {
             BoundaryElement<2,3> *b_element=mesh.GetBoundaryElement(i);
@@ -1279,23 +1279,29 @@ public:
             Point<3> out(centroid+normal);
             Point<3> in(centroid-normal);
             normal/=norm_2(normal);
-            if (fabs(centroid[0]) < 1e-5){
-                TS_ASSERT_DELTA( normal[0], -1.0, 1e-16);   
+            if (fabs(centroid[0]) < 1e-5)
+            {
+                TS_ASSERT_DELTA( normal[0], -1.0, 1e-16);
             }
-            if (fabs(centroid[0] - width) < 1e-5){
-                TS_ASSERT_DELTA( normal[0], 1.0, 1e-16);   
+            if (fabs(centroid[0] - width) < 1e-5)
+            {
+                TS_ASSERT_DELTA( normal[0], 1.0, 1e-16);
             }
-            if (fabs(centroid[1]) < 1e-5){
-                TS_ASSERT_DELTA( normal[1], -1.0, 1e-16);   
+            if (fabs(centroid[1]) < 1e-5)
+            {
+                TS_ASSERT_DELTA( normal[1], -1.0, 1e-16);
             }
-            if (fabs(centroid[1] - height) < 1e-5){
-                TS_ASSERT_DELTA( normal[1], 1.0, 1e-16);   
+            if (fabs(centroid[1] - height) < 1e-5)
+            {
+                TS_ASSERT_DELTA( normal[1], 1.0, 1e-16);
             }
-            if (fabs(centroid[2]) < 1e-5){
-                TS_ASSERT_DELTA( normal[2], -1.0, 1e-16);   
+            if (fabs(centroid[2]) < 1e-5)
+            {
+                TS_ASSERT_DELTA( normal[2], -1.0, 1e-16);
             }
-            if (fabs(centroid[2] - depth) < 1e-5){
-                TS_ASSERT_DELTA( normal[2], 1.0, 1e-16);   
+            if (fabs(centroid[2] - depth) < 1e-5)
+            {
+                TS_ASSERT_DELTA( normal[2], 1.0, 1e-16);
             }
             TS_ASSERT_THROWS_NOTHING(mesh.GetContainingElementIndex(in));
             TS_ASSERT_THROWS_ANYTHING(mesh.GetContainingElementIndex(out));
@@ -1310,20 +1316,20 @@ public:
     }
     
     void TestPermute()
-    {   
+    {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
- 
+        
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[2], 0.0);
-
+        
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[2], 0.0);
-
+        
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[1], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[2], 0.0);
@@ -1336,7 +1342,7 @@ public:
             perm.push_back(i);
         }
         //perm is now the identity permuation
- 
+        
         //Rotate first three
         perm[0]=1;
         perm[1]=2;
@@ -1346,27 +1352,27 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNode(0)->GetIndex(), 0U);
         TS_ASSERT_EQUALS(mesh.GetNode(7)->GetIndex(), 7U);
-
+        
         //Was node 0
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[0], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(1)->rGetLocation()[2], 0.0);
-
+        
         //Was node 1
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(mesh.GetNode(2)->rGetLocation()[2], 0.0);
-
+        
         //Was node 2
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[0], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[1], 0.2);
         TS_ASSERT_EQUALS(mesh.GetNode(0)->rGetLocation()[2], 0.0);
-           
+        
     }
     
     void TestPermuteWithMetisBinaries()
-    {   
-        
+    {
+    
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -1376,8 +1382,8 @@ public:
         mesh.PermuteNodesWithMetisBinaries();
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], -0.5358, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], -0.8443, 1e-4);
-         
-      
+        
+        
         TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         ConformingTetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);
@@ -1407,12 +1413,12 @@ public:
         mesh.DeleteNode(7);
         TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 11U);
- 
+        
         //Delete from edge
         mesh.DeleteNode(5);
         TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 6.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10U);
- 
+        
         //Delete from corner
         mesh.DeleteNode(2);
         TS_ASSERT_EQUALS(mesh.CalculateMeshVolume(), 5.0);
@@ -1423,7 +1429,7 @@ public:
     }
     
     void TestClear()
-    {        
+    {
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2,3);
         
@@ -1431,7 +1437,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
         
         mesh.Clear();
-            
+        
         TS_ASSERT_EQUALS(mesh.GetNumNodes(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumCornerNodes(),0u);

@@ -46,7 +46,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
 {
 
 
-    NodeMap node_map(rMesh.GetNumAllNodes()); 
+    NodeMap node_map(rMesh.GetNumAllNodes());
     unsigned new_index=0;
     for (unsigned i=0; i<(unsigned)rMesh.GetNumAllNodes();i++)
     {
@@ -64,10 +64,10 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
         }
         else
         {
-             node_map.SetDeleted(i);
+            node_map.SetDeleted(i);
         }
     }
-     assert(new_index==(unsigned)rMesh.GetNumNodes());
+    assert(new_index==(unsigned)rMesh.GetNumNodes());
     
     // Get an iterator over the elements of the mesh
     typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter =
@@ -81,7 +81,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
                 unsigned old_index=(*iter)->GetNodeGlobalIndex(j);
-                indices[j] = node_map.GetNewIndex(old_index); 
+                indices[j] = node_map.GetNewIndex(old_index);
             }
             SetNextElement(indices);
         }
@@ -100,7 +100,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
             for (unsigned j=0; j<ELEMENT_DIM; j++)
             {
                 unsigned old_index=(*boundary_iter)->GetNodeGlobalIndex(j);
-                indices[j] = node_map.GetNewIndex(old_index); 
+                indices[j] = node_map.GetNewIndex(old_index);
             }
             SetNextBoundaryFace(indices);
         }

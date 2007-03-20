@@ -15,7 +15,7 @@
 class TestDecimationForEfficiency : public CxxTest::TestSuite
 {
 public:
-  
+
     void TestRandomDecimator3D() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/heart");
@@ -24,7 +24,7 @@ public:
         
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
-
+        
         RandomNumberGenerator::Instance();
         RandomDecimator<3> decimator;
         decimator.Initialise(&mesh);

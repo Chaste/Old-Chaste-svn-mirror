@@ -287,9 +287,9 @@ void ColumnDataReader::PushColumnEntryFromLine(std::string line, int col)
     variable_stream >> d_value;
     if (variable_stream.fail())
     {
-          d_value=FLT_MAX;
+        d_value=FLT_MAX;
     }
-        
-   
+    
+    
     mValues.push_back(d_value);
 }

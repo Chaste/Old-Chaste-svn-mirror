@@ -57,7 +57,7 @@ protected:
         mOwnership = element.mOwnership;
         
         // initialise the user flag
-        mFlag = element.mFlag;        
+        mFlag = element.mFlag;
     }
     
     

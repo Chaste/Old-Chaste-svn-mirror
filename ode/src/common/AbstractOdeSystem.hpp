@@ -49,12 +49,12 @@ public:
      */
     virtual void EvaluateYDerivatives(double time, const std::vector<double> &rY,
                                       std::vector<double> &rDY)=0;
-
+                                      
     unsigned GetNumberOfStateVariables()
     {
         return mNumberOfStateVariables;
     }
-        
+    
     
     virtual void SetInitialConditions(std::vector<double> initialConditions)
     {

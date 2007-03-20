@@ -11,29 +11,29 @@ AbstractCellCycleModel *FixedCellCycleModel::CreateCellCycleModel()
 
 FixedCellCycleModel::FixedCellCycleModel()
 {
-	mpSimulationTime = SimulationTime::Instance();
-	if(mpSimulationTime->IsStartTimeSetUp()==false)
-	{
-		EXCEPTION("FixedCellCycleModel is being created but SimulationTime has not been set up");
-	}
-	mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    mpSimulationTime = SimulationTime::Instance();
+    if (mpSimulationTime->IsStartTimeSetUp()==false)
+    {
+        EXCEPTION("FixedCellCycleModel is being created but SimulationTime has not been set up");
+    }
+    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
 }
 
 void FixedCellCycleModel::SetBirthTime(double birthTime)
 {
-	mBirthTime = birthTime;	
+    mBirthTime = birthTime;
 }
 
 void FixedCellCycleModel::ResetModel()
 {
-	mpSimulationTime = SimulationTime::Instance();
-	mBirthTime = mpSimulationTime->GetDimensionalisedTime();	
+    mpSimulationTime = SimulationTime::Instance();
+    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
 }
 
 bool FixedCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
-{	
-	mpSimulationTime = SimulationTime::Instance();
-	//assert(cellCycleInfluences.size()==0); NOT Needed - we just ignore them
+{
+    mpSimulationTime = SimulationTime::Instance();
+    //assert(cellCycleInfluences.size()==0); NOT Needed - we just ignore them
     bool ready;
     
     CancerParameters *p_params = CancerParameters::Instance();

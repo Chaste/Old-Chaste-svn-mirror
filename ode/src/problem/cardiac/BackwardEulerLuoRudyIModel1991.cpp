@@ -11,9 +11,9 @@
  * Constructor
  */
 BackwardEulerLuoRudyIModel1991::BackwardEulerLuoRudyIModel1991(
-                    double dt,
-                    AbstractStimulusFunction *pIntracellularStimulus,
-                    AbstractStimulusFunction *pExtracellularStimulus)
+    double dt,
+    AbstractStimulusFunction *pIntracellularStimulus,
+    AbstractStimulusFunction *pExtracellularStimulus)
         : AbstractBackwardEulerCardiacCell<1>(8, 4, dt, pIntracellularStimulus,
                                               pExtracellularStimulus)
 {
@@ -105,26 +105,26 @@ void BackwardEulerLuoRudyIModel1991::UpdateTransmembranePotential(double time)
     double slow_inward_current_d_gate_d = rY[5];
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
-
+    
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
     double fast_sodium_current_i_Na = fast_sodium_current_g_Na*pow(fast_sodium_current_m_gate_m, 3.0)*fast_sodium_current_h_gate_h*fast_sodium_current_j_gate_j*(membrane_V-fast_sodium_current_E_Na);
     double slow_inward_current_E_si = 7.7-13.0287*log(intracellular_calcium_concentration_Cai);
     double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
-
+    
     double time_dependent_potassium_current_g_K = 0.282*sqrt(ionic_concentrations_Ko/5.4);
     double time_dependent_potassium_current_Xi_gate_Xi;
-
+    
     if (membrane_V > -100.0)
     {
         time_dependent_potassium_current_Xi_gate_Xi = 2.837*(exp(0.04*(membrane_V+77.0))-1.0)/((membrane_V+77.0)*exp(0.04*(membrane_V+35.0)));
     }
     else
     {
-        #define COVERAGE_IGNORE
+#define COVERAGE_IGNORE
         time_dependent_potassium_current_Xi_gate_Xi = 1.0;
-        #undef COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
     }
-
+    
     double time_dependent_potassium_current_E_K = ((membrane_R*membrane_T)/membrane_F)*log((ionic_concentrations_Ko+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nao)/(ionic_concentrations_Ki+time_dependent_potassium_current_PR_NaK*ionic_concentrations_Nai));
     double time_dependent_potassium_current_i_K = time_dependent_potassium_current_g_K*time_dependent_potassium_current_X_gate_X*time_dependent_potassium_current_Xi_gate_Xi*(membrane_V-time_dependent_potassium_current_E_K);
     double time_independent_potassium_current_g_K1 = 0.6047*sqrt(ionic_concentrations_Ko/5.4);
@@ -140,7 +140,7 @@ void BackwardEulerLuoRudyIModel1991::UpdateTransmembranePotential(double time)
     
     //calculate dV
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
-
+    
     rY[4] += mDt * membrane_V_prime;
 }
 
@@ -157,7 +157,7 @@ void BackwardEulerLuoRudyIModel1991::ComputeExceptVoltage(double tStart)
     double slow_inward_current_d_gate_d = rY[5];
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
-
+    
     double fast_sodium_current_h_gate_alpha_h;
     
     if (membrane_V < -40.0)
@@ -213,45 +213,45 @@ void BackwardEulerLuoRudyIModel1991::ComputeExceptVoltage(double tStart)
     
     double time_dependent_potassium_current_X_gate_alpha_X = 0.0005*exp(0.083*(membrane_V+50.0))/(1.0+exp(0.057*(membrane_V+50.0)));
     double time_dependent_potassium_current_X_gate_beta_X = 0.0013*exp(-0.06*(membrane_V+20.0))/(1.0+exp(-0.04*(membrane_V+20.0)));
-
+    
     // update h
     fast_sodium_current_h_gate_h =   (fast_sodium_current_h_gate_h + fast_sodium_current_h_gate_alpha_h*mDt)
-                                   / (1 + (fast_sodium_current_h_gate_alpha_h + fast_sodium_current_h_gate_beta_h)*mDt);
-
+                                     / (1 + (fast_sodium_current_h_gate_alpha_h + fast_sodium_current_h_gate_beta_h)*mDt);
+                                     
     // update m
     fast_sodium_current_m_gate_m =   (fast_sodium_current_m_gate_m + fast_sodium_current_m_gate_alpha_m*mDt)
-                                   / (1 + (fast_sodium_current_m_gate_alpha_m + fast_sodium_current_m_gate_beta_m)*mDt);
-
+                                     / (1 + (fast_sodium_current_m_gate_alpha_m + fast_sodium_current_m_gate_beta_m)*mDt);
+                                     
     // update j
     fast_sodium_current_j_gate_j =   (fast_sodium_current_j_gate_j + fast_sodium_current_j_gate_alpha_j*mDt)
-                                   / (1 + (fast_sodium_current_j_gate_alpha_j + fast_sodium_current_j_gate_beta_j)*mDt);
-
+                                     / (1 + (fast_sodium_current_j_gate_alpha_j + fast_sodium_current_j_gate_beta_j)*mDt);
+                                     
     // update d
     slow_inward_current_d_gate_d =   (slow_inward_current_d_gate_d + slow_inward_current_d_gate_alpha_d*mDt)
-                                   / (1 + (slow_inward_current_d_gate_alpha_d + slow_inward_current_d_gate_beta_d)*mDt);
-
+                                     / (1 + (slow_inward_current_d_gate_alpha_d + slow_inward_current_d_gate_beta_d)*mDt);
+                                     
     // update f
     slow_inward_current_f_gate_f =   (slow_inward_current_f_gate_f + slow_inward_current_f_gate_alpha_f*mDt)
-                                   / (1 + (slow_inward_current_f_gate_alpha_f + slow_inward_current_f_gate_beta_f)*mDt);
-
+                                     / (1 + (slow_inward_current_f_gate_alpha_f + slow_inward_current_f_gate_beta_f)*mDt);
+                                     
     // update X
     time_dependent_potassium_current_X_gate_X =   ( time_dependent_potassium_current_X_gate_X + time_dependent_potassium_current_X_gate_alpha_X*mDt)
-                                                / ( 1 + (time_dependent_potassium_current_X_gate_alpha_X+time_dependent_potassium_current_X_gate_beta_X)*mDt);
-
+                                                  / ( 1 + (time_dependent_potassium_current_X_gate_alpha_X+time_dependent_potassium_current_X_gate_beta_X)*mDt);
+                                                  
     rY[0] =  fast_sodium_current_h_gate_h;
     rY[1] =  fast_sodium_current_j_gate_j;
     rY[2] =  fast_sodium_current_m_gate_m;
-
+    
     rY[5] =  slow_inward_current_d_gate_d;
     rY[6] =  slow_inward_current_f_gate_f;
     rY[7] =  time_dependent_potassium_current_X_gate_X;
-
+    
     // finally, use the newton method to calculate the Calcium concentration at the next time
     double guess[1] = {rY[3]};
-
+    
     CardiacNewtonSolver<1> *solver = CardiacNewtonSolver<1>::Instance();
     solver->Solve(*this, guess);
-
+    
     rY[3] = guess[0];
     
     // Timings:
@@ -290,7 +290,7 @@ void BackwardEulerLuoRudyIModel1991::ComputeResidual(const double rCurrentGuess[
     double slow_inward_current_i_si = 0.09*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f*(membrane_V-slow_inward_current_E_si);
     
     double dCdt_using_current_guess = -1e-4*slow_inward_current_i_si+0.07*(1e-4-rCurrentGuess[0]);
- 
+    
     rResidual[0] = rCurrentGuess[0] - rY[3] - mDt*dCdt_using_current_guess;
 }
 
@@ -300,7 +300,7 @@ void BackwardEulerLuoRudyIModel1991::ComputeJacobian(const double rCurrentGuess[
     double slow_inward_current_d_gate_d = rY[5];
     double slow_inward_current_f_gate_f = rY[6];
     
-    rJacobian[0][0] = 1 - mDt*(-0.1172583e-3*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f/rCurrentGuess[0] 
+    rJacobian[0][0] = 1 - mDt*(-0.1172583e-3*slow_inward_current_d_gate_d*slow_inward_current_f_gate_f/rCurrentGuess[0]
                                - 0.07);
 }
 
@@ -363,7 +363,7 @@ void BackwardEulerLuoRudyIModel1991::VerifyGatingVariables()
 {
 #ifndef NDEBUG
     const std::vector<double>& rY = rGetStateVariables();
-
+    
     double fast_sodium_current_h_gate_h = rY[0];
     double fast_sodium_current_j_gate_j = rY[1];
     double fast_sodium_current_m_gate_m = rY[2];

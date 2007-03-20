@@ -12,33 +12,33 @@ AbstractCellCycleModel *StochasticCellCycleModel::CreateCellCycleModel()
 
 StochasticCellCycleModel::StochasticCellCycleModel()
 {
-	mpSimulationTime = SimulationTime::Instance();
-	if(mpSimulationTime->IsStartTimeSetUp()==false)
-	{
-		EXCEPTION("StochasticCellCycleModel is being created but SimulationTime has not been set up");
-	}
-	mpCancerParams = CancerParameters::Instance();
-	mBirthTime = mpSimulationTime->GetDimensionalisedTime();
-
+    mpSimulationTime = SimulationTime::Instance();
+    if (mpSimulationTime->IsStartTimeSetUp()==false)
+    {
+        EXCEPTION("StochasticCellCycleModel is being created but SimulationTime has not been set up");
+    }
+    mpCancerParams = CancerParameters::Instance();
+    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
+    
 }
 
 void StochasticCellCycleModel::SetBirthTime(double birthTime)
 {
-	mBirthTime = birthTime;	
+    mBirthTime = birthTime;
 }
 
 void StochasticCellCycleModel::ResetModel()
 {
-	mpSimulationTime = SimulationTime::Instance();
-	mBirthTime = mpSimulationTime->GetDimensionalisedTime();	
+    mpSimulationTime = SimulationTime::Instance();
+    mBirthTime = mpSimulationTime->GetDimensionalisedTime();
 }
 
 bool StochasticCellCycleModel::ReadyToDivide(std::vector<double> cellCycleInfluences)
 {
-	mpSimulationTime = SimulationTime::Instance();
-	//assert(cellCycleInfluences.size()==0);
+    mpSimulationTime = SimulationTime::Instance();
+    //assert(cellCycleInfluences.size()==0);
     bool ready;
-        
+    
     double timeSinceBirth = GetAge();
     
     switch (mCellType)

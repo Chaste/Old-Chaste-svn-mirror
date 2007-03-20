@@ -48,7 +48,7 @@ class TestMonodomainConductionVelocity : public CxxTest::TestSuite
 {
 public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
-    void TestMonodomainDg01D_100elements()
+    void TestMonodomainDg01DWith100elements()
     {
         PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
         MonodomainProblem<1> monodomain_problem(&cell_factory);
@@ -114,7 +114,7 @@ public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.
     //
     // Note that this space step ought to be too big!
-    void TestMonodomainDg01D_20elements()
+    void TestMonodomainDg01DWith20elements()
     {
         PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
         MonodomainProblem<1> monodomain_problem(&cell_factory);

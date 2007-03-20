@@ -27,7 +27,7 @@ class SimpleLinearEllipticAssembler : public AbstractLinearStaticProblemAssemble
     
 private:
     AbstractLinearEllipticPde<SPACE_DIM>* mpEllipticPde;
-        
+    
 protected:
     /**
      *  The term to be added to the element stiffness matrix: 
@@ -63,8 +63,8 @@ protected:
     
     
     virtual c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
-                                                                   c_vector<double, ELEMENT_DIM> &rPhi,
-                                                                   Point<SPACE_DIM> &rX )
+            c_vector<double, ELEMENT_DIM> &rPhi,
+            Point<SPACE_DIM> &rX )
     {
         // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
         double D_times_gradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);

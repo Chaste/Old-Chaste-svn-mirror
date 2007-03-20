@@ -22,7 +22,7 @@ public:
     double GetCryptWidth();
     double GetMeinekeLambda();
     double GetApoptosisTime();
-   
+    
     void SetStemCellCycleTime(double);
     void SetTransitCellCycleTime(double);
     void SetSG2MDuration(double);
@@ -40,7 +40,7 @@ protected:
 private:
     /** The single instance of the class */
     static CancerParameters *mpInstance;
-
+    
     /**
      * Stem cell cycle time, used to non-dimensionalise the problem
      */
@@ -85,7 +85,7 @@ private:
      * The time it takes to fully undergo apoptosis
      */
     double mApoptosisTime;
-
+    
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)

@@ -7,11 +7,11 @@ RandomNumberGenerator* RandomNumberGenerator::mpInstance = NULL;
 
 /**
  * Return a pointer to the simulation time object.
- * The first time this is called the simulation time object is created. 
+ * The first time this is called the simulation time object is created.
  * */
 RandomNumberGenerator* RandomNumberGenerator::Instance()
 {
-    if(mpInstance == NULL)
+    if (mpInstance == NULL)
     {
         mpInstance = new RandomNumberGenerator();
     }
@@ -29,8 +29,8 @@ void RandomNumberGenerator::Destroy()
 {
     if (mpInstance)
     {
-	   delete mpInstance;
-	   mpInstance = NULL;
+        delete mpInstance;
+        mpInstance = NULL;
     }
 }
 /**
@@ -42,7 +42,7 @@ unsigned RandomNumberGenerator::randMod(unsigned base)
     return (random()%base);
 }
 
-/** 
+/**
  * Generate a uniform random number in (0,1)
  */
 double RandomNumberGenerator::ranf(void)
@@ -50,7 +50,7 @@ double RandomNumberGenerator::ranf(void)
     return (double)random() / RAND_MAX;
 }
 
-/** 
+/**
  * Generate a random number from a normal distribution with given
  * mean and standard deviation
  */
@@ -62,7 +62,7 @@ double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 /**
  *  Generate a random number from the normal distribution with mean 0
  *  and standard distribution 1.
- 
+
 
 
      (STANDARD-)  N O R M A L  DISTRIBUTION

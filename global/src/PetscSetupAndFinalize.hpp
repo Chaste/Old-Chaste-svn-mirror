@@ -39,7 +39,7 @@ public:
         chdir("../../..");
         std::cout << "CWD: " << getcwd(buf, 10000) << std::endl;
 #endif
-                                    
+        
         return true;
     }
     // Clean up PETSc after running all tests.

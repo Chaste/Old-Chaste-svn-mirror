@@ -10,7 +10,7 @@
 /**
  * This is the base class for cardiac cells solved using a (decoupled) backward
  * Euler approach.
- * 
+ *
  * The basic approach to solving such models is:
  *  * Update the transmembrane potential, either from solving an external PDE,
  *    or using a forward Euler step.
@@ -44,19 +44,18 @@ public:
      *    to revisit this design decision at a later date.
      */
     AbstractBackwardEulerCardiacCell(
-                        unsigned numberOfStateVariables,
-                        unsigned voltageIndex,
-                        double dt,
-                        AbstractStimulusFunction* intracellularStimulus,
-                        AbstractStimulusFunction* extracellularStimulus = NULL)
+        unsigned numberOfStateVariables,
+        unsigned voltageIndex,
+        double dt,
+        AbstractStimulusFunction* intracellularStimulus,
+        AbstractStimulusFunction* extracellularStimulus = NULL)
             : AbstractCardiacCell(NULL,
                                   numberOfStateVariables,
                                   voltageIndex,
                                   dt,
                                   intracellularStimulus,
                                   extracellularStimulus)
-    {
-    }
+    {}
     
     /**
      * Compute the residual of the nonlinear system portion of the cell model.
@@ -115,7 +114,7 @@ public:
             // Update solutions
             solutions.rGetSolutions().push_back(rGetStateVariables());
             solutions.rGetTimes().push_back(curr_time+mDt);
-    
+            
             // check gating variables are still in range
             VerifyGatingVariables();
         }
@@ -187,7 +186,7 @@ public:
         assert(0);
     }
 #undef COVERAGE_IGNORE
-
+    
 protected:
     /**
      * Compute the values of all state variables except the voltage, for one 

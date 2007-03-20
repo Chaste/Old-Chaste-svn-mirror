@@ -52,7 +52,7 @@ public :
                 TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
                 TS_ASSERT_LESS_THAN(-(1-quad_rule.GetQuadPoint(i)[0]
-                                       -quad_rule.GetQuadPoint(i)[1]),0); // 1-x-y>0
+                                      -quad_rule.GetQuadPoint(i)[1]),0); // 1-x-y>0
                 TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0);  // x>0
                 TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[1],0);  // y>0
             }
@@ -68,8 +68,8 @@ public :
                 TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
                 TS_ASSERT_LESS_THAN(-(1-quad_rule.GetQuadPoint(i)[0]
-                                       -quad_rule.GetQuadPoint(i)[1]
-                                       -quad_rule.GetQuadPoint(i)[2]),0); // 1-x-y-z>0
+                                      -quad_rule.GetQuadPoint(i)[1]
+                                      -quad_rule.GetQuadPoint(i)[2]),0); // 1-x-y-z>0
                 TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0);  // x>0
                 TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[1],0);  // y>0
                 TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[2],0);  // z>0

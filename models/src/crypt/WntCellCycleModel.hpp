@@ -15,7 +15,7 @@
  */
 class WntCellCycleModel : public AbstractCellCycleModel
 {
-private:    
+private:
     WntCellCycleOdeSystem mOdeSystem;
     RungeKutta4IvpOdeSolver mSolver;
     double mLastTime;
@@ -28,7 +28,7 @@ private:
     /**
      * This is needed because a wnt model which is not to be run from the current time is 
      * sometimes needed. Should only be called by the cell itself when it wants to divide.
-     */ 
+     */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations, double birthTime);
     
     friend class boost::serialization::access;
@@ -47,7 +47,7 @@ private:
     }
     
 public:
-    
+
     WntCellCycleModel(double InitialWntStimulus, unsigned mutationStatus = 0);
     
     virtual ~WntCellCycleModel();
@@ -69,7 +69,10 @@ public:
 BOOST_CLASS_EXPORT(WntCellCycleModel)
 
 
-namespace boost { namespace serialization {
+namespace boost
+{
+namespace serialization
+{
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
  * instantiate a WntCellCycleModel instance.
@@ -85,6 +88,7 @@ inline void load_construct_data(
     // Invoke inplace constructor to initialize instance of my_class
     ::new(t)WntCellCycleModel(0.0, 0u);
 }
-}} // namespace ...
+}
+} // namespace ...
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

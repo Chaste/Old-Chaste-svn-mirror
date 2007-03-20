@@ -18,7 +18,7 @@ private:
     InitialStimulus* mpStimulus;
     
 public:
-  PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
+    PointStimulusCellFactory() : AbstractCardiacCellFactory<1>(0.01)//Ode timestep
     {
         // set the new stimulus
         mpStimulus = new InitialStimulus(-600, 0.5);
@@ -45,7 +45,7 @@ public:
 class Test1dBidomainProblemForEfficiency : public CxxTest::TestSuite
 {
 public:
-      void TestBidomainDg01WithNoOutput()
+    void TestBidomainDg01WithNoOutput()
     {
         PointStimulusCellFactory bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
@@ -62,9 +62,9 @@ public:
         bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.00005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.00005*identity_matrix<double>(1));
-
+        
         bidomain_problem.PrintOutput(false);
-
+        
         try
         {
             bidomain_problem.Solve();

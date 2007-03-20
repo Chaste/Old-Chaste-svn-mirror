@@ -177,7 +177,7 @@ public:
         
         delete nodes[0];
         delete nodes[1];
-        delete nodes[2];        
+        delete nodes[2];
     }
 };
 

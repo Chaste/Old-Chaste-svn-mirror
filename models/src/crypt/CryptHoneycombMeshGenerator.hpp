@@ -8,19 +8,19 @@
 #include "OutputFileHandler.hpp"
 
 
-/** 
+/**
  *  Generator of honeycomb mesh
- * 
+ *
  *  This class takes in options such as width, height, number of ghost nodes
  *  and generates a mesh and ghost node info. NOTE: the user should delete the
  *  mesh after use
  */
-class CryptHoneycombMeshGenerator 
+class CryptHoneycombMeshGenerator
 {
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
     std::vector<unsigned> mGhostNodeIndices;
-    std::string mMeshFilename; 
+    std::string mMeshFilename;
     double mCryptWidth;
     double mCryptDepth;
     unsigned mNumCellWidth;
@@ -134,12 +134,12 @@ private:
     //////////////////////////////////////////////////////////////
     // Periodic Honeycomb mesh maker
     /////////////////////////////////////////////////////////////
-
-	void Make2dPeriodicCryptMesh(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts)
-    {   
-    	OutputFileHandler output_file_handler("");	
-    	
-    	out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
+    
+    void Make2dPeriodicCryptMesh(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts)
+    {
+        OutputFileHandler output_file_handler("");
+        
+        out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
         (*p_node_file) << std::scientific;
         
         out_stream p_elem_file = output_file_handler.OpenOutputFile(mMeshFilename+".ele");
@@ -148,16 +148,16 @@ private:
         double horizontal_spacing = width / (double)numNodesAlongWidth;
         double vertical_spacing = (sqrt(3)/2)*horizontal_spacing;
 //		double vertical_spacing = (sqrt(3)/2)*length / (double)numNodesAlongLength;
-		
-		// This line needed to define ghost nodes later...
-		mCryptDepth = (double)numNodesAlongLength * (sqrt(3)/2)* width /(double)numNodesAlongWidth;
 
+        // This line needed to define ghost nodes later...
+        mCryptDepth = (double)numNodesAlongLength * (sqrt(3)/2)* width /(double)numNodesAlongWidth;
+        
         // Add an extra node to the width (this is the repeated periodic node)
         numNodesAlongWidth++;
-                
+        
         numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
         numNodesAlongLength = numNodesAlongLength + 2*ghosts;
-                
+        
         unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
         unsigned num_elem_along_width = numNodesAlongWidth-1;
         unsigned num_elem_along_length = numNodesAlongLength-1;
@@ -181,8 +181,8 @@ private:
                 double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
                 
                 double y = y0 + vertical_spacing*(double)i;
-				
-				(*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << b << std::endl;
+                
+                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << b << std::endl;
             }
         }
         p_node_file->close();
@@ -254,8 +254,8 @@ private:
         p_elem_file->close();
         p_edge_file->close();
     }
-
-
+    
+    
     void ComputeGhostNodes()
     {
         assert(mpMesh!=NULL);
@@ -266,22 +266,22 @@ private:
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
             if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
             {
-               mGhostNodeIndices.push_back(i);
+                mGhostNodeIndices.push_back(i);
             }
         }
     }
-
-
+    
+    
 public:
 
     ~CryptHoneycombMeshGenerator()
     {
         delete mpMesh;
     }
-
+    
     CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth)
     {
-    	mNumCellWidth = numCellWidth;
+        mNumCellWidth = numCellWidth;
         mCryptWidth = numCellWidth*1; //*1 because cells are considered to be size one
         mCryptDepth = sqrt(3)*numCellDepth/2;
         
@@ -312,7 +312,7 @@ public:
     */
     CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3)
     {
-    	mNumCellWidth = numNodesAlongWidth;
+        mNumCellWidth = numNodesAlongWidth;
         mCryptWidth = width; //*1 because cells are considered to be size one
         
         mMeshFilename = "2D_temporary_periodic_crypt_mesh";
@@ -331,15 +331,15 @@ public:
     
     ConformingTetrahedralMesh<2,2>* GetMesh()
     {
-        return mpMesh;   
+        return mpMesh;
     }
     
     std::vector<unsigned> GetGhostNodeIndices()
     {
         return mGhostNodeIndices;
     }
-
-
-
+    
+    
+    
 };
 #endif /*CRYPTHONEYCOMBMESHGENERATOR_HPP_*/

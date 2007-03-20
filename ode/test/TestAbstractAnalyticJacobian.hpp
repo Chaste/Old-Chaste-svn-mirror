@@ -37,9 +37,9 @@ public:
         ode_system.AnalyticJacobian(solution_guess, jacobian, 1.0, 0.01);
         
         TS_ASSERT_DELTA(jacobian[0][0], 0.96, tol);
-             
-        delete[] jacobian[0]; 
-        delete[] jacobian; 
+        
+        delete[] jacobian[0];
+        delete[] jacobian;
     }
     
     void TestJacobianTwo(void)
@@ -64,15 +64,15 @@ public:
         TS_ASSERT_DELTA(jacobian[0][0], 0.98, tol);
         TS_ASSERT_DELTA(jacobian[0][1], -0.04, tol);
         TS_ASSERT_DELTA(jacobian[1][0], -0.02, tol);
-        TS_ASSERT_DELTA(jacobian[1][1], 0.92, tol);  
+        TS_ASSERT_DELTA(jacobian[1][1], 0.92, tol);
         
         delete[] jacobian[0];
         delete[] jacobian[1];
         delete[] jacobian;
         
-                   
-    }
         
+    }
+    
 };
 
 

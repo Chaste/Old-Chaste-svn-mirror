@@ -12,18 +12,18 @@ public:
     double ranf(void);
     unsigned randMod(unsigned base);
     
- 
+    
     
     static RandomNumberGenerator* Instance();
     static void Destroy();
-	void Reseed(int seed)
-	{
-		srandom(seed);
-	}
+    void Reseed(int seed)
+    {
+        srandom(seed);
+    }
 protected:
-   /**
-     * @param seed Is the new seed which defaults to zero.
-     */
+    /**
+      * @param seed Is the new seed which defaults to zero.
+      */
     RandomNumberGenerator()
     {
         srandom(0);

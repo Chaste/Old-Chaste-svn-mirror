@@ -12,7 +12,7 @@ class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
 {
 public:
 
-    void testHHModelAtSingularities()
+    void TestHHModelAtSingularities()
     {
         /*
         * Set stimulus

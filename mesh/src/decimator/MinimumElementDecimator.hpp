@@ -17,7 +17,7 @@ protected:
         Node<SPACE_DIM>* p_node=pNodeInfo->pGetNode();
         for (unsigned i=0; i<p_node->GetNumContainingElements();i++)
         {
-            
+        
             Element<SPACE_DIM,SPACE_DIM> *p_element=this->mpMesh->GetElement(p_node->GetNextContainingElementIndex());
             double volume=p_element->GetJacobianDeterminant();
             if (volume != 0.0 && volume < measure)
@@ -28,16 +28,18 @@ protected:
         if (before)
         {
             this->mMeasureBefore=measure;
-        } else {
+        }
+        else
+        {
             this->mMeasureAfter=measure;
         }
-
+        
     }
     
     double CalculateScore()
     {
         if (this->mMeasureBefore < this->mMeasureAfter)
-        {   
+        {
             //A small element will be removed
             return this->mMeasureBefore;
         }

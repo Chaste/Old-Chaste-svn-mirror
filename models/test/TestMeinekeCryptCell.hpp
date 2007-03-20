@@ -25,20 +25,20 @@ public:
 
     void TestCellsAgeingCorrectly() throw(Exception)
     {
-        // These lines are added to cover the exception case that a cell is 
+        // These lines are added to cover the exception case that a cell is
         // created without simulation time being set up...
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-    	FixedCellCycleModel fixed_model;
+        FixedCellCycleModel fixed_model;
         SimulationTime::Destroy();
         
         TS_ASSERT_THROWS_ANYTHING(MeinekeCryptCell bad_cell(STEM, // type
-        						   HEALTHY,//Mutation State
-                                   0,    // generation
-                                   &fixed_model));
-                                   
+                                                            HEALTHY,//Mutation State
+                                                            0,    // generation
+                                                            &fixed_model));
+                                                            
         // Proper test again
-    	
+        
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
@@ -235,8 +235,8 @@ public:
                                    new FixedCellCycleModel());
                                    
                                    
-
-        
+                                   
+                                   
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -320,25 +320,25 @@ public:
         
         //  Creating different types of Meineke crypt cells with different cell cycle models at SImulationTime = 6 hours.
         MeinekeCryptCell stem_cell(STEM, // type
-								   HEALTHY,//Mutation State
+                                   HEALTHY,//Mutation State
                                    0,    // generation
                                    new FixedCellCycleModel());
                                    
         MeinekeCryptCell stochastic_stem_cell(STEM, // type
                                               HEALTHY,//Mutation State
-                                   			  0,    // generation
+                                              0,    // generation
                                               new StochasticCellCycleModel);
         MeinekeCryptCell differentiated_cell(DIFFERENTIATED, // type
                                              HEALTHY,//Mutation State
-                                   			 6,    // generation
+                                             6,    // generation
                                              new FixedCellCycleModel());
         MeinekeCryptCell stochastic_differentiated_cell(DIFFERENTIATED, // type
                                                         HEALTHY,//Mutation State
-                                   			 			6,    // generation
+                                                        6,    // generation
                                                         new StochasticCellCycleModel);
         MeinekeCryptCell transit_cell(TRANSIT, // type
                                       HEALTHY,//Mutation State
-                                   	  2,    // generation
+                                      2,    // generation
                                       new FixedCellCycleModel());
                                       
                                       
@@ -381,7 +381,7 @@ public:
         
     }
     
- 
+    
     
     void TestStochasticCycleModel() throw(Exception)
     {
@@ -396,8 +396,8 @@ public:
         TS_ASSERT_EQUALS(p_params->GetStemCellCycleTime(), 24.0);
         TS_ASSERT_EQUALS(p_params->GetTransitCellCycleTime(), 12.0);
         
-		RandomNumberGenerator::Instance();
-	    
+        RandomNumberGenerator::Instance();
+        
         for (int i=0; i<600; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
@@ -405,7 +405,7 @@ public:
         // now at t=6.00
         MeinekeCryptCell transit_cell(TRANSIT, // type
                                       HEALTHY,//Mutation State
-                                   	  2,    // generation
+                                      2,    // generation
                                       new FixedCellCycleModel());
                                       
         for (int i=0; i<1199; i++)
@@ -426,7 +426,7 @@ public:
         int ready_count=0;
         for (int i=0; i<100; i++)
         {
-        	//std::cout << "time = " << time << " transit cell age = " << transit_cell.GetAge() << "\n";
+            //std::cout << "time = " << time << " transit cell age = " << transit_cell.GetAge() << "\n";
             if (transit_cell.ReadyToDivide())
             {
                 ready_count++;
@@ -481,7 +481,7 @@ public:
             
             MeinekeCryptCell stem_cell(STEM, // type
                                        HEALTHY,//Mutation State
-                                   	   0,  // generation
+                                       0,  // generation
                                        new StochasticCellCycleModel);
             cells.push_back(stem_cell);
             // produce the offspring of the cells
@@ -572,28 +572,28 @@ public:
         
         MeinekeCryptCell transit_cell_1(TRANSIT, // type
                                         HEALTHY,//Mutation State
-                                   	  	1,  // generation
+                                        1,  // generation
                                         new FixedCellCycleModel());
                                         
         cells.push_back(transit_cell_1);
         
         MeinekeCryptCell transit_cell_2(TRANSIT, // type
                                         HEALTHY,//Mutation State
-                                   	  	2,  // generation
+                                        2,  // generation
                                         new FixedCellCycleModel());
                                         
         cells.push_back(transit_cell_2);
         
         MeinekeCryptCell transit_cell_3(TRANSIT, // type
                                         HEALTHY,//Mutation State
-                                   	  	3,  // generation
+                                        3,  // generation
                                         new FixedCellCycleModel());
                                         
         cells.push_back(transit_cell_3);
         
         MeinekeCryptCell differentiated_cell(DIFFERENTIATED, // type
                                              HEALTHY,//Mutation State
-                                   	  		 4,  // generation
+                                             4,  // generation
                                              new FixedCellCycleModel());
                                              
         cells.push_back(differentiated_cell);
@@ -618,9 +618,9 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-            	CryptCellMutationState this_cell_state;
-            	this_cell_state = cell_iterator->GetMutationState();
-				TS_ASSERT(this_cell_state==HEALTHY);
+                CryptCellMutationState this_cell_state;
+                this_cell_state = cell_iterator->GetMutationState();
+                TS_ASSERT(this_cell_state==HEALTHY);
                 if (cell_iterator->ReadyToDivide())
                 {
                     newly_born.push_back(cell_iterator->Divide());
@@ -690,25 +690,25 @@ public:
         
         double wnt_stimulus = 1.0;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
-                                   HEALTHY,//Mutation State
-                                   1,    // generation
-                                   new WntCellCycleModel(wnt_stimulus));
-        
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+                                  HEALTHY,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus));
+                                  
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	if(time>=5.971+SG2MDuration)
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
-           	}
-           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            if (time>=5.971+SG2MDuration)
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+            }
+            else
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+            }
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
         
         std::vector<double> wnt;
@@ -721,7 +721,7 @@ public:
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
-                
+        
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double timeOfBirth = wnt_cell.GetBirthTime();
@@ -731,25 +731,25 @@ public:
         
         //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
         
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	bool result1=wnt_cell.ReadyToDivide(wnt);
-        	bool result2=wnt_cell2.ReadyToDivide(wnt);
-        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-        	if(time>=5.971+SG2MDuration+timeOfBirth)
-        	{
-        		TS_ASSERT(result1==true);
-        		TS_ASSERT(result2==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(result1==false);
-        		TS_ASSERT(result2==false);
-           	}
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            bool result1=wnt_cell.ReadyToDivide(wnt);
+            bool result2=wnt_cell2.ReadyToDivide(wnt);
+            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            if (time>=5.971+SG2MDuration+timeOfBirth)
+            {
+                TS_ASSERT(result1==true);
+                TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result1==false);
+                TS_ASSERT(result2==false);
+            }
         }
         
         SimulationTime::Destroy();
@@ -763,7 +763,7 @@ public:
      */
     void TestWithTysonNovakCellCycleModel() throw(Exception)
     {
-        
+    
         double standard_tyson_duration = 75.19/60.0;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -776,15 +776,15 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
         
         MeinekeCryptCell tn_cell(TRANSIT, // type
-                                   HEALTHY,//Mutation State
-                                   1,    // generation
-                                   new TysonNovakCellCycleModel());
-        
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+                                 HEALTHY,//Mutation State
+                                 1,    // generation
+                                 new TysonNovakCellCycleModel());
+                                 
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
-            if(time>=standard_tyson_duration)
+            if (time>=standard_tyson_duration)
             {
                 TS_ASSERT(tn_cell.ReadyToDivide()==true);
             }
@@ -803,7 +803,7 @@ public:
         
         TS_ASSERT(tn_cell.GetGeneration()==2);
         TS_ASSERT(tn_cell2.GetGeneration()==2);
-                
+        
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double timeOfBirth = tn_cell.GetBirthTime();
@@ -813,14 +813,14 @@ public:
         
         //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
         
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetDimensionalisedTime();
             bool result1=tn_cell.ReadyToDivide();
             bool result2=tn_cell2.ReadyToDivide();
             //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-            if(time>=standard_tyson_duration+timeOfBirth)
+            if (time>=standard_tyson_duration+timeOfBirth)
             {
                 TS_ASSERT(result1==true);
                 TS_ASSERT(result2==true);
@@ -840,7 +840,7 @@ public:
         double end_time=100.0; // A good load of divisions to make sure nothing mucks up..
         // one division = 1.26 hours.
         int time_steps=1000;
-
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
@@ -850,7 +850,7 @@ public:
                                    0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
-        
+                                   
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -873,8 +873,8 @@ public:
             unsigned j=0;
             while (cell_iterator < cells.end())
             {
-            	//std::cout << "Cell Cycle Model called" << std::endl;
-            	if (cell_iterator->ReadyToDivide())
+                //std::cout << "Cell Cycle Model called" << std::endl;
+                if (cell_iterator->ReadyToDivide())
                 {
                     MeinekeCryptCell new_cell = cell_iterator->Divide();
                     divisions++;
@@ -891,10 +891,10 @@ public:
     
     void Test0DBucketWithTysonNovak()
     {
-        double end_time=7.0; // not very long because cell cycle time is only 1.2 
-                             // (75 mins) because Tyson Novaks is for yeast
+        double end_time=7.0; // not very long because cell cycle time is only 1.2
+        // (75 mins) because Tyson Novaks is for yeast
         int time_steps=100;
-
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
@@ -904,7 +904,7 @@ public:
                                    0,  // generation
                                    new TysonNovakCellCycleModel());
                                    
-        
+                                   
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -926,8 +926,8 @@ public:
             unsigned j=0;
             while (cell_iterator < cells.end())
             {
-            	
-            	//std::cout << "Cell " << j << " is generation " << cell_iterator->GetGeneration() << std::endl;
+            
+                //std::cout << "Cell " << j << " is generation " << cell_iterator->GetGeneration() << std::endl;
                 if (cell_iterator->ReadyToDivide())
                 {
                     newly_born.push_back(cell_iterator->Divide());
@@ -993,26 +993,26 @@ public:
         
         double wnt_stimulus = 1.0;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
-                                   APC_ONE_HIT,//Mutation State
-                                   1,    // generation
-                                   new WntCellCycleModel(wnt_stimulus,1));
-       
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+                                  APC_ONE_HIT,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,1));
+                                  
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	//std::cout << "time = " << time << std::endl;
-        	if(time>=4.804+SG2MDuration)
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
-           	}
-           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            //std::cout << "time = " << time << std::endl;
+            if (time>=4.804+SG2MDuration)
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+            }
+            else
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+            }
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
         
         std::vector<double> wnt;
@@ -1025,7 +1025,7 @@ public:
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
-                
+        
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double timeOfBirth = wnt_cell.GetBirthTime();
@@ -1035,25 +1035,25 @@ public:
         
         //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
         
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	bool result1=wnt_cell.ReadyToDivide(wnt);
-        	bool result2=wnt_cell2.ReadyToDivide(wnt);
-        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-        	if(time>=4.804+SG2MDuration+timeOfBirth)
-        	{
-        		TS_ASSERT(result1==true);
-        		TS_ASSERT(result2==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(result1==false);
-        		TS_ASSERT(result2==false);
-           	}
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            bool result1=wnt_cell.ReadyToDivide(wnt);
+            bool result2=wnt_cell2.ReadyToDivide(wnt);
+            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            if (time>=4.804+SG2MDuration+timeOfBirth)
+            {
+                TS_ASSERT(result1==true);
+                TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result1==false);
+                TS_ASSERT(result2==false);
+            }
         }
         
         SimulationTime::Destroy();
@@ -1078,26 +1078,26 @@ public:
         
         double wnt_stimulus = 0.0;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
-                                   BETA_CATENIN_ONE_HIT,//Mutation State
-                                   1,    // generation
-                                   new WntCellCycleModel(wnt_stimulus,2));
-       
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+                                  BETA_CATENIN_ONE_HIT,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,2));
+                                  
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	//std::cout << "time = " << time << std::endl;
-        	if(time>=7.82+SG2MDuration)
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
-           	}
-           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            //std::cout << "time = " << time << std::endl;
+            if (time>=7.82+SG2MDuration)
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+            }
+            else
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+            }
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
         
         std::vector<double> wnt;
@@ -1110,7 +1110,7 @@ public:
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
-                
+        
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double timeOfBirth = wnt_cell.GetBirthTime();
@@ -1120,25 +1120,25 @@ public:
         
         //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
         
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	bool result1=wnt_cell.ReadyToDivide(wnt);
-        	bool result2=wnt_cell2.ReadyToDivide(wnt);
-        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-        	if(time>=7.82+SG2MDuration+timeOfBirth)
-        	{
-        		TS_ASSERT(result1==true);
-        		TS_ASSERT(result2==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(result1==false);
-        		TS_ASSERT(result2==false);
-           	}
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            bool result1=wnt_cell.ReadyToDivide(wnt);
+            bool result2=wnt_cell2.ReadyToDivide(wnt);
+            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            if (time>=7.82+SG2MDuration+timeOfBirth)
+            {
+                TS_ASSERT(result1==true);
+                TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result1==false);
+                TS_ASSERT(result2==false);
+            }
         }
         
         SimulationTime::Destroy();
@@ -1163,10 +1163,10 @@ public:
         
         double wnt_stimulus = 0.0;
         MeinekeCryptCell wnt_cell(TRANSIT, // type
-                                   APC_ONE_HIT,//Mutation State
-                                   1,    // generation
-                                   new WntCellCycleModel(wnt_stimulus,3));
-       
+                                  APC_ONE_HIT,//Mutation State
+                                  1,    // generation
+                                  new WntCellCycleModel(wnt_stimulus,3));
+                                  
         CryptCellMutationState this_state = wnt_cell.GetMutationState();
         
         TS_ASSERT(this_state==APC_ONE_HIT);
@@ -1178,23 +1178,23 @@ public:
         this_state = wnt_cell.GetMutationState();
         
         TS_ASSERT(this_state==APC_TWO_HIT);
-       
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	//std::cout << "time = " << time << std::endl;
-        	if(time>=3.9435+SG2MDuration)
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
-           	}
-           	//std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            //std::cout << "time = " << time << std::endl;
+            if (time>=3.9435+SG2MDuration)
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==true);
+            }
+            else
+            {
+                TS_ASSERT(wnt_cell.ReadyToDivide(wnt)==false);
+            }
+            //std::cout << "Time = " << time << " ready = " << wnt_cell.ReadyToDivide(wnt) << "\n" << std::endl;
         }
         
         std::vector<double> wnt;
@@ -1207,7 +1207,7 @@ public:
         
         TS_ASSERT(wnt_cell.GetGeneration()==2);
         TS_ASSERT(wnt_cell2.GetGeneration()==2);
-                
+        
         //std::cout << "time now = " << p_simulation_time->GetDimensionalisedTime() << "\n" <<std::endl;
         
         double timeOfBirth = wnt_cell.GetBirthTime();
@@ -1217,25 +1217,25 @@ public:
         
         //std::cout << "time of cell divisions = " << timeOfBirth << "\tand\t" << timeOfBirth2 << "\n" << std::endl;
         
-        for(unsigned i=0 ; i<num_steps/2 ; i++)
+        for (unsigned i=0 ; i<num_steps/2 ; i++)
         {
-        	p_simulation_time->IncrementTimeOneStep();
-        	double time = p_simulation_time->GetDimensionalisedTime();
-        	std::vector<double> wnt;
-        	wnt.push_back(wnt_stimulus);
-        	bool result1=wnt_cell.ReadyToDivide(wnt);
-        	bool result2=wnt_cell2.ReadyToDivide(wnt);
-        	//std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
-        	if(time>=3.9435+SG2MDuration+timeOfBirth)
-        	{
-        		TS_ASSERT(result1==true);
-        		TS_ASSERT(result2==true);
-        	}
-        	else
-        	{
-        		TS_ASSERT(result1==false);
-        		TS_ASSERT(result2==false);
-           	}
+            p_simulation_time->IncrementTimeOneStep();
+            double time = p_simulation_time->GetDimensionalisedTime();
+            std::vector<double> wnt;
+            wnt.push_back(wnt_stimulus);
+            bool result1=wnt_cell.ReadyToDivide(wnt);
+            bool result2=wnt_cell2.ReadyToDivide(wnt);
+            //std::cout << "Time = " << time << ", ready1 = " << result1 << ", ready2 = " << result2<< "\n" << std::endl;
+            if (time>=3.9435+SG2MDuration+timeOfBirth)
+            {
+                TS_ASSERT(result1==true);
+                TS_ASSERT(result2==true);
+            }
+            else
+            {
+                TS_ASSERT(result1==false);
+                TS_ASSERT(result2==false);
+            }
         }
         
         SimulationTime::Destroy();
@@ -1257,7 +1257,7 @@ public:
                               HEALTHY,//Mutation State
                               0,    // generation
                               new FixedCellCycleModel());
-        
+                              
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),false);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_THROWS_ANYTHING(cell.TimeUntilDeath());
@@ -1290,12 +1290,12 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
-                
+        
         MeinekeCryptCell cell(TRANSIT, // type
                               HEALTHY,//Mutation State
                               0,    // generation
                               new FixedCellCycleModel());
-        
+                              
         p_simulation_time->IncrementTimeOneStep();//t=25
         
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
@@ -1303,14 +1303,14 @@ public:
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), false);
         SimulationTime::Destroy();
     }
-        
-
-
+    
+    
+    
     void Test0DBucketWithDeath()
     {
         double end_time=92.0;
         int time_steps=92;
-
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
@@ -1319,9 +1319,9 @@ public:
                                    HEALTHY,//Mutation State
                                    0,  // generation
                                    new FixedCellCycleModel());
-                                                        
-
-        
+                                   
+                                   
+                                   
         std::vector<MeinekeCryptCell> cells;
         std::vector<MeinekeCryptCell> newly_born;
         std::vector<unsigned> stem_cells(time_steps);
@@ -1340,18 +1340,18 @@ public:
             
             p_simulation_time->IncrementTimeOneStep();
             cell_iterator = cells.begin();
-            while(cell_iterator < cells.end())
+            while (cell_iterator < cells.end())
             {
-                if(!cell_iterator->IsDead())
+                if (!cell_iterator->IsDead())
                 {
-                    if(cell_iterator->ReadyToDivide())
+                    if (cell_iterator->ReadyToDivide())
                     {
                         newly_born.push_back(cell_iterator->Divide());
                     }
                     
-                    if((cell_iterator->GetAge() > 30))
+                    if ((cell_iterator->GetAge() > 30))
                     {
-                        cell_iterator->StartApoptosis();    
+                        cell_iterator->StartApoptosis();
                     }
                 }
                 
@@ -1372,7 +1372,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                if(!cell_iterator->IsDead())
+                if (!cell_iterator->IsDead())
                 {
                     switch (cell_iterator->GetCellType())
                     {
@@ -1397,13 +1397,13 @@ public:
             times[i]=p_simulation_time->GetDimensionalisedTime();
             i++;
         }
-
+        
         
         TS_ASSERT_EQUALS(stem_cells[time_steps-1], 1u);
         TS_ASSERT_EQUALS(transit_cells[time_steps-1], 2u);
         TS_ASSERT_EQUALS(differentiated_cells[time_steps-1], 8u);
         TS_ASSERT_EQUALS(dead_cells[time_steps-1], 8u);
-
+        
         SimulationTime::Destroy();
     }
     
@@ -1431,9 +1431,9 @@ public:
             TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
             
             stem_cell.SetNodeIndex(3);
-    
-            // Create an ouput archive 
-            std::ofstream ofs(archive_filename.c_str());       
+            
+            // Create an ouput archive
+            std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             
             // and write the cell to the archive
@@ -1441,42 +1441,42 @@ public:
             output_arch << static_cast<const MeinekeCryptCell&>(stem_cell);
             SimulationTime::Destroy();
         }
-
+        
         // Restore Meineke Crypt Cell
         {
             // need to set up time to initialise a cell
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(1.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 1); // will be restored
-
+            
             // Initialise a cell
             AbstractCellCycleModel *temp_model = new FixedCellCycleModel();
             MeinekeCryptCell stem_cell(TRANSIT, // the type will be restored soon
                                        HEALTHY,//Mutation State
                                        1,    // generation
                                        temp_model);
-             
+                                       
             // restore the cell
-            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);       
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
-
+            
             input_arch >> *p_simulation_time;
             input_arch >> stem_cell;
             
             // Free memory
             delete temp_model;
-
+            
             // check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetDimensionalisedTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
-                            
+            
             TS_ASSERT_EQUALS(stem_cell.GetNodeIndex(), 3u);
             TS_ASSERT_EQUALS(stem_cell.GetAge(), 0.5);
             TS_ASSERT_EQUALS(stem_cell.GetGeneration(), 0u);
             TS_ASSERT_EQUALS(stem_cell.GetCellType(), STEM);
             
             SimulationTime::Destroy();
-        } 
+        }
     }
 };
 

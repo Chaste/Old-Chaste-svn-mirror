@@ -7,7 +7,7 @@
 class TestFourthOrderTensor : public CxxTest::TestSuite
 {
 public:
-    void testFourthOrderTensor()
+    void TestFourthOrderTensorBasic()
     {
         unsigned dim;
         

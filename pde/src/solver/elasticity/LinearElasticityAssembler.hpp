@@ -125,7 +125,7 @@ private :
 public :
     LinearElasticityAssembler(ConformingTetrahedralMesh<DIM,DIM>* pMesh,
                               ElasticityBoundaryConditionsContainer<DIM>* pBoundaryConditions)
-           :  AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>()
+            :  AbstractLinearStaticProblemAssembler<DIM,DIM,DIM>()
     {
         assert(pMesh != NULL);
         assert(pBoundaryConditions != NULL);

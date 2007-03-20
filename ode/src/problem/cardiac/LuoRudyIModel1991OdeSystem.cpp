@@ -111,8 +111,8 @@ void LuoRudyIModel1991OdeSystem::Init()
  *
  * @return std::vector<double> RHS of LuoRudyIModel1991OdeSystem system of equations
  */
-void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time, 
-                                                      const std::vector<double> &rY, 
+void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
+                                                      const std::vector<double> &rY,
                                                       std::vector<double> &rDY)
 {
     double fast_sodium_current_h_gate_h = rY[0];

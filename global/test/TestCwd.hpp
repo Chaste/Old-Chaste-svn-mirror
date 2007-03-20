@@ -19,9 +19,9 @@ class TestCwd : public CxxTest::TestSuite
 public:
     void TestShowCwd()
     {
-	TS_ASSERT_EQUALS(system("pwd"), 0);
-	TS_ASSERT_EQUALS(system("ls -l io/test/data"), 0);
-	//system("diff /tmp/jonc/testoutput/TestParallelColumnDataWriter/ParallelColumnWriter.info io/test/data/ColumnWriter.info");
+        TS_ASSERT_EQUALS(system("pwd"), 0);
+        TS_ASSERT_EQUALS(system("ls -l io/test/data"), 0);
+        //system("diff /tmp/jonc/testoutput/TestParallelColumnDataWriter/ParallelColumnWriter.info io/test/data/ColumnWriter.info");
     }
 };
 

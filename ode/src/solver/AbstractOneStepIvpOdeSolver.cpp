@@ -37,7 +37,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     
     unsigned guess_number_of_time_samples = (unsigned) ceil((endTime - startTime)/timeSampling);
     
- 
+    
     
     // setup solutions if output is required
     
@@ -111,11 +111,11 @@ void AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSystem,
 
 
 void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
-                       std::vector<double>& rYValues,
-                       std::vector<double>& rWorkingMemory,
-                       double startTime,
-                       double endTime,
-                       double timeStep)
+                                                std::vector<double>& rYValues,
+                                                std::vector<double>& rWorkingMemory,
+                                                double startTime,
+                                                double endTime,
+                                                double timeStep)
 {
     // Solve the ODE system
     
@@ -141,12 +141,12 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeS
         time_step_number++;
         
         // Determine what the value time step should really be like
-        double to_time = startTime+time_step_number*timeStep; 
+        double to_time = startTime+time_step_number*timeStep;
         
         if (to_time >= close_to_end_time)
         {
             real_time_step = endTime - current_time;
-           // std::cout<<"InternalSolve "<<timeStep<<" "<<real_time_step<<"\n";
+            // std::cout<<"InternalSolve "<<timeStep<<" "<<real_time_step<<"\n";
             to_time = endTime;
         }
         
@@ -161,7 +161,7 @@ void AbstractOneStepIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeS
                             current_time,
                             curr_is_curr ? rYValues : rWorkingMemory,
                             curr_is_curr ? rWorkingMemory : rYValues);
-                                       
+                            
         // Determine the new current time
         current_time = to_time;
         

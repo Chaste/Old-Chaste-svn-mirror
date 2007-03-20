@@ -46,7 +46,7 @@ public:
         else
         {
             assert(0);
-	    return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
+            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus, mpExtracellularStimulus1);
         }
     }
     
@@ -71,7 +71,7 @@ class TestBidomainPde : public CxxTest::TestSuite
 {
 public:
 
-    void testBidomainPdeGetSet( void )
+    void TestBidomainPdeGetSet( void )
     {
         MyCardiacCellFactory cell_factory; // same as cell factory but with extracell stimuli
         
@@ -99,7 +99,7 @@ public:
         TS_ASSERT_DELTA( sigma(0,0), 218, 1e-10);
     }
     
-    void testBidomainPde_SolveCellSystems( void )
+    void TestBidomainPdeSolveCellSystems( void )
     {
         double big_time_step = 0.5;
         MyCardiacCellFactory cell_factory;

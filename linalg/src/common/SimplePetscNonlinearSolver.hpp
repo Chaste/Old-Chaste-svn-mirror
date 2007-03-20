@@ -13,7 +13,7 @@ class SimplePetscNonlinearSolver : public AbstractNonlinearSolver
 public:
     Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
               PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
-              Vec initialGuess, 
+              Vec initialGuess,
               void *pContext);
               
 };

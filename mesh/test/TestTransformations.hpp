@@ -538,7 +538,7 @@ public:
         TS_ASSERT_DELTA(corner_after[1],  1.0, 1e-7);
         TS_ASSERT_DELTA(corner_after[2],  1.0, 1e-7);
         
-    }    
+    }
 };
 
 #endif /*TESTTRANSFORMATIONS_HPP_*/

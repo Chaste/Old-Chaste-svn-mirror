@@ -33,7 +33,7 @@ public:
      */
     OutputFileHandler(const std::string &rDirectory,
                       bool rCleanOutputDirectory = true);
-    
+                      
     /**
      * Check that the desired output directory exists and is writable by us.
      * Create it if needed.

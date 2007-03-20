@@ -25,7 +25,7 @@ private:
 public:
     PointStimulusCellFactory(double timeStep, double num_elements) : AbstractCardiacCellFactory<3>(timeStep)
     {
-    	// scale stimulus depending on space_step of elements
+        // scale stimulus depending on space_step of elements
         mpStimulus = new InitialStimulus(-100000* pow(num_elements/12.0, 1.0/3.0), 0.5);
     }
     
@@ -57,71 +57,71 @@ public:
 
     void Test3dBidomainSpaceAndTime()
     {
-    	const unsigned number_of_meshes = 6;
-    	
-    	double num_elements[number_of_meshes];
+        const unsigned number_of_meshes = 6;
+        
+        double num_elements[number_of_meshes];
         std::string file_name[number_of_meshes];
         
         unsigned opposite_corner_node[number_of_meshes];
-                
+        
         double space_steps[number_of_meshes];
-
-    	// Create the meshes on which the test will be based
+        
+        // Create the meshes on which the test will be based
         const std::string mesh_dir = "BidomainConvergenceMesh";
         OutputFileHandler output_file_handler(mesh_dir);
         
-    	for (unsigned i = 0; i < number_of_meshes; i++)
-    	{
-    		unsigned mesh_size = (unsigned) pow(2, i);
-    		double scaling = 0.2/(double) mesh_size;
-    		
-	        ConformingTetrahedralMesh<3,3> mesh;
-	        
-	        mesh.ConstructCuboid(mesh_size, mesh_size, mesh_size);
-	        mesh.Scale(scaling, scaling, scaling);
-
-	        num_elements[i] = mesh.GetNumElements();
-	        
-	        opposite_corner_node[i] = mesh.GetNumNodes()-1;
-	        
-	        TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[0],0.2,1e-6);
-	        TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[1],0.2,1e-6);
-	        TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[2],0.2,1e-6);
-	        
-	        space_steps[i] = scaling;
-
+        for (unsigned i = 0; i < number_of_meshes; i++)
+        {
+            unsigned mesh_size = (unsigned) pow(2, i);
+            double scaling = 0.2/(double) mesh_size;
+            
+            ConformingTetrahedralMesh<3,3> mesh;
+            
+            mesh.ConstructCuboid(mesh_size, mesh_size, mesh_size);
+            mesh.Scale(scaling, scaling, scaling);
+            
+            num_elements[i] = mesh.GetNumElements();
+            
+            opposite_corner_node[i] = mesh.GetNumNodes()-1;
+            
+            TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[0],0.2,1e-6);
+            TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[1],0.2,1e-6);
+            TS_ASSERT_DELTA(mesh.GetNode(opposite_corner_node[i])->rGetLocation()[2],0.2,1e-6);
+            
+            space_steps[i] = scaling;
+            
             std::stringstream file_name_stream;
-       	    file_name_stream<< "cube_2mm_"<< (int) 6*pow(2,i) <<"_elements";
-	        file_name[i]=file_name_stream.str();
-	        
-	        TrianglesMeshWriter<3,3> mesh_writer(mesh_dir, file_name[i], false);
-	        
-	        mesh_writer.WriteFilesUsingMesh(mesh);
-	    }
-    	
-        // To ensure that the first test fails        
-        double prev_voltage_for_space = -999;   
+            file_name_stream<< "cube_2mm_"<< (int) 6*pow(2,i) <<"_elements";
+            file_name[i]=file_name_stream.str();
+            
+            TrianglesMeshWriter<3,3> mesh_writer(mesh_dir, file_name[i], false);
+            
+            mesh_writer.WriteFilesUsingMesh(mesh);
+        }
+        
+        // To ensure that the first test fails
+        double prev_voltage_for_space = -999;
         bool converging_in_space = false;
         bool failed_to_converge_in_space = false;
-
+        
         double time_step;   // ms
-
+        
         double probe_voltage;
         ReplicatableVector voltage_replicated;
         
-        unsigned current_file_num = 0;                    
+        unsigned current_file_num = 0;
         
         do //do while: space_step
         {
             bool converging_in_time = false;
             // To ensure that the first test fails
-            double prev_voltage_for_time = -999;   
+            double prev_voltage_for_time = -999;
             
-            time_step = 0.04;  // ms 
+            time_step = 0.04;  // ms
             
             std::string mesh_pathname = output_file_handler.GetTestOutputDirectory()
-                + file_name[current_file_num];
-
+                                        + file_name[current_file_num];
+                                        
             std::cout<<"================================================================================"<<std::endl  << std::flush;
             std::cout<<"Solving with a space step of "<< space_steps[current_file_num] << " cm - mesh " << current_file_num <<std::endl  << std::flush;
             
@@ -131,19 +131,19 @@ public:
                 BidomainProblem<3> bidomain_problem(&cell_factory);
                 
                 bidomain_problem.SetMeshFilename(mesh_pathname);
-                bidomain_problem.SetEndTime(3.52);   // ms        
-
+                bidomain_problem.SetEndTime(3.52);   // ms
+                
                 bidomain_problem.SetLinearSolverRelativeTolerance(1e-6);
- 
-/*              bidomain_problem.SetOutputDirectory("bitemp");
-                bidomain_problem.SetOutputFilenamePrefix("bitemp");
-                bidomain_problem.SetPrintingTimeStep(0.1);
-                bidomain_problem.SetWriteInfo();
-*/
-
+                
+                /*              bidomain_problem.SetOutputDirectory("bitemp");
+                                bidomain_problem.SetOutputFilenamePrefix("bitemp");
+                                bidomain_problem.SetPrintingTimeStep(0.1);
+                                bidomain_problem.SetWriteInfo();
+                */
+                
                 bidomain_problem.SetPdeTimeStep(time_step);
                 bidomain_problem.Initialise();
-
+                
                 std::cout<<"   Solving with a time step of "<<time_step<<" ms"<<std::endl  << std::flush;
                 
                 try
@@ -162,13 +162,13 @@ public:
                     {
                         converging_in_time = true;
                     }
-                    else 
+                    else
                     {
                         // Get ready for the next test by halving the time step
                         time_step *= 0.5;
                     }
                     
-                    if(time_step < 1e-4)
+                    if (time_step < 1e-4)
                     {
                         std::cout << "**** NO TIMESTEP GREATER THAN 1e-4 FOUND WHICH WORKS, MOVING ONTO NEXT MESH...****\n" << std::flush;
                         converging_in_time = true;
@@ -199,9 +199,9 @@ public:
             }
             else
             {
-                // Use the next mesh next time 
+                // Use the next mesh next time
                 current_file_num++;
-                if(current_file_num==number_of_meshes)
+                if (current_file_num==number_of_meshes)
                 {
                     TS_FAIL("Could not converge for any of the meshes used");
                     failed_to_converge_in_space = true;
@@ -214,14 +214,14 @@ public:
         
         if (converging_in_space)
         {
-	        std::cout<<"================================================================================"<<std::endl << std::flush;
+            std::cout<<"================================================================================"<<std::endl << std::flush;
+            
+            std::cout << "Converged both in space ("<< space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
+        }
         
-    	    std::cout << "Converged both in space ("<< space_steps[current_file_num] <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
-        }    
-        
-       // TS_ASSERT_DELTA(space_steps[current_file_num], 0.005, 0.0);
-       // TS_ASSERT_DELTA(time_step, 0.005, 0.0);
-       // TS_ASSERT_DELTA(probe_voltage, -10.3432, 0.0001);
+        // TS_ASSERT_DELTA(space_steps[current_file_num], 0.005, 0.0);
+        // TS_ASSERT_DELTA(time_step, 0.005, 0.0);
+        // TS_ASSERT_DELTA(probe_voltage, -10.3432, 0.0001);
         // Note: the delta is because of floating point issues (!!)
     }
 };

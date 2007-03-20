@@ -42,7 +42,7 @@ public:
      * Remove PETSc context.
      */
     ~ReplicatableVector();
-
+    
     
     /**
      * Return the size of the vector.

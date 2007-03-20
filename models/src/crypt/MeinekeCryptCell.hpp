@@ -33,7 +33,7 @@ private:
         archive & mCanDivide;
         archive & mUndergoingApoptosis;
     }
-
+    
 protected:
     unsigned mGeneration;
     CryptCellType mCellType;
@@ -49,7 +49,7 @@ protected:
     void CommonCopy(const MeinekeCryptCell &other_cell);
     
     
-
+    
     
 public:
     /**
@@ -61,7 +61,7 @@ public:
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      */
     MeinekeCryptCell(CryptCellType cellType,
-    	             CryptCellMutationState mutationState,
+                     CryptCellMutationState mutationState,
                      unsigned generation,
                      AbstractCellCycleModel *pCellCycleModel);
     /**
@@ -78,7 +78,7 @@ public:
     MeinekeCryptCell& operator=(const MeinekeCryptCell &other_cell);
     
     void SetBirthTime(double birthTime);
-
+    
     /**
      * Change the cell cycle model used.  This takes effect immediately.
      */
@@ -96,7 +96,7 @@ public:
     CryptCellMutationState GetMutationState() const;
     void SetCellType(CryptCellType cellType);
     void SetMutationState(CryptCellMutationState mutationState);
-        
+    
     /**
      * Determine if this cell will be ready to divide at the given simulation time.
      * MUST be called before Divide().
@@ -109,16 +109,19 @@ public:
     bool HasApoptosisBegun() const;
     double TimeUntilDeath() const;
     bool IsDead() const;
-	/**
-     * Divide this cell to produce a daughter cell.
-     * ReadyToDivide must have been called with the given simulationTime, and returned true.
-     */
+    /**
+        * Divide this cell to produce a daughter cell.
+        * ReadyToDivide must have been called with the given simulationTime, and returned true.
+        */
     MeinekeCryptCell Divide();
     
 };
 
 
-namespace boost { namespace serialization {
+namespace boost
+{
+namespace serialization
+{
 /**
  * Serialize information required to construct a Meineke cell.
  */
@@ -155,8 +158,9 @@ inline void load_construct_data(
     ar >> p_cell_cycle_model;
     // invoke inplace constructor to initialize instance
     ::new(t)MeinekeCryptCell(cell_type, mutation_state, generation,
-			     p_cell_cycle_model);
+                             p_cell_cycle_model);
 }
-}} // namespace ...
+}
+} // namespace ...
 
 #endif /*MEINEKECRYPTCELL_HPP_*/

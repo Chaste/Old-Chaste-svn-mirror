@@ -30,7 +30,7 @@ public:
     void TestRandomCellKiller(void) throw(Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
-    	RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         
         // read in mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
@@ -97,9 +97,9 @@ public:
         RandomCellKiller<2> random_cell_killer;
         random_cell_killer.SetCellsAndMesh(&cells, &mesh);
         
-        // check that a single cell reaches apoptosis    
+        // check that a single cell reaches apoptosis
         unsigned max_tries=0;
-        while(!cells[0].HasApoptosisBegun() && max_tries<99)
+        while (!cells[0].HasApoptosisBegun() && max_tries<99)
         {
             random_cell_killer.TestAndLabelSingleCellForApoptosis(0);
             max_tries++;
@@ -115,7 +115,7 @@ public:
         
         bool apoptosis_cell_found=false;
         unsigned count=1;
-        while(count<cells.size() && apoptosis_cell_found ==  false)
+        while (count<cells.size() && apoptosis_cell_found ==  false)
         {
             if (cells[count].HasApoptosisBegun())
             {
@@ -123,10 +123,10 @@ public:
             }
             count++;
         }
-            
+        
         TS_ASSERT(apoptosis_cell_found);
-
-
+        
+        
         double death_time = p_simulation_time->GetDimensionalisedTime() + p_params->GetApoptosisTime();
         while (p_simulation_time->GetDimensionalisedTime() < death_time)
         {
@@ -141,7 +141,7 @@ public:
                 Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
                 c_vector< double, 2 > location = p_node->rGetLocation();
                 old_locations.insert(location[0]+location[1]*1000);
-            }  
+            }
         }
         
         
@@ -150,7 +150,7 @@ public:
         
         // check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for( count=0; count<cells.size(); count++)
+        for ( count=0; count<cells.size(); count++)
         {
             TS_ASSERT(!cells[count].IsDead());
             Node<2>* p_node = mesh.GetNode(cells[count].GetNodeIndex());
@@ -161,9 +161,9 @@ public:
         TS_ASSERT(new_locations == old_locations);
         RandomNumberGenerator::Destroy();
         
-   }
+    }
     
-     
+    
 };
 
 #endif /*TESTCELLKILLERS_HPP_*/

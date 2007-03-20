@@ -13,15 +13,17 @@ protected:
     void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
     {
     
-        
+    
         double measure=pNodeInfo->GetIndex();
         if (before)
         {
             this->mMeasureBefore=measure;
-        } else {
+        }
+        else
+        {
             this->mMeasureAfter=measure;
         }
-
+        
     }
     
     //double CalculateScore returns mMeasureAfter as in the base class
