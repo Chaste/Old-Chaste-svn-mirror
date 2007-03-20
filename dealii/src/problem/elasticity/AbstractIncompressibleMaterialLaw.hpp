@@ -9,11 +9,11 @@
 #include <base/symmetric_tensor.h>
 
 
-/** 
+/**
  *  AbstractIncompressibleMaterialLaw
- * 
+ *
  *  An incompressible hyperelastic material law for finite elastiticy
- *  
+ *
  *  The law is given by a strain energy function W(E), where E is the strain, such
  *  that the stress T = dW/dE
  */
@@ -38,16 +38,16 @@ public :
      *    the final parameter is true
      *  @param computeDTdE a boolean flag saying whether the stress derivative is 
      *    required or not.
-     */  
-    virtual void ComputeStressAndStressDerivative(Tensor<2,DIM>&          C, 
+     */
+    virtual void ComputeStressAndStressDerivative(Tensor<2,DIM>&          C,
                                                   Tensor<2,DIM>&          invC,
                                                   double                  pressure,
                                                   SymmetricTensor<2,DIM>& T,
                                                   double                  dTdE[DIM][DIM][DIM][DIM],
                                                   bool                    computeDTdE)=0;
-
-
-    /** 
+                                                  
+                                                  
+    /**
      *  Compute the Cauchy stress (the true stress), given the deformation gradient
      *  F and the pressure. The Cauchy stress is given by
      *  
@@ -61,7 +61,7 @@ public :
      * 
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
-     */                                                   
+     */
     void ComputeCauchyStress(Tensor<2,DIM>& F, double pressure, Tensor<2,DIM>& sigma)
     {
         double detF = determinant(F);
@@ -76,16 +76,16 @@ public :
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
         
         // looping it probably more eficient then doing sigma = (1/detF)F*T*transpose(F)
-        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a 
+        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
         // SymmetricTensor<2,DIM>
-        for(unsigned i=0; i<DIM; i++)
+        for (unsigned i=0; i<DIM; i++)
         {
-            for(unsigned j=0; j<DIM; j++)
+            for (unsigned j=0; j<DIM; j++)
             {
                 sigma[i][j] = 0.0;
-                for(unsigned M=0; M<DIM; M++)
+                for (unsigned M=0; M<DIM; M++)
                 {
-                    for(unsigned N=0; N<DIM; N++)
+                    for (unsigned N=0; N<DIM; N++)
                     {
                         sigma[i][j] += F[i][M]*T[M][N]*F[j][N];
                     }
@@ -94,10 +94,10 @@ public :
             }
         }
     }
-
-
-
-    /** 
+    
+    
+    
+    /**
      *  Compute the 1st Piola Kirchoff stress, given the deformation gradient F
      *  and the pressure. The 1st Piola Kirchoff stress given by
      *  
@@ -114,7 +114,7 @@ public :
      * 
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
-     */                                                 
+     */
     void Compute1stPiolaKirchoffStress(Tensor<2,DIM>& F, double pressure, Tensor<2,DIM>& S)
     {
         Tensor<2,DIM> C = transpose(F) * F;
@@ -126,26 +126,26 @@ public :
         
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
         
-
+        
         // looping it probably more eficient then doing S = T*transpose(F)
-        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a 
+        // which doesn't seem to compile anyway, as F is a Tensor<2,DIM> and T is a
         // SymmetricTensor<2,DIM>
-        for(unsigned M=0; M<DIM; M++)
+        for (unsigned M=0; M<DIM; M++)
         {
-            for(unsigned i=0; i<DIM; i++)
+            for (unsigned i=0; i<DIM; i++)
             {
                 S[M][i] = 0.0;
-                for(unsigned N=0; N<DIM; N++)
+                for (unsigned N=0; N<DIM; N++)
                 {
                     S[M][i] += T[M][N] * F[i][N];
                 }
             }
         }
     }
-              
-                                              
-
-    /** 
+    
+    
+    
+    /**
      *  Compute the 2nd Piola Kirchoff stress, given the deformation tensor C
      *  and the pressure. The 2nd Piola Kirchoff stress given by
      *  
@@ -157,7 +157,7 @@ public :
      * 
      *  Note: the compute the material part of the stress (the pressure-independent
      *  part), just pass in pressure=0.0
-     */                                                   
+     */
     void Compute2ndPiolaKirchoffStress(Tensor<2,DIM>& C, double pressure, SymmetricTensor<2,DIM>& T)
     {
         Tensor<2,DIM> invC = invert(C);
@@ -166,15 +166,14 @@ public :
         
         ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,false);
     }
-
-    /** 
+    
+    /**
      *  Get the pressure corresponding to E=0, ie C=identity
      */
     virtual double GetZeroStrainPressure()=0;
-
+    
     virtual ~AbstractIncompressibleMaterialLaw()
-    {
-    }
+    {}
 };
 
 

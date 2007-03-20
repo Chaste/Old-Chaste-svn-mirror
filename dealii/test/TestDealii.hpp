@@ -8,7 +8,7 @@
 class TestDealii : public CxxTest::TestSuite
 {
 public:
-    void testDealiiOnDiffusionProblem()
+    void TestDealiiOnDiffusionProblem()
     {
         DiffusionProblem diffusion_problem;
         diffusion_problem.Run();

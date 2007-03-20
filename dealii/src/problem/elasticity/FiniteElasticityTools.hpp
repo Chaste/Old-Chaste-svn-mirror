@@ -12,29 +12,29 @@ public:
      *  Takes in a mesh and sets all surface elements for which x_i = value (where i is 'component', 
      *  the second parameter, value the third parameter, which defaults to 0) as the fixed surface 
      *  and all other surface elements as the neumann surface
-     */  
+     */
     static void SetFixedBoundary(Triangulation<DIM>& mesh, unsigned component, double value=0.0)
     {
         assert(component<DIM);
-    
+        
         bool found_element_on_requested_surface = false;
-
+        
         typename Triangulation<DIM>::cell_iterator element_iter = mesh.begin_active();
-    
-        while(element_iter!=mesh.end())
+        
+        while (element_iter!=mesh.end())
         {
-            for(unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
+            for (unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
             {
-                if(element_iter->face(face_index)->at_boundary()) 
+                if (element_iter->face(face_index)->at_boundary())
                 {
                     double component_val = element_iter->face(face_index)->center()(component);
-                    if(fabs(component_val - value)<1e-4)
+                    if (fabs(component_val - value)<1e-4)
                     {
                         // x_i=value, label as fixed boundary
                         element_iter->face(face_index)->set_boundary_indicator(FIXED_BOUNDARY);
                         found_element_on_requested_surface = true;
                     }
-                    else 
+                    else
                     {
                         // else label as neumann boundary
                         element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
@@ -44,7 +44,7 @@ public:
             element_iter++;
         }
         
-        if(!found_element_on_requested_surface)
+        if (!found_element_on_requested_surface)
         {
             EXCEPTION("No elements were found on the requested surface");
         }
@@ -56,42 +56,42 @@ public:
      *  fixed surface, and all other surface elements as the neumann surface. The condition to be satisfied
      *  is for any vertex to be within TOL of the given point (in the 2-norm), where TOL is
      *  the third parameter (defaults to 1e-6).
-     */   
+     */
     static void FixFacesContainingPoint(Triangulation<DIM>& mesh, Point<DIM>& point, double tol=1e-6)
     {
         assert(DIM>1);
         
         bool found_element_on_requested_surface = false;
-
+        
         typename Triangulation<DIM>::cell_iterator element_iter = mesh.begin_active();
-    
-        while(element_iter!=mesh.end())
+        
+        while (element_iter!=mesh.end())
         {
-            for(unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
+            for (unsigned face_index=0; face_index<GeometryInfo<DIM>::faces_per_cell; face_index++)
             {
-                if(element_iter->face(face_index)->at_boundary()) 
+                if (element_iter->face(face_index)->at_boundary())
                 {
                     bool face_contains_point = false;
-    
-                    for(unsigned i=0; i<GeometryInfo<DIM-1>::vertices_per_cell; i++)
+                    
+                    for (unsigned i=0; i<GeometryInfo<DIM-1>::vertices_per_cell; i++)
                     {
                         Point<DIM> vertex_point = element_iter->face(face_index)->vertex(i);
                         Point<DIM> diff = vertex_point-point;
                         double distance = std::sqrt(diff.square());
                         
-                        if(distance < tol)
+                        if (distance < tol)
                         {
                             face_contains_point = true;
                         }
                     }
-
-                    if(face_contains_point)
-                    {   
+                    
+                    if (face_contains_point)
+                    {
                         // label as fixed boundary
                         element_iter->face(face_index)->set_boundary_indicator(FIXED_BOUNDARY);
                         found_element_on_requested_surface = true;
                     }
-                    else 
+                    else
                     {
                         // else label as neumann boundary
                         element_iter->face(face_index)->set_boundary_indicator(NEUMANN_BOUNDARY);
@@ -101,7 +101,7 @@ public:
             element_iter++;
         }
         
-        if(!found_element_on_requested_surface)
+        if (!found_element_on_requested_surface)
         {
             EXCEPTION("No face elements were found containing the given point");
         }
@@ -115,14 +115,14 @@ public:
      *  Note: the FiniteElasticityAssemblerWithGrowth requires all elements to be
      *  either NON_GROWING_REGION or GROWING_REGION, and at least one to be 
      *  GROWING_REGION
-     */  
+     */
     static void SetAllElementsAsNonGrowingRegion(Triangulation<DIM>& mesh)
     {
         typename Triangulation<DIM>::active_cell_iterator element_iter = mesh.begin_active();
-        while(element_iter!=mesh.end())
+        while (element_iter!=mesh.end())
         {
-            element_iter->set_material_id(NON_GROWING_REGION);            
-            element_iter++;    
+            element_iter->set_material_id(NON_GROWING_REGION);
+            element_iter++;
         }
     }
     
@@ -137,25 +137,25 @@ public:
      *  Note: the FiniteElasticityAssemblerWithGrowth requires all elements to be
      *  either NON_GROWING_REGION or GROWING_REGION, and at least one to be 
      *  GROWING_REGION
-     */  
-    static void SetCircularRegionAsGrowingRegion(Triangulation<DIM>& mesh, 
+     */
+    static void SetCircularRegionAsGrowingRegion(Triangulation<DIM>& mesh,
                                                  Point<DIM> centre,
                                                  double distance)
     {
         typename Triangulation<DIM>::active_cell_iterator element_iter = mesh.begin_active();
-        while(element_iter!=mesh.end())
+        while (element_iter!=mesh.end())
         {
             for (unsigned i=0; i<GeometryInfo<DIM>::vertices_per_cell; i++)
             {
                 const Point<DIM> vector_to_centre = (element_iter->vertex(i) - centre);
                 const double distance_from_centre = std::sqrt(vector_to_centre.square());
-              
+                
                 if (distance_from_centre < distance)
                 {
                     element_iter->set_material_id(GROWING_REGION);
                 }
             }
-            element_iter++;    
+            element_iter++;
         }
     }
 };

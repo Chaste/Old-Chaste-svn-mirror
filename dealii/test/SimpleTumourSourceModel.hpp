@@ -5,7 +5,7 @@
 
 /* A simple tumour source model (for testing) that just returns
  * s = n, at an evaluation point, where n is the index of the evaluation
- * point 
+ * point
  */
 template<unsigned DIM>
 class SimpleTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
@@ -13,9 +13,9 @@ class SimpleTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
 public :
     void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
-        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter 
-           = this->mEvaluationPoints.begin();
-        while(iter!=this->mEvaluationPoints.end())
+        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter
+        = this->mEvaluationPoints.begin();
+        while (iter!=this->mEvaluationPoints.end())
         {
             unsigned index = iter->first;
             iter->second.SourceValue = index;

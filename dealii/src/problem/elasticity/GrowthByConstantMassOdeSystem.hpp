@@ -13,17 +13,17 @@ template<unsigned DIM>
 class GrowthByConstantMassOdeSystem : public AbstractOdeSystem
 {
 private:
-    double mRho;    
+    double mRho;
     unsigned mSourceModelIndex;
     
     AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
     
 public:
     // Constructor
-    GrowthByConstantMassOdeSystem(double rho, 
-                                  unsigned sourceModelIndex, 
+    GrowthByConstantMassOdeSystem(double rho,
+                                  unsigned sourceModelIndex,
                                   AbstractGrowingTumourSourceModel<DIM>* pSourceModel)
-       : AbstractOdeSystem(1)
+            : AbstractOdeSystem(1)
     {
         mSourceModelIndex = sourceModelIndex;
         assert(rho>0);
@@ -33,19 +33,18 @@ public:
         
         mInitialConditions.push_back(1.0);
         
-        SetStateVariables(mInitialConditions);  
+        SetStateVariables(mInitialConditions);
     }
     
     ~GrowthByConstantMassOdeSystem()
-    {
-    }
-
-
+    {}
+    
+    
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
     {
         double s = mpSourceModel->GetSourceValue(mSourceModelIndex);
         rDY[0] = (1.0/DIM)*rY[0]*mRho*s;
     }
     
-}; 
+};
 #endif /*GROWTHBYCONSTANTMASSODESYSTEM_HPP_*/

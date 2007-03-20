@@ -3,8 +3,8 @@
 
 #include "AbstractGrowingTumourSourceModel.hpp"
 
-/** 
- * A simple tumour source model for which s = constant at every evaluation 
+/**
+ * A simple tumour source model for which s = constant at every evaluation
  * point, where the constant is taken in in the constructor
  */
 template<unsigned DIM>
@@ -17,12 +17,12 @@ public :
     {
         mValue = value;
     }
-
+    
     void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
     {
-        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter 
-           = this->mEvaluationPoints.begin();
-        while(iter!=this->mEvaluationPoints.end())
+        typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter
+        = this->mEvaluationPoints.begin();
+        while (iter!=this->mEvaluationPoints.end())
         {
             iter->second.SourceValue = mValue;
             iter++;

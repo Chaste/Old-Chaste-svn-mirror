@@ -4,22 +4,22 @@
 #include "AbstractIsotropicIncompressibleMaterialLaw.hpp"
 #include "Exception.hpp"
 
-/** 
+/**
  *  ExponentialMaterialLaw
- * 
+ *
  *  An exponential isotropic incompressible hyperelastic material law for finite
  *  elasticity
- *  
- *  The law is given by a strain energy function 
+ *
+ *  The law is given by a strain energy function
  *      W(I_1,I_2,I_3) = a exp( b(I_1-3) ) - p/2 C^{-1}
- *  in 3d, or 
+ *  in 3d, or
  *      W(I_1,I_2,I_3) = a exp( b(I_1-2) ) - p/2 C^{-1}
  *  in 2d.
- * 
- *  Here I_i are the principal invariants of C, the Lagrangian deformation tensor. 
+ *
+ *  Here I_i are the principal invariants of C, the Lagrangian deformation tensor.
  *  (I1=trace(C), I2=trace(C)^2-trace(C^2), I3=det(C)).
 
- *  Note: only dimension equals 2 or 3 is permitted. 
+ *  Note: only dimension equals 2 or 3 is permitted.
  */
 
 template<unsigned DIM>
@@ -62,22 +62,22 @@ public :
     {
         return mB;
     }
-
-public : 
-    /** 
+    
+public :
+    /**
      *  Constructor, Taking in the parameters a and b. a must be positive.
      */
     ExponentialMaterialLaw(double a, double b)
     {
-        if(DIM!=2 && DIM !=3)
+        if (DIM!=2 && DIM !=3)
         {
             EXCEPTION("Can only have 2 or 3d incompressible Mooney-Rivlin laws");
         }
-        if(a<0.0)
+        if (a<0.0)
         {
             EXCEPTION("a must be positive");
         }
-
+        
         mA = a;
         mB = b;
     }
