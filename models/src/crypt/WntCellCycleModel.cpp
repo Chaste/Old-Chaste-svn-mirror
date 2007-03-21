@@ -2,6 +2,7 @@
 #include "Exception.hpp"
 #include <iostream>
 #include <cassert>
+#include <cfloat>
 
 /**
  * Model constructor - an initial wnt stimulus must be provided to set up the
@@ -28,6 +29,7 @@ WntCellCycleModel::WntCellCycleModel(double InitialWntStimulus, unsigned mutatio
     mLastTime = mBirthTime;
     mInSG2MPhase = false;
     mReadyToDivide = false;
+    mDivideTime = DBL_MAX;
     mpCancerParams = CancerParameters::Instance();
 }
 
@@ -61,6 +63,7 @@ WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinCo
     
     mInSG2MPhase = false;
     mReadyToDivide = false;
+    mDivideTime = DBL_MAX;
     
     mpCancerParams = CancerParameters::Instance();
 }

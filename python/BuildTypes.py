@@ -423,7 +423,7 @@ class MemoryTesting(GccDebug):
   Compile using gcc with debugging turned on, and run tests under valgrind.
   """
   _petsc_flags = "-trmalloc -trdebug -trdump"
-  _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes"
+  _valgrind_flags = "--tool=memcheck --log-file=%s --track-fds=yes --leak-check=yes --num-callers=50"
 
   def __init__(self, *args, **kwargs):
     GccDebug.__init__(self, *args, **kwargs)
