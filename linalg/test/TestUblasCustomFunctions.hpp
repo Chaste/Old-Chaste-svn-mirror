@@ -9,7 +9,6 @@
 
 class TestUblasCustomFunctions : public CxxTest::TestSuite
 {
-
 public:
 
     void TestDeterminant()

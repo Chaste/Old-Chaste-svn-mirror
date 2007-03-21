@@ -3,7 +3,8 @@
 
 #include "AbstractGrowingTumourSourceModel.hpp"
 
-/* A simple tumour source model (for testing) that just returns
+/**
+ * A simple tumour source model (for testing) that just returns
  * s = n, at an evaluation point, where n is the index of the evaluation
  * point
  */
