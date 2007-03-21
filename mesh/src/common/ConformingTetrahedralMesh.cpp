@@ -1890,4 +1890,71 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Clear()
     mNumCornerNodes = 0;
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::set<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundaryOfFlaggedRegion()
+{
+    // a set of nodes which lie on the face, size 3 in 2D, size 4 in 3D
+    typedef std::set<unsigned> FaceNodes; 
+
+    // face maps to true the first time it is encountered, and false subsequent 
+    // times. Thus, faces mapping to true at the end are boundary faces
+    std::map<FaceNodes,bool> face_on_boundary;
+
+    // loop over all elements
+    ElementIterator iter = GetElementIteratorBegin();
+    while (iter != GetElementIteratorEnd())
+    {
+        if((*iter)->IsFlagged())
+        {
+            // to get faces, initially start with all nodes..
+            std::set<unsigned> all_nodes;
+            for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+            {
+                all_nodes.insert( (*iter)->GetNodeGlobalIndex(i) );
+            }
+            
+            // remove one node in turn to obtain each face
+            for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+            {
+                FaceNodes face_nodes = all_nodes;
+                face_nodes.erase( (*iter)->GetNodeGlobalIndex(i) );
+
+                // search the map of faces to see if it contains this face                 
+                std::map<FaceNodes,bool>::iterator it=face_on_boundary.find(face_nodes);
+
+                if(it == face_on_boundary.end())
+                {
+                    // face not found, add and assume on boundary
+                    face_on_boundary[face_nodes]=true;
+                }
+                else
+                {
+                    // face found in map, so not on boundary
+                    it->second = false;
+                }
+            }
+            
+        }
+        iter++;
+    }
+    
+    // boundary nodes to be returned
+    std::set<unsigned> boundary_of_flagged_region;
+    
+    // get all faces in the map
+    std::map<FaceNodes,bool>::iterator it=face_on_boundary.begin();
+    while(it!=face_on_boundary.end())
+    {
+        // if the face maps to true it is on the boundary
+        if(it->second==true)
+        {
+            // get all nodes in the face and put in set to be returned
+            boundary_of_flagged_region.insert(it->first.begin(),it->first.end());
+        }
+        it++;
+    }
+        
+    return boundary_of_flagged_region;
+}
+
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

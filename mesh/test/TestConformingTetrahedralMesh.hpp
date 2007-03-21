@@ -1446,5 +1446,42 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),0u);
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(),0u);
     }
+    
+    void TestCalculateBoundaryOfFlaggedRegion()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(3,3);
+        
+        // uncomment to write the mesh
+        //TrianglesMeshWriter<2,2> mesh_writer("rectangle", "small");
+        //mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        mesh.GetElement(1)->Flag();
+        mesh.GetElement(3)->Flag();
+        mesh.GetElement(5)->Flag();
+        mesh.GetElement(8)->Flag();
+        mesh.GetElement(9)->Flag();
+        mesh.GetElement(10)->Flag();
+        mesh.GetElement(14)->Flag();
+        mesh.GetElement(16)->Flag();
+        mesh.GetElement(17)->Flag();
+        
+        std::set<unsigned> correct_boundary;
+        correct_boundary.insert(0);
+        correct_boundary.insert(4);
+        correct_boundary.insert(5);
+        correct_boundary.insert(2);
+        correct_boundary.insert(9);
+        correct_boundary.insert(13);
+        correct_boundary.insert(10);
+        correct_boundary.insert(7);
+        correct_boundary.insert(11);
+        correct_boundary.insert(14);
+        correct_boundary.insert(15);
+        
+        std::set<unsigned> boundary = mesh.CalculateBoundaryOfFlaggedRegion();
+        
+        TS_ASSERT_EQUALS(correct_boundary, boundary);
+    }
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

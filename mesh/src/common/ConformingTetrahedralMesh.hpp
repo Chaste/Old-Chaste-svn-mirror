@@ -274,6 +274,11 @@ public:
      *  Clear all the data in the mesh
      */
     void Clear();
+    
+    /**
+     *  Return the set of nodes which are on the boundary of the flagged region(s)
+     */  
+    std::set<unsigned> CalculateBoundaryOfFlaggedRegion();
 };
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_
