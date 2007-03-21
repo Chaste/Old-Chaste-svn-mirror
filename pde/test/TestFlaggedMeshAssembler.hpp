@@ -10,7 +10,9 @@
 #include "TrianglesMeshReader.cpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "FlaggedMeshAssembler.hpp"
+#include "SimpleDg0ParabolicAssembler.hpp"
 #include "TimeDependentDiffusionEquationPde.hpp"
+#include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
 #include "RefinedTetrahedralMesh.cpp"
 //#include "ConstBoundaryCondition.hpp"
 
@@ -133,7 +135,7 @@ public :
     }
     
     
-void TestInterpolateBoundaryConditionsFromCourseToFine()
+    void TestInterpolateBoundaryConditionsFromCourseToFine()
     {
         ConformingTetrahedralMesh<3,3> fine_mesh;
         
@@ -294,6 +296,126 @@ void TestInterpolateBoundaryConditionsFromCourseToFine()
             TS_ASSERT_DELTA(value, true_value, 1e-12); 
             it++;
         }
+    }
+    
+    void TestCoarseAndFineDiffusion()
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;
+        
+        fine_mesh.ConstructRectangularMesh(20, 20);
+        double twentieth=1.0L/20.0L;
+        fine_mesh.Scale(twentieth, twentieth);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        
+        coarse_mesh.ConstructRectangularMesh(5, 5);
+        double fifth=1.0L/5.0L;
+        coarse_mesh.Scale(fifth, fifth);
+        
+        // give fine mesh to coarse mesh
+        coarse_mesh.SetFineMesh(&fine_mesh);
+        
+     
+        // Instantiate PDE object
+        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        
+        // Boundary conditions - zero dirichlet everywhere on boundary
+        BoundaryConditionsContainer<2,2,1> bcc;
+        bcc.DefineZeroDirichletOnMeshBoundary(&coarse_mesh);
+        
+        // Assembler
+        SimpleDg0ParabolicAssembler<2,2> assembler(&coarse_mesh,&pde,&bcc);
+        
+        Vec initial_condition_coarse = CreateInitialConditionVec(coarse_mesh.GetNumNodes());
+        
+        double* p_initial_condition_coarse;
+        VecGetArray(initial_condition_coarse, &p_initial_condition_coarse);
+        
+        int lo, hi;
+        VecGetOwnershipRange(initial_condition_coarse, &lo, &hi);
+        
+        for (int global_index = lo; global_index < hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            double x = coarse_mesh.GetNode(global_index)->GetPoint()[0];
+            double y = coarse_mesh.GetNode(global_index)->GetPoint()[1];
+            if((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5) < 0.3)
+            {
+                p_initial_condition_coarse[local_index] = 1.0;
+            }
+            else
+            {
+                p_initial_condition_coarse[local_index] = 0.0;
+            }
+        }
+        VecRestoreArray(initial_condition_coarse, &p_initial_condition_coarse);
+        
+        // Solve
+        assembler.SetTimes(0, 0.01, 0.01);
+        assembler.SetInitialCondition(initial_condition_coarse);
+        
+        Vec result = assembler.Solve();  
+        ReplicatableVector result_replicated(result);
+        
+//        for(unsigned i=0; i<result_replicated.size(); i++)
+//        {
+//            std::cout << result_replicated[i] << " ";
+//        }
+        
+        // Flag the right semicircle of the coarse mesh
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
+        for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+             i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+             i_coarse_element++)
+        {
+            Element<2,2> &element = **i_coarse_element;
+            for(unsigned i=0; i<element.GetNumNodes(); i++)
+            {
+                if(result_replicated[element.GetNodeGlobalIndex(i)]>0.8)
+                {
+                    element.Flag();
+                    std::cout << "Flagging element " << element.GetIndex() << "\n";
+                }
+            }
+        }
+        
+        // Flag the corresponding region of the fine mesh
+        coarse_mesh.TransferFlags();
+        
+        // interpolate boundary conditions        
+        FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(coarse_mesh, result);
+
+        Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
+        
+        double* p_initial_condition_fine;
+        VecGetArray(initial_condition_fine, &p_initial_condition_fine);
+        
+        
+        VecGetOwnershipRange(initial_condition_fine, &lo, &hi);
+        
+        for (int global_index = lo; global_index < hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            double x = fine_mesh.GetNode(global_index)->GetPoint()[0];
+            double y = fine_mesh.GetNode(global_index)->GetPoint()[1];
+            if((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5) < 0.3)
+            {
+                p_initial_condition_fine[local_index] = 1.0;
+            }
+            else
+            {
+                p_initial_condition_fine[local_index] = 0.0;
+            }
+        }
+        VecRestoreArray(initial_condition_fine, &p_initial_condition_fine);
+
+        // Assembler
+        FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh,&pde,&flagged_bcc);
+        flagged_assembler.SetTimes(0.0, 0.01, 0.01);
+        flagged_assembler.SetInitialCondition(initial_condition_fine);
+//todo:
+        //flagged_assembler.Solve();
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

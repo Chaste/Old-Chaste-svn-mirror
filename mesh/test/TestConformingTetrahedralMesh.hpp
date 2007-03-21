@@ -1104,10 +1104,13 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         unsigned width=39;
         unsigned height=16;
+
         mesh.ConstructRectangularMesh(width,height);
+
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width+height), 1e-7);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)));
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2*(width + height)); 
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),  2*(width+height) );
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*width*height);
         
@@ -1261,9 +1264,14 @@ public:
         unsigned height=4;
         unsigned depth=5;
         
+        unsigned num_boundary_nodes =   2*( (width+1)*(height+1) + (width+1)*(depth+1) + (depth+1)*(height+1) )
+                                      - 4*(width-1 + height-1 + depth-1)
+                                      - 16;
+        
         mesh.ConstructCuboid(width,height,depth);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), ((width+1)*(height+1)*(depth+1)));
-        
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), num_boundary_nodes); 
+ 
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), width*height*depth, 1e-7);
         TS_ASSERT_DELTA(mesh.CalculateMeshSurface(), 2.0*(width*height+height*depth+depth*width), 1e-7);
         //Each unit square on the surface is split into 2

@@ -1543,7 +1543,12 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh
             {
                 is_boundary=true;
             }
-            mNodes.push_back(new Node<2>(node_index++, is_boundary, i, j));
+            Node<2>* p_node = new Node<2>(node_index++, is_boundary, i, j);
+            mNodes.push_back(p_node);
+            if(is_boundary)
+            {
+                mBoundaryNodes.push_back(p_node);
+            }
         }
     }
     
@@ -1723,7 +1728,14 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
                 {
                     is_boundary=true;
                 }
-                mNodes.push_back(new Node<3>(node_index++, is_boundary, i, j, k));
+                
+                Node<3>* p_node = new Node<3>(node_index++, is_boundary, i, j, k);
+
+                mNodes.push_back(p_node);
+                if(is_boundary)
+                {
+                    mBoundaryNodes.push_back(p_node);
+                }
             }
         }
     }
