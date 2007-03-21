@@ -119,6 +119,7 @@ for src_file in src_files:
     covered_line_count, missed_line_count, warn, ignore = 0, 0, True, False
     for lines in itertools.izip(*gcov_fps):
         aggregated_count = 0
+        maybe_not_code, really_uncovered = False, False
         for line in lines:
             count, line_no, src_line = line.split(':', 2)
             count, line_no = count.strip(), line_no.strip()
@@ -126,19 +127,35 @@ for src_file in src_files:
                 ignore = True
             elif src_line.find('#undef COVERAGE_IGNORE') != -1:
                 ignore = False
-            if count == '-' or line_no == 0:
+            if line_no == 0:
+                # This is a gcov header line; what it is doesn't matter
                 out_file.write(line)
                 break
-            if count != '#####':
+            if count == '-':
+                # This line "isn't code".  This may be because it's blank, a comment, or
+                # similar.  Or it may be because it's within a templated method that hasn't
+                # been instantiated in this particular execution, but it might be in another.
+                maybe_not_code = True
+            elif count == '#####':
+                # The line was really uncovered here, so it must be code
+                really_uncovered = True
+            else:
                 aggregated_count += int(count)
         else:
             if aggregated_count == 0:
-                src_line_stripped = src_line.strip()
-                if not (ignore or src_line_stripped == '}' or
-                        (src_line_stripped.startswith('return') and src_line_stripped[6] in [';', ' '])):
-                    warn = False
-                aggregated_count = '#####'
-                missed_line_count += 1
+                if maybe_not_code and not really_uncovered:
+                    # This really wasn't a code line (or the template is *never* instantiated).
+                    # Would be nice to differentiate these cases, but doing so is decidedly
+                    # non-trivial.
+                    aggregated_count = '-'
+                else:
+                    src_line_stripped = src_line.strip()
+                    if not (ignore or src_line_stripped == '}' or
+                            (src_line_stripped.startswith('return') and
+                             src_line_stripped[6] in [';', ' '])):
+                        warn = False
+                    aggregated_count = '#####'
+                    missed_line_count += 1
             else:
                 covered_line_count += 1
             out_file.write("%9s:%5s:%s" % (aggregated_count, line_no, src_line))
