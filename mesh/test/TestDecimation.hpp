@@ -188,7 +188,8 @@ public:
         //Note that each re-score gives a 50% chance of a node falling below 0.5
         decimator2.SetThreshold(0.8);
         decimator2.Decimate();
-        TS_ASSERT_EQUALS(mesh2.GetNumNodes(), 4U);
+        TS_ASSERT_LESS_THAN_EQUALS(mesh2.GetNumNodes(), 6U);
+        TS_ASSERT_LESS_THAN_EQUALS(4U, mesh2.GetNumNodes());
         TS_ASSERT_DELTA(mesh2.CalculateMeshVolume(), 400, 1.0e-5);
         RandomNumberGenerator::Destroy();
         

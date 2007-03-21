@@ -26,11 +26,11 @@ protected:
     unsigned mIndex;
     std::vector<Node<SPACE_DIM>*> mNodes;
     unsigned mOrderOfBasisFunctions;
-    bool mIsDeleted;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mJacobian;
     c_matrix<double, SPACE_DIM, SPACE_DIM> mInverseJacobian;
     c_vector<double, SPACE_DIM> mWeightedDirection; //Holds an area-weighted normal or direction.  Only used when ELEMENT_DIM < SPACE_DIM
     double mJacobianDeterminant;
+    bool mIsDeleted;
     bool mOwnership;
     bool mFlag;
     
@@ -43,7 +43,6 @@ protected:
     void CommonConstructor(const AbstractElement &element)
     {
         //Note that the index must be already set by the calling constructor
-        mIsDeleted = element.mIsDeleted;
         mNodes = element.mNodes;
         // Allow nodes to keep track of containing elements (but not surface/boundary elements)
         // Only done in copy constructor, since that is what is called to put elements
@@ -54,9 +53,9 @@ protected:
         mInverseJacobian = element.mInverseJacobian;
         mWeightedDirection = element.mWeightedDirection;
         
+        // Copy various flags
+        mIsDeleted = element.mIsDeleted;
         mOwnership = element.mOwnership;
-        
-        // initialise the user flag
         mFlag = element.mFlag;
     }
     
@@ -67,7 +66,7 @@ public:
     virtual void RegisterWithNodes()=0;
     
     ///Main constructor
-    AbstractElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes, unsigned orderOfBasisFunctions=1);
+    AbstractElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes, unsigned orderOfBasisFunctions=1);
     
     /**
      * Copy constructor. This is needed so that copies of an element don't
@@ -81,7 +80,7 @@ public:
     }
     
     /**
-     * Why does the default constructor not do anything?
+     * \todo Why does the default constructor not do anything?
      */
     AbstractElement()
     {}
@@ -89,11 +88,12 @@ public:
     /**
      * Element assignment - make this element equal to the other one.
      */
-    virtual void operator=(const AbstractElement &element)
+    virtual AbstractElement& operator=(const AbstractElement &element)
     {
         // Now copy stuff
         mIndex=element.mIndex;
         CommonConstructor(element);
+        return *this;
     }
     
     virtual ~AbstractElement()
@@ -188,7 +188,7 @@ public:
     
     /** Get the index of this element
      */
-    const unsigned& GetIndex(void) const
+    unsigned GetIndex(void) const
     {
         return mIndex;
     }

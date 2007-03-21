@@ -5,24 +5,26 @@
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
-                                                         std::vector<Node<SPACE_DIM>*> nodes,
+                                                         const std::vector<Node<SPACE_DIM>*>& rNodes,
                                                          unsigned orderOfBasisFunctions)
-        : mIndex(index)
+        : mIndex(index), mNodes(rNodes)
 {
-    mIsDeleted = false;
     // Sanity checking
     assert(ELEMENT_DIM <= SPACE_DIM);
     //added extra 0.5 to ensure in correct interval for floor() function
     unsigned total_nodes = (unsigned)floor((ELEMENT_DIM+1)*(1 + 0.5*ELEMENT_DIM*(orderOfBasisFunctions - 1)) + 0.5);
     
-    assert(nodes.size() == total_nodes);
-    
-    // Store Node pointers
-    mNodes = nodes;
+    assert(mNodes.size() == total_nodes);
     
     // Specify order of basis functions
     mOrderOfBasisFunctions = orderOfBasisFunctions;
     
+    // Initialise flags.
+    // This must be done before the Jacobian calculations, or assertions trip.    
+    mIsDeleted = false;
+    mFlag = false;
+    mOwnership = true;
+
     // This is so we know it's the first time of asking
     mJacobianDeterminant=0.0;
     // Create Jacobian
@@ -35,17 +37,14 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index,
         // if the Jacobian is negative the orientation of the element is probably
         // wrong, so swap the last two nodes around.
         
-        mNodes[total_nodes-1] = nodes[total_nodes-2];
-        mNodes[total_nodes-2] = nodes[total_nodes-1];
+        mNodes[total_nodes-1] = rNodes[total_nodes-2];
+        mNodes[total_nodes-2] = rNodes[total_nodes-1];
         RefreshJacobianDeterminant();
     }
     
     // If determinant < 0 then element nodes are listed clockwise.
     // We want them anticlockwise.
     assert(mJacobianDeterminant > 0.0);
-    
-    mFlag = false;
-    mOwnership = true;
 }
 
 
