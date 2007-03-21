@@ -68,6 +68,12 @@ else:
     single_test_suite_dir = ''
 Export('single_test_suite', 'single_test_suite_dir')
 
+# To run tests of only a single component, specify it with the
+# test_component=<component> argument.
+test_component = ARGUMENTS.get('test_component', '')
+Export('test_component')
+
+
 # Chaste components (top level dirs).
 # Order matters, as this list is also used as the list of Chaste libraries.
 components = ['models', 'coupled', 'pde', 'ode',

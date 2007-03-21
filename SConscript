@@ -47,7 +47,7 @@ if single_test_suite:
       os.remove(single_test_suite[:-4] + '.log')
     except OSError:
       pass
-else:
+elif test_component in ['', toplevel_dir]:
   packfiles = []
   if all_tests:
     for packfile in glob.glob('../../test/*TestPack.txt'):
