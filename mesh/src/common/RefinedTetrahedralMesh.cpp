@@ -138,10 +138,12 @@ public:
                 }
             }
         }
-        
-        
     }
     
+    ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* GetFineMesh()
+    {
+        return mpFineMesh;
+    }
     
     /**
      * Transfer flags from the coarse mesh to the fine mesh.  The flagged region
@@ -169,11 +171,10 @@ public:
     bool EqualNodes (const Node<SPACE_DIM>* pNode1, const Node<SPACE_DIM>* pNode2)
     {
         return (norm_2(pNode1->rGetLocation() - pNode2->rGetLocation()) < DBL_EPSILON*10);
-        
-        
-        
     }
-class CompareNodesLex : public std::binary_function<Node<SPACE_DIM>*, Node<SPACE_DIM> *, bool>
+
+
+    class CompareNodesLex : public std::binary_function<Node<SPACE_DIM>*, Node<SPACE_DIM> *, bool>
     {
     public:
         bool operator () (const Node<SPACE_DIM>* pNode1, const Node<SPACE_DIM>* pNode2)

@@ -175,27 +175,36 @@ public:
     }
     
     
-    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(Point <SPACE_DIM> testPoint)
+    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(Point<SPACE_DIM> testPoint)
     {
         //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
         assert (ELEMENT_DIM == SPACE_DIM);
         
         c_vector<double, SPACE_DIM+1> weights;
         
-        //Find the location with respect to node 0
-        c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
-        
-        //Multiply by inverse Jacobian
-        c_vector<double, SPACE_DIM> ans=prod(this->mInverseJacobian, test_location);
+        c_vector<double, SPACE_DIM> psi=CalculatePsi(testPoint);
         
         //Copy 3 weights and compute the fourth weight
         weights[0]=1.0;
         for (unsigned i=1; i<=SPACE_DIM; i++)
         {
-            weights[0] -= ans[i-1];
-            weights[i] = ans[i-1];
+            weights[0] -= psi[i-1];
+            weights[i] = psi[i-1];
         }
         return weights;
+    }
+    
+    
+    c_vector<double, SPACE_DIM> CalculatePsi(Point<SPACE_DIM> testPoint)
+    {
+        //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
+        assert (ELEMENT_DIM == SPACE_DIM);
+        
+        //Find the location with respect to node 0
+        c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
+        
+        //Multiply by inverse Jacobian
+        return prod(this->mInverseJacobian, test_location);
     }
     
     bool IncludesPoint(Point<SPACE_DIM> testPoint, bool strict=false)

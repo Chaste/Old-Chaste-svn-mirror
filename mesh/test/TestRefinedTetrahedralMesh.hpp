@@ -33,6 +33,8 @@ public:
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
+        TS_ASSERT_EQUALS(coarse_mesh.GetFineMesh(), &fine_mesh);
+        
         const NodeMap &node_map = coarse_mesh.rGetCoarseFineNodeMap();
         
         TS_ASSERT_EQUALS(node_map.GetNewIndex(0), 0u);

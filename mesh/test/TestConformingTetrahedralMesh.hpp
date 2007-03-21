@@ -1483,5 +1483,51 @@ public:
         
         TS_ASSERT_EQUALS(correct_boundary, boundary);
     }
+    
+    void TestCalculateBoundaryOfFlaggedRegion3D()
+    {
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructCuboid(4,4,4);
+        mesh.Translate(-2,-2,-2);
+        
+        // flag elements in the positive octant
+        ConformingTetrahedralMesh<3,3>::ElementIterator iter = mesh.GetElementIteratorBegin();
+        while (iter != mesh.GetElementIteratorEnd())
+        {
+            c_vector<double, 3> centroid = (*iter)->CalculateCentroid();
+            if (centroid(0)>=0 && centroid(1)>=0 && centroid(2)>=0)
+            {
+                (*iter)->Flag();
+            }
+            iter++;
+        }
+        
+        // calculate boundary
+        std::set<unsigned> boundary=mesh.CalculateBoundaryOfFlaggedRegion();
+        
+        // determine correct boundary
+        std::set<unsigned> correct_boundary;
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            // node is on boundary if
+            // a) 1 coordinate is zero and rest +ve or 0
+            // b) 1 coordinate is 2.0 and rest +ve or 0
+            // so get a sorted list of coordinates
+            std::vector<double> coordinates;
+            for (unsigned i=0; i<3; i++)
+            {
+                coordinates.push_back(mesh.GetNode(node_index)->rGetLocation()[i]);
+            }
+            std::sort(coordinates.begin(), coordinates.end());
+            
+            if ( (coordinates[0]==0.0)
+               ||(coordinates[0]>=0.0 && coordinates[2]==2.0))
+            {
+                correct_boundary.insert(node_index);
+            }   
+        }
+        TS_ASSERT_EQUALS(boundary, correct_boundary);
+    }
+        
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

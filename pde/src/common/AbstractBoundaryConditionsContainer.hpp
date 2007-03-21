@@ -49,27 +49,27 @@ public:
     
     
     void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>())
+    {
+        for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
-            for (unsigned i=0; i<PROBLEM_DIM; i++)
+            if (mpDirichletMap[i])
             {
-                if (mpDirichletMap[i])
+                mDirichIterator = mpDirichletMap[i]->begin();
+                while (mDirichIterator != mpDirichletMap[i]->end() )
                 {
-                    mDirichIterator = mpDirichletMap[i]->begin();
-                    while (mDirichIterator != mpDirichletMap[i]->end() )
+                    if (deletedConditions.count(mDirichIterator->second) == 0)
                     {
-                        if (deletedConditions.count(mDirichIterator->second) == 0)
-                        {
-                            deletedConditions.insert(mDirichIterator->second);
-                            delete mDirichIterator->second;
-                        }
-                        mDirichIterator++;
+                        deletedConditions.insert(mDirichIterator->second);
+                        delete mDirichIterator->second;
                     }
-                    
-                    delete(mpDirichletMap[i]);
-                    mpDirichletMap[i] = NULL;
+                    mDirichIterator++;
                 }
+                
+                delete(mpDirichletMap[i]);
+                mpDirichletMap[i] = NULL;
             }
         }
+    }
         
         
     /**

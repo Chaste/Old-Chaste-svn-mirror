@@ -11,6 +11,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "FlaggedMeshAssembler.hpp"
 #include "TimeDependentDiffusionEquationPde.hpp"
+#include "RefinedTetrahedralMesh.cpp"
 //#include "ConstBoundaryCondition.hpp"
 
 class TestFlaggedMeshAssembler : public CxxTest::TestSuite
@@ -129,6 +130,85 @@ public :
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
         // and then assemble the system
         TS_ASSERT_THROWS_ANYTHING(assembler.AssembleSystem(initial_condition, 0.0));
+    }
+    
+    void TestInterpolateBoundaryConditionsFromCourseToFine()
+    {
+        ConformingTetrahedralMesh<3,3> fine_mesh;
+        
+        fine_mesh.ConstructCuboid(6, 6, 6);
+        double sixth=1.0L/6.0L;
+        fine_mesh.Scale(sixth, sixth, sixth);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<3,3> coarse_mesh;
+        
+        coarse_mesh.ConstructCuboid(3, 3, 3);
+        double third=1.0L/3.0L;
+        coarse_mesh.Scale(third, third, third);
+        
+        // give fine mesh to coarse mesh
+        coarse_mesh.SetFineMesh(&fine_mesh);
+        
+        // Flag some elements
+        ConformingTetrahedralMesh<3,3>::ElementIterator iter
+        = fine_mesh.GetElementIteratorBegin();
+        
+        while (iter!=fine_mesh.GetElementIteratorEnd())
+        {
+            if((*iter)->CalculateCentroid()[0] > 0.5)
+            {
+                (*iter)->Flag();
+            }
+            iter++;
+        }
+        
+        // set up petsc vector of the solution on the coarse mesh 
+        unsigned num_coarse_nodes = coarse_mesh.GetNumNodes();
+        Vec solution_vector;
+        int lo, hi;
+        VecCreate(PETSC_COMM_WORLD, &solution_vector);
+        VecSetSizes(solution_vector, PETSC_DECIDE, num_coarse_nodes);
+        VecSetFromOptions(solution_vector);
+        VecGetOwnershipRange(solution_vector,&lo,&hi);
+        
+        double *p_solution_vector;
+        
+        VecGetArray(solution_vector, &p_solution_vector);
+        for (int global_index=lo; global_index<hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            
+            c_vector<double,3> posn=coarse_mesh.GetNode(global_index)->rGetLocation();
+            p_solution_vector[local_index] = posn[0] + 2*posn[1] - posn[2];
+        }
+
+        VecRestoreArray(solution_vector, &p_solution_vector);
+        VecAssemblyBegin(solution_vector);
+        VecAssemblyEnd(solution_vector);
+        
+        
+        // interpolate boundary conditions        
+        FlaggedMeshBoundaryConditionsContainer<3,1> bcc(coarse_mesh, solution_vector);
+        
+        // get the boundary of the flagged region
+        std::set<unsigned> boundary = fine_mesh.CalculateBoundaryOfFlaggedRegion();
+        
+        std::set<unsigned>::iterator it = boundary.begin();
+        while(it!=boundary.end())
+        {
+            unsigned node_index = *it;
+
+            // an assertion would fail here if there is no boundary condition for 
+            // this node
+            double value = bcc.GetDirichletBCValue(fine_mesh.GetNode(node_index));
+            
+            c_vector<double,3> posn=fine_mesh.GetNode(node_index)->rGetLocation();
+            double true_value = posn[0] + 2*posn[1] - posn[2];
+            
+            TS_ASSERT_DELTA(value, true_value, 1e-12); 
+            it++;
+        }
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/
