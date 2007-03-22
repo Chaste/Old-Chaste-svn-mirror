@@ -123,7 +123,8 @@ public:
     {
         assert(mpParabolicPde != NULL);
         assert(this->mpMesh != NULL);
-        assert(this->mpBoundaryConditions != NULL);
+// commented out because FlaggedMeshAssembler has it's own FlaggedMeshBcc.. - design issue
+//        assert(this->mpBoundaryConditions != NULL);
     }
 };
 

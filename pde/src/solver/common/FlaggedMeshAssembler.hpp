@@ -11,6 +11,9 @@ private:
     friend class TestFlaggedMeshAssembler;
     FlaggedMeshBoundaryConditionsContainer<DIM,1>* mpFlaggedMeshBcc;
     
+    std::map<unsigned, unsigned> mSmasrmIndexMap;
+    
+    
 protected :
 
     virtual void AssembleSystem(Vec currentSolutionOrGuess=NULL, double currentTime=0.0, Vec residualVector=NULL, Mat* pJacobian=NULL)
@@ -41,7 +44,8 @@ protected :
         
         // Figure out the SMASRM size, and generate a map from global node number
         // to SMASRM index.
-        std::map<unsigned, unsigned> smasrm_index_map;
+        mSmasrmIndexMap.clear();
+
         typename ConformingTetrahedralMesh<DIM, DIM>::ElementIterator
         iter = this->mpMesh->GetElementIteratorBegin();
         unsigned smasrm_size = 0;
@@ -56,10 +60,10 @@ protected :
                 for (unsigned i=0; i<num_nodes; i++)
                 {
                     unsigned node_index = element.GetNodeGlobalIndex(i);
-                    if (smasrm_index_map.count(node_index) == 0)
+                    if (mSmasrmIndexMap.count(node_index) == 0)
                     {
                         // This is a new node
-                        smasrm_index_map[node_index] = smasrm_size++;
+                        mSmasrmIndexMap[node_index] = smasrm_size++;
                     }
                 }
             }
@@ -68,8 +72,8 @@ protected :
         
         //// Debugging: display index map
         //std::cout << "SMASRM index map" << std::endl;
-        //std::map<unsigned, unsigned>::iterator smasrm_map_iter = smasrm_index_map.begin();
-        //while (smasrm_map_iter != smasrm_index_map.end())
+        //std::map<unsigned, unsigned>::iterator smasrm_map_iter = mSmasrmIndexMap.begin();
+        //while (smasrm_map_iter != mSmasrmIndexMap.end())
         //{
         //    std::cout << smasrm_map_iter->first << " " << smasrm_map_iter->second << std::endl;
         //    ++smasrm_map_iter;
@@ -132,13 +136,13 @@ protected :
                 
                 for (unsigned i=0; i<num_elem_nodes; i++)
                 {
-                    unsigned index1 = smasrm_index_map[element.GetNodeGlobalIndex(i)];
+                    unsigned index1 = mSmasrmIndexMap[element.GetNodeGlobalIndex(i)];
                     
                     if (assemble_matrix)
                     {
                         for (unsigned j=0; j<num_elem_nodes; j++)
                         {
-                            unsigned index2 = smasrm_index_map[element.GetNodeGlobalIndex(j)];
+                            unsigned index2 = mSmasrmIndexMap[element.GetNodeGlobalIndex(j)];
                             this->mpLinearSystem->AddToMatrixElement( index1,
                                                                       index2,
                                                                       a_elem(i,j) );
@@ -165,9 +169,9 @@ protected :
         
         
         // Apply dirichlet boundary conditions.
-        // This may well need to change to make use of the smasrm_index_map;
+        // This may well need to change to make use of the mSmasrmIndexMap;
         // might be better to put the code in here rather than the container.
-        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*this->mpLinearSystem, smasrm_index_map, this->mMatrixIsAssembled);
+        mpFlaggedMeshBcc->ApplyDirichletToLinearProblem(*this->mpLinearSystem, mSmasrmIndexMap, this->mMatrixIsAssembled);
         
         if (this->mMatrixIsAssembled)
         {
@@ -196,5 +200,10 @@ public :
         mpFlaggedMeshBcc=pBoundaryConditions;
     }
     
+    
+    std::map<unsigned, unsigned> GetSmasrmIndexMap()
+    {
+        return mSmasrmIndexMap;
+    }
 };
 #endif /*FLAGGEDMESHASSEMBLER_HPP_*/

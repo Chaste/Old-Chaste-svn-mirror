@@ -302,16 +302,16 @@ public :
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         
-        fine_mesh.ConstructRectangularMesh(20, 20);
-        double twentieth=1.0L/20.0L;
-        fine_mesh.Scale(twentieth, twentieth);
+        unsigned num_elem = 20;
+        fine_mesh.ConstructRectangularMesh(num_elem,num_elem);
+        fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // create coarse mesh as RTM
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         
-        coarse_mesh.ConstructRectangularMesh(5, 5);
-        double fifth=1.0L/5.0L;
-        coarse_mesh.Scale(fifth, fifth);
+        num_elem = 10;
+        coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
+        coarse_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // give fine mesh to coarse mesh
         coarse_mesh.SetFineMesh(&fine_mesh);
@@ -358,10 +358,12 @@ public :
         Vec result = assembler.Solve();  
         ReplicatableVector result_replicated(result);
         
-//        for(unsigned i=0; i<result_replicated.size(); i++)
-//        {
-//            std::cout << result_replicated[i] << " ";
-//        }
+        for(unsigned i=0; i<result_replicated.size(); i++)
+        {
+            double x = coarse_mesh.GetNode(i)->rGetLocation()[0];
+            double y = coarse_mesh.GetNode(i)->rGetLocation()[1];
+            std::cout << i << " " << x << " " << y << " " << result_replicated[i] << "\n";
+        }
         
         // Flag the right semicircle of the coarse mesh
         ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
@@ -372,7 +374,7 @@ public :
             Element<2,2> &element = **i_coarse_element;
             for(unsigned i=0; i<element.GetNumNodes(); i++)
             {
-                if(result_replicated[element.GetNodeGlobalIndex(i)]>0.8)
+                if(result_replicated[element.GetNodeGlobalIndex(i)]>0.95)
                 {
                     element.Flag();
                     std::cout << "Flagging element " << element.GetIndex() << "\n";
@@ -414,8 +416,27 @@ public :
         FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh,&pde,&flagged_bcc);
         flagged_assembler.SetTimes(0.0, 0.01, 0.01);
         flagged_assembler.SetInitialCondition(initial_condition_fine);
-//todo:
-        //flagged_assembler.Solve();
+
+        flagged_assembler.Solve();
+        
+        Vec result_fine = flagged_assembler.Solve();  
+        ReplicatableVector result_fine_replicated(result_fine);
+
+
+        std::map<unsigned, unsigned> map = flagged_assembler.GetSmasrmIndexMap();
+        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        {
+            std::map<unsigned, unsigned>::iterator iter = map.find(i);
+            if(iter!=map.end())
+            {
+                unsigned smasrm_index = iter->second;
+
+                double x = fine_mesh.GetNode(i)->rGetLocation()[0];
+                double y = fine_mesh.GetNode(i)->rGetLocation()[1];
+                
+                std::cout << i << " " << x << " " << y << " " << result_fine_replicated[smasrm_index] << "\n";
+            }
+        }
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/
