@@ -58,7 +58,8 @@ public :
             }
         }
         
-        for (int number_of_points=1; number_of_points<4; number_of_points++)
+        // 3d
+        for (int number_of_points=1; number_of_points<5; number_of_points++)
         {
             GaussianQuadratureRule<3> quad_rule(number_of_points);
             
@@ -76,6 +77,11 @@ public :
             }
         }
         
+        // Exceptions (unsupported cases)
+        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<1> quad_rule(4));
+        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<2> quad_rule(4));
+        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<3> quad_rule(5));
+        TS_ASSERT_THROWS_ANYTHING(GaussianQuadratureRule<4> quad_rule(1));
     }
     
     /**
