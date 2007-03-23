@@ -12,15 +12,12 @@
 class AbstractOdeSystem
 {
 protected:
-    // this is public so that AbstractIvpOdeSolver has direct access
-    //\todo - change this to private/protected and make AbstractIvpOdeSolver a
-    // friend, or whatever.
+    unsigned mNumberOfStateVariables;
     std::vector<double> mStateVariables;
+    std::vector<double> mInitialConditions;
     std::vector<std::string> mVariableNames;
     std::vector<std::string> mVariableUnits;
     
-    unsigned mNumberOfStateVariables;
-    std::vector<double> mInitialConditions;
     bool mUseAnalytic;
     
     
@@ -50,19 +47,19 @@ public:
     virtual void EvaluateYDerivatives(double time, const std::vector<double> &rY,
                                       std::vector<double> &rDY)=0;
                                       
-    unsigned GetNumberOfStateVariables()
+    unsigned GetNumberOfStateVariables() const
     {
         return mNumberOfStateVariables;
     }
     
     
-    virtual void SetInitialConditions(std::vector<double> initialConditions)
+    virtual void SetInitialConditions(const std::vector<double>& rInitialConditions)
     {
-        if (initialConditions.size() != mNumberOfStateVariables)
+        if (rInitialConditions.size() != mNumberOfStateVariables)
         {
             EXCEPTION("The number of initial conditions must be that of the number of state variables");
         }
-        mInitialConditions=initialConditions;
+        mInitialConditions=rInitialConditions;
     }
     
     virtual void SetInitialConditionsComponent(unsigned index, double initialCondition)
@@ -75,18 +72,18 @@ public:
     }
     
     
-    std::vector<double> GetInitialConditions()
+    std::vector<double> GetInitialConditions() const
     {
         return mInitialConditions;
     }
     
-    void SetStateVariables(std::vector<double> stateVariables)
+    void SetStateVariables(const std::vector<double>& rStateVariables)
     {
-        if ( mNumberOfStateVariables != stateVariables.size() )
+        if ( mNumberOfStateVariables != rStateVariables.size() )
         {
             EXCEPTION("The size of the passed in vector must be that of the number of state variables");
         }
-        mStateVariables = stateVariables;
+        mStateVariables = rStateVariables;
     }
     
     std::vector<double>& rGetStateVariables()

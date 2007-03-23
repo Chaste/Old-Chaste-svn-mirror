@@ -48,6 +48,19 @@ public:
         TS_ASSERT_DELTA(dy[0],8.0,tol);
         TS_ASSERT_DELTA(dy[1],16.0,tol);
     }
+
+
+    void TestExceptions(void)
+    {
+        Ode1 ode;
+        TS_ASSERT_EQUALS(ode.GetNumberOfStateVariables(), 1u);
+        std::vector<double> v(2);
+        v[0] = -1.0;
+        v[1] = -2.0;
+        TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditions(v));
+        TS_ASSERT_THROWS_ANYTHING(ode.SetInitialConditionsComponent(2, -3.0));
+        TS_ASSERT_THROWS_ANYTHING(ode.SetStateVariables(v));
+    }
     
     
     void TestSetGetFunctionsInAbstractOdeSystem(void)

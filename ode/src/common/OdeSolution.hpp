@@ -33,11 +33,12 @@ public:
     std::vector<double> GetVariableAtIndex(unsigned index)
     {
         std::vector<double> answer;
+        answer.reserve(mSolutions.size());
         for (unsigned i=0; i<mSolutions.size(); i++)
         {
             answer.push_back(mSolutions[i][index]);
         }
-        return(answer);
+        return answer;
     }
     
     std::vector<double>& rGetTimes()
