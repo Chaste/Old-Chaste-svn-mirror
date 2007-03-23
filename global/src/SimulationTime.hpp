@@ -40,24 +40,25 @@ private:
     bool mStartTimeSet;
     
     friend class boost::serialization::access;
+    /**
+     * Serialization of a SimulationTime object must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
-        //archive & mpInstance;
-        if (mpInstance==NULL)
-        {
-            EXCEPTION("Trying to save or load an instance of simulation time when the simulation time object does not exist");
-        }
-        archive & mpInstance->mDurationOfSimulation;
-        archive & mpInstance->mTotalTimeStepsInSimulation;
-        archive & mpInstance->mTimeStepsElapsed;
-        archive & mpInstance->mEndTimeAndNumberOfTimeStepsSet;
-        archive & mpInstance->mCurrentDimensionalisedTime;
-        archive & mpInstance->mEndTime;
-        archive & mpInstance->mStartTimeSet;
-        archive & mpInstance->mTimeAtEndOfLastRun;
+        archive & mDurationOfSimulation;
+        archive & mTotalTimeStepsInSimulation;
+        archive & mTimeStepsElapsed;
+        archive & mEndTimeAndNumberOfTimeStepsSet;
+        archive & mCurrentDimensionalisedTime;
+        archive & mEndTime;
+        archive & mStartTimeSet;
+        archive & mTimeAtEndOfLastRun;
     }
 };
 

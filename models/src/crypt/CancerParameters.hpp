@@ -87,18 +87,22 @@ private:
     double mApoptosisTime;
     
     friend class boost::serialization::access;
+    /**
+     * As with other singleton classes, ensure the instance of this
+     * class is serialized directly before being serialized via a
+     * pointer.
+     */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        assert(mpInstance != NULL);
-        archive & mpInstance->mStemCellCycleTime;
-        archive & mpInstance->mTransitCellCycleTime;
-        archive & mpInstance->mSG2MDuration;
-        archive & mpInstance->mMaxTransitGenerations;
-        archive & mpInstance->mCryptLength;
-        archive & mpInstance->mCryptWidth;
-        archive & mpInstance->mMeinekeLambda;
-        archive & mpInstance->mApoptosisTime;
+        archive & mStemCellCycleTime;
+        archive & mTransitCellCycleTime;
+        archive & mSG2MDuration;
+        archive & mMaxTransitGenerations;
+        archive & mCryptLength;
+        archive & mCryptWidth;
+        archive & mMeinekeLambda;
+        archive & mApoptosisTime;
     }
 };
 
