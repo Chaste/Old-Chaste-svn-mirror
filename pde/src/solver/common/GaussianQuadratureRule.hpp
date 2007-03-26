@@ -31,7 +31,43 @@ public:
      * An exception is thrown if data is not available for the requested
      * parameters.
      */
-    GaussianQuadratureRule(unsigned numPointsInEachDimension)
+    GaussianQuadratureRule(unsigned numPointsInEachDimension);
+    
+    /**
+     * Get a quadrature point.
+     * 
+     * @param index The index of the point to return.
+     * @return A gaussian quadrature point.
+     */
+    const Point<ELEM_DIM>& rGetQuadPoint(unsigned index) const
+    {
+        assert(index < mNumQuadPoints);
+        return mPoints[index];
+    }
+    
+    /**
+     * Get the weight associated with a quadrature point.
+     */
+    double GetWeight(unsigned index) const
+    {
+        assert(index < mNumQuadPoints);
+        return mWeights[index];
+    }
+    
+    /**
+     * Get the number of quadrature points. This is the number of points in 
+     * each dimension, raised to the power of the number of dimensions.
+     */
+    unsigned GetNumQuadPoints() const
+    {
+        return mNumQuadPoints;
+    }
+    
+};
+
+
+template<unsigned ELEM_DIM>
+GaussianQuadratureRule<ELEM_DIM>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
     {
         mNumQuadPoints = (unsigned) pow((double) numPointsInEachDimension,(ELEM_DIM));
         
@@ -359,37 +395,6 @@ public:
         }
         
     }
-    
-    /**
-     * Get a quadrature point.
-     * 
-     * @param index The index of the point to return.
-     * @return A gaussian quadrature point.
-     */
-    Point<ELEM_DIM> GetQuadPoint(unsigned index) const
-    {
-        assert(index < mNumQuadPoints);
-        return mPoints[index];
-    }
-    
-    /**
-     * Get the weight associated with a quadrature point.
-     */
-    double GetWeight(unsigned index) const
-    {
-        assert(index < mNumQuadPoints);
-        return mWeights[index];
-    }
-    
-    /**
-     * Get the number of quadrature points. This is the number of points in 
-     * each dimension, raised to the power of the number of dimensions.
-     */
-    unsigned GetNumQuadPoints() const
-    {
-        return mNumQuadPoints;
-    }
-    
-};
+
 
 #endif //_GAUSSIANQUADRATURERULE_HPP_
