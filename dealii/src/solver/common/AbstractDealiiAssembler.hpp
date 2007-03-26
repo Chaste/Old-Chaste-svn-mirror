@@ -38,6 +38,8 @@
 #include <dofs/dof_constraints.h>
 
 
+#include <iostream>
+
 /**
  *  Abstract assembler with common functionality for most assemblers.
  */
@@ -170,26 +172,28 @@ protected:
         // mDofsPerElement = mFeSystem.dofs_per_cell
         assert(mDofsPerElement>0);
         
+        // if this fails, InitialiseMatricesVectorsAndConstraints() probably
+        // hasn't been called..
+        assert(mRhsVector.size()!=0);
+
         FullMatrix<double>   element_matrix(mDofsPerElement, mDofsPerElement);
         Vector<double>       element_rhs(mDofsPerElement);
-        
         // the dofs associated with the nodes of an element
         std::vector<unsigned> local_dof_indices(mDofsPerElement);
         
         typename DoFHandler<DIM>::active_cell_iterator  element_iter = mDofHandler.begin_active();
         
-        
         if (assembleVector)
         {
             mRhsVector = 0;
         }
-        
+
         if (assembleMatrix)
         {
             mSystemMatrix = 0;
         }
-        
-        unsigned elem_counter = 0;
+                
+        //unsigned elem_counter = 0;
         
         while (element_iter!=mDofHandler.end())  // huh? mDof.end() returns an element iterator?
         {
@@ -205,10 +209,10 @@ protected:
                               assembleVector,
                               assembleMatrix);
                               
-            /*if(assembleMatrix)
-            {
-                std::cout << elem_counter++ << " of " << mpMesh->n_active_cells() << "\n" << std::flush;
-            }*/
+            //if(assembleMatrix)
+            //{
+            //    std::cout << elem_counter++ << " of " << mpMesh->n_active_cells() << "\n" << std::flush;
+            //}
             
             for (unsigned i=0; i<mDofsPerElement; i++)
             {
@@ -221,6 +225,7 @@ protected:
                                           element_matrix(i,j));
                     }
                 }
+
                 if (assembleVector)
                 {
                     mRhsVector(local_dof_indices[i]) += element_rhs(i);
@@ -240,7 +245,7 @@ protected:
         {
             mHangingNodeConstraints.condense(mRhsVector);
         }
-        
+
         ApplyDirichletBoundaryConditions();
     }
     

@@ -246,9 +246,6 @@ public :
             }
         }
         
-        // Flag the corresponding region of the fine mesh
-        coarse_mesh.TransferFlags();
-        
         
         // set up petsc vector of the solution on the coarse mesh 
         unsigned num_coarse_nodes = coarse_mesh.GetNumNodes();
@@ -273,6 +270,14 @@ public :
         VecRestoreArray(solution_vector, &p_solution_vector);
         VecAssemblyBegin(solution_vector);
         VecAssemblyEnd(solution_vector);
+        
+        // throws as flags not transfered to fine mesh yet       
+        typedef FlaggedMeshBoundaryConditionsContainer<2,1> FlaggedMeshBccTwoDimOneUnknown;
+        TS_ASSERT_THROWS_ANYTHING(FlaggedMeshBccTwoDimOneUnknown bad_bcc(coarse_mesh, solution_vector));
+        
+        // Flag the corresponding region of the fine mesh
+        coarse_mesh.TransferFlags();
+        
         
         
         // interpolate boundary conditions        

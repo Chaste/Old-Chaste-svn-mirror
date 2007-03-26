@@ -12,7 +12,12 @@ template<unsigned DIM>
 class SimpleTumourSourceModel : public AbstractGrowingTumourSourceModel<DIM>
 {
 public :
-    void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
+    SimpleTumourSourceModel()
+       : AbstractGrowingTumourSourceModel<DIM>()
+    {
+    }
+
+    void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticity)
     {
         typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter
         = this->mEvaluationPoints.begin();

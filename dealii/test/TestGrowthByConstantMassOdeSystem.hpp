@@ -17,10 +17,10 @@ public:
         Point<2> position;
         double rho = 1.0;
         
-        source_model.AddEvaluationPoint(0,position,0);
+        source_model.AddEvaluationPoint(0,position);
         GrowthByConstantMassOdeSystem<2> ode_system_0(rho, 0, &source_model);
         
-        source_model.AddEvaluationPoint(1,position,0);
+        source_model.AddEvaluationPoint(1,position);
         GrowthByConstantMassOdeSystem<2> ode_system_1(rho, 1, &source_model);
         
         double start_time = 0;
@@ -53,7 +53,7 @@ public:
         double rho = 1.0;
         
         unsigned eval_point_index = 1;
-        source_model.AddEvaluationPoint(eval_point_index,position,0);
+        source_model.AddEvaluationPoint(eval_point_index,position);
         GrowthByConstantMassOdeSystem<3> ode_system(rho, eval_point_index, &source_model);
         
         double start_time = 0;

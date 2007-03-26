@@ -448,6 +448,11 @@ public:
     {
         PointStimulusCellFactory cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        // bad params
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetSurfaceAreaToVolumeRatio(-1));
+        
+        TS_ASSERT_THROWS_ANYTHING(monodomain_problem.GetMonodomainPde()->SetCapacitance(-1));
         
         //Throws because we've not called initialise
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());

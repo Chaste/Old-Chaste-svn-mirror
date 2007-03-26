@@ -96,7 +96,21 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
     {
         mDeformedPosition[i].reinit(this->mpMesh->n_vertices());
     }
-    
+
+    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
+    while(!vertex_iter.ReachedEnd())
+    {
+        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+        Point<DIM> old_posn = vertex_iter.GetVertex();
+
+        for(unsigned i=0; i<DIM; i++)
+        {
+            mDeformedPosition[i](vertex_index) =  old_posn(i);
+        }
+        
+        vertex_iter.Next();
+    }
+
 //    std::cerr << "Number of active cells: " << this->mpMesh->n_active_cells() << std::endl;
 //    std::cerr << "Total number of cells: "  << this->mpMesh->n_cells() << std::endl;
 //    std::cerr << "Number of degrees of freedom: " << this->mDofHandler.n_dofs() << std::endl;
@@ -127,6 +141,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
 //    std::ofstream out("mesh.inp");
 //    GridOut grid_out;
 //    grid_out.write_ucd(mMesh, out);
+
 
 }
 

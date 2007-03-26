@@ -96,9 +96,8 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
                                                              mpSourceModel);
                                                              
                     Point<DIM> position = element_iter->vertex(i);
-                    mpSourceModel->AddEvaluationPoint(eval_point_index,
-                                                      position,
-                                                      vertex_index);
+                    mpSourceModel->AddEvaluationPoint(vertex_index,
+                                                      position);
                     eval_point_index++;
                 }
             }
@@ -781,9 +780,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 
 
                             Point<DIM> position = element_iter->vertex(i);
-                            mpSourceModel->AddEvaluationPoint(eval_point_index,
-                                                              position,
-                                                              vertex_index);
+                            mpSourceModel->AddEvaluationPoint(vertex_index,
+                                                              position);
                             eval_point_index++;
                         }
                     }
@@ -831,7 +829,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         // update the new position at the evaluation points
         // in the source model
         ////////////////////////////////////////////////////////
-        mpSourceModel->UpdateEvaluationPointsNewPosition(this);
+        mpSourceModel->UpdateEvaluationPointsNewPosition(this->mDeformedPosition);
         
         ////////////////////////////////////////////////////////
         // output results

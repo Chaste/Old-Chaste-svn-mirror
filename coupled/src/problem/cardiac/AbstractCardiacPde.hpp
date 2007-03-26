@@ -188,8 +188,10 @@ public:
 #ifndef NDEBUG
         if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
         {
+            #define COVERAGE_IGNORE
             std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
             " hi " << this->mOwnershipRangeHi << std::endl;
+            #undef COVERAGE_IGNORE
         }
 #endif
         

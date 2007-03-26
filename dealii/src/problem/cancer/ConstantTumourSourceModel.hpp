@@ -14,11 +14,12 @@ private :
     double mValue;
 public :
     ConstantTumourSourceModel(double value)
+       : AbstractGrowingTumourSourceModel<DIM>(),
+         mValue(value)
     {
-        mValue = value;
     }
     
-    void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)
+    void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticity)
     {
         typename std::map<unsigned,EvaluationPointInfo<DIM> >::iterator iter
         = this->mEvaluationPoints.begin();

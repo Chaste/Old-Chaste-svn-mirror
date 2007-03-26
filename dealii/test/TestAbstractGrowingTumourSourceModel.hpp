@@ -6,9 +6,6 @@
 #include "AbstractGrowingTumourSourceModel.hpp"
 #include "SimpleTumourSourceModel.hpp"
 #include "ConstantTumourSourceModel.hpp"
-#include "ConcentrationBasedTumourSourceModel.hpp"
-
-
 #include "FiniteElasticityAssembler.hpp"
 #include "FiniteElasticityTools.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
@@ -23,8 +20,8 @@ public:
         
         // add a couple of points to watch
         Point<2> position;
-        simple_model.AddEvaluationPoint(0, position, 0);
-        simple_model.AddEvaluationPoint(1, position, 0);
+        simple_model.AddEvaluationPoint(0, position);
+        simple_model.AddEvaluationPoint(1, position);
         
         TS_ASSERT_EQUALS(simple_model.GetNumEvaluationPoints(), 2);
         
@@ -42,7 +39,7 @@ public:
         
         // exceptions:
         // evaluation point with index=0 already exists
-        TS_ASSERT_THROWS_ANYTHING(simple_model.AddEvaluationPoint(0, position, 0));
+        TS_ASSERT_THROWS_ANYTHING(simple_model.AddEvaluationPoint(0, position));
         // no evaluation point corresponding to index=10 exists
         TS_ASSERT_THROWS_ANYTHING(simple_model.GetSourceValue(10));
     }
@@ -54,7 +51,7 @@ public:
         
         // add a points to watch
         Point<2> position;
-        constant_model.AddEvaluationPoint(0, position, 0);
+        constant_model.AddEvaluationPoint(0, position);
         
         // run
         constant_model.Run(0,1,NULL);
@@ -85,14 +82,19 @@ public:
         ConstantTumourSourceModel<2> constant_model(value);
         
         // add the first few nodes
-        TriangulationVertexIterator<2> iter(&mesh);
-        
+
+        TriangulationVertexIterator<2> iter(&mesh); 
+
         //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";
-        constant_model.AddEvaluationPoint(0, iter.GetVertex(), iter.GetVertexGlobalIndex());
+        unsigned indices[3];
+        indices[0] = iter.GetVertexGlobalIndex();
+        constant_model.AddEvaluationPoint(indices[0], iter.GetVertex());
+
         iter.Next();
         
         //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";
-        constant_model.AddEvaluationPoint(1, iter.GetVertex(), iter.GetVertexGlobalIndex());
+        indices[1] = iter.GetVertexGlobalIndex();
+        constant_model.AddEvaluationPoint(indices[1], iter.GetVertex());
         
         //////////////////////////////////////////////////////////////////////////
         // check the old position and the new position of the eval points agree
@@ -100,8 +102,8 @@ public:
         //////////////////////////////////////////////////////////////////////////
         for (unsigned i=0; i<2; i++)
         {
-            Point<2> old_posn_pt = constant_model.mEvaluationPoints[i].OldPosition;
-            Point<2> new_posn_pt = constant_model.mEvaluationPoints[i].NewPosition;
+            Point<2> old_posn_pt = constant_model.mEvaluationPoints[indices[i]].OldPosition;
+            Point<2> new_posn_pt = constant_model.mEvaluationPoints[indices[i]].NewPosition;
             
             TS_ASSERT_DELTA(old_posn_pt[0], new_posn_pt[0], 1e-12);
             TS_ASSERT_DELTA(old_posn_pt[1], new_posn_pt[1], 1e-12);
@@ -110,11 +112,11 @@ public:
         //////////////////////////////////////////////////////////////////////////
         // call update new position and check they still agree
         //////////////////////////////////////////////////////////////////////////
-        constant_model.UpdateEvaluationPointsNewPosition(&finite_elasticity);
+        constant_model.UpdateEvaluationPointsNewPosition(finite_elasticity.rGetDeformedPosition());
         for (unsigned i=0; i<2; i++)
         {
-            Point<2> old_posn_pt = constant_model.mEvaluationPoints[i].OldPosition;
-            Point<2> new_posn_pt = constant_model.mEvaluationPoints[i].NewPosition;
+            Point<2> old_posn_pt = constant_model.mEvaluationPoints[indices[i]].OldPosition;
+            Point<2> new_posn_pt = constant_model.mEvaluationPoints[indices[i]].NewPosition;
             
             TS_ASSERT_DELTA(old_posn_pt[0], new_posn_pt[0], 1e-12);
             TS_ASSERT_DELTA(old_posn_pt[1], new_posn_pt[1], 1e-12);
@@ -124,18 +126,18 @@ public:
         // solve the static system and update again
         //////////////////////////////////////////////////////////////////////////
         finite_elasticity.Solve();
-        constant_model.UpdateEvaluationPointsNewPosition(&finite_elasticity);
+        constant_model.UpdateEvaluationPointsNewPosition(finite_elasticity.rGetDeformedPosition());
         
         // evaluation point 0: equivalent to x=y=0, on fixed boundary,
         // new point should be the same as the old point
-        Point<2> old_posn_pt = constant_model.mEvaluationPoints[0].OldPosition;
-        Point<2> new_posn_pt = constant_model.mEvaluationPoints[0].NewPosition;
+        Point<2> old_posn_pt = constant_model.mEvaluationPoints[indices[0]].OldPosition;
+        Point<2> new_posn_pt = constant_model.mEvaluationPoints[indices[0]].NewPosition;
         TS_ASSERT_DELTA(old_posn_pt[0], new_posn_pt[0], 1e-12);
         TS_ASSERT_DELTA(old_posn_pt[1], new_posn_pt[1], 1e-12);
         
         // evaluation point 1: check against hardcoded results
-        old_posn_pt = constant_model.mEvaluationPoints[1].OldPosition;
-        new_posn_pt = constant_model.mEvaluationPoints[1].NewPosition;
+        old_posn_pt = constant_model.mEvaluationPoints[indices[1]].OldPosition;
+        new_posn_pt = constant_model.mEvaluationPoints[indices[1]].NewPosition;
         TS_ASSERT_DELTA(old_posn_pt[0], 0.5,    1e-12);
         TS_ASSERT_DELTA(new_posn_pt[0], 0.5123, 1e-3);
         TS_ASSERT_DELTA(old_posn_pt[1], 0.0,    1e-12);
@@ -145,65 +147,35 @@ public:
         // add another eval point and do it again
         ///////////////////////////////////////////
         iter.Next();
-        //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";
-        constant_model.AddEvaluationPoint(2, iter.GetVertex(), iter.GetVertexGlobalIndex());
+
+        indices[2] = iter.GetVertexGlobalIndex();
+        //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";  
+
+        constant_model.AddEvaluationPoint(indices[2], iter.GetVertex());
         
-        constant_model.UpdateEvaluationPointsNewPosition(&finite_elasticity);
+        constant_model.UpdateEvaluationPointsNewPosition(finite_elasticity.rGetDeformedPosition());
         
         // evaluation point 0: equivalent to x=y=0, on fixed boundary,
         // new point should be the same as the old point
-        old_posn_pt = constant_model.mEvaluationPoints[0].OldPosition;
-        new_posn_pt = constant_model.mEvaluationPoints[0].NewPosition;
+        old_posn_pt = constant_model.mEvaluationPoints[indices[0]].OldPosition;
+        new_posn_pt = constant_model.mEvaluationPoints[indices[0]].NewPosition;
         TS_ASSERT_DELTA(old_posn_pt[0], new_posn_pt[0], 1e-12);
         TS_ASSERT_DELTA(old_posn_pt[1], new_posn_pt[1], 1e-12);
         
         // evaluation point 1: check against hardcoded results
-        old_posn_pt = constant_model.mEvaluationPoints[1].OldPosition;
-        new_posn_pt = constant_model.mEvaluationPoints[1].NewPosition;
+        old_posn_pt = constant_model.mEvaluationPoints[indices[1]].OldPosition;
+        new_posn_pt = constant_model.mEvaluationPoints[indices[1]].NewPosition;
         TS_ASSERT_DELTA(old_posn_pt[0], 0.5,    1e-12);
         TS_ASSERT_DELTA(new_posn_pt[0], 0.5123, 1e-3);
         TS_ASSERT_DELTA(old_posn_pt[1], 0.0,    1e-12);
         TS_ASSERT_DELTA(new_posn_pt[1], 0.0144, 1e-3);
         
-        old_posn_pt = constant_model.mEvaluationPoints[2].OldPosition;
-        new_posn_pt = constant_model.mEvaluationPoints[2].NewPosition;
+        old_posn_pt = constant_model.mEvaluationPoints[indices[2]].OldPosition;
+        new_posn_pt = constant_model.mEvaluationPoints[indices[2]].NewPosition;
         TS_ASSERT_DELTA(old_posn_pt[0], 0.5,    1e-12);
         TS_ASSERT_DELTA(new_posn_pt[0], 0.5155, 1e-3);
         TS_ASSERT_DELTA(old_posn_pt[1], 0.5,    1e-12);
         TS_ASSERT_DELTA(new_posn_pt[1], 0.4999, 1e-3);
-    }
-    
-    void TestConcentrationBasedTumourSourceModel()
-    {
-        Vector<double> body_force(2);
-        body_force(0) = 1.0;
-        
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
-        
-        Triangulation<2> mesh;
-        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
-        mesh.refine_global(1);
-        FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
-        
-        FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       &mooney_rivlin_law,
-                                                       body_force,
-                                                       1.0,
-                                                       "");
-                                                       
-        ConcentrationBasedTumourSourceModel<2> source_model(mesh);
-        
-        // add the first few nodes
-        TriangulationVertexIterator<2> iter(&mesh);
-        
-        //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";
-        source_model.AddEvaluationPoint(0, iter.GetVertex(), iter.GetVertexGlobalIndex());
-        iter.Next();
-        
-        //std::cout << "Adding " << iter.GetVertexGlobalIndex() << " - " << iter.GetVertex()[0] << " " <<iter.GetVertex()[1] << "\n";
-        source_model.AddEvaluationPoint(1, iter.GetVertex(), iter.GetVertexGlobalIndex());
-        
-        source_model.Run(0,1,&finite_elasticity);
     }
 };
 
