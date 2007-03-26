@@ -2,11 +2,12 @@
 #define _TESTLINEARBASISFUNCTION_HPP_
 
 #include <cxxtest/TestSuite.h>
+#include <vector>
+
 #include "LinearBasisFunction.cpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BasisFunctionsCheckers.hpp"
 #include "Element.hpp"
-#include <vector>
 
 class TestLinearBasisFunction : public CxxTest::TestSuite
 {
@@ -25,7 +26,7 @@ public:
         
         // check link with 0d quad rule works ok
         GaussianQuadratureRule<0>  quad_rule(1);
-        Point<0>   quad_point = quad_rule.GetQuadPoint(0);
+        const Point<0>& quad_point = quad_rule.rGetQuadPoint(0);
         
         c_vector<double, 1> basis_function_vector2;
         basis_function_vector2 = basis_function.ComputeBasisFunctions(quad_point);

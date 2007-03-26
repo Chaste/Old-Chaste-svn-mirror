@@ -36,8 +36,8 @@ public :
                 TS_ASSERT_LESS_THAN_EQUALS( quad_rule.GetWeight(i),1);
                 TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
-                TS_ASSERT_LESS_THAN( quad_rule.GetQuadPoint(i)[0],1); // x<1
-                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0); // x>0
+                TS_ASSERT_LESS_THAN( quad_rule.rGetQuadPoint(i)[0],1); // x<1
+                TS_ASSERT_LESS_THAN(-quad_rule.rGetQuadPoint(i)[0],0); // x>0
             }
         }
         
@@ -51,10 +51,10 @@ public :
                 TS_ASSERT_LESS_THAN_EQUALS( quad_rule.GetWeight(i),1);
                 TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
-                TS_ASSERT_LESS_THAN(-(1-quad_rule.GetQuadPoint(i)[0]
-                                      -quad_rule.GetQuadPoint(i)[1]),0); // 1-x-y>0
-                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0);  // x>0
-                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[1],0);  // y>0
+                TS_ASSERT_LESS_THAN(-(1-quad_rule.rGetQuadPoint(i)[0]
+                                      -quad_rule.rGetQuadPoint(i)[1]),0); // 1-x-y>0
+                TS_ASSERT_LESS_THAN(-quad_rule.rGetQuadPoint(i)[0],0);  // x>0
+                TS_ASSERT_LESS_THAN(-quad_rule.rGetQuadPoint(i)[1],0);  // y>0
             }
         }
         
@@ -68,12 +68,12 @@ public :
                 TS_ASSERT_LESS_THAN_EQUALS( quad_rule.GetWeight(i),1);
                 TS_ASSERT_LESS_THAN_EQUALS(-quad_rule.GetWeight(i),0);
                 
-                TS_ASSERT_LESS_THAN(-(1-quad_rule.GetQuadPoint(i)[0]
-                                      -quad_rule.GetQuadPoint(i)[1]
-                                      -quad_rule.GetQuadPoint(i)[2]),0); // 1-x-y-z>0
-                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[0],0);  // x>0
-                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[1],0);  // y>0
-                TS_ASSERT_LESS_THAN(-quad_rule.GetQuadPoint(i)[2],0);  // z>0
+                TS_ASSERT_LESS_THAN(-(1-quad_rule.rGetQuadPoint(i)[0]
+                                      -quad_rule.rGetQuadPoint(i)[1]
+                                      -quad_rule.rGetQuadPoint(i)[2]),0); // 1-x-y-z>0
+                TS_ASSERT_LESS_THAN(-quad_rule.rGetQuadPoint(i)[0],0);  // x>0
+                TS_ASSERT_LESS_THAN(-quad_rule.rGetQuadPoint(i)[1],0);  // y>0
+                TS_ASSERT_LESS_THAN(-quad_rule.rGetQuadPoint(i)[2],0);  // z>0
             }
         }
         
@@ -112,8 +112,8 @@ public :
                 
                 for (unsigned quad_index=0; quad_index<quad_rule.GetNumQuadPoints(); quad_index++)
                 {
-                    Point<1> quad_point=quad_rule.GetQuadPoint(quad_index);
-                    Point<1> transformed_quad_point =
+                    const Point<1>& quad_point = quad_rule.rGetQuadPoint(quad_index);
+                    const Point<1> transformed_quad_point =
                         Point<1>((1-quad_point[0])*x1 + quad_point[0]*x2);
                         
                     double integrand_value = pow(transformed_quad_point[0],poly_degree);
@@ -163,7 +163,7 @@ public :
                          quad_index<quad_rule.GetNumQuadPoints();
                          quad_index++)
                     {
-                        Point<2> quad_point=quad_rule.GetQuadPoint(quad_index);
+                        const Point<2>& quad_point = quad_rule.rGetQuadPoint(quad_index);
                         
                         integral += pow(quad_point[0], poly_degree_x)
                                     *pow(quad_point[1], poly_degree_y)
@@ -251,7 +251,7 @@ public :
                              quad_index<quad_rule.GetNumQuadPoints();
                              quad_index++)
                         {
-                            Point<3> quad_point=quad_rule.GetQuadPoint(quad_index);
+                            const Point<3>& quad_point = quad_rule.rGetQuadPoint(quad_index);
                             
                             integral += pow(quad_point[0], poly_degree_x)
                                         *pow(quad_point[1], poly_degree_y)
