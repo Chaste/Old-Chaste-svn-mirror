@@ -673,12 +673,14 @@ public:
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "stoch_cycle.arch";
         
+        double random_number_test = 0;
+        
         // Create an ouput archive
         {
-            RandomNumberGenerator::Instance();
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+            
             StochasticCellCycleModel model;
             p_simulation_time->IncrementTimeOneStep();
             
@@ -689,18 +691,22 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
             
             output_arch << static_cast<const SimulationTime&>(*p_simulation_time);
-            output_arch << static_cast<const CancerParameters&>(*CancerParameters::Instance());
             output_arch << static_cast<const StochasticCellCycleModel&>(model);
+            
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+            random_number_test = p_gen->ranf();
             
             RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
         
         {
-            RandomNumberGenerator::Instance();
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+            
+            RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+            p_gen->Reseed(36);
             
             StochasticCellCycleModel model;
             model.SetCellType(STEM);
@@ -717,16 +723,16 @@ public:
             
             // restore from the archive
             input_arch >> *p_simulation_time;
-            input_arch >> *inst1;
             input_arch >> model;
             
             // Check
             TS_ASSERT_DELTA(model.GetBirthTime(),-1.0,1e-12);
             TS_ASSERT_EQUALS(model.GetCellType(),TRANSIT);
             TS_ASSERT_DELTA(model.GetAge(),1.5,1e-12);
+            TS_ASSERT_DELTA(p_gen->ranf(),random_number_test,1e-7);
             
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
-            RandomNumberGenerator::Destroy();
+            
             SimulationTime::Destroy();
         }
     }
