@@ -6,6 +6,7 @@
 #include "TrianglesMeshReader.cpp"
 #include "TrianglesMeshWriter.cpp"
 #include "RandomDecimator.hpp"
+#include "SequenceDecimator.hpp"
 #include <cxxtest/TestSuite.h>
 
 #include <vector>
@@ -25,16 +26,19 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
         
-        RandomNumberGenerator::Instance();
-        RandomDecimator<3> decimator;
+        //RandomNumberGenerator::Instance();
+        Decimator<3> decimator;
         decimator.Initialise(&mesh);
         decimator.SetVolumeLeakage(1e-5);
         
         
         decimator.Decimate();
-        RandomNumberGenerator::Destroy();
+        //RandomNumberGenerator::Destroy();
         
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21894U);
+        //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21894U); //Random
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21860U); //Base
+        //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21800U); //Sequence
+        
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
         TrianglesMeshWriter<3,3> mesh_writer("", "HeartDecimation");
         mesh_writer.WriteFilesUsingMesh(mesh);

@@ -72,6 +72,12 @@ public:
         	{
         		p_gen->ranf();
         	}
+        	
+        	//A few extra calls before archiving
+        	p_gen->ranf();
+        	p_gen->randMod(3);        	
+        	p_gen->StandardNormalRandomDeviate();
+            p_gen->NormalRandomDeviate(0.5, 0.1);
             
             output_arch << static_cast<const RandomNumberGenerator&>(*p_gen);
             

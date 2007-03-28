@@ -1,7 +1,6 @@
 #include "RandomNumberGenerator.hpp"
 
 
-
 /** Pointer to the single instance */
 RandomNumberGenerator* RandomNumberGenerator::mpInstance = NULL;
 
@@ -59,7 +58,6 @@ double RandomNumberGenerator::ranf(void)
  */
 double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 {
-	mTimesCalled++;
     return sd * StandardNormalRandomDeviate() + mean;
 }
 
