@@ -733,6 +733,7 @@ public:
             
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(),10.0,1e-12);
             
+            RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
     }
