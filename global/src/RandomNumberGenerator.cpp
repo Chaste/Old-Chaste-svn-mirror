@@ -33,12 +33,14 @@ void RandomNumberGenerator::Destroy()
         mpInstance = NULL;
     }
 }
+
 /**
  * Generate a random number modulo base (ie an integer
  * within the range 0,..,base-1)
  */
 unsigned RandomNumberGenerator::randMod(unsigned base)
 {
+	mTimesCalled++;
     return (random()%base);
 }
 
@@ -47,6 +49,7 @@ unsigned RandomNumberGenerator::randMod(unsigned base)
  */
 double RandomNumberGenerator::ranf(void)
 {
+	mTimesCalled++;
     return (double)random() / RAND_MAX;
 }
 
@@ -56,6 +59,7 @@ double RandomNumberGenerator::ranf(void)
  */
 double RandomNumberGenerator::NormalRandomDeviate(double mean, double sd)
 {
+	mTimesCalled++;
     return sd * StandardNormalRandomDeviate() + mean;
 }
 

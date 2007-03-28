@@ -108,7 +108,7 @@ public:
     
     void TestArchiveSimulationTime()
     {
-        OutputFileHandler handler("archive");
+        OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetTestOutputDirectory() + "time.arch";
         
