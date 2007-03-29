@@ -8,3 +8,4 @@ TestSolvingStiffOdeSystems.hpp
 TestBackwardEulerIvpOdeSolver.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestWntCellCycleOdeSystem.hpp
+TestLee2003WntSignallingOdeSystem.hpp
