@@ -14,7 +14,7 @@
  *  AbstractLinearAssembler. See AbstractAssembler for usage.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractLinearAssembler : public virtual AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
+class AbstractLinearAssembler : public AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 {
 
 protected:
