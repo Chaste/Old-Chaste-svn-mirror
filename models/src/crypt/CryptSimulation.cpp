@@ -27,6 +27,7 @@ CryptSimulation::CryptSimulation(ConformingTetrahedralMesh<1,1> &rMesh,
     mpSimulationTime = SimulationTime::Instance();
     mpGen = RandomNumberGenerator::Instance();
     mpParams = CancerParameters::Instance();
+    mpParams->SetSpringStiffness(30.0);
     mDt = 1.0/(120.0); // ie 30 sec NOTE: hardcoded 120?
     mEndTime = 120.0; //hours
     
@@ -242,8 +243,8 @@ void CryptSimulation::Solve()
                         
                         assert(rest_length<=1.0);
                     }
-                    drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
-                    drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - rest_length) );
+                    drdt_contributions(0) = ( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - rest_length) );
+                    drdt_contributions(1) = ( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - rest_length) );
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);
                 }
@@ -261,8 +262,8 @@ void CryptSimulation::Solve()
                     double unit_vector_backward = -1;
                     double unit_vector_forward = 1;
                     
-                    drdt_contributions(0) = mpParams->GetMeinekeLambda() *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
-                    drdt_contributions(1) = mpParams->GetMeinekeLambda() *(  unit_vector_backward * (distance_between_nodes - 1.0) );
+                    drdt_contributions(0) =( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_forward  * (distance_between_nodes - 1.0) );
+                    drdt_contributions(1) =( mpParams->GetSpringStiffness() / mpParams->GetDampingConstantNormal() ) *(  unit_vector_backward * (distance_between_nodes - 1.0) );
                     
                     drdt[ element->GetNode(0)->GetIndex() ] += drdt_contributions(0);
                     drdt[ element->GetNode(1)->GetIndex() ] += drdt_contributions(1);

@@ -21,13 +21,9 @@ public:
         inst1->SetTransitCellCycleTime(-35.0);
         inst1->SetMaxTransitGenerations(666u);
         inst1->SetCryptLength(-1.0);
-        inst1->SetMeinekeLambda(-2.0);
         inst1->SetSpringStiffness(20.0);
         inst1->SetDampingConstantNormal(2.0);
         inst1->SetDampingConstantMutant(3.0);
-        inst1->SetMeinekeLambda(-2.0);
-        inst1->SetMeinekeLambda(-2.0);
-
         inst1->SetApoptosisTime(0.3);
         
         CancerParameters *inst2 = CancerParameters::Instance();
@@ -37,7 +33,6 @@ public:
         TS_ASSERT_DELTA(inst2->GetTransitCellCycleTime(), -35.0, 1e-12);
         TS_ASSERT_EQUALS(inst2->GetMaxTransitGenerations(), 666u);
         TS_ASSERT_DELTA(inst2->GetCryptLength(), -1.0, 1e-12);
-        TS_ASSERT_DELTA(inst2->GetMeinekeLambda(), -2.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetSpringStiffness(), 20.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetDampingConstantNormal(), 2.0, 1e-12);
         TS_ASSERT_DELTA(inst2->GetDampingConstantMutant(), 3.0, 1e-12);
@@ -59,7 +54,6 @@ public:
             inst1->SetTransitCellCycleTime(-35.0);
             inst1->SetMaxTransitGenerations(666u);
             inst1->SetCryptLength(-1.0);
-            inst1->SetMeinekeLambda(-2.0);
             inst1->SetApoptosisTime(0.3);
             inst1->SetSpringStiffness(20.0);
             inst1->SetDampingConstantNormal(2.0);
@@ -80,7 +74,6 @@ public:
             inst1->SetTransitCellCycleTime(12.0);
             inst1->SetMaxTransitGenerations(3u);
             inst1->SetCryptLength(22.0);
-            inst1->SetMeinekeLambda(30.0);
             inst1->SetApoptosisTime(0.25);
             inst1->SetSpringStiffness(30.0);
             inst1->SetDampingConstantNormal(1.0);
@@ -99,7 +92,6 @@ public:
             TS_ASSERT_DELTA(inst1->GetTransitCellCycleTime(), -35.0, 1e-12);
             TS_ASSERT_EQUALS(inst1->GetMaxTransitGenerations(), 666u);
             TS_ASSERT_DELTA(inst1->GetCryptLength(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetMeinekeLambda(), -2.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSpringStiffness(), 20.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetDampingConstantNormal(), 2.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetDampingConstantMutant(), 3.0, 1e-12);

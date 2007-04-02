@@ -45,11 +45,7 @@ CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2
     
     //srandom(time(NULL));
     srandom(0);
-    //mpParams->SetMeinekeLambda(15.0);
-    // !!!!!!!! Note: should we be setting these in crypt simulation?
-    mpParams->SetSpringStiffness(15.0);
-    mpParams->SetDampingConstantNormal(1.0);
-    mpParams->SetDampingConstantMutant(2.0);
+    
     
     
     mIncludeRandomBirth = false;

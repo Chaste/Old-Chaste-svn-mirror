@@ -20,7 +20,6 @@ public:
     unsigned GetMaxTransitGenerations();
     double GetCryptLength();
     double GetCryptWidth();
-    double GetMeinekeLambda();
     double GetSpringStiffness();
     double GetDampingConstantNormal();
     double GetDampingConstantMutant();
@@ -32,7 +31,6 @@ public:
     void SetMaxTransitGenerations(unsigned);
     void SetCryptLength(double);
     void SetCryptWidth(double);
-    void SetMeinekeLambda(double);
     void SetSpringStiffness(double);
     void SetDampingConstantNormal(double);
     void SetDampingConstantMutant(double);
@@ -82,12 +80,6 @@ private:
     double mCryptWidth;
     
     /**
-     * The ratio of mu (spring constant) to eta (damping constant).
-     * Has dimensions 1/time.
-     */
-    double mMeinekeLambda;
-    
-    /**
      * Spring stiffness represented by mu in Meineke
      */
     double mSpringStiffness;
@@ -122,7 +114,6 @@ private:
         archive & mMaxTransitGenerations;
         archive & mCryptLength;
         archive & mCryptWidth;
-        archive & mMeinekeLambda;
         archive & mSpringStiffness;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;

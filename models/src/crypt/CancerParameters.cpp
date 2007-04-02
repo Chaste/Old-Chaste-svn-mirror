@@ -22,7 +22,6 @@ CancerParameters::CancerParameters()
      * @param mSG2MDuration has units of hours
      * @param mMaxTransitGenerations has no units
      * @param mCryptLength  has units of cell size at equilibrium rest length
-     * @param mMeinekeLambda has units of 1/hours and is the same as the paper
      * @param mNaturalSpringLength has units of cell length at equilibrium rest length.
      * This is set to 1 and should be left unchanged in all simulations.
      * 
@@ -35,13 +34,11 @@ CancerParameters::CancerParameters()
     mMaxTransitGenerations = 3u;
     mCryptWidth = 10.0;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
-    mMeinekeLambda = 30.0;       // Meineke uses 0.01
-    mSpringStiffness = 30.0;  //This is mu in Meineke
+    mSpringStiffness = 15.0;  //This is mu in Meineke
     mDampingConstantNormal = 1.0;  //This is nu in Meineke
     mDampingConstantMutant = 2.0;
     mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
     // Calculated parameters
-    //mAlpha = mStemCellCycleTime * mMeinekeLambda;
     // This was used in non-dimensional case
 }
 
@@ -72,10 +69,6 @@ double CancerParameters::GetCryptLength()
 double CancerParameters::GetCryptWidth()
 {
     return mCryptWidth;
-}
-double CancerParameters::GetMeinekeLambda()
-{
-    return mMeinekeLambda;
 }
 double CancerParameters::GetSpringStiffness()
 {
@@ -122,10 +115,6 @@ void CancerParameters::SetCryptWidth(double cryptWidth)
 {
     mCryptWidth = cryptWidth;
 }
-void CancerParameters::SetMeinekeLambda(double meinekeLambda)
-{
-    mMeinekeLambda = meinekeLambda;
-}    
 void CancerParameters::SetSpringStiffness(double springStiffness)
 {
     mSpringStiffness = springStiffness;
