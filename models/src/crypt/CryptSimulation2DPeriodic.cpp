@@ -33,20 +33,14 @@
 CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
                                                      std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
-        mCells(cells)
+          mCells(cells)
 {
-
-
     mpParams = CancerParameters::Instance();
     
     mDt = 1.0/(120.0);
     mEndTime = 120.0; //hours
     
-    
-    //srandom(time(NULL));
     srandom(0);
-    
-    
     
     mIncludeRandomBirth = false;
     mIncludeVariableRestLength = false;
@@ -183,9 +177,9 @@ void CryptSimulation2DPeriodic::WriteResultsToFiles(ColumnDataWriter& rNodeWrite
     {
         if (index>mMaxCells)
         {
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
         }
         unsigned colour = 0; // all green if no cells have been passed in
         
@@ -220,9 +214,9 @@ void CryptSimulation2DPeriodic::WriteResultsToFiles(ColumnDataWriter& rNodeWrite
             }
             else
             {
-#define COVERAGE_IGNORE
+                #define COVERAGE_IGNORE
                 colour = 2; //Fix for segmentation fault
-#undef COVERAGE_IGNORE
+                #undef COVERAGE_IGNORE
             }
             
         }
@@ -250,9 +244,9 @@ void CryptSimulation2DPeriodic::WriteResultsToFiles(ColumnDataWriter& rNodeWrite
     {
         if (elem_index>mMaxElements)
         {
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             EXCEPTION("Maximum number of elements (mMaxElements) exceeded.\nUse SetMaxElements(unsigned) to increase it.\n");
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
         }
         if (!mrMesh.GetElement(elem_index)->IsDeleted())
         {
@@ -367,6 +361,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                     mPeriodicDivisionBuffer=3;
                     //Make sure the image cell knows it has just divided and aged a generation
                     mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
+                    mCells[mRightCryptBoundary[periodic_index]].SetNodeIndex(mRightCryptBoundary[periodic_index]);
                 }
                 else
                 {
@@ -402,9 +397,9 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                 double distance_of_new_cell_from_parent = 0.1;
                 if (distance_from_node_to_centroid < (2.0/3.0)*0.1)
                 {
-#define COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE
                     distance_of_new_cell_from_parent = (3.0/2.0)*distance_from_node_to_centroid;
-#undef COVERAGE_IGNORE
+                    #undef COVERAGE_IGNORE
                 }
                 
                 double new_x_value = x + distance_of_new_cell_from_parent*(x_centroid-x);
@@ -424,19 +419,19 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                 }
                 else
                 {
-#define COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE
                     mCells[new_node_index] = new_cell;
-#undef COVERAGE_IGNORE
+                    #undef COVERAGE_IGNORE
                 }
                 //mCells[new_node_index].SetBirthTime();
                 
                 // Update size of IsGhostNode if necessary
                 if (mrMesh.GetNumNodes() > mIsGhostNode.size())
                 {
-#define COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE
                     mIsGhostNode.resize(mrMesh.GetNumNodes());
                     mIsGhostNode[new_node_index] = false;
-#undef COVERAGE_IGNORE
+                    #undef COVERAGE_IGNORE
                 }
                 num_births++;
                 //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
@@ -452,6 +447,22 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
 }
 
 /**
+ *  Checks that the indices are in sync in the cells vector, ie that
+ *  mCells[i].GetNodeIndex() is equal to i
+ */
+void CryptSimulation2DPeriodic::CheckIndicesAreInSync()
+{
+    if (!mCells.empty())
+    {
+        for (unsigned cell_index=0; cell_index<mCells.size(); cell_index++)
+        {
+            unsigned node_index = mCells[cell_index].GetNodeIndex();
+            assert(node_index==cell_index);
+        }
+    }
+}
+
+/**
  * During a simulation time step, process any cell sloughing or death
  *
  * At the moment we just slough cells by turning them into ghost nodes
@@ -462,8 +473,6 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
  */
 unsigned CryptSimulation2DPeriodic::DoCellRemoval()
 {
-
-
     unsigned num_deaths=0;
     
     ///////////////////////////////////////////////////////////////////////////////////
@@ -654,36 +663,36 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
                 }
                 
                 
-                double damping_constantA = mpParams->GetDampingConstantNormal() ;
-                double damping_constantB = mpParams->GetDampingConstantNormal();
+                double damping_constantA;// = mpParams->GetDampingConstantNormal() ;
+                double damping_constantB;// = mpParams->GetDampingConstantNormal();
                 
-//                //note: at the moment the index into the mCells vector is the same
-//                //as the node index. later this may not be the case, in which case
-//                //the following assertion will trip. to deal with this, a map from 
-//                //node index to cell will be needed
-//                assert( mCells[p_element->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeA));
-//                assert( mCells[p_element->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeB));
-//                
-//                if(   (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
-//                   || (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
-//                {
-//                    damping_constantA = mpParams->GetDampingConstantNormal();
-//                }
-//                else
-//                {
-//                    damping_constantA = mpParams->GetDampingConstantMutant();
-//                }
-//                
-//                if(   (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
-//                   || (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
-//                {
-//                    damping_constantB = mpParams->GetDampingConstantNormal();
-//                }
-//                else
-//                {
-//                    damping_constantB = mpParams->GetDampingConstantMutant();
-//                }
-//                
+                //note: at the moment the index into the mCells vector is the same
+                //as the node index. later this may not be the case, in which case
+                //the following assertion will trip. to deal with this, a map from 
+                //node index to cell will be needed
+                assert( mCells[p_element->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeA));
+                assert( mCells[p_element->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeB));
+                
+                if(   (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
+                   || (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+                {
+                    damping_constantA = mpParams->GetDampingConstantNormal();
+                }
+                else
+                {
+                    damping_constantA = mpParams->GetDampingConstantMutant();
+                }
+                
+                if(   (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
+                   || (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
+                {
+                    damping_constantB = mpParams->GetDampingConstantNormal();
+                }
+                else
+                {
+                    damping_constantB = mpParams->GetDampingConstantMutant();
+                }
+                
                 // Assume that if both nodes are real, or both are ghosts, then they both
                 // exert forces on each other, but if one is real and one is ghost then
                 // the real node exerts a force on the ghost node, but the ghost node
@@ -737,35 +746,35 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
             
             c_vector<double, 2> force = CalculateForceInThisBoundarySpring(p_edge);
               
-            double damping_constantA = mpParams->GetDampingConstantNormal();
-            double damping_constantB = mpParams->GetDampingConstantNormal();
+            double damping_constantA;// = mpParams->GetDampingConstantNormal();
+            double damping_constantB;// = mpParams->GetDampingConstantNormal();
             
-//            //note: at the moment the index into the mCells vector is the same
-//            //as the node index. later this may not be the case, in which case
-//            //the following assertion will trip. to deal with this, a map from 
-//            //node index to cell will be needed
-//            assert( mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeA));
-//            assert( mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeB));
-//            
-//            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
-//               || (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
-//            {
-//                damping_constantA = mpParams->GetDampingConstantNormal();
-//            }
-//            else
-//            {
-//                damping_constantA = mpParams->GetDampingConstantMutant();
-//            }
-//            
-//            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
-//               || (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
-//            {
-//                damping_constantB = mpParams->GetDampingConstantNormal();
-//            }
-//            else
-//            {
-//                damping_constantB = mpParams->GetDampingConstantMutant();
-//            }
+            //note: at the moment the index into the mCells vector is the same
+            //as the node index. later this may not be the case, in which case
+            //the following assertion will trip. to deal with this, a map from 
+            //node index to cell will be needed
+            assert( mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeA));
+            assert( mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeB));
+            
+            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
+               || (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+            {
+                damping_constantA = mpParams->GetDampingConstantNormal();
+            }
+            else
+            {
+                damping_constantA = mpParams->GetDampingConstantMutant();
+            }
+            
+            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
+               || (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
+            {
+                damping_constantB = mpParams->GetDampingConstantNormal();
+            }
+            else
+            {
+                damping_constantB = mpParams->GetDampingConstantMutant();
+            }
                         
             // Assume that if both nodes are real, or both are ghosts, then they both
             // exert forces on each other, but if one is real and one is ghost then
@@ -971,16 +980,17 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< std::vect
     {
         for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
         {
-            unsigned RightNodeIndex = mRightCryptBoundary[i];
-            unsigned LeftNodeIndex = mLeftCryptBoundary[i];
-            c_vector<double,2> right_point = mrMesh.GetNode(RightNodeIndex)->rGetLocation();
+            unsigned right_node_index = mRightCryptBoundary[i];
+            unsigned left_node_index = mLeftCryptBoundary[i];
+            c_vector<double,2> right_point = mrMesh.GetNode(right_node_index)->rGetLocation();
             Point<2> left_point;
             left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
             left_point.rGetLocation()[1] = right_point[1];
-            mrMesh.SetNode(LeftNodeIndex, left_point, false);
+            mrMesh.SetNode(left_node_index, left_point, false);
             // Also force them to be the same cell
             // needed to synchronise cell cycle models (as R periodic cell cycle models are not run)...
-            mCells[RightNodeIndex]=mCells[LeftNodeIndex];
+            mCells[right_node_index]=mCells[left_node_index];
+            mCells[right_node_index].SetNodeIndex(right_node_index);
         }
     }
 }
@@ -1551,6 +1561,7 @@ void CryptSimulation2DPeriodic::AddACellToPeriodicBoundary(unsigned original_nod
     mIsGhostNode[node_index] = false;
     // copy relevant cell info across...
     mCells[node_index]=mCells[original_node_index];
+    mCells[node_index].SetNodeIndex(node_index);
     
 }
 
@@ -1606,7 +1617,7 @@ void CryptSimulation2DPeriodic::CallReMesher()
     std::cout << "Remeshing \n"<< std::flush;
     NodeMap map(mrMesh.GetNumAllNodes());
     mrMesh.ReMesh(map);
-    
+        
     // TODO: These commented out because they caused a segmentation
     // fault after the Load function has been called.
     // Possibly necessary for cell death - but missing a method to actually
@@ -1826,6 +1837,9 @@ std::vector<double> CryptSimulation2DPeriodic::GetNodeLocation(const unsigned& r
  */
 void CryptSimulation2DPeriodic::Solve()
 {
+   std::cout << mrMesh.GetNode(64)->rGetLocation()[0] << " " << mrMesh.GetNode(64)->rGetLocation()[1]<<"\n";
+   std::cout << mrMesh.GetNode(70)->rGetLocation()[0] << " " << mrMesh.GetNode(70)->rGetLocation()[1]<<"\n";
+    std::cout << "----\n";
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     double current_time = p_simulation_time->GetDimensionalisedTime();
@@ -1927,6 +1941,8 @@ void CryptSimulation2DPeriodic::Solve()
     
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {
+        CheckIndicesAreInSync();
+        
         mRemeshesThisTimeStep = 0; // To avoid infinite loops
         std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
         
@@ -1943,7 +1959,6 @@ void CryptSimulation2DPeriodic::Solve()
         // Cell death should be included in this method
         /////////////////////////////////////////////
         mNumDeaths += DoCellRemoval();
-        
         
         // Change the state of some cells
         // Only active for WntCellCycleModel at the moment
@@ -2074,4 +2089,3 @@ void CryptSimulation2DPeriodic::Load(const std::string& rArchiveDirectory, const
         EXCEPTION(" Error in Load: number of nodes is not equal to number of cells.");
     }
 }
-

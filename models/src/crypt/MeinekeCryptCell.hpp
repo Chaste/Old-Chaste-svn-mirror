@@ -32,6 +32,7 @@ private:
         archive & mpCellCycleModel;
         archive & mCanDivide;
         archive & mUndergoingApoptosis;
+        archive & mNodeIndex;
     }
     
 protected:

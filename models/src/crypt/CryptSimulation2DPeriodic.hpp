@@ -211,6 +211,9 @@ private:
     void ReMesh();
     
     void CallReMesher();
+
+    void CheckIndicesAreInSync();
+
 public:
 
     CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
