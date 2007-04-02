@@ -18,6 +18,51 @@
 // todos: proper test of answers, compare numerical jacobian
 // sensible test once s set up. change constructor
 
+class TumourGrowingDyingSourceModel : public AbstractGrowingTumourSourceModel<2>
+{
+public :    
+    TumourGrowingDyingSourceModel()
+    {
+    }
+    
+    void Run(double tStart, double tEnd, FiniteElasticityAssembler<2>* pFiniteElasticityAssembler)
+    {
+        Point<2> centre;
+        centre[0] = 0.5;
+        centre[1] = 0.5;
+         
+        std::map<unsigned,EvaluationPointInfo<2> >::iterator iter
+            = this->mEvaluationPoints.begin();
+        while (iter!=this->mEvaluationPoints.end())
+        {
+            unsigned mesh_index = iter->first;
+            Point<2>& position = iter->second.OldPosition;
+            Point<2> diff = position-centre;
+    
+            double distance_to_centre = std::sqrt(diff.square());
+            double source_value = 2*(distance_to_centre - 0.39);
+
+//            if(distance_to_centre < 0.24)
+//            {
+//                source_value = -1;
+//            }
+//            else if(distance_to_centre < 0.49)
+//            {
+//                source_value = 0;
+//            }
+//            else
+//            {
+//                source_value = 1;
+//            }
+
+            std::cout << mesh_index << ": " << position[0] << " " <<  position[1] << ": "<<  distance_to_centre << " " << source_value << "\n";
+
+            iter->second.SourceValue = source_value;
+            iter++;
+        }
+    }
+};
+
 
 class TestFiniteElasticityAssemblerWithGrowth : public CxxTest::TestSuite
 {
@@ -95,6 +140,38 @@ public :
         
         // none of the above should throw now
         TS_ASSERT_THROWS_NOTHING(fe_with_growth.SetTimes(0.0, 1.0, 0.01));
+    }
+    
+    
+    void no_TestGrowingDyingTumourModel()
+    {
+        Vector<double> body_force(2); // zero
+        double density = 1.0;
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        
+        Triangulation<2> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+        
+        Point<2> zero;
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+        
+        // set all elements as growing region (using a circle with a big radius)
+        FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 100);
+        
+        // a source model which means death if the point is in the centre of the square
+        // defined in this file
+        TumourGrowingDyingSourceModel source_model;
+        
+        FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      density,
+                                                                      "finite_elas_growth/tumour_only",
+                                                                      &source_model); 
+                
+        finiteelas_with_growth.SetTimes(0.0, 1, 0.1);
+        finiteelas_with_growth.Run();
     }
     
     

@@ -57,7 +57,6 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
     // region
     /////////////////////////////////////////////////////////////
     bool found_growing_region = false;
-    unsigned eval_point_index = 0;
     
     typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
     
@@ -92,13 +91,12 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
                 {
                     mGrowthOdeSystems[vertex_index]
                     = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
-                                                             eval_point_index,
+                                                             vertex_index,
                                                              mpSourceModel);
                                                              
                     Point<DIM> position = element_iter->vertex(i);
                     mpSourceModel->AddEvaluationPoint(vertex_index,
                                                       position);
-                    eval_point_index++;
                 }
             }
         }
@@ -155,12 +153,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         Vector<double>&       elementRhs,
         FullMatrix<double>&   elementMatrix,
         bool                  assembleResidual,
-        bool                  assembleJacobian
-                                                                )
+        bool                  assembleJacobian)
 {
     static QGauss<DIM>   quadrature_formula(3);
-    
-    
     static QGauss<DIM-1> face_quadrature_formula(3);
     
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
@@ -234,7 +229,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
     }
     
     double element_volume = 0;
-    
+
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
         const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
@@ -251,15 +246,16 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         static Tensor<2,DIM> inv_F;
         static SymmetricTensor<2,DIM> T;
         
-        unsigned n0 = elementIter->vertex_index(0);
-        unsigned n1 = elementIter->vertex_index(1);
-        unsigned n2 = elementIter->vertex_index(2);
-        unsigned n3 = elementIter->vertex_index(3);
+
         
         // std::cout << n0 << " " << n1 << " " << n2 << " "<< n3 << "\n";
         
 /// TODO: proper interpolation:
-
+        assert(DIM==2); // the follow is 2d specific!
+        unsigned n0 = elementIter->vertex_index(0);
+        unsigned n1 = elementIter->vertex_index(1);
+        unsigned n2 = elementIter->vertex_index(2);
+        unsigned n3 = elementIter->vertex_index(3);
         double growth_term_g = 0.25*(
                                    mGrowthValuesAtVertices(n0)
                                    + mGrowthValuesAtVertices(n1)
@@ -267,6 +263,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                    + mGrowthValuesAtVertices(n3)
                                );
                                
+        //std::cout << growth_term_g << " ";
                                
         for (unsigned i=0; i<DIM; i++)
         {
@@ -735,7 +732,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         }
         
         
-        
         unsigned num_vertices_before = this->mpMesh->n_vertices();
         
 // temporary - just to compute volumes.. - make volume calc/flag setting safe..
@@ -754,9 +750,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
             
             
             typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
-            
-            unsigned eval_point_index = mpSourceModel->GetNumEvaluationPoints();
-            
+                        
             // loop over all the elements in the mesh..
             while (element_iter!=this->mpMesh->end())
             {
@@ -773,7 +767,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                         {
                             mGrowthOdeSystems[vertex_index]
                             = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
-                                                                     eval_point_index,
+                                                                     vertex_index,
                                                                      mpSourceModel);
                                                                      
 //todo: set state var to mGrowthValuesAtVertices(i), once this has been interped correctly
@@ -782,7 +776,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                             Point<DIM> position = element_iter->vertex(i);
                             mpSourceModel->AddEvaluationPoint(vertex_index,
                                                               position);
-                            eval_point_index++;
                         }
                     }
                 }
