@@ -954,15 +954,22 @@ public:
                 birth_time = -2.0;  //hours
             }
             
-//            CryptCellMutationState mutation_state;
-//            if(i==
-//            {
-//                mutation_state = HEALTHY
+            CryptCellMutationState mutation_state;
+            if(i!=60)
+            {
+                mutation_state = HEALTHY;
+            }
+            else
+            {
+                mutation_state = APC_TWO_HIT;
+            }
             
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
             
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new WntCellCycleModel(wnt,0));
+            
+            
+            MeinekeCryptCell cell(cell_type, mutation_state, generation, new WntCellCycleModel(wnt,0));
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             cells2.push_back(cell);
@@ -1005,20 +1012,17 @@ public:
         /*
          ************************************************************************
          ************************************************************************ 
-         *  Test Calculate forces on each node
+         *  Test Calculate Velocities on each node
          ************************************************************************
          ************************************************************************ 
          */
+                
+        std::vector<std::vector<double> > velocities_on_each_node(p_mesh2->GetNumAllNodes());
         
-        
-        std::vector<std::vector<double> > forces_on_each_node(p_mesh2->GetNumAllNodes());
-        
-        forces_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
+        velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
         //std::cout << "d test \n " << std::endl;
         bool is_a_ghost_node;
-        
-        
-        
+
         
         for (unsigned i=0; i<p_mesh2->GetNumAllNodes(); i++)
         {
@@ -1033,8 +1037,8 @@ public:
             }
             if (!is_a_ghost_node)
             {
-                TS_ASSERT_DELTA(forces_on_each_node[i][0], 0.0, 1e-4);
-                TS_ASSERT_DELTA(forces_on_each_node[i][1], 0.0, 1e-4);
+                TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
+                TS_ASSERT_DELTA(velocities_on_each_node[i][1], 0.0, 1e-4);
             }
         }
         
@@ -1044,10 +1048,15 @@ public:
         new_point.rGetLocation()[0] = old_point[0]+0.5;
         new_point.rGetLocation()[1] = old_point[1];
         p_mesh2->SetNode(59, new_point, false);
-        forces_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
-        TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
-        TS_ASSERT_DELTA(forces_on_each_node[60][1], 0.0, 1e-4);
-        
+        velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
+        TS_ASSERT_DELTA(velocities_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantMutant(), 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[60][1], 0.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[59][0], (-3+4.0/sqrt(7))*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[59][1], 0.0, 1e-4);
+
+        TS_ASSERT_DELTA(velocities_on_each_node[58][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
+        TS_ASSERT_DELTA(velocities_on_each_node[58][1], 0.0, 1e-4);
         /*
          ************************************************************************
          ************************************************************************ 
@@ -1127,9 +1136,9 @@ public:
         Point<2> point_of_node60 = p_mesh2->GetNode(60)->rGetLocation();
         
         simulator3.SetDt(0.01);
-        simulator3.UpdateNodePositions(forces_on_each_node);
+        simulator3.UpdateNodePositions(velocities_on_each_node);
         
-        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]*0.01, 1e-4);
+        TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[0],point_of_node60.rGetLocation()[0]+force_on_spring[0]/p_params->GetDampingConstantMutant() *0.01, 1e-4);
         TS_ASSERT_DELTA(p_mesh2->GetNode(60)->rGetLocation()[1],point_of_node60.rGetLocation()[1], 1e-4);
         
         /*

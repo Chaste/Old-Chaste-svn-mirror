@@ -663,34 +663,37 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
                 }
                 
                 
-                double damping_constantA;// = mpParams->GetDampingConstantNormal() ;
-                double damping_constantB;// = mpParams->GetDampingConstantNormal();
+                double damping_constantA = mpParams->GetDampingConstantNormal();
+                double damping_constantB = mpParams->GetDampingConstantNormal();
                 
-                //note: at the moment the index into the mCells vector is the same
-                //as the node index. later this may not be the case, in which case
-                //the following assertion will trip. to deal with this, a map from 
-                //node index to cell will be needed
-                assert( mCells[p_element->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeA));
-                assert( mCells[p_element->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeB));
-                
-                if(   (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
-                   || (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+                if(!mCells.empty())
                 {
-                    damping_constantA = mpParams->GetDampingConstantNormal();
-                }
-                else
-                {
-                    damping_constantA = mpParams->GetDampingConstantMutant();
-                }
-                
-                if(   (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
-                   || (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
-                {
-                    damping_constantB = mpParams->GetDampingConstantNormal();
-                }
-                else
-                {
-                    damping_constantB = mpParams->GetDampingConstantMutant();
+                    //note: at the moment the index into the mCells vector is the same
+                    //as the node index. later this may not be the case, in which case
+                    //the following assertion will trip. to deal with this, a map from 
+                    //node index to cell will be needed
+                    assert( mCells[p_element->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeA));
+                    assert( mCells[p_element->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeB));
+                    
+                    if(   (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
+                       || (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+                    {
+                        damping_constantA = mpParams->GetDampingConstantNormal();
+                    }
+                    else
+                    {
+                        damping_constantA = mpParams->GetDampingConstantMutant();
+                    }
+                    
+                    if(   (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
+                       || (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
+                    {
+                        damping_constantB = mpParams->GetDampingConstantNormal();
+                    }
+                    else
+                    {
+                        damping_constantB = mpParams->GetDampingConstantMutant();
+                    }
                 }
                 
                 // Assume that if both nodes are real, or both are ghosts, then they both
@@ -746,34 +749,37 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
             
             c_vector<double, 2> force = CalculateForceInThisBoundarySpring(p_edge);
               
-            double damping_constantA;// = mpParams->GetDampingConstantNormal();
-            double damping_constantB;// = mpParams->GetDampingConstantNormal();
+            double damping_constantA = mpParams->GetDampingConstantNormal();
+            double damping_constantB = mpParams->GetDampingConstantNormal();
             
-            //note: at the moment the index into the mCells vector is the same
-            //as the node index. later this may not be the case, in which case
-            //the following assertion will trip. to deal with this, a map from 
-            //node index to cell will be needed
-            assert( mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeA));
-            assert( mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeB));
-            
-            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
-               || (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+            if(!mCells.empty())
             {
-                damping_constantA = mpParams->GetDampingConstantNormal();
-            }
-            else
-            {
-                damping_constantA = mpParams->GetDampingConstantMutant();
-            }
-            
-            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
-               || (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
-            {
-                damping_constantB = mpParams->GetDampingConstantNormal();
-            }
-            else
-            {
-                damping_constantB = mpParams->GetDampingConstantMutant();
+                //note: at the moment the index into the mCells vector is the same
+                //as the node index. later this may not be the case, in which case
+                //the following assertion will trip. to deal with this, a map from 
+                //node index to cell will be needed
+                assert( mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeA));
+                assert( mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeB));
+                
+                if(   (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
+                   || (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+                {
+                    damping_constantA = mpParams->GetDampingConstantNormal();
+                }
+                else
+                {
+                    damping_constantA = mpParams->GetDampingConstantMutant();
+                }
+                
+                if(   (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
+                   || (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
+                {
+                    damping_constantB = mpParams->GetDampingConstantNormal();
+                }
+                else
+                {
+                    damping_constantB = mpParams->GetDampingConstantMutant();
+                }
             }
                         
             // Assume that if both nodes are real, or both are ghosts, then they both
@@ -1838,10 +1844,7 @@ std::vector<double> CryptSimulation2DPeriodic::GetNodeLocation(const unsigned& r
  * Once CryptSimulation object has been set up, call this to run simulation
  */
 void CryptSimulation2DPeriodic::Solve()
-{
-   std::cout << mrMesh.GetNode(64)->rGetLocation()[0] << " " << mrMesh.GetNode(64)->rGetLocation()[1]<<"\n";
-   std::cout << mrMesh.GetNode(70)->rGetLocation()[0] << " " << mrMesh.GetNode(70)->rGetLocation()[1]<<"\n";
-    std::cout << "----\n";
+{ 
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     double current_time = p_simulation_time->GetDimensionalisedTime();
