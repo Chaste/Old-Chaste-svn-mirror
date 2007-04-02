@@ -1074,6 +1074,51 @@ public:
         /*
          ************************************************************************
          ************************************************************************ 
+         *  Test Calculate force on a boundary spring
+         ************************************************************************
+         ************************************************************************ 
+         */
+        
+        c_vector<double,2> force_on_boundary_spring ; 
+        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator it;
+        
+        it = p_mesh2->GetBoundaryElementIteratorBegin();
+               
+        // find a boundary element which is not deleted
+        BoundaryElement<1,2>* p_edge;
+        bool found=false;
+        while (it != p_mesh2->GetBoundaryElementIteratorEnd() && !found )
+        {   
+            p_edge=(*it);
+            found = !p_edge->IsDeleted();    
+            it++;
+        }
+        
+        TS_ASSERT(it != p_mesh2->GetBoundaryElementIteratorEnd());
+        
+        force_on_boundary_spring = simulator3.CalculateForceInThisBoundarySpring(p_edge);
+        TS_ASSERT_DELTA(force_on_boundary_spring[0], 0.0, 1e-10);
+        TS_ASSERT_DELTA(force_on_boundary_spring[1], 0.0, 1e-10);
+        
+        // move one of the nodes of the boundary element
+        unsigned node_index = p_edge->GetNode(0)->GetIndex();
+        c_vector<double,2> node_location = p_edge->GetNode(0)->rGetLocation();
+        // debug code to print out the node locations
+        //c_vector<double,2> node1_location = p_edge->GetNode(1)->rGetLocation();
+        //std::cout << "Node 0 " << node_location(0) << "," << node_location(1) << std::endl;
+        //std::cout << "Node 1 " << node1_location(0) << "," << node1_location(1) << std::endl;
+        node_location[0] += 0.5;
+        p_mesh2->SetNode(node_index, Point<2>(node_location), false);
+        
+        // check force
+        force_on_boundary_spring = simulator3.CalculateForceInThisBoundarySpring(p_edge);
+        TS_ASSERT_DELTA(force_on_boundary_spring[0], -0.5*p_params->GetSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(force_on_boundary_spring[1], 0.0, 1e-4);
+
+        
+        /*
+         ************************************************************************
+         ************************************************************************ 
          *  Test UpdateNodePositions
          ************************************************************************
          ************************************************************************ 

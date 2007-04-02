@@ -873,7 +873,9 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Elemen
 }
 
 /**
- * @return the x and y forces in this boundary spring
+ * @param rPEdge pointer to a boundary element
+ * 
+ * @return the x and y forces on node 0 of the boundary element
  */
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge)
 {
