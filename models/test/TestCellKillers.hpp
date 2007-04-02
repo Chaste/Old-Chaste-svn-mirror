@@ -37,7 +37,7 @@ public:
         ConformingTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
-        // Set up cells by iterating through the mesh nodes
+        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // Any old rubbish here just so the simulation time is set up for cell cycle models
@@ -45,7 +45,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
         
-        
+        // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<MeinekeCryptCell> cells;
         for (unsigned i=0; i<num_cells; i++)
@@ -54,7 +54,9 @@ public:
             unsigned generation;
             double birth_time;
             
-            double y = mesh.GetNode(i)->GetPoint().rGetLocation()[1];
+            // to improve the test go through nodes in reverse order
+            // i.e. cell's node index is not the same as it's position in the cell vector
+            double y = mesh.GetNode(num_cells-i-1)->GetPoint().rGetLocation()[1];
             if (y == 0.0)
             {
                 cell_type = STEM;
@@ -87,6 +89,7 @@ public:
             }
             
             MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+
             cell.SetNodeIndex(num_cells-i-1);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

@@ -384,7 +384,6 @@ public:
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();
-        
         TrianglesMeshReader<1,1> mesh_reader(testoutput_dir+"/CryptMesh/1D_crypt_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);

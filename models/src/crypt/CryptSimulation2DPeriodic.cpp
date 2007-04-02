@@ -306,24 +306,30 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
     if (!mNoBirth && !mCells.empty())
     {
         // Iterate over all cells, seeing if each one can be divided
-        for (unsigned i=0; i<mCells.size(); i++)
+        for (unsigned cell_index=0; cell_index<mCells.size(); cell_index++)
         {
+            
+            //unsigned node_index = mCells[cell_index].GetNodeIndex();
+            //assert(node_index==cell_index);
+            // To do: Uncomment code above
+            unsigned node_index=cell_index ;
             bool skip = false; // Whether to not try dividing this cell
-            if (mrMesh.GetNode(i)->IsDeleted()) skip=true; // Skip deleted cells
-            if (mIsGhostNode[i]) skip=true; // Skip Ghost nodes
+            if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
+            //if (mrMesh.GetNode(cell_index)->IsDead()) skip=true; // Skip dead cells
+            if (mIsGhostNode[cell_index]) skip=true; // Skip Ghost nodes
             bool periodic_cell = false;
             unsigned periodic_index = 0; // Index of the periodic cell in the boundary, as opposed to in the mesh
             
             // Check if this cell is on the periodic boundary; there are more conditions if it is
             if (!skip && mPeriodicSides)
             {
-                for (unsigned j=0 ; j < mRightCryptBoundary.size() ; j++)
+                for (unsigned boundary_index=0 ; boundary_index < mRightCryptBoundary.size() ; boundary_index++)
                 {
-                    if (mRightCryptBoundary[j]==i)
+                    if (mRightCryptBoundary[boundary_index]==cell_index)
                     {   // Only allow one periodic boundary to have divisions...
                         skip=true;
                     }
-                    if (mLeftCryptBoundary[j]==i)
+                    if (mLeftCryptBoundary[boundary_index]==cell_index)
                     {
                         if (mPeriodicDivisionBuffer>0)
                         {
@@ -335,7 +341,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         else
                         {
                             periodic_cell = true;
-                            periodic_index = j;
+                            periodic_index = boundary_index;
                         }
                     }
                 }
@@ -345,7 +351,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
             // Check for this cell dividing
             //std::cout << "On cell "<< i << std::endl;
             // Construct any influences for the cell cycle...
-            Node<2> *p_our_node = mrMesh.GetNode(i);
+            Node<2> *p_our_node = mrMesh.GetNode(cell_index);
             std::vector<double> cell_cycle_influences;
             if (mWntIncluded)
             {
@@ -355,10 +361,10 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
             }
             
             // CHECK if this cell is ready to divide - if so create a new cell etc.
-            if (mCells[i].ReadyToDivide(cell_cycle_influences))
+            if (mCells[cell_index].ReadyToDivide(cell_cycle_influences))
             {
                 // Create new cell
-                MeinekeCryptCell new_cell = mCells[i].Divide();
+                MeinekeCryptCell new_cell = mCells[cell_index].Divide();
                 if (mPeriodicSides && periodic_cell)
                 {
                     std::cout << "Periodic Division\n";
@@ -368,11 +374,11 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                 }
                 else
                 {
-                    std::cout << "Cell division at node " << i << "\n";
+                    std::cout << "Cell division at node " << cell_index << "\n";
                 }
                 
                 // Add new node to mesh
-                Element<2,2>* p_element = FindElementForBirth(p_our_node, i,
+                Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index,
                                                               periodic_cell, periodic_index);
                                                               
                 //std::cout << "New cell being intoduced into element with nodes \n";

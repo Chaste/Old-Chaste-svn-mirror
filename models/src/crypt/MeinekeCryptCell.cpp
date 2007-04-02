@@ -82,6 +82,12 @@ AbstractCellCycleModel *MeinekeCryptCell::GetCellCycleModel() const
     return mpCellCycleModel;
 }
 
+/**
+ * Set the node at which this cell is positioned.
+ * 
+ * @param index Index of the node
+ */
+
 void MeinekeCryptCell::SetNodeIndex(unsigned index)
 {
     mNodeIndex = index;
