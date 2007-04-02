@@ -45,7 +45,12 @@ CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2
     
     //srandom(time(NULL));
     srandom(0);
-    mpParams->SetMeinekeLambda(15.0);
+    //mpParams->SetMeinekeLambda(15.0);
+    // !!!!!!!! Note: should we be setting these in crypt simulation?
+    mpParams->SetSpringStiffness(15.0);
+    mpParams->SetDampingConstantNormal(1.0);
+    mpParams->SetDampingConstantMutant(2.0);
+    
     
     mIncludeRandomBirth = false;
     mIncludeVariableRestLength = false;
@@ -572,9 +577,9 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
                     if (cellIndex == mRightCryptBoundary[periodicIndex])
                     {
                         // We already swapped; give up
-#define COVERAGE_IGNORE
+                        #define COVERAGE_IGNORE
                         assert(0);
-#undef COVERAGE_IGNORE
+                        #undef COVERAGE_IGNORE
                     }
                     rpOurNode = mrMesh.GetNode(mRightCryptBoundary[periodicIndex]);
                 }
@@ -582,9 +587,9 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
                 {
                     // somehow every connecting element is a ghost element. quit to
                     // avoid infinite loop
-#define COVERAGE_IGNORE
+                    #define COVERAGE_IGNORE
                     assert(0);
-#undef COVERAGE_IGNORE
+                    #undef COVERAGE_IGNORE
                 }
             }
             p_element = mrMesh.GetElement(rpOurNode->GetNextContainingElementIndex());
@@ -600,7 +605,7 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
  *
  * @return drdt the x and y force components on each node
  */
-std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEachNode()
+std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNode()
 {
     std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
@@ -622,7 +627,7 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
                 assert(!p_element->GetNode(nodeA)->IsDeleted());
                 assert(!p_element->GetNode(nodeB)->IsDeleted());
                 
-                c_vector<double, 2> drdt_contribution = CalculateForceInThisSpring(p_element,nodeA,nodeB);
+                c_vector<double, 2> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
                 
                 bool AandBInLeftEdge = false;
                 // Lookup whether node A and node B are both in a left edge element...
@@ -646,6 +651,37 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
                     }
                 }
                 
+                
+                double damping_constantA = mpParams->GetDampingConstantNormal() ;
+                double damping_constantB = mpParams->GetDampingConstantNormal();
+                
+//                //note: at the moment the index into the mCells vector is the same
+//                //as the node index. later this may not be the case, in which case
+//                //the following assertion will trip. to deal with this, a map from 
+//                //node index to cell will be needed
+//                assert( mCells[p_element->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeA));
+//                assert( mCells[p_element->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeB));
+//                
+//                if(   (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
+//                   || (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+//                {
+//                    damping_constantA = mpParams->GetDampingConstantNormal();
+//                }
+//                else
+//                {
+//                    damping_constantA = mpParams->GetDampingConstantMutant();
+//                }
+//                
+//                if(   (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
+//                   || (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
+//                {
+//                    damping_constantB = mpParams->GetDampingConstantNormal();
+//                }
+//                else
+//                {
+//                    damping_constantB = mpParams->GetDampingConstantMutant();
+//                }
+//                
                 // Assume that if both nodes are real, or both are ghosts, then they both
                 // exert forces on each other, but if one is real and one is ghost then
                 // the real node exerts a force on the ghost node, but the ghost node
@@ -654,24 +690,24 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
                 {
                     if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)])
                     {
-                        drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-                        drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+                        drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
+                        drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
                         
                         if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
                         {
-                            drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-                            drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
                         }
                     }
                     else
                     {
-                        drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-                        drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+                        drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
+                        drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
                         
                         if (mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
                         {
-                            drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-                            drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+                            drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
+                            drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
                         }
                     }
                 }
@@ -685,8 +721,6 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
     ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter
     = mrMesh.GetBoundaryElementIteratorBegin();
     
-    
-    
     // this iterates over the outer edge elements (i.e. ghost nodes NOT real edge elements)
     while ( elem_iter != mrMesh.GetBoundaryElementIteratorEnd() )
     {
@@ -699,8 +733,38 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
             assert(!p_edge->GetNode(nodeA)->IsDeleted());
             assert(!p_edge->GetNode(nodeB)->IsDeleted());
             
-            c_vector<double, 2> drdt_contribution = CalculateForceInThisBoundarySpring(p_edge);
+            c_vector<double, 2> force = CalculateForceInThisBoundarySpring(p_edge);
+              
+            double damping_constantA = mpParams->GetDampingConstantNormal();
+            double damping_constantB = mpParams->GetDampingConstantNormal();
             
+//            //note: at the moment the index into the mCells vector is the same
+//            //as the node index. later this may not be the case, in which case
+//            //the following assertion will trip. to deal with this, a map from 
+//            //node index to cell will be needed
+//            assert( mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeA));
+//            assert( mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeB));
+//            
+//            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
+//               || (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
+//            {
+//                damping_constantA = mpParams->GetDampingConstantNormal();
+//            }
+//            else
+//            {
+//                damping_constantA = mpParams->GetDampingConstantMutant();
+//            }
+//            
+//            if(   (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
+//               || (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
+//            {
+//                damping_constantB = mpParams->GetDampingConstantNormal();
+//            }
+//            else
+//            {
+//                damping_constantB = mpParams->GetDampingConstantMutant();
+//            }
+                        
             // Assume that if both nodes are real, or both are ghosts, then they both
             // exert forces on each other, but if one is real and one is ghost then
             // the real node exerts a force on the ghost node, but the ghost node
@@ -708,27 +772,27 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
             if (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)])
             {
                 // Real A force on any B
-                drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-                drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+                drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
+                drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
                 
                 // B exerts a force back if it is real.
                 if (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
                 {
-                    drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-                    drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+                    drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
+                    drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
                 }
             }
             else
             {
                 // Ghost A receives a force
-                drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += drdt_contribution(0);
-                drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += drdt_contribution(1);
+                drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
+                drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
                 
                 // Only a ghost B also receives a force
                 if (mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
                 {
-                    drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= drdt_contribution(0);
-                    drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= drdt_contribution(1);
+                    drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
+                    drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
                 }
             }
         }
@@ -770,7 +834,7 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateForcesOnEa
  */
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
 {
-    c_vector<double, 2> drdt_contribution;
+    c_vector<double, 2> force;
     c_vector<double, 2> unit_difference;
     unit_difference(0)=rPElement->GetNodeLocation(rNodeB,0)-rPElement->GetNodeLocation(rNodeA,0);
     unit_difference(1)=rPElement->GetNodeLocation(rNodeB,1)-rPElement->GetNodeLocation(rNodeA,1);
@@ -794,7 +858,7 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Elemen
         }
     }
     
-    return drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
+    return force = mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 /**
@@ -804,7 +868,7 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
 {
     const unsigned nodeA = 0;
     const unsigned nodeB = 1;
-    c_vector<double, 2> drdt_contribution;
+    c_vector<double, 2> force;
     c_vector<double, 2> unit_difference;
     unit_difference(0)=rPEdge->GetNodeLocation(nodeB,0)-rPEdge->GetNodeLocation(nodeA,0);
     unit_difference(1)=rPEdge->GetNodeLocation(nodeB,1)-rPEdge->GetNodeLocation(nodeA,1);
@@ -828,7 +892,7 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
         }
     }
     
-    return drdt_contribution = mpParams->GetMeinekeLambda() * unit_difference * (distance_between_nodes - rest_length);
+    return force = mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 
@@ -1868,7 +1932,7 @@ void CryptSimulation2DPeriodic::Solve()
         mNumBirths += DoCellBirth();
         
         //  calculate node velocities
-        std::vector<std::vector<double> > drdt = CalculateForcesOnEachNode();
+        std::vector<std::vector<double> > drdt = CalculateVelocitiesOfEachNode();
         
         // update node positions
         UpdateNodePositions(drdt);

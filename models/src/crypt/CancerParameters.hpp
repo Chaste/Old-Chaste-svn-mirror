@@ -21,6 +21,9 @@ public:
     double GetCryptLength();
     double GetCryptWidth();
     double GetMeinekeLambda();
+    double GetSpringStiffness();
+    double GetDampingConstantNormal();
+    double GetDampingConstantMutant();
     double GetApoptosisTime();
     
     void SetStemCellCycleTime(double);
@@ -30,6 +33,9 @@ public:
     void SetCryptLength(double);
     void SetCryptWidth(double);
     void SetMeinekeLambda(double);
+    void SetSpringStiffness(double);
+    void SetDampingConstantNormal(double);
+    void SetDampingConstantMutant(double);
     void SetApoptosisTime(double);
     
 protected:
@@ -82,6 +88,21 @@ private:
     double mMeinekeLambda;
     
     /**
+     * Spring stiffness represented by mu in Meineke
+     */
+    double mSpringStiffness;
+    
+    /**
+     * Damping constant for normal cells, eta in Meineke
+     */
+    double mDampingConstantNormal;
+    
+    /**
+     * Damping constant for mutant cells, eta in Meineke
+     */
+    double mDampingConstantMutant;
+    
+    /**
      * The time it takes to fully undergo apoptosis
      */
     double mApoptosisTime;
@@ -102,6 +123,9 @@ private:
         archive & mCryptLength;
         archive & mCryptWidth;
         archive & mMeinekeLambda;
+        archive & mSpringStiffness;
+        archive & mDampingConstantNormal;
+        archive & mDampingConstantMutant;
         archive & mApoptosisTime;
     }
 };

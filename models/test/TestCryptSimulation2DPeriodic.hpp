@@ -954,6 +954,11 @@ public:
                 birth_time = -2.0;  //hours
             }
             
+//            CryptCellMutationState mutation_state;
+//            if(i==
+//            {
+//                mutation_state = HEALTHY
+            
             WntGradient wnt_gradient(LINEAR);
             double wnt = wnt_gradient.GetWntLevel(y);
             
@@ -1008,7 +1013,7 @@ public:
         
         std::vector<std::vector<double> > forces_on_each_node(p_mesh2->GetNumAllNodes());
         
-        forces_on_each_node = simulator3.CalculateForcesOnEachNode();
+        forces_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
         //std::cout << "d test \n " << std::endl;
         bool is_a_ghost_node;
         
@@ -1037,10 +1042,10 @@ public:
         c_vector<double,2> old_point = p_mesh2->GetNode(59)->rGetLocation();
         Point<2> new_point;
         new_point.rGetLocation()[0] = old_point[0]+0.5;
-        new_point.rGetLocation()[1] = old_point[1] ;
+        new_point.rGetLocation()[1] = old_point[1];
         p_mesh2->SetNode(59, new_point, false);
-        forces_on_each_node = simulator3.CalculateForcesOnEachNode();
-        TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
+        forces_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
+        TS_ASSERT_DELTA(forces_on_each_node[60][0], 0.5*p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal(), 1e-4);
         TS_ASSERT_DELTA(forces_on_each_node[60][1], 0.0, 1e-4);
         
         /*
@@ -1055,7 +1060,7 @@ public:
         
         // Find one of the elements that nodes 59 and 60 live on
         Point<2> new_point2;
-        new_point2.rGetLocation()[0] = new_point[0]+0.01;
+        new_point2.rGetLocation()[0] = new_point[0] + 0.01;
         new_point2.rGetLocation()[1] = new_point[1] + 0.01 ;
         
         unsigned elem_index = p_mesh2->GetContainingElementIndex(new_point2,false);
@@ -1063,7 +1068,7 @@ public:
         
         force_on_spring = simulator3.CalculateForceInThisSpring(p_element,1,0);
         
-        TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetMeinekeLambda(), 1e-4);
+        TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
         
         /*

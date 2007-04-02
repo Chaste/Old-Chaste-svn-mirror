@@ -36,6 +36,9 @@ CancerParameters::CancerParameters()
     mCryptWidth = 10.0;
     mCryptLength = 22.0;        // This is MOUSE (small intestine)
     mMeinekeLambda = 30.0;       // Meineke uses 0.01
+    mSpringStiffness = 30.0;  //This is mu in Meineke
+    mDampingConstantNormal = 1.0;  //This is nu in Meineke
+    mDampingConstantMutant = 2.0;
     mApoptosisTime = 0.25;  // Cell takes 15 min to fully undergo apoptosis
     // Calculated parameters
     //mAlpha = mStemCellCycleTime * mMeinekeLambda;
@@ -74,6 +77,18 @@ double CancerParameters::GetMeinekeLambda()
 {
     return mMeinekeLambda;
 }
+double CancerParameters::GetSpringStiffness()
+{
+    return mSpringStiffness;
+}
+double CancerParameters::GetDampingConstantNormal()
+{
+    return mDampingConstantNormal;
+}
+double CancerParameters::GetDampingConstantMutant()
+{
+    return mDampingConstantMutant;
+}
 double CancerParameters::GetApoptosisTime()
 {
     return mApoptosisTime;
@@ -110,6 +125,18 @@ void CancerParameters::SetCryptWidth(double cryptWidth)
 void CancerParameters::SetMeinekeLambda(double meinekeLambda)
 {
     mMeinekeLambda = meinekeLambda;
+}    
+void CancerParameters::SetSpringStiffness(double springStiffness)
+{
+    mSpringStiffness = springStiffness;
+}
+void CancerParameters::SetDampingConstantNormal(double dampingConstantNormal)
+{
+    mDampingConstantNormal = dampingConstantNormal;
+}
+void CancerParameters::SetDampingConstantMutant(double dampingConstantMutant)
+{
+    mDampingConstantMutant = dampingConstantMutant;
 }
 void CancerParameters::SetApoptosisTime(double apoptosisTime)
 {
