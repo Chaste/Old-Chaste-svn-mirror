@@ -1271,10 +1271,17 @@ public:
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.25,1e-12);
         
+        // check that we can copy a cell that has started apoptosis
+        MeinekeCryptCell cell2(cell);
+        
         p_simulation_time->IncrementTimeOneStep();//t=0.4
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
         TS_ASSERT_EQUALS(cell.IsDead(),false);
         TS_ASSERT_DELTA(cell.TimeUntilDeath(),0.05,1e-12);
+        
+        TS_ASSERT_EQUALS(cell2.HasApoptosisBegun(),true);
+        TS_ASSERT_EQUALS(cell2.IsDead(),false);
+        TS_ASSERT_DELTA(cell2.TimeUntilDeath(),0.05,1e-12);
         
         p_simulation_time->IncrementTimeOneStep();//t=0.6
         TS_ASSERT_EQUALS(cell.HasApoptosisBegun(),true);
