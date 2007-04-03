@@ -1710,7 +1710,8 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(uns
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
         unsigned height,
-        unsigned depth)
+        unsigned depth,
+        bool stagger)
 {
     assert(SPACE_DIM == 3);
     assert(ELEMENT_DIM == 3);
@@ -1744,9 +1745,32 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
     
     unsigned elem_index=0;
     unsigned belem_index=0;
-    unsigned element_nodes[6][4] = {{0, 1, 5, 7}, {0, 1, 3, 7},
+    unsigned element_nodes[4][6][4] = {{{0, 1, 5, 7}, {0, 1, 3, 7},
                                     {0, 2, 3, 7}, {0, 2, 6, 7},
-                                    {0, 4, 6, 7}, {0, 4, 5, 7}};
+                                    {0, 4, 6, 7}, {0, 4, 5, 7}},
+                                    {{1, 0, 2, 6}, {1, 0, 4, 6},
+                                    {1, 5, 4, 6}, {1, 5, 7, 6},
+                                    {1, 3, 2, 6}, {1, 3, 7, 6}},
+                                    {{2, 0, 1, 5}, {2, 0, 4, 5},
+                                    {2, 3, 1, 5}, {2, 3, 7, 5},
+                                    {2, 6, 4, 5}, {2, 6, 7, 5}},
+                                    {{3, 1, 0, 4}, {3, 1, 5, 4},
+                                    {3, 2, 0, 4}, {3, 2, 6, 4},
+                                    {3, 7, 5, 4}, {3, 7, 6, 4}}};     
+                                    
+//   unsigned element_nodes[4][6][4] = {{{0, 1, 5, 7}, {0, 1, 3, 7},
+//                                    {0, 2, 3, 7}, {0, 2, 6, 7},
+//                                    {0, 4, 6, 7}, {0, 4, 5, 7}},
+//                                    {{1, 0, 2, 6}, {1, 0, 4, 6},
+//                                    {1, 5, 4, 6}, {1, 5, 7, 6},
+//                                    {1, 3, 2, 6}, {1, 3, 7, 6}},
+//                                    {{2, 0, 1, 5}, {2, 0, 4, 5},
+//                                    {2, 3, 1, 5}, {2, 3, 7, 5},
+//                                    {2, 6, 4, 5}, {2, 6, 7, 5}},
+//                                    {{3, 1, 0, 4}, {3, 1, 5, 4},
+//                                    {3, 2, 0, 4}, {3, 2, 6, 4},
+//                                    {3, 7, 5, 4}, {3, 7, 6, 4}}};  
+                                    
     std::vector<Node<SPACE_DIM>*> tetrahedra_nodes;
     
     for (unsigned k=0;k<depth;k++)
@@ -1777,10 +1801,68 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned
                     // Tetrahedra #m
                     
                     tetrahedra_nodes.clear();
-                    
+                                        
                     for (unsigned n = 0; n < 4; n++)
                     {
-                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[m][n]]]);
+                        if (stagger)
+                        {
+                            if (i%2==0)
+                            {
+                                if (j%2==0)
+                                {
+                                    if (k%2==0)
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);    
+                                    }
+                                    else
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[3][m][n]]]);
+                                    }
+                                }
+                                else
+                                {
+                                    if (k%2==0)
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[2][m][n]]]);
+                                    }
+                                    else
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[1][m][n]]]);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                               if (j%2==0)
+                               {
+                                    if (k%2==0)
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[3][m][n]]]);
+                                    }
+                                    else
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[1][m][n]]]);
+                                    }
+                               }
+                               else
+                               {
+                                    if (k%2==0)
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[2][m][n]]]);
+                                    }
+                                    else
+                                    {
+                                        tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);
+                                    } 
+                               }
+                            }
+                        
+                        }
+                                    
+                        else
+                        {
+                            tetrahedra_nodes.push_back(mNodes[global_node_indices[element_nodes[0][m][n]]]);
+                        }
                     }
                     
                     mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index++, tetrahedra_nodes));

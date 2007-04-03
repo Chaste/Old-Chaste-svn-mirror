@@ -624,7 +624,7 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
         drdt[i].resize(2);
     }
     //////////////////////////////////////////////////////////////////
-    // loop over element and for each one loop over it's three edges
+    // loop over element and for each one loop over its three edges
     ////////////////////////////////////////////////////////////////////
     for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {

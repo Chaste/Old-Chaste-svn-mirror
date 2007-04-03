@@ -233,8 +233,10 @@ public:
      * Construct a cuboid grid on [0,width]x[0,height]x[0,depth]
      * diagonals can be staggered so that there is no prefered diffusion propagation
      * direction.
+     * 
+     * @param stagger whether the mesh should 'jumble' up the elements (defaults to false)
      */
-    void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
+    void ConstructCuboid(unsigned width, unsigned height, unsigned depth, bool stagger=false);
     
     /**
      *  Returns the element index for the first element that is known to contain a test point
