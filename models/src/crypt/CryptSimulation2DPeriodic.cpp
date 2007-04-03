@@ -33,8 +33,12 @@
 CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
                                                      std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
-          mCells(cells)
-{
+          mCells(cells),
+          mCrypt(rMesh, mCells)
+          
+          
+{ 
+    
     mpParams = CancerParameters::Instance();
     
     mDt = 1.0/(120.0);
@@ -295,13 +299,18 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
     }
     if (!mNoBirth && !mCells.empty())
     {
-        // Iterate over all cells, seeing if each one can be divided
-        for (unsigned cell_index=0; cell_index<mCells.size(); cell_index++)
+        mCrypt.InitialiseCellIterator();
+        
+        unsigned cell_index=0;
+        while(!mCrypt.CellIteratorIsAtEnd())
+//        // Iterate over all cells, seeing if each one can be divided
+
         {
+            MeinekeCryptCell* p_cell=mCrypt.GetCurrentCell();
             
-            //unsigned node_index = mCells[cell_index].GetNodeIndex();
-            //assert(node_index==cell_index);
-            // To do: Uncomment code above
+            assert(p_cell->GetNodeIndex()==cell_index);
+            
+
             unsigned node_index=cell_index ;
             bool skip = false; // Whether to not try dividing this cell
             if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
@@ -336,111 +345,114 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                     }
                 }
             }
-            if (skip) continue;
-            
-            // Check for this cell dividing
-            //std::cout << "On cell "<< i << std::endl;
-            // Construct any influences for the cell cycle...
-            Node<2> *p_our_node = mrMesh.GetNode(cell_index);
-            std::vector<double> cell_cycle_influences;
-            if (mWntIncluded)
+            if (!skip)
             {
-                double y = p_our_node->rGetLocation()[1];
-                double wnt_stimulus = mWntGradient.GetWntLevel(y);
-                cell_cycle_influences.push_back(wnt_stimulus);
+                // Check for this cell dividing
+                // Construct any influences for the cell cycle...
+                Node<2> *p_our_node = mrMesh.GetNode(cell_index);
+                std::vector<double> cell_cycle_influences;
+                if (mWntIncluded)
+                {
+                    double y = p_our_node->rGetLocation()[1];
+                    double wnt_stimulus = mWntGradient.GetWntLevel(y);
+                    cell_cycle_influences.push_back(wnt_stimulus);
+                }
+                
+                // CHECK if this cell is ready to divide - if so create a new cell etc.
+                if (mCells[cell_index].ReadyToDivide(cell_cycle_influences))
+                {
+                    // Create new cell
+                    MeinekeCryptCell new_cell = mCells[cell_index].Divide();
+                    if (mPeriodicSides && periodic_cell)
+                    {
+                        std::cout << "Periodic Division\n";
+                        mPeriodicDivisionBuffer=3;
+                        //Make sure the image cell knows it has just divided and aged a generation
+                        mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
+                        mCells[mRightCryptBoundary[periodic_index]].SetNodeIndex(mRightCryptBoundary[periodic_index]);
+                    }
+                    else
+                    {
+                        std::cout << "Cell division at node " << cell_index << "\n";
+                    }
+                    
+                    // Add new node to mesh
+                    Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index,
+                                                                  periodic_cell, periodic_index);
+                                                                  
+                    //std::cout << "New cell being intoduced into element with nodes \n";
+                    //std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
+                    double x = p_our_node->rGetLocation()[0];
+                    double y = p_our_node->rGetLocation()[1];
+                    
+                    double x_centroid = (1.0/3.0)*(p_element->GetNode(0)->rGetLocation()[0]
+                                                   +  p_element->GetNode(1)->rGetLocation()[0]
+                                                   +  p_element->GetNode(2)->rGetLocation()[0] );
+                                                   
+                    double y_centroid = (1.0/3.0)*(p_element->GetNode(0)->rGetLocation()[1]
+                                                   +  p_element->GetNode(1)->rGetLocation()[1]
+                                                   +  p_element->GetNode(2)->rGetLocation()[1] );
+                                                   
+                                                   
+                    // check the new point is in the triangle
+                    double distance_from_node_to_centroid =  sqrt(  (x_centroid - x)*(x_centroid - x)
+                                                                    + (y_centroid - y)*(y_centroid - y) );
+                                                                    
+                    // we assume the new cell is a distance 0.1 away from the old.
+                    // however, to avoid crashing in usual situations we check this
+                    // new position is actually in the triangle being refined.
+                    // TODO: Check this is correct!
+                    double distance_of_new_cell_from_parent = 0.1;
+                    if (distance_from_node_to_centroid < (2.0/3.0)*0.1)
+                    {
+                        #define COVERAGE_IGNORE
+                        distance_of_new_cell_from_parent = (3.0/2.0)*distance_from_node_to_centroid;
+                        #undef COVERAGE_IGNORE
+                    }
+                    
+                    double new_x_value = x + distance_of_new_cell_from_parent*(x_centroid-x);
+                    double new_y_value = y + distance_of_new_cell_from_parent*(y_centroid-y);
+                    
+                    //std::cout << "Parent node at x = " << x << "  y = " << y << "\n";
+                    //std::cout << "Daughter node at x = " << new_x_value << "  y = " << new_y_value << "\n";
+                    
+                    Point<2> new_point(new_x_value, new_y_value);
+                    unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
+                    std::cout << "New Cell Index = " << new_node_index << "\n";
+                    // Update cells vector
+                    new_cell.SetNodeIndex(new_node_index);
+                    if (new_node_index == mCells.size())
+                    {
+                        mCells.push_back(new_cell);
+                    }
+                    else
+                    {
+                        #define COVERAGE_IGNORE
+                        mCells[new_node_index] = new_cell;
+                        #undef COVERAGE_IGNORE
+                    }
+                    //mCells[new_node_index].SetBirthTime();
+                    
+                    // Update size of IsGhostNode if necessary
+                    if (mrMesh.GetNumNodes() > mIsGhostNode.size())
+                    {
+                        #define COVERAGE_IGNORE
+                        mIsGhostNode.resize(mrMesh.GetNumNodes());
+                        mIsGhostNode[new_node_index] = false;
+                        #undef COVERAGE_IGNORE
+                    }
+                    num_births++;
+                    //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
+                    if (mReMesh && periodic_cell)
+                    {
+                        ReMesh();
+                    }
+                } // if (ready to divide)
             }
-            
-            // CHECK if this cell is ready to divide - if so create a new cell etc.
-            if (mCells[cell_index].ReadyToDivide(cell_cycle_influences))
-            {
-                // Create new cell
-                MeinekeCryptCell new_cell = mCells[cell_index].Divide();
-                if (mPeriodicSides && periodic_cell)
-                {
-                    std::cout << "Periodic Division\n";
-                    mPeriodicDivisionBuffer=3;
-                    //Make sure the image cell knows it has just divided and aged a generation
-                    mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
-                    mCells[mRightCryptBoundary[periodic_index]].SetNodeIndex(mRightCryptBoundary[periodic_index]);
-                }
-                else
-                {
-                    std::cout << "Cell division at node " << cell_index << "\n";
-                }
-                
-                // Add new node to mesh
-                Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index,
-                                                              periodic_cell, periodic_index);
-                                                              
-                //std::cout << "New cell being intoduced into element with nodes \n";
-                //std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
-                double x = p_our_node->rGetLocation()[0];
-                double y = p_our_node->rGetLocation()[1];
-                
-                double x_centroid = (1.0/3.0)*(p_element->GetNode(0)->rGetLocation()[0]
-                                               +  p_element->GetNode(1)->rGetLocation()[0]
-                                               +  p_element->GetNode(2)->rGetLocation()[0] );
-                                               
-                double y_centroid = (1.0/3.0)*(p_element->GetNode(0)->rGetLocation()[1]
-                                               +  p_element->GetNode(1)->rGetLocation()[1]
-                                               +  p_element->GetNode(2)->rGetLocation()[1] );
-                                               
-                                               
-                // check the new point is in the triangle
-                double distance_from_node_to_centroid =  sqrt(  (x_centroid - x)*(x_centroid - x)
-                                                                + (y_centroid - y)*(y_centroid - y) );
-                                                                
-                // we assume the new cell is a distance 0.1 away from the old.
-                // however, to avoid crashing in usual situations we check this
-                // new position is actually in the triangle being refined.
-                // TODO: Check this is correct!
-                double distance_of_new_cell_from_parent = 0.1;
-                if (distance_from_node_to_centroid < (2.0/3.0)*0.1)
-                {
-                    #define COVERAGE_IGNORE
-                    distance_of_new_cell_from_parent = (3.0/2.0)*distance_from_node_to_centroid;
-                    #undef COVERAGE_IGNORE
-                }
-                
-                double new_x_value = x + distance_of_new_cell_from_parent*(x_centroid-x);
-                double new_y_value = y + distance_of_new_cell_from_parent*(y_centroid-y);
-                
-                //std::cout << "Parent node at x = " << x << "  y = " << y << "\n";
-                //std::cout << "Daughter node at x = " << new_x_value << "  y = " << new_y_value << "\n";
-                
-                Point<2> new_point(new_x_value, new_y_value);
-                unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
-                std::cout << "New Cell Index = " << new_node_index << "\n";
-                // Update cells vector
-                new_cell.SetNodeIndex(new_node_index);
-                if (new_node_index == mCells.size())
-                {
-                    mCells.push_back(new_cell);
-                }
-                else
-                {
-                    #define COVERAGE_IGNORE
-                    mCells[new_node_index] = new_cell;
-                    #undef COVERAGE_IGNORE
-                }
-                //mCells[new_node_index].SetBirthTime();
-                
-                // Update size of IsGhostNode if necessary
-                if (mrMesh.GetNumNodes() > mIsGhostNode.size())
-                {
-                    #define COVERAGE_IGNORE
-                    mIsGhostNode.resize(mrMesh.GetNumNodes());
-                    mIsGhostNode[new_node_index] = false;
-                    #undef COVERAGE_IGNORE
-                }
-                num_births++;
-                //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
-                if (mReMesh && periodic_cell)
-                {
-                    ReMesh();
-                }
-            } // if (ready to divide)
+            cell_index++;
+            mCrypt.IncrementCellIterator();
         } // cell iteration loop
+        assert(cell_index==mCells.size());
     } // if (simulation has cell birth)
     
     return num_births;
@@ -1737,6 +1749,8 @@ void CryptSimulation2DPeriodic::SetGhostNodes(std::vector<unsigned> ghostNodeInd
     {
         mIsGhostNode[ghostNodeIndices[i]]=true;
     }
+    
+    mCrypt.SetGhostNodes(mIsGhostNode);
 }
 
 /**

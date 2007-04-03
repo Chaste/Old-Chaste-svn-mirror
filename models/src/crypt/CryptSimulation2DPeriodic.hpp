@@ -13,6 +13,7 @@
 #include "WntGradient.hpp"
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
+#include "Crypt.cpp"
 #include <vector>
 
 /**
@@ -69,6 +70,7 @@ private:
     double mDt;
     double mEndTime;
     ConformingTetrahedralMesh<2,2> &mrMesh;
+
     
     bool mIncludeRandomBirth;
     bool mIncludeVariableRestLength;
@@ -93,6 +95,7 @@ private:
     std::vector <bool> mIsGhostNode;
     std::vector <bool> mIsPeriodicNode;
     
+    
     /** The node indexes of nodes on the left boundary. */
     std::vector <unsigned> mLeftCryptBoundary;
     std::vector <unsigned> mOldLeftCryptBoundary;
@@ -111,7 +114,8 @@ private:
     std::string mOutputDirectory;
     /** Every cell in the simulation*/
     std::vector<MeinekeCryptCell> mCells;
-    
+        
+    Crypt<2> mCrypt;
     
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
