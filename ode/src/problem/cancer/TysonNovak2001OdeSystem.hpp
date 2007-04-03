@@ -72,7 +72,6 @@ public:
         return ( (rY[5] > 0.6 )&& (fabs(rY[0]-mCycB_threshold) < 1.0e-2 && dy[0] < 0.0));
     }
     
-    
     virtual void AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep);
     
 };

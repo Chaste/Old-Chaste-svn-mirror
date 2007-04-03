@@ -67,7 +67,7 @@ public:
         start_time = std::clock();
         solutions = backward_euler_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350/60.0, dt, dt);
         end_time = std::clock();
-        //solutions2 = rk4_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350, h_value, h_value);
+        //solutions2 = rk4_solver.Solve(&tyson_novak_system, state_variables, 0.0, 75.8350/60.0, h_value, h_value);
         //TS_ASSERT_EQUALS(solutions.GetNumberOfTimeSteps(), 10);
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Elapsed time = " << elapsed_time << "\n";
@@ -76,6 +76,21 @@ public:
         // If you run it up to about 75min  the ode will stop, anything less and it will not and this test will fail
         TS_ASSERT(backward_euler_solver.StoppingEventOccured());
         
+        unsigned end = solutions.rGetSolutions().size() - 1;    
+        
+        // The following code provides nice output for gnuplot
+        // use the command
+        // plot "tyson_novak.dat" u 1:2
+        // or
+        // plot "tyson_novak.dat" u 1:3 etc. for the various proteins...
+        
+//        OutputFileHandler handler("");
+//        out_stream file=handler.OpenOutputFile("tyson_novak.dat");
+//        for (unsigned i=0; i<=end; i++)
+//        {
+//            (*file) << solutions.rGetTimes()[i]<< "\t" << solutions.rGetSolutions()[i][0] << "\t" << solutions.rGetSolutions()[i][1] <<"\t"<< solutions.rGetSolutions()[i][2] << "\t" << solutions.rGetSolutions()[i][3] <<"\t"<< solutions.rGetSolutions()[i][4] << "\t" << solutions.rGetSolutions()[i][5] << "\n" << std::flush;
+//        }    
+//        file->close();   
         
         int my_rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &my_rank);
@@ -108,7 +123,7 @@ public:
         MPI_Barrier(PETSC_COMM_WORLD);
         
         // Test backward euler solutions are OK for a very small time increase...
-        int end = solutions.rGetSolutions().size() - 1;
+        
         
         
 //        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0],0.59995781827316, 1e-5);
