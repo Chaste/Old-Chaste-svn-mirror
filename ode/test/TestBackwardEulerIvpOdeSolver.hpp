@@ -2,15 +2,17 @@
 #define TESTBACKWARDEULERIVPODESOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
-#include<iostream>
+#include <iostream>
 
 #include "OdeThirdOrder.hpp"
 #include "OdeThirdOrderWithEvents.hpp"
 #include "Ode4.hpp"
 #include "Ode5.hpp"
 #include "Ode5Jacobian.hpp"
+#include "VanDerPolOde.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestBackwardEulerIvpOdeSolver: public CxxTest::TestSuite
 {
@@ -149,6 +151,39 @@ public:
         double analytical_solution = 1.0/(1.0+4.0*exp(-100.0*end_time));
         
         TS_ASSERT_DELTA(numerical_solution,analytical_solution,1.0e-3);
+    }
+    
+    void TestBackwardEulerVanDerPolOde()
+    {
+        VanDerPolOde ode_system;
+        
+        double h_value = 0.01;
+        double end_time = 100.0;
+        
+        //Euler solver solution worked out
+        BackwardEulerIvpOdeSolver backward_euler_solver(ode_system.GetNumberOfStateVariables());
+        OdeSolution solutions;
+        
+        std::vector<double> state_variables = ode_system.GetInitialConditions();
+        
+        solutions = backward_euler_solver.Solve(&ode_system, state_variables, 0.0, end_time, h_value, 5*h_value);
+        unsigned last = solutions.GetNumberOfTimeSteps();
+        
+        double numerical_solution;
+        numerical_solution = solutions.rGetSolutions()[last][0];
+        
+//        OutputFileHandler handler("");
+//        out_stream rabbit_file=handler.OpenOutputFile("foxrabbit.dat");
+//                    
+//        for (unsigned i=0; i<last; i++)
+//        {
+//            (*rabbit_file) << solutions.rGetSolutions()[i][0] << "\t" << solutions.rGetSolutions()[i][1] << "\n" << std::flush;
+//        }    
+//        rabbit_file->close();   
+        
+        // assert that we are within a [-2,2] in x and [-2,2] in y (on limit cycle)
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0],0,2);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[last][1],0,2);
     }
     
     
