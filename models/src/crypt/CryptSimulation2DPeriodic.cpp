@@ -594,9 +594,9 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
     return p_element;
 }
 
-std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNode()
+std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNodeOld()
 {
-    std::vector<c_vector<double, 2> > drdt_cvec = CalculateVelocitiesOfEachNodeCvec();
+    std::vector<c_vector<double, 2> > drdt_cvec = CalculateVelocitiesOfEachNode();
     std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt_cvec.size(); i++)
     {
@@ -612,7 +612,7 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
  *
  * @return drdt the x and y force components on each node
  */
-std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNodeCvec()
+std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNode()
 {
     std::vector<c_vector<double, 2> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
@@ -906,31 +906,22 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
  *
  * @param rDrDt the x and y force components on each node.
  */
-void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< std::vector<double> >& rDrDt)
+void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
 {
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
-        //std::cout << "Node " << index << "\t x_force = " << drdt[index][0] << "\t y_force = " << drdt[index][1] << "\n";
-        
         if (mFixedBoundaries)
         {
+            c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
             // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-            if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
+            if (   node_position[1]>0
+                && node_position[1]<mpParams->GetCryptLength()
+                && node_position[0]>0
+                && node_position[0]<mpParams->GetCryptWidth()
+                && !mrMesh.GetNode(index)->IsDeleted() )
             {
-                if (mrMesh.GetNode(index)->rGetLocation()[1]<mpParams->GetCryptLength())
-                {
-                    if (mrMesh.GetNode(index)->rGetLocation()[0]>0)
-                    {
-                        if (mrMesh.GetNode(index)->rGetLocation()[0]<mpParams->GetCryptWidth())
-                        {
-                            if (!mrMesh.GetNode(index)->IsDeleted())
-                            {
-                                Point<2> new_point = GetNewNodeLocation(index,rDrDt);
-                                mrMesh.SetNode(index, new_point, false);
-                            }
-                        }
-                    }
-                }
+                Point<2> new_point = GetNewNodeLocation(index,rDrDt);
+                mrMesh.SetNode(index, new_point, false);
             }
         }
         else if (mCells.size()>0)
@@ -988,16 +979,10 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< std::vect
     }
 }
 
-Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< std::vector<double> >& rDrDt)
+Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, 2> >& rDrDt)
 {
-    c_vector<double,2> old_point = mrMesh.GetNode(rOldNodeIndex)->rGetLocation();
-    Point<2> new_point;
-    
-    // Euler style update to node position
-    new_point.rGetLocation()[0] = old_point[0] + mDt*rDrDt[rOldNodeIndex][0];
-    new_point.rGetLocation()[1] = old_point[1] + mDt*rDrDt[rOldNodeIndex][1];
-    
-    return new_point;
+    return Point<2>( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
+                     + mDt*rDrDt[rOldNodeIndex]);
 }
 
 /**
@@ -1942,7 +1927,7 @@ void CryptSimulation2DPeriodic::Solve()
         mNumBirths += DoCellBirth();
         
         //  calculate node velocities
-        std::vector<std::vector<double> > drdt = CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double, 2> > drdt = CalculateVelocitiesOfEachNode();
         
         // update node positions
         UpdateNodePositions(drdt);

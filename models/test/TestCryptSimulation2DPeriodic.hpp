@@ -1017,7 +1017,7 @@ public:
          ************************************************************************ 
          */
                 
-        std::vector<std::vector<double> > velocities_on_each_node(p_mesh2->GetNumAllNodes());
+        std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh2->GetNumAllNodes());
         
         velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
         //std::cout << "d test \n " << std::endl;
