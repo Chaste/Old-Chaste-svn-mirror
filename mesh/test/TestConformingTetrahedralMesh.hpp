@@ -886,6 +886,8 @@ public:
         
         TS_ASSERT_DELTA(length, mesh.CalculateMeshVolume(), 1e-6);
         TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements() + 1);
+        
+   
     }
     
     void Test2DNodeMerger()

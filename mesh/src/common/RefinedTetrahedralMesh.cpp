@@ -227,7 +227,10 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
             }
             catch (Exception &e)
             {
+                #define COVERAGE_IGNORE       
                 EXCEPTION("Fine mesh contains an element which does not overlap any coarse mesh element");
+                #undef COVERAGE_IGNORE       
+
             }
         }
     }

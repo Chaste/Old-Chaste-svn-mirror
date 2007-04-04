@@ -423,7 +423,35 @@ public:
         
     }
     
-    void TestBoundaryElement()
+    void TestBoundaryElement() 
+    {
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+         
+        BoundaryElement<2,3> element(INDEX_IS_NOT_USED, nodes);
+        element.RefreshJacobianDeterminant();
+        TS_ASSERT_DELTA(element.GetJacobianDeterminant(), 1.0, 1e-6);
+        
+        //Alter to be collinear (for coverage)
+        nodes[2]->rGetModifiableLocation()[1]=0.0;
+        TS_ASSERT_THROWS_ANYTHING(element.RefreshJacobianDeterminant());
+        
+        //Alter to be deleted (for coverage)
+        element.MarkAsDeleted();
+        TS_ASSERT_THROWS_ANYTHING(element.RefreshJacobianDeterminant());
+        
+        
+        Node<3> *fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
+        TS_ASSERT_THROWS_ANYTHING(element.ReplaceNode(fake_node,fake_node));
+        
+       for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+    }
+    void TestBoundaryElementSecondOrder()
     {
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
@@ -437,6 +465,7 @@ public:
         nodes.push_back(new Node<3>(8, false, 0.5, 0.0, 0.5));
         nodes.push_back(new Node<3>(9, false, 0.0, 0.5, 0.5));
         BoundaryElement<3,3> element(INDEX_IS_NOT_USED, nodes, 2);
+        
         
         for (unsigned i=0; i<nodes.size(); i++)
         {

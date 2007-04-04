@@ -109,6 +109,10 @@ public:
         {
             TS_ASSERT_DELTA(node.rGetLocation()[i], coords[i], 1e-12);
         }
+        
+        TS_ASSERT_THROWS_ANYTHING(node.RemoveElement(256U));
+        TS_ASSERT_THROWS_ANYTHING(node.RemoveBoundaryElement(256U));
+  
     }
     
 };

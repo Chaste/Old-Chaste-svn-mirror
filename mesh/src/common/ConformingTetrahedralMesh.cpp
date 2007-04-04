@@ -1245,7 +1245,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         binary_name="tetgen";
     }
     std::string command   = "./bin/"+ binary_name +" -e "
-                               + full_name + "node"
+                            + full_name + "node"
                             + " > /dev/null";
     system(command.c_str());
     
