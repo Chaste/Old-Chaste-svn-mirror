@@ -594,19 +594,6 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
     return p_element;
 }
 
-std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNodeOld()
-{
-    std::vector<c_vector<double, 2> > drdt_cvec = CalculateVelocitiesOfEachNode();
-    std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
-    for (unsigned i=0; i<drdt_cvec.size(); i++)
-    {
-        drdt[i].resize(2);
-        drdt[i][0]=drdt_cvec[i](0);
-        drdt[i][1]=drdt_cvec[i](1);
-    }
-    return drdt;
-}
-
 /**
  * Calculates the forces on each node
  *
