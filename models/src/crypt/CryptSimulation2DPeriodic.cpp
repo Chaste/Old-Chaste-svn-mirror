@@ -343,6 +343,28 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         }
                     }
                 }
+//                std::map<unsigned, unsigned>::iterator boundary_iterator = mRightToLeftBoundary.find(cell_index);
+//                if (boundary_iterator != mRightToLeftBoundary.end())
+//                {
+//                     // Only allow one periodic boundary to have divisions...
+//                    skip = true;
+//                }
+//                boundary_iterator = mLeftToRightBoundary.find(cell_index);
+//                if (boundary_iterator != mLeftToRightBoundary.end())
+//                {
+//                    if (mPeriodicDivisionBuffer>0)
+//                        {
+//                            // Only allow one periodic cell division per
+//                            // timestep so that mesh can catch up with it.
+//                            // it will divide next timestep anyway
+//                            skip=true;
+//                        }
+//                        else
+//                        {
+//                            periodic_cell = true;
+//                            periodic_index = boundary_index;
+//                        }
+//                }
             }
             if (!skip)
             {
@@ -561,27 +583,12 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
             counter++;
             if (counter >= rpOurNode->GetNumContainingElements())
             {
-                if (periodicCell)
-                {
-                    // Swap to the image node - that might have a
-                    // non-periodic element to put new cell into.
-                    if (cellIndex == mRightCryptBoundary[periodicIndex])
-                    {
-                        // We already swapped; give up
-                        #define COVERAGE_IGNORE
-                        assert(0);
-                        #undef COVERAGE_IGNORE
-                    }
-                    rpOurNode = mrMesh.GetNode(mRightCryptBoundary[periodicIndex]);
-                }
-                else
-                {
-                    // somehow every connecting element is a ghost element. quit to
-                    // avoid infinite loop
-                    #define COVERAGE_IGNORE
-                    assert(0);
-                    #undef COVERAGE_IGNORE
-                }
+                std::set <unsigned>::iterator set_iterator = mPeriodicNodes.find(rpOurNode->GetIndex());
+                assert(set_iterator!=mPeriodicNodes.end()); // somehow every connecting element is a ghost element. quit to
+                                                            // avoid infinite loop
+                std::map <unsigned, unsigned>::iterator map_iterator = mRightToLeftBoundary.find(cellIndex);
+                assert(map_iterator==mRightToLeftBoundary.end()); // We already swapped; give up
+                rpOurNode = mrMesh.GetNode(mRightCryptBoundary[periodicIndex]);
             }
             p_element = mrMesh.GetElement(rpOurNode->GetNextContainingElementIndex());
         }
