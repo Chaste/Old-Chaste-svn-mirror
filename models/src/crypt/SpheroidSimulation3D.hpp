@@ -23,7 +23,7 @@ typedef struct node_writer_ids_t
     unsigned time;               /**< The simulation time */
     std::vector<unsigned> types; /**< Cell types */
     /** Cell positions */
-    std::vector<unsigned> x_positions, y_positions;
+    std::vector<unsigned> x_positions, y_positions, z_positions;
 }
 node_writer_ids_t;
 
@@ -34,7 +34,7 @@ typedef struct element_writer_ids_t
 {
     unsigned time;/**< The simulation time */
     /** Node indices */
-    std::vector<unsigned> nodeAs, nodeBs, nodeCs;
+    std::vector<unsigned> nodeAs, nodeBs, nodeCs, nodeDs;
 }
 element_writer_ids_t;
 
@@ -192,8 +192,7 @@ private:
                              bool writeVisualizerResults);
     unsigned DoCellBirth();
     unsigned DoCellRemoval();
-    Element<3,3>* FindElementForBirth(Node<3>*& rpOurNode, unsigned cellIndex,
-                                      const bool periodicCell, const unsigned periodicIndex);
+    Element<3,3>* FindElementForBirth(Node<3>*& rpOurNode, unsigned cellIndex);
     std::vector<std::vector<double> > CalculateVelocitiesOfEachNode();
     c_vector<double, 3> CalculateForceInThisSpring(Element<3,3>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
     c_vector<double, 3> CalculateForceInThisBoundarySpring(BoundaryElement<2,3>*& rPEdge);

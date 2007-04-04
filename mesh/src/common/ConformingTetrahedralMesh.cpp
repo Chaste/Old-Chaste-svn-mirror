@@ -1204,7 +1204,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     OutputFileHandler handler("");
     out_stream node_file=handler.OpenOutputFile("temp.node");
     
-    (*node_file)<<GetNumNodes()<<"\t2\t0\t0\n";
+    (*node_file)<<GetNumNodes()<<"\t" << SPACE_DIM << "\t0\t0\n";
     
     unsigned new_index = 0;
     
@@ -1245,7 +1245,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
         binary_name="tetgen";
     }
     std::string command   = "./bin/"+ binary_name +" -e "
-                            + full_name + "node"
+                               + full_name + "node"
                             + " > /dev/null";
     system(command.c_str());
     

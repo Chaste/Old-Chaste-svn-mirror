@@ -49,7 +49,109 @@ class TestSprings3d : public CxxTest::TestSuite
 
    }
    
-   
+   void CheckAgainstPreviousRun3D(std::string resultDirectory,std::string resultSet, unsigned maxCells, unsigned maxElements)
+    {
+        std::cout << "Comparing " << resultDirectory << std::endl << std::flush;
+        
+        ColumnDataReader computed_node_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
+                                                                  "tabulated_node_results",
+                                                                  true);
+                                                                  
+        ColumnDataReader expected_node_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
+                                                                  "tabulated_node_results",
+                                                                  false);
+        ColumnDataReader computed_element_results = ColumnDataReader(resultDirectory+"/"+resultSet+"/tab_results",
+                                                    "tabulated_element_results",
+                                                    true);
+                                                    
+        ColumnDataReader expected_element_results = ColumnDataReader("models/test/data/" + resultDirectory+"Results",
+                                                    "tabulated_element_results",
+                                                    false);
+                                                    
+        for (unsigned cell=0; cell<maxCells; cell++)
+        {
+            std::stringstream cell_type_var_name;
+            std::stringstream cell_x_position_var_name;
+            std::stringstream cell_y_position_var_name;
+            std::stringstream cell_z_position_var_name;
+            cell_type_var_name << "cell_type_" << cell;
+            cell_x_position_var_name << "cell_x_position_" << cell;
+            cell_y_position_var_name << "cell_y_position_" << cell;
+            cell_z_position_var_name << "cell_z_position_" << cell;
+            
+            // Vector of Cell Types
+            std::vector<double> expected_cell_types = expected_node_results.GetValues(cell_type_var_name.str());
+            std::vector<double> computed_cell_types = computed_node_results.GetValues(cell_type_var_name.str());
+            
+            //Vector of Cell Positions
+            std::vector<double> expected_cell_x_positions = expected_node_results.GetValues(cell_x_position_var_name.str());
+            std::vector<double> computed_cell_x_positions = computed_node_results.GetValues(cell_x_position_var_name.str());
+            
+            
+            std::vector<double> expected_cell_y_positions = expected_node_results.GetValues(cell_y_position_var_name.str());
+            std::vector<double> computed_cell_y_positions = computed_node_results.GetValues(cell_y_position_var_name.str());
+            
+            std::vector<double> expected_cell_z_positions = expected_node_results.GetValues(cell_z_position_var_name.str());
+            std::vector<double> computed_cell_z_positions = computed_node_results.GetValues(cell_z_position_var_name.str());
+            
+            //Comparing expected and computed vector length
+            TS_ASSERT_EQUALS(expected_cell_types.size(), computed_cell_types.size());
+            TS_ASSERT_EQUALS(expected_cell_x_positions.size(), computed_cell_x_positions.size());
+            TS_ASSERT_EQUALS(expected_cell_y_positions.size(), computed_cell_y_positions.size());
+            TS_ASSERT_EQUALS(expected_cell_z_positions.size(), computed_cell_z_positions.size());
+            
+            //Walkthrough of the expected and computed vectors
+            for (unsigned time_step = 0; time_step < expected_cell_types.size(); time_step++)
+            {
+                TS_ASSERT_EQUALS(expected_cell_types[time_step], computed_cell_types[time_step]);
+                TS_ASSERT_DELTA(expected_cell_x_positions[time_step], computed_cell_x_positions[time_step],1e-6);
+                TS_ASSERT_DELTA(expected_cell_y_positions[time_step], computed_cell_y_positions[time_step],1e-6);
+                TS_ASSERT_DELTA(expected_cell_z_positions[time_step], computed_cell_z_positions[time_step],1e-6);
+            }
+        }
+        
+        for (unsigned element=0; element<maxElements; element++)
+        {
+            std::stringstream nodeA_var_name;
+            std::stringstream nodeB_var_name;
+            std::stringstream nodeC_var_name;
+            std::stringstream nodeD_var_name;
+            
+            nodeA_var_name << "nodeA_" << element;
+            nodeB_var_name << "nodeB_" << element;
+            nodeC_var_name << "nodeC_" << element;
+            nodeD_var_name << "nodeD_" << element;
+            
+            // Vector of Node A indexes
+            std::vector<double> expected_NodeA_numbers = expected_element_results.GetValues(nodeA_var_name.str());
+            std::vector<double> computed_NodeA_numbers = computed_element_results.GetValues(nodeA_var_name.str());
+            
+            // Vector of Node B indexes
+            std::vector<double> expected_NodeB_numbers = expected_element_results.GetValues(nodeB_var_name.str());
+            std::vector<double> computed_NodeB_numbers = computed_element_results.GetValues(nodeB_var_name.str());
+            
+            // Vector of Node C indexes
+            std::vector<double> expected_NodeC_numbers = expected_element_results.GetValues(nodeC_var_name.str());
+            std::vector<double> computed_NodeC_numbers = computed_element_results.GetValues(nodeC_var_name.str());
+            
+            // Vector of Node D indexes
+            std::vector<double> expected_NodeD_numbers = expected_element_results.GetValues(nodeD_var_name.str());
+            std::vector<double> computed_NodeD_numbers = computed_element_results.GetValues(nodeD_var_name.str());
+            
+            TS_ASSERT_EQUALS(expected_NodeA_numbers.size(), computed_NodeA_numbers.size());
+            TS_ASSERT_EQUALS(expected_NodeB_numbers.size(), computed_NodeB_numbers.size());
+            TS_ASSERT_EQUALS(expected_NodeC_numbers.size(), computed_NodeC_numbers.size());
+            TS_ASSERT_EQUALS(expected_NodeD_numbers.size(), computed_NodeD_numbers.size());
+            
+            for (unsigned time_step = 0; time_step < expected_NodeA_numbers.size(); time_step++)
+            {
+                TS_ASSERT_EQUALS(expected_NodeA_numbers[time_step], computed_NodeA_numbers[time_step]);
+                TS_ASSERT_EQUALS(expected_NodeB_numbers[time_step], computed_NodeB_numbers[time_step]);
+                TS_ASSERT_EQUALS(expected_NodeC_numbers[time_step], computed_NodeC_numbers[time_step]);
+                TS_ASSERT_EQUALS(expected_NodeD_numbers[time_step], computed_NodeD_numbers[time_step]);
+            }
+        }
+    }
     
 
    
@@ -107,12 +209,10 @@ void TestOne3dElement() throw (Exception)
    {
         
 //        ConformingTetrahedralMesh<3,3> mesh;
+
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
         
         ConformingTetrahedralMesh<3,3> mesh;
-        
-        
-        
         mesh.ConstructFromMeshReader(mesh_reader);
         
         TrianglesMeshWriter<3,3> mesh_writer1("","3dSpringTetrahedronMeshStart");
@@ -132,8 +232,7 @@ void TestOne3dElement() throw (Exception)
             cells.push_back(cell);
         }
         
-        
-        
+                
         SpheroidSimulation3D simulator = SpheroidSimulation3D(mesh,cells);
         simulator.SetMaxCells(40);
         simulator.SetMaxElements(40);
@@ -163,7 +262,6 @@ void TestOne3dElement() throw (Exception)
                 }
             }
             
-                     
             
 //            NodeMap map(mesh.GetNumAllNodes());
 //            mesh.ReMesh(map);
@@ -176,7 +274,13 @@ void TestOne3dElement() throw (Exception)
         TrianglesMeshWriter<3,3> mesh_writer("","3dSpringTetrahedronMeshEnd");
         mesh_writer.WriteFilesUsingMesh(mesh);    
         
-        // Scale entire mesh and check that forces are correctly calculated
+         /*
+         ************************************************************************
+         ************************************************************************ 
+         *  Scale entire mesh and check that forces are correctly calculated
+         ************************************************************************
+         ************************************************************************ 
+         */
         CancerParameters *p_params = CancerParameters::Instance();
         double scale_factor = 1.5;
         
@@ -200,7 +304,13 @@ void TestOne3dElement() throw (Exception)
             }
         }
         
-        // Move one node and check that forces are correctly calculated
+        /*
+         ************************************************************************
+         ************************************************************************ 
+         *  Move one node and check that forces are correctly calculated
+         ************************************************************************
+         ************************************************************************ 
+         */
         ConformingTetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
         SpheroidSimulation3D simulator2 = SpheroidSimulation3D(mesh2,cells);
@@ -214,9 +324,13 @@ void TestOne3dElement() throw (Exception)
         new_point.rGetLocation()[2] = 0.0;
         mesh2.SetNode(0, new_point, false);   
           
-        
-        
-         // Test forces on springs
+        /*
+         ************************************************************************
+         ************************************************************************ 
+         *  Test forces on springs
+         ************************************************************************
+         ************************************************************************ 
+         */
         unsigned nodeA2 = 0, nodeB2 = 1 ;
         Element<3,3>* p_element2 = mesh2.GetElement(0);
         c_vector<double, 3> drdt_contribution2 = simulator2.CalculateForceInThisSpring(p_element2,nodeA2,nodeB2);
@@ -235,9 +349,128 @@ void TestOne3dElement() throw (Exception)
         simulator2.UpdateNodePositions(new_forces2);
         TrianglesMeshWriter<3,3> mesh_writer2("","3dSpringTetrahedronMeshEnd2");
         mesh_writer2.WriteFilesUsingMesh(mesh2);  
-        
+                
    }
+   
+   void TestPrivateFunctionsOfSpheroidSimulation3D() throw (Exception)
+    {
+        RandomNumberGenerator::Instance();
+        
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            cell_type = STEM;
+            generation = 0;
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            if ( i == 50u)
+            {
+                cell.SetBirthTime(-50.0 );
+            }
+            
+            cells.push_back(cell);
+        }
+        
+        
+        SpheroidSimulation3D simulator(mesh,cells);
+        simulator.SetMaxCells(400);
+        simulator.SetMaxElements(2400);
+        simulator.SetOutputDirectory("Test3DPrivateMemberDirectory");
+        std::string output_directory = "Test3DPrivateMemberDirectory";
+        ColumnDataWriter tabulated_node_writer(output_directory+"/tab_results", "tabulated_node_results");
+        ColumnDataWriter tabulated_element_writer(output_directory+"/tab_results", "tabulated_element_results");
+        
+        /*
+         ************************************************************************
+         ************************************************************************ 
+         *  Test results file writers
+         ************************************************************************
+         ************************************************************************ 
+         */
+        node_writer_ids_t node_writer_ids;
+        TS_ASSERT_THROWS_NOTHING(simulator.SetupNodeWriter(tabulated_node_writer, node_writer_ids));
+        
+        element_writer_ids_t element_writer_ids;
+        TS_ASSERT_THROWS_NOTHING(simulator.SetupElementWriter(tabulated_element_writer, element_writer_ids));
+        
+        OutputFileHandler output_file_handler(output_directory);
+        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
+        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+        unsigned tabulated_output_counter = 0;
+        
+        simulator.WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
+                                       tabulated_element_writer, element_writer_ids,
+                                       *p_node_file, *p_element_file,
+                                       tabulated_output_counter==0,
+                                       true);
+        
+        unsigned num_births = simulator.DoCellBirth();
+                                                                
+        TS_ASSERT_EQUALS(num_births, 1u);
+        
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+       
+    void NoTestSolveMethodSpheroidSimulation3D() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
+                
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
+        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            cell_type = STEM;
+            generation = 0;
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);    
+            cell.SetBirthTime(p_random_num_gen->ranf()*p_params->GetStemCellCycleTime());            
+            cells.push_back(cell);
+        } 
+        
+        SpheroidSimulation3D simulator(mesh,cells);
+        simulator.SetMaxCells(1000);
+        simulator.SetMaxElements(2500);
+        simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
+        
+        // Set to re-mesh
+        simulator.SetReMeshRule(true);
+        simulator.SetEndTime(5);
+        
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        
+        TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh","EndMesh",false); 
+        mesh_writer2.WriteFilesUsingMesh(mesh);
+        
+       
+    }
 };
 
 #endif /*TESTSPRINGS3D_HPP_*/
