@@ -823,20 +823,25 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
  */
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
 {
-    c_vector<double, 2> force;
-    c_vector<double, 2> unit_difference;
-    unit_difference(0)=rPElement->GetNodeLocation(rNodeB,0)-rPElement->GetNodeLocation(rNodeA,0);
-    unit_difference(1)=rPElement->GetNodeLocation(rNodeB,1)-rPElement->GetNodeLocation(rNodeA,1);
-    double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
     
-    unit_difference=unit_difference/distance_between_nodes;
+    Node<2>& r_node_a = *(rPElement->GetNode(rNodeA));
+    Node<2>& r_node_b = *(rPElement->GetNode(rNodeB));
+    unsigned node_a_global_index = r_node_a.GetIndex();
+    unsigned node_b_global_index = r_node_b.GetIndex();
+    c_vector<double, 2> unit_difference;
+
+    unit_difference = r_node_b.rGetLocation() - r_node_a.rGetLocation();
+    double distance_between_nodes=norm_2(unit_difference);
+    
+    unit_difference /= distance_between_nodes;
     
     double rest_length = 1.0;
     
-    if ( (mCells.size()>0) &&  (!mIsGhostNode[rPElement->GetNodeGlobalIndex(rNodeA)]) && (!mIsGhostNode[rPElement->GetNodeGlobalIndex(rNodeB)]) )
+    if ( (mCells.size()>0) &&  (!mIsGhostNode[node_a_global_index])
+                           &&  (!mIsGhostNode[node_b_global_index]) )
     {
-        double ageA = mCells[rPElement->GetNode(rNodeA)->GetIndex()].GetAge();
-        double ageB = mCells[rPElement->GetNode(rNodeB)->GetIndex()].GetAge();
+        double ageA = mCells[node_a_global_index].GetAge();
+        double ageB = mCells[node_b_global_index].GetAge();
         if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
         {
             // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
@@ -847,7 +852,7 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Elemen
         }
     }
     
-    return force = mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 /**
@@ -1042,28 +1047,16 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
     {
         Element<2,2>* p_element = mrMesh.GetElement(elem_index);
         
-        if (!mIsGhostNode[p_element->GetNode(0)->GetIndex()])
+        for (unsigned local_index=0; local_index<3; local_index++)
         {
-            if ((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
+           if (!mIsGhostNode[p_element->GetNode(local_index)->GetIndex()])
             {
-                is_nodes_on_boundary[p_element->GetNode(0)->GetIndex()]= true;
-            }
-        }
-        
-        if (!mIsGhostNode[p_element->GetNode(1)->GetIndex()])
-        {
-        
-            if ((mIsGhostNode[p_element->GetNode(0)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(2)->GetIndex()])   )
-            {
-                is_nodes_on_boundary[p_element->GetNode(1)->GetIndex()]= true;
-            }
-        }
-        
-        if (!mIsGhostNode[p_element->GetNode(2)->GetIndex()])
-        {
-            if ((mIsGhostNode[p_element->GetNode(1)->GetIndex()]) || (mIsGhostNode[p_element->GetNode(0)->GetIndex()]))
-            {
-                is_nodes_on_boundary[p_element->GetNode(2)->GetIndex()]= true;
+                if ( mIsGhostNode[p_element->GetNode(0)->GetIndex()]
+                     || mIsGhostNode[p_element->GetNode(1)->GetIndex()]
+                     || mIsGhostNode[p_element->GetNode(2)->GetIndex()] )
+                {
+                    is_nodes_on_boundary[p_element->GetNode(local_index)->GetIndex()]= true;
+                }
             }
         }
     }
