@@ -450,8 +450,7 @@ void SpheroidSimulation3D::CheckIndicesAreInSync()
     {
         for (unsigned cell_index=0; cell_index<mCells.size(); cell_index++)
         {
-            unsigned node_index = mCells[cell_index].GetNodeIndex();
-            assert(node_index==cell_index);
+            assert(mCells[cell_index].GetNodeIndex()==cell_index);
         }
     }
 }

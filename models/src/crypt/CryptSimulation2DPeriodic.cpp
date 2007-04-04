@@ -306,9 +306,8 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
 //        // Iterate over all cells, seeing if each one can be divided
 
         {
-            MeinekeCryptCell* p_cell=mCrypt.GetCurrentCell();
             
-            assert(p_cell->GetNodeIndex()==cell_index);
+            assert(mCrypt.GetCurrentCell()->GetNodeIndex()==cell_index);
             
 
             unsigned node_index=cell_index ;
@@ -382,10 +381,9 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
 
                     c_vector<double, 2> node_to_centroid = p_element->CalculateCentroid()
                                                           - p_our_node->rGetLocation();
-                    double distance_from_node_to_centroid =  norm_2(node_to_centroid);
                     double distance_of_new_cell_from_parent = 0.1;
                     // TODO: Deal with birth in very small elements
-                    assert(distance_from_node_to_centroid >= (0.2/3.0));
+                    assert(norm_2(node_to_centroid) >= (0.2/3.0));
                     c_vector<double, 2> birth_location = p_our_node->rGetLocation()
                                                          + distance_of_new_cell_from_parent * node_to_centroid;
 
