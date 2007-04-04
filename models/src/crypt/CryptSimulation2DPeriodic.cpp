@@ -910,28 +910,27 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<
 {
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
-        if (mFixedBoundaries)
+    if (!mrMesh.GetNode(index)->IsDeleted())
         {
-            c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
-            // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-            if (   node_position[1]>0
-                && node_position[1]<mpParams->GetCryptLength()
-                && node_position[0]>0
-                && node_position[0]<mpParams->GetCryptWidth()
-                && !mrMesh.GetNode(index)->IsDeleted() )
+            Point<2> new_point = GetNewNodeLocation(index,rDrDt);    
+            if (mFixedBoundaries)
             {
-                Point<2> new_point = GetNewNodeLocation(index,rDrDt);
-                mrMesh.SetNode(index, new_point, false);
-            }
-        }
-        else if (mCells.size()>0)
-        {
-            // move any node as long as it is not a real stem cell.
-            if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
-            {
-                if (!mrMesh.GetNode(index)->IsDeleted())
+                c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
+                // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
+                if (   node_position[1]>0
+                    && node_position[1]<mpParams->GetCryptLength()
+                    && node_position[0]>0
+                    && node_position[0]<mpParams->GetCryptWidth() )
                 {
-                    Point<2> new_point = GetNewNodeLocation(index,rDrDt);
+                    mrMesh.SetNode(index, new_point, false);
+                }
+            }
+            else if (mCells.size()>0)
+            {
+                // move any node as long as it is not a real stem cell.
+                if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
+                {
+                    
                     // if a cell wants to move below y<0 (most likely because it was
                     // just born from a stem cell), stop it doing so
                     if ( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
@@ -944,15 +943,11 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<
                     mrMesh.SetNode(index, new_point, false);
                 }
             }
-        }
-        else
-        {
-            // no cells, just fix any node on line y=0
-            if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
+            else
             {
-                if (!mrMesh.GetNode(index)->IsDeleted())
+                // no cells, just fix any node on line y=0
+                if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
                 {
-                    Point<2> new_point = GetNewNodeLocation(index,rDrDt);
                     mrMesh.SetNode(index, new_point, false);
                 }
             }
