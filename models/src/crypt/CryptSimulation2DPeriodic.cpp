@@ -379,46 +379,18 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                     // Add new node to mesh
                     Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index,
                                                                   periodic_cell, periodic_index);
-                                                                  
-                    //std::cout << "New cell being intoduced into element with nodes \n";
-                    //std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
-                    double x = p_our_node->rGetLocation()[0];
-                    double y = p_our_node->rGetLocation()[1];
-                    
-                    double x_centroid = (1.0/3.0)*(p_element->GetNode(0)->rGetLocation()[0]
-                                                   +  p_element->GetNode(1)->rGetLocation()[0]
-                                                   +  p_element->GetNode(2)->rGetLocation()[0] );
-                                                   
-                    double y_centroid = (1.0/3.0)*(p_element->GetNode(0)->rGetLocation()[1]
-                                                   +  p_element->GetNode(1)->rGetLocation()[1]
-                                                   +  p_element->GetNode(2)->rGetLocation()[1] );
-                                                   
-                                                   
-                    // check the new point is in the triangle
-                    double distance_from_node_to_centroid =  sqrt(  (x_centroid - x)*(x_centroid - x)
-                                                                    + (y_centroid - y)*(y_centroid - y) );
-                                                                    
-                    // we assume the new cell is a distance 0.1 away from the old.
-                    // however, to avoid crashing in usual situations we check this
-                    // new position is actually in the triangle being refined.
-                    // TODO: Check this is correct!
+
+                    c_vector<double, 2> node_to_centroid = p_element->CalculateCentroid()
+                                                          - p_our_node->rGetLocation();
+                    double distance_from_node_to_centroid =  norm_2(node_to_centroid);
                     double distance_of_new_cell_from_parent = 0.1;
-                    if (distance_from_node_to_centroid < (2.0/3.0)*0.1)
-                    {
-                        #define COVERAGE_IGNORE
-                        distance_of_new_cell_from_parent = (3.0/2.0)*distance_from_node_to_centroid;
-                        #undef COVERAGE_IGNORE
-                    }
-                    
-                    double new_x_value = x + distance_of_new_cell_from_parent*(x_centroid-x);
-                    double new_y_value = y + distance_of_new_cell_from_parent*(y_centroid-y);
-                    
-                    //std::cout << "Parent node at x = " << x << "  y = " << y << "\n";
-                    //std::cout << "Daughter node at x = " << new_x_value << "  y = " << new_y_value << "\n";
-                    
-                    Point<2> new_point(new_x_value, new_y_value);
+                    // TODO: Deal with birth in very small elements
+                    assert(distance_from_node_to_centroid >= (0.2/3.0));
+                    c_vector<double, 2> birth_location = p_our_node->rGetLocation()
+                                                         + distance_of_new_cell_from_parent * node_to_centroid;
+
+                    Point<2> new_point(birth_location);
                     unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
-                    std::cout << "New Cell Index = " << new_node_index << "\n";
                     // Update cells vector
                     new_cell.SetNodeIndex(new_node_index);
                     if (new_node_index == mCells.size())
@@ -431,7 +403,6 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         mCells[new_node_index] = new_cell;
                         #undef COVERAGE_IGNORE
                     }
-                    //mCells[new_node_index].SetBirthTime();
                     
                     // Update size of IsGhostNode if necessary
                     if (mrMesh.GetNumNodes() > mIsGhostNode.size())
@@ -442,7 +413,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         #undef COVERAGE_IGNORE
                     }
                     num_births++;
-                    //std::cout<< "num_births=" << num_births <<std::endl<< std::flush;
+
                     if (mReMesh && periodic_cell)
                     {
                         ReMesh();
