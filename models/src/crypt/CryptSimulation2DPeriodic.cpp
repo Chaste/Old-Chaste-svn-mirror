@@ -594,18 +594,32 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
     return p_element;
 }
 
+std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNode()
+{
+    std::vector<c_vector<double, 2> > drdt_cvec = CalculateVelocitiesOfEachNodeCvec();
+    std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
+    for (unsigned i=0; i<drdt_cvec.size(); i++)
+    {
+        drdt[i].resize(2);
+        drdt[i][0]=drdt_cvec[i](0);
+        drdt[i][1]=drdt_cvec[i](1);
+    }
+    return drdt;
+}
+
 /**
  * Calculates the forces on each node
  *
  * @return drdt the x and y force components on each node
  */
-std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNode()
+std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNodeCvec()
 {
-    std::vector<std::vector<double> > drdt(mrMesh.GetNumAllNodes());
-    for (unsigned i=0; i<mrMesh.GetNumAllNodes(); i++)
+    std::vector<c_vector<double, 2> > drdt(mrMesh.GetNumAllNodes());
+    for (unsigned i=0; i<drdt.size(); i++)
     {
-        drdt[i].resize(2);
+        drdt[i]=zero_vector<double>(2);
     }
+
     //////////////////////////////////////////////////////////////////
     // loop over element and for each one loop over its three edges
     ////////////////////////////////////////////////////////////////////
@@ -687,24 +701,20 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
                 {
                     if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)])
                     {
-                        drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
-                        drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
+                        drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
                         
                         if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
                         {
-                            drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
-                            drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
                         }
                     }
                     else
                     {
-                        drdt[ p_element->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
-                        drdt[ p_element->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
+                        drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
                         
                         if (mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
                         {
-                            drdt[ p_element->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
-                            drdt[ p_element->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
+                            drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
                         }
                     }
                 }
@@ -772,27 +782,23 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
             if (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)])
             {
                 // Real A force on any B
-                drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
-                drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
+                drdt[ p_edge->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
                 
                 // B exerts a force back if it is real.
                 if (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
                 {
-                    drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
-                    drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
+                    drdt[ p_edge->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
                 }
             }
             else
             {
                 // Ghost A receives a force
-                drdt[ p_edge->GetNode(nodeA)->GetIndex()][0] += force(0) / damping_constantA;
-                drdt[ p_edge->GetNode(nodeA)->GetIndex()][1] += force(1) / damping_constantA;
+                drdt[ p_edge->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
                 
                 // Only a ghost B also receives a force
                 if (mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
                 {
-                    drdt[ p_edge->GetNode(nodeB)->GetIndex()][0] -= force(0) / damping_constantB;
-                    drdt[ p_edge->GetNode(nodeB)->GetIndex()][1] -= force(1) / damping_constantB;
+                    drdt[ p_edge->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
                 }
             }
         }
@@ -809,12 +815,9 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
         // loop through size of left boundaries
         for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
         {
-            double x_force = drdt[mLeftCryptBoundary[i]][0] + drdt[mRightCryptBoundary[i]][0];
-            double y_force = drdt[mLeftCryptBoundary[i]][1] + drdt[mRightCryptBoundary[i]][1];
-            drdt[mLeftCryptBoundary[i]][0] = x_force;
-            drdt[mLeftCryptBoundary[i]][1] = y_force;
-            drdt[mRightCryptBoundary[i]][0] = x_force;
-            drdt[mRightCryptBoundary[i]][1] = y_force;
+            c_vector<double,2> force = drdt[mLeftCryptBoundary[i]] + drdt[mRightCryptBoundary[i]];
+            drdt[mLeftCryptBoundary[i]] = force;
+            drdt[mRightCryptBoundary[i]] = force;
         }
     }
     
@@ -822,8 +825,7 @@ std::vector<std::vector<double> > CryptSimulation2DPeriodic::CalculateVelocities
     // we looped over them all twice to deal with the boundaries above.
     for (unsigned i=0 ; i<mrMesh.GetNumAllNodes(); i++)
     {
-        drdt[i][0]=drdt[i][0]/2.0;
-        drdt[i][1]=drdt[i][1]/2.0;
+        drdt[i]=drdt[i]/2.0;
     }
     
     return drdt;

@@ -199,6 +199,7 @@ private:
     Element<2,2>* FindElementForBirth(Node<2>*& rpOurNode, unsigned cellIndex,
                                       const bool periodicCell, const unsigned periodicIndex);
     std::vector<std::vector<double> > CalculateVelocitiesOfEachNode();
+    std::vector<c_vector<double, 2> > CalculateVelocitiesOfEachNodeCvec();
     c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
     c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge);
     
