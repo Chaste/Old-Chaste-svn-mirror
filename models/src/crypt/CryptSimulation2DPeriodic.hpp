@@ -106,6 +106,15 @@ private:
     std::vector <unsigned> mCryptBoundary;
     std::vector <unsigned> mOldCryptBoundary;
     
+    std::map <unsigned, unsigned> mLeftToRightBoundary;
+    std::map <unsigned, unsigned> mOldLeftToRightBoundary;
+    std::map <unsigned, unsigned> mRightToLeftBoundary;
+    std::map <unsigned, unsigned> mOldRightToLeftBoundary;
+    std::set <unsigned> mBoundary;
+    std::set <unsigned> mOldBoundary;
+    std::set <unsigned> mPeriodicNodes;
+    
+    
     /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
     /** The maximum number of elements that this simulation will include (for use by datawriter). */

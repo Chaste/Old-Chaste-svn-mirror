@@ -1028,11 +1028,16 @@ void CryptSimulation2DPeriodic::UpdateCellTypes()
 void CryptSimulation2DPeriodic::CalculateCryptBoundary()
 {
     assert(mPeriodicSides);
+    mBoundary.clear();
+    mPeriodicNodes.clear();
+    mRightToLeftBoundary.clear();
+    mLeftToRightBoundary.clear();
     
     double crypt_width=mpParams->GetCryptWidth();
     
     // Set all nodes as not being on the boundary...
     std::vector<bool> is_nodes_on_boundary(mIsGhostNode.size());
+    
     for (unsigned i = 0 ; i < is_nodes_on_boundary.size() ; i++)
     {
         is_nodes_on_boundary[i]=false;
@@ -1053,6 +1058,7 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
                      || mIsGhostNode[p_element->GetNode(2)->GetIndex()] )
                 {
                     is_nodes_on_boundary[p_element->GetNode(local_index)->GetIndex()]= true;
+                    mBoundary.insert(p_element->GetNode(local_index)->GetIndex());
                 }
             }
         }
@@ -1093,6 +1099,50 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
         }
     }
     
+    for (std::set <unsigned>::iterator outer_iterator = mBoundary.begin();
+         outer_iterator != mBoundary.end();
+         outer_iterator++)
+    {
+        Node<2>* outer_node=mrMesh.GetNode(*outer_iterator);
+        for (std::set <unsigned>::iterator inner_iterator = mBoundary.begin();
+             inner_iterator != mBoundary.end();
+             inner_iterator++)
+        {
+            Node<2>* inner_node=mrMesh.GetNode(*inner_iterator);
+            // Check y positions are the same
+            if (fabs(outer_node->rGetLocation()[1] - inner_node->rGetLocation()[1])<1e-3)
+            {
+                // Check x positions are crypt width apart.
+                if (fabs(inner_node->rGetLocation()[0] - outer_node->rGetLocation()[0]-crypt_width)<1e-3)
+                {
+                    mLeftToRightBoundary[outer_node->GetIndex()]=inner_node->GetIndex();
+                    mRightToLeftBoundary[inner_node->GetIndex()]=outer_node->GetIndex();
+                    mPeriodicNodes.insert(outer_node->GetIndex());
+                    mPeriodicNodes.insert(inner_node->GetIndex());
+                }
+            }
+        } 
+    }
+    
+    assert(nodes_on_boundary.size()==mBoundary.size());
+    for (unsigned i=0; i<nodes_on_boundary.size(); i++)
+    {
+        std::set <unsigned>::iterator assert_iterator = mBoundary.find(nodes_on_boundary[i]);
+        assert(assert_iterator!=mBoundary.end());
+        if (mIsPeriodicNode[nodes_on_boundary[i]])
+        {
+            assert_iterator = mPeriodicNodes.find(nodes_on_boundary[i]);
+            assert(assert_iterator!=mPeriodicNodes.end());
+        }
+    }    
+    assert (nodes_on_left_boundary.size() == mLeftToRightBoundary.size() );
+    assert (nodes_on_right_boundary.size() == mRightToLeftBoundary.size() );
+    for (unsigned i=0; i<nodes_on_left_boundary.size(); i++)
+    {
+        assert( mLeftToRightBoundary[nodes_on_left_boundary[i]] == nodes_on_right_boundary[i]);
+        assert( mRightToLeftBoundary[nodes_on_right_boundary[i]] == nodes_on_left_boundary[i]);
+    }
+
     mLeftCryptBoundary =  nodes_on_left_boundary;
     mRightCryptBoundary =  nodes_on_right_boundary;
     mCryptBoundary =  nodes_on_boundary;
