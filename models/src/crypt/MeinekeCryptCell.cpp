@@ -22,6 +22,7 @@ MeinekeCryptCell::MeinekeCryptCell(CryptCellType cellType,
     mpCellCycleModel->SetCellType(cellType);
     mCanDivide = false;
     mUndergoingApoptosis = false;
+    mDeathTime = DBL_MAX; // this has to be initialised for archiving...
 }
 
 void MeinekeCryptCell::CommonCopy(const MeinekeCryptCell &other_cell)
