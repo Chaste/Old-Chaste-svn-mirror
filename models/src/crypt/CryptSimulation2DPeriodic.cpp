@@ -452,17 +452,16 @@ unsigned CryptSimulation2DPeriodic::DoCellRemoval()
         {
             double x = p_node->rGetLocation()[0];
             double y = p_node->rGetLocation()[1];
-            
             double crypt_length=mpParams->GetCryptLength();
             double crypt_width=mpParams->GetCryptWidth();
+            unsigned node_index = p_node->GetIndex();
             
             if (!mPeriodicSides)
             {
                 if ( (x>crypt_width) || (x<0.0) || (y>crypt_length))
                 {
-                    mIsGhostNode[p_node->GetIndex()] = true;
+                    mIsGhostNode[node_index] = true;
                     num_deaths++;
-                    //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
                 }
             }
             else
@@ -471,21 +470,15 @@ unsigned CryptSimulation2DPeriodic::DoCellRemoval()
                 {
                     mIsGhostNode[p_node->GetIndex()] = true;
                     num_deaths++;
-                    
                     // And delete the periodic image if appropriate.(don't count as a death since it is an image)
-                    for (unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
+                    if (mLeftToRightBoundary.find(node_index)!=mLeftToRightBoundary.end())
                     {
-                        if ((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
-                        {
-                            mIsGhostNode[mRightCryptBoundary[j]]=true;
-                        }
-                        if ((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
-                        {
-                            mIsGhostNode[mLeftCryptBoundary[j]]=true;
-                        }
+                        mIsGhostNode[mLeftToRightBoundary[node_index]]=true;
                     }
-                    
-                    //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
+                    if (mRightToLeftBoundary.find(node_index)!=mRightToLeftBoundary.end())
+                    {
+                        mIsGhostNode[mRightToLeftBoundary[node_index]]=true;
+                    }
                 }
             }
         }
@@ -584,35 +577,13 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
             for (unsigned k=0; k<3; k++)
             {
                 unsigned nodeA = k, nodeB = (k+1)%3;
-                
+                unsigned node_a_index = p_element->GetNode(nodeA)->GetIndex();
+                unsigned node_b_index = p_element->GetNode(nodeB)->GetIndex();
                 assert(!p_element->GetNode(nodeA)->IsDeleted());
                 assert(!p_element->GetNode(nodeB)->IsDeleted());
                 
                 c_vector<double, 2> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
-                
-                bool AandBInLeftEdge = false;
-                // Lookup whether node A and node B are both in a left edge element...
-                if (mPeriodicSides)
-                {
-                    for (unsigned i=0; i< mLeftCryptBoundary.size();i++)
-                    {
-                        //std::cout << "i = " << i << "\n";
-                        if (mLeftCryptBoundary[i]==(unsigned)p_element->GetNode(nodeA)->GetIndex())
-                        {
-                            for (unsigned j=0; j<mLeftCryptBoundary.size(); j++)
-                            {
-                                if (mLeftCryptBoundary[j]==(unsigned)p_element->GetNode(nodeB)->GetIndex())
-                                {
-                                    AandBInLeftEdge = true;
-                                    //std::cout << "Left Boundary; Node A = " << mLeftCryptBoundary[i] << "\tNode B = "<< mLeftCryptBoundary[j] << "\n";
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                
+                 
                 double damping_constantA = mpParams->GetDampingConstantNormal();
                 double damping_constantB = mpParams->GetDampingConstantNormal();
                 
@@ -646,11 +617,10 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
                     }
                 }
                 
-                // Assume that if both nodes are real, or both are ghosts, then they both
-                // exert forces on each other, but if one is real and one is ghost then
-                // the real node exerts a force on the ghost node, but the ghost node
-                // does NOT exert a force on the real node.
-                if (!AandBInLeftEdge) // If A and B are in the left periodic edge ignore them (it will be handled by right edge)
+
+                if (!mPeriodicSides  // If A and B are in the left periodic edge ignore them (it will be handled by right edge)
+                    || mLeftToRightBoundary.find(node_a_index)==mLeftToRightBoundary.end()
+                    || mLeftToRightBoundary.find(node_b_index)==mLeftToRightBoundary.end() )
                 {
                     if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)])
                     {
