@@ -278,7 +278,18 @@ public:
     {
         delete mpMesh;
     }
-    
+
+    /**
+     * Crypt Honeycomb Mesh Generator
+     * 
+     * Creates a honeycomb mesh surrounded by ghost nodes
+     * 
+     * @param numCellWidth  The number of stem cells you want
+     * @param numCellDepth  The number of cells you want along crypt axis
+     * 
+     * Note: this class creates a cancer params instance and sets the crypt width and length
+     * accordingly in the parameters class.
+     */
     CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth)
     {
         mNumCellWidth = numCellWidth;
@@ -313,7 +324,9 @@ public:
      * @param width  The width (circumference) of a crypt in adult cell
      * @param ghosts The thickness of ghost nodes to put around the edge (defaults to 3)
      * 
-    */
+     * Note: this class creates a cancer params instance and sets the crypt width and length
+     * accordingly in the parameters class.
+     */
     CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3)
     {
         mNumCellWidth = numNodesAlongWidth;

@@ -41,6 +41,10 @@ public:
         {
             TS_ASSERT(ghost_node_indices[i]==i);
         }
+        CancerParameters* p_params = CancerParameters::Instance();
+        TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
+        TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);
+        
     }
     
     void TestCryptPeriodicHoneycombMeshGenerator() throw(Exception)
@@ -92,6 +96,11 @@ public:
         }
         // Check that the next ghost node is the other side of the stem cells...
         TS_ASSERT_EQUALS(ghost_node_indices[this_many_ghosts_at_start],this_many_ghosts_at_start+num_cells_width+1)
+                
+        CancerParameters* p_params = CancerParameters::Instance();
+        TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
+        TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
+        
     }
 };
 
