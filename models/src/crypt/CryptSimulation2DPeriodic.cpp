@@ -315,56 +315,21 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
             if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
             //if (mrMesh.GetNode(cell_index)->IsDead()) skip=true; // Skip dead cells
             if (mIsGhostNode[cell_index]) skip=true; // Skip Ghost nodes
-            bool periodic_cell = false;
-            unsigned periodic_index = 0; // Index of the periodic cell in the boundary, as opposed to in the mesh
             
             // Check if this cell is on the periodic boundary; there are more conditions if it is
             if (!skip && mPeriodicSides)
             {
-                for (unsigned boundary_index=0 ; boundary_index < mRightCryptBoundary.size() ; boundary_index++)
+                if ( (mLeftToRightBoundary.find(cell_index) != mLeftToRightBoundary.end() 
+                      && mPeriodicDivisionBuffer > 0)
+                    // Only allow one periodic cell division per
+                    // timestep so that mesh can catch up with it.
+                    // it will divide next timestep anyway 
+                    || mRightToLeftBoundary.find(cell_index) != mRightToLeftBoundary.end()
+                    // Only allow one periodic boundary to have divisions...
+                   )
                 {
-                    if (mRightCryptBoundary[boundary_index]==cell_index)
-                    {   // Only allow one periodic boundary to have divisions...
-                        skip=true;
-                    }
-                    if (mLeftCryptBoundary[boundary_index]==cell_index)
-                    {
-                        if (mPeriodicDivisionBuffer>0)
-                        {
-                            // Only allow one periodic cell division per
-                            // timestep so that mesh can catch up with it.
-                            // it will divide next timestep anyway
-                            skip=true;
-                        }
-                        else
-                        {
-                            periodic_cell = true;
-                            periodic_index = boundary_index;
-                        }
-                    }
+                    skip=true;
                 }
-//                std::map<unsigned, unsigned>::iterator boundary_iterator = mRightToLeftBoundary.find(cell_index);
-//                if (mRightToLeftBoundary.find(cell_index) != mRightToLeftBoundary.end())
-//                {
-//                     // Only allow one periodic boundary to have divisions...
-//                    skip = true;
-//                }
-//                boundary_iterator = mLeftToRightBoundary.find(cell_index);
-//                if (boundary_iterator != mLeftToRightBoundary.end())
-//                {
-//                    if (mPeriodicDivisionBuffer>0)
-//                        {
-//                            // Only allow one periodic cell division per
-//                            // timestep so that mesh can catch up with it.
-//                            // it will divide next timestep anyway
-//                            skip=true;
-//                        }
-//                        else
-//                        {
-//                            periodic_cell = true;
-//                            periodic_index = boundary_index;
-//                        }
-//                }
             }
             if (!skip)
             {
@@ -390,7 +355,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         mPeriodicDivisionBuffer=3;
                         //Make sure the image cell knows it has just divided and aged a generation
                         unsigned image_cell_index = mLeftToRightBoundary[cell_index];
-                        mCells[image_cell_index]=mCells[mLeftCryptBoundary[periodic_index]];
+                        mCells[image_cell_index]=mCells[cell_index];
                         mCells[image_cell_index].SetNodeIndex(image_cell_index);
                     }
                     else
@@ -434,7 +399,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                     }
                     num_births++;
 
-                    if (mReMesh && periodic_cell)
+                    if (mReMesh && mLeftToRightBoundary.find(cell_index)!=mLeftToRightBoundary.end())
                     {
                         ReMesh();
                     }
@@ -506,21 +471,20 @@ unsigned CryptSimulation2DPeriodic::DoCellRemoval()
                 {
                     mIsGhostNode[p_node->GetIndex()] = true;
                     num_deaths++;
-                    if (mPeriodicSides)
+                    
+                    // And delete the periodic image if appropriate.(don't count as a death since it is an image)
+                    for (unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
                     {
-                        // And delete the periodic image if appropriate.(don't count as a death since it is an image)
-                        for (unsigned j=0 ; j<mLeftCryptBoundary.size() ; j++)
+                        if ((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
                         {
-                            if ((unsigned)p_node->GetIndex()==mLeftCryptBoundary[j])
-                            {
-                                mIsGhostNode[mRightCryptBoundary[j]]=true;
-                            }
-                            if ((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
-                            {
-                                mIsGhostNode[mLeftCryptBoundary[j]]=true;
-                            }
+                            mIsGhostNode[mRightCryptBoundary[j]]=true;
+                        }
+                        if ((unsigned)p_node->GetIndex()==mRightCryptBoundary[j])
+                        {
+                            mIsGhostNode[mLeftCryptBoundary[j]]=true;
                         }
                     }
+                    
                     //std::cout<< "num_deaths=" << num_deaths <<std::endl<< std::flush;
                 }
             }
