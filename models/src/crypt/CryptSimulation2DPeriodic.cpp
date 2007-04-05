@@ -344,7 +344,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                     }
                 }
 //                std::map<unsigned, unsigned>::iterator boundary_iterator = mRightToLeftBoundary.find(cell_index);
-//                if (boundary_iterator != mRightToLeftBoundary.end())
+//                if (mRightToLeftBoundary.find(cell_index) != mRightToLeftBoundary.end())
 //                {
 //                     // Only allow one periodic boundary to have divisions...
 //                    skip = true;
@@ -384,13 +384,14 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                 {
                     // Create new cell
                     MeinekeCryptCell new_cell = mCells[cell_index].Divide();
-                    if (mPeriodicSides && periodic_cell)
+                    if (mPeriodicSides && mLeftToRightBoundary.find(cell_index)!=mLeftToRightBoundary.end())
                     {
                         std::cout << "Periodic Division\n";
                         mPeriodicDivisionBuffer=3;
                         //Make sure the image cell knows it has just divided and aged a generation
-                        mCells[mRightCryptBoundary[periodic_index]]=mCells[mLeftCryptBoundary[periodic_index]];
-                        mCells[mRightCryptBoundary[periodic_index]].SetNodeIndex(mRightCryptBoundary[periodic_index]);
+                        unsigned image_cell_index = mLeftToRightBoundary[cell_index];
+                        mCells[image_cell_index]=mCells[mLeftCryptBoundary[periodic_index]];
+                        mCells[image_cell_index].SetNodeIndex(image_cell_index);
                     }
                     else
                     {
