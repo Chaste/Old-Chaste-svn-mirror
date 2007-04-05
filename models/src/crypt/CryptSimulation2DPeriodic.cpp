@@ -736,11 +736,13 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
     {
         // Add up the forces on paired up nodes
         // loop through size of left boundaries
-        for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
+    for (std::map <unsigned, unsigned>::iterator iterator = mLeftToRightBoundary.begin();
+         iterator != mLeftToRightBoundary.end();
+         iterator++)
         {
-            c_vector<double,2> force = drdt[mLeftCryptBoundary[i]] + drdt[mRightCryptBoundary[i]];
-            drdt[mLeftCryptBoundary[i]] = force;
-            drdt[mRightCryptBoundary[i]] = force;
+            c_vector<double,2> force = drdt[iterator->first] + drdt[iterator->second];
+            drdt[iterator->first] = force;
+            drdt[iterator->second] = force;
         }
     }
     
@@ -1131,14 +1133,12 @@ void CryptSimulation2DPeriodic::DetectNaughtyCellsAtPeriodicEdges()
         
         std::vector<unsigned> periodic;
         
-        for (unsigned j = 0 ; j<nodes_on_left_boundary.size() ; j++)
+        if (mLeftToRightBoundary.find(our_node) != mLeftToRightBoundary.end()
+            || mRightToLeftBoundary.find(our_node) != mRightToLeftBoundary.end() )
         {
-            if (our_node == nodes_on_left_boundary[j] || our_node == nodes_on_right_boundary[j])
-            {
-                our_node_periodic = true;
-                break;
-            }
+            our_node_periodic=true;
         }
+                
         
         if (!our_node_periodic)
         {
