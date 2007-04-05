@@ -286,7 +286,6 @@ public:
 //		double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
         double crypt_length = 4.0;
         p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -455,7 +454,6 @@ public:
     //////////////////////////////////////////////////////////////////
     void Test2DCorrectCellNumbers() throw (Exception)
     {
-        std::cout << "Got to here 6\n" << std::flush;
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
         
@@ -576,10 +574,6 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -710,10 +704,6 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -848,10 +838,6 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -996,10 +982,6 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -1107,10 +1089,6 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);

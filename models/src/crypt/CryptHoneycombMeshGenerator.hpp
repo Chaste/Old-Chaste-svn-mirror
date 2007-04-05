@@ -6,7 +6,7 @@
 
 #include <vector>
 #include "OutputFileHandler.hpp"
-
+#include "CancerParameters.hpp"
 
 /**
  *  Generator of honeycomb mesh
@@ -297,6 +297,10 @@ public:
         mpMesh->ConstructFromMeshReader(mesh_reader);
         
         ComputeGhostNodes();
+        
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->SetCryptLength(mCryptDepth);
+        p_params->SetCryptWidth(mCryptWidth);
     }
     
     /**
@@ -327,6 +331,11 @@ public:
         mpMesh->ConstructFromMeshReader(mesh_reader);
         
         ComputeGhostNodes();
+        
+        CancerParameters* p_params = CancerParameters::Instance();
+        p_params->SetCryptLength(mCryptDepth);
+        p_params->SetCryptWidth(mCryptWidth);
+        
     }
     
     ConformingTetrahedralMesh<2,2>* GetMesh()

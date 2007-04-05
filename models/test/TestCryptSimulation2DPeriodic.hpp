@@ -136,10 +136,6 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -255,10 +251,6 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -356,10 +348,6 @@ public:
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
-        
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
@@ -445,10 +433,6 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -546,10 +530,6 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        double crypt_length = (double)cells_up*(sqrt(3)/2)*crypt_width/(double)cells_across;
-        p_params->SetCryptLength(crypt_length);
-        p_params->SetCryptWidth(crypt_width);
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -1178,15 +1158,6 @@ public:
                 }
             }
         }
-        
-//TODO:
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         * Test CalculateForceInThisBoundarySpring
-         ************************************************************************
-         ************************************************************************ 
-         */
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

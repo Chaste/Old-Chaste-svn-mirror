@@ -445,8 +445,9 @@ public:
         
         Node<3> *fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
         TS_ASSERT_THROWS_ANYTHING(element.ReplaceNode(fake_node,fake_node));
+        delete fake_node;
         
-       for (unsigned i=0; i<nodes.size(); i++)
+        for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
         }
