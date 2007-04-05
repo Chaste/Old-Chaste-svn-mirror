@@ -349,7 +349,70 @@ void TestOne3dElement() throw (Exception)
         simulator2.UpdateNodePositions(new_forces2);
         TrianglesMeshWriter<3,3> mesh_writer2("","3dSpringTetrahedronMeshEnd2");
         mesh_writer2.WriteFilesUsingMesh(mesh2);  
+        
+        
+        /*
+         ************************************************************************
+         ************************************************************************ 
+         *  Test Cell Birth
+         ************************************************************************
+         ************************************************************************ 
+         */
                 
+        ConformingTetrahedralMesh<3,3> mesh3;
+        mesh3.ConstructFromMeshReader(mesh_reader);
+        
+        std::vector<MeinekeCryptCell> cells2;
+        
+        for(unsigned i=0; i< mesh.GetNumNodes()-1; i++)
+        {
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(0.0);
+            cells2.push_back(cell);
+        }
+        // Setting last cell to undergo cell birth.
+        cell.SetNodeIndex(mesh.GetNumNodes()-1);
+        cell.SetBirthTime(-50.0);
+        cells2.push_back(cell);
+        
+        SpheroidSimulation3D simulator3 = SpheroidSimulation3D(mesh3,cells2);
+//        simulator3.SetMaxCells(10);
+//        simulator3.SetMaxElements(10);
+//        simulator3.SetOutputDirectory("Test3DCellBirth");
+//        std::string output_directory = "Test3DCellBirth";
+//        ColumnDataWriter tabulated_node_writer(output_directory+"/tab_results", "tabulated_node_results");
+//        ColumnDataWriter tabulated_element_writer(output_directory+"/tab_results", "tabulated_element_results");
+//        node_writer_ids_t node_writer_ids;
+//        element_writer_ids_t element_writer_ids;
+//        simulator3.SetupNodeWriter(tabulated_node_writer, node_writer_ids);
+//        simulator3.SetupElementWriter(tabulated_element_writer, element_writer_ids);
+//        
+//        simulator3.SetReMeshRule(true);
+//        simulator3.SetEndTime(5);
+//        simulator3.Solve();
+//        SpheroidSimulation3D simulator(mesh,cells);
+        
+        TrianglesMeshWriter<3,3> mesh_writer3("Test3DCellBirth","StartMesh");
+        mesh_writer3.WriteFilesUsingMesh(mesh3);
+        
+        simulator3.SetMaxCells(10);
+        simulator3.SetMaxElements(25);
+        simulator3.SetOutputDirectory("Test3DCellBirth");
+        
+        // Set to re-mesh
+        simulator3.SetReMeshRule(true);
+        simulator3.SetEndTime(1.0);
+        
+        simulator3.Solve();
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        
+        TrianglesMeshWriter<3,3> mesh_writer4("Test3DCellBirth","EndMesh",false); 
+        mesh_writer4.WriteFilesUsingMesh(mesh3);
+        
+        TS_ASSERT_EQUALS(mesh3.GetNumNodes(),5u);
+        TS_ASSERT_EQUALS(mesh3.GetNumElements(),4u);
+        
    }
    
    void TestPrivateFunctionsOfSpheroidSimulation3D() throw (Exception)
@@ -467,6 +530,73 @@ void TestOne3dElement() throw (Exception)
         RandomNumberGenerator::Destroy();
         
         TrianglesMeshWriter<3,3> mesh_writer2("TestSolveMethodSpheroidSimulation3DMesh","EndMesh",false); 
+        mesh_writer2.WriteFilesUsingMesh(mesh);
+        
+       
+    }
+    
+    void NoTestGhostNodesSpheroidSimulation3D() throw (Exception)
+    {
+        CancerParameters *p_params = CancerParameters::Instance();
+        RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
+                
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TrianglesMeshWriter<3,3> mesh_writer("TestGhostNodesSpheroidSimulation3D","StartMesh");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+
+        // Set up cells by iterating through the mesh nodes
+        unsigned num_cells = mesh.GetNumAllNodes();
+        std::vector<MeinekeCryptCell> cells;
+        
+        c_vector<double, 3> spheroid_centre;
+        spheroid_centre[0] = 0.5;
+        spheroid_centre[1] = 0.5;
+        spheroid_centre[2] = 0.5;
+        
+        std::vector<unsigned> ghost_node_indices;
+
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            CryptCellType cell_type;
+            unsigned generation;
+            
+            c_vector<double, 3> node_location = mesh.GetNode(i)->rGetLocation();
+            if ( norm_2(node_location - spheroid_centre) > 0.4 )
+            {
+                ghost_node_indices.push_back(i);
+            }
+                
+            cell_type = STEM;
+            generation = 0;
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);    
+            cell.SetBirthTime(p_random_num_gen->ranf()*p_params->GetStemCellCycleTime());            
+            cells.push_back(cell);
+        } 
+        
+        SpheroidSimulation3D simulator(mesh,cells);
+        
+        simulator.SetGhostNodes(ghost_node_indices);
+        
+        simulator.SetMaxCells(1000);
+        simulator.SetMaxElements(2500);
+        simulator.SetOutputDirectory("TestGhostNodesSpheroidSimulation3D");
+        
+        // Set to re-mesh
+        simulator.SetReMeshRule(true);
+        simulator.SetEndTime(5);
+        
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        
+        TrianglesMeshWriter<3,3> mesh_writer2("TestGhostNodesSpheroidSimulation3D","EndMesh",false); 
         mesh_writer2.WriteFilesUsingMesh(mesh);
         
        

@@ -334,8 +334,8 @@ unsigned SpheroidSimulation3D::DoCellBirth()
                 // Add new node to mesh
                 Element<3,3>* p_element = FindElementForBirth(p_our_node, cell_index);
                                                               
-                //std::cout << "New cell being intoduced into element with nodes \n";
-                //std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\n";
+                std::cout << "New cell being intoduced into element with nodes \n";
+                std::cout << p_element->GetNodeGlobalIndex(0) << "\t" << p_element->GetNodeGlobalIndex(1) << "\t" <<p_element->GetNodeGlobalIndex(2) << "\t" << p_element->GetNodeGlobalIndex(3) << "\n";
                 double x = p_our_node->rGetLocation()[0];
                 double y = p_our_node->rGetLocation()[1];
                 double z = p_our_node->rGetLocation()[2];
