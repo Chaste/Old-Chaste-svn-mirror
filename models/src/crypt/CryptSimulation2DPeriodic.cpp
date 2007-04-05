@@ -398,8 +398,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                     }
                     
                     // Add new node to mesh
-                    Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index,
-                                                                  periodic_cell, periodic_index);
+                    Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index);
 
                     c_vector<double, 2> node_to_centroid = p_element->CalculateCentroid()
                                                           - p_our_node->rGetLocation();
@@ -549,8 +548,7 @@ unsigned CryptSimulation2DPeriodic::DoCellRemoval()
  * @param periodicIndex  the index of this cell on the periodic boundary; 0 if it isn't there
  * @return  a (pointer to a) suitable element
  */
-Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode, unsigned cellIndex,
-        const bool periodicCell, const unsigned periodicIndex)
+Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode, unsigned cellIndex)
 {
     // Pick a random element to start with
     Element<2,2>* p_element = mrMesh.GetElement(rpOurNode->GetNextContainingElementIndex());
@@ -583,12 +581,11 @@ Element<2,2>* CryptSimulation2DPeriodic::FindElementForBirth(Node<2>*& rpOurNode
             counter++;
             if (counter >= rpOurNode->GetNumContainingElements())
             {
-                std::set <unsigned>::iterator set_iterator = mPeriodicNodes.find(rpOurNode->GetIndex());
-                assert(set_iterator!=mPeriodicNodes.end()); // somehow every connecting element is a ghost element. quit to
-                                                            // avoid infinite loop
-                std::map <unsigned, unsigned>::iterator map_iterator = mRightToLeftBoundary.find(cellIndex);
-                assert(map_iterator==mRightToLeftBoundary.end()); // We already swapped; give up
-                rpOurNode = mrMesh.GetNode(mRightCryptBoundary[periodicIndex]);
+                assert(mPeriodicNodes.find(rpOurNode->GetIndex())!=mPeriodicNodes.end());
+                    // somehow every connecting element is a ghost element. quit to avoid infinite loop
+                assert(mRightToLeftBoundary.find(cellIndex)==mRightToLeftBoundary.end());
+                    // We already swapped; give up
+                rpOurNode = mrMesh.GetNode(mLeftToRightBoundary[cellIndex]);
             }
             p_element = mrMesh.GetElement(rpOurNode->GetNextContainingElementIndex());
         }
@@ -1031,6 +1028,11 @@ void CryptSimulation2DPeriodic::UpdateCellTypes()
 /**
 * Method to calculate the boundary of the crypt within the whole mesh ie the interface
 * between normal and ghost nodes.
+* 
+* NB. Currently the crypt boundary is stored in two different data structures:
+* (1) using standard vectors,
+* (2) using other containers such as maps and sets.
+* We plan to get rid of (1) eventually but keep it there while we refactor.
 */
 void CryptSimulation2DPeriodic::CalculateCryptBoundary()
 {
@@ -1134,12 +1136,10 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
     assert(nodes_on_boundary.size()==mBoundary.size());
     for (unsigned i=0; i<nodes_on_boundary.size(); i++)
     {
-        std::set <unsigned>::iterator assert_iterator = mBoundary.find(nodes_on_boundary[i]);
-        assert(assert_iterator!=mBoundary.end());
+        assert(mBoundary.find(nodes_on_boundary[i])!=mBoundary.end());
         if (mIsPeriodicNode[nodes_on_boundary[i]])
         {
-            assert_iterator = mPeriodicNodes.find(nodes_on_boundary[i]);
-            assert(assert_iterator!=mPeriodicNodes.end());
+            assert(mPeriodicNodes.find(nodes_on_boundary[i])!=mPeriodicNodes.end());
         }
     }    
     assert (nodes_on_left_boundary.size() == mLeftToRightBoundary.size() );
@@ -1153,23 +1153,6 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
     mLeftCryptBoundary =  nodes_on_left_boundary;
     mRightCryptBoundary =  nodes_on_right_boundary;
     mCryptBoundary =  nodes_on_boundary;
-    
-    //std::cout << "Total boundary nodes = " << nodes_on_boundary.size() << " left boundary nodes = " << nodes_on_left_boundary.size() << "\n";
-    
-//		// Work out if there has been a change in the boundary since last time this was run
-//		if(mLeftCryptBoundary!=mOldLeftCryptBoundary)
-//		{
-//			std::cout << "Left Crypt Boundary vector changed.\n";
-//
-//		}
-//		if (mRightCryptBoundary!=mOldRightCryptBoundary)
-//		{
-//			std::cout << "Right Crypt Boundary vector changed.\n";
-//		}
-//		if(mCryptBoundary!=mOldCryptBoundary)
-//		{
-//			std::cout << "Total Boundary vector changed.\n";
-//		}
 }
 
 /**

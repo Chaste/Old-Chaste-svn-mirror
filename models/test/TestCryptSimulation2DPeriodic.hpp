@@ -863,8 +863,7 @@ public:
         unsigned num_deaths = simulator.DoCellRemoval();
         unsigned num_births = simulator.DoCellBirth();
         Node<2> *p_node = mesh.GetNode(60);
-        Element<2,2>* p_element = simulator.FindElementForBirth(p_node, 60u,
-                                                                false, 0u);
+        Element<2,2>* p_element = simulator.FindElementForBirth(p_node, 60u);
                                                                 
         TS_ASSERT_EQUALS(num_births, 1u);
         TS_ASSERT_EQUALS(num_deaths,11u);
