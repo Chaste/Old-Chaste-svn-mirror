@@ -1087,7 +1087,7 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
             nodes_on_boundary.push_back(i);
         }
     }
-    
+    assert(nodes_on_boundary.size()==mBoundary.size());
     
     
     for (unsigned i=0; i<nodes_on_boundary.size(); i++)
@@ -1142,7 +1142,21 @@ void CryptSimulation2DPeriodic::CalculateCryptBoundary()
         {
             assert(mPeriodicNodes.find(nodes_on_boundary[i])!=mPeriodicNodes.end());
         }
-    }    
+    }   
+    
+// DEBUG: write out nodes_on_right_boundary and mRightToLeftBoundary
+//    for (unsigned i=0; i<nodes_on_right_boundary.size(); i++)
+//    {
+//        std::cout << nodes_on_right_boundary[i] << " " << std::flush;
+//    }   
+//    std::cout<< std::endl ;
+//    for (std::map <unsigned, unsigned>::iterator iterator = mRightToLeftBoundary.begin();
+//         iterator != mRightToLeftBoundary.end();
+//         iterator++)
+//    {
+//        std::cout << iterator->first << " " << std::flush;
+//    }
+//    std::cout<< std::endl ;
     assert (nodes_on_left_boundary.size() == mLeftToRightBoundary.size() );
     assert (nodes_on_right_boundary.size() == mRightToLeftBoundary.size() );
     for (unsigned i=0; i<nodes_on_left_boundary.size(); i++)
