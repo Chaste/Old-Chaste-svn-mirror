@@ -108,9 +108,75 @@ public:
                 TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
             }
         }
-        
     }
     
+    // test 3d remesh - very similar test to TestOperationOfTetgenMoveNodes above, but
+    // uses mesh.Remesh() instead of calling tetgen from here
+    void TestRemesh3dMoveNodes() throw (Exception)
+    {
+        OutputFileHandler handler("");
+        
+        TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> old_mesh;
+        old_mesh.ConstructFromMeshReader(mesh_reader2);
+
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            Point<3> point = mesh.GetNode(i)->GetPoint();
+            Point<3> old_mesh_point = old_mesh.GetNode(i)->GetPoint();
+            for (int j=0; j<3; j++)
+            {
+                if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
+                {
+                    point.SetCoordinate(j, point[j]+9e-2);
+                    old_mesh_point.SetCoordinate(j, old_mesh_point[j]+9e-2);
+                }
+            }
+            
+            mesh.GetNode(i)->SetPoint(point);
+            old_mesh.GetNode(i)->SetPoint(old_mesh_point);
+        }
+        mesh.RefreshMesh();
+        old_mesh.RefreshMesh();
+
+        double old_volume=mesh.CalculateMeshVolume();
+        TS_ASSERT_DELTA(1, old_volume, 1e-7);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),375U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),1626U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(),390U);
+        
+        NodeMap map(mesh.GetNumNodes());
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), old_mesh.GetNumBoundaryElements());
+        
+        TS_ASSERT_EQUALS(mesh.GetNumElements()+1, old_mesh.GetNumElements());
+        
+        //Test to see whether triangle/ tetgen is renumbering the nodes
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            // the map turns out to be the identity map in this test
+            TS_ASSERT_EQUALS(map.GetNewIndex(i),i);
+            
+            const c_vector<double, 3> node_loc1 = mesh.GetNode(map.GetNewIndex(i))->rGetLocation();
+            const c_vector<double, 3> node_loc2 = old_mesh.GetNode(i)->rGetLocation();
+            
+            for (int j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
+            }
+        }    
+        
+        double new_volume=mesh.CalculateMeshVolume();
+        TS_ASSERT_DELTA(old_volume, new_volume, 1e-7);    
+    }
+    
+
     void TestOperationOfTetgenMoveNodes() throw (Exception)
     {
         OutputFileHandler handler("");
@@ -133,8 +199,7 @@ public:
             mesh.GetNode(i)->SetPoint(point);
         }
         mesh.RefreshMesh();
-        
-        
+
         
         double volume=mesh.CalculateMeshVolume();
         TS_ASSERT_DELTA(1, volume, 1e-7);
@@ -174,9 +239,9 @@ public:
                 TS_ASSERT_DELTA(node_loc1[j],node_loc2[j],1e-6);
             }
         }
-        
     }
-    
+
+
     void TestRemeshWithDeletions()
     {
         OutputFileHandler handler("");
