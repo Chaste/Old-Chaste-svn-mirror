@@ -9,7 +9,6 @@
 #include "TrianglesMeshWriter.cpp"
 #include "Exception.hpp"
 #include "SimulationTime.hpp"
-//#include "StochasticCellCycleModel.hpp"
 #include "ColumnDataWriter.hpp"
 #include "MeinekeCryptCellTypes.hpp"
 //#include "WntCellCycleModel.hpp"
@@ -313,17 +312,9 @@ unsigned SpheroidSimulation3D::DoCellBirth()
             
             if (skip) continue;
             
-            // Check for this cell dividing
-            //std::cout << "On cell "<< i << std::endl;
             // Construct any influences for the cell cycle...
             Node<3> *p_our_node = mrMesh.GetNode(cell_index);
             std::vector<double> cell_cycle_influences;
-//            if (mWntIncluded)
-//            {
-//                double y = p_our_node->rGetLocation()[1];
-//                //double wnt_stimulus = mWntGradient.GetWntLevel(y);
-//                cell_cycle_influences.push_back(wnt_stimulus);
-//            }
             
             // CHECK if this cell is ready to divide - if so create a new cell etc.
             if (mCells[cell_index].ReadyToDivide(cell_cycle_influences))
@@ -765,35 +756,12 @@ void SpheroidSimulation3D::UpdateNodePositions(const std::vector< std::vector<do
 {
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
-        //std::cout << "Node " << index << "\t x_force = " << drdt[index][0] << "\t y_force = " << drdt[index][1] << "\n";
-       
         if (!mrMesh.GetNode(index)->IsDeleted())
         {
             Point<3> new_point = GetNewNodeLocation(index,rDrDt);
             mrMesh.SetNode(index, new_point, false);
-        }
-            
-        
+        }         
     }
-    
-//    // Ensure no errors can creep in and move left nodes to same position as right ones
-//    if (mPeriodicSides)
-//    {
-//        for (unsigned i = 0; i < mLeftCryptBoundary.size();i++)
-//        {
-//            unsigned right_node_index = mRightCryptBoundary[i];
-//            unsigned left_node_index = mLeftCryptBoundary[i];
-//            c_vector<double,2> right_point = mrMesh.GetNode(right_node_index)->rGetLocation();
-//            Point<3> left_point;
-//            left_point.rGetLocation()[0] = right_point[0]-mpParams->GetCryptWidth();
-//            left_point.rGetLocation()[1] = right_point[1];
-//            mrMesh.SetNode(left_node_index, left_point, false);
-//            // Also force them to be the same cell
-//            // needed to synchronise cell cycle models (as R periodic cell cycle models are not run)...
-//            mCells[right_node_index]=mCells[left_node_index];
-//            mCells[right_node_index].SetNodeIndex(right_node_index);
-//        }
-//    }
 }
 
 Point<3> SpheroidSimulation3D::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< std::vector<double> >& rDrDt)
@@ -871,34 +839,6 @@ void SpheroidSimulation3D::ReMesh()
     if (mReMesh)
     {
         CallReMesher();
-        
-//        if (mPeriodicSides)
-//        {
-//            mOldLeftCryptBoundary = mLeftCryptBoundary;
-//            mOldRightCryptBoundary = mRightCryptBoundary;
-//            mOldCryptBoundary = mCryptBoundary;
-//            
-//            CalculateCryptBoundary();
-//            
-//            // do this once every time (sometimes mCryptBoundary does not change
-//            // but the connections between the nodes have changed)
-//            RemoveSurplusCellsFromPeriodicBoundary();
-//            DetectNaughtyCellsAtPeriodicEdges();
-//            
-//            while (mNodesMoved)
-//            {
-//                CallReMesher();
-//                
-//                mOldLeftCryptBoundary = mLeftCryptBoundary;
-//                mOldRightCryptBoundary = mRightCryptBoundary;
-//                mOldCryptBoundary = mCryptBoundary;
-//                
-//                CalculateCryptBoundary();
-//                
-//                RemoveSurplusCellsFromPeriodicBoundary();
-//                DetectNaughtyCellsAtPeriodicEdges();
-//            }
-//        }
     }
 }
 
@@ -1041,16 +981,6 @@ void SpheroidSimulation3D::SetNoBirth(bool nobirth)
 }
 
 /**
- * This automatically sets this to be a wnt dependent simulation.
- * You should supply cells with a wnt cell cycle...
- */
-//void SpheroidSimulation3D::SetWntGradient(WntGradientType wntGradientType)
-//{
-//    mWntIncluded = true;
-//    mWntGradient = WntGradient(wntGradientType);
-//}
-
-/**
  * Set this simulation to use a cell killer
  */
 void SpheroidSimulation3D::SetCellKiller(RandomCellKiller<3>* pCellKiller)
@@ -1133,10 +1063,10 @@ void SpheroidSimulation3D::Solve()
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     double current_time = p_simulation_time->GetDimensionalisedTime();
-    std::cout << "Time at start of Solve Method = " << current_time << std::endl;
+    std::cout << "Time at start of Solve Method = \n" << current_time << std::flush;
     
     unsigned num_time_steps = (unsigned) ((mEndTime-current_time)/mDt+0.5);
-    std::cout << "num timesteps = " << num_time_steps << std::endl;
+    std::cout << "num timesteps = " << num_time_steps << "\n" << std::flush;
     if (current_time>0)//use the reset function if necessary
     {
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
@@ -1220,7 +1150,7 @@ void SpheroidSimulation3D::Solve()
         CheckIndicesAreInSync();
         
         mRemeshesThisTimeStep = 0; // To avoid infinite loops
-        std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
+ //       std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
         
         // Cell birth
         mNumBirths += DoCellBirth();
