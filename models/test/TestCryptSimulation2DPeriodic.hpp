@@ -21,9 +21,7 @@
 #include "CryptHoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
 
-/**
- * Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
- */
+// Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
 {
     FIXED,
@@ -31,6 +29,7 @@ typedef enum CellCycleType_
     WNT,
     TYSONNOVAK
 } CellCycleType;
+
 
 class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
 {
@@ -122,23 +121,25 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     }
     
     void CreateVectorOfCells(std::vector<MeinekeCryptCell>& rCells, 
-                                ConformingTetrahedralMesh<2,2>& rMesh, 
-                                CellCycleType cycleType, 
-                                bool randomBirthTimes,
-                                double y0 = 0.3,
-                                double y1 = 2.0,
-                                double y2 = 3.0,
-                                double y3 = 4.0)
+                             ConformingTetrahedralMesh<2,2>& rMesh, 
+                             CellCycleType cycleType, 
+                             bool randomBirthTimes,
+                             double y0 = 0.3,
+                             double y1 = 2.0,
+                             double y2 = 3.0,
+                             double y3 = 4.0)
     {
         RandomNumberGenerator *p_random_num_gen=RandomNumberGenerator::Instance();
         unsigned num_cells = rMesh.GetNumNodes();
 
         AbstractCellCycleModel* p_cell_cycle_model = NULL;
-        double typical_cycle_time;
+        double typical_transit_cycle_time;
+        double typical_stem_cycle_time;
+        
+        CancerParameters* p_params = CancerParameters::Instance();
         
         for (unsigned i=0; i<num_cells; i++)
         {
-            
             CryptCellType cell_type;
             unsigned generation;
 
@@ -147,24 +148,28 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             if (cycleType==FIXED)
             {
                 p_cell_cycle_model = new FixedCellCycleModel();
-                typical_cycle_time = 12.0;
+                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
+                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
             }
             else if (cycleType==STOCHASTIC)
             {
                 p_cell_cycle_model = new StochasticCellCycleModel();
-                typical_cycle_time = 12.0;
+                typical_transit_cycle_time = p_params->GetTransitCellCycleTime();
+                typical_stem_cycle_time = p_params->GetStemCellCycleTime();
             }
             else if (cycleType==WNT)
             {
                 WntGradient wnt_gradient(LINEAR);
                 double wnt = wnt_gradient.GetWntLevel(y);
                 p_cell_cycle_model = new WntCellCycleModel(wnt,0);
-                typical_cycle_time = 16.0;
+                typical_transit_cycle_time = 16.0;
+                typical_stem_cycle_time = typical_transit_cycle_time;
             }
             else if (cycleType==TYSONNOVAK)
             {
                 p_cell_cycle_model = new TysonNovakCellCycleModel();
-                typical_cycle_time = 1.25;
+                typical_transit_cycle_time = 1.25;
+                typical_stem_cycle_time = typical_transit_cycle_time;
             }
             else
             {
@@ -172,40 +177,55 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
             }
             
             
-            
-            
             double birth_time = 0.0;
-            if(randomBirthTimes)
-            {
-                birth_time = -p_random_num_gen->ranf()*typical_cycle_time; // hours - doesn't matter for stem cell;
-            }
             
             if (y <= y0)
             {
                 cell_type = STEM;
                 generation = 0;
+                if(randomBirthTimes)
+                {
+                    birth_time = -p_random_num_gen->ranf()*typical_stem_cycle_time; // hours
+                }
             }
             else if (y < y1)
             {
                 cell_type = TRANSIT;
                 generation = 1;
+                if(randomBirthTimes)
+                {
+                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                }
             }
             else if (y < y2)
             {
                 cell_type = TRANSIT;
                 generation = 2;
+                if(randomBirthTimes)
+                {
+                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                }
             }
             else if (y < y3)
             {
                 cell_type = TRANSIT;
                 generation = 3;
+                if(randomBirthTimes)
+                {
+                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                }
             }
             else
             {
+                if(randomBirthTimes)
+                {
+                    birth_time = -p_random_num_gen->ranf()*typical_transit_cycle_time; // hours 
+                }
                 if(cycleType==WNT || cycleType==TYSONNOVAK)
                 {
                     // There are no fully differentiated cells!
                     cell_type = TRANSIT;
+                    
                 }
                 else
                 {
@@ -214,21 +234,14 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
                 generation = 4;
             }
 
-  
-
-            MeinekeCryptCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
+             MeinekeCryptCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
             
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);
             rCells.push_back(cell);
         }
     }
-    
-    
-    
 public:
-
-
 
     // This is a rubbish test - all cells start at birthTime = 0.
     // So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
@@ -297,6 +310,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
+
     // Testing Save (based on previous test)
     void TestSave() throw (Exception)
     {
@@ -343,6 +357,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
+
     // Testing Load (based on previous test)
     void TestLoad() throw (Exception)
     {
@@ -468,6 +483,7 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+
     
     // This is strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though...
@@ -552,6 +568,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
+
     void TestCalculateCryptBoundaries()
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
@@ -841,13 +858,11 @@ public:
         std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh2->GetNumAllNodes());
         
         velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
-        //std::cout << "d test \n " << std::endl;
         bool is_a_ghost_node;
 
         
         for (unsigned i=0; i<p_mesh2->GetNumAllNodes(); i++)
         {
-            //std::cout << " i " << i << "forces x " << forces_on_each_node[i][0] << ", y " << forces_on_each_node[i][1] << "\n" << std::endl;
             is_a_ghost_node = false;
             for (unsigned j=0; j<ghost_node_indices2.size(); j++)
             {
@@ -933,10 +948,6 @@ public:
         // move one of the nodes of the boundary element
         unsigned node_index = p_edge->GetNode(0)->GetIndex();
         c_vector<double,2> node_location = p_edge->GetNode(0)->rGetLocation();
-        // debug code to print out the node locations
-        //c_vector<double,2> node1_location = p_edge->GetNode(1)->rGetLocation();
-        //std::cout << "Node 0 " << node_location(0) << "," << node_location(1) << std::endl;
-        //std::cout << "Node 1 " << node1_location(0) << "," << node1_location(1) << std::endl;
         node_location[0] += 0.5;
         p_mesh2->SetNode(node_index, Point<2>(node_location), false);
         
