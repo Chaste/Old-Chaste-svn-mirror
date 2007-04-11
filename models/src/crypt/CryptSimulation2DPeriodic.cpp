@@ -737,7 +737,7 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
     {
         // Add up the forces on paired up nodes
         // loop through size of left boundaries
-    for (std::map <unsigned, unsigned>::iterator iterator = mLeftToRightBoundary.begin();
+        for (std::map <unsigned, unsigned>::iterator iterator = mLeftToRightBoundary.begin();
          iterator != mLeftToRightBoundary.end();
          iterator++)
         {
@@ -747,7 +747,7 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
         }
     }
     
-    // Here we divide all the foces on the nodes by a factor of two because
+    // Here we divide all the forces on the nodes by a factor of two because
     // we looped over them all twice to deal with the boundaries above.
     for (unsigned i=0 ; i<mrMesh.GetNumAllNodes(); i++)
     {
@@ -756,6 +756,8 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
     
     return drdt;
 }
+
+
 
 /**
  * @return the x and y forces in this spring
@@ -782,8 +784,16 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     c_vector<double, 2> unit_difference;
-
-    unit_difference = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation() - mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+    if(mCylindrical)
+    {
+        c_vector<double, 2> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+        c_vector<double, 2> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+        unit_difference = mrMesh.GetVectorFromCylindricalPointAtoB(node_a_location, node_b_location, 0.0, mpParams->GetCryptWidth());   
+    }
+    else
+    { 
+        unit_difference = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation() - mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+    }
     double distance_between_nodes = norm_2(unit_difference);
     
     unit_difference /= distance_between_nodes;
@@ -804,9 +814,7 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const 
 #undef COVERAGE_IGNORE
         }
     }
-    
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
-    
 }
 
 
@@ -885,8 +893,22 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<
 
 Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, 2> >& rDrDt)
 {
-    return Point<2>( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
+    Point<2> new_point( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
                      + mDt*rDrDt[rOldNodeIndex]);
+    if (mCylindrical)
+    {
+        if (new_point.rGetLocation()[0]>=mpParams->GetCryptWidth())
+        {   // move point to the left
+            new_point.SetCoordinate(0u, new_point.rGetLocation()[0]-mpParams->GetCryptWidth());
+            //std::cout << "Moving point to the left\n" << std::flush;
+        }
+        if (new_point.rGetLocation()[0]<0.0)
+        {   // move point to the right
+            new_point.SetCoordinate(0u, new_point.rGetLocation()[0]+mpParams->GetCryptWidth());
+            //std::cout << "Moving point to the right\n" << std::flush;
+        }
+    }
+    return new_point;
 }
 
 /**
@@ -1532,9 +1554,18 @@ void CryptSimulation2DPeriodic::ReMesh()
  */
 void CryptSimulation2DPeriodic::CallReMesher()
 {
-    std::cout << "Remeshing \n"<< std::flush;
-    NodeMap map(mrMesh.GetNumAllNodes());
-    mrMesh.ReMesh(map);
+    
+    NodeMap map(mrMesh.GetNumNodes());
+    if (mCylindrical)
+    {
+        std::cout << "Cylindrical Remeshing \n"<< std::flush;
+        mrMesh.CylindricalReMesh(0.0, mpParams->GetCryptWidth(), map);
+    }
+    else
+    {
+        std::cout << "Remeshing \n"<< std::flush;
+        mrMesh.ReMesh(map);
+    }
         
     // TODO: These commented out because they caused a segmentation
     // fault after the Load function has been called.

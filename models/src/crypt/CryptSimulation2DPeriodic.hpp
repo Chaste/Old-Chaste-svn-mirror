@@ -209,6 +209,7 @@ private:
     unsigned DoCellBirth();
     unsigned DoCellRemoval();
     Element<2,2>* FindElementForBirth(Node<2>*& rpOurNode, unsigned cellIndex);
+    
     std::vector<c_vector<double, 2> > CalculateVelocitiesOfEachNode();
     c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
     c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge);

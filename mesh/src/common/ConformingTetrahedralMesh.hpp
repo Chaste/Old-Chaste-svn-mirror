@@ -327,7 +327,7 @@ public:
      * @param x0 The left x-coord of the sheet to be wrapped into a cylinder.
      * @param x1 The right x-coord  of the sheet to be wrapped into a cylinder.
      */
-    void CylindricalReMesh(double x0, double x1);
+    void CylindricalReMesh(double x0, double x1, NodeMap &map);
     
     /**
      * This method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
@@ -339,9 +339,9 @@ public:
      * @param rXLeft the x value at the left periodic boundary
      * @param rXRight the x value at the right periodic boundary
      * 
-     * @return the distance between the two points
+     * @return the vector from location1 to location2
      */
-    double GetDistanceBetweenCylindricalPoints(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight);
+    c_vector<double, 2> GetVectorFromCylindricalPointAtoB(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight);
 
     /**
      * Returns true if an unsigned is contained in a vector of unsigneds

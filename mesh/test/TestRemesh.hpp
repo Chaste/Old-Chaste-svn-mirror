@@ -622,7 +622,8 @@ public:
         CancerParameters *p_params = CancerParameters::Instance();
         double x0 = 0.0;
         double x1 = p_params->GetCryptWidth();
-        p_mesh->CylindricalReMesh(x0,x1);
+        NodeMap map(p_mesh->GetNumNodes());
+        p_mesh->CylindricalReMesh(x0,x1,map);
 
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up);
@@ -646,7 +647,8 @@ public:
         
         double x0 = 0.0;
         double x1 = p_params->GetCryptWidth();
-        p_mesh->CylindricalReMesh(x0,x1);
+        NodeMap map(p_mesh->GetNumNodes());
+        p_mesh->CylindricalReMesh(x0,x1,map);
 
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up);
@@ -656,7 +658,7 @@ public:
         //Output2DMeshToFile(p_mesh, "node_positions.dat");
     }
     
-    void TestGetDistanceBetweenCyclindricalPoints() throw (Exception)
+    void TestGetVectorBetweenCyclindricalPoints() throw (Exception)
     {
         unsigned cells_across = 3;
         unsigned cells_up = 3;
@@ -675,24 +677,35 @@ public:
         c_vector<double, 2> location2 = p_mesh->GetNode(4)->rGetLocation();
 
         // test a normal distance calculation
-        double distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
-        TS_ASSERT_DELTA(distance, 1.0, 1e-7);
+        c_vector<double, 2> vector = p_mesh->GetVectorFromCylindricalPointAtoB(location1, location2, x0,x1);
+        TS_ASSERT_DELTA(vector[0], 0.5, 1e-7);
+        TS_ASSERT_DELTA(vector[1], sqrt(3.0)/2.0, 1e-7);
+        TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-7);
+        // and the opposite vector
+        vector = p_mesh->GetVectorFromCylindricalPointAtoB(location2, location1, x0,x1);
+        TS_ASSERT_DELTA(vector[0], -0.5, 1e-7);
+        TS_ASSERT_DELTA(vector[1], -sqrt(3.0)/2.0, 1e-7);
+        TS_ASSERT_DELTA(norm_2(vector), 1.0, 1e-7);
         
         // test a periodic calculation
         location1[0] = 0.5;
         location1[1] = 3.0;
         location2[0] = 2.5;
         location2[1] = 4.0;
-        distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
-        TS_ASSERT_DELTA(distance, sqrt(2.0), 1e-7);
+        vector = p_mesh->GetVectorFromCylindricalPointAtoB(location1, location2, x0,x1);
+        TS_ASSERT_DELTA(vector[0], -1.0, 1e-7);
+        TS_ASSERT_DELTA(vector[1], +1.0, 1e-7);
+        TS_ASSERT_DELTA(norm_2(vector), sqrt(2.0), 1e-7);
         
         // test a periodic calculation where points need to be swapped
         location1[0] = 2.5;
         location1[1] = 4.0;
         location2[0] = 0.5;
         location2[1] = 3.0;
-        distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
-        TS_ASSERT_DELTA(distance, sqrt(2.0), 1e-7);
+        vector = p_mesh->GetVectorFromCylindricalPointAtoB(location1, location2, x0,x1);
+        TS_ASSERT_DELTA(vector[0], +1.0, 1e-7);
+        TS_ASSERT_DELTA(vector[1], -1.0, 1e-7);
+        TS_ASSERT_DELTA(norm_2(vector), sqrt(2.0), 1e-7);
     }
 
 };

@@ -2059,7 +2059,7 @@ std::vector<std::vector <unsigned> > ConformingTetrahedralMesh<ELEMENT_DIM, SPAC
         double this_node_x_location = location[0];
         
         // Check the mesh currently conforms to the dimensions given.
-        if (!(xLeft<=location[0] && location[0]<xRight))
+        if (!(xLeft<=location[0] && location[0]<=xRight))
         {
         	EXCEPTION("A node lies outside the cylindrical region");	
         }
@@ -2108,7 +2108,7 @@ std::vector<std::vector <unsigned> > ConformingTetrahedralMesh<ELEMENT_DIM, SPAC
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CylindricalReMesh(double xLeft, double xRight)
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CylindricalReMesh(double xLeft, double xRight, NodeMap &map)
 {
 	// Create a mirrored load of nodes for the normal remesher to work with.
 	std::vector<std::vector<unsigned> > image_map = CreateMirrorNodes(xLeft, xRight);
@@ -2124,7 +2124,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CylindricalReMesh(double
     std::vector<unsigned> right_images = image_map[3];
 	
 	// Call the normal re-mesh
-	NodeMap map(GetNumNodes());
 	ReMesh(map);
 	
 	//
@@ -2320,32 +2319,25 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReconstructCylindricalMe
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenCylindricalPoints(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight)
+c_vector<double, 2> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromCylindricalPointAtoB(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight)
 {
     assert(SPACE_DIM==2);
     assert(rXRight>rXLeft);
     assert(rXLeft<=rLocation1[0]);  // 1st point is not in cylinder
     assert(rXLeft<=rLocation2[0]);  // 2nd point is not in cylinder
-    assert(rXRight>rLocation1[0]);  // 1st point is not in cylinder
-    assert(rXRight>rLocation2[0]);  // 2nd point is not in cylinder
+    assert(rXRight>=rLocation1[0]);  // 1st point is not in cylinder
+    assert(rXRight>=rLocation2[0]);  // 2nd point is not in cylinder
+    
+    c_vector<double, 2> vector;
     
     double two_pi_r = rXRight - rXLeft;
-    double square = 0.0;
     
     double x1 = rLocation1[0];
     double x2 = rLocation2[0];
     double y1 = rLocation1[1];
     double y2 = rLocation2[1];
-    
-    if ( x1 > x2 )
-    {   // swap x1 and x2 over
-        x1 = rLocation2[0];
-        x2 = rLocation1[0];
-        y1 = rLocation2[1];
-        y2 = rLocation1[1];
-    }
-    
-    double x_dist = x2 - x1;    // now always +ve
+        
+    double x_dist = x2 - x1;    // can be -ve
     double y_dist = y2 - y1;    // can be -ve
     
     // handle the cylindrical condition here
@@ -2353,10 +2345,16 @@ double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenCyli
     // measure the other way.
     if ( x_dist > (two_pi_r / 2.0) )
     {
-        x_dist = two_pi_r - x_dist;
+        x_dist = x_dist - two_pi_r;
     }
-    square = (x_dist)*(x_dist) + (y_dist)*(y_dist);
-    return sqrt(square);
+    if ( x_dist < -(two_pi_r / 2.0))
+    {
+        x_dist = x_dist + two_pi_r;  
+    }
+    
+    vector[0] = x_dist;
+    vector[1] = y_dist;
+    return vector;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
