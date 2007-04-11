@@ -58,10 +58,12 @@ public:
         
         // check the ghost nodes
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        for (unsigned i=0; i<13; i++)
+        for (unsigned i=0; i< num_cells_width*ghosts ; i++)
         {
-            TS_ASSERT(ghost_node_indices[i]==i);
+            TS_ASSERT_EQUALS(ghost_node_indices[i],i);
         }
+        TS_ASSERT_EQUALS(ghost_node_indices[num_cells_width*ghosts+1],(ghosts+num_cells_depth)*num_cells_width+1);
+        
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);

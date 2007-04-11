@@ -243,6 +243,42 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     }
 public:
 
+    void Test2DCylindrical() throw (Exception)
+    {        
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 6.0;
+        unsigned thickness_of_ghost_layer = 4;
+        
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+               
+        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        simulator.SetOutputDirectory("Crypt2DCylindrical");
+        
+        // Set length of simulation here
+        simulator.SetEndTime(0.2);
+        
+        simulator.SetMaxCells(500);
+        simulator.SetMaxElements(1000);
+        simulator.SetCylindrical();
+        
+        simulator.SetGhostNodes(ghost_node_indices);
+        
+        simulator.Solve();
+
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+    }
+
     // This is a rubbish test - all cells start at birthTime = 0.
     // So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
     // cell cycle and runs reasonably quickly...

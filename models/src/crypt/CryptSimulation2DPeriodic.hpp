@@ -90,6 +90,8 @@ private:
     
     /** Whether the mesh is periodic or not (defaults to true).*/
     bool mPeriodicSides;
+    /** Whether the mesh is cylindrically periodic or not (defaults to false for now).*/
+    bool mCylindrical;
     
     /** Whether each node is ghosted-ified or not.*/
     std::vector <bool> mIsGhostNode;
@@ -170,6 +172,7 @@ private:
         archive & mReMesh;
         archive & mNodesMoved;
         archive & mPeriodicSides;
+        archive & mCylindrical;
         archive & mIsGhostNode;
         archive & mIsPeriodicNode;
         archive & mLeftCryptBoundary;
@@ -209,6 +212,7 @@ private:
     std::vector<c_vector<double, 2> > CalculateVelocitiesOfEachNode();
     c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
     c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge);
+    c_vector<double, 2> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
     
     void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt);
     Point<2> GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, 2> >& rDrDt);
@@ -240,6 +244,7 @@ public:
     void SetMaxElements(unsigned maxElements);
     void SetFixedBoundaries();
     void SetPeriodicSides(bool periodicSides);
+    void SetCylindrical();
     void SetGhostNodes(std::vector<unsigned> ghostNodeIndices);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);

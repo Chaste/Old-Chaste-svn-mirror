@@ -68,6 +68,7 @@ CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2
     mMaxElements = 10*mrMesh.GetNumElements();
     mWntIncluded = false;
     mPeriodicSides = true;
+    mCylindrical = false;
     mNodesMoved=false;
     mRemeshesThisTimeStep=0;
     mpCellKiller=NULL;
@@ -761,25 +762,39 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
  */
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
 {
-    
-    Node<2>& r_node_a = *(rPElement->GetNode(rNodeA));
-    Node<2>& r_node_b = *(rPElement->GetNode(rNodeB));
-    unsigned node_a_global_index = r_node_a.GetIndex();
-    unsigned node_b_global_index = r_node_b.GetIndex();
+    unsigned node_a_global_index = rPElement->GetNodeGlobalIndex(rNodeA);
+    unsigned node_b_global_index = rPElement->GetNodeGlobalIndex(rNodeB);
+    return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
+}
+
+/**
+ * @param rPEdge pointer to a boundary element
+ * 
+ * @return the x and y forces on node 0 of the boundary element
+ */
+c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge)
+{
+    unsigned node_a_global_index = rPEdge->GetNodeGlobalIndex(0);
+    unsigned node_b_global_index = rPEdge->GetNodeGlobalIndex(1);
+    return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
+}
+
+c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+{
     c_vector<double, 2> unit_difference;
 
-    unit_difference = r_node_b.rGetLocation() - r_node_a.rGetLocation();
-    double distance_between_nodes=norm_2(unit_difference);
+    unit_difference = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation() - mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+    double distance_between_nodes = norm_2(unit_difference);
     
     unit_difference /= distance_between_nodes;
     
     double rest_length = 1.0;
     
-    if ( (mCells.size()>0) &&  (!mIsGhostNode[node_a_global_index])
-                           &&  (!mIsGhostNode[node_b_global_index]) )
+    if ( (mCells.size()>0) &&  (!mIsGhostNode[rNodeAGlobalIndex])
+                           &&  (!mIsGhostNode[rNodeBGlobalIndex]) )
     {
-        double ageA = mCells[node_a_global_index].GetAge();
-        double ageB = mCells[node_b_global_index].GetAge();
+        double ageA = mCells[rNodeAGlobalIndex].GetAge();
+        double ageB = mCells[rNodeBGlobalIndex].GetAge();
         if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
         {
             // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
@@ -791,44 +806,8 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Elemen
     }
     
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    
 }
-
-/**
- * @param rPEdge pointer to a boundary element
- * 
- * @return the x and y forces on node 0 of the boundary element
- */
-c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge)
-{
-    const unsigned nodeA = 0;
-    const unsigned nodeB = 1;
-    c_vector<double, 2> force;
-    c_vector<double, 2> unit_difference;
-    unit_difference(0)=rPEdge->GetNodeLocation(nodeB,0)-rPEdge->GetNodeLocation(nodeA,0);
-    unit_difference(1)=rPEdge->GetNodeLocation(nodeB,1)-rPEdge->GetNodeLocation(nodeA,1);
-    double distance_between_nodes=sqrt(unit_difference(0)*unit_difference(0)+unit_difference(1)*unit_difference(1));
-    
-    unit_difference=unit_difference/distance_between_nodes;
-    
-    double rest_length = 1.0;
-    
-    if ( (mCells.size()>0) &&  (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(nodeA)]) && (!mIsGhostNode[rPEdge->GetNodeGlobalIndex(nodeB)]) )
-    {
-        double ageA = mCells[rPEdge->GetNode(nodeA)->GetIndex()].GetAge();
-        double ageB = mCells[rPEdge->GetNode(nodeB)->GetIndex()].GetAge();
-        if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
-        {
-            // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-#define COVERAGE_IGNORE
-            rest_length=(0.1+0.9*ageA);
-            assert(rest_length<=1.0);
-#undef COVERAGE_IGNORE
-        }
-    }
-    
-    return force = mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
-}
-
 
 
 /**
@@ -1648,6 +1627,12 @@ void CryptSimulation2DPeriodic::SetFixedBoundaries()
 void CryptSimulation2DPeriodic::SetPeriodicSides(bool periodicSides)
 {
     mPeriodicSides = periodicSides;
+}
+
+void CryptSimulation2DPeriodic::SetCylindrical()
+{
+    mPeriodicSides = false;
+    mCylindrical = true;    
 }
 
 /**

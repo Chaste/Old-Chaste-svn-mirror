@@ -694,9 +694,7 @@ public:
         distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
         TS_ASSERT_DELTA(distance, sqrt(2.0), 1e-7);
     }
-    
 
-    
 };
 
 #endif /*TESTREMESH_HPP_*/
