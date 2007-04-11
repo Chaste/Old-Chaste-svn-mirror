@@ -24,132 +24,11 @@ private:
     double mCryptWidth;
     double mCryptDepth;
     unsigned mNumCellWidth;
-    
-    void MakeCylindricalHoneycombMeshFiles(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness, bool periodic)
-    {
-        double x0=-1.0 * ghostThickness;
-        double y0=-(sqrt(3)/4) * ghostThickness;
-        OutputFileHandler output_file_handler("");
-        out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
-        (*p_node_file) << std::scientific;
-        
-        out_stream p_elem_file = output_file_handler.OpenOutputFile(mMeshFilename+".ele");
-        (*p_elem_file) << std::scientific;
-        unsigned num_nodes_along_width = numCellWidth+2*ghostThickness;
-        unsigned num_nodes_along_depth = numCellDepth+2*ghostThickness;
-        unsigned total_num_nodes       = num_nodes_along_width*num_nodes_along_depth;
-        unsigned num_elem_along_width = num_nodes_along_width-1;
-        unsigned num_elem_along_depth = num_nodes_along_depth-1;
-        unsigned num_elem             = 2*num_elem_along_width*num_elem_along_depth;
-        unsigned num_edges            = 3*num_elem_along_width*num_elem_along_depth + num_elem_along_width + num_elem_along_depth;
-        
-        //std::cout << "Periodic = " << periodic << std::endl << std::flush;
-        
-        (*p_node_file) << total_num_nodes << "\t2\t0\t1" << std::endl;
-        unsigned node = 0;
-        for (unsigned i = 0; i < num_nodes_along_depth; i++)
-        {
-            for (unsigned j = 0; j < num_nodes_along_width; j++)
-            {
-                unsigned boundary = 0;
-                if ((i==0) || (i==num_nodes_along_depth-1))
-                {
-                    boundary = 1;
-                }
-                if (!periodic)
-                {
-                    if ((j==0) || (j==num_nodes_along_width-1))
-                    {
-                        boundary = 1;
-                    }
-                }
-                double x = x0 + ((double)j + 0.25*(1+ pow(-1,i+1))) ;
-                
-                double y = y0 + (sqrt(3)/2)*(double)i;
-                
-                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
-            }
-        }
-        p_node_file->close();
-        
-        out_stream p_edge_file = output_file_handler.OpenOutputFile(mMeshFilename+".edge");
-        (*p_node_file) << std::scientific;
-        
-        (*p_elem_file) << num_elem << "\t3\t0" << std::endl;
-        (*p_edge_file) << num_edges << "\t3\t0\t1" << std::endl;
-        
-        unsigned elem = 0;
-        unsigned edge = 0;
-        for (unsigned i = 0; i < num_elem_along_depth; i++)
-        {
-            for (unsigned j = 0; j < num_elem_along_width; j++)
-            {
-                unsigned node0 =     i*num_nodes_along_width + j;
-                unsigned node1 =     i*num_nodes_along_width + j+1;
-                unsigned node2 = (i+1)*num_nodes_along_width + j;
-                if (i%2 != 0)
-                {
-                    node2 = node2 + 1;
-                }
-                
-                (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
-                
-                unsigned horizontal_edge_is_boundary_edge = 0u;
-                unsigned vertical_edge_is_boundary_edge = 0u;
-                if (i==0)
-                {
-                    horizontal_edge_is_boundary_edge = 1;
-                }
-                if (j==0 && !periodic)
-                {
-                    vertical_edge_is_boundary_edge = 1;
-                }
-                
-                (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 <<  "\t" << horizontal_edge_is_boundary_edge << std::endl;
-                (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node2 <<  "\t" << 0 << std::endl;
-                (*p_edge_file) << edge++ << "\t" << node2 << "\t" << node0 <<  "\t" << vertical_edge_is_boundary_edge << std::endl;
-                
-                node0 = i*num_nodes_along_width + j + 1;
-                
-                if (i%2 != 0)
-                {
-                    node0 = node0 - 1;
-                }
-                node1 = (i+1)*num_nodes_along_width + j+1;
-                node2 = (i+1)*num_nodes_along_width + j;
-                
-                (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
-            }
-        }
-        
-        for (unsigned i = 0; i < num_elem_along_depth; i++)
-        {
-            unsigned node0 = (i+1)*num_nodes_along_width-1;
-            unsigned node1 = (i+2)*num_nodes_along_width-1;
-            unsigned boundary = 0u;
-            if(!periodic)
-            {
-                boundary = 1u;   
-            }
-            (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << boundary << std::endl;
-        }
-        
-        for (unsigned j = 0; j < num_elem_along_width; j++)
-        {
-            unsigned node0 =  num_nodes_along_width*(num_nodes_along_depth-1) + j;
-            unsigned node1 =  num_nodes_along_width*(num_nodes_along_depth-1) + j+1;
-            unsigned boundary = 1;
-            (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << boundary << std::endl;
-        }
-        
-        p_elem_file->close();
-        p_edge_file->close();
-    }
-    
+    bool mCylindrical;
+       
     //////////////////////////////////////////////////////////////
     // Periodic Honeycomb mesh maker
     /////////////////////////////////////////////////////////////
-    
     void Make2dPeriodicCryptMesh(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts)
     {
         OutputFileHandler output_file_handler("");
@@ -167,10 +46,12 @@ private:
         // This line needed to define ghost nodes later...
         mCryptDepth = (double)numNodesAlongLength * (sqrt(3)/2)* width /(double)numNodesAlongWidth;
         
-        // Add an extra node to the width (this is the repeated periodic node)
-        numNodesAlongWidth++;
-        
-        numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
+        if(!mCylindrical)
+        {
+            // Add an extra node to the width (this is the repeated periodic node)
+            numNodesAlongWidth++;
+            numNodesAlongWidth = numNodesAlongWidth + 2*ghosts;
+        }
         numNodesAlongLength = numNodesAlongLength + 2*ghosts;
         
         unsigned num_nodes            = numNodesAlongWidth*numNodesAlongLength;
@@ -180,6 +61,10 @@ private:
         unsigned num_edges            = 3*num_elem_along_width*num_elem_along_length + num_elem_along_width + num_elem_along_length;
         
         double x0 = -horizontal_spacing*ghosts;
+        if(mCylindrical)
+        {
+            x0 = 0;
+        }
         double y0 = -vertical_spacing*ghosts;
         
         (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
@@ -188,16 +73,23 @@ private:
         {
             for (unsigned j = 0; j < numNodesAlongWidth; j++)
             {
-                unsigned b = 0;
-                if ((i==0) || (i==numNodesAlongLength-1) || (j==0) || (j==numNodesAlongWidth-1))
+                unsigned boundary = 0;
+                if ((i==0) || (i==numNodesAlongLength-1))
                 {
-                    b = 1;
+                    boundary = 1;
+                }
+                if (!mCylindrical)
+                {
+                    if ((j==0) || (j==numNodesAlongWidth-1))
+                    {
+                        boundary = 1;
+                    }
                 }
                 double x = x0 + horizontal_spacing*((double)j + 0.25*(1.0+ pow(-1,i+1)));
                 
                 double y = y0 + vertical_spacing*(double)i;
                 
-                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << b << std::endl;
+                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
             }
         }
         p_node_file->close();
@@ -230,7 +122,7 @@ private:
                 {
                     horizontal_edge_is_boundary_edge = 1;
                 }
-                if (j==0)
+                if (j==0 && !mCylindrical)
                 {
                     vertical_edge_is_boundary_edge = 1;
                 }
@@ -280,9 +172,19 @@ private:
         {
             double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
+            if (mCylindrical)
             {
-                mGhostNodeIndices.push_back(i);
+                if ((x<0)||(x>=mCryptWidth)||(y>mCryptDepth)||(y<-1e-6))
+                {
+                    mGhostNodeIndices.push_back(i);
+                }
+            }
+            else
+            {
+                if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
+                {
+                    mGhostNodeIndices.push_back(i);
+                }
             }
         }
     }
@@ -302,18 +204,21 @@ public:
      * 
      * @param numCellWidth  The number of stem cells you want
      * @param numCellDepth  The number of cells you want along crypt axis
+     * @param ghostThickness the thickness of ghost nodes surrounding the mesh (defaults to 2)
+     * @param cylindrical whether to generate a cylindrically periodic mesh or not (defaults to false)
      * 
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness = 2, bool periodic=false)
+    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness = 3, bool cylindrical=false)
     {
+        mCylindrical = cylindrical;
         mNumCellWidth = numCellWidth;
         mCryptWidth = numCellWidth*1; //*1 because cells are considered to be size one
         mCryptDepth = sqrt(3)*numCellDepth/2;
         
         mMeshFilename = "2D_temporary_crypt_mesh";
-        MakeCylindricalHoneycombMeshFiles(numCellWidth,numCellDepth, ghostThickness, periodic);
+        Make2dPeriodicCryptMesh(numCellWidth,numCellDepth,mCryptWidth, ghostThickness);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();
@@ -333,18 +238,20 @@ public:
     /**
      * Crypt Periodic Honeycomb Mesh Generator
      * 
-     * Overwritten constructor for a PERIODIC MESH, optional number of ghost nodes
+     * Overwritten constructor for a mesh so mesh can be compressed by changing crypt width
      *
      * @param numNodesAlongWidth  The number of stem cells you want
      * @param numNodesAlongLength  The number of cells you want along crypt axis
      * @param width  The width (circumference) of a crypt in adult cell
      * @param ghosts The thickness of ghost nodes to put around the edge (defaults to 3)
+     * @param cylindrical whether the mesh should be cylindrically periodic (defaults to false)
      * 
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3)
+    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3, bool cylindrical = false)
     {
+        mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;
         mCryptWidth = width; //*1 because cells are considered to be size one
         

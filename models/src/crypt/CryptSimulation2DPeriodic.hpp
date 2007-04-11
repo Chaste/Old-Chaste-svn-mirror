@@ -88,7 +88,7 @@ private:
      *  whether it is worth remeshing again (defaults to false).*/
     bool mNodesMoved;
     
-    /** Whether the mesh is periodic or not (defaults to false).*/
+    /** Whether the mesh is periodic or not (defaults to true).*/
     bool mPeriodicSides;
     
     /** Whether each node is ghosted-ified or not.*/

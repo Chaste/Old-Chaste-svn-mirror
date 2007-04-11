@@ -2320,6 +2320,46 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReconstructCylindricalMe
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetDistanceBetweenCylindricalPoints(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight)
+{
+    assert(SPACE_DIM==2);
+    assert(rXRight>rXLeft);
+    assert(rXLeft<=rLocation1[0]);  // 1st point is not in cylinder
+    assert(rXLeft<=rLocation2[0]);  // 2nd point is not in cylinder
+    assert(rXRight>rLocation1[0]);  // 1st point is not in cylinder
+    assert(rXRight>rLocation2[0]);  // 2nd point is not in cylinder
+    
+    double two_pi_r = rXRight - rXLeft;
+    double square = 0.0;
+    
+    double x1 = rLocation1[0];
+    double x2 = rLocation2[0];
+    double y1 = rLocation1[1];
+    double y2 = rLocation2[1];
+    
+    if ( x1 > x2 )
+    {   // swap x1 and x2 over
+        x1 = rLocation2[0];
+        x2 = rLocation1[0];
+        y1 = rLocation2[1];
+        y2 = rLocation1[1];
+    }
+    
+    double x_dist = x2 - x1;    // now always +ve
+    double y_dist = y2 - y1;    // can be -ve
+    
+    // handle the cylindrical condition here
+    // if the points are more than halfway around the cylinder apart
+    // measure the other way.
+    if ( x_dist > (two_pi_r / 2.0) )
+    {
+        x_dist = two_pi_r - x_dist;
+    }
+    square = (x_dist)*(x_dist) + (y_dist)*(y_dist);
+    return sqrt(square);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes)
 {
     bool is_in_vector = false;

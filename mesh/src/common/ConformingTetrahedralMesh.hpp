@@ -329,7 +329,28 @@ public:
      */
     void CylindricalReMesh(double x0, double x1);
     
+    /**
+     * This method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
+     * 
+     * locations should lie between [rXleft, rXRight) 
+     * 
+     * @param rLocation1 the x and y co-ordinates of point 1
+     * @param rLocation2 the x and y co-ordinates of point 2
+     * @param rXLeft the x value at the left periodic boundary
+     * @param rXRight the x value at the right periodic boundary
+     * 
+     * @return the distance between the two points
+     */
+    double GetDistanceBetweenCylindricalPoints(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight);
 
+    /**
+     * Returns true if an unsigned is contained in a vector of unsigneds
+     * 
+     * @param rNodeIndex an unsigned value
+     * @param rListOfNodes a list of unsigned values
+     * 
+     * @return whether the unsigned is in this std::vector
+     */
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
     
 };

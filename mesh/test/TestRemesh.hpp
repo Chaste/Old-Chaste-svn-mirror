@@ -429,7 +429,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(image_map = p_mesh->CreateMirrorNodes(x0,x1));
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator2(cells_across, cells_up, 0u);
+        CryptHoneycombMeshGenerator generator2(cells_across, cells_up, 0u, true);
         p_mesh=generator2.GetMesh();
         
         TS_ASSERT_THROWS_NOTHING(image_map = p_mesh->CreateMirrorNodes(x0,x1));
@@ -482,7 +482,7 @@ public:
         double xLeft = 0.0;
         double xRight = crypt_width;
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         
         // Create a mirrored load of nodes for the normal remesher to work with.
@@ -616,7 +616,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         
         CancerParameters *p_params = CancerParameters::Instance();
@@ -639,7 +639,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         
         CancerParameters *p_params = CancerParameters::Instance();
@@ -654,6 +654,45 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(),2*cells_across);
 
         //Output2DMeshToFile(p_mesh, "node_positions.dat");
+    }
+    
+    void TestGetDistanceBetweenCyclindricalPoints() throw (Exception)
+    {
+        unsigned cells_across = 3;
+        unsigned cells_up = 3;
+        unsigned thickness_of_ghost_layer = 0;
+        
+        // Set up a mesh which can be mirrored (no ghosts in this case)
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        
+        CancerParameters *p_params = CancerParameters::Instance();
+        
+        double x0 = 0.0;
+        double x1 = p_params->GetCryptWidth();
+
+        c_vector<double, 2> location1 = p_mesh->GetNode(1)->rGetLocation();
+        c_vector<double, 2> location2 = p_mesh->GetNode(4)->rGetLocation();
+
+        // test a normal distance calculation
+        double distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
+        TS_ASSERT_DELTA(distance, 1.0, 1e-7);
+        
+        // test a periodic calculation
+        location1[0] = 0.5;
+        location1[1] = 3.0;
+        location2[0] = 2.5;
+        location2[1] = 4.0;
+        distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
+        TS_ASSERT_DELTA(distance, sqrt(2.0), 1e-7);
+        
+        // test a periodic calculation where points need to be swapped
+        location1[0] = 2.5;
+        location1[1] = 4.0;
+        location2[0] = 0.5;
+        location2[1] = 3.0;
+        distance = p_mesh->GetDistanceBetweenCylindricalPoints(location1, location2, x0,x1);
+        TS_ASSERT_DELTA(distance, sqrt(2.0), 1e-7);
     }
     
 

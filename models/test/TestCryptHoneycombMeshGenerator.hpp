@@ -5,6 +5,23 @@
 
 class TestCryptHoneycombMeshGenerator : public CxxTest::TestSuite
 {
+private:
+    void Output2DNodesToFile(ConformingTetrahedralMesh<2,2>* p_mesh, std::string fileName)
+    {
+        OutputFileHandler handler("");
+        out_stream file=handler.OpenOutputFile(fileName);
+        
+        unsigned num_nodes=p_mesh->GetNumNodes();
+    
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            c_vector<double, 2> location = p_mesh->GetNode(i)->rGetLocation();
+            (*file) << location[0] << "\t" << location[1] << "\n" << std::flush;
+        }
+        
+        file->close();
+    }
+    
 public:
     void TestCryptHoneycombMeshGeneratorCylindrical() throw(Exception)
     {
@@ -12,30 +29,32 @@ public:
         unsigned num_cells_depth = 22;
         unsigned ghosts = 2;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true);
                 
         // check the mesh
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
+        Output2DNodesToFile(p_mesh, "cylindrical_node_positions.dat");
+        
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));
                 
         // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-1.0*ghosts, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-(double)ghosts*sqrt(3)/4,1e-8);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],0.0, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-(double)ghosts*sqrt(3.0)/2.0 , 1e-5);
         
         // first real node
-        int index = num_cells_width+4+2; // 4 here is the number of ghost nodes in a row
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.5,1e-12);
+        int index = (num_cells_width)*ghosts; // 4 here is the number of ghost nodes in a row
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 0.0,1e-12);
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 0.0,1e-12);
         
         // last real node
-        index = num_cells_depth*(num_cells_width+4)+9;
-        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 7.0,1e-12);
+        index = (ghosts+num_cells_depth)*(num_cells_width)-1;
+        TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[0], 7.5,1e-12);
         TS_ASSERT_DELTA(p_mesh->GetNode(index)->GetPoint()[1], 21.0*sqrt(3)/2.0,1e-4);
         
         // last node
         int last_node = p_mesh->GetNumNodes()-1;
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], 9.5,1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], 24.0*sqrt(3)/2.0,1e-6);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[0], 7.5,1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], (ghosts+num_cells_depth-1)*sqrt(3.0)/2.0,1e-5);
         
         // check the ghost nodes
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
@@ -56,7 +75,7 @@ public:
         double width = 6.0;
         unsigned ghosts = 4;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,width,ghosts);
+        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,width,ghosts,false);
         
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         
