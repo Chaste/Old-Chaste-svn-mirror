@@ -244,7 +244,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
         {
             // This is a boundary face
             // Ensure all its nodes are marked as boundary nodes
-            
             for (unsigned j=0; j<nodes.size(); j++)
             {
                 if (!nodes[j]->IsBoundaryNode())
@@ -354,6 +353,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes()
 {
     return mNodes.size() - mDeletedNodeIndices.size();
 }
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes()
 {
@@ -365,6 +365,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 {
     return mElements.size() - mDeletedElementIndices.size();
 }
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllElements()
 {
@@ -1230,7 +1231,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
     
     node_file->close();
     
-    
     //system("cat /tmp/chaste/testoutput/temp.node");
     
     
@@ -2036,6 +2036,301 @@ std::set<unsigned> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateB
     }
         
     return boundary_of_flagged_region;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<std::vector <unsigned> > ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CreateMirrorNodes(double xLeft, double xRight)
+{
+	assert(ELEMENT_DIM==2 && SPACE_DIM==2);// this is for a 2D cylindrical remesh
+	
+	unsigned num_nodes=GetNumNodes();
+	double half_way = (xRight-xLeft)/2.0;
+	
+	// Label the nodes which will have to be mirrored
+    std::vector<unsigned> left_original_node_indices;
+    std::vector<unsigned> lefts_image_node_indices;
+    std::vector<unsigned> right_original_node_indices;
+    std::vector<unsigned> rights_image_node_indices;
+ 
+    for (unsigned i=0; i<num_nodes; i++)
+    {
+        c_vector<double, SPACE_DIM> location = mNodes[i]->rGetLocation();
+        unsigned this_node_index = mNodes[i]->GetIndex();
+        double this_node_x_location = location[0];
+        
+        // Check the mesh currently conforms to the dimensions given.
+        if (!(xLeft<=location[0] && location[0]<xRight))
+        {
+        	EXCEPTION("A node lies outside the cylindrical region");	
+        }
+    	
+    	// Put the nodes which are to be mirrored in the relevant vectors
+    	if (this_node_x_location<half_way)
+    	{
+    		left_original_node_indices.push_back(this_node_index);
+    	}
+    	if (this_node_x_location>=half_way)
+    	{
+    		right_original_node_indices.push_back(this_node_index);
+    	}
+	}
+	
+	// Go through the left original nodes and create an image node
+	// recording its new index.
+	for (unsigned i=0 ; i<left_original_node_indices.size() ; i++)
+	{
+		c_vector<double, SPACE_DIM> location = mNodes[left_original_node_indices[i]]->rGetLocation();
+		location[0] = location[0] + (xRight - xLeft);
+
+		unsigned new_node_index = AddNode(new Node<SPACE_DIM>(0u, location));
+		lefts_image_node_indices.push_back(new_node_index);
+	}
+	
+	// Go through the right original nodes and create an image node
+	// recording its new index.
+	for (unsigned i=0 ; i<right_original_node_indices.size() ; i++)
+	{
+		// Create new image nodes
+		c_vector<double, SPACE_DIM> location = mNodes[right_original_node_indices[i]]->rGetLocation();
+		location[0] = location[0] - (xRight - xLeft);
+
+		unsigned new_node_index = AddNode(new Node<SPACE_DIM>(0u, location));
+		rights_image_node_indices.push_back(new_node_index);
+	}
+	
+	// Return all the information...
+	std::vector<std::vector <unsigned> > image_map;
+	image_map.push_back(left_original_node_indices);
+	image_map.push_back(lefts_image_node_indices);
+	image_map.push_back(right_original_node_indices);
+	image_map.push_back(rights_image_node_indices);
+	return image_map;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CylindricalReMesh(double xLeft, double xRight)
+{
+	// Create a mirrored load of nodes for the normal remesher to work with.
+	std::vector<std::vector<unsigned> > image_map = CreateMirrorNodes(xLeft, xRight);
+
+    // The mesh now has messed up boundary elements 
+    // but this doesn't matter as the ReMesh below
+    // doesn't read them in and reconstructs the
+    // boundary elements.
+
+	std::vector<unsigned> left_original = image_map[0];
+    std::vector<unsigned> left_images = image_map[1];
+    std::vector<unsigned> right_original = image_map[2];
+    std::vector<unsigned> right_images = image_map[3];
+	
+	// Call the normal re-mesh
+	NodeMap map(GetNumNodes());
+	ReMesh(map);
+	
+	//
+	// Re-Index the image_map according to the node_map.
+	//
+	for (unsigned i = 0 ; i<left_original.size() ; i++)
+	{
+			left_original[i]=map.GetNewIndex(left_original[i]);
+			left_images[i]=map.GetNewIndex(left_images[i]);
+	}
+	for (unsigned i = 0 ; i<right_original.size() ; i++)
+	{
+			right_original[i]=map.GetNewIndex(right_original[i]);
+			right_images[i]=map.GetNewIndex(right_images[i]);
+	}
+	
+	image_map[0] = left_original;
+	image_map[1] = left_images;
+	image_map[2] = right_original;
+	image_map[3] = right_images;
+	
+    // This method takes in the double sized mesh, 
+    // with its new boundary elements,
+    // and removes the relevant nodes, elements and boundary elements
+    // to leave a proper periodic mesh.
+	ReconstructCylindricalMesh(image_map);
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReconstructCylindricalMesh(std::vector<std::vector<unsigned> >& rImageMap)
+{
+	std::vector<unsigned> left_original = rImageMap[0];
+    std::vector<unsigned> left_images = rImageMap[1];
+    std::vector<unsigned> right_original = rImageMap[2];
+    std::vector<unsigned> right_images = rImageMap[3];
+	
+	// Figure out which elements have real nodes and image nodes in them
+	// and replace image nodes with corresponding real ones.
+	for (unsigned elem_index = 0; elem_index<GetNumAllElements(); elem_index++)
+    {
+        Element<2,2>* p_element = GetElement(elem_index);
+        if (!p_element->IsDeleted())
+        {
+        	// Delete this element if all are images
+        	// element.MarkAsDeleted();
+        	//
+        	unsigned number_of_image_nodes = 0;
+        	for (unsigned i=0 ; i<3 ; i++)
+        	{
+        		unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                //std::cout << "Node " << this_node_index << "\t";
+        		bool this_node_an_image = false;
+        		if(IsThisIndexInList(this_node_index,left_images))
+        		{
+        			this_node_an_image = true;
+        		}
+                if(IsThisIndexInList(this_node_index,right_images))
+        		{
+        			this_node_an_image = true;
+                }
+        		if(this_node_an_image)
+        		{
+        			number_of_image_nodes++;
+        		}
+        	}
+        	
+        	//std::cout << "\nNumber of image nodes = " << number_of_image_nodes << "\n" << std::flush;
+        	if (number_of_image_nodes==3 || number_of_image_nodes==2)
+        	{
+				//std::cout << "purely image element\n" << std::flush;
+				p_element->MarkAsDeleted();
+                mDeletedElementIndices.push_back(p_element->GetIndex());
+        	}
+        	/* 
+             * If some are images then replace them with the real nodes.
+             * 
+             * There would be two copies of each periodic element
+             * one with one image and two real (on one side),
+             * another with two images and one real (on the other side).
+             * Becuase of this we can just take one case (one image node)
+             * and delete the other element
+             */
+            if (number_of_image_nodes==1)
+        	{
+                //std::cout << "Periodic element found \n" << std::flush;	
+                for (unsigned i=0 ; i<3 ; i++)
+                {
+                    unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                    for (unsigned j=0 ; j<left_images.size() ; j++)
+                    {
+                        if(this_node_index==left_images[j])
+                        {
+                            p_element->ReplaceNode(mNodes[left_images[j]],mNodes[left_original[j]]);
+                            //std::cout << "Node " << left_images[j] << " swapped for node " << left_original[j] << "\n" << std::flush;
+                        }
+                    }
+                    for (unsigned j=0 ; j<right_images.size() ; j++)
+                    {
+                        if(this_node_index==right_images[j])
+                        {
+                            p_element->ReplaceNode(mNodes[right_images[j]],mNodes[right_original[j]]);
+                            //std::cout << "Node " << right_images[j] << " swapped for node " << right_original[j] << "\n" << std::flush;
+                        }
+                    }
+                }
+        	}
+        }
+    }// end of loop over elements
+    
+    // Figure out which boundary elements have real nodes and image nodes in them
+    // and replace image nodes with corresponding real ones.
+    for (unsigned elem_index = 0; elem_index<GetNumAllBoundaryElements(); elem_index++)
+    {
+        BoundaryElement<1,2>* p_element = GetBoundaryElement(elem_index);
+        if (!p_element->IsDeleted())
+        {
+            //std::cout << "Boundary Element " << elem_index << " connects nodes : ";
+            unsigned number_of_image_nodes = 0;
+            for (unsigned i=0 ; i<2 ; i++)
+            {
+                unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                //std::cout << this_node_index << "\t";
+                bool this_node_an_image = false;
+                if(IsThisIndexInList(this_node_index,left_images))
+                {
+                    this_node_an_image = true;
+                }
+                if(IsThisIndexInList(this_node_index,right_images))
+                {
+                    this_node_an_image = true;
+                }
+                if(this_node_an_image)
+                {
+                    number_of_image_nodes++;
+                }
+            }
+                        
+            if (number_of_image_nodes==2)
+            {
+                //std::cout << "IMAGE\n" << std::flush;
+                p_element->MarkAsDeleted();
+                mDeletedBoundaryElementIndices.push_back(p_element->GetIndex());
+            }
+            /*
+             * To avoid having two copies of the boundary elements on the periodic
+             * boundaries we only deal with the elements on the left image and 
+             * delete the ones on the right image.
+             */
+            if (number_of_image_nodes==1)
+            {
+                 
+                for (unsigned i=0 ; i<2 ; i++)
+                {
+                    unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                    for (unsigned j=0 ; j<left_images.size() ; j++)
+                    {
+                        if(this_node_index==left_images[j])
+                        {
+                            //std::cout << "PERIODIC \n" << std::flush;  
+                            p_element->ReplaceNode(mNodes[left_images[j]],mNodes[left_original[j]]);
+                            //std::cout << "Node " << left_images[j] << " swapped for node " << left_original[j] << "\n" << std::flush;
+                        }
+                    }
+                    for (unsigned j=0 ; j<right_images.size() ; j++)
+                    {
+                        if(this_node_index==right_images[j])
+                        {
+                            //std::cout << "IMAGE\n" << std::flush;
+                            p_element->MarkAsDeleted();
+                            mDeletedBoundaryElementIndices.push_back(p_element->GetIndex());
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    // Delete all image nodes
+    for (unsigned i=0 ; i<left_images.size() ; i++)
+    {
+    	mNodes[left_images[i]]->MarkAsDeleted();
+        mDeletedNodeIndices.push_back(left_images[i]);
+    }
+    for (unsigned i=0 ; i<right_images.size() ; i++)
+    {
+    	mNodes[right_images[i]]->MarkAsDeleted();
+        mDeletedNodeIndices.push_back(right_images[i]);
+    }
+        	
+    // ReIndex the mesh
+    ReIndex();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes)
+{
+    bool is_in_vector = false;
+    for (unsigned i=0 ; i<rListOfNodes.size() ; i++)
+    {
+        if(rNodeIndex==rListOfNodes[i])
+        {
+            is_in_vector = true;
+        }
+    }
+    return is_in_vector;
 }
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

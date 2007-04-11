@@ -6,19 +6,21 @@
 class TestCryptHoneycombMeshGenerator : public CxxTest::TestSuite
 {
 public:
-    void TestCryptHoneycombMeshGeneratorBasic() throw(Exception)
+    void TestCryptHoneycombMeshGeneratorCylindrical() throw(Exception)
     {
-        int num_cells_width = 8;
-        int num_cells_depth = 22;
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth);
+        unsigned num_cells_width = 8;
+        unsigned num_cells_depth = 22;
+        unsigned ghosts = 2;
         
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
+                
         // check the mesh
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),12U*26U);
-        
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width+2*ghosts)*(num_cells_depth+2*ghosts));
+                
         // zeroth node
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-2.0, 1e-12);
-        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-sqrt(3)/2,1e-8);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[0],-1.0*ghosts, 1e-12);
+        TS_ASSERT_DELTA(p_mesh->GetNode(0)->GetPoint()[1],-(double)ghosts*sqrt(3)/4,1e-8);
         
         // first real node
         int index = num_cells_width+4+2; // 4 here is the number of ghost nodes in a row
@@ -47,7 +49,7 @@ public:
         
     }
     
-    void TestCryptPeriodicHoneycombMeshGenerator() throw(Exception)
+    void TestCryptOldPeriodicHoneycombMeshGenerator() throw(Exception)
     {
         int num_cells_width = 8;
         int num_cells_depth = 12;

@@ -185,6 +185,7 @@ public:
      * Re-index a mesh so that it has no deleted elements or nodes
      */
     void ReIndex(void);
+    
     /**
      * Re-mesh a mesh using triangle or tetgen
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
@@ -281,6 +282,57 @@ public:
      *  Return the set of nodes which are on the boundary of the flagged region(s)
      */  
     std::set<unsigned> CalculateBoundaryOfFlaggedRegion();
+    
+    
+    /**
+     * Creates a set of mirror nodes for a cylindrical re-mesh. 
+     * Where x1 - x0 = 2*PI in a cylinder. 
+     * All mesh points should be x0<x<x1.
+     * 
+     * @param rX0 is the left hand x-coordinate
+     * @param rX1 is the right hand x-coordinate
+     * 
+     * @return a map of four standard vectors of indices
+     * 0. The left nodes which have been mirrored
+     * 1. The image nodes relating to these left nodes (on right of mesh)
+     * 2. The right nodes which have been mirrored
+     * 3. The image nodes relating to these right nodes (on left of mesh)
+     */
+    std::vector<std::vector <unsigned> > CreateMirrorNodes(double x0, double x1);
+        
+        
+    /**
+     * Deletes the mirror image nodes, elements and boundary elements
+     * created for a cylindrical remesh by cycling through the 
+     * elements and changing elements with
+     * partly real and partly imaginary nodes to be real with
+     * periodic real nodes instead of mirror image nodes.
+     * 
+     * @param rImageMap a map of four standard vectors of indices
+     * 0. The left nodes which have been mirrored
+     * 1. The image nodes relating to these left nodes (on right of mesh)
+     * 2. The right nodes which have been mirrored
+     * 3. The image nodes relating to these right nodes (on left of mesh)
+     */
+    void ReconstructCylindricalMesh(std::vector<std::vector <unsigned> >& rImageMap);
+        
+    /**
+     * Conducts a cylindrical remesh
+     * 
+     * Firstly calls CreateMirrorNodes to create mirror image nodes
+     * Then calls remesher
+     * Maps new node indices
+     * calls ReconstructCylindricalMesh to remove surplus nodes to create a fully periodic mesh.
+     * 
+     * @param x0 The left x-coord of the sheet to be wrapped into a cylinder.
+     * @param x1 The right x-coord  of the sheet to be wrapped into a cylinder.
+     */
+    void CylindricalReMesh(double x0, double x1);
+    
+
+    bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
+    
 };
+
 
 #endif //_CONFORMINGTETRAHEDRALMESH_HPP_

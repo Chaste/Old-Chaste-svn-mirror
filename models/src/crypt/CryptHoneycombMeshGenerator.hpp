@@ -25,23 +25,25 @@ private:
     double mCryptDepth;
     unsigned mNumCellWidth;
     
-    void MakeHoneycombMeshFiles(unsigned numCellWidth, unsigned numCellDepth)
+    void MakeCylindricalHoneycombMeshFiles(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness, bool periodic)
     {
-        double x0=-2.0;
-        double y0=-sqrt(3)/2;
+        double x0=-1.0 * ghostThickness;
+        double y0=-(sqrt(3)/4) * ghostThickness;
         OutputFileHandler output_file_handler("");
         out_stream p_node_file = output_file_handler.OpenOutputFile(mMeshFilename+".node");
         (*p_node_file) << std::scientific;
         
         out_stream p_elem_file = output_file_handler.OpenOutputFile(mMeshFilename+".ele");
         (*p_elem_file) << std::scientific;
-        unsigned num_nodes_along_width = numCellWidth+4;
-        unsigned num_nodes_along_depth = numCellDepth+4;
+        unsigned num_nodes_along_width = numCellWidth+2*ghostThickness;
+        unsigned num_nodes_along_depth = numCellDepth+2*ghostThickness;
         unsigned total_num_nodes       = num_nodes_along_width*num_nodes_along_depth;
         unsigned num_elem_along_width = num_nodes_along_width-1;
         unsigned num_elem_along_depth = num_nodes_along_depth-1;
         unsigned num_elem             = 2*num_elem_along_width*num_elem_along_depth;
         unsigned num_edges            = 3*num_elem_along_width*num_elem_along_depth + num_elem_along_width + num_elem_along_depth;
+        
+        //std::cout << "Periodic = " << periodic << std::endl << std::flush;
         
         (*p_node_file) << total_num_nodes << "\t2\t0\t1" << std::endl;
         unsigned node = 0;
@@ -49,16 +51,23 @@ private:
         {
             for (unsigned j = 0; j < num_nodes_along_width; j++)
             {
-                unsigned b = 0;
-                if ((i==0) || (i==num_nodes_along_depth-1) || (j==0) || (j==num_nodes_along_width-1))
+                unsigned boundary = 0;
+                if ((i==0) || (i==num_nodes_along_depth-1))
                 {
-                    b = 1;
+                    boundary = 1;
+                }
+                if (!periodic)
+                {
+                    if ((j==0) || (j==num_nodes_along_width-1))
+                    {
+                        boundary = 1;
+                    }
                 }
                 double x = x0 + ((double)j + 0.25*(1+ pow(-1,i+1))) ;
                 
                 double y = y0 + (sqrt(3)/2)*(double)i;
                 
-                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << b << std::endl;
+                (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
             }
         }
         p_node_file->close();
@@ -85,13 +94,13 @@ private:
                 
                 (*p_elem_file) << elem++ << "\t" << node0 << "\t" << node1 << "\t" << node2 << std::endl;
                 
-                unsigned horizontal_edge_is_boundary_edge = 0;
-                unsigned vertical_edge_is_boundary_edge = 0;
+                unsigned horizontal_edge_is_boundary_edge = 0u;
+                unsigned vertical_edge_is_boundary_edge = 0u;
                 if (i==0)
                 {
                     horizontal_edge_is_boundary_edge = 1;
                 }
-                if (j==0)
+                if (j==0 && !periodic)
                 {
                     vertical_edge_is_boundary_edge = 1;
                 }
@@ -117,14 +126,20 @@ private:
         {
             unsigned node0 = (i+1)*num_nodes_along_width-1;
             unsigned node1 = (i+2)*num_nodes_along_width-1;
-            (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
+            unsigned boundary = 0u;
+            if(!periodic)
+            {
+                boundary = 1u;   
+            }
+            (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << boundary << std::endl;
         }
         
         for (unsigned j = 0; j < num_elem_along_width; j++)
         {
             unsigned node0 =  num_nodes_along_width*(num_nodes_along_depth-1) + j;
             unsigned node1 =  num_nodes_along_width*(num_nodes_along_depth-1) + j+1;
-            (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << 1 << std::endl;
+            unsigned boundary = 1;
+            (*p_edge_file) << edge++ << "\t" << node1 << "\t" << node0 << "\t" << boundary << std::endl;
         }
         
         p_elem_file->close();
@@ -244,6 +259,7 @@ private:
             (*p_edge_file) << edge++ << "\t" << node0 << "\t" << node1 << "\t" << 1 << std::endl;
         }
         
+        
         for (unsigned j = 0; j < num_elem_along_width; j++)
         {
             unsigned node0 =  numNodesAlongWidth*(numNodesAlongLength-1) + j;
@@ -290,14 +306,14 @@ public:
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth)
+    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness = 2, bool periodic=false)
     {
         mNumCellWidth = numCellWidth;
         mCryptWidth = numCellWidth*1; //*1 because cells are considered to be size one
         mCryptDepth = sqrt(3)*numCellDepth/2;
         
         mMeshFilename = "2D_temporary_crypt_mesh";
-        MakeHoneycombMeshFiles(numCellWidth,numCellDepth);
+        MakeCylindricalHoneycombMeshFiles(numCellWidth,numCellDepth, ghostThickness, periodic);
         std::string testoutput_dir;
         OutputFileHandler output_file_handler("");
         testoutput_dir = output_file_handler.GetTestOutputDirectory();

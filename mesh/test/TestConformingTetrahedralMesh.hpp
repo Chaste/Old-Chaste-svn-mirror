@@ -1538,6 +1538,28 @@ public:
         }
         TS_ASSERT_EQUALS(boundary, correct_boundary);
     }
+    
+    void TestIsThisIndexInList()
+    {
+        ConformingTetrahedralMesh<1,1> mesh;        
+        
+        std::vector<unsigned> list_of_nodes;
+        list_of_nodes.push_back(0u);
+        list_of_nodes.push_back(2u);
+        list_of_nodes.push_back(5u);
+        list_of_nodes.push_back(7u);
+        
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(0u,list_of_nodes),true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(2u,list_of_nodes),true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(5u,list_of_nodes),true);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(7u,list_of_nodes),true);
+
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(1u,list_of_nodes),false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(3u,list_of_nodes),false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u,list_of_nodes),false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes),false);
+        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes),false);
+    }
         
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_
