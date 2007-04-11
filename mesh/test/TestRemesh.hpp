@@ -33,7 +33,7 @@ private:
     }
 	
 public:
-    void x_TestOperationOfTriangle() throw (Exception)
+    void TestOperationOfTriangle() throw (Exception)
     {
         OutputFileHandler handler("");
         
@@ -81,7 +81,7 @@ public:
         }
     }
     
-    void x_TestOperationOfTetgen() throw (Exception)
+    void TestOperationOfTetgen() throw (Exception)
     {
         OutputFileHandler handler("");
         
@@ -131,7 +131,7 @@ public:
     
     // test 3d remesh - very similar test to TestOperationOfTetgenMoveNodes above, but
     // uses mesh.Remesh() instead of calling tetgen from here
-    void x_TestRemesh3dMoveNodes() throw (Exception)
+    void TestRemesh3dMoveNodes() throw (Exception)
     {
         OutputFileHandler handler("");
         
@@ -196,7 +196,7 @@ public:
     }
     
 
-    void x_TestOperationOfTetgenMoveNodes() throw (Exception)
+    void TestOperationOfTetgenMoveNodes() throw (Exception)
     {
         OutputFileHandler handler("");
         
@@ -261,7 +261,7 @@ public:
     }
 
 
-    void x_TestRemeshWithDeletions() throw (Exception)
+    void TestRemeshWithDeletions() throw (Exception)
     {
         OutputFileHandler handler("");
         
@@ -347,7 +347,7 @@ public:
         }
     }
     
-    void x_TestRemeshWithMethod2D() throw (Exception)
+    void TestRemeshWithMethod2D() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         
@@ -384,7 +384,7 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(),area,1e-6);
     }
     
-    void x_TestRemeshCrinklyNonVoronoi() throw (Exception)
+    void TestRemeshCrinklyNonVoronoi() throw (Exception)
     {
         OutputFileHandler handler("");
         
