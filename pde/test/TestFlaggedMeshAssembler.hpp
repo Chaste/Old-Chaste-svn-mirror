@@ -92,10 +92,10 @@ public :
         const unsigned size_of_linear_system = assembler.mpLinearSystem->GetSize();
         TS_ASSERT_EQUALS(size_of_linear_system, smasrm_size);
         
-        std::cout << "smasrm vector:\n";
-        assembler.mpLinearSystem->DisplayRhs();
-        std::cout << "smasrm matrix:\n";
-        assembler.mpLinearSystem->DisplayMatrix();
+        //std::cout << "smasrm vector:\n";
+        //assembler.mpLinearSystem->DisplayRhs();
+        //std::cout << "smasrm matrix:\n";
+        //assembler.mpLinearSystem->DisplayMatrix();
         
         
         // Test SMASRM values
@@ -307,20 +307,19 @@ public :
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         
-        unsigned num_elem = 20;
+        unsigned num_elem = 48;
         fine_mesh.ConstructRectangularMesh(num_elem,num_elem);
         fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // create coarse mesh as RTM
         RefinedTetrahedralMesh<2,2> coarse_mesh;
         
-        num_elem = 10;
+        num_elem = 12;
         coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
         coarse_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // give fine mesh to coarse mesh
-        coarse_mesh.SetFineMesh(&fine_mesh);
-        
+        coarse_mesh.SetFineMesh(&fine_mesh);        
      
         // Instantiate PDE object
         TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
@@ -345,7 +344,7 @@ public :
             int local_index = global_index - lo;
             double x = coarse_mesh.GetNode(global_index)->GetPoint()[0];
             double y = coarse_mesh.GetNode(global_index)->GetPoint()[1];
-            if((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5) < 0.3)
+            if(sqrt((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5)) < 0.3)
             {
                 p_initial_condition_coarse[local_index] = 1.0;
             }
@@ -356,7 +355,39 @@ public :
         }
         VecRestoreArray(initial_condition_coarse, &p_initial_condition_coarse);
         
-        // Solve
+        ReplicatableVector ic_coarse_replicated(initial_condition_coarse);
+        
+                
+        // Create initial_condition_fine from initial_condition_coarse by interpolation        
+        Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
+        
+        double* p_initial_condition_fine;
+        VecGetArray(initial_condition_fine, &p_initial_condition_fine);
+                
+        VecGetOwnershipRange(initial_condition_fine, &lo, &hi);
+        
+        for (int global_index = lo; global_index < hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            Element<2,2>* p_coarse_element = coarse_mesh.GetACoarseElementForFineNodeIndex(global_index);
+            c_vector<double, 3> interpolation_weights=p_coarse_element->CalculateInterpolationWeights(fine_mesh.GetNode(global_index)->GetPoint());
+            double interpolated_ic=0; 
+            
+            for (unsigned element_node_index=0; element_node_index<3; element_node_index++)
+            {
+                unsigned element_node_global_index = p_coarse_element->GetNodeGlobalIndex(element_node_index);
+                interpolated_ic += interpolation_weights(element_node_index)* ic_coarse_replicated[element_node_global_index];
+            }
+            p_initial_condition_fine[local_index]=interpolated_ic;
+            
+            //double x = fine_mesh.GetNode(global_index)->rGetLocation()[0];
+            //double y = fine_mesh.GetNode(global_index)->rGetLocation()[1];
+            //std::cout << global_index << " " << x << " " << y << " " << interpolated_ic << "\n";
+        }
+        VecRestoreArray(initial_condition_fine, &p_initial_condition_fine);
+        
+        
+        // Solve on coarse mesh        
         assembler.SetTimes(0, 0.01, 0.01);
         assembler.SetInitialCondition(initial_condition_coarse);
         
@@ -370,7 +401,7 @@ public :
             std::cout << i << " " << x << " " << y << " " << result_replicated[i] << "\n";
         }
         
-        // Flag the right semicircle of the coarse mesh
+        // Flag the some elements of the coarse mesh
         ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
         for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
              i_coarse_element != coarse_mesh.GetElementIteratorEnd();
@@ -379,7 +410,7 @@ public :
             Element<2,2> &element = **i_coarse_element;
             for(unsigned i=0; i<element.GetNumNodes(); i++)
             {
-                if(result_replicated[element.GetNodeGlobalIndex(i)]>0.95)
+                if(result_replicated[element.GetNodeGlobalIndex(i)]>0.4)
                 {
                     element.Flag();
                     std::cout << "Flagging element " << element.GetIndex() << "\n";
@@ -393,30 +424,6 @@ public :
         // interpolate boundary conditions        
         FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(coarse_mesh, result);
 
-        Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
-        
-        double* p_initial_condition_fine;
-        VecGetArray(initial_condition_fine, &p_initial_condition_fine);
-        
-        
-        VecGetOwnershipRange(initial_condition_fine, &lo, &hi);
-        
-        for (int global_index = lo; global_index < hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            double x = fine_mesh.GetNode(global_index)->GetPoint()[0];
-            double y = fine_mesh.GetNode(global_index)->GetPoint()[1];
-            if((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5) < 0.3)
-            {
-                p_initial_condition_fine[local_index] = 1.0;
-            }
-            else
-            {
-                p_initial_condition_fine[local_index] = 0.0;
-            }
-        }
-        VecRestoreArray(initial_condition_fine, &p_initial_condition_fine);
-
         // Assembler
         FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh,&pde,&flagged_bcc);
         flagged_assembler.SetTimes(0.0, 0.01, 0.01);
@@ -426,7 +433,6 @@ public :
         
         Vec result_fine = flagged_assembler.Solve();  
         ReplicatableVector result_fine_replicated(result_fine);
-
 
         std::map<unsigned, unsigned> map = flagged_assembler.GetSmasrmIndexMap();
         for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
