@@ -1,8 +1,9 @@
 TestCwd.hpp
-TestPetSCSetup.hpp
-TestReplicatableVector.hpp
+TestException.hpp
 TestOutputFileHandler.hpp
+TestPetSCSetup.hpp
+TestRandomNumberGenerator.hpp
+TestReplicatableVector.hpp
 TestSimulationTime.hpp
 TestStaticPolymorphism.hpp
-TestRandomNumberGenerator.hpp
-TestException.hpp
+TestVectorPortion.hpp
