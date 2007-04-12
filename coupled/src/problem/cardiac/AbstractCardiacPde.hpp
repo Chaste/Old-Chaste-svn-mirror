@@ -9,6 +9,7 @@
 #include "ReplicatableVector.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
+#include "VectorPortion.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -81,19 +82,6 @@ public:
     {
         mNumNodes = pCellFactory->GetNumberOfCells();
         
-        // Create a temporary PETSc vector and use the ownership range of
-        // the PETSc vector to size our C++ vectors
-        Vec tempVec;
-        VecCreate(PETSC_COMM_WORLD, &tempVec);
-        VecSetSizes(tempVec, PETSC_DECIDE, mNumNodes);
-        VecSetFromOptions(tempVec);
-        PetscInt temp_lo, temp_hi;
-        VecGetOwnershipRange(tempVec, &temp_lo, &temp_hi);
-        mOwnershipRangeLo=(unsigned) temp_lo;
-        mOwnershipRangeHi=(unsigned) temp_hi;
-        VecDestroy(tempVec); // vector no longer needed
-        
-        
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
         mCapacitance = 1.0;                          // uF/cm^2
@@ -111,17 +99,27 @@ public:
             mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
         }
         
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
+        // Create a temporary PETSc vector and use the ownership range of
+        // the PETSc vector to size our C++ vectors
+        Vec temp_vec;
+        VecCreate(PETSC_COMM_WORLD, &temp_vec);
+        VecSetSizes(temp_vec, PETSC_DECIDE, mNumNodes);
+        VecSetFromOptions(temp_vec);
         
-        mCellsDistributed.resize(hi-lo);
+        VectorPortion portion(temp_vec);
+        this->mOwnershipRangeLo = portion.Begin().Global;
+        this->mOwnershipRangeHi = portion.End().Global;
         
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+        
+        mCellsDistributed.resize(portion.End().Global - portion.Begin().Global);
+        
+        for (VectorPortion::Iterator index = portion.Begin();
+             index != portion.End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
-            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
         }
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed, portion.Begin().Global, portion.End().Global);
         
         
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
@@ -194,7 +192,9 @@ public:
             #undef COVERAGE_IGNORE
         }
 #endif
-        
+//        std::cout << "mOwnershipRangeLo " << this->mOwnershipRangeLo <<
+//                     " globalIndex " << globalIndex <<
+//                     "mOwnershipRangeHi " << this->mOwnershipRangeHi << std::endl;
         assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
