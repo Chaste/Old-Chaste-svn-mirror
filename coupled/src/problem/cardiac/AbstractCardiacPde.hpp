@@ -192,9 +192,6 @@ public:
             #undef COVERAGE_IGNORE
         }
 #endif
-//        std::cout << "mOwnershipRangeLo " << this->mOwnershipRangeLo <<
-//                     " globalIndex " << globalIndex <<
-//                     "mOwnershipRangeHi " << this->mOwnershipRangeHi << std::endl;
         assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
