@@ -51,25 +51,17 @@ public:
         monodomain_problem.SetOutputDirectory("MonoNoStim");
         monodomain_problem.SetOutputFilenamePrefix("MonodomainNoStimLR91_1d");
         monodomain_problem.Initialise();
-        
-        
+
         monodomain_problem.Solve();
         
-        double* voltage_array;
-        unsigned lo, hi;
-        // voltages are no less than -85.0 and equal to each other
-        
-        
-        monodomain_problem.GetVoltageArray(&voltage_array, lo, hi);
-        
-        double constant_voltage=voltage_array[lo];
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        double constant_voltage = voltage_replicated[0];
         TS_ASSERT_LESS_THAN(-85.0, constant_voltage);
         
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+        for (unsigned index=0; index<voltage_replicated.size() ; index++)
         {
-            TS_ASSERT_DELTA(voltage_array[global_index-lo] , constant_voltage, 1E-5);
+            TS_ASSERT_DELTA(voltage_replicated[index] , constant_voltage, 1E-5);
         }
-        
     }
 };
 #endif //_TESTMONODOMAINNOSTIMULUS_HPP_

@@ -13,6 +13,7 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ReplicatableVector.hpp"
+#include "CheckMonoLr91Vars.hpp"
 
 
 #include <time.h>
@@ -60,10 +61,6 @@ public:
     // test should take about 30mins (or less)
     void TestMonodomainDg02DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
-        // To time the solve
-        time_t start,end;
-        double dif;
-        time (&start);
         
         PointStimulus2dCellFactory cell_factory(60); // Central node
         
@@ -82,41 +79,9 @@ public:
         
         monodomain_problem.Solve();
         
-        // To time the solve
-        time (&end);
-        dif = difftime (end,start);
-//       printf ("\nSolve took %.2lf seconds. \n", dif );
-
-        Vec voltage=monodomain_problem.GetVoltage();
-        ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(voltage);
+        CheckMonoLr91Vars(monodomain_problem);
         
-        
-        double* p_voltage_array;//We don't actually use this
-        unsigned lo, hi;
-        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-        // test whether voltages and gating variables are in correct ranges
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS( voltage_replicated[global_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-voltage_replicated[global_index] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
-                                          GetCardiacCell(global_index)->rGetStateVariables();
-            for (int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1
-                if ((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-                }
-            }
-        }
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
         
         /*
         * Test that corners are 'equal', and centres of sides.

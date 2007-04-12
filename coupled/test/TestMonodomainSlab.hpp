@@ -8,6 +8,8 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "CheckMonoLr91Vars.hpp"
+#include "ReplicatableVector.hpp"
 
 class FaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -67,28 +69,7 @@ public:
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
         
         // test whether voltages and gating variables are in correct ranges
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->
-                                          GetCardiacCell(global_index)->rGetStateVariables();
-            for (int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1
-                if ((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-                }
-            }
-        }
+        CheckMonoLr91Vars(monodomain_problem);
         
         /*
          * Test the top right node against the right one in the 1D case, 
@@ -97,9 +78,7 @@ public:
          */
         bool need_initialisation = true;
         double probe_voltage;
-        Vec voltage=monodomain_problem.GetVoltage();
-        ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(voltage);
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
         need_initialisation = true;
         
         // Test the RHF of the mesh
@@ -129,8 +108,6 @@ public:
                 
             }
         }
-        
-        monodomain_problem.RestoreVoltageArray( &p_voltage_array );
     }
 };
 
