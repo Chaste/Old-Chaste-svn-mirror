@@ -12,6 +12,7 @@
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "CheckMonoLr91Vars.hpp"
 
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -67,35 +68,8 @@ public:
         
         monodomain_problem.Solve();
         
-        double* p_voltage;
-        unsigned lo, hi;
         // test whether voltages and gating variables are in correct ranges
-        
-        monodomain_problem.GetVoltageArray(&p_voltage, lo, hi);
-        
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage[local_index] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for (int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1
-                if ((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-                }
-            }
-        }
-        
-        monodomain_problem.RestoreVoltageArray(&p_voltage);
+        CheckMonoLr91Vars<1>(monodomain_problem);
         
         // Calculate the conduction velocity
         ColumnDataReader simulation_data("MonoConductionVel",

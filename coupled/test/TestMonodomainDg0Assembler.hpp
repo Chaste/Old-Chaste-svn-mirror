@@ -11,6 +11,7 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ColumnDataReader.hpp"
 #include "ReplicatableVector.hpp"
+#include "CheckMonoLr91Vars.hpp"
 
 #include <time.h>
 
@@ -129,58 +130,18 @@ public:
         
         monodomain_problem.Solve();
         
-        double* p_voltage_array;
-        unsigned lo, hi;
-        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-        
         // test whether voltages and gating variables are in correct ranges
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;   // mV
-            double Ek    = -77.0;   // mV
-            
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for (int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1
-                if ((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-                }
-            }
-            
-            if (global_index==1)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 20.6690, 0.001);
-            }
-            if (global_index==3)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 21.4655, 0.001);
-            }
-            if (global_index==5)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 22.9016, 0.001);
-            }
-            if (global_index==7)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], 24.0518, 0.001);
-            }
-            if (global_index==9)
-            {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], -0.9282, 0.001);
-            }
-            if (global_index==10) // RHS
-            {
-                TS_ASSERT_DELTA(p_voltage_array[local_index], -19.4217, 0.001);
-            }
-        }
-        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
+        CheckMonoLr91Vars<1>(monodomain_problem);
+        
+        // check some voltages    
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.6690, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.4655, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9016, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0518, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.9282, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.4217, 0.001);
+       
     }
     
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating the left
@@ -208,33 +169,8 @@ public:
         
         monodomain_problem.Solve();
         
-        double* p_voltage_array;
-        unsigned lo, hi;
-        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-        
         // test whether voltages and gating variables are in correct ranges
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for (int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1
-                if ((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-                }
-            }
-        }
-        
+        CheckMonoLr91Vars(monodomain_problem);
         
         //Since we are going to compare voltages that may be owned by
         //various processes it makes sense to replicate the data.
@@ -288,8 +224,6 @@ public:
             }
         }
         
-        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
-        
     }
     
     
@@ -330,27 +264,7 @@ public:
         monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
         
         // test whether voltages and gating variables are in correct ranges
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            // assuming LR model has Ena = 54.4 and Ek = -77
-            double Ena   =  54.4;
-            double Ek    = -77.0;
-            
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[local_index] + (Ek-30), 0);
-            
-            std::vector<double> odeVars = monodomain_problem.GetMonodomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
-            for (int j=0; j<8; j++)
-            {
-                // if not voltage or calcium ion conc, test whether between 0 and 1
-                if ((j!=4) && (j!=3))
-                {
-                    TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);
-                }
-            }
-        }
+        CheckMonoLr91Vars(monodomain_problem);
         
         
         
@@ -360,9 +274,7 @@ public:
          * this rather difficult, especially since the edges are sampled
          * during the upstroke.
          */
-        Vec voltage=monodomain_problem.GetVoltage();
-        ReplicatableVector voltage_replicated;
-        voltage_replicated.ReplicatePetscVector(voltage);
+        ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
         
         // corners
         TS_ASSERT_DELTA(voltage_replicated[0], voltage_replicated[10],  test_tolerance);
