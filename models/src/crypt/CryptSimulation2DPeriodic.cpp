@@ -784,16 +784,10 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     c_vector<double, 2> unit_difference;
-    if(mCylindrical)
-    {
-        c_vector<double, 2> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
-        c_vector<double, 2> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
-        unit_difference = mrMesh.GetVectorFromCylindricalPointAtoB(node_a_location, node_b_location, 0.0, mpParams->GetCryptWidth());   
-    }
-    else
-    { 
-        unit_difference = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation() - mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
-    }
+    c_vector<double, 2> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+    c_vector<double, 2> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+    unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
+    
     double distance_between_nodes = norm_2(unit_difference);
     
     unit_difference /= distance_between_nodes;
@@ -1556,16 +1550,9 @@ void CryptSimulation2DPeriodic::CallReMesher()
 {
     
     NodeMap map(mrMesh.GetNumNodes());
-    if (mCylindrical)
-    {
-        std::cout << "Cylindrical Remeshing \n"<< std::flush;
-        mrMesh.CylindricalReMesh(0.0, mpParams->GetCryptWidth(), map);
-    }
-    else
-    {
-        std::cout << "Remeshing \n"<< std::flush;
-        mrMesh.ReMesh(map);
-    }
+    std::cout << "Remeshing \n"<< std::flush;
+    mrMesh.ReMesh(map);
+
         
     // TODO: These commented out because they caused a segmentation
     // fault after the Load function has been called.
@@ -1662,6 +1649,9 @@ void CryptSimulation2DPeriodic::SetPeriodicSides(bool periodicSides)
 
 void CryptSimulation2DPeriodic::SetCylindrical()
 {
+    // TODO:
+    // Make some kind of cast here to tell the 
+    // simulator that the mesh is cylindrical??
     mPeriodicSides = false;
     mCylindrical = true;    
 }

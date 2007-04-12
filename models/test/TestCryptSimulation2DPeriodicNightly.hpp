@@ -399,7 +399,7 @@ public:
         double crypt_length = num_cells_depth-1.0;
         double crypt_width = num_cells_width-1.0;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 6.0, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -449,7 +449,7 @@ public:
         int num_cells_width = 6;
         int num_cells_depth = 5;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -470,7 +470,7 @@ public:
             unsigned generation;
             double birth_time;
             
-            if (i==14) // middle of bottom row of cells
+            if (i==27) // middle of bottom row of cells
             {
                 cell_type = STEM;
                 generation = 0;

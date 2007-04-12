@@ -22,7 +22,24 @@ private:
         file->close();
     }
     
+    void Output2DNodesToFileCylindrical(Cylindrical2dMesh* p_mesh, std::string fileName)
+    {
+        OutputFileHandler handler("");
+        out_stream file=handler.OpenOutputFile(fileName);
+        
+        unsigned num_nodes=p_mesh->GetNumNodes();
+    
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            c_vector<double, 2> location = p_mesh->GetNode(i)->rGetLocation();
+            (*file) << location[0] << "\t" << location[1] << "\n" << std::flush;
+        }
+        
+        file->close();
+    }
+    
 public:
+
     void TestCryptHoneycombMeshGeneratorCylindrical() throw(Exception)
     {
         unsigned num_cells_width = 8;
@@ -30,11 +47,16 @@ public:
         unsigned ghosts = 2;
         
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true);
-                
+         
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
         // check the mesh
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        Output2DNodesToFile(p_mesh, "cylindrical_node_positions.dat");
         
+        ConformingTetrahedralMesh<2,2>* p_mesh2;
+        
+        TS_ASSERT_THROWS_ANYTHING(p_mesh2=generator.GetMesh());
+                
+        
+        Output2DNodesToFileCylindrical(p_mesh, "cylindrical_node_positions.dat");
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),(num_cells_width)*(num_cells_depth+2*ghosts));
                 
         // zeroth node
@@ -67,7 +89,6 @@ public:
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);
-        
     }
     
     void TestCryptOldPeriodicHoneycombMeshGenerator() throw(Exception)
@@ -83,6 +104,9 @@ public:
         
         // check the mesh
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        
+        TS_ASSERT_THROWS_ANYTHING(p_mesh=generator.GetCylindricalMesh());
+        
         TS_ASSERT_EQUALS((unsigned)p_mesh->GetNumNodes(),(num_cells_width+1+2*ghosts)*(num_cells_depth+2*ghosts));
         
         // Scaling Factor
@@ -123,8 +147,9 @@ public:
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
-        
     }
+    
+
 };
 
 

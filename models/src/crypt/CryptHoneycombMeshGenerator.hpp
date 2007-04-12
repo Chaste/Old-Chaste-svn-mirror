@@ -1,6 +1,6 @@
 #ifndef CRYPTHONEYCOMBMESHGENERATOR_HPP_
 #define CRYPTHONEYCOMBMESHGENERATOR_HPP_
-#include "ConformingTetrahedralMesh.cpp"
+#include "Cylindrical2dMesh.cpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 
@@ -19,6 +19,7 @@ class CryptHoneycombMeshGenerator
 {
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
+    Cylindrical2dMesh* mpCylindricalMesh;
     std::vector<unsigned> mGhostNodeIndices;
     std::string mMeshFilename;
     double mCryptWidth;
@@ -164,7 +165,7 @@ private:
     }
     
     
-    void ComputeGhostNodes()
+    void ComputeGhostNodes1()
     {
         assert(mpMesh!=NULL);
         
@@ -172,19 +173,24 @@ private:
         {
             double x = mpMesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
-            if (mCylindrical)
+            if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
             {
-                if ((x<0)||(x>=mCryptWidth)||(y>mCryptDepth)||(y<-1e-6))
-                {
-                    mGhostNodeIndices.push_back(i);
-                }
+                mGhostNodeIndices.push_back(i);
             }
-            else
+        }
+    }
+    
+    void ComputeGhostNodes2()
+    {
+        assert(mpCylindricalMesh!=NULL);
+        
+        for (unsigned i=0; i<mpCylindricalMesh->GetNumNodes(); i++)
+        {
+            double x = mpCylindricalMesh->GetNode(i)->GetPoint().rGetLocation()[0];
+            double y = mpCylindricalMesh->GetNode(i)->GetPoint().rGetLocation()[1];
+            if ((x<0)||(x>=mCryptWidth)||(y>mCryptDepth)||(y<-1e-6))
             {
-                if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
-                {
-                    mGhostNodeIndices.push_back(i);
-                }
+               mGhostNodeIndices.push_back(i);
             }
         }
     }
@@ -195,6 +201,7 @@ public:
     ~CryptHoneycombMeshGenerator()
     {
         delete mpMesh;
+        delete mpCylindricalMesh;
     }
 
     /**
@@ -214,7 +221,7 @@ public:
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numCellWidth;
-        mCryptWidth = numCellWidth*1; //*1 because cells are considered to be size one
+        mCryptWidth = numCellWidth*1.0; //*1 because cells are considered to be size one
         mCryptDepth = sqrt(3)*numCellDepth/2;
         
         mMeshFilename = "2D_temporary_crypt_mesh";
@@ -225,11 +232,21 @@ public:
         
         TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+ mMeshFilename);
         
-        mpMesh = new ConformingTetrahedralMesh<2,2>;
-        mpMesh->ConstructFromMeshReader(mesh_reader);
-        
-        ComputeGhostNodes();
-        
+        if (!mCylindrical)
+        {
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);// to avoid seg fault when closing
+            mpMesh = new ConformingTetrahedralMesh<2,2>;
+            mpMesh->ConstructFromMeshReader(mesh_reader);
+            ComputeGhostNodes1();
+        }
+        else
+        {   
+            mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);
+            mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
+            ComputeGhostNodes2();
+        }
+                
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetCryptLength(mCryptDepth);
         p_params->SetCryptWidth(mCryptWidth);
@@ -263,11 +280,21 @@ public:
         
         TrianglesMeshReader<2,2> mesh_reader(testoutput_dir+ mMeshFilename);
         
-        mpMesh = new ConformingTetrahedralMesh<2,2>;
-        mpMesh->ConstructFromMeshReader(mesh_reader);
-        
-        ComputeGhostNodes();
-        
+        if (!mCylindrical)
+        {
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);// to avoid seg fault when closing
+            mpMesh = new ConformingTetrahedralMesh<2,2>;
+            mpMesh->ConstructFromMeshReader(mesh_reader);
+            ComputeGhostNodes1();
+        }
+        else
+        {   
+            mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);
+            mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
+            ComputeGhostNodes2();
+        }
+                
         CancerParameters* p_params = CancerParameters::Instance();
         p_params->SetCryptLength(mCryptDepth);
         p_params->SetCryptWidth(mCryptWidth);
@@ -276,7 +303,20 @@ public:
     
     ConformingTetrahedralMesh<2,2>* GetMesh()
     {
+        if (mCylindrical)
+        {
+            EXCEPTION("A cylindrical mesh was created but a normal mesh is being requested.");
+        }
         return mpMesh;
+    }
+    
+    Cylindrical2dMesh* GetCylindricalMesh()
+    {
+        if (!mCylindrical)
+        {
+            EXCEPTION("A normal mesh was created but a cylindrical mesh is being requested.");
+        }
+        return mpCylindricalMesh;
     }
     
     std::vector<unsigned> GetGhostNodeIndices()

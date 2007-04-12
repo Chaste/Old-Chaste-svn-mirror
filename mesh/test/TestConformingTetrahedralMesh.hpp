@@ -1539,27 +1539,43 @@ public:
         TS_ASSERT_EQUALS(boundary, correct_boundary);
     }
     
-    void TestIsThisIndexInList()
+    void TestGetVectorBetweenPoints() throw (Exception)
     {
-        ConformingTetrahedralMesh<1,1> mesh;        
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
         
-        std::vector<unsigned> list_of_nodes;
-        list_of_nodes.push_back(0u);
-        list_of_nodes.push_back(2u);
-        list_of_nodes.push_back(5u);
-        list_of_nodes.push_back(7u);
-        
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(0u,list_of_nodes),true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(2u,list_of_nodes),true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(5u,list_of_nodes),true);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(7u,list_of_nodes),true);
+        c_vector<double, 3> location1 = mesh.GetNode(0)->rGetLocation();
+        c_vector<double, 3> location2 = mesh.GetNode(2)->rGetLocation();
 
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(1u,list_of_nodes),false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(3u,list_of_nodes),false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u,list_of_nodes),false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes),false);
-        TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes),false);
+        // test a normal distance calculation
+        c_vector<double, 3> vector = mesh.GetVectorFromAtoB(location1, location2);
+        TS_ASSERT_DELTA(vector[0], 0.2, 1e-7);
+        TS_ASSERT_DELTA(vector[1], 0.2, 1e-7);
+        TS_ASSERT_DELTA(vector[2], 0.0, 1e-7)
+        TS_ASSERT_DELTA(norm_2(vector), sqrt(0.08), 1e-7);
+        
+        // and the opposite vector
+        vector = mesh.GetVectorFromAtoB(location2, location1);
+        TS_ASSERT_DELTA(vector[0], -0.2, 1e-7);
+        TS_ASSERT_DELTA(vector[1], -0.2, 1e-7);
+        TS_ASSERT_DELTA(vector[2], 0.0, 1e-7);
+        TS_ASSERT_DELTA(norm_2(vector), sqrt(0.08), 1e-7);
+        
+        // a 3d vector
+        location1[0] = 0.5;
+        location1[1] = 3.0;
+        location1[2] = 1.0;
+        location2[0] = 2.5;
+        location2[1] = 4.0;
+        location2[2] = -3.0;
+        vector = mesh.GetVectorFromAtoB(location1, location2);
+        TS_ASSERT_DELTA(vector[0], +2.0, 1e-7);
+        TS_ASSERT_DELTA(vector[1], +1.0, 1e-7);
+        TS_ASSERT_DELTA(vector[2], -4.0, 1e-7);
+        TS_ASSERT_DELTA(norm_2(vector), sqrt(21.0), 1e-7);
     }
+    
         
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

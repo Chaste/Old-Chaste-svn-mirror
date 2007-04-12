@@ -13,3 +13,4 @@ TestVolumeCalculator.hpp
 TestTransformations.hpp
 TestRefineElement.hpp
 TestRemesh.hpp
+TestCylindrical2dMesh.hpp

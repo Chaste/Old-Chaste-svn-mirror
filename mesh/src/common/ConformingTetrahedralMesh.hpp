@@ -24,6 +24,7 @@
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ConformingTetrahedralMesh
 {
+    friend class Cylindrical2dMesh; // to give it access to the deleted indices etc.
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
@@ -283,75 +284,20 @@ public:
      */  
     std::set<unsigned> CalculateBoundaryOfFlaggedRegion();
     
+    /**
+     * Returns a vector between two points in space
+     * 
+     * @param rLocationA a c_vector of co-ordinates
+     * @param rLocationB a c_vector of co-ordinates
+     * 
+     * @return vector from location A to location B.
+     * 
+     * N.B. This can be overwritten in daughter classes
+     * e.g. Cylindrical2dMesh.
+     * 
+     */
+    c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
     
-    /**
-     * Creates a set of mirror nodes for a cylindrical re-mesh. 
-     * Where x1 - x0 = 2*PI in a cylinder. 
-     * All mesh points should be x0<x<x1.
-     * 
-     * @param rX0 is the left hand x-coordinate
-     * @param rX1 is the right hand x-coordinate
-     * 
-     * @return a map of four standard vectors of indices
-     * 0. The left nodes which have been mirrored
-     * 1. The image nodes relating to these left nodes (on right of mesh)
-     * 2. The right nodes which have been mirrored
-     * 3. The image nodes relating to these right nodes (on left of mesh)
-     */
-    std::vector<std::vector <unsigned> > CreateMirrorNodes(double x0, double x1);
-        
-        
-    /**
-     * Deletes the mirror image nodes, elements and boundary elements
-     * created for a cylindrical remesh by cycling through the 
-     * elements and changing elements with
-     * partly real and partly imaginary nodes to be real with
-     * periodic real nodes instead of mirror image nodes.
-     * 
-     * @param rImageMap a map of four standard vectors of indices
-     * 0. The left nodes which have been mirrored
-     * 1. The image nodes relating to these left nodes (on right of mesh)
-     * 2. The right nodes which have been mirrored
-     * 3. The image nodes relating to these right nodes (on left of mesh)
-     */
-    void ReconstructCylindricalMesh(std::vector<std::vector <unsigned> >& rImageMap);
-        
-    /**
-     * Conducts a cylindrical remesh
-     * 
-     * Firstly calls CreateMirrorNodes to create mirror image nodes
-     * Then calls remesher
-     * Maps new node indices
-     * calls ReconstructCylindricalMesh to remove surplus nodes to create a fully periodic mesh.
-     * 
-     * @param x0 The left x-coord of the sheet to be wrapped into a cylinder.
-     * @param x1 The right x-coord  of the sheet to be wrapped into a cylinder.
-     */
-    void CylindricalReMesh(double x0, double x1, NodeMap &map);
-    
-    /**
-     * This method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
-     * 
-     * locations should lie between [rXleft, rXRight) 
-     * 
-     * @param rLocation1 the x and y co-ordinates of point 1
-     * @param rLocation2 the x and y co-ordinates of point 2
-     * @param rXLeft the x value at the left periodic boundary
-     * @param rXRight the x value at the right periodic boundary
-     * 
-     * @return the vector from location1 to location2
-     */
-    c_vector<double, 2> GetVectorFromCylindricalPointAtoB(const c_vector<double, SPACE_DIM>& rLocation1, const c_vector<double, SPACE_DIM>& rLocation2, const double& rXLeft, const double& rXRight);
-
-    /**
-     * Returns true if an unsigned is contained in a vector of unsigneds
-     * 
-     * @param rNodeIndex an unsigned value
-     * @param rListOfNodes a list of unsigned values
-     * 
-     * @return whether the unsigned is in this std::vector
-     */
-    bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
     
 };
 
