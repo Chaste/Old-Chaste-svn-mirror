@@ -416,7 +416,7 @@ class Parallel3(Parallel):
     Parallel.__init__(self, *args, **kwargs)
     self._num_processes = 3
 
-class Parallel10(Parallel):
+class Parallel4(Parallel):
   """
   Run using mpi run for tests which run in a parallel environment
   """
