@@ -7,7 +7,6 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "VectorPortion.hpp"
 #include "ParallelVector.hpp"
 #include "GlobalParallelProblem.hpp"
 
