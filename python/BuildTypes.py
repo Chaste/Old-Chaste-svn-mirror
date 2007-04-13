@@ -408,6 +408,21 @@ class Parallel(GccDebug):
     return self.tools['mpirun'] + ' -np ' + str(self._num_processes) \
       + ' ' + exefile + ' ' + exeflags
 
+class Parallel3(Parallel):
+  """
+  Run using mpi run for tests which run in a parallel environment
+  """
+  def __init__(self, *args, **kwargs):
+    Parallel.__init__(self, *args, **kwargs)
+    self._num_processes = 3
+
+class Parallel10(Parallel):
+  """
+  Run using mpi run for tests which run in a parallel environment
+  """
+  def __init__(self, *args, **kwargs):
+    Parallel.__init__(self, *args, **kwargs)
+    self._num_processes = 4
 
 class Parallel10(Parallel):
   """
