@@ -64,8 +64,8 @@ public:
         
         //std::cout << "Left size = " << left_original.size()<< ", Right size = " << right_original.size()<< "\n" << std::flush;
         // Check the vectors are the right size...
-        TS_ASSERT_EQUALS(left_original.size(),36);
-        TS_ASSERT_EQUALS(right_original.size(),36);
+        TS_ASSERT_EQUALS(left_original.size(),36u);
+        TS_ASSERT_EQUALS(right_original.size(),36u);
         TS_ASSERT_EQUALS(left_original.size(), left_images.size());
         TS_ASSERT_EQUALS(right_original.size(), right_images.size());
         
