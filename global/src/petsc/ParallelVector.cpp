@@ -4,18 +4,19 @@
 #include <vector>
 #include <petscvec.h>
 #include <iostream>
+#include <assert.h>
 
 ParallelVector::ParallelVector(Vec vec) : mVec(vec)
 {
     int lo, hi;
-    int size;
-    VecGetSize(vec, &size);
+    int vector_size;
+    VecGetSize(vec, &vector_size);
     
     
     VecGetOwnershipRange(vec,&lo,&hi);
     VecGetArray(vec, &mpVec);
-    mStride = (unsigned)size / (gProblem.End()-gProblem.Begin());
-    std::cout << "mStride" << mStride << std::endl;
+    mStride = (unsigned)vector_size / (gProblem.GetProblemSize());
+    assert(gProblem.GetProblemSize()*mStride == (unsigned)vector_size);
 }
 
 void ParallelVector::Restore()
@@ -27,5 +28,6 @@ void ParallelVector::Restore()
 
 double& ParallelVector::operator[](ParallelIterator index)
 {
+    assert(mStride == 1);
     return mpVec[index];
 }

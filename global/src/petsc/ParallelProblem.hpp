@@ -8,9 +8,11 @@ class ParallelProblem
 private:
     unsigned mLo;
     unsigned mHi;
+    unsigned mProblemSize;
 public:
     void SetProblemSize(unsigned problemSize);
     unsigned Size();
+    unsigned GetProblemSize();
     ParallelIterator Begin();
     ParallelIterator End();
     unsigned Global(ParallelIterator iterator);

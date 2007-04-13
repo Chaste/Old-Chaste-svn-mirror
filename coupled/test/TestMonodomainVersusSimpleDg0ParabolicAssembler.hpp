@@ -14,6 +14,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "AbstractLinearParabolicPde.hpp"
+#include "VectorPortion.hpp"
 
 
 template <int SPACE_DIM>

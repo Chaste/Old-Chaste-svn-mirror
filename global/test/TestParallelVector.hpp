@@ -9,7 +9,7 @@
 #include "PetscException.hpp"
 #include "ParallelProblem.hpp"
 #include "ParallelVector.hpp"
-//#include "VectorStripe.hpp"
+#include "VectorStripe.hpp"
 #include "GlobalParallelProblem.hpp"
 
 class TestParallelVector : public CxxTest::TestSuite
@@ -62,14 +62,16 @@ public:
         // create parallel vector
         ParallelVector vector(vec);
         ParallelVector big_vector(striped);
-//        VectorStripe positive(big_vector,0);
-//        VectorStripe negative(big_vector,1);
+        VectorStripe positive(big_vector,0);
+        VectorStripe negative(big_vector,1);
         // check we can read the values
         for (ParallelIterator index = gProblem.Begin();
              index!= gProblem.End();
              ++index)
         {
             TS_ASSERT_EQUALS(vector[index], gProblem.Local(index)*gProblem.Global(index));
+            TS_ASSERT_EQUALS(positive[index], (double)gProblem.Global(index));
+            TS_ASSERT_EQUALS(negative[index], -(double)gProblem.Global(index));
         }
         // now write something to the vector: - local_index * global_index
         for (ParallelIterator index = gProblem.Begin();

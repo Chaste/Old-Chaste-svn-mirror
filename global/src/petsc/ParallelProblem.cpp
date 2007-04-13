@@ -16,9 +16,14 @@ void ParallelProblem::SetProblemSize(unsigned problemSize)
     PetscInt petsc_lo, petsc_hi;
     VecGetOwnershipRange(vec,&petsc_lo,&petsc_hi);
     mLo=(unsigned)petsc_lo;
-    mHi=(unsigned)petsc_hi;   
+    mHi=(unsigned)petsc_hi; 
+    mProblemSize = problemSize;  
 }
 
+unsigned ParallelProblem::GetProblemSize()
+{
+    return mProblemSize;
+}
 unsigned ParallelProblem::Size()
 {
     return mHi-mLo;

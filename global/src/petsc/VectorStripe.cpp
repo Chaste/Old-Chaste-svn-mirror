@@ -13,7 +13,7 @@ VectorStripe::VectorStripe(ParallelVector vector, unsigned stripe)
 
 double& VectorStripe::operator[](ParallelIterator index)
 {
-    return mpVec[index];
+    return mpVec[mStride*index+mStripe];
 }
 
 

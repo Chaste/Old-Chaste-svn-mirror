@@ -9,7 +9,7 @@
 #include "ReplicatableVector.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
-#include "VectorPortion.hpp"
+#include "GlobalParallelProblem.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -101,25 +101,21 @@ public:
         
         // Create a temporary PETSc vector and use the ownership range of
         // the PETSc vector to size our C++ vectors
-        Vec temp_vec;
-        VecCreate(PETSC_COMM_WORLD, &temp_vec);
-        VecSetSizes(temp_vec, PETSC_DECIDE, mNumNodes);
-        VecSetFromOptions(temp_vec);
+
+        gProblem.SetProblemSize(mNumNodes);
+        this->mOwnershipRangeLo = gProblem.Global(gProblem.Begin());
+        this->mOwnershipRangeHi = gProblem.Global(gProblem.End());
         
-        VectorPortion portion(temp_vec);
-        this->mOwnershipRangeLo = portion.Begin().Global;
-        this->mOwnershipRangeHi = portion.End().Global;
-        
-        
-        mCellsDistributed.resize(portion.End().Global - portion.Begin().Global);
-        
-        for (VectorPortion::Iterator index = portion.Begin();
-             index != portion.End();
+        mCellsDistributed.resize(gProblem.Size());
+
+
+        for (ParallelIterator index = gProblem.Begin();
+             index != gProblem.End();
              ++index)
         {
-            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
-        }
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed, portion.Begin().Global, portion.End().Global);
+            mCellsDistributed[gProblem.Local(index)] = pCellFactory->CreateCardiacCellForNode(gProblem.Global(index));
+        }    
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed, gProblem.Global(gProblem.Begin()), gProblem.Global(gProblem.End()));
         
         
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );

@@ -8,6 +8,8 @@
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "VectorPortion.hpp"
+#include "ParallelVector.hpp"
+#include "GlobalParallelProblem.hpp"
 
 /**
  * Class which specifies and solves a monodomain problem.
@@ -111,18 +113,19 @@ public:
         VecSetSizes(initial_condition, PETSC_DECIDE, mMesh.GetNumNodes() );
         VecSetFromOptions(initial_condition);
         
-        VectorPortion portion(initial_condition);
-        mLo = portion.Begin().Global;
-        mHi = portion.End().Global;
 
-        // Set a constant initial voltage throughout the mMesh
-        for (VectorPortion::Iterator index = portion.Begin();
-             index != portion.End();
+        mLo = gProblem.Global(gProblem.Begin());
+        mHi = gProblem.Global(gProblem.End());
+        
+        ParallelVector par_ic(initial_condition);
+        for (ParallelIterator index = gProblem.Begin();
+             index != gProblem.End();
              ++index)
-             {
-                *index = mpMonodomainPde->GetCardiacCell(index.Global)->GetVoltage();
-             }
-        portion.Restore();
+        {
+            par_ic[index]=mpMonodomainPde->GetCardiacCell(gProblem.Global(index))->GetVoltage();
+        }
+        par_ic.Restore();
+
         
         //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to
         //  'xx'th time step using ColumnDataWriter
