@@ -14,6 +14,8 @@ class ParallelVector
 private:
     static unsigned mLo;
     static unsigned mHi;
+    static unsigned mGlobalHi;
+    unsigned mStride;
     Vec mVec;
     double *mpVec;
 public:
@@ -62,6 +64,23 @@ public:
          */
         unsigned Global;
     };
+    
+    class Stripe
+    {
+    public:
+        unsigned mStride;
+        unsigned mStripe;
+        double *mpVec;
+        Stripe(ParallelVector parallelVec, unsigned stripe) {
+            mStride=parallelVec.mStride;
+            mStripe=stripe;
+            mpVec=parallelVec.mpVec;
+        }
+        double& operator[](Iterator index)
+        {
+            return mpVec[index.Local*mStride+mStripe];
+        }
+    };
 
     /**
      * @return iterator pointing to the first element in the portion
@@ -74,6 +93,10 @@ public:
     static Iterator End();
     
     double& operator[](Iterator index);
+    
+    static void SetProblemSize(unsigned size);
+    
+    static void SetProblemSize(Vec vec);
 
 };
 
