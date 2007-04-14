@@ -10,6 +10,7 @@
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
 #include "VectorPortion.hpp"
+#include "DistributedVector.hpp"
 
 /**
  *  Pde containing common functionality to mono and bidomain pdes.
@@ -101,26 +102,21 @@ public:
         
         // Create a temporary PETSc vector and use the ownership range of
         // the PETSc vector to size our C++ vectors
-        Vec temp_vec;
-        VecCreate(PETSC_COMM_WORLD, &temp_vec);
-        VecSetSizes(temp_vec, PETSC_DECIDE, mNumNodes);
-        VecSetFromOptions(temp_vec);
+        DistributedVector::SetProblemSize(mNumNodes);
+        this->mOwnershipRangeLo = DistributedVector::Begin().Global;
+        this->mOwnershipRangeHi = DistributedVector::End().Global;
+ 
+        mCellsDistributed.resize(DistributedVector::End().Global - DistributedVector::Begin().Global);
         
-        VectorPortion portion(temp_vec);
-        this->mOwnershipRangeLo = portion.Begin().Global;
-        this->mOwnershipRangeHi = portion.End().Global;
-        
-        
-        mCellsDistributed.resize(portion.End().Global - portion.Begin().Global);
-        
-        for (VectorPortion::Iterator index = portion.Begin();
-             index != portion.End();
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
              ++index)
         {
             mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
         }
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed, portion.Begin().Global, portion.End().Global);
-        
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed,
+                                           DistributedVector::Begin().Global,
+                                           DistributedVector::End().Global);
         
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
@@ -129,12 +125,11 @@ public:
     
     virtual ~AbstractCardiacPde()
     {
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
-            delete mCellsDistributed[local_index];
+            delete mCellsDistributed[index.Local];
         }
     }
     
@@ -208,38 +203,31 @@ public:
      */
     void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
     {
-        double *p_current_solution;
-        VecGetArray(currentSolution, &p_current_solution);
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        
-        for (unsigned global_index=lo; global_index < hi; global_index++)
+        DistributedVector striped_distributed(currentSolution);
+        DistributedVector::Stripe voltage_solution(striped_distributed,0);
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
-            
-            // overwrite the voltage with the input value
-            mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
-            
+            mCellsDistributed[index.Local]->SetVoltage( voltage_solution[index] );
             try
             {
                 // solve
                 // Note: Voltage should not be updated. GetIIonic will be called later
                 // and needs the old voltage. The voltage will be updated from the pde.
-                mCellsDistributed[local_index]->ComputeExceptVoltage(currentTime, nextTime);
+                mCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
             }
             catch (Exception &e)
             {
                 ReplicateException(true);
                 throw e;
             }
-            
             // update the Iionic and stimulus caches
-            UpdateCaches(global_index, local_index, nextTime);
+            UpdateCaches(index.Global, index.Local, nextTime);
         }
-        VecRestoreArray(currentSolution, &p_current_solution);
-        
+        striped_distributed.Restore();
         ReplicateException(false);
-        
         ReplicateCaches();
     }
     
