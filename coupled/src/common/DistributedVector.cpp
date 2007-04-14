@@ -29,6 +29,22 @@ void DistributedVector::SetProblemSize(Vec vec)
         mGlobalHi = (unsigned) size;
 }
 
+Vec DistributedVector::CreateVec()
+{
+    Vec vec;
+    VecCreate(PETSC_COMM_WORLD, &vec);
+    VecSetSizes(vec, PETSC_DECIDE, mGlobalHi);
+    VecSetFromOptions(vec);
+    return vec;
+}
+
+Vec DistributedVector::CreateVec(unsigned stride)
+{
+    Vec vec;
+    VecCreateMPI(PETSC_COMM_WORLD, 2*(mHi-mLo) , 2*10, &vec);
+    return vec;
+}
+
 DistributedVector::DistributedVector(Vec vec) : mVec(vec)
 {
     VecGetArray(vec, &mpVec);
@@ -42,6 +58,23 @@ void DistributedVector::Restore()
         VecRestoreArray(mVec, &mpVec);
         VecAssemblyBegin(mVec);
         VecAssemblyEnd(mVec);
+}
+
+bool DistributedVector::Iterator::operator==(const Iterator& other)
+{
+    return(Global == other.Global);
+}
+        
+bool DistributedVector::Iterator::operator!=(const Iterator& other)
+{
+   return(Global != other.Global);
+}        
+
+DistributedVector::Iterator& DistributedVector::Iterator::operator++()
+{
+    Local++;
+    Global++;
+    return(*this);
 }
 
 DistributedVector::Iterator DistributedVector::Begin()
@@ -62,21 +95,7 @@ DistributedVector::Iterator DistributedVector::End()
 
 double& DistributedVector::operator[](Iterator index)
 {
+    assert(mStride==1);
     return mpVec[index.Local];
 }
 
-Vec DistributedVector::CreateVec()
-{
-    Vec vec;
-    VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, PETSC_DECIDE, mGlobalHi);
-    VecSetFromOptions(vec);
-    return vec;
-}
-
-Vec DistributedVector::CreateVec(unsigned stride)
-{
-    Vec vec;
-    VecCreateMPI(PETSC_COMM_WORLD, 2*(mHi-mLo) , 2*10, &vec);
-    return vec;
-}

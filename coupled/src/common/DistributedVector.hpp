@@ -4,6 +4,7 @@
 #include <vector>
 #include <petscvec.h>
 #include <iostream>
+#include <assert.h>
 
 /***
  * Gives access to the local portion of a PETSc vector via an iterator.
@@ -19,10 +20,30 @@ private:
     Vec mVec;
     double *mpVec;
 public:
+    /**
+     * Set the problem size.
+     */
+    static void SetProblemSize(unsigned size);
+    
+    /**
+     * Set the problem with an existing PERScc vector -- must have stride=1
+     */
+    static void SetProblemSize(Vec vec);
+    
+    /*
+     * Create a PETSc vector of the problem size
+     */
+    static Vec CreateVec();
+    
+    /*
+     * Create a striped PETSc vector of size: stride * problem size
+     */
+    static Vec CreateVec(unsigned stride);
+
     /***
      * Constructor
      * This class represents the portion of a distributed PETSc vector on this process.
-     * @param vec PETSc vector of with this class shall be a portion.
+     * @param vec PETSc vector of which this class shall be a portion.
      */
     DistributedVector(Vec vec);
     
@@ -35,29 +56,18 @@ public:
     /**
      * Iterator class allows one to iterator of then elements of the distributed
      * vector on this process
-     */
+     */    
     class Iterator
     {
     public:
         unsigned Local;
         unsigned Global;
     
-        bool operator==(const Iterator& other)
-        {
-           return(Global == other.Global);
-        }
+        bool operator==(const Iterator& other);
 
-        bool operator!=(const Iterator& other)
-        {
-           return(Global != other.Global);
-        }
+        bool operator!=(const Iterator& other);
         
-        Iterator& operator++()
-        {
-            Local++;
-            Global++;
-            return(*this);
-        }
+        Iterator& operator++();
     };
     
     class Stripe
@@ -72,9 +82,11 @@ public:
         * @param stripe number of this stripe within the vector starting from 0
         */
         
-        Stripe(DistributedVector parallelVec, unsigned stripe) {
+        Stripe(DistributedVector parallelVec, unsigned stripe)
+        {
             mStride=parallelVec.mStride;
             mStripe=stripe;
+            assert(mStripe<mStride);
             mpVec=parallelVec.mpVec;
         }
         
@@ -108,19 +120,7 @@ public:
     */   
     double& operator[](Iterator index);
 
-    static void SetProblemSize(unsigned size);
-    
-    static void SetProblemSize(Vec vec);
-    
-    /*
-     * Create a PETSc vector of the problem size
-     */
-    static Vec CreateVec();
-    
-    /*
-     * Create a striped PETSc vector of size: stride * problem size
-     */
-    static Vec CreateVec(unsigned stride);
+
 
 };
 

@@ -47,7 +47,7 @@ public:
         VecAssemblyEnd(vec);
         
         // READ VECTOR
-        DistributedVector::SetProblemSize(10);
+        DistributedVector::SetProblemSize(vec);
         DistributedVector distributed_vector(vec);
         DistributedVector distributed_vector2(striped);
         DistributedVector::Stripe linear(distributed_vector2,0);
