@@ -1,14 +1,14 @@
-#include "ParallelVector.hpp"
+#include "DistributedVector.hpp"
 
 #include <vector>
 #include <petscvec.h>
 #include <iostream>
 #include <assert.h>
 
-unsigned ParallelVector::mLo=0;
-unsigned ParallelVector::mHi=0;
-unsigned ParallelVector::mGlobalHi=0;
-void ParallelVector::SetProblemSize(unsigned size)
+unsigned DistributedVector::mLo=0;
+unsigned DistributedVector::mHi=0;
+unsigned DistributedVector::mGlobalHi=0;
+void DistributedVector::SetProblemSize(unsigned size)
 {
         Vec vec;
         VecCreate(PETSC_COMM_WORLD, &vec);
@@ -17,7 +17,7 @@ void ParallelVector::SetProblemSize(unsigned size)
         SetProblemSize(vec);
 }
 
-void ParallelVector::SetProblemSize(Vec vec)
+void DistributedVector::SetProblemSize(Vec vec)
 {
         // calculate my range
         PetscInt petsc_lo, petsc_hi;
@@ -29,7 +29,7 @@ void ParallelVector::SetProblemSize(Vec vec)
         mGlobalHi = (unsigned) size;
 }
 
-ParallelVector::ParallelVector(Vec vec) : mVec(vec)
+DistributedVector::DistributedVector(Vec vec) : mVec(vec)
 {
     VecGetArray(vec, &mpVec);
     PetscInt size=VecGetSize(vec);
@@ -37,14 +37,14 @@ ParallelVector::ParallelVector(Vec vec) : mVec(vec)
     assert ((mStride * mGlobalHi) == (unsigned)size);
 }
 
-void ParallelVector::Restore()
+void DistributedVector::Restore()
 {
         VecRestoreArray(mVec, &mpVec);
         VecAssemblyBegin(mVec);
         VecAssemblyEnd(mVec);
 }
 
-ParallelVector::Iterator ParallelVector::Begin()
+DistributedVector::Iterator DistributedVector::Begin()
 {
     Iterator index;
     index.Local=0;
@@ -52,7 +52,7 @@ ParallelVector::Iterator ParallelVector::Begin()
     return index;
 }
 
-ParallelVector::Iterator ParallelVector::End()
+DistributedVector::Iterator DistributedVector::End()
 {
     Iterator index;
     index.Local=mHi-mLo;
@@ -60,7 +60,23 @@ ParallelVector::Iterator ParallelVector::End()
     return index;
 }
 
-double& ParallelVector::operator[](Iterator index)
+double& DistributedVector::operator[](Iterator index)
 {
     return mpVec[index.Local];
+}
+
+Vec DistributedVector::CreateVec()
+{
+    Vec vec;
+    VecCreate(PETSC_COMM_WORLD, &vec);
+    VecSetSizes(vec, PETSC_DECIDE, mGlobalHi);
+    VecSetFromOptions(vec);
+    return vec;
+}
+
+Vec DistributedVector::CreateVec(unsigned stride)
+{
+    Vec vec;
+    VecCreateMPI(PETSC_COMM_WORLD, 2*(mHi-mLo) , 2*10, &vec);
+    return vec;
 }

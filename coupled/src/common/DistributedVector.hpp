@@ -1,5 +1,5 @@
-#ifndef PARALLELVECTOR_HPP_
-#define PARALLELVECTOR_HPP_
+#ifndef DISTRIBUTEDVECTOR_HPP_
+#define DISTRIBUTEDVECTOR_HPP_
 
 #include <vector>
 #include <petscvec.h>
@@ -9,7 +9,7 @@
  * Gives access to the local portion of a PETSc vector via an iterator.
  */
 
-class ParallelVector
+class DistributedVector
 {
 private:
     static unsigned mLo;
@@ -21,22 +21,27 @@ private:
 public:
     /***
      * Constructor
+     * This class represents the portion of a distributed PETSc vector on this process.
      * @param vec PETSc vector of with this class shall be a portion.
      */
-    ParallelVector(Vec vec);
+    DistributedVector(Vec vec);
     
     /**
-     * Store elements that have been written to via the iterator
+     * Store elements that have been written to
      * back into the PETSc vector. Call after you have finished writing.
      */
     void Restore();
 
     /**
-     * Iterator class allows one to iterator of then elements in the vector portion.
+     * Iterator class allows one to iterator of then elements of the distributed
+     * vector on this process
      */
     class Iterator
     {
     public:
+        unsigned Local;
+        unsigned Global;
+    
         bool operator==(const Iterator& other)
         {
            return(Global == other.Global);
@@ -53,16 +58,6 @@ public:
             Global++;
             return(*this);
         }
-
-        /***
-         * The local index of the current element.
-         */
-        unsigned Local;
-        
-        /**
-         * The global index of the current element.
-         */
-        unsigned Global;
     };
     
     class Stripe
@@ -71,35 +66,64 @@ public:
         unsigned mStride;
         unsigned mStripe;
         double *mpVec;
-        Stripe(ParallelVector parallelVec, unsigned stripe) {
+       /***
+        * Constructor
+        * @param parallelVec striped vector
+        * @param stripe number of this stripe within the vector starting from 0
+        */
+        
+        Stripe(DistributedVector parallelVec, unsigned stripe) {
             mStride=parallelVec.mStride;
             mStripe=stripe;
             mpVec=parallelVec.mpVec;
         }
+        
+        /**
+        * @param index
+        * @return value of striped distributed vector pointed to by index.
+        */           
         double& operator[](Iterator index)
         {
             return mpVec[index.Local*mStride+mStripe];
         }
+        
     };
 
     /**
-     * @return iterator pointing to the first element in the portion
+     * @return iterator pointing to the first element of the distributed
+     * vector on this process 
      */
     static Iterator Begin();
     
     /**
-     * @return iterator pointing to one past the last element in the portion
+     * @return iterator pointing to one past the last element of the distributed
+     * vector on this process
      */
     static Iterator End();
-    
+ 
+    /**
+    * @param index
+    * @return value of distributed vector pointed to by index.
+    * Do not use if stride>1.
+    */   
     double& operator[](Iterator index);
-    
+
     static void SetProblemSize(unsigned size);
     
     static void SetProblemSize(Vec vec);
+    
+    /*
+     * Create a PETSc vector of the problem size
+     */
+    static Vec CreateVec();
+    
+    /*
+     * Create a striped PETSc vector of size: stride * problem size
+     */
+    static Vec CreateVec(unsigned stride);
 
 };
 
 
 
-#endif /*PARALLELVECTOR_HPP_*/
+#endif /*DISTRIBUTEDVECTOR_HPP_*/
