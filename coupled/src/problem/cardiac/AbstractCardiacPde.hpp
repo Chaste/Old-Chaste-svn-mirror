@@ -179,16 +179,16 @@ public:
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
     {
 #ifndef NDEBUG
-        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
+        if (!(DistributedVector::Begin().Global <= globalIndex && globalIndex < DistributedVector::End().Global))
         {
             #define COVERAGE_IGNORE
-            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
-            " hi " << this->mOwnershipRangeHi << std::endl;
+            std::cout << "i " << globalIndex << " lo " << DistributedVector::Begin().Global <<
+            " hi " << DistributedVector::End().Global << std::endl;
             #undef COVERAGE_IGNORE
         }
 #endif
-        assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
-        return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
+        assert(DistributedVector::Begin().Global <= globalIndex && globalIndex < DistributedVector::End().Global);
+        return mCellsDistributed[globalIndex-DistributedVector::Begin().Global];
     }
     
     
@@ -260,8 +260,8 @@ public:
      */
     virtual void ReplicateCaches()
     {
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
+        unsigned lo=DistributedVector::Begin().Global;
+        unsigned hi=DistributedVector::End().Global;
         
         mIionicCacheReplicated.Replicate(lo, hi);
         mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
