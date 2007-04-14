@@ -2,32 +2,25 @@
 #define CHECKMONOLR91VARS_HPP_
 
 #include "VectorPortion.hpp"
-#include "GlobalParallelProblem.hpp"
-#include "ParallelVector.hpp"
 #include "MonodomainProblem.hpp"
 
 template<unsigned SPACE_DIM>
 void CheckMonoLr91Vars(MonodomainProblem<SPACE_DIM>& problem)
 {
-//    VectorPortion portion(problem.GetVoltage());
-//    
-//    for (VectorPortion::Iterator index = portion.Begin();
-//         index != portion.End();
-//         ++index)
-//    {
-    ParallelVector voltage(problem.GetVoltage());
-    for (ParallelIterator index = gProblem.Begin();
-         index != gProblem.End();
-         index++)
+    VectorPortion portion(problem.GetVoltage());
+    
+    for (VectorPortion::Iterator index = portion.Begin();
+         index != portion.End();
+         ++index)
     {
         // assuming LR model has Ena = 54.4 and Ek = -77
         double Ena   =  54.4;
         double Ek    = -77.0;
         
-        TS_ASSERT_LESS_THAN_EQUALS( voltage[index] , Ena +  30);
-        TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
+        TS_ASSERT_LESS_THAN_EQUALS( *index , Ena +  30);
+        TS_ASSERT_LESS_THAN_EQUALS(-*index + (Ek-30), 0);
         
-        std::vector<double> odeVars = problem.GetMonodomainPde()->GetCardiacCell(gProblem.Global(index))->rGetStateVariables();
+        std::vector<double> odeVars = problem.GetMonodomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
         for (int j=0; j<8; j++)
         {
             // if not voltage or calcium ion conc, test whether between 0 and 1

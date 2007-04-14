@@ -1,8 +1,6 @@
 TestCwd.hpp
 TestException.hpp
 TestOutputFileHandler.hpp
-TestParallelVector.hpp
-TestParallelProblem.hpp
 TestPetSCSetup.hpp
 TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp
