@@ -538,7 +538,7 @@ public:
         TS_ASSERT_EQUALS(num_transit, 2);
         
         TS_ASSERT_LESS_THAN(num_differentiated, 23);
-        TS_ASSERT_MORE_THAN(num_differentiated, 15);
+        TS_ASSERT_LESS_THAN(15, num_differentiated);
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
