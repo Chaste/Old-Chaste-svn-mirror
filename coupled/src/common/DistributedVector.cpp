@@ -25,7 +25,8 @@ void DistributedVector::SetProblemSize(Vec vec)
         mLo=(unsigned)petsc_lo;
         mHi=(unsigned)petsc_hi;
         // vector size
-        PetscInt size=VecGetSize(vec);
+        PetscInt size;
+        VecGetSize(vec, &size);
         mGlobalHi = (unsigned) size;
 }
 
@@ -48,7 +49,8 @@ Vec DistributedVector::CreateVec(unsigned stride)
 DistributedVector::DistributedVector(Vec vec) : mVec(vec)
 {
     VecGetArray(vec, &mpVec);
-    PetscInt size=VecGetSize(vec);
+    PetscInt size;
+    VecGetSize(vec, &size);
     mStride = (unsigned) size / mGlobalHi;
     assert ((mStride * mGlobalHi) == (unsigned)size);
 }
