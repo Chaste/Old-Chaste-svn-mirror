@@ -92,6 +92,8 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     {
         refresh=true;
     }
+    
+ 
     //This code is only used when ELEMENT_DIM<SPACE_DIM
     switch (ELEMENT_DIM)
     {
@@ -118,8 +120,8 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
         default:
             ; // Not going to happen
     }
-    mJacobianDeterminant = norm_2(weighted_direction);
-    if (mJacobianDeterminant < DBL_EPSILON)
+    double jacobian_determinant = norm_2(weighted_direction);
+    if (jacobian_determinant < DBL_EPSILON)
     {
         EXCEPTION("Jacobian determinant is zero");
     }
@@ -127,11 +129,13 @@ void AbstractElement<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianDeterminant(bool co
     {
         if ( inner_prod(mWeightedDirection,weighted_direction) < 0)
         {
-            EXCEPTION("Subspace element has changed direction");
+        	EXCEPTION("Subspace element has changed direction");
         }
     }
     if (concreteMove)
     {
+        assert(ELEMENT_DIM < SPACE_DIM);
+        mJacobianDeterminant = jacobian_determinant;
         mWeightedDirection = weighted_direction;
     }
     

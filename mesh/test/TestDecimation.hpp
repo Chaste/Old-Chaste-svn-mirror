@@ -17,6 +17,27 @@
 
 #include <vector>
 
+
+template <unsigned SPACE_DIM>
+class FixedNodeDecimator : public Decimator<SPACE_DIM>
+{
+private:
+	unsigned mEndNumberNodes;
+	
+protected:	
+   	bool ExtraStoppingCondition()
+	{
+		return (this->mQueue.size() == mEndNumberNodes);
+	}
+
+public:
+	FixedNodeDecimator(unsigned endNumberNodes)
+	{
+		mEndNumberNodes=endNumberNodes;
+	}
+
+};
+
 class TestDecimation : public CxxTest::TestSuite
 {
 public:
@@ -145,6 +166,24 @@ public:
         //TrianglesMeshWriter<2,2> mesh_writer2("", "SquareFullDecimation");
         //mesh_writer2.WriteFilesUsingMesh(mesh);
         //     base_decimator.Interrogate();
+    }
+    
+    void TestBase2DOnSquareWithStopping()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
+        FixedNodeDecimator<2> forty_node_decimator(40);
+        
+        forty_node_decimator.Initialise(&mesh);
+        
+         
+        forty_node_decimator.Decimate();
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40U);
+      
     }
     
     

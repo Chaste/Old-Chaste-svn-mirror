@@ -105,13 +105,18 @@ protected:
         
         mNeighbourhoodVolume=CalculateNeighbourhoodVolume(pNodeInfo->mpNode);
         
-        
         for (unsigned i=0; i<pNodeInfo->GetNumNeighbourNodes();i++)
         {
             NodeInfo<SPACE_DIM> *p_neighbour=pNodeInfo->GetNextNeighbourNode();
             pNodeInfo->mPossibleTargetIndex=p_neighbour->GetIndex();
             try
             {
+            	if (pNodeInfo->mpNode->GetIndex() == 5346)
+        		{	
+        			int temp=pNodeInfo->mPossibleTargetIndex;
+        			std::cout<<"A new score for 5346 with "<<temp<<"\n";
+        		}
+            	
                 mpMesh->MoveMergeNode(pNodeInfo->GetIndex(),
                                       pNodeInfo->mPossibleTargetIndex, false);
                 double score=0.0;
@@ -147,8 +152,11 @@ protected:
                 //If the move is not feasible then we ignore it
                 
             }
-        }
         mpMesh->SetNode(pNodeInfo->GetIndex(), point);
+        //Only really necessary if their are boundary nodes involved
+        //since they (presently) have memory as to their use
+        }
+//        mpMesh->SetNode(pNodeInfo->GetIndex(), point);
         
     }
     
@@ -293,7 +301,17 @@ protected:
         //else
         return 1;
     }
+    
+    bool StoppingCondition()
+    {
+    	return ( (mQueue[0]->mScore >= mThresholdScore) || ExtraStoppingCondition() );
+    }
+    virtual bool ExtraStoppingCondition()
+    {
+     	return false;
+    }
 public:
+    
     void SetThreshold(double threshold)
     {
         mThresholdScore = threshold;
@@ -312,12 +330,15 @@ public:
         return mVolumeLeakage;
     }
     
-    void Decimate()
+    void Decimate(bool interrogate=false)
     {
-        while (mQueue[0]->mScore < mThresholdScore)
+        while (!StoppingCondition())
         {
             ActivateOnce();
-            //Interrogate();
+            if (interrogate)
+            {
+            	Interrogate();
+            }
         }
     }
     void DecimateAnimate(std::string filePathName, unsigned step=1)
@@ -327,7 +348,7 @@ public:
         OpenAnimationFiles(filePathName);
         
         WriteVisualiseFiles(time);
-        while (mQueue[0]->mScore < mThresholdScore)
+        while (!StoppingCondition() )
         {
             ActivateOnce();
             time++;
