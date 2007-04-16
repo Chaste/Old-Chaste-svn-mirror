@@ -9,7 +9,6 @@
 #include "ReplicatableVector.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacCell.hpp"
-#include "VectorPortion.hpp"
 #include "DistributedVector.hpp"
 
 /**

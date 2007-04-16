@@ -10,7 +10,7 @@
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "VectorPortion.hpp"
+#include "DistributedVector.hpp"
 #include <petsc.h>
 #include <cxxtest/TestSuite.h>
 
@@ -94,15 +94,13 @@ public:
         VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
         VecSetFromOptions(voltage);
 
-        VectorPortion portion(voltage);
-        for (VectorPortion::Iterator index = portion.Begin();
-             index != portion.End();
+        DistributedVector dist_voltage(voltage);
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
              ++index)
         {
-            *index = initial_voltage;
+            dist_voltage[index] = initial_voltage;
         }
-        portion.Restore();
-        
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
         
         double value1 = monodomain_pde.GetIionicCacheReplicated()[0];
@@ -129,20 +127,20 @@ public:
         TS_ASSERT_DELTA(value1, value2, 0.000001);
         
         // Reset
-        for (VectorPortion::Iterator index = portion.Begin();
-             index != portion.End();
-             ++index)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+         index != DistributedVector::End();
+         ++index)
         {
             if (index.Global==0)
             {
-                *index = solutionSetStimT_05[4];
+                dist_voltage[index] = solutionSetStimT_05[4];
             }
             if (index.Global==1)
             {
-                *index = solutionSetNoStimT_05[4];
-            }
+                dist_voltage[index] = solutionSetNoStimT_05[4];
+            }            
         }
-        portion.Restore();
+        dist_voltage.Restore();
         
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);
         value1 = monodomain_pde.GetIionicCacheReplicated()[0];
@@ -171,36 +169,21 @@ public:
     
     void TestMonodomainPdeGetCardiacCell( void )
     {
-        unsigned num_nodes = 2;
         MyCardiacCellFactory cell_factory;
         MonodomainPde<1> monodomain_pde( &cell_factory );
+        DistributedVector::SetProblemSize(2);
         
-        // initial condition;
-        Vec voltage;
-        VecCreate(PETSC_COMM_WORLD, &voltage);
-        VecSetSizes(voltage, PETSC_DECIDE, num_nodes);
-        //VecSetType(initialCondition, VECSEQ);
-        VecSetFromOptions(voltage);
-        
-        double* p_voltage_array;
-        VecGetArray(voltage, &p_voltage_array);
-        
-        int lo, hi;
-        VecGetOwnershipRange(voltage,&lo,&hi);
-        
-        if (lo<=0 && 0<hi)
+        if (DistributedVector::Begin().Local<=0 && DistributedVector::End().Local<=0)
         {
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(0);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),-80,1e-10);
         }
         
-        if (lo<=1 && 1<hi)
+        if (DistributedVector::Begin().Local<=1 && 1<DistributedVector::End().Local)
         {
             AbstractCardiacCell* cell = monodomain_pde.GetCardiacCell(1);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
         }
-        
-        VecDestroy(voltage);
     }
 };
 
