@@ -8,7 +8,7 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "BidomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-
+#include "DistributedVector.hpp"
 
 /**
  * Class which specifies and solves a bidomain problem.
@@ -139,44 +139,33 @@ public:
         }
         
         
-        // initial condition;
-        Vec initial_condition;
+        DistributedVector::SetProblemSize(mMesh.GetNumNodes());
+                
         
-        unsigned big_lo, big_hi;
-        mpBidomainPde->GetOwnershipRange(big_lo, big_hi);
+        Vec initial_condition=DistributedVector::CreateVec(2);
         
-        VecCreateMPI(PETSC_COMM_WORLD, 2*(big_hi-big_lo) , 2*mMesh.GetNumNodes(), &initial_condition);
-        double* p_initial_condition;
-        VecGetArray(initial_condition, &p_initial_condition);
+        DistributedVector striped_vec(initial_condition);
+        DistributedVector::Stripe intra(striped_vec,0);
+        DistributedVector::Stripe extra(striped_vec,1);
+                
+        mLo=DistributedVector::Begin().Global;
+        mHi=DistributedVector::End().Global;
         
-        PetscInt temp_lo, temp_hi;
-        VecGetOwnershipRange(initial_condition, &temp_lo, &temp_hi);
-        mLo=(unsigned) temp_lo;
-        mHi=(unsigned) temp_hi;
-        
-        for (unsigned global_index=big_lo; global_index<big_hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index!= DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - big_lo;
-            p_initial_condition[2*local_index  ] = mpBidomainPde->GetCardiacCell(global_index)->GetVoltage();
-            p_initial_condition[2*local_index+1] = 0;
-        }
+            intra[index]= mpBidomainPde->GetCardiacCell(index.Global)->GetVoltage();
+            extra[index] =0;
+        }        
         
-        
-        VecRestoreArray(initial_condition, &p_initial_condition);
-        VecAssemblyBegin(initial_condition);
-        VecAssemblyEnd(initial_condition);
-        //VecView(initial_condition, PETSC_VIEWER_STDOUT_WORLD);
-        
-        //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to
-        //  'xx'th time step using ColumnDataWriter
+        striped_vec.Restore();
+
         ParallelColumnDataWriter *p_test_writer = NULL;
-        
         unsigned time_var_id = 0;
         unsigned voltage_var_id = 0;
         bool write_files = false;
-        
         double current_time = mStartTime;
-        
         if (mPrintOutput)
         {
             if (mOutputFilenamePrefix.length() > 0)

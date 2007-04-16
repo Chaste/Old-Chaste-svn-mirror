@@ -93,12 +93,8 @@ public:
         //mCapacitance = 1;
         //double const_intra_conductivity = 0.0005;
         
-        mIntracellularConductivityTensor.clear();
-        
-        for (unsigned i=0;i<SPACE_DIM;i++)
-        {
-            mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
-        }
+        mIntracellularConductivityTensor = const_intra_conductivity
+                                           * identity_matrix<double>(SPACE_DIM);
         
         // Create a temporary PETSc vector and use the ownership range of
         // the PETSc vector to size our C++ vectors

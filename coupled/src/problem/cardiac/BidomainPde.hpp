@@ -5,6 +5,7 @@
 #include "Node.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractCardiacPde.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
 
 
 /**
@@ -49,11 +50,8 @@ public:
           */
         double const_extra_conductivity = 7.0;
         
-        mExtracellularConductivityTensor.clear();
-        for (unsigned i=0;i<SPACE_DIM;i++)
-        {
-            mExtracellularConductivityTensor(i,i) = const_extra_conductivity;
-        }
+        mExtracellularConductivityTensor = const_extra_conductivity
+                                           * identity_matrix<double>(SPACE_DIM);
         
         mExtracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
     }
@@ -86,8 +84,8 @@ public:
     void ReplicateCaches()
     {
         AbstractCardiacPde<SPACE_DIM>::ReplicateCaches();
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
+        unsigned lo=DistributedVector::Begin().Global;
+        unsigned hi=DistributedVector::End().Global;
         
         mExtracellularStimulusCacheReplicated.Replicate(lo, hi);
     }

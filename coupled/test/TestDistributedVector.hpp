@@ -73,8 +73,9 @@ public:
         //WRITE VECTOR
         // create a 10 element petsc vector
         DistributedVector::SetProblemSize(10);
-        Vec petsc_vec=DistributedVector::CreateVec();
         Vec striped=DistributedVector::CreateVec(2);
+        Vec petsc_vec=DistributedVector::CreateVec();
+
         DistributedVector distributed_vector(petsc_vec);
         DistributedVector distributed_vector2(striped);
         DistributedVector::Stripe linear(distributed_vector2,0);

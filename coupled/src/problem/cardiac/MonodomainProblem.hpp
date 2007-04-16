@@ -106,23 +106,20 @@ public:
         MonodomainDg0Assembler<SPACE_DIM,SPACE_DIM> monodomain_assembler(&mMesh, mpMonodomainPde);
         
         // initial condition;
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, mMesh.GetNumNodes() );
-        VecSetFromOptions(initial_condition);
-        
-        VectorPortion portion(initial_condition);
-        mLo = portion.Begin().Global;
-        mHi = portion.End().Global;
-
+        Vec initial_condition= DistributedVector::CreateVec();
+        DistributedVector ic(initial_condition);
+        mLo = DistributedVector::Begin().Global;
+        mHi = DistributedVector::End().Global;
         // Set a constant initial voltage throughout the mMesh
-        for (VectorPortion::Iterator index = portion.Begin();
-             index != portion.End();
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
              ++index)
              {
-                *index = mpMonodomainPde->GetCardiacCell(index.Global)->GetVoltage();
+                ic[index] = mpMonodomainPde->GetCardiacCell(index.Global)->GetVoltage();
              }
-        portion.Restore();
+        ic.Restore();        
+
+
         
         //  Write data to a file <mOutputFilenamePrefix>_xx.dat, 'xx' refers to
         //  'xx'th time step using ColumnDataWriter
