@@ -66,10 +66,13 @@ public:
     
     void ResetIndex(unsigned index)
     {
+        //std::cout << "ResetIndex - removing nodes.\n" << std::flush;
         for (unsigned i=0; i<this->GetNumNodes(); i++)
         {
-            this->mNodes[i]->RemoveElement(this->mIndex);
+           //std::cout << "Node " << this->mNodes[i]->GetIndex() << " element "<< this->mIndex << std::flush;
+           this->mNodes[i]->RemoveElement(this->mIndex);
         }
+        //std::cout << "\nResetIndex - done.\n" << std::flush;
         this->mIndex=index;
         RegisterWithNodes();
     }

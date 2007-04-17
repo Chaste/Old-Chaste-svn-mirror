@@ -247,7 +247,7 @@ public:
     {        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 6.0;
+        double crypt_width = 4.0;
         unsigned thickness_of_ghost_layer = 4;
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
@@ -265,11 +265,13 @@ public:
         simulator.SetOutputDirectory("Crypt2DCylindrical");
         
         // Set length of simulation here
-        simulator.SetEndTime(0.1);
+        simulator.SetEndTime(0.05);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
-        simulator.SetCylindrical();
+        // turn off the old periodic handling - the mesh should deal with it now.
+        simulator.SetCylindrical(); // this will disappear once all the methods are overwritten in the mesh class
+        simulator.SetNoBirth(true);
         
         simulator.SetGhostNodes(ghost_node_indices);
         
@@ -323,23 +325,23 @@ public:
         
         // The following commented out lines provide test results for TestLoad() to check against.
         
-        //		std::vector<unsigned> left_boundary = simulator.GetLeftCryptBoundary();
-        //      std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
-        //
-        //      std::cout << "Periodic Cell indices at the end of the simulation:\n";
-        //      for(unsigned i=0 ; i<left_boundary.size(); i++)
-        //      {
-        //          std::cout << "Left " << left_boundary[i] << ", Right " << right_boundary[i] << "\n" << std::endl;
-        //      }
-        //
-        //      // A node on the top edge - used for testing load function
-        //      std::vector<double> node_248_location = simulator.GetNodeLocation(248);
-        //      std::vector<double> node_219_location = simulator.GetNodeLocation(219);
-        //
-        //      std::cout << "Node 248 location: x = " << node_248_location[0] << ",y = "
-        //                << node_248_location[1] << std::endl;
-        //      std::cout << "Node 219 location: x = " << node_219_location[0] << ",y = "
-        //                << node_219_location[1] << std::endl;
+//		std::vector<unsigned> left_boundary = simulator.GetLeftCryptBoundary();
+//      std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
+//
+//      std::cout << "Periodic Cell indices at the end of the simulation:\n";
+//      for(unsigned i=0 ; i<left_boundary.size(); i++)
+//      {
+//          std::cout << "Left " << left_boundary[i] << ", Right " << right_boundary[i] << "\n" << std::endl;
+//      }
+//
+//      // A node on the top edge - used for testing load function
+//      std::vector<double> node_248_location = simulator.GetNodeLocation(248);
+//      std::vector<double> node_219_location = simulator.GetNodeLocation(219);
+//
+//      std::cout << "Node 248 location: x = " << node_248_location[0] << ",y = "
+//                << node_248_location[1] << std::endl;
+//      std::cout << "Node 219 location: x = " << node_219_location[0] << ",y = "
+//                << node_219_location[1] << std::endl;
         
         
         SimulationTime::Destroy();
@@ -454,8 +456,8 @@ public:
         std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
         
         TS_ASSERT_EQUALS(left_boundary.size(),12u);
-        TS_ASSERT_EQUALS(left_boundary[10], 229u);
-        TS_ASSERT_EQUALS(right_boundary[10], 221u);
+        TS_ASSERT_EQUALS(left_boundary[10], 213u);
+        TS_ASSERT_EQUALS(right_boundary[10], 234u);
         
         std::vector<double> node_248_location = simulator.GetNodeLocation(248);
         std::vector<double> node_219_location = simulator.GetNodeLocation(219);

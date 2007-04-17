@@ -1,6 +1,8 @@
 #ifndef CRYPTHONEYCOMBMESHGENERATOR_HPP_
 #define CRYPTHONEYCOMBMESHGENERATOR_HPP_
+
 #include "Cylindrical2dMesh.cpp"
+#include "NodeMap.hpp"
 #include "TrianglesMeshReader.cpp"
 #include <cmath>
 
@@ -244,6 +246,8 @@ public:
             mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
             mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
+            NodeMap map(mpCylindricalMesh->GetNumNodes());
+            mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
             ComputeGhostNodes2();
         }
                 
@@ -292,6 +296,8 @@ public:
             mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
             mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
+            NodeMap map(mpCylindricalMesh->GetNumNodes());
+            mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
             ComputeGhostNodes2();
         }
                 

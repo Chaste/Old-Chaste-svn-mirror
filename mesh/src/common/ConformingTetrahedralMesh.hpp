@@ -64,7 +64,7 @@ public:
     ConformingTetrahedralMesh();
     ConformingTetrahedralMesh(unsigned numElements);
     
-    ~ConformingTetrahedralMesh();
+    virtual ~ConformingTetrahedralMesh();
     
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM> &rMeshReader, unsigned orderOfBasisFunctions=1);
     
@@ -192,7 +192,7 @@ public:
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      */
-    void ReMesh(NodeMap &map);
+    virtual void ReMesh(NodeMap &map);
     
     /**
      * Permute the nodes so that they appear in a different order in mNodes
@@ -296,7 +296,7 @@ public:
      * e.g. Cylindrical2dMesh.
      * 
      */
-    c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
+    virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
     
     
 };

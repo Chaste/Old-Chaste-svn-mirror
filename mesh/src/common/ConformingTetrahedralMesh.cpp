@@ -1062,7 +1062,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteBoundaryNodeAt(uns
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
 {
-
     unsigned to_go=0;
     while (to_go<mElements.size())
     {
@@ -1099,7 +1098,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
     }
     assert(mElements.back()->IsDeleted() == false );
     
-    
     to_go=0;
     while (to_go<mNodes.size())
     {
@@ -1135,7 +1133,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
         mNodes.pop_back();
     }
     assert(mNodes.back()->IsDeleted() == false );
-    
     to_go=0;
     while (to_go<mBoundaryElements.size())
     {
@@ -1164,6 +1161,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
             }
         }
     }
+    
     while (mDeletedBoundaryElementIndices.size() != 0)
     {
         mDeletedBoundaryElementIndices.pop_back();
@@ -1172,27 +1170,20 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
     }
     assert(mBoundaryElements.back()->IsDeleted() == false );
     
-    
     for (unsigned i=0; i<mNodes.size();i++)
     {
-    
         mNodes[i]->SetIndex(i);
     }
     for (unsigned i=0; i<mElements.size();i++)
     {
-    
         mElements[i]->ResetIndex(i);
-        
     }
-    
     for (unsigned i=0; i<mBoundaryElements.size();i++)
     {
-    
         mBoundaryElements[i]->ResetIndex(i);
-        
     }
-    
 }
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap &map)
 {

@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#include "ConformingTetrahedralMesh.cpp"
+#include "Cylindrical2dMesh.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "CancerParameters.hpp"
 #include <cmath>
@@ -69,9 +69,9 @@ CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2
     mWntIncluded = false;
     mPeriodicSides = true;
     mCylindrical = false;
-    mNodesMoved=false;
-    mRemeshesThisTimeStep=0;
-    mpCellKiller=NULL;
+    mNodesMoved = false;
+    mRemeshesThisTimeStep = 0;
+    mpCellKiller = NULL;
     mNumBirths = 0;
     mNumDeaths = 0;
     mPeriodicDivisionBuffer = 0;
@@ -781,6 +781,17 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
     return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
 }
 
+/**
+ * Calculates the force between two nodes.
+ * 
+ * Note that this assumes they are connected by a spring and should therefore
+ * only be called by CalculateForceInThisSpring or CalculateForceInThisBoundarySpring
+ * 
+ * @param NodeAGlobalIndex
+ * @param NodeBGlobalIndex
+ * 
+ * @return The force exerted on Node A by Node B.
+ */
 c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     c_vector<double, 2> unit_difference;
@@ -1647,13 +1658,21 @@ void CryptSimulation2DPeriodic::SetPeriodicSides(bool periodicSides)
     mPeriodicSides = periodicSides;
 }
 
+/**
+ * Call this before Solve() to tell the simulator that it is using
+ * a Cylindrical2dMesh and not the old style of periodic sides.
+ */
 void CryptSimulation2DPeriodic::SetCylindrical()
 {
     // TODO:
     // Make some kind of cast here to tell the 
     // simulator that the mesh is cylindrical??
+    
+    // If we are in here the mesh must be cylindrical
+    //Cylindrical2dMesh mrMesh = static_cast<Cylindrical2dMesh>(mrMesh);
+                    
     mPeriodicSides = false;
-    mCylindrical = true;    
+    mCylindrical = true;
 }
 
 /**
@@ -1878,6 +1897,7 @@ void CryptSimulation2DPeriodic::Solve()
         }
     }
     
+    ReMesh();
     
     /////////////////////////////////////////////////////////////////////
     // Main time loop
@@ -1908,8 +1928,7 @@ void CryptSimulation2DPeriodic::Solve()
         // Only active for WntCellCycleModel at the moment
         // but mutations etc. could occur in this function
         UpdateCellTypes();
-        
-        
+                
         ReMesh();
         
         // Increment simulation time here, so results files look sensible
@@ -1940,10 +1959,6 @@ void CryptSimulation2DPeriodic::Solve()
     tabulated_node_writer.Close();
     tabulated_element_writer.Close();
 }
-
-
-
-
 
 
 

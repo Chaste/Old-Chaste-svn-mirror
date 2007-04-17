@@ -10,7 +10,7 @@ private:
     double mXLeft;
     double mXRight;
     double mWidth;
-
+    
 public:
     
     /**
@@ -32,13 +32,15 @@ public:
         EXCEPTION("Please specify the boundaries of the cylinder using the other constructor");
     }
     
+    ~Cylindrical2dMesh()
+    {
+        
+    }
+    
     /**
      * Creates a set of mirror nodes for a cylindrical re-mesh. 
      * Where x1 - x0 = 2*PI in a cylinder. 
      * All mesh points should be x0<x<x1.
-     * 
-     * @param rX0 is the left hand x-coordinate
-     * @param rX1 is the right hand x-coordinate
      * 
      * @return a map of four standard vectors of indices
      * 0. The left nodes which have been mirrored
@@ -122,8 +124,7 @@ public:
      * Maps new node indices
      * calls ReconstructCylindricalMesh to remove surplus nodes to create a fully periodic mesh.
      * 
-     * @param x0 The left x-coord of the sheet to be wrapped into a cylinder.
-     * @param x1 The right x-coord  of the sheet to be wrapped into a cylinder.
+     * @param &map a reference to a nodemap which should be created with the required number of nodes.
      */
     void ReMesh(NodeMap &map)
     {
@@ -174,7 +175,7 @@ public:
      * Deletes the mirror image nodes, elements and boundary elements
      * created for a cylindrical remesh by cycling through the 
      * elements and changing elements with
-     * partly real and partly imaginary nodes to be real with
+     * partly real and partly imaginary elements to be real with
      * periodic real nodes instead of mirror image nodes.
      * 
      * @param rImageMap a map of four standard vectors of indices
@@ -197,9 +198,6 @@ public:
             Element<2,2>* p_element = GetElement(elem_index);
             if (!p_element->IsDeleted())
             {
-                // Delete this element if all are images
-                // element.MarkAsDeleted();
-                //
                 unsigned number_of_image_nodes = 0;
                 for (unsigned i=0 ; i<3 ; i++)
                 {

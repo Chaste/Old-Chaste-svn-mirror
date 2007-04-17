@@ -235,6 +235,7 @@ public:
 
     CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
                               std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
+                              
     ~CryptSimulation2DPeriodic();
     
     void SetDt(double dt);
