@@ -7,6 +7,9 @@
 # certainly possible, but would rely on the internal structure of SCons.
 
 def fasterSharedLibrary(env, library, sources, **args):
+	# SCons version compatibility
+	if type(library) != type([]):
+		library = [library]
         # use the 'quicker' shallow copy method!
         envContentSig=env.Copy()
         envContentSig.TargetSignatures('content')
