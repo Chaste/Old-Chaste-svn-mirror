@@ -331,7 +331,7 @@ build_dir = build.build_dir
 test_depends = [File(build.GetTestReportDir() + 'OrphanedTests.log'),
                 File(build.GetTestReportDir() + 'DuplicateFileNames.log')]
 for toplevel_dir in components:
-    bld_dir = toplevel_dir + '/build/' + build_dir
+    bld_dir = os.path.join(toplevel_dir, 'build', build_dir)
     if not os.path.exists(bld_dir):
         os.mkdir(bld_dir)
     test_depends.append(SConscript('SConscript', src_dir=toplevel_dir, build_dir=bld_dir,
@@ -341,6 +341,15 @@ for toplevel_dir in components:
 # Remove the contents of build.GetTestReportDir() on a clean build
 test_output_files = glob.glob(build.GetTestReportDir() + '*')
 Clean('.', test_output_files)
+# Also remove the entire build.build_dir for each component, so we
+# don't have stale tests, etc. still present
+for toplevel_dir in components:
+    Clean('.', os.path.join(toplevel_dir, 'build', build_dir))
+# Also make sure we remove any libraries still hanging around, just in case
+for lib in glob.glob('lib/*'):
+    Clean('.', lib)
+for lib in glob.glob('linklib/*'):
+    Clean('.', lib)
 
 
 

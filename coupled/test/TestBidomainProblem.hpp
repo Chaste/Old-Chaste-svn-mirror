@@ -88,14 +88,14 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
             
-            std::vector<double> odeVars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
+            std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1
                 if ((j!=4) && (j!=3))
                 {
-                    TS_ASSERT_LESS_THAN_EQUALS( odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS(-odeVars[j], 0.0);
+                    TS_ASSERT_LESS_THAN_EQUALS( r_ode_vars[j], 1.0);
+                    TS_ASSERT_LESS_THAN_EQUALS(-r_ode_vars[j], 0.0);
                 }
             }
             
@@ -125,7 +125,7 @@ public:
     /*
      * The monodomain equations are obtained by taking the limit of the bidomain
      * equations as sigma_e tends to infinity (corresponding to the extracellular
-     * space being grounded). Therefore, we set sigma_e very large (relative to 
+     * space being grounded). Therefore, if we set sigma_e very large (relative to 
      * sigma_i) in a bidomain simulation it should agree with a monodomain 
      * simulation with the same parameters. 
      */

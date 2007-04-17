@@ -74,29 +74,28 @@ public:
             TS_FAIL(e.GetMessage());
         }
         
-        double* p_voltage_array;
-        unsigned v_lo, v_hi, lo, hi;
-        bidomain_problem.GetVoltageArray(&p_voltage_array, v_lo, v_hi);
-        bidomain_problem.GetBidomainPde()->GetOwnershipRange(lo, hi);
+	DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+        DistributedVector::Stripe voltage(striped_voltage, 0);
         
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
             
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[2*local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[2*local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( voltage[index] , Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
             
-            std::vector<double> odeVars = bidomain_problem.GetBidomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
+            std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1
                 if ((j!=4) && (j!=3))
                 {
-                    TS_ASSERT_LESS_THAN_EQUALS( odeVars[j], 1.0);
-                    TS_ASSERT_LESS_THAN_EQUALS(-odeVars[j], 0.0);
+                    TS_ASSERT_LESS_THAN_EQUALS( r_ode_vars[j], 1.0);
+                    TS_ASSERT_LESS_THAN_EQUALS(-r_ode_vars[j], 0.0);
                 }
             }
             
@@ -108,14 +107,13 @@ public:
             for (unsigned i=0; i<=5; i++)
             {
                 unsigned node=10*i; //Step through every 10th node
-                if (global_index == node)
+                if (index.Global == node)
                 {
                     // test against hardcoded value to check nothing has changed
-                    TS_ASSERT_DELTA(p_voltage_array[2*local_index], test_values[i], 1e-1);
+                    TS_ASSERT_DELTA(voltage[index], test_values[i], 1e-1);
                 }
             }
         }
-        bidomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
     
