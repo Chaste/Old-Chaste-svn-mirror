@@ -456,8 +456,8 @@ public:
         std::vector<unsigned> right_boundary = simulator.GetRightCryptBoundary();
         
         TS_ASSERT_EQUALS(left_boundary.size(),12u);
-        TS_ASSERT_EQUALS(left_boundary[10], 213u);
-        TS_ASSERT_EQUALS(right_boundary[10], 234u);
+        TS_ASSERT_EQUALS(left_boundary[10], 229u);
+        TS_ASSERT_EQUALS(right_boundary[10], 221u);
         
         std::vector<double> node_248_location = simulator.GetNodeLocation(248);
         std::vector<double> node_219_location = simulator.GetNodeLocation(219);

@@ -128,7 +128,7 @@ public:
      */
     void ReMesh(NodeMap &map)
     {
-        std::cout << "Conducting a cylindrical re-mesh\n" << std::flush;
+        // std::cout << "Conducting a cylindrical re-mesh\n" << std::flush;
         // Create a mirrored load of nodes for the normal remesher to work with.
         std::vector<std::vector<unsigned> > image_map = CreateMirrorNodes();
     
