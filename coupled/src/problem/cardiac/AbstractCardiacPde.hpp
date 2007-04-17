@@ -69,12 +69,6 @@ protected:
     // number of nodes in the mesh
     unsigned mNumNodes;
     
-    // Lowest value of index that this part of the global object stores
-    unsigned mOwnershipRangeLo;
-    
-    // One more than the local highest index
-    unsigned mOwnershipRangeHi;
-    
     
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
@@ -98,8 +92,6 @@ public:
         // Create a temporary PETSc vector and use the ownership range of
         // the PETSc vector to size our C++ vectors
         DistributedVector::SetProblemSize(mNumNodes);
-        this->mOwnershipRangeLo = DistributedVector::Begin().Global;
-        this->mOwnershipRangeHi = DistributedVector::End().Global;
  
         mCellsDistributed.resize(DistributedVector::End().Global - DistributedVector::Begin().Global);
         
@@ -278,11 +270,11 @@ public:
         }
     }
     
-    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
-    {
-        rLo=mOwnershipRangeLo;
-        rHi=mOwnershipRangeHi;
-    }
+//    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
+//    {
+//        rLo=DistributedVector::Begin().Global;
+//        rHi=DistributedVector::End().Global;
+//    }
 };
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/

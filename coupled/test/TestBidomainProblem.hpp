@@ -73,17 +73,9 @@ public:
         {
             TS_FAIL(e.GetMessage());
         }
-        
-        double* p_voltage_array;
-        unsigned v_lo, v_hi, lo, hi;
-        bidomain_problem.GetVoltageArray(&p_voltage_array, v_lo, v_hi);
-        bidomain_problem.GetBidomainPde()->GetOwnershipRange(lo, hi);
-        
-        
+       
         DistributedVector striped_voltage(bidomain_problem.GetVoltage());
         DistributedVector::Stripe voltage(striped_voltage,0);
-        TS_ASSERT_EQUALS(DistributedVector::Begin().Global, lo);
-        TS_ASSERT_EQUALS(DistributedVector::End().Global, hi);
 
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
@@ -127,7 +119,6 @@ public:
                 }
             }
         }
-        bidomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
     

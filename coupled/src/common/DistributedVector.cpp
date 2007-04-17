@@ -55,6 +55,16 @@ DistributedVector::DistributedVector(Vec vec) : mVec(vec)
     assert ((mStride * mGlobalHi) == (unsigned)size);
 }
 
+double& DistributedVector::operator[](unsigned globalIndex)
+{
+    assert(mStride==1);
+    if (mLo<=globalIndex && globalIndex <mHi)
+    {
+        return mpVec[globalIndex - mLo];  
+    }
+    throw DistributedVectorException();
+}
+
 void DistributedVector::Restore()
 {
         VecRestoreArray(mVec, &mpVec);

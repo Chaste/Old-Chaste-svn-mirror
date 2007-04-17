@@ -64,8 +64,28 @@ public:
             TS_ASSERT_EQUALS(linear[index], index.Local);
             TS_ASSERT_EQUALS(quadratic[index], index.Global * index.Global);
         }
-
         
+        // read the 2nd element of the first vector
+        if (lo<=2 && 2<hi)
+        {
+            TS_ASSERT_EQUALS(distributed_vector[2],2*(2-lo));
+        }
+        else
+        {
+            TS_ASSERT_THROWS_ANYTHING(distributed_vector[2]=2*(2-lo));
+        }
+        
+        //read the 3rd element of the other vectors
+        if (lo<=3 && 3<hi)
+        {
+            TS_ASSERT_EQUALS(linear[3],(3-lo));
+            TS_ASSERT_EQUALS(quadratic[3],3*3);
+        }
+        else
+        {
+            TS_ASSERT_THROWS_ANYTHING(linear[3]);
+            TS_ASSERT_THROWS_ANYTHING(quadratic[3]);
+        }
     }
     
     void TestWrite()
@@ -113,6 +133,11 @@ public:
             TS_ASSERT_EQUALS(p_striped[2*local_index], (double)1);
             TS_ASSERT_EQUALS(p_striped[2*local_index+1], local_index+1);
         }
+    }
+    
+    void TestException()
+    {
+        TS_ASSERT_THROWS_ANYTHING(throw DistributedVectorException() );
     }
 };
 

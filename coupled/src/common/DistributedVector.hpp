@@ -5,6 +5,7 @@
 #include <petscvec.h>
 #include <iostream>
 #include <assert.h>
+#include "DistributedVectorException.hpp"
 
 /***
  * Gives access to the local portion of a PETSc vector via an iterator.
@@ -47,6 +48,15 @@ public:
      */
     DistributedVector(Vec vec);
     
+   /**
+    * @param globalIndex
+    * @return value of distributed vector at globalIndex
+    * Do not use if stride>1.
+    * For use in tests.
+    * Will throw a DistributedVectorException if the specified element is not on this process.
+    */   
+    double& operator[](unsigned globalIndex);
+    
     /**
      * Store elements that have been written to
      * back into the PETSc vector. Call after you have finished writing.
@@ -88,6 +98,22 @@ public:
             mStripe=stripe;
             assert(mStripe<mStride);
             mpVec=parallelVec.mpVec;
+        }
+        
+       /**
+        * Access a particular element of the stripe if on this processor
+        * @param globalIndex index within the stripe
+        * @return value of striped vector
+        * For use in tests.
+        * Will throw a DistributedVectorException if the specified element is not on this process.
+        */  
+        double& operator[](unsigned globalIndex)
+        {
+            if (mLo<=globalIndex && globalIndex <mHi)
+            {
+                return mpVec[(globalIndex - mLo)*mStride+mStripe];  
+            }
+            throw DistributedVectorException();
         }
         
         /**
