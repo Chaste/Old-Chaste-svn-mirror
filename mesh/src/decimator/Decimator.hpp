@@ -111,12 +111,6 @@ protected:
             pNodeInfo->mPossibleTargetIndex=p_neighbour->GetIndex();
             try
             {
-            	if (pNodeInfo->mpNode->GetIndex() == 5346)
-        		{	
-        			int temp=pNodeInfo->mPossibleTargetIndex;
-        			std::cout<<"A new score for 5346 with "<<temp<<"\n";
-        		}
-            	
                 mpMesh->MoveMergeNode(pNodeInfo->GetIndex(),
                                       pNodeInfo->mPossibleTargetIndex, false);
                 double score=0.0;
@@ -152,12 +146,19 @@ protected:
                 //If the move is not feasible then we ignore it
                 
             }
-        mpMesh->SetNode(pNodeInfo->GetIndex(), point);
-        //Only really necessary if their are boundary nodes involved
-        //since they (presently) have memory as to their use
+ 			//Put it back       
+ 			//if (pNodeInfo->mpNode->IsBoundaryNode())
+ 			//{
+ 				mpMesh->SetNode(pNodeInfo->GetIndex(), point);
+ 			//}
+        	//Only really necessary if their are boundary nodes involved
+        	//since they (presently) have memory as to their use
         }
-//        mpMesh->SetNode(pNodeInfo->GetIndex(), point);
-        
+        //Put it back
+        //if (!pNodeInfo->mpNode->IsBoundaryNode())
+ 		//{
+ 		//	mpMesh->SetNode(pNodeInfo->GetIndex(), point);
+ 		//}
     }
     
     
@@ -405,8 +406,9 @@ public:
     void Interrogate()
     {
         std::cout<<"Number of nodes in queue is now "<<mQueue.size()<<"\t";
-        std::cout<<"Lowest score is "<<mQueue[0]->mScore<<"\n";
-        return;
+        std::cout<<"Lowest score is "<<mQueue[0]->mScore
+        	<<" at "<<  mQueue[0]->GetIndex() <<"\n";
+        /*
         std::vector<NodeInfo<SPACE_DIM> *> queue=mQueue;
         while ( !queue.empty() )
         {
@@ -430,6 +432,7 @@ public:
             std::pop_heap(queue.begin(), queue.end(), CompNodeInfo<SPACE_DIM>());
             queue.pop_back();
         }
+        */
         
     }
     

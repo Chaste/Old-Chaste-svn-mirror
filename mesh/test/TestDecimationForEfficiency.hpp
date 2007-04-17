@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 
+
 /*
 template <unsigned SPACE_DIM>
 class FixedNodeDecimator : public Decimator<SPACE_DIM>
@@ -23,14 +24,7 @@ private:
 protected:	
    	bool ExtraStoppingCondition()
 	{
-		if (this->mQueue.size() == mEndNumberNodes+1)
-		{
-			std::cout<<"Last time\n";
-		}		
-		if (this->mQueue.size() == mEndNumberNodes+2)
-		{
-			std::cout<<"Last time but one\n";
-		}
+
 		return (this->mQueue.size() == mEndNumberNodes);
 	}
 
@@ -47,7 +41,7 @@ class TestDecimationForEfficiency : public CxxTest::TestSuite
 {
 public:
 
-    void TestDecimateHeart() throw (Exception)
+    void xTestDecimateHeart() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/heart");
         ConformingTetrahedralMesh<3,3> mesh;
@@ -56,9 +50,8 @@ public:
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
         
-        //RandomNumberGenerator::Instance();
+        RandomNumberGenerator::Instance();
         Decimator<3> decimator;
-        //FixedNodeDecimator<3> decimator(22597);
         
         decimator.Initialise(&mesh);
         TS_ASSERT_DELTA(decimator.GetVolumeLeakage(), 1e-5, 1e-20)
@@ -67,21 +60,79 @@ public:
         
         //decimator.Decimate(true);
         decimator.Decimate();
-        //RandomNumberGenerator::Destroy();
+        RandomNumberGenerator::Destroy();
         
         //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21894U); //Random
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 19520U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 19516U);
         //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21800U); //Sequence
         
-        std::cout<<mesh.CalculateMeshVolume()<<"\n";
-        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59791, 1.0e-5);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59786, 1.0e-5);
         TrianglesMeshWriter<3,3> mesh_writer("", "HeartDecimation");
         mesh_writer.WriteFilesUsingMesh(mesh);
-        
-        
     }
     
-
+    void xTestAgressiveDecimateHeart() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/heart");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
+        
+        RandomNumberGenerator::Instance();
+        Decimator<3> decimator;
+        
+        decimator.Initialise(&mesh);
+        TS_ASSERT_DELTA(decimator.GetVolumeLeakage(), 1e-5, 1e-20)
+        decimator.SetVolumeLeakage(1e-3);
+        
+        
+        decimator.Decimate();
+        //decimator.Decimate(true);
+        RandomNumberGenerator::Destroy();
+        
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 10555U);
+        
+        
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59321, 1.0e-4);
+        TrianglesMeshWriter<3,3> mesh_writer("", "HeartAgressiveDecimation");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
+    
+    
+    void TestMostAgressiveDecimateHeart() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/heart");
+        ConformingTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.59799, 1.0e-5);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 63885U);
+        
+        RandomNumberGenerator::Instance();
+        Decimator<3> decimator;
+        
+        decimator.Initialise(&mesh);
+        TS_ASSERT_DELTA(decimator.GetVolumeLeakage(), 1e-5, 1e-20)
+        decimator.SetVolumeLeakage(1e-2);
+        
+        
+        //decimator.Decimate(true);
+        decimator.Decimate();
+        RandomNumberGenerator::Destroy();
+        
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1545U);
+        
+        
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 6.53256, 1.0e-4);
+        TrianglesMeshWriter<3,3> mesh_writer("", "HeartMostAgressiveDecimation");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
+  
+ 
  
 
     
