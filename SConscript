@@ -87,7 +87,7 @@ for file in os.listdir('../../test'):
 petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
               'petscmat', 'petscvec', 'petsc']
 chaste_libs = components
-all_libs = chaste_libs + petsc_libs + other_libs + ['test'+toplevel_dir]
+all_libs = ['test'+toplevel_dir] + chaste_libs + petsc_libs + other_libs
 
 
 if toplevel_dir == 'dealii':
@@ -124,7 +124,7 @@ opt['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 
 # Build and install the library for this component
 opt.SharedLibrary(toplevel_dir, files)
-#opt.Install('../../../lib', 'lib'+toplevel_dir+'.a')
+#opt.Install('#lib', 'lib'+toplevel_dir+'.so')
 # Build the test library for this component
 opt.Library('test'+toplevel_dir, testsource)
 
@@ -132,6 +132,7 @@ opt.Library('test'+toplevel_dir, testsource)
 # then tests are re-run.  Choose which line according to taste.
 #lib_deps = map(lambda lib: '#lib/lib%s.so' % lib, chaste_libs) # all libs
 lib_deps = '#lib/lib%s.so' % toplevel_dir # only this lib
+#linklib_deps = map(lambda lib: '#linklib/lib%s.so' % lib, chaste_libs)
 
 # Collect a list of test log files to use as dependencies for the test
 # summary generation
@@ -139,15 +140,15 @@ test_log_files = []
 
 # Build and run tests of this component
 for testfile in testfiles:
-  prefix = testfile[:-4]
-  opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
-  opt.Program(testfile[:-4]+'Runner', [prefix+'Runner.cpp'],
-              LIBS = all_libs,
-              LIBPATH = ['../../../linklib', '.'] + other_libpaths)
-  if not compile_only:
-    log_file = opt.File(prefix+'.log')
-    opt.Depends(log_file, lib_deps)
-    test_log_files.append(log_file)
-    opt.RunTests(log_file, prefix+'Runner')
+    prefix = testfile[:-4]
+    runner_cpp = opt.Test(prefix+'Runner.cpp', 'test/' + testfile) 
+    opt.Program(prefix+'Runner', runner_cpp,
+                LIBS = all_libs,
+                LIBPATH = ['#linklib', '.'] + other_libpaths)
+    if not compile_only:
+        log_file = opt.File(prefix+'.log')
+        opt.Depends(log_file, lib_deps)
+        test_log_files.append(log_file)
+        opt.RunTests(log_file, prefix+'Runner')
 
 Return("test_log_files")

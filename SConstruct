@@ -96,18 +96,19 @@ Export('components')
 #  other_includepaths: paths to search for header files.  Do include the
 #                      path to PETSc headers (unless it's standard).
 if system_name == 'finarfin':
-  # Finarfin (Debian sarge)
-  #petsc_base = '/home/jonc/work/dtc/courses/IB/petsc-2.2.1/'
+  # Finarfin (Debian etch)
   petsc_base = '/home/jonc/work/dphil/petsc-2.3.1-p19/'
+  if build.is_optimised:
+      petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu-opt/')
+      petsc_bmake = petsc_base+'bmake/linux-gnu-opt'
+  else:
+      petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
+      petsc_bmake = petsc_base+'bmake/linux-gnu'
   petsc_inc = petsc_base+'include'
-  petsc_bmake = petsc_base+'bmake/linux-gnu'
-  petsc_mpi = petsc_base+'include/mpiuni'
-  petsc_incs = [petsc_inc, petsc_bmake]
-  petsc_libpath = petsc_base+'lib/linux-gnu/'
 
-  other_libs = ['lapack', 'blas']
-  other_libpaths = [petsc_libpath]
-  other_includepaths = petsc_incs
+  other_libs = ['lapack', 'blas', 'boost_serialization']
+  other_libpaths = [petsc_libpath, '/usr/lib/atlas/sse2']
+  other_includepaths = [petsc_inc, petsc_bmake]
 elif system_name == 'maths':
   # Oxford uni maths inst
   petsc_base = '/scratch/chaste/petsc-2.3.2-p4/'
@@ -233,7 +234,7 @@ Export("other_includepaths", "other_libpaths", "other_libs")
 
 ## C++ build tools & MPI runner
 if system_name == 'finarfin':
-  mpirun = '/usr/bin/mpirun'
+  mpirun = 'mpirun'
   if build.CompilerType() == 'intel':
     # Use intel compiler
     mpicxx = '/usr/bin/mpicxx -CC=icpc'
@@ -241,9 +242,9 @@ if system_name == 'finarfin':
     ar     = '/opt/intel_cc_80/bin/xiar'
   else:
     # Use gcc
-    mpicxx = '/usr/bin/mpicxx'
-    cxx    = '/usr/bin/g++'
-    ar     = '/usr/bin/ar'
+    mpicxx = 'mpicxx'
+    cxx    = 'g++'
+    ar     = 'ar'
 elif system_name == 'maths':
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'
@@ -280,7 +281,7 @@ elif system_name == 'Nottingham':
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
 else:
- # DTC cancer course defaults
+  # DTC cancer course defaults
   mpicxx = '/usr/local/mpi/bin/mpicxx'
   mpirun = '/usr/local/mpi/bin/mpirun'
   cxx = '/usr/bin/g++'
@@ -296,12 +297,12 @@ build.tools['ar'] = ar
 extra_flags = build.CcFlags()
 link_flags  = build.LinkFlags()
 
-# Hack to get around Debian strangeness
-if system_name in ['maths', 'finarfin']:
-  extra_flags = extra_flags + " -DCWD_HACK "
+# Hack to get around Debian sarge strangeness
+if system_name in ['maths']:
+    extra_flags = extra_flags + " -DCWD_HACK "
 
 if system_name == 'Nottingham':
-  extra_flags = "-isystem " + boost_path + " " + extra_flags
+    extra_flags = "-isystem " + boost_path + " " + extra_flags
 
 Export("extra_flags", "link_flags")
 
@@ -310,13 +311,13 @@ import glob
 cpppath = ['#/', '#/cxxtest']
 src_folders = glob.glob('*/src')
 for src_folder in src_folders:
-  cpppath.append('#/'+src_folder)
-  for dirpath, dirnames, filenames in os.walk(src_folder):
-    for dirname in dirnames[:]:
-      if dirname == '.svn':
-        dirnames.remove(dirname)
-      else:
-        cpppath.append('#/'+os.path.join(dirpath, dirname))
+    cpppath.append('#/'+src_folder)
+    for dirpath, dirnames, filenames in os.walk(src_folder):
+        for dirname in dirnames[:]:
+            if dirname == '.svn':
+                dirnames.remove(dirname)
+            else:
+                cpppath.append('#/'+os.path.join(dirpath, dirname))
 Export("cpppath")
 
 # Check for orphaned test files
