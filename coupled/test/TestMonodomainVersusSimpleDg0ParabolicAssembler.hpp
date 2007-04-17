@@ -85,28 +85,13 @@ public:
 
 class TestMonodomainDg0Assembler : public CxxTest::TestSuite
 {
-private:
-
-    /**
-     * Refactor code to set up a PETSc vector holding the initial condition.
-     */
-    Vec CreateInitialConditionVec(int size)
-    {
-        Vec initial_condition;
-        VecCreate(PETSC_COMM_WORLD, &initial_condition);
-        VecSetSizes(initial_condition, PETSC_DECIDE, size);
-        VecSetFromOptions(initial_condition);
-        return initial_condition;
-    }
-    
 public:
     void TestMonodomainDg0AssemblerWithFischer1DAgainstSimpleDg0Assembler()
     {
         double t_start = 0;
         double t_final = 1;
         double pde_timestep = 0.01;
-        
-        
+
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/heart_FHN_mesh");
         ConformingTetrahedralMesh<1,1> mesh;
@@ -132,25 +117,20 @@ public:
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
-        initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
+        DistributedVector::SetProblemSize(mesh.GetNumNodes());
+        initial_condition_1 = DistributedVector::CreateVec();
         VecDuplicate(initial_condition_1, &initial_condition_2);
         
-        double* p_init_array;
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        VecGetArray(initial_condition_1, &p_init_array);
-        for (int global_index=lo; global_index<hi; global_index++)
+        DistributedVector dist_ic(initial_condition_1);
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index-lo;
-            double x=mesh.GetNode(global_index)->GetPoint()[0];
-            p_init_array[local_index] = exp(-(x*x)/100);
+            double x=mesh.GetNode(index.Global)->GetPoint()[0];
+            dist_ic[index] = exp(-(x*x)/100);
         }
-        VecRestoreArray(initial_condition_1, &p_init_array);
-        VecAssemblyBegin(initial_condition_1);
-        VecAssemblyEnd(initial_condition_1);
-        
+        dist_ic.Restore();
         VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
-        
         
         monodomain_assembler.SetTimes(t_start, t_final, pde_timestep);
         simple_assembler.SetTimes(t_start, t_final, pde_timestep);
@@ -158,34 +138,33 @@ public:
         monodomain_assembler.SetInitialCondition( initial_condition_1 );
         simple_assembler.SetInitialCondition( initial_condition_2 );
         
+        // Set problem size to 1 -- see ZeroStimCellFactory.GetNumberOfCells() above
+        DistributedVector::SetProblemSize(1);
         Vec current_solution_1 = monodomain_assembler.Solve();
         Vec current_solution_2 = simple_assembler.Solve();
+
+        DistributedVector::SetProblemSize(current_solution_1);
+        DistributedVector dist_sol_1(current_solution_1);
+        DistributedVector dist_sol_2(current_solution_2);
         
-        
-        // Compare the results
-        double *p_current_solution1_array, *p_current_solution2_array;
-        VecGetArray(current_solution_1, &p_current_solution1_array);
-        VecGetArray(current_solution_2, &p_current_solution2_array);
-        for (int global_index=lo; global_index<hi; global_index++)
+        // Compare the results      
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index-lo;
-            TS_ASSERT_DELTA(p_current_solution1_array[global_index-lo], p_current_solution2_array[local_index], 1e-3);
-            if (global_index==10) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 5.8028e-07, 1e-9);
-            if (global_index==25) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.00648079, 1e-5);
-            if (global_index==50) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.992718, 1e-5);
-            if (global_index==75) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.00648079, 1e-5);
+            TS_ASSERT_DELTA(dist_sol_1[index], dist_sol_2[index], 1e-3);
+            if (index.Global==10) TS_ASSERT_DELTA(dist_sol_1[index], 5.8028e-07, 1e-9);
+            if (index.Global==25) TS_ASSERT_DELTA(dist_sol_1[index], 0.00648079, 1e-5);
+            if (index.Global==50) TS_ASSERT_DELTA(dist_sol_1[index], 0.992718, 1e-5);
+            if (index.Global==75) TS_ASSERT_DELTA(dist_sol_1[index], 0.00648079, 1e-5);
         }
-        
-        
-        VecRestoreArray(current_solution_1, &p_current_solution1_array);
-        VecRestoreArray(current_solution_2, &p_current_solution2_array);
-        
         VecDestroy(initial_condition_1);
         VecDestroy(initial_condition_2);
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
+        // Set problem size back to one so that destructors work
+        DistributedVector::SetProblemSize(1);
     }
-    
     
     void TestMonodomainDg0AssemblerWithFischer2DAgainstSimpleDg0Assembler()
     {
@@ -218,28 +197,25 @@ public:
         
         // initial condition;
         Vec initial_condition_1, initial_condition_2;
-        initial_condition_1 = CreateInitialConditionVec(mesh.GetNumNodes());
+        DistributedVector::SetProblemSize(mesh.GetNumNodes());
+        initial_condition_1 = DistributedVector::CreateVec();
         VecDuplicate(initial_condition_1, &initial_condition_2);
         
-        double* p_init_array;
-        int lo, hi;
-        VecGetOwnershipRange(initial_condition_1, &lo, &hi);
-        VecGetArray(initial_condition_1, &p_init_array);
-        for (int global_index=lo; global_index<hi; global_index++)
+        DistributedVector dist_ic(initial_condition_1);
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index-lo;
-            double x=mesh.GetNode(global_index)->GetPoint()[0];
-            p_init_array[local_index] = exp(-(x*x)/100);
+            double x=mesh.GetNode(index.Global)->GetPoint()[0];
+            dist_ic[index] = exp(-(x*x)/100);
         }
-        VecRestoreArray(initial_condition_1, &p_init_array);
-        VecAssemblyBegin(initial_condition_1);
-        VecAssemblyEnd(initial_condition_1);
-        
+        dist_ic.Restore();
         VecCopy(initial_condition_1, initial_condition_2); // Both assemblers use same initial cond'n
         
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
-        
+        // Set problem size to 1 -- see ZeroStimCellFactory.GetNumberOfCells() above
+        DistributedVector::SetProblemSize(1);
         double tCurrent = t_start;
         while ( tCurrent < t_final )
         {
@@ -250,7 +226,6 @@ public:
             simple_assembler.SetInitialCondition( initial_condition_2 );
             
             current_solution_1 = monodomain_assembler.Solve();
-            
             current_solution_2 = simple_assembler.Solve();
             
             // Next iteration uses current solution as initial condition
@@ -262,23 +237,22 @@ public:
             tCurrent += pde_timestep;
         }
         
+        DistributedVector::SetProblemSize(current_solution_1);
+        DistributedVector dist_sol_1(current_solution_1);
+        DistributedVector dist_sol_2(current_solution_2);
+        
         // Compare the results
-        double *p_current_solution1_array, *p_current_solution2_array;
-        VecGetArray(current_solution_1, &p_current_solution1_array);
-        VecGetArray(current_solution_2, &p_current_solution2_array);
-        for (int global_index=lo; global_index<hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index-lo;
-            TS_ASSERT_DELTA(p_current_solution1_array[local_index], p_current_solution2_array[local_index], 1e-3);
-//            if (global_index==10) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 2.8951e-7, 1e-9);
-//            if (global_index==25) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.0060696, 1e-5);
-//            if (global_index==50) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.992834, 1e-5);
-//            if (global_index==75) TS_ASSERT_DELTA(p_current_solution1_array[local_index], 0.0060696, 1e-5);
+            TS_ASSERT_DELTA(dist_sol_1[index], dist_sol_2[index], 1e-3);
         }
-        VecRestoreArray(current_solution_1, &p_current_solution1_array);
-        VecRestoreArray(current_solution_2, &p_current_solution2_array);
+
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
+        
+        DistributedVector::SetProblemSize(1);
     }
 };
 
