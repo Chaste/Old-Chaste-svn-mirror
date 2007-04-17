@@ -79,17 +79,24 @@ public:
         bidomain_problem.GetVoltageArray(&p_voltage_array, v_lo, v_hi);
         bidomain_problem.GetBidomainPde()->GetOwnershipRange(lo, hi);
         
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+        
+        DistributedVector striped_voltage(bidomain_problem.GetVoltage());
+        DistributedVector::Stripe voltage(striped_voltage,0);
+        TS_ASSERT_EQUALS(DistributedVector::Begin().Global, lo);
+        TS_ASSERT_EQUALS(DistributedVector::End().Global, hi);
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
             // assuming LR model has Ena = 54.4 and Ek = -77
             double Ena   =  54.4;   // mV
             double Ek    = -77.0;   // mV
             
-            TS_ASSERT_LESS_THAN_EQUALS( p_voltage_array[2*local_index] , Ena +  30);
-            TS_ASSERT_LESS_THAN_EQUALS(-p_voltage_array[2*local_index] + (Ek-30), 0);
+            TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
+            TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
             
-            std::vector<double> odeVars = bidomain_problem.GetBidomainPde()->GetCardiacCell(global_index)->rGetStateVariables();
+            std::vector<double> odeVars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -102,9 +109,10 @@ public:
             
             // wave shouldn't have reached the second half of the mesh so
             // these should all be near the resting potential
-            if (global_index>50)
+            
+            if (index.Global>50)
             {
-                TS_ASSERT_DELTA(p_voltage_array[2*local_index], -83.85, 0.1);
+                TS_ASSERT_DELTA(voltage[index], -83.85, 0.1);
             }
             
             // final voltages for nodes 0 to 5
@@ -112,10 +120,10 @@ public:
             
             for (unsigned node=0; node<=5; node++)
             {
-                if (global_index == node)
+                if (index.Global == node)
                 {
                     // test against hardcoded value to check nothing has changed
-                    TS_ASSERT_DELTA(p_voltage_array[2*local_index], test_values[node], 1e-3);
+                    TS_ASSERT_DELTA(voltage[index], test_values[node], 1e-3);
                 }
             }
         }
@@ -177,41 +185,29 @@ public:
         // now solve
         bidomain_problem.Solve();
         
-        
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        double* p_mono_voltage_array;
-        double* p_bi_voltage_array;
-        unsigned bi_lo, bi_hi, mono_lo, mono_hi;
+        DistributedVector monodomain_voltage(monodomain_problem.GetVoltage());
+        DistributedVector dist_bidomain_voltage(bidomain_problem.GetVoltage());
+        DistributedVector::Stripe bidomain_voltage(dist_bidomain_voltage, 0);
+        DistributedVector::Stripe extracellular_potential(dist_bidomain_voltage, 1);
         
-        bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi);
-        monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi);
-        
-        for (unsigned global_index=mono_lo; global_index<mono_hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - mono_lo;
-            
-            double monodomain_voltage      =   p_mono_voltage_array[local_index];
-            double   bidomain_voltage      =   p_bi_voltage_array  [2*local_index];
-            double extracellular_potential =   p_bi_voltage_array  [2*local_index+1];
-            // std::cout << p_mono_voltage_array[local_index] << " " << p_bi_voltage_array[2*local_index] << "\n";
-            
-            // the stimulus should be sufficient to ensure that cell 0 has
-            // a positive voltage
-            if (global_index==0)
+            if (index.Global==0)
             {
-                TS_ASSERT_LESS_THAN(0, monodomain_voltage);
-            }
-            
+                TS_ASSERT_LESS_THAN(0, monodomain_voltage[index]);
+            }            
             // the mono and bidomains should agree closely
-            TS_ASSERT_DELTA(monodomain_voltage, bidomain_voltage, 0.1);
+            TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.1);
             
             // the extracellular potential should be uniform
-            TS_ASSERT_DELTA(extracellular_potential, 0, 0.05);
-        }
-        monodomain_problem.RestoreVoltageArray(&p_mono_voltage_array);
-        bidomain_problem.RestoreVoltageArray(&p_bi_voltage_array);
+            TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.05);
+        }       
+
     }
     
     
@@ -299,55 +295,6 @@ public:
         TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
         
         delete p_bidomain_problem;
-    }
-    
-    
-    void xtestFixedNodesInBidomainProblem()
-    {
-        PointStimulusCellFactory cell_factory;
-        BidomainProblem<1> bidomain_problem( &cell_factory );
-        
-        bidomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_100_elements");
-        
-        // fix the boundary nodes
-        std::vector<unsigned> fixed_nodes;
-        fixed_nodes.push_back(0);
-        fixed_nodes.push_back(100);
-        bidomain_problem.SetFixedExtracellularPotentialNodes(fixed_nodes);
-        
-        
-        bidomain_problem.SetOutputDirectory("temp");
-        bidomain_problem.SetOutputFilenamePrefix("temp");
-        bidomain_problem.SetEndTime(1);  // ms
-        bidomain_problem.Initialise();
-        
-        bidomain_problem.GetBidomainPde()->SetSurfaceAreaToVolumeRatio(1.0);
-        bidomain_problem.GetBidomainPde()->SetCapacitance(1.0);
-        bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
-        
-        bidomain_problem.Solve();
-        
-        double* p_voltage_array;
-        unsigned lo,hi;
-        
-        bidomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-        
-        unsigned global_index = 1;  // index for phi_e corresponding to node 0
-        if (lo<=global_index && global_index<hi)
-        {
-            unsigned local_index = global_index - lo;
-            TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
-        }
-        
-        global_index = 201;         // index for phi_e corresponding to node 100
-        if (lo<=global_index && global_index<hi)
-        {
-            unsigned local_index = global_index - lo;
-            TS_ASSERT_DELTA( p_voltage_array[local_index], 0, 1e-10);
-        }
-        
-        bidomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
     void TestBidomainProblemExceptions() throw (Exception)

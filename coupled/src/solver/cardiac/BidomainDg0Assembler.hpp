@@ -16,6 +16,7 @@
 #include "AbstractBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractLinearDynamicProblemAssembler.hpp"
+#include "DistributedVector.hpp"
 
 
 /**
@@ -389,23 +390,19 @@ private:
         {
             //create null space for matrix and pass to linear system
             Vec nullbasis[1];
-            unsigned lo, hi;
-            
-            mpBidomainPde->GetOwnershipRange(lo, hi);
-            VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo) , 2*this->mpMesh->GetNumNodes(), &nullbasis[0]);
-            double* p_nullbasis;
-            VecGetArray(nullbasis[0], &p_nullbasis);
-            
-            for (unsigned global_index=lo; global_index<hi; global_index++)
+            nullbasis[0]=DistributedVector::CreateVec(2);
+            DistributedVector dist_null_basis(nullbasis[0]);
+            DistributedVector::Stripe null_basis_stripe_0(dist_null_basis,0);
+            DistributedVector::Stripe null_basis_stripe_1(dist_null_basis,1);
+            for (DistributedVector::Iterator index = DistributedVector::Begin();
+                 index != DistributedVector::End();
+                 ++index)
             {
-                unsigned local_index = global_index - lo;
-                p_nullbasis[2*local_index  ] = 0;
-                p_nullbasis[2*local_index+1] = 1;
+                null_basis_stripe_0[index] = 0;
+                null_basis_stripe_1[index] = 1;
             }
-            VecRestoreArray(nullbasis[0], &p_nullbasis);
-            VecAssemblyBegin(nullbasis[0]);
-            VecAssemblyEnd(nullbasis[0]);
-            
+            dist_null_basis.Restore();
+
             this->mpLinearSystem->SetNullBasis(nullbasis, 1);
             
             VecDestroy(nullbasis[0]);
