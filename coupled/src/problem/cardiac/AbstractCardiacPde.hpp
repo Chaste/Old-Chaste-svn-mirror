@@ -83,18 +83,9 @@ public:
         mNumNodes = pCellFactory->GetNumberOfCells();
         
         DistributedVector::SetProblemSize(mNumNodes);
-        
-        // Create a temporary PETSc vector and use the ownership range of
-        // the PETSc vector to size our C++ vectors
-        Vec tempVec;
-        VecCreate(PETSC_COMM_WORLD, &tempVec);
-        VecSetSizes(tempVec, PETSC_DECIDE, mNumNodes);
-        VecSetFromOptions(tempVec);
-        PetscInt temp_lo, temp_hi;
-        VecGetOwnershipRange(tempVec, &temp_lo, &temp_hi);
-        mOwnershipRangeLo=(unsigned) temp_lo;
-        mOwnershipRangeHi=(unsigned) temp_hi;
-        VecDestroy(tempVec); // vector no longer needed
+
+        mOwnershipRangeLo=DistributedVector::Begin().Global;
+        mOwnershipRangeHi=DistributedVector::End().Global;
         
         
         // Reference: Trayanova (2002 - "Look inside the heart")
@@ -107,24 +98,21 @@ public:
         //mCapacitance = 1;
         //double const_intra_conductivity = 0.0005;
         
-        mIntracellularConductivityTensor.clear();
+        mIntracellularConductivityTensor = const_intra_conductivity
+                                           * identity_matrix<double>(SPACE_DIM);
+
         
-        for (unsigned i=0;i<SPACE_DIM;i++)
+        mCellsDistributed.resize(DistributedVector::End().Global-DistributedVector::Begin().Global);
+        
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
+            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);            
         }
-        
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        
-        mCellsDistributed.resize(hi-lo);
-        
-        for (unsigned global_index=lo; global_index<hi; global_index++)
-        {
-            unsigned local_index = global_index - lo;
-            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
-        }
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed,
+                                           DistributedVector::Begin().Global,
+                                           DistributedVector::End().Global);
         
         
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
@@ -134,12 +122,11 @@ public:
     
     virtual ~AbstractCardiacPde()
     {
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        for (unsigned global_index=lo; global_index<hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
-            delete mCellsDistributed[local_index];
+            delete mCellsDistributed[index.Local];             
         }
     }
     
@@ -187,17 +174,7 @@ public:
      *  owning the cell though.
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
-    {
-#ifndef NDEBUG
-        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
-        {
-            #define COVERAGE_IGNORE
-            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
-            " hi " << this->mOwnershipRangeHi << std::endl;
-            #undef COVERAGE_IGNORE
-        }
-#endif
-        
+    {   
         assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
         return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
@@ -213,25 +190,21 @@ public:
      *  a virtual method in the assemblers not the pdes.
      */
     void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
-    {
-        double *p_current_solution;
-        VecGetArray(currentSolution, &p_current_solution);
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        
-        for (unsigned global_index=lo; global_index < hi; global_index++)
+    {   
+        DistributedVector dist_solution(currentSolution);
+        DistributedVector::Stripe voltage(dist_solution, 0);
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - lo;
-            
             // overwrite the voltage with the input value
-            mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
-            
+            mCellsDistributed[index.Local]->SetVoltage( voltage[index] );            
             try
             {
                 // solve
                 // Note: Voltage should not be updated. GetIIonic will be called later
                 // and needs the old voltage. The voltage will be updated from the pde.
-                mCellsDistributed[local_index]->ComputeExceptVoltage(currentTime, nextTime);
+                mCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
             }
             catch (Exception &e)
             {
@@ -240,12 +213,9 @@ public:
             }
             
             // update the Iionic and stimulus caches
-            UpdateCaches(global_index, local_index, nextTime);
+            UpdateCaches(index.Global, index.Local, nextTime);
         }
-        VecRestoreArray(currentSolution, &p_current_solution);
-        
         ReplicateException(false);
-        
         ReplicateCaches();
     }
     
@@ -278,11 +248,8 @@ public:
      */
     virtual void ReplicateCaches()
     {
-        unsigned lo=this->mOwnershipRangeLo;
-        unsigned hi=this->mOwnershipRangeHi;
-        
-        mIionicCacheReplicated.Replicate(lo, hi);
-        mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
+        mIionicCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
+        mIntracellularStimulusCacheReplicated.Replicate(DistributedVector::Begin().Global, DistributedVector::End().Global);
     }
     
     void ReplicateException(bool flag)
@@ -299,12 +266,6 @@ public:
         {
             EXCEPTION("Another process threw an exception in PrepareForAssembleSystem");
         }
-    }
-    
-    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
-    {
-        rLo=mOwnershipRangeLo;
-        rHi=mOwnershipRangeHi;
     }
 };
 

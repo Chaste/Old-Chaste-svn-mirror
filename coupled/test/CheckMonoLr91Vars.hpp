@@ -11,7 +11,7 @@ void CheckMonoLr91Vars(MonodomainProblem<SPACE_DIM>& problem)
     for (DistributedVector::Iterator index = DistributedVector::Begin();
          index != DistributedVector::End();
          ++index)
-        {
+    {
         // assuming LR model has Ena = 54.4 and Ek = -77
         double Ena   =  54.4;
         double Ek    = -77.0;

@@ -60,6 +60,7 @@ public:
     /**
      * Store elements that have been written to
      * back into the PETSc vector. Call after you have finished writing.
+     * It appears that you do not need to call this if you only read from the vector.
      */
     void Restore();
 
