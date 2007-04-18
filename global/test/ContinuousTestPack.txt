@@ -1,3 +1,4 @@
+TestCancerParameters.hpp
 TestCwd.hpp
 TestDistributedVector.hpp
 TestException.hpp

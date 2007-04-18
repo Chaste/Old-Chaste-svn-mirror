@@ -86,7 +86,7 @@ for file in os.listdir('../../test'):
 # Note that order does matter!
 petsc_libs = ['petscts', 'petscsnes', 'petscksp', 'petscdm', 
               'petscmat', 'petscvec', 'petsc']
-chaste_libs = components
+chaste_libs = [toplevel_dir] + comp_deps[toplevel_dir]
 all_libs = ['test'+toplevel_dir] + chaste_libs + petsc_libs + other_libs
 
 
