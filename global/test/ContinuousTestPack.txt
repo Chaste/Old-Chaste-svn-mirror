@@ -1,4 +1,5 @@
 TestCwd.hpp
+TestDistributedVector.hpp
 TestException.hpp
 TestOutputFileHandler.hpp
 TestPetSCSetup.hpp

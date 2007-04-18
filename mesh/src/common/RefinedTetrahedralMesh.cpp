@@ -1,8 +1,12 @@
 #ifndef _REFINEDTETRAHEDRALMESH_CPP_
 #define _REFINEDTETRAHEDRALMESH_CPP_
 
+#include <petscvec.h>
+
 #include "ConformingTetrahedralMesh.cpp"
 #include "NodeMap.hpp"
+#include "ReplicatableVector.hpp"
+#include "DistributedVector.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class RefinedTetrahedralMesh :
@@ -123,7 +127,10 @@ public:
         return *mpCoarseFineNodeMap;
     }
     
-    
+    /**
+     * Interpolate a solution vector from the coarse mesh onto the UNflagged region of the fine mesh.
+     */
+    void InterpolateOnUnflaggedRegion(Vec coarse_solution, Vec fine_solution);
 
 };
 
@@ -235,8 +242,8 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
         }
     }
 }
-    
-    
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
 {
@@ -270,5 +277,49 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
     }
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion(Vec coarse_solution, Vec fine_solution)
+{
+    // Replicate the coarse solution on all processes
+    ReplicatableVector coarse_soln_replicated(coarse_solution);
+    
+    DistributedVector fine_soln(fine_solution);
+    
+    // Iterate over elements in the fine mesh
+    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
+    for (i_fine_element = mpFineMesh->GetElementIteratorBegin();
+         i_fine_element != mpFineMesh->GetElementIteratorEnd();
+         i_fine_element++)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>& fine_element = **i_fine_element;
+        // If element is unflagged, iterate over its nodes
+        if (!fine_element.IsFlagged())
+        {
+            for (unsigned fine_node_index=0; fine_node_index<fine_element.GetNumNodes(); fine_node_index++)
+            {
+                // Interpolate entry in fine_solution from the 'best' element in the coarse mesh
+                try
+                {
+                    Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
+                        GetACoarseElementForFineNodeIndex(fine_element.GetNodeGlobalIndex(fine_node_index));
+                    c_vector<double, ELEMENT_DIM+1> interpolation_weights = p_coarse_element->CalculateInterpolationWeights(fine_element.GetNode(fine_node_index)->GetPoint());
+                    double interpolated_soln = 0;
+                    for (unsigned coarse_node_index=0; coarse_node_index<p_coarse_element->GetNumNodes(); coarse_node_index++)
+                    {
+                        unsigned coarse_node_global_index = p_coarse_element->GetNodeGlobalIndex(coarse_node_index);
+                        interpolated_soln += interpolation_weights(coarse_node_index) * coarse_soln_replicated[coarse_node_global_index];
+                    }
+                    
+                    fine_soln[fine_element.GetNodeGlobalIndex(fine_node_index)] = interpolated_soln;
+                }
+                catch (DistributedVectorException &e)
+                {}
+            }
+        }
+    }
+    
+    // Let all processes know about changes, as needed
+    fine_soln.Restore();
+}
 
 #endif // _REFINEDTETRAHEDRALMESH_CPP_

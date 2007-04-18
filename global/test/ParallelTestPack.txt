@@ -1,1 +1,2 @@
+TestDistributedVector.hpp
 TestReplicatableVector.hpp

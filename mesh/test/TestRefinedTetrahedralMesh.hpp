@@ -5,6 +5,9 @@
 
 #include "RefinedTetrahedralMesh.cpp"
 #include "TrianglesMeshReader.cpp"
+#include "DistributedVector.hpp"
+
+#include "PetscSetupAndFinalize.hpp"
 
 
 class TestRefinedTetrahedralMesh : public CxxTest::TestSuite
@@ -13,7 +16,7 @@ public:
 
 //   void TestMeshConstructionFromMeshReader(void)
 // is not yet implemented
-    void TestConstructionFromCuboidMeshes3D()
+    void xTestConstructionFromCuboidMeshes3D()
     {
         // create fine mesh as CTM
         
@@ -48,7 +51,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
     
-    void TestCoarseFineElementsMap2D(void)
+    void xTestCoarseFineElementsMap2D(void)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
@@ -74,7 +77,7 @@ public:
                   coarse_mesh.GetFineElementsForCoarseElementIndex(0));
     }
     
-    void TestTransferFlags()
+    void xTestTransferFlags()
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(4, 4, false);
@@ -128,7 +131,7 @@ public:
         }
     }
     
-    void TestFineNodesCoarseElementsMap2D(void)
+    void xTestFineNodesCoarseElementsMap2D(void)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
@@ -150,7 +153,7 @@ public:
                   coarse_mesh.GetACoarseElementForFineNodeIndex(3));
     }
     
-    void TestFineMeshIncorrect3D(void)
+    void xTestFineMeshIncorrect3D(void)
     {
         ConformingTetrahedralMesh<3,3> fine_mesh;
         
@@ -170,7 +173,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
     
-    void TestFineAndCoarseDisc(void)
+    void xTestFineAndCoarseDisc(void)
     {
         TrianglesMeshReader<2,2> fine_mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> fine_mesh;
@@ -238,6 +241,115 @@ public:
             // region in the coarse mesh, so are not flagged.
             // Element 421 is a special case - one edge lies on the border of the
             // flagged region.
+        }
+    }
+
+    void TestInterpolateOnUnflaggedRegion()
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;
+        
+        unsigned num_elem = 16;
+        fine_mesh.ConstructRectangularMesh(num_elem,num_elem);
+        fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        
+        num_elem = 4;
+        coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
+        coarse_mesh.Scale(1.0/num_elem, 1.0/num_elem);
+        
+        // give fine mesh to coarse mesh
+        coarse_mesh.SetFineMesh(&fine_mesh);
+
+        // Set linear initial condition on coarse mesh 
+        DistributedVector::SetProblemSize(coarse_mesh.GetNumNodes());
+        Vec coarse_ic_petsc = DistributedVector::CreateVec();
+        DistributedVector coarse_ic(coarse_ic_petsc);
+        
+        c_vector<double,2> linear_combination;
+        linear_combination(0)=3;
+        linear_combination(1)=-23;
+        
+        for (DistributedVector::Iterator index=DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
+        {
+            coarse_ic[index] = inner_prod(linear_combination, 
+                                          coarse_mesh.GetNode(index.Global)->rGetLocation());
+        }
+        coarse_ic.Restore();
+        
+        // Set zero initial condition on the fine mesh, so we know if interpolation changed things
+        DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+        Vec fine_ic_petsc = DistributedVector::CreateVec();
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        PetscScalar zero = 0;
+        VecSet(&zero, fine_ic_petsc);
+#else
+        VecSet(fine_ic_petsc, 0);
+#endif  
+        VecAssemblyBegin(fine_ic_petsc);
+        VecAssemblyEnd(fine_ic_petsc);
+        
+        
+        // Flag the right half of the coarse mesh
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
+        for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+             i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+             i_coarse_element++)
+        {
+            Element<2,2> &element = **i_coarse_element;
+            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            if (centroid[0] > 0.5)
+            {
+                element.Flag();
+            }
+            else
+            {
+                element.Unflag();
+            }
+        }
+        
+        // Flag the corresponding region of the fine mesh
+        coarse_mesh.TransferFlags();
+        
+        // Interpolate coarse initial condition onto UNflagged region of fine mesh
+        coarse_mesh.InterpolateOnUnflaggedRegion(coarse_ic_petsc, fine_ic_petsc);
+
+        // Check that unflagged nodes were interpolated, but flagged ones were not
+        DistributedVector fine_ic(fine_ic_petsc);
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_fine_element;
+        for (i_fine_element = fine_mesh.GetElementIteratorBegin();
+             i_fine_element != fine_mesh.GetElementIteratorEnd();
+             i_fine_element++)
+        {
+            Element<2,2> &element = **i_fine_element;
+            for (unsigned element_node_index=0; element_node_index<3; element_node_index++)
+            {
+                const c_vector<double, 2>& r_node_loc = element.GetNode(element_node_index)->rGetLocation();
+
+                double expected_value, actual_value;
+                if (r_node_loc[0] <= 0.5)
+                {
+                    // Node lies on an unflagged element
+                    expected_value = inner_prod(linear_combination, r_node_loc);
+                }
+                else
+                {
+                    // Node is only in flagged elements
+                    expected_value = 0;
+                }
+
+                unsigned element_node_global_index = element.GetNodeGlobalIndex(element_node_index);
+                try
+                {
+                    actual_value = fine_ic[element_node_global_index];
+                    TS_ASSERT_DELTA(actual_value, expected_value, 1e-12);
+                } 
+                catch (DistributedVectorException &e)
+                {}
+            }
         }
     }
 };
