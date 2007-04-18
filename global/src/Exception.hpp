@@ -18,7 +18,7 @@ private:
     
 public:
     /** Construct an exception with a message string */
-    Exception(std::string message, std::string filename, const unsigned& rLineNumber);
+    Exception(std::string message, std::string filename, const unsigned rLineNumber);
     
     /** Get the message associated with the exception
      *

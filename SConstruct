@@ -176,7 +176,7 @@ elif system_name == 'chaste':
   petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
   other_libpaths = [petsc_libpath, blas_libpath]
   other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
-elif system_name == 'new_chaste':
+elif (system_name == 'new_chaste' or system_name == 'intel_chaste'):
   # New Chaste machines in comlab
   other_includepaths = []
   if build.using_dealii:
@@ -204,7 +204,9 @@ elif system_name == 'new_chaste':
         petsc_libpath = os.path.abspath(petsc_base+'lib/linux-gnu/')
         petsc_bmake = petsc_base+'bmake/linux-gnu'
     blas_libpath = os.path.abspath(petsc_base+'externalpackages/f2cblaslapack/linux-gnu')
-    other_libpaths = [petsc_libpath, blas_libpath]
+    intel_libpath = '/opt/intel/cc/9.1.039/lib'
+ 
+    other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
     other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
   petsc_inc = petsc_base+'include'
   # TODO: Make sure Chaste paths come first in the -I list.
@@ -270,6 +272,11 @@ elif system_name == 'chaste':
   mpirun = 'mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
+elif system_name == 'intel_chaste':
+  mpicxx = 'mpicxx -CC=icpc'
+  mpirun = 'mpirun'
+  cxx = '/opt/intel/cc/9.1.039/bin/icpc'
+  ar = ' /opt/intel/cc/9.1.039/bin/xiar'
 elif system_name == 'new_chaste':
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'
