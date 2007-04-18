@@ -140,7 +140,7 @@ public:
         return (mBoundaryElements[index]);
     }
     
-    void SetNode(unsigned index, Point<SPACE_DIM> point, bool concreteMove=true);
+    virtual void SetNode(unsigned index, Point<SPACE_DIM> point, bool concreteMove=true);
     void MoveMergeNode(unsigned index, unsigned targetIndex, bool concreteMove=true);
     void DeleteNode(unsigned index);
     

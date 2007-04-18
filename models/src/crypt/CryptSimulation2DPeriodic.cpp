@@ -834,7 +834,7 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<
     {
     if (!mrMesh.GetNode(index)->IsDeleted())
         {
-            Point<2> new_point = GetNewNodeLocation(index,rDrDt);    
+            Point<2> new_point = GetNewNodeLocation(index, rDrDt);   
             if (mFixedBoundaries)
             {
                 c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
@@ -861,7 +861,6 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<
                         // it is a bit of a hack to make it work nicely!
                         new_point.rGetLocation()[1] = 0.01;
                     }
-                    
                     mrMesh.SetNode(index, new_point, false);
                 }
             }
@@ -900,19 +899,6 @@ Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeI
 {
     Point<2> new_point( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
                      + mDt*rDrDt[rOldNodeIndex]);
-    if (mCylindrical)
-    {
-        if (new_point.rGetLocation()[0]>=mpParams->GetCryptWidth())
-        {   // move point to the left
-            new_point.SetCoordinate(0u, new_point.rGetLocation()[0]-mpParams->GetCryptWidth());
-            //std::cout << "Moving point to the left\n" << std::flush;
-        }
-        if (new_point.rGetLocation()[0]<0.0)
-        {   // move point to the right
-            new_point.SetCoordinate(0u, new_point.rGetLocation()[0]+mpParams->GetCryptWidth());
-            //std::cout << "Moving point to the right\n" << std::flush;
-        }
-    }
     return new_point;
 }
 

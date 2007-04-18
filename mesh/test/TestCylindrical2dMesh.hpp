@@ -316,7 +316,46 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(2.0), 1e-7);
     }
     
+    void TestSetNodeLocationForCylindricalMesh() throw (Exception)
+    {        
+        unsigned cells_across = 3;
+        unsigned cells_up = 3;
+        double crypt_width = 3.0;
+        unsigned thickness_of_ghost_layer = 2;
+        
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        
+        // move one of the nodes to near the periodic boundary
+        c_vector<double, 2> new_point_location;
+        new_point_location[0] = 2.999999999;
+        new_point_location[1] = -0.866025;
+        Point<2> new_point(new_point_location);
+        p_mesh->GetNode(5)->SetPoint(new_point);
+        
+      
+        new_point.SetCoordinate(0u, -0.0001);
+        //std::cout << " x = " << new_point.rGetLocation()[0] << ", y = " << new_point.rGetLocation()[1] << "\n" << std::flush;
+        // This node was on left and is now near the right
+        
+        p_mesh->SetNode(0u, new_point,false);
+        
+        TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 2.9999, 1e-4);
+        
+        new_point.SetCoordinate(0u, 1.0000);
+        p_mesh->SetNode(0u, new_point,false);
+        
+        //std::cout << " x = " << new_point.rGetLocation()[0] << ", y = " << new_point.rGetLocation()[1] << "\n" << std::flush;
+        // This node has stayed close to where it was
+        TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], 1.0000, 1e-4);
+        
+        new_point.SetCoordinate(0u, 3.0001);
+        p_mesh->SetNode(0u, new_point,false);
+        //std::cout << " x = " << new_point.rGetLocation()[0] << ", y = " << new_point.rGetLocation()[1] << "\n" << std::flush;
+        // This node was on right and is now on the left.
+        TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], +0.0001, 1e-4);
 
+    }
 
 };
 

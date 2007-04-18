@@ -392,6 +392,34 @@ public:
         vector[1] = y_dist;
         return vector;
     }
+    
+    /**
+     * OVERWRITTEN function to set the location of a node.
+     * 
+     * If the location should be set outside a cylindrical boundary
+     * move it back onto the cylinder.
+     * 
+     * SetNode moves the node with a particular index to a new point in space and
+     * verifies that the signed areas of the supporting Elements are positive
+     * @param index is the index of the node to be moved
+     * @param point is the new target location of the node
+     * @param concreteMove is set to false if we want to skip the signed area tests
+     *
+     */
+    void SetNode(unsigned index, Point<2> point, bool concreteMove)
+    {
+        if (point.rGetLocation()[0] >= mXRight)
+        {   // move point to the left
+            point.SetCoordinate(0u, point.rGetLocation()[0]-mWidth);
+            //std::cout << "Moving point to the left\n" << std::flush;
+        }
+        if (point.rGetLocation()[0] < mXLeft)
+        {   // move point to the right
+            point.SetCoordinate(0u, point.rGetLocation()[0]+mWidth);
+            //std::cout << "Moving point to the right\n" << std::flush;
+        }
+        ConformingTetrahedralMesh<2,2>::SetNode(index, point, concreteMove);    
+    }
 
     /**
      * Returns true if an unsigned is contained in a vector of unsigneds
