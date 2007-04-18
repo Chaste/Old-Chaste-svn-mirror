@@ -69,12 +69,6 @@ protected:
     // number of nodes in the mesh
     unsigned mNumNodes;
     
-    // Lowest value of index that this part of the global object stores
-    unsigned mOwnershipRangeLo;
-    
-    // One more than the local highest index
-    unsigned mOwnershipRangeHi;
-    
     
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
@@ -83,9 +77,6 @@ public:
         mNumNodes = pCellFactory->GetNumberOfCells();
         
         DistributedVector::SetProblemSize(mNumNodes);
-
-        mOwnershipRangeLo=DistributedVector::Begin().Global;
-        mOwnershipRangeHi=DistributedVector::End().Global;
         
         
         // Reference: Trayanova (2002 - "Look inside the heart")
@@ -175,8 +166,9 @@ public:
      */
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
     {   
-        assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
-        return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
+        assert(DistributedVector::Begin().Global <= globalIndex &&
+               globalIndex < DistributedVector::End().Global);
+        return mCellsDistributed[globalIndex - DistributedVector::Begin().Global];
     }
     
     
