@@ -71,21 +71,25 @@ public:
         // read the 2nd element of the first vector
         if (lo<=2 && 2<hi)
         {
+            TS_ASSERT(DistributedVector::IsGlobalIndexLocal(2));
             TS_ASSERT_EQUALS(distributed_vector[2],2*(2-lo));
         }
         else
         {
-            TS_ASSERT_THROWS_ANYTHING(distributed_vector[2]=2*(2-lo));
+            TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(2));
+            TS_ASSERT_THROWS_ANYTHING(distributed_vector[2]);
         }
         
         //read the 3rd element of the other vectors
         if (lo<=3 && 3<hi)
         {
+            TS_ASSERT(DistributedVector::IsGlobalIndexLocal(3));
             TS_ASSERT_EQUALS(linear[3],(3-lo));
             TS_ASSERT_EQUALS(quadratic[3],3*3);
         }
         else
         {
+            TS_ASSERT(!DistributedVector::IsGlobalIndexLocal(3));
             TS_ASSERT_THROWS_ANYTHING(linear[3]);
             TS_ASSERT_THROWS_ANYTHING(quadratic[3]);
         }

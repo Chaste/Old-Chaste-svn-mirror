@@ -16,7 +16,7 @@ public:
 
 //   void TestMeshConstructionFromMeshReader(void)
 // is not yet implemented
-    void xTestConstructionFromCuboidMeshes3D()
+    void TestConstructionFromCuboidMeshes3D()
     {
         // create fine mesh as CTM
         
@@ -51,7 +51,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
     
-    void xTestCoarseFineElementsMap2D(void)
+    void TestCoarseFineElementsMap2D(void)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
@@ -77,7 +77,7 @@ public:
                   coarse_mesh.GetFineElementsForCoarseElementIndex(0));
     }
     
-    void xTestTransferFlags()
+    void TestTransferFlags()
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(4, 4, false);
@@ -131,7 +131,7 @@ public:
         }
     }
     
-    void xTestFineNodesCoarseElementsMap2D(void)
+    void TestFineNodesCoarseElementsMap2D(void)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(2, 2, false);
@@ -153,7 +153,7 @@ public:
                   coarse_mesh.GetACoarseElementForFineNodeIndex(3));
     }
     
-    void xTestFineMeshIncorrect3D(void)
+    void TestFineMeshIncorrect3D(void)
     {
         ConformingTetrahedralMesh<3,3> fine_mesh;
         
@@ -173,7 +173,7 @@ public:
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
     }
     
-    void xTestFineAndCoarseDisc(void)
+    void TestFineAndCoarseDisc(void)
     {
         TrianglesMeshReader<2,2> fine_mesh_reader("mesh/test/data/disk_984_elements");
         ConformingTetrahedralMesh<2,2> fine_mesh;
@@ -319,6 +319,7 @@ public:
 
         // Check that unflagged nodes were interpolated, but flagged ones were not
         DistributedVector fine_ic(fine_ic_petsc);
+        bool found_unflagged_elt = false;
         ConformingTetrahedralMesh<2, 2>::ElementIterator i_fine_element;
         for (i_fine_element = fine_mesh.GetElementIteratorBegin();
              i_fine_element != fine_mesh.GetElementIteratorEnd();
@@ -329,11 +330,12 @@ public:
             {
                 const c_vector<double, 2>& r_node_loc = element.GetNode(element_node_index)->rGetLocation();
 
-                double expected_value, actual_value;
+                double expected_value;
                 if (r_node_loc[0] <= 0.5)
                 {
                     // Node lies on an unflagged element
                     expected_value = inner_prod(linear_combination, r_node_loc);
+                    found_unflagged_elt = true;
                 }
                 else
                 {
@@ -342,15 +344,14 @@ public:
                 }
 
                 unsigned element_node_global_index = element.GetNodeGlobalIndex(element_node_index);
-                try
+                if (DistributedVector::IsGlobalIndexLocal(element_node_global_index))
                 {
-                    actual_value = fine_ic[element_node_global_index];
-                    TS_ASSERT_DELTA(actual_value, expected_value, 1e-12);
-                } 
-                catch (DistributedVectorException &e)
-                {}
+                    TS_ASSERT_DELTA(fine_ic[element_node_global_index], expected_value, 1e-12);
+                }
             }
         }
+        // Check the test really did something useful!
+        TS_ASSERT(found_unflagged_elt);
     }
 };
 

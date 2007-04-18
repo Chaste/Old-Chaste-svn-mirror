@@ -298,10 +298,11 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
             for (unsigned fine_node_index=0; fine_node_index<fine_element.GetNumNodes(); fine_node_index++)
             {
                 // Interpolate entry in fine_solution from the 'best' element in the coarse mesh
-                try
+                unsigned fine_node_global_index = fine_element.GetNodeGlobalIndex(fine_node_index);
+                if (DistributedVector::IsGlobalIndexLocal(fine_node_global_index))
                 {
                     Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
-                        GetACoarseElementForFineNodeIndex(fine_element.GetNodeGlobalIndex(fine_node_index));
+                        GetACoarseElementForFineNodeIndex(fine_node_global_index);
                     c_vector<double, ELEMENT_DIM+1> interpolation_weights = p_coarse_element->CalculateInterpolationWeights(fine_element.GetNode(fine_node_index)->GetPoint());
                     double interpolated_soln = 0;
                     for (unsigned coarse_node_index=0; coarse_node_index<p_coarse_element->GetNumNodes(); coarse_node_index++)
@@ -310,10 +311,8 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
                         interpolated_soln += interpolation_weights(coarse_node_index) * coarse_soln_replicated[coarse_node_global_index];
                     }
                     
-                    fine_soln[fine_element.GetNodeGlobalIndex(fine_node_index)] = interpolated_soln;
+                    fine_soln[fine_node_global_index] = interpolated_soln;
                 }
-                catch (DistributedVectorException &e)
-                {}
             }
         }
     }

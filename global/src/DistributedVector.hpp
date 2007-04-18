@@ -27,9 +27,14 @@ public:
     static void SetProblemSize(unsigned size);
     
     /**
-     * Set the problem with an existing PERScc vector -- must have stride=1
+     * Set the problem with an existing PETSc vector -- must have stride=1
      */
     static void SetProblemSize(Vec vec);
+    
+    /**
+     * Test if the given global index is owned by the current process, i.e. is local to it.
+     */
+    static bool IsGlobalIndexLocal(unsigned globalIndex);
     
     /*
      * Create a PETSc vector of the problem size
