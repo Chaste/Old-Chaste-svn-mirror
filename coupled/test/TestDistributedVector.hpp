@@ -45,6 +45,9 @@ public:
         VecRestoreArray(vec, &p_vec);
         VecAssemblyBegin(vec);
         VecAssemblyEnd(vec);
+        VecRestoreArray(striped, &p_striped);
+        VecAssemblyBegin(striped);
+        VecAssemblyEnd(striped);
         
         // READ VECTOR
         DistributedVector::SetProblemSize(vec);
@@ -124,8 +127,6 @@ public:
         VecGetArray(striped, &p_striped);
         double* p_vec;
         VecGetArray(petsc_vec, &p_vec);
-        VecGetArray(petsc_vec, &p_vec);
-        VecGetArray(striped, &p_striped);
         for (unsigned global_index=lo; global_index<hi; global_index++)
         {
             unsigned local_index = global_index - lo;

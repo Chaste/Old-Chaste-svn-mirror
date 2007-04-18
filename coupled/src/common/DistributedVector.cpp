@@ -15,6 +15,7 @@ void DistributedVector::SetProblemSize(unsigned size)
         VecSetSizes(vec, PETSC_DECIDE, size);
         VecSetFromOptions(vec);
         SetProblemSize(vec);
+        VecDestroy(vec);
 }
 
 void DistributedVector::SetProblemSize(Vec vec)

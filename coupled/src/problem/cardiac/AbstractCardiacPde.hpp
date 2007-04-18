@@ -69,12 +69,33 @@ protected:
     // number of nodes in the mesh
     unsigned mNumNodes;
     
+    // Lowest value of index that this part of the global object stores
+    unsigned mOwnershipRangeLo;
+    
+    // One more than the local highest index
+    unsigned mOwnershipRangeHi;
+    
     
 public:
     AbstractCardiacPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory, const unsigned stride=1)
             :  mStride(stride)
     {
         mNumNodes = pCellFactory->GetNumberOfCells();
+        
+        DistributedVector::SetProblemSize(mNumNodes);
+        
+        // Create a temporary PETSc vector and use the ownership range of
+        // the PETSc vector to size our C++ vectors
+        Vec tempVec;
+        VecCreate(PETSC_COMM_WORLD, &tempVec);
+        VecSetSizes(tempVec, PETSC_DECIDE, mNumNodes);
+        VecSetFromOptions(tempVec);
+        PetscInt temp_lo, temp_hi;
+        VecGetOwnershipRange(tempVec, &temp_lo, &temp_hi);
+        mOwnershipRangeLo=(unsigned) temp_lo;
+        mOwnershipRangeHi=(unsigned) temp_hi;
+        VecDestroy(tempVec); // vector no longer needed
+        
         
         // Reference: Trayanova (2002 - "Look inside the heart")
         mSurfaceAreaToVolumeRatio = 1400;            // 1/cm
@@ -86,24 +107,25 @@ public:
         //mCapacitance = 1;
         //double const_intra_conductivity = 0.0005;
         
-        mIntracellularConductivityTensor = const_intra_conductivity
-                                           * identity_matrix<double>(SPACE_DIM);
+        mIntracellularConductivityTensor.clear();
         
-        // Create a temporary PETSc vector and use the ownership range of
-        // the PETSc vector to size our C++ vectors
-        DistributedVector::SetProblemSize(mNumNodes);
- 
-        mCellsDistributed.resize(DistributedVector::End().Global - DistributedVector::Begin().Global);
-        
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
+        for (unsigned i=0;i<SPACE_DIM;i++)
         {
-            mCellsDistributed[index.Local] = pCellFactory->CreateCardiacCellForNode(index.Global);
+            mIntracellularConductivityTensor(i,i) = const_intra_conductivity;
         }
-        pCellFactory->FinaliseCellCreation(&mCellsDistributed,
-                                           DistributedVector::Begin().Global,
-                                           DistributedVector::End().Global);
+        
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
+        
+        mCellsDistributed.resize(hi-lo);
+        
+        for (unsigned global_index=lo; global_index<hi; global_index++)
+        {
+            unsigned local_index = global_index - lo;
+            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+        }
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed, lo, hi);
+        
         
         mIionicCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
         mIntracellularStimulusCacheReplicated.resize( pCellFactory->GetNumberOfCells() );
@@ -112,11 +134,12 @@ public:
     
     virtual ~AbstractCardiacPde()
     {
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
+        for (unsigned global_index=lo; global_index<hi; global_index++)
         {
-            delete mCellsDistributed[index.Local];
+            unsigned local_index = global_index - lo;
+            delete mCellsDistributed[local_index];
         }
     }
     
@@ -166,16 +189,17 @@ public:
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex )
     {
 #ifndef NDEBUG
-        if (!(DistributedVector::Begin().Global <= globalIndex && globalIndex < DistributedVector::End().Global))
+        if (!(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi))
         {
             #define COVERAGE_IGNORE
-            std::cout << "i " << globalIndex << " lo " << DistributedVector::Begin().Global <<
-            " hi " << DistributedVector::End().Global << std::endl;
+            std::cout << "i " << globalIndex << " lo " << this->mOwnershipRangeLo <<
+            " hi " << this->mOwnershipRangeHi << std::endl;
             #undef COVERAGE_IGNORE
         }
 #endif
-        assert(DistributedVector::Begin().Global <= globalIndex && globalIndex < DistributedVector::End().Global);
-        return mCellsDistributed[globalIndex-DistributedVector::Begin().Global];
+        
+        assert(this->mOwnershipRangeLo <= globalIndex && globalIndex < this->mOwnershipRangeHi);
+        return mCellsDistributed[globalIndex-this->mOwnershipRangeLo];
     }
     
     
@@ -190,31 +214,38 @@ public:
      */
     void SolveCellSystems(Vec currentSolution, double currentTime, double nextTime)
     {
-        DistributedVector striped_distributed(currentSolution);
-        DistributedVector::Stripe voltage_solution(striped_distributed,0);
-
-        for (DistributedVector::Iterator index = DistributedVector::Begin();
-             index != DistributedVector::End();
-             ++index)
+        double *p_current_solution;
+        VecGetArray(currentSolution, &p_current_solution);
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
+        
+        for (unsigned global_index=lo; global_index < hi; global_index++)
         {
-            mCellsDistributed[index.Local]->SetVoltage( voltage_solution[index] );
+            unsigned local_index = global_index - lo;
+            
+            // overwrite the voltage with the input value
+            mCellsDistributed[local_index]->SetVoltage( p_current_solution[mStride*local_index] );
+            
             try
             {
                 // solve
                 // Note: Voltage should not be updated. GetIIonic will be called later
                 // and needs the old voltage. The voltage will be updated from the pde.
-                mCellsDistributed[index.Local]->ComputeExceptVoltage(currentTime, nextTime);
+                mCellsDistributed[local_index]->ComputeExceptVoltage(currentTime, nextTime);
             }
             catch (Exception &e)
             {
                 ReplicateException(true);
                 throw e;
             }
+            
             // update the Iionic and stimulus caches
-            UpdateCaches(index.Global, index.Local, nextTime);
+            UpdateCaches(global_index, local_index, nextTime);
         }
-        striped_distributed.Restore();
+        VecRestoreArray(currentSolution, &p_current_solution);
+        
         ReplicateException(false);
+        
         ReplicateCaches();
     }
     
@@ -247,8 +278,8 @@ public:
      */
     virtual void ReplicateCaches()
     {
-        unsigned lo=DistributedVector::Begin().Global;
-        unsigned hi=DistributedVector::End().Global;
+        unsigned lo=this->mOwnershipRangeLo;
+        unsigned hi=this->mOwnershipRangeHi;
         
         mIionicCacheReplicated.Replicate(lo, hi);
         mIntracellularStimulusCacheReplicated.Replicate(lo, hi);
@@ -270,11 +301,11 @@ public:
         }
     }
     
-//    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
-//    {
-//        rLo=DistributedVector::Begin().Global;
-//        rHi=DistributedVector::End().Global;
-//    }
+    void GetOwnershipRange(unsigned &rLo, unsigned &rHi)
+    {
+        rLo=mOwnershipRangeLo;
+        rHi=mOwnershipRangeHi;
+    }
 };
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/

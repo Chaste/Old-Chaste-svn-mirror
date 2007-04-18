@@ -7,6 +7,7 @@
 #include "ParallelColumnDataWriter.hpp"
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
+#include "DistributedVector.hpp"
 
 /**
  * Class which specifies and solves a monodomain problem.
