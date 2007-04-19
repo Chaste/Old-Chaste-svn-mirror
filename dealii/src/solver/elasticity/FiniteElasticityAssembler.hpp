@@ -30,12 +30,12 @@
 #include <sstream>
 #include <base/symmetric_tensor.h>
 
-#define FIXED_BOUNDARY 10
-#define NEUMANN_BOUNDARY 11
-#define DIRICHLET_BOUNDARY 12
+const unsigned FIXED_BOUNDARY = 10;
+const unsigned NEUMANN_BOUNDARY = 11;
+const unsigned DIRICHLET_BOUNDARY = 12;
 
-#define NEWTON_ABS_TOL 1e-11
-#define NEWTON_REL_TOL 1e-7
+const double NEWTON_ABS_TOL = 1e-11;
+const double NEWTON_REL_TOL = 1e-7;
 
 #include "AbstractIncompressibleMaterialLaw.hpp"
 #include "OutputFileHandler.hpp"

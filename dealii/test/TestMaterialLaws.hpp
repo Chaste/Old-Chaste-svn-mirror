@@ -240,9 +240,9 @@ public:
         std::vector< std::vector<double> > alpha = PolynomialMaterialLaw3d::GetZeroedAlpha(N);
         
         // test GetZeroedAlpha
-        TS_ASSERT_EQUALS(alpha.size(),2);
-        TS_ASSERT_EQUALS(alpha[0].size(),2);
-        TS_ASSERT_EQUALS(alpha[1].size(),2);
+        TS_ASSERT_EQUALS(alpha.size(),2u);
+        TS_ASSERT_EQUALS(alpha[0].size(),2u);
+        TS_ASSERT_EQUALS(alpha[1].size(),2u);
         
         TS_ASSERT_DELTA(alpha[0][0],0.0,1e-12);
         TS_ASSERT_DELTA(alpha[0][1],0.0,1e-12);

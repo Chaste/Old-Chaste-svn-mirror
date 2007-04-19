@@ -30,6 +30,9 @@ public :
     AbstractGrowingTumourSourceModel()
     {
     }
+    
+    virtual ~AbstractGrowingTumourSourceModel()
+    {}
         
     virtual void Run(double tStart, double tEnd, FiniteElasticityAssembler<DIM>* pFiniteElasticityAssembler)=0;
 

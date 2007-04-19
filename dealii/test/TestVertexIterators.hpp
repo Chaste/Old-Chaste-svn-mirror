@@ -41,16 +41,15 @@ public :
         {
             Triangulation<2>::active_cell_iterator cell = vertex_iter.GetCell();
             
-            unsigned local_vertex_index = vertex_iter.GetLocalVertexIndexForCell();
+            //unsigned local_vertex_index = vertex_iter.GetLocalVertexIndexForCell();
             
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             
             TS_ASSERT(vertex_touched[vertex_index]==false);
             vertex_touched[vertex_index] = true;
             
-            
-            TS_ASSERT_EQUALS(vertex_iter.GetCell()->vertex_index(vertex_iter.GetLocalVertexIndexForCell()),
-                             vertex_index);
+            unsigned cell_vertex_index = vertex_iter.GetCell()->vertex_index(vertex_iter.GetLocalVertexIndexForCell());
+            TS_ASSERT_EQUALS(cell_vertex_index, vertex_index);
                              
             Point<2> vertex = vertex_iter.GetVertex();
             
@@ -86,12 +85,12 @@ public :
         
         TS_ASSERT_EQUALS(counter, num_nodes);
         
-        TS_ASSERT_EQUALS(num_x_is_zero,3);
-        TS_ASSERT_EQUALS(num_x_is_half,3);
-        TS_ASSERT_EQUALS(num_x_is_one, 3);
-        TS_ASSERT_EQUALS(num_y_is_zero,3);
-        TS_ASSERT_EQUALS(num_y_is_half,3);
-        TS_ASSERT_EQUALS(num_y_is_one, 3);
+        TS_ASSERT_EQUALS(num_x_is_zero,3u);
+        TS_ASSERT_EQUALS(num_x_is_half,3u);
+        TS_ASSERT_EQUALS(num_x_is_one, 3u);
+        TS_ASSERT_EQUALS(num_y_is_zero,3u);
+        TS_ASSERT_EQUALS(num_y_is_half,3u);
+        TS_ASSERT_EQUALS(num_y_is_one, 3u);
         
         for (unsigned i=0; i<num_nodes; i++)
         {
@@ -143,7 +142,7 @@ public :
         {
             Triangulation<2>::active_cell_iterator cell = vertex_iter.GetCell();
             
-            unsigned local_vertex_index = vertex_iter.GetLocalVertexIndexForCell();
+            //unsigned local_vertex_index = vertex_iter.GetLocalVertexIndexForCell();
             
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             TS_ASSERT(vertex_touched[vertex_index]==false);
@@ -192,12 +191,12 @@ public :
         
         TS_ASSERT_EQUALS(counter, num_nodes);
         
-        TS_ASSERT_EQUALS(num_x_is_zero,3);
-        TS_ASSERT_EQUALS(num_x_is_half,3);
-        TS_ASSERT_EQUALS(num_x_is_one, 3);
-        TS_ASSERT_EQUALS(num_y_is_zero,3);
-        TS_ASSERT_EQUALS(num_y_is_half,3);
-        TS_ASSERT_EQUALS(num_y_is_one, 3);
+        TS_ASSERT_EQUALS(num_x_is_zero,3u);
+        TS_ASSERT_EQUALS(num_x_is_half,3u);
+        TS_ASSERT_EQUALS(num_x_is_one, 3u);
+        TS_ASSERT_EQUALS(num_y_is_zero,3u);
+        TS_ASSERT_EQUALS(num_y_is_half,3u);
+        TS_ASSERT_EQUALS(num_y_is_one, 3u);
         
         for (unsigned i=0; i<num_nodes; i++)
         {

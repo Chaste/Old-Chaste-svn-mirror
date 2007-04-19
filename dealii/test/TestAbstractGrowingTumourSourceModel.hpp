@@ -23,7 +23,7 @@ public:
         simple_model.AddEvaluationPoint(0, position);
         simple_model.AddEvaluationPoint(1, position);
         
-        TS_ASSERT_EQUALS(simple_model.GetNumEvaluationPoints(), 2);
+        TS_ASSERT_EQUALS(simple_model.GetNumEvaluationPoints(), 2u);
         
         // the source value at the tumour points should be zero,
         // as model hasn't been run yet

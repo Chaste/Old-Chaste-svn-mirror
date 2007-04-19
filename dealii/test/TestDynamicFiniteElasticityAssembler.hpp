@@ -116,7 +116,7 @@ public :
         std::vector<Vector<double> >& deformed_position
         = dynamic_finite_elasticity.rGetDeformedPosition();
         
-        TS_ASSERT_EQUALS(deformed_position.size(), 2);
+        TS_ASSERT_EQUALS(deformed_position.size(), 2u);
         TS_ASSERT_EQUALS(deformed_position[0].size(), mesh.n_vertices());
         TS_ASSERT_EQUALS(deformed_position[1].size(), mesh.n_vertices());
         

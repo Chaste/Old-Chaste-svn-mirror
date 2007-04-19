@@ -105,7 +105,7 @@ public :
                                                        
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position = finite_elasticity.rGetUndeformedPosition();
-        TS_ASSERT_EQUALS(undeformed_position.size(), 2);
+        TS_ASSERT_EQUALS(undeformed_position.size(), 2u);
         TS_ASSERT_EQUALS(undeformed_position[0].size(), mesh.n_vertices());
         TS_ASSERT_EQUALS(undeformed_position[1].size(), mesh.n_vertices());
         
@@ -144,7 +144,7 @@ public :
                                                        
         finite_elasticity.Solve();
         
-        TS_ASSERT_EQUALS(finite_elasticity.GetNumNewtonIterations(), 0);
+        TS_ASSERT_EQUALS(finite_elasticity.GetNumNewtonIterations(), 0u);
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position
@@ -184,7 +184,7 @@ public :
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position = finite_elasticity.rGetDeformedPosition();
-        TS_ASSERT_EQUALS(deformed_position.size(), 2);
+        TS_ASSERT_EQUALS(deformed_position.size(), 2u);
         TS_ASSERT_EQUALS(deformed_position[0].size(), mesh.n_vertices());
         TS_ASSERT_EQUALS(deformed_position[1].size(), mesh.n_vertices());
         

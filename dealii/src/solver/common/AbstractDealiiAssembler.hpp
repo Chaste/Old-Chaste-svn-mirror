@@ -265,6 +265,9 @@ public :
         // mDofsPerElement = mFeSystem.dofs_per_cell;
         mDofsPerElement = 0;
     }
+    
+    virtual ~AbstractDealiiAssembler()
+    {}
 };
 
 #endif /*ABSTRACTDEALIIASSEMBLER_HPP_*/
