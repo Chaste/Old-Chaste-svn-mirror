@@ -1,6 +1,7 @@
 #ifndef _REFINEDTETRAHEDRALMESH_CPP_
 #define _REFINEDTETRAHEDRALMESH_CPP_
 
+#include <boost/numeric/ublas/vector.hpp> // Needs to come before PETSc headers
 #include <petscvec.h>
 
 #include "ConformingTetrahedralMesh.cpp"
