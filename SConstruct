@@ -132,7 +132,7 @@ elif system_name == 'maths':
   other_libs = ['lapack', 'blas-3']
   other_libpaths = [petsc_libpath]
   other_includepaths = petsc_incs
-elif system_name == 'joe':
+elif system_name == 'joe' or system_name == 'intel_joe':
   # Joe Pitt-Francis userpc30 (Suse 9.3) and userpc33 (Ubuntu 6.06 Dapper Drake)
   petsc_base = '/home/jmpf/petsc-2.3.1-p16/'
   petsc_inc = petsc_base+'include'
@@ -141,8 +141,9 @@ elif system_name == 'joe':
   other_includepaths = [petsc_inc, petsc_bmake, boost]
   petsc_libpath = petsc_base+'lib/linux-gnu/'
   blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
+  intel_libpath = '/opt/intel/cc/9.1.039/lib'
   other_libs = ['f2clapack', 'f2cblas','boost_serialization']
-  other_libpaths = [petsc_libpath, blas_libpath]
+  other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
 elif system_name == 'zuse':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
   petsc_inc = petsc_base+'include'
@@ -278,6 +279,11 @@ elif system_name == 'joe':
   mpirun = '/home/jmpf/mpi/bin/mpirun'
   cxx = '/usr/bin/g++'
   ar = '/usr/bin/ar'
+elif system_name == 'intel_joe':
+  mpicxx = 'mpicxx -CC=icpc'
+  mpirun = 'mpirun'
+  cxx = '/opt/intel/cc/9.1.039/bin/icpc'
+  ar = ' /opt/intel/cc/9.1.039/bin/xiar'
 elif system_name == 'chaste':
   mpicxx = 'mpicxx'
   mpirun = 'mpirun'

@@ -147,18 +147,18 @@ protected:
                 
             }
  			//Put it back       
- 			//if (pNodeInfo->mpNode->IsBoundaryNode())
- 			//{
+ 			if (pNodeInfo->mpNode->IsBoundaryNode())
+ 			{
  				mpMesh->SetNode(pNodeInfo->GetIndex(), point);
- 			//}
+ 			}
         	//Only really necessary if their are boundary nodes involved
         	//since they (presently) have memory as to their use
         }
         //Put it back
-        //if (!pNodeInfo->mpNode->IsBoundaryNode())
- 		//{
- 		//	mpMesh->SetNode(pNodeInfo->GetIndex(), point);
- 		//}
+        if (!pNodeInfo->mpNode->IsBoundaryNode())
+ 		{
+ 			mpMesh->SetNode(pNodeInfo->GetIndex(), point);
+ 		}
     }
     
     
@@ -407,7 +407,15 @@ public:
     {
         std::cout<<"Number of nodes in queue is now "<<mQueue.size()<<"\t";
         std::cout<<"Lowest score is "<<mQueue[0]->mScore
-        	<<" at "<<  mQueue[0]->GetIndex() <<"\n";
+        	<<" at "<<  mQueue[0]->GetIndex();
+        if (mQueue[0]->mScore == INFINITY)
+        {
+            std::cout<<"\n";
+        }
+        else
+        {
+            std::cout<<" to "<<  mQueue[0]->mpBestNeighbourNode->GetIndex() <<"\n";
+        }
         /*
         std::vector<NodeInfo<SPACE_DIM> *> queue=mQueue;
         while ( !queue.empty() )

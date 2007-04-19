@@ -4,7 +4,7 @@
 #include <cxxtest/TestSuite.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
-
+#include <iomanip>
 #include "UblasCustomFunctions.hpp"
 
 class TestUblasCustomFunctions : public CxxTest::TestSuite
@@ -219,6 +219,20 @@ public:
         TS_ASSERT_EQUALS(a(1,1), row1(1));
         TS_ASSERT_EQUALS(a(1,2), row1(2));
     }
+    
+    void TestDeterminantConsistency()
+    {	
+    	c_matrix<double,2,2> a;
+    	a(0,0)=-0.0862015334643083664;
+    	a(0,1)=-0.0570794273966443999;
+    	a(1,0)= 0.000151455583991544351;
+    	a(1,1)=-0.080981954603032702;
+    	
+    	double det=Determinant(a);
+    	double expected=0.0069894136677286855877;
+    	TS_ASSERT_DELTA(det, expected, 8.6e-19);
+    	TS_ASSERT_LESS_THAN(det -expected, 8.6e-19);
+     }
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

@@ -127,7 +127,7 @@ public:
         quality_decimator.Initialise(&mesh);
         quality_decimator.SetThreshold(0.3);
         quality_decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 40U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 41U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 3.1133, 1.0e-4);
         
         //TrianglesMeshWriter<2,2> mesh_writer1("", "DiskLeakage");
@@ -250,9 +250,9 @@ public:
         base_decimator.SetThreshold(0.08);
         base_decimator.Decimate();
         
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 195U);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 923U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 154U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 189U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 906U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 1544U);
         //TrianglesMeshWriter<3,3> mesh_writer1("", "CubePartDecimation");
         //mesh_writer1.WriteFilesUsingMesh(mesh);
         
@@ -334,16 +334,16 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 241U);
         decimator.SetThreshold(0.7);
         decimator.DecimateAnimate("Quality");
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 187U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 179U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
         
         decimator.SetThreshold(1.0);
         decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 160U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 156U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
         decimator.SetThreshold(INFINITY);
         decimator.Decimate();
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 160U);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 156U);
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
     }
     

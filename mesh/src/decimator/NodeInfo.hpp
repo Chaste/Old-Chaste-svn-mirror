@@ -63,7 +63,7 @@ public:
         mNeighbourNodeIterator = mNeighbourNodes.begin();//Perhaps?
     }
     
-    const unsigned GetNumNeighbourNodes()
+    unsigned GetNumNeighbourNodes() const
     {
         return mNeighbourNodes.size();
     }
@@ -111,7 +111,7 @@ public:
     }
     */
     
-    unsigned GetIndex()
+    unsigned GetIndex() const
     {
         return mpNode->GetIndex();
     }
@@ -128,7 +128,16 @@ class CompNodeInfo : public std::binary_function<NodeInfo<SPACE_DIM>*, NodeInfo<
 public:
     bool operator () (const NodeInfo<SPACE_DIM>* p1, const NodeInfo<SPACE_DIM>* p2)
     {
-        return p1->mScore > p2->mScore;
+        if (p1->mScore > p2->mScore)
+        {
+             return true;
+        }
+        if (p1->mScore < p2->mScore)
+        {
+            return false;
+        }
+       //Tie-breaker (for repeatability)
+        return (p1->GetIndex() > p2->GetIndex());
     }
 };
 
