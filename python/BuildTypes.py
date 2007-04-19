@@ -20,7 +20,7 @@ class BuildType(object):
     Here we set member variables for each method to use.
     """
     self._compiler_type = 'gcc'
-    self._cc_flags = '-Wall'
+    self._cc_flags = '-Wall -Werror'
     self._link_flags = ''
     self._test_packs = ['Continuous']
     self._revision = ''
@@ -56,15 +56,8 @@ class BuildType(object):
     return self._cc_flags
 
   def ComponentSpecificCcFlags(self, component):
-    """Return compiler flags that depend on the component being compiled.
-
-    This is only used at present to stop warnings being reported as errors
-    for Deal.II code, since the Deal.II headers generate warnings.
-    """
-    if component != 'dealii':
-      return " -Werror "
-    else:
-      return ""
+    """Return compiler flags that depend on the component being compiled."""
+    return ""
   
   def LinkFlags(self):
     """

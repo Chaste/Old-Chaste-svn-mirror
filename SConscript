@@ -103,7 +103,7 @@ opt = Environment(
          os.environ.get('CHASTE_TEST_OUTPUT',
                         '/tmp/'+os.environ['USER']+'/testoutput/')})
 opt['ENV']['LD_LIBRARY_PATH'] = ':'.join(other_libpaths) + ':' + os.path.abspath('../../../lib')
-opt.Append(CCFLAGS = '-I' + ' -I'.join(other_includepaths)
+opt.Append(CCFLAGS = '-isystem ' + ' -isystem '.join(other_includepaths)
            + ' ' + extra_flags + build.ComponentSpecificCcFlags(toplevel_dir))
 opt.Append(LINKFLAGS = link_flags)
 opt.Append(BOPT = 'g_c++')
