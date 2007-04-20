@@ -252,7 +252,7 @@ public:
         
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 189U);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 906U);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 1544U);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 144U);
         //TrianglesMeshWriter<3,3> mesh_writer1("", "CubePartDecimation");
         //mesh_writer1.WriteFilesUsingMesh(mesh);
         
