@@ -11,9 +11,6 @@
 class LuoRudyIModel1991OdeSystem : public AbstractCardiacCell
 {
 private:
-    // Current and voltage components (objects) of the LuoRudyIModel1991OdeSystem model
-    //   AbstractStimulusFunction *mpStimulus;
-    
     // Constants for the LuoRudyIModel1991OdeSystem model
     double background_current_E_b;
     double background_current_g_b;
@@ -41,9 +38,6 @@ public:
     ~LuoRudyIModel1991OdeSystem();
     
     void Init();
-    
-    // void SetStimulusFunction(AbstractStimulusFunction *stimulus);
-    // double GetStimulus(double time);
     
     // This method will compute the RHS of the LuoRudyIModel1991OdeSystem model
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);

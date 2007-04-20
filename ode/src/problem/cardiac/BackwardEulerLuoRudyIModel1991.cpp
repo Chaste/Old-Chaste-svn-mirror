@@ -364,12 +364,12 @@ void BackwardEulerLuoRudyIModel1991::VerifyGatingVariables()
 #ifndef NDEBUG
     const std::vector<double>& rY = rGetStateVariables();
     
-    double fast_sodium_current_h_gate_h = rY[0];
-    double fast_sodium_current_j_gate_j = rY[1];
-    double fast_sodium_current_m_gate_m = rY[2];
-    double slow_inward_current_d_gate_d = rY[5];
-    double slow_inward_current_f_gate_f = rY[6];
-    double time_dependent_potassium_current_X_gate_X = rY[7];
+    const double fast_sodium_current_h_gate_h = rY[0];
+    const double fast_sodium_current_j_gate_j = rY[1];
+    const double fast_sodium_current_m_gate_m = rY[2];
+    const double slow_inward_current_d_gate_d = rY[5];
+    const double slow_inward_current_f_gate_f = rY[6];
+    const double time_dependent_potassium_current_X_gate_X = rY[7];
     
 #define COVERAGE_IGNORE
     if (!(0.0<=fast_sodium_current_h_gate_h && fast_sodium_current_h_gate_h<=1.0))

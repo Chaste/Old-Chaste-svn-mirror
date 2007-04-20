@@ -29,8 +29,8 @@ AbstractCardiacCell::~AbstractCardiacCell()
 
 /**
  * Initialise the cell:
- *   set our state variables to the initial conditions,
- *   set model parameters to their default values.
+ *   set our state variables to the initial conditions (done here),
+ *   set model parameters to their default values (done by subclasses).
  */
 void AbstractCardiacCell::Init()
 {
@@ -54,7 +54,7 @@ OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd)
  */
 OdeSolution AbstractCardiacCell::ComputeExceptVoltage(double tStart, double tEnd)
 {
-    double saved_voltage=GetVoltage();
+    double saved_voltage = GetVoltage();
     
     mSetVoltageDerivativeToZero = true;
     OdeSolution ode_solution=mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);

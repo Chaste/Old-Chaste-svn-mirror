@@ -23,7 +23,7 @@
  9. mutation state (0/1/2/3)
  *
  */
-class WntCellCycleOdeSystem: public AbstractOdeSystem
+class WntCellCycleOdeSystem : public AbstractOdeSystem
 {
 private:
     // Constants for the Swat et al. (2004) Model

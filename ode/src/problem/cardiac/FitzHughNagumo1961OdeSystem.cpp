@@ -12,7 +12,7 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(AbstractIvpOdeSolver *p
         : AbstractCardiacCell(pOdeSolver,2,0,dt,pIntracellularStimulus,pExtracellularStimulus)
 {
     /*
-     * State variable
+     * State variables
      */
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
@@ -70,8 +70,6 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
     rDY[0] = membrane_V_prime;
     rDY[1] = recovery_variable_prime;
 }
-
-
 
 double FitzHughNagumo1961OdeSystem::GetIIonic()
 {

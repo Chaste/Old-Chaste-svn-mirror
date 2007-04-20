@@ -4,7 +4,6 @@
 
 /**
  * Constructor
- *
  */
 RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double frequency, double startTime)
 {
@@ -18,8 +17,8 @@ RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, do
 }
 
 /**
-* Destructor
-*/
+ * Destructor
+ */
 RegularStimulus::~RegularStimulus()
 {
     // Do nothing
@@ -28,7 +27,7 @@ RegularStimulus::~RegularStimulus()
 /**
  * Get the magnitude of stimulus at time 'time'
  *
- * @return double Magnitude of stimulus at time 'time'
+ * @return  Magnitude of stimulus at time 'time'
  */
 double RegularStimulus::GetStimulus(double time)
 {

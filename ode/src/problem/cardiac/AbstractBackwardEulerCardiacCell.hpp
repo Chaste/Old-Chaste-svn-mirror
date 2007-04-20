@@ -48,14 +48,9 @@ public:
         unsigned voltageIndex,
         double dt,
         AbstractStimulusFunction* intracellularStimulus,
-        AbstractStimulusFunction* extracellularStimulus = NULL)
-            : AbstractCardiacCell(NULL,
-                                  numberOfStateVariables,
-                                  voltageIndex,
-                                  dt,
-                                  intracellularStimulus,
-                                  extracellularStimulus)
-    {}
+        AbstractStimulusFunction* extracellularStimulus = NULL);
+
+    virtual ~AbstractBackwardEulerCardiacCell();
     
     /**
      * Compute the residual of the nonlinear system portion of the cell model.
@@ -82,45 +77,7 @@ public:
      * 
      * @return  the values of each state variable, at mDt intervals.
      */
-    virtual OdeSolution Compute(double tStart, double tEnd)
-    {
-        // In this method, we iterate over timesteps, doing the following for each:
-        //   - update V using a forward Euler step
-        //   - call ComputeExceptVoltage(t) to update the remaining state variables
-        //     using backward Euler
-        // Check length of time interval
-        double _n_steps = (tEnd - tStart) / mDt;
-        unsigned n_steps = (unsigned) round(_n_steps);
-        assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
-        
-        // Initialise solution store
-        OdeSolution solutions;
-        solutions.SetNumberOfTimeSteps(n_steps);
-        solutions.rGetSolutions().push_back(rGetStateVariables());
-        solutions.rGetTimes().push_back(tStart);
-        
-        // Loop over time
-        double curr_time;
-        for (unsigned i=0; i<n_steps; i++)
-        {
-            curr_time = tStart + i*mDt;
-            
-            // Compute next value of V
-            UpdateTransmembranePotential(curr_time);
-            
-            // Compute other state variables
-            ComputeExceptVoltage(curr_time);
-            
-            // Update solutions
-            solutions.rGetSolutions().push_back(rGetStateVariables());
-            solutions.rGetTimes().push_back(curr_time+mDt);
-            
-            // check gating variables are still in range
-            VerifyGatingVariables();
-        }
-        
-        return solutions;
-    }
+    virtual OdeSolution Compute(double tStart, double tEnd);
     
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
@@ -136,40 +93,7 @@ public:
      * 
      * @return  the values of each state variable, at mDt intervals.
      */
-    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd)
-    {
-        // This method iterates over timesteps, calling ComputeExceptVoltage(t) at
-        // each one, to update all state variables except for V, using backward Euler.
-        // Check length of time interval
-        double _n_steps = (tEnd - tStart) / mDt;
-        unsigned n_steps = (unsigned) round(_n_steps);
-        assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
-        
-        // Initialise solution store
-        OdeSolution solutions;
-        solutions.SetNumberOfTimeSteps(n_steps);
-        solutions.rGetSolutions().push_back(rGetStateVariables());
-        solutions.rGetTimes().push_back(tStart);
-        
-        // Loop over time
-        double curr_time;
-        for (unsigned i=0; i<n_steps; i++)
-        {
-            curr_time = tStart + i*mDt;
-            
-            // Compute other state variables
-            ComputeExceptVoltage(curr_time);
-            
-            // Update solutions
-            solutions.rGetSolutions().push_back(rGetStateVariables());
-            solutions.rGetTimes().push_back(curr_time+mDt);
-            
-            // check gating variables are still in range
-            VerifyGatingVariables();
-        }
-        
-        return solutions;
-    }
+    virtual OdeSolution ComputeExceptVoltage(double tStart, double tEnd);
     
     /**
      *  Check that none of the gating variables have gone out of range. Throws an
@@ -177,6 +101,7 @@ public:
      */
     virtual void VerifyGatingVariables()=0;
     
+private:
 #define COVERAGE_IGNORE
     /**
      * This function should never be called - the cell class incorporates its own solver.
@@ -203,5 +128,102 @@ protected:
      */
     virtual void UpdateTransmembranePotential(double time)=0;
 };
+
+template <unsigned SIZE>
+AbstractBackwardEulerCardiacCell<SIZE>::AbstractBackwardEulerCardiacCell(
+    unsigned numberOfStateVariables,
+    unsigned voltageIndex,
+    double dt,
+    AbstractStimulusFunction* intracellularStimulus,
+    AbstractStimulusFunction* extracellularStimulus)
+        : AbstractCardiacCell(NULL,
+                              numberOfStateVariables,
+                              voltageIndex,
+                              dt,
+                              intracellularStimulus,
+                              extracellularStimulus)
+{}
+
+template <unsigned SIZE>
+AbstractBackwardEulerCardiacCell<SIZE>::~AbstractBackwardEulerCardiacCell()
+{}
+
+template <unsigned SIZE>
+OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, double tEnd)
+{
+    // In this method, we iterate over timesteps, doing the following for each:
+    //   - update V using a forward Euler step
+    //   - call ComputeExceptVoltage(t) to update the remaining state variables
+    //     using backward Euler
+    // Check length of time interval
+    double _n_steps = (tEnd - tStart) / mDt;
+    unsigned n_steps = (unsigned) round(_n_steps);
+    assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
+    
+    // Initialise solution store
+    OdeSolution solutions;
+    solutions.SetNumberOfTimeSteps(n_steps);
+    solutions.rGetSolutions().push_back(rGetStateVariables());
+    solutions.rGetTimes().push_back(tStart);
+    
+    // Loop over time
+    double curr_time;
+    for (unsigned i=0; i<n_steps; i++)
+    {
+        curr_time = tStart + i*mDt;
+        
+        // Compute next value of V
+        UpdateTransmembranePotential(curr_time);
+        
+        // Compute other state variables
+        ComputeExceptVoltage(curr_time);
+        
+        // Update solutions
+        solutions.rGetSolutions().push_back(rGetStateVariables());
+        solutions.rGetTimes().push_back(curr_time+mDt);
+        
+        // check gating variables are still in range
+        VerifyGatingVariables();
+    }
+    
+    return solutions;
+}
+
+template <unsigned SIZE>
+OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart, double tEnd)
+{
+    // This method iterates over timesteps, calling ComputeExceptVoltage(t) at
+    // each one, to update all state variables except for V, using backward Euler.
+    // Check length of time interval
+    double _n_steps = (tEnd - tStart) / mDt;
+    unsigned n_steps = (unsigned) round(_n_steps);
+    assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
+    
+    // Initialise solution store
+    OdeSolution solutions;
+    solutions.SetNumberOfTimeSteps(n_steps);
+    solutions.rGetSolutions().push_back(rGetStateVariables());
+    solutions.rGetTimes().push_back(tStart);
+    
+    // Loop over time
+    double curr_time;
+    for (unsigned i=0; i<n_steps; i++)
+    {
+        curr_time = tStart + i*mDt;
+        
+        // Compute other state variables
+        ComputeExceptVoltage(curr_time);
+        
+        // Update solutions
+        solutions.rGetSolutions().push_back(rGetStateVariables());
+        solutions.rGetTimes().push_back(curr_time+mDt);
+        
+        // check gating variables are still in range
+        VerifyGatingVariables();
+    }
+    
+    return solutions;
+}
+
 
 #endif /*ABSTRACTBACKWARDEULERCARDIACCELL_HPP_*/

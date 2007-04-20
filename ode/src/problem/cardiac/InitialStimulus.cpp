@@ -23,11 +23,11 @@ InitialStimulus::~InitialStimulus()
 /**
  * Get the magnitude of stimulus at time 'time'
  *
- * @return double Magnitude of stimulus at time 'time'
+ * @return  Magnitude of stimulus at time 'time'
  */
 double InitialStimulus::GetStimulus(double time)
 {
-    if (mTimeOfStimulus <= time  && time <= mDuration+mTimeOfStimulus)
+    if (mTimeOfStimulus <= time && time <= mDuration+mTimeOfStimulus)
     {
         return mMagnitudeOfStimulus;
     }

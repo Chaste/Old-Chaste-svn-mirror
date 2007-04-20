@@ -88,28 +88,13 @@ void LuoRudyIModel1991OdeSystem::Init()
 }
 
 /**
- * Set the stimulus function used by this cell.
- *
- * @param stimulus  The stimulus function to use.
- */
-//void LuoRudyIModel1991OdeSystem::SetStimulusFunction(AbstractStimulusFunction *stimulus)
-//{
-//    mpStimulus = stimulus;
-//}
-
-/**
- * Return the value of our stimulus function at the given time.
- */
-//double LuoRudyIModel1991OdeSystem::GetStimulus(double time)
-//{
-//   return mpStimulus->GetStimulus(time);
-//}
-
-/**
- * Function returns a vector representing the RHS of the LuoRudyIModel1991OdeSystem system of Odes at each time step, y' = [y1' ... yn'].
+ * Fill in a vector representing the RHS of the LuoRudyIModel1991OdeSystem system
+ * of Odes at each time step, y' = [y1' ... yn'].
  * Some ODE solver will call this function repeatedly to solve for y = [y1 ... yn].
  *
- * @return std::vector<double> RHS of LuoRudyIModel1991OdeSystem system of equations
+ * @param time  the current time, in milliseconds
+ * @param rY  current values of the state variables
+ * @param rDY  to be filled in with derivatives
  */
 void LuoRudyIModel1991OdeSystem::EvaluateYDerivatives(double time,
                                                       const std::vector<double> &rY,

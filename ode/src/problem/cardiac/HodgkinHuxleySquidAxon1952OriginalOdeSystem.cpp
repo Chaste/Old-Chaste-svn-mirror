@@ -14,7 +14,7 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
         : AbstractCardiacCell(pOdeSolver,4,0,dt,pIntracellularStimulus,pExtracellularStimulus)
 {
     /*
-     * State variable
+     * State variables
      */
     mVariableNames.push_back("V");
     mVariableUnits.push_back("mV");
@@ -150,5 +150,4 @@ double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()
     double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
     double i_ionic = sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L;
     return i_ionic;
-    
 }

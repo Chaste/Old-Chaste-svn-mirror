@@ -4,14 +4,14 @@
 #include "AbstractStimulusFunction.hpp"
 
 /**
- * Provides a regular stimulus of magnitude 'magnitudeOfStimulus' at frequency 'Frequency' for duration
- * 'Duration' startinf at time 'StartTime'
+ * Provides a regular stimulus of magnitude 'magnitudeOfStimulus' at
+ * frequency 'frequency' for duration 'duration' starting at time
+ * 'startTime'.
  */
 class RegularStimulus : public AbstractStimulusFunction
 {
 private:
     double mMagnitudeOfStimulus;
-    // Duration of stimulus
     double mDuration;
     double mFrequency;
     double mStartTime;

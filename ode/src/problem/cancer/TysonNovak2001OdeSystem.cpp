@@ -11,7 +11,7 @@ TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
     /*
      * State variables
      * 
-     * These Initial conditions arethe steady state (approximate) 
+     * These Initial conditions are the steady state (approximate) 
      * solutions and the commented out conditions are from tyson 
      * novak paper we think.
      */
@@ -169,7 +169,7 @@ void TysonNovak2001OdeSystem::EvaluateYDerivatives(double time, const std::vecto
 
 
 
-void TysonNovak2001OdeSystem::AnalyticJacobian(std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
+void TysonNovak2001OdeSystem::AnalyticJacobian(const std::vector<double> &solutionGuess, double** jacobian, double time, double timeStep)
 {
 
     timeStep *=60.0; // to scale Jacobian so in hours not minutes
@@ -233,9 +233,6 @@ void TysonNovak2001OdeSystem::AnalyticJacobian(std::vector<double> &solutionGues
     double df6_dx6 = mMu - 2*mMu*x6/mMstar;
     
     jacobian[5][5] = 1-timeStep*df6_dx6;
-    
-    
-    
 }
 
 

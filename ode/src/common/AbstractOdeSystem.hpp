@@ -27,15 +27,12 @@ public:
      * 
      * @param numberOfStateVariables  how many ODEs make up the system
      */
-    AbstractOdeSystem(unsigned numberOfStateVariables = 0)
-    {
-        mNumberOfStateVariables = numberOfStateVariables;
-        mUseAnalytic = false;
-    }
+    AbstractOdeSystem(unsigned numberOfStateVariables = 0);
     
-    virtual ~AbstractOdeSystem()
-    {} /**<  Destructor */
-    
+    /**
+     * Virtual destructor since we have virtual methods.
+     */
+    virtual ~AbstractOdeSystem();
     
     /**
      * Method to evaluate the derivatives of the system.
@@ -53,7 +50,7 @@ public:
     }
     
     
-    virtual void SetInitialConditions(const std::vector<double>& rInitialConditions)
+    void SetInitialConditions(const std::vector<double>& rInitialConditions)
     {
         if (rInitialConditions.size() != mNumberOfStateVariables)
         {
@@ -62,7 +59,7 @@ public:
         mInitialConditions=rInitialConditions;
     }
     
-    virtual void SetInitialConditionsComponent(unsigned index, double initialCondition)
+    void SetInitialConditionsComponent(unsigned index, double initialCondition)
     {
         if ( index >= mNumberOfStateVariables)
         {
@@ -114,11 +111,12 @@ public:
         return false;
     }
     
-    virtual bool GetUseAnalytic()
+    bool GetUseAnalytic()
     {
         return mUseAnalytic;
     }
     
 };
+
 
 #endif //_ABSTRACTODESYSTEM_HPP_
