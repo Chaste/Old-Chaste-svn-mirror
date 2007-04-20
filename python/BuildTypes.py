@@ -598,6 +598,7 @@ class Intel(BuildType):
     BuildType.__init__(self, *args, **kwargs)
     self._compiler_type = 'intel'
     # Turn off some warnings
+    #self._cc_flags = '-wr470 -wr186 -pc64' #Emulates a 64-bit (not 80-bit) FPU
     self._cc_flags = '-wr470 -wr186'
     self._link_flags = '-static-libcxa'
     self.build_dir = 'intel'
