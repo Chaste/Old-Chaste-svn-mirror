@@ -12,10 +12,13 @@ import java.awt.image.*;
 import java.awt.Image;
 import java.awt.Label;
 import java.awt.Scrollbar;
+import java.awt.Checkbox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -31,7 +34,7 @@ import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.imageio.ImageIO;
 
-public class Visualize2dCells implements ActionListener, AdjustmentListener, Runnable {
+public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable {
 
 	public Frame frame = new Frame();
 
@@ -69,7 +72,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	
 	public static Scrollbar delay_slider = new Scrollbar(Scrollbar.HORIZONTAL, delay, 1, 1, 100);
 	public static Scrollbar time_slider = new Scrollbar(Scrollbar.HORIZONTAL, timeStep, 1, 0, 2);
-
+	//public static Checkbox output, springs, fibre, cells, ghost_nodes;
+	public static Checkbox output=new Checkbox("Output");
+	public static Checkbox springs=new Checkbox("Springs");
+	public static Checkbox fibre=new Checkbox("Fibres");
+	public static Checkbox cells=new Checkbox("Cells");
+	public static Checkbox ghost_nodes=new Checkbox("Ghosts");
+	
 	public static int numSteps = 0;
 
 	public Visualize2dCells() {
@@ -123,6 +132,38 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 			}
 		}
 	}
+	public void itemStateChanged(ItemEvent e) {
+		Object cb= e.getItemSelectable();
+		boolean state=(e.getStateChange() == ItemEvent.SELECTED);
+		
+		if (cb == output) 
+		{
+	        writeFiles=state;
+			System.out.println("Writing output files = "+writeFiles);
+	    } 
+		else if (cb == springs) 
+		{
+	        drawSprings=state;
+			System.out.println("Drawing springs = "+drawSprings);
+	    }
+		else if (cb == fibre)
+		{
+			drawFibres=state;
+			System.out.println("Drawing fibres = "+drawFibres);
+		}
+		else if (cb == cells)
+		{
+			drawCells=state;
+			System.out.println("Drawing cells = "+drawCells);
+		}
+		else if (cb == ghost_nodes)
+		{
+			drawGhosts = state;
+			System.out.println("Drawing ghost nodes = "+drawGhosts);	
+		}
+		canvas.drawBufferedImage();
+		canvas.repaint();
+	}
 
 	public void adjustmentValueChanged(AdjustmentEvent e) {
 		delay = delay_slider.getValue();
@@ -170,37 +211,25 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	public void addButtons(Frame frame) 
 	{
 		JPanel buttonPanel = new JPanel(new GridLayout(0,3));
-		//Container box = Box.createHorizontalBox();
 		Button quit = new Button("Quit");
-		//box.add(quit);
 		quit.addActionListener(this);
+
 		run = new Button("Run");
-		//box.add(run);
 		run.addActionListener(this);
+		
 		Button reset = new Button("Reset");
-		//box.add(reset);
 		reset.addActionListener(this);
+		
 		buttonPanel.add(quit);
 		buttonPanel.add(run);
 		buttonPanel.add(reset);
-		//frame.add(box, BorderLayout.NORTH);
-
-		//Container box2 = Box.createHorizontalBox();
-		// box2.setLayout(new BorderLayout());
-		
+				
 		JPanel scrollPanel = new JPanel();
 		
-		// delay_slider.setSize(800,25);
 		delay_slider.setPreferredSize(new Dimension(frame.getWidth(),20));
 		delay_slider.addAdjustmentListener(this);
 		Label slow = new Label("Slow");
-		// slow.setSize(50,25);
 		Label fast = new Label("Fast");
-		// fast.setSize(50,25);
-//		box2.add(slow, BorderLayout.WEST);
-//		box2.add(delay_slider);
-//		box2.add(fast, BorderLayout.EAST);
-		//frame.add(box2);
 		scrollPanel.add(slow);
 		scrollPanel.add(delay_slider);
 		scrollPanel.add(fast);
@@ -214,6 +243,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 	
 	public void addTimeSlider(Frame frame) 
 	{
+		
+		
 		JPanel scrollPanel_time = new JPanel();
 		
 		
@@ -228,40 +259,62 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 		scrollPanel_time.add(time_slider);
 		scrollPanel_time.add(end_time);
 						
-		JPanel southPanel = new JPanel(new GridLayout(1,0));
+		JPanel checkPanel = new JPanel(new GridLayout(0,3));
+		output.addItemListener(this);
+		springs.addItemListener(this);
+		fibre.addItemListener(this);
+		cells.addItemListener(this);
+		ghost_nodes.addItemListener(this);
+		
+		checkPanel.add(output);
+		checkPanel.add(springs);
+		checkPanel.add(fibre);
+		checkPanel.add(cells);
+		checkPanel.add(ghost_nodes);
+		
+		
+		
+		JPanel southPanel = new JPanel(new GridLayout(2,0));
 		
 		southPanel.add(scrollPanel_time);
-		
+		southPanel.add(checkPanel);
 		frame.add(southPanel,BorderLayout.SOUTH);
 	}
 
 	public static void main(String args[]) {
 	     
 		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
-			for (int i=1; i<args.length; i++)
+		output.setState(false);
+		springs.setState(false);
+		fibre.setState(false);
+		cells.setState(true);
+		ghost_nodes.setState(false);
+		for (int i=1; i<args.length; i++)
 		{
 			if (args[i].equals("output"))
 			{
 				writeFiles = true;
-								
+				output.setState(true);					
 			}	
 			if (args[i].equals("springs"))
 			{
 				drawSprings = true;
-								
+				springs.setState(true);				
 			}	
 			if (args[i].equals("fibres"))
 			{
 				drawFibres = true;
-								
+				fibre.setState(true);				
 			}	
 			if (args[i].equals("nocells"))
 			{
 				drawCells = false;
+				cells.setState(false);
 			}	
 			if (args[i].equals("ghosts"))
 			{
 				drawGhosts = true;
+				ghost_nodes.setState(true);
 			}
 
 		}
@@ -279,15 +332,16 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Run
 		}
 		
 	
-		File fibre_file=null;		
-		if (drawFibres){
-		    fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
-	            if (!fibre_file.isFile())
-		    {
-			System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
-			return;
-		    }
-		}
+		File fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
+        if (!fibre_file.isFile())
+        {
+        	System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
+        	fibre.setVisible(false);
+        	drawFibres=false;
+        } else {
+        	fibre.setState(true);
+        	drawFibres=true; //Sorry, this is just to get it working
+        }
 		System.out.println("Writing output files = "+writeFiles);
 		System.out.println("Drawing springs = "+drawSprings);
 		System.out.println("Drawing fibres = "+drawFibres);

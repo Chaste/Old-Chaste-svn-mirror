@@ -229,9 +229,10 @@ protected:
     
     virtual void OpenAnimationFiles(std::string filePathName)
     {
-        OutputFileHandler handler("");
-        mNodeFile=handler.OpenOutputFile(filePathName+".viznodes");
-        mElementFile=handler.OpenOutputFile(filePathName+".vizelements");
+        OutputFileHandler handler(filePathName+"/vis_results/",true);
+        
+        mNodeFile=handler.OpenOutputFile("results.viznodes");
+        mElementFile=handler.OpenOutputFile("results.vizelements");
     }
     
     virtual void CloseAnimationFiles()

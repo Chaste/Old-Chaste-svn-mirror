@@ -70,10 +70,11 @@ protected:
     
     virtual void OpenAnimationFiles(std::string filePathName)
     {
-        OutputFileHandler handler("");
-        this->mNodeFile=handler.OpenOutputFile(filePathName+".viznodes");
-        this->mElementFile=handler.OpenOutputFile(filePathName+".vizelements");
-        mFibreFile=handler.OpenOutputFile(filePathName+".vizfibres");
+        OutputFileHandler handler(filePathName+"/vis_results/",true);
+        
+        this->mNodeFile=handler.OpenOutputFile("results.viznodes");
+        this->mElementFile=handler.OpenOutputFile("results.vizelements");
+        mFibreFile=handler.OpenOutputFile("results.vizfibres");
     }
     
     virtual void CloseAnimationFiles()
