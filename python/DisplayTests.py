@@ -350,8 +350,7 @@ def _profileHistory(req, n=20):
   for revision in revisions:
     BuildTypes = _importBuildTypesModule(revision)
     for build_type in build_types:
-      if builds.has_key((revision, build_type)):
-        machine = builds[(revision, build_type)]
+      for machine in builds.get((revision, build_type), []):
         k = (revision, build_type, machine)
         build = BuildTypes.GetBuildType(build_type)
         d = _testResultsDir('nightly', revision, machine, build_type)
@@ -375,8 +374,7 @@ def _profileHistory(req, n=20):
                     % (len(builds[(rev, bt)]), _linkBuildType(bt, rev)))
   output.append('  </tr>\n  <tr><th>Machine</th>\n')
   for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
-    if builds.has_key((rev, bt)):
-      machine = builds[(rev, bt)]
+    for machine in builds.get((rev, bt), []):
       output.append('    <th>%s</th>\n' %
                     _linkSummary(machine, 'nightly', revision, machine, bt))
   output.append('  </tr>\n')
@@ -386,8 +384,7 @@ def _profileHistory(req, n=20):
   for test_suite in test_suites:
     output.append('  <tr><th>%s</th>\n' % test_suite)
     for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
-      if builds.has_key((rev, bt)):
-        machine = builds[(rev, bt)]
+      for machine in builds.get((rev, bt), []):
         k = (rev, bt, machine)
         run_time, status = run_times[test_suite][k]
         link_text = _formatRunTime(run_time)
