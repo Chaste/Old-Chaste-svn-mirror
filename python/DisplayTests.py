@@ -394,12 +394,14 @@ def _profileHistory(req, n=20):
           run_time, status = run_times[test_suite][k]
           link_text = _formatRunTime(run_time)
           if bt.startswith('GoogleProfile'):
+            # _linkGraph includes the <td> tag
             entry = _linkGraph('nightly', rev, machine, bt,
                                test_suite + '.gif', linkText=link_text)
           else:
             entry = _linkTestSuite('nightly', rev, machine, bt, test_suite,
                                    status, run_time, None, linkText=link_text)
-          output.append('    <td>%s</td>\n' % entry)
+            entry = '<td>%s</td>' % entry
+          output.append('    %s\n' % entry)
         else:
           output.append('    <td></td>\n')
     output.append('  </tr>\n')
