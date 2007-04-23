@@ -356,9 +356,11 @@ def _profileHistory(req, n=20):
         d = _testResultsDir('nightly', revision, machine, build_type)
         statuses, s, col, runtimes, graphs = _getTestStatus(d, build)
         for test_suite in statuses.keys():
-          if not has_key(run_times, test_suite):
-            run_times[test_suite] = {}
-          run_times[test_suite][k] = (runtimes[test_suite], statuses[test_suite])
+          if test_suite[:4] == 'Test':
+            if not run_times.has_key(test_suite):
+              run_times[test_suite] = {}
+            run_times[test_suite][k] = (runtimes[test_suite],
+                                        statuses[test_suite])
 
   # Display table headings
   output = ['<table border="1">\n  <tr><th>Revision</th>\n']
