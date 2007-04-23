@@ -388,15 +388,18 @@ def _profileHistory(req, n=20):
     for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
       for machine in builds.get((rev, bt), []):
         k = (rev, bt, machine)
-        run_time, status = run_times[test_suite][k]
-        link_text = _formatRunTime(run_time)
-        if bt.startswith('GoogleProfile'):
-          entry = _linkGraph('nightly', revision, machine, bt,
-                             test_suite + '.gif', linkText=link_text)
+        if run_times[test_suite].has_key(k):
+          run_time, status = run_times[test_suite][k]
+          link_text = _formatRunTime(run_time)
+          if bt.startswith('GoogleProfile'):
+            entry = _linkGraph('nightly', revision, machine, bt,
+                               test_suite + '.gif', linkText=link_text)
+          else:
+            entry = _linkTestSuite('nightly', revision, machine, bt, test_suite,
+                                   status, run_time, None, linkText=link_text)
+          output.append('    <td>%s</td>\n' % entry)
         else:
-          entry = _linkTestSuite('nightly', revision, machine, bt, test_suite,
-                                 status, run_time, None, linkText=link_text)
-        output.append('    <td>%s</td>\n' % entry)
+          output.append('    <td></td>\n')
 
   return ''.join(output)
         
