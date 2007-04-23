@@ -28,10 +28,10 @@ public:
         return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mTimeStep, this->mpZeroStimulus);
     }
     
-    virtual unsigned GetNumberOfCells()
-    {
-        return 1;
-    }
+//    virtual unsigned GetNumberOfCells()
+//    {
+//        return 1;
+//    }
 };
 
 
@@ -99,6 +99,7 @@ public:
         
         // Instantiate PDE object
         ZeroStimCellFactory<1> cell_factory;
+        cell_factory.SetMesh(&mesh);
         FischerPde<1> pde(&cell_factory);
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
@@ -138,12 +139,9 @@ public:
         monodomain_assembler.SetInitialCondition( initial_condition_1 );
         simple_assembler.SetInitialCondition( initial_condition_2 );
         
-        // Set problem size to 1 -- see ZeroStimCellFactory.GetNumberOfCells() above
-        DistributedVector::SetProblemSize(1);
         Vec current_solution_1 = monodomain_assembler.Solve();
         Vec current_solution_2 = simple_assembler.Solve();
 
-        DistributedVector::SetProblemSize(current_solution_1);
         DistributedVector dist_sol_1(current_solution_1);
         DistributedVector dist_sol_2(current_solution_2);
         
@@ -162,8 +160,6 @@ public:
         VecDestroy(initial_condition_2);
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
-        // Set problem size back to one so that destructors work
-        DistributedVector::SetProblemSize(1);
     }
     
     void TestMonodomainDg0AssemblerWithFischer2DAgainstSimpleDg0Assembler()
@@ -179,6 +175,7 @@ public:
         
         // Instantiate PDE object
         ZeroStimCellFactory<2> cell_factory;
+        cell_factory.SetMesh(&mesh);
         FischerPde<2> pde(&cell_factory);
         
         // Boundary conditions: zero neumann on entire boundary (2 elements)
@@ -214,8 +211,7 @@ public:
         
         // Vars to hold current solutions at each iteration
         Vec current_solution_1, current_solution_2;
-        // Set problem size to 1 -- see ZeroStimCellFactory.GetNumberOfCells() above
-        DistributedVector::SetProblemSize(1);
+        
         double tCurrent = t_start;
         while ( tCurrent < t_final )
         {
@@ -236,8 +232,7 @@ public:
             
             tCurrent += pde_timestep;
         }
-        
-        DistributedVector::SetProblemSize(current_solution_1);
+
         DistributedVector dist_sol_1(current_solution_1);
         DistributedVector dist_sol_2(current_solution_2);
         
@@ -251,8 +246,7 @@ public:
 
         VecDestroy(current_solution_1);
         VecDestroy(current_solution_2);
-        
-        DistributedVector::SetProblemSize(1);
+
     }
 };
 

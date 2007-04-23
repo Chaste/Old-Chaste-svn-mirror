@@ -10,6 +10,7 @@
 #include "GaussianQuadratureRule.hpp"
 #include "AbstractBasisFunction.hpp"
 #include "ReplicatableVector.hpp"
+#include "DistributedVector.hpp"
 
 
 
@@ -64,7 +65,7 @@ protected:
     AbstractBasisFunction<ELEMENT_DIM> *mpBasisFunction;
     /*< Basis function for use with boundary elements */
     AbstractBasisFunction<ELEMENT_DIM-1> *mpSurfaceBasisFunction;
-    
+
     /*< Quadrature rule for use on normal elements */
     GaussianQuadratureRule<ELEMENT_DIM> *mpQuadRule;
     /*< Quadrature rule for use on boundary elements */
@@ -449,8 +450,8 @@ protected:
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
         
         //Only set and used in non-linear solution
-        unsigned lo=0;
-        unsigned hi=0;
+//        unsigned lo=0;
+//        unsigned hi=0;
         
         if (mProblemIsLinear)
         {
@@ -475,14 +476,9 @@ protected:
                 
                 //If this is the first time through then it's appropriate to set the
                 //element ownerships
-                //Note that this ought to use the number of nodes to set the ownership
-                PetscInt node_lo, node_hi;
-                Vec temp_vec;
-                VecCreate(PETSC_COMM_WORLD, &temp_vec);
-                VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
-                VecSetFromOptions(temp_vec);
-                VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
-                this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
+                DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+                this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
+                                                   DistributedVector::End().Global);
             }
             else
             {
@@ -528,21 +524,9 @@ protected:
                 MatZeroEntries(*pJacobian);
             }
             
-            // Get our ownership range
-            PetscInt ilo, ihi;
-            VecGetOwnershipRange(currentSolutionOrGuess, &ilo, &ihi);
-            lo=ilo;
-            hi=ihi;
-            //Set the elements' ownerships according to the node ownership
-            //\todo - This ought not to happen every time through
-            //Note that this ought to use the number of nodes to set the ownership
-            PetscInt node_lo, node_hi;
-            Vec temp_vec;
-            VecCreate(PETSC_COMM_WORLD, &temp_vec);
-            VecSetSizes(temp_vec, PETSC_DECIDE, this->mpMesh->GetNumNodes());
-            VecSetFromOptions(temp_vec);
-            VecGetOwnershipRange(temp_vec, &node_lo, &node_hi);
-            this->mpMesh->SetElementOwnerships( (unsigned) node_lo, (unsigned) node_hi);
+            DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
+            this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
+                                                   DistributedVector::End().Global);
             
         }
         
@@ -603,7 +587,7 @@ protected:
                                         assert(pJacobian!=NULL); // extra check
                                         
                                         unsigned matrix_index_1 = PROBLEM_DIM*node1+k;
-                                        if (lo<=matrix_index_1 && matrix_index_1<hi)
+                                        if (DistributedVector::IsGlobalIndexLocal(matrix_index_1)) //(lo<=matrix_index_1 && matrix_index_1<hi)
                                         {
                                             unsigned matrix_index_2 = PROBLEM_DIM*node2+m;
                                             PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
@@ -629,7 +613,7 @@ protected:
                                 
                                 unsigned matrix_index = PROBLEM_DIM*node1+k;
                                 //Make sure it's only done once
-                                if (lo<=matrix_index && matrix_index<hi)
+                                if (DistributedVector::IsGlobalIndexLocal(matrix_index))
                                 {
                                     PetscScalar value = b_elem(PROBLEM_DIM*i+k);
                                     PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
@@ -684,7 +668,7 @@ protected:
                                     unsigned matrix_index = PROBLEM_DIM*node_index + k;
                                     
                                     PetscScalar value = b_surf_elem(PROBLEM_DIM*i+k);
-                                    if (lo<=matrix_index && matrix_index<hi)
+                                    if (DistributedVector::IsGlobalIndexLocal(matrix_index))
                                     {
                                         PETSCEXCEPT( VecSetValue(residualVector, matrix_index, value, ADD_VALUES) );
                                     }
