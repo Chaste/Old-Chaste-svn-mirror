@@ -364,43 +364,46 @@ def _profileHistory(req, n=20):
 
   # Display table headings
   output = ['<table border="1">\n  <tr><th>Revision</th>\n']
+  revbts = []
   for revision in revisions:
     cols = sum(map(lambda bt: len(builds.get((revision, bt), [])), build_types))
     output.append('    <th colspan="%d">%s</th>\n'
                   % (cols, _linkChangeset(revision)))
+    for bt in build_types:
+      revbts.append((revision, bt))
   output.append('  </tr>\n  <tr><th>Build</th>\n')
-  import itertools
-  for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
+  for rev, bt in revbts:
     if builds.has_key((rev, bt)):
       output.append('    <th colspan="%d">%s</th>\n'
                     % (len(builds[(rev, bt)]), _linkBuildType(bt, rev)))
   output.append('  </tr>\n  <tr><th>Machine</th>\n')
-  for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
+  for rev, bt in revbts:
     for machine in builds.get((rev, bt), []):
       output.append('    <th>%s</th>\n' %
-                    _linkSummary(machine, 'nightly', revision, machine, bt))
+                    _linkSummary(machine, 'nightly', rev, machine, bt))
   output.append('  </tr>\n')
   # Display the run times
   test_suites = run_times.keys()
   test_suites.sort()
   for test_suite in test_suites:
     output.append('  <tr><th>%s</th>\n' % test_suite)
-    for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
+    for rev, bt in revbts:
       for machine in builds.get((rev, bt), []):
         k = (rev, bt, machine)
         if run_times[test_suite].has_key(k):
           run_time, status = run_times[test_suite][k]
           link_text = _formatRunTime(run_time)
           if bt.startswith('GoogleProfile'):
-            entry = _linkGraph('nightly', revision, machine, bt,
+            entry = _linkGraph('nightly', rev, machine, bt,
                                test_suite + '.gif', linkText=link_text)
           else:
-            entry = _linkTestSuite('nightly', revision, machine, bt, test_suite,
+            entry = _linkTestSuite('nightly', rev, machine, bt, test_suite,
                                    status, run_time, None, linkText=link_text)
           output.append('    <td>%s</td>\n' % entry)
         else:
           output.append('    <td></td>\n')
-
+    output.append('  </tr>\n')
+  output.append('</table>\n')
   return ''.join(output)
         
 #####################################################################
