@@ -367,8 +367,9 @@ def _profileHistory(req, n=20):
   revbts = []
   for revision in revisions:
     cols = sum(map(lambda bt: len(builds.get((revision, bt), [])), build_types))
-    output.append('    <th colspan="%d">%s</th>\n'
-                  % (cols, _linkChangeset(revision)))
+    if cols > 0:
+      output.append('    <th colspan="%d">%s</th>\n'
+                    % (cols, _linkChangeset(revision)))
     for bt in build_types:
       revbts.append((revision, bt))
   output.append('  </tr>\n  <tr><th>Build</th>\n')
@@ -396,7 +397,7 @@ def _profileHistory(req, n=20):
           if bt.startswith('GoogleProfile'):
             # _linkGraph includes the <td> tag
             entry = _linkGraph('nightly', rev, machine, bt,
-                               test_suite + '.gif', linkText=link_text)
+                               test_suite + 'Runner.gif', linkText=link_text)
           else:
             entry = _linkTestSuite('nightly', rev, machine, bt, test_suite,
                                    status, run_time, None, linkText=link_text)
