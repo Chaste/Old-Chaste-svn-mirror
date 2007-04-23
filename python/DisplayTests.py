@@ -313,7 +313,94 @@ def buildType(req, buildType, revision=None):
        test_packs, testsuite_exe, testsuite_cmd)
   return _header() + page_body + _footer()
 
+def profileHistory(req, n=20):
+  """Show runtimes for the last 20 profile builds."""
+  page_body = """
+  <h1>Profile History</h1>
+""" +  _profileHistory(req, n)
+  return _header('Profile History') + page_body + _footer()
 
+def _profileHistory(req, n=20):
+  """Show runtimes for the last 20 profile builds."""
+  tests_dir = os.path.join(_tests_dir, 'nightly')
+  if not os.path.isdir(tests_dir):
+    return _error('No nightly tests found')
+
+  # Find the last 20 revisions
+  revisions = map(int, os.listdir(tests_dir))
+  revisions.sort()
+  revisions = revisions[-n:]
+  # Find the appropriate builds for these revisions
+  builds = {}
+  build_types = ['Profile_ndebug', 'GoogleProfile_ndebug']
+  for revision in revisions:
+    rev_dir = os.path.join(tests_dir, str(revision))
+    for machine_and_build_type in os.listdir(rev_dir):
+      machine, build_type = _extractDotSeparatedPair(machine_and_build_type)
+      if build_type in build_types:
+        k = (revision, build_type)
+        if not builds.has_key(k):
+          builds[k] = []
+        builds[k].append(machine)
+
+  # Extract the run time data.  We generate a mapping from
+  # test-suite-name to a map
+  # (revision, build_type, machine) -> (run_time, status).
+  run_times = {}
+  for revision in revisions:
+    BuildTypes = _importBuildTypesModule(revision)
+    for build_type in build_types:
+      if builds.has_key((revision, build_type)):
+        machine = builds[(revision, build_type)]
+        k = (revision, build_type, machine)
+        build = BuildTypes.GetBuildType(build_type)
+        d = _testResultsDir('nightly', revision, machine, build_type)
+        statuses, s, col, runtimes, graphs = _getTestStatus(d, build)
+        for test_suite in statuses.keys():
+          if not has_key(run_times, test_suite):
+            run_times[test_suite] = {}
+          run_times[test_suite][k] = (runtimes[test_suite], statuses[test_suite])
+
+  # Display table headings
+  output = ['<table border="1">\n  <tr><th>Revision</th>\n']
+  for revision in revisions:
+    cols = sum(map(lambda bt: len(builds.get((revision, bt), [])), build_types))
+    output.append('    <th colspan="%d">%s</th>\n'
+                  % (cols, _linkChangeset(revision)))
+  output.append('  </tr>\n  <tr><th>Build</th>\n')
+  import itertools
+  for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
+    if builds.has_key((rev, bt)):
+      output.append('    <th colspan="%d">%s</th>\n'
+                    % (len(builds[(rev, bt)]), _linkBuildType(bt, rev)))
+  output.append('  </tr>\n  <tr><th>Machine</th>\n')
+  for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
+    if builds.has_key((rev, bt)):
+      machine = builds[(rev, bt)]
+      output.append('    <th>%s</th>\n' %
+                    _linkSummary(machine, 'nightly', revision, machine, bt))
+  output.append('  </tr>\n')
+  # Display the run times
+  test_suites = run_times.keys()
+  test_suites.sort()
+  for test_suite in test_suites:
+    output.append('  <tr><th>%s</th>\n' % test_suite)
+    for rev, bt in itertools.izip(revisions, itertools.cycle(build_types)):
+      if builds.has_key((rev, bt)):
+        machine = builds[(rev, bt)]
+        k = (rev, bt, machine)
+        run_time, status = run_times[test_suite][k]
+        link_text = _formatRunTime(run_time)
+        if bt.startswith('GoogleProfile'):
+          entry = _linkGraph('nightly', revision, machine, bt,
+                             test_suite + '.gif', linkText=link_text)
+        else:
+          entry = _linkTestSuite('nightly', revision, machine, bt, test_suite,
+                                 status, run_time, None, linkText=link_text)
+        output.append('    <td>%s</td>\n' % entry)
+
+  return ''.join(output)
+        
 #####################################################################
 ##                    Helper functions.                            ##
 #####################################################################
@@ -550,25 +637,35 @@ def _linkRevision(revision):
   return '<a href="%s?rev=%s">%s</a>' % (_source_browser_url,
                                          revision, revision)
 
+def _linkChangeset(revision):
+  """Return a link tag to the changes in this revision."""
+  try:
+    revision = int(revision)
+  except:
+    return revision
+  return '<a href="%schangeset/%d">%d</a>' % (_trac_url, revision, revision)
+
 def _linkBuildType(buildType, revision):
   "Return a link tag to the detailed info page for this build type."
-  if revision == 'working copy':
+  try:
+    revision = int(revision)
+  except:
     return buildType
-  else:
-    query = 'buildType?buildType=%s&revision=%s' % (buildType, revision)
-    return '<a href="%s/%s">%s</a>' % (_our_url, query, buildType)
+  query = 'buildType?buildType=%s&revision=%d' % (buildType, revision)
+  return '<a href="%s/%s">%s</a>' % (_our_url, query, buildType)
 
 def _linkSummary(text, type, revision, machine, buildType):
   """
   Return a link tag to the summary page for this set of tests.
   text is the text of the link.
   """
-  query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
+  revision = int(revision)
+  query = 'type=%s&revision=%d&machine=%s&buildType=%s' % (type, revision,
                                                            machine, buildType)
   return '<a href="%s/summary?%s">%s</a>' % (_our_url, query, text)
 
 def _linkTestSuite(type, revision, machine, buildType, testsuite,
-                   status, runtime, build):
+                   status, runtime, build, linkText=None):
   """
   Return a link tag to a page displaying the output from a single
   test suite.
@@ -580,25 +677,26 @@ def _linkTestSuite(type, revision, machine, buildType, testsuite,
     query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
                                                              machine, buildType)
     query = query + '&testsuite=%s&status=%s&runtime=%d' % (testsuite, status, runtime)
-    link = '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, 
-                                                 build.DisplayStatus(status))
+    if linkText is None:
+      linkText = build.DisplayStatus(status)
+    link = '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, linkText)
   return link
 
-def _linkGraph(type, revision, machine, buildType, graphFilename):
+def _linkGraph(type, revision, machine, buildType, graphFilename,
+               linkText='Profile callgraph'):
   """
   Return a link tag in a <td> to the graphics file which contains the graph.
   """
   if graphFilename == '':
     link = ''
   elif type == 'standalone':
-    #filename = build.ResultsFileName(os.curdir, testsuite, status, runtime)
-    link = '<td><a href="%s">%s</a></td>' % (graphFilename, 'Profile callgraph')
+    link = '<td><a href="%s">%s</a></td>' % (graphFilename, linkText)
   else:
-    query = 'type=%s&amp;revision=%s&amp;machine=%s&amp;buildType=%s' % (type, revision,
-                                                                         machine, buildType)
+    revision = int(revision)
+    query = 'type=%s&amp;revision=%d&amp;machine=%s&amp;buildType=%s' % \
+            (type, revision, machine, buildType)
     query = query + '&amp;graphName=%s' % (graphFilename)
-    link = '<td><a href="%s/graph?%s">%s</a></td>' % (_our_url, query, 
-                                                      'Profile callgraph')
+    link = '<td><a href="%s/graph?%s">%s</a></td>' % (_our_url, query, linkText)
   return link
 
 def _formatRunTime(runtime):
@@ -671,6 +769,7 @@ if __name__ == '__main__':
   # Alter the configuration slightly
   _tests_dir = '.'
   _source_browser_url = 'https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/browser/'
+  _trac_url = 'https://chaste.ediamond.ox.ac.uk/cgi-bin/trac.cgi/'
   _our_url = 'https://chaste.ediamond.ox.ac.uk/tests.py'
 
   _fp = file(os.path.join(_dir, 'index.html'), 'w')
