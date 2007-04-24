@@ -37,7 +37,6 @@ private:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
     Vec mVoltage; // Current solution
-    unsigned mLo, mHi;
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
@@ -108,8 +107,6 @@ public:
         // initial condition;
         Vec initial_condition= DistributedVector::CreateVec();
         DistributedVector ic(initial_condition);
-        mLo = DistributedVector::Begin().Global;
-        mHi = DistributedVector::End().Global;
         // Set a constant initial voltage throughout the mMesh
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();

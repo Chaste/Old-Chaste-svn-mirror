@@ -48,7 +48,7 @@ Vec DistributedVector::CreateVec()
 Vec DistributedVector::CreateVec(unsigned stride)
 {
     Vec vec;
-    VecCreateMPI(PETSC_COMM_WORLD, 2*(mHi-mLo) , 2*mGlobalHi, &vec);
+    VecCreateMPI(PETSC_COMM_WORLD, stride*(mHi-mLo) , stride*mGlobalHi, &vec);
     return vec;
 }
 

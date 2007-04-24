@@ -13,6 +13,7 @@
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
+#include "DistributedVector.hpp"
 #include <petsc.h>
 #include <cxxtest/TestSuite.h>
 
@@ -110,59 +111,38 @@ public:
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
         
-        unsigned num_nodes = 2;
+        //unsigned num_nodes = 2;
+        DistributedVector::SetProblemSize(2);
+        
         // initial condition;
-        Vec monodomain_voltage, bidomain_voltage;
-        VecCreate(PETSC_COMM_WORLD, &monodomain_voltage);
-        VecSetSizes(monodomain_voltage, PETSC_DECIDE, num_nodes);
-        VecSetFromOptions(monodomain_voltage);
+        Vec monodomain_vec = DistributedVector::CreateVec();
+        DistributedVector monodomain_voltage(monodomain_vec);
+        Vec bidomain_vec = DistributedVector::CreateVec(2);
+        DistributedVector bidomain_ic(bidomain_vec);
+        DistributedVector::Stripe bidomain_voltage(bidomain_ic,0);
         
-        PetscInt lo, hi;
-        VecGetOwnershipRange(monodomain_voltage,&lo,&hi);
-        
-        VecCreateMPI(PETSC_COMM_WORLD, 2*(hi-lo), 2*num_nodes, &bidomain_voltage);
-        
-        double *p_monodomain_voltage, *p_bidomain_voltage;
-        VecGetArray(monodomain_voltage, &p_monodomain_voltage);
-        VecGetArray(bidomain_voltage, &p_bidomain_voltage);
-        for (int global_index = 0; global_index < (int) num_nodes; global_index++ )
+        for (DistributedVector::Iterator index=DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index - lo;
-            // initial voltage condition of a constant everywhere on the mesh
-            if (lo<=global_index && global_index<hi)
-            {
-                p_monodomain_voltage[local_index] = initial_voltage;
-                p_bidomain_voltage[2*local_index] = initial_voltage;
-            }
+            monodomain_voltage[index] = initial_voltage;
+            bidomain_voltage[index] = initial_voltage;
         }
-        VecRestoreArray(monodomain_voltage, &p_monodomain_voltage);
-        VecRestoreArray(bidomain_voltage, &p_bidomain_voltage);
-        VecAssemblyBegin(monodomain_voltage);
-        VecAssemblyEnd(monodomain_voltage);
-        VecAssemblyBegin(bidomain_voltage);
-        VecAssemblyEnd(bidomain_voltage);
         
-        //VecView(monodomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
-        //VecView(bidomain_voltage, PETSC_VIEWER_STDOUT_WORLD);
+        monodomain_voltage.Restore();
+        bidomain_ic.Restore();
+
         
-        monodomain_pde.SolveCellSystems(monodomain_voltage, 0, big_time_step);
-        bidomain_pde.SolveCellSystems(bidomain_voltage, 0, big_time_step);
+        monodomain_pde.SolveCellSystems(monodomain_vec, 0, big_time_step);
+        bidomain_pde.SolveCellSystems(bidomain_vec, 0, big_time_step);
         
         
         // Check that both the monodomain and bidomain PDE have the same ionic cache
-        for (int global_index=lo; global_index < hi; global_index++)
+        for (DistributedVector::Iterator index=DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            TS_ASSERT_EQUALS(monodomain_pde.GetIionicCacheReplicated()[global_index], bidomain_pde.GetIionicCacheReplicated()[global_index]);
-            
-            // Look at caches for debugging purposes
-            /*
-            std::cout << "Process " << rank << ": V phi I_ionic I_i_stim I_e_stim\n";
-            std::cout << bidomain_pde.GetInputCacheMember( 2*global_index ) << " " <<
-                         bidomain_pde.GetInputCacheMember( 2*global_index+1 ) << " " <<
-                         bidomain_pde.GetIionicCacheReplicated()[global_index] << " " <<
-                         bidomain_pde.GetIntracellularStimulusCacheReplicated()[global_index] << " " <<
-                         bidomain_pde.GetExtracellularStimulusCacheReplicated()[global_index] << "\n";
-            */
+            TS_ASSERT_EQUALS(monodomain_pde.GetIionicCacheReplicated()[index.Global], bidomain_pde.GetIionicCacheReplicated()[index.Global]);
         }
         
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
@@ -173,8 +153,8 @@ public:
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[0], -150);
         TS_ASSERT_EQUALS(bidomain_pde.GetExtracellularStimulusCacheReplicated()[1], -250);
         
-        VecDestroy(monodomain_voltage);
-        VecDestroy(bidomain_voltage);
+        VecDestroy(monodomain_vec);
+        VecDestroy(bidomain_vec);
     }
 };
 

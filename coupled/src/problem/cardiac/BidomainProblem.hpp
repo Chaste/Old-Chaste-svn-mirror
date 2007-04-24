@@ -44,7 +44,6 @@ private:
     AbstractCardiacCellFactory<SPACE_DIM>* mpCellFactory;
     
     Vec mVoltage; // Current solution
-    unsigned mLo, mHi; // Ownership range for the double size potential vector mVoltage
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> mMesh;
     
@@ -70,9 +69,6 @@ public:
         mEndTime          = -1;   // negative so can check has been set
         mPrintingTimeStep = -1;   // negative so can check has been set
         
-        //initialise these to 0
-        mLo = 0;
-        mHi = 0;
         
         mWriteInfo = false;
         
@@ -147,9 +143,6 @@ public:
         DistributedVector striped_vec(initial_condition);
         DistributedVector::Stripe intra(striped_vec,0);
         DistributedVector::Stripe extra(striped_vec,1);
-                
-        mLo=DistributedVector::Begin().Global;
-        mHi=DistributedVector::End().Global;
         
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index!= DistributedVector::End();

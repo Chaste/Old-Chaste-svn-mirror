@@ -2,6 +2,7 @@
 #define _BOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include "AbstractBoundaryConditionsContainer.hpp"
+#include "DistributedVector.hpp"
 
 /**
  * Boundary Conditions Container
@@ -229,36 +230,27 @@ public:
         {
             this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
             
-            PetscInt ilo, ihi;
-            VecGetOwnershipRange(currentSolution, &ilo, &ihi);
-            unsigned lo=ilo;
-            unsigned hi=ihi;
+            DistributedVector solution_distributed(currentSolution);
+            DistributedVector residual_distributed(residual);
             
-            
-            double *p_current_solution;
-            PETSCEXCEPT(VecGetArray(currentSolution, &p_current_solution));
-            
-            double *p_residual;
-            PETSCEXCEPT(VecGetArray(residual, &p_residual));
             
             while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
             {
+                DistributedVector::Stripe solution_stripe(solution_distributed, index_of_unknown);
+                DistributedVector::Stripe residual_stripe(residual_distributed, index_of_unknown);
+                
                 unsigned node_index = this->mDirichIterator->first->GetIndex();
                 
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
                 
-                unsigned global_index = PROBLEM_DIM*node_index + index_of_unknown;
-                
-                if (lo <= global_index && global_index < hi)
+                if (DistributedVector::IsGlobalIndexLocal(node_index))
                 {
-                    unsigned local_index = global_index - lo;
-                    p_residual[local_index] = p_current_solution[local_index] - value;
+                    residual_stripe[node_index]=solution_stripe[node_index] - value;
                 }
                 this->mDirichIterator++;
             }
-            
-            PETSCEXCEPT(VecRestoreArray(currentSolution, &p_current_solution));
-            PETSCEXCEPT(VecRestoreArray(residual, &p_residual));
+            solution_distributed.Restore();
+            residual_distributed.Restore();
         }
     }
     

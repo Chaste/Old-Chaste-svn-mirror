@@ -244,6 +244,7 @@ public:
     void TestApplyToNonlinearSystem( void )
     {
         const int SIZE = 10;
+        DistributedVector::SetProblemSize(10);
         
         Vec solution;
         VecCreate(PETSC_COMM_WORLD, &solution);
