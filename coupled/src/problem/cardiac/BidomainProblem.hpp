@@ -446,31 +446,13 @@ public:
      *  where V_j is the voltage at node j and phi_j is the
      *  extracellular potential at node j.
      * 
-     *  This vector is distributed over all processes,
-     *  with the current process owning the [lo, ..., hi-1] components of the vector.
+     *  This vector is distributed over all processes.
      */
-    void GetVoltageArray(double **pVoltageArray, unsigned &lo, unsigned &hi)
-    {
-        //check these have been set
-        assert(mHi > 0);
-        VecGetArray(mVoltage, pVoltageArray);
-        lo=mLo;
-        hi=mHi;
-    }
+
     
     Vec GetVoltage()
     {
-        //Use with caution since we don't want to alter the state of the PETSc vector
         return mVoltage;
-    }
-    
-    /** call this after GetVoltageArray to avoid memory leaks */
-    void RestoreVoltageArray(double **pVoltageArray)
-    {
-        VecRestoreArray(mVoltage, pVoltageArray);
-        VecAssemblyBegin(mVoltage);
-        VecAssemblyEnd(mVoltage);
-        VecDestroy(mVoltage);
     }
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()

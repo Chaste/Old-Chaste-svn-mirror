@@ -64,10 +64,6 @@ public:
         
         monodomain_problem.Solve();
         
-        double* p_voltage_array;
-        unsigned lo, hi;
-        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
-        
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars(monodomain_problem);
         

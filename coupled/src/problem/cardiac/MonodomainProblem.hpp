@@ -317,29 +317,13 @@ public:
     }
     
     /**
-     * Get the final solution vector. This vector is distributed over all processes,
-    *  with the current process owning the [lo, ..., hi-1] components of the vector.
-    */
-    void GetVoltageArray(double **pVoltageArray, unsigned &lo, unsigned &hi)
-    {
-        VecGetArray(mVoltage, pVoltageArray);
-        lo=mLo;
-        hi=mHi;
-    }
+     * Get the final solution vector. This vector is distributed over all processes.
+     */
     
     Vec GetVoltage()
     {
         //Use with caution since we don't want to alter the state of the PETSc vector
         return mVoltage;
-    }
-    
-    /** call this after GetVoltageArray to avoid memory leaks*/
-    void RestoreVoltageArray(double **pVoltageArray)
-    {
-        VecRestoreArray(mVoltage, pVoltageArray);
-        VecAssemblyBegin(mVoltage);
-        VecAssemblyEnd(mVoltage);
-        VecDestroy(mVoltage);
     }
     
     ConformingTetrahedralMesh<SPACE_DIM,SPACE_DIM> & rGetMesh()

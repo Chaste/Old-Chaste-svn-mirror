@@ -258,15 +258,11 @@ public:
         time (&end);
         dif = difftime (end,start);
         //printf ("\nSolve took %.2lf seconds. \n", dif );
-        
-        double* p_voltage_array;
-        unsigned lo, hi;
-        monodomain_problem.GetVoltageArray(&p_voltage_array, lo, hi);
+
         
         // test whether voltages and gating variables are in correct ranges
         CheckMonoLr91Vars(monodomain_problem);
-        
-        
+
         
         /*
          * Test that corners are 'equal', and centres of sides.
@@ -290,7 +286,7 @@ public:
         // assumes endtime = 1.3
         TS_ASSERT_DELTA(voltage_replicated[0], -34.7497, 1e-4);
         
-        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
+//        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
     
     

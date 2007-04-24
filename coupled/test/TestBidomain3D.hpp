@@ -12,6 +12,7 @@
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "DistributedVector.hpp"
 
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
@@ -47,7 +48,7 @@ class TestBidomain3D :  public CxxTest::TestSuite
 {
 public:
 
-    void TestBidomain3d() throw (Exception)
+    void xTestBidomain3d() throw (Exception)
     {
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
         
@@ -156,27 +157,16 @@ public:
         ///////////////////////////////////////////////////////////////////
         // compare
         ///////////////////////////////////////////////////////////////////
-        double* p_mono_voltage_array;
-        double* p_bi_voltage_array;
-        unsigned bi_lo, bi_hi, mono_lo, mono_hi;
-        
-        bidomain_problem.GetVoltageArray(&p_bi_voltage_array, bi_lo, bi_hi);
-        monodomain_problem.GetVoltageArray(&p_mono_voltage_array, mono_lo, mono_hi);
-        
-        for (unsigned global_index=mono_lo; global_index<mono_hi; global_index++)
+        DistributedVector monodomain_voltage(monodomain_problem.GetVoltage());
+        DistributedVector bidomain_solution(bidomain_problem.GetVoltage());
+        DistributedVector::Stripe bidomain_voltage(bidomain_solution,0);
+        DistributedVector::Stripe extracellular_potential(bidomain_solution,1);
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            unsigned local_index = global_index - mono_lo;
-            
-            double monodomain_voltage      =   p_mono_voltage_array[local_index];
-            double   bidomain_voltage      =   p_bi_voltage_array  [2*local_index];
-            double extracellular_potential =   p_bi_voltage_array  [2*local_index+1];
-            // std::cout << p_mono_voltage_array[local_index] << " " << p_bi_voltage_array[2*local_index] << "\n";
-            
-            // the mono and bidomains should agree closely
-            TS_ASSERT_DELTA(monodomain_voltage, bidomain_voltage, 0.5);
-            
-            // the extracellular potential should be uniform
-            TS_ASSERT_DELTA(extracellular_potential, 0, 0.1);
+            TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.5);
+            TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.1);
         }
     }
     
