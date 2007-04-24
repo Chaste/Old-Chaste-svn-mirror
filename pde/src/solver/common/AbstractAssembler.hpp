@@ -449,10 +449,6 @@ protected:
         // work to be done before assembly
         PrepareForAssembleSystem(currentSolutionOrGuess, currentTime);
         
-        //Only set and used in non-linear solution
-//        unsigned lo=0;
-//        unsigned hi=0;
-        
         if (mProblemIsLinear)
         {
             // linear problem - set up the Linear System if necessary, otherwise zero
@@ -524,6 +520,7 @@ protected:
                 MatZeroEntries(*pJacobian);
             }
             
+            //Set the elements' ownerships according to the node ownership
             DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes());
             this->mpMesh->SetElementOwnerships(DistributedVector::Begin().Global,
                                                    DistributedVector::End().Global);
@@ -587,7 +584,7 @@ protected:
                                         assert(pJacobian!=NULL); // extra check
                                         
                                         unsigned matrix_index_1 = PROBLEM_DIM*node1+k;
-                                        if (DistributedVector::IsGlobalIndexLocal(matrix_index_1)) //(lo<=matrix_index_1 && matrix_index_1<hi)
+                                        if (DistributedVector::IsGlobalIndexLocal(node1)) //(lo<=matrix_index_1 && matrix_index_1<hi)
                                         {
                                             unsigned matrix_index_2 = PROBLEM_DIM*node2+m;
                                             PetscScalar value = a_elem(PROBLEM_DIM*i+k,PROBLEM_DIM*j+m);
@@ -613,7 +610,7 @@ protected:
                                 
                                 unsigned matrix_index = PROBLEM_DIM*node1+k;
                                 //Make sure it's only done once
-                                if (DistributedVector::IsGlobalIndexLocal(matrix_index))
+                                if (DistributedVector::IsGlobalIndexLocal(node1))
                                 {
                                     PetscScalar value = b_elem(PROBLEM_DIM*i+k);
                                     PETSCEXCEPT( VecSetValue(residualVector,matrix_index,value,ADD_VALUES) );
@@ -668,7 +665,7 @@ protected:
                                     unsigned matrix_index = PROBLEM_DIM*node_index + k;
                                     
                                     PetscScalar value = b_surf_elem(PROBLEM_DIM*i+k);
-                                    if (DistributedVector::IsGlobalIndexLocal(matrix_index))
+                                    if (DistributedVector::IsGlobalIndexLocal(node_index))
                                     {
                                         PETSCEXCEPT( VecSetValue(residualVector, matrix_index, value, ADD_VALUES) );
                                     }
