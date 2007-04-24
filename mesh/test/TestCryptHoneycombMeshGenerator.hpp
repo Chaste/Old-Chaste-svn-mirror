@@ -152,7 +152,7 @@ public:
         double width = 8.0;
         unsigned ghosts = 4;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,width,ghosts,false);
+        CryptHoneycombMeshGenerator generator(num_cells_width,num_cells_depth,ghosts,false);
         
         double length = (double)num_cells_depth*(sqrt(3)/2)*width/(double)num_cells_width;
         
