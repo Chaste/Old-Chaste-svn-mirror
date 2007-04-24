@@ -214,30 +214,21 @@ public:
         
         SimpleLinearSolver solver(1e-6);
         Vec solution = some_system.Solve(&solver);
-        
-        PetscScalar *p_solution;
-        VecGetArray(solution, &p_solution);
-        
-        int lo, hi;
-        VecGetOwnershipRange(solution, &lo, &hi);
-        
-        for (int local_index = 0; local_index < hi-lo; local_index++)
+
+        DistributedVector::SetProblemSize(solution);
+        DistributedVector d_solution( solution );
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int global_index = local_index + lo;
-            if (global_index < SIZE-1)
-            {
-                TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
-            }
-            else
-            {
-                TS_ASSERT_DELTA(p_solution[local_index], 11.0, 0.000001);
-            }
+            double expected = index.Global < SIZE-1 ? -1.0 : 11.0;
+            TS_ASSERT_DELTA(d_solution[index], expected, 1e-6 );
         }
+
         for (int i = 0; i < SIZE-1; i++)
         {
             delete nodes_array[i];
         }
-        VecRestoreArray(solution, &p_solution);
         VecDestroy(solution);
     }
     
@@ -246,34 +237,23 @@ public:
         const int SIZE = 10;
         DistributedVector::SetProblemSize(10);
         
-        Vec solution;
-        VecCreate(PETSC_COMM_WORLD, &solution);
-        VecSetSizes(solution, PETSC_DECIDE, SIZE);
-        VecSetFromOptions(solution);
+        Vec solution = DistributedVector::CreateVec();
+        DistributedVector d_solution(solution);
         
-        Vec residual;
-        VecCreate(PETSC_COMM_WORLD, &residual);
-        VecSetSizes(residual, PETSC_DECIDE, SIZE);
-        VecSetFromOptions(residual);
-        
-        double *p_solution;
-        VecGetArray(solution, &p_solution);
-        
-        int lo, hi;
-        VecGetOwnershipRange(solution, &lo, &hi);
-        
-        double *p_residual;
-        VecGetArray(residual, &p_residual);
-        
-        for (int local_index=0; local_index<hi-lo; local_index++)
+        Vec residual = DistributedVector::CreateVec();
+        DistributedVector d_residual(residual);
+
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int global_index = local_index + lo;
-            p_solution[local_index] = global_index;
-            p_residual[local_index] = SIZE+global_index;
+            d_solution[index]=index.Global;
+            d_residual[index]=SIZE+index.Global;
         }
         
-        VecRestoreArray(solution, &p_solution);
-        VecRestoreArray(residual, &p_residual);
+        d_solution.Restore();
+        d_residual.Restore();
         
         Node<3>* nodes_array[SIZE];
         BoundaryConditionsContainer<3,3,1> bcc3;
@@ -288,21 +268,20 @@ public:
         
         bcc3.ApplyDirichletToNonlinearResidual(solution, residual);
         
-        VecGetArray(solution, &p_solution);
-        VecGetArray(residual, &p_residual);
         
-        for (int local_index=0; local_index<hi-lo; local_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int global_index = local_index + lo;
-            if (global_index < SIZE-1)
+            if (index.Global < SIZE-1)
             {
-                TS_ASSERT_DELTA(p_solution[local_index], global_index,   1e-12);
-                TS_ASSERT_DELTA(p_residual[local_index], global_index+1, 1e-12);
+                TS_ASSERT_DELTA(d_solution[index], index.Global,   1e-12);
+                TS_ASSERT_DELTA(d_residual[index], index.Global+1, 1e-12);
             }
             else
             {
-                TS_ASSERT_DELTA(p_solution[local_index], 9,   1e-12);
-                TS_ASSERT_DELTA(p_residual[local_index], 19,  1e-12);
+                TS_ASSERT_DELTA(d_solution[index], 9,   1e-12);
+                TS_ASSERT_DELTA(d_residual[index], 19,  1e-12);
             }
         }
         
@@ -310,9 +289,6 @@ public:
         {
             delete nodes_array[i];
         }
-        
-        VecRestoreArray(solution, &p_solution);
-        VecRestoreArray(residual, &p_residual);
         
         VecDestroy(solution);
         VecDestroy(residual);
@@ -453,37 +429,28 @@ public:
         
         SimpleLinearSolver solver(1e-6);
         Vec solution = some_system.Solve(&solver);
-        
-        PetscScalar *p_solution;
-        VecGetArray(solution, &p_solution);
-        
-        int lo, hi;
-        VecGetOwnershipRange(solution, &lo, &hi);
-        
-        
-        
-        for (int global_index = lo; global_index < hi; global_index++)
+        DistributedVector::SetProblemSize(SIZE);
+        DistributedVector d_solution(solution);
+        DistributedVector::Stripe solution0(d_solution,0);
+        DistributedVector::Stripe solution1(d_solution,1);
+
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index - lo;
-            
-            // even rows, x(global_index) should be equal to -1
-            if (global_index%2==0 && global_index<2*SIZE-2)
+            if (index.Global!=SIZE-1) // last element of each stripe is not tested -- see ? in previous comment
             {
-                TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
+                TS_ASSERT_DELTA(solution0[index], -1.0, 0.000001);        
+                TS_ASSERT_DELTA(solution1[index], -2.0, 0.000001);
             }
             
-            // odd rows, x(global_index) should be equal to -1
-            if (global_index%2==1 && global_index<2*SIZE-2)
-            {
-                TS_ASSERT_DELTA(p_solution[local_index], -2.0, 0.000001);
-            }
         }
+
         for (int i = 0; i < SIZE-1; i++)
         {
             delete nodes_array[i];
         }
-        
-        VecRestoreArray(solution, &p_solution);
+
         VecDestroy(solution);
     }
     
@@ -533,34 +500,28 @@ public:
         SimpleLinearSolver solver(1e-6);
         Vec solution = some_system.Solve(&solver);
         
-        PetscScalar *p_solution;
-        VecGetArray(solution, &p_solution);
+        DistributedVector::SetProblemSize(SIZE);
+        DistributedVector d_solution(solution);
+        DistributedVector::Stripe solution0(d_solution,0);
+        DistributedVector::Stripe solution1(d_solution,1);
+        DistributedVector::Stripe solution2(d_solution,2);
         
-        int lo, hi;
-        VecGetOwnershipRange(solution, &lo, &hi);
-        
-        // see comments in previous test
-        for (int global_index = lo; global_index < hi; global_index++)
+        for (DistributedVector::Iterator index = DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
         {
-            int local_index = global_index-lo;
-            if (global_index%3==0 && global_index<3*SIZE-3)
+            if (index.Global!=SIZE-1) 
             {
-                TS_ASSERT_DELTA(p_solution[local_index], -1.0, 0.000001);
+                TS_ASSERT_DELTA(solution0[index], -1.0, 0.000001);        
+                TS_ASSERT_DELTA(solution1[index], -2.0, 0.000001);
+                TS_ASSERT_DELTA(solution2[index],  0.0, 0.000001);
             }
-            if (global_index%3==1 && global_index<3*SIZE-3)
-            {
-                TS_ASSERT_DELTA(p_solution[local_index], -2.0, 0.000001);
-            }
-            if (global_index%3==2 && global_index<3*SIZE-3)
-            {
-                TS_ASSERT_DELTA(p_solution[local_index],  0.0, 0.000001);
-            }
+            
         }
         for (int i = 0; i < SIZE-1; i++)
         {
             delete nodes_array[i];
         }
-        VecRestoreArray(solution, &p_solution);
         VecDestroy(solution);
     }
     
