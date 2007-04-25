@@ -42,13 +42,31 @@ public:
         TS_ASSERT_EQUALS(stepper3.GetTotalSteps(), 3u);
     }
     
-    void TestGetTime()
+    
+    
+    void Advance(double start, double end, double dt)
     {
-        TimeStepper stepper(1.0, 10.0, 0.01);
-        TS_ASSERT_DELTA(stepper.GetTime(), 1.0, DBL_EPSILON);
+
+        TimeStepper stepper(start, end, dt);
+              
+        for (unsigned step = 0 ; step < stepper.GetTotalSteps(); step++)
+        {
+            // 'error' is linear in number of steps
+            TS_ASSERT_DELTA(stepper.GetTime(), start+(double)dt*step, 8*step*DBL_EPSILON);
+            TS_ASSERT(!stepper.IsTimeAtEnd());
+            stepper.AdvanceOneTimeStep();
+        }
+        TS_ASSERT_DELTA(stepper.GetTime(), end, DBL_EPSILON);
+        TS_ASSERT(stepper.IsTimeAtEnd());
         
-        stepper.AdvanceOneTimeStep();
-        TS_ASSERT_DELTA(stepper.GetTime(), 1.01, DBL_EPSILON);
+    }
+    
+    void TestAdvance()
+    {
+        Advance(1.0, 10.0, 0.01);
+        Advance(0.0, 10.0, 10.0/3.0+8*DBL_EPSILON);
+        Advance(0.0, 10.0, 10.0/3.0-8*DBL_EPSILON);
+        Advance(0.0, 10.0, 10.0/3e3-8*DBL_EPSILON);
     }
 };
 

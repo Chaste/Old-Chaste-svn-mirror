@@ -22,6 +22,8 @@ public:
     void AdvanceOneTimeStep();
     
     double GetTime() const;
+    
+    bool IsTimeAtEnd() const;
 
 private:
     double   mStart;
@@ -29,6 +31,7 @@ private:
     unsigned mTimeStep;
     double mDt;
     double mTime;
+    double mEnd;
 };
 
 #endif /*TIMESTEPPER_HPP_*/

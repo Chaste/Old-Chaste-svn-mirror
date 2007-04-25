@@ -6,7 +6,8 @@
 TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     : mStart(startTime),
       mTimeStep(0),
-      mTime(startTime)
+      mTime(startTime),
+      mEnd(endTime)
 {
     if (startTime >= endTime)
     {
@@ -29,12 +30,22 @@ unsigned TimeStepper::GetTotalSteps() const
 
 void TimeStepper::AdvanceOneTimeStep()
 {
+    double smidge=1e-10;
     mTimeStep++;
     mTime = mStart + mTimeStep * mDt;
-
+    
+    if (mTime + smidge*mTimeStep >= mEnd)
+    {
+        mTime = mEnd;
+    }
 }
 
 double TimeStepper::GetTime() const
 {
     return mTime;
+}
+
+bool TimeStepper::IsTimeAtEnd() const
+{
+    return mTotalSteps==mTimeStep;
 }
