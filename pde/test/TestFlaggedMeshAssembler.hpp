@@ -408,27 +408,46 @@ public :
 
         flagged_assembler.Solve();
         
-        Vec result_fine = flagged_assembler.Solve();  
-        ReplicatableVector result_fine_replicated(result_fine);
+        Vec result_fine_restricted = flagged_assembler.Solve();  
+        ReplicatableVector result_fine_restricted_repl(result_fine_restricted);
 
         std::map<unsigned, unsigned> map = flagged_assembler.GetSmasrmIndexMap();
-        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+        DistributedVector result_fine(initial_condition_fine);
+        
+        std::map<unsigned, unsigned>::iterator iter = map.begin();
+        while (iter!=map.end())
         {
-            std::map<unsigned, unsigned>::iterator iter = map.find(i);
-            if(iter!=map.end())
-            {
-                unsigned smasrm_index = iter->second;
+            unsigned fine_node_index = iter->first;
+            unsigned smasrm_index = iter->second;
 
-                double x = fine_mesh.GetNode(i)->rGetLocation()[0];
-                double y = fine_mesh.GetNode(i)->rGetLocation()[1];
+            double x = fine_mesh.GetNode(fine_node_index)->rGetLocation()[0];
+            double y = fine_mesh.GetNode(fine_node_index)->rGetLocation()[1];
                 
-                std::cout << i << " " << x << " " << y << " " << result_fine_replicated[smasrm_index] << "\n";
-                if (i == 1992)
-                {
-                    TS_ASSERT_DELTA(result_fine_replicated[smasrm_index], 0.170209, 1e-6);
-                }
+            std::cout << fine_node_index << " " << x << " " << y << " " << result_fine_restricted_repl[smasrm_index] << "\n";
+            if (fine_node_index == 1992)
+            {
+                TS_ASSERT_DELTA(result_fine_restricted_repl[smasrm_index], 0.170209, 1e-6);
             }
+            
+            // copy the results for the flagged region of the fine mesh
+            // into a large vector for the whole of the fine mesh 
+            if (DistributedVector::IsGlobalIndexLocal(fine_node_index))
+            {
+                result_fine[fine_node_index] = result_fine_restricted_repl[smasrm_index];
+            }
+            
+            iter++;
         }
+        result_fine.Restore();
+        
+        
+        // 
+        
+        // update.... 
+        //  - ic_coarse = result_coarse
+        //  - alter ic_coarse using result_fine
+        //  - ic_fine = .. 
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

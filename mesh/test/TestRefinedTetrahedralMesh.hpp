@@ -43,9 +43,13 @@ public:
         TS_ASSERT_EQUALS(node_map.GetNewIndex(0), 0u);
         TS_ASSERT_EQUALS(node_map.GetNewIndex(1), 2u);
         TS_ASSERT_EQUALS(node_map.GetNewIndex(4), 14u);
-        
         TS_ASSERT_EQUALS(node_map.GetNewIndex(63), 342u);
         //Top node is 4^3-1 and 7^3-1 respectively
+
+        TS_ASSERT_EQUALS(coarse_mesh.GetFineNodeIndexForCoarseNode(0), 0u);
+        TS_ASSERT_EQUALS(coarse_mesh.GetFineNodeIndexForCoarseNode(1), 2u);
+        TS_ASSERT_EQUALS(coarse_mesh.GetFineNodeIndexForCoarseNode(4), 14u);
+        TS_ASSERT_EQUALS(coarse_mesh.GetFineNodeIndexForCoarseNode(63), 342u);
         
         // We're not allowed to call SetFineMesh twice
         TS_ASSERT_THROWS_ANYTHING(coarse_mesh.SetFineMesh(&fine_mesh));
@@ -352,6 +356,114 @@ public:
         }
         // Check the test really did something useful!
         TS_ASSERT(found_unflagged_elt);
+    }
+
+
+    void TestUpdateCoarseSolutionOnflaggedRegion()
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;
+        
+        unsigned num_elem = 16;
+        fine_mesh.ConstructRectangularMesh(num_elem,num_elem);
+        fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        
+        num_elem = 4;
+        coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
+        coarse_mesh.Scale(1.0/num_elem, 1.0/num_elem);
+        
+        // give fine mesh to coarse mesh
+        coarse_mesh.SetFineMesh(&fine_mesh);
+
+        // Set linear 'solution' vector on fine mesh 
+        DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+        Vec fine_soln_petsc = DistributedVector::CreateVec();
+        DistributedVector fine_soln(fine_soln_petsc);
+        
+        c_vector<double,2> linear_combination;
+        linear_combination(0)=3;
+        linear_combination(1)=-23;
+        
+        for (DistributedVector::Iterator index=DistributedVector::Begin();
+             index != DistributedVector::End();
+             ++index)
+        {
+            fine_soln[index] = inner_prod(linear_combination, 
+                                          fine_mesh.GetNode(index.Global)->rGetLocation());
+        }
+        fine_soln.Restore();
+        
+        // Set zero solution on the coarse mesh, so we know if updating changed things
+        DistributedVector::SetProblemSize(coarse_mesh.GetNumNodes());
+        Vec coarse_soln_petsc = DistributedVector::CreateVec();
+#if (PETSC_VERSION_MINOR == 2) //Old API
+        PetscScalar zero = 0;
+        VecSet(&zero, coarse_soln_petsc);
+#else
+        VecSet(coarse_soln_petsc, 0);
+#endif  
+        VecAssemblyBegin(coarse_soln_petsc);
+        VecAssemblyEnd(coarse_soln_petsc);
+        
+        
+        // Flag the right half of the coarse mesh
+        ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
+        for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+             i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+             i_coarse_element++)
+        {
+            Element<2,2> &element = **i_coarse_element;
+            Point<2> centroid = Point<2>(element.CalculateCentroid());
+            if (centroid[0] > 0.5)
+            {
+                element.Flag();
+            }
+            else
+            {
+                element.Unflag();
+            }
+        }        
+
+        coarse_mesh.UpdateCoarseSolutionOnflaggedRegion(coarse_soln_petsc,fine_soln_petsc);
+        
+        // Check that flagged nodes were copied but unflagged ones were not
+        DistributedVector coarse_soln(coarse_soln_petsc);
+        bool found_flagged_elt = false;
+
+        for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+             i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+             i_coarse_element++)
+        {
+            Element<2,2> &element = **i_coarse_element;
+            for (unsigned element_node_index=0; element_node_index<3; element_node_index++)
+            {
+                const c_vector<double, 2>& r_node_loc = element.GetNode(element_node_index)->rGetLocation();
+
+                double expected_value;
+                if (r_node_loc[0] < 0.5)
+                {
+                    // Node lies only on unflagged elements
+                    expected_value = 0;
+                }
+                else
+                {
+                    // Node is in a flagged element
+                    expected_value = inner_prod(linear_combination, r_node_loc);
+                    found_flagged_elt = true;
+                }
+
+                unsigned element_node_global_index = element.GetNodeGlobalIndex(element_node_index);
+                if (DistributedVector::IsGlobalIndexLocal(element_node_global_index))
+                {
+                    TS_ASSERT_DELTA(coarse_soln[element_node_global_index], expected_value, 1e-12);
+                }
+            }
+        }
+        
+        // Check the test really did something useful!
+        TS_ASSERT(found_flagged_elt);
     }
 };
 

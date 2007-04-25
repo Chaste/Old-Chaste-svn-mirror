@@ -119,6 +119,14 @@ public:
     
         return mFineNodeToCoarseElementMap[fine_node_index];
     }
+
+    /**
+     *  Get the fine node index corresponding to a given coarse node index
+     */    
+    unsigned GetFineNodeIndexForCoarseNode(unsigned coarseNodeIndex)
+    {
+        return mpCoarseFineNodeMap->GetNewIndex(coarseNodeIndex);
+    }
     
     /**
      * Get the mapping from nodes in the coarse mesh to the corresponding nodes in the fine mesh.
@@ -131,8 +139,13 @@ public:
     /**
      * Interpolate a solution vector from the coarse mesh onto the UNflagged region of the fine mesh.
      */
-    void InterpolateOnUnflaggedRegion(Vec coarse_solution, Vec fine_solution);
+    void InterpolateOnUnflaggedRegion(Vec coarseSolution, Vec fineSolution);
 
+
+    /**
+     *  Update a coarse solution vector in the flagged region using the results from a fine solution vector
+     */ 
+    void UpdateCoarseSolutionOnflaggedRegion(Vec coarseSolution, Vec fineSolution);
 };
 
 
@@ -279,12 +292,12 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion(Vec coarse_solution, Vec fine_solution)
+void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion(Vec coarseSolution, Vec fineSolution)
 {
     // Replicate the coarse solution on all processes
-    ReplicatableVector coarse_soln_replicated(coarse_solution);
+    ReplicatableVector coarse_soln_replicated(coarseSolution);
     
-    DistributedVector fine_soln(fine_solution);
+    DistributedVector fine_soln(fineSolution);
     
     // Iterate over nodes in the fine mesh
     for (unsigned fine_node_index = 0;
@@ -309,7 +322,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
             }
             if (!in_flagged_element)
             {
-                // Interpolate entry in fine_solution from the 'best' element in the coarse mesh
+                // Interpolate entry in fineSolution from the 'best' element in the coarse mesh
                 Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
                     GetACoarseElementForFineNodeIndex(fine_node_index);
                 c_vector<double, ELEMENT_DIM+1> interpolation_weights = p_coarse_element->CalculateInterpolationWeights(p_fine_node->GetPoint());
@@ -327,6 +340,43 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
     
     // Let all processes know about changes, as needed
     fine_soln.Restore();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnflaggedRegion(Vec coarseSolution, Vec fineSolution)
+{
+    ReplicatableVector fine_solution_repl(fineSolution);
+    DistributedVector::SetProblemSize(this->GetNumNodes());
+    DistributedVector coarse_soln_dist(coarseSolution);
+    
+    // Iterate over nodes in the fine mesh
+    for (unsigned coarse_node_index = 0;
+         coarse_node_index < this->GetNumNodes();
+         coarse_node_index++)
+    {
+        // Only interpolate if we own this node
+        if (DistributedVector::IsGlobalIndexLocal(coarse_node_index))
+        {
+            // Find out if this node is contained in any flagged elements
+            Node<SPACE_DIM>* p_coarse_node = this->GetNode(coarse_node_index);
+            unsigned num_containing_elts = p_coarse_node->GetNumContainingElements();
+            bool in_flagged_element = false;
+            for (unsigned i=0; i<num_containing_elts; i++)
+            {
+                unsigned ele_index = p_coarse_node->GetNextContainingElementIndex();
+                if (this->GetElement(ele_index)->IsFlagged())
+                {
+                    in_flagged_element = true;
+                    break;
+                }
+            }
+            if (in_flagged_element)
+            {
+                unsigned fine_node_index = mpCoarseFineNodeMap->GetNewIndex(coarse_node_index);
+                coarse_soln_dist[coarse_node_index] = fine_solution_repl[fine_node_index];
+            }
+        }
+    }
 }
 
 #endif // _REFINEDTETRAHEDRALMESH_CPP_
