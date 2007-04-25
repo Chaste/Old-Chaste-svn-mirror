@@ -78,11 +78,6 @@ void DistributedVector::Restore()
         VecAssemblyEnd(mVec);
 }
 
-bool DistributedVector::Iterator::operator==(const Iterator& other)
-{
-    return(Global == other.Global);
-}
-        
 bool DistributedVector::Iterator::operator!=(const Iterator& other)
 {
    return(Global != other.Global);

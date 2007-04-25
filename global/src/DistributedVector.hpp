@@ -79,8 +79,6 @@ public:
         unsigned Local;
         unsigned Global;
     
-        bool operator==(const Iterator& other);
-
         bool operator!=(const Iterator& other);
         
         Iterator& operator++();

@@ -246,13 +246,12 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
                 unsigned coarse_element_index = this->GetContainingElementIndex(centroid, true);
                 mCoarseFineElementsMap[coarse_element_index].insert(*i_fine_element);
             }
+            #define COVERAGE_IGNORE       
             catch (Exception &e)
             {
-                #define COVERAGE_IGNORE       
                 EXCEPTION("Fine mesh contains an element which does not overlap any coarse mesh element");
-                #undef COVERAGE_IGNORE       
-
             }
+            #undef COVERAGE_IGNORE       
         }
     }
 }
