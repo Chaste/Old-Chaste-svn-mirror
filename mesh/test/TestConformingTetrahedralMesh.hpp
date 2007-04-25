@@ -1457,6 +1457,23 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(),0u);
     }
     
+    void TestUnflagAllElements()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(1,1);
+        
+        mesh.GetElement(0)->Flag();
+        mesh.GetElement(1)->Flag();
+        
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->IsFlagged(), true);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->IsFlagged(), true);
+        
+        mesh.UnflagAllElements();
+
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->IsFlagged(), false);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->IsFlagged(), false);
+    }
+    
     void TestCalculateBoundaryOfFlaggedRegion()
     {
         ConformingTetrahedralMesh<2,2> mesh;

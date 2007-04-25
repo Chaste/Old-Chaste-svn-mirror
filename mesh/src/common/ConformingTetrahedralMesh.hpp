@@ -8,7 +8,7 @@
 #include <algorithm>
 
 #include "AbstractMeshReader.hpp"
-#include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshReader.cpp"
 #include "Element.hpp"
 #include "BoundaryElement.hpp"
 #include "Node.hpp"
@@ -298,7 +298,7 @@ public:
      */
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
     
-    
+    void UnflagAllElements();
 };
 
 

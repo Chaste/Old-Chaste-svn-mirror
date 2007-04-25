@@ -90,8 +90,11 @@ public:
     /**
      * Transfer flags from the coarse mesh to the fine mesh.  The flagged region
      * in the fine mesh will cover the flagged region of the coarse mesh.
+     * 
+     * @return Whether any elements are flagged in the coarse (or equivalently, the fine)
+     * mesh
      */
-    void TransferFlags();
+    bool TransferFlags();
     
     /**
      * Get the smallest set of elements in the fine mesh which completely cover the given element
@@ -145,7 +148,7 @@ public:
     /**
      *  Update a coarse solution vector in the flagged region using the results from a fine solution vector
      */ 
-    void UpdateCoarseSolutionOnflaggedRegion(Vec coarseSolution, Vec fineSolution);
+    void UpdateCoarseSolutionOnFlaggedRegion(Vec coarseSolution, Vec fineSolution);
 };
 
 
@@ -258,7 +261,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetFineMesh(ConformingTetra
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
+bool RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
 {
     if (mpFineMesh == NULL)
     {
@@ -274,20 +277,24 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::TransferFlags()
         (*i_fine_element)->Unflag();
     }
     
+    bool any_elements_flagged = false;
     // Iterate over coarse elements, flagging the counterparts of those that are flagged
     for (unsigned coarse_mesh_index=0;coarse_mesh_index<this->GetNumElements();coarse_mesh_index++)
     {
         if (this->GetElement(coarse_mesh_index)->IsFlagged())
         {
+            any_elements_flagged = true;
             std::set <Element <ELEMENT_DIM,SPACE_DIM>* >& r_fine_elements = mCoarseFineElementsMap[coarse_mesh_index];
             for (typename std::set <Element <ELEMENT_DIM,SPACE_DIM>* >::iterator i_fine_element = r_fine_elements.begin();
                      i_fine_element != r_fine_elements.end();
                      i_fine_element++)
-                {
-                    (*i_fine_element)->Flag();
-                }
+            {
+                (*i_fine_element)->Flag();
+            }
         }
     }
+    
+    return any_elements_flagged;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -306,20 +313,9 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
         // Only interpolate if we own this node
         if (DistributedVector::IsGlobalIndexLocal(fine_node_index))
         {
-            // Find out if this node is contained in any flagged elements
             Node<SPACE_DIM>* p_fine_node = mpFineMesh->GetNode(fine_node_index);
-            unsigned num_containing_elts = p_fine_node->GetNumContainingElements();
-            bool in_flagged_element = false;
-            for (unsigned i=0; i<num_containing_elts; i++)
-            {
-                unsigned ele_index = p_fine_node->GetNextContainingElementIndex();
-                if (mpFineMesh->GetElement(ele_index)->IsFlagged())
-                {
-                    in_flagged_element = true;
-                    break;
-                }
-            }
-            if (!in_flagged_element)
+
+            if (!p_fine_node->IsFlagged(*mpFineMesh))
             {
                 // Interpolate entry in fineSolution from the 'best' element in the coarse mesh
                 Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
@@ -342,7 +338,7 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnflaggedRegion(Vec coarseSolution, Vec fineSolution)
+void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnFlaggedRegion(Vec coarseSolution, Vec fineSolution)
 {
     ReplicatableVector fine_solution_repl(fineSolution);
     DistributedVector::SetProblemSize(this->GetNumNodes());
@@ -356,20 +352,9 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::UpdateCoarseSolutionOnflagge
         // Only interpolate if we own this node
         if (DistributedVector::IsGlobalIndexLocal(coarse_node_index))
         {
-            // Find out if this node is contained in any flagged elements
             Node<SPACE_DIM>* p_coarse_node = this->GetNode(coarse_node_index);
-            unsigned num_containing_elts = p_coarse_node->GetNumContainingElements();
-            bool in_flagged_element = false;
-            for (unsigned i=0; i<num_containing_elts; i++)
-            {
-                unsigned ele_index = p_coarse_node->GetNextContainingElementIndex();
-                if (this->GetElement(ele_index)->IsFlagged())
-                {
-                    in_flagged_element = true;
-                    break;
-                }
-            }
-            if (in_flagged_element)
+
+            if (p_coarse_node->IsFlagged(*this))
             {
                 unsigned fine_node_index = mpCoarseFineNodeMap->GetNewIndex(coarse_node_index);
                 coarse_soln_dist[coarse_node_index] = fine_solution_repl[fine_node_index];

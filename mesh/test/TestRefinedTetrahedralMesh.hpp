@@ -95,6 +95,9 @@ public:
         // give fine mesh to coarse mesh and calculate node map
         coarse_mesh.SetFineMesh(&fine_mesh);
         
+        bool any_elements_flagged = coarse_mesh.TransferFlags();
+        TS_ASSERT_EQUALS(any_elements_flagged, false);
+        
         // Flag the right half of the coarse mesh
         ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
         for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
@@ -114,7 +117,8 @@ public:
         }
         
         // Flag the corresponding region of the fine mesh
-        coarse_mesh.TransferFlags();
+        any_elements_flagged = coarse_mesh.TransferFlags();
+        TS_ASSERT_EQUALS(any_elements_flagged, true);
         
         // Check
         ConformingTetrahedralMesh<2, 2>::ElementIterator i_fine_element;
@@ -426,7 +430,7 @@ public:
             }
         }        
 
-        coarse_mesh.UpdateCoarseSolutionOnflaggedRegion(coarse_soln_petsc,fine_soln_petsc);
+        coarse_mesh.UpdateCoarseSolutionOnFlaggedRegion(coarse_soln_petsc,fine_soln_petsc);
         
         // Check that flagged nodes were copied but unflagged ones were not
         DistributedVector coarse_soln(coarse_soln_petsc);

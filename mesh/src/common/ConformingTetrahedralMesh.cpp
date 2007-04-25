@@ -2038,7 +2038,17 @@ c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::G
     return vector;
 }
 
-
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
+{
+    ElementIterator i_element;
+    for (i_element = GetElementIteratorBegin();
+         i_element != GetElementIteratorEnd();
+         i_element++)
+    {
+         (*i_element)->Unflag();
+    }
+}
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_
 

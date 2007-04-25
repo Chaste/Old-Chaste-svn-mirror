@@ -2,8 +2,8 @@
 #include "Exception.hpp"
 #include <iostream>
 
-ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName)
-        : ColumnDataWriter::ColumnDataWriter(directory, baseName)
+ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::string baseName, bool cleanDirectory)
+        : ColumnDataWriter::ColumnDataWriter(directory, baseName, cleanDirectory)
 {
     mConcentrated=NULL;
     
@@ -27,8 +27,11 @@ ParallelColumnDataWriter::ParallelColumnDataWriter(std::string directory, std::s
     {
         mAmMaster=false;
     }
-    
-    
+}
+
+bool ParallelColumnDataWriter::AmMaster() const
+{
+    return mAmMaster;
 }
 
 void
@@ -96,7 +99,7 @@ void ParallelColumnDataWriter::EndDefineMode()
  */
 void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,long dimensionPosition)
 {
-    if (variableID != UNLIMITED_DIMENSION_VAR_ID)
+    if (variableID != UNLIMITED_DIMENSION_VAR_ID && !mAmMaster)
     {
         EXCEPTION("Non-master processes cannot write to disk.");
     }
@@ -104,7 +107,7 @@ void ParallelColumnDataWriter::PutVariable(int variableID, double variableValue,
     if (mAmMaster)
     {
         //Master process is allowed to write
-        ColumnDataWriter::PutVariable(variableID,  variableValue, dimensionPosition);
+        ColumnDataWriter::PutVariable(variableID, variableValue, dimensionPosition);
     }
 }
 

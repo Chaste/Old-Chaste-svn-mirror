@@ -15,6 +15,9 @@
 #include "TimeDependentDiffusionEquationWithSourceTermPde.hpp"
 #include "RefinedTetrahedralMesh.cpp"
 //#include "ConstBoundaryCondition.hpp"
+#include "ParallelColumnDataWriter.hpp"
+#include "TrianglesMeshWriter.cpp"
+#include "RandomNumberGenerator.hpp"
 
 class TestFlaggedMeshAssembler : public CxxTest::TestSuite
 {
@@ -303,7 +306,7 @@ public :
         }
     }
     
-    void TestCoarseAndFineDiffusion()
+    void TestCoarseAndFineDiffusion() throw (Exception)
     {
         ConformingTetrahedralMesh<2,2> fine_mesh;
         
@@ -319,7 +322,7 @@ public :
         coarse_mesh.Scale(1.0/num_elem, 1.0/num_elem);
         
         // give fine mesh to coarse mesh
-        coarse_mesh.SetFineMesh(&fine_mesh);        
+        coarse_mesh.SetFineMesh(&fine_mesh);
      
         // Instantiate PDE object
         TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
@@ -370,12 +373,6 @@ public :
         Vec result = assembler.Solve();  
         ReplicatableVector result_replicated(result);
         
-        for(unsigned i=0; i<result_replicated.size(); i++)
-        {
-            double x = coarse_mesh.GetNode(i)->rGetLocation()[0];
-            double y = coarse_mesh.GetNode(i)->rGetLocation()[1];
-            std::cout << i << " " << x << " " << y << " " << result_replicated[i] << "\n";
-        }
         TS_ASSERT_DELTA(result_replicated[14],  0.0117061, 1e-6);
         
         // Flag the some elements of the coarse mesh
@@ -385,12 +382,12 @@ public :
              i_coarse_element++)
         {
             Element<2,2> &element = **i_coarse_element;
+            element.Unflag();
             for(unsigned i=0; i<element.GetNumNodes(); i++)
             {
                 if(result_replicated[element.GetNodeGlobalIndex(i)]>0.4)
                 {
                     element.Flag();
-                    std::cout << "Flagging element " << element.GetIndex() << "\n";
                 }
             }
         }
@@ -421,10 +418,6 @@ public :
             unsigned fine_node_index = iter->first;
             unsigned smasrm_index = iter->second;
 
-            double x = fine_mesh.GetNode(fine_node_index)->rGetLocation()[0];
-            double y = fine_mesh.GetNode(fine_node_index)->rGetLocation()[1];
-                
-            std::cout << fine_node_index << " " << x << " " << y << " " << result_fine_restricted_repl[smasrm_index] << "\n";
             if (fine_node_index == 1992)
             {
                 TS_ASSERT_DELTA(result_fine_restricted_repl[smasrm_index], 0.170209, 1e-6);
@@ -441,13 +434,277 @@ public :
         }
         result_fine.Restore();
         
+        // Update the coarse solution in the flagged region from the fine mesh
+        coarse_mesh.UpdateCoarseSolutionOnFlaggedRegion(result, initial_condition_fine);
+        // Interpolate the unflagged region of the fine mesh from the coarse solution
+        DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+        coarse_mesh.InterpolateOnUnflaggedRegion(result, initial_condition_fine);
         
-        // 
+        // Write files for visualization
+        TrianglesMeshWriter<2,2> mesh_writer("TestCoarseAndFineDiffusion", "FineMesh");
+        mesh_writer.WriteFilesUsingMesh(fine_mesh);
+        {
+            ParallelColumnDataWriter *p_test_writer;
+            p_test_writer = new ParallelColumnDataWriter("TestCoarseAndFineDiffusion", "OneStepHeat", false);
+            
+            p_test_writer->DefineFixedDimension("Node", "dimensionless", fine_mesh.GetNumNodes() );
+            int time_var_id = p_test_writer->DefineUnlimitedDimension("Time", "msecs");
+            int heat_var_id = p_test_writer->DefineVariable("T", "K");
+            p_test_writer->EndDefineMode();
+            
+            p_test_writer->PutVariable(time_var_id, 0.01);
+            p_test_writer->PutVector(heat_var_id, initial_condition_fine);
+            p_test_writer->AdvanceAlongUnlimitedDimension();
+            
+            delete p_test_writer;
+        }
         
-        // update.... 
-        //  - ic_coarse = result_coarse
-        //  - alter ic_coarse using result_fine
-        //  - ic_fine = .. 
+        // For visualizing flagged nodes
+        {
+            ParallelColumnDataWriter *p_flag_writer;
+            p_flag_writer = new ParallelColumnDataWriter("TestCoarseAndFineDiffusion", "OneStepFlags", false);
+            
+            p_flag_writer->DefineFixedDimension("Node", "dimensionless", fine_mesh.GetNumNodes() );
+            int time_var_id = p_flag_writer->DefineUnlimitedDimension("Time", "msecs");
+            int flag_var_id = p_flag_writer->DefineVariable("Flagged", "boolean");
+            p_flag_writer->EndDefineMode();
+            
+            p_flag_writer->PutVariable(time_var_id, 0.01);
+            if (p_flag_writer->AmMaster())
+            {
+                for (unsigned fine_node_index=0; fine_node_index<fine_mesh.GetNumNodes(); fine_node_index++)
+                {
+                    bool is_flagged = false;
+                    Node<2>* p_node = fine_mesh.GetNode(fine_node_index);
+                    unsigned num_containing_elts = p_node->GetNumContainingElements();
+                    for (unsigned i=0; i<num_containing_elts; i++)
+                    {
+                        unsigned ele_index = p_node->GetNextContainingElementIndex();
+                        if (fine_mesh.GetElement(ele_index)->IsFlagged())
+                        {
+                            is_flagged = true;
+                            break;
+                        }
+                    }
+                    p_flag_writer->PutVariable(flag_var_id, is_flagged, fine_node_index);
+                }
+            }
+            p_flag_writer->AdvanceAlongUnlimitedDimension();
+            
+            delete p_flag_writer;
+        }
+    }
+
+    void TestCoarseAndFineDiffusionWithTimeLoop() throw (Exception)
+    {
+        ConformingTetrahedralMesh<2,2> fine_mesh;
+        
+        unsigned num_elem = 48;
+        fine_mesh.ConstructRectangularMesh(num_elem,num_elem);
+        fine_mesh.Scale(1.0/num_elem, 1.0/num_elem);
+        
+        // create coarse mesh as RTM
+        RefinedTetrahedralMesh<2,2> coarse_mesh;
+        
+        num_elem = 12;
+        coarse_mesh.ConstructRectangularMesh(num_elem, num_elem);
+        coarse_mesh.Scale(1.0/num_elem, 1.0/num_elem);
+        
+        // give fine mesh to coarse mesh
+        coarse_mesh.SetFineMesh(&fine_mesh);
+     
+        // Instantiate PDE object
+        TimeDependentDiffusionEquationWithSourceTermPde<2> pde;
+        
+        // Boundary conditions - zero dirichlet everywhere on boundary
+        BoundaryConditionsContainer<2,2,1> bcc;
+        bcc.DefineZeroDirichletOnMeshBoundary(&coarse_mesh);
+        
+        // Assembler
+        SimpleDg0ParabolicAssembler<2,2> assembler(&coarse_mesh,&pde,&bcc);
+        
+        Vec initial_condition_coarse = CreateInitialConditionVec(coarse_mesh.GetNumNodes());
+        
+        double* p_initial_condition_coarse;
+        VecGetArray(initial_condition_coarse, &p_initial_condition_coarse);
+        
+        int lo, hi;
+        VecGetOwnershipRange(initial_condition_coarse, &lo, &hi);
+        
+        for (int global_index = lo; global_index < hi; global_index++)
+        {
+            int local_index = global_index - lo;
+            double x = coarse_mesh.GetNode(global_index)->GetPoint()[0];
+            double y = coarse_mesh.GetNode(global_index)->GetPoint()[1];
+            if(sqrt((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5)) < 0.3)
+            {
+                p_initial_condition_coarse[local_index] = 1.0;
+            }
+            else
+            {
+                p_initial_condition_coarse[local_index] = 0.0;
+            }
+        }
+        VecRestoreArray(initial_condition_coarse, &p_initial_condition_coarse);
+                
+        // Create initial_condition_fine from initial_condition_coarse by interpolation        
+        Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
+        DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+        coarse_mesh.InterpolateOnUnflaggedRegion(initial_condition_coarse, initial_condition_fine);
+        
+        const double dt = 0.005;
+        const double end_time = 0.1;
+        double current_time = 0.0;
+        
+        // Write files for visualization
+        TrianglesMeshWriter<2,2> mesh_writer("TestCoarseAndFineDiffusionWithTimeLoop", "FineMesh");
+        mesh_writer.WriteFilesUsingMesh(fine_mesh);
+        TrianglesMeshWriter<2,2> mesh_writer2("TestCoarseAndFineDiffusionWithTimeLoop", "CoarseMesh", false);
+        mesh_writer2.WriteFilesUsingMesh(coarse_mesh);
+
+        ParallelColumnDataWriter *p_test_writer;
+        p_test_writer = new ParallelColumnDataWriter("TestCoarseAndFineDiffusionWithTimeLoop", "Heat", false);
+                
+        p_test_writer->DefineFixedDimension("Node", "dimensionless", fine_mesh.GetNumNodes() );
+        int time_var_id1 = p_test_writer->DefineUnlimitedDimension("Time", "msecs");
+        int heat_var_id = p_test_writer->DefineVariable("T", "K");
+        p_test_writer->EndDefineMode();
+            
+        p_test_writer->PutVariable(time_var_id1, current_time);
+        p_test_writer->PutVector(heat_var_id, initial_condition_fine);
+        p_test_writer->AdvanceAlongUnlimitedDimension();
+
+        ParallelColumnDataWriter *p_flag_writer;
+        p_flag_writer = new ParallelColumnDataWriter("TestCoarseAndFineDiffusionWithTimeLoop", "Flags", false);
+                
+        p_flag_writer->DefineFixedDimension("Node", "dimensionless", fine_mesh.GetNumNodes() );
+        int time_var_id2 = p_flag_writer->DefineUnlimitedDimension("Time", "msecs");
+        int flag_var_id = p_flag_writer->DefineVariable("Flagged", "boolean");
+        p_flag_writer->EndDefineMode();
+                
+        p_flag_writer->PutVariable(time_var_id2, current_time);
+        if (p_flag_writer->AmMaster())
+        {
+            for (unsigned fine_node_index=0; fine_node_index<fine_mesh.GetNumNodes(); fine_node_index++)
+            {
+                bool is_flagged = false;
+                p_flag_writer->PutVariable(flag_var_id, is_flagged, fine_node_index);
+            }
+        }
+        p_flag_writer->AdvanceAlongUnlimitedDimension();
+                
+        //
+        // Start time loop!
+        //
+        while (current_time < end_time)
+        {
+            // Solve on coarse mesh        
+            assembler.SetTimes(current_time, current_time+dt, dt);
+            assembler.SetInitialCondition(initial_condition_coarse);
+            
+            Vec result = assembler.Solve();
+            ReplicatableVector result_replicated(result);
+            
+            coarse_mesh.UnflagAllElements();
+            
+            // Flag the same elements of the coarse mesh each time step, for now
+            ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
+            for (i_coarse_element = coarse_mesh.GetElementIteratorBegin();
+                 i_coarse_element != coarse_mesh.GetElementIteratorEnd();
+                 i_coarse_element++)
+            {
+                Element<2,2> &element = **i_coarse_element;
+                for(unsigned i=0; i<element.GetNumNodes(); i++)
+                {
+                    //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+                    //if(p_gen->randMod(7)==0)
+                    if(result_replicated[element.GetNodeGlobalIndex(i)]>0.4)
+                    {
+                        element.Flag();
+                    }
+                }
+            }
+            
+            // Flag the corresponding region of the fine mesh
+            bool any_flagged_elements = coarse_mesh.TransferFlags();
+            
+            if(any_flagged_elements)
+            {
+                // Interpolate boundary conditions
+                FlaggedMeshBoundaryConditionsContainer<2,1> flagged_bcc(coarse_mesh, result);
+        
+                // Assembler for fine mesh flagged region
+                FlaggedMeshAssembler<2> flagged_assembler(&fine_mesh, &pde, &flagged_bcc);
+                flagged_assembler.SetTimes(current_time, current_time+dt, dt);
+                flagged_assembler.SetInitialCondition(initial_condition_fine);
+        
+                flagged_assembler.Solve();
+                
+                Vec result_fine_restricted = flagged_assembler.Solve();
+    
+                // Copy the results for the flagged region of the fine mesh
+                // into a large vector for the whole of the fine mesh. 
+                std::map<unsigned, unsigned> map = flagged_assembler.GetSmasrmIndexMap();
+                DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+                DistributedVector result_fine(initial_condition_fine);
+                ReplicatableVector result_fine_restricted_repl(result_fine_restricted);
+                
+                std::map<unsigned, unsigned>::iterator iter = map.begin();
+                while (iter!=map.end())
+                {
+                    unsigned fine_node_index = iter->first;
+                    unsigned smasrm_index = iter->second;
+    
+                    if (DistributedVector::IsGlobalIndexLocal(fine_node_index))
+                    {
+                        result_fine[fine_node_index] = result_fine_restricted_repl[smasrm_index];
+                    }
+                    
+                    iter++;
+                }
+                result_fine.Restore();
+                
+                // Update the coarse solution in the flagged region from the fine mesh
+                coarse_mesh.UpdateCoarseSolutionOnFlaggedRegion(result, initial_condition_fine);
+                // Interpolate the unflagged region of the fine mesh from the coarse solution
+                DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+            }
+            
+            
+            coarse_mesh.InterpolateOnUnflaggedRegion(result, initial_condition_fine);
+            // Update the coarse initial condition to be the current result
+            // TODO: memory leak?
+            initial_condition_coarse = result;
+            
+            // write results 
+            p_test_writer->PutVariable(time_var_id1, current_time);
+            p_test_writer->PutVector(heat_var_id, initial_condition_fine);
+            p_test_writer->AdvanceAlongUnlimitedDimension();
+
+            // write flags info
+            p_flag_writer->PutVariable(time_var_id2, current_time);
+            if (p_flag_writer->AmMaster())
+            {
+                for (unsigned fine_node_index=0; fine_node_index<fine_mesh.GetNumNodes(); fine_node_index++)
+                {
+                    Node<2>* p_node = fine_mesh.GetNode(fine_node_index);
+                    bool is_flagged = p_node->IsFlagged(fine_mesh);
+ 
+                    p_flag_writer->PutVariable(flag_var_id, is_flagged, fine_node_index);
+                }
+            }
+            p_flag_writer->AdvanceAlongUnlimitedDimension();
+                        
+            // Advance time
+            current_time += dt;
+        }
+
+        // there should be no flagged elements at the end in this simulation
+        bool any_flagged_elements = coarse_mesh.TransferFlags();
+        TS_ASSERT_EQUALS(any_flagged_elements,false);
+
+        delete p_test_writer;
+        delete p_flag_writer;
     }
 };
 #endif /*TESTFLAGGEDMESHASSEMBLER_HPP_*/

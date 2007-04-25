@@ -3,6 +3,7 @@
 
 #include "Point.hpp"
 #include "Node.hpp"
+#include "ConformingTetrahedralMesh.cpp"
 #include <cxxtest/TestSuite.h>
 
 class TestNode : public CxxTest::TestSuite
@@ -112,7 +113,39 @@ public:
         
         TS_ASSERT_THROWS_ANYTHING(node.RemoveElement(256U));
         TS_ASSERT_THROWS_ANYTHING(node.RemoveBoundaryElement(256U));
-  
+    }
+    
+    void TestFlagging()
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(1, 1);
+        unsigned num_nodes = 4;
+
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetNode(i)->IsFlagged(mesh), false);
+        }
+        
+        mesh.GetElement(0)->Flag();
+        
+        TS_ASSERT_EQUALS(mesh.GetNode(0)->IsFlagged(mesh), true);
+        TS_ASSERT_EQUALS(mesh.GetNode(1)->IsFlagged(mesh), true);
+        TS_ASSERT_EQUALS(mesh.GetNode(2)->IsFlagged(mesh), false);
+        TS_ASSERT_EQUALS(mesh.GetNode(3)->IsFlagged(mesh), true);
+
+        mesh.GetElement(0)->Unflag();
+
+        for (unsigned i=0; i<num_nodes; i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetNode(i)->IsFlagged(mesh), false);
+        }
+
+        mesh.GetElement(1)->Flag();
+        TS_ASSERT_EQUALS(mesh.GetNode(0)->IsFlagged(mesh), true);
+        TS_ASSERT_EQUALS(mesh.GetNode(1)->IsFlagged(mesh), false);
+        TS_ASSERT_EQUALS(mesh.GetNode(2)->IsFlagged(mesh), true);
+        TS_ASSERT_EQUALS(mesh.GetNode(3)->IsFlagged(mesh), true);
+        
     }
     
 };

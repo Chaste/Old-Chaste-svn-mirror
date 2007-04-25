@@ -1,8 +1,12 @@
 #ifndef _NODE_HPP_
 #define _NODE_HPP_
 
+//#include "ConformingTetrahedralMesh.hpp"
 #include "Point.hpp"
 #include <set>
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class ConformingTetrahedralMesh;
 
 template<unsigned SPACE_DIM>
 class Node
@@ -24,7 +28,7 @@ private:
     //TODO:
     //bool mIsDirichletNode;
     Node()
-{}
+    {}
 
 public:
     ~Node()
@@ -272,6 +276,25 @@ public:
     bool IsDeleted()
     {
         return mIsDeleted;
+    }
+    
+    /**
+     * Determine if a node lives within a flagged element.
+     */
+    template <unsigned ELEMENT_DIM>
+    bool IsFlagged(ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+    {
+        bool in_flagged_element = false;
+        for (unsigned i=0; i<GetNumContainingElements(); i++)
+        {
+            unsigned ele_index = GetNextContainingElementIndex();
+            if (rMesh.GetElement(ele_index)->IsFlagged())
+            {
+                in_flagged_element = true;
+                break;
+            }
+        }
+        return in_flagged_element;
     }
 };
 
