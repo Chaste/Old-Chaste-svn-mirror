@@ -247,8 +247,8 @@ public:
     {        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
-        double crypt_width = 4.0;
-        unsigned thickness_of_ghost_layer = 4;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 2;
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
@@ -265,7 +265,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DCylindrical");
         
         // Set length of simulation here
-        simulator.SetEndTime(0.05);
+        simulator.SetEndTime(0.1);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);

@@ -5,6 +5,7 @@
 
 #include "Cylindrical2dMesh.cpp"
 #include "CryptHoneycombMeshGenerator.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 
 class TestCylindrical2dMesh : public CxxTest::TestSuite
@@ -16,8 +17,10 @@ public:
         // Test default constructor cannot be used.
         TS_ASSERT_THROWS_ANYTHING(Cylindrical2dMesh mesh);
         
+        std::vector <unsigned> empty;
+        
         // Test IsThisIndexInList
-        Cylindrical2dMesh mesh(0.0, 1.0);
+        Cylindrical2dMesh mesh(0.0, 1.0, 0.0, 1.0, empty,empty);
         
         std::vector<unsigned> list_of_nodes;
         list_of_nodes.push_back(0u);
@@ -35,9 +38,10 @@ public:
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes),false);
+        
     }
 
-    void TestCreateMirrorCells() throw (Exception)
+    void TestCreateMirrorCellsANDAlignmentTester() throw (Exception)
     {   // note that elements are not created (and boundary elements are not changed)
         // this just creates a set of new nodes.
         unsigned cells_across = 6;
@@ -92,6 +96,31 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up*2);
         
         //Output2DMeshToFile(p_mesh, "node_positions.dat");
+        
+        /*
+         * TEST FOR ALIGNMENT TESTER
+         */
+        {
+            TS_ASSERT_THROWS_NOTHING(p_mesh->TestTopAndBottomRowAlignment());  
+            
+            // move one of the bottom nodes and ensure it throws.
+            c_vector<double, 2> location = p_mesh->GetNode(0)->rGetLocation();
+            Point<2> old_point(location);
+            c_vector<double, 2> new_location = location;
+            new_location[1] = -0.866025;
+            Point<2> new_point(new_location);
+            p_mesh->GetNode(0)->SetPoint(new_point);
+            TS_ASSERT_THROWS_ANYTHING(p_mesh->TestTopAndBottomRowAlignment());
+            
+            // move it back and ensure it passes.
+            p_mesh->GetNode(0)->SetPoint(old_point);
+            TS_ASSERT_THROWS_NOTHING(p_mesh->TestTopAndBottomRowAlignment());
+            
+            // move the top row and ensure it fails
+            p_mesh->GetNode(70)->SetPoint(new_point);
+            
+            TS_ASSERT_THROWS_ANYTHING(p_mesh->TestTopAndBottomRowAlignment());
+        }
     }
     
     void TestReconstructCylindricalMesh() throw (Exception)
@@ -326,6 +355,33 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
+        /*
+         * New test to check that the top and bottom rows move together
+         * bottom row = 0,1,2
+         * top row = 18,19,20
+         */
+        c_vector<double, 2> new_location = p_mesh->GetNode(0)->rGetLocation();
+        new_location[1] = -1.760;
+        Point<2> boundary_point(new_location);
+        // We just move one of the bottom boundary nodes and then...
+        p_mesh->SetNode(0u, boundary_point,false);
+        // check that all the nodes on this boundary have moved down
+        for (unsigned i=0; i<3 ; i++)
+        {
+            TS_ASSERT_DELTA(p_mesh->GetNode(i)->rGetLocation()[1],-1.76000,1e-6);   
+        }
+        
+        // Same for one of the top boundary nodes
+        new_location = p_mesh->GetNode(19)->rGetLocation();
+        new_location[1] = 4.0;
+        Point<2> boundary_point2(new_location);
+        p_mesh->SetNode(19u, boundary_point2,false);
+        // check that all the nodes on this boundary have moved up
+        for (unsigned i=18; i<21 ; i++)
+        {
+            TS_ASSERT_DELTA(p_mesh->GetNode(i)->rGetLocation()[1],4.0,1e-6);   
+        }
+        
         // move one of the nodes to near the periodic boundary
         c_vector<double, 2> new_point_location;
         new_point_location[0] = 2.999999999;
@@ -354,6 +410,9 @@ public:
         //std::cout << " x = " << new_point.rGetLocation()[0] << ", y = " << new_point.rGetLocation()[1] << "\n" << std::flush;
         // This node was on right and is now on the left.
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], +0.0001, 1e-4);
+        
+
+         
 
     }
 

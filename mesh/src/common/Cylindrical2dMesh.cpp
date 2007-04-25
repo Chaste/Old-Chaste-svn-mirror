@@ -7,9 +7,21 @@
 class Cylindrical2dMesh : public ConformingTetrahedralMesh<2, 2>
 {
 private:
+    /** The left x-coord of cylinder boundary*/
     double mXLeft;
+    /** The right x-coord of the same cylinder boundary*/
     double mXRight;
+    /** The circumference of the cylinder */
     double mWidth;
+    /** The top of the cylinder (y-coord) */
+    double mTop;
+    /** The bottom of the cylinder (y-coord) */
+    double mBottom;
+    
+    /** The indices of nodes on the top boundary */
+    std::vector<unsigned > mTopBoundary;
+    /** The indices of nodes on the bottom boundary */
+    std::vector<unsigned > mBottomBoundary;
     
 public:
     
@@ -18,13 +30,21 @@ public:
      * 
      * @param x0 the left hand cylindrical boundary (usually 0.0)
      * @param x1 the right hand cylindrical boundary (usually CryptWidth)
+     * @param xTop the y-co-ord of the top row of ghost nodes (important to keep them together)
+     * @param xBottom the y-coord of the bottom row of ghost nodes
+     * @param topBoundary the inidces of the top ghost nodes
+     * @param bottomBoundary the inidces of the bottom ghost nodes
      */
-    Cylindrical2dMesh(double x0, double x1): ConformingTetrahedralMesh<2, 2>()
+    Cylindrical2dMesh(double x0, double x1, double xTop, double xBottom, std::vector<unsigned > topBoundary, std::vector<unsigned > bottomBoundary): ConformingTetrahedralMesh<2, 2>()
     {
         assert(x1>x0);
         mXLeft = x0;
         mXRight = x1;
         mWidth = mXRight - mXLeft;
+        mTop = xTop;
+        mBottom = xBottom;
+        mTopBoundary = topBoundary;
+        mBottomBoundary = bottomBoundary;
     }
     
     Cylindrical2dMesh(): ConformingTetrahedralMesh<2, 2>()
@@ -52,6 +72,8 @@ public:
     {
         unsigned num_nodes=GetNumNodes();
         double half_way = (mWidth)/2.0;
+                
+        TestTopAndBottomRowAlignment();
         
         // Label the nodes which will have to be mirrored
         std::vector<unsigned> left_original_node_indices;
@@ -146,7 +168,7 @@ public:
         ConformingTetrahedralMesh<2,2>::ReMesh(map);
         
         //
-        // Re-Index the image_map according to the node_map.
+        // Re-Index the vectors according to the node_map.
         //
         for (unsigned i = 0 ; i<left_original.size() ; i++)
         {
@@ -157,6 +179,14 @@ public:
         {
                 right_original[i]=map.GetNewIndex(right_original[i]);
                 right_images[i]=map.GetNewIndex(right_images[i]);
+        }
+        for (unsigned i = 0 ; i<mTopBoundary.size() ; i++)
+        {
+                mTopBoundary[i]=map.GetNewIndex(mTopBoundary[i]);
+        }
+        for (unsigned i = 0 ; i<mBottomBoundary.size() ; i++)
+        {
+                mBottomBoundary[i]=map.GetNewIndex(mBottomBoundary[i]);
         }
         
         image_map[0] = left_original;
@@ -408,6 +438,39 @@ public:
      */
     void SetNode(unsigned index, Point<2> point, bool concreteMove)
     {
+        // We need to move all of the nodes in the top and bottom boundaries together.
+        bool on_the_top_of_cylinder = IsThisIndexInList(index,mTopBoundary);
+        bool on_the_bottom_of_cylinder = IsThisIndexInList(index,mBottomBoundary);
+        
+        if (on_the_top_of_cylinder || on_the_bottom_of_cylinder)
+        {
+            double y_co_ord = point.rGetLocation()[1];
+            if(on_the_top_of_cylinder)
+            {
+                for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
+                {
+                    // Get each node's x position and update so that y position matches on each
+                    Point<2> boundary_point = mNodes[mTopBoundary[i]]->GetPoint();
+                    boundary_point.SetCoordinate(1u, y_co_ord);
+                    ConformingTetrahedralMesh<2,2>::SetNode(mTopBoundary[i], boundary_point, concreteMove); 
+                }
+                mTop = y_co_ord; // update the boundary definition.
+            }
+            if(on_the_bottom_of_cylinder)
+            {
+                for (unsigned i=0 ; i<mBottomBoundary.size() ; i++)
+                {
+                    // Get each node's x position and update so that y position matches on each
+                    Point<2> boundary_point = mNodes[mBottomBoundary[i]]->GetPoint();
+                    boundary_point.SetCoordinate(1u, y_co_ord);
+                    ConformingTetrahedralMesh<2,2>::SetNode(mBottomBoundary[i], boundary_point, concreteMove); 
+                }
+                mBottom = y_co_ord; // update the boundary definition.
+            }
+            
+        }
+        
+        // Perform a periodic movement if necessary
         if (point.rGetLocation()[0] >= mXRight)
         {   // move point to the left
             point.SetCoordinate(0u, point.rGetLocation()[0]-mWidth);
@@ -418,7 +481,9 @@ public:
             point.SetCoordinate(0u, point.rGetLocation()[0]+mWidth);
             //std::cout << "Moving point to the right\n" << std::flush;
         }
-        ConformingTetrahedralMesh<2,2>::SetNode(index, point, concreteMove);    
+        
+        // Update the node's location
+        ConformingTetrahedralMesh<2,2>::SetNode(index, point, concreteMove); 
     }
 
     /**
@@ -440,6 +505,30 @@ public:
             }
         }
         return is_in_vector;
+    }
+    
+    void TestTopAndBottomRowAlignment()
+    {
+        // Check that the top and bottom rows have the same y-co-ordinate 
+        // or things will start to go wrong with boundary elements.
+        double y_location = 0.0;
+        for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
+        {
+            y_location = mNodes[mTopBoundary[i]]->rGetLocation()[1];
+            if (fabs(y_location - mTop)>1e-5)
+            {
+                std::cout << "y = " << y_location << ", mTop = " << mTop << std::flush;
+                EXCEPTION("The top row of ghost nodes is not aligned.");   
+            }
+        }
+        for (unsigned i=0 ; i<mBottomBoundary.size() ; i++)
+        {
+            y_location = mNodes[mBottomBoundary[i]]->rGetLocation()[1];
+            if (fabs(y_location - mBottom)>1e-5)
+            {
+                EXCEPTION("The bottom row of ghost nodes is not aligned.");   
+            }
+        }
     }
     
 };

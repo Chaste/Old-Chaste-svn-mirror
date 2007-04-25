@@ -26,6 +26,10 @@ private:
     std::string mMeshFilename;
     double mCryptWidth;
     double mCryptDepth;
+    double mBottom;
+    double mTop;
+    std::vector<unsigned> mTopNodes;
+    std::vector<unsigned> mBottomNodes;
     unsigned mNumCellWidth;
     bool mCylindrical;
        
@@ -69,6 +73,8 @@ private:
             x0 = 0;
         }
         double y0 = -vertical_spacing*ghosts;
+        mBottom = -vertical_spacing*ghosts;
+        mTop = mBottom + vertical_spacing*(numNodesAlongLength-1);
         
         (*p_node_file) << num_nodes << "\t2\t0\t1" << std::endl;
         unsigned node = 0;
@@ -93,6 +99,14 @@ private:
                 double y = y0 + vertical_spacing*(double)i;
                 
                 (*p_node_file) << node++ << "\t" << x << "\t" << y << "\t" << boundary << std::endl;
+                if(i==0)
+                {
+                    mBottomNodes.push_back(node-1);   
+                }
+                if(i==numNodesAlongLength-1)
+                {
+                    mTopNodes.push_back(node-1);   
+                }
             }
         }
         p_node_file->close();
@@ -225,6 +239,8 @@ public:
         mNumCellWidth = numCellWidth;
         mCryptWidth = numCellWidth*1.0; //*1 because cells are considered to be size one
         mCryptDepth = sqrt(3)*numCellDepth/2;
+        mTop = 0.0; // these set in above function
+        mBottom = 0.0;  // these set in above function
         
         mMeshFilename = "2D_temporary_crypt_mesh";
         Make2dPeriodicCryptMesh(numCellWidth,numCellDepth,mCryptWidth, ghostThickness);
@@ -236,7 +252,7 @@ public:
         
         if (!mCylindrical)
         {
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);// to avoid seg fault when closing
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
             ComputeGhostNodes1();
@@ -244,7 +260,7 @@ public:
         else
         {   
             mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpCylindricalMesh->GetNumNodes());
             mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
@@ -286,7 +302,7 @@ public:
         
         if (!mCylindrical)
         {
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);// to avoid seg fault when closing
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
             ComputeGhostNodes1();
@@ -294,7 +310,7 @@ public:
         else
         {   
             mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth);
+            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpCylindricalMesh->GetNumNodes());
             mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
