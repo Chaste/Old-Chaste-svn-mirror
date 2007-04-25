@@ -10,6 +10,8 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <iomanip>
+#include <math.h>
 
 /**
  * Solves a system of ODEs using the Adams-Bashforth Method Initial Value Problem Ordinary Differential Equation Solver
@@ -86,6 +88,8 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
         }
     }
     // number_of_time_samples has now been correctly set
+    //\todo number_of_time_samples may not be "correct" since it may not match the
+    //version produced by the loop below
     
     
     // setup output, write initial solution
@@ -103,25 +107,10 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     
     // Determine the number of time steps and make sure that we have at least
     // 4 of them
-    unsigned number_of_timesteps = 0;
+    unsigned guess_number_of_timesteps = (unsigned) round((endTime-startTime)/timeStep);
+    //\todo We should not use this as the criterion for stopping the main loop
     
-    current_time = startTime;
-    while (current_time < endTime)
-    {
-        number_of_timesteps++;
-        
-        if (startTime+number_of_timesteps*timeStep >= endTime)
-        {
-            current_time = endTime;
-        }
-        else
-        {
-            current_time = startTime+number_of_timesteps*timeStep;
-        }
-    }
-    // number_of_timesteps has now been correctly set
-    
-    if (number_of_timesteps <= 4)
+    if (guess_number_of_timesteps <= 4)
     {
         EXCEPTION("A multi-step solver needs at least 4 time steps.");
     }
@@ -202,12 +191,11 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
         
         derivative_store[time_index-1]=dy;
     }
-    
+   
     
     double real_timestep = timeStep;
     
     unsigned timestep_number = 3;
-    
     
     // Apply Adams-Bashforth method
     while ((current_time < endTime) && (!mStoppingEventOccured))
@@ -236,7 +224,6 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
         {
             current_time = startTime+timestep_number*timeStep;
         }
-        
         // check to see if a stopping event has occured
         if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
         {
@@ -248,13 +235,12 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
             solutions.rGetTimes().push_back(current_time);
         }
         
-        
-        
+         
         // Update OdeSolution if at next printing time (if current_time is either
         // greater than the next printing time OR current time is within 0.01% less
         // than the next printing time OR this is the final iteration)
         if ( ( (current_time - next_printing_time)/next_printing_time > -0.0001) ||
-             (timestep_number == number_of_timesteps) )
+             (timestep_number == guess_number_of_timesteps) )//\todo This is a bad criterion for stopping
         {
             solutions.rGetSolutions().push_back(rYValues);
             solutions.rGetTimes().push_back(current_time);
