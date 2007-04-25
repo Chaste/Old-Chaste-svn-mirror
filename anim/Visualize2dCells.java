@@ -112,6 +112,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		if (pressed == "Run") {
 			if (timeStep == numSteps - 1) {
 				timeStep = 0;
+				time_slider.setValue(timeStep);
 			}
 			if (updateThread == null) {
 				run.setLabel("Pause");
@@ -121,6 +122,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		}
 		if (pressed == "Reset") {
 			timeStep = 0;
+			time_slider.setValue(timeStep);
+			canvas.drawBufferedImage();
 			canvas.repaint();
 		}
 		if (pressed == "Pause") {

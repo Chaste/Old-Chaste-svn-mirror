@@ -1886,6 +1886,12 @@ void CryptSimulation2DPeriodic::Solve()
     /////////////////////////////////////////////////////////////////////
     // Main time loop
     /////////////////////////////////////////////////////////////////////
+    // Write initial conditions to file for the visualizer.
+    WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
+                            tabulated_element_writer, element_writer_ids,
+                            *p_node_file, *p_element_file,
+                            false,
+                            true);
     
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {
@@ -1922,14 +1928,10 @@ void CryptSimulation2DPeriodic::Solve()
         WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
                             tabulated_element_writer, element_writer_ids,
                             *p_node_file, *p_element_file,
-                            tabulated_output_counter==0,
+                            tabulated_output_counter%80==0,
                             true);
                             
         tabulated_output_counter++;
-        if (tabulated_output_counter > 80) // TODO: make this configurable!
-        {
-            tabulated_output_counter = 0;
-        }
     } // End main time loop
     
     // Write end state to tabulated files (not visualizer - this
