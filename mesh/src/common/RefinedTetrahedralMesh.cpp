@@ -286,34 +286,41 @@ void RefinedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::InterpolateOnUnflaggedRegion
     
     DistributedVector fine_soln(fine_solution);
     
-    // Iterate over elements in the fine mesh
-    typename ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator i_fine_element;
-    for (i_fine_element = mpFineMesh->GetElementIteratorBegin();
-         i_fine_element != mpFineMesh->GetElementIteratorEnd();
-         i_fine_element++)
+    // Iterate over nodes in the fine mesh
+    for (unsigned fine_node_index = 0;
+         fine_node_index < mpFineMesh->GetNumNodes();
+         fine_node_index++)
     {
-        Element<ELEMENT_DIM, SPACE_DIM>& fine_element = **i_fine_element;
-        // If element is unflagged, iterate over its nodes
-        if (!fine_element.IsFlagged())
+        // Only interpolate if we own this node
+        if (DistributedVector::IsGlobalIndexLocal(fine_node_index))
         {
-            for (unsigned fine_node_index=0; fine_node_index<fine_element.GetNumNodes(); fine_node_index++)
+            // Find out if this node is contained in any flagged elements
+            Node<SPACE_DIM>* p_fine_node = mpFineMesh->GetNode(fine_node_index);
+            unsigned num_containing_elts = p_fine_node->GetNumContainingElements();
+            bool in_flagged_element = false;
+            for (unsigned i=0; i<num_containing_elts; i++)
+            {
+                unsigned ele_index = p_fine_node->GetNextContainingElementIndex();
+                if (mpFineMesh->GetElement(ele_index)->IsFlagged())
+                {
+                    in_flagged_element = true;
+                    break;
+                }
+            }
+            if (!in_flagged_element)
             {
                 // Interpolate entry in fine_solution from the 'best' element in the coarse mesh
-                unsigned fine_node_global_index = fine_element.GetNodeGlobalIndex(fine_node_index);
-                if (DistributedVector::IsGlobalIndexLocal(fine_node_global_index))
+                Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
+                    GetACoarseElementForFineNodeIndex(fine_node_index);
+                c_vector<double, ELEMENT_DIM+1> interpolation_weights = p_coarse_element->CalculateInterpolationWeights(p_fine_node->GetPoint());
+                double interpolated_soln = 0;
+                for (unsigned coarse_node_index=0; coarse_node_index<p_coarse_element->GetNumNodes(); coarse_node_index++)
                 {
-                    Element<ELEMENT_DIM, SPACE_DIM>* p_coarse_element =
-                        GetACoarseElementForFineNodeIndex(fine_node_global_index);
-                    c_vector<double, ELEMENT_DIM+1> interpolation_weights = p_coarse_element->CalculateInterpolationWeights(fine_element.GetNode(fine_node_index)->GetPoint());
-                    double interpolated_soln = 0;
-                    for (unsigned coarse_node_index=0; coarse_node_index<p_coarse_element->GetNumNodes(); coarse_node_index++)
-                    {
-                        unsigned coarse_node_global_index = p_coarse_element->GetNodeGlobalIndex(coarse_node_index);
-                        interpolated_soln += interpolation_weights(coarse_node_index) * coarse_soln_replicated[coarse_node_global_index];
-                    }
-                    
-                    fine_soln[fine_node_global_index] = interpolated_soln;
+                    unsigned coarse_node_global_index = p_coarse_element->GetNodeGlobalIndex(coarse_node_index);
+                    interpolated_soln += interpolation_weights(coarse_node_index) * coarse_soln_replicated[coarse_node_global_index];
                 }
+                
+                fine_soln[fine_node_index] = interpolated_soln;
             }
         }
     }

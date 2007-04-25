@@ -331,15 +331,15 @@ public:
                 const c_vector<double, 2>& r_node_loc = element.GetNode(element_node_index)->rGetLocation();
 
                 double expected_value;
-                if (r_node_loc[0] <= 0.5)
+                if (r_node_loc[0] < 0.5)
                 {
-                    // Node lies on an unflagged element
+                    // Node lies only on unflagged elements
                     expected_value = inner_prod(linear_combination, r_node_loc);
                     found_unflagged_elt = true;
                 }
                 else
                 {
-                    // Node is only in flagged elements
+                    // Node is in a flagged element
                     expected_value = 0;
                 }
 

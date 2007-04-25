@@ -360,32 +360,8 @@ public :
                 
         // Create initial_condition_fine from initial_condition_coarse by interpolation        
         Vec initial_condition_fine = CreateInitialConditionVec(fine_mesh.GetNumNodes());
-        
-        double* p_initial_condition_fine;
-        VecGetArray(initial_condition_fine, &p_initial_condition_fine);
-                
-        VecGetOwnershipRange(initial_condition_fine, &lo, &hi);
-        
-        for (int global_index = lo; global_index < hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            Element<2,2>* p_coarse_element = coarse_mesh.GetACoarseElementForFineNodeIndex(global_index);
-            c_vector<double, 3> interpolation_weights=p_coarse_element->CalculateInterpolationWeights(fine_mesh.GetNode(global_index)->GetPoint());
-            double interpolated_ic=0; 
-            
-            for (unsigned element_node_index=0; element_node_index<3; element_node_index++)
-            {
-                unsigned element_node_global_index = p_coarse_element->GetNodeGlobalIndex(element_node_index);
-                interpolated_ic += interpolation_weights(element_node_index)* ic_coarse_replicated[element_node_global_index];
-            }
-            p_initial_condition_fine[local_index]=interpolated_ic;
-            
-            //double x = fine_mesh.GetNode(global_index)->rGetLocation()[0];
-            //double y = fine_mesh.GetNode(global_index)->rGetLocation()[1];
-            //std::cout << global_index << " " << x << " " << y << " " << interpolated_ic << "\n";
-        }
-        VecRestoreArray(initial_condition_fine, &p_initial_condition_fine);
-        
+        DistributedVector::SetProblemSize(fine_mesh.GetNumNodes());
+        coarse_mesh.InterpolateOnUnflaggedRegion(initial_condition_coarse, initial_condition_fine);
         
         // Solve on coarse mesh        
         assembler.SetTimes(0, 0.01, 0.01);
@@ -400,6 +376,7 @@ public :
             double y = coarse_mesh.GetNode(i)->rGetLocation()[1];
             std::cout << i << " " << x << " " << y << " " << result_replicated[i] << "\n";
         }
+        TS_ASSERT_DELTA(result_replicated[14],  0.0117061, 1e-6);
         
         // Flag the some elements of the coarse mesh
         ConformingTetrahedralMesh<2, 2>::ElementIterator i_coarse_element;
@@ -446,6 +423,10 @@ public :
                 double y = fine_mesh.GetNode(i)->rGetLocation()[1];
                 
                 std::cout << i << " " << x << " " << y << " " << result_fine_replicated[smasrm_index] << "\n";
+                if (i == 1992)
+                {
+                    TS_ASSERT_DELTA(result_fine_replicated[smasrm_index], 0.170209, 1e-6);
+                }
             }
         }
     }
