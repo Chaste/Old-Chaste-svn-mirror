@@ -64,7 +64,6 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	public static boolean writeFiles=false;
 	public static boolean drawGhosts=false;
     public static boolean drawFibres=false;
-    public static boolean drawCylindrically = false;
     
 	public static int timeStep = 0;
 
