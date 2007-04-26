@@ -4,69 +4,64 @@
 #include <cxxtest/TestSuite.h>
 
 #include "TimeStepper.hpp"
+#include <assert.h>
 
 #include <cfloat>
 
 class TestTimeStepper : public CxxTest::TestSuite
 {
 public:
-    void TestConstruction()
-    {
-        // The provided dt should divide the simulation interval
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper stepper(0.0, 10.0, 1.5));
-        // The end time should be greater than the start time
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper stepper(10.0, -10.0, 1.0));
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper stepper(-10.0, -10.0, 0.0));
-
-        TS_ASSERT_THROWS_NOTHING(TimeStepper stepper(0.0, 10.0, 1.0));
-        
-        //edge cases
-        TS_ASSERT_THROWS_NOTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0));
-        TS_ASSERT_THROWS_NOTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0+DBL_EPSILON));
-        TS_ASSERT_THROWS_NOTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0-DBL_EPSILON));
-        TS_ASSERT_THROWS_NOTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0+8*DBL_EPSILON));
-        TS_ASSERT_THROWS_NOTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0-8*DBL_EPSILON));
-        // Whether factors 9--11 throw depends on the compiler...
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0+12*DBL_EPSILON));
-        TS_ASSERT_THROWS_ANYTHING(TimeStepper stepper(0.0, 10.0, 10.0/3.0-12*DBL_EPSILON));
-    }
-    
-    void TestGetTotalSteps()
-    {
-        TimeStepper stepper(0.0, 10.0, 1.0);
-        TS_ASSERT_EQUALS(stepper.GetTotalSteps(), 10u);
-        
-        TimeStepper stepper2(0.0, 10.0, 10.0/3.0+8*DBL_EPSILON);
-        TS_ASSERT_EQUALS(stepper2.GetTotalSteps(), 3u);
-        TimeStepper stepper3(0.0, 10.0, 10.0/3.0-8*DBL_EPSILON);
-        TS_ASSERT_EQUALS(stepper3.GetTotalSteps(), 3u);
-    }
-    
-    
-    
-    void Advance(double start, double end, double dt)
-    {
-
-        TimeStepper stepper(start, end, dt);
-              
-        for (unsigned step = 0 ; step < stepper.GetTotalSteps(); step++)
-        {
-            // 'error' is linear in number of steps
-            TS_ASSERT_DELTA(stepper.GetTime(), start+(double)dt*step, 8*step*DBL_EPSILON);
-            TS_ASSERT(!stepper.IsTimeAtEnd());
-            stepper.AdvanceOneTimeStep();
-        }
-        TS_ASSERT_DELTA(stepper.GetTime(), end, DBL_EPSILON);
-        TS_ASSERT(stepper.IsTimeAtEnd());
-        
-    }
-    
     void TestAdvance()
     {
-        Advance(1.0, 10.0, 0.01);
-        Advance(0.0, 10.0, 10.0/3.0+8*DBL_EPSILON);
-        Advance(0.0, 10.0, 10.0/3.0-8*DBL_EPSILON);
-        Advance(0.0, 10.0, 10.0/3e3-8*DBL_EPSILON);
+        const double smidge=1e-10;
+        
+        double startTime=0.0;
+        double endTime=2.0;
+        double timeStep=3.7e-05;
+
+        TimeStepper stepper(startTime, endTime, timeStep);
+        
+        
+        double real_time_step = timeStep;
+        unsigned time_step_number = 0;
+        double current_time = startTime;
+        
+        /* We'll trap for stopping times that are close to the end time
+         * in order to avoid having a timestep of 1e-14 (or whatever) at
+         * the end in the case of rounding errors.
+         */
+        double close_to_end_time = endTime - smidge*timeStep;
+        
+        while (current_time < endTime)
+        {
+            assert(!stepper.IsTimeAtEnd());
+            
+            time_step_number++;
+            // Determine what the value time step should really be like
+            double to_time = startTime+time_step_number*timeStep;
+    
+            if (to_time >= close_to_end_time)
+            {
+                real_time_step = endTime - current_time;
+                // std::cout<<"InternalSolve "<<timeStep<<" "<<real_time_step<<"\n";
+                to_time = endTime;
+            }
+            
+            //std::cout << stepper.GetNextTimeStep()-real_time_step << std::endl;
+    
+            assert(stepper.GetNextTimeStep()==real_time_step);
+            assert(stepper.GetTime()==current_time);
+            assert(stepper.GetNextTime()==to_time);
+                                
+            // Determine the new current time
+            current_time = to_time;
+            stepper.AdvanceOneTimeStep();
+    
+            assert(current_time == stepper.GetTime());
+        }
+        
+        assert(stepper.IsTimeAtEnd());
+
     }
 };
 

@@ -13,25 +13,24 @@ public:
      * @param dt  the time step to use.  This must divide the simulation interval.
      */
     TimeStepper(double startTime, double endTime, double dt);
-    
-    /**
-     * Return the number of time steps that will be used in total.
-     */
-    unsigned GetTotalSteps() const;
-    
+
     void AdvanceOneTimeStep();
     
     double GetTime() const;
+    double GetNextTime() const;    
+    double GetNextTimeStep() const;
     
     bool IsTimeAtEnd() const;
 
 private:
-    double   mStart;
-    unsigned mTotalSteps;
-    unsigned mTimeStep;
-    double mDt;
-    double mTime;
+    double mStart;
     double mEnd;
+    double mDt;
+    unsigned mTimeStep;
+    double mTime;
+    double mNextTime;
+    
+    double CalculateNextTime();
 };
 
 #endif /*TIMESTEPPER_HPP_*/

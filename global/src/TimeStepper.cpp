@@ -2,42 +2,41 @@
 #include "Exception.hpp"
 #include <cmath>
 #include <cfloat>
+#include <iostream>
+#include <iomanip>
+#include <assert.h>
+
+const double smidge=1e-10;
 
 TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     : mStart(startTime),
+      mEnd(endTime),
+      mDt(dt),
       mTimeStep(0),
-      mTime(startTime),
-      mEnd(endTime)
+      mTime(startTime)
 {
     if (startTime >= endTime)
     {
         EXCEPTION("The simulation duration must be strictly positive");
     }
-    
-    mTotalSteps = (unsigned) round ((endTime - startTime)/dt);
-    mDt = (endTime - startTime) / mTotalSteps;
-    
-    if (fabs(mDt-dt) > DBL_EPSILON*10)
-    {
-        EXCEPTION("Can't create a time stepper unless dt divides simulation interval");
-    }
+    mNextTime=CalculateNextTime();
 }
 
-unsigned TimeStepper::GetTotalSteps() const
+double TimeStepper::CalculateNextTime()
 {
-    return mTotalSteps;
+    double next_time=mStart + (mTimeStep+1) * mDt;
+    if ((next_time) + smidge*(mDt) >= mEnd)
+    {
+        next_time = mEnd;
+    }
+    return next_time;
 }
 
 void TimeStepper::AdvanceOneTimeStep()
-{
-    double smidge=1e-10;
+{   
     mTimeStep++;
-    mTime = mStart + mTimeStep * mDt;
-    
-    if (mTime + smidge*mTimeStep >= mEnd)
-    {
-        mTime = mEnd;
-    }
+    mTime = mNextTime;
+    mNextTime=CalculateNextTime();
 }
 
 double TimeStepper::GetTime() const
@@ -47,5 +46,20 @@ double TimeStepper::GetTime() const
 
 bool TimeStepper::IsTimeAtEnd() const
 {
-    return mTotalSteps==mTimeStep;
+    return mTime >= mEnd;
+}
+
+double TimeStepper::GetNextTimeStep() const
+{
+    double dt=mDt;
+    if (mNextTime == mEnd)
+    {
+        dt = mEnd - mTime;
+    }
+    return dt;
+}
+
+double TimeStepper::GetNextTime() const
+{
+    return mNextTime;
 }
