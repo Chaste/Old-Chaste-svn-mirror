@@ -23,29 +23,21 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
     {
         EXCEPTION("Stopping event is true for initial condition");
     } 
-    // Determine the number of time steps that will be required to solve the
-    // ODE system (note that the current algorithm accounts for any potential
-    // floating point error)
-    unsigned guess_number_of_time_samples = (unsigned) ceil((endTime - startTime)/timeSampling);
+    TimeStepper stepper(startTime, endTime, timeSampling);
 
     // setup solutions if output is required
     OdeSolution solutions;
-    //Set number of time steps will be duplicated below
-    solutions.SetNumberOfTimeSteps(guess_number_of_time_samples);
+    solutions.SetNumberOfTimeSteps(stepper.EstimateTimeSteps());
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     
-    // Allocate working memory
     std::vector<double> working_memory(rYValues.size());
     
     // Solve the ODE system
-    unsigned time_step_number = 0;
-    TimeStepper stepper(startTime, endTime, timeSampling);
     while ( !stepper.IsTimeAtEnd() && !mStoppingEventOccured )
     {
         InternalSolve(pAbstractOdeSystem, rYValues, working_memory, stepper.GetTime(), stepper.GetNextTime(), timeStep);
         stepper.AdvanceOneTimeStep();
-        time_step_number++;
         // write current solution into solutions
         solutions.rGetSolutions().push_back(rYValues);
         // Push back new time into the time solution vector
@@ -59,10 +51,8 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSy
         }
     }
     
-    //This line is here because the above first "reservation" time loop
-    //may have different behaviour under optimisation than the second
-    //"calculation" time loop.
-    solutions.SetNumberOfTimeSteps(time_step_number);
+    // stepper.EstiamteTimeSteps may have been an overestimate...
+    solutions.SetNumberOfTimeSteps(stepper.GetTimeStepsElapsed());
     return solutions;
 }
 

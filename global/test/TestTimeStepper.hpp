@@ -5,6 +5,7 @@
 
 #include "TimeStepper.hpp"
 #include <assert.h>
+#include <math.h>
 
 #include <cfloat>
 
@@ -21,6 +22,9 @@ public:
 
         TimeStepper stepper(startTime, endTime, timeStep);
         
+        TS_ASSERT_EQUALS( stepper.EstimateTimeSteps(),
+                          (unsigned) ceil((endTime - startTime)/timeStep) );
+        
         
         double real_time_step = timeStep;
         unsigned time_step_number = 0;
@@ -34,7 +38,7 @@ public:
         
         while (current_time < endTime)
         {
-            assert(!stepper.IsTimeAtEnd());
+            TS_ASSERT(!stepper.IsTimeAtEnd());
             
             time_step_number++;
             // Determine what the value time step should really be like
@@ -49,19 +53,19 @@ public:
             
             //std::cout << stepper.GetNextTimeStep()-real_time_step << std::endl;
     
-            assert(stepper.GetNextTimeStep()==real_time_step);
-            assert(stepper.GetTime()==current_time);
-            assert(stepper.GetNextTime()==to_time);
+            TS_ASSERT_EQUALS(stepper.GetNextTimeStep(), real_time_step);
+            TS_ASSERT_EQUALS(stepper.GetTime(), current_time);
+            TS_ASSERT_EQUALS(stepper.GetNextTime(), to_time);
                                 
             // Determine the new current time
             current_time = to_time;
             stepper.AdvanceOneTimeStep();
     
-            assert(current_time == stepper.GetTime());
+            TS_ASSERT_EQUALS(current_time, stepper.GetTime());
         }
         
-        assert(stepper.IsTimeAtEnd());
-
+        TS_ASSERT(stepper.IsTimeAtEnd());
+        TS_ASSERT(stepper.GetTimeStepsElapsed()==time_step_number);
     }
 };
 

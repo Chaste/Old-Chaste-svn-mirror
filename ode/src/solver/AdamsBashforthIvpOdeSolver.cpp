@@ -6,6 +6,7 @@
 #include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 #include "Exception.hpp"
+#include "TimeStepper.hpp"
 
 #include <iostream>
 #include <vector>
@@ -67,35 +68,12 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     // Determine the number of time steps that will be required to solve the
     // ODE system (note that the current algorithm accounts for any potential
     // floating point error)
-    unsigned number_of_time_samples;
-    double current_time;
-    
-    number_of_time_samples = 0;
-    
-    current_time = startTime;
-    
-    while (current_time < endTime)
-    {
-        number_of_time_samples++;
-        
-        if (startTime+number_of_time_samples*timeSampling >= endTime)
-        {
-            current_time = endTime;
-        }
-        else
-        {
-            current_time = startTime+number_of_time_samples*timeSampling;
-        }
-    }
-    // number_of_time_samples has now been correctly set
-    //\todo number_of_time_samples may not be "correct" since it may not match the
-    //version produced by the loop below
-    
-    
+    TimeStepper sample_stepper(startTime, endTime, timeSampling);
+
     // setup output, write initial solution
     OdeSolution solutions;
     
-    solutions.SetNumberOfTimeSteps(number_of_time_samples);
+    solutions.SetNumberOfTimeSteps(sample_stepper.EstimateTimeSteps());
     solutions.rGetSolutions().push_back(rYValues);
     solutions.rGetTimes().push_back(startTime);
     
@@ -103,8 +81,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     unsigned time_sampling_counter = 1;
     double next_printing_time = startTime + time_sampling_counter*timeSampling;
     time_sampling_counter++;
-    
-    
+
     // Determine the number of time steps and make sure that we have at least
     // 4 of them
     unsigned guess_number_of_timesteps = (unsigned) round((endTime-startTime)/timeStep);
@@ -133,17 +110,13 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
     std::vector<double> yk2(num_equations);
     std::vector<double> yk3(num_equations);
     std::vector<double> yk4(num_equations);
-    
-    
-    // reset current time
-    current_time = startTime;
-    
-    
+   
+    TimeStepper inner_stepper(startTime, endTime, timeStep);
     // Apply RungeKutta4's method first three timesteps, in order to
     // maintain fourth order accuracy of Adams-Bashforth method
     for (unsigned time_index=1; time_index<=3; time_index++)
     {
-        pAbstractOdeSystem->EvaluateYDerivatives(current_time,rYValues,dy);
+        pAbstractOdeSystem->EvaluateYDerivatives(inner_stepper.GetTime(),rYValues,dy);
         
         for (unsigned i=0;i<num_equations; i++)
         {
@@ -151,7 +124,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
             yk2[i] = rYValues[i] + 0.5*k1[i];
         }
         
-        pAbstractOdeSystem->EvaluateYDerivatives(current_time+0.5*timeStep,yk2,dy_rk4);
+        pAbstractOdeSystem->EvaluateYDerivatives(inner_stepper.GetTime()+0.5*timeStep,yk2,dy_rk4);
         
         for (unsigned i=0;i<num_equations; i++)
         {
@@ -159,7 +132,7 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
             yk3[i] = rYValues[i] + 0.5*k2[i];
         }
         
-        pAbstractOdeSystem->EvaluateYDerivatives(current_time+0.5*timeStep,yk3,dy_rk4);
+        pAbstractOdeSystem->EvaluateYDerivatives(inner_stepper.GetTime()+0.5*timeStep,yk3,dy_rk4);
         
         for (unsigned i=0;i<num_equations; i++)
         {
@@ -167,83 +140,69 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
             yk4[i] = rYValues[i] + k3[i];
         }
         
-        pAbstractOdeSystem->EvaluateYDerivatives(current_time+timeStep,yk4,dy_rk4);
+        pAbstractOdeSystem->EvaluateYDerivatives(inner_stepper.GetTime()+timeStep,yk4,dy_rk4);
         
         for (unsigned i=0;i<num_equations; i++)
         {
             k4[i] = timeStep*dy_rk4[i];
             rYValues[i] = rYValues[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
         }
-        
+
         // update current time
-        current_time = startTime + time_index*timeStep;
-        
+        inner_stepper.AdvanceOneTimeStep();
+
         // Update OdeSolution if at next printing time (if current_time is either
         // greater than the next printing time OR current time is within 0.01% less
         // than the next printing time)
-        if ( (current_time - next_printing_time)/next_printing_time > -0.0001)
+        if ( (inner_stepper.GetTime() - next_printing_time)/next_printing_time > -0.0001)
         {
             solutions.rGetSolutions().push_back(rYValues);
-            solutions.rGetTimes().push_back(current_time);
+            solutions.rGetTimes().push_back(inner_stepper.GetTime());
             next_printing_time = startTime + time_sampling_counter*timeSampling;
             time_sampling_counter++;
         }
         
         derivative_store[time_index-1]=dy;
     }
-   
-    
-    double real_timestep = timeStep;
     
     unsigned timestep_number = 3;
     
     // Apply Adams-Bashforth method
-    while ((current_time < endTime) && (!mStoppingEventOccured))
+    while (!inner_stepper.IsTimeAtEnd() && !mStoppingEventOccured)
     {
-        // Determine what the value time step should really be like
-        double next_time = startTime+(timestep_number+1)*timeStep;
-        if ( next_time >= endTime)
-        {
-            real_timestep = endTime-current_time;
-        }
-        
-        pAbstractOdeSystem->EvaluateYDerivatives(current_time,rYValues,dy);
-        
+        assert(!inner_stepper.IsTimeAtEnd());        
+        pAbstractOdeSystem->EvaluateYDerivatives(inner_stepper.GetTime(),rYValues,dy);
+
         for (unsigned i=0;i<num_equations; i++)
         {
-            rYValues[i] = rYValues[i] + (real_timestep/24.0)*(55.0*dy[i] - 59.0*derivative_store[2][i] + 37.0*derivative_store[1][i] - 9.0*derivative_store[0][i]);
+            rYValues[i] = rYValues[i] + (inner_stepper.GetNextTimeStep()/24.0)*(55.0*dy[i] - 59.0*derivative_store[2][i] + 37.0*derivative_store[1][i] - 9.0*derivative_store[0][i]);
         }
         
         // Determine the new current time
         timestep_number++;
-        if (real_timestep < timeStep)
-        {
-            current_time = endTime;
-        }
-        else
-        {
-            current_time = startTime+timestep_number*timeStep;
-        }
+
+        inner_stepper.AdvanceOneTimeStep();
+        
         // check to see if a stopping event has occured
-        if ( pAbstractOdeSystem->CalculateStoppingEvent(current_time, rYValues) == true )
+        if ( pAbstractOdeSystem->CalculateStoppingEvent(inner_stepper.GetTime(), rYValues) == true )
         {
-            mStoppingTime = current_time;
+            mStoppingTime = inner_stepper.GetTime();
             mStoppingEventOccured = true;
             
             solutions.SetNumberOfTimeSteps(solutions.rGetTimes().size());
             solutions.rGetSolutions().push_back(rYValues);
-            solutions.rGetTimes().push_back(current_time);
+            solutions.rGetTimes().push_back(inner_stepper.GetTime());
         }
         
          
         // Update OdeSolution if at next printing time (if current_time is either
         // greater than the next printing time OR current time is within 0.01% less
         // than the next printing time OR this is the final iteration)
-        if ( ( (current_time - next_printing_time)/next_printing_time > -0.0001) ||
+        if ( ( (inner_stepper.GetTime() - next_printing_time)/next_printing_time > -0.0001) ||
              (timestep_number == guess_number_of_timesteps) )//\todo This is a bad criterion for stopping
         {
             solutions.rGetSolutions().push_back(rYValues);
-            solutions.rGetTimes().push_back(current_time);
+            solutions.rGetTimes().push_back(inner_stepper.GetTime());
             //compute next printing time
             next_printing_time = startTime + time_sampling_counter*timeSampling;
             if (next_printing_time > endTime)
@@ -258,7 +217,6 @@ OdeSolution AdamsBashforthIvpOdeSolver::Solve(AbstractOdeSystem* pAbstractOdeSys
         derivative_store[0] = derivative_store[1];
         derivative_store[1] = derivative_store[2];
         derivative_store[2] = dy;
-        
     }
     
     return solutions;

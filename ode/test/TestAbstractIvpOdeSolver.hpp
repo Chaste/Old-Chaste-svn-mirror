@@ -152,7 +152,7 @@ public:
     void TestAdamsBashforthSolver()
     {
         AdamsBashforthIvpOdeSolver adams_bashforth_solver;
-        
+
         MyTestGenericSolver(adams_bashforth_solver,  0.0, 2.0, 0.001, 0.001);
         MyTestGenericSolver(adams_bashforth_solver,  1.0, 2.0, 0.001, 0.01);
         MyTestGenericSolver(adams_bashforth_solver, -1.0, 2.0, 0.001, 2);

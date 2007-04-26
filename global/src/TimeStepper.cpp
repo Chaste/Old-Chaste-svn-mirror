@@ -15,6 +15,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
       mTimeStep(0),
       mTime(startTime)
 {
+    // std::cout << startTime << " " << endTime << " " << dt << std::endl;
     if (startTime >= endTime)
     {
         EXCEPTION("The simulation duration must be strictly positive");
@@ -22,7 +23,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt)
     mNextTime=CalculateNextTime();
 }
 
-double TimeStepper::CalculateNextTime()
+double TimeStepper::CalculateNextTime() const
 {
     double next_time=mStart + (mTimeStep+1) * mDt;
     if ((next_time) + smidge*(mDt) >= mEnd)
@@ -44,9 +45,9 @@ double TimeStepper::GetTime() const
     return mTime;
 }
 
-bool TimeStepper::IsTimeAtEnd() const
+double TimeStepper::GetNextTime() const
 {
-    return mTime >= mEnd;
+    return mNextTime;
 }
 
 double TimeStepper::GetNextTimeStep() const
@@ -59,7 +60,17 @@ double TimeStepper::GetNextTimeStep() const
     return dt;
 }
 
-double TimeStepper::GetNextTime() const
+bool TimeStepper::IsTimeAtEnd() const
 {
-    return mNextTime;
+    return mTime >= mEnd;
+}
+
+unsigned TimeStepper::EstimateTimeSteps() const
+{
+    return (unsigned) ceil((mEnd - mStart)/mDt);
+}
+
+unsigned TimeStepper::GetTimeStepsElapsed() const
+{
+    return mTimeStep;
 }
