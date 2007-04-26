@@ -42,16 +42,20 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 	public static int[] numCells;
 	public static int[] numElements;
+	public static int memory_factor = 2;
 
 	public static RealPoint[][] positions;
 	public static RealPoint[][] fibres;
 	public static int[][] element_nodes;
 	public static int[][] cell_type;
+	public static int[][] image_cells;
 
 	public static double max_x = -1e12;
 	public static double max_y = -1e12;
 	public static double min_x =  1e12;
 	public static double min_y =  1e12;
+	public static double crypt_width = 0.0;
+	public static double half_width = 0.0;
 	
 	public static boolean parsed_all_files=false;
 	
@@ -59,7 +63,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	public static boolean drawCells=true;
 	public static boolean writeFiles=false;
 	public static boolean drawGhosts=false;
-        public static boolean drawFibres=false; 
+    public static boolean drawFibres=false;
+    public static boolean drawCylindrically = false;
+    
 	public static int timeStep = 0;
 
 	public static int delay = 50;
@@ -323,6 +329,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		}
 		File node_file = new File(args[0]+"/vis_results/results.viznodes");
 		File element_file = new File(args[0]+"/vis_results/results.vizelements");
+		
 		if (!node_file.isFile())
 		{
 			System.out.println("The file "+args[0]+"/vis_results/results.viznodes doesn't exist");
@@ -333,10 +340,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			System.out.println("The file "+args[0]+"/vis_results/results.vizelements doesn't exist");
 			return;
 		}
-		
 	
 		File fibre_file= new File(args[0]+"/vis_results/results.vizfibres");
-        if (!fibre_file.isFile())
+		if (!fibre_file.isFile())
         {
         	System.out.println("The file "+args[0]+"/vis_results/results.vizfibres doesn't exist");
         	fibre.setVisible(false);
@@ -345,6 +351,14 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         	fibre.setState(true);
         	drawFibres=true; //Sorry, this is just to get it working
         }
+        
+        File setup_file = new File(args[0]+"/vis_results/results.vizsetup");
+		if (!setup_file.isFile())
+		{
+			System.out.println("The file "+args[0]+"/vis_results/results.vizsetup doesn't exist");
+			return;
+		} 
+        
 		System.out.println("Writing output files = "+writeFiles);
 		System.out.println("Drawing springs = "+drawSprings);
 		System.out.println("Drawing fibres = "+drawFibres);
@@ -353,7 +367,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		
 		Visualize2dCells vis = new Visualize2dCells();
 		
-                 try {
+		try {
 			BufferedReader skim_node_file = new BufferedReader(new FileReader(node_file));
 
 			int num_lines = 0;
@@ -369,6 +383,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			numCells = new int[num_lines];
 			numElements = new int[num_lines];
 			element_nodes = new int[num_lines][];
+			image_cells = new int[num_lines][];
 			fibres =  new RealPoint[num_lines][];
 			String line_fibre="";
 			BufferedReader in_fibre_file=null;
@@ -380,9 +395,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			}
 			BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
 			BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
+			BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
 			
 			String line_node = in_node_file.readLine(); // from console input example
 			String line_element = in_element_file.readLine();	// above.
+			String line_setup = in_setup_file.readLine();	// above.
+
+			// Read setup information.
+			while (line_setup != null) {
+				StringTokenizer st_setup = new StringTokenizer(line_setup);
+				String parameter = st_setup.nextToken();
+				if (parameter.equals("MeshWidth"))	// .equals?? That took some doing!
+				{
+					crypt_width = Double.valueOf(st_setup.nextToken());
+					half_width = crypt_width/2.0;
+					System.out.println("Mesh Width = " + crypt_width);
+				}
+				line_setup = in_setup_file.readLine();
+			}
 
 			// If line is not end of file continue
 			int row = 0;
@@ -390,12 +420,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 				// Create a StringTokenizer with a colon sign as a delimiter
 				StringTokenizer st_node = new StringTokenizer(line_node);
 				StringTokenizer st_element = new StringTokenizer(line_element);
-				StringTokenizer st_fibre=null;
+				StringTokenizer st_fibre = null;
 				if (drawFibres)
 				{
 				    st_fibre=new StringTokenizer(line_fibre);
 				    Double fibre_time = Double.valueOf(st_fibre.nextToken());
 				}
+				
 				Double time = Double.valueOf(st_node.nextToken());
 				Double element_time = Double.valueOf(st_element.nextToken());
 				if (Math.abs(time-element_time)>1e-6) 
@@ -422,13 +453,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 					System.out.println("Oi - I want the element file to look like: time,n1,n2,n3,n1,n2,n3..");
 					System.exit(0);
 				}
-				
+								
 				numElements[row] = st_element.countTokens()/3;
-				
-				positions[row] = new RealPoint[numCells[row]];
+				positions[row] = new RealPoint[memory_factor*numCells[row]];
 				fibres[row] = new RealPoint[numCells[row]];
-				cell_type[row]= new int[numCells[row]];
-				element_nodes[row] = new int[3*numElements[row]];
+				cell_type[row]= new int[memory_factor*numCells[row]];
+				element_nodes[row] = new int[memory_factor*3*numElements[row]];
 				// ArrayList<Double> positionValues= new ArrayList<Double>();
 				for (int i = 0; i < numCells[row]; i++) 
 				{
@@ -441,29 +471,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 					    double f2= Double.valueOf(st_fibre.nextToken()).doubleValue();
 					    fibres[row][i]=new RealPoint(f1,f2);
 					}
-                                        cell_type[row][i] = Integer.parseInt(st_node.nextToken());
+                    cell_type[row][i] = Integer.parseInt(st_node.nextToken());
 					if ((cell_type[row][i]<0) || (cell_type[row][i]>4))
 					{
 						System.out.println("Oi - I want a cell type between 0 and 3");
 						System.exit(0);
 					}
 
-					if (d1 > max_x) 
-					{
-						max_x = d1;
-					}
-					if (d2 > max_y) 
-					{
-						max_y = d2;
-					} 
-					if (d1 < min_x) 
-					{
-						min_x = d1;
-					}
-				    if (d2 < min_y) 
-					{
-						min_y = d2;
-					}
 					positions[row][i]=new RealPoint(d1,d2);
 				}
 				
@@ -491,6 +505,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 			} // end while not at end of file
          	
+			ConvertCylindricalDataToPlane();
+			
+			CalculateCanvasDimensions();
+			
 			parsed_all_files=true;
             
             canvas.drawBufferedImage();
@@ -499,7 +517,140 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 		}
 	}
+	
+	public static void CalculateCanvasDimensions()
+	{
+		for (int row=0 ; row<numSteps ; row++)
+		{
+			for (int i = 0; i < numCells[row]; i++) 
+			{
+				if (positions[row][i].x > max_x) 
+				{
+					max_x = positions[row][i].x;
+				}	
+				if (positions[row][i].y > max_y) 
+				{
+					max_y = positions[row][i].y;
+				} 
+				if (positions[row][i].x < min_x) 
+				{
+					min_x = positions[row][i].x;
+				}
+				if (positions[row][i].y < min_y) 
+				{
+					min_y = positions[row][i].y;
+				}
+			}
+		}
+	}
+	
+	public static void ConvertCylindricalDataToPlane()
+	{
+		// Scan through each element
+		for (int time_index = 0; time_index < numSteps ; time_index++)
+		{
+			image_cells[time_index] = new int[memory_factor*numCells[time_index]];// reserve plenty of memory
+			// fill image_nodes  with an identity map (at each time step each node maps to itself)
+			for (int i=0 ; i<numCells[time_index] ; i++) {
+				image_cells[time_index][i] = i;
+			}
+			
+			// draw elements first
+			for (int i=0 ; i < numElements[time_index]; i++)
+			{	
+				// What nodes are we joining up?
+				int indexA = element_nodes[time_index][3*i];
+				int indexB = element_nodes[time_index][3*i+1];
+				int indexC = element_nodes[time_index][3*i+2];
+				// find the x-co-ords of each node
+				RealPoint rA = positions[time_index][indexA];
+				RealPoint rB = positions[time_index][indexB];
+				RealPoint rC = positions[time_index][indexC];
+				
+				// identify edges that are oversized
+				if ((Math.abs(rA.x - rB.x) > 0.75*crypt_width)
+					||(Math.abs(rB.x - rC.x) > 0.75*crypt_width)
+					||(Math.abs(rA.x - rC.x) > 0.75*crypt_width))
+				{
+					MakeNewImageCell(time_index,indexA);
+					MakeNewImageCell(time_index,indexB);
+					MakeNewImageCell(time_index,indexC);
+					// break those elements into two separate elements
+					SplitElement(time_index,i);
+				}
+			}
+		}
+	}
+
+	public static void SplitElement(int time_index,int element_index)
+	{
+		int indexA = element_nodes[time_index][3*element_index];
+		int indexB = element_nodes[time_index][3*element_index+1];
+		int indexC = element_nodes[time_index][3*element_index+2];
+		// find the x-co-ords of each node
+		RealPoint rA = positions[time_index][indexA];
+		RealPoint rB = positions[time_index][indexB];
+		RealPoint rC = positions[time_index][indexC];
+		
+		// Create a new element which contains the image of node A.
+		element_nodes[time_index][3*numElements[time_index]] = image_cells[time_index][indexA];
+		// Leave Node A in this element
+		
+		// if node B is far away 
+		if (Math.abs(rA.x - rB.x) > 0.75*crypt_width)
+		{
+			// add node B to new element and add image of B to this element.
+			element_nodes[time_index][3*numElements[time_index]+1] = indexB;
+			element_nodes[time_index][3*element_index+1] = image_cells[time_index][indexB];
+		}
+		else
+		{	// node B is still in this element - add its image to new element
+			element_nodes[time_index][3*numElements[time_index]+1] = image_cells[time_index][indexB];
+		}
+		
+		// if node C is far away 
+		if (Math.abs(rA.x - rC.x) > 0.75*crypt_width)
+		{	// add it to new element and add image of C to this element.
+			element_nodes[time_index][3*numElements[time_index]+2] = indexC;
+			element_nodes[time_index][3*element_index+2] = image_cells[time_index][indexC];
+		}
+		else
+		{	// node C is still in this element - add its image to new element
+			element_nodes[time_index][3*numElements[time_index]+2] = image_cells[time_index][indexC];
+		}		
+		numElements[time_index]++;
+	}
+	
+	public static void MakeNewImageCell(int time_index, int node_index)
+	{	// only make a new cell if one hasn't already been made
+		if (image_cells[time_index][node_index]==node_index)
+		{	// Make a new image of Cell A		
+			RealPoint new_point = positions[time_index][node_index];
+			RealPoint new_point2 = new RealPoint(0.0,0.0);
+			new_point2.y = new_point.y;
+			
+			if (new_point.x < half_width)
+			{
+				new_point2.x = new_point.x + crypt_width;
+			}
+			if (new_point.x > half_width)
+			{
+				new_point2.x = new_point.x - crypt_width;
+			}
+
+			// New ghost node
+			positions[time_index][numCells[time_index]] = new_point2;
+			cell_type[time_index][numCells[time_index]] = 4;
+			
+			// update the image record
+			image_cells[time_index][node_index] = numCells[time_index];	
+			numCells[time_index]++;
+		}
+		
+	}
 }
+
+
 
 class RealPoint
 {
