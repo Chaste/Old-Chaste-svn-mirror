@@ -9,6 +9,7 @@
 #include <vector>
 #include "OutputFileHandler.hpp"
 #include "CancerParameters.hpp"
+#include "SimulationTime.hpp"
 
 /**
  *  Generator of honeycomb mesh
@@ -345,6 +346,8 @@ public:
     {
         return mGhostNodeIndices;
     }
+    
+
     
     
     

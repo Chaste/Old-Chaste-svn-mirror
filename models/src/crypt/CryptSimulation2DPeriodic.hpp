@@ -201,6 +201,7 @@ private:
     
     void SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds);
     void SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds);
+    void WriteVisualizerSetupFile(std::ofstream& rSetupFile);
     void WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
                              ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
                              std::ofstream& rNodeFile, std::ofstream& rElementFile,

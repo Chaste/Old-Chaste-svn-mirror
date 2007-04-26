@@ -20,7 +20,7 @@ public:
         std::vector <unsigned> empty;
         
         // Test IsThisIndexInList
-        Cylindrical2dMesh mesh(0.0, 1.0, 0.0, 1.0, empty,empty);
+        Cylindrical2dMesh mesh(0.0, 1.0, 2.0, -1.0, empty,empty);
         
         std::vector<unsigned> list_of_nodes;
         list_of_nodes.push_back(0u);
@@ -38,6 +38,10 @@ public:
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(4u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes),false);
+        
+        // Test GetWidth
+        TS_ASSERT_DELTA(mesh.GetWidth(1u), 1.0, 1e-9);
+        TS_ASSERT_DELTA(mesh.GetWidth(2u), 3.0, 1e-9);
         
     }
 

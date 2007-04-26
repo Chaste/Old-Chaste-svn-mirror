@@ -152,6 +152,11 @@ void CryptSimulation2DPeriodic::SetupElementWriter(ColumnDataWriter& rElementWri
     rElementWriter.EndDefineMode();
 }
 
+void CryptSimulation2DPeriodic::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
+{
+    rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(1u);// get furthest distance between nodes in the x-direciton
+    rSetupFile.close();
+}
 
 void CryptSimulation2DPeriodic::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
                                                     ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
@@ -1837,9 +1842,10 @@ void CryptSimulation2DPeriodic::Solve()
     unsigned tabulated_output_counter = 0;
     
     // Create output files for the visualizer
-    OutputFileHandler output_file_handler(results_directory+"/vis_results/",true);
+    OutputFileHandler output_file_handler(results_directory+"/vis_results/",false);
     out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
     out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
+    out_stream p_setup_file = output_file_handler.OpenOutputFile("results.vizsetup");
     
     // Check some parameters for a periodic simulation
     if (mPeriodicSides)
@@ -1888,6 +1894,7 @@ void CryptSimulation2DPeriodic::Solve()
     // Main time loop
     /////////////////////////////////////////////////////////////////////
     // Write initial conditions to file for the visualizer.
+    WriteVisualizerSetupFile(*p_setup_file);
     WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
                             tabulated_element_writer, element_writer_ids,
                             *p_node_file, *p_element_file,

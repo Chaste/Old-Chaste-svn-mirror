@@ -450,7 +450,7 @@ public:
                 for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
                 {
                     // Get each node's x position and update so that y position matches on each
-                    Point<2> boundary_point = mNodes[mTopBoundary[i]]->GetPoint();
+                    Point<2> boundary_point = ConformingTetrahedralMesh<2,2>::mNodes[mTopBoundary[i]]->GetPoint();
                     boundary_point.SetCoordinate(1u, y_co_ord);
                     ConformingTetrahedralMesh<2,2>::SetNode(mTopBoundary[i], boundary_point, concreteMove); 
                 }
@@ -461,7 +461,7 @@ public:
                 for (unsigned i=0 ; i<mBottomBoundary.size() ; i++)
                 {
                     // Get each node's x position and update so that y position matches on each
-                    Point<2> boundary_point = mNodes[mBottomBoundary[i]]->GetPoint();
+                    Point<2> boundary_point = ConformingTetrahedralMesh<2,2>::mNodes[mBottomBoundary[i]]->GetPoint();
                     boundary_point.SetCoordinate(1u, y_co_ord);
                     ConformingTetrahedralMesh<2,2>::SetNode(mBottomBoundary[i], boundary_point, concreteMove); 
                 }
@@ -529,6 +529,26 @@ public:
                 EXCEPTION("The bottom row of ghost nodes is not aligned.");   
             }
         }
+    }
+    
+    /**
+     * OVERWRITTEN FUNCTION
+     * @param rDimension must be 1 (x) or 2 (y)
+     * @return width the CryptWidth or current height 
+     */
+    double GetWidth(const unsigned& rDimension)
+    {
+        double width=0.0;
+        assert(rDimension==1 || rDimension==2);
+        if (rDimension==1)
+        {
+            width = mWidth;   
+        }
+        if (rDimension==2)
+        {
+            width = mTop-mBottom;
+        }
+        return width;   
     }
     
 };

@@ -1593,6 +1593,21 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(21.0), 1e-7);
     }
     
+    void TestMeshGetWidthMethod(void)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
+        
+        ConformingTetrahedralMesh<2,2> mesh;
+        
+        mesh.ConstructFromMeshReader(mesh_reader,1);
+        
+        double width = mesh.GetWidth(1u);
+        double height = mesh.GetWidth(2u);
+        
+        TS_ASSERT_DELTA(width, 2, 1e-6);
+        TS_ASSERT_DELTA(height, 2, 1e-6);
+        
+    }
         
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

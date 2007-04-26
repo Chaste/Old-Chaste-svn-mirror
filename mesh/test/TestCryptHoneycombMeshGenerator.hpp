@@ -2,6 +2,7 @@
 #define TESTCRYPTHONECOMBMESHGENERATOR_HPP_
 #include <cxxtest/TestSuite.h>
 #include "CryptHoneycombMeshGenerator.hpp"
+#include "OutputFileHandler.hpp"
 
 class TestCryptHoneycombMeshGenerator : public CxxTest::TestSuite
 {
@@ -47,7 +48,8 @@ public:
         unsigned ghosts = 2;
         
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true);
-         
+      
+        
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
         // check the mesh
         
@@ -143,6 +145,7 @@ public:
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), x_factor*(double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), x_factor*sqrt(3)*num_cells_depth/2.0, 1e-7);
+        
     }
     
     void TestCryptOldPeriodicHoneycombMeshGeneratorRelaxed() throw(Exception)

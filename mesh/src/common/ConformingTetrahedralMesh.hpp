@@ -298,6 +298,16 @@ public:
      */
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB);
     
+    /**
+     * Calculates the `width' of any dimension of the mesh.
+     * 
+     * @param rDimension a dimension (1,2 or 3)
+     * @return The maximum distance between any nodes in this dimension.
+     * 
+     * N.B. Overwritten in Cylindrical2dMesh
+     */    
+    virtual double GetWidth(const unsigned& rDimension);
+    
     void UnflagAllElements();
 };
 

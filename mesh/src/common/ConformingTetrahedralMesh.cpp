@@ -3,7 +3,6 @@
 
 #include "ConformingTetrahedralMesh.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh()
 {}
@@ -14,8 +13,6 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConformingTetrahedralMesh(uns
 {
     mElements.reserve(numElements);
 }
-
-
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
@@ -2036,6 +2033,31 @@ c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::G
     c_vector<double, SPACE_DIM> vector = rLocationB - rLocationA;
     
     return vector;
+}
+    
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension)
+{
+    assert(rDimension <= SPACE_DIM);
+    assert(rDimension >= 1u);
+    double max = 0.0;
+    double min = 0.0;
+    for (unsigned i=0 ; i<GetNumAllNodes() ; i++)
+    {
+        if (!mNodes[i]->IsDeleted())
+        {
+            double this_node_value = mNodes[i]->rGetLocation()[rDimension-1u];
+            if (this_node_value>max) 
+            {
+                max = this_node_value;   
+            }
+            if (this_node_value < min)
+            {
+                min = this_node_value;   
+            }
+        }
+    }
+    return max-min;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

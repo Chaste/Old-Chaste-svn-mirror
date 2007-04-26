@@ -245,24 +245,26 @@ public:
 
     void Test2DCylindrical() throw (Exception)
     {        
+        std::string output_directory = "Crypt2DCylindrical";
+        
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
         unsigned thickness_of_ghost_layer = 2;
         
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DCylindrical");
+        simulator.SetOutputDirectory(output_directory);
         
         // Set length of simulation here
         simulator.SetEndTime(0.1);
