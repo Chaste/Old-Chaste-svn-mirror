@@ -64,6 +64,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	public static boolean writeFiles=false;
 	public static boolean drawGhosts=false;
     public static boolean drawFibres=false;
+    public static boolean drawCylinder=true;
     
 	public static int timeStep = 0;
 
@@ -303,28 +304,35 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			{
 				writeFiles = true;
 				output.setState(true);					
-			}	
-			if (args[i].equals("springs"))
+			} 
+			else if (args[i].equals("springs"))
 			{
 				drawSprings = true;
 				springs.setState(true);				
 			}	
-			if (args[i].equals("fibres"))
+			else if (args[i].equals("fibres"))
 			{
 				drawFibres = true;
 				fibre.setState(true);				
 			}	
-			if (args[i].equals("nocells"))
+			else if (args[i].equals("nocells"))
 			{
 				drawCells = false;
 				cells.setState(false);
 			}	
-			if (args[i].equals("ghosts"))
+			else if (args[i].equals("ghosts"))
 			{
 				drawGhosts = true;
 				ghost_nodes.setState(true);
 			}
-
+			else if (args[i].equals("notcylindrical"))
+			{
+				drawCylinder = false;
+			}
+			else
+			{
+				System.out.println("Input option not recognised");
+			}
 		}
 		File node_file = new File(args[0]+"/vis_results/results.viznodes");
 		File element_file = new File(args[0]+"/vis_results/results.vizelements");
@@ -363,6 +371,8 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		System.out.println("Drawing fibres = "+drawFibres);
 		System.out.println("Drawing cells = "+drawCells);
 		System.out.println("Drawing ghost nodes = "+drawGhosts);
+		System.out.println("Drawing cylindrically = "+drawCylinder);
+		
 		
 		Visualize2dCells vis = new Visualize2dCells();
 		
@@ -504,7 +514,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 			} // end while not at end of file
          	
-			ConvertCylindricalDataToPlane();
+			if (drawCylinder) ConvertCylindricalDataToPlane();
 			
 			CalculateCanvasDimensions();
 			
