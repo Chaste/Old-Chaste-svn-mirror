@@ -11,6 +11,9 @@
 #include "Ode2.hpp"
 #include "Ode3.hpp"
 #include "TwoDimOdeSystem.hpp"
+#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "InitialStimulus.hpp"
+#include "EulerIvpOdeSolver.hpp"
 
 // Tolerance for tests
 double tol=0.01;
@@ -98,6 +101,24 @@ public:
         initial_conditions = ode.GetInitialConditions();
         TS_ASSERT_DELTA( initial_conditions[0], 5.0, 1e-12 );
         TS_ASSERT_DELTA( initial_conditions[1], 9.0, 1e-12 );
+    }
+    
+    void TestReadSpecificStateVariable()
+    {
+        // Create an LR91 ode system
+        InitialStimulus stimulus(0, 0, 0);
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem ode_system(&solver, 0.01, &stimulus);
+        
+        // get the calcium state variable number
+        unsigned var_number=ode_system.GetStateVariableNumberByName("CaI");
+        TS_ASSERT_EQUALS(var_number, 3u);
+        
+        TS_ASSERT_THROWS_ANYTHING(ode_system.GetStateVariableNumberByName("foo"));
+
+        TS_ASSERT_EQUALS(ode_system.GetStateVariableValueByNumber(var_number), 0.0002);
+        
+        TS_ASSERT_EQUALS(ode_system.GetStateVariableUnitsByNumber(var_number), "mMol");        
     }
 };
 

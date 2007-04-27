@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include "Exception.hpp"
+#include <assert.h>
 
 class AbstractOdeSystem
 {
@@ -76,7 +77,7 @@ public:
     
     void SetStateVariables(const std::vector<double>& rStateVariables)
     {
-        if ( mNumberOfStateVariables != rStateVariables.size() )
+        if (  mNumberOfStateVariables != rStateVariables.size() )
         {
             EXCEPTION("The size of the passed in vector must be that of the number of state variables");
         }
@@ -101,7 +102,7 @@ public:
     /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
      *  only until a particular event (for example, only until the y value becomes
-     *  negative.
+     *  negative.td::vector<std::string> mVariableUnits;
      * 
      *  After each timestep the solver will call this method on the ODE to see if 
      *  it should stop there. By default, false is returned here.
@@ -116,6 +117,31 @@ public:
         return mUseAnalytic;
     }
     
+    unsigned GetStateVariableNumberByName(std::string name)
+    {
+        unsigned var_number=0;
+        while (var_number != mNumberOfStateVariables && mVariableNames[var_number]!=name)
+        {
+            var_number++;
+        }
+        if (var_number == mNumberOfStateVariables)
+        {
+            EXCEPTION("State variable does not exist");
+        }
+        return var_number;
+    }
+    
+    double GetStateVariableValueByNumber(unsigned varNumber) const
+    {
+        assert(varNumber < mNumberOfStateVariables);
+        return mStateVariables[varNumber];
+    }
+    
+    std::string GetStateVariableUnitsByNumber(unsigned varNumber) const
+    {
+        assert(varNumber < mNumberOfStateVariables);
+        return mVariableUnits[varNumber];
+    }
 };
 
 
