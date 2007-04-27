@@ -64,7 +64,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	public static boolean writeFiles=false;
 	public static boolean drawGhosts=false;
     public static boolean drawFibres=false;
-    public static boolean drawCylinder=true;
+    public static boolean drawCylinder=false;
+    public static boolean drawCylinderOverride=true;
+    public static boolean setupFilePresent=false;
     
 	public static int timeStep = 0;
 
@@ -327,7 +329,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			}
 			else if (args[i].equals("notcylindrical"))
 			{
-				drawCylinder = false;
+				drawCylinderOverride = false;
 			}
 			else
 			{
@@ -363,15 +365,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		if (!setup_file.isFile())
 		{
 			System.out.println("The file "+args[0]+"/vis_results/results.vizsetup doesn't exist");
-			return;
-		} 
+		} else {
+			setupFilePresent = true;
+		}
         
-		System.out.println("Writing output files = "+writeFiles);
-		System.out.println("Drawing springs = "+drawSprings);
-		System.out.println("Drawing fibres = "+drawFibres);
-		System.out.println("Drawing cells = "+drawCells);
-		System.out.println("Drawing ghost nodes = "+drawGhosts);
-		System.out.println("Drawing cylindrically = "+drawCylinder);
+
 		
 		
 		Visualize2dCells vis = new Visualize2dCells();
@@ -402,27 +400,33 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 			    in_fibre_file=new BufferedReader(new FileReader(fibre_file));
 			    line_fibre=in_fibre_file.readLine();
 			}
+			
+			if (setupFilePresent)
+			{
+				BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
+				String line_setup = in_setup_file.readLine();	// above.
+				// Read setup information.
+				while (line_setup != null) {
+					StringTokenizer st_setup = new StringTokenizer(line_setup);
+					String parameter = st_setup.nextToken();
+					if (parameter.equals("MeshWidth"))	// .equals?? That took some doing!
+					{
+						crypt_width = Double.valueOf(st_setup.nextToken());
+						half_width = crypt_width/2.0;
+						System.out.println("Mesh Width = " + crypt_width);
+						drawCylinder = true && drawCylinderOverride;	// this is made true only if mesh width exists. 
+					}
+					line_setup = in_setup_file.readLine();
+				}
+			}
+			
 			BufferedReader in_node_file = new BufferedReader(new FileReader(node_file));
 			BufferedReader in_element_file = new BufferedReader(new FileReader(element_file));
-			BufferedReader in_setup_file = new BufferedReader(new FileReader(setup_file));
+			
 			
 			String line_node = in_node_file.readLine(); // from console input example
 			String line_element = in_element_file.readLine();	// above.
-			String line_setup = in_setup_file.readLine();	// above.
-
-			// Read setup information.
-			while (line_setup != null) {
-				StringTokenizer st_setup = new StringTokenizer(line_setup);
-				String parameter = st_setup.nextToken();
-				if (parameter.equals("MeshWidth"))	// .equals?? That took some doing!
-				{
-					crypt_width = Double.valueOf(st_setup.nextToken());
-					half_width = crypt_width/2.0;
-					System.out.println("Mesh Width = " + crypt_width);
-				}
-				line_setup = in_setup_file.readLine();
-			}
-
+			
 			// If line is not end of file continue
 			int row = 0;
 			while (line_node != null) {
@@ -514,6 +518,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 			} // end while not at end of file
          	
+			System.out.println("Writing output files = "+writeFiles);
+			System.out.println("Drawing springs = "+drawSprings);
+			System.out.println("Drawing fibres = "+drawFibres);
+			System.out.println("Drawing cells = "+drawCells);
+			System.out.println("Drawing ghost nodes = "+drawGhosts);
+			System.out.println("Drawing cylindrically = "+ drawCylinder);
+			
 			if (drawCylinder) ConvertCylindricalDataToPlane();
 			
 			CalculateCanvasDimensions();
