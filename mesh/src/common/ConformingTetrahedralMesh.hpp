@@ -25,6 +25,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class ConformingTetrahedralMesh
 {
     friend class Cylindrical2dMesh; // to give it access to the deleted indices etc.
+    friend class TestConformingTetrahedralMesh; // to give access to private methods (not variables)
 public:
     typedef typename std::vector<Element<ELEMENT_DIM, SPACE_DIM> *>::const_iterator ElementIterator;
     typedef typename std::vector<BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *>::const_iterator BoundaryElementIterator;
@@ -50,6 +51,8 @@ private:
     //BoundaryNodeIterator mpBoundaryNodeIter;
     
     unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+    
+
     
     /**
      * Check whether any neighbouring node is inside the circumsphere of this element.
@@ -309,6 +312,16 @@ public:
     virtual double GetWidth(const unsigned& rDimension);
     
     void UnflagAllElements();
+    
+    /**
+     * Add a new node to the mesh and re-mesh to take care of the changes to elements
+     * 
+     * @param pNewNode pointer to a new node
+     * @param map A node map of original mesh size
+     * 
+     * @return the new node index
+     */
+    virtual unsigned AddNodeAndReMesh(Node<SPACE_DIM> *pNewNode, NodeMap &map);
 };
 
 

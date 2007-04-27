@@ -309,7 +309,6 @@ ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ConformingTetrahedralMesh()
     
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_DIM> *pNewNode)
 {
@@ -330,6 +329,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
     
     return pNewNode->GetIndex();
 }
+
 
 
 /**
@@ -2070,6 +2070,16 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::UnflagAllElements()
     {
          (*i_element)->Unflag();
     }
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNodeAndReMesh(Node<SPACE_DIM> *pNewNode, NodeMap &map)
+{
+    unsigned node_index = AddNode(pNewNode);
+    // increase the size of the node map to match the new mesh.
+    map.Reserve(GetNumNodes());
+    ReMesh(map);
+    return node_index;
 }
 
 #endif // _CONFORMINGTETRAHEDRALMESH_CPP_

@@ -3,7 +3,6 @@
 #include <boost/serialization/vector.hpp> // for archiving vectors
 #include <boost/serialization/string.hpp>
 
-
 #include <fstream>
 
 #include "Cylindrical2dMesh.cpp"
@@ -1908,9 +1907,8 @@ void CryptSimulation2DPeriodic::Solve()
         mRemeshesThisTimeStep = 0; // To avoid infinite loops
         std::cout << "** TIME = " << p_simulation_time->GetDimensionalisedTime() << " **" << std::endl;
         
-        // Cell birth
         mNumBirths += DoCellBirth();
-        
+
         //  calculate node velocities
         std::vector<c_vector<double, 2> > drdt = CalculateVelocitiesOfEachNode();
         

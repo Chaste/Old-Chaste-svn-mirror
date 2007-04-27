@@ -1608,6 +1608,52 @@ public:
         TS_ASSERT_DELTA(height, 2, 1e-6);
         
     }
+    
+    void TestMeshAddNodeAndReMeshMethod(void)
+    {
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(1, 1, false);
+                
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),4u);
+        
+        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[0], 0.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(0u)->rGetLocation()[1], 1.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(1u)->rGetLocation()[0], 1.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(1u)->rGetLocation()[1], 1.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(2u)->rGetLocation()[0], 0.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(2u)->rGetLocation()[1], 0.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(3u)->rGetLocation()[0], 1.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(3u)->rGetLocation()[1], 0.0 ,1e-7);
+        
+        // test the add node method
+        c_vector<double ,2> point;
+        point[0] = 2.0;
+        point[1] = 0.0;
+        Node<2>* p_node = new Node<2>(4u, point);
+        unsigned new_index = mesh.AddNode(p_node);
+        
+        TS_ASSERT_EQUALS(new_index, 4u);
+        TS_ASSERT_DELTA(mesh.GetNode(4u)->rGetLocation()[0], 2.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(4u)->rGetLocation()[1], 0.0 ,1e-7);
+        
+        // test the add node and ReMesh method
+        
+        point[0] = 2.0;
+        point[1] = 1.0;
+        Node<2>* p_node2 = new Node<2>(5u, point);
+        
+        NodeMap map(mesh.GetNumNodes());
+        new_index = mesh.AddNodeAndReMesh(p_node2, map);
+        
+        TS_ASSERT_EQUALS(new_index, 5u);
+        TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[0], 2.0 ,1e-7);
+        TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[1], 1.0 ,1e-7);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
+        
+        //TrianglesMeshWriter<2,2> mesh_writer("", "AddNodeAndReMesh", false);
+        //mesh_writer.WriteFilesUsingMesh(mesh);
+    }
         
 };
 #endif //_TESTCONFORMINGTETRAHEDRALMESH_HPP_

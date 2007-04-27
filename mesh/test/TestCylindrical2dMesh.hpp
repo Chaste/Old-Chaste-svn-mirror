@@ -5,7 +5,7 @@
 
 #include "Cylindrical2dMesh.cpp"
 #include "CryptHoneycombMeshGenerator.hpp"
-#include "TrianglesMeshWriter.hpp"
+#include "TrianglesMeshWriter.cpp"
 
 
 class TestCylindrical2dMesh : public CxxTest::TestSuite
@@ -415,10 +415,43 @@ public:
         // This node was on right and is now on the left.
         TS_ASSERT_DELTA(p_mesh->GetNode(0u)->rGetLocation()[0], +0.0001, 1e-4);
         
-
-         
-
     }
+    
+    void TestAddNodeAndReMesh() throw (Exception)
+    {
+        unsigned cells_across = 3;
+        unsigned cells_up = 3;
+        unsigned thickness_of_ghost_layer = 0;
+        
+        // Set up a mesh which can be mirrored (no ghosts in this case)
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Check that there are the correct number of everything
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up);
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(),2*cells_across*(cells_up-1));
+        TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(),2*cells_across);
+
+        c_vector<double ,2> point;
+        point[0] = -0.05;
+        point[1] = 1.0;
+        Node<2>* p_node = new Node<2>(p_mesh->GetNumNodes(), point);
+        
+        NodeMap map(p_mesh->GetNumNodes());
+        unsigned new_index = p_mesh->AddNodeAndReMesh(p_node, map);
+        
+        // Check that there are the correct number of everything
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up+1);
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(),2*cells_across*(cells_up-1)+2);
+        TS_ASSERT_EQUALS(p_mesh->GetNumBoundaryElements(),2*cells_across);
+
+        // Check that we have moved the new node across        
+        TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[0], 3.0+point[0], 1e-7);
+        TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[1], point[1], 1e-7);
+
+        //TrianglesMeshWriter<2,2> mesh_writer("", "CylindricalAddNodeAndReMesh", false);
+        //mesh_writer.WriteFilesUsingMesh(*p_mesh);
+    }    
 
 };
 

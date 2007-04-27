@@ -551,6 +551,30 @@ public:
         return width;   
     }
     
+    /**
+     * OVERWRITTEN FUNCTION to ensure new node is introduced at a point on 
+     * the cylinder and not slightly off it.
+     *     
+     * @param pNewNode pointer to a new node
+     * @param map A node map of original mesh size
+     * 
+     * @return the new node index
+     */
+    unsigned AddNodeAndReMesh(Node<2> *pNewNode, NodeMap &map)
+    {
+        // Add the node to the mesh
+        unsigned node_index = ConformingTetrahedralMesh<2,2>::AddNode(pNewNode);
+        
+        // If necessary move it to be back on the cylinder
+        Point<2> new_node_point = pNewNode->GetPoint();
+        SetNode(node_index, new_node_point, false);
+        
+        // increase the size of the node map to match the new mesh.
+        map.Reserve(GetNumNodes());
+        // Perform CYLINDRICAL ReMesh
+        ReMesh(map);
+        return node_index;
+    }
 };
 
 #endif // _CYLINDRICAL2DMESH_CPP_
