@@ -88,13 +88,25 @@ public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.
     //
     // Note that this space step ought to be too big!
+
+
     void TestMonodomainDg01DWith20elements()
     {
+#ifdef NDEBUG
+        TS_ASSERT(true);
+#else
+        //Note that this test will FAIL under any NDEBUG build.
+        /*
+         * This is because it is testing exceptions which are tripped by gating variables going 
+         * out of range in the Luo-Rudy cell model.  These variable ranges are not tested in
+         * production builds.  They are guarded with  "#ifndef NDEBUG"
+         */ 
+        
         PointStimulusCellFactory cell_factory(0.01); // ODE time step (ms)
         MonodomainProblem<1> monodomain_problem(&cell_factory);
         
         monodomain_problem.SetMeshFilename("mesh/test/data/1D_0_to_1_20_elements");
-        monodomain_problem.SetEndTime(30);   // 30 ms
+        monodomain_problem.SetEndTime(1);   // 1 ms
         monodomain_problem.SetOutputDirectory("MonoConductionVel");
         monodomain_problem.SetOutputFilenamePrefix("NewMonodomainLR91_1d");
         monodomain_problem.Initialise();
@@ -106,7 +118,11 @@ public:
         // the mesh is too coarse, and this simulation will result in cell gating
         // variables going out of range. An exception should be thrown in the
         // EvaluateYDerivatives() method of the cell model
+
         TS_ASSERT_THROWS_ANYTHING(monodomain_problem.Solve());
+#endif
+        
     }
+
 };
 #endif //_TESTMONODOMAINCONDUCTIONVELOCITY_HPP_
