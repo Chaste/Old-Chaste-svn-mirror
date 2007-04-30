@@ -515,7 +515,7 @@ public:
         for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
         {
             y_location = mNodes[mTopBoundary[i]]->rGetLocation()[1];
-            if (fabs(y_location - mTop)>1e-5)
+            if (fabs(y_location - mTop)>1e-4)
             {
                 std::cout << "y = " << y_location << ", mTop = " << mTop << std::flush;
                 EXCEPTION("The top row of ghost nodes is not aligned.");   

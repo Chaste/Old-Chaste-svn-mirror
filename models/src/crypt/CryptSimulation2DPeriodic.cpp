@@ -369,20 +369,19 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         std::cout << "Cell division at node " << cell_index << "\n";
                     }
                     
-                    // Add new node to mesh
-                    Element<2,2>* p_element = FindElementForBirth(p_our_node, cell_index);
-
-                    c_vector<double, 2> node_to_centroid = p_element->CalculateCentroid()
-                                                          - p_our_node->rGetLocation();
-                    double distance_of_new_cell_from_parent = 0.1;
-                    // TODO: Deal with birth in very small elements
-                    assert(norm_2(node_to_centroid) >= (0.2/3.0));
-                    c_vector<double, 2> birth_location = p_our_node->rGetLocation()
-                                                         + distance_of_new_cell_from_parent * node_to_centroid;
-
-                    Point<2> new_point(birth_location);
-                    unsigned new_node_index = mrMesh.RefineElement(p_element, new_point);
-                    // Update cells vector
+                    // Add a new node to the mesh
+                    unsigned parent_node_index = mCells[cell_index].GetNodeIndex();
+                    c_vector<double, 2> new_location = CalculateDividingCellCentreLocations(parent_node_index);
+                    Node<2>* p_new_node = new Node<2>(mrMesh.GetNumNodes(), new_location, false);   // never on boundary
+                    
+                    NodeMap map(mrMesh.GetNumNodes());
+                    unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
+                    // Go through all the cells and update their node indices according to the map
+//                    for (unsigned i=0 ; i<mCells.size(); i++)
+//                    {
+//                        unsigned old_index = mCells[i].GetNodeIndex();
+//                        mCells[i].SetNodeIndex(map.GetNewIndex(old_index));
+//                    }
                     new_cell.SetNodeIndex(new_node_index);
                     if (new_node_index == mCells.size())
                     {
@@ -394,7 +393,6 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
                         mCells[new_node_index] = new_cell;
                         #undef COVERAGE_IGNORE
                     }
-                    
                     // Update size of IsGhostNode if necessary
                     if (mrMesh.GetNumNodes() > mIsGhostNode.size())
                     {
