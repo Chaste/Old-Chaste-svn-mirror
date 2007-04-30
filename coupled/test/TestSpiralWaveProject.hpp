@@ -10,46 +10,74 @@
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "TimeStepper.hpp"
 #include "MeshalyzerMeshWriter.cpp"
+#include "SumStimulus.hpp"
 #include <time.h>
 
-const double simulation_duration =1.0;    // ms *
+const double simulation_duration =10.0;    // ms *
+
+const double slab_width = 2;     // mm *
+const double slab_height= 1;     // mm *
+const double inter_node_space = 0.25;// mm *
+const double face_stimulus_width = 0.25; // mm *
+const double quadrant_stimulus_delay = 1.0; // ms
+
+const std::string  output_directory="SpiralWave"; // *
+const std::string  mesh_output_directory="Slab"; // *
+const std::string  cell_var_name="CaI"; // *
+
+const std::string  output_filename_prefix="Run";
 const double ode_time_step=0.01;    // ms
 const double pde_time_step=0.01;    // ms
 const double printing_time_step =0.1;// ms
-const double slab_width = 1;     // mm *
-const double slab_height = 1;     // mm *
-const double inter_node_space = 0.25;// mm *
-
-const std::string  output_directory="SpiralWave"; // *
-const std::string  output_filename_prefix="run1";
-const std::string  mesh_output_directory="Slab"; // *
-const std::string  cell_var_name="CaI"; // *
+double scale_factor = inter_node_space/10.0;
 
 class SpiralWaveCellFactory : public AbstractCardiacCellFactory<3>
 {
 private:
     InitialStimulus *mpStimulus;
+    InitialStimulus *mpStimulus2;
+    SumStimulus *mpSumStimulus;
 public:
     SpiralWaveCellFactory() : AbstractCardiacCellFactory<3>(ode_time_step)
     {
         mpStimulus = new InitialStimulus(-600.0*1000, 0.5);
+        mpStimulus2= new InitialStimulus(-600.0*1000, 0.5, quadrant_stimulus_delay);
+        mpSumStimulus = new SumStimulus(mpStimulus, mpStimulus2);
     }
     
     AbstractCardiacCell* CreateCardiacCellForNode(unsigned node)
     {
-        if (mpMesh->GetNode(node)->GetPoint()[0] <= 0.0)
+        double x=mpMesh->GetNode(node)->GetPoint()[0];
+        double z=mpMesh->GetNode(node)->GetPoint()[2];
+        if ( x <= scale_factor*(face_stimulus_width-slab_width) )
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
+            if (x<=0 && z<=0)
+            {
+                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpSumStimulus);
+            }
+            else
+            {
+                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
+            }
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+            if (x<=0 && z<=0)
+            {
+                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus2);
+            }
+            else
+            {
+                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+            }
         }
     }
     
     ~SpiralWaveCellFactory(void)
     {
         delete mpStimulus;
+        delete mpStimulus2;
+        delete mpSumStimulus;
     }
 };
 

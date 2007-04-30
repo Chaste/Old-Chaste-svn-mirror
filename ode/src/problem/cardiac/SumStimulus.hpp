@@ -13,7 +13,7 @@ private:
     AbstractStimulusFunction* mpStimulus2;
     
 public:
-    SumStimulus(AbstractStimulusFunction &mStimulus1, AbstractStimulusFunction &mStimulus2);
+    SumStimulus(AbstractStimulusFunction *mStimulus1, AbstractStimulusFunction *mStimulus2);
     double GetStimulus(double time);
     
 };

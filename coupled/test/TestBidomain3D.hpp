@@ -48,7 +48,7 @@ class TestBidomain3D :  public CxxTest::TestSuite
 {
 public:
 
-    void xTestBidomain3d() throw (Exception)
+    void TestBidomain3d() throw (Exception)
     {
         BidomainFaceStimulusCellFactory bidomain_cell_factory;
         

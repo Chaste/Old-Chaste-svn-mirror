@@ -14,7 +14,7 @@ class TestSumStimulus : public CxxTest::TestSuite
     {
         InitialStimulus r1(2,1,0);
         InitialStimulus r2(3,1,3); 
-        SumStimulus s(r1,r2);
+        SumStimulus s(&r1,&r2);
         
         TimeStepper t(0,10,1);
         while (!t.IsTimeAtEnd())

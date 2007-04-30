@@ -1,7 +1,7 @@
 #include "SumStimulus.hpp"
 
-SumStimulus::SumStimulus(AbstractStimulusFunction& Stimulus1, AbstractStimulusFunction& Stimulus2)
-  : mpStimulus1(&Stimulus1), mpStimulus2(&Stimulus2)
+SumStimulus::SumStimulus(AbstractStimulusFunction* pStimulus1, AbstractStimulusFunction* pStimulus2)
+  : mpStimulus1(pStimulus1), mpStimulus2(pStimulus2)
 {
 }
 
