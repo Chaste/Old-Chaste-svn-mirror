@@ -84,39 +84,9 @@ private:
     /** Whether to remesh at each timestep or not (defaults to true).*/
     bool mReMesh;
     
-    /** Whether the remeshing has made our periodic handlers do anything and
-     *  whether it is worth remeshing again (defaults to false).*/
-    bool mNodesMoved;
-    
-    /** Whether the mesh is periodic or not (defaults to true).*/
-    bool mPeriodicSides;
-    /** Whether the mesh is cylindrically periodic or not (defaults to false for now).*/
-    bool mCylindrical;
-    
     /** Whether each node is ghosted-ified or not.*/
     std::vector <bool> mIsGhostNode;
-    std::vector <bool> mIsPeriodicNode;
-    
-    
-    /** The node indexes of nodes on the left boundary. */
-    std::vector <unsigned> mLeftCryptBoundary;
-    std::vector <unsigned> mOldLeftCryptBoundary;
-    /** The node indexes of nodes on the right boundary. */
-    std::vector <unsigned> mRightCryptBoundary;
-    std::vector <unsigned> mOldRightCryptBoundary;
-    /** The node indexes of nodes on the whole boundary. */
-    std::vector <unsigned> mCryptBoundary;
-    std::vector <unsigned> mOldCryptBoundary;
-    
-    std::map <unsigned, unsigned> mLeftToRightBoundary;
-    std::map <unsigned, unsigned> mOldLeftToRightBoundary;
-    std::map <unsigned, unsigned> mRightToLeftBoundary;
-    std::map <unsigned, unsigned> mOldRightToLeftBoundary;
-    std::set <unsigned> mBoundary;
-    std::set <unsigned> mOldBoundary;
-    std::set <unsigned> mPeriodicNodes;
-    
-    
+
     /** The maximum number of cells that this simulation will include (for use by datawriter). */
     unsigned mMaxCells;
     /** The maximum number of elements that this simulation will include (for use by datawriter). */
@@ -170,27 +140,15 @@ private:
         archive & mFixedBoundaries;
         archive & mNoBirth;
         archive & mReMesh;
-        archive & mNodesMoved;
-        archive & mPeriodicSides;
-        archive & mCylindrical;
         archive & mIsGhostNode;
-        archive & mIsPeriodicNode;
-        archive & mLeftCryptBoundary;
-        archive & mOldLeftCryptBoundary;
-        archive & mRightCryptBoundary;
-        archive & mOldRightCryptBoundary;
-        archive & mCryptBoundary;
-        archive & mOldCryptBoundary;
         archive & mMaxCells;
         archive & mMaxElements;
 //        archive & mOutputDirectory;
         archive & mCells;
         archive & mWntIncluded;
         archive & mWntGradient;
-        archive & mRemeshesThisTimeStep;
         archive & mNumBirths;
         archive & mNumDeaths;
-        archive & mPeriodicDivisionBuffer;
     }
     
     
@@ -207,12 +165,12 @@ private:
                              std::ofstream& rNodeFile, std::ofstream& rElementFile,
                              bool writeTabulatedResults,
                              bool writeVisualizerResults);
+    
     unsigned DoCellBirth();
     c_vector<double, 2> CalculateDividingCellCentreLocations(unsigned node_index);
     
     unsigned DoCellRemoval();
-    Element<2,2>* FindElementForBirth(Node<2>*& rpOurNode, unsigned cellIndex);
-    
+   
     std::vector<c_vector<double, 2> > CalculateVelocitiesOfEachNode();
     c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
     c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge);
@@ -222,15 +180,8 @@ private:
     Point<2> GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, 2> >& rDrDt);
     
     void UpdateCellTypes();
-    void CalculateCryptBoundary();
-    
-    void DetectNaughtyCellsAtPeriodicEdges();
-    void RemoveSurplusCellsFromPeriodicBoundary();
-    void AddACellToPeriodicBoundary(unsigned original_node_index, double new_x, double new_y, std::vector< unsigned > periodic);
-    
+ 
     void ReMesh();
-    
-    void CallReMesher();
 
     void CheckIndicesAreInSync();
 
@@ -248,8 +199,6 @@ public:
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
     void SetFixedBoundaries();
-    void SetPeriodicSides(bool periodicSides);
-    void SetCylindrical();
     void SetGhostNodes(std::vector<unsigned> ghostNodeIndices);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
@@ -257,9 +206,6 @@ public:
     void SetCellKiller(RandomCellKiller<2>* pCellKiller);
     std::vector<MeinekeCryptCell> GetCells();
     std::vector <bool> GetGhostNodes();
-    std::vector<unsigned> GetLeftCryptBoundary();
-    std::vector<unsigned> GetRightCryptBoundary();
-    std::vector<unsigned> GetCryptBoundary();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);
     
     void Solve();
