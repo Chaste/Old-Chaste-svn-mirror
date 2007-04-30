@@ -317,7 +317,7 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
             
 
             unsigned node_index=cell_index ;
-            bool skip = false; // Whether to not try dividing this cell
+            bool skip = false; // Whether to skip this cell
             if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
             //if (mrMesh.GetNode(cell_index)->IsDead()) skip=true; // Skip dead cells
             if (mIsGhostNode[cell_index]) skip=true; // Skip Ghost nodes
@@ -418,6 +418,42 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
     } // if (simulation has cell birth)
     
     return num_births;
+}
+
+/**
+ * Calculates the new locations of a dividing cell's cell centres.
+ * Moves the dividing node a bit and returns co-ordinates for the new node.
+ * It does this by picking a random direction (0->2PI) and placing the parent 
+ * and daughter in opposing directions on this axis.
+ * 
+ * @param node_index The parent node index
+ * 
+ * @return daughter_coords The coordinates for the daughter cell.
+ * 
+ */
+c_vector<double, 2> CryptSimulation2DPeriodic::CalculateDividingCellCentreLocations(unsigned node_index)
+{
+    double separation = 0.1;
+    c_vector<double, 2> parent_coords = mrMesh.GetNode(node_index)->rGetLocation();
+    c_vector<double, 2> daughter_coords;
+    
+    // Make a random direction vector of the required length
+    double random_direction = RandomNumberGenerator::Instance()->ranf();
+    random_direction = random_direction*2.0*M_PI;
+    c_vector<double, 2> random_vector;
+    random_vector[0] = 0.5*separation*cos(random_direction);
+    random_vector[1] = 0.5*separation*sin(random_direction);
+    
+    // add it to the daughter and take it from the parent location
+    
+    daughter_coords[0] = parent_coords[0]+random_vector[0];
+    daughter_coords[1] = parent_coords[1]+random_vector[1];
+    parent_coords[0] = parent_coords[0]-random_vector[0];
+    parent_coords[1] = parent_coords[1]-random_vector[1];
+    
+    // set the parent to use this location
+    mrMesh.SetNode(node_index, parent_coords, false);
+    return daughter_coords;
 }
 
 /**

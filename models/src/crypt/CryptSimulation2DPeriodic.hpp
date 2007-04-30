@@ -208,6 +208,8 @@ private:
                              bool writeTabulatedResults,
                              bool writeVisualizerResults);
     unsigned DoCellBirth();
+    c_vector<double, 2> CalculateDividingCellCentreLocations(unsigned node_index);
+    
     unsigned DoCellRemoval();
     Element<2,2>* FindElementForBirth(Node<2>*& rpOurNode, unsigned cellIndex);
     
