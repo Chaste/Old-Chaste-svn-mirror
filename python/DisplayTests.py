@@ -33,8 +33,11 @@ def index(req):
       output.append('\n    <li><a href="%s/recent?type=%s">Recent %s builds.</a></li>' %
                     (_our_url, tests_type, tests_type))
   output.append("""</ul>
+
+  <a href="%s/profileHistory">Run time variation of profiled tests.</a>
+  
   <h2>Latest continuous build</h2>
-""")
+""" % _our_url)
 
   # Look for the latest revision present.
   type = 'continuous'
@@ -313,11 +316,54 @@ def buildType(req, buildType, revision=None):
        test_packs, testsuite_exe, testsuite_cmd)
   return _header() + page_body + _footer()
 
+
+class FakeBuildType(object):
+  """Fake build type.  Provides just enough for the profile history pages."""
+  def GetInfoFromResultsFileName(self, leafname):
+    """Extract the metadata held within the name of a results file.
+    
+    This returns a dictionary, with keys 'testsuite', 'status' and 'runtime'.
+    testsuite is the name of the test suite.
+    status is the encoded status string.
+    runtime is the run time for the test suite in seconds.
+    """
+    # Components are separated by '.'
+    i2 = leafname.rfind('.')
+    i1 = leafname.rfind('.', 0, i2)
+    if i1 == -1:
+      # No runtime info available
+      runtime = -1
+      i1, i2 = i2, len(leafname)
+    else:
+      runtime = int(leafname[i2+1:])
+    return {'testsuite': leafname[:i1],
+            'status': leafname[i1+1:i2],
+            'runtime': runtime}
+  
+  def ParseGraphFilename(self, leafname):
+    """Return the test suite a graph file is associated with.
+    
+    Removes the string 'Runner.gif' from the end of the filename.
+    """
+    return leafname[:-10]
+  
+  def StatusColour(self, status):
+    """
+    Return a colour string indicating whether the given status string
+    represents a 'successful' test suite under this build type.
+    """
+    # By default, 'OK' is ok and anything else isn't.
+    if status == 'OK':
+      return 'green'
+    else:
+      return 'red'
+
+
 def profileHistory(req, n=20):
   """Show runtimes for the last 20 profile builds."""
   page_body = """
   <h1>Profile History</h1>
-""" +  _profileHistory(req, n)
+""" +  _profileHistory(req, int(n))
   return _header('Profile History') + page_body + _footer()
 
 def _profileHistory(req, n=20):
@@ -347,12 +393,11 @@ def _profileHistory(req, n=20):
   # test-suite-name to a map
   # (revision, build_type, machine) -> (run_time, status).
   run_times = {}
+  build = FakeBuildType()
   for revision in revisions:
-    BuildTypes = _importBuildTypesModule(revision)
     for build_type in build_types:
       for machine in builds.get((revision, build_type), []):
         k = (revision, build_type, machine)
-        build = BuildTypes.GetBuildType(build_type)
         d = _testResultsDir('nightly', revision, machine, build_type)
         statuses, s, col, runtimes, graphs = _getTestStatus(d, build)
         for test_suite in statuses.keys():
@@ -407,8 +452,69 @@ def _profileHistory(req, n=20):
           output.append('    <td></td>\n')
     output.append('  </tr>\n')
   output.append('</table>\n')
+  
+  # Graphs
+  machines = set()
+  for ms in builds.itervalues():
+    machines.update(ms)
+  gurl = '%s/profileHistoryGraph' % _our_url
+  for machine in machines:
+    for build_type in build_types:
+      for test_suite in test_suites:
+        output.append('<h4>%s.%s on %s</h4>\n'
+                      % (build_type, test_suite, machine))
+        output.append('<img src="%s?machine=%s&amp;buildType=%s&amp;testSuite=%s&amp;n=%d" />\n'
+                      % (gurl, machine, build_type, test_suite, n))
+  
   return ''.join(output)
-        
+       
+def profileHistoryGraph(req, buildType, machine, testSuite, n=20):
+  """Show runtime graph for the last 20 profile builds."""
+  tests_dir = os.path.join(_tests_dir, 'nightly')
+  if not os.path.isdir(tests_dir):
+    return _error('No nightly tests found')
+
+  # Find the last 20 revisions
+  n = int(n)
+  revisions = map(int, os.listdir(tests_dir))
+  revisions.sort()
+  revisions = revisions[-n:]
+
+  # Get run times
+  import glob
+  run_times = []
+  debug = ''
+  build = FakeBuildType()
+  for revision in revisions:
+    d = _testResultsDir('nightly', revision, machine, buildType)
+    #debug += 'Revision %d: dir %s\n' % (revision, d)
+    fnames = glob.glob(os.path.join(d, testSuite) + '.*')
+    #debug += 'files: ' + str(fnames) + '\n'
+    if fnames:
+      testinfo = build.GetInfoFromResultsFileName(fnames[0])
+      run_times.append((revision, testinfo['runtime']))
+  
+  if debug:
+    return debug
+  
+  # Draw graph and send to browser
+  req.content_type = 'image/png'
+  from pychart import *
+  theme.use_color = True
+  theme.scale_factor = 2
+  theme.title = 'Run time graph for ' + testSuite
+  theme.reinitialize()
+  xaxis = axis.X(format="/a-90/vM%d", label='Revision')
+  yaxis = axis.Y(label='Run time (s)')
+  ar = area.T(x_axis=xaxis, y_axis=yaxis, legend=None, size=(n*8,120),
+              x_coord=category_coord.T(run_times, 0))
+  style = line_style.T(color=color.red)
+  plot = line_plot.T(data=run_times, line_style=style)
+  ar.add_plot(plot)
+  c = canvas.init(req, format='png')
+  ar.draw(c)
+  c.close()
+ 
 #####################################################################
 ##                    Helper functions.                            ##
 #####################################################################
@@ -682,9 +788,10 @@ def _linkTestSuite(type, revision, machine, buildType, testsuite,
     filename = build.ResultsFileName(os.curdir, testsuite, status, runtime)
     link = '<a href="%s">%s</a>' % (filename, build.DisplayStatus(status))
   else:
-    query = 'type=%s&revision=%s&machine=%s&buildType=%s' % (type, revision,
-                                                             machine, buildType)
-    query = query + '&testsuite=%s&status=%s&runtime=%d' % (testsuite, status, runtime)
+    query = 'type=%s&amp;revision=%s&amp;machine=%s&amp;buildType=%s'\
+      % (type, revision, machine, buildType)
+    query += '&amp;testsuite=%s&amp;status=%s&amp;runtime=%d'\
+      % (testsuite, status, runtime)
     if linkText is None:
       linkText = build.DisplayStatus(status)
     link = '<a href="%s/testsuite?%s">%s</a>' % (_our_url, query, linkText)
