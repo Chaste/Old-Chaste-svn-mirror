@@ -22,6 +22,7 @@
 #include "ConformingTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "AbstractLinearSolver.hpp"
+#include "TimeStepper.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractLinearDynamicProblemAssembler : public AbstractLinearAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>
@@ -100,26 +101,28 @@ public :
         
         this->PrepareForSolve();
         
-        double t = mTstart;
-        Vec currentSolution = mInitialCondition;
-        Vec nextSolution;
-        while ( t < mTend - 1e-10 )
+        TimeStepper stepper(mTstart, mTend, mDt);
+
+        Vec current_solution = mInitialCondition;
+        Vec next_solution;
+        while ( !stepper.IsTimeAtEnd() )
         {
-            this->AssembleSystem(currentSolution, t);
+            mDt=stepper.GetNextTimeStep();
+            mDtInverse = 1/mDt;
+            this->AssembleSystem(current_solution, stepper.GetTime());
             
-            nextSolution = this->mpLinearSystem->Solve(this->mpLinearSolver);
-            
-            t += mDt;
+            next_solution = this->mpLinearSystem->Solve(this->mpLinearSolver);
+
+            stepper.AdvanceOneTimeStep();
             // Avoid memory leaks
-            if (currentSolution != mInitialCondition)
+            if (current_solution != mInitialCondition)
             {
-                VecDestroy(currentSolution);
+                VecDestroy(current_solution);
             }
-            currentSolution = nextSolution;
+            current_solution = next_solution;
             
         }
-        
-        return currentSolution;
+        return current_solution;
     }
 };
 

@@ -15,8 +15,6 @@
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
-#include "AdamsBashforthIvpOdeSolver.hpp"
-
 #include "OdeSolution.hpp"
 
 #include "ColumnDataWriter.hpp"

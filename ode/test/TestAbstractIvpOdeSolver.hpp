@@ -7,7 +7,6 @@
 
 #include "AbstractIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
-#include "AdamsBashforthIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "AbstractOdeSystem.hpp"
@@ -149,28 +148,6 @@ public:
         
     }
     
-    void TestAdamsBashforthSolver()
-    {
-        AdamsBashforthIvpOdeSolver adams_bashforth_solver;
-
-        MyTestGenericSolver(adams_bashforth_solver,  0.0, 2.0, 0.001, 0.001);
-        MyTestGenericSolver(adams_bashforth_solver,  1.0, 2.0, 0.001, 0.01);
-        MyTestGenericSolver(adams_bashforth_solver, -1.0, 2.0, 0.001, 2);
-        MyTestGenericSolver(adams_bashforth_solver,  0.0, 0.4, 0.01,  0.34);
-        
-        MyTestSolverOnOdesWithEvents(adams_bashforth_solver);
-        
-        // check exception thrown if number of timesteps <= 4
-        TS_ASSERT_THROWS_ANYTHING( MyTestGenericSolver(adams_bashforth_solver,0.0,0.04,0.01,0.01) );
-        
-        // test SolveAndUpdateStateVariable(): THIS METHOD DOESN'T WORK WITH
-        // ADAM'S BASHFORTH, SO HAS BEEN CHANGED TO THROW AN EXCEPTION
-        // INSTEAD.
-        // TODO: fix this. here we just cover the exception
-        Ode1 ode_system;
-        TS_ASSERT_THROWS_ANYTHING(adams_bashforth_solver.SolveAndUpdateStateVariable(&ode_system, 0, 1, 0.01));
-    }
-    
     void TestRungeKutta2Solver()
     {
         RungeKutta2IvpOdeSolver rk2_solver;
@@ -262,15 +239,6 @@ public:
         int last3 = solutions_rk4.GetNumberOfTimeSteps();
         double testvalue_rk4 = solutions_rk4.rGetSolutions()[last3][0];
         
-        //Adams-Bashforth solver solution worked out
-        AdamsBashforthIvpOdeSolver adams_bashforth_solver;
-        OdeSolution solutions_adams_bashforth;
-        
-        state_variables = ode_system.GetInitialConditions();
-        solutions_adams_bashforth = adams_bashforth_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
-        int last4 = solutions_adams_bashforth.GetNumberOfTimeSteps();
-        double testvalue_adams_bashforth = solutions_adams_bashforth.rGetSolutions()[last4][0];
-        
         // The tests
         double exact_solution=exp(2);
         
@@ -285,10 +253,6 @@ public:
         double global_error_rk4;
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*exp(2)*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4,exact_solution,global_error_rk4);
-        
-        double global_error_adams_bashforth;
-        global_error_adams_bashforth = (1.0/6.0)*pow(h_value,3)*exp(2)*(exp(2)-1)*h_value;
-        TS_ASSERT_DELTA(testvalue_adams_bashforth,exact_solution,global_error_adams_bashforth);
     }
     
     
@@ -333,19 +297,6 @@ public:
         testvalue_rk4[0] = solutions_rk4.rGetSolutions()[last3][0];
         testvalue_rk4[1] = solutions_rk4.rGetSolutions()[last3][1];
         
-        //solutions_rk4.SaveToFile("result.dat");
-        
-        //Adams-Bashforth solver solution worked out
-        AdamsBashforthIvpOdeSolver adams_bashforth_solver;
-        OdeSolution solutions_adams_bashforth;
-        
-        state_variables = ode_system.GetInitialConditions();
-        solutions_adams_bashforth = adams_bashforth_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
-        int last4 = solutions_adams_bashforth.GetNumberOfTimeSteps();
-        double testvalue_adams_bashforth[2];
-        testvalue_adams_bashforth[0] = solutions_adams_bashforth.rGetSolutions()[last4][0];
-        testvalue_adams_bashforth[1] = solutions_adams_bashforth.rGetSolutions()[last4][1];
-        
         // The tests
         double exact_solution[2];
         
@@ -366,11 +317,6 @@ public:
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*1*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4[0],exact_solution[0],global_error_rk4);
         TS_ASSERT_DELTA(testvalue_rk4[1],exact_solution[1],global_error_rk4);
-        
-        double global_error_adams_bashforth;
-        global_error_adams_bashforth = (1.0/6.0)*pow(h_value,3)*1*(exp(2)-1)*h_value;
-        TS_ASSERT_DELTA(testvalue_adams_bashforth[0],exact_solution[0],global_error_adams_bashforth);
-        TS_ASSERT_DELTA(testvalue_adams_bashforth[1],exact_solution[1],global_error_adams_bashforth);
     }
     
     
@@ -418,22 +364,7 @@ public:
         testvalue_rk4[0] = solutions_rk4.rGetSolutions()[last3][0];
         testvalue_rk4[1] = solutions_rk4.rGetSolutions()[last3][1];
         testvalue_rk4[2] = solutions_rk4.rGetSolutions()[last3][2];
-        
-        //solutions_rk4.SaveToFile("result.dat");
-        
-        //Adams-Bashforth solver solution worked out
-        AdamsBashforthIvpOdeSolver adams_bashforth_solver;
-        OdeSolution solutions_adams_bashforth;
-        
-        state_variables = ode_system.GetInitialConditions();
-        solutions_adams_bashforth = adams_bashforth_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
-        int last4 = solutions_adams_bashforth.GetNumberOfTimeSteps();
-        
-        double testvalue_adams_bashforth[3];
-        testvalue_adams_bashforth[0] = solutions_adams_bashforth.rGetSolutions()[last4][0];
-        testvalue_adams_bashforth[1] = solutions_adams_bashforth.rGetSolutions()[last4][1];
-        testvalue_adams_bashforth[2] = solutions_adams_bashforth.rGetSolutions()[last4][2];
-        
+
         // The tests
         double exact_solution[3];
         
@@ -458,13 +389,6 @@ public:
         TS_ASSERT_DELTA(testvalue_rk4[0],exact_solution[0],global_error_rk4);
         TS_ASSERT_DELTA(testvalue_rk4[1],exact_solution[1],global_error_rk4);
         TS_ASSERT_DELTA(testvalue_rk4[2],exact_solution[2],global_error_rk4);
-        
-        double global_error_adams_bashforth;
-        global_error_adams_bashforth = (1.0/6.0)*pow(h_value,3)*2*(exp(2)-1)*h_value;
-        TS_ASSERT_DELTA(testvalue_adams_bashforth[0],exact_solution[0],global_error_adams_bashforth);
-        TS_ASSERT_DELTA(testvalue_adams_bashforth[1],exact_solution[1],global_error_adams_bashforth);
-        TS_ASSERT_DELTA(testvalue_adams_bashforth[2],exact_solution[2],global_error_adams_bashforth);
-        
     }
     
     void TestGlobalError2()
@@ -499,16 +423,7 @@ public:
         solutions_rk4 = rk4_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
         int last3 = solutions_rk4.GetNumberOfTimeSteps();
         double testvalue_rk4 = solutions_rk4.rGetSolutions()[last3][0];
-        
-        //Adams-Bashforth solver solution worked out
-        AdamsBashforthIvpOdeSolver adams_bashforth_solver;
-        OdeSolution solutions_adams_bashforth;
-        
-        state_variables = ode_system.GetInitialConditions();
-        solutions_adams_bashforth = adams_bashforth_solver.Solve(&ode_system, state_variables, 0.0, 2.0, h_value, h_value);
-        int last4 = solutions_adams_bashforth.GetNumberOfTimeSteps();
-        double testvalue_adams_bashforth = solutions_adams_bashforth.rGetSolutions()[last4][0];
-        
+               
         // The tests
         double alpha = 100;
         double exact_solution=1/(1+exp(-alpha*2));
@@ -524,10 +439,6 @@ public:
         double global_error_rk4;
         global_error_rk4 = (1.0/24.0)*pow(h_value,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*h_value;
         TS_ASSERT_DELTA(testvalue_rk4,exact_solution,global_error_rk4);
-        
-        double global_error_adams_bashforth;
-        global_error_adams_bashforth = (1.0/6.0)*pow(h_value,3)*1/(1+exp(-alpha*2))*(exp(2)-1)*h_value;
-        TS_ASSERT_DELTA(testvalue_adams_bashforth,exact_solution,global_error_adams_bashforth);
     }
 };
 
