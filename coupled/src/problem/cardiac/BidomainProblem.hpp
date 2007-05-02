@@ -9,6 +9,8 @@
 #include "BidomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
+#include "TimeStepper.hpp"
+
 
 /**
  * Class which specifies and solves a bidomain problem.
@@ -67,7 +69,7 @@ public:
         mStartTime        = 0.0;  // ms
         mPdeTimeStep      = 0.01; // ms
         mEndTime          = -1;   // negative so can check has been set
-        mPrintingTimeStep = -1;   // negative so can check has been set
+        mPrintingTimeStep = mPdeTimeStep;  // default behaviour: print out every pde time step
         
         
         mWriteInfo = false;
@@ -158,7 +160,9 @@ public:
         unsigned time_var_id = 0;
         unsigned voltage_var_id = 0;
         bool write_files = false;
-        double current_time = mStartTime;
+
+        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
+
         if (mPrintOutput)
         {
             if (mOutputFilenamePrefix.length() > 0)
@@ -176,55 +180,21 @@ public:
             
             if (write_files)
             {
-                p_test_writer->PutVariable(time_var_id, current_time);
+                p_test_writer->PutVariable(time_var_id, stepper.GetTime());
                 p_test_writer->PutVector(voltage_var_id, initial_condition);
             }
             
-            if ( mPrintingTimeStep < 0) //ie if it hasn't been set
-            {
-                mPrintingTimeStep = mPdeTimeStep; ///\todo: pick good default
-            }
-            
-            
-            // at the moment the tend-tstart must be a multiple of the printing timestep
-            // because the 'next_printing_time = mEndTime' line below has been commented
-            // out (see comment below). remove this assert when this is sorted out
-            assert( fabs(        ( (mEndTime-mStartTime)/mPrintingTimeStep )
-                                 - round( (mEndTime-mStartTime)/mPrintingTimeStep ) ) < 1e-10 );
-                                 
-                                 
             // check the printing time step is a multiple of the pde timestep.
             assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
                                  -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
         }
         
-        double next_printing_time;
-        
-        while ( current_time < mEndTime )
+        while ( !stepper.IsTimeAtEnd() )
         {
-            if (mPrintOutput)
-            {
-                // compute the next printing time
-                next_printing_time = current_time + mPrintingTimeStep;
-                if (next_printing_time > mEndTime)
-                {
-                    // this line is needed but it's use leads to assertions tripping due to
-                    // floating point errors.
-                    ///\todo: sort this out! then change TestPrintsOnlyAtRequestedTimes in
-                    // TestMonodomainDg0Assembler and TestBidomainProblem to have an endtime that
-                    // is not a multiple of the printing time...
-                    //                next_printing_time = mEndTime;
-                }
-            }
-            else
-            {
-                next_printing_time = current_time + mPdeTimeStep;
-            }
-            
             // solve from now up to the next printing time
-            bidomain_assembler.SetTimes(current_time, next_printing_time, mPdeTimeStep);
+            bidomain_assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
             bidomain_assembler.SetInitialCondition( initial_condition );
-            
+
             try
             {
                 mVoltage = bidomain_assembler.Solve();
@@ -232,8 +202,7 @@ public:
             //Ill-conditioned solutions are covered in Monodomain problem
             //(and possibly in Nightly/Weekly) so we don't insist on it
             //in the coverage test.
-            
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             catch (Exception &e)
             {
                 if (mPrintOutput)
@@ -247,7 +216,7 @@ public:
                 
                 throw e;
             }
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
             
             // Free old initial condition
             VecDestroy(initial_condition);
@@ -256,29 +225,27 @@ public:
             initial_condition = mVoltage;
             
             // update the current time
-            current_time = next_printing_time;
+            stepper.AdvanceOneTimeStep();
             
             if (mPrintOutput)
             {
                 // print out details at current time if asked for
-                
                 if (mWriteInfo)
                 {
-                    WriteInfo(current_time);
+                    WriteInfo(stepper.GetTime());
                 }
                 
                 // Writing data out to the file <mOutputFilenamePrefix>.dat
                 if (write_files)
                 {
                     p_test_writer->AdvanceAlongUnlimitedDimension(); //creates a new file
-                    p_test_writer->PutVariable(time_var_id, current_time);
+                    p_test_writer->PutVariable(time_var_id, stepper.GetTime());
                     p_test_writer->PutVector(voltage_var_id, mVoltage);
                 }
             }
         }
-        
+
         // close the file that stores voltage values
-        
         if (mPrintOutput)
         {
             if (write_files)
@@ -303,8 +270,7 @@ public:
                                       + mOutputFilenamePrefix + " " // arg 3 is the results folder and prefix,
                                       // relative to the testoutput folder.
                                       + "last_simulation";          // arg 4 is the output prefix, relative to
-                // anim folder.
-                
+                // anim folder.                
                 system(chaste_2_meshalyzer.c_str());
             }
         }

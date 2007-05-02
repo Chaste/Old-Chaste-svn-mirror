@@ -108,7 +108,7 @@ public:
             }
             
             // final voltages for nodes 0 to 5
-            double test_values[6]={30.2636, 28.3578, 19.8386, -3.9738, -57.9465, -79.7750};
+            double test_values[6]={31.0323, 28.9205, 20.0263, -3.9311, -57.9423, -79.777};
             
             for (unsigned node=0; node<=5; node++)
             {
@@ -193,7 +193,7 @@ public:
                 TS_ASSERT_LESS_THAN(0, monodomain_voltage[index]);
             }            
             // the mono and bidomains should agree closely
-            TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.1);
+            TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.4);
             
             // the extracellular potential should be uniform
             TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.05);
@@ -242,7 +242,7 @@ public:
         p_bidomain_problem = new BidomainProblem<1>( &cell_factory );
         
         p_bidomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        p_bidomain_problem->SetEndTime(0.51);   // ms
+        p_bidomain_problem->SetEndTime(0.50);   // ms
         p_bidomain_problem->SetOutputDirectory("Bidomain1d");
         p_bidomain_problem->SetOutputFilenamePrefix("bidomain_testPrintTimes");
         
@@ -264,7 +264,7 @@ public:
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
         
         
         // Now check that we can turn off output printing
@@ -283,7 +283,7 @@ public:
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
         
         delete p_bidomain_problem;
     }
