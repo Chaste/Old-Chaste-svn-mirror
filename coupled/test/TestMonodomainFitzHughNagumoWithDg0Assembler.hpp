@@ -107,7 +107,7 @@ public:
                     TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 1e-10);
                 }
                 
-                TS_ASSERT_DELTA(voltage_replicated[i], 0.1367, 1e-5);
+                TS_ASSERT_DELTA(voltage_replicated[i], 0.1394, 1e-4);
             }
         }
         

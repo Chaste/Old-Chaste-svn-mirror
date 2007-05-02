@@ -8,6 +8,8 @@
 #include "MonodomainPde.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
+#include "TimeStepper.hpp"
+
 
 /**
  * Class which specifies and solves a monodomain problem.
@@ -57,7 +59,7 @@ public:
         mStartTime        = 0.0;  // ms
         mPdeTimeStep      = 0.01; // ms
         mEndTime          = -1;   // negative so can check has been set
-        mPrintingTimeStep = -1;   // negative so can check has been set
+        mPrintingTimeStep = mPdeTimeStep;   // default behaviour: print out every pde time step
         
         mWriteInfo = false;
     }
@@ -111,9 +113,9 @@ public:
         for (DistributedVector::Iterator index = DistributedVector::Begin();
              index != DistributedVector::End();
              ++index)
-             {
-                ic[index] = mpMonodomainPde->GetCardiacCell(index.Global)->GetVoltage();
-             }
+        {
+            ic[index] = mpMonodomainPde->GetCardiacCell(index.Global)->GetVoltage();
+        }
         ic.Restore();        
 
 
@@ -138,48 +140,25 @@ public:
             p_test_writer->EndDefineMode();
         }
         
-        double current_time = mStartTime;
         
+        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);       
+
         if (write_files)
         {
-            p_test_writer->PutVariable(time_var_id, current_time);
+            p_test_writer->PutVariable(time_var_id, stepper.GetTime());
             p_test_writer->PutVector(voltage_var_id, initial_condition);
         }
         
-        
-        if ( mPrintingTimeStep < 0) //ie if it hasn't been set
-        {
-            mPrintingTimeStep = mPdeTimeStep; ///\todo: pick good default
-        }
-        
-        
-// at the moment the tend-tstart must be a multiple of the printing timestep
-// because the 'next_printing_time = mEndTime' line below has been commented
-// out (see comment below). remove this assert when this is sorted out
-        assert( fabs(        ( (mEndTime-mStartTime)/mPrintingTimeStep )
-                             - round( (mEndTime-mStartTime)/mPrintingTimeStep ) ) < 1e-10 );
-                             
-                             
+                                     
         // check the printing time step is a multiple of the pde timestep.
         assert(  fabs( (mPrintingTimeStep/mPdeTimeStep)
                        -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
                        
-        while ( current_time < mEndTime )
+                 
+        while ( !stepper.IsTimeAtEnd() )
         {
-            // compute the next printing time
-            double next_printing_time = current_time + mPrintingTimeStep;
-            if (next_printing_time > mEndTime)
-            {
-// this line is needed but it's use leads to assertions tripping due to
-// floating point errors, so it's been commented out. see ticket 152
-///\todo: sort this out! then change TestPrintsOnlyAtRequestedTimes in
-// TestMonodomainDg0Assembler and TestBidomainProblem to have an endtime that
-// is not a multiple of the printing time...
-//                next_printing_time = mEndTime;
-            }
-            
             // solve from now up to the next printing time
-            monodomain_assembler.SetTimes(current_time, next_printing_time, mPdeTimeStep);
+            monodomain_assembler.SetTimes(stepper.GetTime(), stepper.GetNextTime(), mPdeTimeStep);
             monodomain_assembler.SetInitialCondition( initial_condition );
             
             try
@@ -196,28 +175,26 @@ public:
                 throw e;
             }
             
-            
-            
             // Free old initial condition
             VecDestroy(initial_condition);
             
             // Initial condition for next loop is current solution
             initial_condition = mVoltage;
             
-            // update the current time
-            current_time = next_printing_time;
+            // advance to next time
+            stepper.AdvanceOneTimeStep();
             
             // print out details at current time if asked for
             if (mWriteInfo)
             {
-                WriteInfo(current_time);
+                WriteInfo(stepper.GetTime());
             }
             
             // Writing data out to the file <mOutputFilenamePrefix>.dat
             if (write_files)
             {
                 p_test_writer->AdvanceAlongUnlimitedDimension(); // creates a new file
-                p_test_writer->PutVariable(time_var_id, current_time);
+                p_test_writer->PutVariable(time_var_id, stepper.GetTime());
                 p_test_writer->PutVector(voltage_var_id, mVoltage);
             }
         }
@@ -249,6 +226,8 @@ public:
             
             system(chaste_2_meshalyzer.c_str());
         }
+        
+        
     }
     
     

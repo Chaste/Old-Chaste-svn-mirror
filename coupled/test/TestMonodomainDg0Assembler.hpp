@@ -135,12 +135,12 @@ public:
         
         // check some voltages    
         ReplicatableVector voltage_replicated(monodomain_problem.GetVoltage());
-        TS_ASSERT_DELTA(voltage_replicated[1], 20.6690, 0.001);
-        TS_ASSERT_DELTA(voltage_replicated[3], 21.4655, 0.001);
-        TS_ASSERT_DELTA(voltage_replicated[5], 22.9016, 0.001);
-        TS_ASSERT_DELTA(voltage_replicated[7], 24.0518, 0.001);
-        TS_ASSERT_DELTA(voltage_replicated[9], -0.9282, 0.001);
-        TS_ASSERT_DELTA(voltage_replicated[10], -19.4217, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[1], 20.7709, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[3], 21.5321, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[5], 22.9282, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[7], 24.0612, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[9], -0.7694, 0.001);
+        TS_ASSERT_DELTA(voltage_replicated[10], -19.2224, 0.001);
        
     }
     
@@ -220,7 +220,7 @@ public:
                 // hardcoded result that looks accurate - this is a test to see
                 // that nothing has changeed
                 // assumes endtime = 2ms
-                TS_ASSERT_DELTA(voltage_replicated[i], -59.7978, 1e-4);
+                TS_ASSERT_DELTA(voltage_replicated[i], -59.6495, 1e-4);
             }
         }
         
@@ -284,7 +284,7 @@ public:
         
         // hardcoded result to check nothing has changed
         // assumes endtime = 1.3
-        TS_ASSERT_DELTA(voltage_replicated[0], -34.7497, 1e-4);
+        TS_ASSERT_DELTA(voltage_replicated[0], -34.3493, 1e-4);
         
 //        monodomain_problem.RestoreVoltageArray(&p_voltage_array);
     }
@@ -328,7 +328,7 @@ public:
         p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
         
         p_monodomain_problem->SetMeshFilename("mesh/test/data/1D_0_to_1mm_10_elements");
-        p_monodomain_problem->SetEndTime(0.51);   // ms
+        p_monodomain_problem->SetEndTime(0.50);   // ms
         p_monodomain_problem->SetOutputDirectory("MonoDg01d");
         p_monodomain_problem->SetOutputFilenamePrefix("mono_testPrintTimes");
         
@@ -348,10 +348,12 @@ public:
         TS_ASSERT_DELTA( times[0], 0.00,  1e-12);
         TS_ASSERT_DELTA( times[1], 0.17,  1e-12);
         TS_ASSERT_DELTA( times[2], 0.34,  1e-12);
-        TS_ASSERT_DELTA( times[3], 0.51,  1e-12);
+        TS_ASSERT_DELTA( times[3], 0.50,  1e-12);
         
         delete p_monodomain_problem;
     }
+    
+    
     void TestMonodomainProblemExceptions() throw (Exception)
     {
         PointStimulusCellFactory cell_factory;
