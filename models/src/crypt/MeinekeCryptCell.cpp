@@ -261,4 +261,8 @@ MeinekeCryptCell MeinekeCryptCell::Divide()
     mCanDivide = false;
 }
 
+void MeinekeCryptCell::UpdateCellType()
+{
+       mCellType = mpCellCycleModel->UpdateCellType();
+}
 

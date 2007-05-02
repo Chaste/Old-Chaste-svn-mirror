@@ -42,6 +42,13 @@ public:
     void SetCellType(CryptCellType cellType);
     
     /**
+     * Refreshes the cell's type using cell cycle information.
+     * 
+     * @return CellType
+     */
+    virtual CryptCellType UpdateCellType();
+    
+    /**
      * Set the cell's type.
      * 
      * @param cellType the type of cell defined in MeinekeCryptCellTypes.hpp

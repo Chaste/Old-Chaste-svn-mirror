@@ -244,3 +244,19 @@ void WntCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, st
     mProteinConcentrations = proteinConcentrations;
 }
 
+
+CryptCellType WntCellCycleModel::UpdateCellType()
+{
+    double betaCateninLevel = GetProteinConcentrations()[6]+GetProteinConcentrations()[7];
+    //std::cout << "beta-catenin level = " << betaCateninLevel << "\n" << std::flush;        
+    CryptCellType cell_type=TRANSIT;
+                
+    // For mitogenic stimulus of 6x10^-4 in Wnt equations
+    if (betaCateninLevel < 0.4127)
+    {
+        cell_type = DIFFERENTIATED;
+    }
+        
+    mCellType = cell_type;
+    return mCellType;
+}

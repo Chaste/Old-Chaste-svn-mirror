@@ -36,12 +36,15 @@ public:
         FixedCellCycleModel our_fixed_stem_cell_cycle_model;
         our_fixed_stem_cell_cycle_model.SetCellType(STEM);
         TS_ASSERT_EQUALS(our_fixed_stem_cell_cycle_model.GetCellType(),STEM);
+        TS_ASSERT_EQUALS(our_fixed_stem_cell_cycle_model.UpdateCellType(),STEM);
         
         FixedCellCycleModel our_fixed_transit_cell_cycle_model;
         our_fixed_transit_cell_cycle_model.SetCellType(TRANSIT);
+        TS_ASSERT_EQUALS(our_fixed_transit_cell_cycle_model.UpdateCellType(),TRANSIT);
         
         FixedCellCycleModel our_fixed_diff_cell_cycle_model;
         our_fixed_diff_cell_cycle_model.SetCellType(DIFFERENTIATED);
+        TS_ASSERT_EQUALS(our_fixed_diff_cell_cycle_model.UpdateCellType(),DIFFERENTIATED);
         
         for (unsigned i = 0 ; i< num_steps ; i++)
         {
@@ -252,11 +255,17 @@ public:
         int numTimesteps = 1000*(int)endTime;
         p_simulation_time->SetStartTime(0.0);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(endTime, numTimesteps);// 15.971 hours to go into S phase
+        
         double wnt_level = 1.0;
         double mutation = 0.0;
-        TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model(wnt_level));
+        
         WntCellCycleModel cell_model(wnt_level);
-        //TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel);
+        
+        CryptCellType test_type = cell_model.UpdateCellType();
+        TS_ASSERT_EQUALS(test_type,TRANSIT);
+        
+        //TS_ASSERT_THROWS_ANYTHING(WntCellCycleModel wntmodel());
+        
         std::vector<double> cell_cycle_influences;
         cell_cycle_influences.push_back(wnt_level);
         cell_cycle_influences.push_back(mutation);
@@ -289,6 +298,9 @@ public:
         TS_ASSERT_DELTA(testResults[8] , 0.0 , 1e-6);
         TS_ASSERT_DELTA(testResults[9] , 0.0 , 1e-6);
         
+        test_type = cell_model.UpdateCellType();
+        TS_ASSERT_EQUALS(test_type, DIFFERENTIATED);
+        
         double diff = 1.0;
         testResults[6] = testResults[6] + diff;
         
@@ -298,6 +310,7 @@ public:
         
         TS_ASSERT_DELTA(testResults[6] , diff + 0.5*7.415537855270896e-03 , 1e-5);
         TS_ASSERT_DELTA(testResults[5] , 9.999999999999998e-01 , 1e-5);
+                
         SimulationTime::Destroy();
         
     }

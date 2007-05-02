@@ -50,14 +50,11 @@ CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2
     mFixedBoundaries = false;
     mOutputDirectory = "";
     
-    // Set up the ghost nodes bool.  Assume initially that the maximum number of nodes is
-    // ten times the mesh size.  Note that more memory is allocated later, if necessary.
-    mIsGhostNode.resize(10*mrMesh.GetNumAllNodes()); // Note the hard-coding of 10.
-    
+    // Set up the ghost nodes bool list
+    mIsGhostNode.resize(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<mIsGhostNode.size(); i++)
     {
         mIsGhostNode[i] = false;
-    
     }
     
     // defaults
@@ -791,40 +788,19 @@ Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeI
  */
 void CryptSimulation2DPeriodic::UpdateCellTypes()
 {
-    /*/////////////////////////////////////////////////////////
-     * 
-     * Designate cells as proliferating (transit) or
-     * quiescent (differentiated) according to protein concentrations
-     * 
-     * If the betaCatenin level falls below a certain concentration then
-     * the cell will (probably) be differentiated - if it later increases
-     * it could become a transit cell again. This is just for visualization...
-     * 
-     *////////////////////////////////////////////////////////
-    if (mWntIncluded)
-    {   // Cycle through each cell
+    if (!mCells.empty())
+    {
+        /*/////////////////////////////////////////////////////////
+         * 
+         * Designate cells as proliferating (transit) or
+         * quiescent (differentiated) according to protein concentrations
+         * 
+         *////////////////////////////////////////////////////////
         for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
         {
             if (!mIsGhostNode[i])
             {
-                // If we are in here the cell cycle model must be a WntCellCycleModel
-                WntCellCycleModel *this_Wnt_model = static_cast<WntCellCycleModel*>(mCells[i].GetCellCycleModel());
-                double betaCateninLevel = this_Wnt_model->GetProteinConcentrations()[6]+this_Wnt_model->GetProteinConcentrations()[7];
-                // std::cout << "Cell " << i << ", beta-cat = " << betaCateninLevel << "\n" << std::endl;
-                
-                CryptCellType cell_type=TRANSIT;
-                
-                // For mitogenic stimulus of 6x10^-4 in Wnt equations
-                if (betaCateninLevel < 0.4127)
-                {
-                    cell_type = DIFFERENTIATED;
-                }
-                if (betaCateninLevel >0.8)
-                {
-                    cell_type = STEM;
-                }
-                    
-                mCells[i].SetCellType(cell_type);
+                mCells[i].UpdateCellType();
             }
         }
     }
@@ -1109,10 +1085,9 @@ void CryptSimulation2DPeriodic::Solve()
             temp = mCells[i].ReadyToDivide(cell_cycle_influences);
         }
     }
+
+    UpdateCellTypes();
     
-    /////////////////////////////////////////////////////////////////////
-    // Main time loop
-    /////////////////////////////////////////////////////////////////////
     // Write initial conditions to file for the visualizer.
     WriteVisualizerSetupFile(*p_setup_file);
     WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
@@ -1120,7 +1095,9 @@ void CryptSimulation2DPeriodic::Solve()
                             *p_node_file, *p_element_file,
                             false,
                             true);
-    
+    /////////////////////////////////////////////////////////////////////
+    // Main time loop
+    /////////////////////////////////////////////////////////////////////
     while (p_simulation_time->GetTimeStepsElapsed() < num_time_steps)
     {
         CheckIndicesAreInSync();

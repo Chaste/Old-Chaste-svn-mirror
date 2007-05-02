@@ -220,6 +220,53 @@ public:
         SimulationTime::Destroy();
     }
     
+    void TestUpdateCellTypes() throw (Exception)
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
+        
+        MeinekeCryptCell stem_cell(STEM, // type
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   new FixedCellCycleModel());
+                                   
+        stem_cell.UpdateCellType();
+        
+        TS_ASSERT_EQUALS(stem_cell.GetCellType(),STEM);
+        
+        stem_cell.SetCellType(TRANSIT);
+        
+        stem_cell.UpdateCellType();
+        
+        TS_ASSERT_EQUALS(stem_cell.GetCellType(),TRANSIT);
+        
+        // Test a Wnt dependent cell
+        
+        MeinekeCryptCell wnt_cell(TRANSIT, // type
+                                   HEALTHY,//Mutation State
+                                   0,  // generation
+                                   new WntCellCycleModel(0.0));
+                                   
+        wnt_cell.UpdateCellType();
+        
+        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),DIFFERENTIATED);
+        
+        // Push up the Wnt stimulus and go forward through time
+        std::vector<double> cell_cycle_influences;
+        cell_cycle_influences.push_back(1.0);
+        for (unsigned i=0 ; i<20 ; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+        }
+        wnt_cell.ReadyToDivide(cell_cycle_influences);
+        wnt_cell.UpdateCellType();
+        
+        TS_ASSERT_EQUALS(wnt_cell.GetCellType(),TRANSIT);
+          
+        SimulationTime::Destroy();
+    }
+    
     void Test0DBucket()
     {
         double end_time=61.0;

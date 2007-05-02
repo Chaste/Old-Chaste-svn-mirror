@@ -267,13 +267,33 @@ public:
         simulator.SetOutputDirectory(output_directory);
         
         // Set length of simulation here
-        simulator.SetEndTime(0.1);
+        simulator.SetEndTime(0.05);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetGhostNodes(ghost_node_indices);
+        simulator.SetWntGradient(OFFSET_LINEAR);
         
         simulator.Solve();
+
+        // test we have the same number of cells and nodes at the end of each time
+        // (if we do then the boundaries are probably working!)
+        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
+        unsigned number_of_cells = 0;
+        unsigned number_of_nodes = result_cells.size();
+        
+        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
+        
+        for (unsigned i=0 ; i<number_of_nodes ; i++)
+        {
+            if (!ghost_cells[i])
+            {
+                number_of_cells++;
+            }
+        }
+        TS_ASSERT_EQUALS(number_of_cells, 73u);  // 6 cells in a row*12 rows + 1 birth
+        TS_ASSERT_EQUALS(number_of_nodes, 73+thickness_of_ghost_layer*2*cells_across); 
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -319,6 +339,14 @@ public:
         simulator.SetGhostNodes(ghost_node_indices);
         
         simulator.Solve();
+        
+        std::vector<double> node_35_location = simulator.GetNodeLocation(35);
+        std::vector<double> node_100_location = simulator.GetNodeLocation(100);
+        
+        TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
+        TS_ASSERT_DELTA(node_35_location[1], 2.5104 , 1e-4);
+        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
+        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
           
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -337,8 +365,8 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -366,13 +394,12 @@ public:
         // save the results..
         simulator.Save();
         
-        //CheckAgainstPreviousRun("Crypt2DPeriodicWnt","results_from_time_0", 500u, 1000u);
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
     
 
-    // Testing Load (based on previous test)
+    // Testing Load (based on previous two tests)
     void TestLoad() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -385,8 +412,8 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -426,14 +453,17 @@ public:
         
         simulator.Solve();
         
+        /* 
+         * This checks that these two nodes are in exactly the same location 
+         * (after a saved and loaded run) as after a single run
+         */
+        std::vector<double> node_35_location = simulator.GetNodeLocation(35);
+        std::vector<double> node_100_location = simulator.GetNodeLocation(100);
         
-//        std::vector<double> node_248_location = simulator.GetNodeLocation(248);
-//        std::vector<double> node_219_location = simulator.GetNodeLocation(219);
-//        
-//        TS_ASSERT_DELTA(node_248_location[0], 4.00000 , 1e-5);
-//        TS_ASSERT_DELTA(node_248_location[1], 8.09225 , 1e-5);
-//        TS_ASSERT_DELTA(node_219_location[0], 5.00000 , 1e-5);
-//        TS_ASSERT_DELTA(node_219_location[1], 7.69802 , 1e-5);
+        TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
+        TS_ASSERT_DELTA(node_35_location[1], 2.5104 , 1e-4);
+        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
+        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -460,8 +490,8 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -504,8 +534,8 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
-        ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -520,7 +550,7 @@ public:
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         
         // Set length of simulation here
-        simulator.SetEndTime(0.1);
+        simulator.SetEndTime(0.05);
         
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
@@ -531,37 +561,25 @@ public:
         
         simulator.Solve();
         
+        // test we have the same number of cells and nodes at the end of each time
+        // (if we do then the boundaries are probably working!)
+        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
+        unsigned number_of_cells = 0;
+        unsigned number_of_nodes = result_cells.size();
         
-//        TS_ASSERT_EQUALS(left_boundary.size(),14u);
-//        
-//        TS_ASSERT_EQUALS(left_boundary[0], 64u);
-//        TS_ASSERT_EQUALS(right_boundary[0], 70u);
-//        TS_ASSERT_EQUALS(left_boundary[1], 79u);
-//        TS_ASSERT_EQUALS(right_boundary[1], 85u);
-//        TS_ASSERT_EQUALS(left_boundary[2], 94u);
-//        TS_ASSERT_EQUALS(right_boundary[2], 100u);
-//        TS_ASSERT_EQUALS(left_boundary[3], 108u);
-//        TS_ASSERT_EQUALS(right_boundary[3], 114u);
-//        TS_ASSERT_EQUALS(left_boundary[4], 124u);
-//        TS_ASSERT_EQUALS(right_boundary[4], 341u);
-//        TS_ASSERT_EQUALS(left_boundary[5], 137u);
-//        TS_ASSERT_EQUALS(right_boundary[5], 329u);
-//        TS_ASSERT_EQUALS(left_boundary[6], 138u);
-//        TS_ASSERT_EQUALS(right_boundary[6], 130u);
-//        TS_ASSERT_EQUALS(left_boundary[7], 153u);
-//        TS_ASSERT_EQUALS(right_boundary[7], 144u);
-//        TS_ASSERT_EQUALS(left_boundary[8], 168u);
-//        TS_ASSERT_EQUALS(right_boundary[8], 337u);
-//        TS_ASSERT_EQUALS(left_boundary[9], 169u);
-//        TS_ASSERT_EQUALS(right_boundary[9], 175u);
-//        TS_ASSERT_EQUALS(left_boundary[10], 184u);
-//        TS_ASSERT_EQUALS(right_boundary[10], 190u);
-//        TS_ASSERT_EQUALS(left_boundary[11], 199u);
-//        TS_ASSERT_EQUALS(right_boundary[11], 205u);
-//        TS_ASSERT_EQUALS(left_boundary[12], 229u);
-//        TS_ASSERT_EQUALS(right_boundary[12], 235u);
-//        TS_ASSERT_EQUALS(left_boundary[13], 339u);
-//        TS_ASSERT_EQUALS(right_boundary[13], 221u);
+        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
+        
+        for (unsigned i=0 ; i<number_of_nodes ; i++)
+        {
+            if (!ghost_cells[i])
+            {
+                number_of_cells++;
+            }
+        }
+        TS_ASSERT_EQUALS(number_of_cells, 113u);
+        TS_ASSERT_EQUALS(number_of_nodes, 164u);
+
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }

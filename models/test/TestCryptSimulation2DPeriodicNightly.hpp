@@ -537,7 +537,25 @@ public:
         
         simulator.Solve();
         
-        //CheckAgainstPreviousRun("Crypt2DPeriodicNightly","results_from_time_0", 500u, 1000u);
+        // test we have the same number of cells and nodes at the end of each time
+        // (if we do then the boundaries are probably working!)
+        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
+        unsigned number_of_cells = 0;
+        unsigned number_of_nodes = result_cells.size();
+        
+        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
+        
+        for (unsigned i=0 ; i<number_of_nodes ; i++)
+        {
+            if (!ghost_cells[i])
+            {
+                number_of_cells++;
+            }
+        }
+        TS_ASSERT_EQUALS(number_of_cells, 85u);
+        TS_ASSERT_EQUALS(number_of_nodes, 145u);
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -580,58 +598,31 @@ public:
         
         simulator.Solve();
         
-//CheckAgainstPreviousRun("Crypt2DPeriodicWntNightly","results_from_time_0", 500u, 1000u);
+        // test we have the same number of cells and nodes at the end of each time
+        // (if we do then the boundaries are probably working!)
+        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
+        unsigned number_of_cells = 0;
+        unsigned number_of_nodes = result_cells.size();
+        
+        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
+        
+        for (unsigned i=0 ; i<number_of_nodes ; i++)
+        {
+            if (!ghost_cells[i])
+            {
+                number_of_cells++;
+            }
+        }
+        TS_ASSERT_EQUALS(number_of_cells, 96u);
+        TS_ASSERT_EQUALS(number_of_nodes, 184u);
+        
+        
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
     
-    // This is strange test -- all cells divide within a quick time, it gives
-    // good testing of the periodic boundaries though...
-    // Disabled this test because it causes periodic boundaries to fail : see ticket:349
-    void TestCrypt2DTysonNovakNightly() throw (Exception)
-    {
-        CancerParameters *p_params = CancerParameters::Instance();
-        // There is no limit on transit cells in Wnt simulation
-        p_params->SetMaxTransitGenerations(1000);
-        
-        unsigned cells_across = 6;
-        unsigned cells_up = 12;
-        double crypt_width = 6.0;
-        unsigned thickness_of_ghost_layer = 4;
-        
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
-        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-        
-        // Set up cells
-        std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, TYSONNOVAK, true);
-                
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
-        simulator.SetOutputDirectory("Crypt2DTysonNovakNightly");
-        
-        // Set length of simulation here
-        simulator.SetEndTime(0.5);
-        
-        simulator.SetMaxCells(500);
-        simulator.SetMaxElements(1000);
-                
-        simulator.SetGhostNodes(ghost_node_indices);
-        
-        simulator.SetDt(0.001);
-        
-        simulator.Solve();
-        
-        //CheckAgainstPreviousRun("Crypt2DPeriodicTysonNovak", 500u, 1000u);
-
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-        
-    }
-    
+   
     void TestWithMutantCellsUsingDifferentViscosities() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -687,6 +678,30 @@ public:
         simulator.SetGhostNodes(ghost_node_indices);
          
         simulator.Solve();
+        
+        // test we have the same number of cells and nodes at the end of each time
+        // (if we do then the boundaries are probably working!)
+        std::vector<MeinekeCryptCell> result_cells = simulator.GetCells();
+        std::vector<bool> ghost_cells = simulator.GetGhostNodes();
+        unsigned number_of_cells = 0;
+        unsigned number_of_nodes = result_cells.size();
+        unsigned number_of_mutant_cells = 0;
+        TS_ASSERT_EQUALS(result_cells.size(),ghost_cells.size());
+        
+        for (unsigned i=0 ; i<number_of_nodes ; i++)
+        {
+            if (!ghost_cells[i])
+            {
+                number_of_cells++;
+                if (result_cells[i].GetMutationState()==APC_TWO_HIT)
+                {
+                    number_of_mutant_cells++;
+                }
+            }
+        }
+        TS_ASSERT_EQUALS(number_of_cells, 94u);
+        TS_ASSERT_EQUALS(number_of_nodes, 149u);
+        TS_ASSERT_EQUALS(number_of_mutant_cells, 8u);
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();

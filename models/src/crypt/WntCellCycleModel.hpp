@@ -56,6 +56,8 @@ public:
     
     virtual void ResetModel();
     
+    CryptCellType UpdateCellType();
+    
     std::vector< double > GetProteinConcentrations();
     
     AbstractCellCycleModel *CreateCellCycleModel();

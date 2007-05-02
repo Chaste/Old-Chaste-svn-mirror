@@ -18,10 +18,10 @@ CryptCellType AbstractCellCycleModel::GetCellType()
     return mCellType;
 }
 
-//void AbstractCellCycleModel::SetBirthTime(double birthTime)
-//{
-//    mBirthTime = birthTime;
-//}
+CryptCellType AbstractCellCycleModel::UpdateCellType()
+{   // This doesn't do anything in most classes, overwritten in others.
+    return mCellType;
+}
 
 double AbstractCellCycleModel::GetBirthTime()
 {
