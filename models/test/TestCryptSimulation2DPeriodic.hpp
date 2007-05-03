@@ -930,11 +930,17 @@ public:
     
     void TestCalculateDividingCellCentreLocations() throw (Exception)
     {
+        /*
+         * Node 1,4 on conforming mesh
+         * 
+         * Nodes 2,3,5 on cylindrical mesh.
+         * 
+         */
         double separation = 0.1;
         // Make a parent node
         c_vector<double ,2> location;
-        location[0]=0.0;
-        location[1]=0.0;
+        location[0]=1.0;
+        location[1]=1.0;
         Node<2>* p_node = new Node<2>(0u,location, false);
         Node<2>* p_node2 = new Node<2>(0u,location, false);
         
@@ -980,6 +986,55 @@ public:
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(parent_location, daughter_location);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
         
+        /////////////////////////////////////////////////////////////////////
+        // Special case - birth at the base of the crypt...
+        /////////////////////////////////////////////////////////////////////
+        // test a birth at y=0 on the conf mesh
+        location[0]=3.0;
+        location[1]=0.0;
+        Node<2>* p_node4 = new Node<2>(1u,location, false);
+        conf_mesh.AddNode(p_node4);
+        conf_mesh.SetNode(1u,location,false);
+        for (unsigned i=0 ; i<100 ; i++)
+        {
+            conf_mesh.SetNode(1u,location, false);
+            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(1u);
+            c_vector<double, 2> parent_location = conf_mesh.GetNode(1u)->rGetLocation();
+            c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(parent_location, daughter_location);
+            // The parent stem cell should stay where it is and the daughter be introduced at positive y.
+            
+            TS_ASSERT_DELTA(parent_location[0], location[0], 1e-7);
+            TS_ASSERT_DELTA(parent_location[1], location[1], 1e-7);
+            TS_ASSERT(daughter_location[1]>=location[1]);
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+            // This output should map onto a semi-cricle
+            //std::cout << daughter_location[0] << "\t" << daughter_location[1] <<std::endl;
+        }
+        
+        // test a birth at y=0 on the cylindrical mesh near the edge
+        location[0]=5.9995;
+        location[1]=0.0;
+        Node<2>* p_node5 = new Node<2>(2u,location, false);
+        cyl_mesh.AddNode(p_node5);
+        cyl_mesh.SetNode(2u,location,false);
+        for (unsigned i=0 ; i<100 ; i++)
+        {
+            cyl_mesh.SetNode(0u,location, false);
+            c_vector<double, 2> daughter_location = simulator2.CalculateDividingCellCentreLocations(2u);
+            cyl_mesh.SetNode(0u,daughter_location,false);
+            daughter_location = cyl_mesh.GetNode(0u)->rGetLocation();
+            c_vector<double, 2> parent_location = cyl_mesh.GetNode(2u)->rGetLocation();
+            c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(parent_location, daughter_location);
+            
+            // The parent stem cell should stay where it is and the daughter be introduced at positive y.
+            TS_ASSERT_DELTA(parent_location[0], location[0], 1e-7);
+            TS_ASSERT_DELTA(parent_location[1], location[1], 1e-7);
+            TS_ASSERT(daughter_location[1]>=location[1]);
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+            // This output should map onto a semi-cricle split over the periodic edge
+            //std::cout << daughter_location[0] << "\t" << daughter_location[1] <<std::endl;
+        }
+                
     }
     
 };

@@ -391,13 +391,32 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateDividingCellCentreLocati
     random_vector[0] = 0.5*separation*cos(random_direction);
     random_vector[1] = 0.5*separation*sin(random_direction);
     
-    // add it to the daughter and take it from the parent location
     
-    daughter_coords[0] = parent_coords[0]+random_vector[0];
-    daughter_coords[1] = parent_coords[1]+random_vector[1];
-    parent_coords[0] = parent_coords[0]-random_vector[0];
-    parent_coords[1] = parent_coords[1]-random_vector[1];
-    
+    if  (  (parent_coords[1]-random_vector[1] > 0.0)
+        && (parent_coords[1]+random_vector[1] > 0.0))
+    {   // We are not too close to the bottom of the crypt
+        // add random vector to the daughter and take it from the parent location
+        daughter_coords[0] = parent_coords[0]+random_vector[0];
+        daughter_coords[1] = parent_coords[1]+random_vector[1];
+        parent_coords[0] = parent_coords[0]-random_vector[0];
+        parent_coords[1] = parent_coords[1]-random_vector[1];
+    }
+    else
+    {   // Leave the parent where it is and move daughter in a positive direction
+        // to ensure new cells are not born below y=0
+        if (random_vector[1]>0.0)
+        {
+            daughter_coords[0] = parent_coords[0]+random_vector[0];
+            daughter_coords[1] = parent_coords[1]+random_vector[1];            
+        }
+        else
+        {
+            daughter_coords[0] = parent_coords[0]-random_vector[0];
+            daughter_coords[1] = parent_coords[1]-random_vector[1]; 
+        }
+    }
+    assert(daughter_coords[1]>=0.0);// to make sure dividing cells stay in the crypt
+    assert(parent_coords[1]>=0.0);// to make sure dividing cells stay in the crypt
     // set the parent to use this location
     mrMesh.SetNode(node_index, parent_coords, false);
     return daughter_coords;
