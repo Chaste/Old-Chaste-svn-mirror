@@ -90,9 +90,11 @@ public:
             // Check the mesh currently conforms to the dimensions given.
             if (!(mXLeft<=location[0] && location[0]<=mXRight))
             {
+#define COVERAGE_IGNORE
                 std::cout << "node(" << i << "), x = " << location[0] << "\n" << std::flush;
                 std::cout << "left boundary = " << mXLeft << ", right boundary = " << mXRight << std::flush;
                 EXCEPTION("A node lies outside the cylindrical region");    
+#undef COVERAGE_IGNORE
             }
             
             // Put the nodes which are to be mirrored in the relevant vectors
@@ -420,7 +422,9 @@ public:
         
         vector[0] = x_dist;
         vector[1] = y_dist;
+#define COVERAGE_IGNORE
         return vector;
+#undef COVERAGE_IGNORE
     }
     
     /**

@@ -255,24 +255,31 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
-        CreateVectorOfCells(cells, *p_mesh, FIXED, true);
+        CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
                
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
         simulator.SetOutputDirectory(output_directory);
         
-        // Set length of simulation here
-        simulator.SetEndTime(0.05);
-        
+        /* 
+         * Set length of simulation
+         * and other options here.
+         */
+        simulator.SetEndTime(0.1);
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);
         simulator.SetGhostNodes(ghost_node_indices);
         simulator.SetWntGradient(OFFSET_LINEAR);
+        
+        // These are for coverage and use the defaults
+        simulator.SetDt(1.0/120.0);
+        simulator.SetReMeshRule(true);
+        simulator.SetNoBirth(false);
         
         simulator.Solve();
 
@@ -292,8 +299,8 @@ public:
                 number_of_cells++;
             }
         }
-        TS_ASSERT_EQUALS(number_of_cells, 73u);  // 6 cells in a row*12 rows + 1 birth
-        TS_ASSERT_EQUALS(number_of_nodes, 73+thickness_of_ghost_layer*2*cells_across); 
+        TS_ASSERT_EQUALS(number_of_cells, cells_across*cells_up+1u);  // 6 cells in a row*12 rows + 1 birth
+        TS_ASSERT_EQUALS(number_of_nodes, number_of_cells+thickness_of_ghost_layer*2*cells_across); 
 
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
@@ -314,7 +321,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width, thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -365,7 +372,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -412,7 +419,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -490,7 +497,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -502,7 +509,7 @@ public:
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
 
         // Set a stem cell to be an evil cancer cell and see what happens
-        cells[67].SetMutationState(APC_TWO_HIT);
+        cells[27].SetMutationState(APC_TWO_HIT);
         
         CryptSimulation2DPeriodic simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DMutation");
@@ -512,10 +519,11 @@ public:
         simulator.SetWntGradient(LINEAR);
         
         simulator.SetGhostNodes(ghost_node_indices);
-        
+                
         simulator.SetEndTime(0.05);
         
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Solve();
+                
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -534,7 +542,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 4;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
@@ -647,7 +655,7 @@ public:
         double crypt_width2 = 6.0;
         unsigned thickness_of_ghost_layer2 = 3;
         
-        CryptHoneycombMeshGenerator generator(cells_across2, cells_up2, crypt_width2,thickness_of_ghost_layer2);
+        CryptHoneycombMeshGenerator generator(cells_across2, cells_up2, crypt_width2,thickness_of_ghost_layer2,false);
         ConformingTetrahedralMesh<2,2>* p_mesh2=generator.GetMesh();
         std::vector<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices();
         unsigned num_cells2 = p_mesh2->GetNumAllNodes();

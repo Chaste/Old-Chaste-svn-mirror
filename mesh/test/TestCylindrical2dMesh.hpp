@@ -53,7 +53,7 @@ public:
         double crypt_width = 6.0;
         unsigned thickness_of_ghost_layer = 0u;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
@@ -135,7 +135,7 @@ public:
         unsigned thickness_of_ghost_layer = 0u;
 
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         // Create a mirrored load of nodes for the normal remesher to work with.
@@ -269,7 +269,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         NodeMap map(p_mesh->GetNumNodes());
@@ -290,7 +290,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         NodeMap map(p_mesh->GetNumNodes());
@@ -311,7 +311,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         
         c_vector<double, 2> location1 = p_mesh->GetNode(1)->rGetLocation();
@@ -356,7 +356,7 @@ public:
         double crypt_width = 3.0;
         unsigned thickness_of_ghost_layer = 2;
         
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer,true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         /*
@@ -424,7 +424,7 @@ public:
         unsigned thickness_of_ghost_layer = 0;
         
         // Set up a mesh which can be mirrored (no ghosts in this case)
-        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         // Check that there are the correct number of everything

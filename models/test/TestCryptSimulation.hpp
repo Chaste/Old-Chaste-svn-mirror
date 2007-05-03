@@ -113,6 +113,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         CryptSimulation simulator(mesh);
+        simulator.SetDt(1.0/120.0); // i.e. 30s: this is the default - just for coverage
         simulator.SetEndTime(0.25);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());
         

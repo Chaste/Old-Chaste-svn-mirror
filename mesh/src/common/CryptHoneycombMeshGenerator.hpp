@@ -229,12 +229,12 @@ public:
      * @param numCellWidth  The number of stem cells you want
      * @param numCellDepth  The number of cells you want along crypt axis
      * @param ghostThickness the thickness of ghost nodes surrounding the mesh (defaults to 2)
-     * @param cylindrical whether to generate a cylindrically periodic mesh or not (defaults to false)
+     * @param cylindrical whether to generate a cylindrically periodic mesh or not (defaults to true)
      * 
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness = 3, bool cylindrical=false)
+    CryptHoneycombMeshGenerator(unsigned numCellWidth, unsigned numCellDepth, unsigned ghostThickness = 3, bool cylindrical=true)
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numCellWidth;
@@ -282,12 +282,12 @@ public:
      * @param numNodesAlongLength  The number of cells you want along crypt axis
      * @param width  The width (circumference) of a crypt in adult cell
      * @param ghosts The thickness of ghost nodes to put around the edge (defaults to 3)
-     * @param cylindrical whether the mesh should be cylindrically periodic (defaults to false)
+     * @param cylindrical whether the mesh should be cylindrically periodic (defaults to true)
      * 
      * Note: this class creates a cancer params instance and sets the crypt width and length
      * accordingly in the parameters class.
      */
-    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3, bool cylindrical = false)
+    CryptHoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, double width, unsigned ghosts=3, bool cylindrical = true)
     {
         mCylindrical = cylindrical;
         mNumCellWidth = numNodesAlongWidth;

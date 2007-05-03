@@ -47,7 +47,7 @@ public:
         unsigned num_cells_depth = 22;
         unsigned ghosts = 2;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts, true);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, ghosts);
       
         
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
@@ -102,7 +102,7 @@ public:
         
         double x_factor = width/(double)num_cells_width;
         
-        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, width, ghosts, true);
+        CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, width, ghosts);
          
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();             
         // check the mesh

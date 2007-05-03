@@ -71,10 +71,6 @@ private:
     double mEndTime;
     ConformingTetrahedralMesh<2,2> &mrMesh;
 
-    
-    bool mIncludeRandomBirth;
-    bool mIncludeVariableRestLength;
-    
     /** Whether to fix all four boundaries (defaults to false).*/
     bool mFixedBoundaries;
     
@@ -135,8 +131,6 @@ private:
         // If Archive is an input archive, then & resolves to >>
         archive & mDt;
         archive & mEndTime;
-        archive & mIncludeRandomBirth;
-        archive & mIncludeVariableRestLength;
         archive & mFixedBoundaries;
         archive & mNoBirth;
         archive & mReMesh;
@@ -195,7 +189,6 @@ public:
     void SetDt(double dt);
     void SetEndTime(double endTime);
     void SetOutputDirectory(std::string outputDirectory);
-    void SetIncludeVariableRestLength();
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
     void SetFixedBoundaries();
