@@ -166,7 +166,7 @@ public:
              ++index)
         {
             TS_ASSERT_DELTA(monodomain_voltage[index], bidomain_voltage[index], 0.5);
-            TS_ASSERT_DELTA(extracellular_potential[index], 0, 0.1);
+            TS_ASSERT_DELTA(extracellular_potential[index], 0, 1.0);
         }
     }
     

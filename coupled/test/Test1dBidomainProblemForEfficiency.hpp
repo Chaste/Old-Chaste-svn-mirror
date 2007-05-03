@@ -102,7 +102,7 @@ public:
             
             
             // final voltages for six nodes at the beginning of the mesh with a stride of 10
-            double test_values[6]={-22.9004, -78.6935, -83.7585, -83.8568,  -83.8570, -83.8568};
+            double test_values[6]={11.5550, -78.3303, -83.7585, -83.8568,  -83.8570, -83.8568};
             
             for (unsigned i=0; i<=5; i++)
             {
