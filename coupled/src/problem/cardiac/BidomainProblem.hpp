@@ -182,11 +182,11 @@ public:
             {
                 p_test_writer->PutVariable(time_var_id, stepper.GetTime());
                 p_test_writer->PutVector(voltage_var_id, initial_condition);
-            }
             
-            // check the printing time step is a multiple of the pde timestep.
-            assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
-                                 -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
+                // check the printing time step is a multiple of the pde timestep.
+                assert( fabs(        (mPrintingTimeStep/mPdeTimeStep)
+                                     -round(mPrintingTimeStep/mPdeTimeStep) ) < 1e-10 );
+            }
         }
         
         while ( !stepper.IsTimeAtEnd() )
