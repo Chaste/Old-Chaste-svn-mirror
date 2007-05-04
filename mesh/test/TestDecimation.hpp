@@ -17,6 +17,26 @@
 
 #include <vector>
 
+template <unsigned SPACE_DIM>
+class PositionDecimator : public Decimator<SPACE_DIM>
+{
+protected:
+
+    void CalculateLocalMeasure(NodeInfo<SPACE_DIM> *pNodeInfo, bool before)
+    {
+        if (before)
+        {
+            double measure=pNodeInfo->pGetNode()->rGetLocation()[0];//x-value
+            this->mMeasureBefore=measure;
+        }
+    }
+    double CalculateScore()
+    {
+        return this->mMeasureBefore;
+    }
+      
+
+};
 
 template <unsigned SPACE_DIM>
 class FixedNodeDecimator : public Decimator<SPACE_DIM>
@@ -186,6 +206,28 @@ public:
       
     }
     
+       void TestPositionOnSquare()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_800_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 441U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 800U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
+        PositionDecimator<2> decimator;
+        
+        decimator.Initialise(&mesh);
+        TS_ASSERT_DELTA(decimator.GetVolumeLeakage(), 1e-5, 1.0e-10);
+        decimator.SetVolumeLeakage(100);
+        decimator.SetThreshold(0.05);
+         
+        //decimator.Decimate();
+        decimator.DecimateAnimate("PositionDecimator");
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 232U);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 420U);
+        TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.0052, 1.0e-4);
+      
+    }
     
     
     void TestRandom2DOnSquareWithAutoMeshGeneration()
