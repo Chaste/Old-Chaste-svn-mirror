@@ -519,7 +519,7 @@ public:
         for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
         {
             y_location = mNodes[mTopBoundary[i]]->rGetLocation()[1];
-            if (fabs(y_location - mTop)>1e-4)
+            if (fabs(y_location - mTop)>1e-3)
             {
                 //std::cout << "y = " << y_location << ", mTop = " << mTop << "\n" << std::flush;
                 EXCEPTION("The top row of ghost nodes is not aligned.");   
@@ -528,7 +528,7 @@ public:
         for (unsigned i=0 ; i<mBottomBoundary.size() ; i++)
         {
             y_location = mNodes[mBottomBoundary[i]]->rGetLocation()[1];
-            if (fabs(y_location - mBottom)>1e-5)
+            if (fabs(y_location - mBottom)>1e-3)
             {
                 EXCEPTION("The bottom row of ghost nodes is not aligned.");   
             }

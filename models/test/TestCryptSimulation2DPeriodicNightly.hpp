@@ -266,24 +266,29 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         RandomNumberGenerator::Instance();
-        
+
         // throws because start time not set on simulation time
         TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
-        
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        
+
         CryptSimulation2DPeriodic simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/);
         
+        // destroy the simulation time class because of failed solve
+        SimulationTime::Destroy();
+        p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_ANYTHING(simulator.Solve());// fails because output directory not set
-        
+                
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
         simulator.SetOutputDirectory("Crypt2DSprings");
-        
+
         //simulator.SetEndTime(24.0);
         // We need faster tests
         simulator.SetEndTime(1.0);
@@ -293,14 +298,13 @@ public:
         simulator.SetMaxElements(400);
         
         simulator.SetReMeshRule(false);
-        
+
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
         simulator.Solve();
-        
         std::vector<double> node_0_location = simulator.GetNodeLocation(0);
         TS_ASSERT_DELTA(node_0_location[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(node_0_location[1], 0.0, 1e-12);
