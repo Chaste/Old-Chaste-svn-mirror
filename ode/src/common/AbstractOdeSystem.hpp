@@ -1,6 +1,6 @@
 /**
  * Abstract OdeSystem class. Sets up variables and functions for a general ODE system.
-*/
+ */
 
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
@@ -117,6 +117,18 @@ public:
         return mUseAnalytic;
     }
     
+    
+    /**
+     * This method is used to establish a state varible's position within
+     * the vector of state variables of an ODE system. This number can
+     * then be used with the methods GetStateVariableValueByNumber and
+     * GetStateVariableUnitsByNumber.
+     * 
+     * @param name The name of a state variable.
+     * @return The state variable's position within
+     * the vector of state variables associated with the ODE system.
+     */
+    
     unsigned GetStateVariableNumberByName(std::string name)
     {
         unsigned var_number=0;
@@ -131,12 +143,23 @@ public:
         return var_number;
     }
     
+    
+    /**
+     * @param varNumber A state variable's position within
+     * the vector of state variables associated with the ODE system.
+     * @return The units associated with the state variable.
+     */
     double GetStateVariableValueByNumber(unsigned varNumber) const
     {
         assert(varNumber < mNumberOfStateVariables);
         return mStateVariables[varNumber];
     }
     
+    /**
+     * @param varNumber A state variable's position within
+     * the vector of state variables associated with the ODE system.
+     * @return The value of the state variable.
+     */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const
     {
         assert(varNumber < mNumberOfStateVariables);
