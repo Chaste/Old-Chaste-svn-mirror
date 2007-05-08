@@ -200,9 +200,9 @@ public:
         
         std::cout << "Converged both in space ("<< space_step <<" cm) and time ("<< time_step << " ms)" << std::endl << std::flush;
         
-        TS_ASSERT_DELTA(space_step, 0.0025, 0.0);
-        TS_ASSERT_DELTA(time_step, 0.005, 0.0);
-        TS_ASSERT_DELTA(probe_voltage, 21.9457, 0.0001);
+        TS_ASSERT_EQUALS(space_step, 0.0025);
+        TS_ASSERT_EQUALS(time_step, 0.02);
+        TS_ASSERT_DELTA(probe_voltage, 22.0, 1.0);
         // Note: the delta is because of floating point issues (!!)
     }
 };

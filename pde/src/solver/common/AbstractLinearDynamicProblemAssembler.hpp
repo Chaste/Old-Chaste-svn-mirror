@@ -72,15 +72,6 @@ public :
             EXCEPTION("Time step has to be greater than zero");
         }
         
-        if (! mDt <= mTend - mTstart + 1e-10 )
-        {
-            std::cout << "mDt = " << mDt
-                      << "mTend = " << mTend
-                      << "mTstart = " << mTstart
-                      << std::endl << std::flush; 
-        }
-        assert(mDt <= mTend - mTstart + 1e-10);
-        
         mTimesSet = true;
     }
     
