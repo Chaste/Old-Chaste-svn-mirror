@@ -30,7 +30,8 @@
 #include "Noble98ForwardEulerFromCellml.hpp"
 #include "Noble98BackwardEulerFromCellml.hpp"
 
-#include "FoxModel2002.hpp"
+//#include "FoxModel2002.hpp"
+#include "BackwardEulerFoxModel2002.hpp"
 
 class TestIonicModels : public CxxTest::TestSuite
 {
@@ -450,9 +451,25 @@ public:
                                    "FoxRegularStim",
                                    500);
         ck_end = clock();
-        std::cout << "Run time:" << (double)(ck_end - ck_start)/CLOCKS_PER_SEC << std::endl;
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
                                    
         CheckCellModelResults("FoxRegularStim");
+        
+        // Solve using Backward Euler
+        BackwardEulerFoxModel2002 backward_system(time_step*5, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&backward_system,
+                                   end_time,
+                                   "BackwardFoxRegularStim",
+                                   100);
+        ck_end = clock();
+        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
+        CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.15);
+        
+        std::cout << "Run times:\n\tForward: " << forward
+                << "\n\tBackward: " << backward
+                << std::endl;
         
     }
 

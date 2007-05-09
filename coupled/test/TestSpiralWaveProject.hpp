@@ -7,7 +7,6 @@
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "FoxModel2002.hpp"
 #include "TimeStepper.hpp"
 #include "MeshalyzerMeshWriter.cpp"
 #include "SumStimulus.hpp"
@@ -15,6 +14,9 @@
 
 #include "SpiralParameters.hpp"
 #include <memory>
+
+//#include "FoxModel2002.hpp"
+#include "BackwardEulerFoxModel2002.hpp"
 
 // Path to the parameter file
 const std::string parameter_file = "io/test/data/Baseline.xml";
@@ -32,8 +34,8 @@ std::string  mesh_output_directory = "/"; // Location for generated mesh files
 // Parameters fixed at compile time
 const std::string  cell_var_name = "Ca_i"; // Variable to output to results files
 const std::string  output_filename_prefix = "Run";
-const double ode_time_step = 0.002;     // ms
-const double pde_time_step = 0.01;     // ms
+const double ode_time_step = 0.02;     // ms
+const double pde_time_step = 0.02;     // ms
 const double printing_time_step = 0.1; // ms
 
 // Scale factor because Chaste code expects lengths in cm, but params use mm.
@@ -61,22 +63,22 @@ public:
         {
             if (x<=0 && z<=0)
             {
-                return new FoxModel2002(mpSolver, mTimeStep, mpSumStimulus);
+                return new BackwardEulerFoxModel2002(mTimeStep, mpSumStimulus);
             }
             else
             {
-                return new FoxModel2002(mpSolver, mTimeStep, mpStimulus);
+                return new BackwardEulerFoxModel2002(mTimeStep, mpStimulus);
             }
         }
         else
         {
             if (x<=0 && z<=0)
             {
-                return new FoxModel2002(mpSolver, mTimeStep, mpStimulus2);
+                return new BackwardEulerFoxModel2002(mTimeStep, mpStimulus2);
             }
             else
             {
-                return new FoxModel2002(mpSolver, mTimeStep, mpZeroStimulus);
+                return new BackwardEulerFoxModel2002(mTimeStep, mpZeroStimulus);
             }
         }
     }
