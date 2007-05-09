@@ -474,6 +474,7 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
     {
         EXCEPTION("Trying to delete a deleted node");
     }
+    unsigned attempts=0;
     while (!found_target)
     {
         Element <ELEMENT_DIM,SPACE_DIM> *p_element=
@@ -489,6 +490,10 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DeleteNode(unsigned inde
             catch (Exception e)
             {
                 //Just go round the loops and try again
+                attempts++;
+                if (attempts > 50){
+                    EXCEPTION("Failure to delete node");
+                }
             }
         }
     }
