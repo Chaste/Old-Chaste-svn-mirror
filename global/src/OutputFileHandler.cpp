@@ -53,8 +53,8 @@ std::string OutputFileHandler::GetTestOutputDirectory(std::string directory)
     std::string directory_root;
     if (chaste_test_output == NULL || *chaste_test_output == 0)
     {
-        // Default to within the Chaste directory
-        directory_root = "testoutput/";
+        // Default to within the current directory
+        directory_root = "./";
     }
     else
     {

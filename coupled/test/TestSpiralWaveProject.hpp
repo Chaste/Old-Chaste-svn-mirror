@@ -21,6 +21,7 @@
 // Path to the parameter file
 const std::string parameter_file = "io/test/data/Baseline.xml";
 
+
 // User-modifiable parameters.  Real values will be read from a config file.
 double simulation_duration = -1; // ms
 double slab_width = -1;          // mm
@@ -104,8 +105,8 @@ class TestSpiralWaveProject : public CxxTest::TestSuite
             inter_node_space = p_params->InterNodeSpace(); // mm
             face_stimulus_width = p_params->FaceStimulusWidth(); // mm
             quadrant_stimulus_delay = p_params->QuadrantStimulusDelay(); // ms
-            std::string  output_directory = p_params->OutputDirectory();
-            std::string  mesh_output_directory = p_params->MeshOutputDirectory();
+            output_directory = p_params->OutputDirectory();
+            mesh_output_directory = p_params->MeshOutputDirectory();
         }
         catch (const xml_schema::exception& e)
         {

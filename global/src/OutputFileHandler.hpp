@@ -41,7 +41,7 @@ public:
      * 
      * The environment variable CHASTE_TEST_OUTPUT will be examined.  If it is set
      * and non-empty it is taken to be a directory where test output should be stored.
-     * Otherwise a default location of testoutput/ within the current directory is used.
+     * Otherwise the current directory is used.
      * 
      * @param directory  pathname of the output directory, relative to where Chaste
      *         output will be stored (user shouldn't care about this).

@@ -30,7 +30,7 @@
 #include "Noble98ForwardEulerFromCellml.hpp"
 #include "Noble98BackwardEulerFromCellml.hpp"
 
-//#include "FoxModel2002.hpp"
+#include "FoxModel2002.hpp"
 #include "BackwardEulerFoxModel2002.hpp"
 
 class TestIonicModels : public CxxTest::TestSuite
