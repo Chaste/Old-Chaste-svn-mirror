@@ -7,7 +7,7 @@
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "FoxModel2002.hpp"
 #include "TimeStepper.hpp"
 #include "MeshalyzerMeshWriter.cpp"
 #include "SumStimulus.hpp"
@@ -30,9 +30,9 @@ std::string  output_directory = "/";      // Location to put simulation results
 std::string  mesh_output_directory = "/"; // Location for generated mesh files
 
 // Parameters fixed at compile time
-const std::string  cell_var_name = "CaI"; // Variable to output to results files
+const std::string  cell_var_name = "Ca_i"; // Variable to output to results files
 const std::string  output_filename_prefix = "Run";
-const double ode_time_step = 0.01;     // ms
+const double ode_time_step = 0.002;     // ms
 const double pde_time_step = 0.01;     // ms
 const double printing_time_step = 0.1; // ms
 
@@ -61,22 +61,22 @@ public:
         {
             if (x<=0 && z<=0)
             {
-                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpSumStimulus);
+                return new FoxModel2002(mpSolver, mTimeStep, mpSumStimulus);
             }
             else
             {
-                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus);
+                return new FoxModel2002(mpSolver, mTimeStep, mpStimulus);
             }
         }
         else
         {
             if (x<=0 && z<=0)
             {
-                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpStimulus2);
+                return new FoxModel2002(mpSolver, mTimeStep, mpStimulus2);
             }
             else
             {
-                return new LuoRudyIModel1991OdeSystem(mpSolver, mTimeStep, mpZeroStimulus);
+                return new FoxModel2002(mpSolver, mTimeStep, mpZeroStimulus);
             }
         }
     }

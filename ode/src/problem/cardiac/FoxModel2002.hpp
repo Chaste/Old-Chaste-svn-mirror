@@ -82,8 +82,7 @@ public:
     {
     }
 
-    void VerifyGatingVariables() {}
-
+    
     double GetIIonic()
     {
         std::vector<double>& rY = rGetStateVariables();
@@ -296,7 +295,20 @@ public:
         // Units: micromolar; Initial value: 0.0472
         double var_calcium_dynamics__Ca_SR = rY[12];
         // Units: micromolar; Initial value: 320
-        
+#ifndef NDEBUG
+#define COVERAGE_IGNORE
+   
+    //Iterate over gating variables
+    for (unsigned index=1; index<=10; index++)
+    {
+        if (!(0.0<=rY[index] && rY[index]<=1.0))
+        {
+            EXCEPTION(mVariableNames[index] + 
+                      " gate has gone out of range. Check model parameters, for example spatial stepsize");
+        }
+    }
+#undef COVERAGE_IGNORE
+#endif //NDEBUG        
         // Mathematics
         const double var_membrane__R = 8.314;
         const double var_membrane__T = 310.0;
