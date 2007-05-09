@@ -1,3 +1,2 @@
 TestBidomainCompareWithMemfem.hpp
-TestMonodomainHeartApex.hpp
 

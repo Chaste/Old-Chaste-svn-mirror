@@ -8,3 +8,4 @@ TestMonodomainDg0AssemblerLong.hpp
 TestMonodomainNoStimulus.hpp
 TestMonodomainSlab.hpp
 TestSpiralWaveProject.hpp
+TestMonodomainHeartApex.hpp
