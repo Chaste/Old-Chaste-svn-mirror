@@ -34,8 +34,7 @@ public :
                 &mooney_rivlin_law,
                 body_force,
                 1.0,
-                "dynamic_finite_elas/simple2dlong"
-                                                                     );
+                "dynamic_finite_elas/simple2dlong");
                                                                      
         dynamic_finite_elasticity.SetTimes(0.0,1.0,0.01);
         

@@ -71,8 +71,6 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
                                                  
     const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
     
-    
-    static std::vector< unsigned >                        local_dof_indices(dofs_per_element);
     static std::vector< Vector<double> >                  local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
     
@@ -104,8 +102,6 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
     
     elementMatrix = 0;
     elementRhs = 0;
-    
-    elementIter->get_dof_indices(local_dof_indices);
     
     fe_values.reinit(elementIter); // compute fe values for this element
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
@@ -382,8 +378,8 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
     while (time < mTend)
     {
         std::cout << "\n===================\n"
-        <<   "Time = " << time
-        << "\n===================\n";
+                  <<   "Time = " << time
+                  << "\n===================\n";
         
         // compute residual
         this->AssembleSystem(true, false);
@@ -395,8 +391,8 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
         while (norm_resid > tol)
         {
             std::cout <<  "\n-------------------\n"
-            <<   "Newton iteration " << newton_counter
-            << ":\n-------------------\n";
+                      <<   "Newton iteration " << newton_counter
+                      << ":\n-------------------\n";
             
             this->TakeNewtonStep();
             
@@ -408,17 +404,17 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
             newton_counter++;
             if (newton_counter==20)
             {
-#define COVERAGE_IGNORE
+                #define COVERAGE_IGNORE
                 EXCEPTION("Not converged after 20 newton iterations, quitting");
-#undef COVERAGE_IGNORE
+                #undef COVERAGE_IGNORE
             }
         }
         
         if (norm_resid > tol)
         {
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             EXCEPTION("Failed to converge");
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
         }
         
         time += mDt;

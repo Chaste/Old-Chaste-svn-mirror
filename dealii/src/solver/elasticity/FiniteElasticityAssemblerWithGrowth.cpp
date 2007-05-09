@@ -7,22 +7,15 @@
 #include <dofs/dof_tools.h>
 
 
-
-
-#include <numerics/solution_transfer.h>
-
-
-
 template<unsigned DIM>
 FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Triangulation<DIM>* pMesh,
-        AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-        Vector<double> bodyForce,
-        double density,
-        std::string outputDirectory,
-        AbstractGrowingTumourSourceModel<DIM>* pSourceModel,
-        unsigned degreeOfBasesForPosition,
-        unsigned degreeOfBasesForPressure
-                                                                             )  :
+                                                                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                              Vector<double> bodyForce,
+                                                                              double density,
+                                                                              std::string outputDirectory,
+                                                                              AbstractGrowingTumourSourceModel<DIM>* pSourceModel,
+                                                                              unsigned degreeOfBasesForPosition,
+                                                                              unsigned degreeOfBasesForPressure)  :
         FiniteElasticityAssembler<DIM>(pMesh,
                                        pMaterialLaw,
                                        bodyForce,
@@ -47,10 +40,6 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
         mGrowthOdeSystems[i] = NULL;
         mGrowthValuesAtVertices(i) = 1.0;
     }
-    
-    
-    
-    
     
     /////////////////////////////////////////////////////////////
     // find growing region and create odes for each node in the
@@ -105,15 +94,13 @@ FiniteElasticityAssemblerWithGrowth<DIM>::FiniteElasticityAssemblerWithGrowth(Tr
     }
     
     mAverageElementVolume = total_element_size/this->mpMesh->n_active_cells();
-    std::cout << "\nAverage element volume = " << mAverageElementVolume << "\n";
+    //std::cout << "\nAverage element volume = " << mAverageElementVolume << "\n";
     
     // check there was at least one growing element...
     if (!found_growing_region)
     {
         EXCEPTION("No elements in the mesh was labelled as growing");
     }
-    
-    mUseRefinement = true;
 }
 
 template<unsigned DIM>
@@ -130,18 +117,6 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::IsGrowingNode(unsigned vertexInde
 {
     assert(vertexIndex < mGrowthOdeSystems.size());
     return (mGrowthOdeSystems[vertexIndex]!=NULL);
-}
-
-template<unsigned DIM>
-void FiniteElasticityAssemblerWithGrowth<DIM>::DoNotUseRefinement()
-{
-    mUseRefinement = false;
-}
-
-template<unsigned DIM>
-void FiniteElasticityAssemblerWithGrowth<DIM>::UseRefinement()
-{
-    mUseRefinement = true;
 }
 
 
@@ -161,6 +136,13 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
     const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
     const unsigned n_face_q_points = face_quadrature_formula.n_quadrature_points;
     
+
+    FE_Q<DIM> linear_fe(1);
+    FEValues<DIM> linear_fe_values(linear_fe, quadrature_formula,
+                                   UpdateFlags(update_values));
+    unsigned linear_dofs_per_element = linear_fe.dofs_per_cell;
+    linear_fe_values.reinit(elementIter);
+
     
     // would want this to be static too (slight speed up), but causes errors
     // in debug mode (upon destruction of the class, in 2d, or something)
@@ -169,7 +151,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                         update_gradients |
                                         update_q_points  |     // needed for interpolating u and u' on the quad point
                                         update_JxW_values));
-                                        
+
+    
+    
     // would want this to be static too (slight speed up), but causes errors
     // in debug mode (upon destruction of the class, in 2d, or something)
     FEFaceValues<DIM> fe_face_values(this->mFeSystem, face_quadrature_formula,
@@ -181,8 +165,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                                                  
     const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
     
-    
-    static std::vector< unsigned >                     local_dof_indices(dofs_per_element);
     static std::vector< Vector<double> >               local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > > local_solution_gradients(n_q_points);
     
@@ -210,8 +192,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
     
     elementMatrix = 0;
     elementRhs = 0;
-    
-    elementIter->get_dof_indices(local_dof_indices);
     
     fe_values.reinit(elementIter); // compute fe values for this element
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
@@ -246,24 +226,15 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         static Tensor<2,DIM> inv_F;
         static SymmetricTensor<2,DIM> T;
         
+        double growth_term_g = 0;
+        for (unsigned i=0; i<linear_dofs_per_element; i++)
+        {
+            // a little iffy - don't know for certain linear_fe_values.shape_value(i,q)
+            // corresponds to the basis function for node i;
+            unsigned node_index = elementIter->vertex_index(i);
+            growth_term_g += mGrowthValuesAtVertices(node_index)*linear_fe_values.shape_value(i,q_point);
+        }
 
-        
-        // std::cout << n0 << " " << n1 << " " << n2 << " "<< n3 << "\n";
-        
-/// TODO: proper interpolation:
-        assert(DIM==2); // the follow is 2d specific!
-        unsigned n0 = elementIter->vertex_index(0);
-        unsigned n1 = elementIter->vertex_index(1);
-        unsigned n2 = elementIter->vertex_index(2);
-        unsigned n3 = elementIter->vertex_index(3);
-        double growth_term_g = 0.25*(
-                                   mGrowthValuesAtVertices(n0)
-                                   + mGrowthValuesAtVertices(n1)
-                                   + mGrowthValuesAtVertices(n2)
-                                   + mGrowthValuesAtVertices(n3)
-                               );
-                               
-        //std::cout << growth_term_g << " ";
                                
         for (unsigned i=0; i<DIM; i++)
         {
@@ -420,8 +391,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
                         if (component_i < this->PRESSURE_COMPONENT_INDEX)
                         {
                             elementRhs(i) +=   neumann_traction(component_i)
-                                               * fe_face_values.shape_value(i,q_point)
-                                               * fe_face_values.JxW(q_point);
+                                             * fe_face_values.shape_value(i,q_point)
+                                             * fe_face_values.JxW(q_point);
                         }
                     }
                 }
@@ -429,24 +400,167 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
         }
     }
     
-    
-    
-    if (element_volume > pow(2,DIM)*mAverageElementVolume)
+
+    if (element_volume > pow(2.0,DIM)*mAverageElementVolume)
     {
-        elementIter->set_user_flag();
+        elementIter->set_refine_flag();
     }
     else
     {
-        elementIter->clear_user_flag();
+        elementIter->clear_refine_flag();
     }
-    
+
+    if (element_volume < (1.0/pow(2.0,DIM))*mAverageElementVolume)
+    {
+        double mean_g = 0;
+        for(unsigned i=0; i<GeometryInfo<DIM>::vertices_per_cell; i++)
+        {
+            mean_g += mGrowthValuesAtVertices(elementIter->vertex_index(i));
+        }
+        mean_g /= GeometryInfo<DIM>::vertices_per_cell;
+
+        // don't coarsen if g is greater than 1
+        if(mean_g < 1)
+        {
+            elementIter->set_coarsen_flag();
+        }
+    }
+    else
+    {
+        elementIter->clear_coarsen_flag();
+    }
+
     first = false;
 }
 
 
 
+
+
 template<unsigned DIM>
-void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter)
+void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
+{
+    // only write output if the flag mWriteOutput has been set
+    if (!this->mWriteOutput)
+    {
+        return;
+    }
+
+    // create stresses file
+    std::stringstream ss;
+    ss << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".str";
+    std::string stress_filename = ss.str();
+    std::ofstream stress_output(stress_filename.c_str());
+    
+    static QGauss<DIM>   quadrature_formula(1);
+    const unsigned n_q_points = quadrature_formula.n_quadrature_points;
+
+    FEValues<DIM> fe_values(this->mFeSystem, quadrature_formula,
+                            UpdateFlags(update_values    |
+                                        update_gradients |
+                                        update_q_points  |     // needed for interpolating u and u' on the quad point
+                                        update_JxW_values));
+                                        
+    const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
+
+    std::vector< Vector<double> >                  local_solution_values(n_q_points);
+    std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
+    
+    Tensor<2,DIM> identity;
+    for (unsigned q_point=0; q_point<n_q_points; q_point++)
+    {
+        local_solution_values[q_point].reinit(DIM+1);
+        local_solution_gradients[q_point].resize(DIM+1);
+    }
+    
+    for (unsigned i=0; i<DIM; i++)
+    {
+        for (unsigned j=0; j<DIM; j++)
+        {
+            identity[i][j] = i==j ? 1.0 : 0.0;
+        }
+    }
+    
+    unsigned elem_number = 0;
+    typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
+   
+    while (element_iter!=this->mDofHandler.end())  
+    {
+        fe_values.reinit(element_iter); // compute fe values for this element
+        fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
+        fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
+
+        AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
+        if (!this->mHeterogeneous)
+        {
+            p_material_law = this->mMaterialLaws[0];
+        }
+        else
+        {
+            unsigned index = this->GetMaterialLawIndexFromMaterialId(element_iter->material_id());
+            p_material_law = this->mMaterialLaws[index];
+        }
+                
+        for (unsigned q_point=0; q_point<n_q_points; q_point++)
+        {
+            const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
+            
+            Vector<double> x;
+            x.reinit(DIM);
+            for(unsigned i=0; i<DIM; i++)
+            {
+                x(i) = local_solution_values[q_point](i);
+            }
+            
+            double p = local_solution_values[q_point](this->PRESSURE_COMPONENT_INDEX);
+            
+            
+            static Tensor<2,DIM> F;
+            static Tensor<2,DIM> C;
+            static Tensor<2,DIM> inv_C;
+            static Tensor<2,DIM> inv_F;
+            static SymmetricTensor<2,DIM> T;
+            
+            /// TODO: proper interpolation:
+            assert(DIM==2); // the follow is 2d specific!
+            unsigned n0 = element_iter->vertex_index(0);
+            unsigned n1 = element_iter->vertex_index(1);
+            unsigned n2 = element_iter->vertex_index(2);
+            unsigned n3 = element_iter->vertex_index(3);
+            double growth_term_g = 0.25*(  mGrowthValuesAtVertices(n0)
+                                         + mGrowthValuesAtVertices(n1)
+                                         + mGrowthValuesAtVertices(n2)
+                                         + mGrowthValuesAtVertices(n3)
+                                        );
+            for (unsigned i=0; i<DIM; i++)
+            {
+                for (unsigned j=0; j<DIM; j++)
+                {
+                    //full_F[i][j] = identity[i][j] + grad_u_p[i][j];
+                    F[i][j] = (identity[i][j] + grad_u_p[i][j])/growth_term_g;
+                }
+            }
+
+            
+            C = transpose(F) * F;
+            inv_C = invert(C);
+            inv_F = invert(F);
+            
+            double detF = determinant(F);
+            
+            p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,false);
+            
+            stress_output << elem_number++ << " " << T[0][0] << " " << T[1][0] << " " << T[1][1] << "\n";
+        }
+        
+        element_iter++;
+    }
+    stress_output.close();
+}
+
+
+template<unsigned DIM>
+void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter, bool writeDeformed)
 {
     // only write output if the flag mWriteOutput has been set
     if (!this->mWriteOutput)
@@ -454,48 +568,66 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter
         return;
     }
     
+    // make sure mDeformedPosition has been set up
+    this->rGetDeformedPosition();
+    this->rGetUndeformedPosition();
     
     /////////////////////////////////////////////////////////////////////
     // create an node file, by looping over vertices and writing
     //   vertex_index x y [z]
     /////////////////////////////////////////////////////////////////////
-    std::stringstream ss;
-    ss << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".nodes";
-    std::string nodes_filename = ss.str();
+    std::stringstream ss_nodes;
+    std::stringstream ss_elem;
+    ss_nodes << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;
+    ss_elem  << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter;;
+    if(writeDeformed)
+    {
+        ss_nodes << ".nodes";
+        ss_elem  << ".elem";
+    }
+    else
+    {
+        ss_nodes << ".undefnodes";
+        ss_elem  << ".undefelem";
+    }
+    std::string nodes_filename = ss_nodes.str();
     std::ofstream nodes_output(nodes_filename.c_str());
-    
-    DofVertexIterator<DIM> vertex_iter(this->mpMesh, &(this->mDofHandler));
+
+    // loop over nodes in the mesh using the vertex iter
+    // NOTE: we don't print out every all of 
+    // mDeformedPosition[i](index) because for some values of index, 
+    // it will correspond to a non-active node.
+    TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
     while (!vertex_iter.ReachedEnd())
     {
-        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-        nodes_output << vertex_index << " ";
+        unsigned index = vertex_iter.GetVertexGlobalIndex();
         
-        Point<DIM> old_posn = vertex_iter.GetVertex();
-        
-        Point<DIM> new_posn;
+        nodes_output << index << " "; 
         for (unsigned i=0; i<DIM; i++)
         {
-            new_posn(i) = old_posn(i) + this->mCurrentSolution(vertex_iter.GetDof(i));
-            nodes_output << new_posn(i) << " ";
+            if(writeDeformed)
+            {
+                nodes_output << this->mDeformedPosition[i](index) << " ";
+            }
+            else
+            {
+                nodes_output << this->mUndeformedPosition[i](index) << " ";
+            }   
         }
         nodes_output << "\n";
         vertex_iter.Next();
-    }
-    
+    } 
     nodes_output.close();
-    
-    
+     
     /////////////////////////////////////////////////////////////////////
     // create an element file, by looping over elements and writing
     //   node1 node2  .... nodeN tumour
     // where node_i is the vertex index and tumour = 0 or 1 indicating
     // whether in grwoing region or not
     /////////////////////////////////////////////////////////////////////
-    std::stringstream ss2;
-    ss2 << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".elem";
-    std::string elem_filename = ss2.str();
+    std::string elem_filename = ss_elem.str();
     std::ofstream elem_output(elem_filename.c_str());
-    
+
     typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
     while (element_iter!=this->mpMesh->end())
     {
@@ -517,151 +649,9 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteBasicOutput(unsigned counter
         elem_output << "\n";
         element_iter++;
     }
-    elem_output.close();
-    
+    elem_output.close();   
 }
 
-
-
-template<unsigned DIM>
-bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements(unsigned i)
-{
-    typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
-    
-    // determine if there any elements to refine
-    bool elements_to_refine = false;
-    while (element_iter!=this->mpMesh->end())
-    {
-        if (element_iter->user_flag_set())
-        {
-            element_iter->set_refine_flag();
-            elements_to_refine = true;
-        }
-        element_iter++;
-    }
-    
-    
-    
-    if (elements_to_refine)
-    {
-        this->mpMesh->prepare_coarsening_and_refinement();
-        
-        SolutionTransfer<DIM,double> solution_transfer(this->mDofHandler);
-        solution_transfer.prepare_for_coarsening_and_refinement(this->mCurrentSolution);
-        
-        SolutionTransfer<DIM,double> solution_transfer2(this->mDofHandler);
-        solution_transfer2.prepare_for_coarsening_and_refinement(this->mRhsVector);
-        
-        SolutionTransfer<DIM,double> solution_transfer3(this->mDofHandler);
-        solution_transfer3.prepare_for_coarsening_and_refinement(mGrowthValuesAtVertices);
-        
-        
-        
-        std::cout << "\n\n************\nRefining\n*************\n\n" << std::flush;
-        this->mpMesh->execute_coarsening_and_refinement();
-        
-        
-        
-        this->mDofHandler.distribute_dofs(this->mFeSystem);
-        
-        Vector<double> temp(this->mDofHandler.n_dofs());
-        solution_transfer.interpolate(this->mCurrentSolution, temp);
-        this->mCurrentSolution = temp;
-        
-        temp = 0;
-        solution_transfer2.interpolate(this->mRhsVector, temp);
-        this->mRhsVector = temp;
-        
-        
-        
-        
-        Vector<double> temp2(this->mpMesh->n_vertices());
-        assert(temp2.size() > mGrowthValuesAtVertices.size());
-        for (unsigned i=0; i<mGrowthValuesAtVertices.size(); i++)
-        {
-            temp2(i) = mGrowthValuesAtVertices(i);
-        }
-        
-        // this should be interpolated!!
-        for (unsigned i=mGrowthValuesAtVertices.size(); i<temp2.size(); i++)
-        {
-            temp2(i) = 1.0;
-        }
-        
-        mGrowthValuesAtVertices = temp2;
-        
-        
-        
-        
-        this->mHangingNodeConstraints.clear();
-        DoFTools::make_hanging_node_constraints(this->mDofHandler,
-                                                this->mHangingNodeConstraints);
-        this->mHangingNodeConstraints.close();
-        this->mHangingNodeConstraints.distribute(this->mCurrentSolution);
-        
-        
-        // form sparsity pattern
-        this->mSparsityPattern.reinit(this->mDofHandler.n_dofs(),
-                                      this->mDofHandler.n_dofs(),
-                                      this->mDofHandler.max_couplings_between_dofs());
-                                      
-        DoFTools::make_sparsity_pattern(this->mDofHandler, this->mSparsityPattern);
-        
-        // see dealii tutorial 2
-        this->mHangingNodeConstraints.condense(this->mSparsityPattern);
-        
-        
-        this->mSparsityPattern.compress();
-        
-        // initialise vectors and matrices
-        this->mSystemMatrix.reinit(this->mSparsityPattern);
-        this->mRhsVector.reinit(this->mDofHandler.n_dofs());
-        
-        
-        
-        
-        ///////////////////////////////////////////////////////////////
-        // recalculate the boundary values
-        ///////////////////////////////////////////////////////////////
-        this->mBoundaryValues.clear();
-        std::vector<bool> component_mask(DIM+1);
-        for (unsigned i=0; i<DIM; i++)
-        {
-            component_mask[i] = true;
-        }
-        component_mask[DIM] = false;
-        VectorTools::interpolate_boundary_values(this->mDofHandler,
-                                                 FIXED_BOUNDARY,
-                                                 ZeroFunction<DIM>(DIM+1),  // note the "+1" here! - number of components
-                                                 this->mBoundaryValues,
-                                                 component_mask);
-                                                 
-        this->mNumericalJacobianMatrix.reinit(this->mSparsityPattern);
-        
-        
-        ////////////////////////////////////////////////////////////////
-        // a check that all elements still have a correct material id
-        ////////////////////////////////////////////////////////////////
-        element_iter = this->mpMesh->begin_active();
-        while (element_iter!=this->mpMesh->end())
-        {
-            unsigned region = element_iter->material_id();
-            if ( (region!=GROWING_REGION) && (region!=NON_GROWING_REGION))
-            {
-                assert(0);
-            }
-            
-            element_iter++;
-        }
-        
-        return true;
-    }
-    else
-    {
-        std::cout << "\n\n***Not Refining****\n\n" << std::flush;
-        return false;
-    }
-}
 
 
 
@@ -687,6 +677,104 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::SetTimes(double Tstart, double Te
 }
 
 
+
+template<unsigned DIM>
+bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements()
+{
+    typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
+    
+    // determine if there any elements to refine
+    bool elements_to_refine = false;
+    unsigned ref_counter=0;
+    unsigned coa_counter=0;
+    unsigned total = 0;
+
+    std::cout << "RC:\n\n";
+    while (element_iter!=this->mpMesh->end())
+    {
+        if (element_iter->refine_flag_set() || element_iter->coarsen_flag_set())
+        {
+            elements_to_refine = true;
+        }
+
+        if (element_iter->refine_flag_set())
+        {
+            ref_counter++;
+            Point<2> posn = element_iter->center();
+//            std::cout << posn[0] << " " << posn[1] << " 1\n";
+        }
+
+        if (element_iter->coarsen_flag_set())
+        {
+            coa_counter++;
+            Point<2> posn = element_iter->center();
+//            std::cout << posn[0] << " " << posn[1] << " 2\n";
+        }
+        
+        total++;
+
+        element_iter++;
+    } 
+    
+    std::cout << "r,c,t = " << ref_counter << ", " << coa_counter << " " << total << "\n";
+    
+    static int counter_again = 0;
+       
+    if (elements_to_refine)
+    {
+        std::cout << "\n\n************\nRefining\n************\n\n" << std::flush;
+        
+        WriteGrowthValuesAtVertices(counter_again+200);
+        
+        this->AddVectorForInterpolation(&mGrowthValuesAtVertices);
+        this->Refine();        
+
+        WriteGrowthValuesAtVertices(counter_again+300);
+
+        
+        ///////////////////////////////////////////////////////////////
+        // recalculate the boundary values
+        ///////////////////////////////////////////////////////////////
+        this->mBoundaryValues.clear();
+        std::vector<bool> component_mask(DIM+1);
+        for (unsigned i=0; i<DIM; i++)
+        {
+            component_mask[i] = true;
+        }
+        component_mask[DIM] = false;
+        VectorTools::interpolate_boundary_values(this->mDofHandler,
+                                                 FIXED_BOUNDARY,
+                                                 ZeroFunction<DIM>(DIM+1),  // note the "+1" here! - number of components
+                                                 this->mBoundaryValues,
+                                                 component_mask);
+                                                 
+
+        ////////////////////////////////////////////////////////////////
+        // a check that all elements still have a correct material id
+        ////////////////////////////////////////////////////////////////
+        element_iter = this->mpMesh->begin_active();
+        while (element_iter!=this->mpMesh->end())
+        {
+            unsigned region = element_iter->material_id();
+            if ( (region!=GROWING_REGION) && (region!=NON_GROWING_REGION))
+            {
+                element_iter->set_material_id(GROWING_REGION);
+                assert(DIM==2);// this is just to point out that the above line might not be correct
+            }
+            
+            element_iter++;
+        }
+        
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
 template<unsigned DIM>
 void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
 {
@@ -695,22 +783,26 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         EXCEPTION("Start time, end time, dt have not been set. Call SetTimes() before Solve()");
     }
     
-    
     this->OutputResults(0);
     WriteBasicOutput(0);
-    
+    this->WriteStresses(0);
+
     unsigned counter=1;
     double time = mTstart;
     while (time < mTend)
     {
+        this->mWriteOutput = true;
+        WriteBasicOutput(counter,false);
+        
+
         // check everything is still fine
         assert(this->mpMesh->n_vertices()==mGrowthOdeSystems.size());
         assert(mGrowthValuesAtVertices.size()==mGrowthOdeSystems.size());
         
         
-        std::cout << "===========================\n";
-        std::cout << "Time = " << time << "\n";
-        std::cout << "===========================\n";
+        std::cout << "=======================\n";
+        std::cout << "  Time = " << time << "\n";
+        std::cout << "=======================\n";
         
         //////////////////////////////////////////////////////
         // Run the source model up to the next timestep
@@ -730,13 +822,43 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                                                        mOdeDt);
             }
         }
+   
         
-        
+        //////////////////////////////////////////////////////
+        // update the growth values
+        //////////////////////////////////////////////////////
+        TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
+        while (!vertex_iter.ReachedEnd())
+        {
+            Point<2> centre;
+            Point<2>& position = vertex_iter.GetVertex();
+            Point<2> diff = position - centre;
+    
+            double distance_to_centre = std::sqrt(diff.square());
+            double source_value = -3;//5*(distance_to_centre - 0.7);
+            
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            mGrowthValuesAtVertices(vertex_index) += this->mOdeDt*(1.0/2.0)*source_value*mGrowthValuesAtVertices(vertex_index);
+
+
+//            if (mGrowthOdeSystems[vertex_index]!=NULL)
+//            {
+//                mGrowthValuesAtVertices(vertex_index) = mGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
+//            }
+//            else
+//            {
+//                assert(fabs(mGrowthValuesAtVertices(vertex_index)-1)<1e-6);
+//            }
+            
+            vertex_iter.Next();
+        }
+
         unsigned num_vertices_before = this->mpMesh->n_vertices();
         
 // temporary - just to compute volumes.. - make volume calc/flag setting safe..
         this->AssembleSystem(true,false);
-        bool refined = RefineOvergrownElements(counter);
+
+        bool refined = RefineOvergrownElements();
         
         if (refined)
         {
@@ -748,8 +870,8 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                 mGrowthOdeSystems[i] = NULL;
             }
             
-            
-            typename Triangulation<DIM>::active_cell_iterator element_iter = this->mpMesh->begin_active();
+            typename Triangulation<DIM>::active_cell_iterator element_iter 
+               = this->mpMesh->begin_active();
                         
             // loop over all the elements in the mesh..
             while (element_iter!=this->mpMesh->end())
@@ -766,12 +888,12 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                         if (mGrowthOdeSystems[vertex_index]==NULL)
                         {
                             mGrowthOdeSystems[vertex_index]
-                            = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
-                                                                     vertex_index,
-                                                                     mpSourceModel);
-                                                                     
-//todo: set state var to mGrowthValuesAtVertices(i), once this has been interped correctly
-
+                                = new GrowthByConstantMassOdeSystem<DIM>(this->mDensity,
+                                                                         vertex_index,
+                                                                         mpSourceModel);
+                            
+                            mGrowthOdeSystems[vertex_index]->rGetStateVariables()[0] 
+                                = mGrowthValuesAtVertices(vertex_index);
 
                             Point<DIM> position = element_iter->vertex(i);
                             mpSourceModel->AddEvaluationPoint(vertex_index,
@@ -781,42 +903,21 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
                 }
                 
                 element_iter++;
-            }
+            }           
             
             this->mWriteOutput = true;
-            this->OutputResults(counter);
-            WriteBasicOutput(counter);
-            counter++;
-            
+            this->OutputResults(counter+100);
+            WriteBasicOutput(counter+100);
+            this->WriteStresses(counter+100);
+            WriteGrowthValuesAtVertices(counter+100); 
         }
-        
-        
-        //////////////////////////////////////////////////////
-        // update the growth values
-        //////////////////////////////////////////////////////
-        TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-        while (!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            if (mGrowthOdeSystems[vertex_index]!=NULL)
-            {
-                mGrowthValuesAtVertices(vertex_index) = mGrowthOdeSystems[vertex_index]->rGetStateVariables()[0];
-            }
-            else
-            {
-                assert(fabs(mGrowthValuesAtVertices(vertex_index)-1)<1e-6);
-            }
-            
-            vertex_iter.Next();
-        }
-        
+
         
         ////////////////////////////////////////////////////////
         // solve the (quasi-static) finite elasticity problem
         ////////////////////////////////////////////////////////
         this->mWriteOutput = false;
         this->Solve();
-        
         
         ////////////////////////////////////////////////////////
         // update the new position at the evaluation points
@@ -830,10 +931,47 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         this->mWriteOutput = true;
         this->OutputResults(counter);
         WriteBasicOutput(counter);
+        this->WriteStresses(counter);
+        WriteGrowthValuesAtVertices(counter);
+        
         counter++;
         time += mOdeDt;
     }
-};
-#endif // FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
+}
 
+
+template<unsigned DIM>
+void FiniteElasticityAssemblerWithGrowth<DIM>::WriteGrowthValuesAtVertices(unsigned counter)
+{
+    // only write output if the flag mWriteOutput has been set
+    if (!this->mWriteOutput)
+    {
+        return;
+    }
+    
+    std::stringstream ss;
+    ss << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".growth";
+    std::string growth_vals_filename = ss.str();
+    std::ofstream growth_vals_output(growth_vals_filename.c_str());
+
+    TriangulationVertexIterator<2> vertex_iter(this->mpMesh);
+    while (!vertex_iter.ReachedEnd())
+    {
+        Point<DIM> posn = vertex_iter.GetVertex();
+        unsigned index = vertex_iter.GetVertexGlobalIndex();
+        
+        growth_vals_output << index << " "; 
+        for (unsigned i=0; i<DIM; i++)
+        {
+            growth_vals_output << posn[i] << " ";
+        }
+        growth_vals_output << mGrowthValuesAtVertices(index)<<"\n";
+        vertex_iter.Next();
+    } 
+    
+    growth_vals_output.close();
+}
+
+
+#endif // FINITEELASTICITYASSEMBLERWITHGROWTH_CPP_
 

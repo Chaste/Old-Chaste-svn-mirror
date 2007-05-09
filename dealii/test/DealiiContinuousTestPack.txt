@@ -1,3 +1,4 @@
+TestAbstractDealiiAssembler.hpp
 TestAbstractGrowingTumourSourceModel.hpp
 TestConcentrationBasedTumourSourceModel.hpp
 TestDealii.hpp

@@ -16,6 +16,10 @@ protected:
     FE_Q<DIM>        mFe;    
     Vector<double>   mSolutionAtVertices;
     
+    void DistributeDofs()
+    {
+        this->mDofHandler.distribute_dofs(mFe);
+    }
     
     virtual void AssembleOnElement(typename DoFHandler<DIM>::active_cell_iterator  elementIter,
                                    Vector<double>&                                 elementRhs,
@@ -24,8 +28,6 @@ protected:
                                    bool                                            assembleMatrix)
     {
         static QGauss<DIM>   quadrature_formula(3);
-
-
         const unsigned n_q_points    = quadrature_formula.n_quadrature_points;
         
         

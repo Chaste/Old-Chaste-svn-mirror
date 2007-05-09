@@ -390,8 +390,6 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
                                                  
     const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
     
-    
-    static std::vector< unsigned >                        local_dof_indices(dofs_per_element);
     static std::vector< Vector<double> >                  local_solution_values(n_q_points);
     static std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
     
@@ -419,8 +417,6 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     
     elementMatrix = 0;
     elementRhs = 0;
-    
-    elementIter->get_dof_indices(local_dof_indices);
     
     fe_values.reinit(elementIter); // compute fe values for this element
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
@@ -466,7 +462,6 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         
         double detF = determinant(F);
         
-        static SymmetricTensor<2,DIM> T2;
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,assembleJacobian);
         
         for (unsigned i=0; i<dofs_per_element; i++)
@@ -611,12 +606,122 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
 }
 
 
+template<unsigned DIM>
+void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
+{
+    // only write output if the flag mWriteOutput has been set
+    if (!mWriteOutput)
+    {
+        return;
+    }
 
+    // create stresses file
+    std::stringstream ss;
+    ss << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".str";
+    std::string stress_filename = ss.str();
+    std::ofstream stress_output(stress_filename.c_str());
+    
+    static QGauss<DIM>   quadrature_formula(1);
+    const unsigned n_q_points = quadrature_formula.n_quadrature_points;
+
+    FEValues<DIM> fe_values(mFeSystem, quadrature_formula,
+                            UpdateFlags(update_values    |
+                                        update_gradients |
+                                        update_q_points  |     // needed for interpolating u and u' on the quad point
+                                        update_JxW_values));
+                                        
+    const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
+
+    std::vector< Vector<double> >                  local_solution_values(n_q_points);
+    std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
+    
+    Tensor<2,DIM> identity;
+    for (unsigned q_point=0; q_point<n_q_points; q_point++)
+    {
+        local_solution_values[q_point].reinit(DIM+1);
+        local_solution_gradients[q_point].resize(DIM+1);
+    }
+    
+    for (unsigned i=0; i<DIM; i++)
+    {
+        for (unsigned j=0; j<DIM; j++)
+        {
+            identity[i][j] = i==j ? 1.0 : 0.0;
+        }
+    }
+    
+    unsigned elem_number = 0;
+    typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
+   
+    while (element_iter!=this->mDofHandler.end())  
+    {
+        fe_values.reinit(element_iter); // compute fe values for this element
+        fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
+        fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
+
+        AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
+        if (!mHeterogeneous)
+        {
+            p_material_law = mMaterialLaws[0];
+        }
+        else
+        {
+            unsigned index = GetMaterialLawIndexFromMaterialId(element_iter->material_id());
+            p_material_law = mMaterialLaws[index];
+        }
+                
+        for (unsigned q_point=0; q_point<n_q_points; q_point++)
+        {
+            const std::vector< Tensor<1,DIM> >& grad_u_p = local_solution_gradients[q_point];
+            
+            Vector<double> x;
+            x.reinit(DIM);
+            for(unsigned i=0; i<DIM; i++)
+            {
+                x(i) = local_solution_values[q_point](i);
+            }
+            
+            double p = local_solution_values[q_point](PRESSURE_COMPONENT_INDEX);
+            
+            static Tensor<2,DIM> F;
+            static Tensor<2,DIM> C;
+            static Tensor<2,DIM> inv_C;
+            static Tensor<2,DIM> inv_F;
+            static SymmetricTensor<2,DIM> T;
+            
+            for (unsigned i=0; i<DIM; i++)
+            {
+                for (unsigned j=0; j<DIM; j++)
+                {
+                    F[i][j] = identity[i][j] + grad_u_p[i][j];
+                }
+            }
+            
+            C = transpose(F) * F;
+            inv_C = invert(C);
+            inv_F = invert(F);
+            
+            double detF = determinant(F);
+            
+            p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,false);
+            
+            stress_output << elem_number++ << " " << T[0][0] << " " << T[1][0] << " " << T[1][1] << "\n";
+        }
+        
+        element_iter++;
+    }
+    stress_output.close();
+}
+
+template<unsigned DIM>
+void FiniteElasticityAssembler<DIM>::DistributeDofs()
+{
+    this->mDofHandler.distribute_dofs(mFeSystem);
+}
 
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions()//bool assembleResidual,
-//bool assembleJacobian)
+void FiniteElasticityAssembler<DIM>::ApplyDirichletBoundaryConditions()
 {
     // The boundary conditions on the NONLINEAR SYSTEM are x=boundary_values
     // on the boundary nodes. However:
@@ -773,9 +878,9 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
             }
             else
             {
-#define COVERAGE_IGNORE
+                #define COVERAGE_IGNORE
                 no_difference = false;
-#undef COVERAGE_IGNORE
+                #undef COVERAGE_IGNORE
             }
             std::cout << value << " ";
         }
@@ -841,6 +946,7 @@ void FiniteElasticityAssembler<DIM>::TakeNewtonStep()
     
     SolverGMRES<>::AdditionalData gmres_additional_data(200);
     SolverGMRES<>  gmres(solver_control, vector_memory, gmres_additional_data);
+    
     gmres.solve(this->mSystemMatrix, update, this->mRhsVector, PreconditionIdentity());
     
     // deal with hanging nodes - form a continuous solutions
@@ -924,8 +1030,8 @@ void FiniteElasticityAssembler<DIM>::Solve()
     while (norm_resid > tol)
     {
         std::cout <<  "\n-------------------\n"
-        <<   "Newton iteration " << counter
-        << ":\n-------------------\n";
+                  <<   "Newton iteration " << counter
+                  << ":\n-------------------\n";
         
         TakeNewtonStep();
         
@@ -940,19 +1046,30 @@ void FiniteElasticityAssembler<DIM>::Solve()
         counter++;
         if (counter==20)
         {
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             EXCEPTION("Not converged after 20 newton iterations, quitting");
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
         }
     }
     
     if (norm_resid > tol)
     {
-#define COVERAGE_IGNORE
+        #define COVERAGE_IGNORE
         EXCEPTION("Failed to converge");
-#undef COVERAGE_IGNORE
+        #undef COVERAGE_IGNORE
     }
     
+    // set up mDeformedPosition
+    rGetDeformedPosition();
+}
+
+template<unsigned DIM>
+std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetDeformedPosition()
+{
+    for (unsigned i=0; i<DIM; i++)
+    {
+        mDeformedPosition[i].reinit(this->mpMesh->n_vertices());
+    }
     
     DofVertexIterator<DIM> vertex_iter(this->mpMesh, &this->mDofHandler);
     while (!vertex_iter.ReachedEnd())
@@ -963,16 +1080,12 @@ void FiniteElasticityAssembler<DIM>::Solve()
         for (unsigned i=0; i<DIM; i++)
         {
             mDeformedPosition[i](vertex_index) =   old_posn(i)
-                                                   + mCurrentSolution(vertex_iter.GetDof(i));
+                                                 + mCurrentSolution(vertex_iter.GetDof(i));
         }
         
         vertex_iter.Next();
     }
-}
-
-template<unsigned DIM>
-std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetDeformedPosition()
-{
+    
     return mDeformedPosition;
 }
 
@@ -1005,30 +1118,26 @@ Triangulation<DIM>* FiniteElasticityAssembler<DIM>::GetMesh()
 template<unsigned DIM>
 std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetUndeformedPosition()
 {
-    // if this is the first time this has been called, form the data structure
-    if (mUndeformedPosition.size()==0)
+    // initialise
+    mUndeformedPosition.resize(DIM);
+    for (unsigned i=0; i<DIM; i++)
     {
-        // initialise
-        mUndeformedPosition.resize(DIM);
+        mUndeformedPosition[i].reinit(this->mpMesh->n_vertices());
+    }
+    
+    // populate
+    TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
+    while (!vertex_iter.ReachedEnd())
+    {
+        unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+        Point<DIM> old_posn = vertex_iter.GetVertex();
+        
         for (unsigned i=0; i<DIM; i++)
         {
-            mUndeformedPosition[i].reinit(this->mpMesh->n_vertices());
+            mUndeformedPosition[i](vertex_index) = vertex_iter.GetVertex()(i);
         }
         
-        // populate
-        TriangulationVertexIterator<DIM> vertex_iter(this->mpMesh);
-        while (!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<DIM> old_posn = vertex_iter.GetVertex();
-            
-            for (unsigned i=0; i<DIM; i++)
-            {
-                mUndeformedPosition[i](vertex_index) = vertex_iter.GetVertex()(i);
-            }
-            
-            vertex_iter.Next();
-        }
+        vertex_iter.Next();
     }
     
     return mUndeformedPosition;

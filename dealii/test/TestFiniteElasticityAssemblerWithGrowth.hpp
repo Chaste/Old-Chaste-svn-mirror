@@ -15,48 +15,34 @@
 #include "ConcentrationBasedTumourSourceModel.hpp"
 #include "ConstantTumourSourceModel.hpp"
 
+#include "grid/tria_boundary_lib.h"
+
 // todos: proper test of answers, compare numerical jacobian
 // sensible test once s set up. change constructor
 
 class TumourGrowingDyingSourceModel : public AbstractGrowingTumourSourceModel<2>
 {
+private :
+    Point<2> mCentre;
 public :    
-    TumourGrowingDyingSourceModel()
+    TumourGrowingDyingSourceModel(double centre_x=0, double centre_y=0)
     {
+        mCentre[0] = centre_x;
+        mCentre[1] = centre_y;
     }
     
     void Run(double tStart, double tEnd, FiniteElasticityAssembler<2>* pFiniteElasticityAssembler)
     {
-        Point<2> centre;
-        centre[0] = 0.5;
-        centre[1] = 0.5;
-         
         std::map<unsigned,EvaluationPointInfo<2> >::iterator iter
             = this->mEvaluationPoints.begin();
         while (iter!=this->mEvaluationPoints.end())
         {
             unsigned mesh_index = iter->first;
             Point<2>& position = iter->second.OldPosition;
-            Point<2> diff = position-centre;
+            Point<2> diff = position-mCentre;
     
             double distance_to_centre = std::sqrt(diff.square());
-            double source_value = 2*(distance_to_centre - 0.39);
-
-//            if(distance_to_centre < 0.24)
-//            {
-//                source_value = -1;
-//            }
-//            else if(distance_to_centre < 0.49)
-//            {
-//                source_value = 0;
-//            }
-//            else
-//            {
-//                source_value = 1;
-//            }
-
-            std::cout << mesh_index << ": " << position[0] << " " <<  position[1] << ": "<<  distance_to_centre << " " << source_value << "\n";
-
+            double source_value = 2*(distance_to_centre - 0.7);
             iter->second.SourceValue = source_value;
             iter++;
         }
@@ -143,18 +129,24 @@ public :
     }
     
     
-    void no_TestGrowingDyingTumourModel()
+    void TestGrowingDyingTumourModel()
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
-        
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
+
         Triangulation<2> mesh;
-        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
-        mesh.refine_global(3);
-        
         Point<2> zero;
-        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, zero);
+
+//        GridGenerator::hyper_cube(mesh, 0.0, 2.0);
+//        mesh.refine_global(3);
+        GridGenerator::hyper_ball(mesh);
+        HyperBallBoundary<2> boundary(zero);
+        mesh.set_boundary(0, boundary);
+        mesh.refine_global(4);
+
+        TriangulationVertexIterator<2> iter(&mesh);
+        FiniteElasticityTools<2>::FixFacesContainingPoint(mesh, iter.GetVertex());
         
         // set all elements as growing region (using a circle with a big radius)
         FiniteElasticityTools<2>::SetCircularRegionAsGrowingRegion(mesh, zero, 100);
@@ -170,7 +162,7 @@ public :
                                                                       "finite_elas_growth/tumour_only",
                                                                       &source_model); 
                 
-        finiteelas_with_growth.SetTimes(0.0, 1, 0.1);
+        finiteelas_with_growth.SetTimes(0.0, 5, 0.05);
         finiteelas_with_growth.Run();
     }
     
@@ -206,11 +198,11 @@ public :
         ConcentrationBasedTumourSourceModel<2> source_model(mesh);
         
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
-                &mooney_rivlin_law,
-                body_force,
-                density,
-                "finite_elas_growth/simple2d",
-                &source_model);
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      density,
+                                                                      "finite_elas_growth/simple2d",
+                                                                      &source_model);
                 
                 
         // loop over all the elements, and if it is in the growing region, check
@@ -311,9 +303,6 @@ public :
         finiteelas_with_growth.SetMaterialLawsForHeterogeneousProblem(material_laws,
                 material_ids);
                 
-                
-                
-        finiteelas_with_growth.DoNotUseRefinement();
         finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
         finiteelas_with_growth.Run();
     }

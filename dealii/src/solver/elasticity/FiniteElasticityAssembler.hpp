@@ -124,6 +124,8 @@ protected:
      * accessable form. Only created if asked for */
     std::vector<Vector<double> > mUndeformedPosition;
     
+    virtual void WriteStresses(unsigned counter);
+    
     /**
      *  AssembleOnElement
      *  
@@ -183,6 +185,7 @@ protected:
      */
     void ComputeNumericalJacobian();
     
+    void DistributeDofs();
     
 public:
     /**

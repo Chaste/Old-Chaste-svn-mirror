@@ -38,7 +38,13 @@
 #include <dofs/dof_constraints.h>
 
 
+#include <numerics/solution_transfer.h>
+
+
 #include <iostream>
+
+#include "TriangulationVertexIterator.hpp"
+#include "DofVertexIterator.hpp"
 
 /**
  *  Abstract assembler with common functionality for most assemblers.
@@ -90,6 +96,9 @@ protected:
      */
     unsigned             mDofsPerElement;
     
+    std::vector<Vector<double>*> mVectorsToInterpolate;
+    
+
     /**
      *  The main function to be implemented in the concrete class
      * 
@@ -115,6 +124,9 @@ protected:
      */
     virtual void ApplyDirichletBoundaryConditions()=0;
     
+    virtual void DistributeDofs()=0;
+
+
     /**
      *  Initialise the system matrix, system rhs vector, current solution vector, and 
      *  hanging nodes constraints objects
@@ -149,6 +161,8 @@ protected:
         // initialise vectors and matrices
         mSystemMatrix.reinit(mSparsityPattern);
         mCurrentSolution.reinit(mDofHandler.n_dofs());
+        mHangingNodeConstraints.distribute(mCurrentSolution);
+
         mRhsVector.reinit(mDofHandler.n_dofs());
     }
     
@@ -208,11 +222,6 @@ protected:
                               element_matrix,
                               assembleVector,
                               assembleMatrix);
-                              
-            //if(assembleMatrix)
-            //{
-            //    std::cout << elem_counter++ << " of " << mpMesh->n_active_cells() << "\n" << std::flush;
-            //}
             
             for (unsigned i=0; i<mDofsPerElement; i++)
             {
@@ -258,7 +267,7 @@ public :
         // pMesh==NULL
         assert(pMesh!=NULL);
         mpMesh = pMesh;
-        
+               
         // initially set mDofsPerElement to be zero so can check it
         // has been set in AssembleSystem(). It should be set in the
         // constructor of a concrete class using something like
@@ -266,8 +275,126 @@ public :
         mDofsPerElement = 0;
     }
     
+    
+    // possibly incredibly inefficient
+    void Refine()
+    {
+        FE_Q<DIM> linear_fe(1);
+        
+        // shouldn't use more than one SolutionTransfer, but we have to,
+        // so make a copy of the mesh(!)
+        // TODO: make this efficient
+        Triangulation<DIM> copy_of_mesh;
+        copy_of_mesh.copy_triangulation(*mpMesh);
+        
+        DoFHandler<DIM> linear_dof_handler(copy_of_mesh);
+        linear_dof_handler.distribute_dofs(linear_fe);
+
+        mpMesh->prepare_coarsening_and_refinement();
+        copy_of_mesh.prepare_coarsening_and_refinement();
+
+        SolutionTransfer<DIM,double> transfer_for_cur_soln(mDofHandler);
+        transfer_for_cur_soln.prepare_for_coarsening_and_refinement(mCurrentSolution);
+        
+        unsigned num_vecs_to_interpolate = mVectorsToInterpolate.size();
+        SolutionTransfer<DIM,double> transfer_for_other_vecs(linear_dof_handler);
+        std::vector<Vector<double> > vecs_by_dofs(num_vecs_to_interpolate);
+
+        if(num_vecs_to_interpolate>0)
+        {
+            for(unsigned i=0; i<num_vecs_to_interpolate; i++)
+            {
+                vecs_by_dofs[i].reinit(mpMesh->n_used_vertices());
+                vecs_by_dofs[i]=0;
+
+                DofVertexIterator<2> dof_vertex_iter(mpMesh, &linear_dof_handler);
+                while(!dof_vertex_iter.ReachedEnd())
+                {
+                    unsigned index = dof_vertex_iter.GetVertexGlobalIndex();
+                    unsigned dof = dof_vertex_iter.GetDof(0);
+                    vecs_by_dofs[i](dof) = (*(mVectorsToInterpolate[i]))(index);
+                    
+                    dof_vertex_iter.Next();
+                }
+            }
+    
+            transfer_for_other_vecs.prepare_for_coarsening_and_refinement(vecs_by_dofs);
+        }
+
+        mpMesh->execute_coarsening_and_refinement();
+        copy_of_mesh.execute_coarsening_and_refinement();
+
+        DistributeDofs();
+
+        linear_dof_handler.distribute_dofs(linear_fe);
+
+        Vector<double> new_current_soln(this->mDofHandler.n_dofs());
+        
+        transfer_for_cur_soln.interpolate(mCurrentSolution, new_current_soln); 
+
+        InitialiseMatricesVectorsAndConstraints();
+
+        mCurrentSolution = new_current_soln;
+
+        if(num_vecs_to_interpolate>0)
+        {
+            std::vector<Vector<double> > new_vecs_by_dofs(num_vecs_to_interpolate);
+
+            for(unsigned i=0; i<num_vecs_to_interpolate; i++)
+            {
+                new_vecs_by_dofs[i].reinit(linear_dof_handler.n_dofs());
+            }
+
+            transfer_for_other_vecs.interpolate(vecs_by_dofs, new_vecs_by_dofs);
+                        
+            for(unsigned i=0; i<num_vecs_to_interpolate; i++)
+            {
+                (*(mVectorsToInterpolate[i])).reinit(mpMesh->n_vertices());
+                DofVertexIterator<2> dof_vertex_iter(mpMesh, &linear_dof_handler);
+                while(!dof_vertex_iter.ReachedEnd())
+                {
+                    unsigned index = dof_vertex_iter.GetVertexGlobalIndex();
+                    unsigned dof = dof_vertex_iter.GetDof(0);
+
+                    (*(mVectorsToInterpolate[i]))(index) = new_vecs_by_dofs[i](dof);
+                    dof_vertex_iter.Next();
+                } 
+            }
+        }
+
+        ApplyDirichletBoundaryConditions();
+        
+        mVectorsToInterpolate.clear();
+    }    
+    
+    
+
+    Vector<double>& rGetCurrentSolution()
+    {
+        return mCurrentSolution;
+    }    
+    
+    void GetSolutionAtVertices(Vector<double>& rSolutionAtVertices, unsigned dof=0)
+    {
+        rSolutionAtVertices.reinit(mpMesh->n_vertices());
+        DofVertexIterator<DIM> vertex_iter(mpMesh, &mDofHandler);
+        while (!vertex_iter.ReachedEnd())
+        {
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            rSolutionAtVertices(vertex_index) = mCurrentSolution(vertex_iter.GetDof(dof));
+            vertex_iter.Next();
+        }
+    }
+    
+    void AddVectorForInterpolation(Vector<double>* pVector)
+    {
+        mVectorsToInterpolate.push_back(pVector);
+    }
+    
     virtual ~AbstractDealiiAssembler()
     {}
 };
 
 #endif /*ABSTRACTDEALIIASSEMBLER_HPP_*/
+
+

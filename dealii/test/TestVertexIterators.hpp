@@ -98,7 +98,14 @@ public :
         }
         
         vertex_iter.Reset();
+        counter=0;
         TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
+        while (!vertex_iter.ReachedEnd())
+        {
+            counter++;
+            vertex_iter.Next();
+        }
+        TS_ASSERT_EQUALS(counter, num_nodes);
     }
     
     
@@ -204,7 +211,14 @@ public :
         }
         
         vertex_iter.Reset();
+        counter=0;
         TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
+        while (!vertex_iter.ReachedEnd())
+        {
+            counter++;
+            vertex_iter.Next();
+        }
+        TS_ASSERT_EQUALS(counter, num_nodes);
     }
 };
 

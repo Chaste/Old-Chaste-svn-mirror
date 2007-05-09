@@ -70,17 +70,22 @@ private :
     }
     
 public :
-    DofVertexIterator(Triangulation<DIM>* pMesh, DoFHandler<DIM>* pDofHandler)
-            : mpMesh(pMesh),
-            mpDofHandler(pDofHandler),
-            mVertexTouched(mpMesh->n_vertices(),false),
-            mpCurrentCell(mpDofHandler->begin_active())
+    DofVertexIterator(Triangulation<DIM>* pMesh, DoFHandler<DIM>* pDofHandler) : 
+              mpMesh(pMesh),
+              mpDofHandler(pDofHandler),
+              mVertexTouched(mpMesh->n_vertices(),false),
+              mpCurrentCell(mpDofHandler->begin_active())
     {
         assert(pMesh && pDofHandler);
         
         mCurrentVertexIndex = 0;
-        
         mReachedEnd = (mpCurrentCell==mpDofHandler->end());
+        
+        // set the current node as having been touched
+        if(!mReachedEnd)
+        {
+            mVertexTouched[GetVertexGlobalIndex()] = true;
+        }
     }
     
     /**
@@ -97,12 +102,8 @@ public :
             if ( !mReachedEnd && !mVertexTouched[mpCurrentCell->vertex_index(mCurrentVertexIndex)] )
             {
                 found = true;
+                mVertexTouched[GetVertexGlobalIndex()] = true;
             }
-        }
-        
-        if (!mReachedEnd)
-        {
-            mVertexTouched[mpCurrentCell->vertex_index(mCurrentVertexIndex)] = true;
         }
     }
     
@@ -165,6 +166,12 @@ public :
      */
     void Reset()
     {
+        // resize mVertexTouched in case the mesh has been refined..
+        if(mVertexTouched.size()!=mpMesh->n_vertices())
+        {
+            mVertexTouched.resize(mpMesh->n_vertices());
+        }
+        
         for (unsigned i=0; i<mpMesh->n_vertices(); i++)
         {
             mVertexTouched[i] = false;
@@ -172,6 +179,12 @@ public :
         mpCurrentCell = mpDofHandler->begin_active();
         mCurrentVertexIndex = 0;
         mReachedEnd = (mpCurrentCell==mpDofHandler->end());
+        
+        // set the current node as having been touched
+        if(!mReachedEnd)
+        {
+            mVertexTouched[GetVertexGlobalIndex()] = true;
+        }
     }
 };
 

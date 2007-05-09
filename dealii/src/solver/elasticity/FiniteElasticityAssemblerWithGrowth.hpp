@@ -9,7 +9,6 @@
 //todos:
 // doxygen,
 // proper interpolation of g
-// interpolate g onto the refined mesh
 // writebasicoutput method - move outside?
 
 // use something like simulation time?
@@ -61,8 +60,8 @@ protected:
     AbstractGrowingTumourSourceModel<DIM>* mpSourceModel;
     
     double mAverageElementVolume;
-    
-    void WriteBasicOutput(unsigned counter);
+
+    void WriteBasicOutput(unsigned counter, bool writeDeformed=true);
     
     /**
      *  Reimplemented to include growth term (only a minor change)
@@ -72,14 +71,13 @@ protected:
                                    FullMatrix<double>&                             elementMatrix,
                                    bool                                            assembleResidual,
                                    bool                                            assembleJacobian);
+
+    virtual void WriteStresses(unsigned counter);
+    
+    void WriteGrowthValuesAtVertices(unsigned counter);
+    
+    bool RefineOvergrownElements();
                                    
-    /**
-     *  Refine the elements which have gotten too large
-     */
-    bool RefineOvergrownElements(unsigned);
-    bool mUseRefinement;
-    
-    
 public:
     /**
      *  Constructor
@@ -117,9 +115,6 @@ public:
      *  this vertex in the mesh. Mainly for testing purposes
      */
     bool IsGrowingNode(unsigned vertexIndex);
-    
-    void DoNotUseRefinement();
-    void UseRefinement();
     
     /* Inherited
         virtual void Solve();
