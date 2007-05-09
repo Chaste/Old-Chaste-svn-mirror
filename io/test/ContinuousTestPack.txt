@@ -1,2 +1,3 @@
 TestColumnDataReaderWriter.hpp
 TestParallelColumnDataReaderWriter.hpp
+TestSpiralParametersReader.hpp

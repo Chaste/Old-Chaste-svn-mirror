@@ -312,23 +312,23 @@ class SpiralParameters
       void
       FaceStimulusWidth (const FaceStimulusWidth::type&);
 
-      // QuadrantSimulusDelay
+      // QuadrantStimulusDelay
       // 
       public:
-      struct QuadrantSimulusDelay
+      struct QuadrantStimulusDelay
       {
         typedef ::xml_schema::decimal type;
         typedef ::xsd::cxx::tree::traits< type, char > traits;
       };
 
-      const QuadrantSimulusDelay::type&
-      QuadrantSimulusDelay () const;
+      const QuadrantStimulusDelay::type&
+      QuadrantStimulusDelay () const;
 
-      QuadrantSimulusDelay::type&
-      QuadrantSimulusDelay ();
+      QuadrantStimulusDelay::type&
+      QuadrantStimulusDelay ();
 
       void
-      QuadrantSimulusDelay (const QuadrantSimulusDelay::type&);
+      QuadrantStimulusDelay (const QuadrantStimulusDelay::type&);
 
       // OutputDirectory
       // 
@@ -380,7 +380,7 @@ class SpiralParameters
                         const SlabHeight::type&,
                         const InterNodeSpace::type&,
                         const FaceStimulusWidth::type&,
-                        const QuadrantSimulusDelay::type&,
+                        const QuadrantStimulusDelay::type&,
                         const OutputDirectory::type&,
                         const MeshOutputDirectory::type&);
 
@@ -407,7 +407,7 @@ class SpiralParameters
       ::xsd::cxx::tree::one< SlabHeight::type > _xsd_SlabHeight_;
       ::xsd::cxx::tree::one< InterNodeSpace::type > _xsd_InterNodeSpace_;
       ::xsd::cxx::tree::one< FaceStimulusWidth::type > _xsd_FaceStimulusWidth_;
-      ::xsd::cxx::tree::one< QuadrantSimulusDelay::type > _xsd_QuadrantSimulusDelay_;
+      ::xsd::cxx::tree::one< QuadrantStimulusDelay::type > _xsd_QuadrantStimulusDelay_;
       ::xsd::cxx::tree::one< OutputDirectory::type > _xsd_OutputDirectory_;
       ::xsd::cxx::tree::one< MeshOutputDirectory::type > _xsd_MeshOutputDirectory_;
     };

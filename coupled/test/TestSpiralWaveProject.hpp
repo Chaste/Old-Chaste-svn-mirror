@@ -11,25 +11,33 @@
 #include "TimeStepper.hpp"
 #include "MeshalyzerMeshWriter.cpp"
 #include "SumStimulus.hpp"
-#include <time.h>
+#include <ctime>
 
-const double simulation_duration = 5.0;    // ms *
+#include "SpiralParameters.hpp"
+#include <memory>
 
-const double slab_width = 2;     // mm *
-const double slab_height= 1;     // mm *
-const double inter_node_space = 0.25;// mm *
-const double face_stimulus_width = 0.25; // mm *
-const double quadrant_stimulus_delay = 120.0; // ms
+// Path to the parameter file
+const std::string parameter_file = "io/test/data/Baseline.xml";
 
-const std::string  output_directory="SpiralWave"; // *
-const std::string  mesh_output_directory="Slab"; // *
-const std::string  cell_var_name="CaI"; // *
+// User-modifiable parameters.  Real values will be read from a config file.
+double simulation_duration = -1; // ms
+double slab_width = -1;          // mm
+double slab_height= -1;          // mm
+double inter_node_space = -1;    // mm
+double face_stimulus_width = -1; // mm
+double quadrant_stimulus_delay = -1; // ms
+std::string  output_directory = "/";      // Location to put simulation results
+std::string  mesh_output_directory = "/"; // Location for generated mesh files
 
-const std::string  output_filename_prefix="Run";
-const double ode_time_step=0.01;    // ms
-const double pde_time_step=0.01;    // ms
-const double printing_time_step =0.1;// ms
-double scale_factor = inter_node_space/10.0;
+// Parameters fixed at compile time
+const std::string  cell_var_name = "CaI"; // Variable to output to results files
+const std::string  output_filename_prefix = "Run";
+const double ode_time_step = 0.01;     // ms
+const double pde_time_step = 0.01;     // ms
+const double printing_time_step = 0.1; // ms
+
+// Scale factor because Chaste code expects lengths in cm, but params use mm.
+const double scale_factor = 1/10.0;
 
 class SpiralWaveCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -49,7 +57,7 @@ public:
     {
         double x=mpMesh->GetNode(node)->GetPoint()[0];
         double z=mpMesh->GetNode(node)->GetPoint()[2];
-        if ( x <= scale_factor*(face_stimulus_width-slab_width) )
+        if ( x <= inter_node_space*scale_factor*(face_stimulus_width-slab_width) )
         {
             if (x<=0 && z<=0)
             {
@@ -83,13 +91,36 @@ public:
 
 class TestSpiralWaveProject : public CxxTest::TestSuite
 {
-public:
+    void ReadParametersFromFile()
+    {
+        try
+        {
+            std::auto_ptr<SpiralParameters::type> p_params(SpiralParameters(parameter_file));
+            simulation_duration = p_params->SimulationDuration();
+            slab_width = p_params->SlabWidth();     // mm
+            slab_height = p_params->SlabHeight();   // mm
+            inter_node_space = p_params->InterNodeSpace(); // mm
+            face_stimulus_width = p_params->FaceStimulusWidth(); // mm
+            quadrant_stimulus_delay = p_params->QuadrantStimulusDelay(); // ms
+            std::string  output_directory = p_params->OutputDirectory();
+            std::string  mesh_output_directory = p_params->MeshOutputDirectory();
+        }
+        catch (const xml_schema::exception& e)
+        {
+             std::cerr << e << std::endl;
+             EXCEPTION("XML parsing error");
+        }
+    }
 
+public:
     void TestMonodomain3DSlab() throw (Exception)
     {
+        ReadParametersFromFile();
+        
         // construct mesh. Note that mesh is measured in cm
         unsigned slab_nodes_width = (unsigned)round(slab_width/inter_node_space);
         unsigned slab_nodes_height = (unsigned)round(slab_height/inter_node_space);
+   
         ConformingTetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(slab_nodes_width,
                              slab_nodes_height,
@@ -100,8 +131,8 @@ public:
                        -(double)slab_nodes_height/2.0,
                        -(double)slab_nodes_width/2.0);
         // scale
-        double scale_factor = inter_node_space/10.0;
-        mesh.Scale(scale_factor, scale_factor, scale_factor);
+        double mesh_scale_factor = inter_node_space*scale_factor;
+        mesh.Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
         
         SpiralWaveCellFactory cell_factory;
         

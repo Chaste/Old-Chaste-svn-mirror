@@ -8,7 +8,7 @@
         <xs:element ref="SlabHeight"/>
         <xs:element ref="InterNodeSpace"/>
         <xs:element ref="FaceStimulusWidth"/>
-        <xs:element ref="QuadrantSimulusDelay"/>
+        <xs:element ref="QuadrantStimulusDelay"/>
         <xs:element ref="OutputDirectory"/>
         <xs:element ref="MeshOutputDirectory"/>
       </xs:sequence>
@@ -19,7 +19,7 @@
   <xs:element name="SlabHeight" type="xs:decimal"/>
   <xs:element name="InterNodeSpace" type="xs:decimal"/>
   <xs:element name="FaceStimulusWidth" type="xs:decimal"/>
-  <xs:element name="QuadrantSimulusDelay" type="xs:decimal"/>
+  <xs:element name="QuadrantStimulusDelay" type="xs:decimal"/>
   <xs:element name="OutputDirectory" type="xs:NCName"/>
   <xs:element name="MeshOutputDirectory" type="xs:NCName"/>
 </xs:schema>

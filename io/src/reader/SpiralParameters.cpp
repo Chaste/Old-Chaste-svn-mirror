@@ -132,22 +132,22 @@ FaceStimulusWidth (const FaceStimulusWidth::type& FaceStimulusWidth)
   this->_xsd_FaceStimulusWidth_.set (FaceStimulusWidth);
 }
 
-const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::QuadrantSimulusDelay::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
-QuadrantSimulusDelay () const
+const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::QuadrantStimulusDelay::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+QuadrantStimulusDelay () const
 {
-  return this->_xsd_QuadrantSimulusDelay_.get ();
+  return this->_xsd_QuadrantStimulusDelay_.get ();
 }
 
-SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::QuadrantSimulusDelay::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
-QuadrantSimulusDelay ()
+SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::QuadrantStimulusDelay::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
+QuadrantStimulusDelay ()
 {
-  return this->_xsd_QuadrantSimulusDelay_.get ();
+  return this->_xsd_QuadrantStimulusDelay_.get ();
 }
 
 void SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
-QuadrantSimulusDelay (const QuadrantSimulusDelay::type& QuadrantSimulusDelay)
+QuadrantStimulusDelay (const QuadrantStimulusDelay::type& QuadrantStimulusDelay)
 {
-  this->_xsd_QuadrantSimulusDelay_.set (QuadrantSimulusDelay);
+  this->_xsd_QuadrantStimulusDelay_.set (QuadrantStimulusDelay);
 }
 
 const SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::OutputDirectory::type& SpiralParameters::_xsd_SpiralParameters_::SpiralParameters::
@@ -211,7 +211,7 @@ SpiralParameters (const SimulationDuration::type& _xsd_SimulationDuration,
                   const SlabHeight::type& _xsd_SlabHeight,
                   const InterNodeSpace::type& _xsd_InterNodeSpace,
                   const FaceStimulusWidth::type& _xsd_FaceStimulusWidth,
-                  const QuadrantSimulusDelay::type& _xsd_QuadrantSimulusDelay,
+                  const QuadrantStimulusDelay::type& _xsd_QuadrantStimulusDelay,
                   const OutputDirectory::type& _xsd_OutputDirectory,
                   const MeshOutputDirectory::type& _xsd_MeshOutputDirectory)
 : ::xml_schema::type (),
@@ -230,9 +230,9 @@ _xsd_InterNodeSpace_ (_xsd_InterNodeSpace,
 _xsd_FaceStimulusWidth_ (_xsd_FaceStimulusWidth,
                          ::xml_schema::flags (),
                          this),
-_xsd_QuadrantSimulusDelay_ (_xsd_QuadrantSimulusDelay,
-                            ::xml_schema::flags (),
-                            this),
+_xsd_QuadrantStimulusDelay_ (_xsd_QuadrantStimulusDelay,
+                             ::xml_schema::flags (),
+                             this),
 _xsd_OutputDirectory_ (_xsd_OutputDirectory,
                        ::xml_schema::flags (),
                        this),
@@ -262,9 +262,9 @@ _xsd_InterNodeSpace_ (_xsd_SpiralParameters._xsd_InterNodeSpace_,
 _xsd_FaceStimulusWidth_ (_xsd_SpiralParameters._xsd_FaceStimulusWidth_,
                          f | ::xml_schema::flags::not_root,
                          this),
-_xsd_QuadrantSimulusDelay_ (_xsd_SpiralParameters._xsd_QuadrantSimulusDelay_,
-                            f | ::xml_schema::flags::not_root,
-                            this),
+_xsd_QuadrantStimulusDelay_ (_xsd_SpiralParameters._xsd_QuadrantStimulusDelay_,
+                             f | ::xml_schema::flags::not_root,
+                             this),
 _xsd_OutputDirectory_ (_xsd_SpiralParameters._xsd_OutputDirectory_,
                        f | ::xml_schema::flags::not_root,
                        this),
@@ -284,7 +284,7 @@ _xsd_SlabWidth_ (f | ::xml_schema::flags::not_root, this),
 _xsd_SlabHeight_ (f | ::xml_schema::flags::not_root, this),
 _xsd_InterNodeSpace_ (f | ::xml_schema::flags::not_root, this),
 _xsd_FaceStimulusWidth_ (f | ::xml_schema::flags::not_root, this),
-_xsd_QuadrantSimulusDelay_ (f | ::xml_schema::flags::not_root, this),
+_xsd_QuadrantStimulusDelay_ (f | ::xml_schema::flags::not_root, this),
 _xsd_OutputDirectory_ (f | ::xml_schema::flags::not_root, this),
 _xsd_MeshOutputDirectory_ (f | ::xml_schema::flags::not_root, this)
 {
@@ -380,15 +380,15 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       }
     }
 
-    // QuadrantSimulusDelay
+    // QuadrantStimulusDelay
     //
     {
-      if (e.name () == "QuadrantSimulusDelay" && e.namespace_ () == "")
+      if (e.name () == "QuadrantStimulusDelay" && e.namespace_ () == "")
       {
-        if (_xsd_QuadrantSimulusDelay_.present ())
+        if (_xsd_QuadrantStimulusDelay_.present ())
           continue;
-        this->QuadrantSimulusDelay (
-          QuadrantSimulusDelay::traits::create (
+        this->QuadrantStimulusDelay (
+          QuadrantStimulusDelay::traits::create (
             e.dom_element (),
             f | ::xml_schema::flags::not_root,
             this));
@@ -468,10 +468,10 @@ parse (const ::xercesc::DOMElement& e, ::xml_schema::flags f)
       "");
   }
 
-  if (!_xsd_QuadrantSimulusDelay_.present ())
+  if (!_xsd_QuadrantStimulusDelay_.present ())
   {
     throw ::xsd::cxx::tree::expected_element< char > (
-      "QuadrantSimulusDelay",
+      "QuadrantStimulusDelay",
       "");
   }
 
