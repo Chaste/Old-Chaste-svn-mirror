@@ -13,13 +13,13 @@
 #include "SumStimulus.hpp"
 #include <time.h>
 
-const double simulation_duration =10.0;    // ms *
+const double simulation_duration = 5.0;    // ms *
 
 const double slab_width = 2;     // mm *
 const double slab_height= 1;     // mm *
 const double inter_node_space = 0.25;// mm *
 const double face_stimulus_width = 0.25; // mm *
-const double quadrant_stimulus_delay = 1.0; // ms
+const double quadrant_stimulus_delay = 120.0; // ms
 
 const std::string  output_directory="SpiralWave"; // *
 const std::string  mesh_output_directory="Slab"; // *

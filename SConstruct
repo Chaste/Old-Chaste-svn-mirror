@@ -219,10 +219,11 @@ elif (system_name == 'new_chaste' or system_name == 'intel_chaste'):
     intel_libpath = '/opt/intel/cc/9.1.039/lib'
  
     other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
-    other_libs = ['f2clapack', 'f2cblas', 'boost_serialization']
+    other_libs = ['f2clapack', 'f2cblas', 'boost_serialization', 'xerces-c']
   petsc_inc = petsc_base+'include'
   # TODO: Make sure Chaste paths come first in the -I list.
-  other_includepaths.extend([petsc_inc, petsc_bmake])
+  xsd_inc = '../../../xsd-2.3.1-i686-linux-gnu/libxsd'
+  other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
 elif system_name == 'Nottingham':
   # Gary and Alex's machines in Nottingham
   petsc_base = '/opt/petsc-2.2.1-with-mpi/'

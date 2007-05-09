@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SpiralParameters
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../src/reader/SpiralParameters.xsd">
+    <SimulationDuration>10.0</SimulationDuration>
+    <SlabWidth>2.0</SlabWidth>
+    <SlabHeight>1.0</SlabHeight>
+    <InterNodeSpace>0.25</InterNodeSpace>
+    <FaceStimulusWidth>0.25</FaceStimulusWidth>
+    <QuadrantSimulusDelay>1.0</QuadrantSimulusDelay>
+    <OutputDirectory>SpiralWave</OutputDirectory>
+    <MeshOutputDirectory>Slab</MeshOutputDirectory>
+</SpiralParameters>

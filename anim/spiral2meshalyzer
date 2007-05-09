@@ -3,6 +3,6 @@
 #######################################################################################
 
 rm -f voltage.dat	
-for i in *_0*.dat; do
-    tail -n +2 $i >> voltage.dat
+for i in *_00*.dat; do
+    tail -n +2 $i  | awk '{print $1}' >> voltage.dat
 done
