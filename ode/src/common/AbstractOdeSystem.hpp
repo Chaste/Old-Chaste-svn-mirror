@@ -1,15 +1,15 @@
-/**
- * Abstract OdeSystem class. Sets up variables and functions for a general ODE system.
- */
-
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
 
 #include <vector>
 #include <string>
 #include "Exception.hpp"
-#include <assert.h>
+#include <cassert>
 
+/**
+ * Abstract OdeSystem class.
+ * Sets up variables and functions for a general ODE system.
+ */
 class AbstractOdeSystem
 {
 protected:
@@ -128,21 +128,7 @@ public:
      * @return The state variable's position within
      * the vector of state variables associated with the ODE system.
      */
-    
-    unsigned GetStateVariableNumberByName(std::string name)
-    {
-        unsigned var_number=0;
-        while (var_number != mNumberOfStateVariables && mVariableNames[var_number]!=name)
-        {
-            var_number++;
-        }
-        if (var_number == mNumberOfStateVariables)
-        {
-            EXCEPTION("State variable does not exist");
-        }
-        return var_number;
-    }
-    
+    unsigned GetStateVariableNumberByName(const std::string name);
     
     /**
      * @param varNumber A state variable's position within

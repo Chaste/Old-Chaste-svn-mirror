@@ -499,7 +499,7 @@ def profileHistoryGraph(req, buildType, machine, testSuite, n=20):
   
   # Draw graph and send to browser
   req.content_type = 'image/png'
-  from pychart import *
+  from pychart import theme, axis, area, line_style, line_plot, canvas
   theme.use_color = True
   theme.scale_factor = 2
   theme.title = 'Run time graph for ' + testSuite

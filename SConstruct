@@ -117,7 +117,7 @@ if system_name == 'finarfin':
       petsc_bmake = petsc_base+'bmake/linux-gnu'
   petsc_inc = petsc_base+'include'
 
-  other_libs = ['lapack', 'blas', 'boost_serialization']
+  other_libs = ['lapack', 'blas', 'boost_serialization', 'xerces-c']
   other_libpaths = [petsc_libpath, '/usr/lib/atlas/sse2']
   other_includepaths = [petsc_inc, petsc_bmake]
 elif system_name == 'maths':
