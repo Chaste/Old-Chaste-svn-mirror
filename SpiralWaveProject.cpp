@@ -14,7 +14,7 @@
 #include "BackwardEulerFoxModel2002.hpp"
 
 // Path to the parameter file
-const std::string parameter_file = "io/test/data/Baseline.xml";
+std::string parameter_file;
 
 // User-modifiable parameters.  Real values will be read from a config file.
 double simulation_duration = -1; // ms
@@ -110,6 +110,14 @@ void ReadParametersFromFile()
 int main(int argc, char *argv[])
 {
     PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
+    
+    if (argc!=2)
+    {
+        std::cout  << "Usage: SpiralWaveProject parameters_file\n";
+        return -1;
+    }
+    
+    parameter_file = std::string(argv[1]);
     
     ReadParametersFromFile();
     
@@ -213,7 +221,10 @@ int main(int argc, char *argv[])
     }
     writer.Close();
     
-    // and write out the mesh that was used
-    MeshalyzerMeshWriter<3,3> mesh_writer(mesh_output_directory, "SlabMesh", false);
-    mesh_writer.WriteFilesUsingMesh(mesh);
+    // write out the mesh that was used if we are the master process
+    if (DistributedVector::IsGlobalIndexLocal(0))
+    {
+        MeshalyzerMeshWriter<3,3> mesh_writer(mesh_output_directory, "SlabMesh", false);
+        mesh_writer.WriteFilesUsingMesh(mesh);
+    }
 }

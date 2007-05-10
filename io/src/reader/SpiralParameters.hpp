@@ -335,7 +335,7 @@ class SpiralParameters
       public:
       struct OutputDirectory
       {
-        typedef ::xml_schema::ncname type;
+        typedef ::xml_schema::string type;
         typedef ::xsd::cxx::tree::traits< type, char > traits;
       };
 
@@ -356,7 +356,7 @@ class SpiralParameters
       public:
       struct MeshOutputDirectory
       {
-        typedef ::xml_schema::ncname type;
+        typedef ::xml_schema::string type;
         typedef ::xsd::cxx::tree::traits< type, char > traits;
       };
 
@@ -514,6 +514,750 @@ SpiralParameters (const ::xercesc::DOMInputSource&,
 SpiralParameters (const ::xercesc::DOMDocument&,
                   ::xml_schema::flags = 0,
                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::std::basic_string< char >&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::std::basic_string< char >&,
+                    ::xsd::cxx::xml::error_handler< char >&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::std::basic_string< char >&,
+                    ::xercesc::DOMErrorHandler&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream&,
+                    ::xsd::cxx::xml::error_handler< char >&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream&,
+                    ::xercesc::DOMErrorHandler&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream&,
+                    const ::std::basic_string< char >& id,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream&,
+                    const ::std::basic_string< char >& id,
+                    ::xsd::cxx::xml::error_handler< char >&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream&,
+                    const ::std::basic_string< char >& id,
+                    ::xercesc::DOMErrorHandler&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMInputSource&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMInputSource&,
+                    ::xsd::cxx::xml::error_handler< char >&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMInputSource&,
+                    ::xercesc::DOMErrorHandler&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMDocument&,
+                    ::xml_schema::flags = 0,
+                    const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::std::basic_string< char >&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::std::basic_string< char >&,
+           ::xsd::cxx::xml::error_handler< char >&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::std::basic_string< char >&,
+           ::xercesc::DOMErrorHandler&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream&,
+           ::xsd::cxx::xml::error_handler< char >&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream&,
+           ::xercesc::DOMErrorHandler&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream&,
+           const ::std::basic_string< char >& id,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream&,
+           const ::std::basic_string< char >& id,
+           ::xsd::cxx::xml::error_handler< char >&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream&,
+           const ::std::basic_string< char >& id,
+           ::xercesc::DOMErrorHandler&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMInputSource&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMInputSource&,
+           ::xsd::cxx::xml::error_handler< char >&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMInputSource&,
+           ::xercesc::DOMErrorHandler&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMDocument&,
+           ::xml_schema::flags = 0,
+           const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::std::basic_string< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::std::basic_string< char >&,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::std::basic_string< char >&,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream&,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream&,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream&,
+            const ::std::basic_string< char >& id,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream&,
+            const ::std::basic_string< char >& id,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream&,
+            const ::std::basic_string< char >& id,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMInputSource&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMInputSource&,
+            ::xsd::cxx::xml::error_handler< char >&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMInputSource&,
+            ::xercesc::DOMErrorHandler&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMDocument&,
+            ::xml_schema::flags = 0,
+            const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::std::basic_string< char >&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::std::basic_string< char >&,
+                ::xsd::cxx::xml::error_handler< char >&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::std::basic_string< char >&,
+                ::xercesc::DOMErrorHandler&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream&,
+                ::xsd::cxx::xml::error_handler< char >&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream&,
+                ::xercesc::DOMErrorHandler&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream&,
+                const ::std::basic_string< char >& id,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream&,
+                const ::std::basic_string< char >& id,
+                ::xsd::cxx::xml::error_handler< char >&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream&,
+                const ::std::basic_string< char >& id,
+                ::xercesc::DOMErrorHandler&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMInputSource&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMInputSource&,
+                ::xsd::cxx::xml::error_handler< char >&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMInputSource&,
+                ::xercesc::DOMErrorHandler&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMDocument&,
+                ::xml_schema::flags = 0,
+                const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::std::basic_string< char >&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::std::basic_string< char >&,
+                   ::xsd::cxx::xml::error_handler< char >&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::std::basic_string< char >&,
+                   ::xercesc::DOMErrorHandler&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream&,
+                   ::xsd::cxx::xml::error_handler< char >&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream&,
+                   ::xercesc::DOMErrorHandler&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream&,
+                   const ::std::basic_string< char >& id,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream&,
+                   const ::std::basic_string< char >& id,
+                   ::xsd::cxx::xml::error_handler< char >&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream&,
+                   const ::std::basic_string< char >& id,
+                   ::xercesc::DOMErrorHandler&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMInputSource&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMInputSource&,
+                   ::xsd::cxx::xml::error_handler< char >&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMInputSource&,
+                   ::xercesc::DOMErrorHandler&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMDocument&,
+                   ::xml_schema::flags = 0,
+                   const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::std::basic_string< char >&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::std::basic_string< char >&,
+                       ::xsd::cxx::xml::error_handler< char >&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::std::basic_string< char >&,
+                       ::xercesc::DOMErrorHandler&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream&,
+                       ::xsd::cxx::xml::error_handler< char >&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream&,
+                       ::xercesc::DOMErrorHandler&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream&,
+                       const ::std::basic_string< char >& id,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream&,
+                       const ::std::basic_string< char >& id,
+                       ::xsd::cxx::xml::error_handler< char >&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream&,
+                       const ::std::basic_string< char >& id,
+                       ::xercesc::DOMErrorHandler&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMInputSource&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMInputSource&,
+                       ::xsd::cxx::xml::error_handler< char >&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMInputSource&,
+                       ::xercesc::DOMErrorHandler&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMDocument&,
+                       ::xml_schema::flags = 0,
+                       const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::std::basic_string< char >&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::std::basic_string< char >&,
+                 ::xsd::cxx::xml::error_handler< char >&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::std::basic_string< char >&,
+                 ::xercesc::DOMErrorHandler&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream&,
+                 ::xsd::cxx::xml::error_handler< char >&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream&,
+                 ::xercesc::DOMErrorHandler&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream&,
+                 const ::std::basic_string< char >& id,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream&,
+                 const ::std::basic_string< char >& id,
+                 ::xsd::cxx::xml::error_handler< char >&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream&,
+                 const ::std::basic_string< char >& id,
+                 ::xercesc::DOMErrorHandler&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMInputSource&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMInputSource&,
+                 ::xsd::cxx::xml::error_handler< char >&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMInputSource&,
+                 ::xercesc::DOMErrorHandler&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMDocument&,
+                 ::xml_schema::flags = 0,
+                 const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from a URI or a local file.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::std::basic_string< char >&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::std::basic_string< char >&,
+                     ::xsd::cxx::xml::error_handler< char >&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::std::basic_string< char >&,
+                     ::xercesc::DOMErrorHandler&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from std::istream.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream&,
+                     ::xsd::cxx::xml::error_handler< char >&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream&,
+                     ::xercesc::DOMErrorHandler&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream&,
+                     const ::std::basic_string< char >& id,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream&,
+                     const ::std::basic_string< char >& id,
+                     ::xsd::cxx::xml::error_handler< char >&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream&,
+                     const ::std::basic_string< char >& id,
+                     ::xercesc::DOMErrorHandler&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from InputSource.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMInputSource&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMInputSource&,
+                     ::xsd::cxx::xml::error_handler< char >&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMInputSource&,
+                     ::xercesc::DOMErrorHandler&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
+
+
+// Read from DOM.
+//
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMDocument&,
+                     ::xml_schema::flags = 0,
+                     const ::xsd::cxx::tree::properties< char >& = ::xsd::cxx::tree::properties< char > ());
 
 
 #include <xsd/cxx/post.hxx>

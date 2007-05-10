@@ -9,5 +9,5 @@
     <FaceStimulusWidth>0.25</FaceStimulusWidth>
     <QuadrantStimulusDelay>1.0</QuadrantStimulusDelay>
     <OutputDirectory>SpiralWave</OutputDirectory>
-    <MeshOutputDirectory>Slab</MeshOutputDirectory>
+    <MeshOutputDirectory>/tmp/Slab</MeshOutputDirectory>
 </SpiralParameters>

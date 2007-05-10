@@ -729,6 +729,1828 @@ SpiralParameters (const ::xercesc::DOMDocument& d,
     "");
 }
 
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::std::basic_string< char >& u,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::SimulationDuration (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::std::basic_string< char >& u,
+                    ::xsd::cxx::xml::error_handler< char >& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SimulationDuration (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::std::basic_string< char >& u,
+                    ::xercesc::DOMErrorHandler& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SimulationDuration (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream& is,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SimulationDuration (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream& is,
+                    ::xsd::cxx::xml::error_handler< char >& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SimulationDuration (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream& is,
+                    ::xercesc::DOMErrorHandler& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SimulationDuration (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream& is,
+                    const ::std::basic_string< char >& sid,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SimulationDuration (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream& is,
+                    const ::std::basic_string< char >& sid,
+                    ::xsd::cxx::xml::error_handler< char >& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SimulationDuration (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (::std::istream& is,
+                    const ::std::basic_string< char >& sid,
+                    ::xercesc::DOMErrorHandler& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SimulationDuration (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMInputSource& i,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::SimulationDuration (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMInputSource& i,
+                    ::xsd::cxx::xml::error_handler< char >& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SimulationDuration (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMInputSource& i,
+                    ::xercesc::DOMErrorHandler& h,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SimulationDuration (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SimulationDuration (const ::xercesc::DOMDocument& d,
+                    ::xml_schema::flags f,
+                    const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "SimulationDuration" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::decimal > r (
+      new ::xml_schema::decimal (
+        ::xsd::cxx::tree::traits< ::xml_schema::decimal, char >::create (
+          e.dom_element (), f, 0)));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "SimulationDuration",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::std::basic_string< char >& u,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::SlabWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::std::basic_string< char >& u,
+           ::xsd::cxx::xml::error_handler< char >& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::std::basic_string< char >& u,
+           ::xercesc::DOMErrorHandler& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream& is,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabWidth (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream& is,
+           ::xsd::cxx::xml::error_handler< char >& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream& is,
+           ::xercesc::DOMErrorHandler& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream& is,
+           const ::std::basic_string< char >& sid,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabWidth (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream& is,
+           const ::std::basic_string< char >& sid,
+           ::xsd::cxx::xml::error_handler< char >& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (::std::istream& is,
+           const ::std::basic_string< char >& sid,
+           ::xercesc::DOMErrorHandler& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMInputSource& i,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::SlabWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMInputSource& i,
+           ::xsd::cxx::xml::error_handler< char >& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMInputSource& i,
+           ::xercesc::DOMErrorHandler& h,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabWidth (const ::xercesc::DOMDocument& d,
+           ::xml_schema::flags f,
+           const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "SlabWidth" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::decimal > r (
+      new ::xml_schema::decimal (
+        ::xsd::cxx::tree::traits< ::xml_schema::decimal, char >::create (
+          e.dom_element (), f, 0)));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "SlabWidth",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::std::basic_string< char >& u,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::SlabHeight (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::std::basic_string< char >& u,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabHeight (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::std::basic_string< char >& u,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabHeight (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream& is,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabHeight (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream& is,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabHeight (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream& is,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabHeight (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream& is,
+            const ::std::basic_string< char >& sid,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabHeight (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream& is,
+            const ::std::basic_string< char >& sid,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabHeight (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (::std::istream& is,
+            const ::std::basic_string< char >& sid,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::SlabHeight (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMInputSource& i,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::SlabHeight (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMInputSource& i,
+            ::xsd::cxx::xml::error_handler< char >& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabHeight (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMInputSource& i,
+            ::xercesc::DOMErrorHandler& h,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::SlabHeight (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+SlabHeight (const ::xercesc::DOMDocument& d,
+            ::xml_schema::flags f,
+            const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "SlabHeight" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::decimal > r (
+      new ::xml_schema::decimal (
+        ::xsd::cxx::tree::traits< ::xml_schema::decimal, char >::create (
+          e.dom_element (), f, 0)));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "SlabHeight",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::std::basic_string< char >& u,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::InterNodeSpace (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::std::basic_string< char >& u,
+                ::xsd::cxx::xml::error_handler< char >& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::InterNodeSpace (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::std::basic_string< char >& u,
+                ::xercesc::DOMErrorHandler& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::InterNodeSpace (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream& is,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::InterNodeSpace (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream& is,
+                ::xsd::cxx::xml::error_handler< char >& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::InterNodeSpace (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream& is,
+                ::xercesc::DOMErrorHandler& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::InterNodeSpace (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream& is,
+                const ::std::basic_string< char >& sid,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::InterNodeSpace (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream& is,
+                const ::std::basic_string< char >& sid,
+                ::xsd::cxx::xml::error_handler< char >& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::InterNodeSpace (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (::std::istream& is,
+                const ::std::basic_string< char >& sid,
+                ::xercesc::DOMErrorHandler& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::InterNodeSpace (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMInputSource& i,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::InterNodeSpace (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMInputSource& i,
+                ::xsd::cxx::xml::error_handler< char >& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::InterNodeSpace (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMInputSource& i,
+                ::xercesc::DOMErrorHandler& h,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::InterNodeSpace (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+InterNodeSpace (const ::xercesc::DOMDocument& d,
+                ::xml_schema::flags f,
+                const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "InterNodeSpace" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::decimal > r (
+      new ::xml_schema::decimal (
+        ::xsd::cxx::tree::traits< ::xml_schema::decimal, char >::create (
+          e.dom_element (), f, 0)));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "InterNodeSpace",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::std::basic_string< char >& u,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::FaceStimulusWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::std::basic_string< char >& u,
+                   ::xsd::cxx::xml::error_handler< char >& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::FaceStimulusWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::std::basic_string< char >& u,
+                   ::xercesc::DOMErrorHandler& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::FaceStimulusWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream& is,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::FaceStimulusWidth (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream& is,
+                   ::xsd::cxx::xml::error_handler< char >& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::FaceStimulusWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream& is,
+                   ::xercesc::DOMErrorHandler& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::FaceStimulusWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream& is,
+                   const ::std::basic_string< char >& sid,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::FaceStimulusWidth (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream& is,
+                   const ::std::basic_string< char >& sid,
+                   ::xsd::cxx::xml::error_handler< char >& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::FaceStimulusWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (::std::istream& is,
+                   const ::std::basic_string< char >& sid,
+                   ::xercesc::DOMErrorHandler& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::FaceStimulusWidth (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMInputSource& i,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::FaceStimulusWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMInputSource& i,
+                   ::xsd::cxx::xml::error_handler< char >& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::FaceStimulusWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMInputSource& i,
+                   ::xercesc::DOMErrorHandler& h,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::FaceStimulusWidth (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+FaceStimulusWidth (const ::xercesc::DOMDocument& d,
+                   ::xml_schema::flags f,
+                   const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "FaceStimulusWidth" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::decimal > r (
+      new ::xml_schema::decimal (
+        ::xsd::cxx::tree::traits< ::xml_schema::decimal, char >::create (
+          e.dom_element (), f, 0)));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "FaceStimulusWidth",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::std::basic_string< char >& u,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::QuadrantStimulusDelay (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::std::basic_string< char >& u,
+                       ::xsd::cxx::xml::error_handler< char >& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::QuadrantStimulusDelay (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::std::basic_string< char >& u,
+                       ::xercesc::DOMErrorHandler& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::QuadrantStimulusDelay (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream& is,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::QuadrantStimulusDelay (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream& is,
+                       ::xsd::cxx::xml::error_handler< char >& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::QuadrantStimulusDelay (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream& is,
+                       ::xercesc::DOMErrorHandler& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::QuadrantStimulusDelay (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream& is,
+                       const ::std::basic_string< char >& sid,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::QuadrantStimulusDelay (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream& is,
+                       const ::std::basic_string< char >& sid,
+                       ::xsd::cxx::xml::error_handler< char >& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::QuadrantStimulusDelay (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (::std::istream& is,
+                       const ::std::basic_string< char >& sid,
+                       ::xercesc::DOMErrorHandler& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::QuadrantStimulusDelay (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMInputSource& i,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::QuadrantStimulusDelay (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMInputSource& i,
+                       ::xsd::cxx::xml::error_handler< char >& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::QuadrantStimulusDelay (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMInputSource& i,
+                       ::xercesc::DOMErrorHandler& h,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::QuadrantStimulusDelay (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::decimal >
+QuadrantStimulusDelay (const ::xercesc::DOMDocument& d,
+                       ::xml_schema::flags f,
+                       const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "QuadrantStimulusDelay" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::decimal > r (
+      new ::xml_schema::decimal (
+        ::xsd::cxx::tree::traits< ::xml_schema::decimal, char >::create (
+          e.dom_element (), f, 0)));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "QuadrantStimulusDelay",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::std::basic_string< char >& u,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::OutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::std::basic_string< char >& u,
+                 ::xsd::cxx::xml::error_handler< char >& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::OutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::std::basic_string< char >& u,
+                 ::xercesc::DOMErrorHandler& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::OutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream& is,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::OutputDirectory (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream& is,
+                 ::xsd::cxx::xml::error_handler< char >& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::OutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream& is,
+                 ::xercesc::DOMErrorHandler& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::OutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream& is,
+                 const ::std::basic_string< char >& sid,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::OutputDirectory (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream& is,
+                 const ::std::basic_string< char >& sid,
+                 ::xsd::cxx::xml::error_handler< char >& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::OutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (::std::istream& is,
+                 const ::std::basic_string< char >& sid,
+                 ::xercesc::DOMErrorHandler& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::OutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMInputSource& i,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::OutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMInputSource& i,
+                 ::xsd::cxx::xml::error_handler< char >& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::OutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMInputSource& i,
+                 ::xercesc::DOMErrorHandler& h,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::OutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+OutputDirectory (const ::xercesc::DOMDocument& d,
+                 ::xml_schema::flags f,
+                 const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "OutputDirectory" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::string > r (
+      ::xsd::cxx::tree::traits< ::xml_schema::string, char >::create (
+        e.dom_element (), f, 0));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "OutputDirectory",
+    "");
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::std::basic_string< char >& u,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::MeshOutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::std::basic_string< char >& u,
+                     ::xsd::cxx::xml::error_handler< char >& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::MeshOutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::std::basic_string< char >& u,
+                     ::xercesc::DOMErrorHandler& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (u, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::MeshOutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream& is,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::MeshOutputDirectory (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream& is,
+                     ::xsd::cxx::xml::error_handler< char >& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::MeshOutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream& is,
+                     ::xercesc::DOMErrorHandler& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::MeshOutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream& is,
+                     const ::std::basic_string< char >& sid,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::MeshOutputDirectory (wrap, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream& is,
+                     const ::std::basic_string< char >& sid,
+                     ::xsd::cxx::xml::error_handler< char >& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::auto_initializer i (
+    (f & ::xml_schema::flags::dont_initialize) == 0,
+    (f & ::xml_schema::flags::keep_dom) == 0);
+
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::MeshOutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (::std::istream& is,
+                     const ::std::basic_string< char >& sid,
+                     ::xercesc::DOMErrorHandler& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::sax::std_input_source isrc (is, sid);
+  ::xercesc::Wrapper4InputSource wrap (&isrc, false);
+  return ::MeshOutputDirectory (wrap, h, f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMInputSource& i,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::tree::error_handler< char > h;
+
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  h.throw_if_failed< ::xsd::cxx::tree::parsing< char > > ();
+
+  return ::MeshOutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMInputSource& i,
+                     ::xsd::cxx::xml::error_handler< char >& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::MeshOutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMInputSource& i,
+                     ::xercesc::DOMErrorHandler& h,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >& p)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > d (
+    ::xsd::cxx::xml::dom::parse< char > (i, h, p, f));
+
+  if (!d)
+  {
+    throw ::xsd::cxx::tree::parsing< char > ();
+  }
+
+  return ::MeshOutputDirectory (
+    static_cast< const ::xercesc::DOMDocument& > (*d), f, p);
+}
+
+::std::auto_ptr< ::xml_schema::string >
+MeshOutputDirectory (const ::xercesc::DOMDocument& d,
+                     ::xml_schema::flags f,
+                     const ::xsd::cxx::tree::properties< char >&)
+{
+  ::xsd::cxx::xml::dom::auto_ptr< ::xercesc::DOMDocument > c (
+    (f & ::xml_schema::flags::keep_dom) 
+    ? static_cast< ::xercesc::DOMDocument* > (d.cloneNode (true))
+    : 0);
+
+  const ::xsd::cxx::xml::dom::element< char > e (
+    c.get ()
+    ? *c->getDocumentElement ()
+    : *d.getDocumentElement ());
+
+  if (e.name () == "MeshOutputDirectory" &&
+      e.namespace_ () == "")
+  {
+    ::std::auto_ptr< ::xml_schema::string > r (
+      ::xsd::cxx::tree::traits< ::xml_schema::string, char >::create (
+        e.dom_element (), f, 0));
+    if (f & ::xml_schema::flags::keep_dom) c.release ();
+    return r;
+  }
+
+  throw ::xsd::cxx::tree::unexpected_element < char > (
+    e.name (),
+    e.namespace_ (),
+    "MeshOutputDirectory",
+    "");
+}
+
 #include <xsd/cxx/post.hxx>
 
 // Begin epilogue.

@@ -20,6 +20,6 @@
   <xs:element name="InterNodeSpace" type="xs:decimal"/>
   <xs:element name="FaceStimulusWidth" type="xs:decimal"/>
   <xs:element name="QuadrantStimulusDelay" type="xs:decimal"/>
-  <xs:element name="OutputDirectory" type="xs:NCName"/>
-  <xs:element name="MeshOutputDirectory" type="xs:NCName"/>
+  <xs:element name="OutputDirectory" type="xs:string"/>
+  <xs:element name="MeshOutputDirectory" type="xs:string"/>
 </xs:schema>
