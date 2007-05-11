@@ -630,7 +630,7 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
                                         update_q_points  |     // needed for interpolating u and u' on the quad point
                                         update_JxW_values));
                                         
-    const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
+    //const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
 
     std::vector< Vector<double> >                  local_solution_values(n_q_points);
     std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
@@ -700,8 +700,6 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
             C = transpose(F) * F;
             inv_C = invert(C);
             inv_F = invert(F);
-            
-            double detF = determinant(F);
             
             p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,false);
             
@@ -1095,25 +1093,6 @@ double FiniteElasticityAssembler<DIM>::CalculateResidualNorm()
     return this->mRhsVector.norm_sqr()/this->mDofHandler.n_dofs();
 }
 
-
-template<unsigned DIM>
-Vector<double>& FiniteElasticityAssembler<DIM>::rGetSolutionVector()
-{
-    return this->mCurrentSolution;
-}
-
-
-template<unsigned DIM>
-DoFHandler<DIM>& FiniteElasticityAssembler<DIM>::rGetDofHandler()
-{
-    return this->mDofHandler;
-}
-
-template<unsigned DIM>
-Triangulation<DIM>* FiniteElasticityAssembler<DIM>::GetMesh()
-{
-    return this->mpMesh;
-}
 
 template<unsigned DIM>
 std::vector<Vector<double> >& FiniteElasticityAssembler<DIM>::rGetUndeformedPosition()

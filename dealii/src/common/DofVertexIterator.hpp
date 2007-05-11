@@ -22,6 +22,10 @@
  *  Triangulation<DIM>::active_cell_iterator, which means the dofs for the vertex
  *  can be obtained.
  *
+ *  Note: vertices are reached by looping over elements (internally, in this class), 
+ *  therefore this class only reaches ACTIVE vertices (ie ones that are part of an
+ *  element). (Unactive vertices arise if the mesh is coarsened)
+ * 
  *  Note: this class doesn't act like a typical std::iterator class, in that the
  *  result doesn't point to a vertex, you don't call ++ etc. (although in the
  *  future ++ might be implemented to call Next()
@@ -41,8 +45,8 @@
  *  The vertex number, current cell, local number of the vertex in that cell can
  *  also be obtained.
  *
- *  TODO: extract commonality between this and TriangulationVertexIterator. (although
- *  the code  is almost identical mpCell are different types in the two classes)
+ *  TODO: perhaps extract commonality between this and TriangulationVertexIterator. 
+ *  (although the code is almost identical mpCell are different types in the two classes)
  */
 template<unsigned DIM>
 class DofVertexIterator

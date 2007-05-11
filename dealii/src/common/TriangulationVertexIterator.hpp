@@ -32,9 +32,13 @@
  *
  *  The vertex number, current cell, local number of the vertex in that cell can
  *  also be obtained.
+ * 
+ *  Note: vertices are reached by looping over elements (internally, in this class), 
+ *  therefore this class only reaches ACTIVE vertices (ie ones that are part of an
+ *  element). (Unactive vertices arise if the mesh is coarsened)
  *
- *  TODO: extract commonality between this and DofVertexIterator. (although the code
- *  is almost identical mpCell are different types in the two classes)
+ *  TODO: perhaps extract commonality between this and DofVertexIterator. (although 
+ *  the code is almost identical mpCell are different types in the two classes)
  */
 template<unsigned DIM>
 class TriangulationVertexIterator

@@ -96,8 +96,8 @@ public :
                                                       );
         finite_elasticity.Solve();
         
-        Vector<double>& dynamic_solution = dynamic_finite_elasticity.rGetSolutionVector();
-        Vector<double>& static_solution = finite_elasticity.rGetSolutionVector();
+        Vector<double>& dynamic_solution = dynamic_finite_elasticity.rGetCurrentSolution();
+        Vector<double>& static_solution = finite_elasticity.rGetCurrentSolution();
         
         for (unsigned i=0; i<dynamic_solution.size(); i++)
         {

@@ -122,7 +122,7 @@ public :
         
         
         // also get the solution directly...
-        Vector<double>& solution = dynamic_finite_elasticity.rGetSolutionVector();
+        Vector<double>& solution = dynamic_finite_elasticity.rGetCurrentSolution();
         DoFHandler<2>& dof_handler = dynamic_finite_elasticity.rGetDofHandler();
         
         DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
@@ -217,8 +217,8 @@ public :
         dynamic_fe_long_dt.Solve();
         
         // get full solutions (incl pressure) and compare
-        Vector<double>& small_dt_solution = dynamic_fe_small_dt.rGetSolutionVector();
-        Vector<double>& long_dt_solution  = dynamic_fe_long_dt.rGetSolutionVector();
+        Vector<double>& small_dt_solution = dynamic_fe_small_dt.rGetCurrentSolution();
+        Vector<double>& long_dt_solution  = dynamic_fe_long_dt.rGetCurrentSolution();
         
         for (unsigned i=0; i<small_dt_solution.size(); i++)
         {

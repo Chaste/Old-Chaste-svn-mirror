@@ -129,7 +129,8 @@ public :
     void TestWithZeroDisplacement() throw(Exception)
     {
         Vector<double> body_force(2); //zero
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(3.0);
+        double c1 = 3.0;
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(c1);
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -148,25 +149,39 @@ public :
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position
-        = finite_elasticity.rGetUndeformedPosition();
+            = finite_elasticity.rGetUndeformedPosition();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
-        = finite_elasticity.rGetDeformedPosition();
+            = finite_elasticity.rGetDeformedPosition();
+            
         for (unsigned i=0; i<deformed_position[0].size(); i++)
         {
             TS_ASSERT_DELTA(undeformed_position[0](i), deformed_position[0](i), 1e-8);
             TS_ASSERT_DELTA(undeformed_position[1](i), deformed_position[1](i), 1e-8);
+        }
+        
+        // check the final pressure
+        Vector<double>& full_solution = finite_elasticity.rGetCurrentSolution();
+        DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
+        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
+        while (!vertex_iter.ReachedEnd())
+        {
+            // get the pressure at this node
+            double pressure = full_solution(vertex_iter.GetDof(2));
+            TS_ASSERT_DELTA(pressure, 2*c1, 1e-6);
+            vertex_iter.Next();
         }
     }
     
     
     void Test2dProblemOnSquare() throw(Exception)
     {
+        // note small value of body force and mooney-rivlin const (as if rescaled)
+        // - speeds up GMRES
         Vector<double> body_force(2);
-        body_force(0) = 6.0;
-        
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        body_force(0) = 0.06; 
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -178,8 +193,7 @@ public :
                                                        &mooney_rivlin_law,
                                                        body_force,
                                                        1.0,
-                                                       "finite_elas/simple2d");
-                                                       
+                                                       "finite_elas/simple2d");                                                       
         finite_elasticity.Solve();
         
         // get deformed position
@@ -188,15 +202,29 @@ public :
         TS_ASSERT_EQUALS(deformed_position[0].size(), mesh.n_vertices());
         TS_ASSERT_EQUALS(deformed_position[1].size(), mesh.n_vertices());
         
-        
-        
+        // some hardcoded tests
+        TS_ASSERT_DELTA(deformed_position[0](15),0.32141,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](15),0.86898,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](32),0.00000,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](32),0.87500,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](38),0.47755,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](38),0.87779,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](62),0.31559,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](62),0.77431,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](80),0.14713,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](80),0.79705,1e-4);
+
+        // todo: TEST THESE!!
+                    
         // also get the solution vector directly and check the deformed position
         // object was set up correctly...
-        Vector<double>& solution = finite_elasticity.rGetSolutionVector();
+        Vector<double>& solution = finite_elasticity.rGetCurrentSolution();
         DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();
-        
         DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
         while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
@@ -208,40 +236,6 @@ public :
             
             TS_ASSERT_DELTA(deformed_position[0](vertex_index), new_posn(0), 1e-12);
             TS_ASSERT_DELTA(deformed_position[1](vertex_index), new_posn(1), 1e-12);
-            
-            // todo: TEST THESE!!
-            
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-            << " " << new_posn(0) << " " << new_posn(1) << "\n";
-            
-            
-            // some hardcoded tests
-            if (vertex_index==62)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.31559,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.77431,1e-4);
-            }
-            if (vertex_index==38)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.47755,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.87779,1e-4);
-            }
-            if (vertex_index==15)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.32141,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.86898,1e-4);
-            }
-            if (vertex_index==80)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.14713,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.79705,1e-4);
-            }
-            if (vertex_index==32)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.00000,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.87500,1e-4);
-            }
-            
             
             //// UPDATE THE NODE POSITIONS
             // GetVertex returns a reference to a Point<DIM>, so this changes the mesh

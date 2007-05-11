@@ -17,7 +17,7 @@
 // TODO: TEST AGAINST RESULTS FROM SOMEWHERE ELSE
 
 // fix heterogeneity
-// nondim.
+
 
 // nonzero neumann
 // refactor out the newton solver?
@@ -185,6 +185,10 @@ protected:
      */
     void ComputeNumericalJacobian();
     
+    /** 
+     *  Simple method called by the base class which needs to be implemented in 
+     *  this concrete class
+     */ 
     void DistributeDofs();
     
 public:
@@ -258,23 +262,7 @@ public:
      *  is called.
      */
     std::vector<Vector<double> >& rGetUndeformedPosition();
-    
-    
-    /**
-     *  Get a reference to the full solution. Won't generally be needed. Call 
-     *  rGetDeformedPosition instead if the deformed position is required
-     */
-    Vector<double>& rGetSolutionVector();
-    /**
-     *  Get a reference to dof handler. Won't generally be needed. 
-     */
-    DoFHandler<DIM>& rGetDofHandler();
-    
-    /**
-     *  Get the mesh
-     */
-    Triangulation<DIM>* GetMesh();
-    
+       
     /**
      *  Get the number of newton iterations that had been required to solve the problem
      */

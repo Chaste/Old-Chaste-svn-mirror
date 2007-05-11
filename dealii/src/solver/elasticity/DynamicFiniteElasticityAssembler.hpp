@@ -56,7 +56,7 @@ class DynamicFiniteElasticityAssembler : public FiniteElasticityAssembler<DIM>
 {
 private:
 
-    /* Inherited from base class:
+    /* Inherited 
         Triangulation<DIM>*  mpMesh;
         FESystem<DIM>        mFeSystem;
         DoFHandler<DIM>      mDofHandler;
@@ -145,22 +145,21 @@ public:
     virtual ~DynamicFiniteElasticityAssembler();
     
     /**
-     *  Set the start and end times, and dt, for the simulation. Must be called before Solve()
+     *  Set the start and end times, and dt, for the simulation. Must be called 
+     *  before Solve()
      */
     void SetTimes(double Tstart, double Tend, double dt);
     
     /**
-     *  Solve the dynamic finite elasticity problem. Note, SetTimes() must be called before
-     *  this. rGetDeformedPosition() in the base class can be used to get the deformed
-     *  positions post-solve.
+     *  Solve the dynamic finite elasticity problem. Note, SetTimes() must be called 
+     *  before this. rGetDeformedPosition() in the base class can be used to get the 
+     *  deformed positions post-solve.
      */
     void Solve();
     
     
     /* Inherited
         void SetBoundaryValues(std::map<unsigned, double> boundary_values);
-        Vector<double>& rGetSolutionVector();
-        DoFHandler<DIM>& rGetDofHandler();
         void ComputeNumericalJacobian();
         void CompareJacobians();
     */

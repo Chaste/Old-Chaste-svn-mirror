@@ -727,7 +727,7 @@ bool FiniteElasticityAssemblerWithGrowth<DIM>::RefineOvergrownElements()
         WriteGrowthValuesAtVertices(counter_again+200);
         
         this->AddVectorForInterpolation(&mGrowthValuesAtVertices);
-        this->Refine();        
+        this->RefineCoarsen();        
 
         WriteGrowthValuesAtVertices(counter_again+300);
 

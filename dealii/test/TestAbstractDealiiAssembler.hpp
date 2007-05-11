@@ -6,6 +6,7 @@
 #include "AbstractDealiiAssembler.hpp"
 #include "grid/tria_boundary_lib.h"
 
+// simple concrete assembler for laplace's equation 
 template<unsigned DIM>
 class LaplacesAssembler : public AbstractDealiiAssembler<DIM>
 {
@@ -21,9 +22,7 @@ private:
         static QGauss<DIM>   quadrature_formula(3);
         const unsigned n_q_points = quadrature_formula.n_quadrature_points;
         
-        
-        // would want this to be static too (slight speed up), but causes errors
-        // in debug mode (upon destruction of the class, in 2d, or something)
+
         FEValues<DIM> fe_values(mFe, quadrature_formula,
                                 UpdateFlags(update_values    |
                                             update_gradients |
@@ -98,12 +97,11 @@ public :
     }
     
     
-    
     void Solve()
     {
         this->AssembleSystem(true, true);
         
-        SolverControl solver_control(1000, 1e-12);
+        SolverControl solver_control(1000, 1e-12, false, false);
         PrimitiveVectorMemory<> vector_memory;
         SolverCG<>              cg(solver_control, vector_memory);
         
@@ -119,6 +117,7 @@ public :
 class TestAbstractDealiiAssembler : public CxxTest::TestSuite
 {
 public:
+    // solve laplaces equation on a circle and check the result
     void TestWithLaplacesEquation2d()
     {
         Triangulation<2> mesh;
@@ -148,6 +147,8 @@ public:
     }
 
 
+    // solve laplaces equation on a circle, using a mesh with hanging nodes,
+    // and check the result, to verify the constraints code is working properly
     void TestWithLaplacesEquation2dWithHangingNodes()
     {
         Triangulation<2> mesh;
@@ -191,6 +192,8 @@ public:
         }
     }
 
+
+    // solve laplaces equation on a sphere and check the result
     void TestWithLaplacesEquation3d()
     {
         Triangulation<3> mesh;
@@ -220,6 +223,9 @@ public:
     }
 
 
+    // solve laplaces equation on a circle, then refine every other element, check 
+    // the solution vector has been interpolated correctly, check can solve on the
+    // refined mesh correctly, then repeat.
     void TestWithLaplacesEquation2dWithRefinement()
     {
         Triangulation<2> mesh;
@@ -248,7 +254,7 @@ public:
             counter++;
         }
 
-        laplaces.Refine();
+        laplaces.RefineCoarsen();
 
         // get the interpolated current solution
         laplaces.GetSolutionAtVertices(solution);
@@ -303,7 +309,7 @@ public:
             counter++;
         }
 
-        laplaces.Refine();
+        laplaces.RefineCoarsen();
         
         // get the interpolated current solution
         laplaces.GetSolutionAtVertices(solution);
@@ -338,6 +344,8 @@ public:
         } 
     }
 
+    // test the RefineCoarsen method on the AbstractDealiiAssembler interpolates
+    // extra vectors correctlu
     void TestInterpolationWithLaplacesEquation2d()
     {
         Triangulation<2> mesh;
@@ -356,6 +364,7 @@ public:
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
+            // linear data
             some_vector(index) = posn[0] + 2*posn[1];
             another_vector(index) = 5*posn[0] - posn[1];
             vertex_iter.Next();
@@ -379,7 +388,7 @@ public:
 
         laplaces.AddVectorForInterpolation(&some_vector);
         laplaces.AddVectorForInterpolation(&another_vector);
-        laplaces.Refine();
+        laplaces.RefineCoarsen();
     
         // check something was refined
         TS_ASSERT_LESS_THAN(num_vertices_before,mesh.n_vertices());
@@ -394,12 +403,17 @@ public:
         {
             unsigned index = vertex_iter.GetVertexGlobalIndex();
             Point<2> posn = vertex_iter.GetVertex();
+            // the vectors should have new data, which should be 
+            // interpolated. note the high tolerance - the interpolation
+            // works but isn't that accurate, for some reason
             TS_ASSERT_DELTA(some_vector(index), posn[0]+2*posn[1], 1e-1);
             TS_ASSERT_DELTA(another_vector(index), 5*posn[0]-posn[1], 1e-1);
             vertex_iter.Next();
         } 
     }
 
+    // coarsening every element and test that extra vectors have correct values 
+    // on the new mesh
     void TestPureCoarsening()
     {
         Triangulation<2> mesh;
@@ -432,7 +446,7 @@ public:
         unsigned num_vertices_before = mesh.n_vertices();
 
         laplaces.AddVectorForInterpolation(&some_vector);
-        laplaces.Refine();
+        laplaces.RefineCoarsen();
     
         // check mesh was coarsened
         // !! note the call of n_USED_vertices(), not n_vertices() !!
@@ -454,6 +468,8 @@ public:
     }
 
 
+    // solve laplace's eqn and then coarsen mesh. check the current solution
+    // has the correct values and size following this. 
     void TestPureCoarsenInterpolateSoln()
     {
         Triangulation<2> mesh;
@@ -473,7 +489,7 @@ public:
             element_iter++;
         }
 
-        laplaces.Refine();
+        laplaces.RefineCoarsen();
 
         // get the interpolated current solution
         Vector<double> solution;
@@ -495,7 +511,9 @@ public:
         } 
     }
 
-
+    // solve, refine part of the mesh and coarsen another, check solution
+    // and extra vec interpolated correctly, then check can solve correctly
+    // on the new mesh.
     void TestRefineCoarsenAndThenSolveWithLaplacesEqn2d()
     {
         Triangulation<2> mesh;
@@ -541,7 +559,7 @@ public:
         // add vector for interpolation and refine-coarsen the mesh
         laplaces.AddVectorForInterpolation(&some_vector);
 
-        laplaces.Refine();
+        laplaces.RefineCoarsen();
 
         // get the interpolated current solution
         Vector<double> solution;

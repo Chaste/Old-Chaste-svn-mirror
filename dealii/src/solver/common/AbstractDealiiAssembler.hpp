@@ -48,6 +48,16 @@
 
 /**
  *  Abstract assembler with common functionality for most assemblers.
+ * 
+ *  The concrete class needs to implement 
+ *  1. a constructor, which sets up an FE_Q or FESystem object, calls DistributeDofs
+ *  and sets up mDofsPerElement
+ *  2. have a method called DistributeDofs() which just calls
+ *  this->mDofHandler.distribute_dofs(fe), where fe is the FE_Q or FESystem object
+ *  3. Implements AssembleOnElement
+ *  4. Implements ApplyDirichletBoundaryConditions
+ *  5. A Solve method which actually calls AssembleSystem and then does the linear
+ *  system solving/Newton's method, time-looping etc..
  */
 template<unsigned DIM>
 class AbstractDealiiAssembler
@@ -56,32 +66,27 @@ protected:
     /*< The mesh to be solve on */
     Triangulation<DIM>*   mpMesh;
     
-    // an FE_Q object seems to be equivalent to our basis functions
-    // It is templated over dimension, with the order of the bases taken
-    // in the contructor
-    // note that this must be defined before mDofHandler!
-    /*FE_Q<DIM>            mFe;*/
-    
     /*< Degrees of freedom handler */
-    DoFHandler<DIM>      mDofHandler;
+    DoFHandler<DIM>       mDofHandler;
     
     /*< A structure needed for handling hanging nodes */
-    ConstraintMatrix     mHangingNodeConstraints;
+    ConstraintMatrix      mHangingNodeConstraints;
     
-    /*< A structure needed for setting up a sparse matrix
-     */
-    SparsityPattern      mSparsityPattern;
+    /*< A structure needed for setting up a sparse matrix */
+    SparsityPattern       mSparsityPattern;
     
     /**
      *  The main system matrix. Eg, the global stiffness matrix in a static linear problem
      *  or the Jacobian in a nonlinear problem
      */
     SparseMatrix<double> mSystemMatrix;
+    
     /**
      *  The main rhs vector. Eg the global load vector in a static linear problem, or
      *  the residual in a nonlinear problem
      */
     Vector<double>       mRhsVector;
+    
     /**
      *  The current solution in a time-dependent problem, or current guess in a nonlinear
      *  static problem (or both in a time-dependent nonlinear problem), or final solution 
@@ -96,9 +101,17 @@ protected:
      */
     unsigned             mDofsPerElement;
     
+    /** 
+     *  The method RefineCoarsen in this class refines/coarsens the mesh according to whether 
+     *  elements have been labelled for refinement/coarsening. It also interpolates the
+     *  current solution vector onto the new mesh. The user may want other data 
+     *  interpolated, in which case they can pass in those vectors using
+     *  AddVectorForInterpolation(). Such vectors are stored here. They should be 
+     *  vertex-wise vectors, ie if x is the vector to be interpolated onto the new mesh
+     *  x(i)=value for x at vertex i. It will be linearly interpolated
+     */
     std::vector<Vector<double>*> mVectorsToInterpolate;
-    
-
+ 
     /**
      *  The main function to be implemented in the concrete class
      * 
@@ -124,6 +137,14 @@ protected:
      */
     virtual void ApplyDirichletBoundaryConditions()=0;
     
+    
+    /**
+     *  A pure method which needs to be implemented in the concrete class which
+     *  distributes the dofs using which fe object is being used in the concrete 
+     *  class. For example if the concrete class uses a simple FE_Q<DIM> object 
+     *  called mFe, this method should just be 
+     *  this->mDofHandler.distribute_dofs(mFe);
+     */
     virtual void DistributeDofs()=0;
 
 
@@ -132,8 +153,7 @@ protected:
      *  hanging nodes constraints objects
      *  
      *  This should only be called when the DofHandler knows how big it should be, ie what
-     *  the FE system is, ie after something like "mDofHandler.distribute_dofs(mFeSystem);"
-     *  has been called
+     *  the FE system is, ie after DistributeDofs() has been called
      */
     void InitialiseMatricesVectorsAndConstraints()
     {
@@ -209,7 +229,8 @@ protected:
                 
         //unsigned elem_counter = 0;
         
-        while (element_iter!=mDofHandler.end())  // huh? mDof.end() returns an element iterator?
+        // loop over elements
+        while (element_iter!=mDofHandler.end()) 
         {
             // zero the small matrix and vector
             element_matrix = 0;
@@ -217,12 +238,14 @@ protected:
             
             element_iter->get_dof_indices(local_dof_indices);
             
+            // assemble the small matrix and vector
             AssembleOnElement(element_iter,
                               element_rhs,
                               element_matrix,
                               assembleVector,
                               assembleMatrix);
             
+            // add to the full matrix and vector
             for (unsigned i=0; i<mDofsPerElement; i++)
             {
                 if (assembleMatrix)
@@ -276,13 +299,30 @@ public :
     }
     
     
-    // possibly incredibly inefficient
-    void Refine()
+    /**
+     *  Refine and coarsen a mesh, depending on whether the refine_flag and coarsen_flag
+     *  has been set on the elements of the mesh. This method calls 
+     *  execute_coarsening_and_refinement() on the mesh in order to do the refinement
+     *  and coarsening, but also handles interpolation as well. The current solution
+     *  vector is automatically interpolated onto the new mesh. The user can also add 
+     *  extra vector to be interpolated as well, by calling AddVectorForInterpolation()
+     *  before this method. These vectors should have vertex-wise data (ie x(i) is the 
+     *  value of x at vertex i), and will be linearly interpolated onto the new mesh.
+     *  The vector will be resized and it's values changed in this method
+     * 
+     *  //\todo: possibly incredibly inefficient - make efficient
+     */
+    void RefineCoarsen()
     {
+        // a linear fe object for linear interpolation of any extra vectors
         FE_Q<DIM> linear_fe(1);
         
-        // shouldn't use more than one SolutionTransfer, but we have to,
-        // so make a copy of the mesh(!)
+        // shouldn't use more than one SolutionTransfer (interpolation doesn't work
+        // if two or more soluation transfer objects are used on the same mesh), 
+        // but we have to (we want to use one solution transfer for the current solution,
+        // with interpolation based on whatever basis functions are used in the concrete
+        // version of this class, and another with linear interpolation on the extra 
+        // vectors. To get round this, we make a copy of the mesh(!)
         // TODO: make this efficient
         Triangulation<DIM> copy_of_mesh;
         copy_of_mesh.copy_triangulation(*mpMesh);
@@ -290,12 +330,16 @@ public :
         DoFHandler<DIM> linear_dof_handler(copy_of_mesh);
         linear_dof_handler.distribute_dofs(linear_fe);
 
+        // prepare both meshes
         mpMesh->prepare_coarsening_and_refinement();
         copy_of_mesh.prepare_coarsening_and_refinement();
 
+        // solution transfer for the current solution
         SolutionTransfer<DIM,double> transfer_for_cur_soln(mDofHandler);
         transfer_for_cur_soln.prepare_for_coarsening_and_refinement(mCurrentSolution);
         
+        // if there are any other vecs to interpolate, prepare a 
+        // solution transfer for them
         unsigned num_vecs_to_interpolate = mVectorsToInterpolate.size();
         SolutionTransfer<DIM,double> transfer_for_other_vecs(linear_dof_handler);
         std::vector<Vector<double> > vecs_by_dofs(num_vecs_to_interpolate);
@@ -304,6 +348,7 @@ public :
         {
             for(unsigned i=0; i<num_vecs_to_interpolate; i++)
             {
+                // convert the vertex-wise data to dof-wise data
                 vecs_by_dofs[i].reinit(mpMesh->n_used_vertices());
                 vecs_by_dofs[i]=0;
 
@@ -321,23 +366,27 @@ public :
             transfer_for_other_vecs.prepare_for_coarsening_and_refinement(vecs_by_dofs);
         }
 
+        // refine coarsen
         mpMesh->execute_coarsening_and_refinement();
         copy_of_mesh.execute_coarsening_and_refinement();
-
+    
+        // redistribute dofs
         DistributeDofs();
-
         linear_dof_handler.distribute_dofs(linear_fe);
 
+        // interpolate to get the new current solution
         Vector<double> new_current_soln(this->mDofHandler.n_dofs());
-        
         transfer_for_cur_soln.interpolate(mCurrentSolution, new_current_soln); 
 
+        // resize matrices, vectors etc, re-setup hanging node constraints... 
         InitialiseMatricesVectorsAndConstraints();
 
         mCurrentSolution = new_current_soln;
 
+        // if there were other vecs to interpolate
         if(num_vecs_to_interpolate>0)
         {
+            // set up new interpolated vectors
             std::vector<Vector<double> > new_vecs_by_dofs(num_vecs_to_interpolate);
 
             for(unsigned i=0; i<num_vecs_to_interpolate; i++)
@@ -345,8 +394,11 @@ public :
                 new_vecs_by_dofs[i].reinit(linear_dof_handler.n_dofs());
             }
 
+            // interpolate and save in this new vectors
             transfer_for_other_vecs.interpolate(vecs_by_dofs, new_vecs_by_dofs);
                         
+            // convert from dof-wise data back to vertex-wise data and put back
+            // in the original objects
             for(unsigned i=0; i<num_vecs_to_interpolate; i++)
             {
                 (*(mVectorsToInterpolate[i])).reinit(mpMesh->n_vertices());
@@ -367,25 +419,53 @@ public :
         mVectorsToInterpolate.clear();
     }    
     
-    
-
+    /**
+     *  Get a reference to the current solution vector. This is a dof-wise vector, is
+     *  x(i) is the solution for degree of freedom i. GetSolutionAtVertices() will
+     *  probably be more useful.
+     */
     Vector<double>& rGetCurrentSolution()
     {
         return mCurrentSolution;
     }    
     
-    void GetSolutionAtVertices(Vector<double>& rSolutionAtVertices, unsigned dof=0)
+    /**
+     *  Get a reference to dof handler. Won't generally be needed. 
+     */
+    DoFHandler<DIM>& rGetDofHandler()
+    {
+        return mDofHandler;
+    }
+
+    /**
+     *  Get the mesh
+     */
+    Triangulation<DIM>* GetMesh()
+    {
+        return mpMesh;
+    }
+        
+    /** 
+     *  Get the solution (for a particular unknown) as a vertex-wise vector (ie 
+     *  call GetSolutionAtVertices(x, j) and then x(i) will be the solution at vertex 
+     *  i, for unknown j
+     */
+    void GetSolutionAtVertices(Vector<double>& rSolutionAtVertices, unsigned unknown=0)
     {
         rSolutionAtVertices.reinit(mpMesh->n_vertices());
         DofVertexIterator<DIM> vertex_iter(mpMesh, &mDofHandler);
         while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            rSolutionAtVertices(vertex_index) = mCurrentSolution(vertex_iter.GetDof(dof));
+            rSolutionAtVertices(vertex_index) = mCurrentSolution(vertex_iter.GetDof(unknown));
             vertex_iter.Next();
         }
     }
     
+    /**
+     *  Add a vector for interpolation when RefineCoarsen is called. See
+     *  RefineCoarsen
+     */
     void AddVectorForInterpolation(Vector<double>* pVector)
     {
         mVectorsToInterpolate.push_back(pVector);

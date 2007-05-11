@@ -23,10 +23,12 @@ public :
         ////////////////////////////////////////////////
         // run 1: on a mesh which is refined 3 times..
         ////////////////////////////////////////////////
-        Vector<double> body_force(2);
-        body_force(0) = 6.0;
         
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(2.0);
+        // note small value of body force and mooney-rivlin const (as if rescaled)
+        // - speeds up GMRES        
+        Vector<double> body_force(2);
+        body_force(0) = 0.06;
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.02);
         
         Triangulation<2> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -45,7 +47,7 @@ public :
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
-        = finite_elasticity.rGetDeformedPosition();
+            = finite_elasticity.rGetDeformedPosition();
         
         //////////////////////////////////////////////////////////////
         // run 2: same problem, on a mesh which is refined 4 times..
@@ -64,7 +66,7 @@ public :
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position_ref
-        = finite_elasticity_ref.rGetDeformedPosition();
+            = finite_elasticity_ref.rGetDeformedPosition();
         
         
         //////////////////////////////////////////////////////////////
@@ -86,9 +88,9 @@ public :
     void Test3dProblemOnCube() throw(Exception)
     {
         Vector<double> body_force(3);
-        body_force(1) = 10.0;
+        body_force(1) = 0.01;
         
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(2.0,2.0);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.02,0.02);
         
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 0.1);
@@ -104,11 +106,11 @@ public :
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position
-        = finite_elasticity.rGetUndeformedPosition();
+            = finite_elasticity.rGetUndeformedPosition();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
-        = finite_elasticity.rGetDeformedPosition();
+            = finite_elasticity.rGetDeformedPosition();
         
         TS_ASSERT_EQUALS(deformed_position.size(),3);
         
@@ -122,7 +124,7 @@ public :
             double y = deformed_position[1](vertex_index);
             double z = deformed_position[2](vertex_index);
             std::cout << vertex_index << " " << X << " " << Y << " " << Z
-            << " " << x << " " << y << " " << z << "\n";
+                                      << " " << x << " " << y << " " << z << "\n";
         }
         
     }
@@ -132,9 +134,9 @@ public :
     void Test3dProblemOnCubeFixedDisplacement() throw(Exception)
     {
         Vector<double> body_force(3); // zero vector
-        body_force(2)=5;
+        body_force(2)=0.05;
         
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(2.0,2.0);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.02,0.02);
         
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
@@ -201,44 +203,27 @@ public :
                                                  boundary_values,
                                                  component_mask);
                                                  
-                                                 
-                                                 
         finite_elasticity.SetBoundaryValues(boundary_values);
         
-        
+
         finite_elasticity.Solve();
         
-        
-        Vector<double>& solution = finite_elasticity.rGetSolutionVector();
-        
-        
-        DofVertexIterator<3> dof_vertex_iter(&mesh, &dof_handler);
-        
-        
-        while (!dof_vertex_iter.ReachedEnd())
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position
+            = finite_elasticity.rGetDeformedPosition();
+
+        // UPDATE THE NODE POSITIONS:
+        // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
+        // directly. Do this so the new volume can be computed
+        TriangulatioVertexIterator<3> vertex_iter(&mesh);
+        while (!vertex_iter.ReachedEnd())
         {
-            unsigned vertex_index = dof_vertex_iter.GetVertexGlobalIndex();
-            Point<3> old_posn = dof_vertex_iter.GetVertex();
+            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
+            vertex_iter.GetVertex()[0] = deformed_position[0](vertex_index);
+            vertex_iter.GetVertex()[1] = deformed_position[1](vertex_index) ;
+            vertex_iter.GetVertex()[2] = deformed_position[2](vertex_index);
             
-            Point<3> new_posn;
-            new_posn(0) = old_posn(0)+solution(dof_vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(dof_vertex_iter.GetDof(1));
-            new_posn(2) = old_posn(2)+solution(dof_vertex_iter.GetDof(2));
-            
-            // todo: TEST THESE!!
-            
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1) << " " << old_posn(2)
-            << " " << new_posn(0) << " " << new_posn(1) << " " << new_posn(2)
-            << "\n";
-            
-            //// UPDATE THE NODE POSITIONS
-            // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
-            // directly. Do this so the new volume can be computed
-            dof_vertex_iter.GetVertex()[0] = new_posn(0);
-            dof_vertex_iter.GetVertex()[1] = new_posn(1);
-            dof_vertex_iter.GetVertex()[2] = new_posn(2);
-            
-            dof_vertex_iter.Next();
+            vertex_iter.Next();
         }
         
         // compute the deformed volume
@@ -268,8 +253,7 @@ public :
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
         mesh.refine_global(3);
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
-        
-        
+                
         Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
         while (element_iter!=mesh.end())
         {
@@ -287,39 +271,33 @@ public :
         std::vector<unsigned> material_ids;
         material_ids.push_back(5);
         material_ids.push_back(6);
-        
-        
+                
         Vector<double> body_force(2);
-        body_force(1) = 3.0;
+        body_force(1) = 0.03;
         
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(10.0);
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_weak(2.0);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(0.1);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_weak(0.02);
         
         std::vector<AbstractIncompressibleMaterialLaw<2>*> material_laws;
         material_laws.push_back(&mooney_rivlin_law_stiff);
         material_laws.push_back(&mooney_rivlin_law_weak);
-        
-        
+                
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
                                                        &mooney_rivlin_law_weak,
                                                        body_force,
                                                        1.0,
                                                        "finite_elas/heterogeneous2d");
-                                                       
-                                                       
-                                                       
-        finite_elasticity.SetMaterialLawsForHeterogeneousProblem(material_laws, material_ids);
-        
-        
+                                                                                                              
+        finite_elasticity.SetMaterialLawsForHeterogeneousProblem(material_laws, material_ids);                
         finite_elasticity.Solve();
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position
-        = finite_elasticity.rGetUndeformedPosition();
+            = finite_elasticity.rGetUndeformedPosition();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
-        = finite_elasticity.rGetDeformedPosition();
+            = finite_elasticity.rGetDeformedPosition();
         
         for (unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
         {
@@ -330,7 +308,7 @@ public :
             double y = deformed_position[1](vertex_index);
             
             std::cout << vertex_index << " " << X << " " << Y
-            << " " << x << " " << y << "\n";
+                                      << " " << x << " " << y << "\n";
         }
     }
 };

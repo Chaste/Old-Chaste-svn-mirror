@@ -7,8 +7,7 @@
 #include "EulerIvpOdeSolver.hpp"
 
 //todos:
-// doxygen,
-// proper interpolation of g
+// doxygen
 // writebasicoutput method - move outside?
 
 // use something like simulation time?
@@ -118,7 +117,6 @@ public:
     
     /* Inherited
         virtual void Solve();
-        Vector<double>& rGetSolutionVector();
         DoFHandler<DIM>& rGetDofHandler();
         void ComputeNumericalJacobian();
         void CompareJacobians();
