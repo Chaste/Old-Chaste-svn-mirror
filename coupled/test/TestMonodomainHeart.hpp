@@ -90,7 +90,7 @@ public:
         // Solve
         ///////////////////////////////////////////////////////////////////////
         double pde_time_step = 0.01;  // ms
-        double ode_time_step = pde_time_step/3.0; // ms
+        double ode_time_step = pde_time_step/4.0; // ms
         double end_time = 100;        // ms
         
         double printing_time_step = end_time/100;

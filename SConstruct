@@ -142,8 +142,10 @@ elif system_name == 'joe' or system_name == 'intel_joe':
   petsc_libpath = petsc_base+'lib/linux-gnu/'
   blas_libpath=  petsc_base+'externalpackages/f2cblaslapack/linux-gnu/'
   intel_libpath = '/opt/intel/cc/9.1.039/lib'
-  other_libs = ['f2clapack', 'f2cblas','boost_serialization']
+  other_libs = ['f2clapack', 'f2cblas','boost_serialization', 'xerces-c']
   other_libpaths = [petsc_libpath, blas_libpath, intel_libpath]
+  xsd_inc = '/home/jmpf/xsd-2.3.1-i686-linux-gnu/libxsd'
+  other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
 elif system_name == 'zuse':
   petsc_base = '/home/zuse/system/software/petsc-2.2.1/'
   petsc_inc = petsc_base+'include'
