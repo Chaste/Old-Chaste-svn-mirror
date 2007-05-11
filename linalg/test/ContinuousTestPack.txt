@@ -1,4 +1,3 @@
-TestFourthOrderTensor.hpp
 TestSimpleLinearSolver.hpp
 TestNonlinearSolvers.hpp
 TestLinearSystem.hpp

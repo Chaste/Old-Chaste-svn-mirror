@@ -112,7 +112,7 @@ public :
         std::vector<Vector<double> >& deformed_position
             = finite_elasticity.rGetDeformedPosition();
         
-        TS_ASSERT_EQUALS(deformed_position.size(),3);
+        TS_ASSERT_EQUALS(deformed_position.size(),3u);
         
         for (unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
         {

@@ -461,7 +461,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
                                         update_q_points  |     // needed for interpolating u and u' on the quad point
                                         update_JxW_values));
                                         
-    const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
+    //const unsigned dofs_per_element = this->mFeSystem.dofs_per_cell;
 
     std::vector< Vector<double> >                  local_solution_values(n_q_points);
     std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
@@ -545,8 +545,6 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::WriteStresses(unsigned counter)
             C = transpose(F) * F;
             inv_C = invert(C);
             inv_F = invert(F);
-            
-            double detF = determinant(F);
             
             p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,this->dTdE,false);
             
@@ -835,7 +833,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
             Point<2> diff = position - centre;
     
             double distance_to_centre = std::sqrt(diff.square());
-            double source_value = -3;//5*(distance_to_centre - 0.7);
+            double source_value = 5*(distance_to_centre - 0.7);
             
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
             mGrowthValuesAtVertices(vertex_index) += this->mOdeDt*(1.0/2.0)*source_value*mGrowthValuesAtVertices(vertex_index);

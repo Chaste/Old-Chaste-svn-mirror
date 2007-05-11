@@ -37,7 +37,7 @@ public :
             = this->mEvaluationPoints.begin();
         while (iter!=this->mEvaluationPoints.end())
         {
-            unsigned mesh_index = iter->first;
+            //unsigned mesh_index = iter->first;
             Point<2>& position = iter->second.OldPosition;
             Point<2> diff = position-mCentre;
     
