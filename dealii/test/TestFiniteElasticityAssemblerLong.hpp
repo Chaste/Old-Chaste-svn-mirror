@@ -215,7 +215,7 @@ public :
         // UPDATE THE NODE POSITIONS:
         // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
         // directly. Do this so the new volume can be computed
-        TriangulatioVertexIterator<3> vertex_iter(&mesh);
+        TriangulationVertexIterator<3> vertex_iter(&mesh);
         while (!vertex_iter.ReachedEnd())
         {
             unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
