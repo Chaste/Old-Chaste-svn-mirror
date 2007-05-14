@@ -220,7 +220,7 @@ public :
 
         // todo: TEST THESE!!
                     
-        // also get the solution vector directly and check the deformed position
+        // also get the solution vector directly to check the deformed position
         // object was set up correctly...
         Vector<double>& solution = finite_elasticity.rGetCurrentSolution();
         DoFHandler<2>& dof_handler = finite_elasticity.rGetDofHandler();

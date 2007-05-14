@@ -14,10 +14,11 @@
 
 
 
-// TODO: TEST AGAINST RESULTS FROM SOMEWHERE ELSE
+// TODO: better tests against other code. esp 2d or against other code using quadratics
 
 // fix heterogeneity
 
+// choose newton tolerances better.
 
 // nonzero neumann
 // refactor out the newton solver?
@@ -34,7 +35,7 @@ const unsigned FIXED_BOUNDARY = 10;
 const unsigned NEUMANN_BOUNDARY = 11;
 const unsigned DIRICHLET_BOUNDARY = 12;
 
-const double NEWTON_ABS_TOL = 1e-11;
+const double NEWTON_ABS_TOL = 1e-13;
 const double NEWTON_REL_TOL = 1e-7;
 
 #include "AbstractIncompressibleMaterialLaw.hpp"

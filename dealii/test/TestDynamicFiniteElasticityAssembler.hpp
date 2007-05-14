@@ -102,10 +102,10 @@ public :
         
         
         DynamicFiniteElasticityAssembler<2> dynamic_finite_elasticity(&mesh,
-                &mooney_rivlin_law,
-                body_force,
-                1.0,
-                "dynamic_finite_elas/simple2d"
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      1.0,
+                                                                      "dynamic_finite_elas/simple2d"
                                                                      );
                                                                      
         dynamic_finite_elasticity.SetTimes(0.0,0.10,0.01);
@@ -114,69 +114,28 @@ public :
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
-        = dynamic_finite_elasticity.rGetDeformedPosition();
+            = dynamic_finite_elasticity.rGetDeformedPosition();
         
         TS_ASSERT_EQUALS(deformed_position.size(), 2u);
         TS_ASSERT_EQUALS(deformed_position[0].size(), mesh.n_vertices());
         TS_ASSERT_EQUALS(deformed_position[1].size(), mesh.n_vertices());
-        
-        
-        // also get the solution directly...
-        Vector<double>& solution = dynamic_finite_elasticity.rGetCurrentSolution();
-        DoFHandler<2>& dof_handler = dynamic_finite_elasticity.rGetDofHandler();
-        
-        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-        
-        while (!vertex_iter.ReachedEnd())
-        {
-            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-            Point<2> old_posn = vertex_iter.GetVertex();
-            
-            Point<2> new_posn;
-            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-            
-            
-            TS_ASSERT_DELTA(deformed_position[0](vertex_index), new_posn(0), 1e-12);
-            TS_ASSERT_DELTA(deformed_position[1](vertex_index), new_posn(1), 1e-12);
-            
-            // todo: TEST THESE!!
-            
-            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-            << " " << new_posn(0) << " " << new_posn(1) << "\n";
-            
-            
-            
-            // some hardcoded tests
-            if (vertex_index==62)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.23440,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.95301,1e-4);
-            }
-            if (vertex_index==38)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.33002,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),1.10915,1e-4);
-            }
-            if (vertex_index==15)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.20985,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),1.08222,1e-4);
-            }
-            if (vertex_index==80)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.12028,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.91553,1e-4);
-            }
-            if (vertex_index==32)
-            {
-                TS_ASSERT_DELTA(new_posn(0),0.00000,1e-4);
-                TS_ASSERT_DELTA(new_posn(1),0.87500,1e-4);
-            }
-            
-            
-            vertex_iter.Next();
-        }
+
+        // some hardcoded tests
+        TS_ASSERT_DELTA(deformed_position[0](15),0.20985,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](15),1.08222,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](32),0.00000,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](32),0.87500,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](38),0.33002,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](38),1.10915,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](62),0.23440,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](62),0.95301,1e-4);
+
+        TS_ASSERT_DELTA(deformed_position[0](80),0.12028,1e-4);
+        TS_ASSERT_DELTA(deformed_position[1](80),0.91553,1e-4);
+   
     }
     
     // this isn't a very good test, just runs for a small time (before equilibrium

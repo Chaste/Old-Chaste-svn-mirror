@@ -31,10 +31,11 @@ public :
         
         
         DynamicFiniteElasticityAssembler<2> dynamic_finite_elasticity(&mesh,
-                &mooney_rivlin_law,
-                body_force,
-                1.0,
-                "dynamic_finite_elas/simple2dlong");
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      1.0,
+                                                                      "dynamic_finite_elas/simple2dlong"
+                                                                      );
                                                                      
         dynamic_finite_elasticity.SetTimes(0.0,1.0,0.01);
         
@@ -42,11 +43,11 @@ public :
         
         // get undeformed position
         std::vector<Vector<double> >& undeformed_position
-        = dynamic_finite_elasticity.rGetUndeformedPosition();
+            = dynamic_finite_elasticity.rGetUndeformedPosition();
         
         // get deformed position
         std::vector<Vector<double> >& deformed_position
-        = dynamic_finite_elasticity.rGetDeformedPosition();
+            = dynamic_finite_elasticity.rGetDeformedPosition();
         
         for (unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
         {
@@ -56,10 +57,55 @@ public :
             double x = deformed_position[0](vertex_index);
             double y = deformed_position[1](vertex_index);
             std::cout << vertex_index << " " << X << " " << Y
-            << " " << x << " " << y << "\n";
+                      << " " << x << " " << y << "\n";
         }
     }
     
+
+    void Test3dProblemOnCube() throw(Exception)
+    {
+        Vector<double> body_force(3);
+        body_force(1) = 2.0;
+        
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(2.0);
+        
+        Triangulation<3> mesh;
+        GridGenerator::hyper_cube(mesh, 0.0, 1.0);
+        mesh.refine_global(3);
+        FiniteElasticityTools<3>::SetFixedBoundary(mesh, 0);
+        
+        
+        DynamicFiniteElasticityAssembler<3> dynamic_finite_elasticity(&mesh,
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      1.0,
+                                                                      "dynamic_finite_elas/simple3d"
+                                                                      );
+                                                                     
+        dynamic_finite_elasticity.SetTimes(0.0,0.2,0.01);
+        
+        dynamic_finite_elasticity.Solve();
+        
+        // get undeformed position
+        std::vector<Vector<double> >& undeformed_position
+            = dynamic_finite_elasticity.rGetUndeformedPosition();
+        
+        // get deformed position
+        std::vector<Vector<double> >& deformed_position
+            = dynamic_finite_elasticity.rGetDeformedPosition();
+        
+        for (unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
+        {
+            // todo: TEST THESE!!
+            double X = undeformed_position[0](vertex_index);
+            double Y = undeformed_position[1](vertex_index);
+            double x = deformed_position[0](vertex_index);
+            double y = deformed_position[1](vertex_index);
+            std::cout << vertex_index << " " << X << " " << Y
+                      << " " << x << " " << y << "\n";
+        }
+    }
+
     
     // Test that the final deformed mesh of a dynamic simulation which reaches a
     // resting state is the same as the result of a static simulation (ie the
@@ -79,10 +125,10 @@ public :
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
         
         DynamicFiniteElasticityAssembler<2> dynamic_finite_elasticity(&mesh,
-                &mooney_rivlin_law,
-                body_force,
-                density,
-                "dynamic_finite_elas/test_dymamic_v_static"
+                                                                      &mooney_rivlin_law,
+                                                                      body_force,
+                                                                      density,
+                                                                      "dynamic_finite_elas/test_dymamic_v_static"
                                                                      );
                                                                      
         dynamic_finite_elasticity.SetTimes(0.0,1.0,0.01);

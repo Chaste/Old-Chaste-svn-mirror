@@ -84,17 +84,20 @@ public :
     }
     
     
-    
+    // 3d simulation with result compared to alternative simulation that
+    // uses linear bases.
+    // TODO: Ideally, we would want to compare to an identical simulation
+    // which uses quadratics, so that the answers should be identical
     void Test3dProblemOnCube() throw(Exception)
     {
         Vector<double> body_force(3);
-        body_force(1) = 0.01;
+        body_force(1) = 20;
         
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(0.02,0.02);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(1,2);
         
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 0.1);
-        mesh.refine_global(2);
+        mesh.refine_global(3);
         FiniteElasticityTools<3>::SetFixedBoundary(mesh,0);
         
         FiniteElasticityAssembler<3> finite_elasticity(&mesh,
@@ -114,19 +117,64 @@ public :
         
         TS_ASSERT_EQUALS(deformed_position.size(),3u);
         
-        for (unsigned vertex_index=0; vertex_index<deformed_position[0].size(); vertex_index++)
-        {
-            // todo: TEST THESE!!
-            double X = undeformed_position[0](vertex_index);
-            double Y = undeformed_position[1](vertex_index);
-            double Z = undeformed_position[2](vertex_index);
-            double x = deformed_position[0](vertex_index);
-            double y = deformed_position[1](vertex_index);
-            double z = deformed_position[2](vertex_index);
-            std::cout << vertex_index << " " << X << " " << Y << " " << Z
-                                      << " " << x << " " << y << " " << z << "\n";
-        }
         
+        // compare against a simulation using my (pras) phd finite 
+        // elasticity code (linear/piecewise constant) basis functions for
+        // displacement/pressure, 8*8*8 nodes in the cube, same material law
+        // gravity. That code had been compared with cmiss and gave exactly the 
+        // same answers when cmiss was run with the same mesh,bases etc. 
+        
+        // note: would seem sensible to compare this directly with cmiss but,
+        // for technical reasons cmiss is a complete utter *^%&*$ when it comes
+        // to large meshes. my code was compared to cmiss on a small mesh, they 
+        // agreed exactly. we can't use a small problem here as we are not
+        // solving identical problems (different bases) and require some amount
+        // of numerical convergence 
+
+        // compare the deformation at the unfixed corner nodes to the linear 
+        // simulation 
+        
+        // assume the difference between the two simulations is due to the 
+        // different bases used/numerical convergence not being reached.
+                
+        // been visually verified that the two simulations agree quite close 
+        // qualitatively (note that it is quite a large deformation)       
+         
+        // verify node 1 is the point corresponding undeformed position (1,0,0)
+        TS_ASSERT_DELTA(undeformed_position[0](1), 1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](1), 0, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](1), 0, 1e-12);
+        // the linear simulation moves this node to (0.1077, 0.0324, 0.0000)
+        TS_ASSERT_DELTA(deformed_position[0](1), 0.1077, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[1](1), 0.0324, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[2](1), 0.0000, 1e-2);
+        
+        // verify node 2 is the point corresponding undeformed position (1,0,1)
+        TS_ASSERT_DELTA(undeformed_position[0](2), 1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](2), 0, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](2), 1, 1e-12);
+        // the linear simulation moves this node to (0.1077, 0.0324, 0.1000)
+        TS_ASSERT_DELTA(deformed_position[0](2), 0.1077, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[1](2), 0.0324, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[2](2), 0.1000, 1e-2);
+        
+        // verify node 5 is the point corresponding undeformed position (1,1,0)
+        TS_ASSERT_DELTA(undeformed_position[0](5), 1, 1e-2);
+        TS_ASSERT_DELTA(undeformed_position[1](5), 1, 1e-2);
+        TS_ASSERT_DELTA(undeformed_position[2](5), 0, 1e-2);
+        // the linear simulation moves this node to (0.0887, 0.1310, 0.0002)
+        TS_ASSERT_DELTA(deformed_position[0](5), 0.0887, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[1](5), 0.1310, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[2](5), 0.0002, 1e-2);
+        
+        // verify node 6 is the point corresponding undeformed position (1,1,1)
+        TS_ASSERT_DELTA(undeformed_position[0](6), 1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](6), 1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](6), 1, 1e-12);
+        // the linear simulation moves this node to (0.0887, 0.1310, 0.0998)
+        TS_ASSERT_DELTA(deformed_position[0](6), 0.0887, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[1](6), 0.1310, 1e-2);
+        TS_ASSERT_DELTA(deformed_position[2](6), 0.0998, 1e-2);        
     }
     
     
