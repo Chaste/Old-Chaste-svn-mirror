@@ -227,14 +227,13 @@ elif (system_name == 'new_chaste' or system_name == 'intel_chaste'):
   xsd_inc = '../../../xsd-2.3.1-i686-linux-gnu/libxsd'
   other_includepaths.extend([petsc_inc, petsc_bmake, xsd_inc])
 elif system_name == 'Nottingham':
-  # Gary and Alex's machines in Nottingham
+  # Gary, Alex and Helen's machines in Nottingham
   petsc_base = '/opt/petsc-2.2.1-with-mpi/'
   petsc_inc = petsc_base+'include'
   petsc_bmake = petsc_base+'bmake/linux-gnu'
   boost_path = '/opt/boost/include/boost-1_33_1'
   other_includepaths = [petsc_inc, petsc_bmake,  boost_path]
-#  other_includepaths = [petsc_inc, petsc_bmake]
-  other_libs = ['lapack', 'blas', 'boost_serialization-gcc']
+  other_libs = ['lapack', 'blas', 'boost_serialization-gcc','xerces-c']
   other_libpaths = [petsc_base+'lib/libO_c++/linux-gnu/',
                     '/opt/boost/lib/']
 else:
