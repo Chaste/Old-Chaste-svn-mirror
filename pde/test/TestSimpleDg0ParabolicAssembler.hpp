@@ -848,7 +848,7 @@ public:
             time += dt;
             assembler.SetTimes(time, time+dt, dt);
             
-            Vec result = assembler.Solve();
+            result = assembler.Solve();
             
             assembler.SetInitialCondition(result);
             

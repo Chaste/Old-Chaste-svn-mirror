@@ -219,39 +219,7 @@ public:
         TS_ASSERT_EQUALS(a(1,1), row1(1));
         TS_ASSERT_EQUALS(a(1,2), row1(2));
     }
-    
-    void TestDeterminantConsistency()
-    {
-        c_matrix<double,2,2> a;
-        a(0,0)=-0.0862015334643083664;
-        a(0,1)=-0.0570794273966443999;
-        a(1,0)= 0.000151455583991544351;
-        a(1,1)=-0.080981954603032702;
 
-        double expected=0.0069894136677286855877;
-
-        double diag=a(0,0)*a(1,1);
-        TS_ASSERT_EQUALS(diag, 0.0069807686697184239896); //Always passes
-        
-        double off_diag=a(1,0)*a(0,1);
-        TS_ASSERT_EQUALS(off_diag, -8.6449980102617336123e-06); //Always passes
-    
-        double diff1=a(0,0)*a(1,1) - a(1,0)*a(0,1);
-        TS_ASSERT_EQUALS(diff1, expected);  //Fails Intel.  Fails if compiler is able
-                                            //to perform subtraction without rounding
-        double diff2=diag          - off_diag;
-        TS_ASSERT_EQUALS(diff2, expected); //Always passes
-
-      
-        double det=Determinant(a);
-        TS_ASSERT_DELTA(det, expected, 4.3e-19); //Fails Intel
-        // Definition of delta test is ((y >= x - d) && (y <= x + d));
-        TS_ASSERT(det >= expected - 4.3e-19); //Always passes
-        TS_ASSERT(det <= expected + 4.3e-19); //Fails Intel
-
-        TS_ASSERT_DELTA(det, 0.0069894136677286855877, 4.3e-19); //Fails Intel
-        TS_ASSERT_LESS_THAN(det - expected, 8.6e-19);//Fails Intel
-    }
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/
