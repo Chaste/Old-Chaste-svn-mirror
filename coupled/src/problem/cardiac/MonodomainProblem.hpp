@@ -140,7 +140,10 @@ public:
             p_test_writer->EndDefineMode();
         }
             
-        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);       
+        TimeStepper stepper(mStartTime, mEndTime, mPrintingTimeStep);
+        std::cout << " MonodomainProblem creating a stepper with start = " << mStartTime
+                  << " end = " << mEndTime
+                  << " printing time step = " << mPrintingTimeStep << std::endl;
 
         if (write_files)
         {
@@ -240,6 +243,11 @@ public:
         mEndTime = rEndTime;
     }
     
+    /**
+     * Set the PDE time step.
+     * Note that the printing time step is also set with this call.
+     */
+    
     void SetPdeTimeStep(double pdeTimeStep)
     {
         if (pdeTimeStep <= 0)
@@ -247,10 +255,12 @@ public:
             EXCEPTION("Pde time step should be positive");
         }
         mPdeTimeStep = pdeTimeStep;
+        mPrintingTimeStep = mPdeTimeStep;
     }
     
     /** Set the times to print output. The printing time step must be
-     *  a multiple of the pde timestep 
+     *  a multiple of the pde timestep. If SetPdeTimeStep is used it should be called
+     * before SetPrintingTimeStep.
      */
     void SetPrintingTimeStep(double printingTimeStep)
     {
