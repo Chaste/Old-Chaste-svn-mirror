@@ -313,7 +313,6 @@ public :
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
                 
         Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
-        unsigned counter=0;
         while (element_iter!=mesh.end())
         {
             if (element_iter->center()[0] < 0.5)
