@@ -140,37 +140,37 @@ public :
         // been visually verified that the two simulations agree quite close 
         // qualitatively (note that it is quite a large deformation)       
          
-        // verify node 1 is the point corresponding undeformed position (1,0,0)
-        TS_ASSERT_DELTA(undeformed_position[0](1), 1, 1e-12);
-        TS_ASSERT_DELTA(undeformed_position[1](1), 0, 1e-12);
-        TS_ASSERT_DELTA(undeformed_position[2](1), 0, 1e-12);
+        // verify node 1 is the point corresponding undeformed position (0.1,0,0)
+        TS_ASSERT_DELTA(undeformed_position[0](1), 0.1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](1),   0, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](1),   0, 1e-12);
         // the linear simulation moves this node to (0.1077, 0.0324, 0.0000)
         TS_ASSERT_DELTA(deformed_position[0](1), 0.1077, 1e-2);
         TS_ASSERT_DELTA(deformed_position[1](1), 0.0324, 1e-2);
         TS_ASSERT_DELTA(deformed_position[2](1), 0.0000, 1e-2);
         
-        // verify node 2 is the point corresponding undeformed position (1,0,1)
-        TS_ASSERT_DELTA(undeformed_position[0](2), 1, 1e-12);
-        TS_ASSERT_DELTA(undeformed_position[1](2), 0, 1e-12);
-        TS_ASSERT_DELTA(undeformed_position[2](2), 1, 1e-12);
+        // verify node 2 is the point corresponding undeformed position (0.1,0,0.1)
+        TS_ASSERT_DELTA(undeformed_position[0](2), 0.1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](2),   0, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](2), 0.1, 1e-12);
         // the linear simulation moves this node to (0.1077, 0.0324, 0.1000)
         TS_ASSERT_DELTA(deformed_position[0](2), 0.1077, 1e-2);
         TS_ASSERT_DELTA(deformed_position[1](2), 0.0324, 1e-2);
         TS_ASSERT_DELTA(deformed_position[2](2), 0.1000, 1e-2);
         
-        // verify node 5 is the point corresponding undeformed position (1,1,0)
-        TS_ASSERT_DELTA(undeformed_position[0](5), 1, 1e-2);
-        TS_ASSERT_DELTA(undeformed_position[1](5), 1, 1e-2);
-        TS_ASSERT_DELTA(undeformed_position[2](5), 0, 1e-2);
+        // verify node 5 is the point corresponding undeformed position (0.1,0.1,0)
+        TS_ASSERT_DELTA(undeformed_position[0](5), 0.1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](5), 0.1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](5),   0, 1e-12);
         // the linear simulation moves this node to (0.0887, 0.1310, 0.0002)
         TS_ASSERT_DELTA(deformed_position[0](5), 0.0887, 1e-2);
         TS_ASSERT_DELTA(deformed_position[1](5), 0.1310, 1e-2);
         TS_ASSERT_DELTA(deformed_position[2](5), 0.0002, 1e-2);
         
-        // verify node 6 is the point corresponding undeformed position (1,1,1)
-        TS_ASSERT_DELTA(undeformed_position[0](6), 1, 1e-12);
-        TS_ASSERT_DELTA(undeformed_position[1](6), 1, 1e-12);
-        TS_ASSERT_DELTA(undeformed_position[2](6), 1, 1e-12);
+        // verify node 6 is the point corresponding undeformed position (0.1,0.1,0.1)
+        TS_ASSERT_DELTA(undeformed_position[0](6), 0.1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[1](6), 0.1, 1e-12);
+        TS_ASSERT_DELTA(undeformed_position[2](6), 0.1, 1e-12);
         // the linear simulation moves this node to (0.0887, 0.1310, 0.0998)
         TS_ASSERT_DELTA(deformed_position[0](6), 0.0887, 1e-2);
         TS_ASSERT_DELTA(deformed_position[1](6), 0.1310, 1e-2);
@@ -294,7 +294,17 @@ public :
     }
     
     
-// fails - something odd happens with this choice of params - needs fixing..
+/* NOTES: 
+   - heterogeneity with gravity doesn't work
+   - without gravity, the solution should be zero disp, discontinuous pw const
+      pressure. BUT, bases don't allow this (unlike if we use linear bases for
+      displacement and pw constant for pressure)
+   - instead solution is nearly zero displacement, with crinkling at interface
+   - this a modelling problem? trying to specify pw const material laws
+   - a functional analysis thing?
+   - converges with zero gravity, so should converge with small non-zero gravity,
+      the fact that it doesn't may indicate a bug
+*/   
     void xTestOnHeterogeneousProblem()
     {
         Triangulation<2> mesh;
@@ -303,6 +313,7 @@ public :
         FiniteElasticityTools<2>::SetFixedBoundary(mesh, 0);
                 
         Triangulation<2>::cell_iterator element_iter = mesh.begin_active();
+        unsigned counter=0;
         while (element_iter!=mesh.end())
         {
             if (element_iter->center()[0] < 0.5)
@@ -321,17 +332,17 @@ public :
         material_ids.push_back(6);
                 
         Vector<double> body_force(2);
-        body_force(1) = 0.03;
+        body_force(1) = 0.01;
         
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(0.1);
-        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_weak(0.02);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(1);
+        MooneyRivlinMaterialLaw<2> mooney_rivlin_law_weak(0.2);
         
         std::vector<AbstractIncompressibleMaterialLaw<2>*> material_laws;
         material_laws.push_back(&mooney_rivlin_law_stiff);
         material_laws.push_back(&mooney_rivlin_law_weak);
                 
         FiniteElasticityAssembler<2> finite_elasticity(&mesh,
-                                                       &mooney_rivlin_law_weak,
+                                                       NULL,
                                                        body_force,
                                                        1.0,
                                                        "finite_elas/heterogeneous2d");

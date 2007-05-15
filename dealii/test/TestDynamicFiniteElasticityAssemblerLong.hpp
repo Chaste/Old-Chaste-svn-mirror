@@ -11,7 +11,7 @@
 #include "ExponentialMaterialLaw.hpp"
 #include "FiniteElasticityTools.hpp"
 
-// todos: proper test of answers, compare numerical jacobian, test exceptions.
+// todos: proper test of answers
 
 class TestDynamicFiniteElasticityAssemblerLong : public CxxTest::TestSuite
 {
@@ -67,7 +67,7 @@ public :
         Vector<double> body_force(3);
         body_force(1) = 2.0;
         
-        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(2.0);
+        MooneyRivlinMaterialLaw<3> mooney_rivlin_law(1.0, 2.0);
         
         Triangulation<3> mesh;
         GridGenerator::hyper_cube(mesh, 0.0, 1.0);
