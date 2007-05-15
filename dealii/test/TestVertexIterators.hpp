@@ -106,6 +106,18 @@ public :
             vertex_iter.Next();
         }
         TS_ASSERT_EQUALS(counter, num_nodes);
+        
+        // do it again after refining the mesh, check no errors
+        mesh.refine_global(1);
+        vertex_iter.Reset();
+        counter=0;
+        TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
+        while (!vertex_iter.ReachedEnd())
+        {
+            counter++;
+            vertex_iter.Next();
+        }
+        TS_ASSERT_EQUALS(counter, mesh.n_vertices());
     }
     
     
@@ -219,6 +231,18 @@ public :
             vertex_iter.Next();
         }
         TS_ASSERT_EQUALS(counter, num_nodes);
+                
+        // do it again after refining the mesh, check no errors
+        mesh.refine_global(1);
+        vertex_iter.Reset();
+        counter=0;
+        TS_ASSERT_EQUALS(vertex_iter.GetVertexGlobalIndex(), initial_index);
+        while (!vertex_iter.ReachedEnd())
+        {
+            counter++;
+            vertex_iter.Next();
+        }
+        TS_ASSERT_EQUALS(counter, mesh.n_vertices());        
     }
 };
 

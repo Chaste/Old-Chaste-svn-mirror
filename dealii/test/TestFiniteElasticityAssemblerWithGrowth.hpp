@@ -173,7 +173,7 @@ public :
     
     
     
-    void NO_____Test2dProblemOnSquare() throw(Exception)
+    void NO__Test2dProblemOnSquare() throw(Exception)
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
@@ -228,36 +228,6 @@ public :
         
         finiteelas_with_growth.Run();
         
-        
-        
-//        Vector<double>& solution = finiteelas_with_growth.rGetCurrentSolution();
-//        DoFHandler<2>& dof_handler = finiteelas_with_growth.rGetDofHandler();
-//
-//        DofVertexIterator<2> vertex_iter(&mesh, &dof_handler);
-//
-//        while(!vertex_iter.ReachedEnd())
-//        {
-//            unsigned vertex_index = vertex_iter.GetVertexGlobalIndex();
-//            Point<2> old_posn = vertex_iter.GetVertex();
-//
-//            Point<2> new_posn;
-//            new_posn(0) = old_posn(0)+solution(vertex_iter.GetDof(0));
-//            new_posn(1) = old_posn(1)+solution(vertex_iter.GetDof(1));
-//
-//            // todo: TEST THESE!!
-//
-//            std::cout << vertex_index << " " << old_posn(0) << " " << old_posn(1)
-//                                      << " " << new_posn(0) << " " << new_posn(1) << "\n";
-//
-//
-//            //// UPDATE THE NODE POSITIONS
-//            // GetVertex returns a reference to a Point<DIM>, so this changes the mesh
-//            // directly. Do this so the new volume can be computed
-//            vertex_iter.GetVertex()[0] = new_posn(0);
-//            vertex_iter.GetVertex()[1] = new_posn(1);
-//
-//            vertex_iter.Next();
-//        }
     }
     
     
@@ -270,7 +240,7 @@ public :
     {
         Vector<double> body_force(2); // zero
         double density = 1.0;
-//0.002
+
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law(0.002);
         
         Triangulation<2> mesh;
@@ -280,12 +250,11 @@ public :
         ConcentrationBasedTumourSourceModel<2> source_model(mesh);
         
         FiniteElasticityAssemblerWithGrowth<2> finiteelas_with_growth(&mesh,
-                //                                                                      &mooney_rivlin_law,
-                NULL,
-                body_force,
-                density,
-                "finite_elas_growth/rectanle2d_2circles",
-                &source_model);
+                                                                     NULL,
+                                                                     body_force,
+                                                                     density,
+                                                                     "finite_elas_growth/rectanle2d_2circles",
+                                                                      &source_model);
                 
                 
         MooneyRivlinMaterialLaw<2> mooney_rivlin_law_stiff(0.02);
@@ -300,10 +269,8 @@ public :
         material_ids.push_back(NON_GROWING_REGION);
         material_laws.push_back(&mooney_rivlin_law_stiff);
         
-        
-        
         finiteelas_with_growth.SetMaterialLawsForHeterogeneousProblem(material_laws,
-                material_ids);
+                                                                      material_ids);
                 
         finiteelas_with_growth.SetTimes(0.0, 10.0, 0.1);
         finiteelas_with_growth.Run();

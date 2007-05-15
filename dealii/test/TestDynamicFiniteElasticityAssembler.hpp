@@ -13,7 +13,7 @@
 
 #include "FiniteElasticityTools.hpp"
 
-// todos: proper test of answers
+// todos: proper test of answers, fix CompareJacobian
 
 class TestDynamicFiniteElasticityAssembler : public CxxTest::TestSuite
 {

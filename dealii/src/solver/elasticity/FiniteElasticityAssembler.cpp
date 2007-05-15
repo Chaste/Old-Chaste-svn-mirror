@@ -23,7 +23,7 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
         PRESSURE_COMPONENT_INDEX(DIM) // ie if DIM=2, the space indices are 0 and 1, pressure index is 2
 {
     // distribute dofs
-    this->mDofHandler.distribute_dofs(mFeSystem);
+    DistributeDofs();
     this->InitialiseMatricesVectorsAndConstraints();
     this->mDofsPerElement = mFeSystem.dofs_per_cell;
     
@@ -230,15 +230,26 @@ unsigned FiniteElasticityAssembler<DIM>::GetMaterialLawIndexFromMaterialId(unsig
 template<unsigned DIM>
 void FiniteElasticityAssembler<DIM>::FormInitialGuess()
 {
-    double zero_strain_pressure = mMaterialLaws[0]->GetZeroStrainPressure();
-    
     std::vector<unsigned> local_dof_indices(this->mDofsPerElement);
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
     
     typename DoFHandler<DIM>::active_cell_iterator  element_iter = this->mDofHandler.begin_active();
     while (element_iter!=this->mDofHandler.end())
     {
         element_iter->get_dof_indices(local_dof_indices);
+
+        if (!mHeterogeneous)
+        {
+            p_material_law = mMaterialLaws[0];
+        }
+        else
+        {
+            unsigned index = GetMaterialLawIndexFromMaterialId(element_iter->material_id());
+            p_material_law = mMaterialLaws[index];
+        }
         
+        double zero_strain_pressure = p_material_law->GetZeroStrainPressure();
+
         for (unsigned i=0; i<this->mDofsPerElement; i++)
         {
             const unsigned component_i = mFeSystem.system_to_component_index(i).first;
@@ -463,7 +474,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
         double detF = determinant(F);
         
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,assembleJacobian);
-        
+                
         for (unsigned i=0; i<dofs_per_element; i++)
         {
             const unsigned component_i = mFeSystem.system_to_component_index(i).first;

@@ -38,7 +38,11 @@ public :
     }
     double Get_dW_dI2(double I1, double I2)
     {
+        // this is covered, but gcov doesn't see this as being covered 
+        // for some reason, maybe because of optimisations
+        #define COVERAGE_IGNORE 
         assert(DIM==3);
+        #undef COVERAGE_IGNORE
         return mC2;
     }
     double Get_d2W_dI1(double I1, double I2)
@@ -47,12 +51,20 @@ public :
     }
     double Get_d2W_dI2(double I1, double I2)
     {
+        // this is covered, but gcov doesn't see this as being covered 
+        // for some reason, maybe because of optimisations
+        #define COVERAGE_IGNORE 
         assert(DIM==3);
+        #undef COVERAGE_IGNORE
         return 0.0;
     }
     double Get_d2W_dI1I2(double I1, double I2)
     {
+        // this is covered, but gcov doesn't see this as being covered 
+        // for some reason, maybe because of optimisations
+        #define COVERAGE_IGNORE 
         assert(DIM==3);
+        #undef COVERAGE_IGNORE
         return 0.0;
     }
     

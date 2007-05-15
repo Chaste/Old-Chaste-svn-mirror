@@ -16,9 +16,13 @@
 
 // TODO: better tests against other code. esp 2d or against other code using quadratics
 
-// fix heterogeneity
+// fix heterogeneity: !form Initial guess just works with one mat law!
+// then cover heterogeniety
 
 // choose newton tolerances better.
+
+// refactor (and test) writestresses
+// refactor writebasic 
 
 // nonzero neumann
 // refactor out the newton solver?

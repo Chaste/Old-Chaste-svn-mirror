@@ -54,8 +54,12 @@ public :
                                           double                  dTdE[DIM][DIM][DIM][DIM],
                                           bool                    computeDTdE)
     {
+        // this is covered, but gcov doesn't see this as being covered 
+        // for some reason, maybe because of optimisations
+        #define COVERAGE_IGNORE 
         assert((DIM==2) || (DIM==3));
-        
+        #undef COVERAGE_IGNORE
+                
         static Tensor<2,DIM> identity;
         static bool first=true;
         if (first)
@@ -168,7 +172,12 @@ public :
      */
     double GetZeroStrainPressure()
     {
+        // this is covered, but gcov doesn't see this as being covered 
+        // for some reason, maybe because of optimisations
+        #define COVERAGE_IGNORE 
         assert(DIM>=2 && DIM<=3);
+        #undef COVERAGE_IGNORE
+        
         if (DIM==2)
         {
             return 2*Get_dW_dI1(2,0);
