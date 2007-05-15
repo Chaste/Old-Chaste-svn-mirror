@@ -106,21 +106,10 @@ void DynamicFiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandle
     fe_values.reinit(elementIter); // compute fe values for this element
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_values(mSolutionAtLastTimestep, local_solution_values_last_timestep);
-    
-    
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
     
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if (!this->mHeterogeneous)
-    {
-        p_material_law = this->mMaterialLaws[0];
-    }
-    else
-    {
-        unsigned index = this->GetMaterialLawIndexFromMaterialId(elementIter->material_id());
-        p_material_law = this->mMaterialLaws[index];
-    }
-    
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = this->GetMaterialLawForElement(elementIter);
+
     
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
@@ -353,7 +342,7 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
     
     double time = mTstart;
     
-    this->OutputResults(0);
+    this->OutputResultsGMV(0);
     unsigned time_counter=1;
     
     mSolutionAtLastTimestep = this->mCurrentSolution;
@@ -430,13 +419,13 @@ void DynamicFiniteElasticityAssembler<DIM>::Solve()
             for (unsigned i=0; i<DIM; i++)
             {
                 this->mDeformedPosition[i](vertex_index) =   old_posn(i)
-                                                             + this->mCurrentSolution(vertex_iter.GetDof(i));
+                                                           + this->mCurrentSolution(vertex_iter.GetDof(i));
             }
             
             vertex_iter.Next();
         }
         
-        this->OutputResults(time_counter);
+        this->OutputResultsGMV(time_counter);
         time_counter++;
     }
 }

@@ -197,16 +197,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::AssembleOnElement(typename DoFHan
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
     
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if (!this->mHeterogeneous)
-    {
-        p_material_law = this->mMaterialLaws[0];
-    }
-    else
-    {
-        unsigned index = this->GetMaterialLawIndexFromMaterialId(elementIter->material_id());
-        p_material_law = this->mMaterialLaws[index];
-    }
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter); 
     
     double element_volume = 0;
 
@@ -781,7 +772,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         EXCEPTION("Start time, end time, dt have not been set. Call SetTimes() before Solve()");
     }
     
-    this->OutputResults(0);
+    this->OutputResultsGMV(0);
     WriteBasicOutput(0);
     this->WriteStresses(0);
 
@@ -904,7 +895,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
             }           
             
             this->mWriteOutput = true;
-            this->OutputResults(counter+100);
+            this->OutputResultsGMV(counter+100);
             WriteBasicOutput(counter+100);
             this->WriteStresses(counter+100);
             WriteGrowthValuesAtVertices(counter+100); 
@@ -927,7 +918,7 @@ void FiniteElasticityAssemblerWithGrowth<DIM>::Run()
         // output results
         ////////////////////////////////////////////////////////
         this->mWriteOutput = true;
-        this->OutputResults(counter);
+        this->OutputResultsGMV(counter);
         WriteBasicOutput(counter);
         this->WriteStresses(counter);
         WriteGrowthValuesAtVertices(counter);

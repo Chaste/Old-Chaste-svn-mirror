@@ -105,7 +105,9 @@ protected:
     std::vector<AbstractIncompressibleMaterialLaw<DIM>*>  mMaterialLaws;
     /*< Map from region number of material law (needed for heterogeneous simulations */
     std::vector<int>     mMaterialIdToMaterialLawIndexMap;
-    
+    /*< Helper function for getting material law given element */ 
+    AbstractIncompressibleMaterialLaw<DIM>* GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter);
+
     /*< Body force per unit volume */
     Vector<double>       mBodyForce;
     /*< Mass density of the material (currently as if homogeneous material) */
@@ -160,7 +162,7 @@ protected:
     /**
      *  Output the current solution in the specified folder, with stamp 'counter'
      */
-    void OutputResults(unsigned counter);
+    void OutputResultsGMV(unsigned counter);
     
     /**
      *  Compute the L2 norm of the current residual vector divided by it's length.

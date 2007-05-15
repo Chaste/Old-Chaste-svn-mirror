@@ -111,10 +111,6 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
         vertex_iter.Next();
     }
 
-//    std::cerr << "Number of active cells: " << this->mpMesh->n_active_cells() << std::endl;
-//    std::cerr << "Total number of cells: "  << this->mpMesh->n_cells() << std::endl;
-//    std::cerr << "Number of degrees of freedom: " << this->mDofHandler.n_dofs() << std::endl;
-
     std::vector<bool> component_mask(DIM+1);
     
     for (unsigned i=0; i<DIM; i++)
@@ -130,19 +126,6 @@ FiniteElasticityAssembler<DIM>::FiniteElasticityAssembler(Triangulation<DIM>* pM
                                              component_mask);
                                              
     mNumNewtonIterations = 0;
-    
-// random inputing code
-//    GridIn<DIM> grid_in;
-//    grid_in.attach_triangulation(mMesh);
-//    std::ifstream input(meshFile.c_str());
-//    grid_in.read_ucd(input);
-
-// random outputing code
-//    std::ofstream out("mesh.inp");
-//    GridOut grid_out;
-//    grid_out.write_ucd(mMesh, out);
-
-
 }
 
 template<unsigned DIM>
@@ -238,15 +221,7 @@ void FiniteElasticityAssembler<DIM>::FormInitialGuess()
     {
         element_iter->get_dof_indices(local_dof_indices);
 
-        if (!mHeterogeneous)
-        {
-            p_material_law = mMaterialLaws[0];
-        }
-        else
-        {
-            unsigned index = GetMaterialLawIndexFromMaterialId(element_iter->material_id());
-            p_material_law = mMaterialLaws[index];
-        }
+        p_material_law = GetMaterialLawForElement(element_iter);
         
         double zero_strain_pressure = p_material_law->GetZeroStrainPressure();
 
@@ -360,7 +335,20 @@ void FiniteElasticityAssembler<DIM>::SetBoundaryValues(std::map<unsigned,double>
     assert(!mBoundaryValues.empty());
 }
 
-
+template<unsigned DIM>
+AbstractIncompressibleMaterialLaw<DIM>* FiniteElasticityAssembler<DIM>::GetMaterialLawForElement(typename DoFHandler<DIM>::active_cell_iterator elementIter)
+{
+    if (!mHeterogeneous)
+    {
+        return mMaterialLaws[0];
+    }
+    else
+    {
+        unsigned index = GetMaterialLawIndexFromMaterialId(elementIter->material_id());
+        return mMaterialLaws[index];
+    }
+}
+    
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // AssembleOnElement
@@ -433,19 +421,7 @@ void FiniteElasticityAssembler<DIM>::AssembleOnElement(typename DoFHandler<DIM>:
     fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
     fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
     
-    
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if (!mHeterogeneous)
-    {
-        p_material_law = mMaterialLaws[0];
-    }
-    else
-    {
-        unsigned index = GetMaterialLawIndexFromMaterialId(elementIter->material_id());
-        p_material_law = mMaterialLaws[index];
-    }
-    
-    
+    AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(elementIter);
     
     for (unsigned q_point=0; q_point<n_q_points; q_point++)
     {
@@ -628,7 +604,7 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
 
     // create stresses file
     std::stringstream ss;
-    ss << this->mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".str";
+    ss << this->mOutputDirectoryFullPath << "/solution_" << counter << ".str";
     std::string stress_filename = ss.str();
     std::ofstream stress_output(stress_filename.c_str());
     
@@ -641,8 +617,6 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
                                         update_q_points  |     // needed for interpolating u and u' on the quad point
                                         update_JxW_values));
                                         
-    //const unsigned dofs_per_element = mFeSystem.dofs_per_cell;
-
     std::vector< Vector<double> >                  local_solution_values(n_q_points);
     std::vector< std::vector< Tensor<1,DIM> > >    local_solution_gradients(n_q_points);
     
@@ -670,16 +644,7 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
         fe_values.get_function_values(this->mCurrentSolution, local_solution_values);
         fe_values.get_function_grads(this->mCurrentSolution, local_solution_gradients);
 
-        AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-        if (!mHeterogeneous)
-        {
-            p_material_law = mMaterialLaws[0];
-        }
-        else
-        {
-            unsigned index = GetMaterialLawIndexFromMaterialId(element_iter->material_id());
-            p_material_law = mMaterialLaws[index];
-        }
+        AbstractIncompressibleMaterialLaw<DIM>* p_material_law = GetMaterialLawForElement(element_iter);
                 
         for (unsigned q_point=0; q_point<n_q_points; q_point++)
         {
@@ -714,7 +679,20 @@ void FiniteElasticityAssembler<DIM>::WriteStresses(unsigned counter)
             
             p_material_law->ComputeStressAndStressDerivative(C,inv_C,p,T,dTdE,false);
             
-            stress_output << elem_number++ << " " << T[0][0] << " " << T[1][0] << " " << T[1][1] << "\n";
+            if(DIM==2)
+            {
+                stress_output << elem_number++ << " " << T[0][0] << " " << T[1][0] << " " << T[1][1] << "\n";
+            }
+            else if(DIM==3)
+            {
+                stress_output << elem_number++ << " " << T[0][0] << " " << T[0][1] << " "  
+                              << T[0][2] << " " << T[1][1] << " " << T[1][2] << " "<< T[2][2] 
+                              << " " << "\n";
+            }
+            else
+            {
+                EXCEPTION("Dimension should be 2 or 3");
+            }
         }
         
         element_iter++;
@@ -904,7 +882,7 @@ void FiniteElasticityAssembler<DIM>::CompareJacobians()
 
 
 template<unsigned DIM>
-void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
+void FiniteElasticityAssembler<DIM>::OutputResultsGMV(unsigned counter)
 {
     // only write output if the flag mWriteOutput has been set
     if (!mWriteOutput)
@@ -913,7 +891,7 @@ void FiniteElasticityAssembler<DIM>::OutputResults(unsigned counter)
     }
     
     std::stringstream ss;
-    ss << mOutputDirectoryFullPath << "/finiteelas_solution_" << counter << ".gmv";
+    ss << mOutputDirectoryFullPath << "/solution_" << counter << ".gmv";
     std::string filename = ss.str();
     std::ofstream output(filename.c_str());
     
@@ -1014,7 +992,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         EXCEPTION("No material laws have been set");
     }
     
-    OutputResults(0);
+    OutputResultsGMV(0);
     
     FormInitialGuess();
     
@@ -1049,7 +1027,7 @@ void FiniteElasticityAssembler<DIM>::Solve()
         
         std::cout << "Norm of residual is " << norm_resid << "\n";
         
-        OutputResults(counter);
+        OutputResultsGMV(counter);
         mNumNewtonIterations = counter;
         
         counter++;
