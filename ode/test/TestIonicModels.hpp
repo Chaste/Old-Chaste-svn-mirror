@@ -476,7 +476,37 @@ public:
                 << std::endl;
         
     }
-
+    
+ void TestLr91WithVoltageDropVariousTimeStepRatios()
+    {
+        TS_ASSERT_THROWS_ANYTHING(mTryTestLr91WithVoltageDrop(1));
+        TS_ASSERT_THROWS_ANYTHING(mTryTestLr91WithVoltageDrop(2));
+        TS_ASSERT_THROWS_ANYTHING(mTryTestLr91WithVoltageDrop(3));
+        TS_ASSERT_THROWS_NOTHING(mTryTestLr91WithVoltageDrop(4));
+           
+    }
+private:
+    void mTryTestLr91WithVoltageDrop(unsigned ratio) throw (Exception)
+    {
+        double pde_time_step = 0.01;  // ms (not used, but here to replicate TestMonodomainHeart)
+        double ode_time_step = pde_time_step/ratio; // ms
+        double end_time = 10;        // ms
+        InitialStimulus zero_stimulus(0,0,0);
+        EulerIvpOdeSolver solver;
+        LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, ode_time_step, &zero_stimulus);
+        double time=0.0;
+        double start_voltage=-83.853;
+        double end_voltage=-100;
+        while (time<end_time)
+        {   
+            double next_time=time+pde_time_step;
+            lr91_ode_system.SetVoltage(start_voltage +  
+                (end_voltage-start_voltage)*time/end_time);
+            OdeSolution solution = lr91_ode_system.ComputeExceptVoltage(time, next_time);
+            time=next_time;
+        }
+    }
+public:
 };
 
 
