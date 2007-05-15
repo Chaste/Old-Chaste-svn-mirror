@@ -466,6 +466,10 @@ public:
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
         CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.15);
+        // Mainly for coverage
+        TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
+                        backward_system.GetIIonic(),
+                        1e-6);
         
         std::cout << "Run times:\n\tForward: " << forward
                 << "\n\tBackward: " << backward

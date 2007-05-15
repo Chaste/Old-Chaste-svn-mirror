@@ -20,6 +20,8 @@ public:
         double endTime=2.0;
         double timeStep=3.7e-05;
 
+        TS_ASSERT_THROWS_ANYTHING(TimeStepper stepper(endTime, startTime, timeStep));
+
         TimeStepper stepper(startTime, endTime, timeStep);
         
         TS_ASSERT_EQUALS( stepper.EstimateTimeSteps(),

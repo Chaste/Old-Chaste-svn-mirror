@@ -208,8 +208,29 @@ public:
         TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 50U);
         
         TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 51U);
+    }
+    
+    void TestTriangles1DMeshIn2DSpaceWithDeletedNode()
+    {
+        TrianglesMeshReader<1,2> mesh_reader(
+            "mesh/test/data/semicircle_outline");
+        ConformingTetrahedralMesh<1,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        mesh.DeleteBoundaryNodeAt(0);
         
+        TrianglesMeshWriter<1,2> mesh_writer("","1dMeshIn2dSpaceWithDeletedNode");
         
+        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+        
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        
+        TrianglesMeshReader<1,2> mesh_reader2(
+            output_dir+"1dMeshIn2dSpaceWithDeletedNode");
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumNodes(), 50U);
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumElements(), 49U);
+        
+        TS_ASSERT_EQUALS( mesh_reader2.GetNumFaces(), 50U);
     }
     
     void Test2DClosedMeshIn3DSpace()
