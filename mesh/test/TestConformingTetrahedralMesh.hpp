@@ -1643,16 +1643,14 @@ public:
         Node<2>* p_node2 = new Node<2>(5u, point);
         
         NodeMap map(mesh.GetNumNodes());
-        new_index = mesh.AddNodeAndReMesh(p_node2, map);
-        
+        new_index = mesh.AddNode(p_node2);
+        mesh.ReMesh(map);
         TS_ASSERT_EQUALS(new_index, 5u);
         TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[0], 2.0 ,1e-7);
         TS_ASSERT_DELTA(mesh.GetNode(5u)->rGetLocation()[1], 1.0 ,1e-7);
         
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 4u);
         
-        //TrianglesMeshWriter<2,2> mesh_writer("", "AddNodeAndReMesh", false);
-        //mesh_writer.WriteFilesUsingMesh(mesh);
     }
         
 };

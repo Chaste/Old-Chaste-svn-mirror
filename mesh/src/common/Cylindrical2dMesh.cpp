@@ -23,6 +23,17 @@ private:
     /** The indices of nodes on the bottom boundary */
     std::vector<unsigned > mBottomBoundary;
     
+    void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) 
+    { 
+        for (unsigned j=0 ; j<rImageNodes.size() ; j++)
+        {
+            if(nodeIndex==rImageNodes[j])
+            {
+                pElement->ReplaceNode(mNodes[rImageNodes[j]],mNodes[rOriginalNodes[j]]);
+            }
+        }
+    }      
+    
 public:
     
     /**
@@ -39,6 +50,8 @@ public:
     {
         assert(x1>x0);
         mXLeft = x0;
+        assert(mXLeft==0.0); // if this is not the case GetVectorFromAtoB will break
+                            // perhaps remove mXLeft
         mXRight = x1;
         mWidth = mXRight - mXLeft;
         mTop = xTop;
@@ -115,7 +128,7 @@ public:
             c_vector<double, 2> location = mNodes[left_original_node_indices[i]]->rGetLocation();
             location[0] = location[0] + mWidth;
     
-            unsigned new_node_index = AddNode(new Node<2>(0u, location));
+            unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
             lefts_image_node_indices.push_back(new_node_index);
         }
         
@@ -127,7 +140,7 @@ public:
             c_vector<double, 2> location = mNodes[right_original_node_indices[i]]->rGetLocation();
             location[0] = location[0] - mWidth;
     
-            unsigned new_node_index = AddNode(new Node<2>(0u, location));
+            unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
             rights_image_node_indices.push_back(new_node_index);
         }
         
@@ -141,7 +154,7 @@ public:
     }
 
     /**
-     * Conducts a cylindrical remesh (overwritten constructor of main ReMesh function)
+     * Conducts a cylindrical remesh (OVERRIDDEN constructor of main ReMesh function)
      * 
      * Firstly calls CreateMirrorNodes to create mirror image nodes
      * Then calls remesher
@@ -263,31 +276,18 @@ public:
                  * There would be two copies of each periodic element
                  * one with one image and two real (on one side),
                  * another with two images and one real (on the other side).
-                 * Becuase of this we can just take one case (one image node)
+                 * Because of this we can just take one case (one image node)
                  * and delete the other element
                  */
                 if (number_of_image_nodes==1)
                 {
+                    
                     //std::cout << "Periodic element found \n" << std::flush;   
                     for (unsigned i=0 ; i<3 ; i++)
                     {
                         unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                        for (unsigned j=0 ; j<left_images.size() ; j++)
-                        {
-                            if(this_node_index==left_images[j])
-                            {
-                                p_element->ReplaceNode(mNodes[left_images[j]],mNodes[left_original[j]]);
-                                //std::cout << "Node " << left_images[j] << " swapped for node " << left_original[j] << "\n" << std::flush;
-                            }
-                        }
-                        for (unsigned j=0 ; j<right_images.size() ; j++)
-                        {
-                            if(this_node_index==right_images[j])
-                            {
-                                p_element->ReplaceNode(mNodes[right_images[j]],mNodes[right_original[j]]);
-                                //std::cout << "Node " << right_images[j] << " swapped for node " << right_original[j] << "\n" << std::flush;
-                            }
-                        }
+                        ReplaceImageWithRealNodeOnElement(p_element,left_images,left_original,this_node_index);
+                        ReplaceImageWithRealNodeOnElement(p_element,right_images,right_original,this_node_index);
                     }
                 }
             }
@@ -297,14 +297,14 @@ public:
         // and replace image nodes with corresponding real ones.
         for (unsigned elem_index = 0; elem_index<GetNumAllBoundaryElements(); elem_index++)
         {
-            BoundaryElement<1,2>* p_element = GetBoundaryElement(elem_index);
-            if (!p_element->IsDeleted())
+            BoundaryElement<1,2>* p_boundary_element = GetBoundaryElement(elem_index);
+            if (!p_boundary_element->IsDeleted())
             {
                 //std::cout << "Boundary Element " << elem_index << " connects nodes : ";
                 unsigned number_of_image_nodes = 0;
                 for (unsigned i=0 ; i<2 ; i++)
                 {
-                    unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                    unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
                     //std::cout << this_node_index << "\t";
                     bool this_node_an_image = false;
                     if(IsThisIndexInList(this_node_index,left_images))
@@ -324,8 +324,8 @@ public:
                 if (number_of_image_nodes==2)
                 {
                     //std::cout << "IMAGE\n" << std::flush;
-                    p_element->MarkAsDeleted();
-                    mDeletedBoundaryElementIndices.push_back(p_element->GetIndex());
+                    p_boundary_element->MarkAsDeleted();
+                    mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
                 }
                 /*
                  * To avoid having two copies of the boundary elements on the periodic
@@ -337,13 +337,13 @@ public:
                      
                     for (unsigned i=0 ; i<2 ; i++)
                     {
-                        unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
+                        unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
                         for (unsigned j=0 ; j<left_images.size() ; j++)
                         {
                             if(this_node_index==left_images[j])
                             {
                                 //std::cout << "PERIODIC \n" << std::flush;  
-                                p_element->ReplaceNode(mNodes[left_images[j]],mNodes[left_original[j]]);
+                                p_boundary_element->ReplaceNode(mNodes[left_images[j]],mNodes[left_original[j]]);
                                 //std::cout << "Node " << left_images[j] << " swapped for node " << left_original[j] << "\n" << std::flush;
                             }
                         }
@@ -352,8 +352,8 @@ public:
                             if(this_node_index==right_images[j])
                             {
                                 //std::cout << "IMAGE\n" << std::flush;
-                                p_element->MarkAsDeleted();
-                                mDeletedBoundaryElementIndices.push_back(p_element->GetIndex());
+                                p_boundary_element->MarkAsDeleted();
+                                mDeletedBoundaryElementIndices.push_back(p_boundary_element->GetIndex());
                             }
                         }
                     }
@@ -379,7 +379,7 @@ public:
     }
 
     /**
-     * This OVERWRITTEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
+     * This OVERRIDDEN method evaluates the (surface) distance between two points in a 2D Cylindrical geometry.
      * 
      * locations should lie between [mXleft, mXRight) 
      * 
@@ -396,39 +396,24 @@ public:
         assert(mXRight>=rLocation1[0]);  // 1st point is not in cylinder
         assert(mXRight>=rLocation2[0]);  // 2nd point is not in cylinder
         
-        c_vector<double, 2> vector;
-        
-        double two_pi_r = mXRight - mXLeft;
-        
-        double x1 = rLocation1[0];
-        double x2 = rLocation2[0];
-        double y1 = rLocation1[1];
-        double y2 = rLocation2[1];
-            
-        double x_dist = x2 - x1;    // can be -ve
-        double y_dist = y2 - y1;    // can be -ve
-        
+        c_vector<double, 2> vector = rLocation2 - rLocation1;
+                
         // handle the cylindrical condition here
         // if the points are more than halfway around the cylinder apart
         // measure the other way.
-        if ( x_dist > (two_pi_r / 2.0) )
+        if ( vector(0) > (mWidth / 2.0) )
         {
-            x_dist = x_dist - two_pi_r;
+            vector(0) -= mWidth;
         }
-        if ( x_dist < -(two_pi_r / 2.0))
+        if ( vector(0) < -(mWidth / 2.0))
         {
-            x_dist = x_dist + two_pi_r;  
+            vector(0) += mWidth;  
         }
-        
-        vector[0] = x_dist;
-        vector[1] = y_dist;
-#define COVERAGE_IGNORE
         return vector;
-#undef COVERAGE_IGNORE
     }
     
     /**
-     * OVERWRITTEN function to set the location of a node.
+     * OVERRIDDEN function to set the location of a node.
      * 
      * If the location should be set outside a cylindrical boundary
      * move it back onto the cylinder.
@@ -521,7 +506,7 @@ public:
             y_location = mNodes[mTopBoundary[i]]->rGetLocation()[1];
             if (fabs(y_location - mTop)>1e-3)
             {
-                //std::cout << "y = " << y_location << ", mTop = " << mTop << "\n" << std::flush;
+                std::cout << "y = " << y_location << ", mTop = " << mTop << "\n" << std::flush;
                 EXCEPTION("The top row of ghost nodes is not aligned.");   
             }
         }
@@ -536,7 +521,7 @@ public:
     }
     
     /**
-     * OVERWRITTEN FUNCTION
+     * OVERRIDDEN FUNCTION
      * @param rDimension must be 1 (x) or 2 (y)
      * @return width the CryptWidth or current height 
      */
@@ -555,30 +540,38 @@ public:
         return width;   
     }
     
-    /**
-     * OVERWRITTEN FUNCTION to ensure new node is introduced at a point on 
-     * the cylinder and not slightly off it.
-     *     
-     * @param pNewNode pointer to a new node
-     * @param map A node map of original mesh size
-     * 
-     * @return the new node index
-     */
-    unsigned AddNodeAndReMesh(Node<2> *pNewNode, NodeMap &map)
+//    /**
+//     * OVERRIDDEN FUNCTION to ensure new node is introduced at a point on 
+//     * the cylinder and not slightly off it.
+//     *     
+//     * @param pNewNode pointer to a new node
+//     * @param map A node map of original mesh size
+//     * 
+//     * @return the new node index
+//     */
+//    unsigned AddNodeAndReMesh(Node<2> *pNewNode, NodeMap &map)
+//    {
+//        // Add the node to the mesh
+//        unsigned node_index = AddNode(pNewNode);
+//        
+//        // increase the size of the node map to match the new mesh.
+//        map.Reserve(GetNumNodes());
+//        // Perform CYLINDRICAL ReMesh
+//        ReMesh(map);
+//        return node_index;
+//    }
+    
+    unsigned AddNode(Node<2> *pNewNode)
     {
-        // Add the node to the mesh
         unsigned node_index = ConformingTetrahedralMesh<2,2>::AddNode(pNewNode);
         
         // If necessary move it to be back on the cylinder
         Point<2> new_node_point = pNewNode->GetPoint();
-        SetNode(node_index, new_node_point, false);
+        SetNode(node_index, new_node_point, false); 
         
-        // increase the size of the node map to match the new mesh.
-        map.Reserve(GetNumNodes());
-        // Perform CYLINDRICAL ReMesh
-        ReMesh(map);
         return node_index;
     }
+    
 };
 
 #endif // _CYLINDRICAL2DMESH_CPP_

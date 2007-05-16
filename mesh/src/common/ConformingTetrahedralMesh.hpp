@@ -51,7 +51,7 @@ private:
     //BoundaryElementIterator mpBoundaryElementIter;
     //BoundaryNodeIterator mpBoundaryNodeIter;
     
-    unsigned AddNode(Node<SPACE_DIM> *pNewNode);
+    
     
 
     
@@ -84,7 +84,7 @@ public:
     unsigned GetNumAllBoundaryElements();
     unsigned GetNumBoundaryNodes();
     unsigned GetNumCornerNodes();
-    
+    virtual unsigned AddNode(Node<SPACE_DIM> *pNewNode);
     /**
      * Return a pointer to the first element in the mesh.
      */

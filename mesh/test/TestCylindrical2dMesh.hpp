@@ -438,8 +438,8 @@ public:
         Node<2>* p_node = new Node<2>(p_mesh->GetNumNodes(), point);
         
         NodeMap map(p_mesh->GetNumNodes());
-        unsigned new_index = p_mesh->AddNodeAndReMesh(p_node, map);
-        
+        unsigned new_index = p_mesh->AddNode(p_node);
+        p_mesh->ReMesh(map);
         // Check that there are the correct number of everything
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(),cells_across*cells_up+1);
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(),2*cells_across*(cells_up-1)+2);
@@ -449,8 +449,7 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[0], 3.0+point[0], 1e-7);
         TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[1], point[1], 1e-7);
 
-        //TrianglesMeshWriter<2,2> mesh_writer("", "CylindricalAddNodeAndReMesh", false);
-        //mesh_writer.WriteFilesUsingMesh(*p_mesh);
+        
     }    
 
 };
