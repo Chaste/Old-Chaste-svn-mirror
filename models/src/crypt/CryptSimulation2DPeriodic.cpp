@@ -491,7 +491,8 @@ void CryptSimulation2DPeriodic<DIM>::CheckIndicesAreInSync()
  *
  * At the moment we just slough cells by turning them into ghost nodes
  *
- * CELL DEATH TO BE ADDED INTO THIS METHOD
+ * \todo CELL DEATH TO BE ADDED INTO THIS METHOD
+ * \todo Make cell killer return number of killed cells
  *
  * @return the number of deaths that occurred.
  */ 
@@ -499,15 +500,15 @@ template<unsigned DIM>
 unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
 {
     unsigned num_deaths=0;
-    double crypt_length=mpParams->GetCryptLength();
-    double crypt_width=mpParams->GetCryptWidth();
     
-    ///////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
     // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
-    ///////////////////////////////////////////////////////////////////////////////////
-    if(DIM==2)
+    /////////////////////////////////////////////////////////////////////////
+    if (DIM==2) // sloughing only happens in 2d
     {
-        // sloughing only happens in 2d
+        double crypt_length=mpParams->GetCryptLength();
+        double crypt_width=mpParams->GetCryptWidth();
+
         for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
              ++cell_iter)
