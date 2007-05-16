@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -19,8 +20,10 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -32,9 +35,10 @@ import java.lang.Math;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
 import javax.imageio.ImageIO;
 
-public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable {
+public class Visualize2dCells implements ActionListener, AdjustmentListener, ItemListener, Runnable{
 
 	public Frame frame = new Frame();
 
@@ -86,9 +90,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 	public static Checkbox fibre=new Checkbox("Fibres");
 	public static Checkbox cells=new Checkbox("Cells");
 	public static Checkbox ghost_nodes=new Checkbox("Ghosts");
-	
+	public static JLabel nearest_label = new JLabel();
 	public static int numSteps = 0;
 
+
+		
 	public Visualize2dCells() {
 		frame.setSize(800, 800);
 		frame.setTitle("Gavaghan's goons' visualization tools (TM)");
@@ -97,6 +103,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		canvas = new CustomCanvas2D(this);
 		//canvas.setSize(1000, 400);
 		canvas.setPreferredSize(new Dimension(frame.getWidth(),frame.getHeight()));
+		canvas.addMouseMotionListener(canvas);
 		addButtons(frame);
 		addTimeSlider(frame);
 		JPanel canvasPanel = new JPanel();
@@ -283,10 +290,11 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 		checkPanel.add(cells);
 		checkPanel.add(ghost_nodes);
 		
+		checkPanel.add(nearest_label);
 		
 		
 		JPanel southPanel = new JPanel(new GridLayout(2,0));
-		
+	    
 		southPanel.add(scrollPanel_time);
 		southPanel.add(checkPanel);
 		frame.add(southPanel,BorderLayout.SOUTH);
@@ -294,7 +302,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
 	public static void main(String args[]) {
 	     
-		System.out.println("Copyright Gavaghan's goons (Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
+		System.out.println("Copyright Gavaghan's goons (everyone but ozzy)");//(Gary Mirams, Sarah Eastburn, Pras Pathmanathan, Alex Fletcher & Joe Pitt-Francis)");
 		output.setState(false);
 		springs.setState(false);
 		fibre.setState(false);
@@ -698,7 +706,7 @@ class PlotPoint
 	}
 }
 
-class CustomCanvas2D extends Canvas {
+class CustomCanvas2D extends Canvas implements MouseMotionListener {
 	private static final long serialVersionUID = 6997195399856046957L;
 
 	Visualize2dCells vis;
@@ -712,6 +720,7 @@ class CustomCanvas2D extends Canvas {
 	
 	boolean imageReady=false;	
 	boolean imageDrawing=false;
+	int node_radius = 5;
 
 	Color garysSexySilver = new Color(216,216,231);
 	
@@ -761,7 +770,6 @@ class CustomCanvas2D extends Canvas {
 		
 		int old_x = -1;
 		int old_y = -1;
-		int radius = 5;
 		int tick_length = 10;
 		int num_ticks = 10;
 		
@@ -884,14 +892,14 @@ class CustomCanvas2D extends Canvas {
 		}
 		
 		// draw nodes second so that dots are on top of lines
-		double fibre_length=1.2*radius;
+		double fibre_length=1.2*node_radius;
 		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
 		{
 			PlotPoint p=scale(vis.positions[vis.timeStep][i]);
 			
 			SetNodeColour(i);
 			
-			g2.fillOval(p.x - radius, p.y - radius, 2 * radius, 2 * radius);
+			g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
 			//old_x = p.x;
 			//old_y = p.y;
 			if (vis.drawFibres)
@@ -971,8 +979,58 @@ class CustomCanvas2D extends Canvas {
 		return (scale(p.x,p.y));
 		
 	}
-
+	RealPoint unscale(PlotPoint p)
+	{
+		int ix = p.x;
+		int iy = height - p.y;
+		int eps = 20;
+		
+		double x = (ix-eps)*(vis.max_x - vis.min_x) / (width-2.0*eps) + vis.min_x;
+		double y = (iy-eps)*(vis.max_y - vis.min_y) / (height-2.0*eps) + vis.min_y;
+		
+		return (new RealPoint(x,y));
+	}
 	
+	public void mouseMoved(MouseEvent e) {
+		PlotPoint mouse_position = new PlotPoint(e.getX(), e.getY());
+		RealPoint real_position = unscale(mouse_position);
+		
+//		g2.setColor(garysSexySilver);
+//		g2.fillRect(0,0,width,height);
+//		g2.setColor(Color.black);
+//				
+//		g2.drawString("Mouse Position = "  + real_position.x + "  " + real_position.y, 10,10);
+//		g2.setColor(Color.black);
+		int nearest_index=-1;
+		for (int i = 0; i < vis.numCells[vis.timeStep]; i++ ) 
+		{
+			int sq_dist=SquaredDistance(scale(vis.positions[vis.timeStep][i]),mouse_position);
+			if (sq_dist < node_radius*node_radius)
+			{
+				nearest_index=i;
+				break;
+			}
+		}
+		if (nearest_index>=0)
+		{
+			RealPoint node_position=vis.positions[vis.timeStep][nearest_index];
+		    vis.nearest_label.setText("Node "+nearest_index+" is at "+ node_position.x + "  " + node_position.y);
+		}
+		else
+		{
+			vis.nearest_label.setText("");
+		}
+	}
+	public void mouseDragged(MouseEvent e) {
+		//Not used
+	}
+	int SquaredDistance(PlotPoint p0, PlotPoint p1)
+	{
+		int diffx=p0.x-p1.x;
+		int diffy=p0.y-p1.y;
+		
+		return diffx*diffx + diffy*diffy;
+	}
 	RealPoint DrawCircumcentre(RealPoint p0, RealPoint p1, RealPoint p2)
 	{
 		/* To find the coordinates (x_c,y_c) of the circumcentre, we first translate
