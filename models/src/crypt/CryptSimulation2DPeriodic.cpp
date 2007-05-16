@@ -496,6 +496,8 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
         drdt[i]=zero_vector<double>(2);
     }
 
+    std::vector<std::vector<unsigned> > node_pairs_checked;
+
     ////////////////////////////////////////////////////////////////////
     // loop over element and for each one loop over its three edges
     ////////////////////////////////////////////////////////////////////
@@ -506,158 +508,99 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
         {
             for (unsigned k=0; k<3; k++)
             {
-                unsigned nodeA = k, nodeB = (k+1)%3;
+                unsigned nodeA = k;
+                unsigned nodeB = (k+1)%3;
+
                 assert(!p_element->GetNode(nodeA)->IsDeleted());
                 assert(!p_element->GetNode(nodeB)->IsDeleted());
+                                
+                unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
+                unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
                 
-                c_vector<double, 2> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
-                 
-                double damping_constantA = mpParams->GetDampingConstantNormal();
-                double damping_constantB = mpParams->GetDampingConstantNormal();
+                // check whether we have already worked out the force between these two...
+                bool is_force_already_calculated = false;
                 
-                if(!mCells.empty())
+                for (unsigned i=0; i<node_pairs_checked.size(); i++)
                 {
-                    //note: at the moment the index into the mCells vector is the same
-                    //as the node index. later this may not be the case, in which case
-                    //the following assertion will trip. to deal with this, a map from 
-                    //node index to cell will be needed
-                    assert( mCells[p_element->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeA));
-                    assert( mCells[p_element->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_element->GetNodeGlobalIndex(nodeB));
-                    
-                    if(   (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
-                       || (mCells[p_element->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
-                    {
-                        damping_constantA = mpParams->GetDampingConstantNormal();
-                    }
-                    else
-                    {
-                        damping_constantA = mpParams->GetDampingConstantMutant();
-                    }
-                    
-                    if(   (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
-                       || (mCells[p_element->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
-                    {
-                        damping_constantB = mpParams->GetDampingConstantNormal();
-                    }
-                    else
-                    {
-                        damping_constantB = mpParams->GetDampingConstantMutant();
-                    }
-                }
+                    std::vector<unsigned> node_pair = node_pairs_checked[i];
+                    if(node_pair[0]==nodeA_global_index || node_pair[1]==nodeA_global_index)
+                    { 
+                        // first node is in node_pair
+                        if(node_pair[0]==nodeB_global_index || node_pair[1]==nodeB_global_index)
+                        {
+                            // both are in node_pair
+                            is_force_already_calculated = true;
+                            break;
+                        } 
+                    } 
+                } 
                 
-                if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeA)])
+                if(!is_force_already_calculated)
                 {
-                    drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
                     
-                    if (!mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
+                    c_vector<double, 2> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
+                     
+                    double damping_constantA = mpParams->GetDampingConstantNormal();
+                    double damping_constantB = mpParams->GetDampingConstantNormal();
+                    
+                    if(!mCells.empty())
                     {
-                        drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
-                    }
-                }
-                else
-                {
-                drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
+                        //note: at the moment the index into the mCells vector is the same
+                        //as the node index. later this may not be the case, in which case
+                        //the following assertion will trip. to deal with this, a map from 
+                        //node index to cell will be needed
+                        assert( mCells[nodeA_global_index].GetNodeIndex()==nodeA_global_index);
+                        assert( mCells[nodeB_global_index].GetNodeIndex()==nodeB_global_index);
                         
-                    if (mIsGhostNode[p_element->GetNodeGlobalIndex(nodeB)])
+                        if(   (mCells[nodeA_global_index].GetMutationState()==HEALTHY)
+                           || (mCells[nodeA_global_index].GetMutationState()==APC_ONE_HIT))
+                        {
+                            damping_constantA = mpParams->GetDampingConstantNormal();
+                        }
+                        else
+                        {
+                            damping_constantA = mpParams->GetDampingConstantMutant();
+                        }
+                        
+                        if(   (mCells[nodeB_global_index].GetMutationState()==HEALTHY)
+                           || (mCells[nodeB_global_index].GetMutationState()==APC_ONE_HIT))
+                        {
+                            damping_constantB = mpParams->GetDampingConstantNormal();
+                        }
+                        else
+                        {
+                            damping_constantB = mpParams->GetDampingConstantMutant();
+                        }
+                    }
+                    
+                    if (!mIsGhostNode[nodeA_global_index])
                     {
                         drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
-                    }
-                }
-            }
-        }
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // Also loop over boundary edges so that all edges have been looped over exactly twice.
-    ////////////////////////////////////////////////////////////////////////////////////////
-    ConformingTetrahedralMesh<2,2>::BoundaryElementIterator elem_iter
-    = mrMesh.GetBoundaryElementIteratorBegin();
-    
-    // this iterates over the outer edge elements (i.e. ghost nodes NOT real edge elements)
-    while ( elem_iter != mrMesh.GetBoundaryElementIteratorEnd() )
-    {
-        BoundaryElement<1,2>* p_edge = *elem_iter;
-        if (!p_edge->IsDeleted())
-        {
-            unsigned nodeA = 0;
-            unsigned nodeB = 1;
-            
-            assert(!p_edge->GetNode(nodeA)->IsDeleted());
-            assert(!p_edge->GetNode(nodeB)->IsDeleted());
-            
-            c_vector<double, 2> force = CalculateForceInThisBoundarySpring(p_edge);
-              
-            double damping_constantA = mpParams->GetDampingConstantNormal();
-            double damping_constantB = mpParams->GetDampingConstantNormal();
-            
-            if(!mCells.empty())
-            {
-                //note: at the moment the index into the mCells vector is the same
-                //as the node index. later this may not be the case, in which case
-                //the following assertion will trip. to deal with this, a map from 
-                //node index to cell will be needed
-                assert( mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeA));
-                assert( mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetNodeIndex()==p_edge->GetNodeGlobalIndex(nodeB));
-                
-                if(   (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==HEALTHY)
-                   || (mCells[p_edge->GetNodeGlobalIndex(nodeA)].GetMutationState()==APC_ONE_HIT))
-                {
-                    damping_constantA = mpParams->GetDampingConstantNormal();
-                }
-                else
-                {
-                    damping_constantA = mpParams->GetDampingConstantMutant();
-                }
-                
-                if(   (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==HEALTHY)
-                   || (mCells[p_edge->GetNodeGlobalIndex(nodeB)].GetMutationState()==APC_ONE_HIT))
-                {
-                    damping_constantB = mpParams->GetDampingConstantNormal();
-                }
-                else
-                {
-                    damping_constantB = mpParams->GetDampingConstantMutant();
-                }
-            }
                         
-            // Assume that if both nodes are real, or both are ghosts, then they both
-            // exert forces on each other, but if one is real and one is ghost then
-            // the real node exerts a force on the ghost node, but the ghost node
-            // does NOT exert a force on the real node.
-            if (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeA)])
-            {
-                // Real A force on any B
-                drdt[ p_edge->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
-                
-                // B exerts a force back if it is real.
-                if (!mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
-                {
-                    drdt[ p_edge->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
-                }
-            }
-            else
-            {
-                // Ghost A receives a force
-                drdt[ p_edge->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
-                
-                // Only a ghost B also receives a force
-                if (mIsGhostNode[p_edge->GetNodeGlobalIndex(nodeB)])
-                {
-                    drdt[ p_edge->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
+                        if (!mIsGhostNode[nodeB_global_index])
+                        {
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
+                        }
+                    }
+                    else
+                    {
+                        drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
+                            
+                        if (mIsGhostNode[nodeB_global_index])
+                        {
+                            drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
+                        }
+                    }
+
+                    std::vector<unsigned> this_pair;
+                    this_pair.push_back(nodeA_global_index);
+                    this_pair.push_back(nodeB_global_index);
+                    node_pairs_checked.push_back(this_pair);
                 }
             }
         }
-        elem_iter++;
     }
-    
-    
-    // Here we divide all the forces on the nodes by a factor of two because
-    // we looped over them all twice to deal with the boundaries above.
-    for (unsigned i=0 ; i<mrMesh.GetNumAllNodes(); i++)
-    {
-        drdt[i]=drdt[i]/2.0;
-    }
-    
+  
     return drdt;
 }
 
