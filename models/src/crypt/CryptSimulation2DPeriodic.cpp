@@ -524,10 +524,10 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
 template<unsigned DIM>  
 std::vector<c_vector<double, DIM> > CryptSimulation2DPeriodic<DIM>::CalculateVelocitiesOfEachNode()
 {
-    std::vector<c_vector<double, 2> > drdt(mrMesh.GetNumAllNodes());
+    std::vector<c_vector<double, DIM> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
     {
-        drdt[i]=zero_vector<double>(2);
+        drdt[i]=zero_vector<double>(DIM);
     }
 
     std::vector<std::vector<unsigned> > node_pairs_checked;
@@ -537,99 +537,103 @@ std::vector<c_vector<double, DIM> > CryptSimulation2DPeriodic<DIM>::CalculateVel
     ////////////////////////////////////////////////////////////////////
     for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
     {
-        Element<2,2>* p_element = mrMesh.GetElement(elem_index);
+        Element<DIM,DIM>* p_element = mrMesh.GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-            for (unsigned k=0; k<3; k++)
+            for (unsigned k=0; k<DIM+1; k++)
             {
                 unsigned nodeA = k;
-                unsigned nodeB = (k+1)%3;
-
-                assert(!p_element->GetNode(nodeA)->IsDeleted());
-                assert(!p_element->GetNode(nodeB)->IsDeleted());
-                                
-                unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
-                unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
                 
-                // check whether we have already worked out the force between these two...
-                bool is_force_already_calculated = false;
-                
-                for (unsigned i=0; i<node_pairs_checked.size(); i++)
+                for(unsigned l=k+1; l<k+DIM+1; l++)
                 {
-                    std::vector<unsigned> node_pair = node_pairs_checked[i];
-                    if(node_pair[0]==nodeA_global_index || node_pair[1]==nodeA_global_index)
-                    { 
-                        // first node is in node_pair
-                        if(node_pair[0]==nodeB_global_index || node_pair[1]==nodeB_global_index)
-                        {
-                            // both are in node_pair
-                            is_force_already_calculated = true;
-                            break;
+                    unsigned nodeB = l%(DIM+1);
+    
+                    assert(!p_element->GetNode(nodeA)->IsDeleted());
+                    assert(!p_element->GetNode(nodeB)->IsDeleted());
+                                    
+                    unsigned nodeA_global_index = p_element->GetNode(nodeA)->GetIndex();
+                    unsigned nodeB_global_index = p_element->GetNode(nodeB)->GetIndex();
+                    
+                    // check whether we have already worked out the force between these two...
+                    bool is_force_already_calculated = false;
+                    
+                    for (unsigned i=0; i<node_pairs_checked.size(); i++)
+                    {
+                        std::vector<unsigned> node_pair = node_pairs_checked[i];
+                        if(node_pair[0]==nodeA_global_index || node_pair[1]==nodeA_global_index)
+                        { 
+                            // first node is in node_pair
+                            if(node_pair[0]==nodeB_global_index || node_pair[1]==nodeB_global_index)
+                            {
+                                // both are in node_pair
+                                is_force_already_calculated = true;
+                                break;
+                            } 
                         } 
                     } 
-                } 
-                
-                if(!is_force_already_calculated)
-                {
                     
-                    c_vector<double, 2> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
-                     
-                    double damping_constantA = mpParams->GetDampingConstantNormal();
-                    double damping_constantB = mpParams->GetDampingConstantNormal();
-                    
-                    if(!mCells.empty())
+                    if(!is_force_already_calculated)
                     {
-                        //note: at the moment the index into the mCells vector is the same
-                        //as the node index. later this may not be the case, in which case
-                        //the following assertion will trip. to deal with this, a map from 
-                        //node index to cell will be needed
-                        assert( mCells[nodeA_global_index].GetNodeIndex()==nodeA_global_index);
-                        assert( mCells[nodeB_global_index].GetNodeIndex()==nodeB_global_index);
                         
-                        if(   (mCells[nodeA_global_index].GetMutationState()==HEALTHY)
-                           || (mCells[nodeA_global_index].GetMutationState()==APC_ONE_HIT))
-                        {
-                            damping_constantA = mpParams->GetDampingConstantNormal();
-                        }
-                        else
-                        {
-                            damping_constantA = mpParams->GetDampingConstantMutant();
-                        }
+                        c_vector<double, DIM> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
+                         
+                        double damping_constantA = mpParams->GetDampingConstantNormal();
+                        double damping_constantB = mpParams->GetDampingConstantNormal();
                         
-                        if(   (mCells[nodeB_global_index].GetMutationState()==HEALTHY)
-                           || (mCells[nodeB_global_index].GetMutationState()==APC_ONE_HIT))
+                        if(!mCells.empty())
                         {
-                            damping_constantB = mpParams->GetDampingConstantNormal();
-                        }
-                        else
-                        {
-                            damping_constantB = mpParams->GetDampingConstantMutant();
-                        }
-                    }
-                    
-                    if (!mIsGhostNode[nodeA_global_index])
-                    {
-                        drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
-                        
-                        if (!mIsGhostNode[nodeB_global_index])
-                        {
-                            drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
-                        }
-                    }
-                    else
-                    {
-                        drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
+                            //note: at the moment the index into the mCells vector is the same
+                            //as the node index. later this may not be the case, in which case
+                            //the following assertion will trip. to deal with this, a map from 
+                            //node index to cell will be needed
+                            assert( mCells[nodeA_global_index].GetNodeIndex()==nodeA_global_index);
+                            assert( mCells[nodeB_global_index].GetNodeIndex()==nodeB_global_index);
                             
-                        if (mIsGhostNode[nodeB_global_index])
+                            if(   (mCells[nodeA_global_index].GetMutationState()==HEALTHY)
+                               || (mCells[nodeA_global_index].GetMutationState()==APC_ONE_HIT))
+                            {
+                                damping_constantA = mpParams->GetDampingConstantNormal();
+                            }
+                            else
+                            {
+                                damping_constantA = mpParams->GetDampingConstantMutant();
+                            }
+                            
+                            if(   (mCells[nodeB_global_index].GetMutationState()==HEALTHY)
+                               || (mCells[nodeB_global_index].GetMutationState()==APC_ONE_HIT))
+                            {
+                                damping_constantB = mpParams->GetDampingConstantNormal();
+                            }
+                            else
+                            {
+                                damping_constantB = mpParams->GetDampingConstantMutant();
+                            }
+                        }
+                        
+                        if (!mIsGhostNode[nodeA_global_index])
                         {
                             drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
+                            
+                            if (!mIsGhostNode[nodeB_global_index])
+                            {
+                                drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
+                            }
                         }
+                        else
+                        {
+                            drdt[ p_element->GetNode(nodeA)->GetIndex()] += force / damping_constantA;
+                                
+                            if (mIsGhostNode[nodeB_global_index])
+                            {
+                                drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
+                            }
+                        }
+    
+                        std::vector<unsigned> this_pair;
+                        this_pair.push_back(nodeA_global_index);
+                        this_pair.push_back(nodeB_global_index);
+                        node_pairs_checked.push_back(this_pair);
                     }
-
-                    std::vector<unsigned> this_pair;
-                    this_pair.push_back(nodeA_global_index);
-                    this_pair.push_back(nodeB_global_index);
-                    node_pairs_checked.push_back(this_pair);
                 }
             }
         }
@@ -646,6 +650,7 @@ std::vector<c_vector<double, DIM> > CryptSimulation2DPeriodic<DIM>::CalculateVel
 template<unsigned DIM> 
 c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
 {
+    assert(rNodeA!=rNodeB);
     unsigned node_a_global_index = rPElement->GetNodeGlobalIndex(rNodeA);
     unsigned node_b_global_index = rPElement->GetNodeGlobalIndex(rNodeB);
     return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
@@ -665,9 +670,12 @@ c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceInThisSpring
 template<unsigned DIM> 
 c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
-    c_vector<double, 2> unit_difference;
-    c_vector<double, 2> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
-    c_vector<double, 2> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+    assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
+    c_vector<double, DIM> unit_difference;
+    c_vector<double, DIM> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = mrMesh.GetNode(rNodeBGlobalIndex)->rGetLocation();
+    
+    // there is reason not to substract one position from the other (cyclidrical meshes). clever gary
     unit_difference = mrMesh.GetVectorFromAtoB(node_a_location, node_b_location);   
     
     double distance_between_nodes = norm_2(unit_difference);
@@ -704,54 +712,68 @@ void CryptSimulation2DPeriodic<DIM>::UpdateNodePositions(const std::vector< c_ve
 {
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
-    if (!mrMesh.GetNode(index)->IsDeleted())
+        if (!mrMesh.GetNode(index)->IsDeleted())
         {
-            Point<2> new_point = GetNewNodeLocation(index, rDrDt);   
-            if (mFixedBoundaries)
+            Point<DIM> new_point = GetNewNodeLocation(index, rDrDt);
+            
+            if(DIM==2)
             {
-                c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
-                // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-                if (   node_position[1]>0
-                    && node_position[1]<mpParams->GetCryptLength()
-                    && node_position[0]>0
-                    && node_position[0]<mpParams->GetCryptWidth() )
+                // TODO: simplify/remove these 2d cases
+                if (mFixedBoundaries)
                 {
-                    mrMesh.SetNode(index, new_point, false);
-                }
-            }
-            else if (mCells.size()>0)
-            {
-                if (mWntIncluded)
-                {   // A new Wnt feature - even stem cells can move as long as they don't go below zero.
-                    if ( (new_point.rGetLocation()[1] < 0.0) && !mIsGhostNode[index])
+                    assert(DIM==2);
+                    c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
+                    // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
+                    if (   node_position[1]>0
+                        && node_position[1]<mpParams->GetCryptLength()
+                        && node_position[0]>0
+                        && node_position[0]<mpParams->GetCryptWidth() )
                     {
-                        new_point.rGetLocation()[1] = 0.0;
+                        mrMesh.SetNode(index, new_point, false);
                     }
-                    mrMesh.SetNode(index, new_point, false);
+                }
+                else if (mCells.size()>0)
+                {
+                    if (mWntIncluded)
+                    {   // A new Wnt feature - even stem cells can move as long as they don't go below zero.
+                        if ( (new_point.rGetLocation()[1] < 0.0) && !mIsGhostNode[index])
+                        {
+                            new_point.rGetLocation()[1] = 0.0;
+                        }
+                        mrMesh.SetNode(index, new_point, false);
+                    }
+                    else
+                    {
+                        // THE 'USUAL' SCENARIO move any node as long as it is not a real stem cell.
+                        if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
+                        {   
+                            // if a cell wants to move below y<0 (most likely because it was
+                            // just born from a stem cell), stop it doing so
+                            if ( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
+                            {
+                                // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
+                                // it is a bit of a hack to make it work nicely!
+                                new_point.rGetLocation()[1] = 0.01;
+                            }
+                            mrMesh.SetNode(index, new_point, false);
+                        }
+                    }
                 }
                 else
                 {
-                    // THE 'USUAL' SCENARIO move any node as long as it is not a real stem cell.
-                    if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
-                    {   // if a cell wants to move below y<0 (most likely because it was
-                        // just born from a stem cell), stop it doing so
-                        if ( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
-                        {
-                            // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
-                            // it is a bit of a hack to make it work nicely!
-                            new_point.rGetLocation()[1] = 0.01;
-                        }
+                    // NOTE: once springs in their own tested class all crypt simulations should have cells, 
+                    // so delete this:
+                    // no cells, just fix any node on line y=0
+                    if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
+                    {
                         mrMesh.SetNode(index, new_point, false);
                     }
                 }
             }
             else
             {
-                // no cells, just fix any node on line y=0
-                if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
-                {
-                    mrMesh.SetNode(index, new_point, false);
-                }
+                // 1d or 3d
+                mrMesh.SetNode(index, new_point, false);
             }
         }
     }
@@ -760,8 +782,8 @@ void CryptSimulation2DPeriodic<DIM>::UpdateNodePositions(const std::vector< c_ve
 template<unsigned DIM> 
 Point<DIM> CryptSimulation2DPeriodic<DIM>::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    Point<DIM> new_point( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
-                     + mDt*rDrDt[rOldNodeIndex]);
+    Point<DIM> new_point(   mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
+                          + mDt*rDrDt[rOldNodeIndex]);
     return new_point;
 }
 
@@ -987,14 +1009,12 @@ std::vector <bool> CryptSimulation2DPeriodic<DIM>::GetGhostNodes()
 template<unsigned DIM> 
 std::vector<double> CryptSimulation2DPeriodic<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
 {
-    double x = mrMesh.GetNode(rNodeIndex)->rGetLocation()[0];
-    double y = mrMesh.GetNode(rNodeIndex)->rGetLocation()[1];
     std::vector<double> location;
-    location.push_back(x);
-    location.push_back(y);
-    #define COVERAGE_IGNORE
+    for(unsigned i=0; i<DIM; i++)
+    {
+        location.push_back( mrMesh.GetNode(rNodeIndex)->rGetLocation()[i] );
+    }
     return location;
-    #undef COVERAGE_IGNORE
 }
 
 /**
@@ -1183,7 +1203,7 @@ void CryptSimulation2DPeriodic<DIM>::Save()
     mrMesh.ReMesh(map);
     
     // the false is so the directory isn't cleaned
-    TrianglesMeshWriter<2,2> mesh_writer(archive_directory, mesh_filename, false);
+    TrianglesMeshWriter<DIM,DIM> mesh_writer(archive_directory, mesh_filename, false);
     mesh_writer.WriteFilesUsingMesh(mrMesh);
     
     std::ofstream ofs(archive_filename.c_str());
@@ -1218,7 +1238,7 @@ void CryptSimulation2DPeriodic<DIM>::Load(const std::string& rArchiveDirectory, 
     std::string mesh_filename = test_output_directory + rArchiveDirectory + "/archive/mesh_" + time_stamp.str();
     
     mrMesh.Clear();
-    TrianglesMeshReader<2,2> mesh_reader(mesh_filename);
+    TrianglesMeshReader<DIM,DIM> mesh_reader(mesh_filename);
     mrMesh.ConstructFromMeshReader(mesh_reader);
     
     // Create an input archive
