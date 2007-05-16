@@ -58,15 +58,25 @@ const c_vector<double, DIM>& Crypt<DIM>::Iterator::rGetLocation()
 template<unsigned DIM>
 bool Crypt<DIM>::Iterator::operator!=(const Crypt<DIM>::Iterator& other)
 {
-    return mCellIndex!=other.mCellIndex;   
+    return mCellIndex != other.mCellIndex;   
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
 {
-    mCellIndex++;
-    mNodeIndex++;
+    do
+    {
+        mCellIndex++;
+        mNodeIndex++;
+    }
+    while ((*this) != mrCrypt.End() && !IsRealCell());
     return (*this);
+}
+
+template<unsigned DIM>
+bool Crypt<DIM>::Iterator::IsRealCell()
+{
+    return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted());
 }
 
 template<unsigned DIM>
@@ -75,7 +85,13 @@ Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex, unsigned nodeI
       mCellIndex(cellIndex),
       mNodeIndex(nodeIndex)
 {
-       
+    // Make sure the crypt isn't empty
+    assert(mrCrypt.rGetCells().size() > 0);
+    // Make sure we start at a real cell
+    if (mCellIndex == 0 && !IsRealCell())
+    {
+        ++(*this);
+    }
 }
 
 template<unsigned DIM>

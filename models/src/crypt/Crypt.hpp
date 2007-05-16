@@ -4,16 +4,32 @@
 #include "ConformingTetrahedralMesh.cpp"
 #include "MeinekeCryptCell.hpp"
 
+/**
+ * A facade class encapsulating a 'crypt' (or group of tumour cells).
+ * 
+ * Maintains the associations between cells and nodes of the mesh.
+ * 
+ * Also hides the 'ghost nodes' concept from the simulation class, so the latter
+ * only ever deals with real cells.
+ */
 template<unsigned DIM>
 class Crypt
 {
 private:
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
     std::vector<MeinekeCryptCell>& mrCells;
+    /** Records which nodes are ghosts */
     std::vector<bool>* mpGhostNodes;
     
 public:
+    /**
+     * Create a new crypt facade from a mesh and collection of cells.
+     * 
+     * At present there must be precisely 1 cell for each node of the mesh.
+     * (This will change in future so that you don't need cells for ghost nodes.)
+     */
     Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>&);
+    
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
     std::vector<MeinekeCryptCell>& rGetCells();
     std::vector<bool>& rGetGhostNodes();
@@ -45,6 +61,7 @@ public:
         const c_vector<double, DIM>& rGetLocation();
         
         bool operator!=(const Iterator& other);
+        
         /**
          * Prefix increment operator.
          */
@@ -55,6 +72,14 @@ public:
          */
         Iterator(Crypt& rCrypt, unsigned cellIndex, unsigned nodeIndex);
     private:
+        /**
+         * Private helper function which tells us if we're pointing at a real cell.
+         * Assumes we are within range (i.e. not at End).
+         * 
+         * Real cells are not ghosts or deleted.
+         */
+        bool IsRealCell();
+    
         Crypt& mrCrypt;
         unsigned mCellIndex;
         unsigned mNodeIndex;

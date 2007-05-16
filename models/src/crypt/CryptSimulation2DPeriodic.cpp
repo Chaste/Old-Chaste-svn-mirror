@@ -54,6 +54,7 @@ CryptSimulation2DPeriodic<DIM>::CryptSimulation2DPeriodic(ConformingTetrahedralM
     {
         mIsGhostNode[i] = false;
     }
+    mCrypt.SetGhostNodes(mIsGhostNode);
     
     // defaults
     mReMesh = true;
@@ -318,83 +319,74 @@ void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNode
 template<unsigned DIM>  
 unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
 {
-    unsigned num_births = 0;
+    unsigned num_births_this_step = 0;
     if (!mNoBirth && !mCells.empty())
     {
-        unsigned cell_index=0;
 
         // Iterate over all cells, seeing if each one can be divided
         for (Crypt<2>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
              ++cell_iter)
         {
-            assert((*cell_iter).GetNodeIndex()==cell_index);
+            MeinekeCryptCell& cell = *cell_iter;
+            Node<2>* p_our_node = cell_iter.GetNode();
 
-            unsigned node_index=cell_index ;
-            bool skip = false; // Whether to skip this cell
-            if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
-            //if (mrMesh.GetNode(cell_index)->IsDead()) skip=true; // Skip dead cells
-            if (mIsGhostNode[cell_index]) skip=true; // Skip Ghost nodes
+            assert(cell.GetNodeIndex() == p_our_node->GetIndex());
             
-            if (!skip)
+            // Check for this cell dividing
+            // Construct any influences for the cell cycle...
+
+            std::vector<double> cell_cycle_influences;
+            if (mWntIncluded)
             {
-                // Check for this cell dividing
-                // Construct any influences for the cell cycle...
-                Node<2> *p_our_node = mrMesh.GetNode(cell_index);
-                std::vector<double> cell_cycle_influences;
-                if (mWntIncluded)
-                {
-                    double y = p_our_node->rGetLocation()[1];
-                    double wnt_stimulus = mWntGradient.GetWntLevel(y);
-                    cell_cycle_influences.push_back(wnt_stimulus);
-                }
+                double y = p_our_node->rGetLocation()[1];
+                double wnt_stimulus = mWntGradient.GetWntLevel(y);
+                cell_cycle_influences.push_back(wnt_stimulus);
+            }
+            
+            // CHECK if this cell is ready to divide - if so create a new cell etc.
+            if (cell.ReadyToDivide(cell_cycle_influences))
+            {
+                // Create new cell
+                MeinekeCryptCell new_cell = cell.Divide();
+                std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
+            
+                // Add a new node to the mesh
+                unsigned parent_node_index = p_our_node->GetIndex();
+                c_vector<double, 2> new_location = CalculateDividingCellCentreLocations(parent_node_index);
+                Node<2>* p_new_node = new Node<2>(mrMesh.GetNumNodes(), new_location, false);   // never on boundary
                 
-                // CHECK if this cell is ready to divide - if so create a new cell etc.
-                if (mCells[cell_index].ReadyToDivide(cell_cycle_influences))
-                {
-                    // Create new cell
-                    MeinekeCryptCell new_cell = mCells[cell_index].Divide();
-                    std::cout << "Cell division at node " << cell_index << "\n";
-                
-                    // Add a new node to the mesh
-                    unsigned parent_node_index = mCells[cell_index].GetNodeIndex();
-                    c_vector<double, 2> new_location = CalculateDividingCellCentreLocations(parent_node_index);
-                    Node<2>* p_new_node = new Node<2>(mrMesh.GetNumNodes(), new_location, false);   // never on boundary
-                    
-                    NodeMap map(mrMesh.GetNumNodes());
-                    unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
-                    // Go through all the cells and update their node indices according to the map
+                NodeMap map(mrMesh.GetNumNodes());
+                unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
+                // Go through all the cells and update their node indices according to the map
 //                    for (unsigned i=0 ; i<mCells.size(); i++)
 //                    {
 //                        unsigned old_index = mCells[i].GetNodeIndex();
 //                        mCells[i].SetNodeIndex(map.GetNewIndex(old_index));
 //                    }
-                    new_cell.SetNodeIndex(new_node_index);
-                    if (new_node_index == mCells.size())
-                    {
-                        mCells.push_back(new_cell);
-                    }
-                    else
-                    {
-                        #define COVERAGE_IGNORE
-                        mCells[new_node_index] = new_cell;
-                        #undef COVERAGE_IGNORE
-                    }
-                    // Update size of IsGhostNode if necessary
-                    if (mrMesh.GetNumNodes() > mIsGhostNode.size())
-                    {
-                        mIsGhostNode.resize(mrMesh.GetNumNodes());
-                        mIsGhostNode[new_node_index] = false;
-                    }
-                    num_births++;
-                } // if (ready to divide)
-            }
-            cell_index++;
+                new_cell.SetNodeIndex(new_node_index);
+                if (new_node_index == mCells.size())
+                {
+                    mCells.push_back(new_cell);
+                }
+                else
+                {
+                    #define COVERAGE_IGNORE
+                    mCells[new_node_index] = new_cell;
+                    #undef COVERAGE_IGNORE
+                }
+                // Update size of IsGhostNode if necessary
+                if (mrMesh.GetNumNodes() > mIsGhostNode.size())
+                {
+                    mIsGhostNode.resize(mrMesh.GetNumNodes());
+                    mIsGhostNode[new_node_index] = false;
+                }
+                num_births_this_step++;
+            } // if (ready to divide)
         } // cell iteration loop
-        assert(cell_index==mCells.size());
     } // if (simulation has cell birth)
     
-    return num_births;
+    return num_births_this_step;
 }
 
 /**
@@ -933,7 +925,6 @@ void CryptSimulation2DPeriodic<DIM>::SetGhostNodes(std::vector<unsigned> ghostNo
         mIsGhostNode[ghostNodeIndices[i]]=true;
     }
     
-    mCrypt.SetGhostNodes(mIsGhostNode);
 }
 
 /**
