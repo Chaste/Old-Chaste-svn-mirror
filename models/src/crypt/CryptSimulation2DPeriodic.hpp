@@ -24,7 +24,7 @@ typedef struct node_writer_ids_t
     unsigned time;               /**< The simulation time */
     std::vector<unsigned> types; /**< Cell types */
     /** Cell positions */
-    std::vector<unsigned> x_positions, y_positions;
+    std::vector<c_vector<unsigned, 3> > position_id;
 }
 node_writer_ids_t;
 
@@ -35,7 +35,7 @@ typedef struct element_writer_ids_t
 {
     unsigned time;/**< The simulation time */
     /** Node indices */
-    std::vector<unsigned> nodeAs, nodeBs, nodeCs;
+    std::vector<c_vector<unsigned, 4> > node_id;
 }
 element_writer_ids_t;
 

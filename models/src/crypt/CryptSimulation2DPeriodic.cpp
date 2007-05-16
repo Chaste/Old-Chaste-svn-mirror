@@ -95,19 +95,28 @@ void CryptSimulation2DPeriodic<DIM>::SetupNodeWriter(ColumnDataWriter& rNodeWrit
     rVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
     
     rVarIds.types.resize(mMaxCells);
-    rVarIds.x_positions.resize(mMaxCells);
-    rVarIds.y_positions.resize(mMaxCells);
+    rVarIds.position_id.resize(mMaxCells);
     
     // set up per-cell variables
     for (unsigned cell=0; cell<mMaxCells; cell++)
     {
-        std::stringstream cell_type_var_name, cell_x_position_var_name, cell_y_position_var_name;
+        std::stringstream cell_type_var_name, cell_x_position_var_name, cell_y_position_var_name, cell_z_position_var_name;
         cell_type_var_name << "cell_type_" << cell;
+        
         cell_x_position_var_name << "cell_x_position_" << cell;
         cell_y_position_var_name << "cell_y_position_" << cell;
+        cell_z_position_var_name << "cell_z_position_" << cell;
+
+        std::vector<std::string> cell_position_var_name_string;
+        cell_position_var_name_string.push_back(cell_x_position_var_name.str());
+        cell_position_var_name_string.push_back(cell_y_position_var_name.str());
+        cell_position_var_name_string.push_back(cell_z_position_var_name.str());
+        
         rVarIds.types[cell]=rNodeWriter.DefineVariable(cell_type_var_name.str(),"dimensionless");
-        rVarIds.x_positions[cell]=rNodeWriter.DefineVariable(cell_x_position_var_name.str(),"rest_spring_length");
-        rVarIds.y_positions[cell]=rNodeWriter.DefineVariable(cell_y_position_var_name.str(),"rest_spring_length");
+        for(unsigned i=0; i<DIM; i++)
+        {
+            rVarIds.position_id[cell](i)=rNodeWriter.DefineVariable(cell_position_var_name_string[i],"rest_spring_length");
+        }
     }
     
     rNodeWriter.EndDefineMode();
@@ -124,23 +133,27 @@ void CryptSimulation2DPeriodic<DIM>::SetupElementWriter(ColumnDataWriter& rEleme
     rVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
     
     // Set up columns for element writer
-    rVarIds.nodeAs.resize(mMaxElements);
-    rVarIds.nodeBs.resize(mMaxElements);
-    rVarIds.nodeCs.resize(mMaxElements);
+    rVarIds.node_id.resize(mMaxElements);
     
     for (unsigned elem_index = 0; elem_index<mMaxElements; elem_index++)
     {
-        std::stringstream nodeA_var_name;
-        std::stringstream nodeB_var_name;
-        std::stringstream nodeC_var_name;
+        std::stringstream nodeA_var_name, nodeB_var_name, nodeC_var_name, nodeD_var_name;
         
         nodeA_var_name << "nodeA_" << elem_index;
         nodeB_var_name << "nodeB_" << elem_index;
         nodeC_var_name << "nodeC_" << elem_index;
+        nodeD_var_name << "nodeD_" << elem_index;
+
+        std::vector<std::string> node_var_name_string;
+        node_var_name_string.push_back(nodeA_var_name.str());
+        node_var_name_string.push_back(nodeB_var_name.str());
+        node_var_name_string.push_back(nodeC_var_name.str());
+        node_var_name_string.push_back(nodeD_var_name.str());
         
-        rVarIds.nodeAs[elem_index] = rElementWriter.DefineVariable(nodeA_var_name.str(),"dimensionless");
-        rVarIds.nodeBs[elem_index] = rElementWriter.DefineVariable(nodeB_var_name.str(),"dimensionless");
-        rVarIds.nodeCs[elem_index] = rElementWriter.DefineVariable(nodeC_var_name.str(),"dimensionless");
+        for(unsigned i=0; i<DIM+1; i++)
+        {
+            rVarIds.node_id[elem_index](i) = rElementWriter.DefineVariable(node_var_name_string[i],"dimensionless");
+        }
     }
     
     rElementWriter.EndDefineMode();
@@ -149,16 +162,18 @@ void CryptSimulation2DPeriodic<DIM>::SetupElementWriter(ColumnDataWriter& rEleme
 template<unsigned DIM> 
 void CryptSimulation2DPeriodic<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 {
+    assert(DIM==2); // this is 2d specific
     rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(1u);// get furthest distance between nodes in the x-direciton
     rSetupFile.close();
 }
 
+
 template<unsigned DIM> 
 void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
-                                                    ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
-                                                    std::ofstream& rNodeFile, std::ofstream& rElementFile,
-                                                    bool writeTabulatedResults,
-                                                    bool writeVisualizerResults)
+                                                         ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
+                                                         std::ofstream& rNodeFile, std::ofstream& rElementFile,
+                                                         bool writeTabulatedResults,
+                                                         bool writeVisualizerResults)
 {
     // Write current simulation time
     SimulationTime *p_simulation_time = SimulationTime::Instance();
@@ -230,15 +245,21 @@ void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNode
         
         if (!mrMesh.GetNode(index)->IsDeleted())
         {
-            const c_vector<double,2>& r_node_loc = mrMesh.GetNode(index)->rGetLocation();
+            const c_vector<double,DIM>& r_node_loc = mrMesh.GetNode(index)->rGetLocation();
             if (writeVisualizerResults)
             {
-                rNodeFile << r_node_loc[0] << " "<< r_node_loc[1] << " " << colour << " ";
+                for(unsigned i=0; i<DIM; i++)
+                {
+                    rNodeFile << r_node_loc[i] << " ";
+                }
+                rNodeFile << colour << " ";
             }
             if (writeTabulatedResults)
             {
-                rNodeWriter.PutVariable(rNodeVarIds.x_positions[index], r_node_loc[0]);
-                rNodeWriter.PutVariable(rNodeVarIds.y_positions[index], r_node_loc[1]);
+                for(unsigned i=0; i<DIM; i++)
+                {
+                    rNodeWriter.PutVariable(rNodeVarIds.position_id[index](i), r_node_loc[i]);
+                }
                 rNodeWriter.PutVariable(rNodeVarIds.types[index], colour);
             }
         }
@@ -259,13 +280,17 @@ void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNode
         {
             if (writeVisualizerResults)
             {
-                rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0)<< " " << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1)<< " "<< mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2)<< " ";
+                for(unsigned i=0; i<DIM; i++)
+                {
+                    rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
+                }
             }
             if (writeTabulatedResults)
             {
-                rElementWriter.PutVariable(rElementVarIds.nodeAs[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(0));
-                rElementWriter.PutVariable(rElementVarIds.nodeBs[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(1));
-                rElementWriter.PutVariable(rElementVarIds.nodeCs[elem_index], mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(2));
+                for(unsigned i=0; i<DIM+1; i++)
+                {
+                    rElementWriter.PutVariable(rElementVarIds.node_id[elem_index](i), mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i));
+                }
             }
         }
     }
@@ -282,6 +307,7 @@ void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNode
     }
 }
 
+
 /**
  * During a simulation time step, process any cell divisions that need to occur.
  * If the simulation includes cell birth, causes (almost) all cells that are ready to divide
@@ -296,13 +322,14 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
     if (!mNoBirth && !mCells.empty())
     {
         unsigned cell_index=0;
+
         // Iterate over all cells, seeing if each one can be divided
         for (Crypt<2>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
              ++cell_iter)
         {
             assert((*cell_iter).GetNodeIndex()==cell_index);
-            
+
             unsigned node_index=cell_index ;
             bool skip = false; // Whether to skip this cell
             if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
@@ -656,7 +683,7 @@ c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceBetweenNodes
         double ageB = mCells[rNodeBGlobalIndex].GetAge();
         if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
         {
-            // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
+            // Spring Rest Length Increases to normal rest length from 0.1 to normal rest length, 1.0, over 1 hour
             #define COVERAGE_IGNORE
             rest_length=(0.1+0.9*ageA);
             assert(rest_length<=1.0);
