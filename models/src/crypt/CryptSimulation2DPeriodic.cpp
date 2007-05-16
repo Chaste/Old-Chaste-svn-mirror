@@ -295,17 +295,14 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
     unsigned num_births = 0;
     if (!mNoBirth && !mCells.empty())
     {
-        mCrypt.InitialiseCellIterator();
-        
         unsigned cell_index=0;
-        while(!mCrypt.CellIteratorIsAtEnd())
-//        // Iterate over all cells, seeing if each one can be divided
-
+        // Iterate over all cells, seeing if each one can be divided
+        for (Crypt<2>::Iterator cell_iter = mCrypt.Begin();
+             cell_iter != mCrypt.End();
+             ++cell_iter)
         {
+            assert((*cell_iter).GetNodeIndex()==cell_index);
             
-            assert(mCrypt.GetCurrentCell()->GetNodeIndex()==cell_index);
-            
-
             unsigned node_index=cell_index ;
             bool skip = false; // Whether to skip this cell
             if (mrMesh.GetNode(node_index)->IsDeleted()) skip=true; // Skip deleted cells
@@ -366,7 +363,6 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
                 } // if (ready to divide)
             }
             cell_index++;
-            mCrypt.IncrementCellIterator();
         } // cell iteration loop
         assert(cell_index==mCells.size());
     } // if (simulation has cell birth)
