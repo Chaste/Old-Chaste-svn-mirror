@@ -84,6 +84,14 @@ public:
     unsigned GetNumAllBoundaryElements();
     unsigned GetNumBoundaryNodes();
     unsigned GetNumCornerNodes();
+    
+    /** 
+     * Add a node to the mesh.
+     * 
+     * NB. After calling this one or more times, you must then call ReMesh
+     *
+     */
+    
     virtual unsigned AddNode(Node<SPACE_DIM> *pNewNode);
     /**
      * Return a pointer to the first element in the mesh.
@@ -322,7 +330,7 @@ public:
      * 
      * @return the new node index
      */
-    virtual unsigned AddNodeAndReMesh(Node<SPACE_DIM> *pNewNode, NodeMap &map);
+    unsigned AddNodeAndReMesh(Node<SPACE_DIM> *pNewNode, NodeMap &map);
 };
 
 

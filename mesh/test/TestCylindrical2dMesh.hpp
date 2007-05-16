@@ -56,41 +56,31 @@ public:
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
-        
-        std::vector<std::vector<unsigned> > image_map;
 
         // reset the mesh
         p_mesh = generator.GetCylindricalMesh();
-        image_map = p_mesh->CreateMirrorNodes();
-        
-        //Output2DMeshToFile(p_mesh, "node_positions.dat");
-        
-        std::vector<unsigned> left_original = image_map[0];
-        std::vector<unsigned> left_images = image_map[1];
-        std::vector<unsigned> right_original = image_map[2];
-        std::vector<unsigned> right_images = image_map[3];
-        
-        //std::cout << "Left size = " << left_original.size()<< ", Right size = " << right_original.size()<< "\n" << std::flush;
+        p_mesh->CreateMirrorNodes();
+
         // Check the vectors are the right size...
-        TS_ASSERT_EQUALS(left_original.size(),36u);
-        TS_ASSERT_EQUALS(right_original.size(),36u);
-        TS_ASSERT_EQUALS(left_original.size(), left_images.size());
-        TS_ASSERT_EQUALS(right_original.size(), right_images.size());
+        TS_ASSERT_EQUALS(p_mesh->mLeftOriginals.size(),36u);
+        TS_ASSERT_EQUALS(p_mesh->mRightOriginals.size(),36u);
+        TS_ASSERT_EQUALS(p_mesh->mLeftOriginals.size(), p_mesh->mLeftImages.size());
+        TS_ASSERT_EQUALS(p_mesh->mRightOriginals.size(), p_mesh->mRightImages.size());
         
         // Check that the image nodes are where they should be.
-        for (unsigned i=0 ; i<left_original.size() ; i++)
+        for (unsigned i=0 ; i<p_mesh->mLeftOriginals.size() ; i++)
         {
-            c_vector<double, 2> original_location = p_mesh->GetNode(left_original[i])->rGetLocation();
-            c_vector<double, 2> image_location = p_mesh->GetNode(left_images[i])->rGetLocation();
+            c_vector<double, 2> original_location = p_mesh->GetNode(p_mesh->mLeftOriginals[i])->rGetLocation();
+            c_vector<double, 2> image_location = p_mesh->GetNode(p_mesh->mLeftImages[i])->rGetLocation();
             
             TS_ASSERT_DELTA(original_location[0]+crypt_width,image_location[0],1e-7);
             TS_ASSERT_DELTA(original_location[1],image_location[1],1e-7);
         }
         
-        for (unsigned i=0 ; i<right_original.size() ; i++)
+        for (unsigned i=0 ; i<p_mesh->mRightOriginals.size() ; i++)
         {
-            c_vector<double, 2> original_location = p_mesh->GetNode(right_original[i])->rGetLocation();
-            c_vector<double, 2> image_location = p_mesh->GetNode(right_images[i])->rGetLocation();
+            c_vector<double, 2> original_location = p_mesh->GetNode(p_mesh->mRightOriginals[i])->rGetLocation();
+            c_vector<double, 2> image_location = p_mesh->GetNode(p_mesh->mRightImages[i])->rGetLocation();
             
             TS_ASSERT_DELTA(original_location[0]-crypt_width,image_location[0],1e-7);
             TS_ASSERT_DELTA(original_location[1],image_location[1],1e-7);
@@ -139,37 +129,27 @@ public:
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
         
         // Create a mirrored load of nodes for the normal remesher to work with.
-        std::vector<std::vector<unsigned> > image_map = p_mesh->CreateMirrorNodes();
-    
-        std::vector<unsigned> left_original = image_map[0];
-        std::vector<unsigned> left_images = image_map[1];
-        std::vector<unsigned> right_original = image_map[2];
-        std::vector<unsigned> right_images = image_map[3];
+        p_mesh->CreateMirrorNodes();
         
         // Call the normal re-mesh
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ConformingTetrahedralMesh<2,2>::ReMesh(map);
         
         //
-        // Re-Index the image_map according to the node_map.
+        // Re-Index the vectors regarding left/right nodes with the node map.
         //
-        for (unsigned i = 0 ; i<left_original.size() ; i++)
+        for (unsigned i = 0 ; i<p_mesh->mLeftOriginals.size() ; i++)
         {
-                left_original[i]=map.GetNewIndex(left_original[i]);
-                left_images[i]=map.GetNewIndex(left_images[i]);
+                p_mesh->mLeftOriginals[i]=map.GetNewIndex(p_mesh->mLeftOriginals[i]);
+                p_mesh->mLeftImages[i]=map.GetNewIndex(p_mesh->mLeftImages[i]);
         }
-        for (unsigned i = 0 ; i<right_original.size() ; i++)
+        for (unsigned i = 0 ; i<p_mesh->mRightOriginals.size() ; i++)
         {
-                right_original[i]=map.GetNewIndex(right_original[i]);
-                right_images[i]=map.GetNewIndex(right_images[i]);
+                p_mesh->mRightOriginals[i]=map.GetNewIndex(p_mesh->mRightOriginals[i]);
+                p_mesh->mRightImages[i]=map.GetNewIndex(p_mesh->mRightImages[i]);
         }
         
-        image_map[0] = left_original;
-        image_map[1] = left_images;
-        image_map[2] = right_original;
-        image_map[3] = right_images;
-        
-        p_mesh->ReconstructCylindricalMesh(image_map);
+        p_mesh->ReconstructCylindricalMesh();
         
         unsigned elements_for_node_0 = 0;
         unsigned elements_for_node_11 = 0;

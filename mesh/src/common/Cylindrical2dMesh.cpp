@@ -6,6 +6,7 @@
 
 class Cylindrical2dMesh : public ConformingTetrahedralMesh<2, 2>
 {
+    friend class TestCylindrical2dMesh;
 private:
     /** The left x-coord of cylinder boundary*/
     double mXLeft;
@@ -17,6 +18,16 @@ private:
     double mTop;
     /** The bottom of the cylinder (y-coord) */
     double mBottom;
+    
+    /** Used during ReMesh **/
+    // The left nodes which have been mirrored
+    std::vector<unsigned> mLeftOriginals;
+    // The image nodes relating to these left nodes (on right of mesh)
+    std::vector<unsigned> mLeftImages;
+    // The right nodes which have been mirrored
+    std::vector<unsigned> mRightOriginals;
+    // The image nodes relating to these right nodes (on left of mesh)
+    std::vector<unsigned> mRightImages;
     
     /** The indices of nodes on the top boundary */
     std::vector<unsigned > mTopBoundary;
@@ -72,7 +83,7 @@ public:
     
     /**
      * Creates a set of mirror nodes for a cylindrical re-mesh. 
-     * Where x1 - x0 = 2*PI in a cylinder. 
+     * Where x1 - x0 = foo in a cylinder. 
      * All mesh points should be x0<x<x1.
      * 
      * @return a map of four standard vectors of indices
@@ -81,76 +92,60 @@ public:
      * 2. The right nodes which have been mirrored
      * 3. The image nodes relating to these right nodes (on left of mesh)
      */
-    std::vector<std::vector <unsigned> > CreateMirrorNodes()
+    void CreateMirrorNodes()
     {
         unsigned num_nodes=GetNumNodes();
         double half_way = (mWidth)/2.0;
                 
         TestTopAndBottomRowAlignment();
         
-        // Label the nodes which will have to be mirrored
-        std::vector<unsigned> left_original_node_indices;
-        std::vector<unsigned> lefts_image_node_indices;
-        std::vector<unsigned> right_original_node_indices;
-        std::vector<unsigned> rights_image_node_indices;
-     
+        mLeftOriginals.clear();
+        mLeftImages.clear();
+        mRightOriginals.clear();
+        mRightImages.clear();
+        
         for (unsigned i=0; i<num_nodes; i++)
         {
             c_vector<double, 2> location = mNodes[i]->rGetLocation();
             unsigned this_node_index = mNodes[i]->GetIndex();
             double this_node_x_location = location[0];
             
-            // Check the mesh currently conforms to the dimensions given.
-            if (!(mXLeft<=location[0] && location[0]<=mXRight))
-            {
-#define COVERAGE_IGNORE
-                std::cout << "node(" << i << "), x = " << location[0] << "\n" << std::flush;
-                std::cout << "left boundary = " << mXLeft << ", right boundary = " << mXRight << std::flush;
-                EXCEPTION("A node lies outside the cylindrical region");    
-#undef COVERAGE_IGNORE
-            }
+            // Check the mesh currently conforms to the dimensions given.        
+            assert(mXLeft<=location[0] && location[0]<=mXRight);
             
             // Put the nodes which are to be mirrored in the relevant vectors
             if (this_node_x_location<half_way)
             {
-                left_original_node_indices.push_back(this_node_index);
+                mLeftOriginals.push_back(this_node_index);
             }
-            if (this_node_x_location>=half_way)
+            else
             {
-                right_original_node_indices.push_back(this_node_index);
+                mRightOriginals.push_back(this_node_index);
             }
         }
         
         // Go through the left original nodes and create an image node
         // recording its new index.
-        for (unsigned i=0 ; i<left_original_node_indices.size() ; i++)
+        for (unsigned i=0 ; i<mLeftOriginals.size() ; i++)
         {
-            c_vector<double, 2> location = mNodes[left_original_node_indices[i]]->rGetLocation();
+            c_vector<double, 2> location = mNodes[mLeftOriginals[i]]->rGetLocation();
             location[0] = location[0] + mWidth;
     
             unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
-            lefts_image_node_indices.push_back(new_node_index);
+            mLeftImages.push_back(new_node_index);
         }
         
         // Go through the right original nodes and create an image node
         // recording its new index.
-        for (unsigned i=0 ; i<right_original_node_indices.size() ; i++)
+        for (unsigned i=0 ; i<mRightOriginals.size() ; i++)
         {
             // Create new image nodes
-            c_vector<double, 2> location = mNodes[right_original_node_indices[i]]->rGetLocation();
+            c_vector<double, 2> location = mNodes[mRightOriginals[i]]->rGetLocation();
             location[0] = location[0] - mWidth;
     
             unsigned new_node_index = ConformingTetrahedralMesh<2,2>::AddNode(new Node<2>(0u, location));
-            rights_image_node_indices.push_back(new_node_index);
+            mRightImages.push_back(new_node_index);
         }
-        
-        // Return all the information...
-        std::vector<std::vector <unsigned> > image_map;
-        image_map.push_back(left_original_node_indices);
-        image_map.push_back(lefts_image_node_indices);
-        image_map.push_back(right_original_node_indices);
-        image_map.push_back(rights_image_node_indices);
-        return image_map;
     }
 
     /**
@@ -165,19 +160,13 @@ public:
      */
     void ReMesh(NodeMap &map)
     {
-        // std::cout << "Conducting a cylindrical re-mesh\n" << std::flush;
         // Create a mirrored load of nodes for the normal remesher to work with.
-        std::vector<std::vector<unsigned> > image_map = CreateMirrorNodes();
+        CreateMirrorNodes();
     
         // The mesh now has messed up boundary elements 
         // but this doesn't matter as the ReMesh below
         // doesn't read them in and reconstructs the
         // boundary elements.
-    
-        std::vector<unsigned> left_original = image_map[0];
-        std::vector<unsigned> left_images = image_map[1];
-        std::vector<unsigned> right_original = image_map[2];
-        std::vector<unsigned> right_images = image_map[3];
         
         // Call the normal re-mesh
         ConformingTetrahedralMesh<2,2>::ReMesh(map);
@@ -185,15 +174,15 @@ public:
         //
         // Re-Index the vectors according to the node_map.
         //
-        for (unsigned i = 0 ; i<left_original.size() ; i++)
+        for (unsigned i = 0 ; i<mLeftOriginals.size() ; i++)
         {
-                left_original[i]=map.GetNewIndex(left_original[i]);
-                left_images[i]=map.GetNewIndex(left_images[i]);
+                mLeftOriginals[i]=map.GetNewIndex(mLeftOriginals[i]);
+                mLeftImages[i]=map.GetNewIndex(mLeftImages[i]);
         }
-        for (unsigned i = 0 ; i<right_original.size() ; i++)
+        for (unsigned i = 0 ; i<mRightOriginals.size() ; i++)
         {
-                right_original[i]=map.GetNewIndex(right_original[i]);
-                right_images[i]=map.GetNewIndex(right_images[i]);
+                mRightOriginals[i]=map.GetNewIndex(mRightOriginals[i]);
+                mRightImages[i]=map.GetNewIndex(mRightImages[i]);
         }
         for (unsigned i = 0 ; i<mTopBoundary.size() ; i++)
         {
@@ -204,16 +193,11 @@ public:
                 mBottomBoundary[i]=map.GetNewIndex(mBottomBoundary[i]);
         }
         
-        image_map[0] = left_original;
-        image_map[1] = left_images;
-        image_map[2] = right_original;
-        image_map[3] = right_images;
-        
         // This method takes in the double sized mesh, 
         // with its new boundary elements,
         // and removes the relevant nodes, elements and boundary elements
         // to leave a proper periodic mesh.
-        ReconstructCylindricalMesh(image_map);
+        ReconstructCylindricalMesh();
     }
 
     /**
@@ -229,12 +213,8 @@ public:
      * 2. The right nodes which have been mirrored
      * 3. The image nodes relating to these right nodes (on left of mesh)
      */
-    void ReconstructCylindricalMesh(std::vector<std::vector<unsigned> >& rImageMap)
+    void ReconstructCylindricalMesh()
     {
-        std::vector<unsigned> left_original = rImageMap[0];
-        std::vector<unsigned> left_images = rImageMap[1];
-        std::vector<unsigned> right_original = rImageMap[2];
-        std::vector<unsigned> right_images = rImageMap[3];
         
         // Figure out which elements have real nodes and image nodes in them
         // and replace image nodes with corresponding real ones.
@@ -249,11 +229,11 @@ public:
                     unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                     //std::cout << "Node " << this_node_index << "\t";
                     bool this_node_an_image = false;
-                    if(IsThisIndexInList(this_node_index,left_images))
+                    if(IsThisIndexInList(this_node_index,mLeftImages))
                     {
                         this_node_an_image = true;
                     }
-                    if(IsThisIndexInList(this_node_index,right_images))
+                    if(IsThisIndexInList(this_node_index,mRightImages))
                     {
                         this_node_an_image = true;
                     }
@@ -286,8 +266,8 @@ public:
                     for (unsigned i=0 ; i<3 ; i++)
                     {
                         unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
-                        ReplaceImageWithRealNodeOnElement(p_element,left_images,left_original,this_node_index);
-                        ReplaceImageWithRealNodeOnElement(p_element,right_images,right_original,this_node_index);
+                        ReplaceImageWithRealNodeOnElement(p_element,mLeftImages,mLeftOriginals,this_node_index);
+                        ReplaceImageWithRealNodeOnElement(p_element,mRightImages,mRightOriginals,this_node_index);
                     }
                 }
             }
@@ -307,11 +287,11 @@ public:
                     unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
                     //std::cout << this_node_index << "\t";
                     bool this_node_an_image = false;
-                    if(IsThisIndexInList(this_node_index,left_images))
+                    if(IsThisIndexInList(this_node_index,mLeftImages))
                     {
                         this_node_an_image = true;
                     }
-                    if(IsThisIndexInList(this_node_index,right_images))
+                    if(IsThisIndexInList(this_node_index,mRightImages))
                     {
                         this_node_an_image = true;
                     }
@@ -338,18 +318,18 @@ public:
                     for (unsigned i=0 ; i<2 ; i++)
                     {
                         unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
-                        for (unsigned j=0 ; j<left_images.size() ; j++)
+                        for (unsigned j=0 ; j<mLeftImages.size() ; j++)
                         {
-                            if(this_node_index==left_images[j])
+                            if(this_node_index==mLeftImages[j])
                             {
                                 //std::cout << "PERIODIC \n" << std::flush;  
-                                p_boundary_element->ReplaceNode(mNodes[left_images[j]],mNodes[left_original[j]]);
-                                //std::cout << "Node " << left_images[j] << " swapped for node " << left_original[j] << "\n" << std::flush;
+                                p_boundary_element->ReplaceNode(mNodes[mLeftImages[j]],mNodes[mLeftOriginals[j]]);
+                                //std::cout << "Node " << mLeftImages[j] << " swapped for node " << mLeftOriginals[j] << "\n" << std::flush;
                             }
                         }
-                        for (unsigned j=0 ; j<right_images.size() ; j++)
+                        for (unsigned j=0 ; j<mRightImages.size() ; j++)
                         {
-                            if(this_node_index==right_images[j])
+                            if(this_node_index==mRightImages[j])
                             {
                                 //std::cout << "IMAGE\n" << std::flush;
                                 p_boundary_element->MarkAsDeleted();
@@ -363,15 +343,15 @@ public:
         }
         
         // Delete all image nodes
-        for (unsigned i=0 ; i<left_images.size() ; i++)
+        for (unsigned i=0 ; i<mLeftImages.size() ; i++)
         {
-            mNodes[left_images[i]]->MarkAsDeleted();
-            mDeletedNodeIndices.push_back(left_images[i]);
+            mNodes[mLeftImages[i]]->MarkAsDeleted();
+            mDeletedNodeIndices.push_back(mLeftImages[i]);
         }
-        for (unsigned i=0 ; i<right_images.size() ; i++)
+        for (unsigned i=0 ; i<mRightImages.size() ; i++)
         {
-            mNodes[right_images[i]]->MarkAsDeleted();
-            mDeletedNodeIndices.push_back(right_images[i]);
+            mNodes[mRightImages[i]]->MarkAsDeleted();
+            mDeletedNodeIndices.push_back(mRightImages[i]);
         }
                 
         // ReIndex the mesh
@@ -539,28 +519,13 @@ public:
         }
         return width;   
     }
-    
-//    /**
-//     * OVERRIDDEN FUNCTION to ensure new node is introduced at a point on 
-//     * the cylinder and not slightly off it.
-//     *     
-//     * @param pNewNode pointer to a new node
-//     * @param map A node map of original mesh size
-//     * 
-//     * @return the new node index
-//     */
-//    unsigned AddNodeAndReMesh(Node<2> *pNewNode, NodeMap &map)
-//    {
-//        // Add the node to the mesh
-//        unsigned node_index = AddNode(pNewNode);
-//        
-//        // increase the size of the node map to match the new mesh.
-//        map.Reserve(GetNumNodes());
-//        // Perform CYLINDRICAL ReMesh
-//        ReMesh(map);
-//        return node_index;
-//    }
-    
+
+    /** 
+     * Add a node to the mesh.
+     * 
+     * NB. After calling this one or more times, you must then call ReMesh
+     *
+     */
     unsigned AddNode(Node<2> *pNewNode)
     {
         unsigned node_index = ConformingTetrahedralMesh<2,2>::AddNode(pNewNode);
