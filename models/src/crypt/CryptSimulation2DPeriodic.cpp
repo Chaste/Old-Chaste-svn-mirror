@@ -29,7 +29,8 @@
  *  @param cells is defaulted to the empty vector, in which case SetIncludeRandomBirth()
  *  should be called for any birth to happen.
  */
-CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
+template<unsigned DIM> 
+CryptSimulation2DPeriodic<DIM>::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
                                                      std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
           mCells(cells),
@@ -77,7 +78,8 @@ CryptSimulation2DPeriodic::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2
 /**
  * Free any memory allocated by the constructor
  */
-CryptSimulation2DPeriodic::~CryptSimulation2DPeriodic()
+template<unsigned DIM> 
+CryptSimulation2DPeriodic<DIM>::~CryptSimulation2DPeriodic()
 {
     SimulationTime::Destroy();
 }
@@ -87,7 +89,8 @@ CryptSimulation2DPeriodic::~CryptSimulation2DPeriodic()
 *
 * Uses mMaxCells to decide how many variables to define.
 */
-void CryptSimulation2DPeriodic::SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds)
 {
     rVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
     
@@ -115,7 +118,8 @@ void CryptSimulation2DPeriodic::SetupNodeWriter(ColumnDataWriter& rNodeWriter, n
  *
  * Uses mMaxCells to decide how many variables to define.
  */
-void CryptSimulation2DPeriodic::SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds)
 {
     rVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
     
@@ -142,13 +146,15 @@ void CryptSimulation2DPeriodic::SetupElementWriter(ColumnDataWriter& rElementWri
     rElementWriter.EndDefineMode();
 }
 
-void CryptSimulation2DPeriodic::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 {
     rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(1u);// get furthest distance between nodes in the x-direciton
     rSetupFile.close();
 }
 
-void CryptSimulation2DPeriodic::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
                                                     ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
                                                     std::ofstream& rNodeFile, std::ofstream& rElementFile,
                                                     bool writeTabulatedResults,
@@ -283,7 +289,8 @@ void CryptSimulation2DPeriodic::WriteResultsToFiles(ColumnDataWriter& rNodeWrite
  *
  * @return the number of births that occurred.
  */
-unsigned CryptSimulation2DPeriodic::DoCellBirth()
+template<unsigned DIM>  
+unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
 {
     unsigned num_births = 0;
     if (!mNoBirth && !mCells.empty())
@@ -378,7 +385,8 @@ unsigned CryptSimulation2DPeriodic::DoCellBirth()
  * @return daughter_coords The coordinates for the daughter cell.
  * 
  */
-c_vector<double, 2> CryptSimulation2DPeriodic::CalculateDividingCellCentreLocations(unsigned node_index)
+template<unsigned DIM> 
+c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateDividingCellCentreLocations(unsigned node_index)
 {
     double separation = 0.1;
     c_vector<double, 2> parent_coords = mrMesh.GetNode(node_index)->rGetLocation();
@@ -426,7 +434,8 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateDividingCellCentreLocati
  *  Checks that the indices are in sync in the cells vector, ie that
  *  mCells[i].GetNodeIndex() is equal to i
  */
-void CryptSimulation2DPeriodic::CheckIndicesAreInSync()
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::CheckIndicesAreInSync()
 {
     if (!mCells.empty())
     {
@@ -445,8 +454,9 @@ void CryptSimulation2DPeriodic::CheckIndicesAreInSync()
  * CELL DEATH TO BE ADDED INTO THIS METHOD
  *
  * @return the number of deaths that occurred.
- */
-unsigned CryptSimulation2DPeriodic::DoCellRemoval()
+ */ 
+template<unsigned DIM> 
+unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
 {
     unsigned num_deaths=0;
     
@@ -488,7 +498,8 @@ unsigned CryptSimulation2DPeriodic::DoCellRemoval()
  *
  * @return drdt the x and y force components on each node
  */
-std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocitiesOfEachNode()
+template<unsigned DIM>  
+std::vector<c_vector<double, DIM> > CryptSimulation2DPeriodic<DIM>::CalculateVelocitiesOfEachNode()
 {
     std::vector<c_vector<double, 2> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
@@ -609,22 +620,11 @@ std::vector<c_vector<double, 2> > CryptSimulation2DPeriodic::CalculateVelocities
 /**
  * @return the x and y forces in this spring
  */
-c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
+template<unsigned DIM> 
+c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
 {
     unsigned node_a_global_index = rPElement->GetNodeGlobalIndex(rNodeA);
     unsigned node_b_global_index = rPElement->GetNodeGlobalIndex(rNodeB);
-    return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
-}
-
-/**
- * @param rPEdge pointer to a boundary element
- * 
- * @return the x and y forces on node 0 of the boundary element
- */
-c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge)
-{
-    unsigned node_a_global_index = rPEdge->GetNodeGlobalIndex(0);
-    unsigned node_b_global_index = rPEdge->GetNodeGlobalIndex(1);
     return CalculateForceBetweenNodes(node_a_global_index, node_b_global_index);
 }
 
@@ -639,7 +639,8 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceInThisBoundarySprin
  * 
  * @return The force exerted on Node A by Node B.
  */
-c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+template<unsigned DIM> 
+c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     c_vector<double, 2> unit_difference;
     c_vector<double, 2> node_a_location = mrMesh.GetNode(rNodeAGlobalIndex)->rGetLocation();
@@ -660,10 +661,10 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const 
         if (ageA<1.0 && ageB<1.0 && fabs(ageA-ageB)<1e-6)
         {
             // Spring Rest Length Increases to normal rest length from 0.9 to normal rest length, 1.0, over 1 hour
-#define COVERAGE_IGNORE
+            #define COVERAGE_IGNORE
             rest_length=(0.1+0.9*ageA);
             assert(rest_length<=1.0);
-#undef COVERAGE_IGNORE
+            #undef COVERAGE_IGNORE
         }
     }
     return mpParams->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
@@ -675,7 +676,8 @@ c_vector<double, 2> CryptSimulation2DPeriodic::CalculateForceBetweenNodes(const 
  *
  * @param rDrDt the x and y force components on each node.
  */
-void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
@@ -732,9 +734,10 @@ void CryptSimulation2DPeriodic::UpdateNodePositions(const std::vector< c_vector<
     }
 }
 
-Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, 2> >& rDrDt)
+template<unsigned DIM> 
+Point<DIM> CryptSimulation2DPeriodic<DIM>::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    Point<2> new_point( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
+    Point<DIM> new_point( mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
                      + mDt*rDrDt[rOldNodeIndex]);
     return new_point;
 }
@@ -745,7 +748,8 @@ Point<2> CryptSimulation2DPeriodic::GetNewNodeLocation(const unsigned& rOldNodeI
  * At the moment this turns cells to be differentiated
  * dependent on a protein concentration when using the Wnt model.
  */
-void CryptSimulation2DPeriodic::UpdateCellTypes()
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::UpdateCellTypes()
 {
     if (!mCells.empty())
     {
@@ -772,7 +776,8 @@ void CryptSimulation2DPeriodic::UpdateCellTypes()
  * It should only be called by the method above (ReMesh) which ensures
  * that periodic boundaries are handled properly.
  */
-void CryptSimulation2DPeriodic::ReMesh()
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::ReMesh()
 {
     if(mReMesh)
     {
@@ -798,7 +803,8 @@ void CryptSimulation2DPeriodic::ReMesh()
 /**
  * Set the timestep of the simulation
  */
-void CryptSimulation2DPeriodic::SetDt(double dt)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetDt(double dt)
 {
     assert(dt>0);
     mDt=dt;
@@ -807,13 +813,15 @@ void CryptSimulation2DPeriodic::SetDt(double dt)
 /**
  * Sets the end time and resets the timestep to be endtime/100
  */
-void CryptSimulation2DPeriodic::SetEndTime(double endTime)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetEndTime(double endTime)
 {
     assert(endTime>0);
     mEndTime=endTime;
 }
 
-void CryptSimulation2DPeriodic::SetOutputDirectory(std::string outputDirectory)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
 }
@@ -822,7 +830,8 @@ void CryptSimulation2DPeriodic::SetOutputDirectory(std::string outputDirectory)
  * Sets the maximum number of cells that the simulation will contain (for use by the datawriter)
  * default value is set to 10x the initial mesh value by the constructor.
  */
-void CryptSimulation2DPeriodic::SetMaxCells(unsigned maxCells)
+template<unsigned DIM>  
+void CryptSimulation2DPeriodic<DIM>::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
     if (maxCells<mrMesh.GetNumAllNodes())
@@ -837,7 +846,8 @@ void CryptSimulation2DPeriodic::SetMaxCells(unsigned maxCells)
  * Sets the maximum number of elements that the simulation will contain (for use by the datawriter)
  * default value is set to 10x the initial mesh value by the constructor.
  */
-void CryptSimulation2DPeriodic::SetMaxElements(unsigned maxElements)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetMaxElements(unsigned maxElements)
 {
     mMaxElements = maxElements;
     if (maxElements<mrMesh.GetNumAllElements())
@@ -852,7 +862,8 @@ void CryptSimulation2DPeriodic::SetMaxElements(unsigned maxElements)
  * Call this before Solve() to fix the boundary of the mesh.
  * \todo figure out what this does!
  */
-void CryptSimulation2DPeriodic::SetFixedBoundaries()
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetFixedBoundaries()
 {
     mFixedBoundaries = true;    // This is called by a nightly test.
 }
@@ -863,7 +874,8 @@ void CryptSimulation2DPeriodic::SetFixedBoundaries()
  * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
  * the constructor and the class is told about the ghost nodes by using this method.
  */
-void CryptSimulation2DPeriodic::SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
 {
     // First set all to not be ghost nodes
     for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)
@@ -882,7 +894,8 @@ void CryptSimulation2DPeriodic::SetGhostNodes(std::vector<unsigned> ghostNodeInd
 /**
  * Get the mesh to be remeshed at every time step.
  */
-void CryptSimulation2DPeriodic::SetReMeshRule(bool remesh)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetReMeshRule(bool remesh)
 {
     mReMesh = remesh;
 }
@@ -890,7 +903,8 @@ void CryptSimulation2DPeriodic::SetReMeshRule(bool remesh)
 /**
  * Set the simulation to run with no birth.
  */
-void CryptSimulation2DPeriodic::SetNoBirth(bool nobirth)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetNoBirth(bool nobirth)
 {
     mNoBirth = nobirth;
 }
@@ -899,7 +913,8 @@ void CryptSimulation2DPeriodic::SetNoBirth(bool nobirth)
  * This automatically sets this to be a wnt dependent simulation.
  * You should supply cells with a wnt cell cycle...
  */
-void CryptSimulation2DPeriodic::SetWntGradient(WntGradientType wntGradientType)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetWntGradient(WntGradientType wntGradientType)
 {
     mWntIncluded = true;
     mWntGradient = WntGradient(wntGradientType);
@@ -908,7 +923,8 @@ void CryptSimulation2DPeriodic::SetWntGradient(WntGradientType wntGradientType)
 /**
  * Set this simulation to use a cell killer
  */
-void CryptSimulation2DPeriodic::SetCellKiller(RandomCellKiller<2>* pCellKiller)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellKiller)
 {
     mpCellKiller=pCellKiller;
     mpCellKiller->SetCellsAndMesh(&mCells, &mrMesh);
@@ -920,7 +936,8 @@ void CryptSimulation2DPeriodic::SetCellKiller(RandomCellKiller<2>* pCellKiller)
  * simulation.
  * \todo change this to return a const reference
  */
-std::vector<MeinekeCryptCell> CryptSimulation2DPeriodic::GetCells()
+template<unsigned DIM> 
+std::vector<MeinekeCryptCell> CryptSimulation2DPeriodic<DIM>::GetCells()
 {
     assert(mCells.size()>0);
     return mCells;
@@ -930,7 +947,8 @@ std::vector<MeinekeCryptCell> CryptSimulation2DPeriodic::GetCells()
  * Whether each node is a ghost or not.
  * \todo change this to return a const reference
  */
-std::vector <bool> CryptSimulation2DPeriodic::GetGhostNodes()
+template<unsigned DIM> 
+std::vector <bool> CryptSimulation2DPeriodic<DIM>::GetGhostNodes()
 {
     return mIsGhostNode;
 }
@@ -943,7 +961,8 @@ std::vector <bool> CryptSimulation2DPeriodic::GetGhostNodes()
  * @param the node index
  * @return the x and y co-ordinates of this node.
  */
-std::vector<double> CryptSimulation2DPeriodic::GetNodeLocation(const unsigned& rNodeIndex)
+template<unsigned DIM> 
+std::vector<double> CryptSimulation2DPeriodic<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
 {
     double x = mrMesh.GetNode(rNodeIndex)->rGetLocation()[0];
     double y = mrMesh.GetNode(rNodeIndex)->rGetLocation()[1];
@@ -960,7 +979,8 @@ std::vector<double> CryptSimulation2DPeriodic::GetNodeLocation(const unsigned& r
  *
  * Once CryptSimulation object has been set up, call this to run simulation
  */
-void CryptSimulation2DPeriodic::Solve()
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::Solve()
 { 
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -1118,7 +1138,8 @@ void CryptSimulation2DPeriodic::Solve()
  *
  * First archives simulation time then the simulation itself.
  */
-void CryptSimulation2DPeriodic::Save()
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::Save()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     assert(p_sim_time->IsStartTimeSetUp());
@@ -1148,7 +1169,7 @@ void CryptSimulation2DPeriodic::Save()
     // cast to const.
     const SimulationTime* p_simulation_time = SimulationTime::Instance();
     output_arch << *p_simulation_time;
-    output_arch << static_cast<const CryptSimulation2DPeriodic&>(*this);
+    output_arch << static_cast<const CryptSimulation2DPeriodic<DIM>&>(*this);
 }
 
 /**
@@ -1159,7 +1180,8 @@ void CryptSimulation2DPeriodic::Save()
  * @param rTimeStamp the time at which to load the simulation (this must
  * be one of the times at which the simulation.Save() was called)
  */
-void CryptSimulation2DPeriodic::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+template<unsigned DIM> 
+void CryptSimulation2DPeriodic<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
     std::ostringstream time_stamp;
     time_stamp << rTimeStamp;

@@ -61,15 +61,17 @@ element_writer_ids_t;
  * create a convex hull of the set of nodes) and visualising purposes.  The mesh is passed into
  * the constructor and the class is told about the ghost nodes by using the method SetGhostNodes.
  */
+template<unsigned DIM>  
 class CryptSimulation2DPeriodic
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2DPeriodic;
+    
 private:
     double mDt;
     double mEndTime;
-    ConformingTetrahedralMesh<2,2> &mrMesh;
+    ConformingTetrahedralMesh<DIM,DIM> &mrMesh;
 
     /** Whether to fix all four boundaries (defaults to false).*/
     bool mFixedBoundaries;
@@ -92,7 +94,7 @@ private:
     /** Every cell in the simulation*/
     std::vector<MeinekeCryptCell> mCells;
         
-    Crypt<2> mCrypt;
+    Crypt<DIM> mCrypt;
     
     /** The Meineke and cancer parameters */
     CancerParameters *mpParams;
@@ -149,7 +151,7 @@ private:
     
     /** Cell killer */
     //TODO: Should become an abstract cell killer
-    RandomCellKiller<2> *mpCellKiller;
+    RandomCellKiller<DIM> *mpCellKiller;
     
     void SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds);
     void SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds);
@@ -161,17 +163,16 @@ private:
                              bool writeVisualizerResults);
     
     unsigned DoCellBirth();
-    c_vector<double, 2> CalculateDividingCellCentreLocations(unsigned node_index);
+    c_vector<double, DIM> CalculateDividingCellCentreLocations(unsigned node_index);
     
     unsigned DoCellRemoval();
    
-    std::vector<c_vector<double, 2> > CalculateVelocitiesOfEachNode();
-    c_vector<double, 2> CalculateForceInThisSpring(Element<2,2>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
-    c_vector<double, 2> CalculateForceInThisBoundarySpring(BoundaryElement<1,2>*& rPEdge);
-    c_vector<double, 2> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
+    std::vector<c_vector<double, DIM> > CalculateVelocitiesOfEachNode();
+    c_vector<double, DIM> CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB);
+    c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
     
-    void UpdateNodePositions(const std::vector< c_vector<double, 2> >& rDrDt);
-    Point<2> GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, 2> >& rDrDt);
+    void UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt);
+    Point<DIM> GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt);
     
     void UpdateCellTypes();
  
@@ -181,7 +182,7 @@ private:
 
 public:
 
-    CryptSimulation2DPeriodic(ConformingTetrahedralMesh<2,2> &rMesh,
+    CryptSimulation2DPeriodic(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
                               std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
                               
     ~CryptSimulation2DPeriodic();
@@ -196,7 +197,7 @@ public:
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
     void SetWntGradient(WntGradientType wntGradientType);
-    void SetCellKiller(RandomCellKiller<2>* pCellKiller);
+    void SetCellKiller(RandomCellKiller<DIM>* pCellKiller);
     std::vector<MeinekeCryptCell> GetCells();
     std::vector <bool> GetGhostNodes();
     std::vector<double> GetNodeLocation(const unsigned& rNodeIndex);

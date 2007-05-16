@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "CryptSimulation2DPeriodic.hpp"
+#include "CryptSimulation2DPeriodic.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -263,7 +263,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
                
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory(output_directory);
         
         /* 
@@ -332,7 +332,7 @@ public:
         std::vector<MeinekeCryptCell> cells;        
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
                 
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         
         // Set length of simulation here
@@ -383,7 +383,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
         
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicWntSaveAndLoad");
         
         // Our full end time is 0.2, here we run for half the time
@@ -439,7 +439,7 @@ public:
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
 
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
@@ -511,7 +511,7 @@ public:
         // Set a stem cell to be an evil cancer cell and see what happens
         cells[27].SetMutationState(APC_TWO_HIT);
         
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DMutation");
         
         simulator.SetMaxCells(500);
@@ -554,7 +554,7 @@ public:
         CreateVectorOfCells(cells, *p_mesh, TYSONNOVAK, true);
         
         
-        CryptSimulation2DPeriodic simulator(*p_mesh, cells);
+        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         
         // Set length of simulation here
@@ -618,7 +618,7 @@ public:
         
         cells[60].SetBirthTime(-50.0);
         
-        CryptSimulation2DPeriodic simulator(mesh,cells);
+        CryptSimulation2DPeriodic<2> simulator(mesh,cells);
         
         simulator.SetFixedBoundaries();
         
@@ -629,7 +629,7 @@ public:
         TS_ASSERT_EQUALS(num_deaths,11u);
         
         p_params->SetCryptLength(10.1);
-        CryptSimulation2DPeriodic simulator2(mesh,cells);
+        CryptSimulation2DPeriodic<2> simulator2(mesh,cells);
         
         simulator2.SetFixedBoundaries();
         
@@ -726,7 +726,7 @@ public:
             cells2.push_back(cell);
         }
         
-        CryptSimulation2DPeriodic simulator3(*p_mesh2,cells2);
+        CryptSimulation2DPeriodic<2> simulator3(*p_mesh2,cells2);
         simulator3.SetGhostNodes(ghost_node_indices2);
         
         simulator3.SetMaxCells(400);
@@ -828,46 +828,6 @@ public:
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
         
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *  Test Calculate force on a boundary spring
-         ************************************************************************
-         ************************************************************************ 
-         */
-        
-        c_vector<double,2> force_on_boundary_spring ; 
-        ConformingTetrahedralMesh<2,2>::BoundaryElementIterator it;
-        
-        it = p_mesh2->GetBoundaryElementIteratorBegin();
-               
-        // find a boundary element which is not deleted
-        BoundaryElement<1,2>* p_edge;
-        bool found=false;
-        while (it != p_mesh2->GetBoundaryElementIteratorEnd() && !found )
-        {   
-            p_edge=(*it);
-            found = !p_edge->IsDeleted();    
-            it++;
-        }
-        
-        TS_ASSERT(it != p_mesh2->GetBoundaryElementIteratorEnd());
-        
-        force_on_boundary_spring = simulator3.CalculateForceInThisBoundarySpring(p_edge);
-        TS_ASSERT_DELTA(force_on_boundary_spring[0], 0.0, 1e-10);
-        TS_ASSERT_DELTA(force_on_boundary_spring[1], 0.0, 1e-10);
-        
-        // move one of the nodes of the boundary element
-        unsigned node_index = p_edge->GetNode(0)->GetIndex();
-        c_vector<double,2> node_location = p_edge->GetNode(0)->rGetLocation();
-        node_location[0] += 0.5;
-        p_mesh2->SetNode(node_index, Point<2>(node_location), false);
-        
-        // check force
-        force_on_boundary_spring = simulator3.CalculateForceInThisBoundarySpring(p_edge);
-        TS_ASSERT_DELTA(force_on_boundary_spring[0], -0.5*p_params->GetSpringStiffness(), 1e-4);
-        TS_ASSERT_DELTA(force_on_boundary_spring[1], 0.0, 1e-4);
-
         
         /*
          ************************************************************************
@@ -957,7 +917,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         // Test a conforming mesh
-        CryptSimulation2DPeriodic simulator(conf_mesh);
+        CryptSimulation2DPeriodic<2> simulator(conf_mesh);
         for (unsigned i=0 ; i<100 ; i++)
         {
             conf_mesh.SetNode(0u,location, false);
@@ -970,7 +930,7 @@ public:
         }
         
         // Test a cylindrical mesh
-        CryptSimulation2DPeriodic simulator2(cyl_mesh);
+        CryptSimulation2DPeriodic<2> simulator2(cyl_mesh);
         c_vector<double, 2> daughter_location = simulator2.CalculateDividingCellCentreLocations(0u);
         
         // Add the new node (to make the co-ords periodic)
