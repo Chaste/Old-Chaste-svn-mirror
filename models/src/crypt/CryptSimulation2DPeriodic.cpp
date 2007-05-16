@@ -324,7 +324,7 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
     {
 
         // Iterate over all cells, seeing if each one can be divided
-        for (Crypt<2>::Iterator cell_iter = mCrypt.Begin();
+        for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
              cell_iter != mCrypt.End();
              ++cell_iter)
         {
@@ -478,22 +478,21 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
     ///////////////////////////////////////////////////////////////////////////////////
     // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
     ///////////////////////////////////////////////////////////////////////////////////
-    for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+    for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
+         cell_iter != mCrypt.End();
+         ++cell_iter)
     {
-        Node<2> *p_node = mrMesh.GetNode(i);
-        if (!p_node->IsDeleted())
+        
+        double x = cell_iter.rGetLocation()[0];
+        double y = cell_iter.rGetLocation()[1];
+        
+        double crypt_length=mpParams->GetCryptLength();
+        double crypt_width=mpParams->GetCryptWidth();
+        
+        if ( (x>crypt_width) || (x<0.0) || (y>crypt_length))
         {
-            double x = p_node->rGetLocation()[0];
-            double y = p_node->rGetLocation()[1];
-            double crypt_length=mpParams->GetCryptLength();
-            double crypt_width=mpParams->GetCryptWidth();
-            unsigned node_index = p_node->GetIndex();
-            
-            if ( (x>crypt_width) || (x<0.0) || (y>crypt_length))
-            {
-                mIsGhostNode[node_index] = true;
-                num_deaths++;
-            }
+            mIsGhostNode[cell_iter.GetNode()->GetIndex()] = true;
+            num_deaths++;
         }
     }
     
@@ -790,18 +789,17 @@ void CryptSimulation2DPeriodic<DIM>::UpdateCellTypes()
 {
     if (!mCells.empty())
     {
-        /*/////////////////////////////////////////////////////////
+        /*
          * 
          * Designate cells as proliferating (transit) or
          * quiescent (differentiated) according to protein concentrations
          * 
-         *////////////////////////////////////////////////////////
-        for (unsigned i=0; i<mrMesh.GetNumNodes(); i++)
+         */
+        for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
+             cell_iter != mCrypt.End();
+             ++cell_iter)
         {
-            if (!mIsGhostNode[i])
-            {
-                mCells[i].UpdateCellType();
-            }
+            (*cell_iter).UpdateCellType();
         }
     }
 }
@@ -928,7 +926,7 @@ void CryptSimulation2DPeriodic<DIM>::SetGhostNodes(std::vector<unsigned> ghostNo
 }
 
 /**
- * Get the mesh to be remeshed at every time step.
+ * Set whether the mesh should be remeshed at every time step.
  */
 template<unsigned DIM> 
 void CryptSimulation2DPeriodic<DIM>::SetReMeshRule(bool remesh)
@@ -995,7 +993,7 @@ std::vector <bool> CryptSimulation2DPeriodic<DIM>::GetGhostNodes()
  * Get a node's location (ONLY FOR TESTING)
  *
  * @param the node index
- * @return the x and y co-ordinates of this node.
+ * @return the co-ordinates of this node.
  */
 template<unsigned DIM> 
 std::vector<double> CryptSimulation2DPeriodic<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
@@ -1079,13 +1077,12 @@ void CryptSimulation2DPeriodic<DIM>::Solve()
      */
     if (!mCells.empty())
     {
-        bool temp;
-        for (unsigned i=0; i<mCells.size(); i++)
+        for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
+             cell_iter != mCrypt.End();
+             ++cell_iter)
         {
-            if (mIsGhostNode[i]) continue;
             //std::cout << "Preparing Cell "<< i << std::endl;
-            Node<2> *p_our_node = mrMesh.GetNode(i);
-            double y = p_our_node->rGetLocation()[1];
+            double y = cell_iter.rGetLocation()[1];
             std::vector<double> cell_cycle_influences;
             if (mWntIncluded)
             {
@@ -1094,7 +1091,7 @@ void CryptSimulation2DPeriodic<DIM>::Solve()
             }
             // We don't use the result; this call is just to force the cells to age to time 0,
             // running their cell cycle models to get there.
-            temp = mCells[i].ReadyToDivide(cell_cycle_influences);
+            (*cell_iter).ReadyToDivide(cell_cycle_influences);
         }
     }
 
