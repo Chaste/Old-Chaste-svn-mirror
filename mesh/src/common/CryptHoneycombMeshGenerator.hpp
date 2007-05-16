@@ -253,7 +253,7 @@ public:
         
         if (!mCylindrical)
         {
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);// to avoid seg fault when closing
+            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
             ComputeGhostNodes1();
@@ -261,7 +261,7 @@ public:
         else
         {   
             mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);
+            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpCylindricalMesh->GetNumNodes());
             mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical
@@ -303,7 +303,7 @@ public:
         
         if (!mCylindrical)
         {
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);// to avoid seg fault when closing
+            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);// to avoid seg fault when closing
             mpMesh = new ConformingTetrahedralMesh<2,2>;
             mpMesh->ConstructFromMeshReader(mesh_reader);
             ComputeGhostNodes1();
@@ -311,7 +311,7 @@ public:
         else
         {   
             mpMesh = new ConformingTetrahedralMesh<2,2>;// to avoid seg fault when closing
-            mpCylindricalMesh = new Cylindrical2dMesh(0.0,mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);
+            mpCylindricalMesh = new Cylindrical2dMesh(mCryptWidth,mTop,mBottom,mTopNodes,mBottomNodes);
             mpCylindricalMesh->ConstructFromMeshReader(mesh_reader);
             NodeMap map(mpCylindricalMesh->GetNumNodes());
             mpCylindricalMesh->ReMesh(map); // This makes the mesh cylindrical

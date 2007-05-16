@@ -14,13 +14,11 @@ public:
 
     void TestBasicFunctions()
     {
-        // Test default constructor cannot be used.
-        TS_ASSERT_THROWS_ANYTHING(Cylindrical2dMesh mesh);
         
         std::vector <unsigned> empty;
         
         // Test IsThisIndexInList
-        Cylindrical2dMesh mesh(0.0, 1.0, 2.0, -1.0, empty,empty);
+        Cylindrical2dMesh mesh(1.0, 2.0, -1.0, empty,empty);
         
         std::vector<unsigned> list_of_nodes;
         list_of_nodes.push_back(0u);

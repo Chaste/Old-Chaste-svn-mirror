@@ -909,7 +909,7 @@ public:
         conf_mesh.AddNode(p_node);
         
         std::vector<unsigned> empty;
-        Cylindrical2dMesh cyl_mesh(0.0, 6.0, 0.0, 1.0, empty, empty);
+        Cylindrical2dMesh cyl_mesh(6.0, 0.0, 1.0, empty, empty);
         cyl_mesh.AddNode(p_node2);
         
         // Make a new simulation

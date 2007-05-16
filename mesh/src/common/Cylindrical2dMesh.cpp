@@ -8,10 +8,7 @@ class Cylindrical2dMesh : public ConformingTetrahedralMesh<2, 2>
 {
     friend class TestCylindrical2dMesh;
 private:
-    /** The left x-coord of cylinder boundary*/
-    double mXLeft;
-    /** The right x-coord of the same cylinder boundary*/
-    double mXRight;
+    
     /** The circumference of the cylinder */
     double mWidth;
     /** The top of the cylinder (y-coord) */
@@ -57,25 +54,19 @@ public:
      * @param topBoundary the inidces of the top ghost nodes
      * @param bottomBoundary the inidces of the bottom ghost nodes
      */
-    Cylindrical2dMesh(double x0, double x1, double xTop, double xBottom, std::vector<unsigned > topBoundary, std::vector<unsigned > bottomBoundary): ConformingTetrahedralMesh<2, 2>()
+    Cylindrical2dMesh(double width, double xTop, double xBottom, std::vector<unsigned > topBoundary, std::vector<unsigned > bottomBoundary)
+      : ConformingTetrahedralMesh<2, 2>(),
+        mWidth(width), 
+        mTop(xTop),
+        mBottom(xBottom),
+        mTopBoundary(topBoundary),
+        mBottomBoundary(bottomBoundary)
     {
-        assert(x1>x0);
-        mXLeft = x0;
-        assert(mXLeft==0.0); // if this is not the case GetVectorFromAtoB will break
-                            // perhaps remove mXLeft
-        mXRight = x1;
-        mWidth = mXRight - mXLeft;
-        mTop = xTop;
-        mBottom = xBottom;
-        mTopBoundary = topBoundary;
-        mBottomBoundary = bottomBoundary;
+        
+        assert(width > 0.0);
+        
     }
-    
-    Cylindrical2dMesh(): ConformingTetrahedralMesh<2, 2>()
-    {
-        EXCEPTION("Please specify the boundaries of the cylinder using the other constructor");
-    }
-    
+        
     ~Cylindrical2dMesh()
     {
         
@@ -111,7 +102,7 @@ public:
             double this_node_x_location = location[0];
             
             // Check the mesh currently conforms to the dimensions given.        
-            assert(mXLeft<=location[0] && location[0]<=mXRight);
+            assert(0.0<=location[0] && location[0]<=mWidth);
             
             // Put the nodes which are to be mirrored in the relevant vectors
             if (this_node_x_location<half_way)
@@ -370,11 +361,11 @@ public:
      */
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2)
     {
-        assert(mXRight>mXLeft);
-        assert(mXLeft<=rLocation1[0]);  // 1st point is not in cylinder
-        assert(mXLeft<=rLocation2[0]);  // 2nd point is not in cylinder
-        assert(mXRight>=rLocation1[0]);  // 1st point is not in cylinder
-        assert(mXRight>=rLocation2[0]);  // 2nd point is not in cylinder
+        assert(mWidth>0.0);
+        assert(0.0<=rLocation1[0]);  // 1st point is not in cylinder
+        assert(0.0<=rLocation2[0]);  // 2nd point is not in cylinder
+        assert(mWidth>=rLocation1[0]);  // 1st point is not in cylinder
+        assert(mWidth>=rLocation2[0]);  // 2nd point is not in cylinder
         
         c_vector<double, 2> vector = rLocation2 - rLocation1;
                 
@@ -440,12 +431,12 @@ public:
         }
         
         // Perform a periodic movement if necessary
-        if (point.rGetLocation()[0] >= mXRight)
+        if (point.rGetLocation()[0] >= mWidth)
         {   // move point to the left
             point.SetCoordinate(0u, point.rGetLocation()[0]-mWidth);
             //std::cout << "Moving point to the left\n" << std::flush;
         }
-        if (point.rGetLocation()[0] < mXLeft)
+        if (point.rGetLocation()[0] < 0.0)
         {   // move point to the right
             point.SetCoordinate(0u, point.rGetLocation()[0]+mWidth);
             //std::cout << "Moving point to the right\n" << std::flush;
