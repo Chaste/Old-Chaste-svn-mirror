@@ -329,7 +329,7 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
              ++cell_iter)
         {
             MeinekeCryptCell& cell = *cell_iter;
-            Node<2>* p_our_node = cell_iter.GetNode();
+            Node<DIM>* p_our_node = cell_iter.GetNode();
 
             assert(cell.GetNodeIndex() == p_our_node->GetIndex());
             
@@ -339,6 +339,7 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
             std::vector<double> cell_cycle_influences;
             if (mWntIncluded)
             {
+                assert(DIM==2);
                 double y = p_our_node->rGetLocation()[1];
                 double wnt_stimulus = mWntGradient.GetWntLevel(y);
                 cell_cycle_influences.push_back(wnt_stimulus);
@@ -353,8 +354,8 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
             
                 // Add a new node to the mesh
                 unsigned parent_node_index = p_our_node->GetIndex();
-                c_vector<double, 2> new_location = CalculateDividingCellCentreLocations(parent_node_index);
-                Node<2>* p_new_node = new Node<2>(mrMesh.GetNumNodes(), new_location, false);   // never on boundary
+                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(parent_node_index);
+                Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), new_location, false);   // never on boundary
                 
                 NodeMap map(mrMesh.GetNumNodes());
                 unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
@@ -404,42 +405,66 @@ template<unsigned DIM>
 c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateDividingCellCentreLocations(unsigned node_index)
 {
     double separation = 0.1;
-    c_vector<double, 2> parent_coords = mrMesh.GetNode(node_index)->rGetLocation();
-    c_vector<double, 2> daughter_coords;
+    c_vector<double, DIM> parent_coords = mrMesh.GetNode(node_index)->rGetLocation();
+    c_vector<double, DIM> daughter_coords;
     
     // Make a random direction vector of the required length
-    double random_direction = RandomNumberGenerator::Instance()->ranf();
-    random_direction = random_direction*2.0*M_PI;
-    c_vector<double, 2> random_vector;
-    random_vector[0] = 0.5*separation*cos(random_direction);
-    random_vector[1] = 0.5*separation*sin(random_direction);
+    c_vector<double, DIM> random_vector;
     
-    
-    if  (  (parent_coords[1]-random_vector[1] > 0.0)
-        && (parent_coords[1]+random_vector[1] > 0.0))
-    {   // We are not too close to the bottom of the crypt
-        // add random vector to the daughter and take it from the parent location
-        daughter_coords[0] = parent_coords[0]+random_vector[0];
-        daughter_coords[1] = parent_coords[1]+random_vector[1];
-        parent_coords[0] = parent_coords[0]-random_vector[0];
-        parent_coords[1] = parent_coords[1]-random_vector[1];
+    if(DIM==1)
+    {
+        random_vector(0)=0.5*separation;
     }
-    else
-    {   // Leave the parent where it is and move daughter in a positive direction
-        // to ensure new cells are not born below y=0
-        if (random_vector[1]>0.0)
-        {
-            daughter_coords[0] = parent_coords[0]+random_vector[0];
-            daughter_coords[1] = parent_coords[1]+random_vector[1];            
+        
+    else if(DIM==2)
+    {
+        double random_angle = RandomNumberGenerator::Instance()->ranf();
+        random_angle *= 2.0*M_PI;
+        random_vector(0) = 0.5*separation*cos(random_angle);
+        random_vector(1) = 0.5*separation*sin(random_angle);
+    }
+    else if(DIM==3)
+    {
+        double random_zenith_angle = RandomNumberGenerator::Instance()->ranf();// phi 
+        random_zenith_angle *= M_PI;
+        double random_azimuth_angle = RandomNumberGenerator::Instance()->ranf();// theta
+        random_azimuth_angle *= 2*M_PI;
+        
+        random_vector(0) = 0.5*separation*cos(random_azimuth_angle)*sin(random_zenith_angle);
+        random_vector(1) = 0.5*separation*sin(random_azimuth_angle)*sin(random_zenith_angle);
+        random_vector(2) = 0.5*separation*cos(random_zenith_angle);
+    }
+    
+    if(DIM==2)
+    {
+        if  (  (parent_coords(1)-random_vector(1) > 0.0)
+            && (parent_coords(1)+random_vector(1) > 0.0))
+        {   // We are not too close to the bottom of the crypt
+            // add random vector to the daughter and take it from the parent location
+            daughter_coords = parent_coords+random_vector;
+            parent_coords = parent_coords-random_vector;
         }
         else
-        {
-            daughter_coords[0] = parent_coords[0]-random_vector[0];
-            daughter_coords[1] = parent_coords[1]-random_vector[1]; 
+        {   // Leave the parent where it is and move daughter in a positive direction
+            // to ensure new cells are not born below y=0
+            if (random_vector(1)>0.0)
+            {
+                daughter_coords = parent_coords+random_vector;
+            }
+            else
+            {
+                daughter_coords = parent_coords-random_vector;
+            }
         }
+        assert(daughter_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
+        assert(parent_coords(1)>=0.0);// to make sure dividing cells stay in the crypt
     }
-    assert(daughter_coords[1]>=0.0);// to make sure dividing cells stay in the crypt
-    assert(parent_coords[1]>=0.0);// to make sure dividing cells stay in the crypt
+    else
+    {
+        daughter_coords = parent_coords+random_vector;
+        parent_coords = parent_coords-random_vector;
+    } 
+    
     // set the parent to use this location
     mrMesh.SetNode(node_index, parent_coords, false);
     return daughter_coords;
@@ -474,25 +499,27 @@ template<unsigned DIM>
 unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
 {
     unsigned num_deaths=0;
+    double crypt_length=mpParams->GetCryptLength();
+    double crypt_width=mpParams->GetCryptWidth();
     
     ///////////////////////////////////////////////////////////////////////////////////
     // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
     ///////////////////////////////////////////////////////////////////////////////////
-    for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
-         cell_iter != mCrypt.End();
-         ++cell_iter)
+    if(DIM==2)
     {
-        
-        double x = cell_iter.rGetLocation()[0];
-        double y = cell_iter.rGetLocation()[1];
-        
-        double crypt_length=mpParams->GetCryptLength();
-        double crypt_width=mpParams->GetCryptWidth();
-        
-        if ( (x>crypt_width) || (x<0.0) || (y>crypt_length))
+        // sloughing only happens in 2d
+        for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
+             cell_iter != mCrypt.End();
+             ++cell_iter)
         {
-            mIsGhostNode[cell_iter.GetNode()->GetIndex()] = true;
-            num_deaths++;
+            double x = cell_iter.rGetLocation()[0];
+            double y = cell_iter.rGetLocation()[1];
+
+            if ((x>crypt_width) || (x<0.0) || (y>crypt_length))
+            { 
+                mIsGhostNode[cell_iter.GetNode()->GetIndex()] = true;
+                num_deaths++;
+            }
         }
     }
     
@@ -1098,7 +1125,10 @@ void CryptSimulation2DPeriodic<DIM>::Solve()
     UpdateCellTypes();
     
     // Write initial conditions to file for the visualizer.
-    WriteVisualizerSetupFile(*p_setup_file);
+    if(DIM==2)
+    {
+        WriteVisualizerSetupFile(*p_setup_file);
+    }
     WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
                             tabulated_element_writer, element_writer_ids,
                             *p_node_file, *p_element_file,
@@ -1117,7 +1147,7 @@ void CryptSimulation2DPeriodic<DIM>::Solve()
         mNumBirths += DoCellBirth();
 
         //  calculate node velocities
-        std::vector<c_vector<double, 2> > drdt = CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double, DIM> > drdt = CalculateVelocitiesOfEachNode();
         
         // update node positions
         UpdateNodePositions(drdt);
