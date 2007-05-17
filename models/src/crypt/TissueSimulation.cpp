@@ -66,6 +66,7 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
     mpCellKiller = NULL;
     mNumBirths = 0;
     mNumDeaths = 0;
+    mIncludeSloughing = true ;
     
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     if (!p_simulation_time->IsStartTimeSetUp())
@@ -504,7 +505,7 @@ unsigned TissueSimulation<DIM>::DoCellRemoval()
     /////////////////////////////////////////////////////////////////////////
     // Alternate method of sloughing.  Turns boundary nodes into ghost nodes.
     /////////////////////////////////////////////////////////////////////////
-    if (DIM==2) // sloughing only happens in 2d
+    if (DIM==2 && mIncludeSloughing) // sloughing only happens in 2d
     {
         double crypt_length=mpParams->GetCryptLength();
         double crypt_width=mpParams->GetCryptWidth();
@@ -1021,6 +1022,11 @@ std::vector <bool> TissueSimulation<DIM>::GetGhostNodes()
     return mIsGhostNode;
 }
 
+template<unsigned DIM>
+void TissueSimulation<DIM>::SetNoSloughing()
+{
+    mIncludeSloughing = false ;
+}
 
 
 /**

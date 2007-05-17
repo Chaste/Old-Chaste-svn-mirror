@@ -84,6 +84,8 @@ private:
     /** Whether to remesh at each timestep or not (defaults to true).*/
     bool mReMesh;
     
+    bool mIncludeSloughing ;
+    
     /** Whether each node is ghosted-ified or not.*/
     std::vector <bool> mIsGhostNode;
 
@@ -114,7 +116,6 @@ private:
     
     /** Counts the number of deaths during the simulation */
     unsigned mNumDeaths;
-    
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -191,6 +192,7 @@ public:
     void SetGhostNodes(std::set<unsigned> ghostNodeIndices);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
+    void SetNoSloughing();
     void SetWntGradient(WntGradientType wntGradientType);
     void SetCellKiller(RandomCellKiller<DIM>* pCellKiller);
     std::vector<MeinekeCryptCell> GetCells();
