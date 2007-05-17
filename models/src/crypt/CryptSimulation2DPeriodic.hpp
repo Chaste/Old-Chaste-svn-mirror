@@ -14,30 +14,10 @@
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "Crypt.cpp"
+#include "CryptWriterStructs.hpp"
 #include <vector>
 
-/**
- * Structure encapsulating variable identifiers for the node datawriter
- */
-typedef struct node_writer_ids_t
-{
-    unsigned time;               /**< The simulation time */
-    std::vector<unsigned> types; /**< Cell types */
-    /** Cell positions */
-    std::vector<c_vector<unsigned, 3> > position_id;
-}
-node_writer_ids_t;
 
-/**
- * Structure encapsulating variable identifiers for the element datawriter
- */
-typedef struct element_writer_ids_t
-{
-    unsigned time;/**< The simulation time */
-    /** Node indices */
-    std::vector<c_vector<unsigned, 4> > node_id;
-}
-element_writer_ids_t;
 
 /**
  * Solve a 2D crypt simulation based on the Meineke paper.
@@ -67,7 +47,8 @@ class CryptSimulation2DPeriodic
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2DPeriodic;
-    
+    friend class TestSprings3d;
+        
 private:
     double mDt;
     double mEndTime;

@@ -13,8 +13,8 @@
 #include "OutputFileHandler.hpp"
 
 #include "CancerParameters.hpp"
-#include "ColumnDataReader.hpp"
-#include "SpheroidSimulation3D.hpp"
+//#include "SpheroidSimulation3D.hpp"
+#include "CryptSimulation2DPeriodic.cpp"
 #include "NodeMap.hpp"
 
 #include "MeinekeCryptCell.hpp"
@@ -33,7 +33,6 @@ class TestSprings3d : public CxxTest::TestSuite
        mesh_writer.WriteFilesUsingMesh(mesh);
 
        return mesh;
-
    }
    
    void CheckAgainstPreviousRun3D(std::string resultDirectory,std::string resultSet, unsigned maxCells, unsigned maxElements)
@@ -192,8 +191,9 @@ public:
 //         */
 //        
 //   }
-void TestOne3dElement() throw (Exception)
-   {
+
+    void TestOne3dElement() throw (Exception)
+    {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element");
         
         ConformingTetrahedralMesh<3,3> mesh;
@@ -217,30 +217,30 @@ void TestOne3dElement() throw (Exception)
         }
         
                 
-        SpheroidSimulation3D simulator = SpheroidSimulation3D(mesh,cells);
+        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
         simulator.SetMaxCells(40);
         simulator.SetMaxElements(40);
 
         // Test forces on springs
         unsigned nodeA = 0, nodeB = 1 ;
         Element<3,3>* p_element = mesh.GetElement(0);
-        c_vector<double, 3> drdt_contribution = simulator.CalculateForceInThisSpring(p_element,nodeA,nodeB);
+        c_vector<double, 3> force = simulator.CalculateForceInThisSpring(p_element,nodeA,nodeB);
         for(unsigned i=0; i < 3;i++)
         {
-            TS_ASSERT_DELTA(drdt_contribution[i],0.0,1e-6);
+            TS_ASSERT_DELTA(force[i],0.0,1e-6);
         }
         
         //  Test forces on nodes        
         for (unsigned i=0 ; i<1 ; i++)
         {
-            std::vector<std::vector<double> > forces = simulator.CalculateVelocitiesOfEachNode();
-            simulator.UpdateNodePositions(forces);
+            std::vector<c_vector<double,3> > velocities = simulator.CalculateVelocitiesOfEachNode();
+            simulator.UpdateNodePositions(velocities);
             
             for (unsigned j=0; j<4; j++)
             {
                 for(unsigned k=0;k<3;k++)
                 {
-                    TS_ASSERT_DELTA(forces[j][k],0.0,1e-6);
+                    TS_ASSERT_DELTA(velocities[j](k),0.0,1e-6);
                 }
             }
             
@@ -248,7 +248,7 @@ void TestOne3dElement() throw (Exception)
         TrianglesMeshWriter<3,3> mesh_writer("","3dSpringTetrahedronMeshEnd");
         mesh_writer.WriteFilesUsingMesh(mesh);    
         
-         /*
+        /*
          ************************************************************************
          ************************************************************************ 
          *  Scale entire mesh and check that forces are correctly calculated
@@ -268,13 +268,13 @@ void TestOne3dElement() throw (Exception)
             mesh.SetNode(i, new_point, false);            
         }
                
-        std::vector<std::vector<double> > new_forces = simulator.CalculateVelocitiesOfEachNode();
-        simulator.UpdateNodePositions(new_forces);
+        std::vector<c_vector<double,3> > new_velocities = simulator.CalculateVelocitiesOfEachNode();
+        simulator.UpdateNodePositions(new_velocities);
         for (unsigned j=0; j<4; j++)
         {
             for(unsigned k=0;k<3;k++)
             {
-                TS_ASSERT_DELTA(fabs(new_forces[j][k]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(scale_factor-1)*sqrt(2),1e-6);
+                TS_ASSERT_DELTA(fabs(new_velocities[j](k)),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(scale_factor-1)*sqrt(2),1e-6);
             }
         }
         
@@ -287,7 +287,7 @@ void TestOne3dElement() throw (Exception)
          */
         ConformingTetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
-        SpheroidSimulation3D simulator2 = SpheroidSimulation3D(mesh2,cells);
+        CryptSimulation2DPeriodic<3> simulator2(mesh2,cells);
         simulator2.SetMaxCells(40);
         simulator2.SetMaxElements(40);
         
@@ -307,20 +307,20 @@ void TestOne3dElement() throw (Exception)
          */
         unsigned nodeA2 = 0, nodeB2 = 1 ;
         Element<3,3>* p_element2 = mesh2.GetElement(0);
-        c_vector<double, 3> drdt_contribution2 = simulator2.CalculateForceInThisSpring(p_element2,nodeA2,nodeB2);
+        c_vector<double,3> force2 = simulator2.CalculateForceInThisSpring(p_element2,nodeA2,nodeB2);
         
         for(unsigned i=0; i < 3;i++)
         {
-            TS_ASSERT_DELTA(fabs(drdt_contribution2[i]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
+            TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
         
-        std::vector<std::vector<double> > new_forces2 = simulator2.CalculateVelocitiesOfEachNode();
+        std::vector<c_vector<double,3> > new_velocities2 = simulator2.CalculateVelocitiesOfEachNode();
         
         for(unsigned k=0;k<3;k++)
         {
-            TS_ASSERT_DELTA(new_forces2[0][k],p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
+            TS_ASSERT_DELTA(new_velocities2[0](k),p_params->GetSpringStiffness()/p_params->GetDampingConstantNormal()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
-        simulator2.UpdateNodePositions(new_forces2);
+        simulator2.UpdateNodePositions(new_velocities2);
         TrianglesMeshWriter<3,3> mesh_writer2("","3dSpringTetrahedronMeshEnd2");
         mesh_writer2.WriteFilesUsingMesh(mesh2);  
         
@@ -348,7 +348,7 @@ void TestOne3dElement() throw (Exception)
         cell.SetBirthTime(-50.0);
         cells2.push_back(cell);
         
-        SpheroidSimulation3D simulator3 = SpheroidSimulation3D(mesh3,cells2);
+        CryptSimulation2DPeriodic<3> simulator3(mesh3,cells2);
        
         TrianglesMeshWriter<3,3> mesh_writer3("Test3DCellBirth","StartMesh");
         mesh_writer3.WriteFilesUsingMesh(mesh3);
@@ -369,7 +369,7 @@ void TestOne3dElement() throw (Exception)
         mesh_writer4.WriteFilesUsingMesh(mesh3);
         
         TS_ASSERT_EQUALS(mesh3.GetNumNodes(),5u);
-        TS_ASSERT_EQUALS(mesh3.GetNumElements(),4u);
+        TS_ASSERT_EQUALS(mesh3.GetNumElements(),3u);
         
    }
    
@@ -404,7 +404,7 @@ void TestOne3dElement() throw (Exception)
         }
         
         
-        SpheroidSimulation3D simulator(mesh,cells);
+        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(2400);
         simulator.SetOutputDirectory("Test3DPrivateMemberDirectory");
@@ -475,7 +475,7 @@ void TestOne3dElement() throw (Exception)
             cells.push_back(cell);
         } 
         
-        SpheroidSimulation3D simulator(mesh,cells);
+        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2500);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
@@ -560,7 +560,7 @@ void TestOne3dElement() throw (Exception)
         TS_ASSERT(ghost_node_indices.size() < num_cells);
         TS_ASSERT(ghost_node_indices.size() > 0)
         
-        SpheroidSimulation3D simulator(mesh,cells);
+        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
         simulator.SetGhostNodes(ghost_node_indices);        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);

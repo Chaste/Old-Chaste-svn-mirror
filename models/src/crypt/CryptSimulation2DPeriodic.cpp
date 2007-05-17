@@ -31,7 +31,7 @@
  */
 template<unsigned DIM> 
 CryptSimulation2DPeriodic<DIM>::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
-                                                     std::vector<MeinekeCryptCell> cells)
+                                                          std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
           mCells(cells),
           mCrypt(rMesh, mCells)
@@ -414,8 +414,7 @@ c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateDividingCellCentr
     if(DIM==1)
     {
         random_vector(0)=0.5*separation;
-    }
-        
+    }   
     else if(DIM==2)
     {
         double random_angle = RandomNumberGenerator::Instance()->ranf();
