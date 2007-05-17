@@ -22,7 +22,7 @@
 //TODO: This should become abstract
 #include "RandomCellKiller.hpp"
 #include "OutputFileHandler.hpp"
-#include "CryptSimulation2DPeriodic.hpp"
+#include "TissueSimulation.hpp"
 #include "TrianglesMeshReader.hpp"
 
 /** Constructor
@@ -30,7 +30,7 @@
  *  should be called for any birth to happen.
  */
 template<unsigned DIM> 
-CryptSimulation2DPeriodic<DIM>::CryptSimulation2DPeriodic(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
+TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
                                                           std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
           mCells(cells),
@@ -80,7 +80,7 @@ CryptSimulation2DPeriodic<DIM>::CryptSimulation2DPeriodic(ConformingTetrahedralM
  * Free any memory allocated by the constructor
  */
 template<unsigned DIM> 
-CryptSimulation2DPeriodic<DIM>::~CryptSimulation2DPeriodic()
+TissueSimulation<DIM>::~TissueSimulation()
 {
     SimulationTime::Destroy();
 }
@@ -91,7 +91,7 @@ CryptSimulation2DPeriodic<DIM>::~CryptSimulation2DPeriodic()
 * Uses mMaxCells to decide how many variables to define.
 */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds)
+void TissueSimulation<DIM>::SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds)
 {
     rVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
     
@@ -129,7 +129,7 @@ void CryptSimulation2DPeriodic<DIM>::SetupNodeWriter(ColumnDataWriter& rNodeWrit
  * Uses mMaxCells to decide how many variables to define.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds)
+void TissueSimulation<DIM>::SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds)
 {
     rVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
     
@@ -161,7 +161,7 @@ void CryptSimulation2DPeriodic<DIM>::SetupElementWriter(ColumnDataWriter& rEleme
 }
 
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
+void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 {
     assert(DIM==2); // this is 2d specific
     rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(1u);// get furthest distance between nodes in the x-direciton
@@ -170,7 +170,7 @@ void CryptSimulation2DPeriodic<DIM>::WriteVisualizerSetupFile(std::ofstream& rSe
 
 
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
+void TissueSimulation<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
                                                          ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
                                                          std::ofstream& rNodeFile, std::ofstream& rElementFile,
                                                          bool writeTabulatedResults,
@@ -317,7 +317,7 @@ void CryptSimulation2DPeriodic<DIM>::WriteResultsToFiles(ColumnDataWriter& rNode
  * @return the number of births that occurred.
  */
 template<unsigned DIM>  
-unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
+unsigned TissueSimulation<DIM>::DoCellBirth()
 {
     unsigned num_births_this_step = 0;
     if (!mNoBirth && !mCells.empty())
@@ -402,7 +402,7 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellBirth()
  * 
  */
 template<unsigned DIM> 
-c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateDividingCellCentreLocations(unsigned node_index)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(unsigned node_index)
 {
     double separation = 0.1;
     c_vector<double, DIM> parent_coords = mrMesh.GetNode(node_index)->rGetLocation();
@@ -474,7 +474,7 @@ c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateDividingCellCentr
  *  mCells[i].GetNodeIndex() is equal to i
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::CheckIndicesAreInSync()
+void TissueSimulation<DIM>::CheckIndicesAreInSync()
 {
     if (!mCells.empty())
     {
@@ -496,7 +496,7 @@ void CryptSimulation2DPeriodic<DIM>::CheckIndicesAreInSync()
  * @return the number of deaths that occurred.
  */ 
 template<unsigned DIM> 
-unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
+unsigned TissueSimulation<DIM>::DoCellRemoval()
 {
     unsigned num_deaths=0;
     
@@ -540,7 +540,7 @@ unsigned CryptSimulation2DPeriodic<DIM>::DoCellRemoval()
  * @return drdt the x and y force components on each node
  */
 template<unsigned DIM>  
-std::vector<c_vector<double, DIM> > CryptSimulation2DPeriodic<DIM>::CalculateVelocitiesOfEachNode()
+std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOfEachNode()
 {
     std::vector<c_vector<double, DIM> > drdt(mrMesh.GetNumAllNodes());
     for (unsigned i=0; i<drdt.size(); i++)
@@ -666,7 +666,7 @@ std::vector<c_vector<double, DIM> > CryptSimulation2DPeriodic<DIM>::CalculateVel
  * @return the x and y forces in this spring
  */
 template<unsigned DIM> 
-c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceInThisSpring(Element<DIM,DIM>*& rPElement,const unsigned& rNodeA,const unsigned& rNodeB)
 {
     assert(rNodeA!=rNodeB);
     unsigned node_a_global_index = rPElement->GetNodeGlobalIndex(rNodeA);
@@ -686,7 +686,7 @@ c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceInThisSpring
  * @return The force exerted on Node A by Node B.
  */
 template<unsigned DIM> 
-c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
@@ -726,7 +726,7 @@ c_vector<double, DIM> CryptSimulation2DPeriodic<DIM>::CalculateForceBetweenNodes
  * @param rDrDt the x and y force components on each node.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
+void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
     for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
     {
@@ -798,7 +798,7 @@ void CryptSimulation2DPeriodic<DIM>::UpdateNodePositions(const std::vector< c_ve
 }
 
 template<unsigned DIM> 
-Point<DIM> CryptSimulation2DPeriodic<DIM>::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt)
+Point<DIM> TissueSimulation<DIM>::GetNewNodeLocation(const unsigned& rOldNodeIndex, const std::vector< c_vector<double, DIM> >& rDrDt)
 {
     Point<DIM> new_point(   mrMesh.GetNode(rOldNodeIndex)->rGetLocation()
                           + mDt*rDrDt[rOldNodeIndex]);
@@ -812,7 +812,7 @@ Point<DIM> CryptSimulation2DPeriodic<DIM>::GetNewNodeLocation(const unsigned& rO
  * dependent on a protein concentration when using the Wnt model.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::UpdateCellTypes()
+void TissueSimulation<DIM>::UpdateCellTypes()
 {
     if (!mCells.empty())
     {
@@ -839,7 +839,7 @@ void CryptSimulation2DPeriodic<DIM>::UpdateCellTypes()
  * that periodic boundaries are handled properly.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::ReMesh()
+void TissueSimulation<DIM>::ReMesh()
 {
     if(mReMesh)
     {
@@ -866,7 +866,7 @@ void CryptSimulation2DPeriodic<DIM>::ReMesh()
  * Set the timestep of the simulation
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetDt(double dt)
+void TissueSimulation<DIM>::SetDt(double dt)
 {
     assert(dt>0);
     mDt=dt;
@@ -876,14 +876,14 @@ void CryptSimulation2DPeriodic<DIM>::SetDt(double dt)
  * Sets the end time and resets the timestep to be endtime/100
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetEndTime(double endTime)
+void TissueSimulation<DIM>::SetEndTime(double endTime)
 {
     assert(endTime>0);
     mEndTime=endTime;
 }
 
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetOutputDirectory(std::string outputDirectory)
+void TissueSimulation<DIM>::SetOutputDirectory(std::string outputDirectory)
 {
     mOutputDirectory = outputDirectory;
 }
@@ -893,7 +893,7 @@ void CryptSimulation2DPeriodic<DIM>::SetOutputDirectory(std::string outputDirect
  * default value is set to 10x the initial mesh value by the constructor.
  */
 template<unsigned DIM>  
-void CryptSimulation2DPeriodic<DIM>::SetMaxCells(unsigned maxCells)
+void TissueSimulation<DIM>::SetMaxCells(unsigned maxCells)
 {
     mMaxCells = maxCells;
     if (maxCells<mrMesh.GetNumAllNodes())
@@ -909,7 +909,7 @@ void CryptSimulation2DPeriodic<DIM>::SetMaxCells(unsigned maxCells)
  * default value is set to 10x the initial mesh value by the constructor.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetMaxElements(unsigned maxElements)
+void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
 {
     mMaxElements = maxElements;
     if (maxElements<mrMesh.GetNumAllElements())
@@ -925,7 +925,7 @@ void CryptSimulation2DPeriodic<DIM>::SetMaxElements(unsigned maxElements)
  * \todo figure out what this does!
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetFixedBoundaries()
+void TissueSimulation<DIM>::SetFixedBoundaries()
 {
     mFixedBoundaries = true;    // This is called by a nightly test.
 }
@@ -937,7 +937,7 @@ void CryptSimulation2DPeriodic<DIM>::SetFixedBoundaries()
  * the constructor and the class is told about the ghost nodes by using this method.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
+void TissueSimulation<DIM>::SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
 {
     // First set all to not be ghost nodes
     for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)
@@ -956,7 +956,7 @@ void CryptSimulation2DPeriodic<DIM>::SetGhostNodes(std::vector<unsigned> ghostNo
  * Set whether the mesh should be remeshed at every time step.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetReMeshRule(bool remesh)
+void TissueSimulation<DIM>::SetReMeshRule(bool remesh)
 {
     mReMesh = remesh;
 }
@@ -965,7 +965,7 @@ void CryptSimulation2DPeriodic<DIM>::SetReMeshRule(bool remesh)
  * Set the simulation to run with no birth.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetNoBirth(bool nobirth)
+void TissueSimulation<DIM>::SetNoBirth(bool nobirth)
 {
     mNoBirth = nobirth;
 }
@@ -975,7 +975,7 @@ void CryptSimulation2DPeriodic<DIM>::SetNoBirth(bool nobirth)
  * You should supply cells with a wnt cell cycle...
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetWntGradient(WntGradientType wntGradientType)
+void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
 {
     mWntIncluded = true;
     mWntGradient = WntGradient(wntGradientType);
@@ -985,7 +985,7 @@ void CryptSimulation2DPeriodic<DIM>::SetWntGradient(WntGradientType wntGradientT
  * Set this simulation to use a cell killer
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellKiller)
+void TissueSimulation<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellKiller)
 {
     mpCellKiller=pCellKiller;
     mpCellKiller->SetCellsAndMesh(&mCells, &mrMesh);
@@ -998,7 +998,7 @@ void CryptSimulation2DPeriodic<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellK
  * \todo change this to return a const reference
  */
 template<unsigned DIM> 
-std::vector<MeinekeCryptCell> CryptSimulation2DPeriodic<DIM>::GetCells()
+std::vector<MeinekeCryptCell> TissueSimulation<DIM>::GetCells()
 {
     assert(mCells.size()>0);
     return mCells;
@@ -1009,7 +1009,7 @@ std::vector<MeinekeCryptCell> CryptSimulation2DPeriodic<DIM>::GetCells()
  * \todo change this to return a const reference
  */
 template<unsigned DIM> 
-std::vector <bool> CryptSimulation2DPeriodic<DIM>::GetGhostNodes()
+std::vector <bool> TissueSimulation<DIM>::GetGhostNodes()
 {
     return mIsGhostNode;
 }
@@ -1023,7 +1023,7 @@ std::vector <bool> CryptSimulation2DPeriodic<DIM>::GetGhostNodes()
  * @return the co-ordinates of this node.
  */
 template<unsigned DIM> 
-std::vector<double> CryptSimulation2DPeriodic<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
+std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNodeIndex)
 {
     std::vector<double> location;
     for(unsigned i=0; i<DIM; i++)
@@ -1039,7 +1039,7 @@ std::vector<double> CryptSimulation2DPeriodic<DIM>::GetNodeLocation(const unsign
  * Once CryptSimulation object has been set up, call this to run simulation
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::Solve()
+void TissueSimulation<DIM>::Solve()
 { 
     // Set up the simulation time
     SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -1200,7 +1200,7 @@ void CryptSimulation2DPeriodic<DIM>::Solve()
  * First archives simulation time then the simulation itself.
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::Save()
+void TissueSimulation<DIM>::Save()
 {
     SimulationTime* p_sim_time = SimulationTime::Instance();
     assert(p_sim_time->IsStartTimeSetUp());
@@ -1230,7 +1230,7 @@ void CryptSimulation2DPeriodic<DIM>::Save()
     // cast to const.
     const SimulationTime* p_simulation_time = SimulationTime::Instance();
     output_arch << *p_simulation_time;
-    output_arch << static_cast<const CryptSimulation2DPeriodic<DIM>&>(*this);
+    output_arch << static_cast<const TissueSimulation<DIM>&>(*this);
 }
 
 /**
@@ -1242,7 +1242,7 @@ void CryptSimulation2DPeriodic<DIM>::Save()
  * be one of the times at which the simulation.Save() was called)
  */
 template<unsigned DIM> 
-void CryptSimulation2DPeriodic<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
+void TissueSimulation<DIM>::Load(const std::string& rArchiveDirectory, const double& rTimeStamp)
 {
     std::ostringstream time_stamp;
     time_stamp << rTimeStamp;

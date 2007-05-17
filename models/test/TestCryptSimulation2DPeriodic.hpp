@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "CryptSimulation2DPeriodic.cpp"
+#include "TissueSimulation.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -263,7 +263,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);// true = mature cells
                
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory(output_directory);
         
         /* 
@@ -332,7 +332,7 @@ public:
         std::vector<MeinekeCryptCell> cells;        
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
                 
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         
         // Set length of simulation here
@@ -383,7 +383,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, WNT, false);
         
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicWntSaveAndLoad");
         
         // Our full end time is 0.2, here we run for half the time
@@ -439,7 +439,7 @@ public:
             cell.SetNodeIndex(i);
             cells.push_back(cell);
         }
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
 
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
@@ -511,7 +511,7 @@ public:
         // Set a stem cell to be an evil cancer cell and see what happens
         cells[27].SetMutationState(APC_TWO_HIT);
         
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DMutation");
         
         simulator.SetMaxCells(500);
@@ -554,7 +554,7 @@ public:
         CreateVectorOfCells(cells, *p_mesh, TYSONNOVAK, true);
         
         
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         
         // Set length of simulation here
@@ -618,7 +618,7 @@ public:
         
         cells[60].SetBirthTime(-50.0);
         
-        CryptSimulation2DPeriodic<2> simulator(mesh,cells);
+        TissueSimulation<2> simulator(mesh,cells);
         
         simulator.SetFixedBoundaries();
         
@@ -629,7 +629,7 @@ public:
         TS_ASSERT_EQUALS(num_deaths,11u);
         
         p_params->SetCryptLength(10.1);
-        CryptSimulation2DPeriodic<2> simulator2(mesh,cells);
+        TissueSimulation<2> simulator2(mesh,cells);
         
         simulator2.SetFixedBoundaries();
         
@@ -726,7 +726,7 @@ public:
             cells2.push_back(cell);
         }
         
-        CryptSimulation2DPeriodic<2> simulator3(*p_mesh2,cells2);
+        TissueSimulation<2> simulator3(*p_mesh2,cells2);
         simulator3.SetGhostNodes(ghost_node_indices2);
         
         simulator3.SetMaxCells(400);
@@ -917,7 +917,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
         
         // Test a conforming mesh
-        CryptSimulation2DPeriodic<2> simulator(conf_mesh);
+        TissueSimulation<2> simulator(conf_mesh);
         for (unsigned i=0 ; i<100 ; i++)
         {
             conf_mesh.SetNode(0u,location, false);
@@ -930,7 +930,7 @@ public:
         }
         
         // Test a cylindrical mesh
-        CryptSimulation2DPeriodic<2> simulator2(cyl_mesh);
+        TissueSimulation<2> simulator2(cyl_mesh);
         c_vector<double, 2> daughter_location = simulator2.CalculateDividingCellCentreLocations(0u);
         
         // Add the new node (to make the co-ords periodic)

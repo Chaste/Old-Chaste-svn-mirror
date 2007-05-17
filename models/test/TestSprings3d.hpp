@@ -13,8 +13,7 @@
 #include "OutputFileHandler.hpp"
 
 #include "CancerParameters.hpp"
-//#include "SpheroidSimulation3D.hpp"
-#include "CryptSimulation2DPeriodic.cpp"
+#include "TissueSimulation.cpp"
 #include "NodeMap.hpp"
 
 #include "MeinekeCryptCell.hpp"
@@ -217,7 +216,7 @@ public:
         }
         
                 
-        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
+        TissueSimulation<3> simulator(mesh,cells);
         simulator.SetMaxCells(40);
         simulator.SetMaxElements(40);
 
@@ -287,7 +286,7 @@ public:
          */
         ConformingTetrahedralMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
-        CryptSimulation2DPeriodic<3> simulator2(mesh2,cells);
+        TissueSimulation<3> simulator2(mesh2,cells);
         simulator2.SetMaxCells(40);
         simulator2.SetMaxElements(40);
         
@@ -348,7 +347,7 @@ public:
         cell.SetBirthTime(-50.0);
         cells2.push_back(cell);
         
-        CryptSimulation2DPeriodic<3> simulator3(mesh3,cells2);
+        TissueSimulation<3> simulator3(mesh3,cells2);
        
         TrianglesMeshWriter<3,3> mesh_writer3("Test3DCellBirth","StartMesh");
         mesh_writer3.WriteFilesUsingMesh(mesh3);
@@ -370,10 +369,10 @@ public:
         
         TS_ASSERT_EQUALS(mesh3.GetNumNodes(),5u);
         TS_ASSERT_EQUALS(mesh3.GetNumElements(),3u);
-        
-   }
-   
-   void TestPrivateFunctionsOfSpheroidSimulation3D() throw (Exception)
+    } 
+    
+
+    void TestPrivateFunctionsOfSpheroidSimulation3D() throw (Exception)
     {
         RandomNumberGenerator::Instance();
         
@@ -404,7 +403,7 @@ public:
         }
         
         
-        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
+        TissueSimulation<3> simulator(mesh,cells);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(2400);
         simulator.SetOutputDirectory("Test3DPrivateMemberDirectory");
@@ -442,9 +441,9 @@ public:
         
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
-        
     }
        
+ 
     void TestSolveMethodSpheroidSimulation3D() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -475,7 +474,7 @@ public:
             cells.push_back(cell);
         } 
         
-        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
+        TissueSimulation<3> simulator(mesh,cells);
         simulator.SetMaxCells(1000);
         simulator.SetMaxElements(2500);
         simulator.SetOutputDirectory("TestSolveMethodSpheroidSimulation3D");
@@ -492,6 +491,7 @@ public:
         mesh_writer2.WriteFilesUsingMesh(mesh);      
     }
     
+ 
     void TestGhostNodesSpheroidSimulation3D() throw (Exception)
     {
         double start_time = std::clock();
@@ -560,7 +560,7 @@ public:
         TS_ASSERT(ghost_node_indices.size() < num_cells);
         TS_ASSERT(ghost_node_indices.size() > 0)
         
-        CryptSimulation2DPeriodic<3> simulator(mesh,cells);
+        TissueSimulation<3> simulator(mesh,cells);
         simulator.SetGhostNodes(ghost_node_indices);        
         simulator.SetMaxCells(500);
         simulator.SetMaxElements(1000);

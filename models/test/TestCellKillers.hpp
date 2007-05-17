@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "CryptSimulation2DPeriodic.hpp"
+#include "TissueSimulation.hpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"

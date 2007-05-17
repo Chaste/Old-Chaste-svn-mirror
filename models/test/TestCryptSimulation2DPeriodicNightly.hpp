@@ -8,7 +8,7 @@
 
 #include <vector>
 #include "OutputFileHandler.hpp"
-#include "CryptSimulation2DPeriodic.cpp"
+#include "TissueSimulation.cpp"
 #include "MeinekeCryptCell.hpp"
 #include "FixedCellCycleModel.hpp"
 #include "StochasticCellCycleModel.hpp"
@@ -268,12 +268,12 @@ public:
         RandomNumberGenerator::Instance();
 
         // throws because start time not set on simulation time
-        TS_ASSERT_THROWS_ANYTHING(CryptSimulation2DPeriodic<2> simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
+        TS_ASSERT_THROWS_ANYTHING(TissueSimulation<2> simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/));
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
-        CryptSimulation2DPeriodic<2> simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/);
+        TissueSimulation<2> simulator(mesh, std::vector<MeinekeCryptCell>() /*empty*/);
         
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -337,7 +337,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, mesh, FIXED, true, 0.0, 3.0, 6.5, 8.0);
         
-        CryptSimulation2DPeriodic<2> simulator(mesh,cells);
+        TissueSimulation<2> simulator(mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsFixedBoundaries");
         simulator.SetEndTime(0.2); //hours
         simulator.SetMaxCells(800);
@@ -374,7 +374,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                 
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
         simulator.SetEndTime(12.0);
@@ -449,7 +449,7 @@ public:
             cells.push_back(cell);
         }
         
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh,cells);
+        TissueSimulation<2> simulator(*p_mesh,cells);
         simulator.SetOutputDirectory("Crypt2DSpringsCorrectCellNumbers");
         simulator.SetEndTime(40); //hours
         simulator.SetMaxCells(800);
@@ -528,7 +528,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
                
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicNightly");
         
         // Set length of simulation here
@@ -588,7 +588,7 @@ public:
         
         CreateVectorOfCells(cells, *p_mesh, WNT, true);
         
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicWntNightly");
         
         // Set length of simulation here
@@ -669,7 +669,7 @@ public:
             cells[i].SetMutationState(mutation_state);
         }
         
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicMutant");
         
         // Set length of simulation here
@@ -729,7 +729,7 @@ public:
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, *p_mesh, FIXED, true);
               
-        CryptSimulation2DPeriodic<2> simulator(*p_mesh, cells);
+        TissueSimulation<2> simulator(*p_mesh, cells);
         simulator.SetOutputDirectory("Crypt2DPeriodicNightlyDeath");
         
         // Set length of simulation here

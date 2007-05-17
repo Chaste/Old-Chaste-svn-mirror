@@ -1,5 +1,5 @@
-#ifndef CRYPTSIMULATION2DPERIODIC_HPP_
-#define CRYPTSIMULATION2DPERIODIC_HPP_
+#ifndef TISSUESIMULATION_HPP_
+#define TISSUESIMULATION_HPP_
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -14,9 +14,30 @@
 #include "RandomCellKiller.hpp"
 #include "TrianglesMeshReader.cpp"
 #include "Crypt.cpp"
-#include "CryptWriterStructs.hpp"
 #include <vector>
 
+/**
+ * Structure encapsulating variable identifiers for the node datawriter
+ */
+typedef struct node_writer_ids_t
+{
+    unsigned time;               /**< The simulation time */
+    std::vector<unsigned> types; /**< Cell types */
+    /** Cell positions */
+    std::vector<c_vector<unsigned, 3> > position_id;
+}
+node_writer_ids_t;
+
+/**
+ * Structure encapsulating variable identifiers for the element datawriter
+ */
+typedef struct element_writer_ids_t
+{
+    unsigned time;/**< The simulation time */
+    /** Node indices */
+    std::vector<c_vector<unsigned, 4> > node_id;
+}
+element_writer_ids_t;
 
 
 /**
@@ -42,7 +63,7 @@
  * the constructor and the class is told about the ghost nodes by using the method SetGhostNodes.
  */
 template<unsigned DIM>  
-class CryptSimulation2DPeriodic
+class TissueSimulation
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
@@ -94,13 +115,6 @@ private:
     /** Counts the number of deaths during the simulation */
     unsigned mNumDeaths;
     
-    /**
-     * Prevents multiple near-simultaneous cell divisions on the periodic boundary -
-     * once one cell has divided, other divisions are postponed for a couple of 
-     * timesteps, until this counter reaches 0.  This is to cope with re-meshing 
-     * issues; would be nice to get rid of it eventually.
-     */
-    unsigned mPeriodicDivisionBuffer;
     
     friend class boost::serialization::access;
     template<class Archive>
@@ -163,10 +177,10 @@ private:
 
 public:
 
-    CryptSimulation2DPeriodic(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
+    TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
                               std::vector<MeinekeCryptCell> cells = std::vector<MeinekeCryptCell>());
                               
-    ~CryptSimulation2DPeriodic();
+    ~TissueSimulation();
     
     void SetDt(double dt);
     void SetEndTime(double endTime);
@@ -189,4 +203,4 @@ public:
     void Load(const std::string& rArchiveDirectory, const double& rTimeStamp);
 };
 
-#endif /*CRYPTSIMULATION2DPERIODIC_HPP_*/
+#endif /*TISSUESIMULATION_HPP_*/
