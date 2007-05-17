@@ -188,7 +188,7 @@ public:
     void SetMaxCells(unsigned maxCells);
     void SetMaxElements(unsigned maxElements);
     void SetFixedBoundaries();
-    void SetGhostNodes(std::vector<unsigned> ghostNodeIndices);
+    void SetGhostNodes(std::set<unsigned> ghostNodeIndices);
     void SetReMeshRule(bool remesh);
     void SetNoBirth(bool nobirth);
     void SetWntGradient(WntGradientType wntGradientType);

@@ -23,7 +23,7 @@ class CryptHoneycombMeshGenerator
 private:
     ConformingTetrahedralMesh<2,2>* mpMesh;
     Cylindrical2dMesh* mpCylindricalMesh;
-    std::vector<unsigned> mGhostNodeIndices;
+    std::set<unsigned> mGhostNodeIndices;
     std::string mMeshFilename;
     double mCryptWidth;
     double mCryptDepth;
@@ -192,7 +192,7 @@ private:
             double y = mpMesh->GetNode(i)->GetPoint().rGetLocation()[1];
             if ((x<0)||(x>mCryptWidth*(1.0+0.5/(double)mNumCellWidth))||(y>mCryptDepth)||(y<-1e-6))
             {
-                mGhostNodeIndices.push_back(i);
+                mGhostNodeIndices.insert(i);
             }
         }
     }
@@ -207,7 +207,7 @@ private:
             double y = mpCylindricalMesh->GetNode(i)->GetPoint().rGetLocation()[1];
             if ((x<0)||(x>=mCryptWidth)||(y>mCryptDepth)||(y<-1e-6))
             {
-               mGhostNodeIndices.push_back(i);
+               mGhostNodeIndices.insert(i);
             }
         }
     }
@@ -342,7 +342,7 @@ public:
         return mpCylindricalMesh;
     }
     
-    std::vector<unsigned> GetGhostNodeIndices()
+    std::set<unsigned> GetGhostNodeIndices()
     {
         return mGhostNodeIndices;
     }

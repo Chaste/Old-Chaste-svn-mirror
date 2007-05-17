@@ -367,7 +367,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 6.0, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         p_params->SetCryptLength(crypt_length);
         p_params->SetCryptWidth(crypt_width);
@@ -416,7 +416,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 2u, false);
         ConformingTetrahedralMesh<2,2>* p_mesh=generator.GetMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         double crypt_width = num_cells_width - 1.0;
         double crypt_length = num_cells_depth - 1.0;
@@ -524,7 +524,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -583,7 +583,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -645,7 +645,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -725,7 +725,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);

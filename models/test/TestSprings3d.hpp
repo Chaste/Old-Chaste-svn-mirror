@@ -519,7 +519,7 @@ public:
         spheroid_centre[1] = 0.5*((double) height);
         spheroid_centre[2] = 0.5*((double) depth);
         
-        std::vector<unsigned> ghost_node_indices;
+        std::set<unsigned> ghost_node_indices;
 
         for (unsigned i=0; i<num_cells; i++)
         {
@@ -546,7 +546,7 @@ public:
             }
             if ( norm_2(node_location - spheroid_centre) > 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
             {
-                ghost_node_indices.push_back(i);
+                ghost_node_indices.insert(i);
             }
                 
             cell_type = STEM;

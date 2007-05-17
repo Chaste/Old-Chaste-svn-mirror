@@ -11,6 +11,7 @@
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include <set>
 #include "TrianglesMeshWriter.cpp"
 #include "Exception.hpp"
 #include "SimulationTime.hpp"
@@ -548,7 +549,7 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
         drdt[i]=zero_vector<double>(DIM);
     }
 
-    std::vector<std::vector<unsigned> > node_pairs_checked;
+    std::set<std::set<unsigned> > node_pairs_checked;
 
     ////////////////////////////////////////////////////////////////////
     // loop over element and for each one loop over its three edges
@@ -575,24 +576,26 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
                     // check whether we have already worked out the force between these two...
                     bool is_force_already_calculated = false;
                     
-                    for (unsigned i=0; i<node_pairs_checked.size(); i++)
+                    std::set<unsigned> current_node_pair;
+                    current_node_pair.insert(nodeA_global_index);
+                    current_node_pair.insert(nodeB_global_index);
+                    
+                    // see if the node pair is in the set of node pairs done
+                    std::set<std::set<unsigned> >::iterator set_iter = node_pairs_checked.find(current_node_pair);                    
+                    if(set_iter!=node_pairs_checked.end())
                     {
-                        std::vector<unsigned> node_pair = node_pairs_checked[i];
-                        if(node_pair[0]==nodeA_global_index || node_pair[1]==nodeA_global_index)
-                        { 
-                            // first node is in node_pair
-                            if(node_pair[0]==nodeB_global_index || node_pair[1]==nodeB_global_index)
-                            {
-                                // both are in node_pair
-                                is_force_already_calculated = true;
-                                break;
-                            } 
-                        } 
-                    } 
+                        // node pair found
+                        is_force_already_calculated = true;
+                    }
+                    else
+                    {
+                        is_force_already_calculated = false;
+                        // add the node pair to the list of node pairs
+                        node_pairs_checked.insert(current_node_pair);
+                    }
                     
                     if(!is_force_already_calculated)
                     {
-                        
                         c_vector<double, DIM> force = CalculateForceInThisSpring(p_element,nodeA,nodeB);
                          
                         double damping_constantA = mpParams->GetDampingConstantNormal();
@@ -646,11 +649,6 @@ std::vector<c_vector<double, DIM> > TissueSimulation<DIM>::CalculateVelocitiesOf
                                 drdt[ p_element->GetNode(nodeB)->GetIndex()] -= force / damping_constantB;
                             }
                         }
-    
-                        std::vector<unsigned> this_pair;
-                        this_pair.push_back(nodeA_global_index);
-                        this_pair.push_back(nodeB_global_index);
-                        node_pairs_checked.push_back(this_pair);
                     }
                 }
             }
@@ -937,18 +935,27 @@ void TissueSimulation<DIM>::SetFixedBoundaries()
  * the constructor and the class is told about the ghost nodes by using this method.
  */
 template<unsigned DIM> 
-void TissueSimulation<DIM>::SetGhostNodes(std::vector<unsigned> ghostNodeIndices)
+void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
 {
     // First set all to not be ghost nodes
     for (unsigned i=0 ; i<mIsGhostNode.size() ; i++)
     {
         mIsGhostNode[i] = false;
     }
-    // then update which ones are.
-    for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
+ 
+    std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
+    while(iter!=ghostNodeIndices.end())
     {
-        mIsGhostNode[ghostNodeIndices[i]]=true;
+        mIsGhostNode[*iter]=true;
+        iter++;
     }
+   
+// 
+//    // then update which ones are.
+//    for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
+//    {
+//        mIsGhostNode[ghostNodeIndices[i]]=true;
+//    }
     
 }
 

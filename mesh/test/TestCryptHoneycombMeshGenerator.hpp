@@ -81,12 +81,20 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], (ghosts+num_cells_depth-1)*sqrt(3.0)/2.0,1e-4);
         
         // check the ghost nodes
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> correct_ghost_node_indices;
+         
         for (unsigned i=0; i< num_cells_width*ghosts ; i++)
         {
-            TS_ASSERT_EQUALS(ghost_node_indices[i],i);
+            correct_ghost_node_indices.insert(i);
         }
-        TS_ASSERT_EQUALS(ghost_node_indices[num_cells_width*ghosts+1],(ghosts+num_cells_depth)*num_cells_width+1);
+        
+        correct_ghost_node_indices.insert( (ghosts+num_cells_depth)*num_cells_width+1 );
+        bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
+                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
+        
+        TS_ASSERT_EQUALS(all_included, true);
+
         
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
@@ -135,13 +143,21 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], x_factor*(ghosts+num_cells_depth-1)*sqrt(3.0)/2.0,1e-4);
         
         // check the ghost nodes
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> correct_ghost_node_indices;
+         
         for (unsigned i=0; i< num_cells_width*ghosts ; i++)
         {
-            TS_ASSERT_EQUALS(ghost_node_indices[i],i);
+            correct_ghost_node_indices.insert(i);
         }
-        TS_ASSERT_EQUALS(ghost_node_indices[num_cells_width*ghosts+1],(ghosts+num_cells_depth)*num_cells_width+1);
         
+        correct_ghost_node_indices.insert( (ghosts+num_cells_depth)*num_cells_width+1 );
+        bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
+                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
+        
+        TS_ASSERT_EQUALS(all_included, true);
+
+
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), x_factor*(double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), x_factor*sqrt(3)*num_cells_depth/2.0, 1e-7);
@@ -192,14 +208,21 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-5);
         
         // check the ghost nodes
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> correct_ghost_node_indices;
+         
         for (unsigned i=0; i<this_many_ghosts_at_start; i++)
         {
-            TS_ASSERT(ghost_node_indices[i]==i);
+            correct_ghost_node_indices.insert(i);
         }
-        // Check that the next ghost node is the other side of the stem cells...
-        TS_ASSERT_EQUALS(ghost_node_indices[this_many_ghosts_at_start],this_many_ghosts_at_start+num_cells_width+1)
+        
+        correct_ghost_node_indices.insert( this_many_ghosts_at_start+num_cells_width+1 );
+        bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
+                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
+        
+        TS_ASSERT_EQUALS(all_included, true);
+
+
                 
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
@@ -250,14 +273,20 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetNode(last_node)->GetPoint()[1], last_node_y,1e-6);
         
         // check the ghost nodes
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
-        
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> correct_ghost_node_indices;
+         
         for (unsigned i=0; i<this_many_ghosts_at_start; i++)
         {
-            TS_ASSERT(ghost_node_indices[i]==i);
+            correct_ghost_node_indices.insert(i);
         }
-        // Check that the next ghost node is the other side of the stem cells...
-        TS_ASSERT_EQUALS(ghost_node_indices[this_many_ghosts_at_start],this_many_ghosts_at_start+num_cells_width+1)
+        
+        correct_ghost_node_indices.insert( this_many_ghosts_at_start+num_cells_width+1 );
+        bool all_included = includes(ghost_node_indices.begin(), ghost_node_indices.end(),
+                                     correct_ghost_node_indices.begin(),correct_ghost_node_indices.end());
+        
+        TS_ASSERT_EQUALS(all_included, true);
+
                 
         CancerParameters* p_params = CancerParameters::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);

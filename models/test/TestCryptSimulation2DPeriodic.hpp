@@ -257,7 +257,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
@@ -323,7 +323,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -374,7 +374,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -421,7 +421,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -499,7 +499,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -544,7 +544,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
-        std::vector<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices = generator.GetGhostNodeIndices();
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -672,7 +672,7 @@ public:
         
         CryptHoneycombMeshGenerator generator(cells_across2, cells_up2, crypt_width2,thickness_of_ghost_layer2,false);
         ConformingTetrahedralMesh<2,2>* p_mesh2=generator.GetMesh();
-        std::vector<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices();
+        std::set<unsigned> ghost_node_indices2 = generator.GetGhostNodeIndices();
         unsigned num_cells2 = p_mesh2->GetNumAllNodes();
         
         CancerParameters *p_params = CancerParameters::Instance();
@@ -785,19 +785,12 @@ public:
         std::vector<c_vector<double, 2> > velocities_on_each_node(p_mesh2->GetNumAllNodes());
         
         velocities_on_each_node = simulator3.CalculateVelocitiesOfEachNode();
-        bool is_a_ghost_node;
-
-        
+ 
         for (unsigned i=0; i<p_mesh2->GetNumAllNodes(); i++)
         {
-            is_a_ghost_node = false;
-            for (unsigned j=0; j<ghost_node_indices2.size(); j++)
-            {
-                if (ghost_node_indices2[j]==i)
-                {
-                    is_a_ghost_node = true;
-                }
-            }
+            std::set<unsigned>::iterator iter = ghost_node_indices2.find(i);
+            bool is_a_ghost_node = (iter!=ghost_node_indices2.end());
+
             if (!is_a_ghost_node)
             {
                 TS_ASSERT_DELTA(velocities_on_each_node[i][0], 0.0, 1e-4);
