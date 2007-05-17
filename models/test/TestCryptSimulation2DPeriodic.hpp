@@ -591,6 +591,21 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+    
+    /*
+     * This test compares the visualizer output from the previous test with a known file.
+     * 
+     * Note - if the previous test is changed we need to update the file this test refers to. 
+     */
+    void TestVisualizerOutput() throw (Exception)
+    {
+        // work out where the previous test wrote its files
+        OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
+        std::string results_dir = handler.GetTestOutputDirectory() + "results_from_time_0/vis_results";
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizelements models/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.viznodes models/test/data/Crypt2DPeriodicTysonNovak_vis/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/results.vizsetup models/test/data/Crypt2DPeriodicTysonNovak_vis/results.vizsetup").c_str()), 0);
+    }
    
     
     

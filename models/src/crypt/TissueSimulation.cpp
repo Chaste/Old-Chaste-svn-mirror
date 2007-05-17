@@ -281,7 +281,7 @@ void TissueSimulation<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, n
         {
             if (writeVisualizerResults)
             {
-                for(unsigned i=0; i<DIM; i++)
+                for(unsigned i=0; i<DIM+1; i++)
                 {
                     rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
                 }
