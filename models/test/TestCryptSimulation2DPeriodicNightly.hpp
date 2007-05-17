@@ -178,7 +178,7 @@ class TestCryptSimulation2DPeriodicNightly : public CxxTest::TestSuite
             }
             
             
-            double birth_time = 0.0;
+            double birth_time = -2.0;
             
             if (y <= y0)
             {
@@ -247,11 +247,18 @@ public:
 
 ///////// NON-PERIODIC TESTS - These test the spring system and cell birth etc. ----------
 
-    // Test the spring system. There are no cells in this test, therefore no birth, although
-    // nodes are sloughed. The mesh is initially a set of 10 by 10 squares, each square made
+    // Test the spring system. The cells in this test are given an intial
+    // age of 2.0 so that their springs are at their natural length
+    // i.e. we set birth time=-2.0. (There used to be no cells in this test)
+    // The mesh is initially a set of 10 by 10 squares, each square made
     // up of two triangles. The horizontal and vertical edges (springs) are at rest length, the
     // diagonals are two long, so this means the mesh skews to a (sloughed) parallelogram, each
     // triangle trying to become equilateral.
+    //
+    // If you want to view the results visually set the end time
+    // to 24.0 and it will look like a parallelogram.
+    // However we keep the simulation time at 1.0 to make
+    // the test short.
     void Test2DSpringSystemWithSloughing() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
@@ -272,12 +279,21 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
+<<<<<<< .mine
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        CreateVectorOfCells(cells, mesh, FIXED, false, 0.0, 3.0, 6.5, 8.0);
+        
+        TissueSimulation<2> simulator(mesh, cells);
+=======
         
         // Set up cells
         std::vector<MeinekeCryptCell> cells;
         CreateVectorOfCells(cells, mesh, FIXED, true, 0.0, 3.0, 6.5, 8.0);
         
         TissueSimulation<2> simulator(mesh,cells);
+>>>>>>> .r2112
         
         // destroy the simulation time class because of failed solve
         SimulationTime::Destroy();
@@ -293,9 +309,8 @@ public:
         
         simulator.SetOutputDirectory("Crypt2DSprings");
 
-        //simulator.SetEndTime(24.0);
-        // We need faster tests
         simulator.SetEndTime(1.0);
+        simulator.SetNoBirth(true);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxCells(90));
         simulator.SetMaxCells(400);
         TS_ASSERT_THROWS_ANYTHING(simulator.SetMaxElements(90));

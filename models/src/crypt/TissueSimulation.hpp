@@ -69,7 +69,7 @@ class TissueSimulation
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2DPeriodic;
     friend class TestSprings3d;
-        
+    
 private:
     double mDt;
     double mEndTime;
