@@ -944,20 +944,13 @@ void TissueSimulation<DIM>::SetGhostNodes(std::set<unsigned> ghostNodeIndices)
         mIsGhostNode[i] = false;
     }
  
+    // then update which ones are.
     std::set<unsigned>::iterator iter = ghostNodeIndices.begin();
     while(iter!=ghostNodeIndices.end())
     {
         mIsGhostNode[*iter]=true;
         iter++;
     }
-   
-// 
-//    // then update which ones are.
-//    for (unsigned i = 0; i<ghostNodeIndices.size(); i++)
-//    {
-//        mIsGhostNode[ghostNodeIndices[i]]=true;
-//    }
-    
 }
 
 /**
