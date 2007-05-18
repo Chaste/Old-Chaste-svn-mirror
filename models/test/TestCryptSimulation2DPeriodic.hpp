@@ -243,7 +243,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     }
 public:
 
-    void NoTest2DCylindrical() throw (Exception)
+    void Test2DCylindrical() throw (Exception)
     {        
         std::string output_directory = "Crypt2DCylindrical";
         
@@ -310,7 +310,7 @@ public:
     // So bizarrely the crypt shrinks as the rest lengths are shortened! 
     // But at least it uses Wnt cell cycle and runs reasonably quickly...
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void NoTestWithWntDependentCells() throw (Exception)
+    void TestWithWntDependentCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -361,7 +361,7 @@ public:
     
 
     // Testing Save (based on previous test)
-    void NoTestSave() throw (Exception)
+    void TestSave() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -407,7 +407,7 @@ public:
     
 
     // Testing Load (based on previous two tests)
-    void NoTestLoad() throw (Exception)
+    void TestLoad() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -486,7 +486,7 @@ public:
     // So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
     // cell cycle and runs reasonably quickly...
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void NoTestWithWntDependentCellsAndAMutation() throw (Exception)
+    void TestWithWntDependentCellsAndAMutation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -531,7 +531,7 @@ public:
     
     // This is strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though...
-    void NoTestWithTysonNovakCells() throw (Exception)
+    void TestWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in T&N
@@ -597,7 +597,7 @@ public:
      * 
      * Note - if the previous test is changed we need to update the file this test refers to. 
      */
-    void NoTestVisualizerOutput() throw (Exception)
+    void TestVisualizerOutput() throw (Exception)
     {
         // work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
@@ -609,7 +609,7 @@ public:
    
     
     
-    void NoTestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
+    void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
@@ -656,7 +656,7 @@ public:
     }
     
     
-    void NoTestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
+    void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
     {
         /*
          ************************************************************************
