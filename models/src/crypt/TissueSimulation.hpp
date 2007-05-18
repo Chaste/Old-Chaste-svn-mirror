@@ -176,6 +176,7 @@ private:
 
     void CheckIndicesAreInSync();
 
+
 public:
 
     TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,

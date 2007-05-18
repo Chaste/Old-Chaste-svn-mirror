@@ -106,5 +106,50 @@ typename Crypt<DIM>::Iterator Crypt<DIM>::End()
     return Iterator(*this, mrCells.size(), mrMesh.GetNumNodes());
 }
 
+template<unsigned DIM>
+void Crypt<DIM>::UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt)
+{
+    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+    {
+        if ((!mrMesh.GetNode(index)->IsDeleted()) && (*mpGhostNodes)[index])
+        {
+            Point<DIM> new_point(mrMesh.GetNode(index)->rGetLocation() + dt*rDrDt[index]);
+            mrMesh.SetNode(index, new_point, false);
+        }
+    }
+}
 
+template<unsigned DIM>
+void Crypt<DIM>::MoveCell(Iterator iter, Point<DIM>& rNewLocation)
+{
+    unsigned index = iter.GetNode()->GetIndex();
+    mrMesh.SetNode(index, rNewLocation, false);
+}
 
+template<unsigned DIM>  
+void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocation)
+{
+    Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), newLocation, false);   // never on boundary
+                
+    NodeMap map(mrMesh.GetNumNodes());
+    unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
+
+    newCell.SetNodeIndex(new_node_index);
+    if (new_node_index == mrCells.size())
+    {
+        mrCells.push_back(newCell);
+    }
+    else
+    {
+        #define COVERAGE_IGNORE
+        mrCells[new_node_index] = newCell;
+        #undef COVERAGE_IGNORE
+    }
+
+    // Update size of IsGhostNode if necessary
+    if (mrMesh.GetNumNodes() > mpGhostNodes->size())
+    {
+        mpGhostNodes->resize(mrMesh.GetNumNodes());
+        (*mpGhostNodes)[new_node_index] = false;
+    }   
+}

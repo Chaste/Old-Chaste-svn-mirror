@@ -311,6 +311,9 @@ void TissueSimulation<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, n
 }
 
 
+
+
+
 /**
  * During a simulation time step, process any cell divisions that need to occur.
  * If the simulation includes cell birth, causes (almost) all cells that are ready to divide
@@ -357,33 +360,10 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 // Add a new node to the mesh
                 unsigned parent_node_index = p_our_node->GetIndex();
                 c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(parent_node_index);
-                Node<DIM>* p_new_node = new Node<DIM>(mrMesh.GetNumNodes(), new_location, false);   // never on boundary
                 
-                NodeMap map(mrMesh.GetNumNodes());
-                unsigned new_node_index = mrMesh.AddNodeAndReMesh(p_new_node,map);
-                // Go through all the cells and update their node indices according to the map
-//                    for (unsigned i=0 ; i<mCells.size(); i++)
-//                    {
-//                        unsigned old_index = mCells[i].GetNodeIndex();
-//                        mCells[i].SetNodeIndex(map.GetNewIndex(old_index));
-//                    }
-                new_cell.SetNodeIndex(new_node_index);
-                if (new_node_index == mCells.size())
-                {
-                    mCells.push_back(new_cell);
-                }
-                else
-                {
-                    #define COVERAGE_IGNORE
-                    mCells[new_node_index] = new_cell;
-                    #undef COVERAGE_IGNORE
-                }
-                // Update size of IsGhostNode if necessary
-                if (mrMesh.GetNumNodes() > mIsGhostNode.size())
-                {
-                    mIsGhostNode.resize(mrMesh.GetNumNodes());
-                    mIsGhostNode[new_node_index] = false;
-                }
+                mCrypt.AddCell(new_cell, new_location);
+                
+                
                 num_births_this_step++;
             } // if (ready to divide)
         } // cell iteration loop
@@ -727,73 +707,79 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateForceBetweenNodes(const un
 template<unsigned DIM> 
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rDrDt)
 {
-    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
+
+    // Iterate over all cells, seeing if each one can be divided
+    for (typename Crypt<DIM>::Iterator cell_iter = mCrypt.Begin();
+         cell_iter != mCrypt.End();
+         ++cell_iter)
     {
-        if (!mrMesh.GetNode(index)->IsDeleted())
+        MeinekeCryptCell& cell = *cell_iter;
+        // Node<DIM>* p_our_node = cell_iter.GetNode();
+        unsigned index = cell.GetNodeIndex();
+        
+        Point<DIM> new_point = GetNewNodeLocation(index, rDrDt);
+        
+        if(DIM==2)
         {
-            Point<DIM> new_point = GetNewNodeLocation(index, rDrDt);
-            
-            if(DIM==2)
+            // TODO: simplify/remove these 2d cases
+            if (mFixedBoundaries)
             {
-                // TODO: simplify/remove these 2d cases
-                if (mFixedBoundaries)
+                assert(DIM==2);
+                c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
+                // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
+                if (   node_position[1]>0
+                    && node_position[1]<mpParams->GetCryptLength()
+                    && node_position[0]>0
+                    && node_position[0]<mpParams->GetCryptWidth() )
                 {
-                    assert(DIM==2);
-                    c_vector<double, 2> node_position = mrMesh.GetNode(index)->rGetLocation();
-                    // All Boundaries x=0, x=crypt_width, y=0, y=crypt_length.
-                    if (   node_position[1]>0
-                        && node_position[1]<mpParams->GetCryptLength()
-                        && node_position[0]>0
-                        && node_position[0]<mpParams->GetCryptWidth() )
-                    {
-                        mrMesh.SetNode(index, new_point, false);
-                    }
+                    mCrypt.MoveCell(cell_iter, new_point);
                 }
-                else if (mCells.size()>0)
-                {
-                    if (mWntIncluded)
-                    {   // A new Wnt feature - even stem cells can move as long as they don't go below zero.
-                        if ( (new_point.rGetLocation()[1] < 0.0) && !mIsGhostNode[index])
-                        {
-                            new_point.rGetLocation()[1] = 0.0;
-                        }
-                        mrMesh.SetNode(index, new_point, false);
-                    }
-                    else
+            }
+            else if (mCells.size()>0)
+            {
+                if (mWntIncluded)
+                {   // A new Wnt feature - even stem cells can move as long as they don't go below zero.
+                    if ( (new_point.rGetLocation()[1] < 0.0) && !mIsGhostNode[index])
                     {
-                        // THE 'USUAL' SCENARIO move any node as long as it is not a real stem cell.
-                        if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
-                        {   
-                            // if a cell wants to move below y<0 (most likely because it was
-                            // just born from a stem cell), stop it doing so
-                            if ( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
-                            {
-                                // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
-                                // it is a bit of a hack to make it work nicely!
-                                new_point.rGetLocation()[1] = 0.01;
-                            }
-                            mrMesh.SetNode(index, new_point, false);
-                        }
+                        new_point.rGetLocation()[1] = 0.0;
                     }
+                    mCrypt.MoveCell(cell_iter, new_point);
                 }
                 else
                 {
-                    // NOTE: once springs in their own tested class all crypt simulations should have cells, 
-                    // so delete this:
-                    // no cells, just fix any node on line y=0
-                    if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
-                    {
-                        mrMesh.SetNode(index, new_point, false);
+                    // THE 'USUAL' SCENARIO move any node as long as it is not a real stem cell.
+                    if (mCells[index].GetCellType()!=STEM || mIsGhostNode[index])
+                    {   
+                        // if a cell wants to move below y<0 (most likely because it was
+                        // just born from a stem cell), stop it doing so
+                        if ( (new_point.rGetLocation()[1] < 0.0) && (!mIsGhostNode[index]))
+                        {
+                            // Here we give the cell a push upwards so that it doesn't get stuck on y=0 for ever.
+                            // it is a bit of a hack to make it work nicely!
+                            new_point.rGetLocation()[1] = 0.01;
+                        }
+                        mCrypt.MoveCell(cell_iter, new_point);
                     }
                 }
             }
             else
             {
-                // 1d or 3d
-                mrMesh.SetNode(index, new_point, false);
+                // NOTE: once springs in their own tested class all crypt simulations should have cells, 
+                // so delete this:
+                // no cells, just fix any node on line y=0
+                if (mrMesh.GetNode(index)->rGetLocation()[1]>0)
+                {
+                    mCrypt.MoveCell(cell_iter, new_point);
+                }
             }
         }
+        else
+        {
+            // 1d or 3d
+            mCrypt.MoveCell(cell_iter, new_point);
+        }
     }
+    mCrypt.UpdateGhostPositions(rDrDt,mDt);
 }
 
 template<unsigned DIM> 

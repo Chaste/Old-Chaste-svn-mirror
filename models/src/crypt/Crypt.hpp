@@ -19,6 +19,7 @@ private:
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
     std::vector<MeinekeCryptCell>& mrCells;
     /** Records which nodes are ghosts */
+    /** \TODO change from std::vector<bool> to std::set<unsigned> **/
     std::vector<bool>* mpGhostNodes;
     
 public:
@@ -34,6 +35,16 @@ public:
     std::vector<MeinekeCryptCell>& rGetCells();
     std::vector<bool>& rGetGhostNodes();
     void SetGhostNodes(std::vector<bool>&);
+    
+    /**
+     * Update the GhostNode positions using the rDrDt vector from the simulation.
+     * Later on we will make this method private and rDrDt can be calculated within this class.
+     */
+    void UpdateGhostPositions(const std::vector< c_vector<double, DIM> >& rDrDt, double dt);
+    
+    //void MoveCell(Crypt<DIM>::Iterator iter, c_vector<double, DIM>& rNewLocation);
+    
+    
     
     /**
      * Iterator class allows one to iterate over cells in the crypt.
@@ -71,6 +82,7 @@ public:
          * Constructor for a new iterator.
          */
         Iterator(Crypt& rCrypt, unsigned cellIndex, unsigned nodeIndex);
+        
     private:
         /**
          * Private helper function which tells us if we're pointing at a real cell.
@@ -84,6 +96,11 @@ public:
         unsigned mCellIndex;
         unsigned mNodeIndex;
     };
+    
+    
+    void MoveCell(Iterator iter, Point<DIM>& rNewLocation);
+    
+    void AddCell(MeinekeCryptCell cell, c_vector<double,DIM> newLocation);
 
     /**
      * @return iterator pointing to the first cell in the crypt
