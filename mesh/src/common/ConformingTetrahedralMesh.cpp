@@ -340,10 +340,7 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
-    if (index >= mNodes.size())
-    {
-        assert(index < mNodes.size());
-    }
+    assert(index < mNodes.size());
     return (mNodes[index]);
 }
 
