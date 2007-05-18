@@ -1,3 +1,6 @@
+#ifndef CRYPT_CPP
+#define CRYPT_CPP
+
 #include "Crypt.hpp"
 
 template<unsigned DIM>
@@ -6,9 +9,18 @@ Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
              : mrMesh(rMesh),
                mrCells(rCells)
 {
+    mSelfSetGhostNodes=true;
+    mpGhostNodes=new std::vector<bool>(mrMesh.GetNumNodes(), false);
 }
 
-
+template<unsigned DIM>
+Crypt<DIM>::~Crypt()
+{
+    if (mSelfSetGhostNodes)
+    {
+        delete mpGhostNodes;
+    }
+}
 template<unsigned DIM>
 ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
 {
@@ -30,10 +42,34 @@ std::vector<bool>& Crypt<DIM>::rGetGhostNodes()
 template<unsigned DIM>
 void Crypt<DIM>::SetGhostNodes(std::vector<bool>& rGhostNodes)
 {
+    if (mSelfSetGhostNodes)
+    {
+        delete mpGhostNodes;
+    }
+    mSelfSetGhostNodes=false;
     mpGhostNodes = &rGhostNodes;
 }
 
-
+template<unsigned DIM>
+void Crypt<DIM>::RemoveDeadCells()
+{
+    std::vector< MeinekeCryptCell > living_cells;
+    for (unsigned i=0; i<mrCells.size(); i++)
+    {
+        MeinekeCryptCell* p_cell=&(mrCells[i]);
+        if (p_cell->IsDead())
+        {
+            mrMesh.DeleteNode(p_cell->GetNodeIndex());
+        }
+        else
+        {
+            living_cells.push_back(*p_cell);
+        }
+    }
+    
+    mrCells=living_cells;
+    //Remesh and re-index (is moved to caller)     
+}
 
 template<unsigned DIM>
 MeinekeCryptCell& Crypt<DIM>::Iterator::operator*()
@@ -76,6 +112,7 @@ typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
 template<unsigned DIM>
 bool Crypt<DIM>::Iterator::IsRealCell()
 {
+    assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumNodes() );
     return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted());
 }
 
@@ -153,3 +190,6 @@ void Crypt<DIM>::AddCell(MeinekeCryptCell newCell, c_vector<double,DIM> newLocat
         (*mpGhostNodes)[new_node_index] = false;
     }   
 }
+
+#endif //CRYPT_CPP
+

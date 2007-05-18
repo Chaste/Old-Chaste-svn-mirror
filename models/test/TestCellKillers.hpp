@@ -93,18 +93,17 @@ public:
             cell.SetNodeIndex(num_cells-i-1);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
-            
-            
         }
         
-        RandomCellKiller<2> random_cell_killer;
-        random_cell_killer.SetCellsAndMesh(&cells, &mesh);
+        Crypt<2> crypt(mesh, cells);
         
+        RandomCellKiller<2> random_cell_killer(&crypt);
+       
         // check that a single cell reaches apoptosis
         unsigned max_tries=0;
         while (!cells[0].HasApoptosisBegun() && max_tries<99)
         {
-            random_cell_killer.TestAndLabelSingleCellForApoptosis(0);
+            random_cell_killer.TestAndLabelSingleCellForApoptosis(cells[0]);
             max_tries++;
         }
         TS_ASSERT_DIFFERS(max_tries, 99u);

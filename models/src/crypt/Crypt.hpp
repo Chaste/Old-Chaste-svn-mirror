@@ -21,6 +21,7 @@ private:
     /** Records which nodes are ghosts */
     /** \TODO change from std::vector<bool> to std::set<unsigned> **/
     std::vector<bool>* mpGhostNodes;
+    bool mSelfSetGhostNodes;
     
 public:
     /**
@@ -30,6 +31,7 @@ public:
      * (This will change in future so that you don't need cells for ghost nodes.)
      */
     Crypt(ConformingTetrahedralMesh<DIM, DIM>&, std::vector<MeinekeCryptCell>&);
+    ~Crypt();
     
     ConformingTetrahedralMesh<DIM, DIM>& rGetMesh();
     std::vector<MeinekeCryptCell>& rGetCells();
@@ -44,6 +46,7 @@ public:
     
     //void MoveCell(Crypt<DIM>::Iterator iter, c_vector<double, DIM>& rNewLocation);
     
+    void RemoveDeadCells();
     
     
     /**
