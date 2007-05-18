@@ -27,26 +27,35 @@ private:
     std::vector<unsigned> mRightImages;
     
     /** The indices of nodes on the top boundary */
-    std::vector<unsigned > mTopBoundary;
+    //std::vector<unsigned > mTopBoundary;
     /** The indices of nodes on the bottom boundary */
-    std::vector<unsigned > mBottomBoundary;
+    //std::vector<unsigned > mBottomBoundary;
+    
+    /** The indices of nodes on the top boundary */
+    std::vector<unsigned > mTopHaloNodes;
+    /** The indices of nodes on the bottom boundary */
+    std::vector<unsigned > mBottomHaloNodes;
     
     void ReplaceImageWithRealNodeOnElement(Element<2,2>* pElement, std::vector<unsigned> &rImageNodes, std::vector<unsigned> &rOriginalNodes, unsigned nodeIndex ) ;
     
 public:
     
-   Cylindrical2dMesh(double width, double xTop, double xBottom, std::vector<unsigned > topBoundary, std::vector<unsigned > bottomBoundary);
+   Cylindrical2dMesh(double width);
          
     ~Cylindrical2dMesh()
     {
     }
+    
+    void UpdateTopAndBottom();
+    void CreateHaloNodes();
     void CreateMirrorNodes();
     void ReMesh(NodeMap &map);
     void ReconstructCylindricalMesh();
+    void DeleteHaloNodes();
     c_vector<double, 2> GetVectorFromAtoB(const c_vector<double, 2>& rLocation1, const c_vector<double, 2>& rLocation2);
     void SetNode(unsigned index, Point<2> point, bool concreteMove);
     bool IsThisIndexInList(const unsigned& rNodeIndex, const std::vector<unsigned>& rListOfNodes);
-    void TestTopAndBottomRowAlignment();
+    //void TestTopAndBottomRowAlignment();
     double GetWidth(const unsigned& rDimension);
     unsigned AddNode(Node<2> *pNewNode);
     

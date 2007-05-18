@@ -340,7 +340,10 @@ unsigned ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::AddNode(Node<SPACE_D
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM> *ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index)
 {
-    assert(index < mNodes.size());
+    if (index >= mNodes.size())
+    {
+        assert(index < mNodes.size());
+    }
     return (mNodes[index]);
 }
 
@@ -1163,7 +1166,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
             }
         }
     }
-    
     while (mDeletedBoundaryElementIndices.size() != 0)
     {
         mDeletedBoundaryElementIndices.pop_back();
@@ -1171,7 +1173,6 @@ void ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex()
         mBoundaryElements.pop_back();
     }
     assert(mBoundaryElements.back()->IsDeleted() == false );
-    
     for (unsigned i=0; i<mNodes.size();i++)
     {
         mNodes[i]->SetIndex(i);

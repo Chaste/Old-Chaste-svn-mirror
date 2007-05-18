@@ -250,7 +250,7 @@ public:
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 5.0;
-        unsigned thickness_of_ghost_layer = 2;
+        unsigned thickness_of_ghost_layer = 0;
         
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -319,7 +319,7 @@ public:
         unsigned cells_across = 6;
         unsigned cells_up = 12;
         double crypt_width = 6.0;
-        unsigned thickness_of_ghost_layer = 4;
+        unsigned thickness_of_ghost_layer = 0;
         
         CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width, thickness_of_ghost_layer);
         Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
@@ -348,13 +348,13 @@ public:
         simulator.Solve();
         
         std::vector<double> node_35_location = simulator.GetNodeLocation(35);
-        std::vector<double> node_100_location = simulator.GetNodeLocation(100);
+        //std::vector<double> node_100_location = simulator.GetNodeLocation(100);
         
         TS_ASSERT_DELTA(node_35_location[0], 5.5000 , 1e-4);
-        TS_ASSERT_DELTA(node_35_location[1], 2.5104 , 1e-4);
-        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
-        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
-          
+        TS_ASSERT_DELTA(node_35_location[1], 4.4000 , 1e-4);
+//        TS_ASSERT_DELTA(node_100_location[0], 4.0000 , 1e-4);
+//        TS_ASSERT_DELTA(node_100_location[1], 8.0945 , 1e-4);
+//          
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
@@ -973,7 +973,7 @@ public:
         location[0]=1.0;
         location[1]=1.0;
         Node<2>* p_node = new Node<2>(0u,location, false);
-        Cylindrical2dMesh cyl_mesh(6.0, 0.0, 1.0, std::vector<unsigned>(), std::vector<unsigned>());
+        Cylindrical2dMesh cyl_mesh(6.0);
         cyl_mesh.AddNode(p_node);
         
         // Set up cells
@@ -1002,7 +1002,7 @@ public:
         location[0]=1.0;
         location[1]=0.0;                                    // <- y=0
         Node<2>* p_node = new Node<2>(0u,location, false);
-        Cylindrical2dMesh cyl_mesh(6.0, 0.0, 1.0, std::vector<unsigned>(), std::vector<unsigned>());
+        Cylindrical2dMesh cyl_mesh(6.0);
         cyl_mesh.AddNode(p_node);
         
         // Set up cells
