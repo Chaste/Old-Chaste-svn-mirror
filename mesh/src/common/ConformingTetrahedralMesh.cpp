@@ -2043,26 +2043,39 @@ c_vector<double, SPACE_DIM> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::G
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension)
 {
-    assert(rDimension <= SPACE_DIM);
-    assert(rDimension >= 1u);
-    double max = 0.0;
-    double min = 0.0;
+    assert(rDimension < SPACE_DIM);
+    assert(rDimension >= 0u);
+    c_vector<double,2> extremes = GetWidthExtremes(rDimension);
+    return extremes[1]-extremes[0];
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double,2> ConformingTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension)
+{
+    assert(rDimension < SPACE_DIM);
+    assert(rDimension >= 0u);
+    double max = -1e200;
+    double min = 1e200;
+    assert(GetNumAllNodes() > 0u);
     for (unsigned i=0 ; i<GetNumAllNodes() ; i++)
     {
         if (!mNodes[i]->IsDeleted())
         {
-            double this_node_value = mNodes[i]->rGetLocation()[rDimension-1u];
+            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
             if (this_node_value>max) 
             {
-                max = this_node_value;   
+                max = this_node_value;  
             }
             if (this_node_value < min)
             {
-                min = this_node_value;   
+                min = this_node_value;
             }
         }
     }
-    return max-min;
+    c_vector<double,2> extremes;
+    extremes[0] = min;
+    extremes[1] = max;
+    return extremes;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

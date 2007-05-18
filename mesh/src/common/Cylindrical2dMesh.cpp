@@ -455,20 +455,20 @@ void Cylindrical2dMesh::TestTopAndBottomRowAlignment()
 
 /**
  * OVERRIDDEN FUNCTION
- * @param rDimension must be 1 (x) or 2 (y)
+ * @param rDimension must be 0 (x) or 1 (y)
  * @return width the CryptWidth or current height 
  */
 double Cylindrical2dMesh::GetWidth(const unsigned& rDimension)
 {
     double width=0.0;
-    assert(rDimension==1 || rDimension==2);
-    if (rDimension==1)
+    assert(rDimension==0 || rDimension==1);
+    if (rDimension==0)
     {
         width = mWidth;   
     }
-    if (rDimension==2)
+    else
     {
-        width = mTop-mBottom;
+        width = ConformingTetrahedralMesh<2,2>::GetWidth(rDimension);
     }
     return width;   
 }

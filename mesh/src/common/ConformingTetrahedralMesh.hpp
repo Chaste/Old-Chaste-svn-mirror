@@ -313,12 +313,21 @@ public:
     /**
      * Calculates the `width' of any dimension of the mesh.
      * 
-     * @param rDimension a dimension (1,2 or 3)
+     * @param rDimension a dimension (0,1 or 2)
      * @return The maximum distance between any nodes in this dimension.
      * 
      * N.B. Overwritten in Cylindrical2dMesh
      */    
     virtual double GetWidth(const unsigned& rDimension);
+    
+    /**
+     * Calculates the `width extremes' of any dimension of the mesh.
+     * 
+     * @param rDimension a dimension (0,1 or 2)
+     * @return The minimum and maximum co-ordinates of any node in this dimension.
+     * 
+     */    
+    c_vector<double,2> GetWidthExtremes(const unsigned& rDimension);
     
     void UnflagAllElements();
     

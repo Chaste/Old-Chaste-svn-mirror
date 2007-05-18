@@ -37,10 +37,6 @@ public:
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(6u,list_of_nodes),false);
         TS_ASSERT_EQUALS(mesh.IsThisIndexInList(8u,list_of_nodes),false);
         
-        // Test GetWidth
-        TS_ASSERT_DELTA(mesh.GetWidth(1u), 1.0, 1e-9);
-        TS_ASSERT_DELTA(mesh.GetWidth(2u), 3.0, 1e-9);
-        
     }
 
     void TestCreateMirrorCellsANDAlignmentTester() throw (Exception)
@@ -426,8 +422,10 @@ public:
         // Check that we have moved the new node across        
         TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[0], 3.0+point[0], 1e-7);
         TS_ASSERT_DELTA(p_mesh->GetNode(new_index)->rGetLocation()[1], point[1], 1e-7);
-
         
+        // Test GetWidth
+        TS_ASSERT_DELTA(p_mesh->GetWidth(0u), 3.0, 1e-9);
+        TS_ASSERT_DELTA(p_mesh->GetWidth(1u), sqrt(3), 1e-6);
     }    
 
 };

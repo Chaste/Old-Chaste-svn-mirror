@@ -1593,7 +1593,7 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(21.0), 1e-7);
     }
     
-    void TestMeshGetWidthMethod(void)
+    void TestMeshGetWidthAndWidthExtremesMethod(void)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         
@@ -1601,13 +1601,23 @@ public:
         
         mesh.ConstructFromMeshReader(mesh_reader,1);
         
-        double width = mesh.GetWidth(1u);
-        double height = mesh.GetWidth(2u);
+        double width = mesh.GetWidth(0u);
+        double height = mesh.GetWidth(1u);
         
         TS_ASSERT_DELTA(width, 2, 1e-6);
         TS_ASSERT_DELTA(height, 2, 1e-6);
         
+        c_vector<double,2> width_extremes = mesh.GetWidthExtremes(0u);
+        c_vector<double,2> height_extremes = mesh.GetWidthExtremes(1u);
+        
+        TS_ASSERT_DELTA(width_extremes[0], -1, 1e-6);
+        TS_ASSERT_DELTA(height_extremes[0], -1, 1e-6);
+        TS_ASSERT_DELTA(width_extremes[1], 1, 1e-6);
+        TS_ASSERT_DELTA(height_extremes[1], 1, 1e-6);
+        
     }
+    
+   
     
     void TestMeshAddNodeAndReMeshMethod(void)
     {

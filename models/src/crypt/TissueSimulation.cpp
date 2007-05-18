@@ -166,7 +166,7 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 {
     assert(DIM==2); // this is 2d specific
-    rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(1u);// get furthest distance between nodes in the x-direciton
+    rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(0u);// get furthest distance between nodes in the x-direciton
     rSetupFile.close();
 }
 
