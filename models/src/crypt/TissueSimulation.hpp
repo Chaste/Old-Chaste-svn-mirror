@@ -159,7 +159,7 @@ private:
                              bool writeVisualizerResults);
     
     unsigned DoCellBirth();
-    c_vector<double, DIM> CalculateDividingCellCentreLocations(unsigned node_index);
+    c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell);
     
     unsigned DoCellRemoval();
    

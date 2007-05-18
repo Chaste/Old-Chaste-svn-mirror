@@ -358,8 +358,7 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
                 std::cout << "Cell division at node " << cell.GetNodeIndex() << "\n";
             
                 // Add a new node to the mesh
-                unsigned parent_node_index = p_our_node->GetIndex();
-                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(parent_node_index);
+                c_vector<double, DIM> new_location = CalculateDividingCellCentreLocations(cell_iter);
                 
                 mCrypt.AddCell(new_cell, new_location);
                 
@@ -384,10 +383,10 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
  * 
  */
 template<unsigned DIM> 
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(unsigned node_index)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell)
 {
     double separation = 0.1;
-    c_vector<double, DIM> parent_coords = mrMesh.GetNode(node_index)->rGetLocation();
+    c_vector<double, DIM> parent_coords = parentCell.rGetLocation();
     c_vector<double, DIM> daughter_coords;
     
     // Make a random direction vector of the required length
@@ -447,7 +446,8 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     } 
     
     // set the parent to use this location
-    mrMesh.SetNode(node_index, parent_coords, false);
+    Point<DIM> parent_coords_point(parent_coords);
+    mCrypt.MoveCell(parentCell, parent_coords_point);
     return daughter_coords;
 }
 

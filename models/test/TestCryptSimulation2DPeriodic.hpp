@@ -243,7 +243,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
     }
 public:
 
-    void Test2DCylindrical() throw (Exception)
+    void NoTest2DCylindrical() throw (Exception)
     {        
         std::string output_directory = "Crypt2DCylindrical";
         
@@ -310,7 +310,7 @@ public:
     // So bizarrely the crypt shrinks as the rest lengths are shortened! 
     // But at least it uses Wnt cell cycle and runs reasonably quickly...
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void TestWithWntDependentCells() throw (Exception)
+    void NoTestWithWntDependentCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -361,7 +361,7 @@ public:
     
 
     // Testing Save (based on previous test)
-    void TestSave() throw (Exception)
+    void NoTestSave() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -407,7 +407,7 @@ public:
     
 
     // Testing Load (based on previous two tests)
-    void TestLoad() throw (Exception)
+    void NoTestLoad() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -486,7 +486,7 @@ public:
     // So bizarrely the crypt shrinks as the rest lengths are shortened! But at least it uses Wnt
     // cell cycle and runs reasonably quickly...
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void TestWithWntDependentCellsAndAMutation() throw (Exception)
+    void NoTestWithWntDependentCellsAndAMutation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in Wnt simulation
@@ -531,7 +531,7 @@ public:
     
     // This is strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though...
-    void TestWithTysonNovakCells() throw (Exception)
+    void NoTestWithTysonNovakCells() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         // There is no limit on transit cells in T&N
@@ -597,7 +597,7 @@ public:
      * 
      * Note - if the previous test is changed we need to update the file this test refers to. 
      */
-    void TestVisualizerOutput() throw (Exception)
+    void NoTestVisualizerOutput() throw (Exception)
     {
         // work out where the previous test wrote its files
         OutputFileHandler handler("Crypt2DPeriodicTysonNovak",false);
@@ -609,7 +609,7 @@ public:
    
     
     
-    void TestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
+    void NoTestPrivateFunctionsOf2DCryptSimulation() throw (Exception)
     {
         CancerParameters *p_params = CancerParameters::Instance();
         RandomNumberGenerator::Instance();
@@ -656,7 +656,7 @@ public:
     }
     
     
-    void TestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
+    void NoTestPrivateFunctionsOf2DCryptSimulationOnHoneycombMesh() throw (Exception)
     {
         /*
          ************************************************************************
@@ -896,115 +896,135 @@ public:
         RandomNumberGenerator::Destroy();
     }
     
-    void TestCalculateDividingCellCentreLocations() throw (Exception)
+    void TestCalculateDividingCellCentreLocationsConfMesh() throw (Exception)
     {
-        /*
-         * Node 1,4 on conforming mesh
-         * 
-         * Nodes 2,3,5 on cylindrical mesh.
-         * 
-         */
         double separation = 0.1;
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
         // Make a parent node
         c_vector<double ,2> location;
         location[0]=1.0;
         location[1]=1.0;
         Node<2>* p_node = new Node<2>(0u,location, false);
-        Node<2>* p_node2 = new Node<2>(0u,location, false);
-        
-        // Add it to the mesh
+
         ConformingTetrahedralMesh<2,2> conf_mesh;
         conf_mesh.AddNode(p_node);
         
-        std::vector<unsigned> empty;
-        Cylindrical2dMesh cyl_mesh(6.0, 0.0, 1.0, empty, empty);
-        cyl_mesh.AddNode(p_node2);
-        
-        // Make a new simulation
+        // Set up cells
+        std::vector<MeinekeCryptCell> conf_cells;
+        CreateVectorOfCells(conf_cells, conf_mesh, TYSONNOVAK, true);        
+        Crypt<2> conf_crypt(conf_mesh, conf_cells);
+
+        Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
+
+        TissueSimulation<2> simulator(conf_mesh);                
+        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
+        c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
+        c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
+    }
+    
+
+    void TestCalculateDividingCellCentreLocationsConfMeshStemCell() throw (Exception)
+    {
+        double separation = 0.1;
+
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
         
-        // Test a conforming mesh
-        TissueSimulation<2> simulator(conf_mesh);
-        for (unsigned i=0 ; i<100 ; i++)
-        {
-            conf_mesh.SetNode(0u,location, false);
-            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(0u);
-            c_vector<double, 2> parent_location = conf_mesh.GetNode(0)->rGetLocation();
-            c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(parent_location, daughter_location);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
-            // This output should map onto a cricle
-            //std::cout << parent_location[0] << "\t" << parent_location[1] <<std::endl;
-        }
+        // Make a parent node
+        c_vector<double ,2> location;
+        location[0]=1.0;
+        location[1]=0.0;                                    // <- y=0
+        Node<2>* p_node = new Node<2>(0u,location, false);
+        ConformingTetrahedralMesh<2,2> conf_mesh;
+        conf_mesh.AddNode(p_node);
         
-        // Test a cylindrical mesh
-        TissueSimulation<2> simulator2(cyl_mesh);
-        c_vector<double, 2> daughter_location = simulator2.CalculateDividingCellCentreLocations(0u);
-        
-        // Add the new node (to make the co-ords periodic)
-        Node<2>* p_node3 = new Node<2>(1u,daughter_location, false);
-        cyl_mesh.AddNode(p_node3);
-        cyl_mesh.SetNode(1u,daughter_location,false);
-        
-        // Check the new locations
-        daughter_location = p_node3->rGetLocation();
-        //std::cout << daughter_location[0] << "\t" << daughter_location[1] <<std::endl;
-        c_vector<double, 2> parent_location = cyl_mesh.GetNode(0)->rGetLocation();
-        //std::cout << parent_location[0] << "\t" << parent_location[1] <<std::endl;
-        c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
-        
-        /////////////////////////////////////////////////////////////////////
-        // Special case - birth at the base of the crypt...
-        /////////////////////////////////////////////////////////////////////
-        // test a birth at y=0 on the conf mesh
-        location[0]=3.0;
-        location[1]=0.0;
-        Node<2>* p_node4 = new Node<2>(1u,location, false);
-        conf_mesh.AddNode(p_node4);
-        conf_mesh.SetNode(1u,location,false);
-        for (unsigned i=0 ; i<100 ; i++)
-        {
-            conf_mesh.SetNode(1u,location, false);
-            c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(1u);
-            c_vector<double, 2> parent_location = conf_mesh.GetNode(1u)->rGetLocation();
-            c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(parent_location, daughter_location);
-            // The parent stem cell should stay where it is and the daughter be introduced at positive y.
-            
-            TS_ASSERT_DELTA(parent_location[0], location[0], 1e-7);
-            TS_ASSERT_DELTA(parent_location[1], location[1], 1e-7);
-            TS_ASSERT(daughter_location[1]>=location[1]);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
-            // This output should map onto a semi-cricle
-            //std::cout << daughter_location[0] << "\t" << daughter_location[1] <<std::endl;
-        }
-        
-        // test a birth at y=0 on the cylindrical mesh near the edge
-        location[0]=5.9995;
-        location[1]=0.0;
-        Node<2>* p_node5 = new Node<2>(2u,location, false);
-        cyl_mesh.AddNode(p_node5);
-        cyl_mesh.SetNode(2u,location,false);
-        for (unsigned i=0 ; i<100 ; i++)
-        {
-            cyl_mesh.SetNode(0u,location, false);
-            c_vector<double, 2> daughter_location = simulator2.CalculateDividingCellCentreLocations(2u);
-            cyl_mesh.SetNode(0u,daughter_location,false);
-            daughter_location = cyl_mesh.GetNode(0u)->rGetLocation();
-            c_vector<double, 2> parent_location = cyl_mesh.GetNode(2u)->rGetLocation();
-            c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(parent_location, daughter_location);
-            
-            // The parent stem cell should stay where it is and the daughter be introduced at positive y.
-            TS_ASSERT_DELTA(parent_location[0], location[0], 1e-7);
-            TS_ASSERT_DELTA(parent_location[1], location[1], 1e-7);
-            TS_ASSERT(daughter_location[1]>=location[1]);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
-            // This output should map onto a semi-cricle split over the periodic edge
-            //std::cout << daughter_location[0] << "\t" << daughter_location[1] <<std::endl;
-        }
-                
+        // Set up cells
+        std::vector<MeinekeCryptCell> conf_cells;
+        CreateVectorOfCells(conf_cells, conf_mesh, TYSONNOVAK, true);        
+        Crypt<2> conf_crypt(conf_mesh, conf_cells);
+
+        Crypt<2>::Iterator conf_iter = conf_crypt.Begin();
+
+        TissueSimulation<2> simulator(conf_mesh);                
+        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(conf_iter);
+        c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
+        c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+
+        // The parent stem cell should stay where it is and the daughter be introduced at positive y.
+        TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
+        TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
+        TS_ASSERT(daughter_location[1]>=location[1]);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
     }
-    
+
+    void TestCalculateDividingCellCentreLocationsCylindricalMesh() throw (Exception)
+    {
+        double separation = 0.1;
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Make a mesh
+        c_vector<double ,2> location;
+        location[0]=1.0;
+        location[1]=1.0;
+        Node<2>* p_node = new Node<2>(0u,location, false);
+        Cylindrical2dMesh cyl_mesh(6.0, 0.0, 1.0, std::vector<unsigned>(), std::vector<unsigned>());
+        cyl_mesh.AddNode(p_node);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cyl_cells;
+        CreateVectorOfCells(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
+        Crypt<2> cyl_crypt(cyl_mesh, cyl_cells);
+
+        Crypt<2>::Iterator cyl_iter = cyl_crypt.Begin();
+
+        TissueSimulation<2> simulator(cyl_mesh);                
+        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
+        c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
+        c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), separation, 1e-7);
+    }
+
+    void TestCalculateDividingCellCentreLocationsCylindricalMeshStemCell() throw (Exception)
+    {
+        double separation = 0.1;
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+        
+        // Make a mesh
+        c_vector<double ,2> location;
+        location[0]=1.0;
+        location[1]=0.0;                                    // <- y=0
+        Node<2>* p_node = new Node<2>(0u,location, false);
+        Cylindrical2dMesh cyl_mesh(6.0, 0.0, 1.0, std::vector<unsigned>(), std::vector<unsigned>());
+        cyl_mesh.AddNode(p_node);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cyl_cells;
+        CreateVectorOfCells(cyl_cells, cyl_mesh, TYSONNOVAK, true);        
+        Crypt<2> cyl_crypt(cyl_mesh, cyl_cells);
+
+        Crypt<2>::Iterator cyl_iter = cyl_crypt.Begin();
+
+        TissueSimulation<2> simulator(cyl_mesh);                
+        c_vector<double, 2> daughter_location = simulator.CalculateDividingCellCentreLocations(cyl_iter);
+        c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
+        c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
+        
+        // The parent stem cell should stay where it is and the daughter be introduced at positive y.
+        TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
+        TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
+        TS_ASSERT(daughter_location[1]>=location[1]);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), 0.5*separation, 1e-7);
+    }
+
+   
 };
 
 #endif /*TESTCRYPTSIMULATION2DPERIODIC_HPP_*/
