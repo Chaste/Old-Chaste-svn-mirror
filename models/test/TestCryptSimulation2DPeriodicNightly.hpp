@@ -20,6 +20,7 @@
 #include "ColumnDataReader.hpp"
 #include "CryptHoneycombMeshGenerator.hpp"
 #include "SimulationTime.hpp"
+#include "Crypt.cpp"
 
 // Possible types of Cell Cycle Model (just for CreateVectorOfCells method)
 typedef enum CellCycleType_
@@ -790,8 +791,9 @@ public:
                 
         simulator.SetGhostNodes(ghost_node_indices);
         
-        RandomCellKiller<2> random_cell_killer;
-        random_cell_killer.SetCellsAndMesh(&cells, p_mesh);
+        Crypt<2> crypt(*p_mesh,cells);
+        
+        RandomCellKiller<2> random_cell_killer(&crypt);
         simulator.SetCellKiller(&random_cell_killer);
         
         simulator.Solve();

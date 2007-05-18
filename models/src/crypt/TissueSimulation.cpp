@@ -975,7 +975,6 @@ template<unsigned DIM>
 void TissueSimulation<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellKiller)
 {
     mpCellKiller=pCellKiller;
-    mpCellKiller->SetCellsAndMesh(&mCells, &mrMesh);
 }
 
 /**
