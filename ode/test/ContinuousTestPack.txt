@@ -5,7 +5,7 @@ TestIonicModels.hpp
 TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 TestMockEulerIvpOdeSolver.hpp
 TestSolvingStiffOdeSystems.hpp
-TestSumStimulus.hpp
+TestStimulus.hpp
 TestBackwardEulerIvpOdeSolver.hpp
 TestTysonNovak2001OdeSystem.hpp
 TestWntCellCycleOdeSystem.hpp
