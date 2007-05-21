@@ -32,6 +32,7 @@
 
 #include "FoxModel2002.hpp"
 #include "BackwardEulerFoxModel2002.hpp"
+#include "BackwardEulerFoxModel2002Modified.hpp"
 
 class TestIonicModels : public CxxTest::TestSuite
 {
@@ -476,6 +477,38 @@ public:
                 << std::endl;
         
     }
+    
+   void TestOdeSolverForFox2002ModifiedWithRegularStimulus(void) throw (Exception)
+    {
+        clock_t ck_start, ck_end;
+        // Set stimulus
+        double magnitude = -80.0;
+        double duration  = 1.0  ;  // ms
+        double start = 50.0; // ms
+        double frequency = 1.0/500; // ms^-1
+        RegularStimulus stimulus(magnitude, duration, frequency, start);
+        
+        double end_time = 1000.0; //One second in milliseconds
+        double time_step = 0.002;  //2e-6 seconds in milliseconds
+                            // 0.005 leads to NaNs.
+        
+        // Solve using Backward Euler
+        BackwardEulerFoxModifiedModel2002 backward_system(time_step*5, &stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&backward_system,
+                                   end_time,
+                                   "BackwardFoxModifiedRegularStim",
+                                   100);
+        ck_end = clock();
+        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
+        //CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.15);
+        // Mainly for coverage
+        
+        std::cout << "\n\tBackward: " << backward
+                << std::endl;
+        
+    }    
     
  void TestLr91WithVoltageDropVariousTimeStepRatios()
     {

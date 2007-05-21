@@ -16,7 +16,7 @@
 #include <memory>
 
 //#include "FoxModel2002.hpp"
-#include "BackwardEulerFoxModel2002.hpp"
+#include "BackwardEulerFoxModel2002Modified.hpp"
 
 // Path to the parameter file
 const std::string parameter_file = "io/test/data/Baseline.xml";
@@ -64,22 +64,22 @@ public:
         {
             if (x<=0 && z<=0)
             {
-                return new BackwardEulerFoxModel2002(mTimeStep, mpSumStimulus);
+                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpSumStimulus);
             }
             else
             {
-                return new BackwardEulerFoxModel2002(mTimeStep, mpStimulus);
+                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpStimulus);
             }
         }
         else
         {
             if (x<=0 && z<=0)
             {
-                return new BackwardEulerFoxModel2002(mTimeStep, mpStimulus2);
+                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpStimulus2);
             }
             else
             {
-                return new BackwardEulerFoxModel2002(mTimeStep, mpZeroStimulus);
+                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpZeroStimulus);
             }
         }
     }
