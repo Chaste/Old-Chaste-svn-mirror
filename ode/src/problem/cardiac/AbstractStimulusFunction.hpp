@@ -1,6 +1,6 @@
 #ifndef _ABSTRACTSTIMULUSFUNCTION_HPP_
 #define _ABSTRACTSTIMULUSFUNCTION_HPP_
-
+#include <float.h>
 /**
  * Represents an abstract stimulus function. Sub-classes will implement the
  * GetStimulus() function to represent the various type of stimuli to the cardiac

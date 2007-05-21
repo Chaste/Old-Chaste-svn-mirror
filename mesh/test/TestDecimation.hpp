@@ -376,14 +376,15 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 241U);
         decimator.SetThreshold(0.7);
         decimator.DecimateAnimate("Quality");
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 179U);
+        TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNumNodes(), 182U);
+        TS_ASSERT_LESS_THAN_EQUALS(179U, mesh.GetNumNodes());
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
         
         decimator.SetThreshold(1.0);
         decimator.Decimate();
-        //TS_ASSERT_EQUALS(mesh.GetNumNodes(), 156U);
+        
         unsigned num_nodes_final=mesh.GetNumNodes();
-        TS_ASSERT_LESS_THAN_EQUALS(num_nodes_final, 159U);
+        TS_ASSERT_LESS_THAN_EQUALS(num_nodes_final, 162U);
         TS_ASSERT_LESS_THAN_EQUALS(153U, num_nodes_final)
         TS_ASSERT_DELTA(mesh.CalculateMeshVolume(), 0.01, 1.0e-5);
         decimator.SetThreshold(INFINITY);

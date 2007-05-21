@@ -12,8 +12,11 @@ RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, do
     mDuration = duration;
     mFrequency = frequency;
     mStartTime = startTime;
-    
-    assert(1.0/mFrequency >= mDuration);
+  
+    double period = 1.0/mFrequency;
+    assert(period >= mDuration);
+    //Swell duration to avoid rounding issues   
+    mDuration += period*DBL_EPSILON;
 }
 
 /**

@@ -10,6 +10,8 @@ InitialStimulus::InitialStimulus(double magnitudeOfStimulus, double duration, do
     mMagnitudeOfStimulus = magnitudeOfStimulus;
     mDuration = duration;
     mTimeOfStimulus = timeOfStimulus;
+    
+    mDuration += (mDuration+mTimeOfStimulus)*DBL_EPSILON; 
 }
 /**
 * Destructor
