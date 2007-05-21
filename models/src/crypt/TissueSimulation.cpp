@@ -811,7 +811,7 @@ void TissueSimulation<DIM>::UpdateCellTypes()
              cell_iter != mCrypt.End();
              ++cell_iter)
         {
-            (*cell_iter).UpdateCellType();
+            cell_iter->UpdateCellType();
         }
     }
 }
@@ -1109,7 +1109,7 @@ void TissueSimulation<DIM>::Solve()
             }
             // We don't use the result; this call is just to force the cells to age to time 0,
             // running their cell cycle models to get there.
-            (*cell_iter).ReadyToDivide(cell_cycle_influences);
+            cell_iter->ReadyToDivide(cell_cycle_influences);
         }
     }
 

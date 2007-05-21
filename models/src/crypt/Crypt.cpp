@@ -3,9 +3,14 @@
 
 #include "Crypt.hpp"
 
+
+///\todo: make this constructor take in ghost nodes, and validate the three objects
+// are in sync ie num cells + num ghost nodes = num_nodes ? this would mean all ghosts
+// *cannot* be cells, making it more difficult to construct the cells.
+// also check cell.GetNodeIndices() is in the mesh, and covers the mesh, etc.
 template<unsigned DIM>
 Crypt<DIM>::Crypt(ConformingTetrahedralMesh<DIM, DIM>& rMesh,
-             std::vector<MeinekeCryptCell>& rCells)
+                  std::vector<MeinekeCryptCell>& rCells)
              : mrMesh(rMesh),
                mrCells(rCells)
 {
@@ -21,6 +26,7 @@ Crypt<DIM>::~Crypt()
         delete mpGhostNodes;
     }
 }
+
 template<unsigned DIM>
 ConformingTetrahedralMesh<DIM, DIM>& Crypt<DIM>::rGetMesh()
 {
@@ -77,6 +83,15 @@ MeinekeCryptCell& Crypt<DIM>::Iterator::operator*()
     assert((*this) != mrCrypt.End());
     return mrCrypt.rGetCells()[mCellIndex];
 }
+
+
+template<unsigned DIM>
+MeinekeCryptCell* Crypt<DIM>::Iterator::operator->()
+{
+    assert((*this) != mrCrypt.End());
+    return &(mrCrypt.rGetCells()[mCellIndex]);
+}
+
 
 template<unsigned DIM>
 Node<DIM>* Crypt<DIM>::Iterator::GetNode()

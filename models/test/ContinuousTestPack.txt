@@ -1,4 +1,5 @@
 TestArchiving.hpp
+TestCrypt.hpp
 TestCryptSimulation.hpp
 TestCryptSimulation2DPeriodic.hpp
 TestCellCycleModels.hpp

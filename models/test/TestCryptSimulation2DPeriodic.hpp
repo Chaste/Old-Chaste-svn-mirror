@@ -234,7 +234,7 @@ class TestCryptSimulation2DPeriodic : public CxxTest::TestSuite
                 generation = 4;
             }
 
-             MeinekeCryptCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
+            MeinekeCryptCell cell(cell_type, HEALTHY, generation, p_cell_cycle_model);
             
             cell.SetNodeIndex(i);
             cell.SetBirthTime(birth_time);

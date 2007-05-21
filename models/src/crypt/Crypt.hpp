@@ -5,9 +5,10 @@
 #include "MeinekeCryptCell.hpp"
 
 /**
- * A facade class encapsulating a 'crypt' (or group of tumour cells).
+ * A facade class encapsulating a 'tissue'
  * 
- * Maintains the associations between cells and nodes of the mesh.
+ * Contains a group of cells and maintains the associations between cells and
+ * nodes in the mesh.
  * 
  * Also hides the 'ghost nodes' concept from the simulation class, so the latter
  * only ever deals with real cells.
@@ -19,7 +20,6 @@ private:
     ConformingTetrahedralMesh<DIM, DIM>& mrMesh;
     std::vector<MeinekeCryptCell>& mrCells;
     /** Records which nodes are ghosts */
-    /** \TODO change from std::vector<bool> to std::set<unsigned> **/
     std::vector<bool>* mpGhostNodes;
     bool mSelfSetGhostNodes;
     
@@ -63,6 +63,8 @@ public:
          * Make sure to use a reference for the result to avoid copying cells unnecessarily.
          */
         MeinekeCryptCell& operator*();
+        
+        MeinekeCryptCell* operator->();
         
         /**
          * Get a pointer to the node in the mesh which represents this cell.
