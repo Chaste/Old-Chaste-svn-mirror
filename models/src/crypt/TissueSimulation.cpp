@@ -32,14 +32,11 @@
  */
 template<unsigned DIM> 
 TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMesh,
-                                                          std::vector<MeinekeCryptCell> cells)
+                                        std::vector<MeinekeCryptCell> cells)
         : mrMesh(rMesh),
           mCells(cells),
           mCrypt(rMesh, mCells)
-          
-          
 { 
-    
     mpParams = CancerParameters::Instance();
     
     mDt = 1.0/120.0;
@@ -66,7 +63,7 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
     mpCellKiller = NULL;
     mNumBirths = 0;
     mNumDeaths = 0;
-    mIncludeSloughing = true ;
+    mIncludeSloughing = true;
     
     SimulationTime* p_simulation_time = SimulationTime::Instance();
     if (!p_simulation_time->IsStartTimeSetUp())
@@ -75,6 +72,8 @@ TissueSimulation<DIM>::TissueSimulation(ConformingTetrahedralMesh<DIM,DIM> &rMes
         EXCEPTION("Start time not set in simulation time singleton object");
         #undef COVERAGE_IGNORE
     }
+    mCrypt.SetMaxCells(mMaxCells);
+    mCrypt.SetMaxElements(mMaxElements);
     
 }
 
@@ -87,227 +86,12 @@ TissueSimulation<DIM>::~TissueSimulation()
     SimulationTime::Destroy();
 }
 
-/**
-* Define the variable identifiers in the data writer used to write node-based results.
-*
-* Uses mMaxCells to decide how many variables to define.
-*/
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds)
-{
-    rVarIds.time = rNodeWriter.DefineUnlimitedDimension("Time","hours");
-    
-    rVarIds.types.resize(mMaxCells);
-    rVarIds.position_id.resize(mMaxCells);
-    
-    // set up per-cell variables
-    for (unsigned cell=0; cell<mMaxCells; cell++)
-    {
-        std::stringstream cell_type_var_name, cell_x_position_var_name, cell_y_position_var_name, cell_z_position_var_name;
-        cell_type_var_name << "cell_type_" << cell;
-        
-        cell_x_position_var_name << "cell_x_position_" << cell;
-        cell_y_position_var_name << "cell_y_position_" << cell;
-        cell_z_position_var_name << "cell_z_position_" << cell;
-
-        std::vector<std::string> cell_position_var_name_string;
-        cell_position_var_name_string.push_back(cell_x_position_var_name.str());
-        cell_position_var_name_string.push_back(cell_y_position_var_name.str());
-        cell_position_var_name_string.push_back(cell_z_position_var_name.str());
-        
-        rVarIds.types[cell]=rNodeWriter.DefineVariable(cell_type_var_name.str(),"dimensionless");
-        for(unsigned i=0; i<DIM; i++)
-        {
-            rVarIds.position_id[cell](i)=rNodeWriter.DefineVariable(cell_position_var_name_string[i],"rest_spring_length");
-        }
-    }
-    
-    rNodeWriter.EndDefineMode();
-}
-
-/**
- * Define the variable identifiers in the data writer used to write element-based results.
- *
- * Uses mMaxCells to decide how many variables to define.
- */
-template<unsigned DIM> 
-void TissueSimulation<DIM>::SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds)
-{
-    rVarIds.time = rElementWriter.DefineUnlimitedDimension("Time","hours");
-    
-    // Set up columns for element writer
-    rVarIds.node_id.resize(mMaxElements);
-    
-    for (unsigned elem_index = 0; elem_index<mMaxElements; elem_index++)
-    {
-        std::stringstream nodeA_var_name, nodeB_var_name, nodeC_var_name, nodeD_var_name;
-        
-        nodeA_var_name << "nodeA_" << elem_index;
-        nodeB_var_name << "nodeB_" << elem_index;
-        nodeC_var_name << "nodeC_" << elem_index;
-        nodeD_var_name << "nodeD_" << elem_index;
-
-        std::vector<std::string> node_var_name_string;
-        node_var_name_string.push_back(nodeA_var_name.str());
-        node_var_name_string.push_back(nodeB_var_name.str());
-        node_var_name_string.push_back(nodeC_var_name.str());
-        node_var_name_string.push_back(nodeD_var_name.str());
-        
-        for(unsigned i=0; i<DIM+1; i++)
-        {
-            rVarIds.node_id[elem_index](i) = rElementWriter.DefineVariable(node_var_name_string[i],"dimensionless");
-        }
-    }
-    
-    rElementWriter.EndDefineMode();
-}
-
 template<unsigned DIM> 
 void TissueSimulation<DIM>::WriteVisualizerSetupFile(std::ofstream& rSetupFile)
 {
     assert(DIM==2); // this is 2d specific
-    rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(0u);// get furthest distance between nodes in the x-direciton
+    rSetupFile << "MeshWidth\t" << mrMesh.GetWidth(0u);// get furthest distance between nodes in the x-direction
     rSetupFile.close();
-}
-
-
-template<unsigned DIM> 
-void TissueSimulation<DIM>::WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
-                                                         ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
-                                                         std::ofstream& rNodeFile, std::ofstream& rElementFile,
-                                                         bool writeTabulatedResults,
-                                                         bool writeVisualizerResults)
-{
-    // Write current simulation time
-    SimulationTime *p_simulation_time = SimulationTime::Instance();
-    double time = p_simulation_time->GetDimensionalisedTime();
-    
-    if (writeVisualizerResults)
-    {
-        rNodeFile <<  time << "\t";
-        rElementFile <<  time << "\t";
-    }
-    
-    if (writeTabulatedResults)
-    {
-        rNodeWriter.PutVariable(rNodeVarIds.time, time);
-        rElementWriter.PutVariable(rElementVarIds.time, time);
-    }
-    
-        
-    /////////////////////////////////
-    // write node files
-    /////////////////////////////////
-    for (unsigned index = 0; index<mrMesh.GetNumAllNodes(); index++)
-    {
-        if (index>mMaxCells)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("\nNumber of cells exceeds mMaxCells. Use SetMaxCells(unsigned) to increase it.\n");
-            #undef COVERAGE_IGNORE
-        }
-        unsigned colour = 0; // all green if no cells have been passed in
-        
-        if (mIsGhostNode[index]==true)
-        {
-            colour = 4; // visualizer treats '4' these as invisible
-        }
-        else if (mCells.size()>0)
-        {
-            if (index < mCells.size())
-            {
-                CryptCellType type = mCells[index].GetCellType();
-                CryptCellMutationState mutation = mCells[index].GetMutationState();
-                
-                if (type == STEM)
-                {
-                    colour = 0;
-                }
-                else if (type == TRANSIT)
-                {
-                    colour = 1;
-                }
-                else
-                {
-                    colour = 2;
-                }
-                
-                if (mutation!=HEALTHY)
-                {
-                    colour = 3;
-                }
-            }
-            else
-            {
-                #define COVERAGE_IGNORE
-                colour = 2; //Fix for segmentation fault
-                #undef COVERAGE_IGNORE
-            }
-            
-        }
-        
-        if (!mrMesh.GetNode(index)->IsDeleted())
-        {
-            const c_vector<double,DIM>& r_node_loc = mrMesh.GetNode(index)->rGetLocation();
-            if (writeVisualizerResults)
-            {
-                for(unsigned i=0; i<DIM; i++)
-                {
-                    rNodeFile << r_node_loc[i] << " ";
-                }
-                rNodeFile << colour << " ";
-            }
-            if (writeTabulatedResults)
-            {
-                for(unsigned i=0; i<DIM; i++)
-                {
-                    rNodeWriter.PutVariable(rNodeVarIds.position_id[index](i), r_node_loc[i]);
-                }
-                rNodeWriter.PutVariable(rNodeVarIds.types[index], colour);
-            }
-        }
-    }
-    
-    /////////////////////////////////
-    // write element data files
-    /////////////////////////////////
-    for (unsigned elem_index = 0; elem_index<mrMesh.GetNumAllElements(); elem_index++)
-    {
-        if (elem_index>mMaxElements)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("Maximum number of elements (mMaxElements) exceeded.\nUse SetMaxElements(unsigned) to increase it.\n");
-            #undef COVERAGE_IGNORE
-        }
-        if (!mrMesh.GetElement(elem_index)->IsDeleted())
-        {
-            if (writeVisualizerResults)
-            {
-                for(unsigned i=0; i<DIM+1; i++)
-                {
-                    rElementFile << mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i)<< " ";
-                }
-            }
-            if (writeTabulatedResults)
-            {
-                for(unsigned i=0; i<DIM+1; i++)
-                {
-                    rElementWriter.PutVariable(rElementVarIds.node_id[elem_index](i), mrMesh.GetElement(elem_index)->GetNodeGlobalIndex(i));
-                }
-            }
-        }
-    }
-    
-    if (writeVisualizerResults)
-    {
-        rNodeFile << "\n";
-        rElementFile << "\n";
-    }
-    if (writeTabulatedResults)
-    {
-        rNodeWriter.AdvanceAlongUnlimitedDimension();
-        rElementWriter.AdvanceAlongUnlimitedDimension();
-    }
 }
 
 
@@ -394,7 +178,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateDividingCellCentreLocation
     
     if(DIM==1)
     {
-        random_vector(0)=0.5*separation;
+        random_vector(0) = 0.5*separation;
     }   
     else if(DIM==2)
     {
@@ -887,6 +671,7 @@ void TissueSimulation<DIM>::SetMaxCells(unsigned maxCells)
         EXCEPTION("mMaxCells is less than the number of cells in the mesh.");
         #undef COVERAGE_IGNORE
     }
+    mCrypt.SetMaxCells(maxCells);
 }
 
 /**
@@ -903,6 +688,7 @@ void TissueSimulation<DIM>::SetMaxElements(unsigned maxElements)
         EXCEPTION("mMaxElements is less than the number of elements in the mesh.");
         #undef COVERAGE_IGNORE
     }
+    mCrypt.SetMaxElements(maxElements);
 }
 
 /**
@@ -974,7 +760,7 @@ void TissueSimulation<DIM>::SetWntGradient(WntGradientType wntGradientType)
 template<unsigned DIM> 
 void TissueSimulation<DIM>::SetCellKiller(RandomCellKiller<DIM>* pCellKiller)
 {
-    mpCellKiller=pCellKiller;
+    mpCellKiller = pCellKiller;
 }
 
 /**
@@ -1071,11 +857,7 @@ void TissueSimulation<DIM>::Solve()
     ColumnDataWriter tabulated_node_writer(results_directory+"/tab_results", "tabulated_node_results",true);
     ColumnDataWriter tabulated_element_writer(results_directory+"/tab_results", "tabulated_element_results",false);
     
-    node_writer_ids_t node_writer_ids;
-    SetupNodeWriter(tabulated_node_writer, node_writer_ids);
-    
-    element_writer_ids_t element_writer_ids;
-    SetupElementWriter(tabulated_element_writer, element_writer_ids);
+    mCrypt.SetupTabulatedWriters(tabulated_node_writer, tabulated_element_writer);//, element_writer_ids);
     
     // This keeps track of when tabulated results were last output
     unsigned tabulated_output_counter = 0;
@@ -1120,11 +902,12 @@ void TissueSimulation<DIM>::Solve()
     {
         WriteVisualizerSetupFile(*p_setup_file);
     }
-    WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
-                            tabulated_element_writer, element_writer_ids,
-                            *p_node_file, *p_element_file,
-                            false,
-                            true);
+    
+    mCrypt.WriteResultsToFiles(tabulated_node_writer, 
+                               tabulated_element_writer,
+                               *p_node_file, *p_element_file,
+                               false,
+                               true);
     /////////////////////////////////////////////////////////////////////
     // Main time loop
     /////////////////////////////////////////////////////////////////////
@@ -1159,22 +942,22 @@ void TissueSimulation<DIM>::Solve()
         p_simulation_time->IncrementTimeOneStep();
         
         // Write results to file
-        WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
-                            tabulated_element_writer, element_writer_ids,
-                            *p_node_file, *p_element_file,
-                            tabulated_output_counter%80==0,
-                            true);
+        mCrypt.WriteResultsToFiles(tabulated_node_writer, 
+                                   tabulated_element_writer, 
+                                   *p_node_file, *p_element_file,
+                                   tabulated_output_counter%80==0,
+                                   true);
                             
         tabulated_output_counter++;
     } // End main time loop
     
     // Write end state to tabulated files (not visualizer - this
     // is taken care of in the main loop).
-    WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
-                        tabulated_element_writer, element_writer_ids,
-                        *p_node_file, *p_element_file,
-                        true,
-                        false);
+    mCrypt.WriteResultsToFiles(tabulated_node_writer, 
+                               tabulated_element_writer, 
+                               *p_node_file, *p_element_file,
+                               true,
+                               false);
                         
     tabulated_node_writer.Close();
     tabulated_element_writer.Close();

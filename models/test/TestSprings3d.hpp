@@ -23,7 +23,6 @@
 
 class TestSprings3d : public CxxTest::TestSuite
 {
-    
    ConformingTetrahedralMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
    {
        ConformingTetrahedralMesh<3,3> mesh;
@@ -406,34 +405,6 @@ public:
         TissueSimulation<3> simulator(mesh,cells);
         simulator.SetMaxCells(400);
         simulator.SetMaxElements(2400);
-        simulator.SetOutputDirectory("Test3DPrivateMemberDirectory");
-        std::string output_directory = "Test3DPrivateMemberDirectory";
-        ColumnDataWriter tabulated_node_writer(output_directory+"/tab_results", "tabulated_node_results");
-        ColumnDataWriter tabulated_element_writer(output_directory+"/tab_results", "tabulated_element_results");
-        
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *  Test results file writers
-         ************************************************************************
-         ************************************************************************ 
-         */
-        node_writer_ids_t node_writer_ids;
-        TS_ASSERT_THROWS_NOTHING(simulator.SetupNodeWriter(tabulated_node_writer, node_writer_ids));
-        
-        element_writer_ids_t element_writer_ids;
-        TS_ASSERT_THROWS_NOTHING(simulator.SetupElementWriter(tabulated_element_writer, element_writer_ids));
-        
-        OutputFileHandler output_file_handler(output_directory);
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-        unsigned tabulated_output_counter = 0;
-        
-        simulator.WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
-                                       tabulated_element_writer, element_writer_ids,
-                                       *p_node_file, *p_element_file,
-                                       tabulated_output_counter==0,
-                                       true);
         
         unsigned num_births = simulator.DoCellBirth();
                                                                 

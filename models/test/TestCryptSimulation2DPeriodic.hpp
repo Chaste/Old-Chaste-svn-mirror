@@ -746,34 +746,7 @@ public:
         
         simulator3.SetMaxCells(400);
         simulator3.SetMaxElements(400);
-        simulator3.SetOutputDirectory("TestPrivateMemberDirectory");
-        std::string output_directory = "TestPrivateMemberDirectory";
-        ColumnDataWriter tabulated_node_writer(output_directory+"/tab_results", "tabulated_node_results");
-        ColumnDataWriter tabulated_element_writer(output_directory+"/tab_results", "tabulated_element_results");
-        
-        /*
-         ************************************************************************
-         ************************************************************************ 
-         *  Test results file writers
-         ************************************************************************
-         ************************************************************************ 
-         */
-        node_writer_ids_t node_writer_ids;
-        TS_ASSERT_THROWS_NOTHING(simulator3.SetupNodeWriter(tabulated_node_writer, node_writer_ids));
-        
-        element_writer_ids_t element_writer_ids;
-        TS_ASSERT_THROWS_NOTHING(simulator3.SetupElementWriter(tabulated_element_writer, element_writer_ids));
-        
-        OutputFileHandler output_file_handler(output_directory);
-        out_stream p_node_file = output_file_handler.OpenOutputFile("results.viznodes");
-        out_stream p_element_file = output_file_handler.OpenOutputFile("results.vizelements");
-        unsigned tabulated_output_counter = 0;
-        
-        simulator3.WriteResultsToFiles(tabulated_node_writer, node_writer_ids,
-                                       tabulated_element_writer, element_writer_ids,
-                                       *p_node_file, *p_element_file,
-                                       tabulated_output_counter==0,
-                                       true);
+
         /*
          ************************************************************************
          ************************************************************************ 

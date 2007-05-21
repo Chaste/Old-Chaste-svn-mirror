@@ -16,28 +16,7 @@
 #include "Crypt.cpp"
 #include <vector>
 
-/**
- * Structure encapsulating variable identifiers for the node datawriter
- */
-typedef struct node_writer_ids_t
-{
-    unsigned time;               /**< The simulation time */
-    std::vector<unsigned> types; /**< Cell types */
-    /** Cell positions */
-    std::vector<c_vector<unsigned, 3> > position_id;
-}
-node_writer_ids_t;
 
-/**
- * Structure encapsulating variable identifiers for the element datawriter
- */
-typedef struct element_writer_ids_t
-{
-    unsigned time;/**< The simulation time */
-    /** Node indices */
-    std::vector<c_vector<unsigned, 4> > node_id;
-}
-element_writer_ids_t;
 
 
 /**
@@ -149,15 +128,8 @@ private:
     //TODO: Should become an abstract cell killer
     RandomCellKiller<DIM> *mpCellKiller;
     
-    void SetupNodeWriter(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rVarIds);
-    void SetupElementWriter(ColumnDataWriter& rElementWriter, element_writer_ids_t& rVarIds);
     void WriteVisualizerSetupFile(std::ofstream& rSetupFile);
-    void WriteResultsToFiles(ColumnDataWriter& rNodeWriter, node_writer_ids_t& rNodeVarIds,
-                             ColumnDataWriter& rElementWriter, element_writer_ids_t& rElementVarIds,
-                             std::ofstream& rNodeFile, std::ofstream& rElementFile,
-                             bool writeTabulatedResults,
-                             bool writeVisualizerResults);
-    
+
     unsigned DoCellBirth();
     c_vector<double, DIM> CalculateDividingCellCentreLocations(typename Crypt<DIM>::Iterator parentCell);
     

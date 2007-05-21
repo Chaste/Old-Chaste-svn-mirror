@@ -3,6 +3,33 @@
 
 #include "ConformingTetrahedralMesh.cpp"
 #include "MeinekeCryptCell.hpp"
+#include "ColumnDataWriter.hpp"
+
+/**
+ * Structure encapsulating variable identifiers for the node datawriter
+ */
+typedef struct NodeWriterIdsT
+{
+    unsigned time;                
+    std::vector<unsigned> types; 
+    std::vector<c_vector<unsigned, 3> > position_id; 
+    
+}
+NodeWriterIdsT;
+
+/**
+ * Structure encapsulating variable identifiers for the element datawriter
+ */
+typedef struct ElementWriterIdsT
+{
+    unsigned time;
+    std::vector<c_vector<unsigned, 4> > node_id;
+}
+ElementWriterIdsT;
+
+
+
+
 
 /**
  * A facade class encapsulating a 'tissue'
@@ -22,6 +49,16 @@ private:
     /** Records which nodes are ghosts */
     std::vector<bool>* mpGhostNodes;
     bool mSelfSetGhostNodes;
+
+    /** used in seting up tabulated writers */
+    unsigned mMaxCells;
+    /** used in seting up tabulated writers */
+    unsigned mMaxElements;
+    
+    /** used by tabulated writers */
+    NodeWriterIdsT mNodeVarIds;
+    /** used by tabulated writers */
+    ElementWriterIdsT mElemVarIds;
     
 public:
     /**
@@ -37,7 +74,10 @@ public:
     std::vector<MeinekeCryptCell>& rGetCells();
     std::vector<bool>& rGetGhostNodes();
     void SetGhostNodes(std::vector<bool>&);
-    
+    void SetMaxCells(unsigned maxCells);
+    void SetMaxElements(unsigned maxElements);
+
+
     /**
      * Update the GhostNode positions using the rDrDt vector from the simulation.
      * Later on we will make this method private and rDrDt can be calculated within this class.
@@ -116,6 +156,23 @@ public:
      * @return iterator pointing to one past the last cell in the crypt
      */
     Iterator End();
+
+        
+    /**
+     * Define the variable identifiers in the data writer used to write node positions
+     * and element results.
+     *
+     * Uses mMaxCells and mMaxElements to decide how many variables to define.
+     */
+    void SetupTabulatedWriters(ColumnDataWriter& rNodeWriter, ColumnDataWriter& rElementWriter);
+    
+    void WriteResultsToFiles(ColumnDataWriter& rNodeWriter, 
+                             ColumnDataWriter& rElementWriter, 
+                             std::ofstream& rNodeFile, 
+                             std::ofstream& rElementFile,
+                             bool writeTabulatedResults,
+                             bool writeVisualizerResults);
+
 };
 
 
