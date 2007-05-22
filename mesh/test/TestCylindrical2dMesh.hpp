@@ -428,7 +428,7 @@ public:
         TS_ASSERT_DELTA(p_mesh->GetWidth(1u), sqrt(3), 1e-6);
     }    
 
-    void TestHaloNodeInsertion() throw (Exception)
+    void TestHaloNodeInsertionAndRemoval() throw (Exception)
     {
         unsigned cells_across = 5;
         unsigned cells_up = 3;
@@ -447,16 +447,83 @@ public:
         c_vector<double, 2>& rLocation3 = p_mesh->GetNode(12)->rGetModifiableLocation();
         rLocation3[1] += 0.8;
         
-        TrianglesMeshWriter<2,2> writer("","HaloNodesBefore");
-        writer.WriteFilesUsingMesh(*p_mesh);
+        double original_mesh_height = p_mesh->GetWidth(1);
+        unsigned original_num_nodes = p_mesh->GetNumNodes();
+        
+//        TrianglesMeshWriter<2,2> writer("","HaloNodesBefore");
+//        writer.WriteFilesUsingMesh(*p_mesh);
+        
+        p_mesh->CreateHaloNodes();
+        
+//        TrianglesMeshWriter<2,2> writer2("","HaloNodesAfter");
+//        writer2.WriteFilesUsingMesh(*p_mesh);
+        
+        double new_mesh_height = p_mesh->GetWidth(1);
+        unsigned new_num_nodes = p_mesh->GetNumNodes();
+        
+        // Halo of nodes is added 0.5 above and below the original mesh.
+        TS_ASSERT_DELTA(original_mesh_height, new_mesh_height, 1.0 + 1e-5);
+        TS_ASSERT_EQUALS(new_num_nodes, original_num_nodes+2*9u);
+        
+        NodeMap map(p_mesh->GetNumNodes());
+        p_mesh->ConformingTetrahedralMesh<2,2>::ReMesh(map);   // recreates the boundary elements
+        
+        /*
+         * TEST HALO NODE REMOVAL 
+         */
+        
+        p_mesh->DeleteHaloNodes();
+        
+        TS_ASSERT_DELTA(original_mesh_height, p_mesh->GetWidth(1), 1e-6);
+        TS_ASSERT_EQUALS(original_num_nodes, p_mesh->GetNumNodes());
+        
+        // Check that we still have a boundary element (for ReIndex)
+        TS_ASSERT(p_mesh->GetNumBoundaryElements() > 0u );
+        
+    }
+
+    void TestHaloNodeReMesh() throw (Exception)
+    {
+        // This test checks that a Halo node remesh can handle a mesh of uneven height.
+        
+        unsigned cells_across = 5;
+        unsigned cells_up = 3;
+        double crypt_width = 5.0;
+        unsigned thickness_of_ghost_layer = 0;
+        
+        CryptHoneycombMeshGenerator generator(cells_across, cells_up, crypt_width,thickness_of_ghost_layer);
+        Cylindrical2dMesh* p_mesh=generator.GetCylindricalMesh();
+        
+        c_vector<double, 2>& rLocation1 = p_mesh->GetNode(1)->rGetModifiableLocation();
+        rLocation1[1] -= 0.5;
+        
+        c_vector<double, 2>& rLocation2 = p_mesh->GetNode(3)->rGetModifiableLocation();
+        rLocation2[1] -= 0.4;
+        
+        c_vector<double, 2>& rLocation3 = p_mesh->GetNode(12)->rGetModifiableLocation();
+        rLocation3[1] += 0.8;
+        
+//        TrianglesMeshWriter<2,2> writer("","HaloNodesBefore");
+//        writer.WriteFilesUsingMesh(*p_mesh);
+        
+        unsigned total_elements = p_mesh->GetNumElements();
+        unsigned total_nodes = p_mesh->GetNumNodes();
+        // Check that the ReIndex is working still
+        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh->GetNumElements());
         
         NodeMap map(p_mesh->GetNumNodes());
         p_mesh->ReMesh(map);
         
-        TrianglesMeshWriter<2,2> writer2("","HaloNodesAfter");
-        writer2.WriteFilesUsingMesh(*p_mesh);
+//        TrianglesMeshWriter<2,2> writer2("","HaloNodesAfter");
+//        writer2.WriteFilesUsingMesh(*p_mesh);
         
-                
+        // Check that we haven't added any nodes or elements by doing this Halo Node ReMesh.
+        TS_ASSERT_EQUALS(total_elements, p_mesh->GetNumElements());
+        TS_ASSERT_EQUALS(total_nodes, p_mesh->GetNumNodes());
+        // Check the ReIndex is working
+        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), p_mesh->GetNumElements());
+        TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), p_mesh->GetNumNodes());
+        
     }
 };
 

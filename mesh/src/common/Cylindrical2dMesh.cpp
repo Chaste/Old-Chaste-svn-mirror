@@ -110,6 +110,8 @@ void Cylindrical2dMesh::CreateMirrorNodes()
 
 void Cylindrical2dMesh::CreateHaloNodes()
 {
+    UpdateTopAndBottom();
+        
     mTopHaloNodes.clear();
     mBottomHaloNodes.clear();
     
@@ -151,7 +153,6 @@ void Cylindrical2dMesh::CreateHaloNodes()
  */
 void Cylindrical2dMesh::ReMesh(NodeMap &map)
 {
-    UpdateTopAndBottom();
     // Create a mirrored load of nodes for the normal remesher to work with.
     CreateMirrorNodes();
     
@@ -178,14 +179,6 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
             mRightOriginals[i]=map.GetNewIndex(mRightOriginals[i]);
             mRightImages[i]=map.GetNewIndex(mRightImages[i]);
     }
-    //for (unsigned i = 0 ; i<mTopBoundary.size() ; i++)
-    //{
-    //        mTopBoundary[i]=map.GetNewIndex(mTopBoundary[i]);
-    //}
-    //for (unsigned i = 0 ; i<mBottomBoundary.size() ; i++)
-    //{
-    //        mBottomBoundary[i]=map.GetNewIndex(mBottomBoundary[i]);
-    //}
     for (unsigned i = 0 ; i<mTopHaloNodes.size() ; i++)
     {
         mTopHaloNodes[i]=map.GetNewIndex(mTopHaloNodes[i]);
@@ -222,16 +215,11 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
         {
-            //bool this_element_contains_halo_node = false;
             unsigned number_of_image_nodes = 0;
             for (unsigned i=0 ; i<3 ; i++)
             {
                 unsigned this_node_index = p_element->GetNodeGlobalIndex(i);
                 //std::cout << "Node " << this_node_index << "\t";
-//                if (IsThisIndexInList(this_node_index,mTopHaloNodes) || IsThisIndexInList(this_node_index,mBottomHaloNodes))
-//                {
-//                    this_element_contains_halo_node = true;
-//                }
                 bool this_node_an_image = false;
                 if(IsThisIndexInList(this_node_index,mLeftImages))
                 {
@@ -284,19 +272,12 @@ void Cylindrical2dMesh::ReconstructCylindricalMesh()
         BoundaryElement<1,2>* p_boundary_element = GetBoundaryElement(elem_index);
         if (!p_boundary_element->IsDeleted())
         {
-            //bool this_b_element_contains_halo_node = false;
-            //std::cout << "Boundary Element " << elem_index << " connects nodes : ";
             unsigned number_of_image_nodes = 0;
             for (unsigned i=0 ; i<2 ; i++)
             {
                 unsigned this_node_index = p_boundary_element->GetNodeGlobalIndex(i);
                 //std::cout << this_node_index << "\t";
                 bool this_node_an_image = false;
-                
-//                if (IsThisIndexInList(this_node_index,mTopHaloNodes) || IsThisIndexInList(this_node_index,mBottomHaloNodes))
-//                {
-//                    this_b_element_contains_halo_node = true;
-//                }
                 
                 if(IsThisIndexInList(this_node_index,mLeftImages))
                 {
@@ -382,8 +363,7 @@ void Cylindrical2dMesh::DeleteHaloNodes()
 //        
         DeleteBoundaryNodeAt(mTopHaloNodes[i]);
         DeleteBoundaryNodeAt(mBottomHaloNodes[i]);
-        
-        
+                
 //        std::stringstream namestream2;
 //        namestream2 << "ZHaloNodesAfter" << i;
 //        std::string name2 = namestream2.str();
@@ -467,38 +447,7 @@ c_vector<double, 2> Cylindrical2dMesh::GetVectorFromAtoB(const c_vector<double, 
  */
 void Cylindrical2dMesh::SetNode(unsigned index, Point<2> point, bool concreteMove)
 {
-    // We need to move all of the nodes in the top and bottom boundaries together.
-//    bool on_the_top_of_cylinder = IsThisIndexInList(index,mTopBoundary);
-//    bool on_the_bottom_of_cylinder = IsThisIndexInList(index,mBottomBoundary);
-//    
-//    if (on_the_top_of_cylinder || on_the_bottom_of_cylinder)
-//    {
-//        double y_co_ord = point.rGetLocation()[1];
-//        if(on_the_top_of_cylinder)
-//        {
-//            for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
-//            {
-//                // Get each node's x position and update so that y position matches on each
-//                Point<2> boundary_point = ConformingTetrahedralMesh<2,2>::mNodes[mTopBoundary[i]]->GetPoint();
-//                boundary_point.SetCoordinate(1u, y_co_ord);
-//                ConformingTetrahedralMesh<2,2>::SetNode(mTopBoundary[i], boundary_point, concreteMove); 
-//            }
-//            mTop = y_co_ord; // update the boundary definition.
-//        }
-//        if(on_the_bottom_of_cylinder)
-//        {
-//            for (unsigned i=0 ; i<mBottomBoundary.size() ; i++)
-//            {
-//                // Get each node's x position and update so that y position matches on each
-//                Point<2> boundary_point = ConformingTetrahedralMesh<2,2>::mNodes[mBottomBoundary[i]]->GetPoint();
-//                boundary_point.SetCoordinate(1u, y_co_ord);
-//                ConformingTetrahedralMesh<2,2>::SetNode(mBottomBoundary[i], boundary_point, concreteMove); 
-//            }
-//            mBottom = y_co_ord; // update the boundary definition.
-//        }
-//        
-//    }
-//    
+    
     // Perform a periodic movement if necessary
     if (point.rGetLocation()[0] >= mWidth)
     {   // move point to the left
@@ -536,30 +485,6 @@ bool Cylindrical2dMesh::IsThisIndexInList(const unsigned& rNodeIndex, const std:
     return is_in_vector;
 }
 
-//void Cylindrical2dMesh::TestTopAndBottomRowAlignment()
-//{
-//    // Check that the top and bottom rows have the same y-co-ordinate 
-//    // or things will start to go wrong with boundary elements.
-//    double y_location = 0.0;
-//    for (unsigned i=0 ; i<mTopBoundary.size() ; i++)
-//    {
-//        y_location = mNodes[mTopBoundary[i]]->rGetLocation()[1];
-//        if (fabs(y_location - mTop)>1e-3)
-//        {
-//            std::cout << "y = " << y_location << ", mTop = " << mTop << "\n" << std::flush;
-//            EXCEPTION("The top row of ghost nodes is not aligned.");   
-//        }
-//    }
-//    for (unsigned i=0 ; i<mBottomBoundary.size() ; i++)
-//    {
-//        y_location = mNodes[mBottomBoundary[i]]->rGetLocation()[1];
-//        if (fabs(y_location - mBottom)>1e-3)
-//        {
-//            EXCEPTION("The bottom row of ghost nodes is not aligned.");   
-//        }
-//    }
-//}
-
 /**
  * OVERRIDDEN FUNCTION
  * @param rDimension must be 0 (x) or 1 (y)
@@ -579,6 +504,7 @@ double Cylindrical2dMesh::GetWidth(const unsigned& rDimension)
     }
     return width;   
 }
+
 
 /** 
  * Add a node to the mesh.
