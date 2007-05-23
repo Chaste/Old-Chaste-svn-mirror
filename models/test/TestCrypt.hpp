@@ -152,7 +152,8 @@ public:
             TS_ASSERT_EQUALS(is_ghost_node[node_index], false);
             counter++;
         }
-        // check counter = num_nodes - num_ghost_nodes
+        std::cout << "counter = " << counter << "\n";
+                // check counter = num_nodes - num_ghost_nodes
         TS_ASSERT_EQUALS(counter + ghost_node_indices.size(), p_mesh->GetNumNodes());
         
         SimulationTime::Destroy();
@@ -229,7 +230,70 @@ public:
     }
     
     // test remove dead cells
-    
+    void TestRemoveDeadCells()
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);        
+        
+        // create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        ConformingTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        // Set up cells
+        std::vector<MeinekeCryptCell> cells;
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            MeinekeCryptCell cell(STEM, HEALTHY, 0, new FixedCellCycleModel());
+            cell.SetNodeIndex(i);
+            cell.SetBirthTime(0);
+            cells.push_back(cell);
+        }
+        
+        cells[27].StartApoptosis();
+        // create a crypt, with no ghost nodes at the moment
+        Crypt<2> crypt(mesh,cells);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 81u);
+
+        // check the iterator still works 
+        unsigned counter = 0;
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            counter++;
+        }
+        TS_ASSERT_EQUALS(counter, 81u);
+
+        
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
+        p_simulation_time->IncrementTimeOneStep();
+        crypt.RemoveDeadCells();
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 80u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), 80u);
+        TS_ASSERT_EQUALS(crypt.rGetCells().size(), cells.size());
+        
+     //   crypt.Remesh();
+        // check the iterator still works 
+        counter = 0;
+        for (Crypt<2>::Iterator cell_iter = crypt.Begin();
+             cell_iter != crypt.End();
+             ++cell_iter)
+        {
+            counter++;
+        }
+        TS_ASSERT_EQUALS(counter, 80u);
+        
+        // test size of ghost nodes vector is correct - mesh.GetNumAllNodes() ?
+        
+        // crypt.Remesh();
+        
+        // test size of ghost nodes vector is correct - mesh.GetNumNodes() ?
+        
+        SimulationTime::Destroy();       
+    }
     // test add and remove, remove and add
     
     
@@ -273,13 +337,14 @@ public:
                                   *p_element_file,
                                   true,
                                   true);
+        p_node_file->close();                          
+        p_element_file->close();                          
 
         // compare output with saved files of what they should look like                           
         std::string results_dir = output_file_handler.GetTestOutputDirectory();
 
-/// TODO: the files have been copied from one location to the other, but this doesn't pass. dunno why...       
-//        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  models/test/data/TestCryptWriters/results.vizelements").c_str()), 0);
-//        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     models/test/data/TestCryptWriters/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.vizelements  models/test/data/TestCryptWriters/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "results.viznodes     models/test/data/TestCryptWriters/results.viznodes").c_str()), 0);
 
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_node_results.dat models/test/data/TestCryptWriters/tab_node_results.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "tab_elem_results.dat models/test/data/TestCryptWriters/tab_elem_results.dat").c_str()), 0);

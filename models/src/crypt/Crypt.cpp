@@ -121,25 +121,30 @@ typename Crypt<DIM>::Iterator& Crypt<DIM>::Iterator::operator++()
     do
     {
         mCellIndex++;
-        mNodeIndex++;
+        if((*this) != mrCrypt.End())
+        {
+            mNodeIndex = mrCrypt.rGetCells()[mCellIndex].GetNodeIndex();
+        }
     }
     while ((*this) != mrCrypt.End() && !IsRealCell());
+    
+      
     return (*this);
 }
 
 template<unsigned DIM>
 bool Crypt<DIM>::Iterator::IsRealCell()
 {
-    assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumNodes() );
+    assert(mrCrypt.rGetGhostNodes().size() == mrCrypt.rGetMesh().GetNumAllNodes() );
     return !(mrCrypt.rGetGhostNodes()[mNodeIndex] || GetNode()->IsDeleted());
 }
 
 template<unsigned DIM>
-Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex, unsigned nodeIndex)
+Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex)
     : mrCrypt(rCrypt),
-      mCellIndex(cellIndex),
-      mNodeIndex(nodeIndex)
+      mCellIndex(cellIndex)
 {
+    mNodeIndex=0;//\todo
     // Make sure the crypt isn't empty
     assert(mrCrypt.rGetCells().size() > 0);
     // Make sure we start at a real cell
@@ -147,18 +152,22 @@ Crypt<DIM>::Iterator::Iterator(Crypt& rCrypt, unsigned cellIndex, unsigned nodeI
     {
         ++(*this);
     }
+    if (mCellIndex != mrCrypt.rGetCells().size())
+    {
+        mNodeIndex = mrCrypt.rGetCells()[mCellIndex].GetNodeIndex();
+    }
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::Iterator Crypt<DIM>::Begin()
 {
-    return Iterator(*this, 0, 0);
+    return Iterator(*this, 0);
 }
 
 template<unsigned DIM>
 typename Crypt<DIM>::Iterator Crypt<DIM>::End()
 {
-    return Iterator(*this, mrCells.size(), mrMesh.GetNumNodes());
+    return Iterator(*this, mrCells.size());
 }
 
 template<unsigned DIM>

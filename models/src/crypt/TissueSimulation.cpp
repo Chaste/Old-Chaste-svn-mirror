@@ -20,7 +20,7 @@
 #include "MeinekeCryptCellTypes.hpp"
 #include "WntCellCycleModel.hpp"
 #include "WntGradient.hpp"
-//TODO: This should become abstract
+//\todo: This should become abstract
 #include "RandomCellKiller.hpp"
 #include "OutputFileHandler.hpp"
 #include "TissueSimulation.hpp"

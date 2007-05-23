@@ -126,7 +126,7 @@ public:
         /**
          * Constructor for a new iterator.
          */
-        Iterator(Crypt& rCrypt, unsigned cellIndex, unsigned nodeIndex);
+        Iterator(Crypt& rCrypt, unsigned cellIndex);
         
     private:
         /**

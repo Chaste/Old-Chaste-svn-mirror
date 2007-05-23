@@ -105,41 +105,8 @@ class TestStimulus : public CxxTest::TestSuite
   
     }
     
-    void TestBasicFmod()
-    {
-        //Extra test to highlight the problem with Intel's
-        //optimized version of fmod as seen in RegularStimulus::GetStimulus
-        
-        /*Regular stimulus from previous test 
-         * 
-         * double magnitude_of_stimulus = 1.0;
-         * double duration_of_stimulus  = 0.5 ;  // ms
-         * double frequency = 1.0/1000.0; // 1Hz
-         * double when = 100.0;
-         * RegularStimulus regular_stimulus(magnitude_of_stimulus,
-         *                          duration_of_stimulus,
-         *                          frequency,
-         *                          when);
-         * is also used in TestCellProperties.  The Intel Optimised (-O2) code
-         * produces the final stimulus at 100.5 but fails at 1100.5, 2100.5 and 3100.5
-         */
-        double when=100.0;
-        double frequency=1.0/1000.0;
-        double period = 1.0/frequency;
-        double duration=0.5;
-        
-        double end_time1 = 100.5;
-        double end_time2 = 1100.5;
-        double end_time3 = 2100.5;
-        double end_time4 = 3100.5;
-        
-        TS_ASSERT_LESS_THAN_EQUALS( fmod(end_time1-when, period), duration);
-        TS_ASSERT_LESS_THAN_EQUALS( fmod(end_time2-when, period), duration);
-        TS_ASSERT_LESS_THAN_EQUALS( fmod(end_time3-when, period), duration);
-        TS_ASSERT_LESS_THAN_EQUALS( fmod(end_time4-when, period), duration);
- 
-    
-    }
+    //void TestBasicFmod() removed since the exact floating point behaviour
+    //is too difficult to reproduce
     
     void TestSumStimulus()
     {
