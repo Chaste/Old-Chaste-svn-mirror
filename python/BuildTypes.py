@@ -506,7 +506,8 @@ class MemoryTesting(GccDebug):
         lineno += 1
         match = lost.match(outputLines[lineno])
         while match:
-          if int(match.group(3)) > 0:
+          blocks = match.group(3)
+          if int(blocks.replace(',', '')) > 0:
             status = 'Leaky'
             break
           lineno += 1
