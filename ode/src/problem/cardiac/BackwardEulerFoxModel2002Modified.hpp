@@ -1,5 +1,5 @@
-#ifndef _BackwardEulerFoxModifiedModel2002_
-#define _BackwardEulerFoxModifiedModel2002_
+#ifndef _BackwardEulerFoxModel2002Modified_
+#define _BackwardEulerFoxModel2002Modified_
 
 // Model: fox_model_2002
 // Processed by pycml - CellML Tools in Python
@@ -13,10 +13,13 @@
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
 
-class BackwardEulerFoxModifiedModel2002 : public AbstractBackwardEulerCardiacCell<3>
+/**
+ * Generated from CellML, and P_Ca parameter modified.
+ */
+class BackwardEulerFoxModel2002Modified : public AbstractBackwardEulerCardiacCell<3>
 {
 public:
-    BackwardEulerFoxModifiedModel2002(double dt,
+    BackwardEulerFoxModel2002Modified(double dt,
                        AbstractStimulusFunction *pIntracellularStimulus,
                        AbstractStimulusFunction *pExtracellularStimulus=NULL)
         : AbstractBackwardEulerCardiacCell<3>(13, 0, dt, pIntracellularStimulus, pExtracellularStimulus)
@@ -79,7 +82,7 @@ public:
 
     }
 
-    ~BackwardEulerFoxModifiedModel2002(void)
+    ~BackwardEulerFoxModel2002Modified(void)
     {
     }
 

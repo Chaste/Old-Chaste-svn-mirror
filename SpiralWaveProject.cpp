@@ -58,22 +58,22 @@ public:
         {
             if (x<=0 && z<=0)
             {
-                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpSumStimulus);
+                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpSumStimulus);
             }
             else
             {
-                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpStimulus);
+                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpStimulus);
             }
         }
         else
         {
             if (x<=0 && z<=0)
             {
-                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpStimulus2);
+                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpStimulus2);
             }
             else
             {
-                return new BackwardEulerFoxModifiedModel2002(mTimeStep, mpZeroStimulus);
+                return new BackwardEulerFoxModel2002Modified(mTimeStep, mpZeroStimulus);
             }
         }
     }

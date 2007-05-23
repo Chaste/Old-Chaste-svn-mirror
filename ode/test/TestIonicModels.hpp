@@ -8,177 +8,34 @@
 #include <string>
 #include <ctime>
 
-#include "AbstractStimulusFunction.hpp"
+#include "RunAndCheckIonicModels.hpp"
+
 #include "InitialStimulus.hpp"
 #include "RegularStimulus.hpp"
 
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
-#include "OdeSolution.hpp"
 
-#include "ColumnDataWriter.hpp"
-#include "ColumnDataReader.hpp"
-
-#include "AbstractOdeSystem.hpp"
-#include "AbstractCardiacCell.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "BackwardEulerLuoRudyIModel1991.hpp"
-#include "Noble98ForwardEulerFromCellml.hpp"
-#include "Noble98BackwardEulerFromCellml.hpp"
 
-#include "FoxModel2002.hpp"
-#include "BackwardEulerFoxModel2002.hpp"
+#include "FoxModel2002Modified.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
+
+// Note: RunOdeSolverWithIonicModel(), SaveSolution(), CheckCellModelResults(), CompareCellModelResults()
+// are defined in RunAndCheckIonicModels.hpp
 
 class TestIonicModels : public CxxTest::TestSuite
 {
 public:
-
-    void RunOdeSolverWithIonicModel(AbstractCardiacCell *pOdeSystem,
-                                    double endTime,
-                                    std::string filename,
-                                    int stepPerRow=100,
-                                    bool doComputeExceptVoltage=true)
-    {
-        double start_time = 0.0;
-        
-        if (doComputeExceptVoltage)
-        {
-            // Store the current system state
-            std::vector<double> state_variables_ref = pOdeSystem->rGetStateVariables();
-            std::vector<double> state_variables_copy = state_variables_ref;
-            
-            // Test ComputeExceptVoltage
-            double v_init = pOdeSystem->GetVoltage();
-            pOdeSystem->ComputeExceptVoltage(start_time, endTime);
-            double v_end = pOdeSystem->GetVoltage();
-            TS_ASSERT_DELTA(v_init, v_end, 1e-6);
-            
-            // Test SetVoltage
-            pOdeSystem->SetVoltage(1e6);
-            TS_ASSERT_DELTA(pOdeSystem->GetVoltage(), 1e6, 1e-6);
-            
-            // Reset the system
-            pOdeSystem->SetStateVariables(state_variables_copy);
-        }
-        
-        // Solve
-        OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
-        
-        // Write data to a file using ColumnDataWriter
-        SaveSolution(filename, pOdeSystem, solution, stepPerRow);
-    }
-    
-    void SaveSolution(std::string baseResultsFilename, AbstractCardiacCell *pOdeSystem,
-                      OdeSolution& solution, int stepPerRow)
-    {
-        // Write data to a file using ColumnDataWriter
-        
-        ColumnDataWriter writer("TestIonicModels",baseResultsFilename,false);
-        int time_var_id = writer.DefineUnlimitedDimension("Time","ms");
-        
-        std::vector<int> var_ids;
-        for (unsigned i=0; i<pOdeSystem->rGetVariableNames().size(); i++)
-        {
-            var_ids.push_back(writer.DefineVariable(pOdeSystem->rGetVariableNames()[i],
-                                                    pOdeSystem->rGetVariableUnits()[i]));
-        }
-        writer.EndDefineMode();
-        
-        for (unsigned i = 0; i < solution.rGetSolutions().size(); i+=stepPerRow)
-        {
-            writer.PutVariable(time_var_id, solution.rGetTimes()[i]);
-            for (unsigned j=0; j<var_ids.size(); j++)
-            {
-                writer.PutVariable(var_ids[j], solution.rGetSolutions()[i][j]);
-            }
-            writer.AdvanceAlongUnlimitedDimension();
-        }
-        writer.Close();
-    }
-    
-    void CheckCellModelResults(std::string baseResultsFilename)
-    {
-        /*
-         * Check the cell model against a previous version
-         * and another source e.g. Alan's COR
-         */
-        
-        // read data entries for the new file and compare to valid data from
-        // other source
-        ColumnDataReader data_reader("TestIonicModels", baseResultsFilename);
-        std::vector<double> times = data_reader.GetValues("Time");
-        std::vector<double> voltages = data_reader.GetValues("V");
-        ColumnDataReader valid_reader("ode/test/data", baseResultsFilename+"ValidData",
-                                      false);
-        std::vector<double> valid_times = valid_reader.GetValues("Time");
-        std::vector<double> valid_voltages = valid_reader.GetValues("V");
-        
-        TS_ASSERT_EQUALS(times.size(), valid_times.size());
-        for (unsigned i=0; i<valid_times.size(); i++)
-        {
-            TS_ASSERT_DELTA(times[i], valid_times[i], 1e-12);
-            // adjust tol to data
-            TS_ASSERT_DELTA(voltages[i], valid_voltages[i], 1e-6);
-        }
-    }
-    
-    void CompareCellModelResults(std::string baseResultsFilename1, std::string baseResultsFilename2, double tolerance)
-    {
-        // Compare 2 sets of results, e.g. from 2 different solvers for the same model.
-        // Initially we assume the time series are the same; this will change.
-        // If the time series differ, the finer resolution must be given first.
-        std::cout << "Comparing " << baseResultsFilename1 << " with "
-        << baseResultsFilename2 << std::endl;
-        
-        ColumnDataReader data_reader1("TestIonicModels", baseResultsFilename1);
-        std::vector<double> times1 = data_reader1.GetValues("Time");
-        std::vector<double> voltages1 = data_reader1.GetValues("V");
-        std::vector<double> calcium1 = data_reader1.GetValues("CaI");
-        std::vector<double> h1 = data_reader1.GetValues("h");
-        
-        ColumnDataReader data_reader2("TestIonicModels", baseResultsFilename2);
-        std::vector<double> times2 = data_reader2.GetValues("Time");
-        std::vector<double> voltages2 = data_reader2.GetValues("V");
-        std::vector<double> calcium2 = data_reader2.GetValues("CaI");
-        std::vector<double> h2 = data_reader2.GetValues("h");
-        
-        TS_ASSERT(times1.size() >= times2.size());
-        double last_v = voltages2[0];
-        double tol = tolerance;
-        for (unsigned i=0, j=0; i<times2.size(); i++)
-        {
-            // Find corresponding time index
-            while (j<times1.size() && times1[j] < times2[i] - 1e-12)
-            {
-                j++;
-            }
-            
-            // Set tolerance higher in upstroke
-            if (fabs(voltages2[i] - last_v) > 0.05)
-            {
-                tol = tolerance * 25;
-            }
-            else
-            {
-                tol = tolerance;
-            }
-            last_v = voltages2[i];
-            
-            TS_ASSERT_DELTA(times1[j], times2[i], 1e-12);
-            // adjust tol to data
-            TS_ASSERT_DELTA(voltages1[j], voltages2[i], tol);
-            TS_ASSERT_DELTA(calcium1[j],  calcium2[i],  tol/1000);
-            TS_ASSERT_DELTA(h1[j],        h2[i],        tol/10);
-        }
-    }
-    
     void TestOdeSolverForHH52WithInitialStimulus(void)
     {
+        clock_t ck_start, ck_end;
+
         // Set stimulus
         double magnitude_stimulus = 20.0;  // uA/cm2
         double duration_stimulus = 0.5;  // ms
@@ -191,9 +48,13 @@ public:
         HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(&solver, time_step, &stimulus);
         
         // Solve and write to file
+        ck_start = clock();
         RunOdeSolverWithIonicModel(&hh52_ode_system,
                                    150.0,
                                    "HH52RegResult");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tForward: " << forward << std::endl;
                                    
         CheckCellModelResults("HH52RegResult");
         
@@ -210,6 +71,8 @@ public:
     
     void TestOdeSolverForFHN61WithInitialStimulus(void)
     {
+        clock_t ck_start, ck_end;
+
         // Set stimulus
         double magnitude_stimulus = -80.0;   // dimensionless
         double duration_stimulus = 0.5 ;  // ms
@@ -223,9 +86,13 @@ public:
         FitzHughNagumo1961OdeSystem fhn61_ode_system(&solver, time_step, &stimulus);
         
         // Solve and write to file
+        ck_start = clock();
         RunOdeSolverWithIonicModel(&fhn61_ode_system,
                                    500.0,
                                    "FHN61RegResult");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tForward: " << forward << std::endl;
                                    
         CheckCellModelResults("FHN61RegResult");
         
@@ -256,6 +123,8 @@ public:
     
     void TestOdeSolverForLR91WithDelayedInitialStimulus(void)
     {
+        clock_t ck_start, ck_end;
+
         // Set stimulus
         double magnitude = -25.5;
         double duration  = 2.0  ;  // ms
@@ -269,9 +138,13 @@ public:
         LuoRudyIModel1991OdeSystem lr91_ode_system(&solver, time_step, &stimulus);
         
         // Solve and write to file
+        ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
                                    "Lr91DelayedStim");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tForward: " << forward << std::endl;
                                    
         CheckCellModelResults("Lr91DelayedStim");
         
@@ -356,7 +229,7 @@ public:
         CompareCellModelResults("Lr91DelayedStim", "Lr91BackwardEuler2", 0.25);
         
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
-        << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
+                  << backward1 << "\n\tBackward (long dt): " << backward2 << std::endl;
         
         
         // cover and check GetIIonic() match for normal and backward euler lr91
@@ -366,67 +239,10 @@ public:
         TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-12);
     }
     
-    void TestNoble98WithDelayedInitialStimulus(void) throw (Exception)
-    {
-        clock_t ck_start, ck_end;
-        // Set stimulus
-        double magnitude = -3;    // nA
-        double duration  = 2.0/1000;   // s
-        double when = 60.0/1000;       // s
-        InitialStimulus stimulus(magnitude, duration, when);
-        
-        double end_time = 0.2;   // seconds
-        double time_step = 2e-6; // seconds
-        
-        // Solve using forward euler.
-        EulerIvpOdeSolver solver;
-        CML_noble_model_1998 n98_forward_euler(&solver, time_step, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&n98_forward_euler,
-                                   end_time,
-                                   "N98ForwardEuler", 300, false);
-        ck_end = clock();
-        double forward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
-        // Solve using backward euler.
-        // I think a small timestep is needed because of the forward Euler step for V,
-        // which means the numerical method isn't stable for large dt.
-        // This is annoying.
-        CML_noble_model_1998_BE n98_backward_euler(time_step, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&n98_backward_euler,
-                                   end_time,
-                                   "N98BackwardEuler", 300, false);
-        ck_end = clock();
-        double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
-        CheckCellModelResults("N98BackwardEuler");
-        CompareCellModelResults("N98ForwardEuler", "N98BackwardEuler", 0.015);
-        
-        // Check GetIIonic
-        double i_ion = n98_backward_euler.GetIIonic();
-        TS_ASSERT_DELTA(i_ion, 0.0228, 0.0001);
-        TS_ASSERT_DELTA(i_ion, n98_forward_euler.GetIIonic(), 0.0001);
-        
-//        // Try with smaller timestep.
-//        CML_noble_model_1998_BE n98_backward_euler2(time_step/2, &stimulus);
-//        ck_start = clock();
-//        RunOdeSolverWithIonicModel(&n98_backward_euler2,
-//                                   end_time,
-//                                   "N98BackwardEuler2", 600, false);
-//        ck_end = clock();
-//        double backward2 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-//        CompareCellModelResults("N98BackwardEuler", "N98BackwardEuler2", 0.015);
-//
-        std::cout << "Run times:\n\tForward: " << forward1
-        << "\n\tBackward: " << backward1
-//            << "\n\tBackward (half dt): " << backward2
-        << std::endl;
-    }
-
     void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
+
         // Set stimulus
         double magnitude = -80.0;
         double duration  = 1.0  ;  // ms
@@ -434,13 +250,19 @@ public:
         double frequency = 1.0/500; // ms^-1
         RegularStimulus stimulus(magnitude, duration, frequency, start);
         
-        double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.002;  //2e-6 seconds in milliseconds
+        double end_time = 200.0;  // milliseconds
+        double time_step = 0.002; //2e-6 seconds in milliseconds
                             // 0.005 leads to NaNs.
         
         EulerIvpOdeSolver solver;
-        FoxModel2002 fox_ode_system(&solver, time_step, &stimulus);
+        FoxModel2002Modified fox_ode_system(&solver, time_step, &stimulus);
+        BackwardEulerFoxModel2002Modified backward_system(time_step*5, &stimulus);
         
+        // Mainly for coverage, and to test consistency of GetIIonic
+        TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
+                        backward_system.GetIIonic(),
+                        1e-6);
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&fox_ode_system,
@@ -453,7 +275,6 @@ public:
         CheckCellModelResults("FoxRegularStim");
         
         // Solve using Backward Euler
-        BackwardEulerFoxModel2002 backward_system(time_step*5, &stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&backward_system,
                                    end_time,
@@ -463,44 +284,12 @@ public:
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         
         CompareCellModelResults("FoxRegularStim", "BackwardFoxRegularStim", 0.15);
-        // Mainly for coverage
-        TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
-                        backward_system.GetIIonic(),
-                        1e-6);
         
         std::cout << "Run times:\n\tForward: " << forward
                   << "\n\tBackward: " << backward
                   << std::endl;
         
     }
-    
-    void TestOdeSolverForFox2002ModifiedWithRegularStimulus(void) throw (Exception)
-    {
-        clock_t ck_start, ck_end;
-        // Set stimulus
-        double magnitude = -80.0;
-        double duration  = 1.0  ;  // ms
-        double start = 50.0; // ms
-        double frequency = 1.0/500; // ms^-1
-        RegularStimulus stimulus(magnitude, duration, frequency, start);
-        
-        double end_time = 1000.0; //One second in milliseconds
-        double time_step = 0.002;  //2e-6 seconds in milliseconds
-                            // 0.005 leads to NaNs.
-        
-        // Solve using Backward Euler
-        BackwardEulerFoxModifiedModel2002 backward_system(time_step*5, &stimulus);
-        ck_start = clock();
-        RunOdeSolverWithIonicModel(&backward_system,
-                                   end_time,
-                                   "BackwardFoxModifiedRegularStim",
-                                   100);
-        ck_end = clock();
-        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
-        std::cout << "\n\tBackward: " << backward << std::endl;
-        
-    }    
     
     void TestLr91WithVoltageDropVariousTimeStepRatios()
     {
