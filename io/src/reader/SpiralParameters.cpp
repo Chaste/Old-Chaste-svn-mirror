@@ -34,6 +34,8 @@
 //
 //
 // End prologue.
+#define COVERAGE_IGNORE
+
 
 #include <xsd/cxx/pre.hxx>
 
@@ -2552,6 +2554,8 @@ MeshOutputDirectory (const ::xercesc::DOMDocument& d,
 }
 
 #include <xsd/cxx/post.hxx>
+
+#undef COVERAGE_IGNORE
 
 // Begin epilogue.
 //

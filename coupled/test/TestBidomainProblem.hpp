@@ -65,6 +65,11 @@ public:
         bidomain_problem.GetBidomainPde()->SetIntracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         bidomain_problem.GetBidomainPde()->SetExtracellularConductivityTensor(0.0005*identity_matrix<double>(1));
         
+        // Pin extracellular potential of node 100 to 0
+        std::vector<unsigned> pinned_nodes;
+        pinned_nodes.push_back(100);
+        bidomain_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);      
+        
         try
         {
             bidomain_problem.Solve();
@@ -118,6 +123,11 @@ public:
                     TS_ASSERT_DELTA(voltage[index], test_values[node], 1e-3);
                 }
             }
+        }
+        DistributedVector::Stripe extracellular_potential(striped_voltage,1);
+        if (DistributedVector::IsGlobalIndexLocal(100))
+        {
+            TS_ASSERT_DELTA(extracellular_potential[100], 0.0, 1e-6);
         }
     }
     
